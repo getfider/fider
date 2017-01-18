@@ -1,0 +1,12 @@
+version: '2'
+services:
+  postgres:
+    restart: always
+    image: postgres:9.6
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5555:5432"
+    environment:
+      POSTGRES_USER: wchy
+      POSTGRES_PASSWORD: wchy-pw

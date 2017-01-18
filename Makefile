@@ -11,6 +11,13 @@ setup:
 
 ci: lint test build
 
+migrate:
+ifeq ($(ENV), local)
+	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./db/migrations up
+else
+	migrate -url ${DATABASE_URL} -path ./db/migrations up
+endif
+
 build:
 	go build -o wchy-api main.go
 

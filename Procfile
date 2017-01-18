@@ -1,1 +1,2 @@
-web: wchy-api
+make: make migrate
+web: make run
