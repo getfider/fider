@@ -4,3 +4,7 @@ go:
   - 1.6
   - 1.7.x
   - master
+
+install: make setup
+
+script: make ci

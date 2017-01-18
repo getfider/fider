@@ -1,7 +1,24 @@
 package main
 
-import "fmt"
+import (
+	"os"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	fmt.Println("Hello World")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "3000"
+	}
+
+	router := gin.New()
+	router.Use(gin.Logger())
+
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{"Name": "Guilherme"})
+	})
+
+	router.Run(":" + port)
 }
