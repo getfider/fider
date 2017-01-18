@@ -1,11 +1,12 @@
 {
 	"comment": "",
-	"ignore": "test",
-	"rootPath": "github.com/WeCanHearYou/wchy-api",
 	"heroku": {
-		"install" : [ "." ],
-		"goVersion": "go1.7.4"
+		"goVersion": "go1.7.4",
+		"install": [
+			"."
+		]
 	},
+	"ignore": "test",
 	"package": [
 		{
 			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",
@@ -32,10 +33,28 @@
 			"revisionTime": "2016-11-17T03:31:26Z"
 		},
 		{
+			"checksumSHA1": "tvimR1R9mxvCDSUxlnKgIXjJBus=",
+			"path": "github.com/lib/pq",
+			"revision": "67c3f2a8884c9b1aac5503c8d42ae4f73a93511c",
+			"revisionTime": "2017-01-17T20:56:33Z"
+		},
+		{
+			"checksumSHA1": "xppHi82MLqVx1eyQmbhTesAEjx8=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "67c3f2a8884c9b1aac5503c8d42ae4f73a93511c",
+			"revisionTime": "2017-01-17T20:56:33Z"
+		},
+		{
 			"checksumSHA1": "b0T0Hzd+zYk+OCDTFMps+jwa/nY=",
 			"path": "github.com/manucorporat/sse",
 			"revision": "ee05b128a739a0fb76c7ebd3ae4810c1de808d6d",
 			"revisionTime": "2016-01-26T18:01:36Z"
+		},
+		{
+			"checksumSHA1": "5af4JtlyHQhN1X/sCOQDaIxo6XI=",
+			"path": "github.com/mattes/migrate",
+			"revision": "de494e4b98e924aff696990bc24629108bb8f76b",
+			"revisionTime": "2017-01-10T17:26:17Z"
 		},
 		{
 			"checksumSHA1": "xZuhljnmBysJPta/lMyYmJdujCg=",
