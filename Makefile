@@ -9,7 +9,7 @@ setup:
 	go get github.com/golang/lint/golint
 	govendor sync
 
-ci: lint test
+ci: lint test build
 
 build:
 	go build -o wchy-api main.go
