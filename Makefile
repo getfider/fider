@@ -5,9 +5,9 @@ lint:
 	golint -set_exit_status
 
 setup:
-  go get -u github.com/kardianos/govendor
-  go get github.com/golang/lint/golint
-  govendor sync
+	go get -u github.com/kardianos/govendor
+	go get github.com/golang/lint/golint
+	govendor sync
 
 ci: lint test
 
