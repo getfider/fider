@@ -1,6 +1,11 @@
 {
 	"comment": "",
 	"ignore": "test",
+	"rootPath": "github.com/WeCanHearYou/wchy-api",
+	"heroku": {
+		"install" : [ "." ],
+		"goVersion": "go1.7.4"
+	},
 	"package": [
 		{
 			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",
