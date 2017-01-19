@@ -1,3 +1,6 @@
-wchy-api
 vendor/*/
 data/
+tmp/
+
+wchy-api
+gin-bin/

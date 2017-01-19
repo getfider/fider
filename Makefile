@@ -1,3 +1,5 @@
+BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
+
 test:
 	go test
 
@@ -20,7 +22,10 @@ else
 endif
 
 build:
-	go build -o wchy-api main.go
+	go build -ldflags='-X main.buildtime=${BUILD_TIME}'
+
+watch:
+	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
 	./wchy-api

@@ -6,6 +6,8 @@
     "**/.hg": true,
     "**/.DS_Store": true,
     "data": true,
-    "vendor": true
+    "vendor": true,
+    "gin-bin": true,
+    "wchy-api": true
   }
 }
