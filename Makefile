@@ -28,6 +28,6 @@ watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	./wchy-api
+	wchy-api
 
 .DEFAULT_GOAL := build
