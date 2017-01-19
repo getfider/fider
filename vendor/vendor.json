@@ -51,6 +51,12 @@
 			"revisionTime": "2016-01-26T18:01:36Z"
 		},
 		{
+			"checksumSHA1": "9h+wxo/cX1Xt00rFBWdRGSI1RF8=",
+			"path": "github.com/mattes/migrate",
+			"revision": "3547fc54cb4b741c3a4621dec7639fa519903a8c",
+			"revisionTime": "2017-01-19T17:32:29Z"
+		},
+		{
 			"checksumSHA1": "xZuhljnmBysJPta/lMyYmJdujCg=",
 			"path": "github.com/mattn/go-isatty",
 			"revision": "30a891c33c7cde7b02a981314b4228ec99380cca",
