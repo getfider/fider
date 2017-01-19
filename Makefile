@@ -17,7 +17,6 @@ migrate:
 ifeq ($(ENV), local)
 	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./db/migrations up
 else
-	go get -u github.com/mattes/migrate
 	migrate -url ${DATABASE_URL} -path ./db/migrations up
 endif
 

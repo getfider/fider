@@ -14,7 +14,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var buildtime = ""
+var buildtime string
 
 func statusHandler(c *gin.Context) {
 	isHealthy := true
