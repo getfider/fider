@@ -3,7 +3,8 @@
 	"heroku": {
 		"goVersion": "go1.7.4",
 		"install": [
-			"."
+			".",
+      "github.com/mattes/migrate"
 		]
 	},
 	"ignore": "test",
