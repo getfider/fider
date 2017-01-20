@@ -3,4 +3,4 @@ data/
 tmp/
 
 wchy-api
-gin-bin/
+gin-bin

@@ -8,27 +8,22 @@ import (
 
 	"runtime"
 
-	"fmt"
-
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	logging "github.com/op/go-logging"
 )
 
 var buildtime string
+var db *sql.DB
+var log = logging.MustGetLogger("main")
 
 func statusHandler(c *gin.Context) {
 	isHealthy := true
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	_, err := db.Query("SELECT now2()")
 	if err != nil {
+		log.Error(err)
 		isHealthy = false
-	} else {
-		_, err := db.Query("SELECT now()")
-		if err != nil {
-			fmt.Println(err)
-			isHealthy = false
-		}
 	}
-	db.Close()
 
 	c.JSON(200, gin.H{
 		"healthy": gin.H{
@@ -41,6 +36,7 @@ func statusHandler(c *gin.Context) {
 }
 
 func main() {
+	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	port := os.Getenv("PORT")
 
 	if port == "" {
