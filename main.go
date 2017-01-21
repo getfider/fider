@@ -19,7 +19,7 @@ var log = logging.MustGetLogger("main")
 
 func statusHandler(c *gin.Context) {
 	isHealthy := true
-	_, err := db.Query("SELECT now2()")
+	_, err := db.Query("SELECT now()")
 	if err != nil {
 		log.Error(err)
 		isHealthy = false
