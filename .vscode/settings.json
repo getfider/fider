@@ -8,6 +8,7 @@
     "data": true,
     "vendor": true,
     "gin-bin": true,
-    "wchy-api": true
+    "wchy-api": true,
+    "tmp": true
   }
 }
