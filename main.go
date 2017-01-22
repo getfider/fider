@@ -13,14 +13,20 @@ import (
 
 var log = logging.MustGetLogger("main")
 var ctx context.WchyContext
+var settings context.WchySettings
 var db *sql.DB
+var buildtime string
 
 func init() {
+	log.Info("Application is starting...")
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
+
 	ctx = context.WchyContext{
 		Health: services.NewPostgresHealthCheckService(db),
+		Settings: context.WchySettings{
+			BuildTime: buildtime,
+		},
 	}
-	log.Info("Application is starting...")
 }
 
 func main() {

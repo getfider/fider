@@ -1,31 +1,30 @@
 package handlers
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/WeCanHearYou/wchy-api/context"
 	"github.com/WeCanHearYou/wchy-api/services"
+	"github.com/WeCanHearYou/wchy-api/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestStatusHandler(t *testing.T) {
-	db, _ := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	ctx := context.WchyContext{
-		Health: services.NewPostgresHealthCheckService(db),
+		Health: services.NewInMemoryHealthCheckService(false),
+		Settings: context.WchySettings{
+			BuildTime: "today",
+		},
 	}
 	router := GetMainEngine(ctx)
 
-	req, err := http.NewRequest("GET", "/status", nil)
-	if err != nil {
-		fmt.Println(err)
-	}
+	requeest, _ := http.NewRequest("GET", "/status", nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, requeest)
+	data := util.NewJSONObject(response.Body.Bytes())
 
-	resp := httptest.NewRecorder()
-	router.ServeHTTP(resp, req)
-	assert.Equal(t, resp.Code, 200)
+	assert.Equal(t, 200, response.Result().StatusCode)
+	assert.Equal(t, "today", data.GetString("build"))
 }

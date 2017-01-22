@@ -22,10 +22,10 @@ func Status(ctx context.WchyContext) gin.HandlerFunc {
 func (h statusHandler) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(200, gin.H{
+			"build": h.ctx.Settings.BuildTime,
 			"healthy": gin.H{
 				"database": h.ctx.Health.IsDatabaseOnline(),
 			},
-			"build":   buildtime,
 			"version": runtime.Version(),
 			"now":     time.Now().Format("2006.01.02.150405"),
 		})
