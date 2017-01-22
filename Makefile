@@ -1,7 +1,7 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 test:
-	go test
+	go test $$(go list ./... | grep -v /vendor/)
 
 lint:
 	golint -set_exit_status

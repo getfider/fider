@@ -92,6 +92,12 @@
 			"revisionTime": "2016-07-23T13:35:15Z"
 		},
 		{
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
+			"revisionTime": "2016-10-29T20:57:26Z"
+		},
+		{
 			"checksumSHA1": "zYnPsNAVm1/ViwCkN++dX2JQhBo=",
 			"path": "github.com/edsrzf/mmap-go",
 			"revision": "935e0e8a636ca4ba70b713f3e38a19e1b77739e8",
@@ -294,6 +300,18 @@
 			"path": "github.com/op/go-logging",
 			"revision": "970db520ece77730c7e4724c61121037378659d9",
 			"revisionTime": "2016-03-15T20:05:05Z"
+		},
+		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
+			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "2402e8e7a02fc811447d11f881aa9746cdc57983",
+			"revisionTime": "2016-12-17T20:04:45Z"
 		},
 		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",

@@ -24,10 +24,12 @@ func Status(db *sql.DB) gin.HandlerFunc {
 func (h statusHandler) get(db *sql.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		isHealthy := true
-		_, err := h.db.Query("SELECT now()")
-		if err != nil {
-			log.Error(err)
-			isHealthy = false
+		if h.db != nil {
+			_, err := h.db.Query("SELECT now()")
+			if err != nil {
+				log.Error(err)
+				isHealthy = false
+			}
 		}
 
 		c.JSON(200, gin.H{
