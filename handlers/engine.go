@@ -1,21 +1,16 @@
 package handlers
 
 import (
-	"database/sql"
-	"os"
-
+	"github.com/WeCanHearYou/wchy-api/context"
 	_ "github.com/lib/pq" //
 
 	"github.com/gin-gonic/gin"
 )
 
-var db *sql.DB
-
-//GetMainEngine returns main HTTP engine
-func GetMainEngine() *gin.Engine {
-	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
+// GetMainEngine returns main HTTP engine
+func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.GET("/status", Status(db))
+	router.GET("/status", Status(ctx))
 	return router
 }

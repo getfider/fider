@@ -1,40 +1,29 @@
 package handlers
 
 import (
-	"database/sql"
 	"runtime"
 	"time"
 
+	"github.com/WeCanHearYou/wchy-api/context"
 	"github.com/gin-gonic/gin"
-	logging "github.com/op/go-logging"
 )
 
 var buildtime string
-var log = logging.MustGetLogger("handlers/status")
 
 type statusHandler struct {
-	db *sql.DB
+	ctx context.WchyContext
 }
 
-//Status creates a new Status HTTP handler
-func Status(db *sql.DB) gin.HandlerFunc {
-	return statusHandler{db: db}.get(db)
+// Status creates a new Status HTTP handler
+func Status(ctx context.WchyContext) gin.HandlerFunc {
+	return statusHandler{ctx: ctx}.get()
 }
 
-func (h statusHandler) get(db *sql.DB) gin.HandlerFunc {
+func (h statusHandler) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		isHealthy := true
-		if h.db != nil {
-			_, err := h.db.Query("SELECT now()")
-			if err != nil {
-				log.Error(err)
-				isHealthy = false
-			}
-		}
-
 		c.JSON(200, gin.H{
 			"healthy": gin.H{
-				"database": isHealthy,
+				"database": h.ctx.Health.IsDatabaseOnline(),
 			},
 			"build":   buildtime,
 			"version": runtime.Version(),

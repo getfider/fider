@@ -1,7 +1,7 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 test:
-	go test $$(go list ./... | grep -v /vendor/)
+	go test $$(go list ./... | grep -v /vendor/) -cover
 
 lint:
 	golint -set_exit_status
@@ -15,9 +15,9 @@ ci: lint test build
 
 migrate:
 ifeq ($(ENV), local)
-	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./db/migrations up
+	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./migrations up
 else
-	migrate -url ${DATABASE_URL} -path ./db/migrations up
+	migrate -url ${DATABASE_URL} -path ./migrations up
 endif
 
 build:
