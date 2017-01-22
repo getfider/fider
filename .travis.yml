@@ -4,6 +4,11 @@ go:
   - 1.7.x
   - master
 
-install: make setup
+before_install:
+	- go get -u github.com/kardianos/govendor
+	- go get -u github.com/golang/lint/golint
+  - go get -u github.com/mattn/goveralls
 
-script: make ci
+install: make setup-ci
+
+script: make run-ci

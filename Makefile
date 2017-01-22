@@ -6,12 +6,11 @@ test:
 lint:
 	golint -set_exit_status
 
-setup:
-	go get -u github.com/kardianos/govendor
-	go get -u github.com/golang/lint/golint
+setup-ci:
 	govendor sync
 
-ci: lint test build
+run-ci: lint build
+	goveralls -service=travis-ci
 
 migrate:
 ifeq ($(ENV), local)
