@@ -5,8 +5,8 @@ go:
   - master
 
 before_install:
-	- go get -u github.com/kardianos/govendor
-	- go get -u github.com/golang/lint/golint
+  - go get -u github.com/kardianos/govendor
+  - go get -u github.com/golang/lint/golint
   - go get -u github.com/mattn/goveralls
 
 install: make setup-ci
