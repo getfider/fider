@@ -182,6 +182,12 @@
 			"revisionTime": "2016-07-19T15:24:21Z"
 		},
 		{
+			"checksumSHA1": "GnYsUxBxUHGDBIaCeQbMdYUCzkA=",
+			"path": "github.com/jmoiron/jsonq",
+			"revision": "e874b168d07ecc7808bc950a17998a8aa3141d82",
+			"revisionTime": "2015-05-11T02:39:44Z"
+		},
+		{
 			"checksumSHA1": "tvimR1R9mxvCDSUxlnKgIXjJBus=",
 			"path": "github.com/lib/pq",
 			"revision": "67c3f2a8884c9b1aac5503c8d42ae4f73a93511c",
