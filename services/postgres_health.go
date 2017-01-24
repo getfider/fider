@@ -20,10 +20,6 @@ func NewPostgresHealthCheckService(db *sql.DB) *PostgresHealthCheckService {
 
 // IsDatabaseOnline checks if database is online
 func (svc PostgresHealthCheckService) IsDatabaseOnline() bool {
-	if svc.db == nil {
-		return false
-	}
-
 	_, err := svc.db.Query("SELECT now()")
 	if err != nil {
 		log.Error(err)

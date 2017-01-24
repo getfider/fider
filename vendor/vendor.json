@@ -332,6 +332,12 @@
 			"revisionTime": "2016-12-14T18:38:57Z"
 		},
 		{
+			"checksumSHA1": "MeXzn+OFdrU9/TGeMVz0GsRX+dM=",
+			"path": "gopkg.in/DATA-DOG/go-sqlmock.v1",
+			"revision": "d4cd2ca2ad1cc2130bba385aab072218f131f636",
+			"revisionTime": "2016-11-02T12:49:59Z"
+		},
+		{
 			"checksumSHA1": "39V1idWER42Lmcmg2Uy40wMzOlo=",
 			"path": "gopkg.in/go-playground/validator.v8",
 			"revision": "5f57d2222ad794d0dffb07e664ea05e2ee07d60c",
