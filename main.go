@@ -30,7 +30,5 @@ func init() {
 }
 
 func main() {
-	address := ":" + util.GetEnvOrDefault("PORT", "3000")
-	engine := handlers.GetMainEngine(ctx)
-	engine.Run(address)
+	handlers.GetMainEngine(ctx).Run(":" + util.GetEnvOrDefault("PORT", "3000"))
 }
