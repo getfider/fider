@@ -1,7 +1,7 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 test:
-	go test $$(go list ./... | grep -v /vendor/) -cover
+	go test $$(go list ./... | grep /wchy-api/ | grep -v /vendor) -cover
 
 lint:
 	golint -set_exit_status
