@@ -7,6 +7,9 @@ lint:
 	golint -set_exit_status
 
 setup-ci:
+	go get -u github.com/kardianos/govendor
+	go get -u github.com/golang/lint/golint
+	go get -u github.com/mattn/goveralls
 	govendor sync
 
 run-ci: lint build
