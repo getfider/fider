@@ -1,8 +1,27 @@
+sudo: required
+
+services:
+  - docker
+  
 language: go
 
 go:
   - 1.7.x
 
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+
 install: make setup-ci
 
 script: make run-ci
+
+after_success:
+  - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - export REPO=wecanhearyou/wchy-api
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker build -f Dockerfile -t $REPO:$COMMIT .
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - docker push $REPO
