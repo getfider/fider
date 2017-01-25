@@ -14,11 +14,10 @@ env:
 
 install: make setup-ci
 
-script: make run-ci
-
-after_success:
+script: 
+  - make run-ci
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
   - export REPO=wecanhearyou/wchy-api
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
   - docker build -f Dockerfile -t $REPO:$COMMIT .
