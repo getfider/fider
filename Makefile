@@ -1,7 +1,7 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 test:
-	go test $$(go list ./... | grep -v /vendor/) -coverprofile=coverage.out
+	go test $$(go list ./... | grep -v /vendor/) -cover
 
 lint:
 	golint -set_exit_status
