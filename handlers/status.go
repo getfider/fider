@@ -8,8 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var buildtime string
-
 type statusHandler struct {
 	ctx context.WchyContext
 }

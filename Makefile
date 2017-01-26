@@ -16,7 +16,7 @@ run-ci: lint build
 	goveralls -service=travis-ci
 
 migrate:
-ifeq ($(ENV), local)
+ifeq ($(ENV), development)
 	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./migrations up
 else
 	migrate -url ${DATABASE_URL} -path ./migrations up
