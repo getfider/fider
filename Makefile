@@ -14,6 +14,14 @@ setup-ci:
 
 run-ci: lint build
 	goveralls -service=travis-ci
+  if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+    docker login -u $DOCKER_USER -p $DOCKER_PASS
+    export REPO=wecanhearyou/wchy-api
+    export TAG=`if [ "$TRAVIS_BRANCH" == "dev" ]; then echo "staging"; else echo "latest" ; fi`
+    docker build -f Dockerfile -t $REPO:$TAG .
+    docker push $REPO
+  fi
 
 migrate:
 ifeq ($(ENV), development)
