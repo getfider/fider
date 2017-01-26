@@ -2,7 +2,7 @@ package models
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID     string
-	Name   string
-	Domain string
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Domain string `json:"domain"`
 }

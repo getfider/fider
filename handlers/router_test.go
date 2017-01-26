@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/WeCanHearYou/wchy-api/context"
+	"github.com/WeCanHearYou/wchy-api/models"
 	"github.com/WeCanHearYou/wchy-api/services"
 	"github.com/jmoiron/jsonq"
 )
@@ -13,6 +14,10 @@ import (
 func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
 	ctx := context.WchyContext{
 		Health: services.NewInMemoryHealthCheckService(false),
+		Tenant: services.NewInMemoryTenantService([]*models.Tenant{
+			&models.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
+			&models.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},
+		}),
 		Settings: context.WchySettings{
 			BuildTime: "today",
 		},
@@ -23,10 +28,13 @@ func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
-	var data interface{}
-	decoder := json.NewDecoder(response.Body)
-	decoder.Decode(&data)
-	query := jsonq.NewQuery(data)
+	var query *jsonq.JsonQuery
+	if response.Result().StatusCode == 200 {
+		var data interface{}
+		decoder := json.NewDecoder(response.Body)
+		decoder.Decode(&data)
+		query = jsonq.NewQuery(data)
+	}
 
 	return response.Result().StatusCode, query
 }

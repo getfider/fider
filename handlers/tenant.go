@@ -16,7 +16,11 @@ func TenantByDomain(ctx context.WchyContext) gin.HandlerFunc {
 
 func (h tenantHandlers) byDomain() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tenant := h.ctx.Tenant.GetByDomain("orange")
-		c.JSON(200, tenant)
+		tenant := h.ctx.Tenant.GetByDomain(c.Param("domain"))
+		if tenant == nil {
+			c.Status(404)
+		} else {
+			c.JSON(200, tenant)
+		}
 	}
 }

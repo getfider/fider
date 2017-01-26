@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"os"
 
+	_ "github.com/lib/pq"
+
 	"github.com/WeCanHearYou/wchy-api/context"
 	"github.com/WeCanHearYou/wchy-api/handlers"
 	"github.com/WeCanHearYou/wchy-api/services"

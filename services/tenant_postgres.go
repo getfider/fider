@@ -3,8 +3,6 @@ package services
 import (
 	"database/sql"
 
-	"fmt"
-
 	"github.com/WeCanHearYou/wchy-api/models"
 )
 
@@ -19,13 +17,15 @@ func NewPostgresTenantService(db *sql.DB) *PostgresTenantService {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc PostgresTenantService) GetByDomain(domain string) models.Tenant {
-	var tenant models.Tenant
-	fmt.Println(domain)
-	err := svc.db.QueryRow("SELECT id, name, domain FROM tenants WHERE domain = $1", domain).Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
+func (svc PostgresTenantService) GetByDomain(domain string) *models.Tenant {
+	tenant := &models.Tenant{}
+
+	row := svc.db.QueryRow("SELECT id, name, domain FROM tenants WHERE domain = $1", domain)
+	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
 	if err != nil {
-		//TODO: proper error handling
-		fmt.Println(err)
+		//TODO: return nil or error
+		return nil
 	}
+
 	return tenant
 }
