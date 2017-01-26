@@ -8,7 +8,7 @@ import (
 
 var log = logging.MustGetLogger("services/health")
 
-// PostgresHealthCheckService checks for database health status
+// PostgresHealthCheckService is a simple general purpose health check service
 type PostgresHealthCheckService struct {
 	db *sql.DB
 }

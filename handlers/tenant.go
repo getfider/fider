@@ -9,12 +9,14 @@ type tenantHandlers struct {
 	ctx context.WchyContext
 }
 
+// TenantByDomain creates a new TenantByDomain HTTP handler
 func TenantByDomain(ctx context.WchyContext) gin.HandlerFunc {
 	return tenantHandlers{ctx: ctx}.byDomain()
 }
 
 func (h tenantHandlers) byDomain() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(200, gin.H{})
+		tenant := h.ctx.Tenant.GetByDomain("orange")
+		c.JSON(200, tenant)
 	}
 }

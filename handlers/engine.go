@@ -12,5 +12,6 @@ func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.GET("/status", Status(ctx))
+	router.GET("/tenant", TenantByDomain(ctx))
 	return router
 }

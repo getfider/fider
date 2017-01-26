@@ -10,5 +10,6 @@ type WchySettings struct {
 // WchyContext is an application-wide context
 type WchyContext struct {
 	Health   services.HealthCheckService
+	Tenant   services.TenantService
 	Settings WchySettings
 }

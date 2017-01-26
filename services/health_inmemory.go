@@ -1,6 +1,6 @@
 package services
 
-// InMemoryHealthCheckService checks for database health status
+// InMemoryHealthCheckService is a simple general purpose health check service
 type InMemoryHealthCheckService struct {
 	status bool
 }
