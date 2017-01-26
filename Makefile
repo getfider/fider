@@ -1,5 +1,17 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
+define tag_docker
+	@if [ "$(TRAVIS_BRANCH)" = "master" -a "$(TRAVIS_PULL_REQUEST)" = "false" ]; then \
+		docker tag $(1) $(1):stable; \
+	fi
+	@if [ "$(TRAVIS_BRANCH)" = "dev" -a "$(TRAVIS_PULL_REQUEST)" = "false" ]; then \
+		docker tag $(1) $(1):staging; \
+	fi
+	@if [ "$(TRAVIS_PULL_REQUEST)" != "false" ]; then \
+		docker tag $(1) $(1):PR_$(TRAVIS_PULL_REQUEST); \
+	fi
+endef
+
 test:
 	go test $$(go list ./... | grep -v /vendor/) -cover
 
@@ -12,16 +24,13 @@ setup-ci:
 	go get -u github.com/mattn/goveralls
 	govendor sync
 
-run-ci: lint build
+run-ci: lint
 	goveralls -service=travis-ci
-ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-	docker login -u $DOCKER_USER -p $DOCKER_PASS
-	export REPO=wecanhearyou/wchy-api
-	export TAG=`if [ "$TRAVIS_BRANCH" == "dev" ]; then echo "staging"; else echo "latest" ; fi`
-	docker build -f Dockerfile -t $REPO:$TAG .
-	docker push $REPO
-endif
+	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
+	docker build -f Dockerfile -t wecanhearyou/wchy-api .
+	$(call tag_docker, wecanhearyou/wchy-api)
+	docker push wecanhearyou/wchy-api
 
 migrate:
 ifeq ($(ENV), development)
