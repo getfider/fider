@@ -13,11 +13,11 @@ func NewInMemoryTenantService(tenants []*models.Tenant) *InMemoryTenantService {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc InMemoryTenantService) GetByDomain(domain string) *models.Tenant {
+func (svc InMemoryTenantService) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, tenant := range svc.tenants {
 		if tenant.Domain == domain {
-			return tenant
+			return tenant, nil
 		}
 	}
-	return nil
+	return nil, ErrNotFound
 }

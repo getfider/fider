@@ -17,15 +17,14 @@ func NewPostgresTenantService(db *sql.DB) *PostgresTenantService {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc PostgresTenantService) GetByDomain(domain string) *models.Tenant {
+func (svc PostgresTenantService) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := &models.Tenant{}
 
 	row := svc.db.QueryRow("SELECT id, name, domain FROM tenants WHERE domain = $1", domain)
 	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
-	if err != nil {
-		//TODO: return nil or error
-		return nil
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
 	}
 
-	return tenant
+	return tenant, nil
 }
