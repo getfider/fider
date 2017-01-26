@@ -24,8 +24,8 @@ func init() {
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
 	ctx = context.WchyContext{
-		Health: services.NewPostgresHealthCheckService(db),
-		Tenant: services.NewPostgresTenantService(db),
+		Health: &services.PostgresHealthCheckService{DB: db},
+		Tenant: &services.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
 			BuildTime: buildtime,
 		},

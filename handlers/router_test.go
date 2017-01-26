@@ -13,11 +13,11 @@ import (
 
 func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
 	ctx := context.WchyContext{
-		Health: services.NewInMemoryHealthCheckService(false),
-		Tenant: services.NewInMemoryTenantService([]*models.Tenant{
+		Health: &services.InMemoryHealthCheckService{Status: false},
+		Tenant: &services.InMemoryTenantService{Tenants: []*models.Tenant{
 			&models.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
 			&models.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},
-		}),
+		}},
 		Settings: context.WchySettings{
 			BuildTime: "today",
 		},

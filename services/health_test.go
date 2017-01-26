@@ -13,7 +13,7 @@ func TestIsDatabaseOnline_ShouldReturnFalseIfQueryFails(t *testing.T) {
 	defer db.Close()
 	mock.ExpectQuery("SELECT now()").WillReturnError(fmt.Errorf("some error"))
 
-	svc := NewPostgresHealthCheckService(db)
+	svc := &PostgresHealthCheckService{DB: db}
 	isOnline := svc.IsDatabaseOnline()
 
 	assert.Equal(t, false, isOnline)
@@ -29,7 +29,7 @@ func TestIsDatabaseOnline_ShouldReturnTrueIfQuerySucceed(t *testing.T) {
 
 	mock.ExpectQuery("SELECT now()").WillReturnRows(sqlmock.NewRows([]string{}))
 
-	svc := NewPostgresHealthCheckService(db)
+	svc := &PostgresHealthCheckService{DB: db}
 	isOnline := svc.IsDatabaseOnline()
 
 	assert.Equal(t, true, isOnline)

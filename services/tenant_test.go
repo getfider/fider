@@ -15,7 +15,7 @@ func TestTenantByDomain_WhenDomainIsUnknown_ShouldReturnError(t *testing.T) {
 
 	mock.ExpectQuery("SELECT id, name, domain FROM tenants WHERE domain = \\$1").WithArgs("mydomain").WillReturnError(sql.ErrNoRows)
 
-	svc := NewPostgresTenantService(db)
+	svc := &PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
 
 	assert.Nil(t, tenant)
@@ -29,7 +29,7 @@ func TestTenantByDomain_WhenDomainIsKnown_ShouldReturnTenantInformation(t *testi
 	rows := sqlmock.NewRows([]string{"id", "name", "domain"}).AddRow(234, "My Domain Inc.", "mydomain")
 	mock.ExpectQuery("SELECT id, name, domain FROM tenants WHERE domain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
 
-	svc := NewPostgresTenantService(db)
+	svc := &PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
 
 	assert.Equal(t, tenant.ID, 234)
