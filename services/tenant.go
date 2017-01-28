@@ -2,8 +2,10 @@ package services
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/WeCanHearYou/wchy-api/models"
+	"github.com/WeCanHearYou/wchy-api/util"
 )
 
 // TenantService contains read and write operations for tenants
@@ -35,11 +37,19 @@ type PostgresTenantService struct {
 func (svc PostgresTenantService) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := &models.Tenant{}
 
-	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1", domain)
+	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1", extractSubdomain(domain))
 	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
 	if err == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
 
+	tenant.Domain = tenant.Domain + "." + util.GetCurrentDomain()
 	return tenant, nil
+}
+
+func extractSubdomain(domain string) string {
+	if idx := strings.Index(domain, "."); idx != -1 {
+		return domain[:idx]
+	}
+	return domain
 }

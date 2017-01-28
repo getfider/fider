@@ -13,7 +13,7 @@ define tag_docker
 endef
 
 test:
-	go test $$(go list ./... | grep -v /vendor/) -cover
+	GO_ENV=test go test $$(go list ./... | grep -v /vendor/) -cover
 
 lint:
 	golint -set_exit_status
@@ -33,7 +33,7 @@ run-ci: lint
 	docker push wecanhearyou/wchy-api
 
 migrate:
-ifeq ($(ENV), development)
+ifeq ($(GO_ENV), development)
 	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./migrations up
 else
 	migrate -url ${DATABASE_URL} -path ./migrations up
