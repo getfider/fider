@@ -1,14 +1,11 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 define tag_docker
-	@if [ "$(TRAVIS_BRANCH)" = "master" -a "$(TRAVIS_PULL_REQUEST)" = "false" ]; then \
+	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
 		docker tag $(1) $(1):stable; \
 	fi
-	@if [ "$(TRAVIS_BRANCH)" = "dev" -a "$(TRAVIS_PULL_REQUEST)" = "false" ]; then \
+	@if [ "$(TRAVIS_BRANCH)" = "dev" ]; then \
 		docker tag $(1) $(1):staging; \
-	fi
-	@if [ "$(TRAVIS_PULL_REQUEST)" != "false" ]; then \
-		docker tag $(1) $(1):PR_$(TRAVIS_PULL_REQUEST); \
 	fi
 endef
 
@@ -26,11 +23,13 @@ setup-ci:
 
 run-ci: lint
 	goveralls -service=travis-ci
+ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	docker build -f Dockerfile -t wecanhearyou/wchy-api .
 	$(call tag_docker, wecanhearyou/wchy-api)
 	docker push wecanhearyou/wchy-api
+endif
 
 migrate:
 ifeq ($(GO_ENV), development)
