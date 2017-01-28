@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
 	"github.com/WeCanHearYou/wchy-api/context"
@@ -23,8 +24,9 @@ func init() {
 	goEnv := os.Getenv("GO_ENV")
 	log.Info("Application is starting...")
 	log.Infof("GO_ENV: %s", goEnv)
+
 	if goEnv == "production" || goEnv == "staging" {
-		os.Setenv("GIN_MODE", "release")
+		gin.SetMode(gin.ReleaseMode)
 	}
 
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
