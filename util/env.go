@@ -11,3 +11,18 @@ func GetEnvOrDefault(name string, defaultValue string) string {
 	}
 	return value
 }
+
+// GetCurrentDomain returns WCHY domain based on current environment variables
+func GetCurrentDomain() string {
+	env := os.Getenv("GO_ENV")
+	switch env {
+	case "test":
+		return "test.canhearyou.com"
+	case "development":
+		return "dev.canhearyou.com"
+	case "staging":
+		return "staging.canhearyou.com"
+	}
+	return "canhearyou.com"
+
+}

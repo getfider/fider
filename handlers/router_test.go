@@ -1,4 +1,4 @@
-package handlers
+package handlers_test
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/WeCanHearYou/wchy-api/context"
+	"github.com/WeCanHearYou/wchy-api/handlers"
 	"github.com/WeCanHearYou/wchy-api/models"
 	"github.com/WeCanHearYou/wchy-api/services"
 	"github.com/jmoiron/jsonq"
@@ -13,28 +14,30 @@ import (
 
 func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
 	ctx := context.WchyContext{
-		Health: services.NewInMemoryHealthCheckService(false),
-		Tenant: services.NewInMemoryTenantService([]*models.Tenant{
+		Health: &services.InMemoryHealthCheckService{Status: false},
+		Tenant: &services.InMemoryTenantService{Tenants: []*models.Tenant{
 			&models.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
 			&models.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},
-		}),
+		}},
 		Settings: context.WchySettings{
 			BuildTime: "today",
 		},
 	}
-	router := GetMainEngine(ctx)
+	router := handlers.GetMainEngine(ctx)
 
 	request, _ := http.NewRequest(method, url, nil)
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, request)
 
-	var query *jsonq.JsonQuery
-	if response.Result().StatusCode == 200 {
+	status := response.Result().StatusCode
+
+	if status == 200 {
 		var data interface{}
 		decoder := json.NewDecoder(response.Body)
 		decoder.Decode(&data)
-		query = jsonq.NewQuery(data)
+		query := jsonq.NewQuery(data)
+		return status, query
 	}
 
-	return response.Result().StatusCode, query
+	return status, nil
 }

@@ -11,6 +11,7 @@ go:
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
+    - GO_ENV=test
 
 install: make setup-ci
 

@@ -20,12 +20,18 @@ var db *sql.DB
 var buildtime string
 
 func init() {
+	goEnv := os.Getenv("GO_ENV")
 	log.Info("Application is starting...")
+	log.Infof("GO_ENV: %s", goEnv)
+	if goEnv == "production" || goEnv == "staging" {
+		os.Setenv("GIN_MODE", "release")
+	}
+
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
 	ctx = context.WchyContext{
-		Health: services.NewPostgresHealthCheckService(db),
-		Tenant: services.NewPostgresTenantService(db),
+		Health: &services.PostgresHealthCheckService{DB: db},
+		Tenant: &services.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
 			BuildTime: buildtime,
 		},
