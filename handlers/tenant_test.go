@@ -1,24 +1,22 @@
 package handlers_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func Test_GivenUnknownDomain_TenantByDomain_ShouldReturn404(t *testing.T) {
-	status, _ := makeRequest("GET", "/api/tenants/unknown")
-	assert.Equal(t, 404, status)
-}
+var _ = Describe("TenantHandler", func() {
+	It("should return 404 when domain is unknown", func() {
+		status, _ := makeRequest("GET", "/api/tenants/unknown")
 
-func Test_GivenKnownDomain_TenantByDomain_ShouldReturnTenantData(t *testing.T) {
-	status, query := makeRequest("GET", "/api/tenants/trishop")
+		Expect(status).To(Equal(404))
+	})
+	It("should return tenant data when domain is known", func() {
+		status, query := makeRequest("GET", "/api/tenants/trishop")
 
-	id, _ := query.Int("id")
-	name, _ := query.String("name")
-	domain, _ := query.String("domain")
-	assert.Equal(t, 2, id)
-	assert.Equal(t, "The Triathlon Shop", name)
-	assert.Equal(t, "trishop", domain)
-	assert.Equal(t, 200, status)
-}
+		Expect(query.Int("id")).To(Equal(2))
+		Expect(query.String("name")).To(Equal("The Triathlon Shop"))
+		Expect(query.String("domain")).To(Equal("trishop"))
+		Expect(status).To(Equal(200))
+	})
+})

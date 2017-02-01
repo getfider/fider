@@ -2,40 +2,42 @@ package services_test
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/WeCanHearYou/wchy/services"
-	"github.com/stretchr/testify/assert"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-func TestIsDatabaseOnline_ShouldReturnFalseIfQueryFails(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
-	mock.ExpectQuery("SELECT now()").WillReturnError(fmt.Errorf("some error"))
+import (
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
 
-	svc := &services.PostgresHealthCheckService{DB: db}
-	isOnline := svc.IsDatabaseOnline()
+var _ = Describe("HealthCheckService.IsDatabaseOnline", func() {
+	It("should return false if query fails", func() {
+		db, mock, _ := sqlmock.New()
+		defer db.Close()
+		mock.ExpectQuery("SELECT now()").WillReturnError(fmt.Errorf("some error"))
 
-	assert.Equal(t, false, isOnline)
+		svc := &services.PostgresHealthCheckService{DB: db}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expections: %s", err)
-	}
-}
+		Expect(svc.IsDatabaseOnline()).To(BeFalse())
 
-func TestIsDatabaseOnline_ShouldReturnTrueIfQuerySucceed(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+		if err := mock.ExpectationsWereMet(); err != nil {
+			Fail(err.Error())
+		}
+	})
 
-	mock.ExpectQuery("SELECT now()").WillReturnRows(sqlmock.NewRows([]string{}))
+	It("should return true if query succeed", func() {
+		db, mock, _ := sqlmock.New()
+		defer db.Close()
+		mock.ExpectQuery("SELECT now()").WillReturnRows(sqlmock.NewRows([]string{}))
 
-	svc := &services.PostgresHealthCheckService{DB: db}
-	isOnline := svc.IsDatabaseOnline()
+		svc := &services.PostgresHealthCheckService{DB: db}
 
-	assert.Equal(t, true, isOnline)
+		Expect(svc.IsDatabaseOnline()).To(BeTrue())
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expections: %s", err)
-	}
-}
+		if err := mock.ExpectationsWereMet(); err != nil {
+			Fail(err.Error())
+		}
+	})
+})

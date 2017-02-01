@@ -40,7 +40,14 @@ func stripPort(hostport string) string {
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router := gin.New()
-	router.Use(gin.Logger())
+
+	if env.IsDevelopment() {
+		router.Use(gin.Logger())
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	router.Use(multiTenant(ctx))
 
 	if env.IsTest() {

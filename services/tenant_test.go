@@ -1,56 +1,59 @@
 package services_test
 
 import (
-	"testing"
-
 	"database/sql"
 
 	"github.com/WeCanHearYou/wchy/services"
-	"github.com/stretchr/testify/assert"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+
+	. "github.com/onsi/ginkgo"
+
+	. "github.com/onsi/gomega"
 )
 
-func TestTenantByDomain_WhenSubdomainIsUnknown_ShouldReturnError(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+var _ = Describe("TenantService.GetByDomain", func() {
+	It("TestTenantByDomain_WhenSubdomainIsUnknown_ShouldReturnError", func() {
+		db, mock, _ := sqlmock.New()
+		defer db.Close()
 
-	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnError(sql.ErrNoRows)
+		mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnError(sql.ErrNoRows)
 
-	svc := &services.PostgresTenantService{DB: db}
-	tenant, err := svc.GetByDomain("mydomain")
+		svc := &services.PostgresTenantService{DB: db}
+		tenant, err := svc.GetByDomain("mydomain")
 
-	assert.Nil(t, tenant)
-	assert.Error(t, err)
-}
+		Expect(tenant).To(BeNil())
+		Expect(err).NotTo(BeNil())
+	})
 
-func TestTenantByDomain_WhenSubdomainIsKnown_ShouldReturnTenantInformation(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+	It("TestTenantByDomain_WhenSubdomainIsKnown_ShouldReturnTenantInformation", func() {
+		db, mock, _ := sqlmock.New()
+		defer db.Close()
 
-	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
-	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
+		rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
+		mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
 
-	svc := &services.PostgresTenantService{DB: db}
-	tenant, err := svc.GetByDomain("mydomain")
+		svc := &services.PostgresTenantService{DB: db}
+		tenant, err := svc.GetByDomain("mydomain")
 
-	assert.Equal(t, 234, tenant.ID)
-	assert.Equal(t, "My Domain Inc.", tenant.Name)
-	assert.Equal(t, "mydomain.test.canhearyou.com", tenant.Domain)
-	assert.Nil(t, err)
-}
+		Expect(tenant.ID).To(Equal(234))
+		Expect(tenant.Name).To(Equal("My Domain Inc."))
+		Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
+		Expect(err).To(BeNil())
+	})
 
-func TestTenantByDomain_WhenCompleteDomainIsUsed_ShouldReturnTenantInformation(t *testing.T) {
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+	It("TestTenantByDomain_WhenCompleteDomainIsUsed_ShouldReturnTenantInformation", func() {
+		db, mock, _ := sqlmock.New()
+		defer db.Close()
 
-	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
-	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
+		rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
+		mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
 
-	svc := &services.PostgresTenantService{DB: db}
-	tenant, err := svc.GetByDomain("mydomain.anydomain.com")
+		svc := &services.PostgresTenantService{DB: db}
+		tenant, err := svc.GetByDomain("mydomain.anydomain.com")
 
-	assert.Equal(t, 234, tenant.ID)
-	assert.Equal(t, "My Domain Inc.", tenant.Name)
-	assert.Equal(t, "mydomain.test.canhearyou.com", tenant.Domain)
-	assert.Nil(t, err)
-}
+		Expect(tenant.ID).To(Equal(234))
+		Expect(tenant.Name).To(Equal("My Domain Inc."))
+		Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
+		Expect(err).To(BeNil())
+	})
+})

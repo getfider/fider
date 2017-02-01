@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
 	"github.com/WeCanHearYou/wchy/context"
@@ -23,10 +22,6 @@ var buildtime string
 func init() {
 	log.Info("Application is starting...")
 	log.Infof("GO_ENV: %s", env.Current())
-
-	if env.IsProduction() || env.IsStaging() {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 

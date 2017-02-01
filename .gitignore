@@ -1,6 +1,7 @@
 vendor/*/
 data/
 tmp/
+*.coverprofile
 
 wchy
 gin-bin

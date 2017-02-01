@@ -1,17 +1,16 @@
 package handlers_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
-func Test_StatusHandler_ShouldReturnStatusBasedOnContext(t *testing.T) {
-	status, query := makeRequest("GET", "/api/status")
+var _ = Describe("StatusHandler", func() {
+	It("should return status based on context", func() {
+		status, query := makeRequest("GET", "/api/status")
 
-	build, _ := query.String("build")
-	isHealthy, _ := query.Bool("healthy", "database")
-	assert.Equal(t, "today", build)
-	assert.Equal(t, false, isHealthy)
-	assert.Equal(t, 200, status)
-}
+		Expect(query.String("build")).To(Equal("today"))
+		Expect(query.Bool("healthy", "database")).To(Equal(false))
+		Expect(status).To(Equal(200))
+	})
+})

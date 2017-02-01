@@ -11,6 +11,7 @@
     "gin-bin": true,
     "gin-bin.exe": true,
     "wchy": true,
-    "tmp": true
+    "tmp": true,
+    "**/*.coverprofile": true
   }
 }
