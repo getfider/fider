@@ -17,12 +17,9 @@ lint:
 
 setup-ci:
 	go get github.com/onsi/ginkgo/ginkgo
-	go get github.com/onsi/gomega
 	go get github.com/kardianos/govendor
-	go get github.com/modocache/gover
-	go get github.com/golang/lint/golint
-	go get github.com/mattn/goveralls
 	govendor sync
+	govendor install +vendor
 
 run-ci: test
 	gover
