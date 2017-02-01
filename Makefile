@@ -23,7 +23,7 @@ setup-ci:
 	go get github.com/mattn/goveralls
 	govendor sync
 
-run-ci: 
+run-ci: test
 	gover
 	goveralls -coverprofile=gover.coverprofile -service=travis-ci
 ifeq ($(TRAVIS_PULL_REQUEST), false)
