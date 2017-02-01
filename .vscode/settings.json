@@ -6,7 +6,8 @@
     "**/.hg": true,
     "**/.DS_Store": true,
     "data": true,
-    "vendor": true,
+    "vendor/g*": true,
+    "vendor/vendor.json": false,
     "gin-bin": true,
     "wchy": true,
     "tmp": true

@@ -40,7 +40,13 @@ func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(multiTenant(ctx))
-	router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+
+	goEnv := os.Getenv("GO_ENV")
+	if goEnv == "test" {
+		router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+	} else {
+		router.LoadHTMLGlob("views/*")
+	}
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
