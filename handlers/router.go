@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/WeCanHearYou/wchy/context"
@@ -38,7 +40,7 @@ func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(multiTenant(ctx))
-	router.LoadHTMLGlob("views/*")
+	router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
