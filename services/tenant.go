@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
+	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/models"
-	"github.com/WeCanHearYou/wchy/util"
 )
 
 // TenantService contains read and write operations for tenants
@@ -43,7 +43,7 @@ func (svc PostgresTenantService) GetByDomain(domain string) (*models.Tenant, err
 		return nil, ErrNotFound
 	}
 
-	tenant.Domain = tenant.Domain + "." + util.GetCurrentDomain()
+	tenant.Domain = tenant.Domain + "." + env.GetCurrentDomain()
 	return tenant, nil
 }
 

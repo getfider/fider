@@ -8,9 +8,9 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/handlers"
+	"github.com/WeCanHearYou/wchy/env"
+	"github.com/WeCanHearYou/wchy/router"
 	"github.com/WeCanHearYou/wchy/services"
-	"github.com/WeCanHearYou/wchy/util"
 	logging "github.com/op/go-logging"
 )
 
@@ -21,11 +21,10 @@ var db *sql.DB
 var buildtime string
 
 func init() {
-	goEnv := os.Getenv("GO_ENV")
 	log.Info("Application is starting...")
-	log.Infof("GO_ENV: %s", goEnv)
+	log.Infof("GO_ENV: %s", env.Current())
 
-	if goEnv == "production" || goEnv == "staging" {
+	if env.IsProduction() || env.IsStaging() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -41,5 +40,5 @@ func init() {
 }
 
 func main() {
-	handlers.GetMainEngine(ctx).Run(":" + util.GetEnvOrDefault("PORT", "3000"))
+	router.GetMainEngine(ctx).Run(":" + env.GetEnvOrDefault("PORT", "3000"))
 }

@@ -1,4 +1,4 @@
-package handlers
+package router
 
 import (
 	"net/http"
@@ -7,7 +7,9 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/handlers"
 
+	"github.com/WeCanHearYou/wchy/env"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,8 +43,7 @@ func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(multiTenant(ctx))
 
-	goEnv := os.Getenv("GO_ENV")
-	if goEnv == "test" {
+	if env.IsTest() {
 		router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
 	} else {
 		router.LoadHTMLGlob("views/*")
@@ -56,8 +57,8 @@ func GetMainEngine(ctx context.WchyContext) *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		api.GET("/status", Status(ctx))
-		api.GET("/tenants/:domain", TenantByDomain(ctx))
+		api.GET("/status", handlers.Status(ctx))
+		api.GET("/tenants/:domain", handlers.TenantByDomain(ctx))
 	}
 	return router
 }

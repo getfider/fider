@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/handlers"
 	"github.com/WeCanHearYou/wchy/models"
+	"github.com/WeCanHearYou/wchy/router"
 	"github.com/WeCanHearYou/wchy/services"
 	"github.com/jmoiron/jsonq"
 )
@@ -23,7 +23,7 @@ func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
 			BuildTime: "today",
 		},
 	}
-	router := handlers.GetMainEngine(ctx)
+	router := router.GetMainEngine(ctx)
 
 	request, _ := http.NewRequest(method, url, nil)
 	response := httptest.NewRecorder()
