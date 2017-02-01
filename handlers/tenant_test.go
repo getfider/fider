@@ -7,12 +7,12 @@ import (
 )
 
 func Test_GivenUnknownDomain_TenantByDomain_ShouldReturn404(t *testing.T) {
-	status, _ := makeRequest("GET", "/tenants/unknown")
+	status, _ := makeRequest("GET", "/api/tenants/unknown")
 	assert.Equal(t, 404, status)
 }
 
 func Test_GivenKnownDomain_TenantByDomain_ShouldReturnTenantData(t *testing.T) {
-	status, query := makeRequest("GET", "/tenants/trishop")
+	status, query := makeRequest("GET", "/api/tenants/trishop")
 
 	id, _ := query.Int("id")
 	name, _ := query.String("name")

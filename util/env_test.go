@@ -5,7 +5,7 @@ import (
 
 	"os"
 
-	"github.com/WeCanHearYou/wchy-api/util"
+	"github.com/WeCanHearYou/wchy/util"
 	"github.com/stretchr/testify/assert"
 )
 

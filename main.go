@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 
-	"github.com/WeCanHearYou/wchy-api/context"
-	"github.com/WeCanHearYou/wchy-api/handlers"
-	"github.com/WeCanHearYou/wchy-api/services"
-	"github.com/WeCanHearYou/wchy-api/util"
+	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/handlers"
+	"github.com/WeCanHearYou/wchy/services"
+	"github.com/WeCanHearYou/wchy/util"
 	logging "github.com/op/go-logging"
 )
 

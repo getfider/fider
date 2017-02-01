@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/WeCanHearYou/wchy-api/context"
+	"github.com/WeCanHearYou/wchy/context"
 	"github.com/gin-gonic/gin"
 )
 

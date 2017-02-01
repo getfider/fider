@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/WeCanHearYou/wchy-api/context"
-	"github.com/WeCanHearYou/wchy-api/handlers"
-	"github.com/WeCanHearYou/wchy-api/models"
-	"github.com/WeCanHearYou/wchy-api/services"
+	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/handlers"
+	"github.com/WeCanHearYou/wchy/models"
+	"github.com/WeCanHearYou/wchy/services"
 	"github.com/jmoiron/jsonq"
 )
 

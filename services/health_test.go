@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/WeCanHearYou/wchy-api/services"
+	"github.com/WeCanHearYou/wchy/services"
 	"github.com/stretchr/testify/assert"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 )

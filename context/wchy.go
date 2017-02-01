@@ -1,6 +1,6 @@
 package context
 
-import "github.com/WeCanHearYou/wchy-api/services"
+import "github.com/WeCanHearYou/wchy/services"
 
 // WchySettings is an application-wide settings
 type WchySettings struct {

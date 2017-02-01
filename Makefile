@@ -26,9 +26,9 @@ run-ci: lint
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
-	docker build -f Dockerfile -t wecanhearyou/wchy-api .
-	$(call tag_docker, wecanhearyou/wchy-api)
-	docker push wecanhearyou/wchy-api
+	docker build -f Dockerfile -t wecanhearyou/wchy .
+	$(call tag_docker, wecanhearyou/wchy)
+	docker push wecanhearyou/wchy
 endif
 
 migrate:
@@ -45,6 +45,6 @@ watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	wchy-api
+	wchy
 
 .DEFAULT_GOAL := build

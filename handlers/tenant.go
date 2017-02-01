@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/WeCanHearYou/wchy-api/context"
-	"github.com/WeCanHearYou/wchy-api/services"
+	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/services"
 	"github.com/gin-gonic/gin"
 )
 

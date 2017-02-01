@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/WeCanHearYou/wchy-api/models"
-	"github.com/WeCanHearYou/wchy-api/util"
+	"github.com/WeCanHearYou/wchy/models"
+	"github.com/WeCanHearYou/wchy/util"
 )
 
 // TenantService contains read and write operations for tenants
