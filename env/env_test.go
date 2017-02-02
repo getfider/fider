@@ -33,21 +33,21 @@ var _ = Describe("GetEnvOrDefault", func() {
 })
 
 var _ = Describe("GetCurrentDomain", func() {
-	for _, testCase := range envs {
-		It("should return correct domain for "+testCase.go_env, func() {
+	It("should return correct domain based on env", func() {
+		for _, testCase := range envs {
 			os.Setenv("GO_ENV", testCase.go_env)
 			actual := env.GetCurrentDomain()
 			Expect(actual).To(Equal(testCase.domain))
-		})
-	}
+		}
+	})
 })
 
 var _ = Describe("Current", func() {
-	for _, testCase := range envs {
-		It("should return correct environment for "+testCase.go_env, func() {
+	It("should return correct environment", func() {
+		for _, testCase := range envs {
 			os.Setenv("GO_ENV", testCase.go_env)
 			actual := env.Current()
 			Expect(actual).To(Equal(testCase.env))
-		})
-	}
+		}
+	})
 })
