@@ -6,12 +6,10 @@
     "**/.hg": true,
     "**/.DS_Store": true,
     "data": true,
-    "vendor/g*": true,
-    "vendor/vendor.json": false,
     "gin-bin": true,
     "gin-bin.exe": true,
     "wchy": true,
-    "tmp": true,
-    "**/*.coverprofile": true
-  }
+    "tmp": true
+  },
+  "vsicons.presets.angular": false
 }

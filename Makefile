@@ -10,20 +10,15 @@ define tag_docker
 endef
 
 test:
-	GO_ENV=test ginkgo -r -cover
-
-lint:
-	golint -set_exit_status
+	GO_ENV=test go test $$(go list ./... | grep -v /vendor/) -cover
 
 setup-ci:
-	go get github.com/onsi/ginkgo/ginkgo
 	go get github.com/kardianos/govendor
 	govendor sync
 	govendor install +vendor
 
 run-ci: test
-	gover
-	goveralls -coverprofile=gover.coverprofile -service=travis-ci
+	goveralls -service=travis-ci
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)

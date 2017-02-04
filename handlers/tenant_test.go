@@ -1,22 +1,26 @@
 package handlers_test
 
 import (
-	. "github.com/onsi/ginkgo"
+	"testing"
+
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("TenantHandler", func() {
-	It("should return 404 when domain is unknown", func() {
-		status, _ := makeRequest("GET", "/api/tenants/unknown")
+func TestTenantHandler_404(t *testing.T) {
+	RegisterTestingT(t)
 
-		Expect(status).To(Equal(404))
-	})
-	It("should return tenant data when domain is known", func() {
-		status, query := makeRequest("GET", "/api/tenants/trishop")
+	status, _ := makeRequest("GET", "/api/tenants/unknown")
 
-		Expect(query.Int("id")).To(Equal(2))
-		Expect(query.String("name")).To(Equal("The Triathlon Shop"))
-		Expect(query.String("domain")).To(Equal("trishop"))
-		Expect(status).To(Equal(200))
-	})
-})
+	Expect(status).To(Equal(404))
+}
+
+func TestTenantHandler_200(t *testing.T) {
+	RegisterTestingT(t)
+
+	status, query := makeRequest("GET", "/api/tenants/trishop")
+
+	Expect(query.Int("id")).To(Equal(2))
+	Expect(query.String("name")).To(Equal("The Triathlon Shop"))
+	Expect(query.String("domain")).To(Equal("trishop"))
+	Expect(status).To(Equal(200))
+}

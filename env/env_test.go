@@ -2,9 +2,9 @@ package env_test
 
 import (
 	"os"
+	"testing"
 
 	"github.com/WeCanHearYou/wchy/env"
-	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
@@ -20,34 +20,32 @@ var envs = []struct {
 	{"anything", "canhearyou.com", "development"},
 }
 
-var _ = Describe("GetEnvOrDefault", func() {
-	It("should return null when key is unknown", func() {
-		value := env.GetEnvOrDefault("UNKNOWN_KEY", "some value")
-		Expect(value).To(Equal("some value"))
-	})
+func TestGetEnvOrDefault(t *testing.T) {
+	RegisterTestingT(t)
 
-	It("should return env variable when key is known", func() {
-		value := env.GetEnvOrDefault("PATH", "default path")
-		Expect(value).NotTo(Equal("default path"))
-	})
-})
+	key := env.GetEnvOrDefault("UNKNOWN_KEY", "some value")
+	Expect(key).To(Equal("some value"))
 
-var _ = Describe("GetCurrentDomain", func() {
-	It("should return correct domain based on env", func() {
-		for _, testCase := range envs {
-			os.Setenv("GO_ENV", testCase.go_env)
-			actual := env.GetCurrentDomain()
-			Expect(actual).To(Equal(testCase.domain))
-		}
-	})
-})
+	path := env.GetEnvOrDefault("PATH", "default path")
+	Expect(path).NotTo(Equal("default path"))
+}
 
-var _ = Describe("Current", func() {
-	It("should return correct environment", func() {
-		for _, testCase := range envs {
-			os.Setenv("GO_ENV", testCase.go_env)
-			actual := env.Current()
-			Expect(actual).To(Equal(testCase.env))
-		}
-	})
-})
+func TestGetCurrentDomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, testCase := range envs {
+		os.Setenv("GO_ENV", testCase.go_env)
+		actual := env.GetCurrentDomain()
+		Expect(actual).To(Equal(testCase.domain))
+	}
+}
+
+func TestCurrent(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, testCase := range envs {
+		os.Setenv("GO_ENV", testCase.go_env)
+		actual := env.Current()
+		Expect(actual).To(Equal(testCase.env))
+	}
+}
