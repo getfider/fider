@@ -361,6 +361,12 @@
 			"revisionTime": "2017-01-27T00:02:38Z"
 		},
 		{
+			"checksumSHA1": "ONHg+36MIdsQOl6NZeYa8ryl+OE=",
+			"path": "github.com/mattn/goveralls",
+			"revision": "8482d0ebd2a64f95ce02d2b9b7065b0d6fe9151b",
+			"revisionTime": "2016-12-09T06:16:23Z"
+		},
+		{
 			"checksumSHA1": "GLT5GJfAoRSaN+hSTpiL0Sx/N80=",
 			"path": "github.com/onsi/gomega",
 			"revision": "e85f63af4302dc0e4277c6008ecf803f1d80e4f0",
@@ -461,6 +467,12 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "7a6e5648d140666db5d920909e082ca00a87ba2c",
 			"revisionTime": "2017-02-01T04:15:14Z"
+		},
+		{
+			"checksumSHA1": "O5eYI3n1WdaC30AxQjETe3dAQHU=",
+			"path": "golang.org/x/tools/cover",
+			"revision": "1a60337c22bc70e65519850cdb17b96fde550e8d",
+			"revisionTime": "2017-02-04T03:16:49Z"
 		},
 		{
 			"checksumSHA1": "MeXzn+OFdrU9/TGeMVz0GsRX+dM=",
