@@ -1,6 +1,11 @@
 {
 	"comment": "",
 	"ignore": "test",
+	"rootPath": "github.com/WeCanHearYou/wchy",
+	"heroku": {
+		"install" : [ "./..." ],
+		"goVersion": "go1.7.5"
+	},
 	"package": [
 		{
 			"path": "appengine",
