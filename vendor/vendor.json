@@ -4,7 +4,7 @@
 	"rootPath": "github.com/WeCanHearYou/wchy",
 	"heroku": {
 		"install" : [ "./..." ],
-		"goVersion": "go1.7.5"
+		"goVersion": "go1.7"
 	},
 	"package": [
 		{
