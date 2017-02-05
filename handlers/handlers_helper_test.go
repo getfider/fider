@@ -5,29 +5,39 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/models"
-	"github.com/WeCanHearYou/wchy/router"
-	"github.com/WeCanHearYou/wchy/services"
+	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/jsonq"
 )
 
-func makeRequest(method, url string) (int, *jsonq.JsonQuery) {
-	ctx := context.WchyContext{
-		Health: &services.InMemoryHealthCheckService{Status: false},
-		Tenant: &services.InMemoryTenantService{Tenants: []*models.Tenant{
-			&models.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
-			&models.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},
-		}},
-		Settings: context.WchySettings{
-			BuildTime: "today",
-		},
-	}
-	router := router.GetMainEngine(ctx)
+type testServer struct {
+	engine *gin.Engine
+}
 
-	request, _ := http.NewRequest(method, url, nil)
+func NewTestServer() *testServer {
+	engine := gin.New()
+	return &testServer{
+		engine: engine,
+	}
+}
+
+func (s *testServer) do(f gin.HandlerFunc) {
+	s.engine.Use(f)
+}
+
+func (s *testServer) param(key, value string) {
+	s.do(func(c *gin.Context) {
+		c.Params = append(c.Params, gin.Param{Key: key, Value: value})
+	})
+}
+
+func (s *testServer) register(handler gin.HandlerFunc) {
+	s.engine.Handle("GET", "/", handler)
+}
+
+func (s *testServer) request() (int, *jsonq.JsonQuery) {
+	request, _ := http.NewRequest("GET", "/", nil)
 	response := httptest.NewRecorder()
-	router.ServeHTTP(response, request)
+	s.engine.ServeHTTP(response, request)
 
 	status := response.Result().StatusCode
 

@@ -13,21 +13,6 @@ type TenantService interface {
 	GetByDomain(domain string) (*models.Tenant, error)
 }
 
-// InMemoryTenantService contains read and write operations for tenants
-type InMemoryTenantService struct {
-	Tenants []*models.Tenant
-}
-
-// GetByDomain returns a tenant based on its domain
-func (svc InMemoryTenantService) GetByDomain(domain string) (*models.Tenant, error) {
-	for _, tenant := range svc.Tenants {
-		if tenant.Domain == domain {
-			return tenant, nil
-		}
-	}
-	return nil, ErrNotFound
-}
-
 // PostgresTenantService contains read and write operations for tenants
 type PostgresTenantService struct {
 	DB *sql.DB
