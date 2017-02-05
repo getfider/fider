@@ -23,7 +23,7 @@ func (svc inMemoryTenantService) GetByDomain(domain string) (*models.Tenant, err
 	return nil, services.ErrNotFound
 }
 
-var ctx context.WchyContext = context.WchyContext{
+var ctx *context.WchyContext = &context.WchyContext{
 	Tenant: &inMemoryTenantService{tenants: []*models.Tenant{
 		&models.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
 		&models.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},

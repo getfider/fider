@@ -14,8 +14,7 @@ import (
 )
 
 var log = logging.MustGetLogger("main")
-var ctx context.WchyContext
-var settings context.WchySettings
+var ctx *context.WchyContext
 var db *sql.DB
 var buildtime string
 
@@ -25,7 +24,7 @@ func init() {
 
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
-	ctx = context.WchyContext{
+	ctx = &context.WchyContext{
 		Health: &services.PostgresHealthCheckService{DB: db},
 		Tenant: &services.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{

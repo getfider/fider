@@ -7,11 +7,11 @@ import (
 )
 
 type tenantHandlers struct {
-	ctx context.WchyContext
+	ctx *context.WchyContext
 }
 
 // TenantByDomain creates a new TenantByDomain HTTP handler
-func TenantByDomain(ctx context.WchyContext) gin.HandlerFunc {
+func TenantByDomain(ctx *context.WchyContext) gin.HandlerFunc {
 	return tenantHandlers{ctx: ctx}.byDomain()
 }
 

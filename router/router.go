@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func multiTenant(ctx context.WchyContext) gin.HandlerFunc {
+func multiTenant(ctx *context.WchyContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		hostname := stripPort(c.Request.Host)
 		tenant, err := ctx.Tenant.GetByDomain(hostname)
@@ -38,7 +38,7 @@ func stripPort(hostport string) string {
 }
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx context.WchyContext) *gin.Engine {
+func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 	router := gin.New()
 
 	if env.IsDevelopment() {

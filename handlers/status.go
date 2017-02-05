@@ -9,11 +9,11 @@ import (
 )
 
 type statusHandler struct {
-	ctx context.WchyContext
+	ctx *context.WchyContext
 }
 
 // Status creates a new Status HTTP handler
-func Status(ctx context.WchyContext) gin.HandlerFunc {
+func Status(ctx *context.WchyContext) gin.HandlerFunc {
 	return statusHandler{ctx: ctx}.get()
 }
 

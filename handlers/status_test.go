@@ -18,7 +18,7 @@ func (svc inMemoryHealthCheckService) IsDatabaseOnline() bool {
 
 func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
-	ctx := context.WchyContext{
+	ctx := &context.WchyContext{
 		Health: &inMemoryHealthCheckService{status: false},
 		Settings: context.WchySettings{
 			BuildTime: "today",
