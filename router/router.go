@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/handler"
@@ -12,30 +11,6 @@ import (
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/gin-gonic/gin"
 )
-
-func multiTenant(ctx *context.WchyContext) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		hostname := stripPort(c.Request.Host)
-		tenant, err := ctx.Tenant.GetByDomain(hostname)
-		if err == nil {
-			c.Set("Tenant", tenant.Name)
-			c.Next()
-		} else {
-			c.Status(404)
-		}
-	}
-}
-
-func stripPort(hostport string) string {
-	colon := strings.IndexByte(hostport, ':')
-	if colon == -1 {
-		return hostport
-	}
-	if i := strings.IndexByte(hostport, ']'); i != -1 {
-		return strings.TrimPrefix(hostport[:i], "[")
-	}
-	return hostport[:colon]
-}
 
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
@@ -48,7 +23,7 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	router.Use(multiTenant(ctx))
+	router.Use(MultiTenant(ctx))
 
 	if env.IsTest() {
 		router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))

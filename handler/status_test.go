@@ -5,29 +5,29 @@ import (
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/handler"
+	"github.com/WeCanHearYou/wchy/mock"
 	. "github.com/onsi/gomega"
 )
 
-type inMemoryHealthCheckService struct {
-	status bool
-}
+type falsyHealthCheckService struct{}
 
-func (svc inMemoryHealthCheckService) IsDatabaseOnline() bool {
-	return svc.status
+func (svc falsyHealthCheckService) IsDatabaseOnline() bool {
+	return false
 }
 
 func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
+
 	ctx := &context.WchyContext{
-		Health: &inMemoryHealthCheckService{status: false},
+		Health: &falsyHealthCheckService{},
 		Settings: context.WchySettings{
 			BuildTime: "today",
 		},
 	}
 
-	server := NewTestServer()
-	server.register(handler.Status(ctx))
-	status, query := server.request()
+	server := mock.NewServer()
+	server.Register(handler.Status(ctx))
+	status, query := server.Request()
 
 	Expect(query.String("build")).To(Equal("today"))
 	Expect(query.Bool("healthy", "database")).To(Equal(false))

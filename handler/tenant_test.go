@@ -5,38 +5,32 @@ import (
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/handler"
+	"github.com/WeCanHearYou/wchy/mock"
 	"github.com/WeCanHearYou/wchy/model"
 	"github.com/WeCanHearYou/wchy/service"
 	. "github.com/onsi/gomega"
 )
 
-type inMemoryTenantService struct {
-	tenants []*model.Tenant
-}
+type mockTenantService struct{}
 
-func (svc inMemoryTenantService) GetByDomain(domain string) (*model.Tenant, error) {
-	for _, tenant := range svc.tenants {
-		if tenant.Domain == domain {
-			return tenant, nil
-		}
+func (svc mockTenantService) GetByDomain(domain string) (*model.Tenant, error) {
+	if domain == "trishop" {
+		return &model.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"}, nil
 	}
 	return nil, service.ErrNotFound
 }
 
 var ctx *context.WchyContext = &context.WchyContext{
-	Tenant: &inMemoryTenantService{tenants: []*model.Tenant{
-		&model.Tenant{ID: 1, Name: "Orange Inc.", Domain: "orange"},
-		&model.Tenant{ID: 2, Name: "The Triathlon Shop", Domain: "trishop"},
-	}},
+	Tenant: &mockTenantService{},
 }
 
 func TestTenantHandler_404(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := NewTestServer()
-	server.param("domain", "unknown")
-	server.register(handler.TenantByDomain(ctx))
-	status, _ := server.request()
+	server := mock.NewServer()
+	server.Param("domain", "unknown")
+	server.Register(handler.TenantByDomain(ctx))
+	status, _ := server.Request()
 
 	Expect(status).To(Equal(404))
 }
@@ -44,10 +38,10 @@ func TestTenantHandler_404(t *testing.T) {
 func TestTenantHandler_200(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := NewTestServer()
-	server.param("domain", "trishop")
-	server.register(handler.TenantByDomain(ctx))
-	status, query := server.request()
+	server := mock.NewServer()
+	server.Param("domain", "trishop")
+	server.Register(handler.TenantByDomain(ctx))
+	status, query := server.Request()
 
 	Expect(query.Int("id")).To(Equal(2))
 	Expect(query.String("name")).To(Equal("The Triathlon Shop"))
