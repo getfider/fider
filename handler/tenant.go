@@ -1,8 +1,8 @@
-package handlers
+package handler
 
 import (
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/services"
+	"github.com/WeCanHearYou/wchy/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ func TenantByDomain(ctx *context.WchyContext) gin.HandlerFunc {
 func (h tenantHandlers) byDomain() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenant, err := h.ctx.Tenant.GetByDomain(c.Param("domain"))
-		if err == services.ErrNotFound {
+		if err == service.ErrNotFound {
 			c.Status(404)
 		} else {
 			c.JSON(200, tenant)

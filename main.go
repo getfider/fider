@@ -9,7 +9,7 @@ import (
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/router"
-	"github.com/WeCanHearYou/wchy/services"
+	"github.com/WeCanHearYou/wchy/service"
 	logging "github.com/op/go-logging"
 )
 
@@ -25,8 +25,8 @@ func init() {
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
 	ctx = &context.WchyContext{
-		Health: &services.PostgresHealthCheckService{DB: db},
-		Tenant: &services.PostgresTenantService{DB: db},
+		Health: &service.PostgresHealthCheckService{DB: db},
+		Tenant: &service.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
 			BuildTime: buildtime,
 		},

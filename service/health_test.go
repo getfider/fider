@@ -1,12 +1,12 @@
-package services_test
+package service_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/WeCanHearYou/wchy/services"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/WeCanHearYou/wchy/service"
 	. "github.com/onsi/gomega"
 )
 
@@ -17,7 +17,7 @@ func TestHealthCheckService_IsDatabaseOnline_Error(t *testing.T) {
 	defer db.Close()
 	mock.ExpectQuery("SELECT now()").WillReturnError(fmt.Errorf("some error"))
 
-	svc := &services.PostgresHealthCheckService{DB: db}
+	svc := &service.PostgresHealthCheckService{DB: db}
 
 	Expect(svc.IsDatabaseOnline()).To(BeFalse())
 
@@ -31,7 +31,7 @@ func TestHealthCheckService_IsDatabaseOnline_Success(t *testing.T) {
 	defer db.Close()
 	mock.ExpectQuery("SELECT now()").WillReturnRows(sqlmock.NewRows([]string{}))
 
-	svc := &services.PostgresHealthCheckService{DB: db}
+	svc := &service.PostgresHealthCheckService{DB: db}
 
 	Expect(svc.IsDatabaseOnline()).To(BeTrue())
 	Expect(mock.ExpectationsWereMet()).ShouldNot(HaveOccurred())

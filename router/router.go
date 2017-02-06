@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/handlers"
+	"github.com/WeCanHearYou/wchy/handler"
 
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/gin-gonic/gin"
@@ -64,8 +64,8 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 
 	api := router.Group("/api")
 	{
-		api.GET("/status", handlers.Status(ctx))
-		api.GET("/tenants/:domain", handlers.TenantByDomain(ctx))
+		api.GET("/status", handler.Status(ctx))
+		api.GET("/tenants/:domain", handler.TenantByDomain(ctx))
 	}
 	return router
 }

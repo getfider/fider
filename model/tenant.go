@@ -1,4 +1,4 @@
-package models
+package model
 
 //Tenant represents a tenant
 type Tenant struct {

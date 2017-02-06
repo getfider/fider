@@ -1,16 +1,16 @@
-package services
+package service
 
 import (
 	"database/sql"
 	"strings"
 
 	"github.com/WeCanHearYou/wchy/env"
-	"github.com/WeCanHearYou/wchy/models"
+	"github.com/WeCanHearYou/wchy/model"
 )
 
 // TenantService contains read and write operations for tenants
 type TenantService interface {
-	GetByDomain(domain string) (*models.Tenant, error)
+	GetByDomain(domain string) (*model.Tenant, error)
 }
 
 // PostgresTenantService contains read and write operations for tenants
@@ -19,8 +19,8 @@ type PostgresTenantService struct {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc PostgresTenantService) GetByDomain(domain string) (*models.Tenant, error) {
-	tenant := &models.Tenant{}
+func (svc PostgresTenantService) GetByDomain(domain string) (*model.Tenant, error) {
+	tenant := &model.Tenant{}
 
 	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1", extractSubdomain(domain))
 	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)

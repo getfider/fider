@@ -1,10 +1,10 @@
-package handlers_test
+package handler_test
 
 import (
 	"testing"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/handlers"
+	"github.com/WeCanHearYou/wchy/handler"
 	. "github.com/onsi/gomega"
 )
 
@@ -26,7 +26,7 @@ func TestStatusHandler(t *testing.T) {
 	}
 
 	server := NewTestServer()
-	server.register(handlers.Status(ctx))
+	server.register(handler.Status(ctx))
 	status, query := server.request()
 
 	Expect(query.String("build")).To(Equal("today"))

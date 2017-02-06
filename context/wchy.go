@@ -1,6 +1,6 @@
 package context
 
-import "github.com/WeCanHearYou/wchy/services"
+import "github.com/WeCanHearYou/wchy/service"
 
 // WchySettings is an application-wide settings
 type WchySettings struct {
@@ -9,7 +9,7 @@ type WchySettings struct {
 
 // WchyContext is an application-wide context
 type WchyContext struct {
-	Health   services.HealthCheckService
-	Tenant   services.TenantService
+	Health   service.HealthCheckService
+	Tenant   service.TenantService
 	Settings WchySettings
 }

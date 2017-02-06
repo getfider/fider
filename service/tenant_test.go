@@ -1,12 +1,12 @@
-package services_test
+package service_test
 
 import (
 	"database/sql"
 	"testing"
 
-	"github.com/WeCanHearYou/wchy/services"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/WeCanHearYou/wchy/service"
 	. "github.com/onsi/gomega"
 )
 
@@ -18,7 +18,7 @@ func TestTenantService_GetByDomain_Error(t *testing.T) {
 
 	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnError(sql.ErrNoRows)
 
-	svc := &services.PostgresTenantService{DB: db}
+	svc := &service.PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
 
 	Expect(tenant).To(BeNil())
@@ -34,7 +34,7 @@ func TestTenantService_GetByDomain_Subdomain(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
 	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
 
-	svc := &services.PostgresTenantService{DB: db}
+	svc := &service.PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
 
 	Expect(tenant.ID).To(Equal(234))
@@ -52,7 +52,7 @@ func TestTenantService_GetByDomain_FullDomain(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
 	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
 
-	svc := &services.PostgresTenantService{DB: db}
+	svc := &service.PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain.anydomain.com")
 
 	Expect(tenant.ID).To(Equal(234))
