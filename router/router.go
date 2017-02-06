@@ -23,7 +23,11 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 	}
 
 	router.Use(MultiTenant(ctx))
-	router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+	if env.IsTest() {
+		router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+	} else {
+		router.LoadHTMLGlob("views/*")
+	}
 
 	router.GET("/", handler.Index(ctx))
 
