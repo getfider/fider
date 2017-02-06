@@ -24,7 +24,7 @@ func (svc PostgresTenantService) GetByDomain(domain string) (*model.Tenant, erro
 
 	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1", extractSubdomain(domain))
 	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return nil, ErrNotFound
 	}
 

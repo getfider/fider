@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/service"
 	"github.com/gin-gonic/gin"
@@ -19,9 +21,9 @@ func (h tenantHandlers) byDomain() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenant, err := h.ctx.Tenant.GetByDomain(c.Param("domain"))
 		if err == service.ErrNotFound {
-			c.Status(404)
+			c.Status(http.StatusNotFound)
 		} else {
-			c.JSON(200, tenant)
+			c.JSON(http.StatusOK, tenant)
 		}
 	}
 }

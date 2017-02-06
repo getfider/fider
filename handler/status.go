@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/http"
 	"runtime"
 	"time"
 
@@ -19,7 +20,7 @@ func Status(ctx *context.WchyContext) gin.HandlerFunc {
 
 func (h statusHandler) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"build": h.ctx.Settings.BuildTime,
 			"healthy": gin.H{
 				"database": h.ctx.Health.IsDatabaseOnline(),

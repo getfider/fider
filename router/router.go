@@ -1,7 +1,6 @@
 package router
 
 import (
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -31,11 +30,7 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 		router.LoadHTMLGlob("views/*")
 	}
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title": c.MustGet("Tenant"),
-		})
-	})
+	router.GET("/", handler.Index(ctx))
 
 	api := router.Group("/api")
 	{
