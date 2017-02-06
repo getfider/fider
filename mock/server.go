@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 
-	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/jsonq"
@@ -19,6 +21,8 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := gin.New()
+	engine.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+
 	return &Server{
 		engine: engine,
 	}
@@ -36,6 +40,13 @@ func (s *Server) Param(key, value string) {
 	})
 }
 
+// Set can be used to set context values
+func (s *Server) Set(key string, value interface{}) {
+	s.Use(func(c *gin.Context) {
+		c.Set(key, value)
+	})
+}
+
 // Register given handler
 func (s *Server) Register(handler gin.HandlerFunc) {
 	s.engine.Handle("GET", "/", handler)
@@ -48,9 +59,8 @@ func (s *Server) Request() (int, *jsonq.JsonQuery) {
 	s.engine.ServeHTTP(response, request)
 
 	status := response.Result().StatusCode
-	fmt.Println(status)
 
-	if status == 200 && response.Body.Len() > 0 {
+	if status == 200 && hasJSON(response) {
 		var data interface{}
 		decoder := json.NewDecoder(response.Body)
 		decoder.Decode(&data)
@@ -59,4 +69,14 @@ func (s *Server) Request() (int, *jsonq.JsonQuery) {
 	}
 
 	return status, nil
+}
+
+func hasJSON(r *httptest.ResponseRecorder) bool {
+	isJSONContentType := strings.Contains(r.Result().Header.Get("Content-Type"), gin.MIMEJSON)
+
+	if r.Body.Len() > 0 && isJSONContentType {
+		return true
+	}
+
+	return false
 }

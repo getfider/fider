@@ -6,21 +6,21 @@ import (
 
 	_ "github.com/lib/pq"
 
+	"fmt"
+
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/router"
 	"github.com/WeCanHearYou/wchy/service"
-	logging "github.com/op/go-logging"
 )
 
-var log = logging.MustGetLogger("main")
 var ctx *context.WchyContext
 var db *sql.DB
 var buildtime string
 
 func init() {
-	log.Info("Application is starting...")
-	log.Infof("GO_ENV: %s", env.Current())
+	fmt.Printf("Application is starting...\n")
+	fmt.Printf("GO_ENV: %s\n", env.Current())
 
 	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
 

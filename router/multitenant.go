@@ -13,7 +13,7 @@ func MultiTenant(ctx *context.WchyContext) gin.HandlerFunc {
 		hostname := stripPort(c.Request.Host)
 		tenant, err := ctx.Tenant.GetByDomain(hostname)
 		if err == nil {
-			c.Set("Tenant", tenant.Name)
+			c.Set("Tenant", tenant)
 			c.Next()
 		} else {
 			c.AbortWithStatus(404)
