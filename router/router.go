@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -31,5 +32,8 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 		api.GET("/status", handler.Status(ctx))
 		api.GET("/tenants/:domain", handler.TenantByDomain(ctx))
 	}
+
+	router.StaticFS("/assets", http.Dir("node_modules"))
+
 	return router
 }

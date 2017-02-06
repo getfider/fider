@@ -1,5 +1,10 @@
 {
   "name": "wchy",
-  "version": "",
-  "description": "WeCanHearYou is an open source, cross platform and free to use feedback system for companies and products."
+  "description": "WeCanHearYou is an open source, cross platform and free to use feedback system for companies and products.",
+  "version": "0.0.0",
+  "repository": "https://github.com/WeCanHearYou/wchy",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "semantic-ui-css": "^2.2.4"
+  }
 }
