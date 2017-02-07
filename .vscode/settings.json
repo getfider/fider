@@ -11,6 +11,5 @@
     "wchy": true,
     "wchy.exe": true,
     "tmp": true
-  },
-  "vsicons.presets.angular": false
+  }
 }

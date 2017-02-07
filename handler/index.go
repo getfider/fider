@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +17,11 @@ func Index(ctx *context.WchyContext) gin.HandlerFunc {
 
 func (h indexHandlder) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		tenant := c.MustGet("Tenant").(*model.Tenant)
+		ideas, _ := h.ctx.Idea.GetAll(tenant.ID)
 		c.HTML(200, "index.html", gin.H{
-			"Tenant": c.MustGet("Tenant"),
+			"Tenant": tenant,
+			"Ideas":  ideas,
 		})
 	}
 }

@@ -26,6 +26,7 @@ func init() {
 
 	ctx = &context.WchyContext{
 		Health: &service.PostgresHealthCheckService{DB: db},
+		Idea:   &service.PostgresIdeaService{DB: db},
 		Tenant: &service.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
 			BuildTime: buildtime,

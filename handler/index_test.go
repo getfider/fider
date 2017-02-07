@@ -10,10 +10,18 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+type mockIdeaService struct{}
+
+func (svc mockIdeaService) GetAll(tenantID int) ([]*model.Idea, error) {
+	return make([]*model.Idea, 0), nil
+}
+
 func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	ctx := &context.WchyContext{}
+	ctx := &context.WchyContext{
+		Idea: &mockIdeaService{},
+	}
 
 	server := mock.NewServer()
 	server.Set("Tenant", &model.Tenant{Name: "Any Tenant"})
