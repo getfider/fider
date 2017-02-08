@@ -19,7 +19,7 @@ func (h indexHandlder) get() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenant := c.MustGet("Tenant").(*model.Tenant)
 		ideas, _ := h.ctx.Idea.GetAll(tenant.ID)
-		c.HTML(200, "index.html", gin.H{
+		c.HTML(200, "index", gin.H{
 			"Tenant": tenant,
 			"Ideas":  ideas,
 		})

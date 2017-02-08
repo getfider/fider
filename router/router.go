@@ -2,8 +2,6 @@ package router
 
 import (
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/handler"
@@ -15,6 +13,7 @@ import (
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 	router := gin.New()
+	router.HTMLRender = CreateTemplateRender()
 
 	if env.IsDevelopment() {
 		gin.SetMode(gin.DebugMode)
@@ -23,12 +22,6 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 	}
 
 	router.Use(MultiTenant(ctx))
-	if env.IsTest() {
-		router.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
-	} else {
-		router.LoadHTMLGlob("views/*")
-	}
-
 	router.GET("/", handler.Index(ctx))
 
 	api := router.Group("/api")

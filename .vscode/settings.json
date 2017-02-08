@@ -10,6 +10,8 @@
     "gin-bin.exe": true,
     "wchy": true,
     "wchy.exe": true,
-    "tmp": true
-  }
+    "tmp": true,
+    "vendor": true
+  },
+  "vsicons.presets.angular": false
 }

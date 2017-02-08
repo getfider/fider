@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="/assets/semantic-ui-css/semantic.min.css">
-    <style type="text/css">
-    .ui.dividing.header,.first {
-      margin-top: 5em;
-    }
-    </style>
-    <title>{{ .Tenant.Name }}</title>
-</head>
-<body>
+{{define "title"}}
+  {{ .Tenant.Name }}
+{{end}}
+
+{{define "content"}}
   <div class="ui text container">
       <h1 class="ui dividing header">{{ .Tenant.Name }}</h1>
       <p>Welcome to our feedback forum.</p>
@@ -31,6 +22,4 @@
       <div class="column"></div>
     </div>
   </div>
-
-</body>
-</html>
+{{end}}

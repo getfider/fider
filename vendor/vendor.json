@@ -1,11 +1,12 @@
 {
 	"comment": "",
-	"ignore": "test",
-	"rootPath": "github.com/WeCanHearYou/wchy",
 	"heroku": {
-		"install" : [ "./..." ],
-		"goVersion": "go1.7"
+		"goVersion": "go1.7",
+		"install": [
+			"./..."
+		]
 	},
+	"ignore": "test",
 	"package": [
 		{
 			"path": "appengine",
@@ -136,6 +137,12 @@
 			"path": "github.com/fatih/color",
 			"revision": "42c364ba490082e4815b5222728711b3440603eb",
 			"revisionTime": "2017-01-13T15:16:12Z"
+		},
+		{
+			"checksumSHA1": "DU+rQjGYHOqFTEnI/ouieb1155g=",
+			"path": "github.com/gin-contrib/multitemplate",
+			"revision": "7a0692bde41e2af6e7811ba69bd05a5232351492",
+			"revisionTime": "2016-12-22T02:49:54Z"
 		},
 		{
 			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",

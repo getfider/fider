@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 
 	"strings"
 
+	"github.com/WeCanHearYou/wchy/router"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/jsonq"
 )
@@ -21,7 +20,7 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := gin.New()
-	engine.LoadHTMLGlob(filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views/*"))
+	engine.HTMLRender = router.CreateTemplateRender()
 
 	return &Server{
 		engine: engine,
