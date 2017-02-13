@@ -1,26 +1,37 @@
 package router
 
 import (
+	"html/template"
+
+	"os"
+
+	"fmt"
+
 	"net/http"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/handler"
-
 	"github.com/WeCanHearYou/wchy/env"
-	"github.com/gin-gonic/gin"
+	"github.com/WeCanHearYou/wchy/handler"
+	"github.com/labstack/echo"
 )
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
-	router := gin.New()
-	router.HTMLRender = CreateTemplateRender()
+func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
+	router := echo.New()
 
-	if env.IsDevelopment() {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
+	path := "views/*.html"
+	if env.IsTest() {
+		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wchy/" + path
 	}
 
+	router.Renderer = &HTMLRenderer{
+		Templates: template.Must(template.ParseGlob(path)),
+	}
+
+	router.HTTPErrorHandler = func(e error, c echo.Context) {
+		fmt.Println(e)
+		c.NoContent(http.StatusInternalServerError)
+	}
 	router.Use(MultiTenant(ctx))
 	router.GET("/", handler.Index(ctx))
 
@@ -30,7 +41,7 @@ func GetMainEngine(ctx *context.WchyContext) *gin.Engine {
 		api.GET("/tenants/:domain", handler.TenantByDomain(ctx))
 	}
 
-	router.StaticFS("/assets", http.Dir("node_modules"))
+	router.Static("/assets", "node_modules")
 
 	return router
 }

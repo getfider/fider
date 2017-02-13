@@ -7,20 +7,20 @@ import (
 
 	"strings"
 
-	"github.com/WeCanHearYou/wchy/router"
-	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/jsonq"
+	"github.com/labstack/echo"
 )
 
 // Server is a HTTP server wrapper for testing purpose
 type Server struct {
-	engine *gin.Engine
+	engine  *echo.Echo
+	handler echo.HandlerFunc
 }
 
 // NewServer creates a new test server
 func NewServer() *Server {
-	engine := gin.New()
-	engine.HTMLRender = router.CreateTemplateRender()
+	engine := echo.New()
+	//TODO: engine.HTMLRender = router.CreateTemplateRender()
 
 	return &Server{
 		engine: engine,
@@ -28,40 +28,52 @@ func NewServer() *Server {
 }
 
 // Use to register new middlewares
-func (s *Server) Use(f gin.HandlerFunc) {
-	s.engine.Use(f)
+func (s *Server) Use(mw echo.MiddlewareFunc) {
+	s.engine.Use(mw)
+}
+
+// UseFunc to register new middlewares based on HandlerFunc
+func (s *Server) UseFunc(f echo.HandlerFunc) {
+	s.engine.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return f
+	})
 }
 
 // Param can be used to set request parameters
 func (s *Server) Param(key, value string) {
-	s.Use(func(c *gin.Context) {
-		c.Params = append(c.Params, gin.Param{Key: key, Value: value})
+	s.UseFunc(func(c echo.Context) error {
+		c.SetParamNames(key)
+		c.SetParamValues(value)
+		return nil
 	})
 }
 
 // Set can be used to set context values
 func (s *Server) Set(key string, value interface{}) {
-	s.Use(func(c *gin.Context) {
+	s.UseFunc(func(c echo.Context) error {
 		c.Set(key, value)
+		return nil
 	})
 }
 
 // Register given handler
-func (s *Server) Register(handler gin.HandlerFunc) {
-	s.engine.Handle("GET", "/", handler)
+func (s *Server) Register(handler echo.HandlerFunc) {
+	s.handler = handler
 }
 
 // Request registered handler
 func (s *Server) Request() (int, *jsonq.JsonQuery) {
-	request, _ := http.NewRequest("GET", "/", nil)
-	response := httptest.NewRecorder()
-	s.engine.ServeHTTP(response, request)
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
 
-	status := response.Result().StatusCode
+	c := s.engine.NewContext(req, rec)
+	s.handler(c)
 
-	if status == 200 && hasJSON(response) {
+	status := rec.Code
+
+	if status == 200 && hasJSON(rec) {
 		var data interface{}
-		decoder := json.NewDecoder(response.Body)
+		decoder := json.NewDecoder(rec.Body)
 		decoder.Decode(&data)
 		query := jsonq.NewQuery(data)
 		return status, query
@@ -71,7 +83,7 @@ func (s *Server) Request() (int, *jsonq.JsonQuery) {
 }
 
 func hasJSON(r *httptest.ResponseRecorder) bool {
-	isJSONContentType := strings.Contains(r.Result().Header.Get("Content-Type"), gin.MIMEJSON)
+	isJSONContentType := strings.Contains(r.Result().Header.Get("Content-Type"), "application/json")
 
 	if r.Body.Len() > 0 && isJSONContentType {
 		return true

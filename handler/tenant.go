@@ -5,7 +5,7 @@ import (
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/service"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 type tenantHandlers struct {
@@ -13,17 +13,18 @@ type tenantHandlers struct {
 }
 
 // TenantByDomain creates a new TenantByDomain HTTP handler
-func TenantByDomain(ctx *context.WchyContext) gin.HandlerFunc {
+func TenantByDomain(ctx *context.WchyContext) echo.HandlerFunc {
 	return tenantHandlers{ctx: ctx}.byDomain()
 }
 
-func (h tenantHandlers) byDomain() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func (h tenantHandlers) byDomain() echo.HandlerFunc {
+	return func(c echo.Context) error {
 		tenant, err := h.ctx.Tenant.GetByDomain(c.Param("domain"))
+
 		if err == service.ErrNotFound {
-			c.Status(http.StatusNotFound)
-		} else {
-			c.JSON(http.StatusOK, tenant)
+			return c.NoContent(http.StatusNotFound)
 		}
+
+		return c.JSON(http.StatusOK, tenant)
 	}
 }

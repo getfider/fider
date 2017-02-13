@@ -1,21 +1,18 @@
 package router
 
 import (
-	"os"
-	"path/filepath"
+	"html/template"
+	"io"
 
-	"github.com/WeCanHearYou/wchy/env"
-	"github.com/gin-contrib/multitemplate"
+	"github.com/labstack/echo"
 )
 
-func CreateTemplateRender() multitemplate.Render {
-	r := multitemplate.New()
+//HTMLRenderer renderer
+type HTMLRenderer struct {
+	Templates *template.Template
+}
 
-	path := filepath.Join(os.Getenv("GOPATH"), "src/github.com/WeCanHearYou/wchy/views")
-	if !env.IsTest() {
-		path = "views"
-	}
-
-	r.AddFromFiles("index", path+"/base.html", path+"/index.html")
-	return r
+//Render a template based on parameters
+func (t *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.Templates.ExecuteTemplate(w, name, data)
 }

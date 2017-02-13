@@ -1,22 +1,25 @@
 package router
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(ctx *context.WchyContext) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		hostname := stripPort(c.Request.Host)
-		tenant, err := ctx.Tenant.GetByDomain(hostname)
-		if err == nil {
-			c.Set("Tenant", tenant)
-			c.Next()
-		} else {
-			c.AbortWithStatus(404)
+func MultiTenant(ctx *context.WchyContext) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			hostname := stripPort(c.Request().Host)
+			tenant, err := ctx.Tenant.GetByDomain(hostname)
+			if err == nil {
+				c.Set("Tenant", tenant)
+				return next(c)
+			}
+
+			return c.NoContent(http.StatusNotFound)
 		}
 	}
 }

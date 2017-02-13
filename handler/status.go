@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 type statusHandler struct {
@@ -14,15 +14,15 @@ type statusHandler struct {
 }
 
 // Status creates a new Status HTTP handler
-func Status(ctx *context.WchyContext) gin.HandlerFunc {
+func Status(ctx *context.WchyContext) echo.HandlerFunc {
 	return statusHandler{ctx: ctx}.get()
 }
 
-func (h statusHandler) get() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
+func (h statusHandler) get() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]interface{}{
 			"build": h.ctx.Settings.BuildTime,
-			"healthy": gin.H{
+			"healthy": map[string]interface{}{
 				"database": h.ctx.Health.IsDatabaseOnline(),
 			},
 			"version": runtime.Version(),

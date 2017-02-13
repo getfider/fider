@@ -1,14 +1,15 @@
 package router_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/mock"
 	"github.com/WeCanHearYou/wchy/model"
 	"github.com/WeCanHearYou/wchy/router"
 	"github.com/WeCanHearYou/wchy/service"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
@@ -56,21 +57,21 @@ func TestMultiTenant(t *testing.T) {
 
 	for _, testCase := range testCases {
 		for _, host := range testCase.hosts {
-			var name interface{}
 
-			server := mock.NewServer()
-			server.Use(func(c *gin.Context) {
-				c.Request.Host = host
-			})
-			server.Use(router.MultiTenant(ctx))
-			server.Register(func(c *gin.Context) {
-				c.Status(200)
-				name = c.MustGet("Tenant")
-			})
-			status, _ := server.Request()
+			e := echo.New()
+			req, _ := http.NewRequest(echo.GET, "/", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.Request().Host = host
 
-			Expect(status).To(Equal(200))
-			Expect(name).To(Equal(testCase.tenant))
+			cors := router.MultiTenant(ctx)
+			cors(echo.HandlerFunc(func(c echo.Context) error {
+				return c.String(http.StatusOK, c.Get("Tenant").(*model.Tenant).Name)
+			}))(c)
+
+			Expect(rec.Code).To(Equal(200))
+			Expect(rec.Body.String()).To(Equal(testCase.tenant.Name))
+
 		}
 	}
 
@@ -79,15 +80,16 @@ func TestMultiTenant(t *testing.T) {
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Use(func(c *gin.Context) {
-		c.Request.Host = "somedomain.com"
-	})
-	server.Use(router.MultiTenant(ctx))
-	server.Register(func(c *gin.Context) {
-		c.Status(200)
-	})
-	status, _ := server.Request()
+	e := echo.New()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.Request().Host = "somedomain.com"
 
-	Expect(status).To(Equal(404))
+	cors := router.MultiTenant(ctx)
+	cors(echo.HandlerFunc(func(c echo.Context) error {
+		return c.String(http.StatusOK, c.Get("Tenant").(*model.Tenant).Name)
+	}))(c)
+
+	Expect(rec.Code).To(Equal(404))
 }

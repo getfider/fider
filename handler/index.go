@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/model"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 )
 
 type indexHandlder struct {
@@ -11,15 +13,15 @@ type indexHandlder struct {
 }
 
 // Index handles initial page
-func Index(ctx *context.WchyContext) gin.HandlerFunc {
+func Index(ctx *context.WchyContext) echo.HandlerFunc {
 	return indexHandlder{ctx: ctx}.get()
 }
 
-func (h indexHandlder) get() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tenant := c.MustGet("Tenant").(*model.Tenant)
+func (h indexHandlder) get() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		tenant := c.Get("Tenant").(*model.Tenant)
 		ideas, _ := h.ctx.Idea.GetAll(tenant.ID)
-		c.HTML(200, "index", gin.H{
+		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
 			"Tenant": tenant,
 			"Ideas":  ideas,
 		})

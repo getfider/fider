@@ -247,6 +247,24 @@
 			"revisionTime": "2016-05-04T02:26:26Z"
 		},
 		{
+			"checksumSHA1": "qUd2AA/+1E7WacQ/2pNaSiU8azM=",
+			"path": "github.com/labstack/echo",
+			"revision": "a8b6864be328fcb5c2d96d32c75b750f84e0e4be",
+			"revisionTime": "2017-02-02T19:50:17Z"
+		},
+		{
+			"checksumSHA1": "R6DzcBLEP0BONPpsyr+11N7xh5w=",
+			"path": "github.com/labstack/gommon/color",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
+			"checksumSHA1": "uHA6zbtxzJce4r+6uk8zu11qkuk=",
+			"path": "github.com/labstack/gommon/log",
+			"revision": "f72d3c883f8ea180da8f085dd320804c41332ad1",
+			"revisionTime": "2017-01-12T04:03:50Z"
+		},
+		{
 			"checksumSHA1": "dm3g5P1ezW+aOMZgOkJ//57zRxA=",
 			"path": "github.com/lib/pq",
 			"revision": "a6657b2386e9b8be76484c08711b02c7cf867ead",
@@ -469,10 +487,40 @@
 			"revisionTime": "2017-01-30T11:31:45Z"
 		},
 		{
+			"checksumSHA1": "LTOa3BADhwvT0wFCknPueQALm8I=",
+			"path": "github.com/valyala/bytebufferpool",
+			"revision": "e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7",
+			"revisionTime": "2016-08-17T18:16:52Z"
+		},
+		{
+			"checksumSHA1": "j7lWhgAteszPecjIkS12+tjXE2E=",
+			"path": "github.com/valyala/fasttemplate",
+			"revision": "d090d65668a286d9a180d43a19dfdc5dcad8fe88",
+			"revisionTime": "2017-01-12T11:45:30Z"
+		},
+		{
+			"checksumSHA1": "D1l731k467E5E4Uau+cQKEYkaVY=",
+			"path": "golang.org/x/crypto/acme",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "MG1frAM4p4lg1ioOhUa7rjN3xm0=",
+			"path": "golang.org/x/crypto/acme/autocert",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
 			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
 			"path": "golang.org/x/net/context",
 			"revision": "41bba8d80bbfab43231ffdf4c210037baae5f6a3",
 			"revisionTime": "2017-01-27T14:21:26Z"
+		},
+		{
+			"checksumSHA1": "WHc3uByvGaMcnSoI21fhzYgbOgg=",
+			"path": "golang.org/x/net/context/ctxhttp",
+			"revision": "61557ac0112b576429a0df080e1c2cef5dfbb642",
+			"revisionTime": "2017-01-26T11:54:58Z"
 		},
 		{
 			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",

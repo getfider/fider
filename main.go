@@ -35,5 +35,6 @@ func init() {
 }
 
 func main() {
-	router.GetMainEngine(ctx).Run(":" + env.GetEnvOrDefault("PORT", "3000"))
+	e := router.GetMainEngine(ctx)
+	e.Logger.Fatal(e.Start(":" + env.GetEnvOrDefault("PORT", "3000")))
 }
