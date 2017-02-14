@@ -1,16 +1,11 @@
 package router
 
 import (
-	"html/template"
-
-	"os"
-
 	"fmt"
 
 	"net/http"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/handler"
 	"github.com/labstack/echo"
 )
@@ -19,14 +14,7 @@ import (
 func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 	router := echo.New()
 
-	path := "views/*.html"
-	if env.IsTest() {
-		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wchy/" + path
-	}
-
-	router.Renderer = &HTMLRenderer{
-		Templates: template.Must(template.ParseGlob(path)),
-	}
+	router.Renderer = NewHTMLRenderer()
 
 	router.HTTPErrorHandler = func(e error, c echo.Context) {
 		fmt.Println(e)

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/assets/semantic-ui-css/semantic.min.css">
+    <title>{{template "title" .}}</title>
+    <style>
+      .ideas-list .vote-col {
+        text-align: center;
+        width: 140px;
+      }
+      .ideas-list .vote-col div {
+        display: block;
+      }
+      #footer {
+        margin-top: 50px;
+      }
+    </style>
+</head>
+<body>
+  {{template "content" .}}
+  <div id="footer" class="ui inverted vertical footer segment">
+    <div class="ui center aligned container">
+      <div class="ui stackable inverted divided grid">
+        <div class="six wide column">
+          <h4 class="ui inverted header">Trending ideas</h4>
+          <div class="ui inverted link list">
+            <a href="#" class="item">Link #1</a>
+            <a href="#" class="item">Link #2</a>
+            <a href="#" class="item">Link #3</a>
+            <a href="#" class="item">Link $3</a>
+          </div>
+        </div>
+        <div class="six wide column">
+          <h4 class="ui inverted header">Latest activity</h4>
+          <div class="ui inverted link list">
+            <a href="#" class="item">Someone did something</a>
+            <a href="#" class="item">New idea was posted</a>
+            <a href="#" class="item">Someone commented on idea #1</a>
+            <a href="#" class="item">Idea #2 changed to Shipped</a>
+          </div>
+        </div>
+        <div class="four wide column">
+          <h4 class="ui inverted header">Footer Header</h4>
+          <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
+        </div>
+      </div>
+      <div class="ui inverted section divider"></div>
+      <div class="ui horizontal inverted small divided link list">
+        <a class="item" href="#">Site Map</a>
+        <a class="item" href="#">Contact Us</a>
+        <a class="item" href="#">Terms and Conditions</a>
+        <a class="item" href="#">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

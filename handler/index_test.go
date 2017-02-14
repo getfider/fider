@@ -1,14 +1,11 @@
 package handler_test
 
 import (
-	"html/template"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/handler"
 	"github.com/WeCanHearYou/wchy/model"
 	"github.com/WeCanHearYou/wchy/router"
@@ -30,15 +27,7 @@ func TestIndexHandler(t *testing.T) {
 	}
 
 	e := echo.New()
-
-	path := "views/*.html"
-	if env.IsTest() {
-		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wchy/" + path
-	}
-
-	e.Renderer = &router.HTMLRenderer{
-		Templates: template.Must(template.ParseGlob(path)),
-	}
+	e.Renderer = router.NewHTMLRenderer()
 
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
