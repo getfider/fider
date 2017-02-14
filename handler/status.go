@@ -20,9 +20,9 @@ func Status(ctx *context.WchyContext) echo.HandlerFunc {
 
 func (h statusHandler) get() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]interface{}{
+		return c.JSON(http.StatusOK, echo.Map{
 			"build": h.ctx.Settings.BuildTime,
-			"healthy": map[string]interface{}{
+			"healthy": echo.Map{
 				"database": h.ctx.Health.IsDatabaseOnline(),
 			},
 			"version": runtime.Version(),

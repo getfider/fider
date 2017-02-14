@@ -19,7 +19,7 @@ func (h indexHandlder) get() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tenant := c.Get("Tenant").(*model.Tenant)
 		ideas, _ := h.ctx.Idea.GetAll(tenant.ID)
-		return c.Render(200, "index.html", map[string]interface{}{
+		return c.Render(200, "index.html", echo.Map{
 			"Tenant": tenant,
 			"Ideas":  ideas,
 		})
