@@ -46,7 +46,7 @@ func (r *HTMLRenderer) add(path, name string) {
 func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
-		return fmt.Errorf("The template %s does not exist", name)
+		panic(fmt.Errorf("The template %s does not exist", name))
 	}
 
 	return tmpl.Execute(w, data)
