@@ -1,15 +1,12 @@
 package handler_test
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/handler"
+	"github.com/WeCanHearYou/wchy/mock"
 	"github.com/WeCanHearYou/wchy/model"
-	"github.com/WeCanHearYou/wchy/router"
-	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
@@ -26,15 +23,9 @@ func TestIndexHandler(t *testing.T) {
 		Idea: &mockIdeaService{},
 	}
 
-	e := echo.New()
-	e.Renderer = router.NewHTMLRenderer()
+	server := mock.NewServer()
+	server.Context.Set("Tenant", &model.Tenant{ID: 2, Name: "Any Tenant"})
+	code, _ := server.Execute(handler.Index(ctx))
 
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.Set("Tenant", &model.Tenant{ID: 2, Name: "Any Tenant"})
-
-	handler.Index(ctx)(c)
-
-	Expect(rec.Code).To(Equal(200))
+	Expect(code).To(Equal(200))
 }

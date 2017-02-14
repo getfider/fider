@@ -26,8 +26,7 @@ func TestStatusHandler(t *testing.T) {
 	}
 
 	server := mock.NewServer()
-	server.Register(handler.Status(ctx))
-	status, query := server.Request()
+	status, query := server.Execute(handler.Status(ctx))
 
 	Expect(query.String("build")).To(Equal("today"))
 	Expect(query.Bool("healthy", "database")).To(Equal(false))
