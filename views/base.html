@@ -6,24 +6,16 @@
     <link rel="stylesheet" type="text/css" href="/assets/semantic-ui-css/semantic.min.css">
     <link rel="ico" type="text/css" href="/assets/semantic-ui-css/semantic.min.css">
     <link rel="icon" type="image/x-icon" href="/public/imgs/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="/public/css/main.css">
+    <script type="text/javascript" src="/public/js/main.js"></script>
     <title>{{template "title" .}}</title>
-    <style>
-      .ideas-list .vote-col {
-        text-align: center;
-        width: 140px;
-      }
-      .ideas-list .vote-col div {
-        display: block;
-      }
-      #footer {
-        margin-top: 50px;
-      }
-    </style>
 </head>
 <body>
   {{template "content" .}}
   <div id="footer" class="ui inverted vertical footer segment">
     <div class="ui center aligned container">
+      
+      <!--
       <div class="ui stackable inverted divided grid">
         <div class="six wide column">
           <h4 class="ui inverted header">Trending ideas</h4>
@@ -48,12 +40,11 @@
           <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
         </div>
       </div>
+      -->
+      
       <div class="ui inverted section divider"></div>
       <div class="ui horizontal inverted small divided link list">
-        <a class="item" href="#">Site Map</a>
-        <a class="item" href="#">Contact Us</a>
-        <a class="item" href="#">Terms and Conditions</a>
-        <a class="item" href="#">Privacy Policy</a>
+        Powered by <a class="item" target="_blank" href="http://we.canhearyou.com/">WeCanHearYou</a>
       </div>
     </div>
   </div>

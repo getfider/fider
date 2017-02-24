@@ -12,32 +12,45 @@
   </div>
   <div class="ui container">
     <h1 class="ui header">Welcome to our feedback forum</h1>
-    <p>This is a basic fixed menu template using fixed size containers.</p>
-    <p>A text container is used for the main container, which is useful for single column layouts</p>
+  </div>
+
+  <div id="new-idea" class="ui container">
+    <h3>I want ...</h3>
+    
+    <div class="ui fluid input">
+      <input type="text" placeholder="Enter your idea, new feature or suggestion here ...">
+    </div>
+    <p>
+      <button class="ui positive button">
+        Submit Idea
+      </button>
+    </p>
   </div>
 
   <div class="ui container ideas-list">
-    <h3>All Ideas</h3>
+    {{ if not .Ideas }}
+        <p>No ideas have been shared yet.</p>
+    {{ else }}
+    <h3>Top Ideas</h3>
     <div class="ui divided items">
-
       {{ range $value := .Ideas }}
-      <div class="item">
-        <div class="content">
-          <a class="header">{{ $value.Title }}</a>
-          <div class="meta">
-            <span class="cinema">Union Square 14</span>
-          </div>
-          <div class="description">
-            <p>{{ $value.Title }} {{ $value.Title }} {{ $value.Title }} {{ $value.Title }}</p>
-          </div>
-          <div class="extra">
-            <div class="ui label">IMAX</div>
-            <div class="ui label">Additional Languages</div>
+        <div class="item">
+          <div class="content">
+            <a class="header">{{ $value.Title }}</a>
+            <div class="meta">
+              <span class="cinema">Union Square 14</span>
+            </div>
+            <div class="description">
+              <p>{{ $value.Title }} {{ $value.Title }} {{ $value.Title }} {{ $value.Title }}</p>
+            </div>
+            <div class="extra">
+              <div class="ui label">IMAX</div>
+              <div class="ui label">Additional Languages</div>
+            </div>
           </div>
         </div>
-      </div>
       {{ end }}
-
-    </div>
+      </div>
+    {{ end }}
   </div>
 {{end}}
