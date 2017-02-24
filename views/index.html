@@ -16,30 +16,12 @@
     <p>A text container is used for the main container, which is useful for single column layouts</p>
   </div>
 
-  <div class="ui container">
-    <ul>
-    </ul>
-  </div>
-
   <div class="ui container ideas-list">
     <h3>All Ideas</h3>
     <div class="ui divided items">
 
       {{ range $value := .Ideas }}
       <div class="item">
-        <div class="vote-col">
-          <div class="ui statistic">
-            <div class="value">
-              82
-            </div>
-            <div class="label">
-              Votes
-            </div>
-          </div>
-          <button class="mini ui green button">
-            Vote
-          </button>
-        </div>
         <div class="content">
           <a class="header">{{ $value.Title }}</a>
           <div class="meta">

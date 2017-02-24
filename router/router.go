@@ -21,6 +21,7 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 		c.NoContent(http.StatusInternalServerError)
 	}
 	router.Use(MultiTenant(ctx))
+	router.Static("/public", "public")
 	router.GET("/", handler.Index(ctx))
 
 	api := router.Group("/api")
