@@ -32,7 +32,7 @@ func TestTenantService_GetByDomain_Subdomain(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
-	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1 OR cname = \\$2").WithArgs("mydomain", "mydomain").WillReturnRows(rows)
 
 	svc := &service.PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
@@ -50,7 +50,7 @@ func TestTenantService_GetByDomain_FullDomain(t *testing.T) {
 	defer db.Close()
 
 	rows := sqlmock.NewRows([]string{"id", "name", "subdomain"}).AddRow(234, "My Domain Inc.", "mydomain")
-	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1").WithArgs("mydomain").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT id, name, subdomain FROM tenants WHERE subdomain = \\$1 OR cname = \\$2").WithArgs("mydomain", "mydomain.anydomain.com").WillReturnRows(rows)
 
 	svc := &service.PostgresTenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain.anydomain.com")

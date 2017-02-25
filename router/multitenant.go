@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"fmt"
+
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/labstack/echo"
 )
@@ -19,6 +21,7 @@ func MultiTenant(ctx *context.WchyContext) echo.MiddlewareFunc {
 				return next(c)
 			}
 
+			fmt.Printf("Tenant not found for %s.\n", hostname)
 			return c.NoContent(http.StatusNotFound)
 		}
 	}

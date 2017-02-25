@@ -22,7 +22,7 @@ type PostgresTenantService struct {
 func (svc PostgresTenantService) GetByDomain(domain string) (*model.Tenant, error) {
 	tenant := &model.Tenant{}
 
-	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1", extractSubdomain(domain))
+	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
 	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
 	if err != nil {
 		return nil, ErrNotFound

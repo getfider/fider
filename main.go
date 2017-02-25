@@ -22,7 +22,10 @@ func init() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
-	db, _ = sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		panic(err)
+	}
 
 	ctx = &context.WchyContext{
 		Health: &service.PostgresHealthCheckService{DB: db},
