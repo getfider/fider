@@ -31,7 +31,7 @@ var (
 
 func newFacebookOAuthConfig(redirect string) *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     oauthState,
+		ClientID:     fbClientID,
 		ClientSecret: fbClientSecret,
 		RedirectURL:  authEndpoint + "/oauth/facebook/callback?redirect=" + url.QueryEscape(redirect),
 		Scopes:       []string{"public_profile", "email"},

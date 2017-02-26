@@ -20,7 +20,7 @@ var (
 	buildtime string
 )
 
-func init() {
+func main() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
@@ -39,9 +39,7 @@ func init() {
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},
 	}
-}
 
-func main() {
 	e := router.GetMainEngine(ctx)
 	e.Logger.Fatal(e.Start(":" + env.GetEnvOrDefault("PORT", "3000")))
 }
