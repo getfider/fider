@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"os"
 
 	_ "github.com/lib/pq"
 
@@ -22,7 +21,7 @@ func init() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +31,8 @@ func init() {
 		Idea:   &service.PostgresIdeaService{DB: db},
 		Tenant: &service.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
-			BuildTime: buildtime,
+			BuildTime:    buildtime,
+			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},
 	}
 }

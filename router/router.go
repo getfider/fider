@@ -22,10 +22,7 @@ func errorHandler(e error, c echo.Context) {
 	}
 }
 
-// GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
-	router := echo.New()
-
+func createLogger() echo.Logger {
 	logger := log.New("")
 	logger.SetHeader(`${level} [${time_rfc3339}] ${short_file}:${line}`)
 
@@ -35,8 +32,15 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 		logger.SetLevel(log.DEBUG)
 	}
 
-	router.Logger = logger
-	router.Renderer = NewHTMLRenderer()
+	return logger
+}
+
+// GetMainEngine returns main HTTP engine
+func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
+	router := echo.New()
+
+	router.Logger = createLogger()
+	router.Renderer = NewHTMLRenderer(router.Logger)
 	router.HTTPErrorHandler = errorHandler
 
 	router.Static("/favicon.ico", "public/imgs/favicon.ico")

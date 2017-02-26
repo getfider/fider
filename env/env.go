@@ -1,6 +1,7 @@
 package env
 
 import "os"
+import "fmt"
 
 // GetEnvOrDefault retrieves the value of the environment variable named by the key.
 // It returns the value if available, otherwise returns defaultValue
@@ -8,6 +9,15 @@ func GetEnvOrDefault(name string, defaultValue string) string {
 	value := os.Getenv(name)
 	if value == "" {
 		return defaultValue
+	}
+	return value
+}
+
+// MustGet returns environment variable or panic
+func MustGet(name string) string {
+	value := os.Getenv(name)
+	if value == "" {
+		panic(fmt.Errorf("Could not find environment variable named '%s'", name))
 	}
 	return value
 }

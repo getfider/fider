@@ -9,19 +9,19 @@ import (
 
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
 )
 
 //HTMLRenderer renderer
 type HTMLRenderer struct {
 	templates map[string]*template.Template
+	logger    echo.Logger
 }
 
 var path string
 
 // NewHTMLRenderer creates a new HTMLRenderer
-func NewHTMLRenderer() *HTMLRenderer {
-	renderer := &HTMLRenderer{}
+func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
+	renderer := &HTMLRenderer{nil, logger}
 	renderer.templates = make(map[string]*template.Template)
 
 	path = "views/"
@@ -38,7 +38,7 @@ func NewHTMLRenderer() *HTMLRenderer {
 func (r *HTMLRenderer) add(name string) {
 	tpl, err := template.ParseFiles(path+"base.html", path+name)
 	if err != nil {
-		log.Error(err)
+		r.logger.Error(err)
 	}
 
 	r.templates[name] = tpl
