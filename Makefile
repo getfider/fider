@@ -19,7 +19,9 @@ setup-ci:
 	govendor sync
 	govendor install +vendor
 
-run-ci: test
+run-ci:
+	AUTH_ENDPOINT=http://login.test.canhearyou.com:3000 \
+	GO_ENV=test \
 	goveralls -service=travis-ci
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
