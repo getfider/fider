@@ -23,14 +23,17 @@ type facebookUser struct {
 }
 
 var (
-	oauthState = os.Getenv("OAUTH_STATE")
+	oauthState     = os.Getenv("OAUTH_STATE")
+	fbClientID     = os.Getenv("OAUTH_FACEBOOK_APPID")
+	fbClientSecret = os.Getenv("OAUTH_FACEBOOK_SECRET")
+	authEndpoint   = os.Getenv("AUTH_ENDPOINT")
 )
 
 func newFacebookOAuthConfig(redirect string) *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
-		ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
-		RedirectURL:  os.Getenv("AUTH_ENDPOINT") + "/oauth/facebook/callback?redirect=" + url.QueryEscape(redirect),
+		ClientID:     oauthState,
+		ClientSecret: fbClientSecret,
+		RedirectURL:  authEndpoint + "/oauth/facebook/callback?redirect=" + url.QueryEscape(redirect),
 		Scopes:       []string{"public_profile", "email"},
 		Endpoint:     facebook.Endpoint,
 	}
@@ -46,6 +49,25 @@ func OAuth(ctx *context.WchyContext) OAuthHandlers {
 	return OAuthHandlers{ctx: ctx}
 }
 
+func doGet(url string, v interface{}) error {
+	r, err := http.Get(url)
+	defer r.Body.Close()
+	if err != nil {
+		return err
+	}
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bytes, v)
+}
+
+func facebookMe(token *oauth2.Token) string {
+	return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
+}
+
 // Callback handles OAuth callbacks
 func (h OAuthHandlers) Callback() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -54,7 +76,7 @@ func (h OAuthHandlers) Callback() echo.HandlerFunc {
 		redirect := c.QueryParam("redirect")
 
 		if state != oauthState {
-			c.Logger().Infof("Invalid OAuth state '%s'", state)
+			c.Logger().Errorf("Invalid OAuth state '%s'", state)
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
 
@@ -65,12 +87,11 @@ func (h OAuthHandlers) Callback() echo.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
 
-		r, err := http.Get("https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken))
-		defer r.Body.Close()
-
 		fbUser := &facebookUser{}
-		bytes, err := ioutil.ReadAll(r.Body)
-		err = json.Unmarshal(bytes, fbUser)
+		if err = doGet(facebookMe(token), fbUser); err != nil {
+			c.Logger().Errorf("HTTP Facebook/Me failed with %s", err)
+			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+		}
 
 		user, err := h.ctx.Auth.GetByEmail(fbUser.Email)
 		if err != nil {
@@ -89,6 +110,8 @@ func (h OAuthHandlers) Callback() echo.HandlerFunc {
 				if err != nil {
 					c.Logger().Error(err)
 				}
+			} else {
+				c.Logger().Error(err)
 			}
 		}
 

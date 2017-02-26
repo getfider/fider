@@ -47,8 +47,11 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 	router.Static("/public", "public")
 	router.Static("/assets", "node_modules") //TODO: Don't expose node_modules
 
-	router.GET("/oauth/facebook", handler.OAuth(ctx).Login())
-	router.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback())
+	auth := router.Group("", HostChecker(env.MustGet("AUTH_ENDPOINT")))
+	{
+		auth.GET("/oauth/facebook", handler.OAuth(ctx).Login())
+		auth.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback())
+	}
 
 	app := router.Group("", MultiTenant(ctx))
 	{

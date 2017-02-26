@@ -10,7 +10,9 @@ define tag_docker
 endef
 
 test:
-	GO_ENV=test go test $$(go list ./... | grep -v /vendor/) -cover
+	AUTH_ENDPOINT=http://login.test.canhearyou.com:3000 \
+	GO_ENV=test \
+	go test $$(go list ./... | grep -v /vendor/) -cover
 
 setup-ci:
 	go get github.com/kardianos/govendor

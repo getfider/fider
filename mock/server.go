@@ -23,7 +23,7 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := echo.New()
-	engine.Renderer = router.NewHTMLRenderer()
+	engine.Renderer = router.NewHTMLRenderer(engine.Logger)
 
 	request, _ := http.NewRequest(echo.GET, "/", nil)
 	recorder := httptest.NewRecorder()
