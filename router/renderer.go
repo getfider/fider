@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 
 	"os"
 
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
 
 //HTMLRenderer renderer
@@ -38,7 +38,7 @@ func NewHTMLRenderer() *HTMLRenderer {
 func (r *HTMLRenderer) add(name string) {
 	tpl, err := template.ParseFiles(path+"base.html", path+name)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	r.templates[name] = tpl
