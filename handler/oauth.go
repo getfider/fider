@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,9 +11,16 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/labstack/echo"
 )
+
+type facebookUser struct {
+	Name  string
+	ID    string
+	Email string
+}
 
 var (
 	oauthState = os.Getenv("OAUTH_STATE")
@@ -23,7 +30,7 @@ func newFacebookOAuthConfig(redirect string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
 		ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
-		RedirectURL:  os.Getenv("AUTH_ENDPOINT") + "/oauth/callback?redirect=" + url.QueryEscape(redirect),
+		RedirectURL:  os.Getenv("AUTH_ENDPOINT") + "/oauth/facebook/callback?redirect=" + url.QueryEscape(redirect),
 		Scopes:       []string{"public_profile", "email"},
 		Endpoint:     facebook.Endpoint,
 	}
@@ -58,10 +65,34 @@ func (h OAuthHandlers) Callback() echo.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
 
-		resp, err := http.Get("https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken))
-		defer resp.Body.Close()
-		response, err := ioutil.ReadAll(resp.Body)
-		log.Printf("parseResponseBody: %s\n", string(response))
+		r, err := http.Get("https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken))
+		defer r.Body.Close()
+
+		fbUser := &facebookUser{}
+		bytes, err := ioutil.ReadAll(r.Body)
+		err = json.Unmarshal(bytes, fbUser)
+
+		user, err := h.ctx.Auth.GetByEmail(fbUser.Email)
+		if err != nil {
+			if err == auth.ErrUserNotFound {
+				user := &auth.User{
+					Name:  fbUser.Name,
+					Email: fbUser.Email,
+					Providers: []*auth.UserProvider{
+						&auth.UserProvider{
+							UID:  fbUser.ID,
+							Name: auth.OAUTH_FACEBOOK_PROVIDER,
+						},
+					},
+				}
+				err = h.ctx.Auth.Register(user)
+				if err != nil {
+					c.Logger().Error(err)
+				}
+			}
+		}
+
+		c.Logger().Infof("Logged in as %s", user)
 
 		return c.Redirect(http.StatusTemporaryRedirect, redirect)
 	}

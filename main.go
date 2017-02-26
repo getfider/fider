@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/router"
@@ -31,6 +32,7 @@ func init() {
 	ctx = &context.WchyContext{
 		Health: &service.PostgresHealthCheckService{DB: db},
 		Idea:   &service.PostgresIdeaService{DB: db},
+		Auth:   &auth.PostgresService{DB: db},
 		Tenant: &service.PostgresTenantService{DB: db},
 		Settings: context.WchySettings{
 			BuildTime:    buildtime,
