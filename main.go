@@ -13,9 +13,11 @@ import (
 	"github.com/WeCanHearYou/wchy/service"
 )
 
-var ctx *context.WchyContext
-var db *sql.DB
-var buildtime string
+var (
+	ctx       *context.WchyContext
+	db        *sql.DB
+	buildtime string
+)
 
 func init() {
 	fmt.Printf("Application is starting...\n")
