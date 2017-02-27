@@ -2,7 +2,7 @@ package model
 
 //Idea represents an idea on a tenant board
 type Idea struct {
-	ID          int    `json:"id"`
+	ID          int64  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }

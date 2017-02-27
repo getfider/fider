@@ -5,13 +5,16 @@ import (
 	"errors"
 )
 
-var (
-	OAUTH_FACEBOOK_PROVIDER = "facebook"
+const (
+	//OAuthFacebookProvider is const for 'facebook'
+	OAuthFacebookProvider = "facebook"
+	//OAuthGoogleProvider is const for 'google'
+	OAuthGoogleProvider = "google"
 )
 
 //User represents an user inside our application
 type User struct {
-	ID        int
+	ID        int64
 	Name      string
 	Email     string
 	Providers []*UserProvider
@@ -51,16 +54,20 @@ func (svc PostgresService) GetByEmail(email string) (*User, error) {
 
 // Register creates a new user based on given information
 func (svc PostgresService) Register(user *User) error {
-	row := svc.DB.QueryRow("INSERT INTO users (name, email) VALUES($1, $2) returning id;", user.Name, user.Email)
-	err := row.Scan(&user.ID)
+	tx, err := svc.DB.Begin()
 	if err != nil {
 		return err
 	}
 
-	err = svc.DB.QueryRow("INSERT INTO user_providers (user_id, provider, provider_uid) VALUES($1, $2, $3);", user.ID, user.Providers[0].Name, user.Providers[0].UID).Scan()
+	err = tx.QueryRow("INSERT INTO users (name, email) VALUES($1, $2) returning id;", user.Name, user.Email).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	_, err = tx.Exec("INSERT INTO user_providers (user_id, provider, provider_uid) VALUES($1, $2, $3);", user.ID, user.Providers[0].Name, user.Providers[0].UID)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

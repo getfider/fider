@@ -12,7 +12,7 @@ import (
 
 type mockIdeaService struct{}
 
-func (svc mockIdeaService) GetAll(tenantID int) ([]*model.Idea, error) {
+func (svc mockIdeaService) GetAll(tenantID int64) ([]*model.Idea, error) {
 	return make([]*model.Idea, 0), nil
 }
 

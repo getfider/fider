@@ -14,11 +14,7 @@ import (
 	"github.com/WeCanHearYou/wchy/service"
 )
 
-var (
-	ctx       *context.WchyContext
-	db        *sql.DB
-	buildtime string
-)
+var buildtime string
 
 func main() {
 	fmt.Printf("Application is starting...\n")
@@ -29,7 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	ctx = &context.WchyContext{
+	ctx := &context.WchyContext{
 		Health: &service.PostgresHealthCheckService{DB: db},
 		Idea:   &service.PostgresIdeaService{DB: db},
 		Auth:   &auth.PostgresService{DB: db},

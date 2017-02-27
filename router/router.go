@@ -24,7 +24,7 @@ func errorHandler(e error, c echo.Context) {
 
 func createLogger() echo.Logger {
 	logger := log.New("")
-	logger.SetHeader(`${level} [${time_rfc3339}] ${short_file}:${line}`)
+	logger.SetHeader(`${level} [${time_rfc3339}]`)
 
 	if env.IsProduction() {
 		logger.SetLevel(log.INFO)
@@ -49,8 +49,10 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 
 	auth := router.Group("", HostChecker(env.MustGet("AUTH_ENDPOINT")))
 	{
-		auth.GET("/oauth/facebook", handler.OAuth(ctx).Login())
-		auth.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback())
+		auth.GET("/oauth/facebook", handler.OAuth(ctx).FacebookLogin())
+		auth.GET("/oauth/facebook/callback", handler.OAuth(ctx).FacebookCallback())
+		auth.GET("/oauth/google", handler.OAuth(ctx).GoogleLogin())
+		auth.GET("/oauth/google/callback", handler.OAuth(ctx).GoogleCallback())
 	}
 
 	app := router.Group("", MultiTenant(ctx))
