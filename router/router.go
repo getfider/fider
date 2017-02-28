@@ -5,6 +5,7 @@ import (
 
 	"strings"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/handler"
@@ -47,12 +48,12 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 	router.Static("/public", "public")
 	router.Static("/assets", "node_modules") //TODO: Don't expose node_modules
 
-	auth := router.Group("", HostChecker(env.MustGet("AUTH_ENDPOINT")))
+	authGroup := router.Group("", HostChecker(env.MustGet("AUTH_ENDPOINT")))
 	{
-		auth.GET("/oauth/facebook", handler.OAuth(ctx).FacebookLogin())
-		auth.GET("/oauth/facebook/callback", handler.OAuth(ctx).FacebookCallback())
-		auth.GET("/oauth/google", handler.OAuth(ctx).GoogleLogin())
-		auth.GET("/oauth/google/callback", handler.OAuth(ctx).GoogleCallback())
+		authGroup.GET("/oauth/facebook", handler.OAuth(ctx).Login(auth.OAuthFacebookProvider))
+		authGroup.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback(auth.OAuthFacebookProvider))
+		authGroup.GET("/oauth/google", handler.OAuth(ctx).Login(auth.OAuthGoogleProvider))
+		authGroup.GET("/oauth/google/callback", handler.OAuth(ctx).Callback(auth.OAuthGoogleProvider))
 	}
 
 	app := router.Group("", MultiTenant(ctx))
