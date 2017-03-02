@@ -13,5 +13,5 @@
     "tmp": true,
     "vendor": true
   },
-  "vsicons.presets.angular": false
+  "vsicons.presets.angular": true
 }

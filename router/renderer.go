@@ -55,5 +55,14 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		panic(fmt.Errorf("The template %s does not exist", name))
 	}
 
-	return tmpl.Execute(w, data)
+	protocol := "http://"
+	if c.Request().TLS != nil {
+		protocol = "https://"
+	}
+
+	m := data.(echo.Map)
+	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
+	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
+
+	return tmpl.Execute(w, m)
 }

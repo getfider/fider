@@ -8,8 +8,31 @@
       <div class="header item">
         {{ .Tenant.Name }}
       </div>
+      <a class="item right signin">
+        <img class="ui avatar image" src="https://www.gravatar.com/avatar/">
+        Sign in
+        <i class="dropdown icon"></i>
+      </a>
     </div>
   </div>
+
+  <div id="user-popup" class="ui popup top left transition hidden">
+    <div class="ui list">
+      <div class="item">
+        <a href="{{ .AuthEndpoint }}/oauth/facebook?redirect={{ .CurrentUrl }}" class="ui fluid facebook button">
+          <i class="facebook icon"></i>
+          Sign in with Facebook 
+        </a>
+      </div>
+      <div class="item">
+        <a href="{{ .AuthEndpoint }}/oauth/google?redirect={{ .CurrentUrl }}" class="ui fluid google plus button">
+          <i class="google icon"></i>
+          Sign in with Google
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="ui container">
     <h1 class="ui header">Welcome to our feedback forum</h1>
   </div>
