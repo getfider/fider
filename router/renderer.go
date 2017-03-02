@@ -60,8 +60,10 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		protocol = "https://"
 	}
 
+	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
 	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
+	m["Claims"] = c.Get("Claims")
 	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
 
 	return tmpl.Execute(w, m)

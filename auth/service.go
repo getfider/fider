@@ -3,6 +3,8 @@ package auth
 import (
 	"database/sql"
 	"errors"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 const (
@@ -18,6 +20,14 @@ type User struct {
 	Name      string
 	Email     string
 	Providers []*UserProvider
+}
+
+//WchyClaims represents what goes into JWT tokens
+type WchyClaims struct {
+	UserID    int64  `json:"userid"`
+	UserName  string `json:"username"`
+	UserEmail string `json:"useremail"`
+	jwt.StandardClaims
 }
 
 //UserProvider represents the relashionship between an User and an Authentication provide

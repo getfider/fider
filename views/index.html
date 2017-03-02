@@ -8,11 +8,18 @@
       <div class="header item">
         {{ .Tenant.Name }}
       </div>
-      <a class="item right signin">
-        <img class="ui avatar image" src="https://www.gravatar.com/avatar/">
-        Sign in
-        <i class="dropdown icon"></i>
-      </a>
+      {{if not .Claims }}
+        <a class="item right signin">
+          <img class="ui avatar image" src="https://www.gravatar.com/avatar/">
+          Sign in {{ .Claims }} 
+          <i class="dropdown icon"></i>
+        </a>
+      {{ else }}
+        <a class="item right">
+          <img class="ui avatar image" src="https://www.gravatar.com/avatar/">
+          {{ .Claims.UserName }}
+        </a>
+      {{ end }}
     </div>
   </div>
 

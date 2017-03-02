@@ -14,6 +14,7 @@ import (
 
 	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -30,6 +31,7 @@ type oauthProviderSettings struct {
 
 var (
 	authEndpoint  = os.Getenv("AUTH_ENDPOINT")
+	jwtSecret     = os.Getenv("JWT_SECRET")
 	oauthSettings = map[string]*oauthProviderSettings{
 		auth.OAuthFacebookProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
@@ -96,14 +98,14 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 		//Because the user can deny access to it
 
 		settings := oauthSettings[provider]
-		token, err := settings.config.Exchange(oauth2.NoContext, code)
+		oauthToken, err := settings.config.Exchange(oauth2.NoContext, code)
 		if err != nil {
 			c.Logger().Errorf("%s oauthConfig.Exchange() failed with %s", provider, err)
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
 
 		oauthUser := &oauthUserProfile{}
-		if err = doGet(settings.profileURL(token), oauthUser); err != nil {
+		if err = doGet(settings.profileURL(oauthToken), oauthUser); err != nil {
 			c.Logger().Errorf("HTTP Get profile for %s failed with %s", provider, err)
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
@@ -130,9 +132,28 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 			}
 		}
 
-		c.Logger().Infof("Logged in as %s", user)
+		jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), jwt.MapClaims{
+			"UserID":    user.ID,
+			"UserName":  user.Name,
+			"UserEmail": user.Email,
+		})
 
-		return c.Redirect(http.StatusTemporaryRedirect, redirect)
+		var token string
+		if token, err = jwtToken.SignedString([]byte(jwtSecret)); err != nil {
+			c.Logger().Errorf("%s oauthConfig.Exchange() failed with %s", provider, err)
+			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+		}
+
+		var redirectURL *url.URL
+		if redirectURL, err = url.Parse(redirect); err != nil {
+			c.Logger().Errorf("Could not parse url %s", redirect)
+			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+		}
+
+		var query = redirectURL.Query()
+		query.Add("jwt", token)
+		redirectURL.RawQuery = query.Encode()
+		return c.Redirect(http.StatusTemporaryRedirect, redirectURL.String())
 	}
 }
 

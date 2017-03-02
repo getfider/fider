@@ -56,8 +56,12 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 		authGroup.GET("/oauth/google/callback", handler.OAuth(ctx).Callback(auth.OAuthGoogleProvider))
 	}
 
-	app := router.Group("", MultiTenant(ctx))
+	app := router.Group("")
 	{
+		app.Use(JwtGetter())
+		app.Use(JwtSetter())
+		app.Use(MultiTenant(ctx))
+
 		app.GET("/", handler.Index(ctx))
 
 		api := app.Group("/api")
