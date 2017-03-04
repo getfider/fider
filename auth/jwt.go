@@ -1,8 +1,7 @@
 package auth
 
 import (
-	"os"
-
+	"github.com/WeCanHearYou/wchy/env"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
@@ -14,7 +13,7 @@ type WchyClaims struct {
 	jwt.StandardClaims
 }
 
-var jwtSecret = os.Getenv("JWT_SECRET")
+var jwtSecret = env.MustGet("JWT_SECRET")
 
 //Encode creates new JWT tokens with given claims
 func Encode(claims *WchyClaims) (string, error) {

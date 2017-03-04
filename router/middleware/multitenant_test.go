@@ -64,8 +64,8 @@ func TestMultiTenant(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.Request().Host = host
 
-			cors := middleware.MultiTenant(ctx)
-			cors(echo.HandlerFunc(func(c echo.Context) error {
+			mw := middleware.MultiTenant(ctx)
+			mw(echo.HandlerFunc(func(c echo.Context) error {
 				return c.String(http.StatusOK, c.Get("Tenant").(*model.Tenant).Name)
 			}))(c)
 
@@ -74,7 +74,6 @@ func TestMultiTenant(t *testing.T) {
 
 		}
 	}
-
 }
 
 func TestMultiTenant_UnknownDomain(t *testing.T) {

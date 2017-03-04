@@ -47,7 +47,12 @@ func JwtSetter() echo.MiddlewareFunc {
 
 				query.Del("jwt")
 
-				url := scheme + "://" + c.Request().Host + c.Request().URL.Path + "?" + query.Encode()
+				url := scheme + "://" + c.Request().Host + c.Request().URL.Path
+				querystring := query.Encode()
+				if querystring != "" {
+					url += "?" + querystring
+				}
+
 				return c.Redirect(http.StatusTemporaryRedirect, url)
 			}
 
