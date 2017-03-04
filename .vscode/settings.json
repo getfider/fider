@@ -8,10 +8,12 @@
     "data": true,
     "gin-bin": true,
     "gin-bin.exe": true,
+    "gin-bin.exe~": true,
     "wchy": true,
     "wchy.exe": true,
     "tmp": true,
-    "vendor": true
+    "vendor": true,
+    "node_modules": true
   },
   "vsicons.presets.angular": true
 }

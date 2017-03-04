@@ -14,7 +14,6 @@ import (
 
 	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -31,7 +30,6 @@ type oauthProviderSettings struct {
 
 var (
 	authEndpoint  = os.Getenv("AUTH_ENDPOINT")
-	jwtSecret     = os.Getenv("JWT_SECRET")
 	oauthSettings = map[string]*oauthProviderSettings{
 		auth.OAuthFacebookProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
@@ -132,14 +130,14 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 			}
 		}
 
-		jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), jwt.MapClaims{
-			"UserID":    user.ID,
-			"UserName":  user.Name,
-			"UserEmail": user.Email,
-		})
+		claims := &auth.WchyClaims{
+			UserID:    user.ID,
+			UserName:  user.Name,
+			UserEmail: user.Email,
+		}
 
 		var token string
-		if token, err = jwtToken.SignedString([]byte(jwtSecret)); err != nil {
+		if token, err = auth.Encode(claims); err != nil {
 			c.Logger().Errorf("%s oauthConfig.Exchange() failed with %s", provider, err)
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
