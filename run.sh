@@ -1,1 +1,0 @@
- gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"

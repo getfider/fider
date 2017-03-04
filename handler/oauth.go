@@ -14,6 +14,8 @@ import (
 
 	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
+	"github.com/WeCanHearYou/wchy/model"
+	"github.com/WeCanHearYou/wchy/service"
 	"github.com/labstack/echo"
 )
 
@@ -31,7 +33,7 @@ type oauthProviderSettings struct {
 var (
 	authEndpoint  = os.Getenv("AUTH_ENDPOINT")
 	oauthSettings = map[string]*oauthProviderSettings{
-		auth.OAuthFacebookProvider: &oauthProviderSettings{
+		service.OAuthFacebookProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
 			},
@@ -43,7 +45,7 @@ var (
 				Endpoint:     facebook.Endpoint,
 			},
 		},
-		auth.OAuthGoogleProvider: &oauthProviderSettings{
+		service.OAuthGoogleProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + url.QueryEscape(token.AccessToken)
 			},
@@ -108,20 +110,20 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
 		}
 
-		user, err := h.ctx.Auth.GetByEmail(oauthUser.Email)
+		user, err := h.ctx.User.GetByEmail(oauthUser.Email)
 		if err != nil {
-			if err == auth.ErrUserNotFound {
-				user = &auth.User{
+			if err == service.ErrNotFound {
+				user = &model.User{
 					Name:  oauthUser.Name,
 					Email: oauthUser.Email,
-					Providers: []*auth.UserProvider{
-						&auth.UserProvider{
+					Providers: []*model.UserProvider{
+						&model.UserProvider{
 							UID:  oauthUser.ID,
 							Name: provider,
 						},
 					},
 				}
-				err = h.ctx.Auth.Register(user)
+				err = h.ctx.User.Register(user)
 				if err != nil {
 					c.Logger().Error(err)
 				}

@@ -1,4 +1,4 @@
-package router_test
+package middleware_test
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/model"
-	"github.com/WeCanHearYou/wchy/router"
+	"github.com/WeCanHearYou/wchy/router/middleware"
 	"github.com/WeCanHearYou/wchy/service"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
@@ -64,7 +64,7 @@ func TestMultiTenant(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.Request().Host = host
 
-			cors := router.MultiTenant(ctx)
+			cors := middleware.MultiTenant(ctx)
 			cors(echo.HandlerFunc(func(c echo.Context) error {
 				return c.String(http.StatusOK, c.Get("Tenant").(*model.Tenant).Name)
 			}))(c)
@@ -86,7 +86,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.Request().Host = "somedomain.com"
 
-	cors := router.MultiTenant(ctx)
+	cors := middleware.MultiTenant(ctx)
 	cors(echo.HandlerFunc(func(c echo.Context) error {
 		return c.String(http.StatusOK, c.Get("Tenant").(*model.Tenant).Name)
 	}))(c)

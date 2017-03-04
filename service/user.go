@@ -1,8 +1,9 @@
-package auth
+package service
 
 import (
 	"database/sql"
-	"errors"
+
+	"github.com/WeCanHearYou/wchy/model"
 )
 
 const (
@@ -12,48 +13,31 @@ const (
 	OAuthGoogleProvider = "google"
 )
 
-//User represents an user inside our application
-type User struct {
-	ID        int64
-	Name      string
-	Email     string
-	Providers []*UserProvider
+// UserService is used for user operations
+type UserService interface {
+	GetByEmail(email string) (*model.User, error)
+	Register(user *model.User) error
 }
 
-//UserProvider represents the relashionship between an User and an Authentication provide
-type UserProvider struct {
-	Name string
-	UID  string
-}
-
-//ErrUserNotFound is "User not found"
-var ErrUserNotFound = errors.New("User not found")
-
-// Service is used for auth operations
-type Service interface {
-	GetByEmail(email string) (*User, error)
-	Register(user *User) error
-}
-
-// PostgresService is used for auth operations using a Postgres database
-type PostgresService struct {
+// PostgresUserService is used for user operations using a Postgres database
+type PostgresUserService struct {
 	DB *sql.DB
 }
 
 // GetByEmail returns a user based on given email
-func (svc PostgresService) GetByEmail(email string) (*User, error) {
-	user := &User{}
+func (svc PostgresUserService) GetByEmail(email string) (*model.User, error) {
+	user := &model.User{}
 	row := svc.DB.QueryRow("SELECT id, name, email FROM users WHERE email = $1", email)
 	err := row.Scan(&user.ID, &user.Name, &user.Email)
 	if err != nil {
-		return nil, ErrUserNotFound
+		return nil, ErrNotFound
 	}
 
 	return user, nil
 }
 
 // Register creates a new user based on given information
-func (svc PostgresService) Register(user *User) error {
+func (svc PostgresUserService) Register(user *model.User) error {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return err
