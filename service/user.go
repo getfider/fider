@@ -28,8 +28,8 @@ type PostgresUserService struct {
 func (svc PostgresUserService) GetByEmail(email string) (*model.User, error) {
 	user := &model.User{}
 	row := svc.DB.QueryRow("SELECT id, name, email FROM users WHERE email = $1", email)
-	err := row.Scan(&user.ID, &user.Name, &user.Email)
-	if err != nil {
+
+	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 		return nil, ErrNotFound
 	}
 
@@ -43,14 +43,16 @@ func (svc PostgresUserService) Register(user *model.User) error {
 		return err
 	}
 
-	err = tx.QueryRow("INSERT INTO users (name, email) VALUES($1, $2) returning id;", user.Name, user.Email).Scan(&user.ID)
-	if err != nil {
+	if err = tx.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id", user.Name, user.Email).Scan(&user.ID); err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO user_providers (user_id, provider, provider_uid) VALUES($1, $2, $3);", user.ID, user.Providers[0].Name, user.Providers[0].UID)
-	if err != nil {
-		return err
+	for _, provider := range user.Providers {
+		if _, err = tx.Exec("INSERT INTO user_providers (user_id, provider, provider_uid) VALUES ($1, $2, $3)", user.ID, provider.Name, provider.UID); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()
