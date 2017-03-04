@@ -6,13 +6,6 @@ import (
 	"github.com/WeCanHearYou/wchy/model"
 )
 
-const (
-	//OAuthFacebookProvider is const for 'facebook'
-	OAuthFacebookProvider = "facebook"
-	//OAuthGoogleProvider is const for 'google'
-	OAuthGoogleProvider = "google"
-)
-
 // UserService is used for user operations
 type UserService interface {
 	GetByEmail(email string) (*model.User, error)

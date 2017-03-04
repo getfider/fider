@@ -7,6 +7,7 @@ import (
 
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/model"
 	"github.com/WeCanHearYou/wchy/service"
 	. "github.com/onsi/gomega"
@@ -62,7 +63,7 @@ func TestUserService_Register(t *testing.T) {
 	query.WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(int64(300)))
 
 	exec := mock.ExpectExec("INSERT INTO user_providers \\(user_id, provider, provider_uid\\) VALUES \\(\\$1, \\$2, \\$3\\)")
-	exec.WithArgs(int64(300), service.OAuthFacebookProvider, "123123123")
+	exec.WithArgs(int64(300), auth.OAuthFacebookProvider, "123123123")
 	exec.WillReturnResult(driver.ResultNoRows)
 
 	mock.ExpectCommit()
@@ -74,7 +75,7 @@ func TestUserService_Register(t *testing.T) {
 		Providers: []*model.UserProvider{
 			{
 				UID:  "123123123",
-				Name: service.OAuthFacebookProvider,
+				Name: auth.OAuthFacebookProvider,
 			},
 		},
 	}
@@ -97,11 +98,11 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 	query.WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(int64(300)))
 
 	exec := mock.ExpectExec("INSERT INTO user_providers \\(user_id, provider, provider_uid\\) VALUES \\(\\$1, \\$2, \\$3\\)")
-	exec.WithArgs(int64(300), service.OAuthFacebookProvider, "123123123")
+	exec.WithArgs(int64(300), auth.OAuthFacebookProvider, "123123123")
 	exec.WillReturnResult(driver.ResultNoRows)
 
 	exec = mock.ExpectExec("INSERT INTO user_providers \\(user_id, provider, provider_uid\\) VALUES \\(\\$1, \\$2, \\$3\\)")
-	exec.WithArgs(int64(300), service.OAuthGoogleProvider, "456456456")
+	exec.WithArgs(int64(300), auth.OAuthGoogleProvider, "456456456")
 	exec.WillReturnResult(driver.ResultNoRows)
 
 	mock.ExpectCommit()
@@ -113,11 +114,11 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 		Providers: []*model.UserProvider{
 			{
 				UID:  "123123123",
-				Name: service.OAuthFacebookProvider,
+				Name: auth.OAuthFacebookProvider,
 			},
 			{
 				UID:  "456456456",
-				Name: service.OAuthGoogleProvider,
+				Name: auth.OAuthGoogleProvider,
 			},
 		},
 	}

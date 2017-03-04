@@ -7,6 +7,7 @@ import (
 
 	"fmt"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/router"
@@ -25,6 +26,7 @@ func main() {
 	}
 
 	ctx := &context.WchyContext{
+		OAuth:  &auth.HTTPOAuthService{},
 		Health: &service.PostgresHealthCheckService{DB: db},
 		Idea:   &service.PostgresIdeaService{DB: db},
 		User:   &service.PostgresUserService{DB: db},

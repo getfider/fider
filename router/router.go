@@ -5,11 +5,11 @@ import (
 
 	"strings"
 
+	"github.com/WeCanHearYou/wchy/auth"
 	"github.com/WeCanHearYou/wchy/context"
 	"github.com/WeCanHearYou/wchy/env"
 	"github.com/WeCanHearYou/wchy/handler"
 	"github.com/WeCanHearYou/wchy/router/middleware"
-	"github.com/WeCanHearYou/wchy/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 )
@@ -51,10 +51,10 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 
 	authGroup := router.Group("", middleware.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 	{
-		authGroup.GET("/oauth/facebook", handler.OAuth(ctx).Login(service.OAuthFacebookProvider))
-		authGroup.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback(service.OAuthFacebookProvider))
-		authGroup.GET("/oauth/google", handler.OAuth(ctx).Login(service.OAuthGoogleProvider))
-		authGroup.GET("/oauth/google/callback", handler.OAuth(ctx).Callback(service.OAuthGoogleProvider))
+		authGroup.GET("/oauth/facebook", handler.OAuth(ctx).Login(auth.OAuthFacebookProvider))
+		authGroup.GET("/oauth/facebook/callback", handler.OAuth(ctx).Callback(auth.OAuthFacebookProvider))
+		authGroup.GET("/oauth/google", handler.OAuth(ctx).Login(auth.OAuthGoogleProvider))
+		authGroup.GET("/oauth/google/callback", handler.OAuth(ctx).Callback(auth.OAuthGoogleProvider))
 	}
 
 	app := router.Group("")

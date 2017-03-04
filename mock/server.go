@@ -36,7 +36,7 @@ func NewServer() *Server {
 	}
 }
 
-// Execute a given handler using current server setup
+// Execute given handler and return response as JSON
 func (s *Server) Execute(handler echo.HandlerFunc) (int, *jsonq.JsonQuery) {
 	handler(s.Context)
 
@@ -49,6 +49,12 @@ func (s *Server) Execute(handler echo.HandlerFunc) (int, *jsonq.JsonQuery) {
 	}
 
 	return s.recorder.Code, nil
+}
+
+// ExecuteRaw executes given handler and return raw response
+func (s *Server) ExecuteRaw(handler echo.HandlerFunc) (int, *http.Response) {
+	handler(s.Context)
+	return s.recorder.Code, s.recorder.Result()
 }
 
 func hasJSON(r *httptest.ResponseRecorder) bool {
