@@ -3,11 +3,10 @@ package main
 import (
 	"database/sql"
 
-	"github.com/WeCanHearYou/wchy/app/auth"
-	"github.com/WeCanHearYou/wchy/app/context"
-	"github.com/WeCanHearYou/wchy/app/env"
-	"github.com/WeCanHearYou/wchy/app/router"
-	"github.com/WeCanHearYou/wchy/app/service"
+	"github.com/WeCanHearYou/wchy/app"
+	"github.com/WeCanHearYou/wchy/identity"
+	"github.com/WeCanHearYou/wchy/postgres"
+	"github.com/WeCanHearYou/wchy/toolbox/env"
 	_ "github.com/lib/pq"
 
 	"fmt"
@@ -24,18 +23,18 @@ func main() {
 		panic(err)
 	}
 
-	ctx := &context.WchyContext{
-		OAuth:  &auth.HTTPOAuthService{},
-		Health: &service.PostgresHealthCheckService{DB: db},
-		Idea:   &service.PostgresIdeaService{DB: db},
-		User:   &service.PostgresUserService{DB: db},
-		Tenant: &service.PostgresTenantService{DB: db},
-		Settings: context.WchySettings{
+	ctx := &app.WchyServices{
+		OAuth:  &identity.HTTPOAuthService{},
+		Health: &postgres.HealthCheckService{DB: db},
+		Idea:   &postgres.IdeaService{DB: db},
+		User:   &postgres.UserService{DB: db},
+		Tenant: &postgres.TenantService{DB: db},
+		Settings: &app.WchySettings{
 			BuildTime:    buildtime,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},
 	}
 
-	e := router.GetMainEngine(ctx)
+	e := app.GetMainEngine(ctx)
 	e.Logger.Fatal(e.Start(":" + env.GetEnvOrDefault("PORT", "3000")))
 }
