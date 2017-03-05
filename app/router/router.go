@@ -64,6 +64,7 @@ func GetMainEngine(ctx *context.WchyContext) *echo.Echo {
 		app.Use(middleware.MultiTenant(ctx))
 
 		app.GET("/", handler.Index(ctx))
+		app.GET("/logout", handler.OAuth(ctx).Logout())
 
 		api := app.Group("/api")
 		{

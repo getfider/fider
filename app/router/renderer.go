@@ -7,7 +7,9 @@ import (
 
 	"os"
 
+	"github.com/WeCanHearYou/wchy/app/auth"
 	"github.com/WeCanHearYou/wchy/app/env"
+	"github.com/WeCanHearYou/wchy/app/util"
 	"github.com/labstack/echo"
 )
 
@@ -62,8 +64,13 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
+	claims, ok := c.Get("Claims").(*auth.WchyClaims)
+
 	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
-	m["Claims"] = c.Get("Claims")
+	if ok {
+		m["Claims"] = claims
+		m["Gravatar"] = util.MD5(claims.UserEmail)
+	}
 	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
 
 	return tmpl.Execute(w, m)
