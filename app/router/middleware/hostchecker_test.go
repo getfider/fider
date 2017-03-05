@@ -19,7 +19,7 @@ func TestHostChecker(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.Request().Host = "login.test.canhearyou.com"
 
-	mw := middleware.HostChecker("login.test.canhearyou.com")
+	mw := middleware.HostChecker("http://login.test.canhearyou.com")
 	mw(echo.HandlerFunc(func(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}))(c)
