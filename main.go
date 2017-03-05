@@ -3,15 +3,14 @@ package main
 import (
 	"database/sql"
 
+	"github.com/WeCanHearYou/wchy/app/auth"
+	"github.com/WeCanHearYou/wchy/app/context"
+	"github.com/WeCanHearYou/wchy/app/env"
+	"github.com/WeCanHearYou/wchy/app/router"
+	"github.com/WeCanHearYou/wchy/app/service"
 	_ "github.com/lib/pq"
 
 	"fmt"
-
-	"github.com/WeCanHearYou/wchy/auth"
-	"github.com/WeCanHearYou/wchy/context"
-	"github.com/WeCanHearYou/wchy/env"
-	"github.com/WeCanHearYou/wchy/router"
-	"github.com/WeCanHearYou/wchy/service"
 )
 
 var buildtime string
