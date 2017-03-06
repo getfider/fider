@@ -1,7 +1,6 @@
 package identity
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,7 +19,7 @@ func MultiTenant(tenantService TenantService) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			fmt.Printf("Tenant not found for %s.\n", hostname)
+			c.Logger().Infof("Tenant not found for '%s'.", hostname)
 			return c.NoContent(http.StatusNotFound)
 		}
 	}

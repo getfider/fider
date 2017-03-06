@@ -1,0 +1,26 @@
+mode: count
+github.com/WeCanHearYou/wchy/postgres/app.go:11.55,13.16 2 2
+github.com/WeCanHearYou/wchy/postgres/app.go:17.2,17.13 1 1
+github.com/WeCanHearYou/wchy/postgres/app.go:13.16,15.3 1 1
+github.com/WeCanHearYou/wchy/postgres/feedback.go:15.73,17.16 2 2
+github.com/WeCanHearYou/wchy/postgres/feedback.go:21.2,22.18 2 1
+github.com/WeCanHearYou/wchy/postgres/feedback.go:28.2,28.19 1 1
+github.com/WeCanHearYou/wchy/postgres/feedback.go:17.16,19.3 1 1
+github.com/WeCanHearYou/wchy/postgres/feedback.go:22.18,26.3 3 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:17.73,21.68 3 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:25.2,25.18 1 1
+github.com/WeCanHearYou/wchy/postgres/identity.go:21.68,23.3 1 1
+github.com/WeCanHearYou/wchy/postgres/identity.go:29.60,31.16 2 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:35.2,35.137 1 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:40.2,40.42 1 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:47.2,47.20 1 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:31.16,33.3 1 0
+github.com/WeCanHearYou/wchy/postgres/identity.go:35.137,38.3 2 0
+github.com/WeCanHearYou/wchy/postgres/identity.go:40.42,41.157 1 3
+github.com/WeCanHearYou/wchy/postgres/identity.go:41.157,44.4 2 0
+github.com/WeCanHearYou/wchy/postgres/identity.go:56.79,61.16 4 3
+github.com/WeCanHearYou/wchy/postgres/identity.go:65.2,66.20 2 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:61.16,63.3 1 1
+github.com/WeCanHearYou/wchy/postgres/identity.go:69.45,70.50 1 3
+github.com/WeCanHearYou/wchy/postgres/identity.go:73.2,73.15 1 2
+github.com/WeCanHearYou/wchy/postgres/identity.go:70.50,72.3 1 1

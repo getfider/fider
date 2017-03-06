@@ -14,10 +14,12 @@ import (
 
 var buildtime string
 
-func main() {
+func init() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
+}
 
+func main() {
 	db, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	if err != nil {
 		panic(err)

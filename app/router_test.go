@@ -1,15 +1,16 @@
 package app_test
 
-/*
-TODO: re-enable this test
+import (
+	"testing"
 
-
-import . "github.com/onsi/gomega"
+	"github.com/WeCanHearYou/wchy/app"
+	. "github.com/onsi/gomega"
+)
 
 func TestRouter(t *testing.T) {
 	RegisterTestingT(t)
 
-	r := router.GetMainEngine(nil)
+	ctx := &app.WchyServices{}
+	r := app.GetMainEngine(ctx)
 	Expect(r).ToNot(BeNil())
 }
-*/

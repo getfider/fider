@@ -64,7 +64,6 @@ func TestMultiTenant(t *testing.T) {
 
 			Expect(rec.Code).To(Equal(200))
 			Expect(rec.Body.String()).To(Equal(testCase.tenant.Name))
-
 		}
 	}
 }
@@ -78,8 +77,8 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	c := e.NewContext(req, rec)
 	c.Request().Host = "somedomain.com"
 
-	cors := identity.MultiTenant(&mockTenantService{})
-	cors(echo.HandlerFunc(func(c echo.Context) error {
+	mw := identity.MultiTenant(&mockTenantService{})
+	mw(echo.HandlerFunc(func(c echo.Context) error {
 		return c.String(http.StatusOK, c.Get("Tenant").(*identity.Tenant).Name)
 	}))(c)
 

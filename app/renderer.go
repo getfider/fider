@@ -32,30 +32,34 @@ func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wchy/" + path
 	}
 
+	//TODO: load all templates automatically
 	renderer.add("index.html")
+	renderer.add("404.html")
+	renderer.add("500.html")
 
 	return renderer
 }
 
 //Render a template based on parameters
-func (r *HTMLRenderer) add(name string) {
+func (r *HTMLRenderer) add(name string) *template.Template {
 	tpl, err := template.ParseFiles(path+"base.html", path+name)
 	if err != nil {
 		r.logger.Error(err)
 	}
 
 	r.templates[name] = tpl
+	return tpl
 }
 
 //Render a template based on parameters
 func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	if env.IsDevelopment() {
-		r.add(name)
-	}
-
 	tmpl, ok := r.templates[name]
 	if !ok {
-		panic(fmt.Errorf("The template %s does not exist", name))
+		panic(fmt.Errorf("The template '%s' does not exist", name))
+	}
+
+	if env.IsDevelopment() {
+		tmpl = r.add(name)
 	}
 
 	protocol := "http://"

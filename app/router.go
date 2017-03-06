@@ -30,11 +30,10 @@ type WchyServices struct {
 
 func errorHandler(e error, c echo.Context) {
 	if strings.Contains(e.Error(), "code=404") {
-		c.Logger().Debugf("%s not found.", c.Request().URL)
-		c.NoContent(http.StatusNotFound)
+		c.Render(http.StatusNotFound, "404.html", echo.Map{})
 	} else {
 		c.Logger().Error(e)
-		c.NoContent(http.StatusInternalServerError)
+		c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
 	}
 }
 

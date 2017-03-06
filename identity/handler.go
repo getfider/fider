@@ -36,7 +36,7 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 
 		if redirectURL, err = url.Parse(redirect); err != nil {
 			c.Logger().Errorf("Could not parse url %s", redirect)
-			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
 		}
 
 		//TODO: Check if code is empty (or other querystring parameter)
@@ -44,7 +44,7 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 		oauthUser, err := h.oauthService.GetProfile(provider, code)
 		if err != nil {
 			c.Logger().Error(err)
-			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
 		}
 
 		user, err := h.userService.GetByEmail(oauthUser.Email)
@@ -79,7 +79,7 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 		var token string
 		if token, err = Encode(claims); err != nil {
 			c.Logger().Errorf("Encoding claims failed with %s", err)
-			return c.Redirect(http.StatusTemporaryRedirect, redirect) //TODO: redirect to some error page
+			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
 		}
 
 		var query = redirectURL.Query()
