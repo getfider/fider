@@ -1,5 +1,9 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
+# Load .test.env file and export all env variables
+include .test.env
+export $(shell sed 's/=.*//' .test.env)
+
 define tag_docker
 	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
 		docker tag $(1) $(1):stable; \
@@ -10,9 +14,6 @@ define tag_docker
 endef
 
 test:
-	AUTH_ENDPOINT=http://login.test.canhearyou.com:3000 \
-	GO_ENV=test \
-	JWT_SECRET=some.dummy.secret \
 	go test $$(go list ./... | grep -v /vendor/) -cover
 
 setup-ci:
@@ -20,11 +21,10 @@ setup-ci:
 	govendor sync
 	govendor install +vendor
 
-run-ci:
-	AUTH_ENDPOINT=http://login.test.canhearyou.com:3000 \
-	GO_ENV=test \
-	JWT_SECRET=some.dummy.secret \
+goveralls:
 	goveralls -service=travis-ci
+
+dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)

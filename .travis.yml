@@ -12,6 +12,10 @@ env:
   global:
     - GO_ENV=test
 
-install: make setup-ci
+install: 
+  - make setup-ci
 
-script: make run-ci
+script: 
+  - make test
+  - make goveralls
+  - make dockerize
