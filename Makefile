@@ -1,9 +1,5 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
-# Load .test.env file and export all env variables
-include .test.env
-export $(shell sed 's/=.*//' .test.env)
-
 define tag_docker
 	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
 		docker tag $(1) $(1):stable; \
@@ -14,15 +10,16 @@ define tag_docker
 endef
 
 test:
-	go test $$(go list ./... | grep -v /vendor/) -cover
+	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover
 
 setup-ci:
 	go get github.com/kardianos/govendor
+	go get github.com/joho/godotenv/cmd/godotenv
 	govendor sync
 	govendor install +vendor
 
 goveralls:
-	goveralls -service=travis-ci
+	godotenv -f .test.env goveralls -service=travis-ci
 
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
