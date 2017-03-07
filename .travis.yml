@@ -19,3 +19,7 @@ script:
   - make test
   - make goveralls
   - make dockerize
+
+after_success:
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - make dockerize

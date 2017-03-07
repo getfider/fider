@@ -27,7 +27,6 @@ goveralls:
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-	docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
 	docker build -f Dockerfile -t wecanhearyou/wchy .
 	$(call tag_docker, wecanhearyou/wchy)
 	docker push wecanhearyou/wchy
