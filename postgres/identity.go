@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/WeCanHearYou/wchy/identity"
-	"github.com/WeCanHearYou/wchy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/toolbox/env"
 )
 
 // UserService is used for user operations using a Postgres database

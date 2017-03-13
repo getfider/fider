@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/WeCanHearYou/wchy/identity"
+	"github.com/WeCanHearYou/wechy/identity"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
@@ -108,7 +108,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&identity.WchyClaims{
+	token, _ := identity.Encode(&identity.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -123,7 +123,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 
 	mw := identity.JwtGetter()
 	mw(echo.HandlerFunc(func(c echo.Context) error {
-		claims := c.Get("Claims").(*identity.WchyClaims)
+		claims := c.Get("Claims").(*identity.WechyClaims)
 		return c.String(http.StatusOK, claims.UserName)
 	}))(c)
 
@@ -151,7 +151,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&identity.WchyClaims{
+	token, _ := identity.Encode(&identity.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -173,7 +173,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&identity.WchyClaims{
+	token, _ := identity.Encode(&identity.WechyClaims{
 		UserName: "Jon Snow",
 	})
 

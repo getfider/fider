@@ -5,8 +5,8 @@ import (
 
 	"net/http"
 
-	"github.com/WeCanHearYou/wchy/identity"
-	"github.com/WeCanHearYou/wchy/mock"
+	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/mock"
 	. "github.com/onsi/gomega"
 )
 

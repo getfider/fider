@@ -4,8 +4,8 @@ tmp/
 node_modules/
 *.coverprofile
 
-wchy
-wchy.exe
+wechy
+wechy.exe
 gin-bin
 gin-bin.exe
 gin-bin.exe~

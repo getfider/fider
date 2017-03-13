@@ -70,7 +70,7 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 			}
 		}
 
-		claims := &WchyClaims{
+		claims := &WechyClaims{
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,

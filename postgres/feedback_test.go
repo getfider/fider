@@ -6,8 +6,8 @@ import (
 
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
-	"github.com/WeCanHearYou/wchy/feedback"
-	"github.com/WeCanHearYou/wchy/postgres"
+	"github.com/WeCanHearYou/wechy/feedback"
+	"github.com/WeCanHearYou/wechy/postgres"
 	. "github.com/onsi/gomega"
 )
 

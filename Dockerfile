@@ -1,5 +1,5 @@
 FROM scratch
-ADD wchy /
+ADD wechy /
 ENV PORT 8080
-CMD ["/wchy"]
+CMD ["/wechy"]
 EXPOSE 8080

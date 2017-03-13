@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 
-	"github.com/WeCanHearYou/wchy/feedback"
+	"github.com/WeCanHearYou/wechy/feedback"
 )
 
 // IdeaService contains read and write operations for ideas

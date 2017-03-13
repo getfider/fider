@@ -24,14 +24,14 @@ goveralls:
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-	docker build -f Dockerfile -t wecanhearyou/wchy .
-	$(call tag_docker, wecanhearyou/wchy)
-	docker push wecanhearyou/wchy
+	docker build -f Dockerfile -t WeCanHearYou/wechy .
+	$(call tag_docker, WeCanHearYou/wechy)
+	docker push WeCanHearYou/wechy
 endif
 
 migrate:
 ifeq ($(GO_ENV), development)
-	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./migrations up
+	migrate -url postgres://wechy:wechy-pw@localhost:5555/wechy?sslmode=disable -path ./migrations up
 else
 	migrate -url ${DATABASE_URL} -path ./migrations up
 endif
@@ -43,6 +43,6 @@ watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	wchy
+	wechy
 
 .DEFAULT_GOAL := build

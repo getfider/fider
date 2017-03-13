@@ -7,7 +7,7 @@ import (
 
 	"strings"
 
-	"github.com/WeCanHearYou/wchy/app"
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/jmoiron/jsonq"
 	"github.com/labstack/echo"
 )

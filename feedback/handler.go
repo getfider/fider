@@ -1,7 +1,7 @@
 package feedback
 
 import (
-	"github.com/WeCanHearYou/wchy/identity"
+	"github.com/WeCanHearYou/wechy/identity"
 	"github.com/labstack/echo"
 )
 

@@ -9,8 +9,8 @@
     "gin-bin": true,
     "gin-bin.exe": true,
     "gin-bin.exe~": true,
-    "wchy": true,
-    "wchy.exe": true,
+    "wechy": true,
+    "wechy.exe": true,
     "tmp": true,
     "vendor": true,
     "node_modules": true

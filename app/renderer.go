@@ -9,8 +9,8 @@ import (
 
 	"os"
 
-	"github.com/WeCanHearYou/wchy/identity"
-	"github.com/WeCanHearYou/wchy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/toolbox/env"
 	"github.com/labstack/echo"
 )
 
@@ -29,7 +29,7 @@ func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 
 	path = "views/"
 	if env.IsTest() {
-		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wchy/" + path
+		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wechy/" + path
 	}
 
 	//TODO: load all templates automatically
@@ -69,7 +69,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
-	claims, ok := c.Get("Claims").(*identity.WchyClaims)
+	claims, ok := c.Get("Claims").(*identity.WechyClaims)
 
 	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
 	if ok {

@@ -22,7 +22,7 @@ func MustGet(name string) string {
 	return value
 }
 
-// GetCurrentDomain returns WCHY domain based on current environment variables
+// GetCurrentDomain returns Wechy domain based on current environment variables
 func GetCurrentDomain() string {
 	env := os.Getenv("GO_ENV")
 	switch env {
@@ -37,7 +37,7 @@ func GetCurrentDomain() string {
 
 }
 
-// Current returns current WCHY environment
+// Current returns current Wechy environment
 func Current() string {
 	env := os.Getenv("GO_ENV")
 	switch env {
@@ -51,22 +51,22 @@ func Current() string {
 	return "development"
 }
 
-// IsProduction returns true on WCHY production environment
+// IsProduction returns true on Wechy production environment
 func IsProduction() bool {
 	return Current() == "production"
 }
 
-// IsStaging returns true on WCHY production environment
+// IsStaging returns true on Wechy production environment
 func IsStaging() bool {
 	return Current() == "staging"
 }
 
-// IsTest returns true on WCHY production environment
+// IsTest returns true on Wechy production environment
 func IsTest() bool {
 	return Current() == "test"
 }
 
-// IsDevelopment returns true on WCHY production environment
+// IsDevelopment returns true on Wechy production environment
 func IsDevelopment() bool {
 	return Current() == "development"
 }

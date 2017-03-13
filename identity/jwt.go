@@ -1,12 +1,12 @@
 package identity
 
 import (
-	"github.com/WeCanHearYou/wchy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/toolbox/env"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-//WchyClaims represents what goes into JWT tokens
-type WchyClaims struct {
+//WechyClaims represents what goes into JWT tokens
+type WechyClaims struct {
 	UserID    int64  `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`
@@ -16,14 +16,14 @@ type WchyClaims struct {
 var jwtSecret = env.MustGet("JWT_SECRET")
 
 //Encode creates new JWT tokens with given claims
-func Encode(claims *WchyClaims) (string, error) {
+func Encode(claims *WechyClaims) (string, error) {
 	jwtToken := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), claims)
 	return jwtToken.SignedString([]byte(jwtSecret))
 }
 
 //Decode extract claims from JWT tokens
-func Decode(token string) (*WchyClaims, error) {
-	claims := &WchyClaims{}
+func Decode(token string) (*WechyClaims, error) {
+	claims := &WechyClaims{}
 	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
 	})

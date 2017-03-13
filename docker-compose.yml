@@ -8,5 +8,5 @@ services:
     ports:
       - "5555:5432"
     environment:
-      POSTGRES_USER: wchy
-      POSTGRES_PASSWORD: wchy-pw
+      POSTGRES_USER: wechy
+      POSTGRES_PASSWORD: wechy-pw

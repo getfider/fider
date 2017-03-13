@@ -3,8 +3,8 @@ package app_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wchy/app"
-	"github.com/WeCanHearYou/wchy/mock"
+	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/mock"
 	. "github.com/onsi/gomega"
 )
 
@@ -18,7 +18,7 @@ func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	service := &falsyHealthCheckService{}
-	settings := &app.WchySettings{
+	settings := &app.WechySettings{
 		BuildTime: "today",
 	}
 

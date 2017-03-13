@@ -5,27 +5,27 @@ import (
 
 	"strings"
 
-	"github.com/WeCanHearYou/wchy/feedback"
-	"github.com/WeCanHearYou/wchy/identity"
-	"github.com/WeCanHearYou/wchy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/feedback"
+	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/toolbox/env"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 )
 
-// WchySettings is an application-wide settings
-type WchySettings struct {
+// WechySettings is an application-wide settings
+type WechySettings struct {
 	BuildTime    string
 	AuthEndpoint string
 }
 
-// WchyServices holds reference to all WCHY services
-type WchyServices struct {
+// WechyServices holds reference to all Wechy services
+type WechyServices struct {
 	OAuth    identity.OAuthService
 	User     identity.UserService
 	Tenant   identity.TenantService
 	Idea     feedback.IdeaService
 	Health   HealthCheckService
-	Settings *WchySettings
+	Settings *WechySettings
 }
 
 func errorHandler(e error, c echo.Context) {
@@ -51,7 +51,7 @@ func createLogger() echo.Logger {
 }
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx *WchyServices) *echo.Echo {
+func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	router := echo.New()
 
 	router.Logger = createLogger()

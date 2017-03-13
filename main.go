@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 
-	"github.com/WeCanHearYou/wchy/app"
-	"github.com/WeCanHearYou/wchy/identity"
-	"github.com/WeCanHearYou/wchy/postgres"
-	"github.com/WeCanHearYou/wchy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/postgres"
+	"github.com/WeCanHearYou/wechy/toolbox/env"
 	_ "github.com/lib/pq"
 
 	"fmt"
@@ -25,13 +25,13 @@ func main() {
 		panic(err)
 	}
 
-	ctx := &app.WchyServices{
+	ctx := &app.WechyServices{
 		OAuth:  &identity.HTTPOAuthService{},
 		Health: &postgres.HealthCheckService{DB: db},
 		Idea:   &postgres.IdeaService{DB: db},
 		User:   &postgres.UserService{DB: db},
 		Tenant: &postgres.TenantService{DB: db},
-		Settings: &app.WchySettings{
+		Settings: &app.WechySettings{
 			BuildTime:    buildtime,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},

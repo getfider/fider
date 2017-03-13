@@ -10,11 +10,11 @@ import (
 
 type statusHandler struct {
 	healthService HealthCheckService
-	settings      *WchySettings
+	settings      *WechySettings
 }
 
 // Status creates a new Status HTTP handler
-func Status(healthService HealthCheckService, settings *WchySettings) echo.HandlerFunc {
+func Status(healthService HealthCheckService, settings *WechySettings) echo.HandlerFunc {
 	return statusHandler{healthService, settings}.get()
 }
 
