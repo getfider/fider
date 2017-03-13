@@ -1,9 +1,5 @@
-#new-idea {
-  margin-top: 20px;
-}
-
-#new-idea button {
-  margin-top: 20px;
+#new-idea-input {
+  margin-bottom: 20px;
 }
 
 .ideas-list {

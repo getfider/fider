@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", function() {
     $(this).addClass("loading");
   });
   
-  var input = document.querySelector("#new-idea input");
-  var submit = document.querySelector("#new-idea button");
+  var input = document.querySelector("#new-idea-input");
+  var submit = document.querySelector("#new-idea-submit");
 
   submit.style.display = 'none';
 
