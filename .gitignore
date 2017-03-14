@@ -1,6 +1,7 @@
 vendor/*/
 data/
 tmp/
+dist/
 node_modules/
 *.coverprofile
 

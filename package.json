@@ -4,7 +4,20 @@
   "version": "0.0.0",
   "repository": "https://github.com/WeCanHearYou/wechy",
   "license": "GPL-3.0",
+  "scripts": {
+    "build": "rm -rf assets && webpack",
+    "postinstall": "npm run build"
+  },
   "dependencies": {
-    "semantic-ui-css": "^2.2.4"
+    "semantic-ui-css": "^2.2.9"
+  },
+  "devDependencies": {
+    "@types/jquery": "^2.0.41",
+    "css-loader": "^0.27.3",
+    "file-loader": "^0.10.1",
+    "style-loader": "^0.13.2",
+    "ts-loader": "^2.0.1",
+    "typescript": "^2.2.1",
+    "webpack": "^2.2.1"
   }
 }

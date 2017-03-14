@@ -9,6 +9,8 @@ import (
 
 	"os"
 
+	"io/ioutil"
+
 	"github.com/WeCanHearYou/wechy/identity"
 	"github.com/WeCanHearYou/wechy/toolbox/env"
 	"github.com/labstack/echo"
@@ -77,6 +79,9 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		m["Gravatar"] = toMDF5(claims.UserEmail)
 	}
 	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
+
+	files, _ := ioutil.ReadDir("dist/js")
+	m["JavaScriptBundle"] = files[0].Name()
 
 	return tmpl.Execute(w, m)
 }
