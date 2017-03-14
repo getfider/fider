@@ -81,7 +81,9 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
 
 	files, _ := ioutil.ReadDir("dist/js")
-	m["JavaScriptBundle"] = files[0].Name()
+	if len(files) > 0 {
+		m["JavaScriptBundle"] = files[0].Name()
+	}
 
 	return tmpl.Execute(w, m)
 }

@@ -1,12 +1,15 @@
 import * as $ from "jquery";
 
+import init from "./init"
+
 (<any>window).$ = (<any>window).jQuery = $;
 import "semantic-ui-css/semantic.min.css";
 import "./css/main.css";
 import "semantic-ui-css/semantic.min.js";
 
 $(document).ready(() => {
-    console.log("It works 3.");
+    init();
+
     $(".ui.dropdown").dropdown();
 
     $('.menu .signin').popup({

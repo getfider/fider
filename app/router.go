@@ -58,7 +58,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	router.Renderer = NewHTMLRenderer(router.Logger)
 	router.HTTPErrorHandler = errorHandler
 
-	router.Static("/favicon.ico", "public/imgs/favicon.ico")
+	router.Static("/favicon.ico", "favicon.ico")
 	router.Static("/assets", "dist")
 
 	authGroup := router.Group("", identity.HostChecker(env.MustGet("AUTH_ENDPOINT")))
