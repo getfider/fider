@@ -28,6 +28,5 @@ module.exports = {
     },
     plugins: [
         new AutoCleanBuildPlugin()
-    ],
-    watch: true
+    ]
 };
