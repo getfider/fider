@@ -3,7 +3,7 @@ import {IdeaInput} from "./IdeaInput";
 import {SocialSignInButton} from "./SocialSignInButton";
 
 const claims = (window as any)._claims;
-const ideas:any[] = (window as any)._ideas;
+const ideas:any[] = (window as any)._ideas || [];
 
 export class Root extends React.Component<{}, {}> {
     render() {
