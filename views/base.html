@@ -4,10 +4,15 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <script type="text/javascript" src="/assets/js/{{ .JavaScriptBundle }}"></script>
     <title>{{template "title" .}}</title>
 </head>
 <body>
+  <script type="text/javascript">
+    var _authEndpoint = {{ .AuthEndpoint }};
+    var _claims = {{ .Claims }};
+    {{template "javascript" .}}
+  </script>
+
   <div class="ui menu">
     <div class="ui container">
       <div class="header item">
@@ -58,9 +63,7 @@
     </div>
   {{ end }}
 
-  <div class="ui container">
-    {{template "content" .}}
-  </div>
+  <div id="root"></div>
 
   <div id="footer" class="ui inverted vertical footer segment">
     <div class="ui center aligned container">
@@ -98,5 +101,6 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript" src="/assets/js/{{ .JavaScriptBundle }}"></script>
 </body>
 </html>

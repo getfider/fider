@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { IdeaInput } from "./components/IdeaInput";
+import { Root } from "./components/Root";
 
 export default function init() {
     ReactDOM.render(
-        <IdeaInput />,
+        <Root />,
         document.getElementById("root")
     );
 }

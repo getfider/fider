@@ -2,67 +2,6 @@
   {{ .Tenant.Name }}
 {{end}}
         
-{{define "content"}}
-  <div class="ui container">
-    <h1 class="ui header">Welcome to our feedback forum!</h1>
-  </div>
-
-  <div class="ui container">
-    <h3>I want ...</h3>
-    
-    <div id="root"></div>
-
-    <div id="new-idea-submit" class="ui grid">
-      <div class="four wide column">
-        {{if not .Claims }}
-          <p>Please log in before posting an idea...</p>
-          <div class="ui list">
-            <div class="item">
-              <a href="{{ .AuthEndpoint }}/oauth/facebook?redirect={{ .CurrentUrl }}" class="ui fluid facebook button">
-                <i class="facebook icon"></i>
-                Sign in with Facebook 
-              </a>
-            </div>
-            <div class="item">
-              <a href="{{ .AuthEndpoint }}/oauth/google?redirect={{ .CurrentUrl }}" class="ui fluid google plus button">
-                <i class="google icon"></i>
-                Sign in with Google
-              </a>
-            </div>
-          </div>
-        {{ else }}
-            <button class="ui positive button">
-              Submit Idea
-            </button>
-        {{ end }}
-      </div>
-    </div>
-  </div>
-
-  <div class="ui container ideas-list">
-    {{ if not .Ideas }}
-        <p>No ideas have been shared yet.</p>
-    {{ else }}
-    <h3>Top Ideas</h3>
-    <div class="ui divided items">
-      {{ range $value := .Ideas }}
-        <div class="item">
-          <div class="content">
-            <a class="header">{{ $value.Title }}</a>
-            <div class="meta">
-              <span class="cinema">Union Square 14</span>
-            </div>
-            <div class="description">
-              <p>{{ $value.Title }} {{ $value.Title }} {{ $value.Title }} {{ $value.Title }}</p>
-            </div>
-            <div class="extra">
-              <div class="ui label">IMAX</div>
-              <div class="ui label">Additional Languages</div>
-            </div>
-          </div>
-        </div>
-      {{ end }}
-      </div>
-    {{ end }}
-  </div>
+{{define "javascript"}}
+  var _ideas = {{ .Ideas }};
 {{end}}
