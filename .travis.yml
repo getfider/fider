@@ -15,6 +15,7 @@ env:
 
 install: 
   - make setup-ci
+  - npm run install
 
 script: 
   - npm run lint
