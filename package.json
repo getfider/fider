@@ -7,7 +7,8 @@
   "scripts": {
     "build": "rm -rf dist && webpack",
     "build:watch": "rm -rf dist && webpack --watch",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "lint": "tslint public/**/**.tsx public/**/**.ts"
   },
   "dependencies": {
     "react": "^15.4.2",
@@ -25,6 +26,7 @@
     "rimraf": "^2.6.1",
     "style-loader": "^0.13.2",
     "ts-loader": "^2.0.1",
+    "tslint": "^4.5.1",
     "typescript": "^2.2.1",
     "webpack": "^2.2.1",
     "webpack-auto-clean-build-plugin": "^1.0.3"

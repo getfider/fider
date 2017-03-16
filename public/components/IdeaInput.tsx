@@ -14,8 +14,8 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         this.state = { idea: "" };
     }
 
-    render() {
-        const details = claims ? 
+    public render() {
+        const details = claims ?
                         <button className="ui positive button">
                           Submit Idea
                         </button> :

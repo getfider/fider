@@ -1,6 +1,6 @@
 import * as React from "react";
 
-/* 
+/*
 <!--
 <div class="ui stackable inverted divided grid">
 <div class="six wide column">
@@ -30,12 +30,13 @@ import * as React from "react";
 */
 
 export class Footer extends React.Component<{}, {}> {
-    render() {
+    public render() {
         return  <div id="footer" className="ui inverted vertical footer segment">
                     <div className="ui center aligned container">
                         <div className="ui inverted section divider"></div>
                         <div className="ui horizontal inverted small divided link list">
-                            Powered by <a className="item" target="_blank" href="http://we.canhearyou.com/">WeCanHearYou</a>
+                            <span>Powered by</span>
+                            <a className="item" target="_blank" href="http://we.canhearyou.com/">WeCanHearYou</a>
                         </div>
                     </div>
                 </div>;

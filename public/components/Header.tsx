@@ -5,28 +5,21 @@ const tenant = (window as any)._tenant;
 const claims = (window as any)._claims;
 const gravatar = (window as any)._gravatar;
 
-/*
-  {{if not .Claims }}
-  {{ else }}
-    
-  {{ end }}
-*/
-
 export class Header extends React.Component<{}, {}> {
-    render() {
-        const profile = claims ? 
+    public render() {
+        const profile = claims ?
                         <a className="item right signin">
                             <img className="ui avatar image" src={ "https://www.gravatar.com/avatar/" + gravatar } />
                             { claims["user/name"] }
                             <i className="dropdown icon"></i>
-                        </a> : 
+                        </a> :
                         <a className="item right signin">
                             <img className="ui avatar image" src="https://www.gravatar.com/avatar/" />
                             Sign in
                             <i className="dropdown icon"></i>
                         </a>;
-                        
-        const dropdown = claims ? 
+
+        const dropdown = claims ?
                         <div id="user-popup" className="ui popup top left transition hidden">
                             <div className="ui">
                                 <div className="item">
@@ -35,7 +28,7 @@ export class Header extends React.Component<{}, {}> {
                                 </a>
                                 </div>
                             </div>
-                        </div> : 
+                        </div> :
                         <div id="user-popup" className="ui popup top left transition hidden">
                             <div className="ui list">
                                 <div className="item">

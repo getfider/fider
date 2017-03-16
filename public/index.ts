@@ -1,11 +1,11 @@
 import * as $ from "jquery";
 
-import init from "./init"
+import init from "./init";
 
-(<any>window).$ = (<any>window).jQuery = $;
+(<any> window).$ = (<any> window).jQuery = $;
 import "semantic-ui-css/semantic.min.css";
-import "./css/main.css";
 import "semantic-ui-css/semantic.min.js";
+import "./css/main.css";
 
 $(document).ready(() => {
     init();
@@ -22,4 +22,3 @@ $(document).ready(() => {
         }
     });
 });
-

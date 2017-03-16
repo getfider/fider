@@ -5,17 +5,20 @@ services:
   
 language: go
 
-go:
-  - 1.7.x
+node_js: 6.10.0
+go: 1.7.5
 
 env:
   global:
     - GO_ENV=test
+    - NODE_ENV=test
 
 install: 
   - make setup-ci
 
 script: 
+  - npm run lint
+  - npm run build  
   - make test
   - make goveralls
 

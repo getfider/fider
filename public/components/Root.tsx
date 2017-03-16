@@ -1,15 +1,16 @@
 import * as React from "react";
-import { IdeaInput } from "./IdeaInput";
-import { Header } from "./Header";
+
 import { Footer } from "./Footer";
+import { Header } from "./Header";
+import { IdeaInput } from "./IdeaInput";
 
 const claims = (window as any)._claims;
-const ideas:any[] = (window as any)._ideas || [];
+const ideas: any[] = (window as any)._ideas || [];
 
 export class Root extends React.Component<{}, {}> {
-    render() {
+    public render() {
 
-        const ideasList = ideas.map(x => 
+        const ideasList = ideas.map((x: any) =>
                         <div className="item" key={x.id}>
                           <div className="content">
                             <a className="header">{ x.title }</a>
@@ -31,8 +32,8 @@ export class Root extends React.Component<{}, {}> {
                       <div className="ui divided items">
                         { ideasList }
                       </div> 
-                    </div> 
-                    : <p>No ideas have been shared yet.</p>
+                    </div>
+                    : <p>No ideas have been shared yet.</p>;
 
         return <div>
                   <Header />

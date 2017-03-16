@@ -17,9 +17,9 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
         };
     }
 
-    render() {
-        const providerClassName = this.props.provider == "google" ? "google plus" : "facebook";
-        const providerDisplayName = this.props.provider == "google" ? "Google" : "Facebook";
+    public render() {
+        const providerClassName = this.props.provider === "google" ? "google plus" : "facebook";
+        const providerDisplayName = this.props.provider === "google" ? "Google" : "Facebook";
         const oauthUrl = `${authEndpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
         const cssClasses = `${providerClassName} ui fluid button ${this.state.clicked ? "loading" : ""}`;
 
