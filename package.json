@@ -7,11 +7,12 @@
   "scripts": {
     "build": "rm -rf dist && webpack",
     "build:watch": "rm -rf dist && webpack --watch",
-    "postinstall": "npm run build",
-    "lint": "tslint public/**/**.tsx public/**/**.ts"
+    "lint": "tslint public/**/**.tsx public/**/**.ts",
+    "heroku-postbuild": "npm run build"    
   },
   "dependencies": {
     "react": "^15.4.2",
+    "jquery": "^3.2.0",
     "react-dom": "^15.4.2",
     "semantic-ui-css": "^2.2.9"
   },
