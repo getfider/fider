@@ -64,11 +64,6 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		tmpl = r.add(name)
 	}
 
-	protocol := "http://"
-	if c.Request().TLS != nil {
-		protocol = "https://"
-	}
-
 	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
 	claims, ok := c.Get("Claims").(*identity.WechyClaims)
@@ -78,7 +73,6 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		m["Claims"] = claims
 		m["Gravatar"] = toMDF5(claims.UserEmail)
 	}
-	m["CurrentUrl"] = protocol + c.Request().Host + c.Request().URL.String()
 
 	files, _ := ioutil.ReadDir("dist/js")
 	if len(files) > 0 {

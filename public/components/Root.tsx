@@ -1,27 +1,13 @@
 import * as React from "react";
-import {IdeaInput} from "./IdeaInput";
-import {SocialSignInButton} from "./SocialSignInButton";
+import { IdeaInput } from "./IdeaInput";
+import { Header } from "./Header";
+import { Footer } from "./Footer";
 
 const claims = (window as any)._claims;
 const ideas:any[] = (window as any)._ideas || [];
 
 export class Root extends React.Component<{}, {}> {
     render() {
-        const details = claims ? 
-                        <button className="ui positive button">
-                          Submit Idea
-                        </button> :
-                        <div>
-                          <p>Please log in before posting an idea...</p>
-                          <div className="ui list">
-                            <div className="item">
-                              <SocialSignInButton provider="facebook"/>
-                            </div>
-                            <div className="item">
-                              <SocialSignInButton provider="google"/>
-                            </div>
-                          </div>
-                        </div>
 
         const ideasList = ideas.map(x => 
                         <div className="item" key={x.id}>
@@ -48,25 +34,20 @@ export class Root extends React.Component<{}, {}> {
                     </div> 
                     : <p>No ideas have been shared yet.</p>
 
-        return <div className="ui container">
-                <div className="ui container">
-                  <h1 className="ui header">Welcome to our feedback forum!</h1>
-                </div>
+        return <div>
+                  <Header />
+                  <div className="ui container">
+                    <h1 className="ui header">Welcome to our feedback forum!</h1>
 
-                <div className="ui container">
-                  <h3>I want ...</h3>
-                </div>
-                <IdeaInput />
+                    <h3>I want ...</h3>
 
-                <div id="new-idea-submit" className="ui grid">
-                  <div className="four wide column">
-                    { details }
+                    <IdeaInput />
+
+                    <div className="ui container ideas-list">
+                      { displayIdeas }
+                    </div>
                   </div>
-                </div>
-
-                <div className="ui container ideas-list">
-                  { displayIdeas }
-                </div>
+                  <Footer />
                </div>;
     }
 }
