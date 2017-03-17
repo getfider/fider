@@ -20,7 +20,7 @@ func TestIndexHandler(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("Tenant", &identity.Tenant{ID: 2, Name: "Any Tenant"})
-	code, _ := server.Execute(feedback.Index(&mockIdeaService{}))
+	code, _ := server.Execute(feedback.Index(&mockIdeaService{}).List())
 
 	Expect(code).To(Equal(200))
 }
