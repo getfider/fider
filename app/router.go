@@ -77,7 +77,8 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		appGroup.Use(identity.JwtSetter())
 		appGroup.Use(identity.MultiTenant(ctx.Tenant))
 
-		appGroup.GET("/", feedback.Index(ctx.Idea))
+		appGroup.GET("/", feedback.Index(ctx.Idea).List())
+		appGroup.POST("/api/ideas", feedback.Index(ctx.Idea).Post())
 		appGroup.GET("/logout", identity.OAuth(ctx.OAuth, ctx.User).Logout())
 		appGroup.GET("/status", Status(ctx.Health, ctx.Settings))
 	}

@@ -43,10 +43,10 @@ export class Header extends React.Component<{}, {}> {
         return <div>
                 <div className="ui menu">
                     <div className="ui container">
-                    <div className="header item">
-                        { tenant.name }
-                    </div>
-                    { profile }
+                        <div className="header item">
+                            { tenant.name }
+                        </div>
+                        { profile }
                     </div>
                 </div>
                 { dropdown }

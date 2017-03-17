@@ -1,5 +1,5 @@
 const path = require('path');
-const AutoCleanBuildPlugin = require('webpack-auto-clean-build-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
     entry: "./public/index.ts",
@@ -27,7 +27,12 @@ module.exports = {
         ]
     },
     plugins: [
-        new AutoCleanBuildPlugin()
+        new CleanWebpackPlugin(['dist'], {
+            root: __dirname,
+            verbose: true,
+            dry: false,
+            watch: true
+        })
     ],
     externals: {
         'react': 'React',
