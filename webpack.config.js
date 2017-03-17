@@ -1,6 +1,5 @@
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-var AutoCleanBuildPlugin = require('webpack-auto-clean-build-plugin');
+const AutoCleanBuildPlugin = require('webpack-auto-clean-build-plugin');
 
 module.exports = {
     entry: "./public/index.ts",
@@ -9,11 +8,12 @@ module.exports = {
         filename: "js/bundle.[chunkhash].js",
         publicPath: "/assets/"
     },
+    devtool: "source-map",
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
     module: {
-        loaders: [
+        rules: [
             { test: /\.css$/, loader: "style-loader!css-loader" },
             { test: /\.(ts|tsx)$/, loader: "ts-loader" },
             {
@@ -28,5 +28,10 @@ module.exports = {
     },
     plugins: [
         new AutoCleanBuildPlugin()
-    ]
+    ],
+    externals: {
+        'react': 'React',
+        'react-dom' : 'ReactDOM',
+        "jquery": "jQuery"
+    }
 };

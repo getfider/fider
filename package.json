@@ -5,14 +5,14 @@
   "repository": "https://github.com/WeCanHearYou/wechy",
   "license": "GPL-3.0",
   "scripts": {
-    "build": "rm -rf dist && webpack",
+    "build": "rm -rf dist && webpack -p",
     "build:watch": "rm -rf dist && webpack --watch",
     "lint": "tslint public/**/**.tsx public/**/**.ts",
-    "heroku-postbuild": "npm run build"    
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
-    "react": "^15.4.2",
     "jquery": "^3.2.0",
+    "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "semantic-ui-css": "^2.2.9"
   },
@@ -20,10 +20,8 @@
     "@types/jquery": "^2.0.41",
     "@types/react": "^15.0.16",
     "@types/react-dom": "^0.14.23",
-    "clean-webpack-plugin": "^0.1.15",
     "css-loader": "^0.27.3",
     "file-loader": "^0.10.1",
-    "on-build-webpack": "^0.1.0",
     "rimraf": "^2.6.1",
     "style-loader": "^0.13.2",
     "ts-loader": "^2.0.1",

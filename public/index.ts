@@ -2,9 +2,6 @@ import * as $ from "jquery";
 
 import init from "./init";
 
-(<any> window).$ = (<any> window).jQuery = $;
-import "semantic-ui-css/semantic.min.css";
-import "semantic-ui-css/semantic.min.js";
 import "./css/main.css";
 
 $(document).ready(() => {

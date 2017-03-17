@@ -11,3 +11,4 @@ gin-bin
 gin-bin.exe
 gin-bin.exe~
 .env
+npm-debug.log

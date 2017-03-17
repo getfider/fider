@@ -32,10 +32,10 @@ export class Header extends React.Component<{}, {}> {
                         <div id="user-popup" className="ui popup top left transition hidden">
                             <div className="ui list">
                                 <div className="item">
-                                <SocialSignInButton provider="facebook"/>
+                                    <SocialSignInButton provider="facebook"/>
                                 </div>
                                 <div className="item">
-                                <SocialSignInButton provider="google"/>
+                                    <SocialSignInButton provider="google"/>
                                 </div>
                             </div>
                         </div>;
