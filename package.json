@@ -18,7 +18,6 @@
     "semantic-ui-css": "^2.2.9"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/jquery": "^2.0.41",
     "@types/react": "^15.0.16",
     "@types/react-dom": "^0.14.23",
