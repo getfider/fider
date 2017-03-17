@@ -41,7 +41,7 @@ func (svc IdeaService) Save(tenantID, userID int64, title, description string) (
 	idea.Title = title
 	idea.Description = description
 
-	if err = tx.QueryRow("INSERT INTO ideas (title, description, tenant_id, user_id, created_on) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id", title, description, tenantID, userID, time.Now()).Scan(&idea.ID); err != nil {
+	if err = tx.QueryRow("INSERT INTO ideas (title, description, tenant_id, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id", title, description, tenantID, userID, time.Now()).Scan(&idea.ID); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
