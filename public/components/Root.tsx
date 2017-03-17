@@ -1,3 +1,4 @@
+import * as moment from "moment";
 import * as React from "react";
 
 import { Footer } from "./Footer";
@@ -14,15 +15,12 @@ export class Root extends React.Component<{}, {}> {
                         <div className="item" key={x.id}>
                           <div className="content">
                             <a className="header">{ x.title }</a>
-                            <div className="meta">
-                              <span className="cinema">Union Square 14</span>
-                            </div>
                             <div className="description">
                               <p>{ x.title }</p>
                             </div>
                             <div className="extra">
-                              <div className="ui label">IMAX</div>
-                              <div className="ui label">Additional Languages</div>
+                              <i className="calendar icon"></i>
+                              shared { moment(x.createdOn).fromNow() }
                             </div>
                           </div>
                         </div>);

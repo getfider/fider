@@ -29,9 +29,8 @@ type WechyServices struct {
 }
 
 func errorHandler(e error, c echo.Context) {
-	c.Logger().Debug(e)
-
 	if strings.Contains(e.Error(), "code=404") {
+		c.Logger().Debug(e)
 		c.Render(http.StatusNotFound, "404.html", echo.Map{})
 	} else {
 		c.Logger().Error(e)

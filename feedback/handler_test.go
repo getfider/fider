@@ -15,6 +15,10 @@ func (svc mockIdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
 	return make([]*feedback.Idea, 0), nil
 }
 
+func (svc mockIdeaService) Save(tenantID, userID int64, title, description string) (*feedback.Idea, error) {
+	return nil, nil
+}
+
 func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 

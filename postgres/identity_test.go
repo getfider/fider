@@ -57,8 +57,8 @@ func TestUserService_Register(t *testing.T) {
 
 	mock.ExpectBegin()
 
-	query := mock.ExpectQuery("INSERT INTO users \\(name, email\\) VALUES \\(\\$1, \\$2\\) RETURNING id")
-	query.WithArgs("Jon Snow", "jon.snow@got.com")
+	query := mock.ExpectQuery("INSERT INTO users \\(name, email, created_on\\) VALUES \\(\\$1, \\$2, \\$3\\) RETURNING id")
+	query.WithArgs("Jon Snow", "jon.snow@got.com", AnyTime{})
 	query.WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(int64(300)))
 
 	exec := mock.ExpectExec("INSERT INTO user_providers \\(user_id, provider, provider_uid\\) VALUES \\(\\$1, \\$2, \\$3\\)")
@@ -92,8 +92,8 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 
 	mock.ExpectBegin()
 
-	query := mock.ExpectQuery("INSERT INTO users \\(name, email\\) VALUES \\(\\$1, \\$2\\) RETURNING id")
-	query.WithArgs("Jon Snow", "jon.snow@got.com")
+	query := mock.ExpectQuery("INSERT INTO users \\(name, email, created_on\\) VALUES \\(\\$1, \\$2, \\$3\\) RETURNING id")
+	query.WithArgs("Jon Snow", "jon.snow@got.com", AnyTime{})
 	query.WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(int64(300)))
 
 	exec := mock.ExpectExec("INSERT INTO user_providers \\(user_id, provider, provider_uid\\) VALUES \\(\\$1, \\$2, \\$3\\)")

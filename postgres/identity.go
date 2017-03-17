@@ -3,6 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"strings"
+	"time"
 
 	"github.com/WeCanHearYou/wechy/identity"
 	"github.com/WeCanHearYou/wechy/toolbox/env"
@@ -32,7 +33,7 @@ func (svc UserService) Register(user *identity.User) error {
 		return err
 	}
 
-	if err = tx.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id", user.Name, user.Email).Scan(&user.ID); err != nil {
+	if err = tx.QueryRow("INSERT INTO users (name, email, created_on) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, time.Now()).Scan(&user.ID); err != nil {
 		tx.Rollback()
 		return err
 	}

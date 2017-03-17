@@ -1,6 +1,8 @@
 package feedback
 
 import (
+	"net/http"
+
 	"github.com/WeCanHearYou/wechy/identity"
 	"github.com/labstack/echo"
 )
@@ -27,20 +29,27 @@ func (h IndexHandlder) List() echo.HandlerFunc {
 	}
 }
 
-type newIdea struct {
-	Title string `json:"title"`
+type newIdeaInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 // Post creates a new idea on current tenant
 func (h IndexHandlder) Post() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		idea := new(newIdea)
-		c.Bind(idea)
+		input := new(newIdeaInput)
+		c.Bind(input)
+
+		tenant := c.Get("Tenant").(*identity.Tenant)
+		claims := c.Get("Claims").(*identity.WechyClaims)
+
+		idea, err := h.ideaService.Save(tenant.ID, claims.UserID, input.Title, input.Description)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
 
 		return c.JSON(200, echo.Map{
-			"tenant": c.Get("Tenant"),
-			"claims": c.Get("Claims"),
-			"idea":   idea.Title,
+			"idea": idea,
 		})
 	}
 }
