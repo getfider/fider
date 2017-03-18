@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/mock"
+	"github.com/WeCanHearYou/wechy/app/mock"
 	. "github.com/onsi/gomega"
 )
 

@@ -3,7 +3,7 @@ package identity_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/app/identity"
 	. "github.com/onsi/gomega"
 )
 

@@ -1,7 +1,7 @@
 package identity
 
 import (
-	"github.com/WeCanHearYou/wechy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 

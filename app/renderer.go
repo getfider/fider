@@ -11,8 +11,8 @@ import (
 
 	"io/ioutil"
 
-	"github.com/WeCanHearYou/wechy/identity"
-	"github.com/WeCanHearYou/wechy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
 )
 

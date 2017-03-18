@@ -5,7 +5,7 @@ import (
 
 	"time"
 
-	"github.com/WeCanHearYou/wechy/feedback"
+	"github.com/WeCanHearYou/wechy/app/feedback"
 )
 
 // IdeaService contains read and write operations for ideas

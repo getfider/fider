@@ -4,9 +4,9 @@ import (
 	"database/sql"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/identity"
-	"github.com/WeCanHearYou/wechy/postgres"
-	"github.com/WeCanHearYou/wechy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/postgres"
+	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	_ "github.com/lib/pq"
 
 	"fmt"

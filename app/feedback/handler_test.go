@@ -3,9 +3,9 @@ package feedback_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/feedback"
-	"github.com/WeCanHearYou/wechy/identity"
-	"github.com/WeCanHearYou/wechy/mock"
+	"github.com/WeCanHearYou/wechy/app/feedback"
+	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/mock"
 	. "github.com/onsi/gomega"
 )
 

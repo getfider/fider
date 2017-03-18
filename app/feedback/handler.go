@@ -3,7 +3,7 @@ package feedback
 import (
 	"net/http"
 
-	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/labstack/echo"
 )
 

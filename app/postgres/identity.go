@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/WeCanHearYou/wechy/identity"
-	"github.com/WeCanHearYou/wechy/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 )
 
 // UserService is used for user operations using a Postgres database

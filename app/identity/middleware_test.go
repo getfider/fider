@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/identity"
+	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
