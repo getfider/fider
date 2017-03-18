@@ -8,15 +8,31 @@ import (
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	_ "github.com/lib/pq"
+	_ "github.com/mattes/migrate/driver/postgres"
+	mig "github.com/mattes/migrate/migrate"
 
 	"fmt"
 )
 
 var buildtime string
 
+func migrate() {
+	fmt.Printf("Running migrations... \n")
+	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), "./migrations")
+	if !ok {
+		for i, err := range errors {
+			fmt.Printf("Error #%d: %s.\n", i, err)
+		}
+		panic("Migrations failed.")
+	} else {
+		fmt.Printf("Migrations finished with success.\n")
+	}
+}
+
 func init() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
+	migrate()
 }
 
 func main() {

@@ -29,13 +29,6 @@ ifeq ($(TRAVIS_PULL_REQUEST), false)
 	docker push WeCanHearYou/wechy
 endif
 
-migrate:
-ifeq ($(GO_ENV), development)
-	migrate -url postgres://wechy:wechy-pw@localhost:5555/wechy?sslmode=disable -path ./migrations up
-else
-	migrate -url ${DATABASE_URL} -path ./migrations up
-endif
-
 build:
 	go build -ldflags='-X main.buildtime=${BUILD_TIME}'
 
