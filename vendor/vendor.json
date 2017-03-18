@@ -1,7 +1,8 @@
 {
 	"comment": "",
+	"rootPath": "github.com/WeCanHearYou/wechy",
 	"heroku": {
-		"goVersion": "go1.7",
+		"goVersion": "go1.8",
 		"install": [
 			"./..."
 		]
@@ -804,6 +805,5 @@
 			"path": "mattn/goveralls",
 			"revision": ""
 		}
-	],
-	"rootPath": "github.com/WeCanHearYou/wechy"
+	]
 }
