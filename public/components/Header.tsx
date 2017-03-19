@@ -1,16 +1,19 @@
+import md5 = require("md5");
 import * as React from "react";
+import { Tenant } from "../models";
+import { get, getCurrentUser } from "../storage";
 import { SocialSignInButton } from "./SocialSignInButton";
-
-const tenant = (window as any)._tenant;
-const claims = (window as any)._claims;
-const gravatar = (window as any)._gravatar;
 
 export class Header extends React.Component<{}, {}> {
     public render() {
-        const profile = claims ?
+        const user = getCurrentUser();
+        const tenant = get<Tenant>("tenant");
+
+        const profile = user ?
                         <a className="item right signin">
-                            <img className="ui avatar image" src={ "https://www.gravatar.com/avatar/" + gravatar } />
-                            { claims["user/name"] }
+                            <img className="ui avatar image"
+                                 src={ "https://www.gravatar.com/avatar/" + md5(user.email) } />
+                            { user.name }
                             <i className="dropdown icon"></i>
                         </a> :
                         <a className="item right signin">
@@ -19,7 +22,7 @@ export class Header extends React.Component<{}, {}> {
                             <i className="dropdown icon"></i>
                         </a>;
 
-        const dropdown = claims ?
+        const dropdown = user ?
                         <div id="user-popup" className="ui popup top left transition hidden">
                             <div className="ui">
                                 <div className="item">

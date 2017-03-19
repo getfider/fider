@@ -13,6 +13,7 @@
   "dependencies": {
     "axios": "^0.15.3",
     "jquery": "^3.2.0",
+    "md5": "^2.2.1",
     "moment": "^2.17.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/jquery": "^2.0.41",
+    "@types/md5": "^2.1.31",
     "@types/moment": "^2.13.0",
     "@types/react": "^15.0.16",
     "@types/react-dom": "^0.14.23",
@@ -27,7 +29,7 @@
     "css-loader": "^0.27.3",
     "file-loader": "^0.10.1",
     "rimraf": "^2.6.1",
-    "style-loader": "^0.13.2",
+    "style-loader": "^0.14.1",
     "ts-loader": "^2.0.1",
     "tslint": "^4.5.1",
     "typescript": "^2.2.1",

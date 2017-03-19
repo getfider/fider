@@ -1,17 +1,17 @@
 import * as moment from "moment";
 import * as React from "react";
+import { Idea } from "../models";
+import * as storage from "../storage";
 
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { IdeaInput } from "./IdeaInput";
 
-const claims = (window as any)._claims;
-const ideas: any[] = (window as any)._ideas || [];
-
 export class Root extends React.Component<{}, {}> {
     public render() {
+        const ideas = storage.get<Idea[]>("ideas") || [];
 
-        const ideasList = ideas.map((x: any) =>
+        const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
                           <div className="content">
                             <a className="header">{ x.title }</a>

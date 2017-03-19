@@ -8,22 +8,21 @@
     <title>{{template "title" .}}</title>
 </head>
 <body>
-  <script type="text/javascript">
-    var _authEndpoint = {{ .AuthEndpoint }};
-    var _tenant = {{ .Tenant }};
-    var _claims = {{ .Claims }};
-    var _gravatar = {{ .Gravatar }}
-    {{template "javascript" .}}
-  </script>
-
   <div id="root"></div>
   
   {{template "content" .}}
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min.js" integrity="sha256-JAW99MJVpJBGcbzEuXk4Az05s/XyDdBomFqNlM3ic+I=" crossorigin="anonymous"></script>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js" integrity="sha256-Rtnfi1MVZAj3v+eDeFjh/iAXo8//D0zVKql8fjVLCiM=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.min.js" integrity="sha256-uzKwYuH50DHzDYr3h/Bnpv7C5QJNUjHEpVmT3Xuq3ww=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js" integrity="sha256-mq9Ru97qzOm1x5zeYFfPniWgQP9tEmjo3O4jUEJdjNY=" crossorigin="anonymous"></script>
   <script src="/assets/js/{{ .JavaScriptBundle }}"></script>
+  <script type="text/javascript">
+    setUser({{ .User }});
+    set("authEndpoint", {{ .AuthEndpoint }});
+    set("tenant", {{ .Tenant }});
+    {{template "javascript" .}}
+  </script>
 </body>
 </html>

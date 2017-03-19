@@ -1,8 +1,6 @@
 package app
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"html/template"
 	"io"
@@ -66,12 +64,15 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
-	claims, ok := c.Get("Claims").(*identity.WechyClaims)
-
 	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
+
+	claims, ok := c.Get("Claims").(*identity.WechyClaims)
 	if ok {
-		m["Claims"] = claims
-		m["Gravatar"] = toMDF5(claims.UserEmail)
+		m["User"] = &identity.User{
+			ID:    claims.UserID,
+			Name:  claims.UserName,
+			Email: claims.UserEmail,
+		}
 	}
 
 	files, _ := ioutil.ReadDir("dist/js")
@@ -80,10 +81,4 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	}
 
 	return tmpl.Execute(w, m)
-}
-
-func toMDF5(content string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(content))
-	return fmt.Sprintf("%v", hex.EncodeToString(hasher.Sum(nil)))
 }
