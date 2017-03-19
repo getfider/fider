@@ -21,7 +21,8 @@ func Status(healthService HealthCheckService, settings *WechySettings) echo.Hand
 func (h statusHandler) get() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
-			"build": h.settings.BuildTime,
+			"build":   h.settings.BuildTime,
+			"vresion": h.settings.Version,
 			"healthy": echo.Map{
 				"database": h.healthService.IsDatabaseOnline(),
 			},

@@ -15,6 +15,7 @@ import (
 )
 
 var buildtime string
+var version = "0.0.0"
 
 func migrate() {
 	if env.IsTest() {
@@ -22,6 +23,7 @@ func migrate() {
 	}
 
 	fmt.Printf("Running migrations... \n")
+	fmt.Println(env.MustGet("DATABASE_URL"))
 	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), "./migrations")
 	if !ok {
 		for i, err := range errors {
@@ -53,6 +55,7 @@ func main() {
 		Tenant: &postgres.TenantService{DB: db},
 		Settings: &app.WechySettings{
 			BuildTime:    buildtime,
+			Version:      version,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},
 	}

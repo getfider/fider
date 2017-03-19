@@ -15,6 +15,7 @@ import (
 // WechySettings is an application-wide settings
 type WechySettings struct {
 	BuildTime    string
+	Version      string
 	AuthEndpoint string
 }
 
@@ -77,9 +78,9 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		appGroup.Use(identity.MultiTenant(ctx.Tenant))
 
 		appGroup.GET("/", feedback.Index(ctx.Idea).List())
-		appGroup.POST("/api/ideas", feedback.Index(ctx.Idea).Post())
 		appGroup.GET("/logout", identity.OAuth(ctx.OAuth, ctx.User).Logout())
-		appGroup.GET("/status", Status(ctx.Health, ctx.Settings))
+		appGroup.POST("/api/ideas", feedback.Index(ctx.Idea).Post())
+		appGroup.GET("/api/status", Status(ctx.Health, ctx.Settings))
 	}
 
 	return router
