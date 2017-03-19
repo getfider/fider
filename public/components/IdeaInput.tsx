@@ -1,11 +1,10 @@
 import axios from "axios";
 import * as React from "react";
+import { getCurrentUser } from "../storage";
 import { SocialSignInButton } from "./SocialSignInButton";
 
-const claims = (window as any)._claims;
-
 interface IdeaInputState {
-    idea: string;
+    title: string;
     clicked: boolean;
 }
 
@@ -15,7 +14,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
     constructor() {
         super();
         this.state = {
-          idea: "",
+          title: "",
           clicked: false
         };
     }
@@ -24,7 +23,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
       this.setState({ clicked: true });
 
       const response = await axios.post("/api/ideas", {
-        title: this.state.idea,
+        title: this.state.title,
         description: this.description.value
       });
 
@@ -32,8 +31,9 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
     }
 
     public render() {
+        const user = getCurrentUser();
         const buttonClasses = `ui positive button ${this.state.clicked && "loading disabled"}`;
-        const details = claims ?
+        const details = user ?
                         <div>
                           <div className="field">
                             <textarea ref={(ref) => this.description = ref }
@@ -59,12 +59,12 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                 <div className="ui fluid input">
                     <input  id="new-idea-input"
                             type="text"
-                            maxLength={60}
-                            onKeyUp={(e) => { this.setState({ idea: e.currentTarget.value }); }}
+                            maxLength={100}
+                            onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
                             placeholder="Enter your idea, new feature or suggestion here ..." />
                 </div>
 
-                { this.state.idea.length > 0 && details }
+                { this.state.title.length > 0 && details }
                </div>;
     }
 }

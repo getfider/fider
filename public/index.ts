@@ -1,8 +1,10 @@
 import * as $ from "jquery";
-
 import init from "./init";
+import * as storage from "./storage";
 
 import "./css/main.css";
+
+storage.setup();
 
 $(document).ready(() => {
     init();
