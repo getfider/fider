@@ -22,7 +22,6 @@
   "devDependencies": {
     "@types/jquery": "^2.0.41",
     "@types/md5": "^2.1.31",
-    "@types/moment": "^2.13.0",
     "@types/react": "^15.0.16",
     "@types/react-dom": "^0.14.23",
     "clean-webpack-plugin": "^0.1.16",
@@ -34,5 +33,9 @@
     "tslint": "^4.5.1",
     "typescript": "^2.2.1",
     "webpack": "^2.2.1"
+  },
+  "engines": {
+    "node": ">=6.9.1",
+    "npm": ">=3.10"
   }
 }
