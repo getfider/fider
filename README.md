@@ -1,4 +1,4 @@
-# The WebApp and API for WeCanHearYou
+# WeCanHearYou
 
 Branch | Build | Coverage
 ------------ | ------------- | -------------
