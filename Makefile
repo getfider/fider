@@ -12,12 +12,6 @@ endef
 test:
 	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover
 
-setup-ci:
-	go get github.com/joho/godotenv/cmd/godotenv
-
-goveralls:
-	godotenv -f .test.env goveralls -service=travis-ci
-
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build

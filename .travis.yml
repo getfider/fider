@@ -13,14 +13,15 @@ env:
     - NODE_ENV=test
 
 install: 
-  - make setup-ci
+	- go get github.com/mattn/goveralls
+	- go get github.com/joho/godotenv/cmd/godotenv
   - npm install
 
 script: 
   - npm run lint
   - npm run build  
   - make test
-  - make goveralls
+  - godotenv -f .test.env goveralls -service=travis-ci
 
 after_success:
   - docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
