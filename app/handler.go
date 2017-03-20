@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
 )
 
@@ -22,12 +23,13 @@ func (h statusHandler) get() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
 			"build":   h.settings.BuildTime,
-			"vresion": h.settings.Version,
+			"version": h.settings.Version,
+			"env":     env.Current(),
 			"healthy": echo.Map{
 				"database": h.healthService.IsDatabaseOnline(),
 			},
-			"version": runtime.Version(),
-			"now":     time.Now().Format("2006.01.02.150405"),
+			"compiler": runtime.Version(),
+			"now":      time.Now().Format("2006.01.02.150405"),
 		})
 	}
 }
