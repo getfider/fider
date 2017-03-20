@@ -13,10 +13,7 @@ test:
 	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover
 
 setup-ci:
-	go get github.com/kardianos/govendor
 	go get github.com/joho/godotenv/cmd/godotenv
-	govendor sync
-	govendor install +vendor
 
 goveralls:
 	godotenv -f .test.env goveralls -service=travis-ci
