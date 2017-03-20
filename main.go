@@ -23,7 +23,6 @@ func migrate() {
 	}
 
 	fmt.Printf("Running migrations... \n")
-	fmt.Println(env.MustGet("DATABASE_URL"))
 	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), "./migrations")
 	if !ok {
 		for i, err := range errors {
