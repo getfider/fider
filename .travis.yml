@@ -13,8 +13,8 @@ env:
     - NODE_ENV=test
 
 install: 
-	- go get github.com/mattn/goveralls
-	- go get github.com/joho/godotenv/cmd/godotenv
+  - go get github.com/mattn/goveralls
+  - go get github.com/joho/godotenv/cmd/godotenv
   - npm install
 
 script: 
