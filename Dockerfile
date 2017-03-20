@@ -1,5 +1,13 @@
 FROM scratch
-ADD wechy /
+WORKDIR /
+
+COPY wechy /
+COPY migrations /migrations
+COPY views /views
+COPY dist /dist
+COPY favicon.ico /
+
 ENV PORT 8080
-CMD ["/wechy"]
 EXPOSE 8080
+
+CMD ["/wechy"]
