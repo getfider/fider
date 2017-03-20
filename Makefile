@@ -15,9 +15,9 @@ test:
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-	docker build -f Dockerfile -t WeCanHearYou/wechy .
-	$(call tag_docker, WeCanHearYou/wechy)
-	docker push WeCanHearYou/wechy
+	docker build -f Dockerfile -t wecanhearyou/wechy .
+	$(call tag_docker, wecanhearyou/wechy)
+	docker push wecanhearyou/wechy
 endif
 
 build:
