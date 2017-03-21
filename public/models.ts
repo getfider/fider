@@ -15,4 +15,5 @@ export interface Idea {
   title: string;
   description: string;
   createdOn: string;
+  user: User;
 }

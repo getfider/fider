@@ -2,6 +2,7 @@ import * as moment from "moment";
 import * as React from "react";
 import { Idea } from "../models";
 import * as storage from "../storage";
+import { Gravatar, MultiLineText } from "./Common";
 
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -14,13 +15,15 @@ export class Root extends React.Component<{}, {}> {
         const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
                           <div className="content">
-                            <a className="header">{ x.title }</a>
+                            <div className="header">
+                              <i className="idea icon"></i>{ x.title }
+                            </div>
                             <div className="description">
-                              <p>{ x.title }</p>
+                              <MultiLineText text={ x.description } />
                             </div>
                             <div className="extra">
-                              <i className="calendar icon"></i>
-                              shared { moment(x.createdOn).fromNow() }
+                              <Gravatar email={x.user.email}/> <u>{x.user.name}</u>
+                              shared <u title={x.createdOn}>{ moment(x.createdOn).fromNow() }</u>
                             </div>
                           </div>
                         </div>);

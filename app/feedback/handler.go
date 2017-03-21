@@ -21,7 +21,11 @@ func Index(ideaService IdeaService) IndexHandlder {
 func (h IndexHandlder) List() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tenant := c.Get("Tenant").(*identity.Tenant)
-		ideas, _ := h.ideaService.GetAll(tenant.ID)
+		ideas, err := h.ideaService.GetAll(tenant.ID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
+
 		return c.Render(200, "index.html", echo.Map{
 			"Tenant": tenant,
 			"Ideas":  ideas,

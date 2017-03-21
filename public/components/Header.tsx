@@ -1,7 +1,7 @@
-import md5 = require("md5");
 import * as React from "react";
 import { Tenant } from "../models";
 import { get, getCurrentUser } from "../storage";
+import { Gravatar } from "./Common";
 import { SocialSignInButton } from "./SocialSignInButton";
 
 export class Header extends React.Component<{}, {}> {
@@ -11,13 +11,12 @@ export class Header extends React.Component<{}, {}> {
 
         const profile = user ?
                         <a className="item right signin">
-                            <img className="ui avatar image"
-                                 src={ "https://www.gravatar.com/avatar/" + md5(user.email) } />
+                            <Gravatar email={user.email} />
                             { user.name }
                             <i className="dropdown icon"></i>
                         </a> :
                         <a className="item right signin">
-                            <img className="ui avatar image" src="https://www.gravatar.com/avatar/" />
+                            <Gravatar />
                             Sign in
                             <i className="dropdown icon"></i>
                         </a>;

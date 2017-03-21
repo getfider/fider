@@ -15,7 +15,7 @@ type IdeaService struct {
 
 // GetAll returns all tenant ideas
 func (svc IdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
-	rows, err := svc.DB.Query("SELECT id, title, description, created_on FROM ideas WHERE tenant_id = $1", tenantID)
+	rows, err := svc.DB.Query("SELECT i.id, i.title, i.description, i.created_on, u.id, u.name, u.email FROM ideas i LEFT JOIN users u ON u.id = i.user_id WHERE i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (svc IdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
 	var ideas []*feedback.Idea
 	for rows.Next() {
 		idea := &feedback.Idea{}
-		rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.CreatedOn)
+		rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
 		ideas = append(ideas, idea)
 	}
 
