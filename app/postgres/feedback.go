@@ -15,7 +15,12 @@ type IdeaService struct {
 
 // GetAll returns all tenant ideas
 func (svc IdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
-	rows, err := svc.DB.Query("SELECT i.id, i.title, i.description, i.created_on, u.id, u.name, u.email FROM ideas i LEFT JOIN users u ON u.id = i.user_id WHERE i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
+	rows, err := svc.DB.Query(`SELECT i.id, i.title, i.description, i.created_on, u.id, u.name, u.email
+														 FROM ideas i
+														 LEFT JOIN users u
+														 ON u.id = i.user_id
+														 WHERE i.tenant_id = $1
+														 ORDER BY i.created_on DESC`, tenantID)
 	if err != nil {
 		return nil, err
 	}
