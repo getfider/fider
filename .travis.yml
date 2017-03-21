@@ -13,9 +13,10 @@ env:
     - NODE_ENV=test
 
 install: 
+  - nvm install "$(jq -r '.engines.node' package.json)"
+  - npm i -g yarn
   - go get github.com/mattn/goveralls
   - go get github.com/joho/godotenv/cmd/godotenv
-  - npm i -g yarn
   - yarn
 
 script: 
