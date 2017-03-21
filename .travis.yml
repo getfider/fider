@@ -15,7 +15,7 @@ env:
 install: 
   - go get github.com/mattn/goveralls
   - go get github.com/joho/godotenv/cmd/godotenv
-  - npm install
+  - yarn
 
 script: 
   - npm run lint
