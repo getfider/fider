@@ -15,6 +15,7 @@ env:
 install: 
   - go get github.com/mattn/goveralls
   - go get github.com/joho/godotenv/cmd/godotenv
+  - npm i -g yarn
   - yarn
 
 script: 
