@@ -6,4 +6,4 @@ gom 'github.com/lib/pq', :commit => '472a0745531a17dbac346e828b4c60e73ddff30c'
 
 gom 'github.com/jmoiron/jsonq', :commit => 'e874b168d07ecc7808bc950a17998a8aa3141d82'
 gom 'github.com/onsi/gomega', :commit => '4ac488ac94a6dfbd2f7e01cc3bea24e2efc40663'
-gom 'github.com/DATA-DOG/go-sqlmock', :tag => 'v1.2.0'
+gom 'gopkg.in/DATA-DOG/go-sqlmock.v1', :tag => 'v1.2.0'

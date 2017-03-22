@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
 	"github.com/WeCanHearYou/wechy/app/feedback"
 	"github.com/WeCanHearYou/wechy/app/identity"
