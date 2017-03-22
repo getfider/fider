@@ -11,6 +11,3 @@ gin-bin.exe
 gin-bin.exe~
 .env
 npm-debug.log
-
-vendor/pkg
-vendor/bin
