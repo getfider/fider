@@ -1,0 +1,119 @@
+hash: 6ec0b6ecc8776f14df239492d1574d5c21fd7afa99279704f5b214cf462f1c9f
+updated: 2017-03-22T23:03:27.872610802Z
+imports:
+- name: cloud.google.com/go
+  version: 890c17b428e8255915f506a9195b768df8a73dd0
+  subpackages:
+  - compute/metadata
+  - internal
+- name: github.com/dgrijalva/jwt-go
+  version: 2268707a8f0843315e2004ee4f1d021dc08baedf
+- name: github.com/golang/protobuf
+  version: c9c7427a2a70d2eb3bafa0ab2dc163e45f143317
+  subpackages:
+  - proto
+- name: github.com/googleapis/gax-go
+  version: 9af46dd5a1713e8b5cd71106287eba3cefdde50b
+- name: github.com/jmoiron/jsonq
+  version: e874b168d07ecc7808bc950a17998a8aa3141d82
+- name: github.com/labstack/echo
+  version: eac431df0dbad8ba6cc313fba37f1d4275c317e8
+- name: github.com/labstack/gommon
+  version: 9cedb429ffbe71a32a3ae7c65fd109cb7ae07804
+  subpackages:
+  - color
+  - log
+- name: github.com/lib/pq
+  version: 472a0745531a17dbac346e828b4c60e73ddff30c
+  subpackages:
+  - oid
+- name: github.com/mattes/migrate
+  version: c7653285b255b78bdb7304b1ad0774ae08b5fa96
+  subpackages:
+  - driver
+  - driver/postgres
+  - file
+  - migrate
+  - migrate/direction
+  - pipe
+- name: github.com/mattn/go-colorable
+  version: a392f450ea64cee2b268dfaacdc2502b50a22b18
+- name: github.com/mattn/go-isatty
+  version: 57fdcb988a5c543893cc61bce354a6e24ab70022
+- name: github.com/valyala/bytebufferpool
+  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
+- name: github.com/valyala/fasttemplate
+  version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
+- name: golang.org/x/crypto
+  version: 459e26527287adbc2adcc5d0d49abff9a5f315a7
+  subpackages:
+  - acme
+  - acme/autocert
+- name: golang.org/x/net
+  version: a6577fac2d73be281a500b310739095313165611
+  subpackages:
+  - context
+  - context/ctxhttp
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
+  - trace
+- name: golang.org/x/oauth2
+  version: 7fdf09982454086d5570c7db3e11f360194830ca
+  subpackages:
+  - facebook
+  - google
+  - internal
+  - jws
+  - jwt
+- name: golang.org/x/sys
+  version: 99f16d856c9836c42d24e7ab64ea72916925fa97
+  subpackages:
+  - unix
+- name: google.golang.org/appengine
+  version: 56d253d1dd14aa01937e12c73a0971bcfd797ff2
+  subpackages:
+  - internal
+  - internal/app_identity
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/modules
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
+- name: google.golang.org/grpc
+  version: 9d8d0c6e0adb3d7c146b19862b50ff1541a1b9cd
+  subpackages:
+  - codes
+  - credentials
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - stats
+  - tap
+  - transport
+testImports:
+- name: github.com/onsi/gomega
+  version: 4ac488ac94a6dfbd2f7e01cc3bea24e2efc40663
+  subpackages:
+  - format
+  - internal/assertion
+  - internal/asyncassertion
+  - internal/oraclematcher
+  - internal/testingtsupport
+  - matchers
+  - matchers/support/goraph/bipartitegraph
+  - matchers/support/goraph/edge
+  - matchers/support/goraph/node
+  - matchers/support/goraph/util
+  - types
+- name: gopkg.in/DATA-DOG/go-sqlmock.v1
+  version: b983233bc0bbea4dc6e8ec8c8c923d935765ffec
+- name: gopkg.in/yaml.v2
+  version: a3f3340b5840cee44f372bddb5880fcbc419b46a

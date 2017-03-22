@@ -1,9 +1,0 @@
-gom 'golang.org/x/oauth2', :commit => '7fdf09982454086d5570c7db3e11f360194830ca'
-gom 'github.com/dgrijalva/jwt-go', :commit => '2268707a8f0843315e2004ee4f1d021dc08baedf'
-gom 'github.com/labstack/echo', :commit => 'eac431df0dbad8ba6cc313fba37f1d4275c317e8'
-gom 'github.com/mattes/migrate', :commit => 'c7653285b255b78bdb7304b1ad0774ae08b5fa96'
-gom 'github.com/lib/pq', :commit => '472a0745531a17dbac346e828b4c60e73ddff30c'
-
-gom 'github.com/jmoiron/jsonq', :commit => 'e874b168d07ecc7808bc950a17998a8aa3141d82'
-gom 'github.com/onsi/gomega', :commit => '4ac488ac94a6dfbd2f7e01cc3bea24e2efc40663'
-gom 'gopkg.in/DATA-DOG/go-sqlmock.v1', :tag => 'v1.2.0'

@@ -1,9 +1,0 @@
-dependencies:
-  pre:
-    - docker pull crate && docker run -p=4200:4200 -d=true crate && sleep 10
-machine:
-  environment:
-    CRATE_URL: http://localhost:4200/
-  services:
-    - docker
-
