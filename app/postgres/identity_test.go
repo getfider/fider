@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"testing"
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/postgres"

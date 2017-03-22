@@ -92,13 +92,13 @@ func (driver *Driver) Migrate(f file.File, pipe chan interface{}) {
 	}
 
 	if _, err := tx.Exec(string(f.Content)); err != nil {
-		sqliteErr, isErr := err.(sqlite3.Error)
+		sqliteErr, isErr := err.(*sqlite3.Error)
 
 		if isErr {
 			// The sqlite3 library only provides error codes, not position information. Output what we do know
-			pipe <- errors.New(fmt.Sprintf("SQLite Error (%s); Extended (%s)\nError: %s", sqliteErr.Code.Error(), sqliteErr.ExtendedCode.Error(), sqliteErr.Error()))
+			pipe <- fmt.Errorf("SQLite Error (%s); Extended (%s)\nError: %s", sqliteErr.Code.Error(), sqliteErr.ExtendedCode.Error(), sqliteErr.Error())
 		} else {
-			pipe <- errors.New(fmt.Sprintf("An error occurred: %s", err.Error()))
+			pipe <- fmt.Errorf("An error occurred: %s", err.Error())
 		}
 
 		if err := tx.Rollback(); err != nil {

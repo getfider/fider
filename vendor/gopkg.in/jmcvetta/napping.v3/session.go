@@ -23,6 +23,7 @@ import (
 	"time"
 )
 
+// Session defines the napping session structure
 type Session struct {
 	Client *http.Client
 	Log    bool // Log request and response
@@ -87,7 +88,7 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 	//
 	header := http.Header{}
 	if s.Header != nil {
-		for k, _ := range *s.Header {
+		for k := range *s.Header {
 			v := s.Header.Get(k)
 			header.Set(k, v)
 		}
@@ -104,6 +105,8 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 				err = errors.New("Payload must be of type *bytes.Buffer if RawPayload is set to true")
 				return
 			}
+
+			// do not overwrite the content type with raw payload
 		} else {
 			var b []byte
 			b, err = json.Marshal(&r.Payload)
@@ -112,6 +115,9 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 				return
 			}
 			buf = bytes.NewBuffer(b)
+
+			// Overwrite the content type to json since we're pushing the payload as json
+			header.Set("Content-Type", "application/json")
 		}
 		if buf != nil {
 			req, err = http.NewRequest(r.Method, u.String(), buf)
@@ -122,15 +128,12 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 			s.log(err)
 			return
 		}
-		// Overwrite the content type to json since we're pushing the payload as json
-		header.Set("Content-Type", "application/json")
 	} else { // no data to encode
 		req, err = http.NewRequest(r.Method, u.String(), nil)
 		if err != nil {
 			s.log(err)
 			return
 		}
-
 	}
 	//
 	// Merge Session and Request options
@@ -220,7 +223,7 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 			err = json.Unmarshal(r.body, r.Result)
 		}
 		if resp.StatusCode >= 400 && r.Error != nil {
-			json.Unmarshal(r.body, r.Error) // Should we ignore unmarshall error?
+			json.Unmarshal(r.body, r.Error) // Should we ignore unmarshal error?
 		}
 	}
 	if r.CaptureResponseBody {

@@ -85,13 +85,14 @@ func connConfig(cfg *ClusterConfig) (*ConnConfig, error) {
 	}
 
 	return &ConnConfig{
-		ProtoVersion:  cfg.ProtoVersion,
-		CQLVersion:    cfg.CQLVersion,
-		Timeout:       cfg.Timeout,
-		Compressor:    cfg.Compressor,
-		Authenticator: cfg.Authenticator,
-		Keepalive:     cfg.SocketKeepalive,
-		tlsConfig:     tlsConfig,
+		ProtoVersion:   cfg.ProtoVersion,
+		CQLVersion:     cfg.CQLVersion,
+		Timeout:        cfg.Timeout,
+		ConnectTimeout: cfg.ConnectTimeout,
+		Compressor:     cfg.Compressor,
+		Authenticator:  cfg.Authenticator,
+		Keepalive:      cfg.SocketKeepalive,
+		tlsConfig:      tlsConfig,
 	}, nil
 }
 
@@ -152,7 +153,7 @@ func (p *policyConnPool) SetHosts(hosts []*HostInfo) {
 		pool := <-pools
 		createCount--
 		if pool.Size() > 0 {
-			// add pool onyl if there a connections available
+			// add pool only if there a connections available
 			p.hostConnPools[string(pool.host.Peer())] = pool
 		}
 	}
@@ -395,8 +396,8 @@ func (pool *hostConnPool) fill() {
 			// probably unreachable host
 			pool.fillingStopped(true)
 
-			// this is calle with the connetion pool mutex held, this call will
-			// then recursivly try to lock it again. FIXME
+			// this is call with the connection pool mutex held, this call will
+			// then recursively try to lock it again. FIXME
 			go pool.session.handleNodeDown(pool.host.Peer(), pool.port)
 			return
 		}

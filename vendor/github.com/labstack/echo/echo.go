@@ -42,10 +42,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	slog "log"
+	stdLog "log"
 	"net"
 	"net/http"
 	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"sync"
@@ -59,7 +60,7 @@ import (
 type (
 	// Echo is the top-level framework instance.
 	Echo struct {
-		stdLogger        *slog.Logger
+		stdLogger        *stdLog.Logger
 		colorer          *color.Color
 		premiddleware    []MiddlewareFunc
 		middleware       []MiddlewareFunc
@@ -144,6 +145,8 @@ const (
 	MIMEApplicationJavaScriptCharsetUTF8 = MIMEApplicationJavaScript + "; " + charsetUTF8
 	MIMEApplicationXML                   = "application/xml"
 	MIMEApplicationXMLCharsetUTF8        = MIMEApplicationXML + "; " + charsetUTF8
+	MIMETextXML                          = "text/xml"
+	MIMETextXMLCharsetUTF8               = MIMETextXML + "; " + charsetUTF8
 	MIMEApplicationForm                  = "application/x-www-form-urlencoded"
 	MIMEApplicationProtobuf              = "application/protobuf"
 	MIMEApplicationMsgpack               = "application/msgpack"
@@ -180,6 +183,7 @@ const (
 	HeaderXHTTPMethodOverride           = "X-HTTP-Method-Override"
 	HeaderXForwardedFor                 = "X-Forwarded-For"
 	HeaderXRealIP                       = "X-Real-IP"
+	HeaderXRequestID                    = "X-Request-ID"
 	HeaderServer                        = "Server"
 	HeaderOrigin                        = "Origin"
 	HeaderAccessControlRequestMethod    = "Access-Control-Request-Method"
@@ -219,6 +223,7 @@ var (
 	ErrUnsupportedMediaType        = NewHTTPError(http.StatusUnsupportedMediaType)
 	ErrNotFound                    = NewHTTPError(http.StatusNotFound)
 	ErrUnauthorized                = NewHTTPError(http.StatusUnauthorized)
+	ErrForbidden                   = NewHTTPError(http.StatusForbidden)
 	ErrMethodNotAllowed            = NewHTTPError(http.StatusMethodNotAllowed)
 	ErrStatusRequestEntityTooLarge = NewHTTPError(http.StatusRequestEntityTooLarge)
 	ErrValidatorNotRegistered      = errors.New("Validator not registered")
@@ -255,7 +260,7 @@ func New() (e *Echo) {
 	e.HTTPErrorHandler = e.DefaultHTTPErrorHandler
 	e.Binder = &DefaultBinder{}
 	e.Logger.SetLevel(log.OFF)
-	e.stdLogger = slog.New(e.Logger.Output(), e.Logger.Prefix()+": ", 0)
+	e.stdLogger = stdLog.New(e.Logger.Output(), e.Logger.Prefix()+": ", 0)
 	e.pool.New = func() interface{} {
 		return e.NewContext(nil, nil)
 	}
@@ -398,12 +403,16 @@ func (e *Echo) Match(methods []string, path string, handler HandlerFunc, middlew
 // Static registers a new route with path prefix to serve static files from the
 // provided root directory.
 func (e *Echo) Static(prefix, root string) {
+	if root == "" {
+		root = "." // For security we want to restrict to CWD.
+	}
 	static(e, prefix, root)
 }
 
 func static(i i, prefix, root string) {
 	h := func(c Context) error {
-		return c.File(path.Join(root, c.Param("*")))
+		name := filepath.Join(root, path.Clean("/"+c.Param("*"))) // "/"+ for security
+		return c.File(name)
 	}
 	i.GET(prefix, h)
 	if prefix == "/" {
@@ -510,7 +519,10 @@ func (e *Echo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Middleware
 	h := func(c Context) error {
 		method := r.Method
-		path := r.URL.EscapedPath()
+		path := r.URL.RawPath
+		if path == "" {
+			path = r.URL.Path
+		}
 		e.router.Find(method, path, c)
 		h := c.Handler()
 		for i := len(e.middleware) - 1; i >= 0; i-- {

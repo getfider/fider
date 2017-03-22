@@ -17,7 +17,8 @@ var (
 	// false or true based on the stdout's file descriptor referring to a terminal
 	// or not. This is a global option and affects all colors. For more control
 	// over each color block use the methods DisableColor() individually.
-	NoColor = !isatty.IsTerminal(os.Stdout.Fd()) || os.Getenv("TERM") == "dumb"
+	NoColor = os.Getenv("TERM") == "dumb" ||
+		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))
 
 	// Output defines the standard output of the print functions. By default
 	// os.Stdout is used.
@@ -245,6 +246,21 @@ func (c *Color) Println(a ...interface{}) (n int, err error) {
 	defer c.unset()
 
 	return fmt.Fprintln(Output, a...)
+}
+
+// Sprint is just like Print, but returns a string instead of printing it.
+func (c *Color) Sprint(a ...interface{}) string {
+	return c.wrap(fmt.Sprint(a...))
+}
+
+// Sprintln is just like Println, but returns a string instead of printing it.
+func (c *Color) Sprintln(a ...interface{}) string {
+	return c.wrap(fmt.Sprintln(a...))
+}
+
+// Sprintf is just like Printf, but returns a string instead of printing it.
+func (c *Color) Sprintf(format string, a ...interface{}) string {
+	return c.wrap(fmt.Sprintf(format, a...))
 }
 
 // FprintFunc returns a new function that prints the passed arguments as

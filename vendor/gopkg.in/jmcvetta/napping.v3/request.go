@@ -17,6 +17,7 @@ import (
 // A Params is a map containing URL parameters.
 type Params map[string]string
 
+// AsUrlValues converts Params to url.Values
 func (p Params) AsUrlValues() url.Values {
 	result := url.Values{}
 	for key, value := range p {
@@ -26,7 +27,7 @@ func (p Params) AsUrlValues() url.Values {
 }
 
 // A Request describes an HTTP request to be executed, data structures into
-// which the result will be unmarshalled, and the server's response. By using
+// which the result will be unmarshaled, and the server's response. By using
 // a  single object for both the request and the response we allow easy access
 // to Result and Error objects without needing type assertions.
 type Request struct {

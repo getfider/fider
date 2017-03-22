@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"

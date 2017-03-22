@@ -93,13 +93,14 @@ type SslOptions struct {
 }
 
 type ConnConfig struct {
-	ProtoVersion  int
-	CQLVersion    string
-	Timeout       time.Duration
-	Compressor    Compressor
-	Authenticator Authenticator
-	Keepalive     time.Duration
-	tlsConfig     *tls.Config
+	ProtoVersion   int
+	CQLVersion     string
+	Timeout        time.Duration
+	ConnectTimeout time.Duration
+	Compressor     Compressor
+	Authenticator  Authenticator
+	Keepalive      time.Duration
+	tlsConfig      *tls.Config
 }
 
 type ConnErrorHandler interface {
@@ -167,7 +168,7 @@ func Connect(host *HostInfo, cfg *ConnConfig, errorHandler ConnErrorHandler, ses
 	)
 
 	dialer := &net.Dialer{
-		Timeout: cfg.Timeout,
+		Timeout: cfg.ConnectTimeout,
 	}
 
 	// TODO(zariel): handle ipv6 zone
@@ -212,8 +213,8 @@ func Connect(host *HostInfo, cfg *ConnConfig, errorHandler ConnErrorHandler, ses
 		ctx    context.Context
 		cancel func()
 	)
-	if c.timeout > 0 {
-		ctx, cancel = context.WithTimeout(context.Background(), c.timeout)
+	if cfg.ConnectTimeout > 0 {
+		ctx, cancel = context.WithTimeout(context.Background(), cfg.ConnectTimeout)
 	} else {
 		ctx, cancel = context.WithCancel(context.Background())
 	}
@@ -589,11 +590,11 @@ func (c *Conn) exec(ctx context.Context, req frameWriter, tracer Tracer) (*frame
 		call = streamPool.Get().(*callReq)
 	}
 	c.calls[stream] = call
-	c.mu.Unlock()
 
 	call.framer = framer
 	call.timeout = make(chan struct{})
 	call.streamID = stream
+	c.mu.Unlock()
 
 	if tracer != nil {
 		framer.trace()
@@ -723,14 +724,14 @@ func (c *Conn) prepareStatement(ctx context.Context, stmt string, tracer Tracer)
 
 	// TODO(zariel): tidy this up, simplify handling of frame parsing so its not duplicated
 	// everytime we need to parse a frame.
-	if len(framer.traceID) > 0 {
+	if len(framer.traceID) > 0 && tracer != nil {
 		tracer.Trace(framer.traceID)
 	}
 
 	switch x := frame.(type) {
 	case *resultPreparedFrame:
 		flight.preparedStatment = &preparedStatment{
-			// defensivly copy as we will recycle the underlying buffer after we
+			// defensively copy as we will recycle the underlying buffer after we
 			// return.
 			id: copyBytes(x.preparedID),
 			// the type info's should _not_ have a reference to the framers read buffer,
@@ -960,11 +961,12 @@ func (c *Conn) executeBatch(batch *Batch) *Iter {
 
 	n := len(batch.Entries)
 	req := &writeBatchFrame{
-		typ:               batch.Type,
-		statements:        make([]batchStatment, n),
-		consistency:       batch.Cons,
-		serialConsistency: batch.serialCons,
-		defaultTimestamp:  batch.defaultTimestamp,
+		typ:                   batch.Type,
+		statements:            make([]batchStatment, n),
+		consistency:           batch.Cons,
+		serialConsistency:     batch.serialCons,
+		defaultTimestamp:      batch.defaultTimestamp,
+		defaultTimestampValue: batch.defaultTimestampValue,
 	}
 
 	stmts := make(map[string]string, len(batch.Entries))

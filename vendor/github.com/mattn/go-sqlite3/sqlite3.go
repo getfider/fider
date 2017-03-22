@@ -10,6 +10,7 @@ package sqlite3
 #cgo CFLAGS: -DSQLITE_ENABLE_RTREE -DSQLITE_THREADSAFE
 #cgo CFLAGS: -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4_UNICODE61
 #cgo CFLAGS: -DSQLITE_TRACE_SIZE_LIMIT=15
+#cgo CFLAGS: -DSQLITE_DISABLE_INTRINSIC
 #cgo CFLAGS: -Wno-deprecated-declarations
 #ifndef USE_LIBSQLITE3
 #include <sqlite3-binding.h>
@@ -382,14 +383,14 @@ func (c *SQLiteConn) RegisterFunc(name string, impl interface{}, pure bool) erro
 	if pure {
 		opts |= C.SQLITE_DETERMINISTIC
 	}
-	rv := sqlite3_create_function(c.db, cname, C.int(numArgs), C.int(opts), newHandle(c, &fi), C.callbackTrampoline, nil, nil)
+	rv := sqlite3CreateFunction(c.db, cname, C.int(numArgs), C.int(opts), newHandle(c, &fi), C.callbackTrampoline, nil, nil)
 	if rv != C.SQLITE_OK {
 		return c.lastError()
 	}
 	return nil
 }
 
-func sqlite3_create_function(db *C.sqlite3, zFunctionName *C.char, nArg C.int, eTextRep C.int, pApp uintptr, xFunc unsafe.Pointer, xStep unsafe.Pointer, xFinal unsafe.Pointer) C.int {
+func sqlite3CreateFunction(db *C.sqlite3, zFunctionName *C.char, nArg C.int, eTextRep C.int, pApp uintptr, xFunc unsafe.Pointer, xStep unsafe.Pointer, xFinal unsafe.Pointer) C.int {
 	return C._sqlite3_create_function(db, zFunctionName, nArg, eTextRep, C.uintptr_t(pApp), (*[0]byte)(unsafe.Pointer(xFunc)), (*[0]byte)(unsafe.Pointer(xStep)), (*[0]byte)(unsafe.Pointer(xFinal)))
 }
 
@@ -398,9 +399,13 @@ func (c *SQLiteConn) AutoCommit() bool {
 	return int(C.sqlite3_get_autocommit(c.db)) != 0
 }
 
-func (c *SQLiteConn) lastError() Error {
+func (c *SQLiteConn) lastError() error {
+	rv := C.sqlite3_errcode(c.db)
+	if rv == C.SQLITE_OK {
+		return nil
+	}
 	return Error{
-		Code:         ErrNo(C.sqlite3_errcode(c.db)),
+		Code:         ErrNo(rv),
 		ExtendedCode: ErrNoExtended(C.sqlite3_extended_errcode(c.db)),
 		err:          C.GoString(C.sqlite3_errmsg(c.db)),
 	}
@@ -430,7 +435,7 @@ func (c *SQLiteConn) exec(ctx context.Context, query string, args []namedValue) 
 			na := s.NumInput()
 			if len(args) < na {
 				s.Close()
-				return nil, fmt.Errorf("Not enough args to execute query. Expected %d, got %d.", na, len(args))
+				return nil, fmt.Errorf("not enough args to execute query: want %d got %d", na, len(args))
 			}
 			for i := 0; i < na; i++ {
 				args[i].Ordinal -= start
@@ -480,7 +485,7 @@ func (c *SQLiteConn) query(ctx context.Context, query string, args []namedValue)
 		s.(*SQLiteStmt).cls = true
 		na := s.NumInput()
 		if len(args) < na {
-			return nil, fmt.Errorf("Not enough args to execute query. Expected %d, got %d.", na, len(args))
+			return nil, fmt.Errorf("not enough args to execute query: want %d got %d", na, len(args))
 		}
 		for i := 0; i < na; i++ {
 			args[i].Ordinal -= start
@@ -626,11 +631,11 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 
 // Close the connection.
 func (c *SQLiteConn) Close() error {
-	deleteHandles(c)
 	rv := C.sqlite3_close_v2(c.db)
 	if rv != C.SQLITE_OK {
 		return c.lastError()
 	}
+	deleteHandles(c)
 	c.db = nil
 	runtime.SetFinalizer(c, nil)
 	return nil
@@ -766,14 +771,18 @@ func (s *SQLiteStmt) query(ctx context.Context, args []namedValue) (driver.Rows,
 		done:     make(chan struct{}),
 	}
 
-	go func() {
+	go func(db *C.sqlite3) {
 		select {
 		case <-ctx.Done():
-			C.sqlite3_interrupt(s.c.db)
-			rows.Close()
+			select {
+			case <-rows.done:
+			default:
+				C.sqlite3_interrupt(db)
+				rows.Close()
+			}
 		case <-rows.done:
 		}
-	}()
+	}(s.c.db)
 
 	return rows, nil
 }
