@@ -10,9 +10,9 @@ Visit http://we.canhearyou.com for information on what it is and how to use it.
 
 WeCanHearYou is coded in Go, React and TypeScript. We also use Node.js to run some development tools. So if you know these technologies or would like to learn, you came to the right place.
 
-Tools you'll need: Go 1.8, Glide, Node.js 6+, Yarn, Docker and Git, of course :)
+Tools you'll need: Go 1.8, Glide, Node.js 6+, Yarn, Docker and Git :)
 
-1) clone this repository into $GOPATH/src/GitHub.com/WeCanHearYou/wechy
+1) clone this repository into `$GOPATH/src/GitHub.com/WeCanHearYou/wechy`
 2) run `yarn` to install froentend packages 
 3) run `npm run build:watch` to pack the froentend source into a bundle. It'll 
 4) run `docker-conpose up -d` to start a  local Postgres database on Docker.
