@@ -8,7 +8,7 @@ Visit http://we.canhearyou.com for information on what it is and how to use it.
 
 # How to run it locally?
 
-WeCanHearYou is coded in Go, React and TypeScript. We also use Node.js to run some development tools. So if you know these technologies or would like to learn, you came to the right place.
+WeCanHearYou is coded in Go and TypeScript, but also using things like Node.js, React and Postgres. So if you know these technologies or would like to learn, you came to the right place.
 
 Tools you'll need: Go 1.8, Glide, Node.js 6+, Yarn, Docker and Git :)
 
