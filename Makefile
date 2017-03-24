@@ -2,9 +2,6 @@ BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
 define tag_docker
 	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
-		docker tag $(1) $(1):stable; \
-	fi
-	@if [ "$(TRAVIS_BRANCH)" = "dev" ]; then \
 		docker tag $(1) $(1):staging; \
 	fi
 endef
