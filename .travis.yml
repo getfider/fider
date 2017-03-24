@@ -11,6 +11,7 @@ env:
   global:
     - GO_ENV=test
     - NODE_ENV=test
+
 install: 
   - nvm install "$(jq -r '.engines.node' package.json)"
   - npm i -g yarn
