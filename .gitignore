@@ -1,6 +1,13 @@
-vendor/*/
 data/
 tmp/
+dist/
+node_modules/
+*.coverprofile
 
-wchy-api
+wechy
+wechy.exe
 gin-bin
+gin-bin.exe
+gin-bin.exe~
+.env
+npm-debug.log

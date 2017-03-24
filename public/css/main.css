@@ -1,0 +1,17 @@
+#new-idea-input {
+  margin-bottom: 20px;
+}
+
+.ideas-list {
+  margin-top: 40px;
+}
+.ideas-list .vote-col {
+  text-align: center;
+  width: 140px;
+}
+.ideas-list .vote-col div {
+  display: block;
+}
+#footer {
+  margin-top: 50px;
+}

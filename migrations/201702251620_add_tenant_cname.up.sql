@@ -1,0 +1,1 @@
+alter table tenants add cname varchar(100) null

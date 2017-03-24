@@ -1,14 +1,30 @@
+sudo: required
+
+services:
+  - docker
+  
 language: go
 
-go:
-  - 1.7.x
-  - master
+go: 1.8
 
-before_install:
-  - go get -u github.com/kardianos/govendor
-  - go get -u github.com/golang/lint/golint
-  - go get -u github.com/mattn/goveralls
+env:
+  global:
+    - GO_ENV=test
+    - NODE_ENV=test
 
-install: make setup-ci
+install: 
+  - nvm install "$(jq -r '.engines.node' package.json)"
+  - npm i -g yarn
+  - go get github.com/mattn/goveralls
+  - go get github.com/joho/godotenv/cmd/godotenv
+  - yarn
 
-script: make run-ci
+script: 
+  - npm run lint
+  - npm run build  
+  - make test
+  - godotenv -f .test.env goveralls -service=travis-ci
+
+after_success:
+  - docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+  - make dockerize

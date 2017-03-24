@@ -6,9 +6,15 @@
     "**/.hg": true,
     "**/.DS_Store": true,
     "data": true,
-    "vendor": true,
     "gin-bin": true,
-    "wchy-api": true,
-    "tmp": true
-  }
+    "gin-bin.exe": true,
+    "gin-bin.exe~": true,
+    "wechy": true,
+    "wechy.exe": true,
+    "tmp": true,
+    "vendor": true,
+    "node_modules": true,
+    "dist": true
+  },
+  "vsicons.presets.angular": true
 }

@@ -1,22 +1,20 @@
 BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
 
+define tag_docker
+	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
+		docker tag $(1) $(1):staging; \
+	fi
+endef
+
 test:
-	go test $$(go list ./... | grep -v /vendor/) -cover
+	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover
 
-lint:
-	golint -set_exit_status
-
-setup-ci:
-	govendor sync
-
-run-ci: lint build
-	goveralls -service=travis-ci
-
-migrate:
-ifeq ($(ENV), local)
-	migrate -url postgres://wchy:wchy-pw@localhost:5555/wchy?sslmode=disable -path ./migrations up
-else
-	migrate -url ${DATABASE_URL} -path ./migrations up
+dockerize:
+ifeq ($(TRAVIS_PULL_REQUEST), false)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+	docker build -f Dockerfile -t wecanhearyou/wechy .
+	$(call tag_docker, wecanhearyou/wechy)
+	docker push wecanhearyou/wechy
 endif
 
 build:
@@ -26,6 +24,6 @@ watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	wchy-api
+	wechy
 
 .DEFAULT_GOAL := build

@@ -1,0 +1,20 @@
+package: github.com/WeCanHearYou/wechy
+import:
+- package: github.com/dgrijalva/jwt-go
+- package: github.com/jmoiron/jsonq
+- package: github.com/labstack/echo
+- package: github.com/labstack/gommon
+  subpackages:
+  - log
+- package: github.com/lib/pq
+- package: github.com/mattes/migrate
+  subpackages:
+  - driver/postgres
+  - migrate
+- package: golang.org/x/oauth2
+  subpackages:
+  - facebook
+  - google
+testImport:
+- package: github.com/onsi/gomega
+- package: gopkg.in/DATA-DOG/go-sqlmock.v1

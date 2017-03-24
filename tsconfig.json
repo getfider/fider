@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "sourceMap": true,
+        "jsx": "react",
+        "lib": ["dom", "es2015.promise", "es5"]
+    }
+}
