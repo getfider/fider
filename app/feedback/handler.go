@@ -3,6 +3,10 @@ package feedback
 import (
 	"net/http"
 
+	"strconv"
+
+	"fmt"
+
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/labstack/echo"
 )
@@ -54,6 +58,23 @@ func (h IndexHandlder) Post() echo.HandlerFunc {
 
 		return c.JSON(200, echo.Map{
 			"idea": idea,
+		})
+	}
+}
+
+// Details shows details of given Idea by id
+func (h IndexHandlder) Details() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		tenant := c.Get("Tenant").(*identity.Tenant)
+		ideaID, _ := strconv.Atoi(c.Param("id"))
+		idea, err := h.ideaService.GetByID(tenant.ID, int64(ideaID))
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		return c.Render(200, "idea.html", echo.Map{
+			"Tenant": tenant,
+			"Idea":   idea,
 		})
 	}
 }

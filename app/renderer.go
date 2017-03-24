@@ -34,6 +34,7 @@ func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 
 	//TODO: load all templates automatically
 	renderer.add("index.html")
+	renderer.add("idea.html")
 	renderer.add("404.html")
 	renderer.add("500.html")
 

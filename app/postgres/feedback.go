@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app/feedback"
+	"github.com/WeCanHearYou/wechy/app/identity"
 )
 
 // IdeaService contains read and write operations for ideas
@@ -33,6 +34,27 @@ func (svc IdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
 	}
 
 	return ideas, nil
+}
+
+// GetByID returns idea by given id
+func (svc IdeaService) GetByID(tenantID, ideaID int64) (*feedback.Idea, error) {
+	rows, err := svc.DB.Query(`SELECT i.id, i.title, i.description, i.created_on, u.id, u.name, u.email
+														 FROM ideas i
+														 LEFT JOIN users u
+														 ON u.id = i.user_id
+														 WHERE i.tenant_id = $1
+														 AND i.id = $2
+														 ORDER BY i.created_on DESC`, tenantID, ideaID)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Next() {
+		idea := &feedback.Idea{}
+		rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
+		return idea, nil
+	}
+	return nil, identity.ErrNotFound
 }
 
 // Save a new idea in the database

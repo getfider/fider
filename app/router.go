@@ -78,6 +78,8 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		appGroup.Use(identity.MultiTenant(ctx.Tenant))
 
 		appGroup.GET("/", feedback.Index(ctx.Idea).List())
+		appGroup.GET("/ideas/:id", feedback.Index(ctx.Idea).Details())
+
 		appGroup.GET("/logout", identity.OAuth(ctx.OAuth, ctx.User).Logout())
 		appGroup.POST("/api/ideas", feedback.Index(ctx.Idea).Post())
 		appGroup.GET("/api/status", Status(ctx.Health, ctx.Settings))

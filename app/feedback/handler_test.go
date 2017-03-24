@@ -11,6 +11,10 @@ import (
 
 type mockIdeaService struct{}
 
+func (svc mockIdeaService) GetByID(tenantID, ideaID int64) (*feedback.Idea, error) {
+	return new(feedback.Idea), nil
+}
+
 func (svc mockIdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
 	return make([]*feedback.Idea, 0), nil
 }

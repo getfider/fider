@@ -15,9 +15,9 @@ export class Root extends React.Component<{}, {}> {
         const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
                           <div className="content">
-                            <div className="header">
+                            <a href={`/ideas/${x.id}`} className="header">
                               <i className="idea icon"></i>{ x.title }
-                            </div>
+                            </a>
                             <div className="description">
                               <MultiLineText text={ x.description } />
                             </div>
