@@ -17,3 +17,10 @@ export interface Idea {
   createdOn: string;
   user: User;
 }
+
+export interface Comment {
+  id: number;
+  content: string;
+  createdOn: string;
+  user: User;
+}

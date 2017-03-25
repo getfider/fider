@@ -14,3 +14,11 @@ type Idea struct {
 	CreatedOn   time.Time     `json:"createdOn"`
 	User        identity.User `json:"user"`
 }
+
+//Comment represents an user comment on an idea
+type Comment struct {
+	ID        int64         `json:"id"`
+	Content   string        `json:"content"`
+	CreatedOn time.Time     `json:"createdOn"`
+	User      identity.User `json:"user"`
+}
