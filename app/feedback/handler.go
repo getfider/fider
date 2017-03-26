@@ -1,6 +1,8 @@
 package feedback
 
 import (
+	"strings"
+
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/labstack/echo"
 )
@@ -40,6 +42,12 @@ func (h IndexHandlder) Post() app.HandlerFunc {
 		input := new(newIdeaInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
+		}
+
+		if strings.Trim(input.Title, " ") == "" {
+			return c.JSON(400, echo.Map{
+				"message": "Idea title is required.",
+			})
 		}
 
 		idea, err := h.ideaService.Save(c.Tenant().ID, c.Claims().UserID, input.Title, input.Description)
@@ -90,6 +98,12 @@ func (h IndexHandlder) PostComment() app.HandlerFunc {
 		input := new(newCommentInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
+		}
+
+		if strings.Trim(input.Content, " ") == "" {
+			return c.JSON(400, echo.Map{
+				"message": "Comment is required.",
+			})
 		}
 
 		ideaID, err := c.ParamAsInt("id")

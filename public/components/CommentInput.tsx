@@ -1,7 +1,9 @@
 import axios from "axios";
 import * as React from "react";
+
 import { Idea } from "../models";
 import { getCurrentUser } from "../storage";
+import { DisplayError } from "./common";
 import { SocialSignInButton } from "./SocialSignInButton";
 
 interface CommentInputProps {
@@ -11,6 +13,7 @@ interface CommentInputProps {
 interface CommentInputState {
     content: string;
     clicked: boolean;
+    error?: Error;
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
@@ -23,13 +26,23 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     }
 
     public async submit() {
-      this.setState({ clicked: true });
-
-      const response = await axios.post(`/api/ideas/${this.props.idea.id}/comments`, {
-        content: this.state.content
+      this.setState({
+        clicked: true,
+        error: undefined
       });
 
-      location.reload();
+      try {
+        await axios.post(`/api/ideas/${this.props.idea.id}/comments`, {
+          content: this.state.content
+        });
+
+        location.reload();
+      } catch (ex) {
+        this.setState({
+          clicked: false,
+          error: ex.response.data
+        });
+      }
     }
 
     public render() {
@@ -37,6 +50,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && "loading disabled"}`;
 
         const addComment = user ? <form className="ui reply form">
+          <DisplayError error={this.state.error} />
           <div className="field">
             <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
                       placeholder="Leave your comment here..."></textarea>
@@ -47,7 +61,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         </form> :
         <div className="ui message">
           <div className="header">
-            Please log in before leaving a comment
+            Please log in before leaving a comment.
           </div>
           <p>This only takes a second and you'll be good to go!</p>
           <SocialSignInButton provider="facebook" small={true} />

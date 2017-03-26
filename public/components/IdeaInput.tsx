@@ -1,11 +1,13 @@
 import axios from "axios";
 import * as React from "react";
 import { getCurrentUser } from "../storage";
+import { DisplayError } from "./common";
 import { SocialSignInButton } from "./SocialSignInButton";
 
 interface IdeaInputState {
     title: string;
     clicked: boolean;
+    error?: Error;
 }
 
 export class IdeaInput extends React.Component<{}, IdeaInputState> {
@@ -20,14 +22,24 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
     }
 
     public async submit() {
-      this.setState({ clicked: true });
-
-      const response = await axios.post("/api/ideas", {
-        title: this.state.title,
-        description: this.description.value
+      this.setState({
+        clicked: true,
+        error: undefined
       });
 
-      location.reload();
+      try {
+        await axios.post("/api/ideas", {
+          title: this.state.title,
+          description: this.description.value
+        });
+
+        location.reload();
+      } catch (ex) {
+        this.setState({
+          clicked: false,
+          error: ex.response.data
+        });
+      }
     }
 
     public render() {
@@ -56,6 +68,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                         </div>;
 
         return <div className="ui form">
+                <DisplayError error={this.state.error} />
                 <div className="ui fluid input">
                     <input  id="new-idea-input"
                             type="text"
