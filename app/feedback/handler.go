@@ -1,10 +1,6 @@
 package feedback
 
 import (
-	"net/http"
-
-	"strconv"
-
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/labstack/echo"
 )
@@ -42,11 +38,13 @@ type newIdeaInput struct {
 func (h IndexHandlder) Post() app.HandlerFunc {
 	return func(c app.Context) error {
 		input := new(newIdeaInput)
-		c.Bind(input)
+		if err := c.Bind(input); err != nil {
+			return c.Failure(err)
+		}
 
 		idea, err := h.ideaService.Save(c.Tenant().ID, c.Claims().UserID, input.Title, input.Description)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, err)
+			return c.Failure(err)
 		}
 
 		return c.JSON(200, echo.Map{
@@ -59,8 +57,8 @@ func (h IndexHandlder) Post() app.HandlerFunc {
 func (h IndexHandlder) Details() app.HandlerFunc {
 	return func(c app.Context) error {
 		tenant := c.Tenant()
-		ideaID, _ := strconv.Atoi(c.Param("id"))
-		idea, _ := h.ideaService.GetByID(tenant.ID, int64(ideaID))
+		ideaID, _ := c.ParamAsInt64("id")
+		idea, _ := h.ideaService.GetByID(tenant.ID, ideaID)
 		comments, _ := h.ideaService.GetCommentsByIdeaID(tenant.ID, idea.ID)
 
 		return c.Render(200, "idea.html", echo.Map{
@@ -78,7 +76,9 @@ type newCommentInput struct {
 func (h IndexHandlder) PostComment() app.HandlerFunc {
 	return func(c app.Context) error {
 		input := new(newCommentInput)
-		c.Bind(input)
+		if err := c.Bind(input); err != nil {
+			return c.Failure(err)
+		}
 
 		ideaID, _ := c.ParamAsInt64("id")
 

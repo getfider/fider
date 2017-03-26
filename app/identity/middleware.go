@@ -15,7 +15,7 @@ func MultiTenant(tenantService TenantService) app.MiddlewareFunc {
 			hostname := stripPort(c.Request().Host)
 			tenant, err := tenantService.GetByDomain(hostname)
 			if err == nil {
-				c.Set("Tenant", tenant)
+				c.SetTenant(tenant)
 				return next(c)
 			}
 
@@ -32,7 +32,7 @@ func JwtGetter() app.MiddlewareFunc {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := Decode(cookie.Value); err == nil {
-					c.Set("Claims", claims)
+					c.SetClaims(claims)
 				} else {
 					c.Logger().Error(err)
 				}

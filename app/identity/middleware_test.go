@@ -81,7 +81,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 
 	mw := identity.MultiTenant(&mockTenantService{})
 	mw(func(c app.Context) error {
-		return c.String(http.StatusOK, c.Get("Tenant").(*app.Tenant).Name)
+		return c.String(http.StatusOK, c.Tenant().Name)
 	})(c)
 
 	Expect(rec.Code).To(Equal(404))

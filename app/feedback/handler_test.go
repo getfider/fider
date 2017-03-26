@@ -35,7 +35,7 @@ func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Set("Tenant", &app.Tenant{ID: 2, Name: "Any Tenant"})
+	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
 	code, _ := server.Execute(feedback.Index(&mockIdeaService{}).List())
 
 	Expect(code).To(Equal(200))
