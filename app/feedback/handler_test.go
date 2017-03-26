@@ -27,6 +27,10 @@ func (svc mockIdeaService) Save(tenantID, userID int64, title, description strin
 	return nil, nil
 }
 
+func (svc mockIdeaService) AddComment(userID, ideaID int64, content string) (int64, error) {
+	return 0, nil
+}
+
 func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 

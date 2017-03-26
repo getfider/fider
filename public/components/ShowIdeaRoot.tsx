@@ -1,7 +1,9 @@
 import * as moment from "moment";
 import * as React from "react";
-import { Comment, Idea } from "../models";
 import * as storage from "../storage";
+
+import { Comment, Idea } from "../models";
+import { CommentInput } from "./CommentInput";
 import { Gravatar, MultiLineText } from "./Common";
 import { SocialSignInButton } from "./SocialSignInButton";
 
@@ -32,23 +34,6 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
           </div>
         ) : <p>No comments yet.</p>;
 
-        const addComment = user ? <form className="ui reply form">
-          <div className="field">
-            <textarea></textarea>
-          </div>
-          <div className="ui blue labeled submit icon button">
-            <i className="icon edit"></i> Add Comment
-          </div>
-        </form> :
-        <div className="ui message">
-          <div className="header">
-            Please log in before leaving a comment
-          </div>
-          <p>This only takes a second and you'll be good to go!</p>
-          <SocialSignInButton provider="facebook" small={true} />
-          <SocialSignInButton provider="google" small={true} />
-        </div>;
-
         return <div>
                   <Header />
                   <div className="ui container">
@@ -65,7 +50,7 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
                       <h3 className="ui dividing header">Comments</h3>
                       { commentsList }
                     </div>
-                    { addComment }
+                    <CommentInput idea={idea} />
                   </div>
                   <Footer />
                </div>;

@@ -56,6 +56,7 @@ func JwtSetter() echo.MiddlewareFunc {
 					Name:     "auth",
 					Value:    jwt,
 					HttpOnly: true,
+					Path:     "/",
 				})
 
 				scheme := "http"

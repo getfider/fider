@@ -100,3 +100,19 @@ func (svc IdeaService) Save(tenantID, userID int64, title, description string) (
 
 	return idea, tx.Commit()
 }
+
+// AddComment places a new comment on an idea
+func (svc IdeaService) AddComment(userID, ideaID int64, content string) (int64, error) {
+	tx, err := svc.DB.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	var id int64
+	if err = tx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", ideaID, content, userID, time.Now()).Scan(&id); err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	return id, tx.Commit()
+}

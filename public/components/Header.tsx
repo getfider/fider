@@ -45,9 +45,9 @@ export class Header extends React.Component<{}, {}> {
         return <div>
                 <div className="ui menu">
                     <div className="ui container">
-                        <div className="header item">
+                        <a href="/" className="header item">
                             { tenant.name }
-                        </div>
+                        </a>
                         { profile }
                     </div>
                 </div>

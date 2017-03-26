@@ -75,3 +75,27 @@ func (h IndexHandlder) Details() echo.HandlerFunc {
 		})
 	}
 }
+
+type newCommentInput struct {
+	Content string `json:"content"`
+}
+
+// PostComment creates a new comment on given idea
+func (h IndexHandlder) PostComment() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		input := new(newCommentInput)
+		c.Bind(input)
+
+		ideaID, _ := strconv.Atoi(c.Param("id"))
+		claims := c.Get("Claims").(*identity.WechyClaims)
+
+		id, err := h.ideaService.AddComment(claims.UserID, int64(ideaID), input.Content)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err)
+		}
+
+		return c.JSON(200, echo.Map{
+			"comment_id": id,
+		})
+	}
+}
