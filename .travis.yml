@@ -17,7 +17,7 @@ install:
   - npm i -g yarn
   - go get github.com/mattn/goveralls
   - go get github.com/joho/godotenv/cmd/godotenv
-  - docker compose up -d pgtest
+  - docker-compose up -d pgtest
   - yarn
 
 script: 
