@@ -10,3 +10,11 @@ services:
     environment:
       POSTGRES_USER: wechy
       POSTGRES_PASSWORD: wechy-pw
+  pgtest:
+    restart: always
+    image: postgres:9.6
+    ports:
+      - "5566:5432"
+    environment:
+      POSTGRES_USER: wechy_test
+      POSTGRES_PASSWORD: wechy_test-pw

@@ -1,5 +1,5 @@
-hash: 6ec0b6ecc8776f14df239492d1574d5c21fd7afa99279704f5b214cf462f1c9f
-updated: 2017-03-22T23:03:27.872610802Z
+hash: 8d8746a3ed9e22765aa09405f21add96e0d0669e343d36898b9aa4be02c41892
+updated: 2017-03-26T12:47:45.673024907+01:00
 imports:
 - name: cloud.google.com/go
   version: 890c17b428e8255915f506a9195b768df8a73dd0
@@ -113,7 +113,5 @@ testImports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
-- name: gopkg.in/DATA-DOG/go-sqlmock.v1
-  version: b983233bc0bbea4dc6e8ec8c8c923d935765ffec
 - name: gopkg.in/yaml.v2
   version: a3f3340b5840cee44f372bddb5880fcbc419b46a

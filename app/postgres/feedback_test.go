@@ -1,70 +1,37 @@
 package postgres_test
 
 import (
-	"database/sql/driver"
 	"testing"
 	"time"
 
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
-
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/feedback"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
 
-func TestIdeaService_GetAll_Error(t *testing.T) {
-	RegisterTestingT(t)
-
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
-
-	mock.ExpectQuery("SELECT (.*) FROM ideas (.*) JOIN users").WithArgs(2134).WillReturnError(driver.ErrBadConn)
-
-	svc := &postgres.IdeaService{DB: db}
-	ideas, err := svc.GetAll(2134)
-
-	Expect(ideas).To(BeEmpty())
-	Expect(err).NotTo(BeNil())
-}
-
 func TestIdeaService_GetAll(t *testing.T) {
 	RegisterTestingT(t)
-
-	db, mock, _ := sqlmock.New()
-	defer db.Close()
+	db := setup()
+	defer teardown(db)
 
 	now := time.Now()
-	rows := sqlmock.NewRows([]string{"id", "title", "description", "created_on", "u_id", "u_name", "u_email"})
-	rows.AddRow(1, "Idea #1", "Description #1", now, 1, "Jon Snow", "jon.snow@got.com")
-	rows.AddRow(2, "Idea #2", "Description #2", now, 2, "Arya Start", "arya.start@got.com")
-	mock.ExpectQuery("SELECT (.*) FROM ideas (.*) JOIN users").WithArgs(2134).WillReturnRows(rows)
+
+	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Arya Start','arya.start@got.com', now())")
+	execute(db, "INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 1, 1)", now)
+	execute(db, "INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 1, 2)", now)
 
 	svc := &postgres.IdeaService{DB: db}
-	ideas, err := svc.GetAll(2134)
+	ideas, err := svc.GetAll(1)
 
 	Expect(err).To(BeNil())
 	Expect(ideas).To(HaveLen(2))
-	Expect(ideas[0]).To(Equal(&feedback.Idea{
-		ID:          1,
-		Title:       "Idea #1",
-		Description: "Description #1",
-		CreatedOn:   now,
-		User: app.User{
-			ID:    1,
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		},
-	}))
-	Expect(ideas[1]).To(Equal(&feedback.Idea{
-		ID:          2,
-		Title:       "Idea #2",
-		Description: "Description #2",
-		CreatedOn:   now,
-		User: app.User{
-			ID:    2,
-			Name:  "Arya Start",
-			Email: "arya.start@got.com",
-		},
-	}))
+
+	Expect(ideas[0].Title).To(Equal("Idea #1"))
+	Expect(ideas[0].Description).To(Equal("Description #1"))
+	Expect(ideas[0].User.Name).To(Equal("Jon Snow"))
+
+	Expect(ideas[1].Title).To(Equal("Idea #2"))
+	Expect(ideas[1].Description).To(Equal("Description #2"))
+	Expect(ideas[1].User.Name).To(Equal("Arya Start"))
 }

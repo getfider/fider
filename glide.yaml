@@ -17,4 +17,3 @@ import:
   - google
 testImport:
 - package: github.com/onsi/gomega
-- package: gopkg.in/DATA-DOG/go-sqlmock.v1

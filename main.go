@@ -18,10 +18,6 @@ var buildtime string
 var version = "0.0.0"
 
 func migrate() {
-	if env.IsTest() {
-		return
-	}
-
 	fmt.Printf("Running migrations... \n")
 	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), "./migrations")
 	if !ok {
