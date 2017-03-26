@@ -24,6 +24,7 @@ func migrate() {
 		for i, err := range errors {
 			fmt.Printf("Error #%d: %s.\n", i, err)
 		}
+
 		panic("Migrations failed.")
 	} else {
 		fmt.Printf("Migrations finished with success.\n")
