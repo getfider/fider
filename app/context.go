@@ -52,13 +52,13 @@ func (ctx *Context) SetClaims(claims *WechyClaims) {
 	ctx.Set(claimsContextKey, claims)
 }
 
-//ParamAsInt64 returns parameter as int64
-func (ctx *Context) ParamAsInt64(name string) (int64, error) {
+//ParamAsInt returns parameter as int
+func (ctx *Context) ParamAsInt(name string) (int, error) {
 	val, err := strconv.Atoi(ctx.Param(name))
 	if err != nil {
 		return 0, err
 	}
-	return int64(val), nil
+	return int(val), nil
 }
 
 //HandlerFunc represents an HTTP handler

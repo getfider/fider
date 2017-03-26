@@ -4,14 +4,14 @@ import jwt "github.com/dgrijalva/jwt-go"
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID     int64  `json:"id"`
+	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Domain string `json:"domain"`
 }
 
 //User represents an user inside our application
 type User struct {
-	ID        int64           `json:"id"`
+	ID        int             `json:"id"`
 	Name      string          `json:"name"`
 	Email     string          `json:"email"`
 	Providers []*UserProvider `json:"providers"`
@@ -25,7 +25,7 @@ type UserProvider struct {
 
 //WechyClaims represents what goes into JWT tokens
 type WechyClaims struct {
-	UserID    int64  `json:"user/id"`
+	UserID    int    `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`
 	jwt.StandardClaims

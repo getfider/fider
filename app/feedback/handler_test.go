@@ -11,23 +11,23 @@ import (
 
 type mockIdeaService struct{}
 
-func (svc mockIdeaService) GetByID(tenantID, ideaID int64) (*feedback.Idea, error) {
+func (svc mockIdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
 	return new(feedback.Idea), nil
 }
 
-func (svc mockIdeaService) GetAll(tenantID int64) ([]*feedback.Idea, error) {
+func (svc mockIdeaService) GetAll(tenantID int) ([]*feedback.Idea, error) {
 	return make([]*feedback.Idea, 0), nil
 }
 
-func (svc mockIdeaService) GetCommentsByIdeaID(tenantID, ideaID int64) ([]*feedback.Comment, error) {
+func (svc mockIdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*feedback.Comment, error) {
 	return make([]*feedback.Comment, 0), nil
 }
 
-func (svc mockIdeaService) Save(tenantID, userID int64, title, description string) (*feedback.Idea, error) {
+func (svc mockIdeaService) Save(tenantID, userID int, title, description string) (*feedback.Idea, error) {
 	return nil, nil
 }
 
-func (svc mockIdeaService) AddComment(userID, ideaID int64, content string) (int64, error) {
+func (svc mockIdeaService) AddComment(userID, ideaID int, content string) (int, error) {
 	return 0, nil
 }
 

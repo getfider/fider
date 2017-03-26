@@ -32,7 +32,7 @@ func TestUserService_GetByEmail(t *testing.T) {
 	user, err := svc.GetByEmail("jon.snow@got.com")
 
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int64(1)))
+	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 }
@@ -56,7 +56,7 @@ func TestUserService_Register(t *testing.T) {
 	err := svc.Register(user)
 
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int64(1)))
+	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 }
@@ -84,7 +84,7 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 	err := svc.Register(user)
 
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int64(1)))
+	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 }
@@ -111,7 +111,7 @@ func TestTenantService_GetByDomain_Subdomain(t *testing.T) {
 	svc := &postgres.TenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
 
-	Expect(tenant.ID).To(Equal(int64(1)))
+	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
 	Expect(err).To(BeNil())
@@ -127,7 +127,7 @@ func TestTenantService_GetByDomain_FullDomain(t *testing.T) {
 	svc := &postgres.TenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain.anydomain.com")
 
-	Expect(tenant.ID).To(Equal(int64(1)))
+	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
 	Expect(err).To(BeNil())
