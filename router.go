@@ -11,6 +11,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 )
 
@@ -90,6 +91,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	router.Renderer = app.NewHTMLRenderer(router.Logger)
 	router.HTTPErrorHandler = errorHandler
 
+	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
 	router.Static("/assets", "dist")
 
