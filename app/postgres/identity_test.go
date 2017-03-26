@@ -7,6 +7,7 @@ import (
 
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
@@ -68,10 +69,10 @@ func TestUserService_Register(t *testing.T) {
 	mock.ExpectCommit()
 
 	svc := &postgres.UserService{DB: db}
-	user := &identity.User{
+	user := &app.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
-		Providers: []*identity.UserProvider{
+		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",
 				Name: identity.OAuthFacebookProvider,
@@ -107,10 +108,10 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 	mock.ExpectCommit()
 
 	svc := &postgres.UserService{DB: db}
-	user := &identity.User{
+	user := &app.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
-		Providers: []*identity.UserProvider{
+		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",
 				Name: identity.OAuthFacebookProvider,

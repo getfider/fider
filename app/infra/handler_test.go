@@ -1,9 +1,9 @@
-package app_test
+package infra_test
 
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	. "github.com/onsi/gomega"
 )
@@ -18,12 +18,12 @@ func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	service := &falsyHealthCheckService{}
-	settings := &app.WechySettings{
+	settings := &infra.WechySettings{
 		BuildTime: "today",
 	}
 
 	server := mock.NewServer()
-	status, query := server.Execute(app.Status(service, settings))
+	status, query := server.Execute(infra.Status(service, settings))
 
 	Expect(query.String("build")).To(Equal("today"))
 	Expect(query.Bool("healthy", "database")).To(Equal(false))

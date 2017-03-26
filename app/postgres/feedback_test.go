@@ -7,8 +7,8 @@ import (
 
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/feedback"
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
@@ -50,7 +50,7 @@ func TestIdeaService_GetAll(t *testing.T) {
 		Title:       "Idea #1",
 		Description: "Description #1",
 		CreatedOn:   now,
-		User: identity.User{
+		User: app.User{
 			ID:    1,
 			Name:  "Jon Snow",
 			Email: "jon.snow@got.com",
@@ -61,7 +61,7 @@ func TestIdeaService_GetAll(t *testing.T) {
 		Title:       "Idea #2",
 		Description: "Description #2",
 		CreatedOn:   now,
-		User: identity.User{
+		User: app.User{
 			ID:    2,
 			Name:  "Arya Start",
 			Email: "arya.start@got.com",

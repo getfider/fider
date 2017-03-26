@@ -36,9 +36,16 @@ func NewServer() *Server {
 	}
 }
 
+// NewContext creates a new HTTP context
+func (s *Server) NewContext(req *http.Request, w http.ResponseWriter) app.Context {
+	c := s.engine.NewContext(req, w)
+	return app.Context{Context: c}
+}
+
 // Execute given handler and return response as JSON
-func (s *Server) Execute(handler echo.HandlerFunc) (int, *jsonq.JsonQuery) {
-	handler(s.Context)
+func (s *Server) Execute(handler app.HandlerFunc) (int, *jsonq.JsonQuery) {
+	ctx := app.Context{Context: s.Context}
+	handler(ctx)
 
 	if s.recorder.Code == 200 && hasJSON(s.recorder) {
 		var data interface{}
@@ -52,8 +59,10 @@ func (s *Server) Execute(handler echo.HandlerFunc) (int, *jsonq.JsonQuery) {
 }
 
 // ExecuteRaw executes given handler and return raw response
-func (s *Server) ExecuteRaw(handler echo.HandlerFunc) (int, *http.Response) {
-	handler(s.Context)
+func (s *Server) ExecuteRaw(handler app.HandlerFunc) (int, *http.Response) {
+	ctx := app.Context{Context: s.Context}
+	handler(ctx)
+
 	return s.recorder.Code, s.recorder.Result()
 }
 

@@ -1,10 +1,11 @@
-package app
+package infra
 
 import (
 	"net/http"
 	"runtime"
 	"time"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
 )
@@ -15,12 +16,12 @@ type statusHandler struct {
 }
 
 // Status creates a new Status HTTP handler
-func Status(healthService HealthCheckService, settings *WechySettings) echo.HandlerFunc {
+func Status(healthService HealthCheckService, settings *WechySettings) app.HandlerFunc {
 	return statusHandler{healthService, settings}.get()
 }
 
-func (h statusHandler) get() echo.HandlerFunc {
-	return func(c echo.Context) error {
+func (h statusHandler) get() app.HandlerFunc {
+	return func(c app.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
 			"build":   h.settings.BuildTime,
 			"version": h.settings.Version,

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/labstack/echo"
 )
 
@@ -26,8 +27,8 @@ func OAuth(oauthService OAuthService, userService UserService) OAuthHandlers {
 }
 
 // Callback handles OAuth callbacks
-func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
+	return func(c app.Context) error {
 		var redirectURL *url.URL
 		var err error
 
@@ -49,12 +50,12 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 
 		user, err := h.userService.GetByEmail(oauthUser.Email)
 		if err != nil {
-			if err == ErrNotFound {
-				user = &User{
+			if err == app.ErrNotFound {
+				user = &app.User{
 					Name:  oauthUser.Name,
 					Email: oauthUser.Email,
-					Providers: []*UserProvider{
-						&UserProvider{
+					Providers: []*app.UserProvider{
+						&app.UserProvider{
 							UID:  oauthUser.ID,
 							Name: provider,
 						},
@@ -70,7 +71,7 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 			}
 		}
 
-		claims := &WechyClaims{
+		claims := &app.WechyClaims{
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,
@@ -90,16 +91,16 @@ func (h OAuthHandlers) Callback(provider string) echo.HandlerFunc {
 }
 
 // Login handles OAuth logins
-func (h OAuthHandlers) Login(provider string) echo.HandlerFunc {
-	return func(c echo.Context) error {
+func (h OAuthHandlers) Login(provider string) app.HandlerFunc {
+	return func(c app.Context) error {
 		authURL := h.oauthService.GetAuthURL(provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }
 
 // Logout remove auth cookies
-func (h OAuthHandlers) Logout() echo.HandlerFunc {
-	return func(c echo.Context) error {
+func (h OAuthHandlers) Logout() app.HandlerFunc {
+	return func(c app.Context) error {
 		c.SetCookie(&http.Cookie{
 			Name:    "auth",
 			MaxAge:  -1,

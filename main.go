@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	_ "github.com/lib/pq"
@@ -46,19 +46,19 @@ func main() {
 		panic(err)
 	}
 
-	ctx := &app.WechyServices{
+	ctx := &WechyServices{
 		OAuth:  &identity.HTTPOAuthService{},
 		Health: &postgres.HealthCheckService{DB: db},
 		Idea:   &postgres.IdeaService{DB: db},
 		User:   &postgres.UserService{DB: db},
 		Tenant: &postgres.TenantService{DB: db},
-		Settings: &app.WechySettings{
+		Settings: &infra.WechySettings{
 			BuildTime:    buildtime,
 			Version:      version,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
 		},
 	}
 
-	e := app.GetMainEngine(ctx)
+	e := GetMainEngine(ctx)
 	e.Logger.Fatal(e.Start(":" + env.GetEnvOrDefault("PORT", "3000")))
 }

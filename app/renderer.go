@@ -9,7 +9,6 @@ import (
 
 	"io/ioutil"
 
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
 )
@@ -54,6 +53,7 @@ func (r *HTMLRenderer) add(name string) *template.Template {
 
 //Render a template based on parameters
 func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	ctx := Context{Context: c}
 	tmpl, ok := r.templates[name]
 	if !ok {
 		panic(fmt.Errorf("The template '%s' does not exist", name))
@@ -66,10 +66,11 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
 	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
+	m["Tenant"] = ctx.Tenant()
 
-	claims, ok := c.Get("Claims").(*identity.WechyClaims)
-	if ok {
-		m["User"] = &identity.User{
+	if ctx.IsAuthenticated() {
+		claims := ctx.Claims()
+		m["User"] = &User{
 			ID:    claims.UserID,
 			Name:  claims.UserName,
 			Email: claims.UserEmail,

@@ -3,8 +3,8 @@ package feedback_test
 import (
 	"testing"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/feedback"
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	. "github.com/onsi/gomega"
 )
@@ -35,7 +35,7 @@ func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Set("Tenant", &identity.Tenant{ID: 2, Name: "Any Tenant"})
+	server.Context.Set("Tenant", &app.Tenant{ID: 2, Name: "Any Tenant"})
 	code, _ := server.Execute(feedback.Index(&mockIdeaService{}).List())
 
 	Expect(code).To(Equal(200))

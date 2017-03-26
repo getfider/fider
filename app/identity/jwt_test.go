@@ -3,6 +3,7 @@ package identity_test
 import (
 	"testing"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	. "github.com/onsi/gomega"
 )
@@ -10,7 +11,7 @@ import (
 func TestJWT_Encode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &identity.WechyClaims{
+	claims := &app.WechyClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -24,7 +25,7 @@ func TestJWT_Encode(t *testing.T) {
 func TestJWT_Decode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &identity.WechyClaims{
+	claims := &app.WechyClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",

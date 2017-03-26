@@ -5,13 +5,13 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/WeCanHearYou/wechy/app"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenantService TenantService) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+func MultiTenant(tenantService TenantService) app.MiddlewareFunc {
+	return func(next app.HandlerFunc) app.HandlerFunc {
+		return func(c app.Context) error {
 			hostname := stripPort(c.Request().Host)
 			tenant, err := tenantService.GetByDomain(hostname)
 			if err == nil {
@@ -26,9 +26,9 @@ func MultiTenant(tenantService TenantService) echo.MiddlewareFunc {
 }
 
 // JwtGetter gets JWT token from cookie and add into context
-func JwtGetter() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+func JwtGetter() app.MiddlewareFunc {
+	return func(next app.HandlerFunc) app.HandlerFunc {
+		return func(c app.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := Decode(cookie.Value); err == nil {
@@ -44,9 +44,9 @@ func JwtGetter() echo.MiddlewareFunc {
 }
 
 // JwtSetter sets JWT token into cookie
-func JwtSetter() echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+func JwtSetter() app.MiddlewareFunc {
+	return func(next app.HandlerFunc) app.HandlerFunc {
+		return func(c app.Context) error {
 
 			query := c.Request().URL.Query()
 
@@ -81,9 +81,9 @@ func JwtSetter() echo.MiddlewareFunc {
 }
 
 // HostChecker checks for a specific host
-func HostChecker(baseURL string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+func HostChecker(baseURL string) app.MiddlewareFunc {
+	return func(next app.HandlerFunc) app.HandlerFunc {
+		return func(c app.Context) error {
 			u, _ := url.Parse(baseURL)
 
 			if c.Request().Host != u.Host {

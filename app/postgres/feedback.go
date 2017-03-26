@@ -5,8 +5,8 @@ import (
 
 	"time"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/feedback"
-	"github.com/WeCanHearYou/wechy/app/identity"
 )
 
 // IdeaService contains read and write operations for ideas
@@ -54,7 +54,7 @@ func (svc IdeaService) GetByID(tenantID, ideaID int64) (*feedback.Idea, error) {
 		rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
 		return idea, nil
 	}
-	return nil, identity.ErrNotFound
+	return nil, app.ErrNotFound
 }
 
 // GetCommentsByIdeaID returns all coments from given idea

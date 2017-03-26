@@ -1,4 +1,4 @@
-package identity
+package app
 
 import "errors"
 
