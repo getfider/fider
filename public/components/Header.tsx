@@ -5,42 +5,40 @@ import { Gravatar } from "./Common";
 import { SocialSignInButton } from "./SocialSignInButton";
 
 export class Header extends React.Component<{}, {}> {
+    private dropdown: HTMLElement;
+    private list: HTMLElement;
+
+    public  componentDidMount() {
+        $(this.dropdown).popup({
+            inline: true,
+            hoverable: true,
+            popup: this.list,
+            position : "bottom right"
+        });
+    }
+
     public render() {
         const user = getCurrentUser();
         const tenant = get<Tenant>("tenant");
 
-        const profile = user ?
-                        <a className="item right signin">
-                            <Gravatar email={user.email} />
-                            { user.name }
-                            <i className="dropdown icon"></i>
-                        </a> :
-                        <a className="item right signin">
-                            <Gravatar />
-                            Sign in
-                            <i className="dropdown icon"></i>
-                        </a>;
-
-        const dropdown = user ?
-                        <div id="user-popup" className="ui popup top left transition hidden">
-                            <div className="ui">
+        const items = user ? <div className="ui list">
                                 <div className="item">
-                                <a href="/logout?redirect=/">
-                                    Sign out
-                                </a>
+                                    { user.email }
                                 </div>
-                            </div>
-                        </div> :
-                        <div id="user-popup" className="ui popup top left transition hidden">
-                            <div className="ui list">
+                                <div className="item right">
+                                    <a href="/logout?redirect=/">
+                                        Sign out
+                                    </a>
+                                </div>
+                             </div> :
+                             <div className="ui list">
                                 <div className="item">
                                     <SocialSignInButton provider="facebook"/>
                                 </div>
                                 <div className="item">
                                     <SocialSignInButton provider="google"/>
                                 </div>
-                            </div>
-                        </div>;
+                             </div>;
 
         return <div>
                 <div className="ui menu">
@@ -48,10 +46,16 @@ export class Header extends React.Component<{}, {}> {
                         <a href="/" className="header item">
                             { tenant.name }
                         </a>
-                        { profile }
+                        <a ref={(e) => { this.dropdown = e; } } className="item right signin">
+                            <Gravatar email={user.email} />
+                            { user.name || "Sign in" }
+                            <i className="dropdown icon"></i>
+                        </a>
                     </div>
                 </div>
-                { dropdown }
+                <div ref={(e) => { this.list = e; } } className="ui popup top left transition hidden">
+                    { items }
+                </div>
                </div>;
     }
 }
