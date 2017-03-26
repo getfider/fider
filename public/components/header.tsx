@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Tenant } from "../models";
 import { get, getCurrentUser } from "../storage";
-import { Gravatar } from "./Common";
-import { SocialSignInButton } from "./SocialSignInButton";
+import { Gravatar } from "./common";
+import { SocialSignInButton } from "./social_signin_button";
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;

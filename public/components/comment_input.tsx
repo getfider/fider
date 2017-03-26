@@ -4,7 +4,7 @@ import * as React from "react";
 import { Idea } from "../models";
 import { getCurrentUser } from "../storage";
 import { DisplayError } from "./common";
-import { SocialSignInButton } from "./SocialSignInButton";
+import { SocialSignInButton } from "./social_signin_button";
 
 interface CommentInputProps {
     idea: Idea;

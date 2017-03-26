@@ -3,13 +3,13 @@ import * as React from "react";
 import * as storage from "../storage";
 
 import { Comment, Idea } from "../models";
-import { CommentInput } from "./CommentInput";
-import { Gravatar, MultiLineText } from "./Common";
-import { SocialSignInButton } from "./SocialSignInButton";
+import { CommentInput } from "./comment_input";
+import { Gravatar, MultiLineText } from "./common";
+import { SocialSignInButton } from "./social_signin_button";
 
-import { Footer } from "./Footer";
-import { Header } from "./Header";
-import { IdeaInput } from "./IdeaInput";
+import { Footer } from "./footer";
+import { Header } from "./header";
+import { IdeaInput } from "./idea_input";
 
 export class ShowIdeaRoot extends React.Component<{}, {}> {
     public render() {

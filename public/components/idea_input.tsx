@@ -2,7 +2,7 @@ import axios from "axios";
 import * as React from "react";
 import { getCurrentUser } from "../storage";
 import { DisplayError } from "./common";
-import { SocialSignInButton } from "./SocialSignInButton";
+import { SocialSignInButton } from "./social_signin_button";
 
 interface IdeaInputState {
     title: string;

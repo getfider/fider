@@ -2,11 +2,11 @@ import * as moment from "moment";
 import * as React from "react";
 import { Idea } from "../models";
 import * as storage from "../storage";
-import { Gravatar, MultiLineText } from "./Common";
+import { Gravatar, MultiLineText } from "./common";
 
-import { Footer } from "./Footer";
-import { Header } from "./Header";
-import { IdeaInput } from "./IdeaInput";
+import { Footer } from "./footer";
+import { Header } from "./header";
+import { IdeaInput } from "./idea_input";
 
 export class Root extends React.Component<{}, {}> {
     public render() {
