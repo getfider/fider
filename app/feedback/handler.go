@@ -57,9 +57,21 @@ func (h IndexHandlder) Post() app.HandlerFunc {
 func (h IndexHandlder) Details() app.HandlerFunc {
 	return func(c app.Context) error {
 		tenant := c.Tenant()
-		ideaID, _ := c.ParamAsInt("id")
-		idea, _ := h.ideaService.GetByID(tenant.ID, ideaID)
-		comments, _ := h.ideaService.GetCommentsByIdeaID(tenant.ID, idea.ID)
+
+		ideaID, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		idea, err := h.ideaService.GetByID(tenant.ID, ideaID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		comments, err := h.ideaService.GetCommentsByIdeaID(tenant.ID, idea.ID)
+		if err != nil {
+			return c.Failure(err)
+		}
 
 		return c.Render(200, "idea.html", echo.Map{
 			"Comments": comments,
@@ -80,7 +92,10 @@ func (h IndexHandlder) PostComment() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		ideaID, _ := c.ParamAsInt("id")
+		ideaID, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.Failure(err)
+		}
 
 		id, err := h.ideaService.AddComment(c.Claims().UserID, ideaID, input.Content)
 		if err != nil {

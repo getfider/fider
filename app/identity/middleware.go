@@ -84,7 +84,10 @@ func JwtSetter() app.MiddlewareFunc {
 func HostChecker(baseURL string) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
-			u, _ := url.Parse(baseURL)
+			u, err := url.Parse(baseURL)
+			if err != nil {
+				return c.Failure(err)
+			}
 
 			if c.Request().Host != u.Host {
 				c.Logger().Errorf("%s is not valid for this operation. Only %s is allowed.", c.Request().Host, u.Host)
