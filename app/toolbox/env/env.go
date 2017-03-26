@@ -1,7 +1,11 @@
 package env
 
-import "os"
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"path"
+)
 
 // GetEnvOrDefault retrieves the value of the environment variable named by the key.
 // It returns the value if available, otherwise returns defaultValue
@@ -64,6 +68,17 @@ func IsStaging() bool {
 // IsTest returns true on Wechy production environment
 func IsTest() bool {
 	return Current() == "test"
+}
+
+// Path returns root path of project + given path
+func Path(p ...string) string {
+	root := "./"
+	if IsTest() {
+		root = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wechy/"
+	}
+
+	elems := append([]string{root}, p...)
+	return path.Join(elems...)
 }
 
 // IsDevelopment returns true on Wechy production environment

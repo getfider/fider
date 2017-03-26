@@ -18,13 +18,8 @@ var buildtime string
 var version = "0.0.0"
 
 func migrate() {
-	path := "./migrations"
-	if env.IsTest() {
-		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wechy/migrations"
-	}
-
 	fmt.Printf("Running migrations... \n")
-	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), path)
+	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), env.Path("/migrations"))
 	if !ok {
 		for i, err := range errors {
 			fmt.Printf("Error #%d: %s.\n", i, err)

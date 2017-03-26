@@ -19,17 +19,10 @@ type HTMLRenderer struct {
 	logger    echo.Logger
 }
 
-var path string
-
 // NewHTMLRenderer creates a new HTMLRenderer
 func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 	renderer := &HTMLRenderer{nil, logger}
 	renderer.templates = make(map[string]*template.Template)
-
-	path = "views/"
-	if env.IsTest() {
-		path = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wechy/" + path
-	}
 
 	//TODO: load all templates automatically
 	renderer.add("index.html")
@@ -42,8 +35,11 @@ func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 
 //Render a template based on parameters
 func (r *HTMLRenderer) add(name string) *template.Template {
-	tpl, err := template.ParseFiles(path+"base.html", path+name)
+	base := env.Path("/views/base.html")
+	file := env.Path("/views", name)
+	tpl, err := template.ParseFiles(base, file)
 	if err != nil {
+		panic(err)
 		r.logger.Error(err)
 	}
 
