@@ -2,7 +2,10 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Root } from "./components/Root";
-import { ShowIdeaRoot } from "./components/ShowIdeaRoot";
+import { ShowIdeaRoot } from "./components/show_idea_root";
+import { setup } from "./storage";
+
+import "./css/main.css";
 
 const pathRegex = [
     { regex: new RegExp("^\/$"), component: <Root /> },
@@ -19,9 +22,11 @@ const resolveRootComponent = (path: string): JSX.Element => {
     return <div />;
 };
 
-export default function init() {
-    ReactDOM.render(
-        resolveRootComponent(location.pathname),
-        document.getElementById("root")
-    );
-}
+setup();
+
+document.addEventListener("DOMContentLoaded", () => {
+  ReactDOM.render(
+      resolveRootComponent(location.pathname),
+      document.getElementById("root")
+  );
+});

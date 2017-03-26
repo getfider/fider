@@ -2,7 +2,7 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
-    entry: "./public/index.ts",
+    entry: "./public/index.tsx",
     output: {
         path: __dirname + '/dist',
         filename: "js/bundle.[chunkhash].js",
