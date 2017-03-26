@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Root } from "./components/Root";
+import { Root } from "./components/root";
 import { ShowIdeaRoot } from "./components/show_idea_root";
 import { setup } from "./storage";
 
