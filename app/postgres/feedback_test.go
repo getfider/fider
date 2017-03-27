@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
@@ -68,7 +69,7 @@ func TestIdeaService_GetInvalid(t *testing.T) {
 	svc := &postgres.IdeaService{DB: db}
 	dbIdea, err := svc.GetByID(1, 1)
 
-	Expect(err).ToNot(BeNil())
+	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(dbIdea).To(BeNil())
 }
 

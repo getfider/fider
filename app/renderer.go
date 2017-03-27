@@ -73,11 +73,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		}
 	}
 
-	files, err := ioutil.ReadDir("dist/js")
-	if err != nil {
-		return err
-	}
-
+	files, _ := ioutil.ReadDir("dist/js")
 	if len(files) > 0 {
 		m["JavaScriptBundle"] = files[0].Name()
 	}

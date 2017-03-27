@@ -3,22 +3,24 @@ package feedback
 import (
 	"strings"
 
+	"fmt"
+
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/labstack/echo"
 )
 
-// IndexHandlder contains multiple feedback HTTP handlers
-type IndexHandlder struct {
+// AllHandlers contains multiple feedback HTTP handlers
+type AllHandlers struct {
 	ideaService IdeaService
 }
 
-// Index handles initial page
-func Index(ideaService IdeaService) IndexHandlder {
-	return IndexHandlder{ideaService}
+// Handlers handles feedback based page
+func Handlers(ideaService IdeaService) AllHandlers {
+	return AllHandlers{ideaService}
 }
 
 // List all tenant ideas
-func (h IndexHandlder) List() app.HandlerFunc {
+func (h AllHandlers) List() app.HandlerFunc {
 	return func(c app.Context) error {
 		ideas, err := h.ideaService.GetAll(c.Tenant().ID)
 		if err != nil {
@@ -36,13 +38,15 @@ type newIdeaInput struct {
 	Description string `json:"description"`
 }
 
-// Post creates a new idea on current tenant
-func (h IndexHandlder) Post() app.HandlerFunc {
+// PostIdea creates a new idea on current tenant
+func (h AllHandlers) PostIdea() app.HandlerFunc {
 	return func(c app.Context) error {
 		input := new(newIdeaInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
 		}
+
+		fmt.Println(input)
 
 		if strings.Trim(input.Title, " ") == "" {
 			return c.JSON(400, echo.Map{
@@ -62,7 +66,7 @@ func (h IndexHandlder) Post() app.HandlerFunc {
 }
 
 // Details shows details of given Idea by id
-func (h IndexHandlder) Details() app.HandlerFunc {
+func (h AllHandlers) Details() app.HandlerFunc {
 	return func(c app.Context) error {
 		tenant := c.Tenant()
 
@@ -73,6 +77,9 @@ func (h IndexHandlder) Details() app.HandlerFunc {
 
 		idea, err := h.ideaService.GetByID(tenant.ID, ideaID)
 		if err != nil {
+			if err == app.ErrNotFound {
+				return c.NotFound()
+			}
 			return c.Failure(err)
 		}
 
@@ -93,7 +100,7 @@ type newCommentInput struct {
 }
 
 // PostComment creates a new comment on given idea
-func (h IndexHandlder) PostComment() app.HandlerFunc {
+func (h AllHandlers) PostComment() app.HandlerFunc {
 	return func(c app.Context) error {
 		input := new(newCommentInput)
 		if err := c.Bind(input); err != nil {

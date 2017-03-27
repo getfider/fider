@@ -37,7 +37,12 @@ func (ctx *Context) IsAuthenticated() bool {
 	return ctx.Get(claimsContextKey) != nil
 }
 
-//Failure returns a 500 response
+//NotFound returns a 404 page
+func (ctx *Context) NotFound() error {
+	return echo.NewHTTPError(http.StatusNotFound)
+}
+
+//Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
 	return echo.NewHTTPError(http.StatusInternalServerError, err)
 }

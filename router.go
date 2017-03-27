@@ -110,13 +110,13 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(appGroup, identity.JwtSetter())
 		use(appGroup, identity.MultiTenant(ctx.Tenant))
 
-		get(appGroup, "/", feedback.Index(ctx.Idea).List())
-		get(appGroup, "/ideas/:id", feedback.Index(ctx.Idea).Details())
+		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
+		get(appGroup, "/ideas/:id", feedback.Handlers(ctx.Idea).Details())
 		get(appGroup, "/logout", identity.OAuth(ctx.OAuth, ctx.User).Logout())
 
 		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
-		post(appGroup, "/api/ideas", feedback.Index(ctx.Idea).Post())
-		post(appGroup, "/api/ideas/:id/comments", feedback.Index(ctx.Idea).PostComment())
+		post(appGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())
+		post(appGroup, "/api/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
 	}
 
 	return router
