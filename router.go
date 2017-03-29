@@ -93,15 +93,18 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
-	router.Static("/assets", "dist")
 
-	hostChecker := identity.HostChecker(env.MustGet("AUTH_ENDPOINT"))
-	authGroup := group(router, "", hostChecker)
+	assetsGroup := group(router, "/assets", app.OneYearCache())
 	{
-		get(authGroup, "/oauth/facebook", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthFacebookProvider))
-		get(authGroup, "/oauth/facebook/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthFacebookProvider))
-		get(authGroup, "/oauth/google", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthGoogleProvider))
-		get(authGroup, "/oauth/google/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthGoogleProvider))
+		assetsGroup.Static("/", "dist")
+	}
+
+	authGroup := group(router, "/oauth", identity.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+	{
+		get(authGroup, "/facebook", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthFacebookProvider))
+		get(authGroup, "/facebook/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthFacebookProvider))
+		get(authGroup, "/google", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthGoogleProvider))
+		get(authGroup, "/google/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthGoogleProvider))
 	}
 
 	appGroup := group(router, "")
