@@ -16,6 +16,8 @@ Tools you'll need:
 - Yarn (https://yarnpkg.com/)
 - Docker (https://www.docker.com/)
 
+Step by step:
+
 1) clone this repository into `$GOPATH/src/GitHub.com/WeCanHearYou/wechy`
 2) run `yarn` to install froentend packages 
 3) run `npm run build:watch` to pack the froentend source into a bundle. It'll 
