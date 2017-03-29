@@ -15,7 +15,7 @@ import (
 )
 
 var buildtime string
-var version = "0.0.0"
+var version = "0.1.0"
 
 func migrate() {
 	fmt.Printf("Running migrations... \n")
