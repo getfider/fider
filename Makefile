@@ -1,4 +1,4 @@
-BUILD_TIME="$(shell date +"%Y.%m.%d.%H%M%S")"
+BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 
 define tag_docker
 	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
