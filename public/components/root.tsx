@@ -32,7 +32,7 @@ export class Root extends React.Component<{}, {}> {
                       <h3>Top Ideas</h3>
                       <div className="ui divided items">
                         { ideasList }
-                      </div> 
+                      </div>
                     </div>
                     : <p>No ideas have been shared yet.</p>;
 

@@ -17,7 +17,7 @@
     "moment": "^2.18.1",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "semantic-ui-css": "^2.2.9"
+    "semantic-ui-css": "^2.2.10"
   },
   "devDependencies": {
     "@types/jquery": "^2.0.41",
@@ -25,13 +25,13 @@
     "@types/react": "^15.0.20",
     "@types/react-dom": "^0.14.23",
     "clean-webpack-plugin": "^0.1.16",
-    "css-loader": "^0.27.3",
+    "css-loader": "^0.28.0",
     "file-loader": "^0.10.1",
     "rimraf": "^2.6.1",
-    "style-loader": "^0.16.0",
+    "style-loader": "^0.16.1",
     "ts-loader": "^2.0.3",
-    "tslint": "^4.5.1",
-    "typescript": "^2.2.1",
+    "tslint": "^5.0.0",
+    "typescript": "^2.2.2",
     "webpack": "^2.3.2"
   },
   "engines": {
