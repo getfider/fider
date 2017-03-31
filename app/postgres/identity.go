@@ -35,7 +35,7 @@ func (svc UserService) Register(user *app.User) error {
 
 	now := time.Now()
 
-	if err = tx.QueryRow("INSERT INTO users (name, email, created_on) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, now).Scan(&user.ID); err != nil {
+	if err = tx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id) VALUES ($1, $2, $3, $4) RETURNING id", user.Name, user.Email, now, user.Tenant.ID).Scan(&user.ID); err != nil {
 		tx.Rollback()
 		return err
 	}

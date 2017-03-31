@@ -3,7 +3,6 @@ package identity
 import (
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
 )
@@ -97,12 +96,4 @@ func HostChecker(baseURL string) app.MiddlewareFunc {
 			return next(c)
 		}
 	}
-}
-
-func stripPort(hostport string) string {
-	colon := strings.IndexByte(hostport, ':')
-	if colon == -1 {
-		return hostport
-	}
-	return hostport[:colon]
 }

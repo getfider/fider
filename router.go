@@ -101,10 +101,10 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	authGroup := group(router, "/oauth", identity.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 	{
-		get(authGroup, "/facebook", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthFacebookProvider))
-		get(authGroup, "/facebook/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthFacebookProvider))
-		get(authGroup, "/google", identity.OAuth(ctx.OAuth, ctx.User).Login(identity.OAuthGoogleProvider))
-		get(authGroup, "/google/callback", identity.OAuth(ctx.OAuth, ctx.User).Callback(identity.OAuthGoogleProvider))
+		get(authGroup, "/facebook", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Login(identity.OAuthFacebookProvider))
+		get(authGroup, "/facebook/callback", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Callback(identity.OAuthFacebookProvider))
+		get(authGroup, "/google", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Login(identity.OAuthGoogleProvider))
+		get(authGroup, "/google/callback", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Callback(identity.OAuthGoogleProvider))
 	}
 
 	appGroup := group(router, "")
@@ -115,7 +115,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
 		get(appGroup, "/ideas/:id", feedback.Handlers(ctx.Idea).Details())
-		get(appGroup, "/logout", identity.OAuth(ctx.OAuth, ctx.User).Logout())
+		get(appGroup, "/logout", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Logout())
 
 		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
 		post(appGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())

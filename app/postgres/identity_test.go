@@ -42,10 +42,15 @@ func TestUserService_Register(t *testing.T) {
 	db := setup()
 	defer teardown(db)
 
+	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+
 	svc := &postgres.UserService{DB: db}
 	user := &app.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
+		Tenant: &app.Tenant{
+			ID: 1,
+		},
 		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",
@@ -66,10 +71,15 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 	db := setup()
 	defer teardown(db)
 
+	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+
 	svc := &postgres.UserService{DB: db}
 	user := &app.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
+		Tenant: &app.Tenant{
+			ID: 1,
+		},
 		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",

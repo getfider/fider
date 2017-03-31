@@ -3,6 +3,7 @@ package identity
 import (
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
@@ -17,27 +18,32 @@ type oauthUserProfile struct {
 
 // OAuthHandlers contains multiple oauth HTTP handlers
 type OAuthHandlers struct {
-	oauthService OAuthService
-	userService  UserService
+	tenantService TenantService
+	oauthService  OAuthService
+	userService   UserService
 }
 
 // OAuth creates a new OAuthHandlers
-func OAuth(oauthService OAuthService, userService UserService) OAuthHandlers {
-	return OAuthHandlers{oauthService, userService}
+func OAuth(tenantService TenantService, oauthService OAuthService, userService UserService) OAuthHandlers {
+	return OAuthHandlers{tenantService, oauthService, userService}
 }
 
 // Callback handles OAuth callbacks
 func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 	return func(c app.Context) error {
-		var redirectURL *url.URL
-		var err error
 
 		redirect := c.QueryParam("state")
 		code := c.QueryParam("code")
+		redirectURL, err := url.Parse(redirect)
 
-		if redirectURL, err = url.Parse(redirect); err != nil {
+		if err != nil {
 			c.Logger().Errorf("Could not parse url %s", redirect)
 			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
+		}
+
+		tenant, err := h.tenantService.GetByDomain(stripPort(redirectURL.Host))
+		if err != nil {
+			return err
 		}
 
 		//TODO: Check if code is empty (or other querystring parameter)
@@ -52,8 +58,9 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &app.User{
-					Name:  oauthUser.Name,
-					Email: oauthUser.Email,
+					Name:   oauthUser.Name,
+					Tenant: tenant,
+					Email:  oauthUser.Email,
 					Providers: []*app.UserProvider{
 						&app.UserProvider{
 							UID:  oauthUser.ID,
@@ -64,10 +71,10 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 
 				err = h.userService.Register(user)
 				if err != nil {
-					c.Logger().Error(err)
+					return err
 				}
 			} else {
-				c.Logger().Error(err)
+				return err
 			}
 		}
 
@@ -75,6 +82,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,
+			TenantID:  tenant.ID,
 		}
 
 		var token string
@@ -108,4 +116,12 @@ func (h OAuthHandlers) Logout() app.HandlerFunc {
 		})
 		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
 	}
+}
+
+func stripPort(hostport string) string {
+	colon := strings.IndexByte(hostport, ':')
+	if colon == -1 {
+		return hostport
+	}
+	return hostport[:colon]
 }

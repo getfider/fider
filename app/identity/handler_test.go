@@ -29,7 +29,7 @@ func TestLoginHandlers(t *testing.T) {
 	oauth := &mockOAuthService{}
 
 	server := mock.NewServer()
-	code, response := server.ExecuteRaw(identity.OAuth(oauth, nil).Login(identity.OAuthFacebookProvider))
+	code, response := server.ExecuteRaw(identity.OAuth(nil, oauth, nil).Login(identity.OAuthFacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header.Get("Location")).To(Equal("http://myapp/oauth/token?provider=facebook&redirect="))
