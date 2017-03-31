@@ -28,5 +28,6 @@ type WechyClaims struct {
 	UserID    int    `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`
+	TenantID  int    `json:"tenant/id"`
 	jwt.StandardClaims
 }

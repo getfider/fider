@@ -3,8 +3,6 @@ package feedback
 import (
 	"strings"
 
-	"fmt"
-
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/labstack/echo"
 )
@@ -45,8 +43,6 @@ func (h AllHandlers) PostIdea() app.HandlerFunc {
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
 		}
-
-		fmt.Println(input)
 
 		if strings.Trim(input.Title, " ") == "" {
 			return c.JSON(400, echo.Map{
