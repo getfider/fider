@@ -33,13 +33,15 @@ func (svc UserService) Register(user *app.User) error {
 		return err
 	}
 
-	if err = tx.QueryRow("INSERT INTO users (name, email, created_on) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, time.Now()).Scan(&user.ID); err != nil {
+	now := time.Now()
+
+	if err = tx.QueryRow("INSERT INTO users (name, email, created_on) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, now).Scan(&user.ID); err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	for _, provider := range user.Providers {
-		if _, err = tx.Exec("INSERT INTO user_providers (user_id, provider, provider_uid) VALUES ($1, $2, $3)", user.ID, provider.Name, provider.UID); err != nil {
+		if _, err = tx.Exec("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", user.ID, provider.Name, provider.UID, now); err != nil {
 			tx.Rollback()
 			return err
 		}
