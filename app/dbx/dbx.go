@@ -15,7 +15,12 @@ func New() (*Database, error) {
 	if err != nil {
 		return nil, throw(err)
 	}
-	return &Database{conn}, nil
+
+	db := &Database{conn}
+	if env.IsTest() {
+		setup(*db)
+	}
+	return db, nil
 }
 
 // Database represents a connection to a SQL database
@@ -49,18 +54,15 @@ func (db Database) Begin() (*sql.Tx, error) {
 
 // Close connection to database
 func (db Database) Close() {
-	if env.IsTest() {
-		db.Execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
-		db.Execute("TRUNCATE TABLE tenants RESTART IDENTITY CASCADE")
-	}
+	teardown(db)
 
 	if db.conn != nil {
-		db.conn.Close()
+		throw(db.conn.Close())
 	}
 }
 
 func throw(err error) error {
-	if env.IsTest() {
+	if err != nil && env.IsTest() {
 		panic(err)
 	}
 	return err
