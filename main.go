@@ -1,13 +1,11 @@
 package main
 
 import (
-	"database/sql"
-
+	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
-	_ "github.com/lib/pq"
 	_ "github.com/mattes/migrate/driver/postgres"
 	mig "github.com/mattes/migrate/migrate"
 
@@ -38,7 +36,7 @@ func init() {
 }
 
 func main() {
-	db, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
+	db, err := dbx.New()
 	if err != nil {
 		panic(err)
 	}

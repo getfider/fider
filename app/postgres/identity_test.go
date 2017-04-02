@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
@@ -11,8 +12,8 @@ import (
 
 func TestUserService_GetByEmail_Error(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
 	svc := &postgres.UserService{DB: db}
 	user, err := svc.GetByEmail("jon.stark@got.com")
@@ -23,10 +24,10 @@ func TestUserService_GetByEmail_Error(t *testing.T) {
 
 func TestUserService_GetByEmail(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
 
 	svc := &postgres.UserService{DB: db}
 	user, err := svc.GetByEmail("jon.snow@got.com")
@@ -39,10 +40,10 @@ func TestUserService_GetByEmail(t *testing.T) {
 
 func TestUserService_Register(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 
 	svc := &postgres.UserService{DB: db}
 	user := &app.User{
@@ -68,10 +69,10 @@ func TestUserService_Register(t *testing.T) {
 
 func TestUserService_Register_MultipleProviders(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 
 	svc := &postgres.UserService{DB: db}
 	user := &app.User{
@@ -101,8 +102,8 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 
 func TestTenantService_GetByDomain_NotFound(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
 	svc := &postgres.TenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
@@ -113,10 +114,10 @@ func TestTenantService_GetByDomain_NotFound(t *testing.T) {
 
 func TestTenantService_GetByDomain_Subdomain(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 
 	svc := &postgres.TenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain")
@@ -129,10 +130,10 @@ func TestTenantService_GetByDomain_Subdomain(t *testing.T) {
 
 func TestTenantService_GetByDomain_FullDomain(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, cname, created_on) VALUES ('My Domain Inc.','mydomain', 'mydomain.anydomain.com', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, cname, created_on) VALUES ('My Domain Inc.','mydomain', 'mydomain.anydomain.com', now())")
 
 	svc := &postgres.TenantService{DB: db}
 	tenant, err := svc.GetByDomain("mydomain.anydomain.com")

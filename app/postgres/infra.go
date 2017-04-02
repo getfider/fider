@@ -1,10 +1,10 @@
 package postgres
 
-import "database/sql"
+import "github.com/WeCanHearYou/wechy/app/dbx"
 
 // HealthCheckService is a simple general purpose health check service
 type HealthCheckService struct {
-	DB *sql.DB
+	DB *dbx.Database
 }
 
 // IsDatabaseOnline checks if database is online

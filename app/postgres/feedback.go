@@ -1,17 +1,16 @@
 package postgres
 
 import (
-	"database/sql"
-
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/feedback"
 )
 
 // IdeaService contains read and write operations for ideas
 type IdeaService struct {
-	DB *sql.DB
+	DB *dbx.Database
 }
 
 // GetAll returns all tenant ideas

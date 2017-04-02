@@ -1,4 +1,4 @@
-package identity
+package infra
 
 import (
 	"github.com/WeCanHearYou/wechy/app"

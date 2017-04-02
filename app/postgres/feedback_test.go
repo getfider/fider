@@ -5,22 +5,23 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
 
 func TestIdeaService_GetAll(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
 	now := time.Now()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
-	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Arya Start','arya.start@got.com', now())")
-	execute(db, "INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 1, 1)", now)
-	execute(db, "INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 1, 2)", now)
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Arya Start','arya.start@got.com', now())")
+	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 1, 1)", now)
+	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 1, 2)", now)
 
 	svc := &postgres.IdeaService{DB: db}
 	ideas, err := svc.GetAll(1)
@@ -39,11 +40,11 @@ func TestIdeaService_GetAll(t *testing.T) {
 
 func TestIdeaService_SaveAndGet(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
 
 	svc := &postgres.IdeaService{DB: db}
 	idea, err := svc.Save(1, 1, "My new idea", "with this description")
@@ -63,8 +64,8 @@ func TestIdeaService_SaveAndGet(t *testing.T) {
 
 func TestIdeaService_GetInvalid(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
 	svc := &postgres.IdeaService{DB: db}
 	dbIdea, err := svc.GetByID(1, 1)
@@ -75,11 +76,11 @@ func TestIdeaService_GetInvalid(t *testing.T) {
 
 func TestIdeaService_AddAndReturnComments(t *testing.T) {
 	RegisterTestingT(t)
-	db := setup()
-	defer teardown(db)
+	db, _ := dbx.New()
+	defer db.Close()
 
-	execute(db, "INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	execute(db, "INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
 
 	svc := &postgres.IdeaService{DB: db}
 	idea, _ := svc.Save(1, 1, "My new idea", "with this description")

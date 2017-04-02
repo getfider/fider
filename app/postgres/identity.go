@@ -1,17 +1,17 @@
 package postgres
 
 import (
-	"database/sql"
 	"strings"
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 )
 
 // UserService is used for user operations using a Postgres database
 type UserService struct {
-	DB *sql.DB
+	DB *dbx.Database
 }
 
 // GetByEmail returns a user based on given email
@@ -52,7 +52,7 @@ func (svc UserService) Register(user *app.User) error {
 
 // TenantService contains read and write operations for tenants
 type TenantService struct {
-	DB *sql.DB
+	DB *dbx.Database
 }
 
 // GetByDomain returns a tenant based on its domain

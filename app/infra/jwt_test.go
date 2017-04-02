@@ -1,10 +1,10 @@
-package identity_test
+package infra_test
 
 import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/infra"
 	. "github.com/onsi/gomega"
 )
 
@@ -17,7 +17,7 @@ func TestJWT_Encode(t *testing.T) {
 		UserEmail: "jon.snow@got.com",
 	}
 
-	token, err := identity.Encode(claims)
+	token, err := infra.Encode(claims)
 	Expect(token).NotTo(BeNil())
 	Expect(err).To(BeNil())
 }
@@ -32,9 +32,9 @@ func TestJWT_Decode(t *testing.T) {
 		TenantID:  2,
 	}
 
-	token, _ := identity.Encode(claims)
+	token, _ := infra.Encode(claims)
 
-	decoded, err := identity.Decode(token)
+	decoded, err := infra.Decode(token)
 	Expect(err).To(BeNil())
 	Expect(decoded.UserID).To(Equal(claims.UserID))
 	Expect(decoded.UserName).To(Equal(claims.UserName))

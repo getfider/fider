@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/infra"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
@@ -30,7 +31,7 @@ func JwtGetter() app.MiddlewareFunc {
 		return func(c app.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
-				if claims, err := Decode(cookie.Value); err == nil {
+				if claims, err := infra.Decode(cookie.Value); err == nil {
 					c.SetClaims(claims)
 				} else {
 					c.Logger().Error(err)

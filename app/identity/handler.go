@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/labstack/echo"
+	"github.com/WeCanHearYou/wechy/app/infra"
 )
 
 type oauthUserProfile struct {
@@ -38,12 +38,12 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 
 		if err != nil {
 			c.Logger().Errorf("Could not parse url %s", redirect)
-			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
+			return c.Failure(err)
 		}
 
 		tenant, err := h.tenantService.GetByDomain(stripPort(redirectURL.Host))
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		//TODO: Check if code is empty (or other querystring parameter)
@@ -51,7 +51,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		oauthUser, err := h.oauthService.GetProfile(provider, code)
 		if err != nil {
 			c.Logger().Error(err)
-			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
+			return c.Failure(err)
 		}
 
 		user, err := h.userService.GetByEmail(oauthUser.Email)
@@ -71,10 +71,10 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 
 				err = h.userService.Register(user)
 				if err != nil {
-					return err
+					return c.Failure(err)
 				}
 			} else {
-				return err
+				return c.Failure(err)
 			}
 		}
 
@@ -86,9 +86,9 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		}
 
 		var token string
-		if token, err = Encode(claims); err != nil {
+		if token, err = infra.Encode(claims); err != nil {
 			c.Logger().Errorf("Encoding claims failed with %s", err)
-			return c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
+			return c.Failure(err)
 		}
 
 		var query = redirectURL.Query()

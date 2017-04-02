@@ -7,6 +7,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
@@ -110,7 +111,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&app.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -152,7 +153,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&app.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -174,7 +175,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := identity.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&app.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
