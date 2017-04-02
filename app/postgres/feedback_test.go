@@ -17,14 +17,11 @@ func TestIdeaService_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
-	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Arya Start','arya.start@got.com', now())")
-	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 1, 1)", now)
-	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 1, 2)", now)
+	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 300, 300)", now)
+	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 300, 301)", now)
 
 	svc := &postgres.IdeaService{DB: db}
-	ideas, err := svc.GetAll(1)
+	ideas, err := svc.GetAll(300)
 
 	Expect(err).To(BeNil())
 	Expect(ideas).To(HaveLen(2))
@@ -35,7 +32,7 @@ func TestIdeaService_GetAll(t *testing.T) {
 
 	Expect(ideas[1].Title).To(Equal("Idea #2"))
 	Expect(ideas[1].Description).To(Equal("Description #2"))
-	Expect(ideas[1].User.Name).To(Equal("Arya Start"))
+	Expect(ideas[1].User.Name).To(Equal("Arya Stark"))
 }
 
 func TestIdeaService_SaveAndGet(t *testing.T) {

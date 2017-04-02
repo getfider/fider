@@ -9,10 +9,11 @@ type HealthCheckService struct {
 
 // IsDatabaseOnline checks if database is online
 func (svc HealthCheckService) IsDatabaseOnline() bool {
-	_, err := svc.DB.Query("SELECT now()")
+	rows, err := svc.DB.Query("SELECT now()")
 	if err != nil {
 		return false
 	}
 
+	defer rows.Close()
 	return true
 }

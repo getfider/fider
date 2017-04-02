@@ -16,7 +16,7 @@ func TestUserService_GetByEmail_Error(t *testing.T) {
 	defer db.Close()
 
 	svc := &postgres.UserService{DB: db}
-	user, err := svc.GetByEmail("jon.stark@got.com")
+	user, err := svc.GetByEmail("unknown@got.com")
 
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
@@ -27,13 +27,11 @@ func TestUserService_GetByEmail(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
-
 	svc := &postgres.UserService{DB: db}
 	user, err := svc.GetByEmail("jon.snow@got.com")
 
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int(1)))
+	Expect(user.ID).To(Equal(int(300)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 }
@@ -43,14 +41,12 @@ func TestUserService_Register(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-
 	svc := &postgres.UserService{DB: db}
 	user := &app.User{
-		Name:  "Jon Snow",
-		Email: "jon.snow@got.com",
+		Name:  "Rob Stark",
+		Email: "rob.stark@got.com",
 		Tenant: &app.Tenant{
-			ID: 1,
+			ID: 300,
 		},
 		Providers: []*app.UserProvider{
 			{
@@ -60,11 +56,13 @@ func TestUserService_Register(t *testing.T) {
 		},
 	}
 	err := svc.Register(user)
+	Expect(err).To(BeNil())
 
+	user, err = svc.GetByEmail("rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
-	Expect(user.Name).To(Equal("Jon Snow"))
-	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(user.Name).To(Equal("Rob Stark"))
+	Expect(user.Email).To(Equal("rob.stark@got.com"))
 }
 
 func TestUserService_Register_MultipleProviders(t *testing.T) {

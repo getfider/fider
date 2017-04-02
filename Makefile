@@ -7,7 +7,7 @@ define tag_docker
 endef
 
 test:
-	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover
+	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
 
 dockerize:
 ifeq ($(TRAVIS_PULL_REQUEST), false)

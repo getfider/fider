@@ -60,12 +60,12 @@ func IsProduction() bool {
 	return Current() == "production"
 }
 
-// IsStaging returns true on Wechy production environment
+// IsStaging returns true on Wechy staging environment
 func IsStaging() bool {
 	return Current() == "staging"
 }
 
-// IsTest returns true on Wechy production environment
+// IsTest returns true on Wechy test environment
 func IsTest() bool {
 	return Current() == "test"
 }

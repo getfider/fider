@@ -33,12 +33,14 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 	return func(c app.Context) error {
 
 		redirect := c.QueryParam("state")
-		code := c.QueryParam("code")
-		redirectURL, err := url.Parse(redirect)
-
+		redirectURL, err := url.ParseRequestURI(redirect)
 		if err != nil {
-			c.Logger().Errorf("Could not parse url %s", redirect)
 			return c.Failure(err)
+		}
+
+		code := c.QueryParam("code")
+		if code == "" {
+			return c.Redirect(http.StatusTemporaryRedirect, redirect)
 		}
 
 		tenant, err := h.tenantService.GetByDomain(stripPort(redirectURL.Host))
@@ -46,15 +48,13 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		//TODO: Check if code is empty (or other querystring parameter)
-		//Because the user can deny access to it
 		oauthUser, err := h.oauthService.GetProfile(provider, code)
 		if err != nil {
-			c.Logger().Error(err)
 			return c.Failure(err)
 		}
 
 		user, err := h.userService.GetByEmail(oauthUser.Email)
+
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &app.User{

@@ -2,6 +2,7 @@ package dbx
 
 import (
 	"database/sql"
+	"io/ioutil"
 
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 
@@ -18,7 +19,7 @@ func New() (*Database, error) {
 
 	db := &Database{conn}
 	if env.IsTest() {
-		setup(*db)
+		db.load("/app/dbx/setup.sql")
 	}
 	return db, nil
 }
@@ -47,6 +48,27 @@ func (db Database) QueryRow(command string, args ...interface{}) *sql.Row {
 	return db.conn.QueryRow(command, args...)
 }
 
+// Exists returns true if at least one record is found
+func (db Database) Exists(command string, args ...interface{}) (bool, error) {
+	rows, err := db.conn.Query(command, args...)
+	if rows != nil {
+		rows.Close()
+		return true, nil
+	}
+	return false, err
+}
+
+// Count returns number of rows
+func (db Database) Count(command string, args ...interface{}) (int, error) {
+	rows, err := db.conn.Query(command, args...)
+	defer rows.Close()
+	count := 0
+	for rows != nil && rows.Next() {
+		count++
+	}
+	return count, err
+}
+
 // Begin returns a new SQL transaction
 func (db Database) Begin() (*sql.Tx, error) {
 	return db.conn.Begin()
@@ -54,10 +76,20 @@ func (db Database) Begin() (*sql.Tx, error) {
 
 // Close connection to database
 func (db Database) Close() {
-	teardown(db)
-
 	if db.conn != nil {
 		throw(db.conn.Close())
+	}
+}
+
+func (db Database) load(path string) {
+	content, err := ioutil.ReadFile(env.Path(path))
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.Execute(string(content))
+	if err != nil {
+		panic(err)
 	}
 }
 

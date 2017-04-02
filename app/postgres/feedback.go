@@ -25,6 +25,7 @@ func (svc IdeaService) GetAll(tenantID int) ([]*feedback.Idea, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
 	var ideas []*feedback.Idea
 	for rows.Next() {
 		idea := &feedback.Idea{}
@@ -48,6 +49,7 @@ func (svc IdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
 		return nil, err
 	}
 
+	defer rows.Close()
 	if rows.Next() {
 		idea := &feedback.Idea{}
 		rows.Scan(&idea.ID, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
@@ -71,6 +73,7 @@ func (svc IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*feedback.Co
 		return nil, err
 	}
 
+	defer rows.Close()
 	var comments []*feedback.Comment
 	for rows.Next() {
 		c := &feedback.Comment{}
