@@ -4,7 +4,7 @@ import "github.com/WeCanHearYou/wechy/app"
 
 // UserService is used for user operations
 type UserService interface {
-	GetByEmail(email string) (*app.User, error)
+	GetByEmail(tenantID int, email string) (*app.User, error)
 	Register(user *app.User) error
 }
 

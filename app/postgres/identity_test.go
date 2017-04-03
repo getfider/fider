@@ -16,7 +16,7 @@ func TestUserService_GetByEmail_Error(t *testing.T) {
 	defer db.Close()
 
 	svc := &postgres.UserService{DB: db}
-	user, err := svc.GetByEmail("unknown@got.com")
+	user, err := svc.GetByEmail(300, "unknown@got.com")
 
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
@@ -28,12 +28,24 @@ func TestUserService_GetByEmail(t *testing.T) {
 	defer db.Close()
 
 	svc := &postgres.UserService{DB: db}
-	user, err := svc.GetByEmail("jon.snow@got.com")
+	user, err := svc.GetByEmail(300, "jon.snow@got.com")
 
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(300)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
+}
+
+func TestUserService_GetByEmail_WrongTenant(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	svc := &postgres.UserService{DB: db}
+	user, err := svc.GetByEmail(400, "jon.snow@got.com")
+
+	Expect(user).To(BeNil())
+	Expect(err).NotTo(BeNil())
 }
 
 func TestUserService_Register(t *testing.T) {
@@ -58,7 +70,7 @@ func TestUserService_Register(t *testing.T) {
 	err := svc.Register(user)
 	Expect(err).To(BeNil())
 
-	user, err = svc.GetByEmail("rob.stark@got.com")
+	user, err = svc.GetByEmail(300, "rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Name).To(Equal("Rob Stark"))

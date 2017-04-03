@@ -15,9 +15,9 @@ type UserService struct {
 }
 
 // GetByEmail returns a user based on given email
-func (svc UserService) GetByEmail(email string) (*app.User, error) {
+func (svc UserService) GetByEmail(tenantID int, email string) (*app.User, error) {
 	user := &app.User{}
-	row := svc.DB.QueryRow("SELECT id, name, email FROM users WHERE email = $1", email)
+	row := svc.DB.QueryRow("SELECT id, name, email FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
 
 	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
 		return nil, app.ErrNotFound

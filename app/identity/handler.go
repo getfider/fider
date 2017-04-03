@@ -53,7 +53,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		user, err := h.userService.GetByEmail(oauthUser.Email)
+		user, err := h.userService.GetByEmail(tenant.ID, oauthUser.Email)
 
 		if err != nil {
 			if err == app.ErrNotFound {
