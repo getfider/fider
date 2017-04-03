@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/WeCanHearYou/wechy.svg?branch=master)](https://travis-ci.org/WeCanHearYou/wechy)
-[![Coverage Status](https://coveralls.io/repos/github/WeCanHearYou/wechy/badge.svg?branch=master)](https://coveralls.io/github/WeCanHearYou/wechy?branch=master)
+[![Build](https://travis-ci.org/WeCanHearYou/wechy.svg?branch=master)](https://travis-ci.org/WeCanHearYou/wechy)
+[![codecov](https://codecov.io/gh/WeCanHearYou/wechy/branch/master/graph/badge.svg)](https://codecov.io/gh/WeCanHearYou/wechy)
+
 
 # What is WeCanHearYou?
 
