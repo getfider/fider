@@ -38,6 +38,17 @@ func (db Database) Execute(command string, args ...interface{}) error {
 	return nil
 }
 
+// QueryInt executes given SQL command and return first integer of first row
+func (db Database) QueryInt(command string, args ...interface{}) (int, error) {
+	var data int
+	row := db.conn.QueryRow(command, args...)
+	err := row.Scan(&data)
+	if err != nil {
+		return 0, err
+	}
+	return data, nil
+}
+
 // Query the database with given SQL command
 func (db Database) Query(command string, args ...interface{}) (*sql.Rows, error) {
 	return db.conn.Query(command, args...)
@@ -52,8 +63,8 @@ func (db Database) QueryRow(command string, args ...interface{}) *sql.Row {
 func (db Database) Exists(command string, args ...interface{}) (bool, error) {
 	rows, err := db.conn.Query(command, args...)
 	if rows != nil {
-		rows.Close()
-		return true, nil
+		defer rows.Close()
+		return rows.Next(), nil
 	}
 	return false, err
 }

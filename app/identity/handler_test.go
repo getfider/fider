@@ -43,8 +43,10 @@ func (p OAuthService) GetProfile(provider string, code string) (*identity.OAuthU
 	return nil, nil
 }
 
+var db *dbx.Database
+
 func handlers() identity.OAuthHandlers {
-	db, _ := dbx.New()
+	db, _ = dbx.New()
 
 	oauth := &OAuthService{}
 	tenant := &postgres.TenantService{DB: db}
@@ -100,6 +102,9 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com&code=456")
 	code, response := server.ExecuteRaw(handlers().Callback(identity.OAuthFacebookProvider))
+
+	Expect(db.QueryInt("SELECT tenant_id FROM users WHERE email = 'some.guy@facebook.com'")).To(Equal(400))
+	Expect(db.Exists("SELECT * FROM user_providers WHERE provider_uid = 'FB5678'")).To(BeTrue())
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20iLCJ0ZW5hbnQvaWQiOjQwMH0.iWkpvh11QrUDJQnTk9PtqW6m48DnaHbsj-lbl6feK-Q"))

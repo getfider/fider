@@ -11,3 +11,6 @@ gin-bin.exe
 gin-bin.exe~
 .env
 npm-debug.log
+
+coverage.txt
+profile.out

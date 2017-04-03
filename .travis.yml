@@ -15,7 +15,6 @@ env:
 install: 
   - nvm install "$(jq -r '.engines.node' package.json)"
   - npm i -g yarn
-  - go get github.com/mattn/goveralls
   - go get github.com/joho/godotenv/cmd/godotenv
   - docker-compose up -d pgtest
   - yarn
@@ -24,8 +23,9 @@ script:
   - npm run lint
   - npm run build  
   - make test
-  - godotenv -f .test.env goveralls -service=travis-ci
+  - make coverage
 
 after_success:
+  - bash <(curl -s https://codecov.io/bash)
   - docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
   - make dockerize
