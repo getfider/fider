@@ -93,33 +93,41 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
-
 	assetsGroup := group(router, "/assets", app.OneYearCache())
 	{
 		assetsGroup.Static("/", "dist")
 	}
 
-	authGroup := group(router, "/oauth", identity.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+	oauthHandlers := identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
+	authGroup := group(router, "/oauth", infra.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 	{
-		get(authGroup, "/facebook", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Login(identity.OAuthFacebookProvider))
-		get(authGroup, "/facebook/callback", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Callback(identity.OAuthFacebookProvider))
-		get(authGroup, "/google", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Login(identity.OAuthGoogleProvider))
-		get(authGroup, "/google/callback", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Callback(identity.OAuthGoogleProvider))
+		get(authGroup, "/facebook", oauthHandlers.Login(identity.OAuthFacebookProvider))
+		get(authGroup, "/facebook/callback", oauthHandlers.Callback(identity.OAuthFacebookProvider))
+		get(authGroup, "/google", oauthHandlers.Login(identity.OAuthGoogleProvider))
+		get(authGroup, "/google/callback", oauthHandlers.Callback(identity.OAuthGoogleProvider))
 	}
 
 	appGroup := group(router, "")
 	{
-		use(appGroup, identity.JwtGetter())
-		use(appGroup, identity.JwtSetter())
+		use(appGroup, infra.JwtGetter())
+		use(appGroup, infra.JwtSetter())
 		use(appGroup, identity.MultiTenant(ctx.Tenant))
 
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
 		get(appGroup, "/ideas/:id", feedback.Handlers(ctx.Idea).Details())
-		get(appGroup, "/logout", identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User).Logout())
-
+		get(appGroup, "/logout", oauthHandlers.Logout())
 		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
-		post(appGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())
-		post(appGroup, "/api/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
+	}
+
+	securedGroup := group(router, "")
+	{
+		use(securedGroup, infra.JwtGetter())
+		use(securedGroup, infra.JwtSetter())
+		use(securedGroup, identity.MultiTenant(ctx.Tenant))
+		use(securedGroup, infra.IsAuthenticated())
+
+		post(securedGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())
+		post(securedGroup, "/api/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
 	}
 
 	return router
