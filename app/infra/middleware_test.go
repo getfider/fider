@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/labstack/echo"
@@ -61,7 +60,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
 
-	mw := identity.JwtGetter()
+	mw := infra.JwtGetter()
 	mw(func(c app.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
@@ -89,7 +88,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 		Value: token,
 	})
 
-	mw := identity.JwtGetter()
+	mw := infra.JwtGetter()
 	mw(func(c app.Context) error {
 		return c.String(http.StatusOK, c.Claims().UserName)
 	})(c)
@@ -107,7 +106,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := infra.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -128,7 +127,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := infra.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -150,7 +149,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := infra.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -168,7 +167,7 @@ func TestHostChecker(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "login.test.canhearyou.com"
 
-	mw := identity.HostChecker("http://login.test.canhearyou.com")
+	mw := infra.HostChecker("http://login.test.canhearyou.com")
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -185,7 +184,7 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.HostChecker("login.test.canhearyou.com")
+	mw := infra.HostChecker("login.test.canhearyou.com")
 	mw(app.HandlerFunc(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	}))(c)
