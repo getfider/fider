@@ -23,6 +23,18 @@ func (svc UserService) GetByEmail(tenantID int, email string) (*app.User, error)
 		return nil, app.ErrNotFound
 	}
 
+	rows, err := svc.DB.Query("SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		p := &app.UserProvider{}
+		rows.Scan(&p.UID, &p.Name)
+		user.Providers = append(user.Providers, p)
+	}
+
 	return user, nil
 }
 
@@ -48,6 +60,12 @@ func (svc UserService) Register(user *app.User) error {
 	}
 
 	return tx.Commit()
+}
+
+// RegisterProvider adds given provider to userID
+func (svc UserService) RegisterProvider(userID int, provider *app.UserProvider) error {
+	now := time.Now()
+	return svc.DB.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", userID, provider.Name, provider.UID, now)
 }
 
 // TenantService contains read and write operations for tenants

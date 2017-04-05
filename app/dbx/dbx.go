@@ -49,6 +49,17 @@ func (db Database) QueryInt(command string, args ...interface{}) (int, error) {
 	return data, nil
 }
 
+// QueryString executes given SQL command and return first string of first row
+func (db Database) QueryString(command string, args ...interface{}) (string, error) {
+	var data string
+	row := db.conn.QueryRow(command, args...)
+	err := row.Scan(&data)
+	if err != nil {
+		return "", err
+	}
+	return data, nil
+}
+
 // Query the database with given SQL command
 func (db Database) Query(command string, args ...interface{}) (*sql.Rows, error) {
 	return db.conn.Query(command, args...)

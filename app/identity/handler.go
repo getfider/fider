@@ -54,7 +54,6 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		}
 
 		user, err := h.userService.GetByEmail(tenant.ID, oauthUser.Email)
-
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &app.User{
@@ -74,6 +73,14 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 					return c.Failure(err)
 				}
 			} else {
+				return c.Failure(err)
+			}
+		} else if !user.HasProvider(provider) {
+			err = h.userService.RegisterProvider(user.ID, &app.UserProvider{
+				UID:  oauthUser.ID,
+				Name: provider,
+			})
+			if err != nil {
 				return c.Failure(err)
 			}
 		}

@@ -28,7 +28,15 @@ func (p OAuthService) GetProfile(provider string, code string) (*identity.OAuthU
 		return &identity.OAuthUserProfile{
 			ID:    "FB1234",
 			Name:  "Jon Snow",
-			Email: "jon.sno@got.com",
+			Email: "jon.snow@got.com",
+		}, nil
+	}
+
+	if provider == "google" && code == "123" {
+		return &identity.OAuthUserProfile{
+			ID:    "GO1234",
+			Name:  "Jon Snow",
+			Email: "jon.snow@got.com",
 		}, nil
 	}
 
@@ -89,11 +97,13 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com&code=123")
+	server.Context.Request().URL, _ = url.Parse("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
 	code, response := server.ExecuteRaw(handlers().Callback(identity.OAuthFacebookProvider))
 
+	Expect(db.Count("SELECT id FROM users WHERE email = 'jon.snow@got.com'")).To(Equal(1))
+
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vQGdvdC5jb20iLCJ0ZW5hbnQvaWQiOjQwMH0.nxu7QHFXTeYh_ObpKYV6e3p0kk1mkGbNGplITZImSs8"))
+	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20iLCJ0ZW5hbnQvaWQiOjMwMH0.0sbeKMVxJ5zjm2SIS7UotDi1rsFgpEpTEe20Z3t7aNE"))
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
@@ -108,4 +118,19 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20iLCJ0ZW5hbnQvaWQiOjQwMH0.iWkpvh11QrUDJQnTk9PtqW6m48DnaHbsj-lbl6feK-Q"))
+}
+
+func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
+	code, response := server.ExecuteRaw(handlers().Callback(identity.OAuthGoogleProvider))
+
+	Expect(db.Count("SELECT id FROM users WHERE email = 'jon.snow@got.com'")).To(Equal(1))
+	Expect(db.QueryString("SELECT provider_uid FROM user_providers WHERE user_id = 300 and provider = 'facebook'")).To(Equal("FB1234"))
+	Expect(db.QueryString("SELECT provider_uid FROM user_providers WHERE user_id = 300 and provider = 'google'")).To(Equal("GO1234"))
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20iLCJ0ZW5hbnQvaWQiOjMwMH0.0sbeKMVxJ5zjm2SIS7UotDi1rsFgpEpTEe20Z3t7aNE"))
 }

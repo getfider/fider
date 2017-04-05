@@ -6,6 +6,7 @@ import "github.com/WeCanHearYou/wechy/app"
 type UserService interface {
 	GetByEmail(tenantID int, email string) (*app.User, error)
 	Register(user *app.User) error
+	RegisterProvider(userID int, provider *app.UserProvider) error
 }
 
 // TenantService contains read and write operations for tenants

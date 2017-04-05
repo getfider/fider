@@ -34,6 +34,9 @@ func TestUserService_GetByEmail(t *testing.T) {
 	Expect(user.ID).To(Equal(int(300)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(len(user.Providers)).To(Equal(1))
+	Expect(user.Providers[0].UID).To(Equal("FB1234"))
+	Expect(user.Providers[0].Name).To(Equal("facebook"))
 }
 
 func TestUserService_GetByEmail_WrongTenant(t *testing.T) {

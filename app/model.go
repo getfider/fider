@@ -18,6 +18,16 @@ type User struct {
 	Providers []*UserProvider `json:"providers"`
 }
 
+//HasProvider returns true if current user has given provider registered
+func (u User) HasProvider(provider string) bool {
+	for _, p := range u.Providers {
+		if p.Name == provider {
+			return true
+		}
+	}
+	return false
+}
+
 //UserProvider represents the relashionship between an User and an Authentication provide
 type UserProvider struct {
 	Name string `json:"name"`
