@@ -44,19 +44,20 @@ test:
         code: |
           make ci-build
 
-    # Prepare output
-    - script:
-        name: prepare output
-        code: |
-          rm -rf $WERCKER_CACHE_DIR
-          cp wechy "$WERCKER_OUTPUT_DIR"
-          cp -R migrations "$WERCKER_OUTPUT_DIR/migrations"
-
 dockerize:
   box:
     id: alpine
     cmd: /bin/sh
   steps:
+    # Prepare output
+    - script:
+        name: prepare output
+        code: |
+          cp wechy /app
+          cp -R migrations /app/migrations
+          rm -rf /pipeline
+          
+
     - script:
         name: install apk packages
         code: |
@@ -66,7 +67,7 @@ dockerize:
         repository: wecanhearyou/wechy
         username: $DOCKER_USER
         password: $DOCKER_PASS
-        working-dir: /pipeline/source
+        working-dir: /app
         tag: latest
         ports: 8080
         cmd: ./wechy
