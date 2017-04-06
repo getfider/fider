@@ -53,8 +53,9 @@ dockerize:
     - script:
         name: prepare output
         code: |
+          mkdir /app
           cp wechy /app
-          cp -R migrations /app/migrations
+          cp -R migrations/ /app/migrations
           rm -rf /pipeline
           
 
