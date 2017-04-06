@@ -10,10 +10,7 @@ services:
 build-assets:
   box: node:6.10
   steps:
-    - script:
-      name: npm install
-      code: |
-        npm install
+    - npm-install
 
 build:
   steps:
