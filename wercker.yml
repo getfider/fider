@@ -46,7 +46,9 @@ test:
           make ci-build
 
 dockerize:
-  box: alpine
+  box:
+    id: alpine
+    cmd: /bin/sh
   steps:
     - script:
         name: install apk packages
