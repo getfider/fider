@@ -11,7 +11,7 @@
     "heroku-postbuild": "npm run build"
   },
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.16.0",
     "jquery": "^3.2.0",
     "md5": "^2.2.1",
     "moment": "^2.18.1",
@@ -22,17 +22,17 @@
   "devDependencies": {
     "@types/jquery": "^2.0.41",
     "@types/md5": "^2.1.31",
-    "@types/react": "^15.0.20",
+    "@types/react": "^15.0.21",
     "@types/react-dom": "^0.14.23",
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
-    "file-loader": "^0.10.1",
+    "file-loader": "^0.11.1",
     "rimraf": "^2.6.1",
     "style-loader": "^0.16.1",
     "ts-loader": "^2.0.3",
     "tslint": "^5.0.0",
     "typescript": "^2.2.2",
-    "webpack": "^2.3.2"
+    "webpack": "^2.3.3"
   },
   "engines": {
     "node": "6.10.0"
