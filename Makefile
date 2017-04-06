@@ -1,25 +1,13 @@
 BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 
-define tag_docker
-	@if [ "$(TRAVIS_BRANCH)" = "master" ]; then \
-		docker tag $(1) $(1):staging; \
-	fi
-endef
-
-# remove this. check if test is running on WERCKER, if YES, then change .env file
-ci-test:
-	godotenv -f .ci.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
+ifeq ($(WERCKER), true)
+ENV_FILE=.ci.env
+else
+ENV_FILE=.test.env
+endif
 
 test:
-	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
-
-dockerize:
-ifeq ($(TRAVIS_PULL_REQUEST), false)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-	docker build -f Dockerfile -t wecanhearyou/wechy .
-	$(call tag_docker, wecanhearyou/wechy)
-	docker push wecanhearyou/wechy
-endif
+	godotenv -f ${ENV_FILE} go test $$(go list ./... | grep -v /vendor/) -cover -p=1
 
 coverage:
 	rm -rf coverage.txt
@@ -30,9 +18,6 @@ coverage:
 					rm profile.out ; \
 			fi \
 	done
-
-ci-build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 
 build:
 	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o wechy .

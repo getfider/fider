@@ -36,13 +36,20 @@ test:
     - script:
         name: run test
         code: |
-          make ci-test
+          make test
+
+    # Publish to codecov.io
+    - script:
+        name: run coverage
+        code: |
+          make coverage
+          bash <(curl -s https://codecov.io/bash)
 
     # Test the project
     - script:
         name: run build
         code: |
-          make ci-build
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 
 dockerize:
   box:
