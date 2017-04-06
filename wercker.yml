@@ -50,7 +50,7 @@ test:
         code: |
           rm -rf $WERCKER_CACHE_DIR
           cp wechy "$WERCKER_OUTPUT_DIR"
-          cp migrations "$WERCKER_OUTPUT_DIR"
+          cp -R migrations "$WERCKER_OUTPUT_DIR/migrations"
 
 dockerize:
   box:
