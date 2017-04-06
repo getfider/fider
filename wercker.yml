@@ -38,4 +38,4 @@ build:
     - script:
         name: run test
         code: |
-          make test
+          make ci-test
