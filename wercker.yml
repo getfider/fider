@@ -81,7 +81,7 @@ dockerize:
           cp -R migrations/ /app/migrations
           cp -R views/ /app/views
           cp -R dist/ /app/dist
-          rm -rf /pipeline
+          rm -rf /pipeline/cache
 
     - internal/docker-push:
         repository: wecanhearyou/wechy
