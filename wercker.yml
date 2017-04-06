@@ -49,6 +49,11 @@ dockerize:
     id: alpine
     cmd: /bin/sh
   steps:
+    - script:
+        name: install apk packages
+        code: |
+          apk update && apk add ca-certificates
+
     # Prepare output
     - script:
         name: prepare output
@@ -57,12 +62,6 @@ dockerize:
           cp wechy /app
           cp -R migrations/ /app/migrations
           rm -rf /pipeline
-          
-
-    - script:
-        name: install apk packages
-        code: |
-          apk update && apk add ca-certificates
 
     - internal/docker-push:
         repository: wecanhearyou/wechy
