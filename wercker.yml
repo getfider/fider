@@ -45,7 +45,7 @@ test:
           make coverage
           bash <(curl -s https://codecov.io/bash)
 
-    # Test the project
+    # Build the project
     - script:
         name: run build
         code: |
