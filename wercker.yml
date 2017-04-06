@@ -17,10 +17,13 @@ box: golang:1.8
     # - mongo
     # http://devcenter.wercker.com/docs/services/mongodb.html
 build:
-  # The steps that will be executed on build
-  # Steps make up the actions in your pipeline
-  # Read more about steps on our dev center:
-  # http://devcenter.wercker.com/docs/steps/index.html
+  services:
+    - id: postgres
+      tag: 9.6
+      env:
+        POSTGRES_USER: wechy_test
+        POSTGRES_PASSWORD: wechy_test-pw
+
   steps:
     # Sets the go workspace and places you package
     # at the right place in the workspace tree
@@ -30,11 +33,6 @@ build:
         name: get dotenv
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
-
-    - script:
-        name: start postgres
-        code: |
-          docker-compose up -d pgtest
 
     # Test the project
     - script:

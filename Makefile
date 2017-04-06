@@ -6,6 +6,9 @@ define tag_docker
 	fi
 endef
 
+ci-test:
+	godotenv -f .ci.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
+
 test:
 	godotenv -f .test.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
 
