@@ -1,4 +1,4 @@
-[![Build](https://travis-ci.org/WeCanHearYou/wechy.svg?branch=master)](https://travis-ci.org/WeCanHearYou/wechy)
+[![wercker status](https://app.wercker.com/status/921c1213268ff20191c449eb6eae5db2/s/master "wercker status")](https://app.wercker.com/project/byKey/921c1213268ff20191c449eb6eae5db2)
 [![codecov](https://codecov.io/gh/WeCanHearYou/wechy/branch/master/graph/badge.svg)](https://codecov.io/gh/WeCanHearYou/wechy)
 
 
@@ -14,13 +14,12 @@ Tools you'll need:
 
 - Go 1.8+ (https://golang.org)
 - Node.js 6+ (https://nodejs.org/)
-- Yarn (https://yarnpkg.com/)
 - Docker (https://www.docker.com/)
 
 Step by step:
 
 1) clone this repository into `$GOPATH/src/GitHub.com/WeCanHearYou/wechy`
-2) run `yarn` to install froentend packages 
+2) run `npm install` to install froentend packages 
 3) run `npm run build:watch` to pack the froentend source into a bundle. It'll 
 4) run `docker-compose up -d` to start a local PostgreSQL database on Docker.
 5) run `make watch` to start the application.

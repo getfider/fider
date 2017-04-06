@@ -60,7 +60,10 @@ dockerize:
         code: |
           mkdir /app
           cp wechy /app
+          cp favicon.ico /app
           cp -R migrations/ /app/migrations
+          cp -R views/ /app/views
+          cp -R dist/ /app/dist
           rm -rf /pipeline
 
     - internal/docker-push:
