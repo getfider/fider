@@ -57,7 +57,7 @@ dockerize:
 
     - internal/docker-push:
         repository: wecanhearyou/wechy
-        username: $DOCKER_USERNAME
+        username: $DOCKER_USER
         password: $DOCKER_PASS
         tag: latest
         ports: 8080
