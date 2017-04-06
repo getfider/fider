@@ -26,8 +26,6 @@ test:
   box: golang:1.8
   base-path: /go/src/github.com/WeCanHearYou/wechy
   steps:
-    - setup-go-workspace
-
     # Get dependencies
     - script:
         name: get dotenv
