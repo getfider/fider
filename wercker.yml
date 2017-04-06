@@ -81,14 +81,16 @@ dockerize:
           cp -R migrations/ /app/migrations
           cp -R views/ /app/views
           cp -R dist/ /app/dist
-          find /pipeline -type f -exec rm -f {} \;
+          rm -rf /pipeline/cache/*
+          rm -rf /pipeline/source/*
+          rm -rf /pipeline/output/*
           mv /app /pipeline/output
 
     - internal/docker-push:
         repository: wecanhearyou/wechy
         username: $DOCKER_USER
         password: $DOCKER_PASS
-        working-dir: /pipeline/output
+        working-dir: /pipeline/output/app
         tag: latest
         ports: 8080
         cmd: ./wechy
