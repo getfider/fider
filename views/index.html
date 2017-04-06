@@ -1,9 +1,8 @@
-{{define "title"}}
-  {{ .Tenant.Name }}
-{{end}}
-        
-{{define "javascript"}}
-  set("ideas", {{ .Ideas }});
-{{end}}
+{{define "title"}}{{ .tenant.Name }}{{end}}
+
+// Print all variables that does not start with _ (95)
+// Compressed to avoid whitespace being printed
+
+{{define "javascript"}} {{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}set({{ $key }}, {{ $value }});{{ end }}{{ end }} {{end}}
         
 {{define "content"}}{{end}}

@@ -24,9 +24,7 @@ func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
 	renderer := &HTMLRenderer{nil, logger}
 	renderer.templates = make(map[string]*template.Template)
 
-	//TODO: load all templates automatically
 	renderer.add("index.html")
-	renderer.add("idea.html")
 	renderer.add("404.html")
 	renderer.add("500.html")
 
@@ -59,14 +57,13 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		tmpl = r.add(name)
 	}
 
-	//TODO: refactor (and move somewhere else?)
 	m := data.(echo.Map)
-	m["AuthEndpoint"] = os.Getenv("AUTH_ENDPOINT")
-	m["Tenant"] = ctx.Tenant()
+	m["authEndpoint"] = os.Getenv("AUTH_ENDPOINT")
+	m["tenant"] = ctx.Tenant()
 
 	if ctx.IsAuthenticated() {
 		claims := ctx.Claims()
-		m["User"] = &User{
+		m["__User"] = &User{
 			ID:    claims.UserID,
 			Name:  claims.UserName,
 			Email: claims.UserEmail,
@@ -75,7 +72,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 	files, _ := ioutil.ReadDir("dist/js")
 	if len(files) > 0 {
-		m["JavaScriptBundle"] = files[0].Name()
+		m["__JavaScriptBundle"] = files[0].Name()
 	}
 
 	return tmpl.Execute(w, m)

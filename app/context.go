@@ -47,6 +47,11 @@ func (ctx *Context) Failure(err error) error {
 	return echo.NewHTTPError(http.StatusInternalServerError, err)
 }
 
+//Page returns a page with given variables
+func (ctx *Context) Page(dict echo.Map) error {
+	return ctx.Render(200, "index.html", dict)
+}
+
 //Claims returns authenticated user claims
 func (ctx *Context) Claims() *WechyClaims {
 	return ctx.Get(claimsContextKey).(*WechyClaims)

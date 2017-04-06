@@ -25,8 +25,8 @@ func (h AllHandlers) List() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Render(200, "index.html", echo.Map{
-			"Ideas": ideas,
+		return c.Page(echo.Map{
+			"ideas": ideas,
 		})
 	}
 }
@@ -84,9 +84,9 @@ func (h AllHandlers) Details() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Render(200, "idea.html", echo.Map{
-			"Comments": comments,
-			"Idea":     idea,
+		return c.Page(echo.Map{
+			"comments": comments,
+			"idea":     idea,
 		})
 	}
 }
