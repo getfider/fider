@@ -82,12 +82,13 @@ dockerize:
           cp -R views/ /app/views
           cp -R dist/ /app/dist
           find /pipeline -type f -exec rm -f {} \;
+          mv /app /pipeline/output
 
     - internal/docker-push:
         repository: wecanhearyou/wechy
         username: $DOCKER_USER
         password: $DOCKER_PASS
-        working-dir: /app
+        working-dir: /pipeline/output
         tag: latest
         ports: 8080
         cmd: ./wechy
