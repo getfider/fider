@@ -44,11 +44,13 @@ test:
         code: |
           make ci-build
 
-    # Copy to output
+    # Prepare output
     - script:
-        name: copy to output
+        name: prepare output
         code: |
+          rm -rf $WERCKER_CACHE_DIR
           cp wechy "$WERCKER_OUTPUT_DIR"
+          cp migrations "$WERCKER_OUTPUT_DIR"
 
 dockerize:
   box:
@@ -64,6 +66,7 @@ dockerize:
         repository: wecanhearyou/wechy
         username: $DOCKER_USER
         password: $DOCKER_PASS
+        working-dir: /pipeline/source
         tag: latest
         ports: 8080
         cmd: ./wechy
