@@ -91,3 +91,13 @@ dockerize:
         tag: latest
         ports: 8080
         cmd: ./wechy
+
+deploy:
+  box:
+    id: alpine
+    cmd: /bin/sh
+  steps:
+    - script:
+        name: list
+        code: |
+          ls
