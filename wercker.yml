@@ -24,6 +24,7 @@ build-assets:
 
 test:
   box: golang:1.8
+  base-path: /go/src/github.com/WeCanHearYou/wechy
   steps:
     - setup-go-workspace
 
@@ -61,4 +62,4 @@ dockerize:
         password: $DOCKER_PASS
         tag: latest
         ports: 8080
-        cmd: /wechy
+        cmd: ./wechy
