@@ -1,34 +1,25 @@
-# This references the default golang container from
-# the Docker Hub: https://registry.hub.docker.com/u/library/golang/
-# If you want Google's container you would reference google/golang
-# Read more about containers on our dev center
-# http://devcenter.wercker.com/docs/containers/index.html
 box: golang:1.8
-# This is the build pipeline. Pipelines are the core of wercker
-# Read more about pipelines on our dev center
-# http://devcenter.wercker.com/docs/pipelines/index.html
 
-# You can also use services such as databases. Read more on our dev center:
-# http://devcenter.wercker.com/docs/services/index.html
-# services:
-    # - postgres
-    # http://devcenter.wercker.com/docs/services/postgresql.html
+services:
+  - id: postgres
+    tag: 9.6
+    env:
+      POSTGRES_USER: wechy_test
+      POSTGRES_PASSWORD: wechy_test-pw
 
-    # - mongo
-    # http://devcenter.wercker.com/docs/services/mongodb.html
-build:
-  services:
-    - id: postgres
-      tag: 9.6
-      env:
-        POSTGRES_USER: wechy_test
-        POSTGRES_PASSWORD: wechy_test-pw
-
+build-assets:
+  box: node:6.10
   steps:
-    # Sets the go workspace and places you package
-    # at the right place in the workspace tree
+    - script:
+      name: npm install
+      code: |
+        npm install
+
+build:
+  steps:
     - setup-go-workspace
 
+    # Get dependencies
     - script:
         name: get dotenv
         code: |

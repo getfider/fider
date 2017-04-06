@@ -6,6 +6,7 @@ define tag_docker
 	fi
 endef
 
+# remove this. check if test is running on WERCKER, if YES, then change .env file
 ci-test:
 	godotenv -f .ci.env go test $$(go list ./... | grep -v /vendor/) -cover -p=1
 
