@@ -1,5 +1,3 @@
-box: golang:1.8
-
 services:
   - id: postgres
     tag: 9.6
@@ -25,6 +23,7 @@ build-assets:
           npm run build
 
 test:
+  box: golang:1.8
   steps:
     - setup-go-workspace
 
@@ -39,3 +38,27 @@ test:
         name: run test
         code: |
           make ci-test
+
+    # Test the project
+    - script:
+        name: run build
+        code: |
+          make ci-build
+
+dockerize:
+  box: 
+    id: alpine
+    cmd: /wechy
+  steps:
+    - script:
+        name: install apk packages
+        code: |
+          apk update && apk add ca-certificates
+
+    - internal/docker-push:
+        repository: WeCanHearYou/wechy
+        username: $DOCKER_USERNAME
+        password: $DOCKER_PASS
+        tag: latest
+        ports: 8080
+        entrypoint: /wechy

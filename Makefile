@@ -31,6 +31,9 @@ coverage:
 			fi \
 	done
 
+ci-build:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+
 build:
 	go build -ldflags='-X main.buildtime=${BUILD_TIME}'
 
