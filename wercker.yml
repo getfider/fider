@@ -56,7 +56,7 @@ dockerize:
           apk update && apk add ca-certificates
 
     - internal/docker-push:
-        repository: WeCanHearYou/wechy
+        repository: wecanhearyou/wechy
         username: $DOCKER_USERNAME
         password: $DOCKER_PASS
         tag: latest
