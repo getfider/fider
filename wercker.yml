@@ -101,6 +101,10 @@ deploy:
     id: alpine
     cmd: /bin/sh
   steps:
+    - script:
+        name: install packages
+        code: |
+          apk update && apk add openssh-client bash
     - add-to-known_hosts:
         hostname: canhearyou.com
         fingerprint: SHA256:KsmKuG/9bu/5GPkMjVBt37hoB82PY3/932kwxLXkdn0
