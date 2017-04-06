@@ -44,6 +44,12 @@ test:
         code: |
           make ci-build
 
+    # Copy to output
+    - script:
+        name: copy to output
+        code: |
+          cp wechy "$WERCKER_OUTPUT_DIR"
+
 dockerize:
   box:
     id: alpine
