@@ -12,7 +12,7 @@ test:
 coverage:
 	rm -rf coverage.txt
 	for d in $$(go list ./... | grep -v vendor); do \
-			godotenv -f .test.env go test -p=1 -race -coverprofile=profile.out -covermode=atomic $$d ; \
+			godotenv -f ${ENV_FILE} go test -p=1 -race -coverprofile=profile.out -covermode=atomic $$d ; \
 			if [ -f profile.out ]; then \
 					cat profile.out >> coverage.txt ; \
 					rm profile.out ; \
