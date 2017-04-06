@@ -82,7 +82,8 @@ dockerize:
           cp -R views/ /app/views
           cp -R dist/ /app/dist
           rm -rf /pipeline/cache/*
-          rm -rf /pipeline/source/*
+          rm -rf /pipeline/source/* 
+          rm -rf /pipeline/source/.git
           rm -rf /pipeline/output/*
           mv /app /pipeline/output
 
@@ -100,7 +101,12 @@ deploy:
     id: alpine
     cmd: /bin/sh
   steps:
+    - add-to-known_hosts:
+        hostname: canhearyou.com
+        fingerprint: SHA256:KsmKuG/9bu/5GPkMjVBt37hoB82PY3/932kwxLXkdn0
+    - add-ssh-key:
+        keyname: CORE
     - script:
-        name: list
+        name: restart
         code: |
-          ls
+          ssh core@canhearyou.com "/home/core/start-wechy.sh"
