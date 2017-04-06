@@ -38,18 +38,22 @@ test:
         code: |
           make test
 
-    # Publish to codecov.io
-    - script:
-        name: run coverage
-        code: |
-          make coverage
-          bash <(curl -s https://codecov.io/bash)
-
     # Build the project
     - script:
         name: run build
         code: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+
+coverage:
+  box: golang:1.8
+  base-path: /go/src/github.com/WeCanHearYou/wechy
+  steps:
+    # Publish to codecov.io
+    - script:
+        name: run coverage
+        code: |
+          make coverage
+          bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN"
 
 dockerize:
   box:
