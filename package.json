@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/jquery": "^2.0.41",
     "@types/md5": "^2.1.31",
-    "@types/react": "^15.0.21",
+    "@types/react": "^15.0.20",
     "@types/react-dom": "^0.14.23",
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
