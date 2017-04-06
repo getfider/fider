@@ -12,7 +12,19 @@ build-assets:
   steps:
     - npm-install
 
-build:
+    # Lint
+    - script:
+        name: lint
+        code: |
+          npm run lint
+
+    # Build
+    - script:
+        name: build
+        code: |
+          npm run build
+
+test:
   steps:
     - setup-go-workspace
 
