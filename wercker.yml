@@ -46,9 +46,7 @@ test:
           make ci-build
 
 dockerize:
-  box: 
-    id: alpine
-    cmd: /wechy
+  box: alpine
   steps:
     - script:
         name: install apk packages
@@ -61,4 +59,4 @@ dockerize:
         password: $DOCKER_PASS
         tag: latest
         ports: 8080
-        entrypoint: /wechy
+        cmd: /wechy
