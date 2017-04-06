@@ -48,6 +48,12 @@ coverage:
   box: golang:1.8
   base-path: /go/src/github.com/WeCanHearYou/wechy
   steps:
+    # Get dependencies
+    - script:
+        name: get dotenv
+        code: |
+          go get github.com/joho/godotenv/cmd/godotenv
+          
     # Publish to codecov.io
     - script:
         name: run coverage
