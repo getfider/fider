@@ -53,13 +53,13 @@ coverage:
         name: get dotenv
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
-          
+
     # Publish to codecov.io
     - script:
         name: run coverage
         code: |
           make coverage
-          bash <(curl -s https://codecov.io/bash) -t "$CODECOV_TOKEN"
+          bash <(curl -s https://codecov.io/bash)
 
 dockerize:
   box:
