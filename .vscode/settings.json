@@ -14,7 +14,8 @@
     "tmp": true,
     "vendor": true,
     "node_modules": true,
-    "dist": true
+    "dist": true,
+    "coverage.txt": true
   },
   "vsicons.presets.angular": true
 }

@@ -48,6 +48,10 @@ var (
 	client              *bigtable.Client
 	adminClient         *bigtable.AdminClient
 	instanceAdminClient *bigtable.InstanceAdminClient
+
+	version      = "<unknown version>"
+	revision     = "<unknown revision>"
+	revisionDate = "<unknown revision date>"
 )
 
 func getCredentialOpts(opts []option.ClientOption) []option.ClientOption {
@@ -179,6 +183,8 @@ For convenience, values of the -project, -instance, -creds,
 	admin-endpoint = hostname:port
 	data-endpoint = hostname:port
 All values are optional, and all will be overridden by flags.
+
+cbt ` + version + ` ` + revision + ` ` + revisionDate + `
 `
 
 var commands = []struct {
@@ -202,10 +208,10 @@ var commands = []struct {
 		Required: cbtconfig.ProjectAndInstanceRequired,
 	},
 	{
-		Name:     "createtable",
-		Desc:     "Create a table",
-		do:       doCreateTable,
-		Usage:    "cbt createtable <table> [initial_splits...]\n" +
+		Name: "createtable",
+		Desc: "Create a table",
+		do:   doCreateTable,
+		Usage: "cbt createtable <table> [initial_splits...]\n" +
 			"  initial_splits=row		A row key to be used to initially split the table " +
 			"into multiple tablets. Can be repeated to create multiple splits.",
 		Required: cbtconfig.ProjectAndInstanceRequired,
@@ -306,6 +312,13 @@ var commands = []struct {
 			`  maxage=<d>		Maximum timestamp age to preserve (e.g. "1h", "4d")` + "\n" +
 			"  maxversions=<n>	Maximum number of versions to preserve",
 		Required: cbtconfig.ProjectAndInstanceRequired,
+	},
+	{
+		Name:     "version",
+		Desc:     "Print the current cbt version",
+		do:       doVersion,
+		Usage:    "cbt version",
+		Required: cbtconfig.NoneRequired,
 	},
 }
 
@@ -786,4 +799,8 @@ var unitMap = map[string]time.Duration{
 	"m":  time.Minute,
 	"h":  time.Hour,
 	"d":  24 * time.Hour,
+}
+
+func doVersion(ctx context.Context, args ...string) {
+	fmt.Printf("%s %s %s\n", version, revision, revisionDate)
 }

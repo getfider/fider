@@ -92,6 +92,9 @@ type RowIterator struct {
 // A repeated field corresponds to a slice or array of the element type.
 // A RECORD type (nested schema) corresponds to a nested struct or struct pointer.
 // All calls to Next on the same iterator must use the same struct type.
+//
+// It is an error to attempt to read a BigQuery NULL value into a struct field.
+// If your table contains NULLs, use a *[]Value or *map[string]Value.
 func (it *RowIterator) Next(dst interface{}) error {
 	var vl ValueLoader
 	switch dst := dst.(type) {

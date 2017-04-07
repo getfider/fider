@@ -15,11 +15,15 @@
 package pubsub
 
 import (
+	"errors"
+	"fmt"
 	"reflect"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 
 	"google.golang.org/api/iterator"
 )
@@ -149,112 +153,153 @@ func subNames(subs []*Subscription) []string {
 	return names
 }
 
-func TestFlowControllerNoBlock(t *testing.T) {
-	// No blocking if we don't exceed limits.
-	sizes := []int{2, 3, 5}
-	ctx := context.Background()
+func TestFlowControllerCancel(t *testing.T) {
+	// Test canceling a flow controller's context.
+	t.Parallel()
 	fc := newFlowController(3, 10)
-	for i := 0; i < 10; i++ {
-		for _, s := range sizes {
-			if err := fc.acquire(ctx, s); err != nil {
-				t.Fatal(err)
-			}
-		}
-		for _, s := range sizes {
-			fc.release(s)
-		}
+	if err := fc.acquire(context.Background(), 5); err != nil {
+		t.Fatal(err)
 	}
-}
-
-func TestFlowControllerBlockOnSize(t *testing.T) {
-	ctx := context.Background()
-	fc := newFlowController(3, 10)
-	errc := make(chan error)
+	// Experiment: a context that times out should always return an error.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	if err := fc.acquire(ctx, 6); err != context.DeadlineExceeded {
+		t.Fatalf("got %v, expected DeadlineExceeded", err)
+	}
+	// Control: a context that is not done should always return nil.
 	go func() {
-		fc.acquire(ctx, 3)
-		fc.acquire(ctx, 7)
-		errc <- fc.acquire(ctx, 2)
+		time.Sleep(5 * time.Millisecond)
+		fc.release(5)
 	}()
-	select {
-	case <-errc:
-		t.Fatal("acquire(2) not blocked")
-	case <-time.After(100 * time.Millisecond):
-	}
-	fc.release(1)
-	select {
-	case <-errc:
-		t.Fatal("acquire(2) not blocked")
-	case <-time.After(100 * time.Millisecond):
-	}
-	fc.release(1)
-	select {
-	case err := <-errc:
-		if err != nil {
-			t.Fatalf("acquire(2) returned %v, want nil", err)
-		}
-	case <-time.After(100 * time.Millisecond):
-		t.Fatal("acquire(2) still blocked")
+	if err := fc.acquire(context.Background(), 6); err != nil {
+		t.Errorf("got %v, expected nil", err)
 	}
 }
 
-func TestFlowControllerBlockOnCount(t *testing.T) {
-	ctx := context.Background()
-	fc := newFlowController(3, 10)
-	errc := make(chan error)
-	go func() {
-		fc.acquire(ctx, 1)
-		fc.acquire(ctx, 1)
-		fc.acquire(ctx, 1)
-		errc <- fc.acquire(ctx, 1)
-	}()
-	select {
-	case <-errc:
-		t.Fatal("acquire not blocked")
-	case <-time.After(100 * time.Millisecond):
-	}
-	fc.release(1)
-	select {
-	case err := <-errc:
-		if err != nil {
-			t.Fatalf("acquire(2) returned %v, want nil", err)
-		}
-	case <-time.After(100 * time.Millisecond):
-		t.Fatal("acquire still blocked")
-	}
-}
-
-func TestFlowControllerRequestTooLarge(t *testing.T) {
+func TestFlowControllerLargeRequest(t *testing.T) {
+	// Large requests succeed, consuming the entire allotment.
+	t.Parallel()
 	fc := newFlowController(3, 10)
 	err := fc.acquire(context.Background(), 11)
-	if err == nil {
-		t.Error("got nil, want error")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
-func TestFlowControllerCancel(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	fc := newFlowController(3, 10)
-	errc := make(chan error)
-	go func() {
-		if err := fc.acquire(ctx, 5); err != nil {
-			t.Errorf("acquire returned %v", err)
-		}
-		errc <- fc.acquire(ctx, 6)
-	}()
-	select {
-	case <-errc:
-		t.Fatal("acquire not blocked")
-	case <-time.After(100 * time.Millisecond):
+func TestFlowControllerNoStarve(t *testing.T) {
+	// A large request won't starve, because the flowController is
+	// (best-effort) FIFO.
+	t.Parallel()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	fc := newFlowController(10, 10)
+	first := make(chan int)
+	for i := 0; i < 20; i++ {
+		go func() {
+			for {
+				if err := fc.acquire(ctx, 1); err != nil {
+					if err != context.Canceled {
+						t.Error(err)
+					}
+					return
+				}
+				select {
+				case first <- 1:
+				default:
+				}
+				fc.release(1)
+			}
+		}()
 	}
-	cancel()
-	select {
-	case err := <-errc:
-		if err != context.Canceled {
-			t.Fatalf("got %v, want %v", err, context.Canceled)
-		}
-	case <-time.After(100 * time.Millisecond):
-		t.Fatal("acquire still blocked")
+	<-first // Wait until the flowController's state is non-zero.
+	if err := fc.acquire(ctx, 11); err != nil {
+		t.Errorf("got %v, want nil", err)
 	}
 }
 
-// TODO(jba): write a highly parallel stress test for flow controller.
+func TestFlowControllerSaturation(t *testing.T) {
+	t.Parallel()
+	const (
+		maxCount = 6
+		maxSize  = 10
+	)
+	for _, test := range []struct {
+		acquireSize         int
+		wantCount, wantSize int64
+	}{
+		{
+			// Many small acquires cause the flow controller to reach its max count.
+			acquireSize: 1,
+			wantCount:   6,
+			wantSize:    6,
+		},
+		{
+			// Five acquires of size 2 will cause the flow controller to reach its max size,
+			// but not its max count.
+			acquireSize: 2,
+			wantCount:   5,
+			wantSize:    10,
+		},
+		{
+			// If the requests are the right size (relatively prime to maxSize),
+			// the flow controller will not saturate on size. (In this case, not on count either.)
+			acquireSize: 3,
+			wantCount:   3,
+			wantSize:    9,
+		},
+	} {
+		fc := newFlowController(maxCount, maxSize)
+		// Atomically track flow controller state.
+		var curCount, curSize int64
+		success := errors.New("")
+		// Time out if wantSize or wantCount is never reached.
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		g, ctx := errgroup.WithContext(ctx)
+		for i := 0; i < 10; i++ {
+			g.Go(func() error {
+				var hitCount, hitSize bool
+				// Run at least until we hit the expected values, and at least
+				// for enough iterations to exceed them if the flow controller
+				// is broken.
+				for i := 0; i < 100 || !hitCount || !hitSize; i++ {
+					select {
+					case <-ctx.Done():
+						return ctx.Err()
+					default:
+					}
+					if err := fc.acquire(ctx, test.acquireSize); err != nil {
+						return err
+					}
+					c := atomic.AddInt64(&curCount, 1)
+					if c > test.wantCount {
+						return fmt.Errorf("count %d exceeds want %d", c, test.wantCount)
+					}
+					if c == test.wantCount {
+						hitCount = true
+					}
+					s := atomic.AddInt64(&curSize, int64(test.acquireSize))
+					if s > test.wantSize {
+						return fmt.Errorf("size %d exceeds want %d", s, test.wantSize)
+					}
+					if s == test.wantSize {
+						hitSize = true
+					}
+					time.Sleep(5 * time.Millisecond) // Let other goroutines make progress.
+					if atomic.AddInt64(&curCount, -1) < 0 {
+						return errors.New("negative count")
+					}
+					if atomic.AddInt64(&curSize, -int64(test.acquireSize)) < 0 {
+						return errors.New("negative size")
+					}
+					fc.release(test.acquireSize)
+				}
+				return success
+			})
+		}
+		if err := g.Wait(); err != success {
+			t.Errorf("%+v: %v", test, err)
+			continue
+		}
+	}
+}

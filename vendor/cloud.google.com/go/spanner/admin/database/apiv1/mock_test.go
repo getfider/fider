@@ -17,7 +17,7 @@
 package database
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
 	databasepb "google.golang.org/genproto/googleapis/spanner/admin/database/v1"
@@ -91,12 +91,12 @@ func (s *mockDatabaseAdminServer) UpdateDatabaseDdl(_ context.Context, req *data
 	return s.resps[0].(*longrunningpb.Operation), nil
 }
 
-func (s *mockDatabaseAdminServer) DropDatabase(_ context.Context, req *databasepb.DropDatabaseRequest) (*google_protobuf.Empty, error) {
+func (s *mockDatabaseAdminServer) DropDatabase(_ context.Context, req *databasepb.DropDatabaseRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockDatabaseAdminServer) GetDatabaseDdl(_ context.Context, req *databasepb.GetDatabaseDdlRequest) (*databasepb.GetDatabaseDdlResponse, error) {
@@ -375,7 +375,7 @@ func TestDatabaseAdminGetDatabaseError(t *testing.T) {
 	_ = resp
 }
 func TestDatabaseAdminUpdateDatabaseDdl(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockDatabaseAdmin.err = nil
 	mockDatabaseAdmin.reqs = nil
@@ -455,7 +455,7 @@ func TestDatabaseAdminUpdateDatabaseDdlError(t *testing.T) {
 	}
 }
 func TestDatabaseAdminDropDatabase(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockDatabaseAdmin.err = nil
 	mockDatabaseAdmin.reqs = nil

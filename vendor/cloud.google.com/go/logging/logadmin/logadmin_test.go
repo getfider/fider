@@ -263,9 +263,9 @@ func TestListLogEntriesRequest(t *testing.T) {
 	} {
 		got := listLogEntriesRequest("PROJECT_ID", test.opts)
 		want := &logpb.ListLogEntriesRequest{
-			ProjectIds: test.projectIDs,
-			Filter:     test.filter,
-			OrderBy:    test.orderBy,
+			ResourceNames: []string{"projects/" + test.projectIDs[0]},
+			Filter:        test.filter,
+			OrderBy:       test.orderBy,
 		}
 		if !proto.Equal(got, want) {
 			t.Errorf("%v:\ngot  %v\nwant %v", test.opts, got, want)

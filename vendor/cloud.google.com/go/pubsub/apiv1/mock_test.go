@@ -17,7 +17,7 @@
 package pubsub
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 	pubsubpb "google.golang.org/genproto/googleapis/pubsub/v1"
 	field_maskpb "google.golang.org/genproto/protobuf/field_mask"
@@ -99,12 +99,12 @@ func (s *mockPublisherServer) ListTopicSubscriptions(_ context.Context, req *pub
 	return s.resps[0].(*pubsubpb.ListTopicSubscriptionsResponse), nil
 }
 
-func (s *mockPublisherServer) DeleteTopic(_ context.Context, req *pubsubpb.DeleteTopicRequest) (*google_protobuf.Empty, error) {
+func (s *mockPublisherServer) DeleteTopic(_ context.Context, req *pubsubpb.DeleteTopicRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 type mockIamPolicyServer struct {
@@ -193,28 +193,28 @@ func (s *mockSubscriberServer) ListSubscriptions(_ context.Context, req *pubsubp
 	return s.resps[0].(*pubsubpb.ListSubscriptionsResponse), nil
 }
 
-func (s *mockSubscriberServer) DeleteSubscription(_ context.Context, req *pubsubpb.DeleteSubscriptionRequest) (*google_protobuf.Empty, error) {
+func (s *mockSubscriberServer) DeleteSubscription(_ context.Context, req *pubsubpb.DeleteSubscriptionRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) ModifyAckDeadline(_ context.Context, req *pubsubpb.ModifyAckDeadlineRequest) (*google_protobuf.Empty, error) {
+func (s *mockSubscriberServer) ModifyAckDeadline(_ context.Context, req *pubsubpb.ModifyAckDeadlineRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) Acknowledge(_ context.Context, req *pubsubpb.AcknowledgeRequest) (*google_protobuf.Empty, error) {
+func (s *mockSubscriberServer) Acknowledge(_ context.Context, req *pubsubpb.AcknowledgeRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockSubscriberServer) Pull(_ context.Context, req *pubsubpb.PullRequest) (*pubsubpb.PullResponse, error) {
@@ -246,12 +246,12 @@ func (s *mockSubscriberServer) StreamingPull(stream pubsubpb.Subscriber_Streamin
 	return nil
 }
 
-func (s *mockSubscriberServer) ModifyPushConfig(_ context.Context, req *pubsubpb.ModifyPushConfigRequest) (*google_protobuf.Empty, error) {
+func (s *mockSubscriberServer) ModifyPushConfig(_ context.Context, req *pubsubpb.ModifyPushConfigRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockSubscriberServer) ListSnapshots(_ context.Context, req *pubsubpb.ListSnapshotsRequest) (*pubsubpb.ListSnapshotsResponse, error) {
@@ -270,12 +270,12 @@ func (s *mockSubscriberServer) CreateSnapshot(_ context.Context, req *pubsubpb.C
 	return s.resps[0].(*pubsubpb.Snapshot), nil
 }
 
-func (s *mockSubscriberServer) DeleteSnapshot(_ context.Context, req *pubsubpb.DeleteSnapshotRequest) (*google_protobuf.Empty, error) {
+func (s *mockSubscriberServer) DeleteSnapshot(_ context.Context, req *pubsubpb.DeleteSnapshotRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockSubscriberServer) Seek(_ context.Context, req *pubsubpb.SeekRequest) (*pubsubpb.SeekResponse, error) {
@@ -644,7 +644,7 @@ func TestPublisherListTopicSubscriptionsError(t *testing.T) {
 	_ = resp
 }
 func TestPublisherDeleteTopic(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockPublisher.err = nil
 	mockPublisher.reqs = nil
@@ -961,7 +961,7 @@ func TestSubscriberListSubscriptionsError(t *testing.T) {
 	_ = resp
 }
 func TestSubscriberDeleteSubscription(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockSubscriber.err = nil
 	mockSubscriber.reqs = nil
@@ -1011,7 +1011,7 @@ func TestSubscriberDeleteSubscriptionError(t *testing.T) {
 	}
 }
 func TestSubscriberModifyAckDeadline(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockSubscriber.err = nil
 	mockSubscriber.reqs = nil
@@ -1069,7 +1069,7 @@ func TestSubscriberModifyAckDeadlineError(t *testing.T) {
 	}
 }
 func TestSubscriberAcknowledge(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockSubscriber.err = nil
 	mockSubscriber.reqs = nil
@@ -1259,7 +1259,7 @@ func TestSubscriberStreamingPullError(t *testing.T) {
 	_ = resp
 }
 func TestSubscriberModifyPushConfig(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockSubscriber.err = nil
 	mockSubscriber.reqs = nil
@@ -1446,7 +1446,7 @@ func TestSubscriberCreateSnapshotError(t *testing.T) {
 	_ = resp
 }
 func TestSubscriberDeleteSnapshot(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockSubscriber.err = nil
 	mockSubscriber.reqs = nil

@@ -46,7 +46,7 @@ type QueryConfig struct {
 	CreateDisposition TableCreateDisposition
 
 	// WriteDisposition specifies how existing data in the destination table is treated.
-	// The default is WriteAppend.
+	// The default is WriteEmpty.
 	WriteDisposition TableWriteDisposition
 
 	// DisableQueryCache prevents results being fetched from the query cache.
@@ -132,7 +132,7 @@ func (q *Query) Run(ctx context.Context) (*Job, error) {
 	if err := q.QueryConfig.populateJobQueryConfig(job.Configuration.Query); err != nil {
 		return nil, err
 	}
-	j, err := q.client.service.insertJob(ctx, q.client.projectID, &insertJobConf{job: job})
+	j, err := q.client.insertJob(ctx, &insertJobConf{job: job})
 	if err != nil {
 		return nil, err
 	}

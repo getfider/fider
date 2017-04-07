@@ -77,7 +77,7 @@ func TestRead(t *testing.T) {
 	queryJob := &Job{
 		projectID: "project-id",
 		jobID:     "job-id",
-		service:   service,
+		c:         c,
 		isQuery:   true,
 	}
 
@@ -188,7 +188,7 @@ func TestIncompleteJob(t *testing.T) {
 	queryJob := &Job{
 		projectID: "project-id",
 		jobID:     "job-id",
-		service:   service,
+		c:         &Client{service: service},
 		isQuery:   true,
 	}
 	it, err := queryJob.Read(context.Background())
@@ -272,7 +272,7 @@ func TestReadQueryOptions(t *testing.T) {
 	queryJob := &Job{
 		projectID: "project-id",
 		jobID:     "job-id",
-		service:   s,
+		c:         &Client{service: s},
 		isQuery:   true,
 	}
 	it, err := queryJob.Read(context.Background())

@@ -142,7 +142,7 @@ func (c *MetricsClient) Close() error {
 // use by Google-written clients.
 func (c *MetricsClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
-	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", "")
+	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
 	c.xGoogHeader = gax.XGoogHeader(kv...)
 }
 

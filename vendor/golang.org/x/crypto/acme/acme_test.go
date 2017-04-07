@@ -6,6 +6,7 @@ package acme
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
@@ -23,8 +24,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 // Decodes a JWS-encoded request and unmarshals the decoded JSON into a provided

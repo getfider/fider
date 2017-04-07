@@ -234,13 +234,17 @@ func (s *Subscription) Receive(ctx context.Context, f func(context.Context, *Mes
 		maxPrefetch:  trunc32(int64(maxCount)),
 		ackDeadline:  config.AckDeadline,
 	}
-	iter := newMessageIterator(context.Background(), s.s, s.name, po)
 	fc := newFlowController(maxCount, maxBytes)
 
 	// Wait for all goroutines started by Receive to return, so instead of an
 	// obscure goroutine leak we have an obvious blocked call to Receive.
 	var wg sync.WaitGroup
 	defer wg.Wait()
+
+	return s.receive(ctx, &wg, po, fc, f)
+}
+
+func (s *Subscription) receive(ctx context.Context, wg *sync.WaitGroup, po *pullOptions, fc *flowController, f func(context.Context, *Message)) error {
 	// Cancel a sub-context when we return, to kick the context-aware callbacks
 	// and the goroutine below.
 	ctx2, cancel := context.WithCancel(ctx)
@@ -250,13 +254,13 @@ func (s *Subscription) Receive(ctx context.Context, f func(context.Context, *Mes
 	// The iterator does not use the context passed to Receive. If it did, canceling
 	// that context would immediately stop the iterator without waiting for unacked
 	// messages.
+	iter := newMessageIterator(context.Background(), s.s, s.name, po)
 	wg.Add(1)
 	go func() {
 		<-ctx2.Done()
 		iter.Stop()
 		wg.Done()
 	}()
-	// Since defers happen in LIFO order, the defer of cancel must appear after the defer of wg.Wait.
 	defer cancel()
 	for {
 		msg, err := iter.Next()
@@ -267,12 +271,7 @@ func (s *Subscription) Receive(ctx context.Context, f func(context.Context, *Mes
 			return err
 		}
 		// TODO(jba): call acquire closer to when the message is allocated.
-		acquireBytes := len(msg.Data)
-		// Don't block forever on overly large messages. Just let them through.
-		if acquireBytes > fc.maxSize {
-			acquireBytes = fc.maxSize
-		}
-		if err := fc.acquire(ctx, acquireBytes); err != nil {
+		if err := fc.acquire(ctx, len(msg.Data)); err != nil {
 			// TODO(jba): test that this "orphaned" message is nacked immediately when ctx is done.
 			msg.Nack()
 			return nil
@@ -362,14 +361,14 @@ func newFlowController(maxCount, maxSize int) *flowController {
 
 // acquire blocks until one message of size bytes can proceed or ctx is done.
 // It returns nil in the first case, or ctx.Err() in the second.
+//
+// acquire allows large messages to proceed by treating a size greater than maxSize
+// as if it were equal to maxSize.
 func (f *flowController) acquire(ctx context.Context, size int) error {
-	if size > f.maxSize {
-		return fmt.Errorf("pubsub: message size %d exceeds maximum allowed size %d", size, f.maxSize)
-	}
 	if err := f.semCount.Acquire(ctx, 1); err != nil {
 		return err
 	}
-	if err := f.semSize.Acquire(ctx, int64(size)); err != nil {
+	if err := f.semSize.Acquire(ctx, f.bound(size)); err != nil {
 		f.semCount.Release(1)
 		return err
 	}
@@ -379,5 +378,12 @@ func (f *flowController) acquire(ctx context.Context, size int) error {
 // release notes that one message of size bytes is no longer outstanding.
 func (f *flowController) release(size int) {
 	f.semCount.Release(1)
-	f.semSize.Release(int64(size))
+	f.semSize.Release(f.bound(size))
+}
+
+func (f *flowController) bound(size int) int64 {
+	if size > f.maxSize {
+		return int64(f.maxSize)
+	}
+	return int64(size)
 }

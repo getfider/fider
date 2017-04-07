@@ -17,7 +17,7 @@
 package admin
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	adminpb "google.golang.org/genproto/googleapis/iam/admin/v1"
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 )
@@ -90,12 +90,12 @@ func (s *mockIamServer) UpdateServiceAccount(_ context.Context, req *adminpb.Ser
 	return s.resps[0].(*adminpb.ServiceAccount), nil
 }
 
-func (s *mockIamServer) DeleteServiceAccount(_ context.Context, req *adminpb.DeleteServiceAccountRequest) (*google_protobuf.Empty, error) {
+func (s *mockIamServer) DeleteServiceAccount(_ context.Context, req *adminpb.DeleteServiceAccountRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockIamServer) ListServiceAccountKeys(_ context.Context, req *adminpb.ListServiceAccountKeysRequest) (*adminpb.ListServiceAccountKeysResponse, error) {
@@ -122,12 +122,12 @@ func (s *mockIamServer) CreateServiceAccountKey(_ context.Context, req *adminpb.
 	return s.resps[0].(*adminpb.ServiceAccountKey), nil
 }
 
-func (s *mockIamServer) DeleteServiceAccountKey(_ context.Context, req *adminpb.DeleteServiceAccountKeyRequest) (*google_protobuf.Empty, error) {
+func (s *mockIamServer) DeleteServiceAccountKey(_ context.Context, req *adminpb.DeleteServiceAccountKeyRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockIamServer) SignBlob(_ context.Context, req *adminpb.SignBlobRequest) (*adminpb.SignBlobResponse, error) {
@@ -481,7 +481,7 @@ func TestIamUpdateServiceAccountError(t *testing.T) {
 	_ = resp
 }
 func TestIamDeleteServiceAccount(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockIam.err = nil
 	mockIam.reqs = nil
@@ -707,7 +707,7 @@ func TestIamCreateServiceAccountKeyError(t *testing.T) {
 	_ = resp
 }
 func TestIamDeleteServiceAccountKey(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockIam.err = nil
 	mockIam.reqs = nil

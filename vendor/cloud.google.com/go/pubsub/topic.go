@@ -103,6 +103,11 @@ func (c *Client) CreateTopic(ctx context.Context, id string) (*Topic, error) {
 }
 
 // Topic creates a reference to a topic.
+//
+// If a Topic's Publish method is called, it has background goroutines
+// associated with it. Clean them up by calling Topic.Stop.
+//
+// Avoid creating many Topic instances if you use them to publish.
 func (c *Client) Topic(id string) *Topic {
 	return newTopic(c.s, fmt.Sprintf("projects/%s/topics/%s", c.projectID, id))
 }

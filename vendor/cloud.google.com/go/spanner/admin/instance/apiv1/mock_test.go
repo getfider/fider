@@ -17,7 +17,7 @@
 package instance
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	iampb "google.golang.org/genproto/googleapis/iam/v1"
 	longrunningpb "google.golang.org/genproto/googleapis/longrunning"
 	instancepb "google.golang.org/genproto/googleapis/spanner/admin/instance/v1"
@@ -108,12 +108,12 @@ func (s *mockInstanceAdminServer) UpdateInstance(_ context.Context, req *instanc
 	return s.resps[0].(*longrunningpb.Operation), nil
 }
 
-func (s *mockInstanceAdminServer) DeleteInstance(_ context.Context, req *instancepb.DeleteInstanceRequest) (*google_protobuf.Empty, error) {
+func (s *mockInstanceAdminServer) DeleteInstance(_ context.Context, req *instancepb.DeleteInstanceRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockInstanceAdminServer) SetIamPolicy(_ context.Context, req *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
@@ -622,7 +622,7 @@ func TestInstanceAdminUpdateInstanceError(t *testing.T) {
 	_ = resp
 }
 func TestInstanceAdminDeleteInstance(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockInstanceAdmin.err = nil
 	mockInstanceAdmin.reqs = nil

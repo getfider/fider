@@ -17,7 +17,7 @@
 package logging
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	monitoredrespb "google.golang.org/genproto/googleapis/api/monitoredres"
 	loggingpb "google.golang.org/genproto/googleapis/logging/v2"
 )
@@ -58,12 +58,12 @@ type mockLoggingServer struct {
 	resps []proto.Message
 }
 
-func (s *mockLoggingServer) DeleteLog(_ context.Context, req *loggingpb.DeleteLogRequest) (*google_protobuf.Empty, error) {
+func (s *mockLoggingServer) DeleteLog(_ context.Context, req *loggingpb.DeleteLogRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockLoggingServer) WriteLogEntries(_ context.Context, req *loggingpb.WriteLogEntriesRequest) (*loggingpb.WriteLogEntriesResponse, error) {
@@ -145,12 +145,12 @@ func (s *mockConfigServer) UpdateSink(_ context.Context, req *loggingpb.UpdateSi
 	return s.resps[0].(*loggingpb.LogSink), nil
 }
 
-func (s *mockConfigServer) DeleteSink(_ context.Context, req *loggingpb.DeleteSinkRequest) (*google_protobuf.Empty, error) {
+func (s *mockConfigServer) DeleteSink(_ context.Context, req *loggingpb.DeleteSinkRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 type mockMetricsServer struct {
@@ -200,12 +200,12 @@ func (s *mockMetricsServer) UpdateLogMetric(_ context.Context, req *loggingpb.Up
 	return s.resps[0].(*loggingpb.LogMetric), nil
 }
 
-func (s *mockMetricsServer) DeleteLogMetric(_ context.Context, req *loggingpb.DeleteLogMetricRequest) (*google_protobuf.Empty, error) {
+func (s *mockMetricsServer) DeleteLogMetric(_ context.Context, req *loggingpb.DeleteLogMetricRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 // clientOpt is the option tests should use to connect to the test server.
@@ -242,7 +242,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestLoggingServiceV2DeleteLog(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockLogging.err = nil
 	mockLogging.reqs = nil
@@ -817,7 +817,7 @@ func TestConfigServiceV2UpdateSinkError(t *testing.T) {
 	_ = resp
 }
 func TestConfigServiceV2DeleteSink(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockConfig.err = nil
 	mockConfig.reqs = nil
@@ -1128,7 +1128,7 @@ func TestMetricsServiceV2UpdateLogMetricError(t *testing.T) {
 	_ = resp
 }
 func TestMetricsServiceV2DeleteLogMetric(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockMetrics.err = nil
 	mockMetrics.reqs = nil

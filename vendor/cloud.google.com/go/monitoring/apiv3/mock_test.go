@@ -17,7 +17,7 @@
 package monitoring
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	metricpb "google.golang.org/genproto/googleapis/api/metric"
 	monitoredrespb "google.golang.org/genproto/googleapis/api/monitoredres"
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
@@ -91,12 +91,12 @@ func (s *mockGroupServer) UpdateGroup(_ context.Context, req *monitoringpb.Updat
 	return s.resps[0].(*monitoringpb.Group), nil
 }
 
-func (s *mockGroupServer) DeleteGroup(_ context.Context, req *monitoringpb.DeleteGroupRequest) (*google_protobuf.Empty, error) {
+func (s *mockGroupServer) DeleteGroup(_ context.Context, req *monitoringpb.DeleteGroupRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockGroupServer) ListGroupMembers(_ context.Context, req *monitoringpb.ListGroupMembersRequest) (*monitoringpb.ListGroupMembersResponse, error) {
@@ -162,12 +162,12 @@ func (s *mockMetricServer) CreateMetricDescriptor(_ context.Context, req *monito
 	return s.resps[0].(*metricpb.MetricDescriptor), nil
 }
 
-func (s *mockMetricServer) DeleteMetricDescriptor(_ context.Context, req *monitoringpb.DeleteMetricDescriptorRequest) (*google_protobuf.Empty, error) {
+func (s *mockMetricServer) DeleteMetricDescriptor(_ context.Context, req *monitoringpb.DeleteMetricDescriptorRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockMetricServer) ListTimeSeries(_ context.Context, req *monitoringpb.ListTimeSeriesRequest) (*monitoringpb.ListTimeSeriesResponse, error) {
@@ -178,12 +178,12 @@ func (s *mockMetricServer) ListTimeSeries(_ context.Context, req *monitoringpb.L
 	return s.resps[0].(*monitoringpb.ListTimeSeriesResponse), nil
 }
 
-func (s *mockMetricServer) CreateTimeSeries(_ context.Context, req *monitoringpb.CreateTimeSeriesRequest) (*google_protobuf.Empty, error) {
+func (s *mockMetricServer) CreateTimeSeries(_ context.Context, req *monitoringpb.CreateTimeSeriesRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 // clientOpt is the option tests should use to connect to the test server.
@@ -487,7 +487,7 @@ func TestGroupServiceUpdateGroupError(t *testing.T) {
 	_ = resp
 }
 func TestGroupServiceDeleteGroup(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockGroup.err = nil
 	mockGroup.reqs = nil
@@ -946,7 +946,7 @@ func TestMetricServiceCreateMetricDescriptorError(t *testing.T) {
 	_ = resp
 }
 func TestMetricServiceDeleteMetricDescriptor(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockMetric.err = nil
 	mockMetric.reqs = nil
@@ -1078,7 +1078,7 @@ func TestMetricServiceListTimeSeriesError(t *testing.T) {
 	_ = resp
 }
 func TestMetricServiceCreateTimeSeries(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockMetric.err = nil
 	mockMetric.reqs = nil

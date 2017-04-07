@@ -15,6 +15,7 @@ package acme
 
 import (
 	"bytes"
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -37,7 +38,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/context"
 	"golang.org/x/net/context/ctxhttp"
 )
 
@@ -974,7 +974,8 @@ func tlsChallengeCert(san []string, opt []CertOption) (tls.Certificate, error) {
 			NotBefore:             time.Now(),
 			NotAfter:              time.Now().Add(24 * time.Hour),
 			BasicConstraintsValid: true,
-			KeyUsage:              x509.KeyUsageKeyEncipherment,
+			KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+			ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		}
 	}
 	tmpl.DNSNames = san

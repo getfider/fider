@@ -264,6 +264,20 @@ func (h *loggingHandler) ListMonitoredResourceDescriptors(context.Context, *logp
 	}, nil
 }
 
+// Lists logs.
+func (h *loggingHandler) ListLogs(_ context.Context, req *logpb.ListLogsRequest) (*logpb.ListLogsResponse, error) {
+	// Return fixed, fake response.
+	logNames := []string{"a", "b", "c"}
+	from, to, npt, err := getPage(int(req.PageSize), req.PageToken, len(logNames))
+	if err != nil {
+		return nil, err
+	}
+	return &logpb.ListLogsResponse{
+		LogNames:      logNames[from:to],
+		NextPageToken: npt,
+	}, nil
+}
+
 // Gets a sink.
 func (h *configHandler) GetSink(_ context.Context, req *logpb.GetSinkRequest) (*logpb.LogSink, error) {
 	h.mu.Lock()

@@ -47,7 +47,7 @@ func (j *Job) Read(ctx context.Context) (*RowIterator, error) {
 	if !j.isQuery {
 		return nil, errors.New("Cannot read from a non-query job")
 	}
-	return newRowIterator(ctx, j.service, &readQueryConf{
+	return newRowIterator(ctx, j.c.service, &readQueryConf{
 		projectID: j.projectID,
 		jobID:     j.jobID,
 	}), nil

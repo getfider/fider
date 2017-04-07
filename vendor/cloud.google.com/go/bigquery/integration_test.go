@@ -15,6 +15,7 @@
 package bigquery
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -26,7 +27,10 @@ import (
 	"testing"
 	"time"
 
+	gax "github.com/googleapis/gax-go"
+
 	"cloud.google.com/go/civil"
+	"cloud.google.com/go/internal"
 	"cloud.google.com/go/internal/pretty"
 	"cloud.google.com/go/internal/testutil"
 	"golang.org/x/net/context"
@@ -311,6 +315,18 @@ func TestIntegration_UploadAndRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	checkRead(t, "job.Read", rit, wantRows)
+
+	// Get statistics.
+	jobStatus, err := job2.Status(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if jobStatus.Statistics == nil {
+		t.Fatal("jobStatus missing statistics")
+	}
+	if _, ok := jobStatus.Statistics.Details.(*QueryStatistics); !ok {
+		t.Errorf("expected QueryStatistics, got %T", jobStatus.Statistics.Details)
+	}
 
 	// Test reading directly into a []Value.
 	valueLists, err := readAll(table.Read(ctx))
@@ -637,28 +653,38 @@ func TestIntegration_DML(t *testing.T) {
 		t.Skip("Integration tests skipped")
 	}
 	ctx := context.Background()
-	table := newTable(t, schema)
-	defer table.Delete(ctx)
+	// Retry insert; sometimes it fails with INTERNAL.
+	err := internal.Retry(ctx, gax.Backoff{}, func() (bool, error) {
+		table := newTable(t, schema)
+		defer table.Delete(ctx)
 
-	// Use DML to insert.
-	wantRows := [][]Value{
-		[]Value{"a", int64(0)},
-		[]Value{"b", int64(1)},
-		[]Value{"c", int64(2)},
-	}
-	query := fmt.Sprintf("INSERT bigquery_integration_test.%s (name, num) "+
-		"VALUES ('a', 0), ('b', 1), ('c', 2)",
-		table.TableID)
-	q := client.Query(query)
-	q.UseStandardSQL = true // necessary for DML
-	job, err := q.Run(ctx)
+		// Use DML to insert.
+		wantRows := [][]Value{
+			[]Value{"a", int64(0)},
+			[]Value{"b", int64(1)},
+			[]Value{"c", int64(2)},
+		}
+		query := fmt.Sprintf("INSERT bigquery_integration_test.%s (name, num) "+
+			"VALUES ('a', 0), ('b', 1), ('c', 2)",
+			table.TableID)
+		q := client.Query(query)
+		q.UseStandardSQL = true // necessary for DML
+		job, err := q.Run(ctx)
+		if err != nil {
+			return false, err
+		}
+		if err := wait(ctx, job); err != nil {
+			return false, err
+		}
+		if msg, ok := compareRead(table.Read(ctx), wantRows); !ok {
+			// Stop on read error, because that has never been flaky.
+			return true, errors.New(msg)
+		}
+		return true, nil
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := wait(ctx, job); err != nil {
-		t.Fatal(err)
-	}
-	checkRead(t, "INSERT", table.Read(ctx), wantRows)
 }
 
 func TestIntegration_TimeTypes(t *testing.T) {
@@ -846,6 +872,41 @@ func TestIntegration_QueryParameters(t *testing.T) {
 	}
 }
 
+func TestIntegration_ReadNullIntoStruct(t *testing.T) {
+	// Reading a null into a struct field should return an error (not panic).
+	if client == nil {
+		t.Skip("Integration tests skipped")
+	}
+	ctx := context.Background()
+	table := newTable(t, schema)
+	defer table.Delete(ctx)
+
+	upl := table.Uploader()
+	row := &ValuesSaver{
+		Schema: schema,
+		Row:    []Value{"name", nil},
+	}
+	if err := upl.Put(ctx, []*ValuesSaver{row}); err != nil {
+		t.Fatal(putError(err))
+	}
+	if err := waitForRow(ctx, table); err != nil {
+		t.Fatal(err)
+	}
+
+	q := client.Query(fmt.Sprintf("select name, num from %s", table.TableID))
+	q.DefaultProjectID = dataset.ProjectID
+	q.DefaultDatasetID = dataset.DatasetID
+	it, err := q.Read(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type S struct{ Num int64 }
+	var s S
+	if err := it.Next(&s); err == nil {
+		t.Fatal("got nil, want error")
+	}
+}
+
 // Creates a new, temporary table with a unique name and the given schema.
 func newTable(t *testing.T, s Schema) *Table {
 	fiveMinutesFromNow = time.Now().Add(5 * time.Minute).Round(time.Second)
@@ -859,21 +920,28 @@ func newTable(t *testing.T, s Schema) *Table {
 }
 
 func checkRead(t *testing.T, msg string, it *RowIterator, want [][]Value) {
+	if msg2, ok := compareRead(it, want); !ok {
+		t.Errorf("%s: %s", msg, msg2)
+	}
+}
+
+func compareRead(it *RowIterator, want [][]Value) (msg string, ok bool) {
 	got, err := readAll(it)
 	if err != nil {
-		t.Fatalf("%s: %v", msg, err)
+		return err.Error(), false
 	}
 	if len(got) != len(want) {
-		t.Errorf("%s: got %d rows, want %d", msg, len(got), len(want))
+		return fmt.Sprintf("got %d rows, want %d", len(got), len(want)), false
 	}
 	sort.Sort(byCol0(got))
 	for i, r := range got {
 		gotRow := []Value(r)
 		wantRow := want[i]
 		if !reflect.DeepEqual(gotRow, wantRow) {
-			t.Errorf("%s #%d: got %v, want %v", msg, i, gotRow, wantRow)
+			return fmt.Sprintf("#%d: got %v, want %v", i, gotRow, wantRow), false
 		}
 	}
+	return "", true
 }
 
 func readAll(it *RowIterator) ([][]Value, error) {
@@ -921,6 +989,15 @@ func wait(ctx context.Context, job *Job) error {
 	}
 	if status.Err() != nil {
 		return fmt.Errorf("job status error: %#v", status.Err())
+	}
+	if status.Statistics == nil {
+		return errors.New("nil Statistics")
+	}
+	if status.Statistics.EndTime.IsZero() {
+		return errors.New("EndTime is zero")
+	}
+	if status.Statistics.Details == nil {
+		return errors.New("nil Statistics.Details")
 	}
 	return nil
 }

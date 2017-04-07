@@ -187,7 +187,7 @@ func errDstNotForNull(dst interface{}) error {
 	return spannerErrorf(codes.InvalidArgument, "destination %T cannot support NULL SQL values", dst)
 }
 
-// errBadEncoding returns error for decoding wrongly encoded BYTES/INT64.
+// errBadEncoding returns error for decoding wrongly encoded types.
 func errBadEncoding(v *proto3.Value, err error) error {
 	return spannerErrorf(codes.FailedPrecondition, "%v wasn't correctly encoded: <%v>", v, err)
 }
@@ -659,7 +659,7 @@ func decodeValue(v *proto3.Value, t *sppb.Type, ptr interface{}) error {
 
 // errSrvVal returns an error for getting a wrong source protobuf value in decoding.
 func errSrcVal(v *proto3.Value, want string) error {
-	return spannerErrorf(codes.FailedPrecondition, "cannot use %v(Kind: %T) as Value_%sValue in decoding",
+	return spannerErrorf(codes.FailedPrecondition, "cannot use %v(Kind: %T) as %s Value",
 		v, v.GetKind(), want)
 }
 
@@ -1019,7 +1019,7 @@ func decodeStructArray(ty *sppb.StructType, pb *proto3.ListValue, ptr interface{
 // errEncoderUnsupportedType returns error for not being able to encode a value of
 // certain type.
 func errEncoderUnsupportedType(v interface{}) error {
-	return spannerErrorf(codes.InvalidArgument, "encoder doesn't support type %T", v)
+	return spannerErrorf(codes.InvalidArgument, "client doesn't support type %T", v)
 }
 
 // encodeValue encodes a Go native type into a proto3.Value.

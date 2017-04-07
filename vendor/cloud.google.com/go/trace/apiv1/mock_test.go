@@ -17,7 +17,7 @@
 package trace
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	cloudtracepb "google.golang.org/genproto/googleapis/devtools/cloudtrace/v1"
 )
 
@@ -73,12 +73,12 @@ func (s *mockTraceServer) GetTrace(_ context.Context, req *cloudtracepb.GetTrace
 	return s.resps[0].(*cloudtracepb.Trace), nil
 }
 
-func (s *mockTraceServer) PatchTraces(_ context.Context, req *cloudtracepb.PatchTracesRequest) (*google_protobuf.Empty, error) {
+func (s *mockTraceServer) PatchTraces(_ context.Context, req *cloudtracepb.PatchTracesRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 // clientOpt is the option tests should use to connect to the test server.
@@ -111,7 +111,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestTraceServicePatchTraces(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockTrace.err = nil
 	mockTrace.reqs = nil

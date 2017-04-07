@@ -37,6 +37,7 @@ func (t *fakeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestErrorOnObjectsInsertCall(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	hc := &http.Client{Transport: &fakeTransport{}}
 	client, err := NewClient(ctx, option.WithHTTPClient(hc))
@@ -58,6 +59,7 @@ func TestErrorOnObjectsInsertCall(t *testing.T) {
 }
 
 func TestEncryption(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 	ft := &fakeTransport{}
 	hc := &http.Client{Transport: ft}

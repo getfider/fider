@@ -119,7 +119,7 @@ func (c *Client) Close() error {
 // use by Google-written clients.
 func (c *Client) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
-	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", "")
+	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
 	c.xGoogHeader = gax.XGoogHeader(kv...)
 }
 
@@ -138,8 +138,9 @@ func (c *Client) AnalyzeSentiment(ctx context.Context, req *languagepb.AnalyzeSe
 	return resp, nil
 }
 
-// AnalyzeEntities finds named entities (currently finds proper names) in the text,
-// entity types, salience, mentions for each entity, and other properties.
+// AnalyzeEntities finds named entities (currently proper names and common nouns) in the text
+// along with entity types, salience, mentions for each entity, and
+// other properties.
 func (c *Client) AnalyzeEntities(ctx context.Context, req *languagepb.AnalyzeEntitiesRequest) (*languagepb.AnalyzeEntitiesResponse, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
 	var resp *languagepb.AnalyzeEntitiesResponse

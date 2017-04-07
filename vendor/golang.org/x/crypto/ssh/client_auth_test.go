@@ -92,6 +92,7 @@ func TestClientAuthPublicKey(t *testing.T) {
 		Auth: []AuthMethod{
 			PublicKeys(testSigners["rsa"]),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 	if err := tryAuth(t, config); err != nil {
 		t.Fatalf("unable to dial remote side: %s", err)
@@ -104,6 +105,7 @@ func TestAuthMethodPassword(t *testing.T) {
 		Auth: []AuthMethod{
 			Password(clientPassword),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	if err := tryAuth(t, config); err != nil {
@@ -123,6 +125,7 @@ func TestAuthMethodFallback(t *testing.T) {
 					return "WRONG", nil
 				}),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	if err := tryAuth(t, config); err != nil {
@@ -141,6 +144,7 @@ func TestAuthMethodWrongPassword(t *testing.T) {
 			Password("wrong"),
 			PublicKeys(testSigners["rsa"]),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	if err := tryAuth(t, config); err != nil {
@@ -158,6 +162,7 @@ func TestAuthMethodKeyboardInteractive(t *testing.T) {
 		Auth: []AuthMethod{
 			KeyboardInteractive(answers.Challenge),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	if err := tryAuth(t, config); err != nil {
@@ -203,6 +208,7 @@ func TestAuthMethodRSAandDSA(t *testing.T) {
 		Auth: []AuthMethod{
 			PublicKeys(testSigners["dsa"], testSigners["rsa"]),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 	if err := tryAuth(t, config); err != nil {
 		t.Fatalf("client could not authenticate with rsa key: %v", err)
@@ -219,6 +225,7 @@ func TestClientHMAC(t *testing.T) {
 			Config: Config{
 				MACs: []string{mac},
 			},
+			HostKeyCallback: InsecureIgnoreHostKey(),
 		}
 		if err := tryAuth(t, config); err != nil {
 			t.Fatalf("client could not authenticate with mac algo %s: %v", mac, err)
@@ -254,6 +261,7 @@ func TestClientUnsupportedKex(t *testing.T) {
 		Config: Config{
 			KeyExchanges: []string{"diffie-hellman-group-exchange-sha256"}, // not currently supported
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 	if err := tryAuth(t, config); err == nil || !strings.Contains(err.Error(), "common algorithm") {
 		t.Errorf("got %v, expected 'common algorithm'", err)
@@ -273,7 +281,8 @@ func TestClientLoginCert(t *testing.T) {
 	}
 
 	clientConfig := &ClientConfig{
-		User: "user",
+		User:            "user",
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 	clientConfig.Auth = append(clientConfig.Auth, PublicKeys(certSigner))
 
@@ -363,6 +372,7 @@ func testPermissionsPassing(withPermissions bool, t *testing.T) {
 		Auth: []AuthMethod{
 			PublicKeys(testSigners["rsa"]),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 	if withPermissions {
 		clientConfig.User = "permissions"
@@ -409,6 +419,7 @@ func TestRetryableAuth(t *testing.T) {
 			}), 2),
 			PublicKeys(testSigners["rsa"]),
 		},
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	if err := tryAuth(t, config); err != nil {
@@ -430,7 +441,8 @@ func ExampleRetryableAuthMethod(t *testing.T) {
 	}
 
 	config := &ClientConfig{
-		User: user,
+		HostKeyCallback: InsecureIgnoreHostKey(),
+		User:            user,
 		Auth: []AuthMethod{
 			RetryableAuthMethod(KeyboardInteractiveChallenge(Cb), NumberOfPrompts),
 		},
@@ -450,7 +462,8 @@ func TestClientAuthNone(t *testing.T) {
 	serverConfig.AddHostKey(testSigners["rsa"])
 
 	clientConfig := &ClientConfig{
-		User: user,
+		User:            user,
+		HostKeyCallback: InsecureIgnoreHostKey(),
 	}
 
 	c1, c2, err := netPipe()

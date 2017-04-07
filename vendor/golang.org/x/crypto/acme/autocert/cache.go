@@ -5,12 +5,11 @@
 package autocert
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"golang.org/x/net/context"
 )
 
 // ErrCacheMiss is returned when a certificate is not found in cache.

@@ -17,7 +17,7 @@
 package debugger
 
 import (
-	google_protobuf "github.com/golang/protobuf/ptypes/empty"
+	emptypb "github.com/golang/protobuf/ptypes/empty"
 	clouddebuggerpb "google.golang.org/genproto/googleapis/devtools/clouddebugger/v2"
 )
 
@@ -73,12 +73,12 @@ func (s *mockDebugger2Server) GetBreakpoint(_ context.Context, req *clouddebugge
 	return s.resps[0].(*clouddebuggerpb.GetBreakpointResponse), nil
 }
 
-func (s *mockDebugger2Server) DeleteBreakpoint(_ context.Context, req *clouddebuggerpb.DeleteBreakpointRequest) (*google_protobuf.Empty, error) {
+func (s *mockDebugger2Server) DeleteBreakpoint(_ context.Context, req *clouddebuggerpb.DeleteBreakpointRequest) (*emptypb.Empty, error) {
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
 	}
-	return s.resps[0].(*google_protobuf.Empty), nil
+	return s.resps[0].(*emptypb.Empty), nil
 }
 
 func (s *mockDebugger2Server) ListBreakpoints(_ context.Context, req *clouddebuggerpb.ListBreakpointsRequest) (*clouddebuggerpb.ListBreakpointsResponse, error) {
@@ -292,7 +292,7 @@ func TestDebugger2GetBreakpointError(t *testing.T) {
 	_ = resp
 }
 func TestDebugger2DeleteBreakpoint(t *testing.T) {
-	var expectedResponse *google_protobuf.Empty = &google_protobuf.Empty{}
+	var expectedResponse *emptypb.Empty = &emptypb.Empty{}
 
 	mockDebugger2.err = nil
 	mockDebugger2.reqs = nil

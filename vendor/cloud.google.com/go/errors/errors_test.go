@@ -41,6 +41,10 @@ func (c *fakeReportErrorsClient) ReportErrorEvent(ctx context.Context, req *erpb
 	return &erpb.ReportErrorEventResponse{}, nil
 }
 
+func (c *fakeReportErrorsClient) Close() error {
+	return nil
+}
+
 func newTestClient(c *fakeReportErrorsClient) *Client {
 	newApiInterface = func(ctx context.Context, opts ...option.ClientOption) (apiInterface, error) {
 		return c, nil

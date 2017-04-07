@@ -243,9 +243,8 @@ func (f *fetcherServiceWithModifyAckDeadline) newStreamingPuller(ctx context.Con
 }
 
 func TestMultipleStopCallsBlockUntilMessageDone(t *testing.T) {
-	if useStreamingPull {
-		t.Skip("iterator tests are for polling pull only")
-	}
+	t.Skip(`This test has subtle timing dependencies, making it flaky.
+It is not worth fixing because iterators will be removed shortly.`)
 	events := make(chan string, 3)
 	s := &fetcherServiceWithModifyAckDeadline{
 		fetcherService{

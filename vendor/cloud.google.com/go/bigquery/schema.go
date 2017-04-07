@@ -98,6 +98,9 @@ func convertTableFieldSchema(tfs *bq.TableFieldSchema) *FieldSchema {
 }
 
 func convertTableSchema(ts *bq.TableSchema) Schema {
+	if ts == nil {
+		return nil
+	}
 	var s Schema
 	for _, f := range ts.Fields {
 		s = append(s, convertTableFieldSchema(f))
