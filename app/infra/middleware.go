@@ -11,8 +11,8 @@ import (
 func IsAuthenticated() app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
-			_, err := c.Cookie("auth")
-			if err != nil {
+			claims := c.Claims()
+			if claims == nil {
 				return c.NoContent(http.StatusForbidden)
 			}
 			return next(c)
@@ -27,7 +27,9 @@ func JwtGetter() app.MiddlewareFunc {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := Decode(cookie.Value); err == nil {
-					c.SetClaims(claims)
+					if claims.TenantID == c.Tenant().ID {
+						c.SetClaims(claims)
+					}
 				} else {
 					c.Logger().Error(err)
 				}

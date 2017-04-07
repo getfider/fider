@@ -54,7 +54,11 @@ func (ctx *Context) Page(dict echo.Map) error {
 
 //Claims returns authenticated user claims
 func (ctx *Context) Claims() *WechyClaims {
-	return ctx.Get(claimsContextKey).(*WechyClaims)
+	claims, ok := ctx.Get(claimsContextKey).(*WechyClaims)
+	if ok {
+		return claims
+	}
+	return nil
 }
 
 //SetClaims update HTTP context with current claims

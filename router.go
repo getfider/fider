@@ -109,9 +109,9 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	appGroup := group(router, "")
 	{
+		use(appGroup, identity.MultiTenant(ctx.Tenant))
 		use(appGroup, infra.JwtGetter())
 		use(appGroup, infra.JwtSetter())
-		use(appGroup, identity.MultiTenant(ctx.Tenant))
 
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
 		get(appGroup, "/ideas/:id", feedback.Handlers(ctx.Idea).Details())
@@ -121,10 +121,10 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	securedGroup := group(router, "")
 	{
-		use(securedGroup, infra.IsAuthenticated())
+		use(securedGroup, identity.MultiTenant(ctx.Tenant))
 		use(securedGroup, infra.JwtGetter())
 		use(securedGroup, infra.JwtSetter())
-		use(securedGroup, identity.MultiTenant(ctx.Tenant))
+		use(securedGroup, infra.IsAuthenticated())
 
 		post(securedGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())
 		post(securedGroup, "/api/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())

@@ -12,20 +12,15 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestIsAuthenticated_WithToken(t *testing.T) {
+func TestIsAuthenticated_WithClaims(t *testing.T) {
 	RegisterTestingT(t)
-
-	token, _ := infra.Encode(&app.WechyClaims{
-		UserName: "Jon Snow",
-	})
 
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.Request().AddCookie(&http.Cookie{
-		Name:  "auth",
-		Value: token,
+	c.SetClaims(&app.WechyClaims{
+		UserID: 1,
 	})
 
 	mw := infra.IsAuthenticated()
@@ -36,7 +31,7 @@ func TestIsAuthenticated_WithToken(t *testing.T) {
 	Expect(rec.Code).To(Equal(http.StatusOK))
 }
 
-func TestIsAuthenticated_WithoutToken(t *testing.T) {
+func TestIsAuthenticated_WithoutClaims(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
@@ -77,12 +72,14 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 
 	token, _ := infra.Encode(&app.WechyClaims{
 		UserName: "Jon Snow",
+		TenantID: 2,
 	})
 
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
+	c.SetTenant(&app.Tenant{ID: 2})
 	c.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
@@ -95,6 +92,35 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 
 	Expect(rec.Code).To(Equal(http.StatusOK))
 	Expect(rec.Body.String()).To(Equal("Jon Snow"))
+}
+
+func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	token, _ := infra.Encode(&app.WechyClaims{
+		UserName: "Jon Snow",
+		TenantID: 3,
+	})
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.SetTenant(&app.Tenant{ID: 2})
+	c.Request().AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: token,
+	})
+
+	mw := infra.JwtGetter()
+	mw(func(c app.Context) error {
+		if c.Claims() == nil {
+			return c.NoContent(http.StatusNoContent)
+		}
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusNoContent))
 }
 
 func TestJwtSetter_WithoutJwt(t *testing.T) {
