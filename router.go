@@ -114,7 +114,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(appGroup, infra.JwtSetter())
 
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
-		get(appGroup, "/ideas/:id", feedback.Handlers(ctx.Idea).Details())
+		get(appGroup, "/ideas/:number", feedback.Handlers(ctx.Idea).Details())
 		get(appGroup, "/logout", oauthHandlers.Logout())
 		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
 	}

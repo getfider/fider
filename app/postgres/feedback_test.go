@@ -17,8 +17,8 @@ func TestIdeaService_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #1','Description #1', $1, 300, 300)", now)
-	db.Execute("INSERT INTO ideas (title, description, created_on, tenant_id, user_id) VALUES ('Idea #2','Description #2', $1, 300, 301)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301)", now)
 
 	svc := &postgres.IdeaService{DB: db}
 	ideas, err := svc.GetAll(300)
@@ -27,10 +27,12 @@ func TestIdeaService_GetAll(t *testing.T) {
 	Expect(ideas).To(HaveLen(2))
 
 	Expect(ideas[0].Title).To(Equal("Idea #1"))
+	Expect(ideas[0].Number).To(Equal(1))
 	Expect(ideas[0].Description).To(Equal("Description #1"))
 	Expect(ideas[0].User.Name).To(Equal("Jon Snow"))
 
 	Expect(ideas[1].Title).To(Equal("Idea #2"))
+	Expect(ideas[1].Number).To(Equal(2))
 	Expect(ideas[1].Description).To(Equal("Description #2"))
 	Expect(ideas[1].User.Name).To(Equal("Arya Stark"))
 }
@@ -52,6 +54,7 @@ func TestIdeaService_SaveAndGet(t *testing.T) {
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(1))
+	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Description).To(Equal("with this description"))
 	Expect(dbIdea.User.ID).To(Equal(1))
@@ -90,4 +93,28 @@ func TestIdeaService_AddAndReturnComments(t *testing.T) {
 
 	Expect(comments[0].Content).To(Equal("Comment #2"))
 	Expect(comments[1].Content).To(Equal("Comment #1"))
+}
+
+func TestIdeaService_SaveAndGet_DifferentTenants(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	svc := &postgres.IdeaService{DB: db}
+	svc.Save(300, 300, "My new idea", "with this description")
+	svc.Save(400, 400, "My other idea", "with other description")
+
+	dbIdea, err := svc.GetByNumber(300, 1)
+
+	Expect(err).To(BeNil())
+	Expect(dbIdea.ID).To(Equal(1))
+	Expect(dbIdea.Number).To(Equal(1))
+	Expect(dbIdea.Title).To(Equal("My new idea"))
+
+	dbIdea, err = svc.GetByNumber(400, 1)
+
+	Expect(err).To(BeNil())
+	Expect(dbIdea.ID).To(Equal(2))
+	Expect(dbIdea.Number).To(Equal(1))
+	Expect(dbIdea.Title).To(Equal("My other idea"))
 }

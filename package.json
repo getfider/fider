@@ -7,8 +7,7 @@
   "scripts": {
     "build": "rm -rf dist && webpack -p",
     "build:watch": "rm -rf dist && webpack --watch",
-    "lint": "tslint public/**/**.tsx public/**/**.ts",
-    "heroku-postbuild": "npm run build"
+    "lint": "tslint public/**/**.tsx public/**/**.ts"
   },
   "dependencies": {
     "axios": "^0.16.0",

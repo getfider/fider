@@ -42,8 +42,9 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
                     <p>{ idea.description }</p>
 
                     <p>
-                      <Gravatar email={idea.user.email}/> <u>{idea.user.name}</u>
-                      &nbsp;shared <u title={idea.createdOn}>{ moment(idea.createdOn).fromNow() }</u>
+                      #{ idea.number } shared by &nbsp;
+                      <Gravatar email={idea.user.email}/> <u>{idea.user.name}</u> &nbsp;
+                      <span title={idea.createdOn}>{ moment(idea.createdOn).fromNow() }</span>
                     </p>
 
                     <div className="ui comments">

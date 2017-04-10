@@ -15,15 +15,15 @@ export class Root extends React.Component<{}, {}> {
         const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
                           <div className="content">
-                            <a href={`/ideas/${x.id}`} className="header">
-                              <i className="idea icon"></i>{ x.title }
+                            <a href={`/ideas/${x.number}`} className="header">
+                              <i className="idea icon"></i> { x.title }
                             </a>
                             <div className="description">
                               <MultiLineText text={ x.description } />
                             </div>
                             <div className="extra">
-                              <Gravatar email={x.user.email}/> <u>{x.user.name}</u>
-                              shared <u title={x.createdOn}>{ moment(x.createdOn).fromNow() }</u>
+                              #{ x.number } shared by <Gravatar email={x.user.email}/> <u>{x.user.name}</u>
+                              <span title={x.createdOn}>{ moment(x.createdOn).fromNow() }</span>
                             </div>
                           </div>
                         </div>);

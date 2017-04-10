@@ -9,6 +9,7 @@ import (
 //Idea represents an idea on a tenant board
 type Idea struct {
 	ID          int       `json:"id"`
+	Number      int       `json:"number"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	CreatedOn   time.Time `json:"createdOn"`

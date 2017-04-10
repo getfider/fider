@@ -66,12 +66,12 @@ func (h AllHandlers) Details() app.HandlerFunc {
 	return func(c app.Context) error {
 		tenant := c.Tenant()
 
-		ideaID, err := c.ParamAsInt("id")
+		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		idea, err := h.ideaService.GetByID(tenant.ID, ideaID)
+		idea, err := h.ideaService.GetByNumber(tenant.ID, number)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()

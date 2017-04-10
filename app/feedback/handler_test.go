@@ -16,8 +16,8 @@ type mockIdeaService struct {
 func NewMockIdeaService() *mockIdeaService {
 	return &mockIdeaService{
 		ideas: []*feedback.Idea{
-			&feedback.Idea{ID: 1, Title: "Idea #1"},
-			&feedback.Idea{ID: 2, Title: "Idea #2"},
+			&feedback.Idea{ID: 1, Number: 1, Title: "Idea #1"},
+			&feedback.Idea{ID: 2, Number: 2, Title: "Idea #2"},
 		},
 	}
 }
@@ -25,6 +25,15 @@ func NewMockIdeaService() *mockIdeaService {
 func (svc mockIdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
 	for _, idea := range svc.ideas {
 		if idea.ID == ideaID {
+			return idea, nil
+		}
+	}
+	return nil, app.ErrNotFound
+}
+
+func (svc mockIdeaService) GetByNumber(tenantID, number int) (*feedback.Idea, error) {
+	for _, idea := range svc.ideas {
+		if idea.Number == number {
 			return idea, nil
 		}
 	}
@@ -62,7 +71,7 @@ func TestDetailsHandler(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.SetParamNames("id")
+	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 
 	code, _ := server.Execute(feedback.Handlers(NewMockIdeaService()).Details())
@@ -75,7 +84,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.SetParamNames("id")
+	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("99")
 
 	code, _ := server.Execute(feedback.Handlers(NewMockIdeaService()).Details())
