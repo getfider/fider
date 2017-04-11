@@ -89,7 +89,6 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,
-			TenantID:  tenant.ID,
 		}
 
 		var token string

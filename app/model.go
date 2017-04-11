@@ -19,7 +19,7 @@ type User struct {
 }
 
 //HasProvider returns true if current user has given provider registered
-func (u User) HasProvider(provider string) bool {
+func (u *User) HasProvider(provider string) bool {
 	for _, p := range u.Providers {
 		if p.Name == provider {
 			return true
@@ -39,6 +39,5 @@ type WechyClaims struct {
 	UserID    int    `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`
-	TenantID  int    `json:"tenant/id"`
 	jwt.StandardClaims
 }

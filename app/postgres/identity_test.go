@@ -10,6 +10,24 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func TestUserService_GetByID(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	svc := &postgres.UserService{DB: db}
+	user, err := svc.GetByID(300)
+
+	Expect(err).To(BeNil())
+	Expect(user.ID).To(Equal(int(300)))
+	Expect(user.Name).To(Equal("Jon Snow"))
+	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(len(user.Providers)).To(Equal(1))
+	Expect(user.Providers[0].UID).To(Equal("FB1234"))
+	Expect(user.Providers[0].Name).To(Equal("facebook"))
+	Expect(user.Tenant.ID).To(Equal(300))
+}
+
 func TestUserService_GetByEmail_Error(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
@@ -37,6 +55,7 @@ func TestUserService_GetByEmail(t *testing.T) {
 	Expect(len(user.Providers)).To(Equal(1))
 	Expect(user.Providers[0].UID).To(Equal("FB1234"))
 	Expect(user.Providers[0].Name).To(Equal("facebook"))
+	Expect(user.Tenant.ID).To(Equal(300))
 }
 
 func TestUserService_GetByEmail_WrongTenant(t *testing.T) {

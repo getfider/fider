@@ -7,10 +7,8 @@ import (
 
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
 
@@ -51,15 +49,9 @@ func (p OAuthService) GetProfile(provider string, code string) (*identity.OAuthU
 	return nil, nil
 }
 
-var db *dbx.Database
-
 func handlers() identity.OAuthHandlers {
-	db, _ = dbx.New()
-
-	oauth := &OAuthService{}
-	tenant := &postgres.TenantService{DB: db}
-	user := &postgres.UserService{DB: db}
-	return identity.OAuth(tenant, oauth, user)
+	setup()
+	return identity.OAuth(tenantService, oauthService, userService)
 }
 
 func TestLoginHandler(t *testing.T) {
@@ -103,7 +95,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	Expect(db.Count("SELECT id FROM users WHERE email = 'jon.snow@got.com'")).To(Equal(1))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20iLCJ0ZW5hbnQvaWQiOjMwMH0.0sbeKMVxJ5zjm2SIS7UotDi1rsFgpEpTEe20Z3t7aNE"))
+	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
@@ -117,7 +109,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	Expect(db.Exists("SELECT * FROM user_providers WHERE provider_uid = 'FB5678'")).To(BeTrue())
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20iLCJ0ZW5hbnQvaWQiOjQwMH0.iWkpvh11QrUDJQnTk9PtqW6m48DnaHbsj-lbl6feK-Q"))
+	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.PGavs5a6HRotRozfXfNP39JPb0vSus_8LL9MAOeLGDs"))
 }
 
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
@@ -132,5 +124,5 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(db.QueryString("SELECT provider_uid FROM user_providers WHERE user_id = 300 and provider = 'google'")).To(Equal("GO1234"))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20iLCJ0ZW5hbnQvaWQiOjMwMH0.0sbeKMVxJ5zjm2SIS7UotDi1rsFgpEpTEe20Z3t7aNE"))
+	Expect(response.Header.Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
 }

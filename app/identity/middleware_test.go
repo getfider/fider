@@ -7,6 +7,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
@@ -85,4 +86,144 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	})(c)
 
 	Expect(rec.Code).To(Equal(404))
+}
+
+func TestJwtGetter_NoCookie(t *testing.T) {
+	RegisterTestingT(t)
+	setup()
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+
+	mw := identity.JwtGetter(userService)
+	mw(func(c app.Context) error {
+		if c.IsAuthenticated() {
+			return c.NoContent(http.StatusOK)
+		} else {
+			return c.NoContent(http.StatusNoContent)
+		}
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusNoContent))
+}
+
+func TestJwtGetter_WithCookie(t *testing.T) {
+	RegisterTestingT(t)
+	setup()
+
+	token, _ := infra.Encode(&app.WechyClaims{
+		UserID:   300,
+		UserName: "Jon Snow",
+	})
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.SetTenant(&app.Tenant{ID: 300})
+	c.Request().AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: token,
+	})
+
+	mw := identity.JwtGetter(userService)
+	mw(func(c app.Context) error {
+		return c.String(http.StatusOK, c.Claims().UserName)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(rec.Body.String()).To(Equal("Jon Snow"))
+}
+
+func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
+	RegisterTestingT(t)
+	setup()
+
+	token, _ := infra.Encode(&app.WechyClaims{
+		UserID:   300,
+		UserName: "Jon Snow",
+	})
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.SetTenant(&app.Tenant{ID: 400})
+	c.Request().AddCookie(&http.Cookie{
+		Name:  "auth",
+		Value: token,
+	})
+
+	mw := identity.JwtGetter(userService)
+	mw(func(c app.Context) error {
+		if c.Claims() == nil {
+			return c.NoContent(http.StatusNoContent)
+		}
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusNoContent))
+}
+
+func TestJwtSetter_WithoutJwt(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/abc", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.Request().Host = "orange.test.canhearyou.com"
+
+	mw := identity.JwtSetter()
+	mw(func(c app.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusOK))
+}
+
+func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
+	RegisterTestingT(t)
+
+	token, _ := infra.Encode(&app.WechyClaims{
+		UserName: "Jon Snow",
+	})
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/abc?jwt="+token, nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.Request().Host = "orange.test.canhearyou.com"
+
+	mw := identity.JwtSetter()
+	mw(func(c app.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(rec.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com/abc"))
+}
+
+func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
+	RegisterTestingT(t)
+
+	token, _ := infra.Encode(&app.WechyClaims{
+		UserName: "Jon Snow",
+	})
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/abc?jwt="+token+"&foo=bar", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.Request().Host = "orange.test.canhearyou.com"
+
+	mw := identity.JwtSetter()
+	mw(func(c app.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(rec.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com/abc?foo=bar"))
 }

@@ -29,7 +29,6 @@ func TestJWT_Decode(t *testing.T) {
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
-		TenantID:  2,
 	}
 
 	token, _ := infra.Encode(claims)
@@ -39,5 +38,4 @@ func TestJWT_Decode(t *testing.T) {
 	Expect(decoded.UserID).To(Equal(claims.UserID))
 	Expect(decoded.UserName).To(Equal(claims.UserName))
 	Expect(decoded.UserEmail).To(Equal(claims.UserEmail))
-	Expect(decoded.TenantID).To(Equal(claims.TenantID))
 }

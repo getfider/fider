@@ -14,12 +14,38 @@ type UserService struct {
 	DB *dbx.Database
 }
 
-// GetByEmail returns a user based on given email
-func (svc UserService) GetByEmail(tenantID int, email string) (*app.User, error) {
+// GetByID returns a user based on given id
+func (svc *UserService) GetByID(userID int) (*app.User, error) {
 	user := &app.User{}
-	row := svc.DB.QueryRow("SELECT id, name, email FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
+	user.Tenant = &app.Tenant{}
+	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id FROM users WHERE id = $1", userID)
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID); err != nil {
+		return nil, app.ErrNotFound
+	}
+
+	rows, err := svc.DB.Query("SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		p := &app.UserProvider{}
+		rows.Scan(&p.UID, &p.Name)
+		user.Providers = append(user.Providers, p)
+	}
+
+	return user, nil
+}
+
+// GetByEmail returns a user based on given email
+func (svc *UserService) GetByEmail(tenantID int, email string) (*app.User, error) {
+	user := &app.User{}
+	user.Tenant = &app.Tenant{}
+	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
+
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID); err != nil {
 		return nil, app.ErrNotFound
 	}
 
@@ -39,7 +65,7 @@ func (svc UserService) GetByEmail(tenantID int, email string) (*app.User, error)
 }
 
 // Register creates a new user based on given information
-func (svc UserService) Register(user *app.User) error {
+func (svc *UserService) Register(user *app.User) error {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return err
@@ -63,7 +89,7 @@ func (svc UserService) Register(user *app.User) error {
 }
 
 // RegisterProvider adds given provider to userID
-func (svc UserService) RegisterProvider(userID int, provider *app.UserProvider) error {
+func (svc *UserService) RegisterProvider(userID int, provider *app.UserProvider) error {
 	now := time.Now()
 	return svc.DB.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", userID, provider.Name, provider.UID, now)
 }
@@ -74,7 +100,7 @@ type TenantService struct {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc TenantService) GetByDomain(domain string) (*app.Tenant, error) {
+func (svc *TenantService) GetByDomain(domain string) (*app.Tenant, error) {
 	tenant := &app.Tenant{}
 
 	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)

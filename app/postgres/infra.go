@@ -8,7 +8,7 @@ type HealthCheckService struct {
 }
 
 // IsDatabaseOnline checks if database is online
-func (svc HealthCheckService) IsDatabaseOnline() bool {
+func (svc *HealthCheckService) IsDatabaseOnline() bool {
 	rows, err := svc.DB.Query("SELECT now()")
 	if err != nil {
 		return false
