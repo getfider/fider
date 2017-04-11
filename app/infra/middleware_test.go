@@ -12,15 +12,55 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestIsAuthenticated_WithClaims(t *testing.T) {
+func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetClaims(&app.WechyClaims{
-		UserID: 1,
+	c.SetUser(&app.User{
+		ID:   1,
+		Role: app.RoleMember,
+	})
+
+	mw := infra.IsAuthorized(app.RoleAdministrator, app.RoleMember)
+	mw(func(c app.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusOK))
+}
+
+func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.SetUser(&app.User{
+		ID:   1,
+		Role: app.RoleVisitor,
+	})
+
+	mw := infra.IsAuthorized(app.RoleAdministrator, app.RoleMember)
+	mw(func(c app.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusForbidden))
+}
+
+func TestIsAuthenticated_WithUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.SetUser(&app.User{
+		ID: 1,
 	})
 
 	mw := infra.IsAuthenticated()
@@ -31,7 +71,7 @@ func TestIsAuthenticated_WithClaims(t *testing.T) {
 	Expect(rec.Code).To(Equal(http.StatusOK))
 }
 
-func TestIsAuthenticated_WithoutClaims(t *testing.T) {
+func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()

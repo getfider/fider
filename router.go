@@ -119,15 +119,28 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
 	}
 
-	securedGroup := group(router, "")
+	securedGroup := group(router, "/api")
 	{
 		use(securedGroup, identity.MultiTenant(ctx.Tenant))
 		use(securedGroup, identity.JwtGetter(ctx.User))
 		use(securedGroup, identity.JwtSetter())
 		use(securedGroup, infra.IsAuthenticated())
 
-		post(securedGroup, "/api/ideas", feedback.Handlers(ctx.Idea).PostIdea())
-		post(securedGroup, "/api/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
+		post(securedGroup, "/ideas", feedback.Handlers(ctx.Idea).PostIdea())
+		post(securedGroup, "/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
+	}
+
+	adminGroup := group(router, "/admin")
+	{
+		use(adminGroup, identity.MultiTenant(ctx.Tenant))
+		use(adminGroup, identity.JwtGetter(ctx.User))
+		use(adminGroup, identity.JwtSetter())
+		use(adminGroup, infra.IsAuthenticated())
+		use(adminGroup, infra.IsAuthorized(app.RoleMember, app.RoleAdministrator))
+
+		get(adminGroup, "", func(ctx app.Context) error {
+			return ctx.HTML(http.StatusOK, "Welcome to Admin Page :)")
+		})
 	}
 
 	return router

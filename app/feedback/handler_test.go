@@ -97,7 +97,7 @@ func TestDetailsHandler_AddIdea(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.Set("__CTX_CLAIMS", &app.WechyClaims{UserID: 1, UserName: "Jon"})
+	server.Context.Set("__CTX_USER", &app.User{ID: 1, Name: "Jon"})
 	handler := feedback.Handlers(NewMockIdeaService()).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "My newest idea :)" }`)
 
@@ -109,7 +109,7 @@ func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.Set("__CTX_CLAIMS", &app.WechyClaims{UserID: 1, UserName: "Jon"})
+	server.Context.Set("__CTX_USER", &app.User{ID: 1, Name: "Jon"})
 	handler := feedback.Handlers(NewMockIdeaService()).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "" }`)
 
@@ -121,7 +121,7 @@ func TestDetailsHandler_AddComment(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.Set("__CTX_CLAIMS", &app.WechyClaims{UserID: 1, UserName: "Jon"})
+	server.Context.Set("__CTX_USER", &app.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
 	handler := feedback.Handlers(NewMockIdeaService()).PostComment()
@@ -135,7 +135,7 @@ func TestDetailsHandler_AddComment_WithoutContent(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &app.Tenant{ID: 2, Name: "Any Tenant"})
-	server.Context.Set("__CTX_CLAIMS", &app.WechyClaims{UserID: 1, UserName: "Jon"})
+	server.Context.Set("__CTX_USER", &app.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
 	handler := feedback.Handlers(NewMockIdeaService()).PostComment()

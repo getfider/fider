@@ -19,6 +19,21 @@ func IsAuthenticated() app.MiddlewareFunc {
 	}
 }
 
+// IsAuthorized blocks non-authorized requests
+func IsAuthorized(roles ...app.Role) app.MiddlewareFunc {
+	return func(next app.HandlerFunc) app.HandlerFunc {
+		return func(c app.Context) error {
+			user := c.User()
+			for _, role := range roles {
+				if user.Role == role {
+					return next(c)
+				}
+			}
+			return c.NoContent(http.StatusForbidden)
+		}
+	}
+}
+
 // HostChecker checks for a specific host
 func HostChecker(baseURL string) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {

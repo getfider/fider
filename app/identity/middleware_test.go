@@ -130,7 +130,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 
 	mw := identity.JwtGetter(userService)
 	mw(func(c app.Context) error {
-		return c.String(http.StatusOK, c.Claims().UserName)
+		return c.String(http.StatusOK, c.User().Name)
 	})(c)
 
 	Expect(rec.Code).To(Equal(http.StatusOK))
@@ -158,7 +158,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 
 	mw := identity.JwtGetter(userService)
 	mw(func(c app.Context) error {
-		if c.Claims() == nil {
+		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)
 		}
 		return c.NoContent(http.StatusOK)
