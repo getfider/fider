@@ -75,12 +75,8 @@ func use(group *echo.Group, mw app.MiddlewareFunc) {
 	group.Use(wrapMiddleware(mw))
 }
 
-func group(router *echo.Echo, name string, middlewares ...app.MiddlewareFunc) *echo.Group {
-	var mw []echo.MiddlewareFunc
-	for _, m := range middlewares {
-		mw = append(mw, wrapMiddleware(m))
-	}
-	return router.Group(name, mw...)
+func group(router *echo.Echo, name string) *echo.Group {
+	return router.Group(name)
 }
 
 // GetMainEngine returns main HTTP engine
@@ -93,14 +89,17 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
-	assetsGroup := group(router, "/assets", app.OneYearCache())
+	assetsGroup := group(router, "/assets")
 	{
+		use(assetsGroup, app.OneYearCache())
 		assetsGroup.Static("/", "dist")
 	}
 
 	oauthHandlers := identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
-	authGroup := group(router, "/oauth", infra.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+	authGroup := group(router, "/oauth")
 	{
+		use(authGroup, infra.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+
 		get(authGroup, "/facebook", oauthHandlers.Login(identity.OAuthFacebookProvider))
 		get(authGroup, "/facebook/callback", oauthHandlers.Callback(identity.OAuthFacebookProvider))
 		get(authGroup, "/google", oauthHandlers.Login(identity.OAuthGoogleProvider))
