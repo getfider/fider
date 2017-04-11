@@ -43,7 +43,7 @@ func TestIdeaService_SaveAndGet(t *testing.T) {
 	defer db.Close()
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
 	svc := &postgres.IdeaService{DB: db}
 	idea, err := svc.Save(1, 1, "My new idea", "with this description")
@@ -80,7 +80,7 @@ func TestIdeaService_AddAndReturnComments(t *testing.T) {
 	defer db.Close()
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	db.Execute("INSERT INTO users (name, email, created_on) VALUES ('Jon Snow','jon.snow@got.com', now())")
+	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
 	svc := &postgres.IdeaService{DB: db}
 	idea, _ := svc.Save(1, 1, "My new idea", "with this description")

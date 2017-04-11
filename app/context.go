@@ -10,7 +10,7 @@ import (
 var (
 	preffixKey       = "__CTX_"
 	tenantContextKey = preffixKey + "TENANT"
-	claimsContextKey = preffixKey + "CLAIMS"
+	userContextKey   = preffixKey + "USER"
 )
 
 //Context wraps echo.context to provide userful WeCHY information
@@ -34,7 +34,7 @@ func (ctx *Context) SetTenant(tenant *Tenant) {
 
 //IsAuthenticated returns true if user is authenticated
 func (ctx *Context) IsAuthenticated() bool {
-	return ctx.Get(claimsContextKey) != nil
+	return ctx.Get(userContextKey) != nil
 }
 
 //NotFound returns a 404 page
@@ -52,18 +52,18 @@ func (ctx *Context) Page(dict echo.Map) error {
 	return ctx.Render(200, "index.html", dict)
 }
 
-//Claims returns authenticated user claims
-func (ctx *Context) Claims() *WechyClaims {
-	claims, ok := ctx.Get(claimsContextKey).(*WechyClaims)
+//User returns authenticated user
+func (ctx *Context) User() *User {
+	user, ok := ctx.Get(userContextKey).(*User)
 	if ok {
-		return claims
+		return user
 	}
 	return nil
 }
 
-//SetClaims update HTTP context with current claims
-func (ctx *Context) SetClaims(claims *WechyClaims) {
-	ctx.Set(claimsContextKey, claims)
+//SetUser update HTTP context with current user
+func (ctx *Context) SetUser(claims *User) {
+	ctx.Set(userContextKey, claims)
 }
 
 //ParamAsInt returns parameter as int

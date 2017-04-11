@@ -60,6 +60,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 					Name:   oauthUser.Name,
 					Tenant: tenant,
 					Email:  oauthUser.Email,
+					Role:   app.RoleVisitor,
 					Providers: []*app.UserProvider{
 						&app.UserProvider{
 							UID:  oauthUser.ID,

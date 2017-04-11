@@ -11,7 +11,7 @@ import (
 func IsAuthenticated() app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
-			if c.Claims() == nil {
+			if c.User() == nil {
 				return c.NoContent(http.StatusForbidden)
 			}
 			return next(c)

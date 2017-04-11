@@ -15,8 +15,21 @@ type User struct {
 	Name      string          `json:"name"`
 	Email     string          `json:"email"`
 	Tenant    *Tenant         `json:"tenant"`
+	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"providers"`
 }
+
+//Role represents what the user can do inside its tenant
+type Role int
+
+var (
+	//RoleVisitor is the basic role for every user
+	RoleVisitor = Role(1)
+	//RoleMember has limited access to administrative console
+	RoleMember = Role(2)
+	//RoleAdministrator has full access to administrative console
+	RoleAdministrator = Role(3)
+)
 
 //HasProvider returns true if current user has given provider registered
 func (u *User) HasProvider(provider string) bool {

@@ -33,7 +33,7 @@ func JwtGetter(userService UserService) app.MiddlewareFunc {
 				if claims, err := infra.Decode(cookie.Value); err == nil {
 					if user, err := userService.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
-							c.SetClaims(claims)
+							c.SetUser(user)
 						}
 					}
 				} else {

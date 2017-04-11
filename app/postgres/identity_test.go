@@ -82,6 +82,7 @@ func TestUserService_Register(t *testing.T) {
 		Tenant: &app.Tenant{
 			ID: 300,
 		},
+		Role: app.RoleMember,
 		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",
@@ -95,6 +96,7 @@ func TestUserService_Register(t *testing.T) {
 	user, err = svc.GetByEmail(300, "rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
+	Expect(user.Role).To(Equal(app.RoleMember))
 	Expect(user.Name).To(Equal("Rob Stark"))
 	Expect(user.Email).To(Equal("rob.stark@got.com"))
 }
@@ -113,6 +115,7 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 		Tenant: &app.Tenant{
 			ID: 1,
 		},
+		Role: app.RoleMember,
 		Providers: []*app.UserProvider{
 			{
 				UID:  "123123123",

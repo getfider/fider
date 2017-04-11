@@ -50,7 +50,7 @@ func (h AllHandlers) PostIdea() app.HandlerFunc {
 			})
 		}
 
-		idea, err := h.ideaService.Save(c.Tenant().ID, c.Claims().UserID, input.Title, input.Description)
+		idea, err := h.ideaService.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -114,7 +114,7 @@ func (h AllHandlers) PostComment() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		id, err := h.ideaService.AddComment(c.Claims().UserID, ideaID, input.Content)
+		id, err := h.ideaService.AddComment(c.User().ID, ideaID, input.Content)
 		if err != nil {
 			return c.Failure(err)
 		}

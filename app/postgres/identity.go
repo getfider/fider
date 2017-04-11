@@ -18,9 +18,9 @@ type UserService struct {
 func (svc *UserService) GetByID(userID int) (*app.User, error) {
 	user := &app.User{}
 	user.Tenant = &app.Tenant{}
-	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id FROM users WHERE id = $1", userID)
+	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id, role FROM users WHERE id = $1", userID)
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID, &user.Role); err != nil {
 		return nil, app.ErrNotFound
 	}
 
@@ -43,9 +43,9 @@ func (svc *UserService) GetByID(userID int) (*app.User, error) {
 func (svc *UserService) GetByEmail(tenantID int, email string) (*app.User, error) {
 	user := &app.User{}
 	user.Tenant = &app.Tenant{}
-	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
+	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id, role FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID, &user.Role); err != nil {
 		return nil, app.ErrNotFound
 	}
 
@@ -73,7 +73,7 @@ func (svc *UserService) Register(user *app.User) error {
 
 	now := time.Now()
 
-	if err = tx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id) VALUES ($1, $2, $3, $4) RETURNING id", user.Name, user.Email, now, user.Tenant.ID).Scan(&user.ID); err != nil {
+	if err = tx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id", user.Name, user.Email, now, user.Tenant.ID, user.Role).Scan(&user.ID); err != nil {
 		tx.Rollback()
 		return err
 	}
