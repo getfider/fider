@@ -2,7 +2,7 @@ package infra
 
 import (
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 

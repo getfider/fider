@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
 )
 

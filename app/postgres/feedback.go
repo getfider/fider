@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 )
 
 // IdeaService contains read and write operations for ideas

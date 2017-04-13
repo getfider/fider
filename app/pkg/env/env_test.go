@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	. "github.com/onsi/gomega"
 )
 

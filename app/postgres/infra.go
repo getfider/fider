@@ -1,6 +1,6 @@
 package postgres
 
-import "github.com/WeCanHearYou/wechy/app/dbx"
+import "github.com/WeCanHearYou/wechy/app/pkg/dbx"
 
 // HealthCheckService is a simple general purpose health check service
 type HealthCheckService struct {

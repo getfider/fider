@@ -3,7 +3,7 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )

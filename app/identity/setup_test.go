@@ -1,7 +1,7 @@
 package identity_test
 
 import (
-	"github.com/WeCanHearYou/wechy/app/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 )
 

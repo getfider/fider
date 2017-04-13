@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/WeCanHearYou/wechy/app/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/postgres"
-	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	_ "github.com/mattes/migrate/driver/postgres"
 	mig "github.com/mattes/migrate/migrate"
 

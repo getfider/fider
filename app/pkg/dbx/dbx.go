@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 
-	"github.com/WeCanHearYou/wechy/app/toolbox/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 
 	//required
 	_ "github.com/lib/pq"
@@ -19,7 +19,7 @@ func New() (*Database, error) {
 
 	db := &Database{conn}
 	if env.IsTest() {
-		db.load("/app/dbx/setup.sql")
+		db.load("/app/pkg/dbx/setup.sql")
 	}
 	return db, nil
 }
