@@ -6,13 +6,11 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/feedback"
-	"github.com/WeCanHearYou/wechy/app/identity"
-	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/handlers"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -98,7 +96,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		assetsGroup.Static("/", "dist")
 	}
 
-	oauthHandlers := identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
+	oauthHandlers := handlers.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
 	authGroup := group(router, "/oauth")
 	{
 		use(authGroup, middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
@@ -115,10 +113,10 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(appGroup, middlewares.JwtGetter(ctx.User))
 		use(appGroup, middlewares.JwtSetter())
 
-		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
-		get(appGroup, "/ideas/:number", feedback.Handlers(ctx.Idea).Details())
+		get(appGroup, "/", handlers.Handlers(ctx.Idea).List())
+		get(appGroup, "/ideas/:number", handlers.Handlers(ctx.Idea).Details())
 		get(appGroup, "/logout", oauthHandlers.Logout())
-		get(appGroup, "/api/status", infra.Status(ctx.Settings))
+		get(appGroup, "/api/status", handlers.Status(ctx.Settings))
 	}
 
 	securedGroup := group(router, "/api")
@@ -128,8 +126,8 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(securedGroup, middlewares.JwtSetter())
 		use(securedGroup, middlewares.IsAuthenticated())
 
-		post(securedGroup, "/ideas", feedback.Handlers(ctx.Idea).PostIdea())
-		post(securedGroup, "/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
+		post(securedGroup, "/ideas", handlers.Handlers(ctx.Idea).PostIdea())
+		post(securedGroup, "/ideas/:id/comments", handlers.Handlers(ctx.Idea).PostComment())
 	}
 
 	adminGroup := group(router, "/admin")

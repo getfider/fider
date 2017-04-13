@@ -1,4 +1,4 @@
-package identity_test
+package handlers_test
 
 import (
 	"testing"
@@ -7,10 +7,10 @@ import (
 
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/handlers"
 	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
@@ -67,16 +67,16 @@ func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 	return nil, nil
 }
 
-func handlers() identity.OAuthHandlers {
+func getHandlers() handlers.OAuthHandlers {
 	setup()
-	return identity.OAuth(TenantStorage, oauthService, UserStorage)
+	return handlers.OAuth(TenantStorage, oauthService, UserStorage)
 }
 
 func TestLoginHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	code, response := server.ExecuteRaw(handlers().Login(oauth.FacebookProvider))
+	code, response := server.ExecuteRaw(getHandlers().Login(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canherayou.com/oauth/token?provider=facebook&redirect="))
@@ -87,7 +87,7 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=abc")
-	code, _ := server.ExecuteRaw(handlers().Callback(oauth.FacebookProvider))
+	code, _ := server.ExecuteRaw(getHandlers().Callback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusInternalServerError))
 }
@@ -97,7 +97,7 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com")
-	code, response := server.ExecuteRaw(handlers().Callback(oauth.FacebookProvider))
+	code, response := server.ExecuteRaw(getHandlers().Callback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header.Get("Location")).To(Equal("http://orange.test.canhearyou.com"))
@@ -108,7 +108,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
-	code, response := server.ExecuteRaw(handlers().Callback(oauth.FacebookProvider))
+	code, response := server.ExecuteRaw(getHandlers().Callback(oauth.FacebookProvider))
 
 	Expect(db.Count("SELECT id FROM users WHERE email = 'jon.snow@got.com'")).To(Equal(1))
 
@@ -121,7 +121,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com&code=456")
-	code, response := server.ExecuteRaw(handlers().Callback(oauth.FacebookProvider))
+	code, response := server.ExecuteRaw(getHandlers().Callback(oauth.FacebookProvider))
 
 	Expect(db.QueryInt("SELECT tenant_id FROM users WHERE email = 'some.guy@facebook.com'")).To(Equal(400))
 	Expect(db.Exists("SELECT * FROM user_providers WHERE provider_uid = 'FB5678'")).To(BeTrue())
@@ -135,7 +135,7 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
-	code, response := server.ExecuteRaw(handlers().Callback(oauth.GoogleProvider))
+	code, response := server.ExecuteRaw(getHandlers().Callback(oauth.GoogleProvider))
 
 	Expect(db.Count("SELECT id FROM users WHERE email = 'jon.snow@got.com'")).To(Equal(1))
 	Expect(db.QueryString("SELECT provider_uid FROM user_providers WHERE user_id = 300 and provider = 'facebook'")).To(Equal("FB1234"))

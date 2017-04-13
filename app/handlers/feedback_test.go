@@ -1,10 +1,10 @@
-package feedback_test
+package handlers_test
 
 import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/feedback"
+	"github.com/WeCanHearYou/wechy/app/handlers"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	. "github.com/onsi/gomega"
@@ -62,7 +62,7 @@ func TestListHandler(t *testing.T) {
 
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 2, Name: "Any Tenant"})
-	code, _ := server.Execute(feedback.Handlers(NewMockIdeaStorage()).List())
+	code, _ := server.Execute(handlers.Handlers(NewMockIdeaStorage()).List())
 
 	Expect(code).To(Equal(200))
 }
@@ -75,7 +75,7 @@ func TestDetailsHandler(t *testing.T) {
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 
-	code, _ := server.Execute(feedback.Handlers(NewMockIdeaStorage()).Details())
+	code, _ := server.Execute(handlers.Handlers(NewMockIdeaStorage()).Details())
 
 	Expect(code).To(Equal(200))
 }
@@ -88,7 +88,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("99")
 
-	code, _ := server.Execute(feedback.Handlers(NewMockIdeaStorage()).Details())
+	code, _ := server.Execute(handlers.Handlers(NewMockIdeaStorage()).Details())
 
 	Expect(code).To(Equal(404))
 }
@@ -99,7 +99,7 @@ func TestDetailsHandler_AddIdea(t *testing.T) {
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 2, Name: "Any Tenant"})
 	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
-	handler := feedback.Handlers(NewMockIdeaStorage()).PostIdea()
+	handler := handlers.Handlers(NewMockIdeaStorage()).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "My newest idea :)" }`)
 
 	Expect(code).To(Equal(200))
@@ -111,7 +111,7 @@ func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {
 	server := mock.NewServer()
 	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 2, Name: "Any Tenant"})
 	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
-	handler := feedback.Handlers(NewMockIdeaStorage()).PostIdea()
+	handler := handlers.Handlers(NewMockIdeaStorage()).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "" }`)
 
 	Expect(code).To(Equal(400))
@@ -125,7 +125,7 @@ func TestDetailsHandler_AddComment(t *testing.T) {
 	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
-	handler := feedback.Handlers(NewMockIdeaStorage()).PostComment()
+	handler := handlers.Handlers(NewMockIdeaStorage()).PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "This is a comment!" }`)
 
 	Expect(code).To(Equal(200))
@@ -139,7 +139,7 @@ func TestDetailsHandler_AddComment_WithoutContent(t *testing.T) {
 	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
-	handler := feedback.Handlers(NewMockIdeaStorage()).PostComment()
+	handler := handlers.Handlers(NewMockIdeaStorage()).PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "" }`)
 
 	Expect(code).To(Equal(400))

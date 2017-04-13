@@ -1,4 +1,4 @@
-package identity
+package handlers
 
 import (
 	"net/http"
