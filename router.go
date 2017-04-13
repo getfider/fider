@@ -9,6 +9,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/feedback"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
@@ -99,7 +100,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	oauthHandlers := identity.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
 	authGroup := group(router, "/oauth")
 	{
-		use(authGroup, infra.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+		use(authGroup, middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 
 		get(authGroup, "/facebook", oauthHandlers.Login(identity.OAuthFacebookProvider))
 		get(authGroup, "/facebook/callback", oauthHandlers.Callback(identity.OAuthFacebookProvider))
@@ -109,9 +110,9 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	appGroup := group(router, "")
 	{
-		use(appGroup, identity.MultiTenant(ctx.Tenant))
-		use(appGroup, identity.JwtGetter(ctx.User))
-		use(appGroup, identity.JwtSetter())
+		use(appGroup, middlewares.MultiTenant(ctx.Tenant))
+		use(appGroup, middlewares.JwtGetter(ctx.User))
+		use(appGroup, middlewares.JwtSetter())
 
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
 		get(appGroup, "/ideas/:number", feedback.Handlers(ctx.Idea).Details())
@@ -121,10 +122,10 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	securedGroup := group(router, "/api")
 	{
-		use(securedGroup, identity.MultiTenant(ctx.Tenant))
-		use(securedGroup, identity.JwtGetter(ctx.User))
-		use(securedGroup, identity.JwtSetter())
-		use(securedGroup, infra.IsAuthenticated())
+		use(securedGroup, middlewares.MultiTenant(ctx.Tenant))
+		use(securedGroup, middlewares.JwtGetter(ctx.User))
+		use(securedGroup, middlewares.JwtSetter())
+		use(securedGroup, middlewares.IsAuthenticated())
 
 		post(securedGroup, "/ideas", feedback.Handlers(ctx.Idea).PostIdea())
 		post(securedGroup, "/ideas/:id/comments", feedback.Handlers(ctx.Idea).PostComment())
@@ -132,11 +133,11 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 
 	adminGroup := group(router, "/admin")
 	{
-		use(adminGroup, identity.MultiTenant(ctx.Tenant))
-		use(adminGroup, identity.JwtGetter(ctx.User))
-		use(adminGroup, identity.JwtSetter())
-		use(adminGroup, infra.IsAuthenticated())
-		use(adminGroup, infra.IsAuthorized(models.RoleMember, models.RoleAdministrator))
+		use(adminGroup, middlewares.MultiTenant(ctx.Tenant))
+		use(adminGroup, middlewares.JwtGetter(ctx.User))
+		use(adminGroup, middlewares.JwtSetter())
+		use(adminGroup, middlewares.IsAuthenticated())
+		use(adminGroup, middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
 		get(adminGroup, "", func(ctx app.Context) error {
 			return ctx.HTML(http.StatusOK, "Welcome to Admin Page :)")

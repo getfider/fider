@@ -1,4 +1,4 @@
-package infra
+package middlewares
 
 import (
 	"net/http"

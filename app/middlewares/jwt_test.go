@@ -1,4 +1,4 @@
-package identity_test
+package middlewares_test
 
 import (
 	"net/http"
@@ -6,10 +6,12 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/WeCanHearYou/wechy/app/postgres"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
@@ -38,6 +40,19 @@ var testCases = []struct {
 	},
 }
 
+var (
+	db            *dbx.Database
+	tenantService *postgres.TenantService
+	userService   *postgres.UserService
+)
+
+func setup() {
+	db, _ = dbx.New()
+
+	tenantService = &postgres.TenantService{DB: db}
+	userService = &postgres.UserService{DB: db}
+}
+
 type mockTenantService struct{}
 
 func (svc mockTenantService) GetByDomain(domain string) (*models.Tenant, error) {
@@ -61,7 +76,7 @@ func TestMultiTenant(t *testing.T) {
 			c := server.NewContext(req, rec)
 			c.Request().Host = host
 
-			mw := identity.MultiTenant(&mockTenantService{})
+			mw := middlewares.MultiTenant(&mockTenantService{})
 			mw(func(c app.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})(c)
@@ -81,7 +96,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "somedomain.com"
 
-	mw := identity.MultiTenant(&mockTenantService{})
+	mw := middlewares.MultiTenant(&mockTenantService{})
 	mw(func(c app.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})(c)
@@ -98,7 +113,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
 
-	mw := identity.JwtGetter(userService)
+	mw := middlewares.JwtGetter(userService)
 	mw(func(c app.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
@@ -129,7 +144,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 		Value: token,
 	})
 
-	mw := identity.JwtGetter(userService)
+	mw := middlewares.JwtGetter(userService)
 	mw(func(c app.Context) error {
 		return c.String(http.StatusOK, c.User().Name)
 	})(c)
@@ -157,7 +172,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 		Value: token,
 	})
 
-	mw := identity.JwtGetter(userService)
+	mw := middlewares.JwtGetter(userService)
 	mw(func(c app.Context) error {
 		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)
@@ -177,7 +192,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := middlewares.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -198,7 +213,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := middlewares.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -220,7 +235,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := identity.JwtSetter()
+	mw := middlewares.JwtSetter()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)

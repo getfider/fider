@@ -1,4 +1,4 @@
-package infra_test
+package middlewares_test
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/labstack/echo"
@@ -25,7 +25,7 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 		Role: models.RoleMember,
 	})
 
-	mw := infra.IsAuthorized(models.RoleAdministrator, models.RoleMember)
+	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -45,7 +45,7 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 		Role: models.RoleVisitor,
 	})
 
-	mw := infra.IsAuthorized(models.RoleAdministrator, models.RoleMember)
+	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -64,7 +64,7 @@ func TestIsAuthenticated_WithUser(t *testing.T) {
 		ID: 1,
 	})
 
-	mw := infra.IsAuthenticated()
+	mw := middlewares.IsAuthenticated()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -80,7 +80,7 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
 
-	mw := infra.IsAuthenticated()
+	mw := middlewares.IsAuthenticated()
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -97,7 +97,7 @@ func TestHostChecker(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "login.test.canhearyou.com"
 
-	mw := infra.HostChecker("http://login.test.canhearyou.com")
+	mw := middlewares.HostChecker("http://login.test.canhearyou.com")
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -114,7 +114,7 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "orange.test.canhearyou.com"
 
-	mw := infra.HostChecker("login.test.canhearyou.com")
+	mw := middlewares.HostChecker("login.test.canhearyou.com")
 	mw(app.HandlerFunc(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	}))(c)

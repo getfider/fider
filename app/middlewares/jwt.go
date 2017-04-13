@@ -1,14 +1,16 @@
-package identity
+package middlewares
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenantService TenantService) app.MiddlewareFunc {
+func MultiTenant(tenantService identity.TenantService) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
 			hostname := stripPort(c.Request().Host)
@@ -25,7 +27,7 @@ func MultiTenant(tenantService TenantService) app.MiddlewareFunc {
 }
 
 // JwtGetter gets JWT token from cookie and add into context
-func JwtGetter(userService UserService) app.MiddlewareFunc {
+func JwtGetter(userService identity.UserService) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
 
@@ -81,4 +83,12 @@ func JwtSetter() app.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func stripPort(hostport string) string {
+	colon := strings.IndexByte(hostport, ':')
+	if colon == -1 {
+		return hostport
+	}
+	return hostport[:colon]
 }
