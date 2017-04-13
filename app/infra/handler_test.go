@@ -5,6 +5,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
+	"github.com/WeCanHearYou/wechy/app/models"
 	. "github.com/onsi/gomega"
 )
 
@@ -18,7 +19,7 @@ func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	service := &falsyHealthCheckService{}
-	settings := &infra.WechySettings{
+	settings := &models.WechySettings{
 		BuildTime: "today",
 	}
 

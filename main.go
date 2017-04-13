@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
-	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	_ "github.com/mattes/migrate/driver/postgres"
@@ -47,7 +47,7 @@ func main() {
 		Idea:   &postgres.IdeaService{DB: db},
 		User:   &postgres.UserService{DB: db},
 		Tenant: &postgres.TenantService{DB: db},
-		Settings: &infra.WechySettings{
+		Settings: &models.WechySettings{
 			BuildTime:    buildtime,
 			Version:      version,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),

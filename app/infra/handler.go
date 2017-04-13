@@ -6,17 +6,18 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
 )
 
 type statusHandler struct {
 	healthService HealthCheckService
-	settings      *WechySettings
+	settings      *models.WechySettings
 }
 
 // Status creates a new Status HTTP handler
-func Status(healthService HealthCheckService, settings *WechySettings) app.HandlerFunc {
+func Status(healthService HealthCheckService, settings *models.WechySettings) app.HandlerFunc {
 	return statusHandler{healthService, settings}.get()
 }
 

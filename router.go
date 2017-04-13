@@ -24,7 +24,7 @@ type WechyServices struct {
 	Tenant   identity.TenantService
 	Idea     feedback.IdeaService
 	Health   infra.HealthCheckService
-	Settings *infra.WechySettings
+	Settings *models.WechySettings
 }
 
 func errorHandler(e error, c echo.Context) {
