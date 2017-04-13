@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
@@ -129,7 +129,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterTestingT(t)
 	setup()
 
-	token, _ := infra.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.WechyClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
@@ -157,7 +157,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
 	setup()
 
-	token, _ := infra.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.WechyClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
@@ -203,7 +203,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := infra.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -225,7 +225,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := infra.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.WechyClaims{
 		UserName: "Jon Snow",
 	})
 

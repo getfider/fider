@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
@@ -96,7 +96,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		}
 
 		var token string
-		if token, err = infra.Encode(claims); err != nil {
+		if token, err = jwt.Encode(claims); err != nil {
 			c.Logger().Errorf("Encoding claims failed with %s", err)
 			return c.Failure(err)
 		}

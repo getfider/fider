@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
@@ -32,7 +32,7 @@ func JwtGetter(users storage.User) app.MiddlewareFunc {
 		return func(c app.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
-				if claims, err := infra.Decode(cookie.Value); err == nil {
+				if claims, err := jwt.Decode(cookie.Value); err == nil {
 					if user, err := users.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
 							c.SetUser(user)

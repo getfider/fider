@@ -1,10 +1,10 @@
-package infra_test
+package jwt_test
 
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	. "github.com/onsi/gomega"
 )
 
@@ -17,7 +17,7 @@ func TestJWT_Encode(t *testing.T) {
 		UserEmail: "jon.snow@got.com",
 	}
 
-	token, err := infra.Encode(claims)
+	token, err := jwt.Encode(claims)
 	Expect(token).NotTo(BeNil())
 	Expect(err).To(BeNil())
 }
@@ -31,9 +31,9 @@ func TestJWT_Decode(t *testing.T) {
 		UserEmail: "jon.snow@got.com",
 	}
 
-	token, _ := infra.Encode(claims)
+	token, _ := jwt.Encode(claims)
 
-	decoded, err := infra.Decode(token)
+	decoded, err := jwt.Decode(token)
 	Expect(err).To(BeNil())
 	Expect(decoded.UserID).To(Equal(claims.UserID))
 	Expect(decoded.UserName).To(Equal(claims.UserName))
