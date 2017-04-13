@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/labstack/echo"
 )
 
@@ -19,8 +20,8 @@ type Context struct {
 }
 
 //Tenant returns current tenant
-func (ctx *Context) Tenant() *Tenant {
-	tenant, ok := ctx.Get(tenantContextKey).(*Tenant)
+func (ctx *Context) Tenant() *models.Tenant {
+	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant
 	}
@@ -28,7 +29,7 @@ func (ctx *Context) Tenant() *Tenant {
 }
 
 //SetTenant update HTTP context with current tenant
-func (ctx *Context) SetTenant(tenant *Tenant) {
+func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -53,8 +54,8 @@ func (ctx *Context) Page(dict echo.Map) error {
 }
 
 //User returns authenticated user
-func (ctx *Context) User() *User {
-	user, ok := ctx.Get(userContextKey).(*User)
+func (ctx *Context) User() *models.User {
+	user, ok := ctx.Get(userContextKey).(*models.User)
 	if ok {
 		return user
 	}
@@ -62,7 +63,7 @@ func (ctx *Context) User() *User {
 }
 
 //SetUser update HTTP context with current user
-func (ctx *Context) SetUser(claims *User) {
+func (ctx *Context) SetUser(claims *models.User) {
 	ctx.Set(userContextKey, claims)
 }
 

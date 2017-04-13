@@ -3,9 +3,9 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/dbx"
 	"github.com/WeCanHearYou/wechy/app/identity"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/postgres"
 	. "github.com/onsi/gomega"
 )
@@ -76,14 +76,14 @@ func TestUserService_Register(t *testing.T) {
 	defer db.Close()
 
 	svc := &postgres.UserService{DB: db}
-	user := &app.User{
+	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
-		Tenant: &app.Tenant{
+		Tenant: &models.Tenant{
 			ID: 300,
 		},
-		Role: app.RoleMember,
-		Providers: []*app.UserProvider{
+		Role: models.RoleMember,
+		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
 				Name: identity.OAuthFacebookProvider,
@@ -96,7 +96,7 @@ func TestUserService_Register(t *testing.T) {
 	user, err = svc.GetByEmail(300, "rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
-	Expect(user.Role).To(Equal(app.RoleMember))
+	Expect(user.Role).To(Equal(models.RoleMember))
 	Expect(user.Name).To(Equal("Rob Stark"))
 	Expect(user.Email).To(Equal("rob.stark@got.com"))
 }
@@ -109,14 +109,14 @@ func TestUserService_Register_MultipleProviders(t *testing.T) {
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 
 	svc := &postgres.UserService{DB: db}
-	user := &app.User{
+	user := &models.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
-		Tenant: &app.Tenant{
+		Tenant: &models.Tenant{
 			ID: 1,
 		},
-		Role: app.RoleMember,
-		Providers: []*app.UserProvider{
+		Role: models.RoleMember,
+		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
 				Name: identity.OAuthFacebookProvider,

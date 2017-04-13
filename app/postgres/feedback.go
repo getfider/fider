@@ -5,7 +5,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/dbx"
-	"github.com/WeCanHearYou/wechy/app/feedback"
+	"github.com/WeCanHearYou/wechy/app/models"
 )
 
 // IdeaService contains read and write operations for ideas
@@ -14,7 +14,7 @@ type IdeaService struct {
 }
 
 // GetAll returns all tenant ideas
-func (svc *IdeaService) GetAll(tenantID int) ([]*feedback.Idea, error) {
+func (svc *IdeaService) GetAll(tenantID int) ([]*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -26,9 +26,9 @@ func (svc *IdeaService) GetAll(tenantID int) ([]*feedback.Idea, error) {
 	}
 
 	defer rows.Close()
-	var ideas []*feedback.Idea
+	var ideas []*models.Idea
 	for rows.Next() {
-		idea := &feedback.Idea{}
+		idea := &models.Idea{}
 		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
 		ideas = append(ideas, idea)
 	}
@@ -37,7 +37,7 @@ func (svc *IdeaService) GetAll(tenantID int) ([]*feedback.Idea, error) {
 }
 
 // GetByID returns idea by given id
-func (svc *IdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
+func (svc *IdeaService) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -51,7 +51,7 @@ func (svc *IdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
 
 	defer rows.Close()
 	if rows.Next() {
-		idea := &feedback.Idea{}
+		idea := &models.Idea{}
 		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
 		return idea, nil
 	}
@@ -59,7 +59,7 @@ func (svc *IdeaService) GetByID(tenantID, ideaID int) (*feedback.Idea, error) {
 }
 
 // GetByNumber returns idea by tenant and number
-func (svc *IdeaService) GetByNumber(tenantID, number int) (*feedback.Idea, error) {
+func (svc *IdeaService) GetByNumber(tenantID, number int) (*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -73,7 +73,7 @@ func (svc *IdeaService) GetByNumber(tenantID, number int) (*feedback.Idea, error
 
 	defer rows.Close()
 	if rows.Next() {
-		idea := &feedback.Idea{}
+		idea := &models.Idea{}
 		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
 		return idea, nil
 	}
@@ -81,7 +81,7 @@ func (svc *IdeaService) GetByNumber(tenantID, number int) (*feedback.Idea, error
 }
 
 // GetCommentsByIdeaID returns all coments from given idea
-func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*feedback.Comment, error) {
+func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
 	rows, err := svc.DB.Query(`SELECT c.id, c.content, c.created_on, u.id, u.name, u.email
 								FROM comments c
 								INNER JOIN ideas i
@@ -96,9 +96,9 @@ func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*feedback.C
 	}
 
 	defer rows.Close()
-	var comments []*feedback.Comment
+	var comments []*models.Comment
 	for rows.Next() {
-		c := &feedback.Comment{}
+		c := &models.Comment{}
 		rows.Scan(&c.ID, &c.Content, &c.CreatedOn, &c.User.ID, &c.User.Name, &c.User.Email)
 		comments = append(comments, c)
 	}
@@ -107,13 +107,13 @@ func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*feedback.C
 }
 
 // Save a new idea in the database
-func (svc *IdeaService) Save(tenantID, userID int, title, description string) (*feedback.Idea, error) {
+func (svc *IdeaService) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	idea := new(feedback.Idea)
+	idea := new(models.Idea)
 	idea.Title = title
 	idea.Description = description
 

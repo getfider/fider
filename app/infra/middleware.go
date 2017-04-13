@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/models"
 )
 
 // IsAuthenticated blocks non-authenticated requests
@@ -20,7 +21,7 @@ func IsAuthenticated() app.MiddlewareFunc {
 }
 
 // IsAuthorized blocks non-authorized requests
-func IsAuthorized(roles ...app.Role) app.MiddlewareFunc {
+func IsAuthorized(roles ...models.Role) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
 			user := c.User()

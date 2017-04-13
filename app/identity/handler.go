@@ -8,6 +8,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/models"
 )
 
 type oauthUserProfile struct {
@@ -56,13 +57,13 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 		user, err := h.userService.GetByEmail(tenant.ID, oauthUser.Email)
 		if err != nil {
 			if err == app.ErrNotFound {
-				user = &app.User{
+				user = &models.User{
 					Name:   oauthUser.Name,
 					Tenant: tenant,
 					Email:  oauthUser.Email,
-					Role:   app.RoleVisitor,
-					Providers: []*app.UserProvider{
-						&app.UserProvider{
+					Role:   models.RoleVisitor,
+					Providers: []*models.UserProvider{
+						&models.UserProvider{
 							UID:  oauthUser.ID,
 							Name: provider,
 						},
@@ -77,7 +78,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = h.userService.RegisterProvider(user.ID, &app.UserProvider{
+			err = h.userService.RegisterProvider(user.ID, &models.UserProvider{
 				UID:  oauthUser.ID,
 				Name: provider,
 			})
@@ -86,7 +87,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			}
 		}
 
-		claims := &app.WechyClaims{
+		claims := &models.WechyClaims{
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,

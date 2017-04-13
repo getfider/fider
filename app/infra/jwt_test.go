@@ -3,15 +3,15 @@ package infra_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/models"
 	. "github.com/onsi/gomega"
 )
 
 func TestJWT_Encode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &app.WechyClaims{
+	claims := &models.WechyClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -25,7 +25,7 @@ func TestJWT_Encode(t *testing.T) {
 func TestJWT_Decode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &app.WechyClaims{
+	claims := &models.WechyClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",

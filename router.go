@@ -9,6 +9,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/feedback"
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/toolbox/env"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -135,7 +136,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(adminGroup, identity.JwtGetter(ctx.User))
 		use(adminGroup, identity.JwtSetter())
 		use(adminGroup, infra.IsAuthenticated())
-		use(adminGroup, infra.IsAuthorized(app.RoleMember, app.RoleAdministrator))
+		use(adminGroup, infra.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
 		get(adminGroup, "", func(ctx app.Context) error {
 			return ctx.HTML(http.StatusOK, "Welcome to Admin Page :)")

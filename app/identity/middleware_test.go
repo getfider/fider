@@ -9,18 +9,19 @@ import (
 	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
 var testCases = []struct {
 	domain string
-	tenant *app.Tenant
+	tenant *models.Tenant
 	hosts  []string
 }{
 	{
 		"orange.test.canhearyou.com",
-		&app.Tenant{Name: "The Orange Inc."},
+		&models.Tenant{Name: "The Orange Inc."},
 		[]string{
 			"orange.test.canhearyou.com",
 			"orange.test.canhearyou.com:3000",
@@ -28,7 +29,7 @@ var testCases = []struct {
 	},
 	{
 		"trishop.test.canhearyou.com",
-		&app.Tenant{Name: "The Triathlon Shop"},
+		&models.Tenant{Name: "The Triathlon Shop"},
 		[]string{
 			"trishop.test.canhearyou.com",
 			"trishop.test.canhearyou.com:1231",
@@ -39,7 +40,7 @@ var testCases = []struct {
 
 type mockTenantService struct{}
 
-func (svc mockTenantService) GetByDomain(domain string) (*app.Tenant, error) {
+func (svc mockTenantService) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, testCase := range testCases {
 		if testCase.domain == domain {
 			return testCase.tenant, nil
@@ -113,7 +114,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterTestingT(t)
 	setup()
 
-	token, _ := infra.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&models.WechyClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
@@ -122,7 +123,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetTenant(&app.Tenant{ID: 300})
+	c.SetTenant(&models.Tenant{ID: 300})
 	c.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
@@ -141,7 +142,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
 	setup()
 
-	token, _ := infra.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&models.WechyClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
@@ -150,7 +151,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetTenant(&app.Tenant{ID: 400})
+	c.SetTenant(&models.Tenant{ID: 400})
 	c.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
@@ -187,7 +188,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := infra.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&models.WechyClaims{
 		UserName: "Jon Snow",
 	})
 
@@ -209,7 +210,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := infra.Encode(&app.WechyClaims{
+	token, _ := infra.Encode(&models.WechyClaims{
 		UserName: "Jon Snow",
 	})
 

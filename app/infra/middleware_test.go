@@ -8,6 +8,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/mock"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
@@ -19,12 +20,12 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetUser(&app.User{
+	c.SetUser(&models.User{
 		ID:   1,
-		Role: app.RoleMember,
+		Role: models.RoleMember,
 	})
 
-	mw := infra.IsAuthorized(app.RoleAdministrator, app.RoleMember)
+	mw := infra.IsAuthorized(models.RoleAdministrator, models.RoleMember)
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -39,12 +40,12 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetUser(&app.User{
+	c.SetUser(&models.User{
 		ID:   1,
-		Role: app.RoleVisitor,
+		Role: models.RoleVisitor,
 	})
 
-	mw := infra.IsAuthorized(app.RoleAdministrator, app.RoleMember)
+	mw := infra.IsAuthorized(models.RoleAdministrator, models.RoleMember)
 	mw(func(c app.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
@@ -59,7 +60,7 @@ func TestIsAuthenticated_WithUser(t *testing.T) {
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetUser(&app.User{
+	c.SetUser(&models.User{
 		ID: 1,
 	})
 
