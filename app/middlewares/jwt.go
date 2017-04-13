@@ -4,15 +4,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenants storage.Tenant) app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func MultiTenant(tenants storage.Tenant) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 			hostname := stripPort(c.Request().Host)
 			tenant, err := tenants.GetByDomain(hostname)
 			if err == nil {
@@ -27,9 +27,9 @@ func MultiTenant(tenants storage.Tenant) app.MiddlewareFunc {
 }
 
 // JwtGetter gets JWT token from cookie and add into context
-func JwtGetter(users storage.User) app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func JwtGetter(users storage.User) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := jwt.Decode(cookie.Value); err == nil {
@@ -49,9 +49,9 @@ func JwtGetter(users storage.User) app.MiddlewareFunc {
 }
 
 // JwtSetter sets JWT token into cookie
-func JwtSetter() app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func JwtSetter() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 
 			query := c.Request().URL.Query()
 

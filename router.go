@@ -5,12 +5,12 @@ import (
 
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/handlers"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -49,30 +49,30 @@ func createLogger() echo.Logger {
 	return logger
 }
 
-func wrapFunc(handler app.HandlerFunc) echo.HandlerFunc {
+func wrapFunc(handler web.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := app.Context{Context: c}
+		ctx := web.Context{Context: c}
 		return handler(ctx)
 	}
 }
 
-func wrapMiddleware(mw app.MiddlewareFunc) echo.MiddlewareFunc {
+func wrapMiddleware(mw web.MiddlewareFunc) echo.MiddlewareFunc {
 	return func(h echo.HandlerFunc) echo.HandlerFunc {
-		return wrapFunc(mw(func(c app.Context) error {
+		return wrapFunc(mw(func(c web.Context) error {
 			return h(c)
 		}))
 	}
 }
 
-func get(group *echo.Group, path string, handler app.HandlerFunc) {
+func get(group *echo.Group, path string, handler web.HandlerFunc) {
 	group.GET(path, wrapFunc(handler))
 }
 
-func post(group *echo.Group, path string, handler app.HandlerFunc) {
+func post(group *echo.Group, path string, handler web.HandlerFunc) {
 	group.POST(path, wrapFunc(handler))
 }
 
-func use(group *echo.Group, mw app.MiddlewareFunc) {
+func use(group *echo.Group, mw web.MiddlewareFunc) {
 	group.Use(wrapMiddleware(mw))
 }
 
@@ -85,14 +85,14 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	router := echo.New()
 
 	router.Logger = createLogger()
-	router.Renderer = app.NewHTMLRenderer(router.Logger)
+	router.Renderer = web.NewHTMLRenderer(router.Logger)
 	router.HTTPErrorHandler = errorHandler
 
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
 	assetsGroup := group(router, "/assets")
 	{
-		use(assetsGroup, app.OneYearCache())
+		use(assetsGroup, middlewares.OneYearCache())
 		assetsGroup.Static("/", "dist")
 	}
 
@@ -138,7 +138,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		use(adminGroup, middlewares.IsAuthenticated())
 		use(adminGroup, middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
-		get(adminGroup, "", func(ctx app.Context) error {
+		get(adminGroup, "", func(ctx web.Context) error {
 			return ctx.HTML(http.StatusOK, "Welcome to Admin Page :)")
 		})
 	}

@@ -5,9 +5,9 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/labstack/echo"
 )
 
@@ -16,12 +16,12 @@ type statusHandler struct {
 }
 
 // Status creates a new Status HTTP handler
-func Status(settings *models.WechySettings) app.HandlerFunc {
+func Status(settings *models.WechySettings) web.HandlerFunc {
 	return statusHandler{settings}.get()
 }
 
-func (h statusHandler) get() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h statusHandler) get() web.HandlerFunc {
+	return func(c web.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
 			"build":    h.settings.BuildTime,
 			"version":  h.settings.Version,

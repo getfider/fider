@@ -9,7 +9,7 @@ import (
 
 	"fmt"
 
-	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/jmoiron/jsonq"
 	"github.com/labstack/echo"
 )
@@ -25,7 +25,7 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := echo.New()
-	engine.Renderer = app.NewHTMLRenderer(engine.Logger)
+	engine.Renderer = web.NewHTMLRenderer(engine.Logger)
 	engine.HTTPErrorHandler = func(e error, c echo.Context) {
 		fmt.Println(e)
 		c.NoContent(e.(*echo.HTTPError).Code)
@@ -43,14 +43,14 @@ func NewServer() *Server {
 }
 
 // NewContext creates a new HTTP context
-func (s *Server) NewContext(req *http.Request, w http.ResponseWriter) app.Context {
+func (s *Server) NewContext(req *http.Request, w http.ResponseWriter) web.Context {
 	c := s.engine.NewContext(req, w)
-	return app.Context{Context: c}
+	return web.Context{Context: c}
 }
 
 // Execute given handler and return response as JSON
-func (s *Server) Execute(handler app.HandlerFunc) (int, *jsonq.JsonQuery) {
-	ctx := app.Context{Context: s.Context}
+func (s *Server) Execute(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
+	ctx := web.Context{Context: s.Context}
 	if err := handler(ctx); err != nil {
 		s.engine.HTTPErrorHandler(err, ctx)
 	}
@@ -59,8 +59,8 @@ func (s *Server) Execute(handler app.HandlerFunc) (int, *jsonq.JsonQuery) {
 }
 
 // ExecutePost executes given handler with posted JSON
-func (s *Server) ExecutePost(handler app.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
-	ctx := app.Context{Context: s.Context}
+func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
+	ctx := web.Context{Context: s.Context}
 
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
 	req.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -86,8 +86,8 @@ func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
 }
 
 // ExecuteRaw executes given handler and return raw response
-func (s *Server) ExecuteRaw(handler app.HandlerFunc) (int, *http.Response) {
-	ctx := app.Context{Context: s.Context}
+func (s *Server) ExecuteRaw(handler web.HandlerFunc) (int, *http.Response) {
+	ctx := web.Context{Context: s.Context}
 	if err := handler(ctx); err != nil {
 		s.engine.HTTPErrorHandler(err, ctx)
 	}

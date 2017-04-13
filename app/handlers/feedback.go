@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
 )
@@ -19,8 +20,8 @@ func Handlers(ideas storage.Idea) AllHandlers {
 }
 
 // List all tenant ideas
-func (h AllHandlers) List() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h AllHandlers) List() web.HandlerFunc {
+	return func(c web.Context) error {
 		ideas, err := h.ideas.GetAll(c.Tenant().ID)
 		if err != nil {
 			return c.Failure(err)
@@ -38,8 +39,8 @@ type newIdeaInput struct {
 }
 
 // PostIdea creates a new idea on current tenant
-func (h AllHandlers) PostIdea() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h AllHandlers) PostIdea() web.HandlerFunc {
+	return func(c web.Context) error {
 		input := new(newIdeaInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
@@ -63,8 +64,8 @@ func (h AllHandlers) PostIdea() app.HandlerFunc {
 }
 
 // Details shows details of given Idea by id
-func (h AllHandlers) Details() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h AllHandlers) Details() web.HandlerFunc {
+	return func(c web.Context) error {
 		tenant := c.Tenant()
 
 		number, err := c.ParamAsInt("number")
@@ -97,8 +98,8 @@ type newCommentInput struct {
 }
 
 // PostComment creates a new comment on given idea
-func (h AllHandlers) PostComment() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h AllHandlers) PostComment() web.HandlerFunc {
+	return func(c web.Context) error {
 		input := new(newCommentInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)

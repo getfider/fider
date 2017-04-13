@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 )
 
 // IsAuthenticated blocks non-authenticated requests
-func IsAuthenticated() app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func IsAuthenticated() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 			if c.User() == nil {
 				return c.NoContent(http.StatusForbidden)
 			}
@@ -21,9 +21,9 @@ func IsAuthenticated() app.MiddlewareFunc {
 }
 
 // IsAuthorized blocks non-authorized requests
-func IsAuthorized(roles ...models.Role) app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func IsAuthorized(roles ...models.Role) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 			user := c.User()
 			for _, role := range roles {
 				if user.Role == role {
@@ -36,9 +36,9 @@ func IsAuthorized(roles ...models.Role) app.MiddlewareFunc {
 }
 
 // HostChecker checks for a specific host
-func HostChecker(baseURL string) app.MiddlewareFunc {
-	return func(next app.HandlerFunc) app.HandlerFunc {
-		return func(c app.Context) error {
+func HostChecker(baseURL string) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
 			u, err := url.Parse(baseURL)
 			if err != nil {
 				return c.Failure(err)

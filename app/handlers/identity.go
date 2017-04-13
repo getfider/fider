@@ -10,6 +10,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
@@ -32,8 +33,8 @@ func OAuth(tenantStorage storage.Tenant, oauthService oauth.Service, userStorage
 }
 
 // Callback handles OAuth callbacks
-func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
-	return func(c app.Context) error {
+func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
+	return func(c web.Context) error {
 
 		redirect := c.QueryParam("state")
 		redirectURL, err := url.ParseRequestURI(redirect)
@@ -109,16 +110,16 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 }
 
 // Login handles OAuth logins
-func (h OAuthHandlers) Login(provider string) app.HandlerFunc {
-	return func(c app.Context) error {
+func (h OAuthHandlers) Login(provider string) web.HandlerFunc {
+	return func(c web.Context) error {
 		authURL := h.oauthService.GetAuthURL(provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }
 
 // Logout remove auth cookies
-func (h OAuthHandlers) Logout() app.HandlerFunc {
-	return func(c app.Context) error {
+func (h OAuthHandlers) Logout() web.HandlerFunc {
+	return func(c web.Context) error {
 		c.SetCookie(&http.Cookie{
 			Name:    "auth",
 			MaxAge:  -1,

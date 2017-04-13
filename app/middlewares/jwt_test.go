@@ -11,6 +11,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
@@ -77,7 +78,7 @@ func TestMultiTenant(t *testing.T) {
 			c.Request().Host = host
 
 			mw := middlewares.MultiTenant(&mockTenantStorage{})
-			mw(func(c app.Context) error {
+			mw(func(c web.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})(c)
 
@@ -97,7 +98,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	c.Request().Host = "somedomain.com"
 
 	mw := middlewares.MultiTenant(&mockTenantStorage{})
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})(c)
 
@@ -114,7 +115,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 	c := server.NewContext(req, rec)
 
 	mw := middlewares.JwtGetter(UserStorage)
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
 		} else {
@@ -145,7 +146,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	})
 
 	mw := middlewares.JwtGetter(UserStorage)
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.String(http.StatusOK, c.User().Name)
 	})(c)
 
@@ -173,7 +174,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	})
 
 	mw := middlewares.JwtGetter(UserStorage)
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)
 		}
@@ -193,7 +194,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	c.Request().Host = "orange.test.canhearyou.com"
 
 	mw := middlewares.JwtSetter()
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -214,7 +215,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	c.Request().Host = "orange.test.canhearyou.com"
 
 	mw := middlewares.JwtSetter()
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -236,7 +237,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	c.Request().Host = "orange.test.canhearyou.com"
 
 	mw := middlewares.JwtSetter()
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 

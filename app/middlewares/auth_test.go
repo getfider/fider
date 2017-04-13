@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
@@ -26,7 +26,7 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	})
 
 	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -46,7 +46,7 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	})
 
 	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -65,7 +65,7 @@ func TestIsAuthenticated_WithUser(t *testing.T) {
 	})
 
 	mw := middlewares.IsAuthenticated()
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -81,7 +81,7 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	c := server.NewContext(req, rec)
 
 	mw := middlewares.IsAuthenticated()
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -98,7 +98,7 @@ func TestHostChecker(t *testing.T) {
 	c.Request().Host = "login.test.canhearyou.com"
 
 	mw := middlewares.HostChecker("http://login.test.canhearyou.com")
-	mw(func(c app.Context) error {
+	mw(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})(c)
 
@@ -115,7 +115,7 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	c.Request().Host = "orange.test.canhearyou.com"
 
 	mw := middlewares.HostChecker("login.test.canhearyou.com")
-	mw(app.HandlerFunc(func(c app.Context) error {
+	mw(web.HandlerFunc(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	}))(c)
 
