@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
@@ -42,7 +42,7 @@ func main() {
 	}
 
 	ctx := &WechyServices{
-		OAuth:  &identity.HTTPOAuthService{},
+		OAuth:  &oauth.HTTPService{},
 		Idea:   &postgres.IdeaStorage{DB: db},
 		User:   &postgres.UserStorage{DB: db},
 		Tenant: &postgres.TenantStorage{DB: db},

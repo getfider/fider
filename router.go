@@ -11,6 +11,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
@@ -20,7 +21,7 @@ import (
 
 // WechyServices holds reference to all Wechy services
 type WechyServices struct {
-	OAuth    identity.OAuthService
+	OAuth    oauth.Service
 	User     storage.User
 	Tenant   storage.Tenant
 	Idea     storage.Idea
@@ -102,10 +103,10 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 	{
 		use(authGroup, middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 
-		get(authGroup, "/facebook", oauthHandlers.Login(identity.OAuthFacebookProvider))
-		get(authGroup, "/facebook/callback", oauthHandlers.Callback(identity.OAuthFacebookProvider))
-		get(authGroup, "/google", oauthHandlers.Login(identity.OAuthGoogleProvider))
-		get(authGroup, "/google/callback", oauthHandlers.Callback(identity.OAuthGoogleProvider))
+		get(authGroup, "/facebook", oauthHandlers.Login(oauth.FacebookProvider))
+		get(authGroup, "/facebook/callback", oauthHandlers.Callback(oauth.FacebookProvider))
+		get(authGroup, "/google", oauthHandlers.Login(oauth.GoogleProvider))
+		get(authGroup, "/google/callback", oauthHandlers.Callback(oauth.GoogleProvider))
 	}
 
 	appGroup := group(router, "")

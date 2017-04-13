@@ -3,8 +3,8 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	. "github.com/onsi/gomega"
@@ -86,7 +86,7 @@ func TestUserStorage_Register(t *testing.T) {
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
-				Name: identity.OAuthFacebookProvider,
+				Name: oauth.FacebookProvider,
 			},
 		},
 	}
@@ -119,11 +119,11 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
-				Name: identity.OAuthFacebookProvider,
+				Name: oauth.FacebookProvider,
 			},
 			{
 				UID:  "456456456",
-				Name: identity.OAuthGoogleProvider,
+				Name: oauth.GoogleProvider,
 			},
 		},
 	}

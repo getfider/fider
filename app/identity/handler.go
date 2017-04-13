@@ -9,6 +9,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
@@ -21,12 +22,12 @@ type oauthUserProfile struct {
 // OAuthHandlers contains multiple oauth HTTP handlers
 type OAuthHandlers struct {
 	tenantStorage storage.Tenant
-	oauthService  OAuthService
+	oauthService  oauth.Service
 	userStorage   storage.User
 }
 
 // OAuth creates a new OAuthHandlers
-func OAuth(tenantStorage storage.Tenant, oauthService OAuthService, userStorage storage.User) OAuthHandlers {
+func OAuth(tenantStorage storage.Tenant, oauthService oauth.Service, userStorage storage.User) OAuthHandlers {
 	return OAuthHandlers{tenantStorage, oauthService, userStorage}
 }
 

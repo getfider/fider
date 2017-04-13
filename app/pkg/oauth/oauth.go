@@ -1,4 +1,4 @@
-package identity
+package oauth
 
 import (
 	"encoding/json"
@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	//OAuthFacebookProvider is const for 'facebook'
-	OAuthFacebookProvider = "facebook"
-	//OAuthGoogleProvider is const for 'google'
-	OAuthGoogleProvider = "google"
+	//FacebookProvider is const for 'facebook'
+	FacebookProvider = "facebook"
+	//GoogleProvider is const for 'google'
+	GoogleProvider = "google"
 )
 
 type oauthProviderSettings struct {
@@ -30,7 +30,7 @@ type oauthProviderSettings struct {
 var (
 	authEndpoint  = os.Getenv("AUTH_ENDPOINT")
 	oauthSettings = map[string]*oauthProviderSettings{
-		OAuthFacebookProvider: &oauthProviderSettings{
+		FacebookProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
 			},
@@ -42,7 +42,7 @@ var (
 				Endpoint:     facebook.Endpoint,
 			},
 		},
-		OAuthGoogleProvider: &oauthProviderSettings{
+		GoogleProvider: &oauthProviderSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + url.QueryEscape(token.AccessToken)
 			},
@@ -75,24 +75,24 @@ func doGet(url string, v interface{}) error {
 	return json.Unmarshal(bytes, v)
 }
 
-//OAuthUserProfile represents an OAuth user profile
-type OAuthUserProfile struct {
+//UserProfile represents an OAuth user profile
+type UserProfile struct {
 	ID    string
 	Name  string
 	Email string
 }
 
-//OAuthService provides OAuth operations
-type OAuthService interface {
+//Service provides OAuth operations
+type Service interface {
 	GetAuthURL(provider string, redirect string) string
-	GetProfile(provider string, code string) (*OAuthUserProfile, error)
+	GetProfile(provider string, code string) (*UserProfile, error)
 }
 
-//HTTPOAuthService implements real OAuth operations using Golang's oauth2 package
-type HTTPOAuthService struct{}
+//HTTPService implements real OAuth operations using Golang's oauth2 package
+type HTTPService struct{}
 
 //GetAuthURL returns authentication url for given provider
-func (p HTTPOAuthService) GetAuthURL(provider string, redirect string) string {
+func (p *HTTPService) GetAuthURL(provider string, redirect string) string {
 	config := oauthSettings[provider].config
 
 	authURL, _ := url.Parse(config.Endpoint.AuthURL)
@@ -107,14 +107,14 @@ func (p HTTPOAuthService) GetAuthURL(provider string, redirect string) string {
 }
 
 //GetProfile returns user profile based on provider and code
-func (p HTTPOAuthService) GetProfile(provider string, code string) (*OAuthUserProfile, error) {
+func (p *HTTPService) GetProfile(provider string, code string) (*UserProfile, error) {
 	settings := oauthSettings[provider]
 	oauthToken, err := settings.config.Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, fmt.Errorf("OAuth code Exchange for %s failed with %s", provider, err)
 	}
 
-	profile := &OAuthUserProfile{}
+	profile := &UserProfile{}
 	if err = doGet(settings.profileURL(oauthToken), profile); err != nil {
 		return nil, fmt.Errorf("HTTP Get profile for %s failed with %s", provider, err)
 	}
