@@ -8,13 +8,13 @@ import (
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 )
 
-// IdeaService contains read and write operations for ideas
-type IdeaService struct {
+// IdeaStorage contains read and write operations for ideas
+type IdeaStorage struct {
 	DB *dbx.Database
 }
 
 // GetAll returns all tenant ideas
-func (svc *IdeaService) GetAll(tenantID int) ([]*models.Idea, error) {
+func (svc *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -37,7 +37,7 @@ func (svc *IdeaService) GetAll(tenantID int) ([]*models.Idea, error) {
 }
 
 // GetByID returns idea by given id
-func (svc *IdeaService) GetByID(tenantID, ideaID int) (*models.Idea, error) {
+func (svc *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -59,7 +59,7 @@ func (svc *IdeaService) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 }
 
 // GetByNumber returns idea by tenant and number
-func (svc *IdeaService) GetByNumber(tenantID, number int) (*models.Idea, error) {
+func (svc *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
 	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
 								FROM ideas i
 								INNER JOIN users u
@@ -81,7 +81,7 @@ func (svc *IdeaService) GetByNumber(tenantID, number int) (*models.Idea, error) 
 }
 
 // GetCommentsByIdeaID returns all coments from given idea
-func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
+func (svc *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
 	rows, err := svc.DB.Query(`SELECT c.id, c.content, c.created_on, u.id, u.name, u.email
 								FROM comments c
 								INNER JOIN ideas i
@@ -107,7 +107,7 @@ func (svc *IdeaService) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Com
 }
 
 // Save a new idea in the database
-func (svc *IdeaService) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
+func (svc *IdeaStorage) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (svc *IdeaService) Save(tenantID, userID int, title, description string) (*
 }
 
 // AddComment places a new comment on an idea
-func (svc *IdeaService) AddComment(userID, ideaID int, content string) (int, error) {
+func (svc *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return 0, err

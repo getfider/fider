@@ -12,6 +12,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
@@ -20,10 +21,9 @@ import (
 // WechyServices holds reference to all Wechy services
 type WechyServices struct {
 	OAuth    identity.OAuthService
-	User     identity.UserService
-	Tenant   identity.TenantService
-	Idea     feedback.IdeaService
-	Health   infra.HealthCheckService
+	User     storage.User
+	Tenant   storage.Tenant
+	Idea     storage.Idea
 	Settings *models.WechySettings
 }
 
@@ -117,7 +117,7 @@ func GetMainEngine(ctx *WechyServices) *echo.Echo {
 		get(appGroup, "/", feedback.Handlers(ctx.Idea).List())
 		get(appGroup, "/ideas/:number", feedback.Handlers(ctx.Idea).Details())
 		get(appGroup, "/logout", oauthHandlers.Logout())
-		get(appGroup, "/api/status", infra.Status(ctx.Health, ctx.Settings))
+		get(appGroup, "/api/status", infra.Status(ctx.Settings))
 	}
 
 	securedGroup := group(router, "/api")

@@ -4,23 +4,24 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/storage"
 	"github.com/labstack/echo"
 )
 
 // AllHandlers contains multiple feedback HTTP handlers
 type AllHandlers struct {
-	ideaService IdeaService
+	ideas storage.Idea
 }
 
 // Handlers handles feedback based page
-func Handlers(ideaService IdeaService) AllHandlers {
-	return AllHandlers{ideaService}
+func Handlers(ideas storage.Idea) AllHandlers {
+	return AllHandlers{ideas}
 }
 
 // List all tenant ideas
 func (h AllHandlers) List() app.HandlerFunc {
 	return func(c app.Context) error {
-		ideas, err := h.ideaService.GetAll(c.Tenant().ID)
+		ideas, err := h.ideas.GetAll(c.Tenant().ID)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -50,7 +51,7 @@ func (h AllHandlers) PostIdea() app.HandlerFunc {
 			})
 		}
 
-		idea, err := h.ideaService.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
+		idea, err := h.ideas.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -71,7 +72,7 @@ func (h AllHandlers) Details() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		idea, err := h.ideaService.GetByNumber(tenant.ID, number)
+		idea, err := h.ideas.GetByNumber(tenant.ID, number)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -79,7 +80,7 @@ func (h AllHandlers) Details() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := h.ideaService.GetCommentsByIdeaID(tenant.ID, idea.ID)
+		comments, err := h.ideas.GetCommentsByIdeaID(tenant.ID, idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -114,7 +115,7 @@ func (h AllHandlers) PostComment() app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		id, err := h.ideaService.AddComment(c.User().ID, ideaID, input.Content)
+		id, err := h.ideas.AddComment(c.User().ID, ideaID, input.Content)
 		if err != nil {
 			return c.Failure(err)
 		}

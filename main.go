@@ -5,7 +5,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
-	"github.com/WeCanHearYou/wechy/app/postgres"
+	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	_ "github.com/mattes/migrate/driver/postgres"
 	mig "github.com/mattes/migrate/migrate"
 
@@ -43,10 +43,9 @@ func main() {
 
 	ctx := &WechyServices{
 		OAuth:  &identity.HTTPOAuthService{},
-		Health: &postgres.HealthCheckService{DB: db},
-		Idea:   &postgres.IdeaService{DB: db},
-		User:   &postgres.UserService{DB: db},
-		Tenant: &postgres.TenantService{DB: db},
+		Idea:   &postgres.IdeaStorage{DB: db},
+		User:   &postgres.UserStorage{DB: db},
+		Tenant: &postgres.TenantStorage{DB: db},
 		Settings: &models.WechySettings{
 			BuildTime:    buildtime,
 			Version:      version,

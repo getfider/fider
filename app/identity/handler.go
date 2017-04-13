@@ -9,6 +9,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/infra"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
 type oauthUserProfile struct {
@@ -19,14 +20,14 @@ type oauthUserProfile struct {
 
 // OAuthHandlers contains multiple oauth HTTP handlers
 type OAuthHandlers struct {
-	tenantService TenantService
+	tenantStorage storage.Tenant
 	oauthService  OAuthService
-	userService   UserService
+	userStorage   storage.User
 }
 
 // OAuth creates a new OAuthHandlers
-func OAuth(tenantService TenantService, oauthService OAuthService, userService UserService) OAuthHandlers {
-	return OAuthHandlers{tenantService, oauthService, userService}
+func OAuth(tenantStorage storage.Tenant, oauthService OAuthService, userStorage storage.User) OAuthHandlers {
+	return OAuthHandlers{tenantStorage, oauthService, userStorage}
 }
 
 // Callback handles OAuth callbacks
@@ -44,7 +45,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect)
 		}
 
-		tenant, err := h.tenantService.GetByDomain(stripPort(redirectURL.Host))
+		tenant, err := h.tenantStorage.GetByDomain(stripPort(redirectURL.Host))
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -54,7 +55,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		user, err := h.userService.GetByEmail(tenant.ID, oauthUser.Email)
+		user, err := h.userStorage.GetByEmail(tenant.ID, oauthUser.Email)
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &models.User{
@@ -70,7 +71,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 					},
 				}
 
-				err = h.userService.Register(user)
+				err = h.userStorage.Register(user)
 				if err != nil {
 					return c.Failure(err)
 				}
@@ -78,7 +79,7 @@ func (h OAuthHandlers) Callback(provider string) app.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = h.userService.RegisterProvider(user.ID, &models.UserProvider{
+			err = h.userStorage.RegisterProvider(user.ID, &models.UserProvider{
 				UID:  oauthUser.ID,
 				Name: provider,
 			})

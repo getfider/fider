@@ -5,16 +5,16 @@ import (
 	"strings"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/identity"
 	"github.com/WeCanHearYou/wechy/app/infra"
+	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenantService identity.TenantService) app.MiddlewareFunc {
+func MultiTenant(tenants storage.Tenant) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
 			hostname := stripPort(c.Request().Host)
-			tenant, err := tenantService.GetByDomain(hostname)
+			tenant, err := tenants.GetByDomain(hostname)
 			if err == nil {
 				c.SetTenant(tenant)
 				return next(c)
@@ -27,13 +27,13 @@ func MultiTenant(tenantService identity.TenantService) app.MiddlewareFunc {
 }
 
 // JwtGetter gets JWT token from cookie and add into context
-func JwtGetter(userService identity.UserService) app.MiddlewareFunc {
+func JwtGetter(users storage.User) app.MiddlewareFunc {
 	return func(next app.HandlerFunc) app.HandlerFunc {
 		return func(c app.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := infra.Decode(cookie.Value); err == nil {
-					if user, err := userService.GetByID(claims.UserID); err == nil {
+					if user, err := users.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
 							c.SetUser(user)
 						}

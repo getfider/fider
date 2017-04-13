@@ -51,7 +51,7 @@ func (p OAuthService) GetProfile(provider string, code string) (*identity.OAuthU
 
 func handlers() identity.OAuthHandlers {
 	setup()
-	return identity.OAuth(tenantService, oauthService, userService)
+	return identity.OAuth(TenantStorage, oauthService, UserStorage)
 }
 
 func TestLoginHandler(t *testing.T) {

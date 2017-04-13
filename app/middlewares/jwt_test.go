@@ -11,7 +11,7 @@ import (
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
-	"github.com/WeCanHearYou/wechy/app/postgres"
+	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
@@ -42,20 +42,20 @@ var testCases = []struct {
 
 var (
 	db            *dbx.Database
-	tenantService *postgres.TenantService
-	userService   *postgres.UserService
+	TenantStorage *postgres.TenantStorage
+	UserStorage   *postgres.UserStorage
 )
 
 func setup() {
 	db, _ = dbx.New()
 
-	tenantService = &postgres.TenantService{DB: db}
-	userService = &postgres.UserService{DB: db}
+	TenantStorage = &postgres.TenantStorage{DB: db}
+	UserStorage = &postgres.UserStorage{DB: db}
 }
 
-type mockTenantService struct{}
+type mockTenantStorage struct{}
 
-func (svc mockTenantService) GetByDomain(domain string) (*models.Tenant, error) {
+func (svc mockTenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, testCase := range testCases {
 		if testCase.domain == domain {
 			return testCase.tenant, nil
@@ -76,7 +76,7 @@ func TestMultiTenant(t *testing.T) {
 			c := server.NewContext(req, rec)
 			c.Request().Host = host
 
-			mw := middlewares.MultiTenant(&mockTenantService{})
+			mw := middlewares.MultiTenant(&mockTenantStorage{})
 			mw(func(c app.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})(c)
@@ -96,7 +96,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	c := server.NewContext(req, rec)
 	c.Request().Host = "somedomain.com"
 
-	mw := middlewares.MultiTenant(&mockTenantService{})
+	mw := middlewares.MultiTenant(&mockTenantStorage{})
 	mw(func(c app.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})(c)
@@ -113,7 +113,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
 
-	mw := middlewares.JwtGetter(userService)
+	mw := middlewares.JwtGetter(UserStorage)
 	mw(func(c app.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
@@ -144,7 +144,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 		Value: token,
 	})
 
-	mw := middlewares.JwtGetter(userService)
+	mw := middlewares.JwtGetter(UserStorage)
 	mw(func(c app.Context) error {
 		return c.String(http.StatusOK, c.User().Name)
 	})(c)
@@ -172,7 +172,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 		Value: token,
 	})
 
-	mw := middlewares.JwtGetter(userService)
+	mw := middlewares.JwtGetter(UserStorage)
 	mw(func(c app.Context) error {
 		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)

@@ -6,11 +6,11 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
-	"github.com/WeCanHearYou/wechy/app/postgres"
+	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
-func TestIdeaService_GetAll(t *testing.T) {
+func TestIdeaStorage_GetAll(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 	defer db.Close()
@@ -20,7 +20,7 @@ func TestIdeaService_GetAll(t *testing.T) {
 	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300)", now)
 	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301)", now)
 
-	svc := &postgres.IdeaService{DB: db}
+	svc := &postgres.IdeaStorage{DB: db}
 	ideas, err := svc.GetAll(300)
 
 	Expect(err).To(BeNil())
@@ -37,7 +37,7 @@ func TestIdeaService_GetAll(t *testing.T) {
 	Expect(ideas[1].User.Name).To(Equal("Arya Stark"))
 }
 
-func TestIdeaService_SaveAndGet(t *testing.T) {
+func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 	defer db.Close()
@@ -45,7 +45,7 @@ func TestIdeaService_SaveAndGet(t *testing.T) {
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
-	svc := &postgres.IdeaService{DB: db}
+	svc := &postgres.IdeaStorage{DB: db}
 	idea, err := svc.Save(1, 1, "My new idea", "with this description")
 	Expect(err).To(BeNil())
 	Expect(idea.ID).To(Equal(1))
@@ -62,19 +62,19 @@ func TestIdeaService_SaveAndGet(t *testing.T) {
 	Expect(dbIdea.User.Email).To(Equal("jon.snow@got.com"))
 }
 
-func TestIdeaService_GetInvalid(t *testing.T) {
+func TestIdeaStorage_GetInvalid(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 	defer db.Close()
 
-	svc := &postgres.IdeaService{DB: db}
+	svc := &postgres.IdeaStorage{DB: db}
 	dbIdea, err := svc.GetByID(1, 1)
 
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(dbIdea).To(BeNil())
 }
 
-func TestIdeaService_AddAndReturnComments(t *testing.T) {
+func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 	defer db.Close()
@@ -82,7 +82,7 @@ func TestIdeaService_AddAndReturnComments(t *testing.T) {
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
-	svc := &postgres.IdeaService{DB: db}
+	svc := &postgres.IdeaStorage{DB: db}
 	idea, _ := svc.Save(1, 1, "My new idea", "with this description")
 	svc.AddComment(1, idea.ID, "Comment #1")
 	svc.AddComment(1, idea.ID, "Comment #2")
@@ -95,12 +95,12 @@ func TestIdeaService_AddAndReturnComments(t *testing.T) {
 	Expect(comments[1].Content).To(Equal("Comment #1"))
 }
 
-func TestIdeaService_SaveAndGet_DifferentTenants(t *testing.T) {
+func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 	defer db.Close()
 
-	svc := &postgres.IdeaService{DB: db}
+	svc := &postgres.IdeaStorage{DB: db}
 	svc.Save(300, 300, "My new idea", "with this description")
 	svc.Save(400, 400, "My other idea", "with other description")
 

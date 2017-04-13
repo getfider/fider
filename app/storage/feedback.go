@@ -1,9 +1,9 @@
-package feedback
+package storage
 
 import "github.com/WeCanHearYou/wechy/app/models"
 
-// IdeaService contains read and write operations for ideas
-type IdeaService interface {
+// Idea contains read and write operations for ideas
+type Idea interface {
 	GetByID(tenantID, ideaID int) (*models.Idea, error)
 	GetByNumber(tenantID, number int) (*models.Idea, error)
 	GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error)

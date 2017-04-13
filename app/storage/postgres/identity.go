@@ -5,18 +5,18 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 )
 
-// UserService is used for user operations using a Postgres database
-type UserService struct {
+// UserStorage is used for user operations using a Postgres database
+type UserStorage struct {
 	DB *dbx.Database
 }
 
 // GetByID returns a user based on given id
-func (svc *UserService) GetByID(userID int) (*models.User, error) {
+func (svc *UserStorage) GetByID(userID int) (*models.User, error) {
 	user := &models.User{}
 	user.Tenant = &models.Tenant{}
 	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id, role FROM users WHERE id = $1", userID)
@@ -41,7 +41,7 @@ func (svc *UserService) GetByID(userID int) (*models.User, error) {
 }
 
 // GetByEmail returns a user based on given email
-func (svc *UserService) GetByEmail(tenantID int, email string) (*models.User, error) {
+func (svc *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
 	user := &models.User{}
 	user.Tenant = &models.Tenant{}
 	row := svc.DB.QueryRow("SELECT id, name, email, tenant_id, role FROM users WHERE email = $1 AND tenant_id = $2", email, tenantID)
@@ -66,7 +66,7 @@ func (svc *UserService) GetByEmail(tenantID int, email string) (*models.User, er
 }
 
 // Register creates a new user based on given information
-func (svc *UserService) Register(user *models.User) error {
+func (svc *UserStorage) Register(user *models.User) error {
 	tx, err := svc.DB.Begin()
 	if err != nil {
 		return err
@@ -90,18 +90,18 @@ func (svc *UserService) Register(user *models.User) error {
 }
 
 // RegisterProvider adds given provider to userID
-func (svc *UserService) RegisterProvider(userID int, provider *models.UserProvider) error {
+func (svc *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
 	now := time.Now()
 	return svc.DB.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", userID, provider.Name, provider.UID, now)
 }
 
-// TenantService contains read and write operations for tenants
-type TenantService struct {
+// TenantStorage contains read and write operations for tenants
+type TenantStorage struct {
 	DB *dbx.Database
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc *TenantService) GetByDomain(domain string) (*models.Tenant, error) {
+func (svc *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := &models.Tenant{}
 
 	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
