@@ -31,17 +31,6 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 		assets.Static("/", "dist")
 	}
 
-	auth := r.Group("/oauth")
-	{
-		authHandlers := handlers.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
-		auth.Use(middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
-
-		auth.Get("/facebook", authHandlers.Login(oauth.FacebookProvider))
-		auth.Get("/facebook/callback", authHandlers.Callback(oauth.FacebookProvider))
-		auth.Get("/google", authHandlers.Login(oauth.GoogleProvider))
-		auth.Get("/google/callback", authHandlers.Callback(oauth.GoogleProvider))
-	}
-
 	public := r.Group("")
 	{
 		public.Use(middlewares.MultiTenant(ctx.Tenant))
@@ -54,15 +43,26 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 		public.Get("/api/status", handlers.Status(ctx.Settings))
 	}
 
-	api := r.Group("/api")
+	private := r.Group("")
 	{
-		api.Use(middlewares.MultiTenant(ctx.Tenant))
-		api.Use(middlewares.JwtGetter(ctx.User))
-		api.Use(middlewares.JwtSetter())
-		api.Use(middlewares.IsAuthenticated())
+		private.Use(middlewares.MultiTenant(ctx.Tenant))
+		private.Use(middlewares.JwtGetter(ctx.User))
+		private.Use(middlewares.JwtSetter())
+		private.Use(middlewares.IsAuthenticated())
 
-		api.Post("/ideas", handlers.Handlers(ctx.Idea).PostIdea())
-		api.Post("/ideas/:id/comments", handlers.Handlers(ctx.Idea).PostComment())
+		private.Post("/api/ideas", handlers.Handlers(ctx.Idea).PostIdea())
+		private.Post("/api/ideas/:id/comments", handlers.Handlers(ctx.Idea).PostComment())
+	}
+
+	auth := r.Group("/oauth")
+	{
+		authHandlers := handlers.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
+		auth.Use(middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
+
+		auth.Get("/facebook", authHandlers.Login(oauth.FacebookProvider))
+		auth.Get("/facebook/callback", authHandlers.Callback(oauth.FacebookProvider))
+		auth.Get("/google", authHandlers.Login(oauth.GoogleProvider))
+		auth.Get("/google/callback", authHandlers.Callback(oauth.GoogleProvider))
 	}
 
 	admin := r.Group("/admin")
