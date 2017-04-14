@@ -122,15 +122,14 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	items := reflect.New(sliceType).Elem()
 	for rows.Next() {
 		item := reflect.New(sliceType.Elem())
-		v := item.Interface()
-		err = scan(rows, v)
+		err = scan(rows, item.Interface())
 		if err != nil {
 			return err
 		}
 		items = reflect.Append(items, item.Elem())
 	}
-	value := reflect.Indirect(reflect.ValueOf(data))
-	value.Set(items)
+
+	reflect.Indirect(reflect.ValueOf(data)).Set(items)
 	return nil
 }
 
