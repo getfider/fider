@@ -17,7 +17,7 @@ func TestListHandler(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 
 	code, _ := server.Execute(handlers.Handlers(ideas).List())
 
@@ -30,7 +30,7 @@ func TestDetailsHandler(t *testing.T) {
 	ideas := &inmemory.IdeaStorage{}
 	idea, _ := ideas.Save(1, 1, "My Idea", "My Idea Description")
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues(strconv.Itoa(idea.Number))
 
@@ -44,7 +44,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("99")
 
@@ -58,8 +58,8 @@ func TestDetailsHandler_AddIdea(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
-	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	handler := handlers.Handlers(ideas).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "My newest idea :)" }`)
 
@@ -74,8 +74,8 @@ func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
-	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	handler := handlers.Handlers(ideas).PostIdea()
 	code, _ := server.ExecutePost(handler, `{ "title": "" }`)
 
@@ -89,8 +89,8 @@ func TestDetailsHandler_AddComment(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
-	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
 	handler := handlers.Handlers(ideas).PostComment()
@@ -104,8 +104,8 @@ func TestDetailsHandler_AddComment_WithoutContent(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
-	server.Context.Set("__CTX_TENANT", &models.Tenant{ID: 1, Name: "Any Tenant"})
-	server.Context.Set("__CTX_USER", &models.User{ID: 1, Name: "Jon"})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("id")
 	server.Context.SetParamValues("1")
 	handler := handlers.Handlers(ideas).PostComment()

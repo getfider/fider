@@ -18,7 +18,7 @@ import (
 type Server struct {
 	engine   *echo.Echo
 	handler  echo.HandlerFunc
-	Context  echo.Context
+	Context  web.Context
 	recorder *httptest.ResponseRecorder
 }
 
@@ -38,7 +38,7 @@ func NewServer() *Server {
 	return &Server{
 		engine:   engine,
 		recorder: recorder,
-		Context:  context,
+		Context:  web.Context{Context: context},
 	}
 }
 
