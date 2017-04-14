@@ -84,3 +84,24 @@ func TestBind_NestedStruct(t *testing.T) {
 	Expect(u.Tenant.ID).To(Equal(300))
 	Expect(u.Tenant.Name).To(Equal("Demonstration"))
 }
+
+func TestBind_NestedStruct_Multiple(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+
+	u := []userWithTenant{}
+
+	err := db.Select(&u, `
+		SELECT u.id, u.name, t.id AS tenant_id, t.name AS tenant_name
+		FROM users u
+		INNER JOIN tenants t
+		ON t.id = u.tenant_id
+		WHERE u.tenant_id = 300
+	`)
+	Expect(err).To(BeNil())
+	Expect(len(u)).To(Equal(2))
+	Expect(u[0].Name).To(Equal("Jon Snow"))
+	Expect(u[0].Tenant.Name).To(Equal("Demonstration"))
+	Expect(u[1].Name).To(Equal("Arya Stark"))
+	Expect(u[1].Tenant.Name).To(Equal("Demonstration"))
+}
