@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	_ "github.com/mattes/migrate/driver/postgres"
 	mig "github.com/mattes/migrate/migrate"

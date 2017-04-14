@@ -16,48 +16,11 @@ import (
 )
 
 var (
-	oauthService  = &OAuthService{}
+	oauthService  = &oauth.MockOAuthService{}
 	tenants       = &inmemory.TenantStorage{}
 	users         = &inmemory.UserStorage{}
 	oauthHandlers = handlers.OAuth(tenants, oauthService, users)
 )
-
-//OAuthService implements a mocked OAuthService
-type OAuthService struct{}
-
-//GetAuthURL returns authentication url for given provider
-func (p *OAuthService) GetAuthURL(provider string, redirect string) string {
-	return "http://orange.test.canherayou.com/oauth/token?provider=" + provider + "&redirect=" + redirect
-}
-
-//GetProfile returns user profile based on provider and code
-func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
-	if provider == "facebook" && code == "123" {
-		return &oauth.UserProfile{
-			ID:    "FB1234",
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		}, nil
-	}
-
-	if provider == "google" && code == "123" {
-		return &oauth.UserProfile{
-			ID:    "GO1234",
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		}, nil
-	}
-
-	if provider == "facebook" && code == "456" {
-		return &oauth.UserProfile{
-			ID:    "FB5678",
-			Name:  "Some Facebook Guy",
-			Email: "some.guy@facebook.com",
-		}, nil
-	}
-
-	return nil, nil
-}
 
 func TestLoginHandler(t *testing.T) {
 	RegisterTestingT(t)
@@ -93,7 +56,9 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant := &models.Tenant{ID: 1, Name: "Demonstration", Subdomain: "demo"}
+	tenants.Add(tenant)
+
 	users.Register(&models.User{
 		ID:     300,
 		Name:   "Jon Snow",
@@ -114,12 +79,13 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 
 func TestCallbackHandler_NewUser(t *testing.T) {
 	RegisterTestingT(t)
+	tenant := &models.Tenant{ID: 2, Name: "Orange", Subdomain: "orange"}
+	tenants.Add(tenant)
 
 	server := mock.NewServer()
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com&code=456")
 	code, response := server.ExecuteRaw(oauthHandlers.Callback(oauth.FacebookProvider))
 
-	tenant, _ := tenants.GetByDomain("orange")
 	user, err := users.GetByEmail(tenant.ID, "some.guy@facebook.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Some Facebook Guy"))

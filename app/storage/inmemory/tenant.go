@@ -7,20 +7,26 @@ import (
 	"github.com/WeCanHearYou/wechy/app/models"
 )
 
-var demo = &models.Tenant{ID: 1, Name: "Demonstration"}
-var orange = &models.Tenant{ID: 2, Name: "The Orange Inc."}
-
 // TenantStorage contains read and write operations for tenants
-type TenantStorage struct{}
+type TenantStorage struct {
+	tenants []*models.Tenant
+}
+
+// Add given tenant to tenant list
+func (s *TenantStorage) Add(tenant *models.Tenant) error {
+	s.tenants = append(s.tenants, tenant)
+	return nil
+}
 
 // GetByDomain returns a tenant based on its domain
-func (t *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
-	if extractSubdomain(domain) == "orange" {
-		return orange, nil
+func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
+	for _, tenant := range s.tenants {
+
+		if tenant.Subdomain == extractSubdomain(domain) {
+			return tenant, nil
+		}
 	}
-	if extractSubdomain(domain) == "demo" {
-		return demo, nil
-	}
+
 	return nil, app.ErrNotFound
 }
 

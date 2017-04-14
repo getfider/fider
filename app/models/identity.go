@@ -4,9 +4,9 @@ import jwt "github.com/dgrijalva/jwt-go"
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Domain string `json:"domain"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Subdomain string `json:"subdomain"`
 }
 
 //User represents an user inside our application

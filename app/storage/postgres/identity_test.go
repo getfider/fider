@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
@@ -159,7 +159,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
-	Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
+	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(err).To(BeNil())
 }
 
@@ -175,6 +175,6 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
-	Expect(tenant.Domain).To(Equal("mydomain.test.canhearyou.com"))
+	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(err).To(BeNil())
 }

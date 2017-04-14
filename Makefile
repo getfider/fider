@@ -9,6 +9,9 @@ endif
 test:
 	godotenv -f ${ENV_FILE} go test $$(go list ./... | grep -v /vendor/) -cover -p=1
 
+test-watch:
+	godotenv -f .test.env goconvey
+
 coverage:
 	rm -rf coverage.txt
 	for d in $$(go list ./... | grep -v vendor); do \

@@ -7,7 +7,6 @@ import (
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
 )
 
 // UserStorage is used for user operations using a Postgres database
@@ -105,12 +104,11 @@ func (svc *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := &models.Tenant{}
 
 	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
-	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Domain)
+	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Subdomain)
 	if err != nil {
 		return nil, app.ErrNotFound
 	}
 
-	tenant.Domain = tenant.Domain + "." + env.GetCurrentDomain()
 	return tenant, nil
 }
 
