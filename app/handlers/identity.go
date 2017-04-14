@@ -21,14 +21,14 @@ type oauthUserProfile struct {
 
 // OAuthHandlers contains multiple oauth HTTP handlers
 type OAuthHandlers struct {
-	tenantStorage storage.Tenant
-	oauthService  oauth.Service
-	userStorage   storage.User
+	tenants storage.Tenant
+	oauth   oauth.Service
+	users   storage.User
 }
 
 // OAuth creates a new OAuthHandlers
-func OAuth(tenantStorage storage.Tenant, oauthService oauth.Service, userStorage storage.User) OAuthHandlers {
-	return OAuthHandlers{tenantStorage, oauthService, userStorage}
+func OAuth(tenants storage.Tenant, oauth oauth.Service, users storage.User) OAuthHandlers {
+	return OAuthHandlers{tenants, oauth, users}
 }
 
 // Callback handles OAuth callbacks
@@ -46,17 +46,17 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect)
 		}
 
-		tenant, err := h.tenantStorage.GetByDomain(stripPort(redirectURL.Host))
+		tenant, err := h.tenants.GetByDomain(stripPort(redirectURL.Host))
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		oauthUser, err := h.oauthService.GetProfile(provider, code)
+		oauthUser, err := h.oauth.GetProfile(provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		user, err := h.userStorage.GetByEmail(tenant.ID, oauthUser.Email)
+		user, err := h.users.GetByEmail(tenant.ID, oauthUser.Email)
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &models.User{
@@ -72,7 +72,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 					},
 				}
 
-				err = h.userStorage.Register(user)
+				err = h.users.Register(user)
 				if err != nil {
 					return c.Failure(err)
 				}
@@ -80,7 +80,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = h.userStorage.RegisterProvider(user.ID, &models.UserProvider{
+			err = h.users.RegisterProvider(user.ID, &models.UserProvider{
 				UID:  oauthUser.ID,
 				Name: provider,
 			})
@@ -111,7 +111,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 // Login handles OAuth logins
 func (h OAuthHandlers) Login(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
-		authURL := h.oauthService.GetAuthURL(provider, c.QueryParam("redirect"))
+		authURL := h.oauth.GetAuthURL(provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }
