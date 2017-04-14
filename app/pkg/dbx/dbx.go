@@ -2,6 +2,7 @@ package dbx
 
 import (
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 
@@ -135,20 +136,39 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 
 func scan(rows *sql.Rows, data interface{}) error {
 	columns, _ := rows.Columns()
-	pointers := make([]interface{}, len(columns))
 	fields := make(map[string]interface{})
 
 	s := reflect.ValueOf(data).Elem()
-
 	for i := 0; i < s.NumField(); i++ {
-		tag := s.Type().Field(i).Tag.Get("db")
-		if tag != "" {
-			fields[tag] = s.Field(i).Addr().Interface()
+		field := s.Type().Field(i)
+		tag := field.Tag.Get("db")
+		if field.Type.Kind() != reflect.Struct {
+			if tag != "" {
+				fields[tag] = s.Field(i).Addr().Interface()
+			}
+		} else {
+			obj := reflect.New(s.Field(i).Type()).Elem()
+			s.Field(i).Set(obj)
+			nested := s.Field(i)
+			for j := 0; j < nested.NumField(); j++ {
+				fmt.Println(nested.Type().Field(j).Name)
+				nestedField := nested.Type().Field(j)
+				nestedTag := nestedField.Tag.Get("db")
+				if nestedTag != "" {
+					fmt.Println(tag + "_" + nestedTag)
+					fields[tag+"_"+nestedTag] = nested.Field(j).Addr().Interface()
+				}
+			}
 		}
 	}
 
+	pointers := make([]interface{}, len(columns))
 	for i, column := range columns {
-		pointers[i] = fields[column]
+		if pointer, ok := fields[column]; ok {
+			pointers[i] = pointer
+		} else {
+			panic(fmt.Sprintf("No target for column %s", column))
+		}
 	}
 
 	err := rows.Scan(pointers...)

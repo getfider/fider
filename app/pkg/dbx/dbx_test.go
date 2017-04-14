@@ -13,6 +13,17 @@ type user struct {
 	IgnoreThis string
 }
 
+type userWithTenant struct {
+	ID     int    `db:"id"`
+	Name   string `db:"name"`
+	Tenant tenant `db:"tenant"`
+}
+
+type tenant struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+}
+
 func TestBind_SimpleStruct(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
@@ -50,4 +61,26 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	Expect(len(u)).To(Equal(2))
 	Expect(u[0].Name).To(Equal("Jon Snow"))
 	Expect(u[1].Name).To(Equal("Arya Stark"))
+}
+
+func TestBind_NestedStruct(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+
+	u := userWithTenant{}
+
+	err := db.Get(&u, `
+		SELECT u.id, u.name, t.id AS tenant_id, t.name AS tenant_name
+		FROM users u
+		INNER JOIN tenants t
+		ON t.id = u.tenant_id
+		WHERE u.id = 300
+		LIMIT 1
+	`)
+	Expect(err).To(BeNil())
+	Expect(u.ID).To(Equal(300))
+	Expect(u.Name).To(Equal("Jon Snow"))
+	Expect(u.Tenant).NotTo(BeNil())
+	Expect(u.Tenant.ID).To(Equal(300))
+	Expect(u.Tenant.Name).To(Equal("Demonstration"))
 }
