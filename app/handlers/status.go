@@ -12,11 +12,11 @@ import (
 )
 
 type statusHandler struct {
-	settings *models.WechySettings
+	settings *models.WeCHYSettings
 }
 
 // Status creates a new Status HTTP handler
-func Status(settings *models.WechySettings) web.HandlerFunc {
+func Status(settings *models.WeCHYSettings) web.HandlerFunc {
 	return statusHandler{settings}.get()
 }
 

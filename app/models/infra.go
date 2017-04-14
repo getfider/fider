@@ -1,7 +1,7 @@
 package models
 
-// WechySettings is an application-wide settings
-type WechySettings struct {
+// WeCHYSettings is an application-wide settings
+type WeCHYSettings struct {
 	BuildTime    string
 	Version      string
 	AuthEndpoint string

@@ -41,12 +41,12 @@ func main() {
 		panic(err)
 	}
 
-	ctx := &WechyServices{
+	ctx := &WeCHYServices{
 		OAuth:  &oauth.HTTPService{},
 		Idea:   &postgres.IdeaStorage{DB: db},
 		User:   &postgres.UserStorage{DB: db},
 		Tenant: &postgres.TenantStorage{DB: db},
-		Settings: &models.WechySettings{
+		Settings: &models.WeCHYSettings{
 			BuildTime:    buildtime,
 			Version:      version,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
@@ -54,5 +54,5 @@ func main() {
 	}
 
 	e := GetMainEngine(ctx)
-	e.Logger.Fatal(e.Start(":" + env.GetEnvOrDefault("PORT", "3000")))
+	e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
 }
