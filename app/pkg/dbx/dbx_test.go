@@ -8,8 +8,9 @@ import (
 )
 
 type user struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
+	ID         int    `db:"id"`
+	Name       string `db:"name"`
+	IgnoreThis string
 }
 
 func TestBind_SimpleStruct(t *testing.T) {
@@ -22,6 +23,7 @@ func TestBind_SimpleStruct(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(u.ID).To(Equal(300))
 	Expect(u.Name).To(Equal("Jon Snow"))
+	Expect(u.IgnoreThis).To(Equal(""))
 }
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
