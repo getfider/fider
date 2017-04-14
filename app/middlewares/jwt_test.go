@@ -5,116 +5,25 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage/postgres"
+	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
 	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
-var testCases = []struct {
-	domain string
-	tenant *models.Tenant
-	hosts  []string
-}{
-	{
-		"orange.test.canhearyou.com",
-		&models.Tenant{Name: "The Orange Inc."},
-		[]string{
-			"orange.test.canhearyou.com",
-			"orange.test.canhearyou.com:3000",
-		},
-	},
-	{
-		"trishop.test.canhearyou.com",
-		&models.Tenant{Name: "The Triathlon Shop"},
-		[]string{
-			"trishop.test.canhearyou.com",
-			"trishop.test.canhearyou.com:1231",
-			"trishop.test.canhearyou.com:80",
-		},
-	},
-}
-
-var (
-	db            *dbx.Database
-	TenantStorage *postgres.TenantStorage
-	UserStorage   *postgres.UserStorage
-)
-
-func setup() {
-	db, _ = dbx.New()
-
-	TenantStorage = &postgres.TenantStorage{DB: db}
-	UserStorage = &postgres.UserStorage{DB: db}
-}
-
-type mockTenantStorage struct{}
-
-func (svc mockTenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
-	for _, testCase := range testCases {
-		if testCase.domain == domain {
-			return testCase.tenant, nil
-		}
-	}
-	return nil, app.ErrNotFound
-}
-
-func TestMultiTenant(t *testing.T) {
-	RegisterTestingT(t)
-
-	for _, testCase := range testCases {
-		for _, host := range testCase.hosts {
-
-			server := mock.NewServer()
-			req, _ := http.NewRequest(echo.GET, "/", nil)
-			rec := httptest.NewRecorder()
-			c := server.NewContext(req, rec)
-			c.Request().Host = host
-
-			mw := middlewares.MultiTenant(&mockTenantStorage{})
-			mw(func(c web.Context) error {
-				return c.String(http.StatusOK, c.Tenant().Name)
-			})(c)
-
-			Expect(rec.Code).To(Equal(200))
-			Expect(rec.Body.String()).To(Equal(testCase.tenant.Name))
-		}
-	}
-}
-
-func TestMultiTenant_UnknownDomain(t *testing.T) {
-	RegisterTestingT(t)
-
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "somedomain.com"
-
-	mw := middlewares.MultiTenant(&mockTenantStorage{})
-	mw(func(c web.Context) error {
-		return c.String(http.StatusOK, c.Tenant().Name)
-	})(c)
-
-	Expect(rec.Code).To(Equal(404))
-}
-
 func TestJwtGetter_NoCookie(t *testing.T) {
 	RegisterTestingT(t)
-	setup()
 
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
 
-	mw := middlewares.JwtGetter(UserStorage)
+	mw := middlewares.JwtGetter(nil)
 	mw(func(c web.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
@@ -128,24 +37,31 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 
 func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterTestingT(t)
-	setup()
 
+	tenant := &models.Tenant{ID: 300}
+	user := &models.User{
+		ID:     300,
+		Name:   "Jon Snow",
+		Tenant: tenant,
+	}
 	token, _ := jwt.Encode(&models.WechyClaims{
-		UserID:   300,
-		UserName: "Jon Snow",
+		UserID:   user.ID,
+		UserName: user.Name,
 	})
 
+	users := &inmemory.UserStorage{}
+	users.Register(user)
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
 	c := server.NewContext(req, rec)
-	c.SetTenant(&models.Tenant{ID: 300})
+	c.SetTenant(tenant)
 	c.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
 	})
 
-	mw := middlewares.JwtGetter(UserStorage)
+	mw := middlewares.JwtGetter(users)
 	mw(func(c web.Context) error {
 		return c.String(http.StatusOK, c.User().Name)
 	})(c)
@@ -156,13 +72,13 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 
 func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
-	setup()
 
 	token, _ := jwt.Encode(&models.WechyClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
 
+	users := &inmemory.UserStorage{}
 	server := mock.NewServer()
 	req, _ := http.NewRequest(echo.GET, "/", nil)
 	rec := httptest.NewRecorder()
@@ -173,7 +89,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 		Value: token,
 	})
 
-	mw := middlewares.JwtGetter(UserStorage)
+	mw := middlewares.JwtGetter(users)
 	mw(func(c web.Context) error {
 		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)

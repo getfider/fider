@@ -87,37 +87,3 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 
 	Expect(rec.Code).To(Equal(http.StatusForbidden))
 }
-
-func TestHostChecker(t *testing.T) {
-	RegisterTestingT(t)
-
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "login.test.canhearyou.com"
-
-	mw := middlewares.HostChecker("http://login.test.canhearyou.com")
-	mw(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
-	})(c)
-
-	Expect(rec.Code).To(Equal(http.StatusOK))
-}
-
-func TestHostChecker_DifferentHost(t *testing.T) {
-	RegisterTestingT(t)
-
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "orange.test.canhearyou.com"
-
-	mw := middlewares.HostChecker("login.test.canhearyou.com")
-	mw(web.HandlerFunc(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
-	}))(c)
-
-	Expect(rec.Code).To(Equal(http.StatusBadRequest))
-}

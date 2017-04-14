@@ -9,23 +9,6 @@ import (
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
-// MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenants storage.Tenant) web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			hostname := stripPort(c.Request().Host)
-			tenant, err := tenants.GetByDomain(hostname)
-			if err == nil {
-				c.SetTenant(tenant)
-				return next(c)
-			}
-
-			c.Logger().Infof("Tenant not found for '%s'.", hostname)
-			return c.NoContent(http.StatusNotFound)
-		}
-	}
-}
-
 // JwtGetter gets JWT token from cookie and add into context
 func JwtGetter(users storage.User) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
