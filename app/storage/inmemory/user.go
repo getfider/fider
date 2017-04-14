@@ -5,16 +5,15 @@ import (
 	"github.com/WeCanHearYou/wechy/app/models"
 )
 
-var users = []*models.User{}
-var lastID = 0
-
 // UserStorage is used for user operations
 type UserStorage struct {
+	users  []*models.User
+	lastID int
 }
 
 // GetByID returns a user based on given id
-func (u *UserStorage) GetByID(userID int) (*models.User, error) {
-	for _, user := range users {
+func (s *UserStorage) GetByID(userID int) (*models.User, error) {
+	for _, user := range s.users {
 		if user.ID == userID {
 			return user, nil
 		}
@@ -23,8 +22,8 @@ func (u *UserStorage) GetByID(userID int) (*models.User, error) {
 }
 
 // GetByEmail returns a user based on given email
-func (u *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
-	for _, user := range users {
+func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
+	for _, user := range s.users {
 		if user.Email == email && user.Tenant.ID == tenantID {
 			return user, nil
 		}
@@ -33,18 +32,18 @@ func (u *UserStorage) GetByEmail(tenantID int, email string) (*models.User, erro
 }
 
 // Register creates a new user based on given information
-func (u *UserStorage) Register(user *models.User) error {
+func (s *UserStorage) Register(user *models.User) error {
 	if user.ID == 0 {
-		lastID = lastID + 1
-		user.ID = lastID
+		s.lastID = s.lastID + 1
+		user.ID = s.lastID
 	}
-	users = append(users, user)
+	s.users = append(s.users, user)
 	return nil
 }
 
 // RegisterProvider adds given provider to userID
-func (u *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
-	for _, user := range users {
+func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
+	for _, user := range s.users {
 		if user.ID == userID {
 			user.Providers = append(user.Providers, provider)
 			return nil
