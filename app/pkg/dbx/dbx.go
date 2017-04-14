@@ -3,10 +3,12 @@ package dbx
 import (
 	"database/sql"
 	"io/ioutil"
+	"reflect"
 
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 
 	//required
+
 	_ "github.com/lib/pq"
 )
 
@@ -94,6 +96,67 @@ func (db Database) Count(command string, args ...interface{}) (int, error) {
 // Begin returns a new SQL transaction
 func (db Database) Begin() (*sql.Tx, error) {
 	return db.conn.Begin()
+}
+
+// Get first row and bind to given data
+func (db Database) Get(data interface{}, command string, args ...interface{}) error {
+	rows, err := db.Query(command, args...)
+	if err != nil {
+		return err
+	}
+
+	if rows.Next() {
+		return scan(rows, data)
+	}
+	return nil
+}
+
+//Select all matched rows bind to given data
+func (db Database) Select(data interface{}, command string, args ...interface{}) error {
+	rows, err := db.Query(command, args...)
+	if err != nil {
+		return err
+	}
+
+	sliceType := reflect.TypeOf(data).Elem()
+	items := reflect.New(sliceType).Elem()
+	for rows.Next() {
+		item := reflect.New(sliceType.Elem())
+		v := item.Interface()
+		err = scan(rows, v)
+		if err != nil {
+			return err
+		}
+		items = reflect.Append(items, item.Elem())
+	}
+	value := reflect.Indirect(reflect.ValueOf(data))
+	value.Set(items)
+	return nil
+}
+
+func scan(rows *sql.Rows, data interface{}) error {
+	columns, _ := rows.Columns()
+	pointers := make([]interface{}, len(columns))
+	fields := make(map[string]interface{})
+
+	s := reflect.ValueOf(data).Elem()
+
+	for i := 0; i < s.NumField(); i++ {
+		tag := s.Type().Field(i).Tag.Get("db")
+		if tag != "" {
+			fields[tag] = s.Field(i).Addr().Interface()
+		}
+	}
+
+	for i, column := range columns {
+		pointers[i] = fields[column]
+	}
+
+	err := rows.Scan(pointers...)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Close connection to database
