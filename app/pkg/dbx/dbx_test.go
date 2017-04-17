@@ -53,7 +53,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 
-	u := []user{}
+	u := []*user{}
 
 	err := db.Select(&u, "SELECT name FROM users WHERE tenant_id = 300")
 	Expect(err).To(BeNil())
@@ -89,7 +89,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
 
-	u := []userWithTenant{}
+	u := []*userWithTenant{}
 
 	err := db.Select(&u, `
 		SELECT u.id, u.name, t.id AS tenant_id, t.name AS tenant_name

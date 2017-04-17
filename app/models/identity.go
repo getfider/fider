@@ -4,18 +4,18 @@ import jwt "github.com/dgrijalva/jwt-go"
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Subdomain string `json:"subdomain"`
+	ID        int    `json:"id" db:"id"`
+	Name      string `json:"name" db:"name"`
+	Subdomain string `json:"subdomain" db:"subdomain"`
 }
 
 //User represents an user inside our application
 type User struct {
-	ID        int             `json:"id"`
-	Name      string          `json:"name"`
-	Email     string          `json:"email"`
-	Tenant    *Tenant         `json:"tenant"`
-	Role      Role            `json:"role"`
+	ID        int             `json:"id" db:"id"`
+	Name      string          `json:"name" db:"name"`
+	Email     string          `json:"email" db:"email"`
+	Tenant    *Tenant         `json:"tenant" db:"tenant"`
+	Role      Role            `json:"role" db:"role"`
 	Providers []*UserProvider `json:"providers"`
 }
 
@@ -43,8 +43,8 @@ func (u *User) HasProvider(provider string) bool {
 
 //UserProvider represents the relashionship between an User and an Authentication provide
 type UserProvider struct {
-	Name string `json:"name"`
-	UID  string `json:"uid"`
+	Name string `json:"name" db:"provider"`
+	UID  string `json:"uid" db:"provider_uid"`
 }
 
 //WechyClaims represents what goes into JWT tokens

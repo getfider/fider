@@ -3,6 +3,8 @@ package postgres
 import (
 	"strings"
 
+	"database/sql"
+
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
@@ -14,16 +16,15 @@ type TenantStorage struct {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (svc *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
-	tenant := &models.Tenant{}
+func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
+	tenant := models.Tenant{}
 
-	row := svc.DB.QueryRow("SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
-	err := row.Scan(&tenant.ID, &tenant.Name, &tenant.Subdomain)
-	if err != nil {
+	err := s.DB.Get(&tenant, "SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
+	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	}
 
-	return tenant, nil
+	return &tenant, nil
 }
 
 func extractSubdomain(domain string) string {

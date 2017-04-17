@@ -50,34 +50,22 @@ func (s *UserStorage) Register(user *models.User) error {
 
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
-	now := time.Now()
-	return s.DB.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", userID, provider.Name, provider.UID, now)
+	cmd := "INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)"
+	return s.DB.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
 }
 
 // GetByID returns a user based on given id
 func getUser(db *dbx.Database, filter string, args ...interface{}) (*models.User, error) {
-	user := &models.User{}
-	user.Tenant = &models.Tenant{}
-	row := db.QueryRow("SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
-
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Tenant.ID, &user.Role); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, app.ErrNotFound
-		}
-		return nil, err
+	user := models.User{}
+	err := db.Get(&user, "SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
 	}
 
-	rows, err := db.Query("SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
+	err = db.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-	for rows.Next() {
-		p := &models.UserProvider{}
-		rows.Scan(&p.UID, &p.Name)
-		user.Providers = append(user.Providers, p)
-	}
-
-	return user, nil
+	return &user, nil
 }

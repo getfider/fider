@@ -108,7 +108,7 @@ func (db Database) Get(data interface{}, command string, args ...interface{}) er
 	if rows.Next() {
 		return scan(rows, data)
 	}
-	return nil
+	return sql.ErrNoRows
 }
 
 //Select all matched rows bind to given data
@@ -121,12 +121,12 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
 	for rows.Next() {
-		item := reflect.New(sliceType.Elem())
+		item := reflect.New(sliceType.Elem().Elem())
 		err = scan(rows, item.Interface())
 		if err != nil {
 			return err
 		}
-		items = reflect.Append(items, item.Elem())
+		items = reflect.Append(items, item)
 	}
 
 	reflect.Indirect(reflect.ValueOf(data)).Set(items)
