@@ -3,6 +3,8 @@ package postgres
 import (
 	"time"
 
+	"database/sql"
+
 	"github.com/WeCanHearYou/wechy/app"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
@@ -13,102 +15,88 @@ type IdeaStorage struct {
 	DB *dbx.Database
 }
 
+var (
+	sqlSelectIdeasWhere = `SELECT i.id, 
+								  i.number, 
+								  i.title, 
+								  i.description, 
+								  i.created_on, 
+								  u.id AS user_id, 
+								  u.name AS user_name, 
+								  u.email AS user_email
+							FROM ideas i
+							INNER JOIN users u
+							ON u.id = i.user_id
+							WHERE`
+)
+
 // GetAll returns all tenant ideas
-func (svc *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
-	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
-								FROM ideas i
-								INNER JOIN users u
-								ON u.id = i.user_id
-								WHERE i.tenant_id = $1
-								ORDER BY i.created_on DESC`, tenantID)
+func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
+	var ideas []*models.Idea
+	err := s.DB.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
 	if err != nil {
 		return nil, err
-	}
-
-	defer rows.Close()
-	var ideas []*models.Idea
-	for rows.Next() {
-		idea := &models.Idea{}
-		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
-		ideas = append(ideas, idea)
 	}
 
 	return ideas, nil
 }
 
 // GetByID returns idea by given id
-func (svc *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
-	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
-								FROM ideas i
-								INNER JOIN users u
-								ON u.id = i.user_id
-								WHERE i.tenant_id = $1
-								AND i.id = $2
-								ORDER BY i.created_on DESC`, tenantID, ideaID)
-	if err != nil {
+func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
+	idea := models.Idea{}
+
+	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", tenantID, ideaID)
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-	if rows.Next() {
-		idea := &models.Idea{}
-		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
-		return idea, nil
-	}
-	return nil, app.ErrNotFound
+	return &idea, nil
 }
 
 // GetByNumber returns idea by tenant and number
-func (svc *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
-	rows, err := svc.DB.Query(`SELECT i.id, i.number, i.title, i.description, i.created_on, u.id, u.name, u.email
-								FROM ideas i
-								INNER JOIN users u
-								ON u.id = i.user_id
-								WHERE i.tenant_id = $1
-								AND i.number = $2
-								ORDER BY i.created_on DESC`, tenantID, number)
-	if err != nil {
+func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
+	idea := models.Idea{}
+
+	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", tenantID, number)
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
-	if rows.Next() {
-		idea := &models.Idea{}
-		rows.Scan(&idea.ID, &idea.Number, &idea.Title, &idea.Description, &idea.CreatedOn, &idea.User.ID, &idea.User.Name, &idea.User.Email)
-		return idea, nil
-	}
-	return nil, app.ErrNotFound
+	return &idea, nil
 }
 
 // GetCommentsByIdeaID returns all coments from given idea
-func (svc *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
-	rows, err := svc.DB.Query(`SELECT c.id, c.content, c.created_on, u.id, u.name, u.email
-								FROM comments c
-								INNER JOIN ideas i
-								ON i.id = c.idea_id
-								INNER JOIN users u
-								ON u.id = c.user_id
-								WHERE i.id = $1
-								AND i.tenant_id = $2
-								ORDER BY c.created_on DESC`, ideaID, tenantID)
+func (s *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
+	comments := []*models.Comment{}
+	err := s.DB.Select(&comments,
+		`SELECT c.id, 
+				c.content, 
+				c.created_on, 
+				u.id AS user_id, 
+				u.name AS user_email,
+				u.email AS user_email
+		FROM comments c
+		INNER JOIN ideas i
+		ON i.id = c.idea_id
+		INNER JOIN users u
+		ON u.id = c.user_id
+		WHERE i.id = $1
+		AND i.tenant_id = $2
+		ORDER BY c.created_on DESC`, ideaID, tenantID)
 	if err != nil {
 		return nil, err
-	}
-
-	defer rows.Close()
-	var comments []*models.Comment
-	for rows.Next() {
-		c := &models.Comment{}
-		rows.Scan(&c.ID, &c.Content, &c.CreatedOn, &c.User.ID, &c.User.Name, &c.User.Email)
-		comments = append(comments, c)
 	}
 
 	return comments, nil
 }
 
 // Save a new idea in the database
-func (svc *IdeaStorage) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
-	tx, err := svc.DB.Begin()
+func (s *IdeaStorage) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
+	tx, err := s.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -129,8 +117,8 @@ func (svc *IdeaStorage) Save(tenantID, userID int, title, description string) (*
 }
 
 // AddComment places a new comment on an idea
-func (svc *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
-	tx, err := svc.DB.Begin()
+func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
+	tx, err := s.DB.Begin()
 	if err != nil {
 		return 0, err
 	}

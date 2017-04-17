@@ -22,6 +22,8 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	err := s.DB.Get(&tenant, "SELECT id, name, subdomain FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, err
 	}
 
 	return &tenant, nil

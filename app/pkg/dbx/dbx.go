@@ -153,7 +153,6 @@ func scan(rows *sql.Rows, data interface{}) error {
 				nestedField := nested.Type().Field(j)
 				nestedTag := nestedField.Tag.Get("db")
 				if nestedTag != "" {
-					fmt.Println(tag + "_" + nestedTag)
 					fields[tag+"_"+nestedTag] = nested.Field(j).Addr().Interface()
 				}
 			}

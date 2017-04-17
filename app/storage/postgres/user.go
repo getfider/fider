@@ -60,6 +60,8 @@ func getUser(db *dbx.Database, filter string, args ...interface{}) (*models.User
 	err := db.Get(&user, "SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, err
 	}
 
 	err = db.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
