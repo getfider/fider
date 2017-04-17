@@ -9,7 +9,6 @@ import (
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 
 	//required
-
 	_ "github.com/lib/pq"
 )
 
@@ -142,14 +141,14 @@ func scan(rows *sql.Rows, data interface{}) error {
 	for i := 0; i < s.NumField(); i++ {
 		field := s.Type().Field(i)
 		tag := field.Tag.Get("db")
-		if field.Type.Kind() != reflect.Struct {
+		if field.Type.Kind() != reflect.Ptr {
 			if tag != "" {
 				fields[tag] = s.Field(i).Addr().Interface()
 			}
 		} else {
-			obj := reflect.New(s.Field(i).Type()).Elem()
-			s.Field(i).Set(obj)
-			nested := s.Field(i)
+			obj := reflect.New(s.Field(i).Type().Elem()).Elem()
+			s.Field(i).Set(obj.Addr())
+			nested := s.Field(i).Elem()
 			for j := 0; j < nested.NumField(); j++ {
 				nestedField := nested.Type().Field(j)
 				nestedTag := nestedField.Tag.Get("db")

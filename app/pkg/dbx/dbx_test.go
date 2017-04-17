@@ -14,9 +14,9 @@ type user struct {
 }
 
 type userWithTenant struct {
-	ID     int    `db:"id"`
-	Name   string `db:"name"`
-	Tenant tenant `db:"tenant"`
+	ID     int     `db:"id"`
+	Name   string  `db:"name"`
+	Tenant *tenant `db:"tenant"`
 }
 
 type tenant struct {
