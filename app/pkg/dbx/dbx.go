@@ -120,8 +120,9 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
+	itemType := sliceType.Elem().Elem()
 	for rows.Next() {
-		item := reflect.New(sliceType.Elem().Elem())
+		item := reflect.New(itemType)
 		err = scan(rows, item.Interface())
 		if err != nil {
 			return err
@@ -138,20 +139,22 @@ func scan(rows *sql.Rows, data interface{}) error {
 	fields := make(map[string]interface{})
 
 	s := reflect.ValueOf(data).Elem()
-	for i := 0; i < s.NumField(); i++ {
-		field := s.Type().Field(i)
-		tag := field.Tag.Get("db")
-		if field.Type.Kind() != reflect.Ptr {
+	numfield := s.NumField()
+	for i := 0; i < numfield; i++ {
+		field := s.Field(i)
+		typeField := s.Type().Field(i)
+		tag := typeField.Tag.Get("db")
+		if typeField.Type.Kind() != reflect.Ptr {
 			if tag != "" {
-				fields[tag] = s.Field(i).Addr().Interface()
+				fields[tag] = field.Addr().Interface()
 			}
 		} else {
-			obj := reflect.New(s.Field(i).Type().Elem()).Elem()
-			s.Field(i).Set(obj.Addr())
-			nested := s.Field(i).Elem()
-			for j := 0; j < nested.NumField(); j++ {
-				nestedField := nested.Type().Field(j)
-				nestedTag := nestedField.Tag.Get("db")
+			obj := reflect.New(field.Type().Elem()).Elem()
+			field.Set(obj.Addr())
+			nested := field.Elem()
+			nestedNumField := nested.NumField()
+			for j := 0; j < nestedNumField; j++ {
+				nestedTag := nested.Type().Field(j).Tag.Get("db")
 				if nestedTag != "" {
 					fields[tag+"_"+nestedTag] = nested.Field(j).Addr().Interface()
 				}
