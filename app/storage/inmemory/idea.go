@@ -61,10 +61,20 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 
 // AddSupport adds user to idea list of supporters
 func (s *IdeaStorage) AddSupport(userID, ideaID int) error {
+	for _, idea := range s.ideas {
+		if idea.ID == ideaID {
+			idea.TotalSupporters = idea.TotalSupporters + 1
+		}
+	}
 	return nil
 }
 
 // RemoveSupport removes user from idea list of supporters
 func (s *IdeaStorage) RemoveSupport(userID, ideaID int) error {
+	for _, idea := range s.ideas {
+		if idea.ID == ideaID {
+			idea.TotalSupporters = idea.TotalSupporters - 1
+		}
+	}
 	return nil
 }
