@@ -101,6 +101,7 @@ func (db Database) Begin() (*sql.Tx, error) {
 // Get first row and bind to given data
 func (db Database) Get(data interface{}, command string, args ...interface{}) error {
 	rows, err := db.Query(command, args...)
+	defer rows.Close()
 	if err != nil {
 		return err
 	}
@@ -109,13 +110,13 @@ func (db Database) Get(data interface{}, command string, args ...interface{}) er
 		return scan(rows, data)
 	}
 
-	rows.Close()
 	return sql.ErrNoRows
 }
 
 //Select all matched rows bind to given data
 func (db Database) Select(data interface{}, command string, args ...interface{}) error {
 	rows, err := db.Query(command, args...)
+	defer rows.Close()
 	if err != nil {
 		return err
 	}
@@ -133,7 +134,6 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	}
 
 	reflect.Indirect(reflect.ValueOf(data)).Set(items)
-	rows.Close()
 	return nil
 }
 
