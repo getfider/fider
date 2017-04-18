@@ -130,10 +130,10 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupport(300, idea.ID)
+	err := ideas.AddSupporter(300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupport(301, idea.ID)
+	err = ideas.AddSupporter(301, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)
@@ -149,10 +149,10 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupport(300, idea.ID)
+	err := ideas.AddSupporter(300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupport(300, idea.ID)
+	err = ideas.RemoveSupporter(300, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)

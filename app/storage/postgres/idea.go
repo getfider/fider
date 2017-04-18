@@ -133,8 +133,8 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 	return id, tx.Commit()
 }
 
-// AddSupport adds user to idea list of supporters
-func (s *IdeaStorage) AddSupport(userID, ideaID int) error {
+// AddSupporter adds user to idea list of supporters
+func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
@@ -153,8 +153,8 @@ func (s *IdeaStorage) AddSupport(userID, ideaID int) error {
 	return tx.Commit()
 }
 
-// RemoveSupport removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupport(userID, ideaID int) error {
+// RemoveSupporter removes user from idea list of supporters
+func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
