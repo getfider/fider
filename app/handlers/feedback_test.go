@@ -67,6 +67,7 @@ func TestDetailsHandler_AddIdea(t *testing.T) {
 	Expect(code).To(Equal(200))
 	Expect(err).To(BeNil())
 	Expect(idea.Title).To(Equal("My newest idea :)"))
+	Expect(idea.TotalSupporters).To(Equal(1))
 }
 
 func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {

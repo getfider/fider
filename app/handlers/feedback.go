@@ -57,6 +57,10 @@ func (h AllHandlers) PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if err := h.ideas.AddSupporter(c.User().ID, idea.ID); err != nil {
+			return c.Failure(err)
+		}
+
 		return c.JSON(200, echo.Map{
 			"idea": idea,
 		})
