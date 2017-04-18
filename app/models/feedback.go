@@ -6,12 +6,13 @@ import (
 
 //Idea represents an idea on a tenant board
 type Idea struct {
-	ID          int       `json:"id" db:"id"`
-	Number      int       `json:"number" db:"number"`
-	Title       string    `json:"title" db:"title"`
-	Description string    `json:"description" db:"description"`
-	CreatedOn   time.Time `json:"createdOn" db:"created_on"`
-	User        *User     `json:"user" db:"user"`
+	ID              int       `json:"id" db:"id"`
+	Number          int       `json:"number" db:"number"`
+	Title           string    `json:"title" db:"title"`
+	Description     string    `json:"description" db:"description"`
+	CreatedOn       time.Time `json:"createdOn" db:"created_on"`
+	User            *User     `json:"user" db:"user"`
+	TotalSupporters int       `json:"totalSupporters" db:"supporters"`
 }
 
 //Comment represents an user comment on an idea

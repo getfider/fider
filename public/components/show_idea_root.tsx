@@ -37,15 +37,36 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
         return <div>
                   <Header />
                   <div className="ui container">
-                    <h1 className="ui header">{ idea.title }</h1>
+                    <div className="ui items unstackable">
+                      <div className="item">
+
+                        <div className="ui small statistics">
+                          <div className="statistic">
+                            <div className="value">
+                              { idea.totalSupporters }
+                            </div>
+                            <div className="ui mini primary animated button">
+                              <div className="visible content">Want</div>
+                              <div className="hidden content">
+                                <i className="heart icon"></i>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="idea-header">
+                          <h1 className="ui header">{ idea.title }</h1>
+
+                          <p>
+                            #{ idea.number } shared by &nbsp;
+                            <Gravatar email={idea.user.email}/> <u>{idea.user.name}</u> &nbsp;
+                            <span title={idea.createdOn}>{ moment(idea.createdOn).fromNow() }</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
                     <p>{ idea.description }</p>
-
-                    <p>
-                      #{ idea.number } shared by &nbsp;
-                      <Gravatar email={idea.user.email}/> <u>{idea.user.name}</u> &nbsp;
-                      <span title={idea.createdOn}>{ moment(idea.createdOn).fromNow() }</span>
-                    </p>
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>

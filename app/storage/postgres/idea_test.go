@@ -17,8 +17,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300)", now)
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300, 0)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301, 5)", now)
 
 	svc := &postgres.IdeaStorage{DB: db}
 	ideas, err := svc.GetAll(300)
@@ -30,11 +30,13 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(ideas[0].Number).To(Equal(1))
 	Expect(ideas[0].Description).To(Equal("Description #1"))
 	Expect(ideas[0].User.Name).To(Equal("Jon Snow"))
+	Expect(ideas[0].TotalSupporters).To(Equal(0))
 
 	Expect(ideas[1].Title).To(Equal("Idea #2"))
 	Expect(ideas[1].Number).To(Equal(2))
 	Expect(ideas[1].Description).To(Equal("Description #2"))
 	Expect(ideas[1].User.Name).To(Equal("Arya Stark"))
+	Expect(ideas[1].TotalSupporters).To(Equal(5))
 }
 
 func TestIdeaStorage_SaveAndGet(t *testing.T) {
@@ -55,6 +57,7 @@ func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(1))
 	Expect(dbIdea.Number).To(Equal(1))
+	Expect(dbIdea.TotalSupporters).To(Equal(0))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Description).To(Equal("with this description"))
 	Expect(dbIdea.User.ID).To(Equal(1))

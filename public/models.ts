@@ -17,6 +17,7 @@ export interface Idea {
   description: string;
   createdOn: string;
   user: User;
+  totalSupporters: number;
 }
 
 export interface Comment {

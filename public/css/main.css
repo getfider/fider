@@ -6,13 +6,8 @@
   margin-top: 40px;
 }
 
-.ideas-list .vote-col {
-  text-align: center;
-  width: 140px;
-}
-
-.ideas-list .vote-col div {
-  display: block;
+.ideas-list .ui.items > .item > .content {
+  margin-left: 20px;
 }
 
 #footer {
@@ -21,4 +16,8 @@
 
 .right {
   text-align: right;
+}
+
+.idea-header {
+  margin-left: 20px;
 }

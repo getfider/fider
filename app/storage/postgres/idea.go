@@ -20,7 +20,8 @@ var (
 								  i.number, 
 								  i.title, 
 								  i.description, 
-								  i.created_on, 
+								  i.created_on,
+								  i.supporters, 
 								  u.id AS user_id, 
 								  u.name AS user_name, 
 								  u.email AS user_email
@@ -105,8 +106,8 @@ func (s *IdeaStorage) Save(tenantID, userID int, title, description string) (*mo
 	idea.Title = title
 	idea.Description = description
 
-	row := tx.QueryRow(`INSERT INTO ideas (title, number, description, tenant_id, user_id, created_on) 
-						VALUES ($1, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $3), $2, $3, $4, $5) 
+	row := tx.QueryRow(`INSERT INTO ideas (title, number, description, tenant_id, user_id, created_on, supporters) 
+						VALUES ($1, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $3), $2, $3, $4, $5, 0) 
 						RETURNING id`, title, description, tenantID, userID, time.Now())
 	if err = row.Scan(&idea.ID); err != nil {
 		tx.Rollback()
