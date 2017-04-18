@@ -108,6 +108,8 @@ func (db Database) Get(data interface{}, command string, args ...interface{}) er
 	if rows.Next() {
 		return scan(rows, data)
 	}
+
+	rows.Close()
 	return sql.ErrNoRows
 }
 
@@ -131,6 +133,7 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	}
 
 	reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	rows.Close()
 	return nil
 }
 
