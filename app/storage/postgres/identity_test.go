@@ -13,8 +13,8 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	svc := &postgres.TenantStorage{DB: db}
-	tenant, err := svc.GetByDomain("mydomain")
+	tenants := &postgres.TenantStorage{DB: db}
+	tenant, err := tenants.GetByDomain("mydomain")
 
 	Expect(tenant).To(BeNil())
 	Expect(err).NotTo(BeNil())
@@ -27,8 +27,8 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 
-	svc := &postgres.TenantStorage{DB: db}
-	tenant, err := svc.GetByDomain("mydomain")
+	tenants := &postgres.TenantStorage{DB: db}
+	tenant, err := tenants.GetByDomain("mydomain")
 
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
@@ -43,8 +43,8 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 
 	db.Execute("INSERT INTO tenants (name, subdomain, cname, created_on) VALUES ('My Domain Inc.','mydomain', 'mydomain.anydomain.com', now())")
 
-	svc := &postgres.TenantStorage{DB: db}
-	tenant, err := svc.GetByDomain("mydomain.anydomain.com")
+	tenants := &postgres.TenantStorage{DB: db}
+	tenant, err := tenants.GetByDomain("mydomain.anydomain.com")
 
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))

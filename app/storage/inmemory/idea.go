@@ -58,3 +58,13 @@ func (s *IdeaStorage) Save(tenantID, userID int, title, description string) (*mo
 func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
 	return 0, nil
 }
+
+// AddSupport adds user to idea list of supporters
+func (s *IdeaStorage) AddSupport(userID, ideaID int) error {
+	return nil
+}
+
+// RemoveSupport removes user from idea list of supporters
+func (s *IdeaStorage) RemoveSupport(userID, ideaID int) error {
+	return nil
+}

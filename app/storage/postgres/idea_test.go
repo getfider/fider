@@ -20,23 +20,23 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300, 0)", now)
 	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301, 5)", now)
 
-	svc := &postgres.IdeaStorage{DB: db}
-	ideas, err := svc.GetAll(300)
+	ideas := &postgres.IdeaStorage{DB: db}
+	dbIdeas, err := ideas.GetAll(300)
 
 	Expect(err).To(BeNil())
-	Expect(ideas).To(HaveLen(2))
+	Expect(dbIdeas).To(HaveLen(2))
 
-	Expect(ideas[0].Title).To(Equal("Idea #1"))
-	Expect(ideas[0].Number).To(Equal(1))
-	Expect(ideas[0].Description).To(Equal("Description #1"))
-	Expect(ideas[0].User.Name).To(Equal("Jon Snow"))
-	Expect(ideas[0].TotalSupporters).To(Equal(0))
+	Expect(dbIdeas[0].Title).To(Equal("Idea #1"))
+	Expect(dbIdeas[0].Number).To(Equal(1))
+	Expect(dbIdeas[0].Description).To(Equal("Description #1"))
+	Expect(dbIdeas[0].User.Name).To(Equal("Jon Snow"))
+	Expect(dbIdeas[0].TotalSupporters).To(Equal(0))
 
-	Expect(ideas[1].Title).To(Equal("Idea #2"))
-	Expect(ideas[1].Number).To(Equal(2))
-	Expect(ideas[1].Description).To(Equal("Description #2"))
-	Expect(ideas[1].User.Name).To(Equal("Arya Stark"))
-	Expect(ideas[1].TotalSupporters).To(Equal(5))
+	Expect(dbIdeas[1].Title).To(Equal("Idea #2"))
+	Expect(dbIdeas[1].Number).To(Equal(2))
+	Expect(dbIdeas[1].Description).To(Equal("Description #2"))
+	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
+	Expect(dbIdeas[1].TotalSupporters).To(Equal(5))
 }
 
 func TestIdeaStorage_SaveAndGet(t *testing.T) {
@@ -47,12 +47,12 @@ func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
-	svc := &postgres.IdeaStorage{DB: db}
-	idea, err := svc.Save(1, 1, "My new idea", "with this description")
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, err := ideas.Save(1, 1, "My new idea", "with this description")
 	Expect(err).To(BeNil())
 	Expect(idea.ID).To(Equal(1))
 
-	dbIdea, err := svc.GetByID(1, 1)
+	dbIdea, err := ideas.GetByID(1, 1)
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(1))
@@ -70,8 +70,8 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	svc := &postgres.IdeaStorage{DB: db}
-	dbIdea, err := svc.GetByID(1, 1)
+	ideas := &postgres.IdeaStorage{DB: db}
+	dbIdea, err := ideas.GetByID(1, 1)
 
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(dbIdea).To(BeNil())
@@ -85,12 +85,12 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
 	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
 
-	svc := &postgres.IdeaStorage{DB: db}
-	idea, _ := svc.Save(1, 1, "My new idea", "with this description")
-	svc.AddComment(1, idea.ID, "Comment #1")
-	svc.AddComment(1, idea.ID, "Comment #2")
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(1, 1, "My new idea", "with this description")
+	ideas.AddComment(1, idea.ID, "Comment #1")
+	ideas.AddComment(1, idea.ID, "Comment #2")
 
-	comments, err := svc.GetCommentsByIdeaID(1, idea.ID)
+	comments, err := ideas.GetCommentsByIdeaID(1, idea.ID)
 	Expect(err).To(BeNil())
 	Expect(len(comments)).To(Equal(2))
 
@@ -103,21 +103,59 @@ func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	svc := &postgres.IdeaStorage{DB: db}
-	svc.Save(300, 300, "My new idea", "with this description")
-	svc.Save(400, 400, "My other idea", "with other description")
+	ideas := &postgres.IdeaStorage{DB: db}
+	ideas.Save(300, 300, "My new idea", "with this description")
+	ideas.Save(400, 400, "My other idea", "with other description")
 
-	dbIdea, err := svc.GetByNumber(300, 1)
+	dbIdea, err := ideas.GetByNumber(300, 1)
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(1))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 
-	dbIdea, err = svc.GetByNumber(400, 1)
+	dbIdea, err = ideas.GetByNumber(400, 1)
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(2))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My other idea"))
+}
+
+func TestIdeaStorage_AddSupporter(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
+
+	err := ideas.AddSupport(300, idea.ID)
+	Expect(err).To(BeNil())
+
+	err = ideas.AddSupport(301, idea.ID)
+	Expect(err).To(BeNil())
+
+	dbIdea, err := ideas.GetByNumber(300, 1)
+	Expect(err).To(BeNil())
+	Expect(dbIdea.TotalSupporters).To(Equal(2))
+}
+
+func TestIdeaStorage_RemoveSupporter(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
+
+	err := ideas.AddSupport(300, idea.ID)
+	Expect(err).To(BeNil())
+
+	err = ideas.RemoveSupport(300, idea.ID)
+	Expect(err).To(BeNil())
+
+	dbIdea, err := ideas.GetByNumber(300, 1)
+	Expect(err).To(BeNil())
+	Expect(dbIdea.TotalSupporters).To(Equal(0))
 }

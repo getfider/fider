@@ -132,3 +132,43 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 
 	return id, tx.Commit()
 }
+
+// AddSupport adds user to idea list of supporters
+func (s *IdeaStorage) AddSupport(userID, ideaID int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, ideaID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := tx.Exec(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, ideaID, time.Now()); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// RemoveSupport removes user from idea list of supporters
+func (s *IdeaStorage) RemoveSupport(userID, ideaID int) error {
+	tx, err := s.DB.Begin()
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, ideaID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if _, err := tx.Exec(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, ideaID); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}

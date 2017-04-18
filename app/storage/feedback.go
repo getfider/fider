@@ -10,4 +10,6 @@ type Idea interface {
 	GetAll(tenantID int) ([]*models.Idea, error)
 	Save(tenantID, userID int, title, description string) (*models.Idea, error)
 	AddComment(userID, ideaID int, content string) (int, error)
+	AddSupport(userID, ideaID int) error
+	RemoveSupport(userID, ideaID int) error
 }
