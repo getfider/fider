@@ -15,7 +15,9 @@
     "vendor": true,
     "node_modules": true,
     "dist": true,
-    "coverage.txt": true
+    "coverage.txt": true,
+    "debug": true,
+    "debug.test": true
   },
   "vsicons.presets.angular": true
 }

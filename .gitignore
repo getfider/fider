@@ -14,3 +14,5 @@ npm-debug.log
 
 coverage.txt
 profile.out
+debug
+debug.test
