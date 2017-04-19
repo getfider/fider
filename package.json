@@ -10,28 +10,28 @@
     "lint": "tslint public/**/**.tsx public/**/**.ts"
   },
   "dependencies": {
-    "axios": "^0.16.0",
-    "jquery": "^3.2.0",
+    "axios": "^0.16.1",
+    "jquery": "^3.2.1",
     "md5": "^2.2.1",
     "moment": "^2.18.1",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
     "semantic-ui-css": "^2.2.10"
   },
   "devDependencies": {
     "@types/jquery": "^2.0.41",
-    "@types/md5": "^2.1.31",
-    "@types/react": "^15.0.20",
-    "@types/react-dom": "^0.14.23",
+    "@types/md5": "^2.1.32",
+    "@types/react": "^15.0.22",
+    "@types/react-dom": "^15.5.0",
     "clean-webpack-plugin": "^0.1.16",
     "css-loader": "^0.28.0",
     "file-loader": "^0.11.1",
     "rimraf": "^2.6.1",
     "style-loader": "^0.16.1",
     "ts-loader": "^2.0.3",
-    "tslint": "^5.0.0",
+    "tslint": "^5.1.0",
     "typescript": "^2.2.2",
-    "webpack": "^2.3.3"
+    "webpack": "^2.4.1"
   },
   "engines": {
     "node": "6.10.0"
