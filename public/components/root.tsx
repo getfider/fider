@@ -18,7 +18,7 @@ export class Root extends React.Component<{}, {}> {
                           <SupportCounter idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}`} className="header">
-                              <i className="idea icon"></i> { x.totalSupporters } { x.title }
+                              <i className="idea icon"></i> { x.title }
                             </a>
                             <div className="description">
                               <MultiLineText text={ x.description } />
