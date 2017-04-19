@@ -17,7 +17,7 @@
     "dist": true,
     "coverage.txt": true,
     "debug": true,
-    "debug.test": true
+    "**/debug.test": true
   },
   "vsicons.presets.angular": true
 }

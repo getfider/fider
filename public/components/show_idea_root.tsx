@@ -6,6 +6,7 @@ import { Comment, Idea } from "../models";
 import { CommentInput } from "./comment_input";
 import { Gravatar, MultiLineText } from "./common";
 import { SocialSignInButton } from "./social_signin_button";
+import { SupportCounter } from "./SupportCounter";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
@@ -40,19 +41,7 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
                     <div className="ui items unstackable">
                       <div className="item">
 
-                        <div className="ui small statistics">
-                          <div className="statistic">
-                            <div className="value">
-                              { idea.totalSupporters }
-                            </div>
-                            <div className="ui mini primary animated button">
-                              <div className="visible content">Want</div>
-                              <div className="hidden content">
-                                <i className="heart icon"></i>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <SupportCounter idea={idea} />
 
                         <div className="idea-header">
                           <h1 className="ui header">{ idea.title }</h1>

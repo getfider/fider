@@ -21,3 +21,11 @@
 .idea-header {
   margin-left: 20px;
 }
+
+.support-button {
+  width: 60px;
+}
+
+.support-button i.icon {
+  margin: 0px;
+}

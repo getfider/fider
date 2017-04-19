@@ -3,6 +3,7 @@ import * as React from "react";
 import { Idea } from "../models";
 import * as storage from "../storage";
 import { Gravatar, MultiLineText } from "./common";
+import { SupportCounter } from "./SupportCounter";
 
 import { Footer } from "./footer";
 import { Header } from "./header";
@@ -14,19 +15,7 @@ export class Root extends React.Component<{}, {}> {
 
         const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
-                          <div className="ui small statistics">
-                            <div className="statistic">
-                              <div className="value">
-                                { x.totalSupporters }
-                              </div>
-                              <div className="ui mini primary animated button">
-                                <div className="visible content">Want</div>
-                                <div className="hidden content">
-                                  <i className="heart icon"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <SupportCounter idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}`} className="header">
                               <i className="idea icon"></i> { x.totalSupporters } { x.title }

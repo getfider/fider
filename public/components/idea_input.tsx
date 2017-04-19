@@ -44,7 +44,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     public render() {
         const user = getCurrentUser();
-        const buttonClasses = `ui positive button ${this.state.clicked && "loading disabled"}`;
+        const buttonClasses = `ui primary button ${this.state.clicked && "loading disabled"}`;
         const details = user ?
                         <div>
                           <div className="field">
