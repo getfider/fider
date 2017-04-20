@@ -7,6 +7,7 @@ interface SupportCounterProps {
 
 interface SupportCounterState {
     supported: boolean;
+    total: number;
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
@@ -14,36 +15,50 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         super(props);
         this.state = {
           supported: props.idea.totalSupporters >= 1 && props.idea.totalSupporters <= 10,
+          total: props.idea.totalSupporters
         };
     }
 
-    public undoButton() {
-        return <div className="support-button ui mini violet animated button">
-                    <div className="visible content"><i className="heart icon"></i></div>
-                    <div className="hidden content">
-                        Undo
-                    </div>
-                </div>;
+    public undo() {
+        if (!this.state.supported) { return; }
+
+        this.setState({
+            supported: false,
+            total: this.state.total - 1
+        });
     }
 
-    public supportButton() {
-        return <div className="support-button ui mini violet inverted animated button">
+    public support() {
+        if (this.state.supported) { return; }
+
+        this.setState({
+            supported: true,
+            total: this.state.total + 1
+        });
+    }
+
+    public render() {
+        const support = <div className="support-button ui mini violet inverted animated button"
+                    onClick={() => this.support()}>
                     <div className="visible content">Want</div>
                     <div className="hidden content">
                         <i className="heart icon"></i>
                     </div>
                 </div>;
-    }
-
-    public render() {
-        const button = this.state.supported ? this.undoButton() : this.supportButton();
+        const undo = <div className="support-button ui mini violet animated button"
+                    onClick={() => this.undo()}>
+                    <div className="visible content"><i className="heart icon"></i></div>
+                    <div className="hidden content">
+                        Undo
+                    </div>
+                </div>;
 
         return <div className="ui small statistics">
                     <div className="statistic">
                         <div className="value">
-                            { this.props.idea.totalSupporters }
+                            { this.state.total }
                         </div>
-                        { button }
+                        { this.state.supported ? undo : support }
                     </div>
                 </div>;
     }
