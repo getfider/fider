@@ -18,6 +18,7 @@ func TestListHandler(t *testing.T) {
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 
 	code, _ := server.Execute(handlers.Handlers(ideas).List())
 
@@ -31,6 +32,7 @@ func TestDetailsHandler(t *testing.T) {
 	idea, _ := ideas.Save(1, 1, "My Idea", "My Idea Description")
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues(strconv.Itoa(idea.Number))
 
@@ -45,6 +47,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("99")
 
