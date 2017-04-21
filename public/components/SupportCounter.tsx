@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as React from "react";
-import { Idea } from "../models";
+import { Idea, User } from "../models";
 import * as storage from "../storage";
 
 interface SupportCounterProps {
@@ -10,6 +10,7 @@ interface SupportCounterProps {
 interface SupportCounterState {
     supported: boolean;
     total: number;
+    user: User;
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
@@ -19,12 +20,13 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const supported = storage.get<number[]>("supported") || [];
         this.state = {
           supported: supported.indexOf(props.idea.id) >= 0,
-          total: props.idea.totalSupporters
+          total: props.idea.totalSupporters,
+          user: storage.getCurrentUser()
         };
     }
 
     public async undo() {
-        if (!this.state.supported) { return; }
+        if (!this.state.supported || !this.state.user) { return; }
 
         try {
             await axios.post(`/api/ideas/${this.props.idea.number}/unsupport`);
@@ -40,7 +42,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public async support() {
-        if (this.state.supported) { return; }
+        if (this.state.supported || !this.state.user) { return; }
 
         try {
             await axios.post(`/api/ideas/${this.props.idea.number}/support`);

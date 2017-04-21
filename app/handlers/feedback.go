@@ -27,9 +27,12 @@ func (h AllHandlers) List() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		supported, err := h.ideas.GetSupportedIdeas(c.User().ID)
-		if err != nil {
-			return c.Failure(err)
+		var supported []int
+		if c.IsAuthenticated() {
+			supported, err = h.ideas.GetSupportedIdeas(c.User().ID)
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		return c.Page(echo.Map{
