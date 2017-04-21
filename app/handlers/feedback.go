@@ -61,9 +61,7 @@ func (h AllHandlers) PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, echo.Map{
-			"idea": idea,
-		})
+		return c.JSON(200, idea)
 	}
 }
 
@@ -115,18 +113,24 @@ func (h AllHandlers) PostComment() web.HandlerFunc {
 			})
 		}
 
-		ideaID, err := c.ParamAsInt("id")
+		ideaNumber, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		id, err := h.ideas.AddComment(c.User().ID, ideaID, input.Content)
+		idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		if err != nil {
+			if err == app.ErrNotFound {
+				return c.NotFound()
+			}
+			return c.Failure(err)
+		}
+
+		_, err = h.ideas.AddComment(c.User().ID, idea.ID, input.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, echo.Map{
-			"comment_id": id,
-		})
+		return c.JSON(200, echo.Map{})
 	}
 }

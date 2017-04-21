@@ -32,7 +32,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       });
 
       try {
-        await axios.post(`/api/ideas/${this.props.idea.id}/comments`, {
+        await axios.post(`/api/ideas/${this.props.idea.number}/comments`, {
           content: this.state.content
         });
 

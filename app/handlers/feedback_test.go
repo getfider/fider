@@ -53,7 +53,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	Expect(code).To(Equal(404))
 }
 
-func TestDetailsHandler_AddIdea(t *testing.T) {
+func TestPostIdeaHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
@@ -70,7 +70,7 @@ func TestDetailsHandler_AddIdea(t *testing.T) {
 	Expect(idea.TotalSupporters).To(Equal(1))
 }
 
-func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {
+func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
@@ -85,14 +85,15 @@ func TestDetailsHandler_AddIdea_WithoutTitle(t *testing.T) {
 	Expect(err).NotTo(BeNil())
 }
 
-func TestDetailsHandler_AddComment(t *testing.T) {
+func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
+	ideas.Save(1, 1, "Title", "Description")
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("id")
+	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 	handler := handlers.Handlers(ideas).PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "This is a comment!" }`)
@@ -100,17 +101,35 @@ func TestDetailsHandler_AddComment(t *testing.T) {
 	Expect(code).To(Equal(200))
 }
 
-func TestDetailsHandler_AddComment_WithoutContent(t *testing.T) {
+func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("id")
+	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 	handler := handlers.Handlers(ideas).PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "" }`)
 
 	Expect(code).To(Equal(400))
 }
+
+/*
+func TestAddSupporterHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	ideas := &inmemory.IdeaStorage{}
+	ideas.Save(1, 1, "The Idea #1", "The Description #1")
+	ideas.Save(1, 1, "The Idea #2", "The Description #2")
+	server := mock.NewServer()
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
+	server.Context.SetParamNames("number")
+	server.Context.SetParamValues("2")
+	code, _ := server.Execute(handlers.Handlers(ideas).AddSupporter())
+
+	Expect(code).To(Equal(200))
+}
+*/
