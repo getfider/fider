@@ -52,6 +52,8 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 
 		private.Post("/api/ideas", handlers.Handlers(ctx.Idea).PostIdea())
 		private.Post("/api/ideas/:number/comments", handlers.Handlers(ctx.Idea).PostComment())
+		private.Post("/api/ideas/:number/support", handlers.Handlers(ctx.Idea).AddSupporter())
+		private.Post("/api/ideas/:number/unsupport", handlers.Handlers(ctx.Idea).RemoveSupporter())
 	}
 
 	auth := r.Group("/oauth")

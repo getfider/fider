@@ -134,3 +134,39 @@ func (h AllHandlers) PostComment() web.HandlerFunc {
 		return c.JSON(200, echo.Map{})
 	}
 }
+
+// AddSupporter adds current user to given idea list of supporters
+func (h AllHandlers) AddSupporter() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemoveSupporter(c, h, h.ideas.AddSupporter)
+	}
+}
+
+// RemoveSupporter removes current user from given idea list of supporters
+func (h AllHandlers) RemoveSupporter() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemoveSupporter(c, h, h.ideas.RemoveSupporter)
+	}
+}
+
+func addOrRemoveSupporter(c web.Context, h AllHandlers, addOrRemove func(userId, ideaId int) error) error {
+	ideaNumber, err := c.ParamAsInt("number")
+	if err != nil {
+		return c.Failure(err)
+	}
+
+	idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+	if err != nil {
+		if err == app.ErrNotFound {
+			return c.NotFound()
+		}
+		return c.Failure(err)
+	}
+
+	err = addOrRemove(c.User().ID, idea.ID)
+	if err != nil {
+		return c.Failure(err)
+	}
+
+	return c.JSON(200, echo.Map{})
+}

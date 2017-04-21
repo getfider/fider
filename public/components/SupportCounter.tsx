@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as React from "react";
 import { Idea } from "../models";
 
@@ -19,34 +20,48 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         };
     }
 
-    public undo() {
+    public async undo() {
         if (!this.state.supported) { return; }
 
-        this.setState({
-            supported: false,
-            total: this.state.total - 1
-        });
+        try {
+            await axios.post(`/api/ideas/${this.props.idea.number}/unsupport`);
+
+            this.setState({
+                supported: false,
+                total: this.state.total - 1
+            });
+        } catch (ex) {
+            // TODO: handle this
+        }
+
     }
 
-    public support() {
+    public async support() {
         if (this.state.supported) { return; }
 
-        this.setState({
-            supported: true,
-            total: this.state.total + 1
-        });
+        try {
+            await axios.post(`/api/ideas/${this.props.idea.number}/support`);
+
+            this.setState({
+                supported: true,
+                total: this.state.total + 1
+            });
+        } catch (ex) {
+            // TODO: handle this
+        }
+
     }
 
     public render() {
         const support = <div className="support-button ui mini violet inverted animated button"
-                    onClick={() => this.support()}>
+                    onClick={async () => await this.support()}>
                     <div className="visible content">Want</div>
                     <div className="hidden content">
                         <i className="heart icon"></i>
                     </div>
                 </div>;
         const undo = <div className="support-button ui mini violet animated button"
-                    onClick={() => this.undo()}>
+                    onClick={async () => await this.undo()}>
                     <div className="visible content"><i className="heart icon"></i></div>
                     <div className="hidden content">
                         Undo
