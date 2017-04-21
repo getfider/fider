@@ -172,3 +172,8 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 
 	return tx.Commit()
 }
+
+// GetSupportedIdeas returns all ideas supported by given user
+func (s *IdeaStorage) GetSupportedIdeas(userID int) ([]int, error) {
+	return s.DB.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", userID)
+}

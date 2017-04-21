@@ -51,6 +51,29 @@ func (db Database) QueryInt(command string, args ...interface{}) (int, error) {
 	return data, nil
 }
 
+// QueryIntArray executes given SQL command and return first column as int
+func (db Database) QueryIntArray(command string, args ...interface{}) ([]int, error) {
+	var values []int
+	var value int
+
+	rows, err := db.conn.Query(command, args...)
+	if err != nil {
+		return make([]int, 0), err
+	}
+
+	if rows != nil {
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&value)
+			if err != nil {
+				return make([]int, 0), err
+			}
+			values = append(values, value)
+		}
+	}
+	return values, nil
+}
+
 // QueryString executes given SQL command and return first string of first row
 func (db Database) QueryString(command string, args ...interface{}) (string, error) {
 	var data string

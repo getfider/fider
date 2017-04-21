@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as React from "react";
 import { Idea } from "../models";
+import * as storage from "../storage";
 
 interface SupportCounterProps {
     idea: Idea;
@@ -14,8 +15,10 @@ interface SupportCounterState {
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
     constructor(props: SupportCounterProps) {
         super(props);
+
+        const supported = storage.get<number[]>("supported") || [];
         this.state = {
-          supported: props.idea.totalSupporters >= 1 && props.idea.totalSupporters <= 10,
+          supported: supported.indexOf(props.idea.id) >= 0,
           total: props.idea.totalSupporters
         };
     }
@@ -53,6 +56,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public render() {
+
         const support = <div className="support-button ui mini violet inverted animated button"
                     onClick={async () => await this.support()}>
                     <div className="visible content">Want</div>
