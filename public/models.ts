@@ -8,6 +8,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  supportedIdeas: number[];
 }
 
 export interface Idea {

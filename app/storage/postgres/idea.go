@@ -135,6 +135,15 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 
 // AddSupporter adds user to idea list of supporters
 func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
+	alreadySupported, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	if err != nil {
+		return err
+	}
+
+	if alreadySupported {
+		return nil
+	}
+
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
@@ -155,6 +164,15 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 
 // RemoveSupporter removes user from idea list of supporters
 func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
+	didSupport, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	if err != nil {
+		return err
+	}
+
+	if !didSupport {
+		return nil
+	}
+
 	tx, err := s.DB.Begin()
 	if err != nil {
 		return err
@@ -171,9 +189,4 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 	}
 
 	return tx.Commit()
-}
-
-// GetSupportedIdeas returns all ideas supported by given user
-func (s *IdeaStorage) GetSupportedIdeas(userID int) ([]int, error) {
-	return s.DB.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", userID)
 }

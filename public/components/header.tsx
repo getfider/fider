@@ -8,7 +8,7 @@ export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
     private list: HTMLElement;
 
-    public  componentDidMount() {
+    public componentDidMount() {
         $(this.dropdown).popup({
             inline: true,
             hoverable: true,
@@ -53,7 +53,7 @@ export class Header extends React.Component<{}, {}> {
                         </a>
                     </div>
                 </div>
-                <div ref={(e) => { this.list = e; } } className="ui popup top left transition hidden">
+                <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
                     { items }
                 </div>
                </div>;

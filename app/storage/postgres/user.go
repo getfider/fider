@@ -69,5 +69,10 @@ func getUser(db *dbx.Database, filter string, args ...interface{}) (*models.User
 		return nil, err
 	}
 
+	user.SupportedIdeas, err = db.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", user.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &user, nil
 }

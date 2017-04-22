@@ -78,8 +78,3 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 	}
 	return nil
 }
-
-// GetSupportedIdeas returns all ideas supported by given user
-func (s *IdeaStorage) GetSupportedIdeas(userID int) ([]int, error) {
-	return make([]int, 0), nil
-}

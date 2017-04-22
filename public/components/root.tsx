@@ -11,11 +11,12 @@ import { IdeaInput } from "./idea_input";
 
 export class Root extends React.Component<{}, {}> {
     public render() {
+        const user = storage.getCurrentUser();
         const ideas = storage.get<Idea[]>("ideas") || [];
 
         const ideasList = ideas.map((x) =>
                         <div className="item" key={x.id}>
-                          <SupportCounter idea={x} />
+                          <SupportCounter user={user} idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}`} className="header">
                               <i className="idea icon"></i> { x.title }

@@ -12,5 +12,4 @@ type Idea interface {
 	AddComment(userID, ideaID int, content string) (int, error)
 	AddSupporter(userID, ideaID int) error
 	RemoveSupporter(userID, ideaID int) error
-	GetSupportedIdeas(userID int) ([]int, error)
 }

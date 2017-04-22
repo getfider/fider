@@ -41,7 +41,7 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
                     <div className="ui items unstackable">
                       <div className="item">
 
-                        <SupportCounter idea={idea} />
+                        <SupportCounter user={user} idea={idea} />
 
                         <div className="idea-header">
                           <h1 className="ui header">{ idea.title }</h1>
