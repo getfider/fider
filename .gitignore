@@ -16,3 +16,4 @@ coverage.txt
 profile.out
 debug
 debug.test
+.DS_Store

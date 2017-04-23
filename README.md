@@ -1,6 +1,7 @@
 [![wercker status](https://app.wercker.com/status/921c1213268ff20191c449eb6eae5db2/s/master "wercker status")](https://app.wercker.com/project/byKey/921c1213268ff20191c449eb6eae5db2)
 [![codecov](https://codecov.io/gh/WeCanHearYou/wechy/branch/master/graph/badge.svg)](https://codecov.io/gh/WeCanHearYou/wechy)
 
+![](/public/imgs/logo2.png)
 
 # What is WeCanHearYou?
 
