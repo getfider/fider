@@ -16,7 +16,7 @@ import (
 func New() (*Database, error) {
 	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	if err != nil {
-		return nil, throw(err)
+		return nil, err
 	}
 
 	db := &Database{conn}
@@ -35,20 +35,9 @@ type Database struct {
 func (db Database) Execute(command string, args ...interface{}) error {
 	_, err := db.conn.Exec(command, args...)
 	if err != nil {
-		return throw(err)
+		return err
 	}
 	return nil
-}
-
-// QueryInt executes given SQL command and return first integer of first row
-func (db Database) QueryInt(command string, args ...interface{}) (int, error) {
-	var data int
-	row := db.conn.QueryRow(command, args...)
-	err := row.Scan(&data)
-	if err != nil {
-		return 0, err
-	}
-	return data, nil
 }
 
 // QueryIntArray executes given SQL command and return first column as int
@@ -73,17 +62,6 @@ func (db Database) QueryIntArray(command string, args ...interface{}) ([]int, er
 	}
 
 	return values, nil
-}
-
-// QueryString executes given SQL command and return first string of first row
-func (db Database) QueryString(command string, args ...interface{}) (string, error) {
-	var data string
-	row := db.conn.QueryRow(command, args...)
-	err := row.Scan(&data)
-	if err != nil {
-		return "", err
-	}
-	return data, nil
 }
 
 // Query the database with given SQL command
@@ -206,10 +184,11 @@ func scan(rows *sql.Rows, data interface{}) error {
 }
 
 // Close connection to database
-func (db Database) Close() {
+func (db Database) Close() error {
 	if db.conn != nil {
-		throw(db.conn.Close())
+		return db.conn.Close()
 	}
+	return nil
 }
 
 func (db Database) load(path string) {
@@ -222,11 +201,4 @@ func (db Database) load(path string) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func throw(err error) error {
-	if err != nil && env.IsTest() {
-		panic(err)
-	}
-	return err
 }

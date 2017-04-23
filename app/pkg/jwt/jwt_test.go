@@ -39,3 +39,19 @@ func TestJWT_Decode(t *testing.T) {
 	Expect(decoded.UserName).To(Equal(claims.UserName))
 	Expect(decoded.UserEmail).To(Equal(claims.UserEmail))
 }
+
+func TestJWT_DecodeChangedToken(t *testing.T) {
+	RegisterTestingT(t)
+
+	claims := &models.WechyClaims{
+		UserID:    424,
+		UserName:  "Jon Snow",
+		UserEmail: "jon.snow@got.com",
+	}
+
+	token, _ := jwt.Encode(claims)
+
+	decoded, err := jwt.Decode(token + "foo")
+	Expect(err).ToNot(BeNil())
+	Expect(decoded).To(BeNil())
+}
