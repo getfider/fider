@@ -53,6 +53,7 @@ coverage:
         name: get dotenv
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
+          go get github.com/wadey/gocovmerge
 
     # Publish to codecov.io
     - script:
