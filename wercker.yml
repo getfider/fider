@@ -56,7 +56,7 @@ coverage:
           chmod +x /usr/local/bin/jq
     # Get dependencies
     - script:
-        name: get dotenv
+        name: get dependencies
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
           go get github.com/wadey/gocovmerge
