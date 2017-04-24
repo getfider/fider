@@ -48,6 +48,12 @@ coverage:
   box: golang:1.8
   base-path: /go/src/github.com/WeCanHearYou/wechy
   steps:
+    # Install jq
+    - script:
+        name: install jq
+        code: |
+          curl -L http://stedolan.github.io/jq/download/linux64/jq -o /usr/local/bin/jq
+          chmod +x /usr/local/bin/jq
     # Get dependencies
     - script:
         name: get dotenv
