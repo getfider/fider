@@ -9,6 +9,7 @@ import (
 
 	"fmt"
 
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/jmoiron/jsonq"
 	"github.com/labstack/echo"
@@ -25,7 +26,7 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := echo.New()
-	engine.Renderer = web.NewHTMLRenderer(engine.Logger)
+	engine.Renderer = web.NewHTMLRenderer(&models.WeCHYSettings{}, engine.Logger)
 	engine.HTTPErrorHandler = func(e error, c echo.Context) {
 		fmt.Println(e)
 		c.NoContent(e.(*echo.HTTPError).Code)

@@ -23,7 +23,7 @@ type WeCHYServices struct {
 
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(ctx *WeCHYServices) *web.Engine {
-	r := web.New()
+	r := web.New(ctx.Settings)
 
 	assets := r.Group("/assets")
 	{

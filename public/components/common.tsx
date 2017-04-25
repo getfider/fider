@@ -32,10 +32,13 @@ export const DisplayError = (props: {error?: Error}) => {
 };
 
 export const EnvironmentInfo = () => {
-  const env = get<string>("env");
-  if (env && env.toLowerCase() !== "production") {
+  const settings = get<any>("settings");
+  if (settings.Environment.toLowerCase() !== "production") {
     return <div className="ui mini negative message no-border no-margin">
-                Env: {env}
+                Env: { settings.Environment } |
+                Compiler: { settings.Compiler } |
+                Version: { settings.Version } |
+                BuildTime: { settings.BuildTime }
             </div>;
   }
   return <div/>;

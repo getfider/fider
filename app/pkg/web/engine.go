@@ -6,6 +6,7 @@ import (
 
 	"fmt"
 
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -18,12 +19,12 @@ type Engine struct {
 }
 
 //New creates a new Engine
-func New() *Engine {
+func New(settings *models.WeCHYSettings) *Engine {
 	router := echo.New()
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")
 	router.Logger = createLogger()
-	router.Renderer = NewHTMLRenderer(router.Logger)
+	router.Renderer = NewHTMLRenderer(settings, router.Logger)
 	router.HTTPErrorHandler = errorHandler
 	return &Engine{router: router}
 }

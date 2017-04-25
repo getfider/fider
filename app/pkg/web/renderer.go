@@ -5,10 +5,9 @@ import (
 	"html/template"
 	"io"
 
-	"os"
-
 	"io/ioutil"
 
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
 )
@@ -17,11 +16,12 @@ import (
 type HTMLRenderer struct {
 	templates map[string]*template.Template
 	logger    echo.Logger
+	settings  *models.WeCHYSettings
 }
 
 // NewHTMLRenderer creates a new HTMLRenderer
-func NewHTMLRenderer(logger echo.Logger) *HTMLRenderer {
-	renderer := &HTMLRenderer{nil, logger}
+func NewHTMLRenderer(settings *models.WeCHYSettings, logger echo.Logger) *HTMLRenderer {
+	renderer := &HTMLRenderer{nil, logger, settings}
 	renderer.templates = make(map[string]*template.Template)
 
 	renderer.add("index.html")
@@ -58,9 +58,8 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	}
 
 	m := data.(echo.Map)
-	m["authEndpoint"] = os.Getenv("AUTH_ENDPOINT")
 	m["tenant"] = ctx.Tenant()
-	m["env"] = env.Current()
+	m["settings"] = r.settings
 
 	if ctx.IsAuthenticated() {
 		m["__User"] = ctx.User()

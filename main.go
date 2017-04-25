@@ -1,6 +1,8 @@
 package main
 
 import (
+	"runtime"
+
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
@@ -50,6 +52,8 @@ func main() {
 			BuildTime:    buildtime,
 			Version:      version,
 			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
+			Compiler:     runtime.Version(),
+			Environment:  env.Current(),
 		},
 	}
 
