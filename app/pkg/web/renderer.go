@@ -60,6 +60,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	m := data.(echo.Map)
 	m["authEndpoint"] = os.Getenv("AUTH_ENDPOINT")
 	m["tenant"] = ctx.Tenant()
+	m["env"] = env.Current()
 
 	if ctx.IsAuthenticated() {
 		m["__User"] = ctx.User()

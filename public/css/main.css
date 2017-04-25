@@ -29,3 +29,15 @@
 .support-button i.icon {
   margin: 0px;
 }
+
+.no-border {
+  border-radius: 0px !important;
+}
+
+.no-margin {
+  margin: 0px !important;
+}
+
+#menu {
+  margin-top: 0px;
+}

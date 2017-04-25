@@ -1,6 +1,7 @@
 import * as React from "react";
 import md5 = require("md5");
 import { AxiosError, AxiosResponse } from "axios";
+import { get, getCurrentUser } from "../storage";
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : "";
@@ -28,4 +29,14 @@ export const DisplayError = (props: {error?: Error}) => {
             </div>
             <p>{ props.error.message }</p>
          </div>;
+};
+
+export const EnvironmentInfo = () => {
+  const env = get<string>("env");
+  if (env && env.toLowerCase() !== "production") {
+    return <div className="ui mini negative message no-border no-margin">
+                Env: {env}
+            </div>;
+  }
+  return <div/>;
 };

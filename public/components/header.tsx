@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tenant } from "../models";
 import { get, getCurrentUser } from "../storage";
-import { Gravatar } from "./common";
+import { EnvironmentInfo, Gravatar } from "./common";
 import { SocialSignInButton } from "./social_signin_button";
 
 export class Header extends React.Component<{}, {}> {
@@ -20,6 +20,7 @@ export class Header extends React.Component<{}, {}> {
     public render() {
         const user = getCurrentUser();
         const tenant = get<Tenant>("tenant");
+        const env = get<string>("env");
 
         const items = user ? <div className="ui list">
                                 <div className="item">
@@ -41,21 +42,22 @@ export class Header extends React.Component<{}, {}> {
                              </div>;
 
         return <div>
-                <div className="ui menu">
-                    <div className="ui container">
-                        <a href="/" className="header item">
-                            { tenant.name }
-                        </a>
-                        <a ref={(e) => { this.dropdown = e; } } className="item right signin">
-                            <Gravatar email={user.email} />
-                            { user.name || "Sign in" }
-                            <i className="dropdown icon"></i>
-                        </a>
+                    <EnvironmentInfo />
+                    <div id="menu" className="ui menu no-border">
+                        <div className="ui container">
+                            <a href="/" className="header item">
+                                { tenant.name }
+                            </a>
+                            <a ref={(e) => { this.dropdown = e; } } className="item right signin">
+                                <Gravatar email={user.email} />
+                                { user.name || "Sign in" }
+                                <i className="dropdown icon"></i>
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
-                    { items }
-                </div>
+                    <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
+                        { items }
+                    </div>
                </div>;
     }
 }
