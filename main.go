@@ -49,11 +49,10 @@ func main() {
 		User:   &postgres.UserStorage{DB: db},
 		Tenant: &postgres.TenantStorage{DB: db},
 		Settings: &models.WeCHYSettings{
-			BuildTime:    buildtime,
-			Version:      version,
-			AuthEndpoint: env.MustGet("AUTH_ENDPOINT"),
-			Compiler:     runtime.Version(),
-			Environment:  env.Current(),
+			BuildTime:   buildtime,
+			Version:     version,
+			Compiler:    runtime.Version(),
+			Environment: env.Current(),
 		},
 	}
 

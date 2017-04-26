@@ -6,7 +6,6 @@ import (
 	"github.com/WeCanHearYou/wechy/app/handlers"
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
@@ -33,7 +32,7 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 
 	public := r.Group("")
 	{
-		public.Use(middlewares.MultiTenant(ctx.Tenant))
+		public.Use(middlewares.Tenant(ctx.Tenant))
 		public.Use(middlewares.JwtGetter(ctx.User))
 		public.Use(middlewares.JwtSetter())
 
@@ -45,7 +44,7 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 
 	private := r.Group("")
 	{
-		private.Use(middlewares.MultiTenant(ctx.Tenant))
+		private.Use(middlewares.Tenant(ctx.Tenant))
 		private.Use(middlewares.JwtGetter(ctx.User))
 		private.Use(middlewares.JwtSetter())
 		private.Use(middlewares.IsAuthenticated())
@@ -58,8 +57,8 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 
 	auth := r.Group("/oauth")
 	{
+		auth.Use(middlewares.Tenant(ctx.Tenant))
 		authHandlers := handlers.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
-		auth.Use(middlewares.HostChecker(env.MustGet("AUTH_ENDPOINT")))
 
 		auth.Get("/facebook", authHandlers.Login(oauth.FacebookProvider))
 		auth.Get("/facebook/callback", authHandlers.Callback(oauth.FacebookProvider))
@@ -69,7 +68,7 @@ func GetMainEngine(ctx *WeCHYServices) *web.Engine {
 
 	admin := r.Group("/admin")
 	{
-		admin.Use(middlewares.MultiTenant(ctx.Tenant))
+		admin.Use(middlewares.Tenant(ctx.Tenant))
 		admin.Use(middlewares.JwtGetter(ctx.User))
 		admin.Use(middlewares.JwtSetter())
 		admin.Use(middlewares.IsAuthenticated())

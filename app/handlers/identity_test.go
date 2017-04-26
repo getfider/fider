@@ -26,6 +26,7 @@ func TestLoginHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
+	server.Context.Set("__CTX_AUTH_ENDPOINT", "http://login.test.canherayou.com:3000")
 	code, response := server.ExecuteRaw(oauthHandlers.Login(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))

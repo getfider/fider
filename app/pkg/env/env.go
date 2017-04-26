@@ -26,6 +26,11 @@ func MustGet(name string) string {
 	return value
 }
 
+// HostMode returns current host mode
+func HostMode() string {
+	return GetEnvOrDefault("HOST_MODE", "single")
+}
+
 // GetCurrentDomain returns Wechy domain based on current environment variables
 func GetCurrentDomain() string {
 	env := os.Getenv("GO_ENV")

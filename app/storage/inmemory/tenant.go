@@ -18,10 +18,18 @@ func (s *TenantStorage) Add(tenant *models.Tenant) error {
 	return nil
 }
 
+// First returns first tenant
+func (s *TenantStorage) First() (*models.Tenant, error) {
+	for _, tenant := range s.tenants {
+		return tenant, nil
+	}
+
+	return nil, app.ErrNotFound
+}
+
 // GetByDomain returns a tenant based on its domain
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, tenant := range s.tenants {
-
 		if tenant.Subdomain == extractSubdomain(domain) {
 			return tenant, nil
 		}

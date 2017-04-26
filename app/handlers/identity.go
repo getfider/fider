@@ -46,12 +46,18 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect)
 		}
 
-		tenant, err := h.tenants.GetByDomain(stripPort(redirectURL.Host))
-		if err != nil {
-			return c.Failure(err)
+		tenant := c.Tenant()
+		if tenant == nil {
+			// should get from context
+			// Single/Multi middleware should handle auth endpoint properly
+			// .Set("AuthEndpoint") is not good as well
+			tenant, err = h.tenants.GetByDomain(stripPort(redirectURL.Host))
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
-		oauthUser, err := h.oauth.GetProfile(provider, code)
+		oauthUser, err := h.oauth.GetProfile(c.AuthEndpoint(), provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -111,7 +117,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 // Login handles OAuth logins
 func (h OAuthHandlers) Login(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
-		authURL := h.oauth.GetAuthURL(provider, c.QueryParam("redirect"))
+		authURL := h.oauth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }

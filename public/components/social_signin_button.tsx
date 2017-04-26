@@ -18,7 +18,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     }
 
     public render() {
-        const authEndpoint = get<any>("settings").AuthEndpoint;
+        const authEndpoint = get<string>("authEndpoint");
         const providerClassName = this.props.provider === "google" ? "google plus" : "facebook";
         const providerDisplayName = this.props.provider === "google" ? "Google" : "Facebook";
         const oauthUrl = `${authEndpoint}/oauth/${this.props.provider}?redirect=${location.href}`;

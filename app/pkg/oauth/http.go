@@ -16,37 +16,40 @@ import (
 
 type providerSettings struct {
 	profileURL func(token *oauth2.Token) string
-	config     *oauth2.Config
+	config     func(authEndpoint string) *oauth2.Config
 }
 
 var (
-	authEndpoint  = os.Getenv("AUTH_ENDPOINT")
 	oauthSettings = map[string]*providerSettings{
 		FacebookProvider: &providerSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
 			},
-			config: &oauth2.Config{
-				ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
-				ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
-				RedirectURL:  authEndpoint + "/oauth/facebook/callback",
-				Scopes:       []string{"public_profile", "email"},
-				Endpoint:     facebook.Endpoint,
+			config: func(authEndpoint string) *oauth2.Config {
+				return &oauth2.Config{
+					ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
+					ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
+					RedirectURL:  authEndpoint + "/oauth/facebook/callback",
+					Scopes:       []string{"public_profile", "email"},
+					Endpoint:     facebook.Endpoint,
+				}
 			},
 		},
 		GoogleProvider: &providerSettings{
 			profileURL: func(token *oauth2.Token) string {
 				return "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + url.QueryEscape(token.AccessToken)
 			},
-			config: &oauth2.Config{
-				ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
-				ClientSecret: os.Getenv("OAUTH_GOOGLE_SECRET"),
-				RedirectURL:  authEndpoint + "/oauth/google/callback",
-				Scopes: []string{
-					"https://www.googleapis.com/auth/userinfo.profile",
-					"https://www.googleapis.com/auth/userinfo.email",
-				},
-				Endpoint: google.Endpoint,
+			config: func(authEndpoint string) *oauth2.Config {
+				return &oauth2.Config{
+					ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
+					ClientSecret: os.Getenv("OAUTH_GOOGLE_SECRET"),
+					RedirectURL:  authEndpoint + "/oauth/google/callback",
+					Scopes: []string{
+						"https://www.googleapis.com/auth/userinfo.profile",
+						"https://www.googleapis.com/auth/userinfo.email",
+					},
+					Endpoint: google.Endpoint,
+				}
 			},
 		},
 	}
@@ -72,8 +75,8 @@ func doGet(url string, v interface{}) error {
 type HTTPService struct{}
 
 //GetAuthURL returns authentication url for given provider
-func (p *HTTPService) GetAuthURL(provider string, redirect string) string {
-	config := oauthSettings[provider].config
+func (p *HTTPService) GetAuthURL(authEndpoint string, provider string, redirect string) string {
+	config := oauthSettings[provider].config(authEndpoint)
 
 	authURL, _ := url.Parse(config.Endpoint.AuthURL)
 	parameters := url.Values{}
@@ -87,9 +90,9 @@ func (p *HTTPService) GetAuthURL(provider string, redirect string) string {
 }
 
 //GetProfile returns user profile based on provider and code
-func (p *HTTPService) GetProfile(provider string, code string) (*UserProfile, error) {
+func (p *HTTPService) GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error) {
 	settings := oauthSettings[provider]
-	oauthToken, err := settings.config.Exchange(oauth2.NoContext, code)
+	oauthToken, err := settings.config(authEndpoint).Exchange(oauth2.NoContext, code)
 	if err != nil {
 		return nil, fmt.Errorf("OAuth code Exchange for %s failed with %s", provider, err)
 	}

@@ -4,12 +4,12 @@ package oauth
 type MockOAuthService struct{}
 
 //GetAuthURL returns authentication url for given provider
-func (p *MockOAuthService) GetAuthURL(provider string, redirect string) string {
+func (p *MockOAuthService) GetAuthURL(authEndpoint string, provider string, redirect string) string {
 	return "http://orange.test.canherayou.com/oauth/token?provider=" + provider + "&redirect=" + redirect
 }
 
 //GetProfile returns user profile based on provider and code
-func (p *MockOAuthService) GetProfile(provider string, code string) (*UserProfile, error) {
+func (p *MockOAuthService) GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error) {
 	if provider == "facebook" && code == "123" {
 		return &UserProfile{
 			ID:    "FB1234",

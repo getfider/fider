@@ -16,6 +16,6 @@ type UserProfile struct {
 
 //Service provides OAuth operations
 type Service interface {
-	GetAuthURL(provider string, redirect string) string
-	GetProfile(provider string, code string) (*UserProfile, error)
+	GetAuthURL(authEndpoint string, provider string, redirect string) string
+	GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error)
 }

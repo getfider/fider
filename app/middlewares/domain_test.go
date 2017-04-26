@@ -79,6 +79,29 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	Expect(rec.Code).To(Equal(404))
 }
 
+func TestSingleTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	tenants := &inmemory.TenantStorage{}
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.Request().Host = "somedomain.com"
+
+	mw := middlewares.SingleTenant(tenants)
+	mw(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})(c)
+
+	tenant, err := tenants.First()
+
+	Expect(rec.Code).To(Equal(200))
+	Expect(err).To(BeNil())
+	Expect(tenant.Name).To(Equal("Default"))
+	Expect(tenant.Subdomain).To(Equal("default"))
+}
+
 func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 

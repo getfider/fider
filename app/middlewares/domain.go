@@ -4,15 +4,54 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
+
+// Tenant adds either SingleTenant or MultiTenant to the pipeline
+func Tenant(tenants storage.Tenant) web.MiddlewareFunc {
+	if env.HostMode() == "single" {
+		return SingleTenant(tenants)
+	}
+	return MultiTenant(tenants)
+}
+
+// SingleTenant inject default tenant into current context
+func SingleTenant(tenants storage.Tenant) web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			tenant, err := tenants.First()
+			if err == app.ErrNotFound {
+				tenant := &models.Tenant{
+					Name:      "Default",
+					Subdomain: "default",
+				}
+				tenants.Add(tenant)
+			}
+
+			c.SetTenant(tenant)
+			return next(c)
+		}
+	}
+}
 
 // MultiTenant extract tenant information from hostname and inject it into current context
 func MultiTenant(tenants storage.Tenant) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			hostname := stripPort(c.Request().Host)
+			u, err := url.Parse(c.AuthEndpoint())
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			if hostname == stripPort(u.Host) {
+				return next(c)
+			}
+
 			tenant, err := tenants.GetByDomain(hostname)
 			if err == nil {
 				c.SetTenant(tenant)

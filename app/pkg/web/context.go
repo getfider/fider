@@ -5,13 +5,15 @@ import (
 	"strconv"
 
 	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/labstack/echo"
 )
 
 var (
-	preffixKey       = "__CTX_"
-	tenantContextKey = preffixKey + "TENANT"
-	userContextKey   = preffixKey + "USER"
+	preffixKey             = "__CTX_"
+	tenantContextKey       = preffixKey + "TENANT"
+	userContextKey         = preffixKey + "USER"
+	authEndpointContextKey = preffixKey + "AUTH_ENDPOINT"
 )
 
 //Context wraps echo.context to provide userful WeCHY information
@@ -65,6 +67,25 @@ func (ctx *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(claims *models.User) {
 	ctx.Set(userContextKey, claims)
+}
+
+//AuthEndpoint auth endpoint
+func (ctx *Context) AuthEndpoint() string {
+	endpoint, ok := ctx.Get(authEndpointContextKey).(string)
+	if !ok {
+		mode := env.HostMode()
+		if mode == "single" {
+			protocol := "http"
+			if ctx.Request().TLS != nil {
+				protocol = "https"
+			}
+			endpoint = protocol + "://" + ctx.Request().Host
+		} else {
+			endpoint = env.MustGet("AUTH_ENDPOINT")
+		}
+		ctx.Set(authEndpointContextKey, endpoint)
+	}
+	return endpoint
 }
 
 //ParamAsInt returns parameter as int
