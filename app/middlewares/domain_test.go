@@ -56,10 +56,30 @@ func TestMultiTenant(t *testing.T) {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})(c)
 
-			Expect(rec.Code).To(Equal(200))
+			Expect(rec.Code).To(Equal(http.StatusOK))
 			Expect(rec.Body.String()).To(Equal(testCase.expected))
 		}
 	}
+}
+
+func TestMultiTenant_AuthDomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	req, _ := http.NewRequest(echo.GET, "/", nil)
+	rec := httptest.NewRecorder()
+	c := server.NewContext(req, rec)
+	c.Request().Host = "login.test.canhearyou.com"
+
+	mw := middlewares.MultiTenant(&inmemory.TenantStorage{})
+	mw(func(c web.Context) error {
+		if c.Tenant() == nil {
+			return c.NoContent(http.StatusOK)
+		}
+		return c.NoContent(http.StatusInternalServerError)
+	})(c)
+
+	Expect(rec.Code).To(Equal(http.StatusOK))
 }
 
 func TestMultiTenant_UnknownDomain(t *testing.T) {
@@ -76,7 +96,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})(c)
 
-	Expect(rec.Code).To(Equal(404))
+	Expect(rec.Code).To(Equal(http.StatusNotFound))
 }
 
 func TestSingleTenant(t *testing.T) {
@@ -96,7 +116,7 @@ func TestSingleTenant(t *testing.T) {
 
 	tenant, err := tenants.First()
 
-	Expect(rec.Code).To(Equal(200))
+	Expect(rec.Code).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(tenant.Name).To(Equal("Default"))
 	Expect(tenant.Subdomain).To(Equal("default"))

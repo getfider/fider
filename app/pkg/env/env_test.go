@@ -31,12 +31,12 @@ func TestGetEnvOrDefault(t *testing.T) {
 	Expect(path).NotTo(Equal("default path"))
 }
 
-func TestGetCurrentDomain(t *testing.T) {
+func TestCurrentDomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	for _, testCase := range envs {
 		os.Setenv("GO_ENV", testCase.go_env)
-		actual := env.GetCurrentDomain()
+		actual := env.CurrentDomain()
 		Expect(actual).To(Equal(testCase.domain))
 	}
 }
@@ -59,4 +59,11 @@ func TestIsEnvironment(t *testing.T) {
 		actual := testCase.isEnv()
 		Expect(actual).To(BeTrue())
 	}
+}
+
+func TestMustGet(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(func() {
+		env.MustGet("THIS_DOES_NOT_EXIST")
+	}).To(Panic())
 }

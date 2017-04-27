@@ -31,8 +31,8 @@ func HostMode() string {
 	return GetEnvOrDefault("HOST_MODE", "single")
 }
 
-// GetCurrentDomain returns Wechy domain based on current environment variables
-func GetCurrentDomain() string {
+// CurrentDomain returns Wechy domain based on current environment variables
+func CurrentDomain() string {
 	env := os.Getenv("GO_ENV")
 	switch env {
 	case "test":
