@@ -26,9 +26,9 @@ func MustGet(name string) string {
 	return value
 }
 
-// HostMode returns current host mode
-func HostMode() string {
-	return GetEnvOrDefault("HOST_MODE", "single")
+// IsSingleHostMode returns true if host mode is set to single tenant
+func IsSingleHostMode() bool {
+	return GetEnvOrDefault("HOST_MODE", "single") == "single"
 }
 
 // CurrentDomain returns Wechy domain based on current environment variables

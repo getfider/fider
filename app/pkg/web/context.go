@@ -69,17 +69,21 @@ func (ctx *Context) SetUser(claims *models.User) {
 	ctx.Set(userContextKey, claims)
 }
 
+//BaseURL returns base URL as string
+func (ctx *Context) BaseURL() string {
+	protocol := "http"
+	if ctx.Request().TLS != nil {
+		protocol = "https"
+	}
+	return protocol + "://" + ctx.Request().Host
+}
+
 //AuthEndpoint auth endpoint
 func (ctx *Context) AuthEndpoint() string {
 	endpoint, ok := ctx.Get(authEndpointContextKey).(string)
 	if !ok {
-		mode := env.HostMode()
-		if mode == "single" {
-			protocol := "http"
-			if ctx.Request().TLS != nil {
-				protocol = "https"
-			}
-			endpoint = protocol + "://" + ctx.Request().Host
+		if env.IsSingleHostMode() {
+			endpoint = ctx.BaseURL()
 		} else {
 			endpoint = env.MustGet("AUTH_ENDPOINT")
 		}

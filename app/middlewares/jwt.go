@@ -47,14 +47,9 @@ func JwtSetter() web.MiddlewareFunc {
 					Path:     "/",
 				})
 
-				scheme := "http"
-				if c.Request().TLS != nil {
-					scheme = "https"
-				}
-
 				query.Del("jwt")
 
-				url := scheme + "://" + c.Request().Host + c.Request().URL.Path
+				url := c.BaseURL() + c.Request().URL.Path
 				querystring := query.Encode()
 				if querystring != "" {
 					url += "?" + querystring

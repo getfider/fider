@@ -1,0 +1,21 @@
+version: '2'
+services:
+  db:
+    restart: always
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: wechy
+      POSTGRES_PASSWORD: s0m3g00dp4ssw0rd
+  app:
+    restart: always
+    image: wecanhearyou/wechy:latest
+    ports:
+      - "9999:8080"
+    environment:
+      PORT: 8080
+      GO_ENV: production
+      DATABASE_URL: postgres://wechy:s0m3g00dp4ssw0rd@db:5432/wechy?sslmode=disable
+      JWT_SECRET: Ml_1%vQwv]lchqm5;>y2(xKbU@Q@Lybwb(COx+d.o3&|5>)y;~G[KuWWYvR--6_g
+      # You can generate a new salt here: https://api.wordpress.org/secret-key/1.1/salt/
+    depends_on:
+      - db

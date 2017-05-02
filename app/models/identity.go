@@ -1,12 +1,14 @@
 package models
 
 import jwt "github.com/dgrijalva/jwt-go"
+import "database/sql"
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID        int    `json:"id" db:"id"`
-	Name      string `json:"name" db:"name"`
-	Subdomain string `json:"subdomain" db:"subdomain"`
+	ID        int            `json:"id" db:"id"`
+	Name      string         `json:"name" db:"name"`
+	Subdomain string         `json:"subdomain" db:"subdomain"`
+	CNAME     sql.NullString `json:"cname" db:"cname"`
 }
 
 //User represents an user inside our application

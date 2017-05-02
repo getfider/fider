@@ -103,10 +103,10 @@ func (db Database) Begin() (*sql.Tx, error) {
 // Get first row and bind to given data
 func (db Database) Get(data interface{}, command string, args ...interface{}) error {
 	rows, err := db.Query(command, args...)
-	defer rows.Close()
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 
 	if rows.Next() {
 		return scan(rows, data)
@@ -118,10 +118,10 @@ func (db Database) Get(data interface{}, command string, args ...interface{}) er
 //Select all matched rows bind to given data
 func (db Database) Select(data interface{}, command string, args ...interface{}) error {
 	rows, err := db.Query(command, args...)
-	defer rows.Close()
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()

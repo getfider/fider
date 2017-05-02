@@ -13,7 +13,7 @@ import (
 
 // Tenant adds either SingleTenant or MultiTenant to the pipeline
 func Tenant(tenants storage.Tenant) web.MiddlewareFunc {
-	if env.HostMode() == "single" {
+	if env.IsSingleHostMode() {
 		return SingleTenant(tenants)
 	}
 	return MultiTenant(tenants)

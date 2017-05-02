@@ -20,12 +20,12 @@ func TestUserStorage_GetByID(t *testing.T) {
 
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(300)))
+	Expect(user.Tenant.ID).To(Equal(300))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 	Expect(len(user.Providers)).To(Equal(1))
 	Expect(user.Providers[0].UID).To(Equal("FB1234"))
 	Expect(user.Providers[0].Name).To(Equal("facebook"))
-	Expect(user.Tenant.ID).To(Equal(300))
 }
 
 func TestUserStorage_GetByEmail_Error(t *testing.T) {
@@ -50,12 +50,12 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(300)))
+	Expect(user.Tenant.ID).To(Equal(300))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
 	Expect(len(user.Providers)).To(Equal(1))
 	Expect(user.Providers[0].UID).To(Equal("FB1234"))
 	Expect(user.Providers[0].Name).To(Equal("facebook"))
-	Expect(user.Tenant.ID).To(Equal(300))
 }
 
 func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
@@ -133,4 +133,29 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
+}
+
+func TestUserStorage_RegisterProvider(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	users := &postgres.UserStorage{DB: db}
+	users.RegisterProvider(300, &models.UserProvider{
+		UID:  "GO1234",
+		Name: "google",
+	})
+	user, err := users.GetByID(300)
+
+	Expect(err).To(BeNil())
+	Expect(user.ID).To(Equal(int(300)))
+	Expect(user.Name).To(Equal("Jon Snow"))
+	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(user.Tenant.ID).To(Equal(300))
+
+	Expect(len(user.Providers)).To(Equal(2))
+	Expect(user.Providers[0].UID).To(Equal("FB1234"))
+	Expect(user.Providers[0].Name).To(Equal("facebook"))
+	Expect(user.Providers[1].UID).To(Equal("GO1234"))
+	Expect(user.Providers[1].Name).To(Equal("google"))
 }
