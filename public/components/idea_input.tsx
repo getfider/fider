@@ -2,7 +2,7 @@ import axios from "axios";
 import * as React from "react";
 import { getCurrentUser } from "../storage";
 import { DisplayError } from "./common";
-import { SocialSignInButton } from "./social_signin_button";
+import { SocialSignInList } from "./SocialSignInList";
 
 interface IdeaInputState {
     title: string;
@@ -62,8 +62,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                               Please log in before posting an idea
                             </div>
                             <p>This only takes a second and you'll be good to go!</p>
-                            <SocialSignInButton provider="facebook" small={true} />
-                            <SocialSignInButton provider="google" small={true} />
+                              <SocialSignInList orientation="horizontal" size="small" />
                           </div>
                         </div>;
 

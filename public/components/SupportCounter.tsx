@@ -2,7 +2,7 @@ import axios from "axios";
 import * as React from "react";
 import { Idea, User } from "../models";
 import * as storage from "../storage";
-import { SocialSignInButton } from "./social_signin_button";
+import { SocialSignInList } from "./SocialSignInList";
 
 interface SupportCounterProps {
     user: User;
@@ -88,8 +88,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                     </div>
                     <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
                         <p className="header">Please log in to support an idea</p>
-                        <SocialSignInButton provider="facebook" small={true} />
-                        <SocialSignInButton provider="google" small={true} />
+                        <SocialSignInList orientation="horizontal" size="small" />
                     </div>
                 </div>;
     }

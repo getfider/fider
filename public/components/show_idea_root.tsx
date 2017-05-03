@@ -5,7 +5,7 @@ import * as storage from "../storage";
 import { Comment, Idea } from "../models";
 import { CommentInput } from "./comment_input";
 import { Gravatar, MultiLineText } from "./common";
-import { SocialSignInButton } from "./social_signin_button";
+import { SocialSignInButton } from "./SocialSignInButton";
 import { SupportCounter } from "./SupportCounter";
 
 import { Footer } from "./footer";

@@ -3,7 +3,7 @@ import { get } from "../storage";
 
 interface SocialSignInButtonProps {
     provider: string;
-    small?: boolean;
+    size: "small" | "normal";
 }
 interface SocialSignInButtonState {
     clicked: boolean;
@@ -18,16 +18,16 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     }
 
     public render() {
-        const authEndpoint = get<string>("authEndpoint");
+        const auth = get<any>("auth");
         const providerClassName = this.props.provider === "google" ? "google plus" : "facebook";
         const providerDisplayName = this.props.provider === "google" ? "Google" : "Facebook";
-        const oauthUrl = `${authEndpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
+        const oauthUrl = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
         const cssClasses = `ui button
                             ${providerClassName}
                             ${this.state.clicked ? "loading disabled" : ""}
-                            ${this.props.small ? "circular icon" : "fluid"}`;
+                            ${this.props.size === "small" ? "circular icon" : "fluid"}`;
 
-        if (this.props.small) {
+        if (this.props.size === "small") {
             return <a href={oauthUrl} className={cssClasses} onClick={() => this.setState({clicked: true})}>
                     <i className={providerClassName + " icon"}></i>
                    </a>;

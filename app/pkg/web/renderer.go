@@ -9,6 +9,7 @@ import (
 
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/labstack/echo"
 )
 
@@ -59,7 +60,13 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 
 	m := data.(echo.Map)
 	m["tenant"] = ctx.Tenant()
-	m["authEndpoint"] = ctx.Get("AuthEndpoint")
+	m["auth"] = echo.Map{
+		"endpoint": ctx.AuthEndpoint(),
+		"providers": echo.Map{
+			oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
+			oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
+		},
+	}
 	m["settings"] = r.settings
 
 	if ctx.IsAuthenticated() {

@@ -4,7 +4,7 @@ import * as React from "react";
 import { Idea } from "../models";
 import { getCurrentUser } from "../storage";
 import { DisplayError } from "./common";
-import { SocialSignInButton } from "./social_signin_button";
+import { SocialSignInList } from "./SocialSignInList";
 
 interface CommentInputProps {
     idea: Idea;
@@ -64,8 +64,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             Please log in before leaving a comment.
           </div>
           <p>This only takes a second and you'll be good to go!</p>
-          <SocialSignInButton provider="facebook" small={true} />
-          <SocialSignInButton provider="google" small={true} />
+          <SocialSignInList orientation="horizontal" size="small" />
         </div>;
 
         return addComment;

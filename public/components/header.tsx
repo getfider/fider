@@ -2,7 +2,7 @@ import * as React from "react";
 import { Tenant } from "../models";
 import { get, getCurrentUser } from "../storage";
 import { EnvironmentInfo, Gravatar } from "./common";
-import { SocialSignInButton } from "./social_signin_button";
+import { SocialSignInList } from "./SocialSignInList";
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
@@ -32,14 +32,7 @@ export class Header extends React.Component<{}, {}> {
                                     </a>
                                 </div>
                              </div> :
-                             <div className="ui list">
-                                <div className="item">
-                                    <SocialSignInButton provider="facebook"/>
-                                </div>
-                                <div className="item">
-                                    <SocialSignInButton provider="google"/>
-                                </div>
-                             </div>;
+                             <SocialSignInList orientation="vertical" size="normal" />;
 
         return <div>
                     <EnvironmentInfo />
