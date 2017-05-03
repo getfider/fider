@@ -30,3 +30,8 @@ Step by step:
 7) Navigate to `http://demo.dev.canhearyou.com:3000/` and boom! Welcome to your new local WeCanHearYou development copy!
 
 Change some code, fix some bugs, implement some features and send us your Pull Request!
+
+# How to run the tests
+
+1) run `docker-compose up -d pgtest` to start a test-only PostgreSQL database on Docker.
+2) run `make test`.

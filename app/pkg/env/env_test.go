@@ -15,10 +15,9 @@ var envs = []struct {
 	isEnv  func() bool
 }{
 	{"test", "test.canhearyou.com", "test", env.IsTest},
-	{"staging", "staging.canhearyou.com", "staging", env.IsStaging},
 	{"development", "dev.canhearyou.com", "development", env.IsDevelopment},
 	{"production", "canhearyou.com", "production", env.IsProduction},
-	{"anything", "canhearyou.com", "development", env.IsDevelopment},
+	{"anything", "dev.canhearyou.com", "development", env.IsDevelopment},
 }
 
 func TestGetEnvOrDefault(t *testing.T) {

@@ -38,8 +38,6 @@ func CurrentDomain() string {
 		return "test.canhearyou.com"
 	case "development":
 		return "dev.canhearyou.com"
-	case "staging":
-		return "staging.canhearyou.com"
 	}
 	return "canhearyou.com"
 
@@ -51,8 +49,6 @@ func Current() string {
 	switch env {
 	case "test":
 		return "test"
-	case "staging":
-		return "staging"
 	case "production":
 		return "production"
 	}
@@ -62,11 +58,6 @@ func Current() string {
 // IsProduction returns true on Wechy production environment
 func IsProduction() bool {
 	return Current() == "production"
-}
-
-// IsStaging returns true on Wechy staging environment
-func IsStaging() bool {
-	return Current() == "staging"
 }
 
 // IsTest returns true on Wechy test environment
