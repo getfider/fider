@@ -9,6 +9,6 @@ import (
 func TestGetMainEngine(t *testing.T) {
 	RegisterTestingT(t)
 
-	r := GetMainEngine(&WeCHYServices{})
+	r := GetMainEngine(&AppServices{})
 	Expect(r).ToNot(BeNil())
 }

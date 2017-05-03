@@ -19,7 +19,7 @@ type Engine struct {
 }
 
 //New creates a new Engine
-func New(settings *models.WeCHYSettings) *Engine {
+func New(settings *models.AppSettings) *Engine {
 	router := echo.New()
 	router.Use(middleware.Gzip())
 	router.Static("/favicon.ico", "favicon.ico")

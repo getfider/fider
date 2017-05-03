@@ -26,7 +26,7 @@ type Server struct {
 // NewServer creates a new test server
 func NewServer() *Server {
 	engine := echo.New()
-	engine.Renderer = web.NewHTMLRenderer(&models.WeCHYSettings{}, engine.Logger)
+	engine.Renderer = web.NewHTMLRenderer(&models.AppSettings{}, engine.Logger)
 	engine.HTTPErrorHandler = func(e error, c echo.Context) {
 		fmt.Println(e)
 		c.NoContent(e.(*echo.HTTPError).Code)

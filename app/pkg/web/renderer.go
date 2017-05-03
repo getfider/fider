@@ -16,11 +16,11 @@ import (
 type HTMLRenderer struct {
 	templates map[string]*template.Template
 	logger    echo.Logger
-	settings  *models.WeCHYSettings
+	settings  *models.AppSettings
 }
 
 // NewHTMLRenderer creates a new HTMLRenderer
-func NewHTMLRenderer(settings *models.WeCHYSettings, logger echo.Logger) *HTMLRenderer {
+func NewHTMLRenderer(settings *models.AppSettings, logger echo.Logger) *HTMLRenderer {
 	renderer := &HTMLRenderer{nil, logger, settings}
 	renderer.templates = make(map[string]*template.Template)
 

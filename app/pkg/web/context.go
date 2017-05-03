@@ -16,7 +16,7 @@ var (
 	authEndpointContextKey = preffixKey + "AUTH_ENDPOINT"
 )
 
-//Context wraps echo.context to provide userful WeCHY information
+//Context wraps echo.context to provide userful information
 type Context struct {
 	echo.Context
 }

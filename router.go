@@ -11,17 +11,17 @@ import (
 	"github.com/WeCanHearYou/wechy/app/storage"
 )
 
-// WeCHYServices holds reference to all Wechy services
-type WeCHYServices struct {
+// AppServices holds reference to all Wechy services
+type AppServices struct {
 	OAuth    oauth.Service
 	User     storage.User
 	Tenant   storage.Tenant
 	Idea     storage.Idea
-	Settings *models.WeCHYSettings
+	Settings *models.AppSettings
 }
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx *WeCHYServices) *web.Engine {
+func GetMainEngine(ctx *AppServices) *web.Engine {
 	r := web.New(ctx.Settings)
 
 	assets := r.Group("/assets")

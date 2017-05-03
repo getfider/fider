@@ -43,12 +43,12 @@ func main() {
 		panic(err)
 	}
 
-	ctx := &WeCHYServices{
+	ctx := &AppServices{
 		OAuth:  &oauth.HTTPService{},
 		Idea:   &postgres.IdeaStorage{DB: db},
 		User:   &postgres.UserStorage{DB: db},
 		Tenant: &postgres.TenantStorage{DB: db},
-		Settings: &models.WeCHYSettings{
+		Settings: &models.AppSettings{
 			BuildTime:   buildtime,
 			Version:     version,
 			Compiler:    runtime.Version(),
