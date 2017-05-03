@@ -1,6 +1,6 @@
 version: '2'
 services:
-  postgres:
+  pgdev:
     restart: always
     image: postgres:9.6
     volumes:

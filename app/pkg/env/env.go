@@ -33,8 +33,7 @@ func IsSingleHostMode() bool {
 
 // CurrentDomain returns Wechy domain based on current environment variables
 func CurrentDomain() string {
-	env := os.Getenv("GO_ENV")
-	switch env {
+	switch Current() {
 	case "test":
 		return "test.canhearyou.com"
 	case "development":
