@@ -25,7 +25,7 @@ func SingleTenant(tenants storage.Tenant) web.MiddlewareFunc {
 		return func(c web.Context) error {
 			tenant, err := tenants.First()
 			if err == app.ErrNotFound {
-				tenant := &models.Tenant{
+				tenant = &models.Tenant{
 					Name:      "Default",
 					Subdomain: "default",
 				}

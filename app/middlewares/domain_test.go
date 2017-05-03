@@ -120,6 +120,7 @@ func TestSingleTenant(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(tenant.Name).To(Equal("Default"))
 	Expect(tenant.Subdomain).To(Equal("default"))
+	Expect(c.Get("__CTX_TENANT")).To(Equal(tenant))
 }
 
 func TestHostChecker(t *testing.T) {
