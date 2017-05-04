@@ -13,6 +13,12 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+//HandlerFunc represents an HTTP handler
+type HandlerFunc func(Context) error
+
+//MiddlewareFunc represents an HTTP middleware
+type MiddlewareFunc func(HandlerFunc) HandlerFunc
+
 //Engine is our web engine wrapper
 type Engine struct {
 	router *echo.Echo
@@ -53,11 +59,6 @@ func (e *Engine) Group(preffix string) *Group {
 //HandleError redirect error to router
 func (e *Engine) HandleError(err error, ctx Context) {
 	e.router.HTTPErrorHandler(err, ctx)
-}
-
-//Use add middleware to routes within the main Engine
-func (e *Engine) Use(middleware MiddlewareFunc) {
-	e.router.Use(wrapMiddleware(middleware))
 }
 
 //Use add middleware to sub-routes within the Group

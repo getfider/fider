@@ -2,14 +2,12 @@ package middlewares_test
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
@@ -17,73 +15,61 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.SetUser(&models.User{
+	server.Context.SetUser(&models.User{
 		ID:   1,
 		Role: models.RoleMember,
 	})
 
-	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
-	mw(func(c web.Context) error {
+	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(status).To(Equal(http.StatusOK))
 }
 
 func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.SetUser(&models.User{
+	server.Context.SetUser(&models.User{
 		ID:   1,
 		Role: models.RoleVisitor,
 	})
 
-	mw := middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember)
-	mw(func(c web.Context) error {
+	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusForbidden))
+	Expect(status).To(Equal(http.StatusForbidden))
 }
 
 func TestIsAuthenticated_WithUser(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.SetUser(&models.User{
+	server.Context.SetUser(&models.User{
 		ID: 1,
 	})
 
-	mw := middlewares.IsAuthenticated()
-	mw(func(c web.Context) error {
+	server.Use(middlewares.IsAuthenticated())
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(status).To(Equal(http.StatusOK))
 }
 
 func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
+	server.Use(middlewares.IsAuthenticated())
 
-	mw := middlewares.IsAuthenticated()
-	mw(func(c web.Context) error {
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusForbidden))
+	Expect(status).To(Equal(http.StatusForbidden))
 }

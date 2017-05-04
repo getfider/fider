@@ -17,7 +17,7 @@ func TestStatusHandler(t *testing.T) {
 	}
 
 	server := mock.NewServer()
-	status, query := server.Execute(handlers.Status(settings))
+	status, query := server.ExecuteAsJSON(handlers.Status(settings))
 
 	Expect(query.String("build")).To(Equal("today"))
 	Expect(status).To(Equal(200))

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-
 	"strings"
 
+	"github.com/WeCanHearYou/wechy/app/middlewares"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/jmoiron/jsonq"
@@ -15,10 +15,11 @@ import (
 
 // Server is a HTTP server wrapper for testing purpose
 type Server struct {
-	engine   *web.Engine
-	handler  echo.HandlerFunc
-	Context  web.Context
-	recorder *httptest.ResponseRecorder
+	engine     *web.Engine
+	handler    echo.HandlerFunc
+	Context    web.Context
+	recorder   *httptest.ResponseRecorder
+	middleware web.MiddlewareFunc
 }
 
 // NewServer creates a new test server
@@ -31,39 +32,47 @@ func NewServer() *Server {
 	context := engine.NewContext(request, recorder)
 
 	return &Server{
-		engine:   engine,
-		recorder: recorder,
-		Context:  web.Context{Context: context},
+		engine:     engine,
+		recorder:   recorder,
+		Context:    web.Context{Context: context},
+		middleware: middlewares.Noop(),
 	}
 }
 
-// NewContext creates a new HTTP context
-func (s *Server) NewContext(req *http.Request, w http.ResponseWriter) web.Context {
-	return s.engine.NewContext(req, w)
+// Use adds a new middleware to pipeline
+func (s *Server) Use(middleware web.MiddlewareFunc) {
+	s.middleware = middleware
 }
 
-// Execute given handler and return response as JSON
-func (s *Server) Execute(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
-	ctx := web.Context{Context: s.Context}
-	if err := handler(ctx); err != nil {
-		s.engine.HandleError(err, ctx)
+// Execute given handler and return response
+func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecorder) {
+	if err := s.middleware(handler)(s.Context); err != nil {
+		s.engine.HandleError(err, s.Context)
+	}
+
+	return s.recorder.Code, s.recorder
+}
+
+// ExecuteAsJSON given handler and return json response
+func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
+	if err := s.middleware(handler)(s.Context); err != nil {
+		s.engine.HandleError(err, s.Context)
 	}
 
 	return parseJSONBody(s)
 }
 
-// ExecutePost executes given handler with posted JSON
-func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
-	ctx := web.Context{Context: s.Context}
-
+// ExecutePost executes given handler as POST and return response
+func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
 	req.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	ctx.SetRequest(req)
+	s.Context.SetRequest(req)
 
-	if err := handler(ctx); err != nil {
-		s.engine.HandleError(err, ctx)
+	if err := s.middleware(handler)(s.Context); err != nil {
+		s.engine.HandleError(err, s.Context)
 	}
-	return parseJSONBody(s)
+
+	return s.recorder.Code, s.recorder
 }
 
 func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
@@ -77,15 +86,6 @@ func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
 	}
 
 	return s.recorder.Code, nil
-}
-
-// ExecuteRaw executes given handler and return raw response
-func (s *Server) ExecuteRaw(handler web.HandlerFunc) (int, *http.Response) {
-	if err := handler(s.Context); err != nil {
-		s.engine.HandleError(err, s.Context)
-	}
-
-	return s.recorder.Code, s.recorder.Result()
 }
 
 func hasJSON(r *httptest.ResponseRecorder) bool {

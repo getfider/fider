@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/mock2"
+	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
@@ -43,7 +43,7 @@ func TestMultiTenant(t *testing.T) {
 	for _, testCase := range testCases {
 		for _, host := range testCase.hosts {
 
-			server := mock2.NewServer()
+			server := mock.NewServer()
 			server.Context.Request().Host = host
 
 			server.Use(middlewares.MultiTenant(tenants))
@@ -61,7 +61,7 @@ func TestMultiTenant_AuthDomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Context.Request().Host = "login.test.canhearyou.com"
 
 	server.Use(middlewares.MultiTenant(tenants))
@@ -79,7 +79,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"
 
 	server.Use(middlewares.MultiTenant(tenants))
@@ -94,7 +94,7 @@ func TestSingleTenant(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"
 
 	server.Use(middlewares.SingleTenant(tenants))
@@ -114,7 +114,7 @@ func TestSingleTenant(t *testing.T) {
 func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Context.Request().Host = "login.test.canhearyou.com"
 
 	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
@@ -128,7 +128,7 @@ func TestHostChecker(t *testing.T) {
 func TestHostChecker_DifferentHost(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Context.Request().Host = "orange.test.canhearyou.com"
 	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
 	status, _ := server.Execute(func(c web.Context) error {

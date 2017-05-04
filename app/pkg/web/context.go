@@ -100,9 +100,3 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 	}
 	return int(val), nil
 }
-
-//HandlerFunc represents an HTTP handler
-type HandlerFunc func(Context) error
-
-//MiddlewareFunc represents an HTTP middleware
-type MiddlewareFunc func(HandlerFunc) HandlerFunc

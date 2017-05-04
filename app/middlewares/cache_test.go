@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/mock2"
+	"github.com/WeCanHearYou/wechy/app/mock"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	. "github.com/onsi/gomega"
 )
@@ -13,7 +13,7 @@ import (
 func TestCache(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock2.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.OneYearCache())
 	handler := func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
