@@ -4,7 +4,7 @@ import * as storage from "../storage";
 
 import { Comment, Idea } from "../models";
 import { CommentInput } from "./CommentInput";
-import { Gravatar, MultiLineText } from "./common";
+import { Gravatar, MultiLineText } from "./Common";
 import { SocialSignInButton } from "./SocialSignInButton";
 import { SupportCounter } from "./SupportCounter";
 
