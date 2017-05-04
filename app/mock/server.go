@@ -7,8 +7,6 @@ import (
 
 	"strings"
 
-	"fmt"
-
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/jmoiron/jsonq"
@@ -17,7 +15,7 @@ import (
 
 // Server is a HTTP server wrapper for testing purpose
 type Server struct {
-	engine   *echo.Echo
+	engine   *web.Engine
 	handler  echo.HandlerFunc
 	Context  web.Context
 	recorder *httptest.ResponseRecorder
@@ -25,12 +23,8 @@ type Server struct {
 
 // NewServer creates a new test server
 func NewServer() *Server {
-	engine := echo.New()
-	engine.Renderer = web.NewHTMLRenderer(&models.AppSettings{}, engine.Logger)
-	engine.HTTPErrorHandler = func(e error, c echo.Context) {
-		fmt.Println(e)
-		c.NoContent(e.(*echo.HTTPError).Code)
-	}
+	settings := &models.AppSettings{}
+	engine := web.New(settings)
 
 	request, _ := http.NewRequest(echo.GET, "/", nil)
 	recorder := httptest.NewRecorder()
@@ -45,15 +39,14 @@ func NewServer() *Server {
 
 // NewContext creates a new HTTP context
 func (s *Server) NewContext(req *http.Request, w http.ResponseWriter) web.Context {
-	c := s.engine.NewContext(req, w)
-	return web.Context{Context: c}
+	return s.engine.NewContext(req, w)
 }
 
 // Execute given handler and return response as JSON
 func (s *Server) Execute(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
 	ctx := web.Context{Context: s.Context}
 	if err := handler(ctx); err != nil {
-		s.engine.HTTPErrorHandler(err, ctx)
+		s.engine.HandleError(err, ctx)
 	}
 
 	return parseJSONBody(s)
@@ -68,7 +61,7 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *jsonq.
 	ctx.SetRequest(req)
 
 	if err := handler(ctx); err != nil {
-		s.engine.HTTPErrorHandler(err, ctx)
+		s.engine.HandleError(err, ctx)
 	}
 	return parseJSONBody(s)
 }
@@ -88,9 +81,8 @@ func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
 
 // ExecuteRaw executes given handler and return raw response
 func (s *Server) ExecuteRaw(handler web.HandlerFunc) (int, *http.Response) {
-	ctx := web.Context{Context: s.Context}
-	if err := handler(ctx); err != nil {
-		s.engine.HTTPErrorHandler(err, ctx)
+	if err := handler(s.Context); err != nil {
+		s.engine.HandleError(err, s.Context)
 	}
 
 	return s.recorder.Code, s.recorder.Result()

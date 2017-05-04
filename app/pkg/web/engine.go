@@ -39,9 +39,25 @@ type Group struct {
 	group *echo.Group
 }
 
+//NewContext creates and return a new context
+func (e *Engine) NewContext(req *http.Request, w http.ResponseWriter) Context {
+	context := e.router.NewContext(req, w)
+	return Context{Context: context}
+}
+
 //Group creates a new router group with prefix and optional group-level middleware
 func (e *Engine) Group(preffix string) *Group {
 	return &Group{group: e.router.Group(preffix)}
+}
+
+//HandleError redirect error to router
+func (e *Engine) HandleError(err error, ctx Context) {
+	e.router.HTTPErrorHandler(err, ctx)
+}
+
+//Use add middleware to routes within the main Engine
+func (e *Engine) Use(middleware MiddlewareFunc) {
+	e.router.Use(wrapMiddleware(middleware))
 }
 
 //Use add middleware to sub-routes within the Group

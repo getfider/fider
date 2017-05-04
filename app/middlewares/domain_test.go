@@ -2,15 +2,13 @@ package middlewares_test
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/mock"
+	"github.com/WeCanHearYou/wechy/app/mock2"
 	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/web"
 	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
-	"github.com/labstack/echo"
 	. "github.com/onsi/gomega"
 )
 
@@ -45,19 +43,16 @@ func TestMultiTenant(t *testing.T) {
 	for _, testCase := range testCases {
 		for _, host := range testCase.hosts {
 
-			server := mock.NewServer()
-			req, _ := http.NewRequest(echo.GET, "/", nil)
-			rec := httptest.NewRecorder()
-			c := server.NewContext(req, rec)
-			c.Request().Host = host
+			server := mock2.NewServer()
+			server.Context.Request().Host = host
 
-			mw := middlewares.MultiTenant(tenants)
-			mw(func(c web.Context) error {
+			server.Use(middlewares.MultiTenant(tenants))
+			status, response := server.Execute(func(c web.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
-			})(c)
+			})
 
-			Expect(rec.Code).To(Equal(http.StatusOK))
-			Expect(rec.Body.String()).To(Equal(testCase.expected))
+			Expect(status).To(Equal(http.StatusOK))
+			Expect(response.Body.String()).To(Equal(testCase.expected))
 		}
 	}
 }
@@ -65,94 +60,80 @@ func TestMultiTenant(t *testing.T) {
 func TestMultiTenant_AuthDomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "login.test.canhearyou.com"
+	tenants := &inmemory.TenantStorage{}
+	server := mock2.NewServer()
+	server.Context.Request().Host = "login.test.canhearyou.com"
 
-	mw := middlewares.MultiTenant(&inmemory.TenantStorage{})
-	mw(func(c web.Context) error {
+	server.Use(middlewares.MultiTenant(tenants))
+	status, _ := server.Execute(func(c web.Context) error {
 		if c.Tenant() == nil {
 			return c.NoContent(http.StatusOK)
 		}
 		return c.NoContent(http.StatusInternalServerError)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(status).To(Equal(http.StatusOK))
 }
 
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "somedomain.com"
+	tenants := &inmemory.TenantStorage{}
+	server := mock2.NewServer()
+	server.Context.Request().Host = "somedomain.com"
 
-	mw := middlewares.MultiTenant(&inmemory.TenantStorage{})
-	mw(func(c web.Context) error {
+	server.Use(middlewares.MultiTenant(tenants))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusNotFound))
+	Expect(status).To(Equal(http.StatusNotFound))
 }
 
 func TestSingleTenant(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "somedomain.com"
+	server := mock2.NewServer()
+	server.Context.Request().Host = "somedomain.com"
 
-	mw := middlewares.SingleTenant(tenants)
-	mw(func(c web.Context) error {
+	server.Use(middlewares.SingleTenant(tenants))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
 	tenant, err := tenants.First()
 
-	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(status).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(tenant.Name).To(Equal("Default"))
 	Expect(tenant.Subdomain).To(Equal("default"))
-	Expect(c.Get("__CTX_TENANT")).To(Equal(tenant))
+	Expect(server.Context.Tenant()).To(Equal(tenant))
 }
 
 func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "login.test.canhearyou.com"
+	server := mock2.NewServer()
+	server.Context.Request().Host = "login.test.canhearyou.com"
 
-	mw := middlewares.HostChecker("http://login.test.canhearyou.com")
-	mw(func(c web.Context) error {
+	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	})(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusOK))
+	Expect(status).To(Equal(http.StatusOK))
 }
 
 func TestHostChecker_DifferentHost(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	req, _ := http.NewRequest(echo.GET, "/", nil)
-	rec := httptest.NewRecorder()
-	c := server.NewContext(req, rec)
-	c.Request().Host = "orange.test.canhearyou.com"
-
-	mw := middlewares.HostChecker("login.test.canhearyou.com")
-	mw(web.HandlerFunc(func(c web.Context) error {
+	server := mock2.NewServer()
+	server.Context.Request().Host = "orange.test.canhearyou.com"
+	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
+	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
-	}))(c)
+	})
 
-	Expect(rec.Code).To(Equal(http.StatusBadRequest))
+	Expect(status).To(Equal(http.StatusBadRequest))
 }
