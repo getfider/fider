@@ -3,7 +3,7 @@ import * as React from "react";
 
 import { Idea } from "../models";
 import { getCurrentUser } from "../storage";
-import { DisplayError } from "./common";
+import { DisplayError } from "./Common";
 import { SocialSignInList } from "./SocialSignInList";
 
 interface CommentInputProps {

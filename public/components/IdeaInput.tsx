@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as React from "react";
 import { getCurrentUser } from "../storage";
-import { DisplayError } from "./common";
+import { DisplayError } from "./Common";
 import { SocialSignInList } from "./SocialSignInList";
 
 interface IdeaInputState {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tenant } from "../models";
 import { get, getCurrentUser } from "../storage";
-import { EnvironmentInfo, Gravatar } from "./common";
+import { EnvironmentInfo, Gravatar } from "./Common";
 import { SocialSignInList } from "./SocialSignInList";
 
 export class Header extends React.Component<{}, {}> {
