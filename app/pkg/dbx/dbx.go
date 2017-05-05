@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/mattes/migrate/migrate"
 
 	//required
 	_ "github.com/lib/pq"
@@ -200,5 +201,20 @@ func (db Database) load(path string) {
 	err = db.Execute(string(content))
 	if err != nil {
 		panic(err)
+	}
+}
+
+// Migrate the database to latest verion
+func (db Database) Migrate() {
+	fmt.Printf("Running migrations... \n")
+	errors, ok := migrate.UpSync(env.MustGet("DATABASE_URL"), env.Path("/migrations"))
+	if !ok {
+		for i, err := range errors {
+			fmt.Printf("Error #%d: %s.\n", i, err)
+		}
+
+		panic("Migrations failed.")
+	} else {
+		fmt.Printf("Migrations finished with success.\n")
 	}
 }
