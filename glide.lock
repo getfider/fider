@@ -1,32 +1,24 @@
-hash: 8d8746a3ed9e22765aa09405f21add96e0d0669e343d36898b9aa4be02c41892
-updated: 2017-04-07T21:51:27.667426145+01:00
+hash: fd4639952ebad816734540906a58dfb49984e6df0cee4702d93b0647b504057b
+updated: 2017-05-12T19:30:53.261101406+01:00
 imports:
 - name: cloud.google.com/go
-  version: 3a14c51fce00582e9e1636000583e6a940122f02
+  version: 7050ae8919c454e5119ddeb65c678014a52e5d57
   subpackages:
   - compute/metadata
-  - internal
 - name: github.com/dgrijalva/jwt-go
-  version: 2268707a8f0843315e2004ee4f1d021dc08baedf
+  version: 6c8dedd55f8a2e41f605de6d5d66e51ed1f299fc
 - name: github.com/golang/protobuf
-  version: 2bba0603135d7d7f5cb73b2125beeda19c09f4ef
+  version: fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4
   subpackages:
   - proto
-  - ptypes/any
-- name: github.com/google/go-genproto
-  version: 411e09b969b1170a9f0c467558eb4c4c110d9c77
-  subpackages:
-  - googleapis/rpc/status
-- name: github.com/googleapis/gax-go
-  version: 9af46dd5a1713e8b5cd71106287eba3cefdde50b
 - name: github.com/jmoiron/jsonq
   version: e874b168d07ecc7808bc950a17998a8aa3141d82
 - name: github.com/labstack/echo
-  version: 895613fd4010c800571ef19152152e400ac4ee71
+  version: 0e134ee37c2f1239b99a030f84f66176d8a03e63
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
-  version: 9298d710c664bcd21c454120f63a00fb7d484458
+  version: 1121fd3e243c202482226a7afe4dcd07ffc4139a
   subpackages:
   - bytes
   - color
@@ -37,14 +29,11 @@ imports:
   subpackages:
   - oid
 - name: github.com/mattes/migrate
-  version: 4cfc0444892a8cfb1978c54eda5584d52650b019
+  version: 448a36c5cbdcc34f348f605a5080b23629c7fbbc
   subpackages:
-  - driver
-  - driver/postgres
-  - file
-  - migrate
-  - migrate/direction
-  - pipe
+  - database
+  - database/postgres
+  - source
 - name: github.com/mattn/go-colorable
   version: ded68f7a9561c023e790de24279db7ebf473ea80
 - name: github.com/mattn/go-isatty
@@ -54,23 +43,20 @@ imports:
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
 - name: golang.org/x/crypto
-  version: 55a552f0823e0d3d54931488a2993ebd2fd0258c
+  version: ab89591268e0c8b748cbe4047b00197516011af5
   subpackages:
   - acme
   - acme/autocert
 - name: golang.org/x/net
-  version: d1e1b351919c6738fdeb9893d5c998b161464f0c
+  version: c9b681d35165f1995d6f3034e61f8761d4b90c99
   subpackages:
   - context
   - context/ctxhttp
-  - http2
-  - http2/hpack
-  - idna
-  - internal/timeseries
-  - lex/httplex
-  - trace
+  - html
+  - html/atom
+  - html/charset
 - name: golang.org/x/oauth2
-  version: 7fdf09982454086d5570c7db3e11f360194830ca
+  version: ad516a297a9f2a74ecc244861b298c94bdd28b9d
   subpackages:
   - facebook
   - google
@@ -78,18 +64,11 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: f3918c30c5c2cb527c0b071a27c35120a6c0719a
+  version: f845067cf72a21fb4929b0e6a35273bd83b56396
   subpackages:
   - unix
-- name: golang.org/x/text
-  version: f4b4367115ec2de254587813edaa901bc1c723a8
-  subpackages:
-  - secure/bidirule
-  - transform
-  - unicode/bidi
-  - unicode/norm
 - name: google.golang.org/appengine
-  version: 56d253d1dd14aa01937e12c73a0971bcfd797ff2
+  version: 170382fa85b10b94728989dfcf6cc818b335c952
   subpackages:
   - internal
   - internal/app_identity
@@ -100,24 +79,9 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
-- name: google.golang.org/grpc
-  version: 0c1d39df28cc4e0369b185df2b33b1094cd543fb
-  subpackages:
-  - codes
-  - credentials
-  - grpclog
-  - internal
-  - keepalive
-  - metadata
-  - naming
-  - peer
-  - stats
-  - status
-  - tap
-  - transport
 testImports:
 - name: github.com/onsi/gomega
-  version: 334b8f472b3af5d541c5642701c1e29e2126f486
+  version: 00acfa9d92a386415bd235ab069c52063f925998
   subpackages:
   - format
   - internal/assertion
@@ -130,5 +94,23 @@ testImports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
+- name: golang.org/x/text
+  version: 19e51611da83d6be54ddafce4a4af510cb3e9ea4
+  subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
+  - transform
 - name: gopkg.in/yaml.v2
   version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b

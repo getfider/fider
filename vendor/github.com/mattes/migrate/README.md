@@ -1,131 +1,142 @@
-__[v3.0 in the making](https://github.com/mattes/migrate/tree/v3.0-prev)__
-
----
+[![Build Status](https://travis-ci.org/mattes/migrate.svg?branch=master)](https://travis-ci.org/mattes/migrate)
+[![GoDoc](https://godoc.org/github.com/mattes/migrate?status.svg)](https://godoc.org/github.com/mattes/migrate)
+[![Coverage Status](https://coveralls.io/repos/github/mattes/migrate/badge.svg?branch=v3.0-prev)](https://coveralls.io/github/mattes/migrate?branch=v3.0-prev)
+[![packagecloud.io](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/mattes/migrate?filter=debs)
 
 # migrate
 
-[![Build Status](https://travis-ci.org/mattes/migrate.svg?branch=master)](https://travis-ci.org/mattes/migrate)
-[![GoDoc](https://godoc.org/github.com/mattes/migrate?status.svg)](https://godoc.org/github.com/mattes/migrate)
+__Database migrations written in Go. Use as [CLI](#cli-usage) or import as [library](#use-in-your-go-project).__
 
-A migration helper written in Go. Use it in your existing Golang code 
-or run commands via the CLI. 
+ * Migrate reads migrations from [sources](#migration-sources) 
+   and applies them in correct order to a [database](#databases).
+ * Drivers are "dumb", migrate glues everything together and makes sure the logic is bulletproof.  
+   (Keeps the drivers lightweight, too.)
+ * Database drivers don't assume things or try to correct user input. When in doubt, fail.
+
+
+Looking for [v1](https://github.com/mattes/migrate/tree/v1)?
+
+
+## Databases 
+
+Database drivers run migrations. [Add a new database?](database/driver.go)
+
+  * [PostgreSQL](database/postgres)
+  * [Cassandra](database/cassandra) ([todo #164](https://github.com/mattes/migrate/issues/164))
+  * [SQLite](database/sqlite) ([todo #165](https://github.com/mattes/migrate/issues/165))
+  * [MySQL/ MariaDB](database/mysql)
+  * [Neo4j](database/neo4j) ([todo #167](https://github.com/mattes/migrate/issues/167))
+  * [Ql](database/ql) ([todo #168](https://github.com/mattes/migrate/issues/168))
+  * [MongoDB](database/mongodb) ([todo #169](https://github.com/mattes/migrate/issues/169))
+  * [CrateDB](database/crate) ([todo #170](https://github.com/mattes/migrate/issues/170))
+  * [Shell](database/shell) ([todo #171](https://github.com/mattes/migrate/issues/171))
+  * [Google Cloud Spanner](database/spanner) ([todo #172](https://github.com/mattes/migrate/issues/172))
+
+
+
+## Migration Sources
+
+Source drivers read migrations from local or remote sources. [Add a new source?](source/driver.go)
+
+  * [Filesystem](source/file) - read from fileystem (always included)
+  * [Go-Bindata](source/go-bindata) - read from embedded binary data ([jteeuwen/go-bindata](https://github.com/jteeuwen/go-bindata))
+  * [Github](source/github) - read from remote Github repositories
+  * [AWS S3](source/aws-s3) - read from Amazon Web Services S3 ([todo #162](https://github.com/mattes/migrate/issues/162))
+  * [Google Cloud Storage](source/google-cloud-storage) - read from Google Cloud Platform Storage ([todo #163](https://github.com/mattes/migrate/issues/163))
+
+
+
+## CLI usage 
+
+  * Simple wrapper around this library.
+  * Handles ctrl+c (SIGINT) gracefully.
+  * No config search paths, no config files, no magic ENV var injections.
+
+__[CLI Documentation](cli)__
+
+([brew todo #156](https://github.com/mattes/migrate/issues/156))
 
 ```
-GoCode   import github.com/mattes/migrate/migrate
-CLI      go get -u github.com/mattes/migrate
-```
-
-__Features__
-
-* Super easy to implement [Driver interface](http://godoc.org/github.com/mattes/migrate/driver#Driver).
-* Gracefully quit running migrations on ``^C``.
-* No magic search paths routines, no hard-coded config files.
-* CLI is build on top of the ``migrate package``.
-
-
-## Available Drivers
-
- * [PostgreSQL](driver/postgres)
- * [Cassandra](driver/cassandra)
- * [SQLite](driver/sqlite3)
- * [MySQL](driver/mysql) ([experimental](https://github.com/mattes/migrate/issues/1#issuecomment-58728186))
- * [Neo4j](driver/neo4j)
- * [Ql](driver/ql)
- * [MongoDB](driver/mongodb)
- * [CrateDB](driver/crate)
-
-Need another driver? Just implement the [Driver interface](http://godoc.org/github.com/mattes/migrate/driver#Driver) and open a PR.
-
-
-## Usage from Terminal
-
-```bash
-# install
-go get github.com/mattes/migrate
-
-# create new migration file in path
-migrate -url driver://url -path ./migrations create migration_file_xyz
-
-# apply all available migrations
-migrate -url driver://url -path ./migrations up
-
-# roll back all migrations
-migrate -url driver://url -path ./migrations down
-
-# roll back the most recently applied migration, then run it again.
-migrate -url driver://url -path ./migrations redo
-
-# run down and then up command
-migrate -url driver://url -path ./migrations reset
-
-# show the current migration version
-migrate -url driver://url -path ./migrations version
-
-# apply the next n migrations
-migrate -url driver://url -path ./migrations migrate +1
-migrate -url driver://url -path ./migrations migrate +2
-migrate -url driver://url -path ./migrations migrate +n
-
-# roll back the previous n migrations
-migrate -url driver://url -path ./migrations migrate -1
-migrate -url driver://url -path ./migrations migrate -2
-migrate -url driver://url -path ./migrations migrate -n
-
-# go to specific migration
-migrate -url driver://url -path ./migrations goto 1
-migrate -url driver://url -path ./migrations goto 10
-migrate -url driver://url -path ./migrations goto v
+$ brew install migrate --with-postgres 
+$ migrate -database postgres://localhost:5432/database up 2
 ```
 
 
-## Usage in Go
+## Use in your Go project 
 
-See GoDoc here: http://godoc.org/github.com/mattes/migrate/migrate
+ * API is stable and frozen for this release (v3.x).
+ * Package migrate has no external dependencies.
+ * Only import the drivers you need.
+   (check [dependency_tree.txt](https://github.com/mattes/migrate/releases) for each driver)
+ * To help prevent database corruptions, it supports graceful stops via `GracefulStop chan bool`.
+ * Bring your own logger.
+ * Uses `io.Reader` streams internally for low memory overhead.
+ * Thread-safe and no goroutine leaks.
+
+__[Go Documentation](https://godoc.org/github.com/mattes/migrate)__
 
 ```go
-import "github.com/mattes/migrate/migrate"
+import (
+    "github.com/mattes/migrate"
+    _ "github.com/mattes/migrate/database/postgres"
+    _ "github.com/mattes/migrate/source/github"
+)
 
-// Import any required drivers so that they are registered and available
-import _ "github.com/mattes/migrate/driver/mysql"
-
-// use synchronous versions of migration functions ...
-allErrors, ok := migrate.UpSync("driver://url", "./path")
-if !ok {
-  fmt.Println("Oh no ...")
-  // do sth with allErrors slice
+func main() {
+    m, err := migrate.New(
+        "github://mattes:personal-access-token@mattes/migrate_test",
+        "postgres://localhost:5432/database?sslmode=enable")
+    m.Steps(2)
 }
+```
 
-// use the asynchronous version of migration functions ...
-pipe := migrate.NewPipe()
-go migrate.Up(pipe, "driver://url", "./path")
-// pipe is basically just a channel
-// write your own channel listener. see writePipe() in main.go as an example.
+Want to use an existing database client?
+
+```go
+import (
+    "database/sql"
+    _ "github.com/lib/pq"
+    "github.com/mattes/migrate"
+    "github.com/mattes/migrate/database/postgres"
+    _ "github.com/mattes/migrate/source/file"
+)
+
+func main() {
+    db, err := sql.Open("postgres", "postgres://localhost:5432/database?sslmode=enable")
+    driver, err := postgres.WithInstance(db, &postgres.Config{})
+    m, err := migrate.NewWithDatabaseInstance(
+        "file:///migrations",
+        "postgres", driver)
+    m.Steps(2)
+}
 ```
 
 ## Migration files
 
-The format of migration files looks like this:
+Each migration has an up and down migration. [Why?](FAQ.md#why-two-separate-files-up-and-down-for-a-migration)
 
 ```
-1481574547_initial_plan_to_do_sth.up.sql     # up migration instructions
-1481574547_initial_plan_to_do_sth.down.sql   # down migration instructions
-1482438365_xxx.up.sql
-1482438365_xxx.down.sql
-...
+1481574547_create_users_table.up.sql
+1481574547_create_users_table.down.sql
 ```
 
-Why two files? This way you could still do sth like 
-``psql -f ./db/migrations/1481574547_initial_plan_to_do_sth.up.sql`` and there is no
-need for any custom markup language to divide up and down migrations. Please note
-that the filename extension depends on the driver.
+[Best practices: How to write migrations.](MIGRATIONS.md)
 
 
-## Alternatives
 
- * https://bitbucket.org/liamstask/goose
- * https://github.com/tanel/dbmigrate
- * https://github.com/BurntSushi/migration
- * https://github.com/DavidHuie/gomigrate
- * https://github.com/rubenv/sql-migrate
+## Development and Contributing
+
+Yes, please! [`Makefile`](Makefile) is your friend,
+read the [development guide](CONTRIBUTING.md).
+
+Also have a look at the [FAQ](FAQ.md).
 
 
+
+---
+
+__Alternatives__
+
+https://bitbucket.org/liamstask/goose, https://github.com/tanel/dbmigrate,  
+https://github.com/BurntSushi/migration, https://github.com/DavidHuie/gomigrate,  
+https://github.com/rubenv/sql-migrate

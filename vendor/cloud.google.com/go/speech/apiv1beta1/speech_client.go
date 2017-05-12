@@ -41,9 +41,7 @@ type CallOptions struct {
 func defaultClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("speech.googleapis.com:443"),
-		option.WithScopes(
-			"https://www.googleapis.com/auth/cloud-platform",
-		),
+		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
@@ -133,34 +131,38 @@ func (c *Client) SetGoogleClientInfo(keyval ...string) {
 	c.xGoogHeader = gax.XGoogHeader(kv...)
 }
 
-// SyncRecognize perform synchronous speech-recognition: receive results after all audio
+// SyncRecognize performs synchronous speech recognition: receive results after all audio
 // has been sent and processed.
-func (c *Client) SyncRecognize(ctx context.Context, req *speechpb.SyncRecognizeRequest) (*speechpb.SyncRecognizeResponse, error) {
+func (c *Client) SyncRecognize(ctx context.Context, req *speechpb.SyncRecognizeRequest, opts ...gax.CallOption) (*speechpb.SyncRecognizeResponse, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.SyncRecognize[0:len(c.CallOptions.SyncRecognize):len(c.CallOptions.SyncRecognize)], opts...)
 	var resp *speechpb.SyncRecognizeResponse
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.SyncRecognize(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.SyncRecognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
 
-// AsyncRecognize perform asynchronous speech-recognition: receive results via the
-// google.longrunning.Operations interface. Returns either an
+// AsyncRecognize performs asynchronous speech recognition: receive results via the
+// [google.longrunning.Operations]
+// (/speech/reference/rest/v1beta1/operations#Operation)
+// interface. Returns either an
 // `Operation.error` or an `Operation.response` which contains
 // an `AsyncRecognizeResponse` message.
-func (c *Client) AsyncRecognize(ctx context.Context, req *speechpb.AsyncRecognizeRequest) (*AsyncRecognizeOperation, error) {
+func (c *Client) AsyncRecognize(ctx context.Context, req *speechpb.AsyncRecognizeRequest, opts ...gax.CallOption) (*AsyncRecognizeOperation, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.AsyncRecognize[0:len(c.CallOptions.AsyncRecognize):len(c.CallOptions.AsyncRecognize)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.AsyncRecognize(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.AsyncRecognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -170,16 +172,17 @@ func (c *Client) AsyncRecognize(ctx context.Context, req *speechpb.AsyncRecogniz
 	}, nil
 }
 
-// StreamingRecognize perform bidirectional streaming speech-recognition: receive results while
+// StreamingRecognize performs bidirectional streaming speech recognition: receive results while
 // sending audio. This method is only available via the gRPC API (not REST).
-func (c *Client) StreamingRecognize(ctx context.Context) (speechpb.Speech_StreamingRecognizeClient, error) {
+func (c *Client) StreamingRecognize(ctx context.Context, opts ...gax.CallOption) (speechpb.Speech_StreamingRecognizeClient, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.StreamingRecognize[0:len(c.CallOptions.StreamingRecognize):len(c.CallOptions.StreamingRecognize)], opts...)
 	var resp speechpb.Speech_StreamingRecognizeClient
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.StreamingRecognize(ctx, settings.GRPC...)
 		return err
-	}, c.CallOptions.StreamingRecognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

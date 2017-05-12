@@ -19,19 +19,16 @@ package spanner
 import (
 	"fmt"
 	"regexp"
-	"runtime"
 	"sync/atomic"
 	"time"
 
 	"cloud.google.com/go/internal/version"
-
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport"
+	sppb "google.golang.org/genproto/googleapis/spanner/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-
-	sppb "google.golang.org/genproto/googleapis/spanner/v1"
 )
 
 const (
@@ -43,6 +40,9 @@ const (
 	// apiClientHeader is the name of the metadata header used to indicate client
 	// information.
 	apiClientHeader = "x-goog-api-client"
+
+	// numChannels is the default value for NumChannels of client
+	numChannels = 4
 )
 
 const (
@@ -55,7 +55,7 @@ const (
 
 var (
 	validDBPattern  = regexp.MustCompile("^projects/[^/]+/instances/[^/]+/databases/[^/]+$")
-	clientUserAgent = fmt.Sprintf("cloudspanner go/%s", runtime.Version())
+	clientUserAgent = fmt.Sprintf("gl-go/%s gccl/%s grpc/%s", version.Go(), version.Repo, grpc.Version)
 )
 
 func validDatabaseName(db string) error {
@@ -82,6 +82,7 @@ type Client struct {
 // ClientConfig has configurations for the client.
 type ClientConfig struct {
 	// NumChannels is the number of GRPC channels.
+	// If zero, numChannels is used.
 	NumChannels int
 	co          []option.ClientOption
 	// SessionPoolConfig is the configuration for session pool.
@@ -128,7 +129,11 @@ func NewClientWithConfig(ctx context.Context, database string, config ClientConf
 	allOpts = append(allOpts, opts...)
 	// Prepare gRPC channels.
 	if config.NumChannels == 0 {
-		config.NumChannels = 4
+		config.NumChannels = numChannels
+	}
+	// Default MaxOpened sessions
+	if config.MaxOpened == 0 {
+		config.MaxOpened = uint64(config.NumChannels * 100)
 	}
 	for i := 0; i < config.NumChannels; i++ {
 		conn, err := transport.DialGRPC(ctx, allOpts...)

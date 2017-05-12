@@ -41,9 +41,7 @@ type CallOptions struct {
 func defaultClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("speech.googleapis.com:443"),
-		option.WithScopes(
-			"https://www.googleapis.com/auth/cloud-platform",
-		),
+		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
@@ -135,14 +133,15 @@ func (c *Client) SetGoogleClientInfo(keyval ...string) {
 
 // Recognize performs synchronous speech recognition: receive results after all audio
 // has been sent and processed.
-func (c *Client) Recognize(ctx context.Context, req *speechpb.RecognizeRequest) (*speechpb.RecognizeResponse, error) {
+func (c *Client) Recognize(ctx context.Context, req *speechpb.RecognizeRequest, opts ...gax.CallOption) (*speechpb.RecognizeResponse, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.Recognize[0:len(c.CallOptions.Recognize):len(c.CallOptions.Recognize)], opts...)
 	var resp *speechpb.RecognizeResponse
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.Recognize(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.Recognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -153,14 +152,15 @@ func (c *Client) Recognize(ctx context.Context, req *speechpb.RecognizeRequest) 
 // google.longrunning.Operations interface. Returns either an
 // `Operation.error` or an `Operation.response` which contains
 // a `LongRunningRecognizeResponse` message.
-func (c *Client) LongRunningRecognize(ctx context.Context, req *speechpb.LongRunningRecognizeRequest) (*LongRunningRecognizeOperation, error) {
+func (c *Client) LongRunningRecognize(ctx context.Context, req *speechpb.LongRunningRecognizeRequest, opts ...gax.CallOption) (*LongRunningRecognizeOperation, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.LongRunningRecognize[0:len(c.CallOptions.LongRunningRecognize):len(c.CallOptions.LongRunningRecognize)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.LongRunningRecognize(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.LongRunningRecognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -172,14 +172,15 @@ func (c *Client) LongRunningRecognize(ctx context.Context, req *speechpb.LongRun
 
 // StreamingRecognize performs bidirectional streaming speech recognition: receive results while
 // sending audio. This method is only available via the gRPC API (not REST).
-func (c *Client) StreamingRecognize(ctx context.Context) (speechpb.Speech_StreamingRecognizeClient, error) {
+func (c *Client) StreamingRecognize(ctx context.Context, opts ...gax.CallOption) (speechpb.Speech_StreamingRecognizeClient, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.StreamingRecognize[0:len(c.CallOptions.StreamingRecognize):len(c.CallOptions.StreamingRecognize)], opts...)
 	var resp speechpb.Speech_StreamingRecognizeClient
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.client.StreamingRecognize(ctx, settings.GRPC...)
 		return err
-	}, c.CallOptions.StreamingRecognize...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

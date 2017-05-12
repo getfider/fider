@@ -42,9 +42,7 @@ type ErrorGroupCallOptions struct {
 func defaultErrorGroupClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("clouderrorreporting.googleapis.com:443"),
-		option.WithScopes(
-			"https://www.googleapis.com/auth/cloud-platform",
-		),
+		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
@@ -135,14 +133,15 @@ func ErrorGroupGroupPath(project, group string) string {
 }
 
 // GetGroup get the specified group.
-func (c *ErrorGroupClient) GetGroup(ctx context.Context, req *clouderrorreportingpb.GetGroupRequest) (*clouderrorreportingpb.ErrorGroup, error) {
+func (c *ErrorGroupClient) GetGroup(ctx context.Context, req *clouderrorreportingpb.GetGroupRequest, opts ...gax.CallOption) (*clouderrorreportingpb.ErrorGroup, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.GetGroup[0:len(c.CallOptions.GetGroup):len(c.CallOptions.GetGroup)], opts...)
 	var resp *clouderrorreportingpb.ErrorGroup
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.errorGroupClient.GetGroup(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.GetGroup...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,14 +150,15 @@ func (c *ErrorGroupClient) GetGroup(ctx context.Context, req *clouderrorreportin
 
 // UpdateGroup replace the data for the specified group.
 // Fails if the group does not exist.
-func (c *ErrorGroupClient) UpdateGroup(ctx context.Context, req *clouderrorreportingpb.UpdateGroupRequest) (*clouderrorreportingpb.ErrorGroup, error) {
+func (c *ErrorGroupClient) UpdateGroup(ctx context.Context, req *clouderrorreportingpb.UpdateGroupRequest, opts ...gax.CallOption) (*clouderrorreportingpb.ErrorGroup, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.UpdateGroup[0:len(c.CallOptions.UpdateGroup):len(c.CallOptions.UpdateGroup)], opts...)
 	var resp *clouderrorreportingpb.ErrorGroup
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.errorGroupClient.UpdateGroup(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.UpdateGroup...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -340,7 +340,7 @@ type SessionPoolConfig struct {
 	// getRPCClient is the caller supplied method for getting a gRPC client to Cloud Spanner, this makes session pool able to use client pooling.
 	getRPCClient func() (sppb.SpannerClient, error)
 	// MaxOpened is the maximum number of opened sessions that is allowed by the
-	// session pool, zero means unlimited.
+	// session pool. Default to NumChannels * 100.
 	MaxOpened uint64
 	// MinOpened is the minimum number of opened sessions that the session pool
 	// tries to maintain. Session pool won't continue to expire sessions if number

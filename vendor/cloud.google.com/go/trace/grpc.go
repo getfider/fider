@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const grpcMetadataKey = "stackdriver-trace-context"
+const grpcMetadataKey = "x-cloud-trace-context"
 
 // GRPCClientInterceptor returns a grpc.UnaryClientInterceptor that traces all outgoing requests from a gRPC client.
 // The calling context should already have a *trace.Span; a child span will be
@@ -42,10 +42,11 @@ func grpcUnaryInterceptor(ctx context.Context, method string, req, reply interfa
 
 	if span != nil {
 		header := spanHeader(span.trace.traceID, span.span.ParentSpanId, span.trace.globalOptions)
-		md, ok := metadata.FromContext(ctx)
+		md, ok := metadata.FromOutgoingContext(ctx)
 		if !ok {
 			md = metadata.Pairs(grpcMetadataKey, header)
 		} else {
+			md = md.Copy() // metadata is immutable, copy.
 			md[grpcMetadataKey] = []string{header}
 		}
 		ctx = metadata.NewContext(ctx, md)
@@ -67,7 +68,7 @@ func grpcUnaryInterceptor(ctx context.Context, method string, req, reply interfa
 // The functionality in gRPC that this feature relies on is currently experimental.
 func GRPCServerInterceptor(tc *Client) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		md, _ := metadata.FromContext(ctx)
+		md, _ := metadata.FromIncomingContext(ctx)
 		if header, ok := md[grpcMetadataKey]; ok {
 			span := tc.SpanFromHeader("", strings.Join(header, ""))
 			defer span.Finish()

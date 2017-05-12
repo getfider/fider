@@ -40,6 +40,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"cloud.google.com/go/iam"
 	"cloud.google.com/go/internal"
 	"cloud.google.com/go/internal/testutil"
 	"google.golang.org/api/googleapi"
@@ -1160,6 +1161,56 @@ func TestIntegration_HashesOnUpload(t *testing.T) {
 	w.MD5[0]++
 	if err := write(w); err == nil {
 		t.Fatal("write with bad MD5: want error, got nil")
+	}
+}
+
+func TestIntegration_BucketIAM(t *testing.T) {
+	ctx := context.Background()
+	client, bucket := testConfig(ctx, t)
+	defer client.Close()
+
+	bkt := client.Bucket(bucket)
+
+	// This bucket is unique to this test run. So we don't have
+	// to worry about other runs interfering with our IAM policy
+	// changes.
+
+	member := "projectViewer:" + testutil.ProjID()
+	role := iam.RoleName("roles/storage.objectViewer")
+	// Get the bucket's IAM policy.
+	policy, err := bkt.IAM().Policy(ctx)
+	if err != nil {
+		t.Fatalf("Getting policy: %v", err)
+	}
+	// The member should not have the role.
+	if policy.HasRole(member, role) {
+		t.Errorf("member %q has role %q", member, role)
+	}
+	// Change the policy.
+	policy.Add(member, role)
+	if err := bkt.IAM().SetPolicy(ctx, policy); err != nil {
+		t.Fatalf("SetPolicy: %v", err)
+	}
+	// Confirm that the binding was added.
+	policy, err = bkt.IAM().Policy(ctx)
+	if err != nil {
+		t.Fatalf("Getting policy: %v", err)
+	}
+	if !policy.HasRole(member, role) {
+		t.Errorf("member %q does not have role %q", member, role)
+	}
+
+	// Check TestPermissions.
+	// This client should have all these permissions (and more).
+	perms := []string{"storage.buckets.get", "storage.buckets.delete"}
+	got, err := bkt.IAM().TestPermissions(ctx, perms)
+	if err != nil {
+		t.Fatalf("TestPermissions: %v", err)
+	}
+	sort.Strings(perms)
+	sort.Strings(got)
+	if !reflect.DeepEqual(got, perms) {
+		t.Errorf("got %v, want %v", got, perms)
 	}
 }
 

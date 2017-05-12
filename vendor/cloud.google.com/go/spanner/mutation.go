@@ -253,6 +253,8 @@ func UpdateStruct(table string, in interface{}) (*Mutation, error) {
 // InsertOrUpdate returns a Mutation to insert a row into a table. If the row
 // already exists, it updates it instead. Any column values not explicitly
 // written are preserved.
+//
+// For a similar example, See Update.
 func InsertOrUpdate(table string, cols []string, vals []interface{}) *Mutation {
 	return &Mutation{
 		op:      opInsertOrUpdate,
@@ -265,6 +267,8 @@ func InsertOrUpdate(table string, cols []string, vals []interface{}) *Mutation {
 // InsertOrUpdateMap returns a Mutation to insert a row into a table,
 // specified by a map of column to value. If the row already exists, it
 // updates it instead. Any column values not explicitly written are preserved.
+//
+// For a similar example, See UpdateMap.
 func InsertOrUpdateMap(table string, in map[string]interface{}) *Mutation {
 	cols, vals := mapToMutationParams(in)
 	return InsertOrUpdate(table, cols, vals)
@@ -277,6 +281,8 @@ func InsertOrUpdateMap(table string, in map[string]interface{}) *Mutation {
 // The in argument must be a struct or a pointer to a struct. Its exported
 // fields specify the column names and values. Use a field tag like "spanner:name"
 // to provide an alternative column name, or use "spanner:-" to ignore the field.
+//
+// For a similar example, See UpdateStruct.
 func InsertOrUpdateStruct(table string, in interface{}) (*Mutation, error) {
 	cols, vals, err := structToMutationParams(in)
 	if err != nil {
@@ -288,6 +294,8 @@ func InsertOrUpdateStruct(table string, in interface{}) (*Mutation, error) {
 // Replace returns a Mutation to insert a row into a table, deleting any
 // existing row. Unlike InsertOrUpdate, this means any values not explicitly
 // written become NULL.
+//
+// For a similar example, See Update.
 func Replace(table string, cols []string, vals []interface{}) *Mutation {
 	return &Mutation{
 		op:      opReplace,
@@ -300,6 +308,8 @@ func Replace(table string, cols []string, vals []interface{}) *Mutation {
 // ReplaceMap returns a Mutation to insert a row into a table, deleting any
 // existing row. Unlike InsertOrUpdateMap, this means any values not explicitly
 // written become NULL.  The row is specified by a map of column to value.
+//
+// For a similar example, See UpdateMap.
 func ReplaceMap(table string, in map[string]interface{}) *Mutation {
 	cols, vals := mapToMutationParams(in)
 	return Replace(table, cols, vals)
@@ -312,6 +322,8 @@ func ReplaceMap(table string, in map[string]interface{}) *Mutation {
 // The in argument must be a struct or a pointer to a struct. Its exported
 // fields specify the column names and values. Use a field tag like "spanner:name"
 // to provide an alternative column name, or use "spanner:-" to ignore the field.
+//
+// For a similar example, See UpdateStruct.
 func ReplaceStruct(table string, in interface{}) (*Mutation, error) {
 	cols, vals, err := structToMutationParams(in)
 	if err != nil {

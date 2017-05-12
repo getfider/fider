@@ -231,7 +231,7 @@ func (c *context) Scheme() string {
 func (c *context) RealIP() string {
 	ra := c.request.RemoteAddr
 	if ip := c.request.Header.Get(HeaderXForwardedFor); ip != "" {
-		ra = ip
+		ra = strings.Split(ip, ", ")[0]
 	} else if ip := c.request.Header.Get(HeaderXRealIP); ip != "" {
 		ra = ip
 	} else {
@@ -275,7 +275,7 @@ func (c *context) SetParamNames(names ...string) {
 }
 
 func (c *context) ParamValues() []string {
-	return c.pvalues
+	return c.pvalues[:len(c.pnames)]
 }
 
 func (c *context) SetParamValues(values ...string) {
@@ -385,7 +385,8 @@ func (c *context) String(code int, s string) (err error) {
 }
 
 func (c *context) JSON(code int, i interface{}) (err error) {
-	if c.echo.Debug {
+	_, pretty := c.QueryParams()["pretty"]
+	if c.echo.Debug || pretty {
 		return c.JSONPretty(code, i, "  ")
 	}
 	b, err := json.Marshal(i)
@@ -429,7 +430,8 @@ func (c *context) JSONPBlob(code int, callback string, b []byte) (err error) {
 }
 
 func (c *context) XML(code int, i interface{}) (err error) {
-	if c.echo.Debug {
+	_, pretty := c.QueryParams()["pretty"]
+	if c.echo.Debug || pretty {
 		return c.XMLPretty(code, i, "  ")
 	}
 	b, err := xml.Marshal(i)
@@ -553,4 +555,8 @@ func (c *context) Reset(r *http.Request, w http.ResponseWriter) {
 	c.query = nil
 	c.handler = NotFoundHandler
 	c.store = nil
+	c.path = ""
+	c.pnames = nil
+	// NOTE: Don't reset because it has to have length c.echo.maxParam at all times
+	// c.pvalues = nil
 }

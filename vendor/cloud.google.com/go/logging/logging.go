@@ -36,6 +36,7 @@ import (
 	"sync"
 	"time"
 
+	"cloud.google.com/go/compute/metadata"
 	"cloud.google.com/go/internal/version"
 	vkit "cloud.google.com/go/logging/apiv2"
 	"cloud.google.com/go/logging/internal"
@@ -171,13 +172,13 @@ func init() {
 // log entry "ping" to a log named "ping".
 func (c *Client) Ping(ctx context.Context) error {
 	ent := &logpb.LogEntry{
-		Payload:   &logpb.LogEntry_TextPayload{"ping"},
+		Payload:   &logpb.LogEntry_TextPayload{TextPayload: "ping"},
 		Timestamp: unixZeroTimestamp, // Identical timestamps and insert IDs are both
 		InsertId:  "ping",            // necessary for the service to dedup these entries.
 	}
 	_, err := c.client.WriteLogEntries(ctx, &logpb.WriteLogEntriesRequest{
 		LogName:  internal.LogPath(c.parent(), "ping"),
-		Resource: &mrpb.MonitoredResource{Type: "global"},
+		Resource: globalResource(c.projectID),
 		Entries:  []*logpb.LogEntry{ent},
 	})
 	return err
@@ -209,6 +210,49 @@ func CommonResource(r *mrpb.MonitoredResource) LoggerOption { return commonResou
 type commonResource struct{ *mrpb.MonitoredResource }
 
 func (r commonResource) set(l *Logger) { l.commonResource = r.MonitoredResource }
+
+var detectedResource struct {
+	pb   *mrpb.MonitoredResource
+	once sync.Once
+}
+
+func detectResource() *mrpb.MonitoredResource {
+	detectedResource.once.Do(func() {
+		if !metadata.OnGCE() {
+			return
+		}
+		projectID, err := metadata.ProjectID()
+		if err != nil {
+			return
+		}
+		id, err := metadata.InstanceID()
+		if err != nil {
+			return
+		}
+		zone, err := metadata.Zone()
+		if err != nil {
+			return
+		}
+		detectedResource.pb = &mrpb.MonitoredResource{
+			Type: "gce_instance",
+			Labels: map[string]string{
+				"project_id":  projectID,
+				"instance_id": id,
+				"zone":        zone,
+			},
+		}
+	})
+	return detectedResource.pb
+}
+
+func globalResource(projectID string) *mrpb.MonitoredResource {
+	return &mrpb.MonitoredResource{
+		Type: "global",
+		Labels: map[string]string{
+			"project_id": projectID,
+		},
+	}
+}
 
 // CommonLabels are labels that apply to all log entries written from a Logger,
 // so that you don't have to repeat them in each log entry's Labels field. If
@@ -288,10 +332,14 @@ func (b bufferedByteLimit) set(l *Logger) { l.bundler.BufferedByteLimit = int(b)
 // characters: [A-Za-z0-9]; and punctuation characters: forward-slash,
 // underscore, hyphen, and period.
 func (c *Client) Logger(logID string, opts ...LoggerOption) *Logger {
+	r := detectResource()
+	if r == nil {
+		r = globalResource(c.projectID)
+	}
 	l := &Logger{
 		client:         c,
 		logName:        internal.LogPath(c.parent(), logID),
-		commonResource: &mrpb.MonitoredResource{Type: "global"},
+		commonResource: r,
 	}
 	// TODO(jba): determine the right context for the bundle handler.
 	ctx := context.TODO()
@@ -482,6 +530,10 @@ type HTTPRequest struct {
 	// received until the response was sent.
 	Latency time.Duration
 
+	// LocalIP is the IP address (IPv4 or IPv6) of the origin server that the request
+	// was sent to.
+	LocalIP string
+
 	// RemoteIP is the IP address (IPv4 or IPv6) of the client that issued the
 	// HTTP request. Examples: "192.168.1.1", "FE80::0202:B3FF:FE1E:8329".
 	RemoteIP string
@@ -512,6 +564,7 @@ func fromHTTPRequest(r *HTTPRequest) *logtypepb.HttpRequest {
 		Status:                         int32(r.Status),
 		ResponseSize:                   r.ResponseSize,
 		UserAgent:                      r.Request.UserAgent(),
+		ServerIp:                       r.LocalIP,
 		RemoteIp:                       r.RemoteIP, // TODO(jba): attempt to parse http.Request.RemoteAddr?
 		Referer:                        r.Request.Referer(),
 		CacheHit:                       r.CacheHit,
@@ -557,21 +610,21 @@ func jsonMapToProtoStruct(m map[string]interface{}) *structpb.Struct {
 func jsonValueToStructValue(v interface{}) *structpb.Value {
 	switch x := v.(type) {
 	case bool:
-		return &structpb.Value{Kind: &structpb.Value_BoolValue{x}}
+		return &structpb.Value{Kind: &structpb.Value_BoolValue{BoolValue: x}}
 	case float64:
-		return &structpb.Value{Kind: &structpb.Value_NumberValue{x}}
+		return &structpb.Value{Kind: &structpb.Value_NumberValue{NumberValue: x}}
 	case string:
-		return &structpb.Value{Kind: &structpb.Value_StringValue{x}}
+		return &structpb.Value{Kind: &structpb.Value_StringValue{StringValue: x}}
 	case nil:
 		return &structpb.Value{Kind: &structpb.Value_NullValue{}}
 	case map[string]interface{}:
-		return &structpb.Value{Kind: &structpb.Value_StructValue{jsonMapToProtoStruct(x)}}
+		return &structpb.Value{Kind: &structpb.Value_StructValue{StructValue: jsonMapToProtoStruct(x)}}
 	case []interface{}:
 		var vals []*structpb.Value
 		for _, e := range x {
 			vals = append(vals, jsonValueToStructValue(e))
 		}
-		return &structpb.Value{Kind: &structpb.Value_ListValue{&structpb.ListValue{vals}}}
+		return &structpb.Value{Kind: &structpb.Value_ListValue{ListValue: &structpb.ListValue{Values: vals}}}
 	default:
 		panic(fmt.Sprintf("bad type %T for JSON value", v))
 	}
@@ -672,13 +725,13 @@ func toLogEntry(e Entry) (*logpb.LogEntry, error) {
 
 	switch p := e.Payload.(type) {
 	case string:
-		ent.Payload = &logpb.LogEntry_TextPayload{p}
+		ent.Payload = &logpb.LogEntry_TextPayload{TextPayload: p}
 	default:
 		s, err := toProtoStruct(p)
 		if err != nil {
 			return nil, err
 		}
-		ent.Payload = &logpb.LogEntry_JsonPayload{s}
+		ent.Payload = &logpb.LogEntry_JsonPayload{JsonPayload: s}
 	}
 	return ent, nil
 }

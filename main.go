@@ -8,8 +8,10 @@ import (
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
 	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
-	_ "github.com/mattes/migrate/driver/postgres"
-	mig "github.com/mattes/migrate/migrate"
+	_ "github.com/lib/pq"
+	mig "github.com/mattes/migrate"
+	_ "github.com/mattes/migrate/database/postgres"
+	_ "github.com/mattes/migrate/source/file"
 
 	"fmt"
 )
@@ -19,11 +21,17 @@ var version = "0.2.0"
 
 func migrate() {
 	fmt.Printf("Running migrations... \n")
-	errors, ok := mig.UpSync(env.MustGet("DATABASE_URL"), env.Path("/migrations"))
-	if !ok {
-		for i, err := range errors {
-			fmt.Printf("Error #%d: %s.\n", i, err)
-		}
+	m, err := mig.New(
+		"file://./"+env.Path("/migrations"),
+		env.MustGet("DATABASE_URL"),
+	)
+
+	if err == nil {
+		err = m.Up()
+	}
+
+	if err != nil && err != mig.ErrNoChange {
+		fmt.Printf("Error: %s.\n", err)
 
 		panic("Migrations failed.")
 	} else {

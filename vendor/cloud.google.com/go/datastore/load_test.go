@@ -88,8 +88,8 @@ func TestLoadEntityNestedLegacy(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"X":   {ValueType: &pb.Value_StringValue{"two"}},
-					"A.I": {ValueType: &pb.Value_IntegerValue{2}},
+					"X":   {ValueType: &pb.Value_StringValue{StringValue: "two"}},
+					"A.I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 				},
 			},
 			want: &NestedSimple1{
@@ -102,7 +102,7 @@ func TestLoadEntityNestedLegacy(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"AA.II": {ValueType: &pb.Value_IntegerValue{2}},
+					"AA.II": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 				},
 			},
 			want: &NestedSimpleWithTag{
@@ -114,8 +114,8 @@ func TestLoadEntityNestedLegacy(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"X": {ValueType: &pb.Value_StringValue{"two"}},
-					"I": {ValueType: &pb.Value_IntegerValue{2}},
+					"X": {ValueType: &pb.Value_StringValue{StringValue: "two"}},
+					"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 				},
 			},
 			want: &NestedSimpleAnonymous{
@@ -128,7 +128,7 @@ func TestLoadEntityNestedLegacy(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"A.B.B": {ValueType: &pb.Value_StringValue{"bb"}},
+					"A.B.B": {ValueType: &pb.Value_StringValue{StringValue: "bb"}},
 				},
 			},
 			want: &ABDotB{
@@ -142,10 +142,10 @@ func TestLoadEntityNestedLegacy(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"I":  {ValueType: &pb.Value_IntegerValue{3}},
-					"S":  {ValueType: &pb.Value_StringValue{"S"}},
-					"SS": {ValueType: &pb.Value_StringValue{"s"}},
-					"X":  {ValueType: &pb.Value_StringValue{"s"}},
+					"I":  {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
+					"S":  {ValueType: &pb.Value_StringValue{StringValue: "S"}},
+					"SS": {ValueType: &pb.Value_StringValue{StringValue: "s"}},
+					"X":  {ValueType: &pb.Value_StringValue{StringValue: "s"}},
 				},
 			},
 			want: &MultiAnonymous{
@@ -197,13 +197,13 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
 					"A": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"I": {ValueType: &pb.Value_IntegerValue{3}},
+								"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
 							},
 						},
 					}},
-					"I": {ValueType: &pb.Value_IntegerValue{10}},
+					"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 10}},
 				},
 			},
 			want: &NestedSimple{
@@ -216,9 +216,9 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
 					"AA": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"II": {ValueType: &pb.Value_IntegerValue{1}},
+								"II": {ValueType: &pb.Value_IntegerValue{IntegerValue: 1}},
 							},
 						},
 					}},
@@ -233,28 +233,28 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
 					"AA": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
 								"A": {ValueType: &pb.Value_EntityValue{
-									&pb.Entity{
+									EntityValue: &pb.Entity{
 										Properties: map[string]*pb.Value{
-											"I": {ValueType: &pb.Value_IntegerValue{3}},
+											"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
 										},
 									},
 								}},
-								"I": {ValueType: &pb.Value_IntegerValue{1}},
+								"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 1}},
 							},
 						},
 					}},
 					"A": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"S":  {ValueType: &pb.Value_StringValue{"S"}},
-								"SS": {ValueType: &pb.Value_StringValue{"s"}},
+								"S":  {ValueType: &pb.Value_StringValue{StringValue: "S"}},
+								"SS": {ValueType: &pb.Value_StringValue{StringValue: "s"}},
 							},
 						},
 					}},
-					"S": {ValueType: &pb.Value_StringValue{"SS"}},
+					"S": {ValueType: &pb.Value_StringValue{StringValue: "SS"}},
 				},
 			},
 			want: &NestedSimple2X{
@@ -270,8 +270,8 @@ func TestLoadEntityNested(t *testing.T) {
 			desc: "nested anonymous",
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
-					"I": {ValueType: &pb.Value_IntegerValue{3}},
-					"X": {ValueType: &pb.Value_StringValue{"SomeX"}},
+					"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
+					"X": {ValueType: &pb.Value_StringValue{StringValue: "SomeX"}},
 				},
 			},
 			want: &NestedSimpleAnonymous{
@@ -284,19 +284,19 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
 					"A": {ValueType: &pb.Value_ArrayValue{
-						&pb.ArrayValue{
-							[]*pb.Value{
+						ArrayValue: &pb.ArrayValue{
+							Values: []*pb.Value{
 								{ValueType: &pb.Value_EntityValue{
-									&pb.Entity{
+									EntityValue: &pb.Entity{
 										Properties: map[string]*pb.Value{
-											"I": {ValueType: &pb.Value_IntegerValue{3}},
+											"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
 										},
 									},
 								}},
 								{ValueType: &pb.Value_EntityValue{
-									&pb.Entity{
+									EntityValue: &pb.Entity{
 										Properties: map[string]*pb.Value{
-											"I": {ValueType: &pb.Value_IntegerValue{4}},
+											"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 4}},
 										},
 									},
 								}},
@@ -314,10 +314,10 @@ func TestLoadEntityNested(t *testing.T) {
 			desc: "nested with multiple anonymous fields",
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
-					"I":  {ValueType: &pb.Value_IntegerValue{3}},
-					"S":  {ValueType: &pb.Value_StringValue{"S"}},
-					"SS": {ValueType: &pb.Value_StringValue{"s"}},
-					"X":  {ValueType: &pb.Value_StringValue{"ss"}},
+					"I":  {ValueType: &pb.Value_IntegerValue{IntegerValue: 3}},
+					"S":  {ValueType: &pb.Value_StringValue{StringValue: "S"}},
+					"SS": {ValueType: &pb.Value_StringValue{StringValue: "s"}},
+					"X":  {ValueType: &pb.Value_StringValue{StringValue: "ss"}},
 				},
 			},
 			want: &MultiAnonymous{
@@ -331,9 +331,9 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Properties: map[string]*pb.Value{
 					"A": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"B.B": {ValueType: &pb.Value_StringValue{"bb"}},
+								"B.B": {ValueType: &pb.Value_StringValue{StringValue: "bb"}},
 							},
 						},
 					}},
@@ -350,13 +350,13 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"Y": {ValueType: &pb.Value_StringValue{"yyy"}},
+					"Y": {ValueType: &pb.Value_StringValue{StringValue: "yyy"}},
 					"N": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Key: keyToProto(testKey1a),
 							Properties: map[string]*pb.Value{
-								"X": {ValueType: &pb.Value_StringValue{"two"}},
-								"I": {ValueType: &pb.Value_IntegerValue{2}},
+								"X": {ValueType: &pb.Value_StringValue{StringValue: "two"}},
+								"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 							},
 						},
 					}},
@@ -376,13 +376,13 @@ func TestLoadEntityNested(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"Y": {ValueType: &pb.Value_StringValue{"yyy"}},
+					"Y": {ValueType: &pb.Value_StringValue{StringValue: "yyy"}},
 					"N": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Key: keyToProto(invalidKey),
 							Properties: map[string]*pb.Value{
-								"X": {ValueType: &pb.Value_StringValue{"two"}},
-								"I": {ValueType: &pb.Value_IntegerValue{2}},
+								"X": {ValueType: &pb.Value_StringValue{StringValue: "two"}},
+								"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 							},
 						},
 					}},
@@ -450,7 +450,7 @@ func TestAlreadyPopulatedDst(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"SS": {ValueType: &pb.Value_StringValue{"world"}},
+					"SS": {ValueType: &pb.Value_StringValue{StringValue: "world"}},
 				},
 			},
 			dst:  &SimpleTwoFields{S: "hello" /* SS: "" */},
@@ -462,17 +462,17 @@ func TestAlreadyPopulatedDst(t *testing.T) {
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
 					"S":    {ValueType: &pb.Value_NullValue{}},
-					"SS":   {ValueType: &pb.Value_StringValue{"ss hello"}},
+					"SS":   {ValueType: &pb.Value_StringValue{StringValue: "ss hello"}},
 					"Nest": {ValueType: &pb.Value_NullValue{}},
 					"TwiceNest": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
 								"A": {ValueType: &pb.Value_NullValue{}},
-								"I": {ValueType: &pb.Value_IntegerValue{2}},
+								"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 2}},
 							},
 						},
 					}},
-					"I": {ValueType: &pb.Value_IntegerValue{5}},
+					"I": {ValueType: &pb.Value_IntegerValue{IntegerValue: 5}},
 				},
 			},
 			dst: &NestedStructPtrs{
@@ -642,7 +642,7 @@ func TestKeyLoader(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"A": {ValueType: &pb.Value_StringValue{"hello"}},
+					"A": {ValueType: &pb.Value_StringValue{StringValue: "hello"}},
 				},
 			},
 			dst: &KeyLoader1{},
@@ -656,7 +656,7 @@ func TestKeyLoader(t *testing.T) {
 			src: &pb.Entity{
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
-					"A": {ValueType: &pb.Value_StringValue{"hello"}},
+					"A": {ValueType: &pb.Value_StringValue{StringValue: "hello"}},
 				},
 			},
 			dst: &KeyLoader4{},
@@ -671,28 +671,28 @@ func TestKeyLoader(t *testing.T) {
 				Key: keyToProto(testKey0),
 				Properties: map[string]*pb.Value{
 					"Two": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"B": {ValueType: &pb.Value_IntegerValue{12}},
+								"B": {ValueType: &pb.Value_IntegerValue{IntegerValue: 12}},
 							},
 							Key: keyToProto(testKey1a),
 						},
 					}},
 					"Three": {ValueType: &pb.Value_ArrayValue{
-						&pb.ArrayValue{
-							[]*pb.Value{
+						ArrayValue: &pb.ArrayValue{
+							Values: []*pb.Value{
 								{ValueType: &pb.Value_EntityValue{
-									&pb.Entity{
+									EntityValue: &pb.Entity{
 										Properties: map[string]*pb.Value{
-											"C": {ValueType: &pb.Value_BooleanValue{true}},
+											"C": {ValueType: &pb.Value_BooleanValue{BooleanValue: true}},
 										},
 										Key: keyToProto(testKey1b),
 									},
 								}},
 								{ValueType: &pb.Value_EntityValue{
-									&pb.Entity{
+									EntityValue: &pb.Entity{
 										Properties: map[string]*pb.Value{
-											"C": {ValueType: &pb.Value_BooleanValue{false}},
+											"C": {ValueType: &pb.Value_BooleanValue{BooleanValue: false}},
 										},
 										Key: keyToProto(testKey0),
 									},
@@ -701,17 +701,17 @@ func TestKeyLoader(t *testing.T) {
 						},
 					}},
 					"Four": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"A": {ValueType: &pb.Value_StringValue{"testing"}},
+								"A": {ValueType: &pb.Value_StringValue{StringValue: "testing"}},
 							},
 							Key: keyToProto(testKey2a),
 						},
 					}},
 					"PLS": {ValueType: &pb.Value_EntityValue{
-						&pb.Entity{
+						EntityValue: &pb.Entity{
 							Properties: map[string]*pb.Value{
-								"A": {ValueType: &pb.Value_StringValue{"something"}},
+								"A": {ValueType: &pb.Value_StringValue{StringValue: "something"}},
 							},
 
 							Key: keyToProto(testKey1a),

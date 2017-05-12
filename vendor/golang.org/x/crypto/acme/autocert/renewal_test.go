@@ -32,7 +32,7 @@ func TestRenewalNext(t *testing.T) {
 		expiry   time.Time
 		min, max time.Duration
 	}{
-		{now.Add(90 * 24 * time.Hour), 83*24*time.Hour - maxRandRenew, 83 * 24 * time.Hour},
+		{now.Add(90 * 24 * time.Hour), 83*24*time.Hour - renewJitter, 83 * 24 * time.Hour},
 		{now.Add(time.Hour), 0, 1},
 		{now, 0, 1},
 		{now.Add(-time.Hour), 0, 1},

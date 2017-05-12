@@ -168,6 +168,54 @@ func (s *Subscription) Config(ctx context.Context) (*SubscriptionConfig, error) 
 	return conf, nil
 }
 
+// ModifyPushConfig updates the endpoint URL and other attributes of a push subscription.
+func (s *Subscription) ModifyPushConfig(ctx context.Context, conf *PushConfig) error {
+	if conf == nil {
+		return errors.New("must supply non-nil PushConfig")
+	}
+
+	return s.s.modifyPushConfig(ctx, s.name, conf)
+}
+
+func (s *Subscription) IAM() *iam.Handle {
+	return s.s.iamHandle(s.name)
+}
+
+// CreateSubscription creates a new subscription on a topic.
+//
+// name is the name of the subscription to create. It must start with a letter,
+// and contain only letters ([A-Za-z]), numbers ([0-9]), dashes (-),
+// underscores (_), periods (.), tildes (~), plus (+) or percent signs (%). It
+// must be between 3 and 255 characters in length, and must not start with
+// "goog".
+//
+// topic is the topic from which the subscription should receive messages. It
+// need not belong to the same project as the subscription.
+//
+// ackDeadline is the maximum time after a subscriber receives a message before
+// the subscriber should acknowledge the message. It must be between 10 and 600
+// seconds (inclusive), and is rounded down to the nearest second. If the
+// provided ackDeadline is 0, then the default value of 10 seconds is used.
+// Note: messages which are obtained via Subscription.Receive need not be
+// acknowledged within this deadline, as the deadline will be automatically
+// extended.
+//
+// pushConfig may be set to configure this subscription for push delivery.
+//
+// If the subscription already exists an error will be returned.
+func (c *Client) CreateSubscription(ctx context.Context, id string, topic *Topic, ackDeadline time.Duration, pushConfig *PushConfig) (*Subscription, error) {
+	if ackDeadline == 0 {
+		ackDeadline = 10 * time.Second
+	}
+	if d := ackDeadline.Seconds(); d < 10 || d > 600 {
+		return nil, fmt.Errorf("ack deadline must be between 10 and 600 seconds; got: %v", d)
+	}
+
+	sub := c.Subscription(id)
+	err := c.s.createSubscription(ctx, topic.name, sub.name, ackDeadline, pushConfig)
+	return sub, err
+}
+
 var errReceiveInProgress = errors.New("pubsub: Receive already in progress for this subscription")
 
 // Receive calls f with the outstanding messages from the subscription.
@@ -295,54 +343,6 @@ type pullOptions struct {
 	// ackDeadline is the default ack deadline for the subscription. Not
 	// configurable.
 	ackDeadline time.Duration
-}
-
-// ModifyPushConfig updates the endpoint URL and other attributes of a push subscription.
-func (s *Subscription) ModifyPushConfig(ctx context.Context, conf *PushConfig) error {
-	if conf == nil {
-		return errors.New("must supply non-nil PushConfig")
-	}
-
-	return s.s.modifyPushConfig(ctx, s.name, conf)
-}
-
-func (s *Subscription) IAM() *iam.Handle {
-	return s.s.iamHandle(s.name)
-}
-
-// CreateSubscription creates a new subscription on a topic.
-//
-// name is the name of the subscription to create. It must start with a letter,
-// and contain only letters ([A-Za-z]), numbers ([0-9]), dashes (-),
-// underscores (_), periods (.), tildes (~), plus (+) or percent signs (%). It
-// must be between 3 and 255 characters in length, and must not start with
-// "goog".
-//
-// topic is the topic from which the subscription should receive messages. It
-// need not belong to the same project as the subscription.
-//
-// ackDeadline is the maximum time after a subscriber receives a message before
-// the subscriber should acknowledge the message. It must be between 10 and 600
-// seconds (inclusive), and is rounded down to the nearest second. If the
-// provided ackDeadline is 0, then the default value of 10 seconds is used.
-// Note: messages which are obtained via Subscription.Receive need not be
-// acknowledged within this deadline, as the deadline will be automatically
-// extended.
-//
-// pushConfig may be set to configure this subscription for push delivery.
-//
-// If the subscription already exists an error will be returned.
-func (c *Client) CreateSubscription(ctx context.Context, id string, topic *Topic, ackDeadline time.Duration, pushConfig *PushConfig) (*Subscription, error) {
-	if ackDeadline == 0 {
-		ackDeadline = 10 * time.Second
-	}
-	if d := ackDeadline.Seconds(); d < 10 || d > 600 {
-		return nil, fmt.Errorf("ack deadline must be between 10 and 600 seconds; got: %v", d)
-	}
-
-	sub := c.Subscription(id)
-	err := c.s.createSubscription(ctx, topic.name, sub.name, ackDeadline, pushConfig)
-	return sub, err
 }
 
 // flowController implements flow control for Subscriber.Receive.

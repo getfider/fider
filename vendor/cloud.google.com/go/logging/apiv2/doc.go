@@ -34,3 +34,13 @@ func insertXGoog(ctx context.Context, val string) context.Context {
 	md["x-goog-api-client"] = []string{val}
 	return metadata.NewContext(ctx, md)
 }
+
+func DefaultAuthScopes() []string {
+	return []string{
+		"https://www.googleapis.com/auth/cloud-platform",
+		"https://www.googleapis.com/auth/cloud-platform.read-only",
+		"https://www.googleapis.com/auth/logging.admin",
+		"https://www.googleapis.com/auth/logging.read",
+		"https://www.googleapis.com/auth/logging.write",
+	}
+}

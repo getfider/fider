@@ -2352,7 +2352,7 @@ func TestServer_NoCrash_HandlerClose_Then_ClientClose(t *testing.T) {
 
 		// Sent when the a Handler closes while a client has
 		// indicated it's still sending DATA:
-		st.wantRSTStream(1, ErrCodeCancel)
+		st.wantRSTStream(1, ErrCodeNo)
 
 		// Now the handler has ended, so it's ended its
 		// stream, but the client hasn't closed its side
@@ -2432,6 +2432,7 @@ func TestServer_Rejects_TLSBadCipher(t *testing.T) {
 			tls.TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			cipher_TLS_RSA_WITH_AES_128_CBC_SHA256,
 		}
 	})
 	defer st.Close()
@@ -3414,8 +3415,9 @@ func TestServerHandleCustomConn(t *testing.T) {
 	}()
 	const testString = "my custom ConnectionState"
 	fakeConnState := tls.ConnectionState{
-		ServerName: testString,
-		Version:    tls.VersionTLS12,
+		ServerName:  testString,
+		Version:     tls.VersionTLS12,
+		CipherSuite: cipher_TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 	}
 	go s.ServeConn(connStateConn{c1, fakeConnState}, &ServeConnOpts{
 		BaseConfig: &http.Server{

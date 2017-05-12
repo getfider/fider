@@ -337,8 +337,6 @@ func (h *configHandler) ListSinks(_ context.Context, req *logpb.ListSinksRequest
 		Sinks:         sinks[from:to],
 		NextPageToken: nextPageToken,
 	}, nil
-
-	return nil, nil
 }
 
 type sinksByName []*logpb.LogSink
@@ -406,8 +404,6 @@ func (h *metricHandler) ListLogMetrics(_ context.Context, req *logpb.ListLogMetr
 		Metrics:       metrics[from:to],
 		NextPageToken: nextPageToken,
 	}, nil
-
-	return nil, nil
 }
 
 type metricsByName []*logpb.LogMetric
