@@ -22,7 +22,7 @@ var version = "0.2.0"
 func migrate() {
 	fmt.Printf("Running migrations... \n")
 	m, err := mig.New(
-		"file://./"+env.Path("/migrations"),
+		"file://./migrations",
 		env.MustGet("DATABASE_URL"),
 	)
 
