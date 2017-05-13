@@ -21,6 +21,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
+
 	"cloud.google.com/go/iam"
 	"cloud.google.com/go/internal/version"
 	vkit "cloud.google.com/go/pubsub/apiv1"
@@ -32,6 +34,7 @@ import (
 )
 
 type nextStringFunc func() (string, error)
+type nextSnapshotFunc func() (*snapshotConfig, error)
 
 // service provides an internal abstraction to isolate the generated
 // PubSub API; most of this package uses this interface instead.
@@ -67,6 +70,14 @@ type service interface {
 	iamHandle(resourceName string) *iam.Handle
 
 	newStreamingPuller(ctx context.Context, subName string, ackDeadline int32) *streamingPuller
+
+	createSnapshot(ctx context.Context, snapName, subName string) (*snapshotConfig, error)
+	deleteSnapshot(ctx context.Context, snapName string) error
+	listProjectSnapshots(ctx context.Context, projName string) nextSnapshotFunc
+
+	// TODO(pongad): Raw proto returns an empty SeekResponse; figure out if we want to return it before GA.
+	seekToTime(ctx context.Context, subName string, t time.Time) error
+	seekToSnapshot(ctx context.Context, subName, snapName string) error
 
 	close() error
 }
@@ -482,4 +493,67 @@ func splitRequest(req *pb.StreamingPullRequest, maxSize int) (prefix, remainder 
 	req.ModifyDeadlineAckIds = req.ModifyDeadlineAckIds[:k]
 	req.ModifyDeadlineSeconds = req.ModifyDeadlineSeconds[:k]
 	return req, remainder
+}
+
+func (s *apiService) createSnapshot(ctx context.Context, snapName, subName string) (*snapshotConfig, error) {
+	snap, err := s.subc.CreateSnapshot(ctx, &pb.CreateSnapshotRequest{
+		Name:         snapName,
+		Subscription: subName,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return s.toSnapshotConfig(snap)
+}
+
+func (s *apiService) deleteSnapshot(ctx context.Context, snapName string) error {
+	return s.subc.DeleteSnapshot(ctx, &pb.DeleteSnapshotRequest{Snapshot: snapName})
+}
+
+func (s *apiService) listProjectSnapshots(ctx context.Context, projName string) nextSnapshotFunc {
+	it := s.subc.ListSnapshots(ctx, &pb.ListSnapshotsRequest{
+		Project: projName,
+	})
+	return func() (*snapshotConfig, error) {
+		snap, err := it.Next()
+		if err != nil {
+			return nil, err
+		}
+		return s.toSnapshotConfig(snap)
+	}
+}
+
+func (s *apiService) toSnapshotConfig(snap *pb.Snapshot) (*snapshotConfig, error) {
+	exp, err := ptypes.Timestamp(snap.ExpirationTime)
+	if err != nil {
+		return nil, err
+	}
+	return &snapshotConfig{
+		snapshot: &snapshot{
+			s:    s,
+			name: snap.Name,
+		},
+		Topic:      newTopic(s, snap.Topic),
+		Expiration: exp,
+	}, nil
+}
+
+func (s *apiService) seekToTime(ctx context.Context, subName string, t time.Time) error {
+	ts, err := ptypes.TimestampProto(t)
+	if err != nil {
+		return err
+	}
+	_, err = s.subc.Seek(ctx, &pb.SeekRequest{
+		Subscription: subName,
+		Target:       &pb.SeekRequest_Time{ts},
+	})
+	return err
+}
+
+func (s *apiService) seekToSnapshot(ctx context.Context, subName, snapName string) error {
+	_, err := s.subc.Seek(ctx, &pb.SeekRequest{
+		Subscription: subName,
+		Target:       &pb.SeekRequest_Snapshot{snapName},
+	})
+	return err
 }

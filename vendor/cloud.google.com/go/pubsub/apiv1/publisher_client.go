@@ -50,10 +50,7 @@ type PublisherCallOptions struct {
 func defaultPublisherClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("pubsub.googleapis.com:443"),
-		option.WithScopes(
-			"https://www.googleapis.com/auth/cloud-platform",
-			"https://www.googleapis.com/auth/pubsub",
-		),
+		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
@@ -185,14 +182,15 @@ func (c *PublisherClient) TopicIAM(topic *pubsubpb.Topic) *iam.Handle {
 }
 
 // CreateTopic creates the given topic with the given name.
-func (c *PublisherClient) CreateTopic(ctx context.Context, req *pubsubpb.Topic) (*pubsubpb.Topic, error) {
+func (c *PublisherClient) CreateTopic(ctx context.Context, req *pubsubpb.Topic, opts ...gax.CallOption) (*pubsubpb.Topic, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.CreateTopic[0:len(c.CallOptions.CreateTopic):len(c.CallOptions.CreateTopic)], opts...)
 	var resp *pubsubpb.Topic
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.publisherClient.CreateTopic(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.CreateTopic...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,14 +200,15 @@ func (c *PublisherClient) CreateTopic(ctx context.Context, req *pubsubpb.Topic) 
 // Publish adds one or more messages to the topic. Returns `NOT_FOUND` if the topic
 // does not exist. The message payload must not be empty; it must contain
 //  either a non-empty data field, or at least one attribute.
-func (c *PublisherClient) Publish(ctx context.Context, req *pubsubpb.PublishRequest) (*pubsubpb.PublishResponse, error) {
+func (c *PublisherClient) Publish(ctx context.Context, req *pubsubpb.PublishRequest, opts ...gax.CallOption) (*pubsubpb.PublishResponse, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.Publish[0:len(c.CallOptions.Publish):len(c.CallOptions.Publish)], opts...)
 	var resp *pubsubpb.PublishResponse
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.publisherClient.Publish(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.Publish...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -217,14 +216,15 @@ func (c *PublisherClient) Publish(ctx context.Context, req *pubsubpb.PublishRequ
 }
 
 // GetTopic gets the configuration of a topic.
-func (c *PublisherClient) GetTopic(ctx context.Context, req *pubsubpb.GetTopicRequest) (*pubsubpb.Topic, error) {
+func (c *PublisherClient) GetTopic(ctx context.Context, req *pubsubpb.GetTopicRequest, opts ...gax.CallOption) (*pubsubpb.Topic, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.GetTopic[0:len(c.CallOptions.GetTopic):len(c.CallOptions.GetTopic)], opts...)
 	var resp *pubsubpb.Topic
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.publisherClient.GetTopic(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.GetTopic...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -232,8 +232,9 @@ func (c *PublisherClient) GetTopic(ctx context.Context, req *pubsubpb.GetTopicRe
 }
 
 // ListTopics lists matching topics.
-func (c *PublisherClient) ListTopics(ctx context.Context, req *pubsubpb.ListTopicsRequest) *TopicIterator {
+func (c *PublisherClient) ListTopics(ctx context.Context, req *pubsubpb.ListTopicsRequest, opts ...gax.CallOption) *TopicIterator {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.ListTopics[0:len(c.CallOptions.ListTopics):len(c.CallOptions.ListTopics)], opts...)
 	it := &TopicIterator{}
 	it.InternalFetch = func(pageSize int, pageToken string) ([]*pubsubpb.Topic, string, error) {
 		var resp *pubsubpb.ListTopicsResponse
@@ -247,7 +248,7 @@ func (c *PublisherClient) ListTopics(ctx context.Context, req *pubsubpb.ListTopi
 			var err error
 			resp, err = c.publisherClient.ListTopics(ctx, req, settings.GRPC...)
 			return err
-		}, c.CallOptions.ListTopics...)
+		}, opts...)
 		if err != nil {
 			return nil, "", err
 		}
@@ -266,8 +267,9 @@ func (c *PublisherClient) ListTopics(ctx context.Context, req *pubsubpb.ListTopi
 }
 
 // ListTopicSubscriptions lists the name of the subscriptions for this topic.
-func (c *PublisherClient) ListTopicSubscriptions(ctx context.Context, req *pubsubpb.ListTopicSubscriptionsRequest) *StringIterator {
+func (c *PublisherClient) ListTopicSubscriptions(ctx context.Context, req *pubsubpb.ListTopicSubscriptionsRequest, opts ...gax.CallOption) *StringIterator {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.ListTopicSubscriptions[0:len(c.CallOptions.ListTopicSubscriptions):len(c.CallOptions.ListTopicSubscriptions)], opts...)
 	it := &StringIterator{}
 	it.InternalFetch = func(pageSize int, pageToken string) ([]string, string, error) {
 		var resp *pubsubpb.ListTopicSubscriptionsResponse
@@ -281,7 +283,7 @@ func (c *PublisherClient) ListTopicSubscriptions(ctx context.Context, req *pubsu
 			var err error
 			resp, err = c.publisherClient.ListTopicSubscriptions(ctx, req, settings.GRPC...)
 			return err
-		}, c.CallOptions.ListTopicSubscriptions...)
+		}, opts...)
 		if err != nil {
 			return nil, "", err
 		}
@@ -304,13 +306,14 @@ func (c *PublisherClient) ListTopicSubscriptions(ctx context.Context, req *pubsu
 // the same name; this is an entirely new topic with none of the old
 // configuration or subscriptions. Existing subscriptions to this topic are
 // not deleted, but their `topic` field is set to `_deleted-topic_`.
-func (c *PublisherClient) DeleteTopic(ctx context.Context, req *pubsubpb.DeleteTopicRequest) error {
+func (c *PublisherClient) DeleteTopic(ctx context.Context, req *pubsubpb.DeleteTopicRequest, opts ...gax.CallOption) error {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.DeleteTopic[0:len(c.CallOptions.DeleteTopic):len(c.CallOptions.DeleteTopic)], opts...)
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		_, err = c.publisherClient.DeleteTopic(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.DeleteTopic...)
+	}, opts...)
 	return err
 }
 

@@ -286,7 +286,7 @@ func (l *typeList) has(t reflect.Type) bool {
 // hasRecursiveType reports whether t or any type inside t refers to itself, directly or indirectly,
 // via exported fields. (Schema inference ignores unexported fields.)
 func hasRecursiveType(t reflect.Type, seen *typeList) (bool, error) {
-	if t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Ptr || t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {

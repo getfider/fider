@@ -24,6 +24,7 @@ import (
 
 	"cloud.google.com/go/iam"
 	"cloud.google.com/go/internal/testutil"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -146,13 +147,40 @@ func TestAll(t *testing.T) {
 		t.Errorf("sub IAM: %s", msg)
 	}
 
-	err = sub.Delete(ctx)
+	snap, err := sub.createSnapshot(ctx, "")
 	if err != nil {
+		t.Fatalf("CreateSnapshot error: %v", err)
+	}
+
+	snapIt := client.snapshots(ctx)
+	for {
+		s, err := snapIt.Next()
+		if err == nil && s.name == snap.name {
+			break
+		}
+		if err == iterator.Done {
+			t.Errorf("cannot find snapshot: %q", snap.name)
+			break
+		}
+		if err != nil {
+			t.Error(err)
+			break
+		}
+	}
+
+	if err := sub.seekToSnapshot(ctx, snap.snapshot); err != nil {
+		t.Errorf("SeekToSnapshot error: %v", err)
+	}
+
+	if err := snap.delete(ctx); err != nil {
+		t.Errorf("DeleteSnap error: %v", err)
+	}
+
+	if err := sub.Delete(ctx); err != nil {
 		t.Errorf("DeleteSub error: %v", err)
 	}
 
-	err = topic.Delete(ctx)
-	if err != nil {
+	if err := topic.Delete(ctx); err != nil {
 		t.Errorf("DeleteTopic error: %v", err)
 	}
 }

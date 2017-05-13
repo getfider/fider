@@ -91,6 +91,7 @@ import (
 	"cloud.google.com/go/internal/version"
 	"cloud.google.com/go/logging"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	gax "github.com/googleapis/gax-go"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
 	erpb "google.golang.org/genproto/googleapis/devtools/clouderrorreporting/v1beta1"
@@ -101,7 +102,7 @@ const (
 )
 
 type apiInterface interface {
-	ReportErrorEvent(ctx context.Context, req *erpb.ReportErrorEventRequest) (*erpb.ReportErrorEventResponse, error)
+	ReportErrorEvent(ctx context.Context, req *erpb.ReportErrorEventRequest, opts ...gax.CallOption) (*erpb.ReportErrorEventResponse, error)
 	Close() error
 }
 

@@ -202,6 +202,7 @@ func errNilColType(i int) error {
 
 // Column fetches the value from the ith column, decoding it into ptr.
 // See the Row documentation for the list of acceptable argument types.
+// see Client.ReadWriteTransaction for an example.
 func (r *Row) Column(i int, ptr interface{}) error {
 	if len(r.vals) != len(r.fields) {
 		return errFieldsMismatchVals(r)

@@ -207,17 +207,39 @@ func ExampleSubscription_Receive() {
 	}
 }
 
-func ExampleSubscription_Receive_options() {
+// This example shows how to configure keepalive so that unacknoweldged messages
+// expire quickly, allowing other subscribers to take them.
+func ExampleSubscription_Receive_maxExtension() {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "project-id")
 	if err != nil {
 		// TODO: Handle error.
 	}
 	sub := client.Subscription("subName")
-	// This program is expected to process and acknowledge messages
-	// in 5 seconds. If not, Pub/Sub API will assume the message is not
-	// acknowledged.
-	sub.ReceiveSettings.MaxExtension = 5 * time.Second
+	// This program is expected to process and acknowledge messages in 30 seconds. If
+	// not, the Pub/Sub API will assume the message is not acknowledged.
+	sub.ReceiveSettings.MaxExtension = 30 * time.Second
+	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
+		// TODO: Handle message.
+		m.Ack()
+	})
+	if err != context.Canceled {
+		// TODO: Handle error.
+	}
+}
+
+// This example shows how to throttle Subscription.Receive, which aims for high
+// throughput by default. By limiting the number of messages and/or bytes being
+// processed at once, you can bound your program's resource consumption.
+func ExampleSubscription_Receive_maxOutstanding() {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, "project-id")
+	if err != nil {
+		// TODO: Handle error.
+	}
+	sub := client.Subscription("subName")
+	sub.ReceiveSettings.MaxOutstandingMessages = 5
+	sub.ReceiveSettings.MaxOutstandingBytes = 10e6
 	err = sub.Receive(ctx, func(ctx context.Context, m *pubsub.Message) {
 		// TODO: Handle message.
 		m.Ack()

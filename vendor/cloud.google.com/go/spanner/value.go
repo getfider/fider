@@ -142,7 +142,7 @@ func (v GenericColumnValue) Decode(ptr interface{}) error {
 
 // NewGenericColumnValue creates a GenericColumnValue from Go value that is
 // valid for Cloud Spanner.
-func NewGenericColumnValue(v interface{}) (*GenericColumnValue, error) {
+func newGenericColumnValue(v interface{}) (*GenericColumnValue, error) {
 	value, typ, err := encodeValue(v)
 	if err != nil {
 		return nil, err

@@ -9,8 +9,7 @@ import:
 - package: github.com/lib/pq
 - package: github.com/mattes/migrate
   subpackages:
-  - driver/postgres
-  - migrate
+  - database/postgres
 - package: golang.org/x/oauth2
   subpackages:
   - facebook

@@ -77,12 +77,13 @@ func (d DirCache) Put(ctx context.Context, name string, data []byte) error {
 		if tmp, err = d.writeTempFile(name, data); err != nil {
 			return
 		}
-		// prevent overwriting the file if the context was cancelled
-		if ctx.Err() != nil {
-			return // no need to set err
+		select {
+		case <-ctx.Done():
+			// Don't overwrite the file if the context was canceled.
+		default:
+			newName := filepath.Join(string(d), name)
+			err = os.Rename(tmp, newName)
 		}
-		name = filepath.Join(string(d), name)
-		err = os.Rename(tmp, name)
 	}()
 	select {
 	case <-ctx.Done():

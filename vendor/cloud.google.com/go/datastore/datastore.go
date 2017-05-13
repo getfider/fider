@@ -53,6 +53,10 @@ type protoClient interface {
 // datastoreClient is a wrapper for the pb.DatastoreClient that includes gRPC
 // metadata to be sent in each request for server-side traffic management.
 type datastoreClient struct {
+	// Embed so we still implement the DatastoreClient interface,
+	// if the interface adds more methods.
+	pb.DatastoreClient
+
 	c  pb.DatastoreClient
 	md metadata.MD
 }
@@ -202,9 +206,9 @@ func keyToProto(k *Key) *pb.Key {
 	for {
 		el := &pb.Key_PathElement{Kind: k.Kind}
 		if k.ID != 0 {
-			el.IdType = &pb.Key_PathElement_Id{k.ID}
+			el.IdType = &pb.Key_PathElement_Id{Id: k.ID}
 		} else if k.Name != "" {
-			el.IdType = &pb.Key_PathElement_Name{k.Name}
+			el.IdType = &pb.Key_PathElement_Name{Name: k.Name}
 		}
 		path = append([]*pb.Key_PathElement{el}, path...)
 		if k.Parent == nil {
@@ -549,9 +553,9 @@ func putMutations(keys []*Key, src interface{}) ([]*pb.Mutation, error) {
 		}
 		var mut *pb.Mutation
 		if k.Incomplete() {
-			mut = &pb.Mutation{Operation: &pb.Mutation_Insert{p}}
+			mut = &pb.Mutation{Operation: &pb.Mutation_Insert{Insert: p}}
 		} else {
-			mut = &pb.Mutation{Operation: &pb.Mutation_Upsert{p}}
+			mut = &pb.Mutation{Operation: &pb.Mutation_Upsert{Upsert: p}}
 		}
 		mutations = append(mutations, mut)
 	}
@@ -593,7 +597,7 @@ func deleteMutations(keys []*Key) ([]*pb.Mutation, error) {
 			return nil, fmt.Errorf("datastore: can't delete the incomplete key: %v", k)
 		}
 		mutations = append(mutations, &pb.Mutation{
-			Operation: &pb.Mutation_Delete{keyToProto(k)},
+			Operation: &pb.Mutation_Delete{Delete: keyToProto(k)},
 		})
 	}
 	return mutations, nil

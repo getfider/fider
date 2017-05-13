@@ -123,7 +123,7 @@ func TestFromLogEntry(t *testing.T) {
 	logEntry := logpb.LogEntry{
 		LogName:   "projects/PROJECT_ID/logs/LOG_ID",
 		Resource:  res,
-		Payload:   &logpb.LogEntry_TextPayload{"hello"},
+		Payload:   &logpb.LogEntry_TextPayload{TextPayload: "hello"},
 		Timestamp: ts,
 		Severity:  logtypepb.LogSeverity_INFO,
 		InsertId:  "123",
@@ -210,7 +210,7 @@ func TestFromLogEntry(t *testing.T) {
 		LogName:   "projects/PROJECT_ID/logs/LOG_ID",
 		Resource:  res,
 		Timestamp: ts,
-		Payload:   &logpb.LogEntry_ProtoPayload{any},
+		Payload:   &logpb.LogEntry_ProtoPayload{ProtoPayload: any},
 	}
 	got, err = fromLogEntry(&logEntry)
 	if err != nil {
@@ -221,14 +221,14 @@ func TestFromLogEntry(t *testing.T) {
 	}
 
 	// JSON payload.
-	jstruct := &structpb.Struct{map[string]*structpb.Value{
-		"f": &structpb.Value{&structpb.Value_NumberValue{3.1}},
+	jstruct := &structpb.Struct{Fields: map[string]*structpb.Value{
+		"f": &structpb.Value{Kind: &structpb.Value_NumberValue{NumberValue: 3.1}},
 	}}
 	logEntry = logpb.LogEntry{
 		LogName:   "projects/PROJECT_ID/logs/LOG_ID",
 		Resource:  res,
 		Timestamp: ts,
-		Payload:   &logpb.LogEntry_JsonPayload{jstruct},
+		Payload:   &logpb.LogEntry_JsonPayload{JsonPayload: jstruct},
 	}
 	got, err = fromLogEntry(&logEntry)
 	if err != nil {

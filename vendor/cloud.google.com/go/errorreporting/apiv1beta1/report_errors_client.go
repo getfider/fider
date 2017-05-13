@@ -41,9 +41,7 @@ type ReportErrorsCallOptions struct {
 func defaultReportErrorsClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("clouderrorreporting.googleapis.com:443"),
-		option.WithScopes(
-			"https://www.googleapis.com/auth/cloud-platform",
-		),
+		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
@@ -138,14 +136,15 @@ func ReportErrorsProjectPath(project string) string {
 // for authentication. To use an API key, append it to the URL as the value of
 // a `key` parameter. For example:
 // <pre>POST https://clouderrorreporting.googleapis.com/v1beta1/projects/example-project/events:report?key=123ABC456</pre>
-func (c *ReportErrorsClient) ReportErrorEvent(ctx context.Context, req *clouderrorreportingpb.ReportErrorEventRequest) (*clouderrorreportingpb.ReportErrorEventResponse, error) {
+func (c *ReportErrorsClient) ReportErrorEvent(ctx context.Context, req *clouderrorreportingpb.ReportErrorEventRequest, opts ...gax.CallOption) (*clouderrorreportingpb.ReportErrorEventResponse, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
+	opts = append(c.CallOptions.ReportErrorEvent[0:len(c.CallOptions.ReportErrorEvent):len(c.CallOptions.ReportErrorEvent)], opts...)
 	var resp *clouderrorreportingpb.ReportErrorEventResponse
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
 		resp, err = c.reportErrorsClient.ReportErrorEvent(ctx, req, settings.GRPC...)
 		return err
-	}, c.CallOptions.ReportErrorEvent...)
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

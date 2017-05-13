@@ -35,3 +35,9 @@ func insertXGoog(ctx context.Context, val string) context.Context {
 	md["x-goog-api-client"] = []string{val}
 	return metadata.NewContext(ctx, md)
 }
+
+func DefaultAuthScopes() []string {
+	return []string{
+		"https://www.googleapis.com/auth/cloud-platform",
+	}
+}
