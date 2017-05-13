@@ -7,10 +7,12 @@ import (
 	"reflect"
 
 	"github.com/WeCanHearYou/wechy/app/pkg/env"
-	"github.com/mattes/migrate/migrate"
+	"github.com/mattes/migrate"
 
 	//required
 	_ "github.com/lib/pq"
+	_ "github.com/mattes/migrate/database/postgres"
+	_ "github.com/mattes/migrate/source/file"
 )
 
 // New creates a new Database instance
@@ -22,6 +24,7 @@ func New() (*Database, error) {
 
 	db := &Database{conn}
 	if env.IsTest() {
+		db.Migrate()
 		db.load("/app/pkg/dbx/setup.sql")
 	}
 	return db, nil
@@ -206,12 +209,19 @@ func (db Database) load(path string) {
 
 // Migrate the database to latest verion
 func (db Database) Migrate() {
+
 	fmt.Printf("Running migrations... \n")
-	errors, ok := migrate.UpSync(env.MustGet("DATABASE_URL"), env.Path("/migrations"))
-	if !ok {
-		for i, err := range errors {
-			fmt.Printf("Error #%d: %s.\n", i, err)
-		}
+	m, err := migrate.New(
+		"file://"+env.Path("migrations"),
+		env.MustGet("DATABASE_URL"),
+	)
+
+	if err == nil {
+		err = m.Up()
+	}
+
+	if err != nil && err != migrate.ErrNoChange {
+		fmt.Printf("Error: %s.\n", err)
 
 		panic("Migrations failed.")
 	} else {

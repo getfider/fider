@@ -12,7 +12,7 @@
     "wechy": true,
     "wechy.exe": true,
     "tmp": true,
-    "vendor": true,
+    "vendor": false,
     "node_modules": true,
     "dist": true,
     "coverage.txt": true,

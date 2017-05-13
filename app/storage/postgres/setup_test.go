@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
-	_ "github.com/mattes/migrate/driver/postgres"
 )
 
 func TestMain(m *testing.M) {
