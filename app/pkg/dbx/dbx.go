@@ -23,10 +23,6 @@ func New() (*Database, error) {
 	}
 
 	db := &Database{conn}
-	if env.IsTest() {
-		db.Migrate()
-		db.load("/app/pkg/dbx/setup.sql")
-	}
 	return db, nil
 }
 
@@ -204,6 +200,13 @@ func (db Database) load(path string) {
 	err = db.Execute(string(content))
 	if err != nil {
 		panic(err)
+	}
+}
+
+// Seed clean and insert new seed data for testing
+func (db Database) Seed() {
+	if env.IsTest() {
+		db.load("/app/pkg/dbx/setup.sql")
 	}
 }
 

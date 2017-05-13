@@ -1,6 +1,7 @@
 package dbx_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
@@ -22,6 +23,16 @@ type userWithTenant struct {
 type tenant struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
+}
+
+func TestMain(m *testing.M) {
+	db, _ := dbx.New()
+	db.Migrate()
+	db.Seed()
+	db.Close()
+
+	code := m.Run()
+	os.Exit(code)
 }
 
 func TestBind_SimpleStruct(t *testing.T) {

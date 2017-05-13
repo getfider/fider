@@ -13,6 +13,7 @@ import (
 func TestUserStorage_GetByID(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}
@@ -31,6 +32,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 func TestUserStorage_GetByEmail_Error(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}
@@ -43,6 +45,7 @@ func TestUserStorage_GetByEmail_Error(t *testing.T) {
 func TestUserStorage_GetByEmail(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}
@@ -61,6 +64,7 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}
@@ -73,6 +77,7 @@ func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 func TestUserStorage_Register(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}
@@ -104,6 +109,7 @@ func TestUserStorage_Register(t *testing.T) {
 func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
@@ -138,6 +144,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 func TestUserStorage_RegisterProvider(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	users := &postgres.UserStorage{DB: db}

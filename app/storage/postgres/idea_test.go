@@ -14,6 +14,7 @@ import (
 func TestIdeaStorage_GetAll(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	now := time.Now()
@@ -45,6 +46,7 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
@@ -72,6 +74,7 @@ func TestIdeaStorage_SaveAndGet(t *testing.T) {
 func TestIdeaStorage_GetInvalid(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}
@@ -84,6 +87,7 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
@@ -105,6 +109,7 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}
@@ -129,6 +134,7 @@ func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 func TestIdeaStorage_AddSupporter(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}
@@ -148,6 +154,7 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}
@@ -167,6 +174,7 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}
@@ -186,6 +194,7 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	ideas := &postgres.IdeaStorage{DB: db}

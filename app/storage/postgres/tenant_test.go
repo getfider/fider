@@ -15,6 +15,7 @@ import (
 func TestTenantStorage_First(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	tenants := &postgres.TenantStorage{DB: db}
@@ -27,6 +28,7 @@ func TestTenantStorage_First(t *testing.T) {
 func TestTenantStorage_Empty_First(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	db.Execute("TRUNCATE tenants CASCADE")
@@ -41,6 +43,7 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	tenants := &postgres.TenantStorage{DB: db}
@@ -53,6 +56,7 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	tenants := &postgres.TenantStorage{DB: db}
@@ -73,6 +77,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
+	db.Seed()
 	defer db.Close()
 
 	tenants := &postgres.TenantStorage{DB: db}
