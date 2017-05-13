@@ -11,6 +11,17 @@
 			"env": { },
 			"args": [ ],
 			"showLog": true
+		},
+		{
+			"name": "Launch",
+			"type": "go",
+			"request": "launch",
+			"mode": "debug",
+			"program": "${workspaceRoot}",
+			"envFile": "${workspaceRoot}/.env",
+			"env": { },
+			"args": [ ],
+			"showLog": true
 		}
 	]
 }
