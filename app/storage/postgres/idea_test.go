@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/WeCanHearYou/wechy/app"
+	"github.com/WeCanHearYou/wechy/app/models"
 	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
 	"github.com/WeCanHearYou/wechy/app/storage/postgres"
 	. "github.com/onsi/gomega"
@@ -17,8 +18,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300, 0)", now)
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301, 5)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
+	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
 
 	ideas := &postgres.IdeaStorage{DB: db}
 	dbIdeas, err := ideas.GetAll(300)
@@ -31,12 +32,14 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[0].Description).To(Equal("Description #1"))
 	Expect(dbIdeas[0].User.Name).To(Equal("Jon Snow"))
 	Expect(dbIdeas[0].TotalSupporters).To(Equal(0))
+	Expect(dbIdeas[0].Status).To(Equal(models.IdeaStarted))
 
 	Expect(dbIdeas[1].Title).To(Equal("Idea #2"))
 	Expect(dbIdeas[1].Number).To(Equal(2))
 	Expect(dbIdeas[1].Description).To(Equal("Description #2"))
 	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
 	Expect(dbIdeas[1].TotalSupporters).To(Equal(5))
+	Expect(dbIdeas[1].Status).To(Equal(models.IdeaCompleted))
 }
 
 func TestIdeaStorage_SaveAndGet(t *testing.T) {
@@ -58,6 +61,7 @@ func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	Expect(dbIdea.ID).To(Equal(1))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.TotalSupporters).To(Equal(0))
+	Expect(dbIdea.Status).To(Equal(models.IdeaNew))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Description).To(Equal("with this description"))
 	Expect(dbIdea.User.ID).To(Equal(1))
