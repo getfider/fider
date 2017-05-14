@@ -113,11 +113,11 @@ deploy:
         code: |
           apk update && apk add openssh-client bash
     - add-to-known_hosts:
-        hostname: getfider.com
+        hostname: fider.io
         fingerprint: SHA256:KsmKuG/9bu/5GPkMjVBt37hoB82PY3/932kwxLXkdn0
     - add-ssh-key:
         keyname: CORE
     - script:
         name: restart
         code: |
-          ssh core@getfider.com "/home/core/start-app.sh"
+          ssh core@fider.io "/home/core/start-app.sh"
