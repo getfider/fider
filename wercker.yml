@@ -120,4 +120,4 @@ deploy:
     - script:
         name: restart
         code: |
-          ssh core@getfider.com "/home/core/start-fider.sh"
+          ssh core@getfider.com "/home/core/start-app.sh"
