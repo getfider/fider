@@ -19,16 +19,16 @@ var testCases = []struct {
 	{
 		"The Orange Inc.",
 		[]string{
-			"orange.test.fider.io.com",
-			"orange.test.fider.io.com:3000",
+			"orange.test.fider.io",
+			"orange.test.fider.io:3000",
 		},
 	},
 	{
 		"Demonstration",
 		[]string{
-			"demo.test.fider.io.com",
-			"demo.test.fider.io.com:1231",
-			"demo.test.fider.io.com:80",
+			"demo.test.fider.io",
+			"demo.test.fider.io:1231",
+			"demo.test.fider.io:80",
 		},
 	},
 }
@@ -62,7 +62,7 @@ func TestMultiTenant_AuthDomain(t *testing.T) {
 
 	tenants := &inmemory.TenantStorage{}
 	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.fider.io.com"
+	server.Context.Request().Host = "login.test.fider.io"
 
 	server.Use(middlewares.MultiTenant(tenants))
 	status, _ := server.Execute(func(c web.Context) error {
@@ -115,9 +115,9 @@ func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.fider.io.com"
+	server.Context.Request().Host = "login.test.fider.io"
 
-	server.Use(middlewares.HostChecker("login.test.fider.io.com"))
+	server.Use(middlewares.HostChecker("login.test.fider.io"))
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -129,8 +129,8 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.fider.io.com"
-	server.Use(middlewares.HostChecker("login.test.fider.io.com"))
+	server.Context.Request().Host = "orange.test.fider.io"
+	server.Use(middlewares.HostChecker("login.test.fider.io"))
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})

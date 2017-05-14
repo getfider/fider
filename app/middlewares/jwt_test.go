@@ -94,7 +94,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.fider.io.com"
+	server.Context.Request().Host = "orange.test.fider.io"
 	server.Context.Request().RequestURI = "/abc"
 
 	server.Use(middlewares.JwtSetter())
@@ -113,7 +113,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	})
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.fider.io.com"
+	server.Context.Request().Host = "orange.test.fider.io"
 	server.Context.Request().URL, _ = url.Parse("/abc?jwt=" + token)
 
 	server.Use(middlewares.JwtSetter())
@@ -122,7 +122,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com/abc"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/abc"))
 }
 
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
@@ -133,7 +133,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	})
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.fider.io.com"
+	server.Context.Request().Host = "orange.test.fider.io"
 	server.Context.Request().URL, _ = url.Parse("/abc?jwt=" + token + "&foo=bar")
 
 	server.Use(middlewares.JwtSetter())
@@ -142,5 +142,5 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com/abc?foo=bar"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/abc?foo=bar"))
 }
