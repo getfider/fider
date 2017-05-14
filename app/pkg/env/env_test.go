@@ -4,20 +4,19 @@ import (
 	"os"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/env"
 	. "github.com/onsi/gomega"
 )
 
 var envs = []struct {
 	go_env string
-	domain string
 	env    string
 	isEnv  func() bool
 }{
-	{"test", "test.canhearyou.com", "test", env.IsTest},
-	{"development", "dev.canhearyou.com", "development", env.IsDevelopment},
-	{"production", "canhearyou.com", "production", env.IsProduction},
-	{"anything", "dev.canhearyou.com", "development", env.IsDevelopment},
+	{"test", "test", env.IsTest},
+	{"development", "development", env.IsDevelopment},
+	{"production", "production", env.IsProduction},
+	{"anything", "development", env.IsDevelopment},
 }
 
 func TestGetEnvOrDefault(t *testing.T) {
@@ -28,16 +27,6 @@ func TestGetEnvOrDefault(t *testing.T) {
 
 	path := env.GetEnvOrDefault("PATH", "default path")
 	Expect(path).NotTo(Equal("default path"))
-}
-
-func TestCurrentDomain(t *testing.T) {
-	RegisterTestingT(t)
-
-	for _, testCase := range envs {
-		os.Setenv("GO_ENV", testCase.go_env)
-		actual := env.CurrentDomain()
-		Expect(actual).To(Equal(testCase.domain))
-	}
 }
 
 func TestCurrent(t *testing.T) {

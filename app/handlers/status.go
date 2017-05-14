@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/labstack/echo"
 )
 

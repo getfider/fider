@@ -2,8 +2,8 @@ services:
   - id: postgres
     tag: 9.6
     env:
-      POSTGRES_USER: wechy_test
-      POSTGRES_PASSWORD: wechy_test-pw
+      POSTGRES_USER: fider_test
+      POSTGRES_PASSWORD: fider_test-pw
 
 build-assets:
   box: node:6.10
@@ -24,7 +24,7 @@ build-assets:
 
 test:
   box: golang:1.8
-  base-path: /go/src/github.com/WeCanHearYou/wechy
+  base-path: /go/src/github.com/getfider/fider
   steps:
     # Get dependencies
     - script:
@@ -46,7 +46,7 @@ test:
 
 coverage:
   box: golang:1.8
-  base-path: /go/src/github.com/WeCanHearYou/wechy
+  base-path: /go/src/github.com/getfider/fider
   steps:
     # Install jq
     - script:
@@ -83,7 +83,7 @@ dockerize:
         name: prepare output
         code: |
           mkdir /app
-          cp wechy /app
+          cp fider /app
           cp favicon.ico /app
           cp -R migrations/ /app/migrations
           cp -R views/ /app/views
@@ -95,13 +95,13 @@ dockerize:
           mv /app /pipeline/output
 
     - internal/docker-push:
-        repository: wecanhearyou/wechy
+        repository: getfider/fider
         username: $DOCKER_USER
         password: $DOCKER_PASS
         working-dir: /pipeline/output/app
         tag: latest
         ports: 8080
-        cmd: ./wechy
+        cmd: ./fider
 
 deploy:
   box:
@@ -113,11 +113,11 @@ deploy:
         code: |
           apk update && apk add openssh-client bash
     - add-to-known_hosts:
-        hostname: canhearyou.com
+        hostname: getfider.com
         fingerprint: SHA256:KsmKuG/9bu/5GPkMjVBt37hoB82PY3/932kwxLXkdn0
     - add-ssh-key:
         keyname: CORE
     - script:
         name: restart
         code: |
-          ssh core@canhearyou.com "/home/core/start-wechy.sh"
+          ssh core@getfider.com "/home/core/start-fider.sh"

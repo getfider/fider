@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/WeCanHearYou/wechy/app/models"
+import "github.com/getfider/fider/app/models"
 
 // User is used for user operations
 type User interface {

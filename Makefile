@@ -13,12 +13,12 @@ coverage:
 	godotenv -f ${ENV_FILE} ./cover.sh $$(go list ./... | grep -v /vendor/)
 
 build:
-	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o wechy .
+	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o fider .
 
 watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	wechy
+	fider
 
 .DEFAULT_GOAL := build

@@ -31,19 +31,7 @@ func IsSingleHostMode() bool {
 	return GetEnvOrDefault("HOST_MODE", "single") == "single"
 }
 
-// CurrentDomain returns Wechy domain based on current environment variables
-func CurrentDomain() string {
-	switch Current() {
-	case "test":
-		return "test.canhearyou.com"
-	case "development":
-		return "dev.canhearyou.com"
-	}
-	return "canhearyou.com"
-
-}
-
-// Current returns current Wechy environment
+// Current returns current Fider environment
 func Current() string {
 	env := os.Getenv("GO_ENV")
 	switch env {
@@ -55,12 +43,12 @@ func Current() string {
 	return "development"
 }
 
-// IsProduction returns true on Wechy production environment
+// IsProduction returns true on Fider production environment
 func IsProduction() bool {
 	return Current() == "production"
 }
 
-// IsTest returns true on Wechy test environment
+// IsTest returns true on Fider test environment
 func IsTest() bool {
 	return Current() == "test"
 }
@@ -69,14 +57,14 @@ func IsTest() bool {
 func Path(p ...string) string {
 	root := "./"
 	if IsTest() {
-		root = os.Getenv("GOPATH") + "/src/github.com/WeCanHearYou/wechy/"
+		root = os.Getenv("GOPATH") + "/src/github.com/getfider/fider/"
 	}
 
 	elems := append([]string{root}, p...)
 	return path.Join(elems...)
 }
 
-// IsDevelopment returns true on Wechy production environment
+// IsDevelopment returns true on Fider production environment
 func IsDevelopment() bool {
 	return Current() == "development"
 }

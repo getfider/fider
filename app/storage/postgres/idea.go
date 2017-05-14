@@ -5,9 +5,9 @@ import (
 
 	"database/sql"
 
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
 )
 
 // IdeaStorage contains read and write operations for ideas

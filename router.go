@@ -3,15 +3,15 @@ package main
 import (
 	"net/http"
 
-	"github.com/WeCanHearYou/wechy/app/handlers"
-	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage"
+	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/middlewares"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage"
 )
 
-// AppServices holds reference to all Wechy services
+// AppServices holds reference to all Fider services
 type AppServices struct {
 	OAuth    oauth.Service
 	User     storage.User

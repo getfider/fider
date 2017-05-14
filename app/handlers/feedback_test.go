@@ -5,10 +5,10 @@ import (
 
 	"strconv"
 
-	"github.com/WeCanHearYou/wechy/app/handlers"
-	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
+	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
 

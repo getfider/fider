@@ -3,7 +3,7 @@
 set -e
 
 COVER=.cover
-ROOT_PKG=github.com/WeCanHearYou/wechy/
+ROOT_PKG=github.com/getfider/fider/
 
 if [[ -d "$COVER" ]]; then
 	rm -rf "$COVER"

@@ -1,8 +1,8 @@
 package inmemory
 
 import (
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
 )
 
 // UserStorage is used for user operations

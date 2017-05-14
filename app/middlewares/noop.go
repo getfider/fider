@@ -1,6 +1,6 @@
 package middlewares
 
-import "github.com/WeCanHearYou/wechy/app/pkg/web"
+import "github.com/getfider/fider/app/pkg/web"
 
 // Noop does nothing
 func Noop() web.MiddlewareFunc {

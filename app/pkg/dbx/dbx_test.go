@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/dbx"
 	. "github.com/onsi/gomega"
 )
 

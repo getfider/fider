@@ -3,8 +3,8 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 // IsAuthenticated blocks non-authenticated requests

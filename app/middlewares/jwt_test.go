@@ -6,12 +6,12 @@ import (
 
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
+	"github.com/getfider/fider/app/middlewares"
+	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
 
@@ -40,7 +40,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 		Name:   "Jon Snow",
 		Tenant: tenant,
 	}
-	token, _ := jwt.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.FiderClaims{
 		UserID:   user.ID,
 		UserName: user.Name,
 	})
@@ -66,7 +66,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := jwt.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.FiderClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
@@ -94,7 +94,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.canhearyou.com"
+	server.Context.Request().Host = "orange.test.fider.io.com"
 	server.Context.Request().RequestURI = "/abc"
 
 	server.Use(middlewares.JwtSetter())
@@ -108,12 +108,12 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := jwt.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.FiderClaims{
 		UserName: "Jon Snow",
 	})
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.canhearyou.com"
+	server.Context.Request().Host = "orange.test.fider.io.com"
 	server.Context.Request().URL, _ = url.Parse("/abc?jwt=" + token)
 
 	server.Use(middlewares.JwtSetter())
@@ -122,18 +122,18 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com/abc"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com/abc"))
 }
 
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterTestingT(t)
 
-	token, _ := jwt.Encode(&models.WechyClaims{
+	token, _ := jwt.Encode(&models.FiderClaims{
 		UserName: "Jon Snow",
 	})
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.canhearyou.com"
+	server.Context.Request().Host = "orange.test.fider.io.com"
 	server.Context.Request().URL, _ = url.Parse("/abc?jwt=" + token + "&foo=bar")
 
 	server.Use(middlewares.JwtSetter())
@@ -142,5 +142,5 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com/abc?foo=bar"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com/abc?foo=bar"))
 }

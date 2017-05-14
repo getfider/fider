@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"reflect"
 
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/mattes/migrate"
 
 	//required

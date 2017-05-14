@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
+	"github.com/getfider/fider/app/middlewares"
+	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
 
@@ -19,16 +19,16 @@ var testCases = []struct {
 	{
 		"The Orange Inc.",
 		[]string{
-			"orange.test.canhearyou.com",
-			"orange.test.canhearyou.com:3000",
+			"orange.test.fider.io.com",
+			"orange.test.fider.io.com:3000",
 		},
 	},
 	{
 		"Demonstration",
 		[]string{
-			"demo.test.canhearyou.com",
-			"demo.test.canhearyou.com:1231",
-			"demo.test.canhearyou.com:80",
+			"demo.test.fider.io.com",
+			"demo.test.fider.io.com:1231",
+			"demo.test.fider.io.com:80",
 		},
 	},
 }
@@ -62,7 +62,7 @@ func TestMultiTenant_AuthDomain(t *testing.T) {
 
 	tenants := &inmemory.TenantStorage{}
 	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.canhearyou.com"
+	server.Context.Request().Host = "login.test.fider.io.com"
 
 	server.Use(middlewares.MultiTenant(tenants))
 	status, _ := server.Execute(func(c web.Context) error {
@@ -115,9 +115,9 @@ func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.canhearyou.com"
+	server.Context.Request().Host = "login.test.fider.io.com"
 
-	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
+	server.Use(middlewares.HostChecker("login.test.fider.io.com"))
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -129,8 +129,8 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.canhearyou.com"
-	server.Use(middlewares.HostChecker("login.test.canhearyou.com"))
+	server.Context.Request().Host = "orange.test.fider.io.com"
+	server.Use(middlewares.HostChecker("login.test.fider.io.com"))
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})

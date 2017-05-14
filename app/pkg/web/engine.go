@@ -6,8 +6,8 @@ import (
 
 	"fmt"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"

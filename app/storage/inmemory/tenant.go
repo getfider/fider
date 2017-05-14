@@ -3,8 +3,8 @@ package inmemory
 import (
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
 )
 
 // TenantStorage contains read and write operations for tenants

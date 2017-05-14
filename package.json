@@ -1,8 +1,8 @@
 {
-  "name": "wechy",
-  "description": "WeCanHearYou is an open source, cross platform and free to use feedback system for companies and products.",
+  "name": "fider",
+  "description": "Fider is an open source, cross platform and free to use feedback system for companies and products.",
   "version": "0.0.0",
-  "repository": "https://github.com/WeCanHearYou/wechy",
+  "repository": "https://github.com/getfider/fider",
   "license": "GPL-3.0",
   "scripts": {
     "build": "rm -rf dist && webpack -p",

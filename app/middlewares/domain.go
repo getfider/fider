@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage"
 )
 
 // Tenant adds either SingleTenant or MultiTenant to the pipeline

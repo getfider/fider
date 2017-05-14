@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/labstack/echo"
 )
 

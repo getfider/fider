@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app/middlewares"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
+	"github.com/getfider/fider/app/middlewares"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/jmoiron/jsonq"
 	"github.com/labstack/echo"
 )

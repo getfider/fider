@@ -50,8 +50,8 @@ type UserProvider struct {
 	UID  string `json:"uid" db:"provider_uid"`
 }
 
-//WechyClaims represents what goes into JWT tokens
-type WechyClaims struct {
+//FiderClaims represents what goes into JWT tokens
+type FiderClaims struct {
 	UserID    int    `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`

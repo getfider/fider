@@ -1,4 +1,4 @@
-package: github.com/WeCanHearYou/wechy
+package: github.com/getfider/fider
 import:
 - package: github.com/dgrijalva/jwt-go
 - package: github.com/jmoiron/jsonq

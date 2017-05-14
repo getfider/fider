@@ -1,6 +1,6 @@
 package storage
 
-import "github.com/WeCanHearYou/wechy/app/models"
+import "github.com/getfider/fider/app/models"
 
 // Idea contains read and write operations for ideas
 type Idea interface {

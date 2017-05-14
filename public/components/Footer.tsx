@@ -36,7 +36,7 @@ export class Footer extends React.Component<{}, {}> {
                         <div className="ui inverted section divider"></div>
                         <div className="ui horizontal inverted small divided link list">
                             <span>Powered by</span>
-                            <a className="item" target="_blank" href="http://we.canhearyou.com/">WeCanHearYou</a>
+                            <a className="item" target="_blank" href="http://getfider.com/">Fider</a>
                         </div>
                     </div>
                 </div>;

@@ -3,9 +3,9 @@ package handlers_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/handlers"
-	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/models"
+	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/models"
 	. "github.com/onsi/gomega"
 )
 

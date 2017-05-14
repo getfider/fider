@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage"
+	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage"
 )
 
 // JwtGetter gets JWT token from cookie and add into context

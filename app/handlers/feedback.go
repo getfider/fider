@@ -3,9 +3,9 @@ package handlers
 import (
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage"
 	"github.com/labstack/echo"
 )
 

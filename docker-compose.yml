@@ -8,13 +8,13 @@ services:
     ports:
       - "5555:5432"
     environment:
-      POSTGRES_USER: wechy
-      POSTGRES_PASSWORD: wechy-pw
+      POSTGRES_USER: fider
+      POSTGRES_PASSWORD: fider-pw
   pgtest:
     restart: always
     image: postgres:9.6
     ports:
       - "5566:5432"
     environment:
-      POSTGRES_USER: wechy_test
-      POSTGRES_PASSWORD: wechy_test-pw
+      POSTGRES_USER: fider_test
+      POSTGRES_PASSWORD: fider_test-pw

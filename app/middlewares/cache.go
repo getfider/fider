@@ -1,6 +1,6 @@
 package middlewares
 
-import "github.com/WeCanHearYou/wechy/app/pkg/web"
+import "github.com/getfider/fider/app/pkg/web"
 
 // OneYearCache adds Cache-Control header for one year
 func OneYearCache() web.MiddlewareFunc {

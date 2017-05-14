@@ -5,12 +5,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/WeCanHearYou/wechy/app"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
-	"github.com/WeCanHearYou/wechy/app/storage"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage"
 )
 
 type oauthUserProfile struct {
@@ -95,7 +95,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 			}
 		}
 
-		claims := &models.WechyClaims{
+		claims := &models.FiderClaims{
 			UserID:    user.ID,
 			UserName:  user.Name,
 			UserEmail: user.Email,

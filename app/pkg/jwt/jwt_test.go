@@ -3,15 +3,15 @@ package jwt_test
 import (
 	"testing"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/jwt"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jwt"
 	. "github.com/onsi/gomega"
 )
 
 func TestJWT_Encode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &models.WechyClaims{
+	claims := &models.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -25,7 +25,7 @@ func TestJWT_Encode(t *testing.T) {
 func TestJWT_Decode(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &models.WechyClaims{
+	claims := &models.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -43,7 +43,7 @@ func TestJWT_Decode(t *testing.T) {
 func TestJWT_DecodeChangedToken(t *testing.T) {
 	RegisterTestingT(t)
 
-	claims := &models.WechyClaims{
+	claims := &models.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",

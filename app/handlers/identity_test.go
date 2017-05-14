@@ -7,11 +7,11 @@ import (
 
 	"net/url"
 
-	"github.com/WeCanHearYou/wechy/app/handlers"
-	"github.com/WeCanHearYou/wechy/app/mock"
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
-	"github.com/WeCanHearYou/wechy/app/storage/inmemory"
+	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
 
@@ -46,11 +46,11 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com")
+	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io.com")
 	code, response := server.Execute(oauthHandlers.Callback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com"))
 }
 
 func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
@@ -70,11 +70,11 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	})
 
 	server := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
+	server.Context.Request().URL, _ = url.Parse("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io.com&code=123")
 	code, response := server.Execute(oauthHandlers.Callback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
@@ -83,7 +83,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	tenants.Add(tenant)
 
 	server := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.canhearyou.com&code=456")
+	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io.com&code=456")
 	code, response := server.Execute(oauthHandlers.Callback(oauth.FacebookProvider))
 
 	user, err := users.GetByEmail(tenant.ID, "some.guy@facebook.com")
@@ -91,14 +91,14 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	Expect(user.Name).To(Equal("Some Facebook Guy"))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.PGavs5a6HRotRozfXfNP39JPb0vSus_8LL9MAOeLGDs"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.PGavs5a6HRotRozfXfNP39JPb0vSus_8LL9MAOeLGDs"))
 }
 
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.canhearyou.com&code=123")
+	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io.com&code=123")
 	code, response := server.Execute(oauthHandlers.Callback(oauth.GoogleProvider))
 
 	tenant, _ := tenants.GetByDomain("demo")
@@ -107,5 +107,5 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(len(user.Providers)).To(Equal(2))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.canhearyou.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io.com?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
 }

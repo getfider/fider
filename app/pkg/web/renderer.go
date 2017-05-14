@@ -7,9 +7,9 @@ import (
 
 	"io/ioutil"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/labstack/echo"
 )
 

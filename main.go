@@ -5,11 +5,11 @@ import (
 
 	"fmt"
 
-	"github.com/WeCanHearYou/wechy/app/models"
-	"github.com/WeCanHearYou/wechy/app/pkg/dbx"
-	"github.com/WeCanHearYou/wechy/app/pkg/env"
-	"github.com/WeCanHearYou/wechy/app/pkg/oauth"
-	"github.com/WeCanHearYou/wechy/app/storage/postgres"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/storage/postgres"
 	_ "github.com/lib/pq"
 	_ "github.com/mattes/migrate/database/postgres"
 	_ "github.com/mattes/migrate/source/file"

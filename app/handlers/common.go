@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/WeCanHearYou/wechy/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 // Logout remove auth cookies
