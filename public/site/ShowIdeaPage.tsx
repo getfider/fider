@@ -2,23 +2,32 @@ import * as moment from "moment";
 import * as React from "react";
 import * as storage from "../storage";
 
-import { Comment, Idea } from "../models";
-import { CommentInput } from "./CommentInput";
-import { Gravatar, MultiLineText } from "./Common";
-import { SocialSignInButton } from "./SocialSignInButton";
-import { SupportCounter } from "./SupportCounter";
+import { User, Comment, Idea } from "../models";
+import { CommentInput } from "../shared/CommentInput";
+import { Gravatar, MultiLineText } from "../shared/Common";
+import { SocialSignInButton } from "../shared/SocialSignInButton";
+import { SupportCounter } from "../shared/SupportCounter";
 
-import { Footer } from "./Footer";
-import { Header } from "./Header";
+import { Footer } from "../shared/Footer";
+import { Header } from "../shared/Header";
 import { IdeaInput } from "./IdeaInput";
 
-export class ShowIdeaRoot extends React.Component<{}, {}> {
-    public render() {
-        const user = storage.getCurrentUser();
-        const idea = storage.get<Idea>("idea");
-        const comments = storage.get<Comment[]>("comments") || [];
+export class ShowIdeaPage extends React.Component<{}, {}> {
+    private user: User;
+    private idea: Idea;
+    private comments: Comment[];
 
-        const commentsList = comments.length ? comments.map((c) =>
+    constructor(props: {}) {
+      super(props);
+
+      this.user = storage.getCurrentUser();
+      this.idea = storage.get<Idea>("idea");
+      this.comments = storage.get<Comment[]>("comments") || [];
+    }
+
+    public render() {
+
+        const commentsList = this.comments.length ? this.comments.map((c) =>
           <div className="comment">
             <a className="avatar">
               <Gravatar email={c.user.email} />
@@ -41,27 +50,27 @@ export class ShowIdeaRoot extends React.Component<{}, {}> {
                     <div className="ui items unstackable">
                       <div className="item">
 
-                        <SupportCounter user={user} idea={idea} />
+                        <SupportCounter user={this.user} idea={this.idea} />
 
                         <div className="idea-header">
-                          <h1 className="ui header">{ idea.title }</h1>
+                          <h1 className="ui header">{ this.idea.title }</h1>
 
                           <p>
-                            #{ idea.number } shared by &nbsp;
-                            <Gravatar email={idea.user.email}/> <u>{idea.user.name}</u> &nbsp;
-                            <span title={idea.createdOn}>{ moment(idea.createdOn).fromNow() }</span>
+                            #{ this.idea.number } shared by &nbsp;
+                            <Gravatar email={this.idea.user.email}/> <u>{this.idea.user.name}</u> &nbsp;
+                            <span title={this.idea.createdOn}>{ moment(this.idea.createdOn).fromNow() }</span>
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <p>{ idea.description }</p>
+                    <p>{ this.idea.description }</p>
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>
                       { commentsList }
                     </div>
-                    <CommentInput idea={idea} />
+                    <CommentInput idea={this.idea} />
                   </div>
                   <Footer />
                </div>;

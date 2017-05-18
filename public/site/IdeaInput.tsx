@@ -1,8 +1,8 @@
 import axios from "axios";
 import * as React from "react";
 import { getCurrentUser } from "../storage";
-import { DisplayError } from "./Common";
-import { SocialSignInList } from "./SocialSignInList";
+import { DisplayError } from "../shared/Common";
+import { SocialSignInList } from "../shared/SocialSignInList";
 
 interface IdeaInputState {
     title: string;

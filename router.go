@@ -1,14 +1,13 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage"
+	"github.com/labstack/echo"
 )
 
 // AppServices holds reference to all Fider services
@@ -75,7 +74,7 @@ func GetMainEngine(ctx *AppServices) *web.Engine {
 		admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
 		admin.Get("", func(ctx web.Context) error {
-			return ctx.HTML(http.StatusOK, "Welcome to Admin Page :)")
+			return ctx.Page(echo.Map{})
 		})
 	}
 

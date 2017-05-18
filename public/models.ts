@@ -9,6 +9,7 @@ export interface User {
   name: string;
   email: string;
   supportedIdeas: number[];
+  role: number;
 }
 
 export interface Idea {

@@ -1,15 +1,17 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Root } from "./components/Root";
-import { ShowIdeaRoot } from "./components/ShowIdeaRoot";
+import { HomePage as AdminHomePage } from "./admin/HomePage";
+import { HomePage as SiteHomePage } from "./site/HomePage";
+import { ShowIdeaPage } from "./site/ShowIdeaPage";
 import { setup } from "./storage";
 
 import "./css/main.css";
 
 const pathRegex = [
-    { regex: new RegExp("^\/$"), component: <Root /> },
-    { regex: new RegExp("^\/ideas\/\\d+$"), component: <ShowIdeaRoot /> },
+    { regex: new RegExp("^\/$"), component: <SiteHomePage /> },
+    { regex: new RegExp("^\/admin$"), component: <AdminHomePage /> },
+    { regex: new RegExp("^\/ideas\/\\d+$"), component: <ShowIdeaPage /> },
 ];
 
 const resolveRootComponent = (path: string): JSX.Element => {

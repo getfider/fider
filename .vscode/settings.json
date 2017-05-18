@@ -21,6 +21,11 @@
     ".cover": true,
     "cover.out": true
   },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "vendor": true
+  },
   "vsicons.presets.angular": true,
   "go.coverageOptions": "showBothCoveredAndUncoveredCode",
   "go.coverOnSave": true,

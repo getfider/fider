@@ -31,12 +31,12 @@ import * as React from "react";
 
 export class Footer extends React.Component<{}, {}> {
     public render() {
-        return  <div id="footer" className="ui inverted vertical footer segment">
+        return  <div id="footer" className="ui vertical footer segment">
                     <div className="ui center aligned container">
                         <div className="ui inverted section divider"></div>
-                        <div className="ui horizontal inverted small divided link list">
-                            <span>Powered by</span>
-                            <a className="item" target="_blank" href="http://getfider.com/">Fider</a>
+                        <div className="ui horizontal small divided link list">
+                            <span>Powered by </span>
+                            <b><a className="item" target="_blank" href="http://getfider.com/">Fider</a></b>
                         </div>
                     </div>
                 </div>;

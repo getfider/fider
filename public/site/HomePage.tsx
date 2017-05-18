@@ -1,22 +1,28 @@
 import * as moment from "moment";
 import * as React from "react";
-import { Idea } from "../models";
+import { Idea, User } from "../models";
 import * as storage from "../storage";
-import { Gravatar, MultiLineText } from "./Common";
-import { SupportCounter } from "./SupportCounter";
+import { Gravatar, MultiLineText } from "../shared/Common";
+import { SupportCounter } from "../shared/SupportCounter";
 
-import { Footer } from "./Footer";
-import { Header } from "./Header";
+import { Footer } from "../shared/Footer";
+import { Header } from "../shared/Header";
 import { IdeaInput } from "./IdeaInput";
 
-export class Root extends React.Component<{}, {}> {
-    public render() {
-        const user = storage.getCurrentUser();
-        const ideas = storage.get<Idea[]>("ideas") || [];
+export class HomePage extends React.Component<{}, {}> {
+    private user: User;
+    private ideas: Idea[];
 
-        const ideasList = ideas.map((x) =>
+    constructor(props: {}) {
+        super(props);
+        this.user = storage.getCurrentUser();
+        this.ideas = storage.get<Idea[]>("ideas") || [];
+    }
+
+    public render() {
+        const ideasList = this.ideas.map((x) =>
                         <div className="item" key={x.id}>
-                          <SupportCounter user={user} idea={x} />
+                          <SupportCounter user={this.user} idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}`} className="header">
                               <i className="idea icon"></i> { x.title }
@@ -31,7 +37,7 @@ export class Root extends React.Component<{}, {}> {
                           </div>
                         </div>);
 
-        const displayIdeas = (ideas.length > 0) ? <div>
+        const displayIdeas = (this.ideas.length > 0) ? <div>
                       <h3>Top Ideas</h3>
                       <div className="ui divided unstackable items">
                         { ideasList }
