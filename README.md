@@ -7,6 +7,8 @@
 
 Visit http://getfider.com for information on what it is and how to use it.
 
+![](docs/homepage.png)
+
 # How to run it locally for development purpose?
 
 Fider is mainly written in Go and TypeScript, but we're also using things like Node.js, React and PostgreSQL. 
