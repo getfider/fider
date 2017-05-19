@@ -87,7 +87,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                         </div>
                     </div>
                     <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
-                        <p className="header">Please log in to support an idea</p>
+                        <p className="header">Please log in to support this idea</p>
                         <SocialSignInList orientation="horizontal" size="small" />
                     </div>
                 </div>;

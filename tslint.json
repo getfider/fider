@@ -10,6 +10,7 @@
         ],
         "ordered-imports": [
             false
-        ]
+        ],
+        "no-var-requires": false
     }
 }

@@ -41,3 +41,11 @@
 .fdr-profile-popup div.item {
   padding: 10px 5px !important;
 }
+
+#footer #powered-by {
+  text-align: center;
+}
+
+#footer #powered-by img {
+  width: 30px;
+}
