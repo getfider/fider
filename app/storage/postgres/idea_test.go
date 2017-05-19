@@ -19,8 +19,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
-	db.Execute("INSERT INTO ideas (title, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
+	db.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
+	db.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
 
 	ideas := &postgres.IdeaStorage{DB: db}
 	dbIdeas, err := ideas.GetAll(300)
@@ -29,6 +29,7 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas).To(HaveLen(2))
 
 	Expect(dbIdeas[0].Title).To(Equal("Idea #1"))
+	Expect(dbIdeas[0].Slug).To(Equal("idea-1"))
 	Expect(dbIdeas[0].Number).To(Equal(1))
 	Expect(dbIdeas[0].Description).To(Equal("Description #1"))
 	Expect(dbIdeas[0].User.Name).To(Equal("Jon Snow"))
@@ -36,6 +37,7 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[0].Status).To(Equal(models.IdeaStarted))
 
 	Expect(dbIdeas[1].Title).To(Equal("Idea #2"))
+	Expect(dbIdeas[1].Slug).To(Equal("idea-2"))
 	Expect(dbIdeas[1].Number).To(Equal(2))
 	Expect(dbIdeas[1].Description).To(Equal("Description #2"))
 	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
@@ -122,6 +124,7 @@ func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	Expect(dbIdea.ID).To(Equal(1))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
+	Expect(dbIdea.Slug).To(Equal("my-new-idea"))
 
 	dbIdea, err = ideas.GetByNumber(400, 1)
 
@@ -129,6 +132,8 @@ func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	Expect(dbIdea.ID).To(Equal(2))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My other idea"))
+	Expect(dbIdea.Slug).To(Equal("my-other-idea"))
+
 }
 
 func TestIdeaStorage_AddSupporter(t *testing.T) {

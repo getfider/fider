@@ -45,6 +45,7 @@ import (
 //go:cgo_import_dynamic libc_fdatasync fdatasync "libc.so"
 //go:cgo_import_dynamic libc_fpathconf fpathconf "libc.so"
 //go:cgo_import_dynamic libc_fstat fstat "libc.so"
+//go:cgo_import_dynamic libc_fstatvfs fstatvfs "libc.so"
 //go:cgo_import_dynamic libc_getdents getdents "libc.so"
 //go:cgo_import_dynamic libc_getgid getgid "libc.so"
 //go:cgo_import_dynamic libc_getpid getpid "libc.so"
@@ -101,6 +102,7 @@ import (
 //go:cgo_import_dynamic libc_setuid setuid "libc.so"
 //go:cgo_import_dynamic libc_shutdown shutdown "libsocket.so"
 //go:cgo_import_dynamic libc_stat stat "libc.so"
+//go:cgo_import_dynamic libc_statvfs statvfs "libc.so"
 //go:cgo_import_dynamic libc_symlink symlink "libc.so"
 //go:cgo_import_dynamic libc_sync sync "libc.so"
 //go:cgo_import_dynamic libc_times times "libc.so"
@@ -163,6 +165,7 @@ import (
 //go:linkname procFdatasync libc_fdatasync
 //go:linkname procFpathconf libc_fpathconf
 //go:linkname procFstat libc_fstat
+//go:linkname procFstatvfs libc_fstatvfs
 //go:linkname procGetdents libc_getdents
 //go:linkname procGetgid libc_getgid
 //go:linkname procGetpid libc_getpid
@@ -219,6 +222,7 @@ import (
 //go:linkname procSetuid libc_setuid
 //go:linkname procshutdown libc_shutdown
 //go:linkname procStat libc_stat
+//go:linkname procStatvfs libc_statvfs
 //go:linkname procSymlink libc_symlink
 //go:linkname procSync libc_sync
 //go:linkname procTimes libc_times
@@ -282,6 +286,7 @@ var (
 	procFdatasync,
 	procFpathconf,
 	procFstat,
+	procFstatvfs,
 	procGetdents,
 	procGetgid,
 	procGetpid,
@@ -338,6 +343,7 @@ var (
 	procSetuid,
 	procshutdown,
 	procStat,
+	procStatvfs,
 	procSymlink,
 	procSync,
 	procTimes,
@@ -707,6 +713,14 @@ func Fpathconf(fd int, name int) (val int, err error) {
 
 func Fstat(fd int, stat *Stat_t) (err error) {
 	_, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&procFstat)), 2, uintptr(fd), uintptr(unsafe.Pointer(stat)), 0, 0, 0, 0)
+	if e1 != 0 {
+		err = e1
+	}
+	return
+}
+
+func Fstatvfs(fd int, vfsstat *Statvfs_t) (err error) {
+	_, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&procFstatvfs)), 2, uintptr(fd), uintptr(unsafe.Pointer(vfsstat)), 0, 0, 0, 0)
 	if e1 != 0 {
 		err = e1
 	}
@@ -1296,6 +1310,19 @@ func Stat(path string, stat *Stat_t) (err error) {
 		return
 	}
 	_, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&procStat)), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(stat)), 0, 0, 0, 0)
+	if e1 != 0 {
+		err = e1
+	}
+	return
+}
+
+func Statvfs(path string, vfsstat *Statvfs_t) (err error) {
+	var _p0 *byte
+	_p0, err = BytePtrFromString(path)
+	if err != nil {
+		return
+	}
+	_, _, e1 := sysvicall6(uintptr(unsafe.Pointer(&procStatvfs)), 2, uintptr(unsafe.Pointer(_p0)), uintptr(unsafe.Pointer(vfsstat)), 0, 0, 0, 0)
 	if e1 != 0 {
 		err = e1
 	}

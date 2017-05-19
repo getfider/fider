@@ -92,7 +92,7 @@ type Debugger2Client struct {
 	CallOptions *Debugger2CallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewDebugger2Client creates a new debugger2 client.
@@ -141,7 +141,7 @@ func (c *Debugger2Client) Close() error {
 func (c *Debugger2Client) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // SetBreakpoint sets the breakpoint to the debuggee.

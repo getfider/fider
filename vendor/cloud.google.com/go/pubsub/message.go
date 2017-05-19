@@ -43,6 +43,9 @@ type Message struct {
 	// This field is read-only.
 	PublishTime time.Time
 
+	// size is the approximate size of the message's data and attributes.
+	size int
+
 	calledDone bool
 
 	// The done method of the iterator that created this Message.

@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/gosimple/slug"
 )
 
 // IdeaStorage contains read and write operations for ideas
@@ -19,6 +20,7 @@ var (
 	sqlSelectIdeasWhere = `SELECT i.id, 
 								  i.number, 
 								  i.title, 
+								  i.slug, 
 								  i.description, 
 								  i.created_on,
 								  i.supporters, 
@@ -107,9 +109,9 @@ func (s *IdeaStorage) Save(tenantID, userID int, title, description string) (*mo
 	idea.Title = title
 	idea.Description = description
 
-	row := tx.QueryRow(`INSERT INTO ideas (title, number, description, tenant_id, user_id, created_on, supporters, status) 
-						VALUES ($1, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $3), $2, $3, $4, $5, 0, 0) 
-						RETURNING id`, title, description, tenantID, userID, time.Now())
+	row := tx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
+						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
+						RETURNING id`, title, slug.Make(title), description, tenantID, userID, time.Now())
 	if err = row.Scan(&idea.ID); err != nil {
 		tx.Rollback()
 		return nil, err

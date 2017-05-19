@@ -119,7 +119,7 @@ type IamClient struct {
 	CallOptions *IamCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewIamClient creates a new iam client.
@@ -172,7 +172,7 @@ func (c *IamClient) Close() error {
 func (c *IamClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // IamProjectPath returns the path for the project resource.

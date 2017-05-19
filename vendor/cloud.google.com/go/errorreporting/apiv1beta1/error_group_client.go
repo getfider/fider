@@ -79,7 +79,7 @@ type ErrorGroupClient struct {
 	CallOptions *ErrorGroupCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewErrorGroupClient creates a new error group service client.
@@ -117,7 +117,7 @@ func (c *ErrorGroupClient) Close() error {
 func (c *ErrorGroupClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // ErrorGroupGroupPath returns the path for the group resource.

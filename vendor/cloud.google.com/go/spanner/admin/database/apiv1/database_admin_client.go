@@ -110,7 +110,7 @@ type DatabaseAdminClient struct {
 	CallOptions *DatabaseAdminCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewDatabaseAdminClient creates a new database admin client.
@@ -152,7 +152,7 @@ func (c *DatabaseAdminClient) Close() error {
 func (c *DatabaseAdminClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // DatabaseAdminInstancePath returns the path for the instance resource.
@@ -420,7 +420,7 @@ type CreateDatabaseOperation struct {
 	lro *longrunning.Operation
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // CreateDatabaseOperation returns a new CreateDatabaseOperation from a given name.
@@ -495,7 +495,7 @@ type UpdateDatabaseDdlOperation struct {
 	lro *longrunning.Operation
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // UpdateDatabaseDdlOperation returns a new UpdateDatabaseDdlOperation from a given name.

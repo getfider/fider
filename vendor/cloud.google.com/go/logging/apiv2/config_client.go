@@ -99,7 +99,7 @@ type ConfigClient struct {
 	CallOptions *ConfigCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewConfigClient creates a new config service v2 client.
@@ -138,7 +138,7 @@ func (c *ConfigClient) Close() error {
 func (c *ConfigClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // ConfigProjectPath returns the path for the project resource.

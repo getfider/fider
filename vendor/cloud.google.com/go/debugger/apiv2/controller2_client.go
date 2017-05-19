@@ -88,7 +88,7 @@ type Controller2Client struct {
 	CallOptions *Controller2CallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewController2Client creates a new controller2 client.
@@ -145,7 +145,7 @@ func (c *Controller2Client) Close() error {
 func (c *Controller2Client) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // RegisterDebuggee registers the debuggee with the controller service.

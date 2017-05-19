@@ -71,10 +71,7 @@ func TestImageAnnotatorSmoke(t *testing.T) {
 		Requests: requests,
 	}
 
-	resp, err := c.BatchAnnotateImages(ctx, request)
-	if err != nil {
+	if _, err := c.BatchAnnotateImages(ctx, request); err != nil {
 		t.Error(err)
-	} else {
-		t.Log(resp)
 	}
 }

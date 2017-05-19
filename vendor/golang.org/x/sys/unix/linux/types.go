@@ -45,6 +45,7 @@ package unix
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <linux/filter.h>
+#include <linux/keyctl.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <linux/icmpv6.h>
@@ -260,6 +261,10 @@ type Flock_t C.struct_flock
 type FscryptPolicy C.struct_fscrypt_policy
 
 type FscryptKey C.struct_fscrypt_key
+
+// Structure for Keyctl
+
+type KeyctlDHParams C.struct_keyctl_dh_params
 
 // Advice to Fadvise
 

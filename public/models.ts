@@ -15,6 +15,7 @@ export interface User {
 export interface Idea {
   id: number;
   number: number;
+  slug: string;
   title: string;
   description: string;
   createdOn: string;

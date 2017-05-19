@@ -524,7 +524,7 @@ func (s *apiService) listProjectSnapshots(ctx context.Context, projName string) 
 }
 
 func (s *apiService) toSnapshotConfig(snap *pb.Snapshot) (*snapshotConfig, error) {
-	exp, err := ptypes.Timestamp(snap.ExpirationTime)
+	exp, err := ptypes.Timestamp(snap.ExpireTime)
 	if err != nil {
 		return nil, err
 	}

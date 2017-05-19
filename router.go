@@ -37,6 +37,7 @@ func GetMainEngine(ctx *AppServices) *web.Engine {
 
 		public.Get("/", handlers.Handlers(ctx.Idea).List())
 		public.Get("/ideas/:number", handlers.Handlers(ctx.Idea).Details())
+		public.Get("/ideas/:number/*", handlers.Handlers(ctx.Idea).Details())
 		public.Get("/logout", handlers.Logout())
 		public.Get("/api/status", handlers.Status(ctx.Settings))
 	}

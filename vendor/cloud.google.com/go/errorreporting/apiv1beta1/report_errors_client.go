@@ -76,7 +76,7 @@ type ReportErrorsClient struct {
 	CallOptions *ReportErrorsCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewReportErrorsClient creates a new report errors service client.
@@ -114,7 +114,7 @@ func (c *ReportErrorsClient) Close() error {
 func (c *ReportErrorsClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // ReportErrorsProjectPath returns the path for the project resource.

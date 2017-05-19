@@ -94,7 +94,7 @@ func (r *RowIterator) Next() (*Row, error) {
 }
 
 // Do calls the provided function once in sequence for each row in the iteration.  If the
-// function returns a non-nil error, Do immediately returns that value.
+// function returns a non-nil error, Do immediately returns that error.
 //
 // If there are no rows in the iterator, Do will return nil without calling the
 // provided function.

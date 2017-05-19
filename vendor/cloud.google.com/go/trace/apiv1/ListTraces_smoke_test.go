@@ -56,12 +56,7 @@ func TestTraceServiceSmoke(t *testing.T) {
 	}
 
 	iter := c.ListTraces(ctx, request)
-	resp, err := iter.Next()
-	if err == iterator.Done {
-		t.Log("no items")
-	} else if err != nil {
+	if _, err := iter.Next(); err != nil && err != iterator.Done {
 		t.Error(err)
-	} else {
-		t.Log(resp)
 	}
 }

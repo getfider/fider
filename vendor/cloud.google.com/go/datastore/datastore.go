@@ -71,27 +71,27 @@ func newDatastoreClient(conn *grpc.ClientConn, projectID string) pb.DatastoreCli
 }
 
 func (dc *datastoreClient) Lookup(ctx context.Context, in *pb.LookupRequest, opts ...grpc.CallOption) (*pb.LookupResponse, error) {
-	return dc.c.Lookup(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.Lookup(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 func (dc *datastoreClient) RunQuery(ctx context.Context, in *pb.RunQueryRequest, opts ...grpc.CallOption) (*pb.RunQueryResponse, error) {
-	return dc.c.RunQuery(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.RunQuery(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 func (dc *datastoreClient) BeginTransaction(ctx context.Context, in *pb.BeginTransactionRequest, opts ...grpc.CallOption) (*pb.BeginTransactionResponse, error) {
-	return dc.c.BeginTransaction(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.BeginTransaction(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 func (dc *datastoreClient) Commit(ctx context.Context, in *pb.CommitRequest, opts ...grpc.CallOption) (*pb.CommitResponse, error) {
-	return dc.c.Commit(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.Commit(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 func (dc *datastoreClient) Rollback(ctx context.Context, in *pb.RollbackRequest, opts ...grpc.CallOption) (*pb.RollbackResponse, error) {
-	return dc.c.Rollback(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.Rollback(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 func (dc *datastoreClient) AllocateIds(ctx context.Context, in *pb.AllocateIdsRequest, opts ...grpc.CallOption) (*pb.AllocateIdsResponse, error) {
-	return dc.c.AllocateIds(metadata.NewContext(ctx, dc.md), in, opts...)
+	return dc.c.AllocateIds(metadata.NewOutgoingContext(ctx, dc.md), in, opts...)
 }
 
 // Client is a client for reading and writing data in a datastore dataset.

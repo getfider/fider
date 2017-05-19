@@ -14,5 +14,8 @@ import:
   subpackages:
   - facebook
   - google
+- package: github.com/gosimple/slug
+  version: ^1.0.3
+- package: github.com/rainycape/unidecode
 testImport:
 - package: github.com/onsi/gomega

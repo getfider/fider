@@ -99,7 +99,7 @@ type MetricsClient struct {
 	CallOptions *MetricsCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewMetricsClient creates a new metrics service v2 client.
@@ -137,7 +137,7 @@ func (c *MetricsClient) Close() error {
 func (c *MetricsClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // MetricsProjectPath returns the path for the project resource.

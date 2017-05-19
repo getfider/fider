@@ -32,7 +32,6 @@ func NewImageFromReader(r io.Reader) (*pb.Image, error) {
 
 // NewImageFromURI returns an image that refers to an object in Google Cloud Storage
 // (when the uri is of the form "gs://BUCKET/OBJECT") or at a public URL.
-
 func NewImageFromURI(uri string) *pb.Image {
 	return &pb.Image{Source: &pb.ImageSource{ImageUri: uri}}
 }

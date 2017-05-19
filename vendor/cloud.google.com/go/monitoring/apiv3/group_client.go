@@ -102,7 +102,7 @@ type GroupClient struct {
 	CallOptions *GroupCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewGroupClient creates a new group service client.
@@ -151,7 +151,7 @@ func (c *GroupClient) Close() error {
 func (c *GroupClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // GroupProjectPath returns the path for the project resource.

@@ -166,7 +166,7 @@ func (s *session) ping() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	return runRetryable(ctx, func(ctx context.Context) error {
-		_, err := s.client.GetSession(contextWithMetadata(ctx, s.pool.md), &sppb.GetSessionRequest{Name: s.getID()}) // s.getID is safe even when s is invalid.
+		_, err := s.client.GetSession(contextWithOutgoingMetadata(ctx, s.pool.md), &sppb.GetSessionRequest{Name: s.getID()}) // s.getID is safe even when s is invalid.
 		return err
 	})
 }
@@ -185,7 +185,7 @@ func (s *session) refreshIdle() bool {
 	defer cancel()
 	var sid string
 	err := runRetryable(ctx, func(ctx context.Context) error {
-		session, e := s.client.CreateSession(contextWithMetadata(ctx, s.pool.md), &sppb.CreateSessionRequest{Database: s.pool.db})
+		session, e := s.client.CreateSession(contextWithOutgoingMetadata(ctx, s.pool.md), &sppb.CreateSessionRequest{Database: s.pool.db})
 		if e != nil {
 			return e
 		}
@@ -216,7 +216,7 @@ func (s *session) refreshIdle() bool {
 	// If we fail to explicitly destroy the session, it will be eventually garbage collected by
 	// Cloud Spanner.
 	if err = runRetryable(ctx, func(ctx context.Context) error {
-		_, e := s.client.DeleteSession(contextWithMetadata(ctx, s.pool.md), &sppb.DeleteSessionRequest{Name: sid})
+		_, e := s.client.DeleteSession(contextWithOutgoingMetadata(ctx, s.pool.md), &sppb.DeleteSessionRequest{Name: sid})
 		return e
 	}); err != nil {
 		return false
@@ -351,7 +351,7 @@ type SessionPoolConfig struct {
 	// MaxSessionAge is the maximum duration that a session can be reused, zero
 	// means session pool will never expire sessions.
 	MaxSessionAge time.Duration
-	// MaxBurst is the maximum number of concurrent session creation requests,
+	// MaxBurst is the maximum number of concurrent session creation requests. Defaults to 10.
 	MaxBurst uint64
 	// WriteSessions is the fraction of sessions we try to keep prepared for write.
 	WriteSessions float64
@@ -541,7 +541,7 @@ func (p *sessionPool) isHealthy(s *session) bool {
 // take returns a cached session if there are available ones; if there isn't any, it tries to allocate a new one.
 // Session returned by take should be used for read operations.
 func (p *sessionPool) take(ctx context.Context) (*sessionHandle, error) {
-	ctx = contextWithMetadata(ctx, p.md)
+	ctx = contextWithOutgoingMetadata(ctx, p.md)
 	for {
 		var (
 			s   *session
@@ -595,7 +595,7 @@ func (p *sessionPool) take(ctx context.Context) (*sessionHandle, error) {
 // takeWriteSession returns a write prepared cached session if there are available ones; if there isn't any, it tries to allocate a new one.
 // Session returned should be used for read write transactions.
 func (p *sessionPool) takeWriteSession(ctx context.Context) (*sessionHandle, error) {
-	ctx = contextWithMetadata(ctx, p.md)
+	ctx = contextWithOutgoingMetadata(ctx, p.md)
 	for {
 		var (
 			s   *session
@@ -927,7 +927,7 @@ func (hc *healthChecker) worker(i int) {
 		if ws != nil {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 			defer cancel()
-			ws.prepareForWrite(contextWithMetadata(ctx, hc.pool.md))
+			ws.prepareForWrite(contextWithOutgoingMetadata(ctx, hc.pool.md))
 			hc.pool.recycle(ws)
 			hc.pool.mu.Lock()
 			hc.pool.prepareReqs--

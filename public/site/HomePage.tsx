@@ -24,7 +24,7 @@ export class HomePage extends React.Component<{}, {}> {
                         <div className="item" key={x.id}>
                           <SupportCounter user={this.user} idea={x} />
                           <div className="content">
-                            <a href={`/ideas/${x.number}`} className="header">
+                            <a href={`/ideas/${x.number}/${x.slug}`} className="header">
                               <i className="idea icon"></i> { x.title }
                             </a>
                             <div className="description">

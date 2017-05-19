@@ -77,10 +77,7 @@ func TestReportErrorsServiceSmoke(t *testing.T) {
 		Event:       event,
 	}
 
-	resp, err := c.ReportErrorEvent(ctx, request)
-	if err != nil {
+	if _, err := c.ReportErrorEvent(ctx, request); err != nil {
 		t.Error(err)
-	} else {
-		t.Log(resp)
 	}
 }

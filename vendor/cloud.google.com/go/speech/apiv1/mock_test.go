@@ -23,10 +23,12 @@ import (
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -36,6 +38,7 @@ import (
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 )
 
 var _ = io.EOF
@@ -57,7 +60,11 @@ type mockSpeechServer struct {
 	resps []proto.Message
 }
 
-func (s *mockSpeechServer) Recognize(_ context.Context, req *speechpb.RecognizeRequest) (*speechpb.RecognizeResponse, error) {
+func (s *mockSpeechServer) Recognize(ctx context.Context, req *speechpb.RecognizeRequest) (*speechpb.RecognizeResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -65,7 +72,11 @@ func (s *mockSpeechServer) Recognize(_ context.Context, req *speechpb.RecognizeR
 	return s.resps[0].(*speechpb.RecognizeResponse), nil
 }
 
-func (s *mockSpeechServer) LongRunningRecognize(_ context.Context, req *speechpb.LongRunningRecognizeRequest) (*longrunningpb.Operation, error) {
+func (s *mockSpeechServer) LongRunningRecognize(ctx context.Context, req *speechpb.LongRunningRecognizeRequest) (*longrunningpb.Operation, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -74,6 +85,10 @@ func (s *mockSpeechServer) LongRunningRecognize(_ context.Context, req *speechpb
 }
 
 func (s *mockSpeechServer) StreamingRecognize(stream speechpb.Speech_StreamingRecognizeServer) error {
+	md, _ := metadata.FromIncomingContext(stream.Context())
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	for {
 		if req, err := stream.Recv(); err == io.EOF {
 			break

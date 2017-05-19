@@ -583,6 +583,7 @@ func IoctlGetTermio(fd int, req int) (*Termio, error) {
 //sys	Fdatasync(fd int) (err error)
 //sys	Fpathconf(fd int, name int) (val int, err error)
 //sys	Fstat(fd int, stat *Stat_t) (err error)
+//sys	Fstatvfs(fd int, vfsstat *Statvfs_t) (err error)
 //sys	Getdents(fd int, buf []byte, basep *uintptr) (n int, err error)
 //sysnb	Getgid() (gid int)
 //sysnb	Getpid() (pid int)
@@ -639,6 +640,7 @@ func IoctlGetTermio(fd int, req int) (*Termio, error) {
 //sysnb	Setuid(uid int) (err error)
 //sys	Shutdown(s int, how int) (err error) = libsocket.shutdown
 //sys	Stat(path string, stat *Stat_t) (err error)
+//sys	Statvfs(path string, vfsstat *Statvfs_t) (err error)
 //sys	Symlink(path string, link string) (err error)
 //sys	Sync() (err error)
 //sysnb	Times(tms *Tms) (ticks uintptr, err error)

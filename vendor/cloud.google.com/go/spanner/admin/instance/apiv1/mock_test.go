@@ -26,10 +26,12 @@ import (
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -39,6 +41,7 @@ import (
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 )
 
 var _ = io.EOF
@@ -60,7 +63,11 @@ type mockInstanceAdminServer struct {
 	resps []proto.Message
 }
 
-func (s *mockInstanceAdminServer) ListInstanceConfigs(_ context.Context, req *instancepb.ListInstanceConfigsRequest) (*instancepb.ListInstanceConfigsResponse, error) {
+func (s *mockInstanceAdminServer) ListInstanceConfigs(ctx context.Context, req *instancepb.ListInstanceConfigsRequest) (*instancepb.ListInstanceConfigsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -68,7 +75,11 @@ func (s *mockInstanceAdminServer) ListInstanceConfigs(_ context.Context, req *in
 	return s.resps[0].(*instancepb.ListInstanceConfigsResponse), nil
 }
 
-func (s *mockInstanceAdminServer) GetInstanceConfig(_ context.Context, req *instancepb.GetInstanceConfigRequest) (*instancepb.InstanceConfig, error) {
+func (s *mockInstanceAdminServer) GetInstanceConfig(ctx context.Context, req *instancepb.GetInstanceConfigRequest) (*instancepb.InstanceConfig, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -76,7 +87,11 @@ func (s *mockInstanceAdminServer) GetInstanceConfig(_ context.Context, req *inst
 	return s.resps[0].(*instancepb.InstanceConfig), nil
 }
 
-func (s *mockInstanceAdminServer) ListInstances(_ context.Context, req *instancepb.ListInstancesRequest) (*instancepb.ListInstancesResponse, error) {
+func (s *mockInstanceAdminServer) ListInstances(ctx context.Context, req *instancepb.ListInstancesRequest) (*instancepb.ListInstancesResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -84,7 +99,11 @@ func (s *mockInstanceAdminServer) ListInstances(_ context.Context, req *instance
 	return s.resps[0].(*instancepb.ListInstancesResponse), nil
 }
 
-func (s *mockInstanceAdminServer) GetInstance(_ context.Context, req *instancepb.GetInstanceRequest) (*instancepb.Instance, error) {
+func (s *mockInstanceAdminServer) GetInstance(ctx context.Context, req *instancepb.GetInstanceRequest) (*instancepb.Instance, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -92,7 +111,11 @@ func (s *mockInstanceAdminServer) GetInstance(_ context.Context, req *instancepb
 	return s.resps[0].(*instancepb.Instance), nil
 }
 
-func (s *mockInstanceAdminServer) CreateInstance(_ context.Context, req *instancepb.CreateInstanceRequest) (*longrunningpb.Operation, error) {
+func (s *mockInstanceAdminServer) CreateInstance(ctx context.Context, req *instancepb.CreateInstanceRequest) (*longrunningpb.Operation, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -100,7 +123,11 @@ func (s *mockInstanceAdminServer) CreateInstance(_ context.Context, req *instanc
 	return s.resps[0].(*longrunningpb.Operation), nil
 }
 
-func (s *mockInstanceAdminServer) UpdateInstance(_ context.Context, req *instancepb.UpdateInstanceRequest) (*longrunningpb.Operation, error) {
+func (s *mockInstanceAdminServer) UpdateInstance(ctx context.Context, req *instancepb.UpdateInstanceRequest) (*longrunningpb.Operation, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -108,7 +135,11 @@ func (s *mockInstanceAdminServer) UpdateInstance(_ context.Context, req *instanc
 	return s.resps[0].(*longrunningpb.Operation), nil
 }
 
-func (s *mockInstanceAdminServer) DeleteInstance(_ context.Context, req *instancepb.DeleteInstanceRequest) (*emptypb.Empty, error) {
+func (s *mockInstanceAdminServer) DeleteInstance(ctx context.Context, req *instancepb.DeleteInstanceRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -116,7 +147,11 @@ func (s *mockInstanceAdminServer) DeleteInstance(_ context.Context, req *instanc
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockInstanceAdminServer) SetIamPolicy(_ context.Context, req *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
+func (s *mockInstanceAdminServer) SetIamPolicy(ctx context.Context, req *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -124,7 +159,11 @@ func (s *mockInstanceAdminServer) SetIamPolicy(_ context.Context, req *iampb.Set
 	return s.resps[0].(*iampb.Policy), nil
 }
 
-func (s *mockInstanceAdminServer) GetIamPolicy(_ context.Context, req *iampb.GetIamPolicyRequest) (*iampb.Policy, error) {
+func (s *mockInstanceAdminServer) GetIamPolicy(ctx context.Context, req *iampb.GetIamPolicyRequest) (*iampb.Policy, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -132,7 +171,11 @@ func (s *mockInstanceAdminServer) GetIamPolicy(_ context.Context, req *iampb.Get
 	return s.resps[0].(*iampb.Policy), nil
 }
 
-func (s *mockInstanceAdminServer) TestIamPermissions(_ context.Context, req *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error) {
+func (s *mockInstanceAdminServer) TestIamPermissions(ctx context.Context, req *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err

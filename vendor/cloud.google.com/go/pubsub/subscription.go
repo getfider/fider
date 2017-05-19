@@ -23,7 +23,6 @@ import (
 
 	"cloud.google.com/go/iam"
 	"golang.org/x/net/context"
-	"golang.org/x/sync/semaphore"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -126,15 +125,17 @@ type ReceiveSettings struct {
 	MaxExtension time.Duration
 
 	// MaxOutstandingMessages is the maximum number of unprocessed messages
-	// (unacknowledged but not yet expired). If MaxOutstandingMessages is less
-	// than 1, it will be treated as if it were
-	// DefaultReceiveSettings.MaxOutstandingMessages.
+	// (unacknowledged but not yet expired). If MaxOutstandingMessages is 0, it
+	// will be treated as if it were DefaultReceiveSettings.MaxOutstandingMessages.
+	// If the value is negative, then there will be no limit on the number of
+	// unprocessed messages.
 	MaxOutstandingMessages int
 
 	// MaxOutstandingBytes is the maximum size of unprocessed messages
-	// (unacknowledged but not yet expired). If MaxOutstandingBytes is less
-	// than 1, it will be treated as if it were
-	// DefaultReceiveSettings.MaxOutstandingBytes.
+	// (unacknowledged but not yet expired). If MaxOutstandingBytes is 0, it will
+	// be treated as if it were DefaultReceiveSettings.MaxOutstandingBytes. If
+	// the value is negative, then there will be no limit on the number of bytes
+	// for unprocessed messages.
 	MaxOutstandingBytes int
 }
 
@@ -262,11 +263,11 @@ func (s *Subscription) Receive(ctx context.Context, f func(context.Context, *Mes
 		return err
 	}
 	maxCount := s.ReceiveSettings.MaxOutstandingMessages
-	if maxCount < 1 {
+	if maxCount == 0 {
 		maxCount = DefaultReceiveSettings.MaxOutstandingMessages
 	}
 	maxBytes := s.ReceiveSettings.MaxOutstandingBytes
-	if maxBytes < 1 {
+	if maxBytes == 0 {
 		maxBytes = DefaultReceiveSettings.MaxOutstandingBytes
 	}
 	maxExt := s.ReceiveSettings.MaxExtension
@@ -343,47 +344,4 @@ type pullOptions struct {
 	// ackDeadline is the default ack deadline for the subscription. Not
 	// configurable.
 	ackDeadline time.Duration
-}
-
-// flowController implements flow control for Subscriber.Receive.
-type flowController struct {
-	maxSize           int                 // max total size of messages
-	semCount, semSize *semaphore.Weighted // enforces max number and size of messages
-}
-
-func newFlowController(maxCount, maxSize int) *flowController {
-	return &flowController{
-		maxSize:  maxSize,
-		semCount: semaphore.NewWeighted(int64(maxCount)),
-		semSize:  semaphore.NewWeighted(int64(maxSize)),
-	}
-}
-
-// acquire blocks until one message of size bytes can proceed or ctx is done.
-// It returns nil in the first case, or ctx.Err() in the second.
-//
-// acquire allows large messages to proceed by treating a size greater than maxSize
-// as if it were equal to maxSize.
-func (f *flowController) acquire(ctx context.Context, size int) error {
-	if err := f.semCount.Acquire(ctx, 1); err != nil {
-		return err
-	}
-	if err := f.semSize.Acquire(ctx, f.bound(size)); err != nil {
-		f.semCount.Release(1)
-		return err
-	}
-	return nil
-}
-
-// release notes that one message of size bytes is no longer outstanding.
-func (f *flowController) release(size int) {
-	f.semCount.Release(1)
-	f.semSize.Release(f.bound(size))
-}
-
-func (f *flowController) bound(size int) int64 {
-	if size > f.maxSize {
-		return int64(f.maxSize)
-	}
-	return int64(size)
 }

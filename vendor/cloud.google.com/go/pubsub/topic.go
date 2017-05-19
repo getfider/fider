@@ -17,6 +17,7 @@ package pubsub
 import (
 	"errors"
 	"fmt"
+	"math"
 	"runtime"
 	"strings"
 	"sync"
@@ -59,6 +60,8 @@ type Topic struct {
 
 	// Channel for message bundles to be published. Close to indicate that Stop was called.
 	bundlec chan []*bundledMessage
+
+	flowController *flowController
 }
 
 // PublishSettings control the bundling of published messages.
@@ -74,8 +77,18 @@ type PublishSettings struct {
 	// Publish a batch when its size in bytes reaches this value.
 	ByteThreshold int
 
-	// The maximum number of bytes that the batcher will hold in memory.
-	BufferedByteLimit int
+	// MaxOutstandingMessages is the maximum number of messages for which the
+	// publish can be outstanding. If MaxOutstandingMessages is 0, it will be
+	// treated as if it were DefaultPublishSettings.MaxOutstandingMessages. If the
+	// value is negative, then there will be no limit on the number of messages
+	// that can be outstanding.
+	MaxOutstandingMessages int
+
+	// MaxOutstandingBytes is the maximum size of messages for which the publish
+	// can be outstanding. If MaxOutstandingBytes is 0, it will be treated as if it
+	// werer DefaultPublishSettings.MaxOutstandingBytes. If the value is negative,
+	// then there will be no limit on the number of bytes that can be outstanding.
+	MaxOutstandingBytes int
 
 	// The number of goroutines that invoke the Publish RPC concurrently.
 	// Defaults to a multiple of GOMAXPROCS.
@@ -84,10 +97,11 @@ type PublishSettings struct {
 
 // DefaultPublishSettings holds the default values for topics' BatchSettings.
 var DefaultPublishSettings = PublishSettings{
-	DelayThreshold:    1 * time.Millisecond,
-	CountThreshold:    100,
-	ByteThreshold:     1e6,
-	BufferedByteLimit: 1e9, // 1G
+	DelayThreshold:         1 * time.Millisecond,
+	CountThreshold:         100,
+	ByteThreshold:          1e6,
+	MaxOutstandingMessages: -1,  // Default to unlimited number of messages
+	MaxOutstandingBytes:    1e9, // 1G
 }
 
 // CreateTopic creates a new topic.
@@ -200,34 +214,63 @@ var errTopicStopped = errors.New("pubsub: Stop has been called for this topic")
 //
 // Publish creates goroutines for batching and sending messages. These goroutines
 // need to be stopped by calling t.Stop(). Once stopped, future calls to Publish
-// will immediately return a PublishResult with an error.
+// or TryPublish will immediately return a PublishResult with an error.
 //
-// Publish blocks until the memory consumed by batching falls below
-// BufferedByteLimit, or until ctx is Done. The ctx argument is used only for
-// this purpose; it is unrelated to the context used by the background
-// goroutines which call the Publish RPC.
+// Publish blocks until the number of messages and memory consumed by batching
+// fall below MaxOutstandingMessages and MaxOutstandingBytes, respectively, or
+// until ctx is Done. The ctx argument is used only for this purpose; it is
+// unrelated to the context used by the background goroutines which call the
+// Publish RPC.
 func (t *Topic) Publish(ctx context.Context, msg *Message) *PublishResult {
+	return t.publish(ctx, msg, true)
+}
+
+// TryPublish publishes msg to the topic asynchronously. Messages are batched
+// and sent according to the topic's BatchSettings.
+//
+// If the number of messages or memory consumed by batching are above
+// MaxOutstandingMessages or MaxOutstandingBytes, respectively, then TryPublish
+// immediately returns nil. Otherwise, TryPublish returns a non-nil PublishResult
+// which will be ready when the message has been sent (or has failed to be sent)
+// to the server.
+//
+// TryPublish creates goroutines for batching and sending messages. These goroutines
+// need to be stopped by calling t.Stop(). Once stopped, future calls to Publish
+// or TryPublish will immediately return a PublishResult with an error.
+func (t *Topic) TryPublish(ctx context.Context, msg *Message) *PublishResult {
+	return t.publish(ctx, msg, false)
+}
+
+func (t *Topic) publish(ctx context.Context, msg *Message, waitForFC bool) *PublishResult {
 	// TODO(jba): if this turns out to take significant time, try to approximate it.
 	// Or, convert the messages to protos in Publish, instead of in the service.
-	size := proto.Size(&pb.PubsubMessage{
+	msg.size = proto.Size(&pb.PubsubMessage{
 		Data:       msg.Data,
 		Attributes: msg.Attributes,
 	})
-	t.initBundler()
 	r := &PublishResult{ready: make(chan struct{})}
+	t.initBundlerAndFlowController()
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	// TODO(aboulhosn) [from bcmills] consider changing the semantics of bundler to perform this logic so we don't have to do it here
 	if t.stopped {
-		r.err = errTopicStopped
-		close(r.ready)
+		r.set("", errTopicStopped)
 		return r
 	}
+	if waitForFC {
+		if err := t.flowController.acquire(ctx, msg.size); err != nil {
+			r.set("", err)
+			return r
+		}
+	} else if !t.flowController.tryAcquire(msg.size) {
+		return nil
+	}
 	// TODO(jba) [from bcmills] consider using a shared channel per bundle (requires Bundler API changes; would reduce allocations)
-	err := t.bundler.AddWait(ctx, &bundledMessage{msg, r}, size)
+	// The call to AddWait will never block because the bundler's BufferedByteLimit is set to MaxInt64. The topic's flowController
+	// is what ensures we have capacity to publish more messages.
+	err := t.bundler.AddWait(ctx, &bundledMessage{msg, r}, msg.size)
 	if err != nil {
-		r.err = err
-		close(r.ready)
+		r.set("", err)
 	}
 	return r
 }
@@ -278,12 +321,18 @@ func (r *PublishResult) Get(ctx context.Context) (serverID string, err error) {
 	}
 }
 
+func (r *PublishResult) set(sid string, err error) {
+	r.serverID = sid
+	r.err = err
+	close(r.ready)
+}
+
 type bundledMessage struct {
 	msg *Message
 	res *PublishResult
 }
 
-func (t *Topic) initBundler() {
+func (t *Topic) initBundlerAndFlowController() {
 	t.mu.RLock()
 	noop := t.stopped || t.bundler != nil
 	t.mu.RUnlock()
@@ -323,8 +372,19 @@ func (t *Topic) initBundler() {
 		t.bundler.BundleCountThreshold = MaxPublishRequestCount
 	}
 	t.bundler.BundleByteThreshold = t.PublishSettings.ByteThreshold
-	t.bundler.BufferedByteLimit = t.PublishSettings.BufferedByteLimit
+	t.bundler.BufferedByteLimit = math.MaxInt64
 	t.bundler.BundleByteLimit = MaxPublishRequestBytes
+
+	maxCount := t.PublishSettings.MaxOutstandingMessages
+	if maxCount == 0 {
+		maxCount = DefaultPublishSettings.MaxOutstandingMessages
+	}
+	maxBytes := t.PublishSettings.MaxOutstandingBytes
+	if maxBytes == 0 {
+		maxBytes = DefaultPublishSettings.MaxOutstandingBytes
+	}
+
+	t.flowController = newFlowController(maxCount, maxBytes)
 }
 
 func (t *Topic) publishMessageBundle(ctx context.Context, bms []*bundledMessage) {
@@ -335,10 +395,10 @@ func (t *Topic) publishMessageBundle(ctx context.Context, bms []*bundledMessage)
 	ids, err := t.s.publishMessages(ctx, t.name, msgs)
 	for i, bm := range bms {
 		if err != nil {
-			bm.res.err = err
+			bm.res.set("", err)
 		} else {
-			bm.res.serverID = ids[i]
+			bm.res.set(ids[i], nil)
 		}
-		close(bm.res.ready)
+		t.flowController.release(msgs[i].size)
 	}
 }

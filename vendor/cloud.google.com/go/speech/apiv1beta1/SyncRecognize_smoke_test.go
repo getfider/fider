@@ -69,10 +69,7 @@ func TestSpeechSmoke(t *testing.T) {
 		Audio:  audio,
 	}
 
-	resp, err := c.SyncRecognize(ctx, request)
-	if err != nil {
+	if _, err := c.SyncRecognize(ctx, request); err != nil {
 		t.Error(err)
-	} else {
-		t.Log(resp)
 	}
 }

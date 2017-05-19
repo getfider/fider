@@ -81,7 +81,7 @@ type OperationsClient struct {
 	CallOptions *OperationsCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewOperationsClient creates a new operations client.
@@ -127,7 +127,7 @@ func (c *OperationsClient) Close() error {
 func (c *OperationsClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // GetOperation gets the latest state of a long-running operation.  Clients can use this

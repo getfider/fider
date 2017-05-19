@@ -90,7 +90,7 @@ type Client struct {
 	CallOptions *CallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewClient creates a new speech client.
@@ -128,7 +128,7 @@ func (c *Client) Close() error {
 func (c *Client) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // Recognize performs synchronous speech recognition: receive results after all audio
@@ -192,7 +192,7 @@ type LongRunningRecognizeOperation struct {
 	lro *longrunning.Operation
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // LongRunningRecognizeOperation returns a new LongRunningRecognizeOperation from a given name.

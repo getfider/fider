@@ -49,7 +49,7 @@ func grpcUnaryInterceptor(ctx context.Context, method string, req, reply interfa
 			md = md.Copy() // metadata is immutable, copy.
 			md[grpcMetadataKey] = []string{header}
 		}
-		ctx = metadata.NewContext(ctx, md)
+		ctx = metadata.NewOutgoingContext(ctx, md)
 	}
 
 	err := invoker(ctx, method, req, reply, cc, opts...)

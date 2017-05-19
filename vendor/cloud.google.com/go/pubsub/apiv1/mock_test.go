@@ -25,10 +25,12 @@ import (
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
@@ -38,6 +40,7 @@ import (
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 )
 
 var _ = io.EOF
@@ -59,7 +62,11 @@ type mockPublisherServer struct {
 	resps []proto.Message
 }
 
-func (s *mockPublisherServer) CreateTopic(_ context.Context, req *pubsubpb.Topic) (*pubsubpb.Topic, error) {
+func (s *mockPublisherServer) CreateTopic(ctx context.Context, req *pubsubpb.Topic) (*pubsubpb.Topic, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -67,7 +74,11 @@ func (s *mockPublisherServer) CreateTopic(_ context.Context, req *pubsubpb.Topic
 	return s.resps[0].(*pubsubpb.Topic), nil
 }
 
-func (s *mockPublisherServer) Publish(_ context.Context, req *pubsubpb.PublishRequest) (*pubsubpb.PublishResponse, error) {
+func (s *mockPublisherServer) Publish(ctx context.Context, req *pubsubpb.PublishRequest) (*pubsubpb.PublishResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -75,7 +86,11 @@ func (s *mockPublisherServer) Publish(_ context.Context, req *pubsubpb.PublishRe
 	return s.resps[0].(*pubsubpb.PublishResponse), nil
 }
 
-func (s *mockPublisherServer) GetTopic(_ context.Context, req *pubsubpb.GetTopicRequest) (*pubsubpb.Topic, error) {
+func (s *mockPublisherServer) GetTopic(ctx context.Context, req *pubsubpb.GetTopicRequest) (*pubsubpb.Topic, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -83,7 +98,11 @@ func (s *mockPublisherServer) GetTopic(_ context.Context, req *pubsubpb.GetTopic
 	return s.resps[0].(*pubsubpb.Topic), nil
 }
 
-func (s *mockPublisherServer) ListTopics(_ context.Context, req *pubsubpb.ListTopicsRequest) (*pubsubpb.ListTopicsResponse, error) {
+func (s *mockPublisherServer) ListTopics(ctx context.Context, req *pubsubpb.ListTopicsRequest) (*pubsubpb.ListTopicsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -91,7 +110,11 @@ func (s *mockPublisherServer) ListTopics(_ context.Context, req *pubsubpb.ListTo
 	return s.resps[0].(*pubsubpb.ListTopicsResponse), nil
 }
 
-func (s *mockPublisherServer) ListTopicSubscriptions(_ context.Context, req *pubsubpb.ListTopicSubscriptionsRequest) (*pubsubpb.ListTopicSubscriptionsResponse, error) {
+func (s *mockPublisherServer) ListTopicSubscriptions(ctx context.Context, req *pubsubpb.ListTopicSubscriptionsRequest) (*pubsubpb.ListTopicSubscriptionsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -99,7 +122,11 @@ func (s *mockPublisherServer) ListTopicSubscriptions(_ context.Context, req *pub
 	return s.resps[0].(*pubsubpb.ListTopicSubscriptionsResponse), nil
 }
 
-func (s *mockPublisherServer) DeleteTopic(_ context.Context, req *pubsubpb.DeleteTopicRequest) (*emptypb.Empty, error) {
+func (s *mockPublisherServer) DeleteTopic(ctx context.Context, req *pubsubpb.DeleteTopicRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -122,7 +149,11 @@ type mockIamPolicyServer struct {
 	resps []proto.Message
 }
 
-func (s *mockIamPolicyServer) SetIamPolicy(_ context.Context, req *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
+func (s *mockIamPolicyServer) SetIamPolicy(ctx context.Context, req *iampb.SetIamPolicyRequest) (*iampb.Policy, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -130,7 +161,11 @@ func (s *mockIamPolicyServer) SetIamPolicy(_ context.Context, req *iampb.SetIamP
 	return s.resps[0].(*iampb.Policy), nil
 }
 
-func (s *mockIamPolicyServer) GetIamPolicy(_ context.Context, req *iampb.GetIamPolicyRequest) (*iampb.Policy, error) {
+func (s *mockIamPolicyServer) GetIamPolicy(ctx context.Context, req *iampb.GetIamPolicyRequest) (*iampb.Policy, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -138,7 +173,11 @@ func (s *mockIamPolicyServer) GetIamPolicy(_ context.Context, req *iampb.GetIamP
 	return s.resps[0].(*iampb.Policy), nil
 }
 
-func (s *mockIamPolicyServer) TestIamPermissions(_ context.Context, req *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error) {
+func (s *mockIamPolicyServer) TestIamPermissions(ctx context.Context, req *iampb.TestIamPermissionsRequest) (*iampb.TestIamPermissionsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -161,7 +200,11 @@ type mockSubscriberServer struct {
 	resps []proto.Message
 }
 
-func (s *mockSubscriberServer) CreateSubscription(_ context.Context, req *pubsubpb.Subscription) (*pubsubpb.Subscription, error) {
+func (s *mockSubscriberServer) CreateSubscription(ctx context.Context, req *pubsubpb.Subscription) (*pubsubpb.Subscription, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -169,7 +212,11 @@ func (s *mockSubscriberServer) CreateSubscription(_ context.Context, req *pubsub
 	return s.resps[0].(*pubsubpb.Subscription), nil
 }
 
-func (s *mockSubscriberServer) GetSubscription(_ context.Context, req *pubsubpb.GetSubscriptionRequest) (*pubsubpb.Subscription, error) {
+func (s *mockSubscriberServer) GetSubscription(ctx context.Context, req *pubsubpb.GetSubscriptionRequest) (*pubsubpb.Subscription, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -177,7 +224,11 @@ func (s *mockSubscriberServer) GetSubscription(_ context.Context, req *pubsubpb.
 	return s.resps[0].(*pubsubpb.Subscription), nil
 }
 
-func (s *mockSubscriberServer) UpdateSubscription(_ context.Context, req *pubsubpb.UpdateSubscriptionRequest) (*pubsubpb.Subscription, error) {
+func (s *mockSubscriberServer) UpdateSubscription(ctx context.Context, req *pubsubpb.UpdateSubscriptionRequest) (*pubsubpb.Subscription, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -185,7 +236,11 @@ func (s *mockSubscriberServer) UpdateSubscription(_ context.Context, req *pubsub
 	return s.resps[0].(*pubsubpb.Subscription), nil
 }
 
-func (s *mockSubscriberServer) ListSubscriptions(_ context.Context, req *pubsubpb.ListSubscriptionsRequest) (*pubsubpb.ListSubscriptionsResponse, error) {
+func (s *mockSubscriberServer) ListSubscriptions(ctx context.Context, req *pubsubpb.ListSubscriptionsRequest) (*pubsubpb.ListSubscriptionsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -193,7 +248,11 @@ func (s *mockSubscriberServer) ListSubscriptions(_ context.Context, req *pubsubp
 	return s.resps[0].(*pubsubpb.ListSubscriptionsResponse), nil
 }
 
-func (s *mockSubscriberServer) DeleteSubscription(_ context.Context, req *pubsubpb.DeleteSubscriptionRequest) (*emptypb.Empty, error) {
+func (s *mockSubscriberServer) DeleteSubscription(ctx context.Context, req *pubsubpb.DeleteSubscriptionRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -201,7 +260,11 @@ func (s *mockSubscriberServer) DeleteSubscription(_ context.Context, req *pubsub
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) ModifyAckDeadline(_ context.Context, req *pubsubpb.ModifyAckDeadlineRequest) (*emptypb.Empty, error) {
+func (s *mockSubscriberServer) ModifyAckDeadline(ctx context.Context, req *pubsubpb.ModifyAckDeadlineRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -209,7 +272,11 @@ func (s *mockSubscriberServer) ModifyAckDeadline(_ context.Context, req *pubsubp
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) Acknowledge(_ context.Context, req *pubsubpb.AcknowledgeRequest) (*emptypb.Empty, error) {
+func (s *mockSubscriberServer) Acknowledge(ctx context.Context, req *pubsubpb.AcknowledgeRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -217,7 +284,11 @@ func (s *mockSubscriberServer) Acknowledge(_ context.Context, req *pubsubpb.Ackn
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) Pull(_ context.Context, req *pubsubpb.PullRequest) (*pubsubpb.PullResponse, error) {
+func (s *mockSubscriberServer) Pull(ctx context.Context, req *pubsubpb.PullRequest) (*pubsubpb.PullResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -226,6 +297,10 @@ func (s *mockSubscriberServer) Pull(_ context.Context, req *pubsubpb.PullRequest
 }
 
 func (s *mockSubscriberServer) StreamingPull(stream pubsubpb.Subscriber_StreamingPullServer) error {
+	md, _ := metadata.FromIncomingContext(stream.Context())
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	for {
 		if req, err := stream.Recv(); err == io.EOF {
 			break
@@ -246,7 +321,11 @@ func (s *mockSubscriberServer) StreamingPull(stream pubsubpb.Subscriber_Streamin
 	return nil
 }
 
-func (s *mockSubscriberServer) ModifyPushConfig(_ context.Context, req *pubsubpb.ModifyPushConfigRequest) (*emptypb.Empty, error) {
+func (s *mockSubscriberServer) ModifyPushConfig(ctx context.Context, req *pubsubpb.ModifyPushConfigRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -254,7 +333,11 @@ func (s *mockSubscriberServer) ModifyPushConfig(_ context.Context, req *pubsubpb
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) ListSnapshots(_ context.Context, req *pubsubpb.ListSnapshotsRequest) (*pubsubpb.ListSnapshotsResponse, error) {
+func (s *mockSubscriberServer) ListSnapshots(ctx context.Context, req *pubsubpb.ListSnapshotsRequest) (*pubsubpb.ListSnapshotsResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -262,7 +345,11 @@ func (s *mockSubscriberServer) ListSnapshots(_ context.Context, req *pubsubpb.Li
 	return s.resps[0].(*pubsubpb.ListSnapshotsResponse), nil
 }
 
-func (s *mockSubscriberServer) CreateSnapshot(_ context.Context, req *pubsubpb.CreateSnapshotRequest) (*pubsubpb.Snapshot, error) {
+func (s *mockSubscriberServer) CreateSnapshot(ctx context.Context, req *pubsubpb.CreateSnapshotRequest) (*pubsubpb.Snapshot, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -270,7 +357,11 @@ func (s *mockSubscriberServer) CreateSnapshot(_ context.Context, req *pubsubpb.C
 	return s.resps[0].(*pubsubpb.Snapshot), nil
 }
 
-func (s *mockSubscriberServer) DeleteSnapshot(_ context.Context, req *pubsubpb.DeleteSnapshotRequest) (*emptypb.Empty, error) {
+func (s *mockSubscriberServer) DeleteSnapshot(ctx context.Context, req *pubsubpb.DeleteSnapshotRequest) (*emptypb.Empty, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err
@@ -278,7 +369,11 @@ func (s *mockSubscriberServer) DeleteSnapshot(_ context.Context, req *pubsubpb.D
 	return s.resps[0].(*emptypb.Empty), nil
 }
 
-func (s *mockSubscriberServer) Seek(_ context.Context, req *pubsubpb.SeekRequest) (*pubsubpb.SeekResponse, error) {
+func (s *mockSubscriberServer) Seek(ctx context.Context, req *pubsubpb.SeekRequest) (*pubsubpb.SeekResponse, error) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if xg := md["x-goog-api-client"]; len(xg) == 0 || !strings.Contains(xg[0], "gl-go/") {
+		return nil, fmt.Errorf("x-goog-api-client = %v, expected gl-go key", xg)
+	}
 	s.reqs = append(s.reqs, req)
 	if s.err != nil {
 		return nil, s.err

@@ -126,6 +126,30 @@ func ExampleTopic_Publish() {
 	}
 }
 
+func ExampleTopic_TryPublish() {
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, "project-id")
+	if err != nil {
+		// TODO: Handle error.
+	}
+
+	topic := client.Topic("topicName")
+	defer topic.Stop()
+	var results []*pubsub.PublishResult
+	r := topic.TryPublish(ctx, &pubsub.Message{
+		Data: []byte("hello world"),
+	})
+	results = append(results, r)
+	// Do other work ...
+	for _, r := range results {
+		id, err := r.Get(ctx)
+		if err != nil {
+			// TODO: Handle error.
+		}
+		fmt.Printf("Published a message with a message ID: %s\n", id)
+	}
+}
+
 func ExampleTopic_Subscriptions() {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "project-id")

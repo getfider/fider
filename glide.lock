@@ -1,8 +1,8 @@
-hash: fd4639952ebad816734540906a58dfb49984e6df0cee4702d93b0647b504057b
-updated: 2017-05-12T19:30:53.261101406+01:00
+hash: 47d184c63e69ca38b22a3d7763288ad61ab6d5f9bda9d6034ca7a1faa1ab262e
+updated: 2017-05-19T18:51:48.854157668+01:00
 imports:
 - name: cloud.google.com/go
-  version: 7050ae8919c454e5119ddeb65c678014a52e5d57
+  version: dc9545a2cb63b1739b9741b2507a6cda79437161
   subpackages:
   - compute/metadata
 - name: github.com/dgrijalva/jwt-go
@@ -11,10 +11,12 @@ imports:
   version: fec3b39b059c0f88fa6b20f5ed012b1aa203a8b4
   subpackages:
   - proto
+- name: github.com/gosimple/slug
+  version: 32efb997950eba210b1880d8cf52b601c1b5abe3
 - name: github.com/jmoiron/jsonq
   version: e874b168d07ecc7808bc950a17998a8aa3141d82
 - name: github.com/labstack/echo
-  version: 0e134ee37c2f1239b99a030f84f66176d8a03e63
+  version: 3359eae3067d1f6dba4785ea0377796405a34429
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
@@ -29,26 +31,29 @@ imports:
   subpackages:
   - oid
 - name: github.com/mattes/migrate
-  version: 448a36c5cbdcc34f348f605a5080b23629c7fbbc
+  version: 3682bcf9d2255841cec0df264584dc0a0ac473fb
   subpackages:
   - database
   - database/postgres
   - source
+  - source/file
 - name: github.com/mattn/go-colorable
   version: ded68f7a9561c023e790de24279db7ebf473ea80
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+- name: github.com/rainycape/unidecode
+  version: cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
 - name: golang.org/x/crypto
-  version: ab89591268e0c8b748cbe4047b00197516011af5
+  version: 0fe963104e9d1877082f8fb38f816fcd97eb1d10
   subpackages:
   - acme
   - acme/autocert
 - name: golang.org/x/net
-  version: c9b681d35165f1995d6f3034e61f8761d4b90c99
+  version: 513929065c19401a1c7b76ecd942f9f86a0c061b
   subpackages:
   - context
   - context/ctxhttp
@@ -56,7 +61,7 @@ imports:
   - html/atom
   - html/charset
 - name: golang.org/x/oauth2
-  version: ad516a297a9f2a74ecc244861b298c94bdd28b9d
+  version: f047394b6d14284165300fd82dad67edb3a4d7f6
   subpackages:
   - facebook
   - google
@@ -64,7 +69,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: f845067cf72a21fb4929b0e6a35273bd83b56396
+  version: a2e06a18b0d52d8cb2010e04b372a1965d8e3439
   subpackages:
   - unix
 - name: google.golang.org/appengine

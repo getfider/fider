@@ -9,6 +9,7 @@ type Idea struct {
 	ID              int        `json:"id" db:"id"`
 	Number          int        `json:"number" db:"number"`
 	Title           string     `json:"title" db:"title"`
+	Slug            string     `json:"slug" db:"slug"`
 	Description     string     `json:"description" db:"description"`
 	CreatedOn       time.Time  `json:"createdOn" db:"created_on"`
 	User            *User      `json:"user" db:"user"`

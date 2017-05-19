@@ -57,10 +57,7 @@ func TestLoggingServiceV2Smoke(t *testing.T) {
 		LogName: formattedLogName,
 	}
 
-	resp, err := c.WriteLogEntries(ctx, request)
-	if err != nil {
+	if _, err := c.WriteLogEntries(ctx, request); err != nil {
 		t.Error(err)
-	} else {
-		t.Log(resp)
 	}
 }

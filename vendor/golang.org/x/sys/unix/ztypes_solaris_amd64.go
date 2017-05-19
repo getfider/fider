@@ -129,6 +129,24 @@ type Dirent struct {
 	Pad_cgo_0 [5]byte
 }
 
+type _Fsblkcnt_t uint64
+
+type Statvfs_t struct {
+	Bsize    uint64
+	Frsize   uint64
+	Blocks   uint64
+	Bfree    uint64
+	Bavail   uint64
+	Files    uint64
+	Ffree    uint64
+	Favail   uint64
+	Fsid     uint64
+	Basetype [16]int8
+	Flag     uint64
+	Namemax  uint64
+	Fstr     [32]int8
+}
+
 type RawSockaddrInet4 struct {
 	Family uint16
 	Port   uint16

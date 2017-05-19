@@ -113,7 +113,7 @@ type InstanceAdminClient struct {
 	CallOptions *InstanceAdminCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewInstanceAdminClient creates a new instance admin client.
@@ -171,7 +171,7 @@ func (c *InstanceAdminClient) Close() error {
 func (c *InstanceAdminClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // InstanceAdminProjectPath returns the path for the project resource.
@@ -593,7 +593,7 @@ type CreateInstanceOperation struct {
 	lro *longrunning.Operation
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // CreateInstanceOperation returns a new CreateInstanceOperation from a given name.
@@ -668,7 +668,7 @@ type UpdateInstanceOperation struct {
 	lro *longrunning.Operation
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // UpdateInstanceOperation returns a new UpdateInstanceOperation from a given name.

@@ -11,7 +11,8 @@ import "./style/main.scss";
 const pathRegex = [
     { regex: new RegExp("^\/$"), component: <SiteHomePage /> },
     { regex: new RegExp("^\/admin$"), component: <AdminHomePage /> },
-    { regex: new RegExp("^\/ideas\/\\d+$"), component: <ShowIdeaPage /> },
+    { regex: new RegExp("^\/ideas\/\\d+.*$"), component: <ShowIdeaPage /> },
+
 ];
 
 const resolveRootComponent = (path: string): JSX.Element => {

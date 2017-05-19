@@ -146,7 +146,7 @@ type SubscriberClient struct {
 	CallOptions *SubscriberCallOptions
 
 	// The metadata to be sent with each request.
-	xGoogHeader string
+	xGoogHeader []string
 }
 
 // NewSubscriberClient creates a new subscriber client.
@@ -185,7 +185,7 @@ func (c *SubscriberClient) Close() error {
 func (c *SubscriberClient) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
-	c.xGoogHeader = gax.XGoogHeader(kv...)
+	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
 // SubscriberProjectPath returns the path for the project resource.
