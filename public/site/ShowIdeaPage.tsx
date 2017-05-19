@@ -38,7 +38,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                 <span className="date" title={c.createdOn}>{ moment(c.createdOn).fromNow() }</span>
               </div>
               <div className="text">
-                { c.content }
+                <MultiLineText text={ c.content } />
               </div>
             </div>
           </div>
@@ -64,7 +64,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                       </div>
                     </div>
 
-                    <p>{ this.idea.description }</p>
+                    <MultiLineText text={ this.idea.description } />
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>
