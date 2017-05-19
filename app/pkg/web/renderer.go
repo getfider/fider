@@ -78,5 +78,10 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		m["__JavaScriptBundle"] = files[0].Name()
 	}
 
+	files, _ = ioutil.ReadDir("dist/css")
+	if len(files) > 0 {
+		m["__StyleBundle"] = files[0].Name()
+	}
+
 	return tmpl.Execute(w, m)
 }

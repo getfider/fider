@@ -1,5 +1,6 @@
 const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CleanObsoleteChunks = require('webpack-clean-obsolete-chunks');
 
 module.exports = {
     entry: "./public/index.tsx",
@@ -14,7 +15,10 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: /\.css$/, loader: "style-loader!css-loader" },
+            { 
+                test: /\.scss$/, 
+                loader: ExtractTextPlugin.extract("css-loader!sass-loader")
+            },
             { test: /\.(ts|tsx)$/, loader: "ts-loader" },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)$/,
@@ -27,11 +31,11 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist'], {
-            root: __dirname,
-            verbose: true,
-            dry: false,
-            watch: true
+        new CleanObsoleteChunks(),
+        new ExtractTextPlugin({ 
+            filename: 'css/[name].[hash].css', 
+            disable: false, 
+            allChunks: true 
         })
     ],
     externals: {

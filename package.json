@@ -19,19 +19,21 @@
     "semantic-ui-css": "^2.2.10"
   },
   "devDependencies": {
-    "@types/jquery": "^2.0.41",
+    "@types/jquery": "^2.0.45",
     "@types/md5": "^2.1.32",
-    "@types/react": "^15.0.22",
+    "@types/react": "^15.0.24",
     "@types/react-dom": "^15.5.0",
-    "clean-webpack-plugin": "^0.1.16",
-    "css-loader": "^0.28.0",
+    "css-loader": "^0.28.1",
+    "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
+    "node-sass": "^4.5.3",
     "rimraf": "^2.6.1",
-    "style-loader": "^0.16.1",
+    "sass-loader": "^6.0.5",
     "ts-loader": "^2.0.3",
-    "tslint": "^5.1.0",
-    "typescript": "^2.2.2",
-    "webpack": "^2.4.1"
+    "tslint": "^5.2.0",
+    "typescript": "^2.3.2",
+    "webpack": "^2.5.1",
+    "webpack-clean-obsolete-chunks": "^0.1.9"
   },
   "engines": {
     "node": "6.10.0"

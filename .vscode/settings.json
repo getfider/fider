@@ -12,14 +12,14 @@
     "fider": true,
     "fider.exe": true,
     "tmp": true,
-    "vendor": false,
     "node_modules": true,
     "dist": true,
     "coverage.txt": true,
     "debug": true,
     "**/debug.test": true,
     ".cover": true,
-    "cover.out": true
+    "cover.out": true,
+    "vendor": true
   },
   "search.exclude": {
     "**/node_modules": true,

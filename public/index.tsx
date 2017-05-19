@@ -6,7 +6,7 @@ import { HomePage as SiteHomePage } from "./site/HomePage";
 import { ShowIdeaPage } from "./site/ShowIdeaPage";
 import { setup } from "./storage";
 
-import "./css/main.css";
+import "./style/main.scss";
 
 const pathRegex = [
     { regex: new RegExp("^\/$"), component: <SiteHomePage /> },

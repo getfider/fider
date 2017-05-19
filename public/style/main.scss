@@ -10,20 +10,14 @@
   margin-left: 20px;
 }
 
-#footer {
-  margin-top: 50px;
-}
-
 .idea-header {
   margin-left: 20px;
 }
 
 .support-button {
-  width: 60px;
-}
-
-.support-button i.icon {
-  margin: 0px;
+  i.icon {
+    margin: 0px;
+  }
 }
 
 .no-border {
@@ -42,10 +36,16 @@
   padding: 10px 5px !important;
 }
 
-#footer #powered-by {
-  text-align: center;
+#footer {
+  margin-top: 50px;
+  
+  #powered-by {
+    text-align: center;
+
+    img {
+      width: 30px;
+      filter: grayscale(100%)
+    }
+  }
 }
 
-#footer #powered-by img {
-  width: 30px;
-}
