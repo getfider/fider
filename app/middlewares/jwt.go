@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
@@ -45,6 +46,7 @@ func JwtSetter() web.MiddlewareFunc {
 					Value:    jwt,
 					HttpOnly: true,
 					Path:     "/",
+					Expires:  time.Now().Add(365 * 24 * time.Hour),
 				})
 
 				query.Del("jwt")
