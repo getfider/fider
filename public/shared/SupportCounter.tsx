@@ -61,7 +61,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public render() {
-        const support = <div className="support-button ui mini violet inverted animated button"
+        const support = <div className="ui mini violet inverted animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content">Want</div>
                     <div className="hidden content">
@@ -69,7 +69,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                     </div>
                 </div>;
 
-        const undo = <div className="support-button ui mini violet animated button"
+        const undo = <div className="ui mini violet animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content"><i className="heart icon"></i></div>
                     <div className="hidden content">
@@ -78,7 +78,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                 </div>;
 
         return <div>
-                    <div className="ui small statistics">
+                    <div className="support-counter ui small statistics">
                         <div ref={(e) => { this.elem = e; } } className="statistic">
                             <div className="value">
                                 { this.state.total }

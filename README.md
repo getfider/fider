@@ -29,7 +29,7 @@ Step by step:
 4) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
 5) run `cp .example.env .env` to create a local Environment configuration file.
 6) run `make watch` to start the application.
-7) Navigate to `http://demo.dev.fider.io.com:3000/` and boom! Welcome to your new local Fider development copy!
+7) Navigate to `http://localhost:3000/` and boom! Welcome to your new local Fider development copy!
 
 Change some code, fix some bugs, implement some features and send us your Pull Request!
 

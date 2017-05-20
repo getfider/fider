@@ -14,7 +14,18 @@
   margin-left: 20px;
 }
 
-.support-button {
+.support-counter {
+  width: 130px;
+
+  .statistic {
+    margin: 0 auto !important;
+  }
+
+  .button {
+    width: 60px;
+    margin: 0 auto !important;
+  }
+
   i.icon {
     margin: 0px;
   }
