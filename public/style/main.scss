@@ -2,14 +2,6 @@
   margin-bottom: 20px;
 }
 
-.ideas-list {
-  margin-top: 40px;
-}
-
-.ideas-list .ui.items > .item > .content {
-  margin-left: 20px;
-}
-
 .idea-header {
   margin-left: 20px;
 }
@@ -45,6 +37,38 @@
 
 .fdr-profile-popup div.item {
   padding: 10px 5px !important;
+}
+
+.fdr-idea-list {
+  margin-top: 40px;
+
+  .ui.items > .item > .content {
+    margin-left: 20px;
+  }
+}
+
+.fdr-response {
+  .content {
+    margin-top: 10px;
+  }
+
+  .info {
+    display: inline !important;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    color: rgba(0, 0, 0, 0.4);
+    box-shadow: none;
+    background: 0px 0px;
+    margin: 0.5rem 0px 0px;
+    padding: 0px;
+    transition: color 0.1s ease;
+    border-top: none;
+
+    span {
+      margin-left: 6px;
+    }
+  }
 }
 
 #footer {

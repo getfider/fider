@@ -4,7 +4,7 @@ import * as storage from "../storage";
 
 import { User, Comment, Idea } from "../models";
 import { CommentInput } from "../shared/CommentInput";
-import { Gravatar, MultiLineText } from "../shared/Common";
+import { Gravatar, MultiLineText, IdeaResponse } from "../shared/Common";
 import { SocialSignInButton } from "../shared/SocialSignInButton";
 import { SupportCounter } from "../shared/SupportCounter";
 
@@ -65,6 +65,11 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     </div>
 
                     <MultiLineText text={ this.idea.description } />
+
+                    <IdeaResponse status={this.idea.status}
+                                  response={this.idea.response ? this.idea.response.text : undefined }
+                                  createdOn={this.idea.response ? this.idea.response.createdOn : undefined }
+                                  user={this.idea.user} />
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>

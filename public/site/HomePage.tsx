@@ -2,7 +2,7 @@ import * as moment from "moment";
 import * as React from "react";
 import { Idea, User } from "../models";
 import * as storage from "../storage";
-import { Gravatar, MultiLineText } from "../shared/Common";
+import { Gravatar, MultiLineText, IdeaResponse } from "../shared/Common";
 import { SupportCounter } from "../shared/SupportCounter";
 
 import { Footer } from "../shared/Footer";
@@ -34,6 +34,10 @@ export class HomePage extends React.Component<{}, {}> {
                               #{ x.number } shared by <Gravatar email={x.user.email}/> <u>{x.user.name}</u>
                               <span title={x.createdOn}>{ moment(x.createdOn).fromNow() }</span>
                             </div>
+                            <IdeaResponse status={x.status}
+                                          response={x.response ? x.response.text : undefined }
+                                          createdOn={x.response ? x.response.createdOn : undefined }
+                                          user={x.user} />
                           </div>
                         </div>);
 
@@ -54,7 +58,7 @@ export class HomePage extends React.Component<{}, {}> {
 
                     <IdeaInput />
 
-                    <div className="ui container ideas-list">
+                    <div className="ui container fdr-idea-list">
                       { displayIdeas }
                     </div>
                   </div>

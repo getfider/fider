@@ -1,7 +1,9 @@
 import * as React from "react";
+import * as moment from "moment";
 import md5 = require("md5");
 import { AxiosError, AxiosResponse } from "axios";
 import { get, getCurrentUser } from "../storage";
+import { User } from "../models";
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : "";
@@ -40,6 +42,40 @@ export const EnvironmentInfo = () => {
                 Version: { settings.Version } |
                 BuildTime: { settings.BuildTime }
             </div>;
+  }
+  return <div/>;
+};
+
+export const IdeaStatusRibbon = (props: { status: number }) => {
+  const statusText =  props.status === 1 ? "Started" :
+                      props.status === 2 ? "Completed" :
+                      props.status === 3 ? "Declined" : "Unknown";
+  const color =  props.status === 1 ? "blue" :
+                 props.status === 2 ? "green" :
+                 props.status === 3 ? "red" : "black";
+
+  return <span className={`ui ribbon label ${color}`}>{ statusText }</span>;
+};
+
+interface IdeaResponseProps {
+  status: number;
+  user: User;
+  response?: string;
+  createdOn?: Date;
+}
+
+export const IdeaResponse = (props: IdeaResponseProps): JSX.Element => {
+  if (props.createdOn) {
+    return <div className="fdr-response item ui raised segment">
+            <IdeaStatusRibbon status={props.status} />
+            <div className="info">
+              <Gravatar email={props.user.email}/> <u>{props.user.name}</u>
+              <span title={props.createdOn.toString()}>{ moment(props.createdOn).fromNow() }</span>
+            </div>
+            <div className="content">
+              <MultiLineText text={ props.response } />
+            </div>
+          </div>;
   }
   return <div/>;
 };

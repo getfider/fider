@@ -109,7 +109,7 @@ func (db Database) Get(data interface{}, command string, args ...interface{}) er
 	defer rows.Close()
 
 	if rows.Next() {
-		return scan(rows, data)
+		return fill(rows, data)
 	}
 
 	return sql.ErrNoRows
@@ -128,7 +128,7 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	itemType := sliceType.Elem().Elem()
 	for rows.Next() {
 		item := reflect.New(itemType)
-		err = scan(rows, item.Interface())
+		err = fill(rows, item.Interface())
 		if err != nil {
 			return err
 		}
@@ -139,33 +139,41 @@ func (db Database) Select(data interface{}, command string, args ...interface{})
 	return nil
 }
 
-func scan(rows *sql.Rows, data interface{}) error {
-	columns, _ := rows.Columns()
+func scan(prefix string, data interface{}) map[string]interface{} {
 	fields := make(map[string]interface{})
 
 	s := reflect.ValueOf(data).Elem()
+
 	numfield := s.NumField()
 	for i := 0; i < numfield; i++ {
 		field := s.Field(i)
 		typeField := s.Type().Field(i)
 		tag := typeField.Tag.Get("db")
-		if typeField.Type.Kind() != reflect.Ptr {
-			if tag != "" {
-				fields[tag] = field.Addr().Interface()
-			}
-		} else {
-			obj := reflect.New(field.Type().Elem()).Elem()
-			field.Set(obj.Addr())
-			nested := field.Elem()
-			nestedNumField := nested.NumField()
-			for j := 0; j < nestedNumField; j++ {
-				nestedTag := nested.Type().Field(j).Tag.Get("db")
-				if nestedTag != "" {
-					fields[tag+"_"+nestedTag] = nested.Field(j).Addr().Interface()
+
+		if tag != "" {
+			if typeField.Type.Kind() != reflect.Ptr {
+				fields[prefix+tag] = field.Addr().Interface()
+			} else if field.Type().Elem().Kind() != reflect.Struct || field.Type().Elem().String() == "time.Time" {
+				obj := reflect.New(field.Type().Elem()).Elem()
+				field.Set(obj.Addr())
+				fields[prefix+tag] = field.Interface()
+			} else {
+				obj := reflect.New(field.Type().Elem()).Elem()
+				field.Set(obj.Addr())
+				nestedFields := scan(prefix+tag+"_", field.Interface())
+				for name, address := range nestedFields {
+					fields[name] = address
 				}
 			}
 		}
 	}
+
+	return fields
+}
+
+func fill(rows *sql.Rows, data interface{}) error {
+	columns, _ := rows.Columns()
+	fields := scan("", data)
 
 	pointers := make([]interface{}, len(columns))
 	for i, column := range columns {

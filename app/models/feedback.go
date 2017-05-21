@@ -1,20 +1,47 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/getfider/fider/app/pkg/dbx"
 )
 
 //Idea represents an idea on a tenant board
 type Idea struct {
-	ID              int        `json:"id" db:"id"`
-	Number          int        `json:"number" db:"number"`
-	Title           string     `json:"title" db:"title"`
-	Slug            string     `json:"slug" db:"slug"`
-	Description     string     `json:"description" db:"description"`
-	CreatedOn       time.Time  `json:"createdOn" db:"created_on"`
-	User            *User      `json:"user" db:"user"`
-	TotalSupporters int        `json:"totalSupporters" db:"supporters"`
-	Status          IdeaStatus `json:"status" db:"status"`
+	ID              int           `json:"id" db:"id"`
+	Number          int           `json:"number" db:"number"`
+	Title           string        `json:"title" db:"title"`
+	Slug            string        `json:"slug" db:"slug"`
+	Description     string        `json:"description" db:"description"`
+	CreatedOn       time.Time     `json:"createdOn" db:"created_on"`
+	User            *User         `json:"user" db:"user"`
+	TotalSupporters int           `json:"totalSupporters" db:"supporters"`
+	Status          IdeaStatus    `json:"status" db:"status"`
+	Response        *IdeaResponse `json:"response" db:"response"`
+}
+
+//IdeaResponse is a staff response to a given idea
+type IdeaResponse struct {
+	Text      dbx.NullString `db:"text"`
+	CreatedOn dbx.NullTime   `db:"date"`
+	UserID    dbx.NullInt    `db:"user_id"`
+}
+
+// MarshalJSON interface redefinition
+func (r IdeaResponse) MarshalJSON() ([]byte, error) {
+	if r.Text.Valid || r.CreatedOn.Valid || r.UserID.Valid {
+		return json.Marshal(struct {
+			Text      dbx.NullString `json:"text"`
+			CreatedOn dbx.NullTime   `json:"createdOn"`
+			UserID    dbx.NullInt    `json:"userId"`
+		}{
+			Text:      r.Text,
+			CreatedOn: r.CreatedOn,
+			UserID:    r.UserID,
+		})
+	}
+	return json.Marshal(nil)
 }
 
 //IdeaStatus represents the status of an idea

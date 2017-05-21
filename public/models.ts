@@ -19,8 +19,16 @@ export interface Idea {
   title: string;
   description: string;
   createdOn: string;
+  status: number;
   user: User;
+  response: IdeaResponse;
   totalSupporters: number;
+}
+
+export interface IdeaResponse {
+  userId: number;
+  text: string;
+  createdOn: Date;
 }
 
 export interface Comment {

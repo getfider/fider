@@ -27,7 +27,10 @@ var (
 								  i.status, 
 								  u.id AS user_id, 
 								  u.name AS user_name, 
-								  u.email AS user_email
+								  u.email AS user_email,
+									i.response AS response_text,
+									i.response_date,
+									i.response_user_id
 							FROM ideas i
 							INNER JOIN users u
 							ON u.id = i.user_id
