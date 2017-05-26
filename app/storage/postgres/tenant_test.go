@@ -3,8 +3,6 @@ package postgres_test
 import (
 	"testing"
 
-	"database/sql"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -70,7 +68,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
-	Expect(tenant.CNAME.Valid).To(BeFalse())
+	Expect(tenant.CNAME).To(Equal(""))
 	Expect(err).To(BeNil())
 }
 
@@ -84,7 +82,7 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 	tenants.Add(&models.Tenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
-		CNAME:     sql.NullString{String: "mydomain.anydomain.com", Valid: true},
+		CNAME:     "mydomain.anydomain.com",
 	})
 
 	tenant, err := tenants.GetByDomain("mydomain.anydomain.com")
@@ -92,7 +90,6 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 	Expect(tenant.ID).To(Equal(int(1)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
-	Expect(tenant.CNAME.String).To(Equal("mydomain.anydomain.com"))
-	Expect(tenant.CNAME.Valid).To(BeTrue())
+	Expect(tenant.CNAME).To(Equal("mydomain.anydomain.com"))
 	Expect(err).To(BeNil())
 }

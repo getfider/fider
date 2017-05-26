@@ -11,6 +11,60 @@ import (
 	"github.com/gosimple/slug"
 )
 
+type dbIdea struct {
+	ID              int            `db:"id"`
+	Number          int            `db:"number"`
+	Title           string         `db:"title"`
+	Slug            string         `db:"slug"`
+	Description     string         `db:"description"`
+	CreatedOn       time.Time      `db:"created_on"`
+	User            *dbUser        `db:"user"`
+	TotalSupporters int            `db:"supporters"`
+	Status          int            `db:"status"`
+	Response        sql.NullString `db:"response"`
+	RespondedOn     dbx.NullTime   `db:"response_date"`
+	ResponseUser    *dbUser        `db:"response_user"`
+}
+
+func (i *dbIdea) toModel() *models.Idea {
+	idea := &models.Idea{
+		ID:              i.ID,
+		Number:          i.Number,
+		Title:           i.Title,
+		Slug:            i.Slug,
+		Description:     i.Description,
+		CreatedOn:       i.CreatedOn,
+		TotalSupporters: i.TotalSupporters,
+		Status:          i.Status,
+		User:            i.User.toModel(),
+	}
+
+	if i.Response.Valid {
+		idea.Response = &models.IdeaResponse{
+			Text:      i.Response.String,
+			CreatedOn: i.RespondedOn.Time,
+			User:      i.ResponseUser.toModel(),
+		}
+	}
+	return idea
+}
+
+type dbComment struct {
+	ID        int       `db:"id"`
+	Content   string    `db:"content"`
+	CreatedOn time.Time `db:"created_on"`
+	User      *dbUser   `db:"user"`
+}
+
+func (c *dbComment) toModel() *models.Comment {
+	return &models.Comment{
+		ID:        c.ID,
+		Content:   c.Content,
+		CreatedOn: c.CreatedOn,
+		User:      c.User.toModel(),
+	}
+}
+
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
 	DB *dbx.Database
@@ -18,39 +72,47 @@ type IdeaStorage struct {
 
 var (
 	sqlSelectIdeasWhere = `SELECT i.id, 
-								  i.number, 
-								  i.title, 
-								  i.slug, 
-								  i.description, 
-								  i.created_on,
-								  i.supporters, 
-								  i.status, 
-								  u.id AS user_id, 
-								  u.name AS user_name, 
-								  u.email AS user_email,
-									i.response AS response_text,
-									i.response_date,
-									i.response_user_id
-							FROM ideas i
-							INNER JOIN users u
-							ON u.id = i.user_id
-							WHERE`
+																i.number, 
+																i.title, 
+																i.slug, 
+																i.description, 
+																i.created_on,
+																i.supporters, 
+																i.status, 
+																u.id AS user_id, 
+																u.name AS user_name, 
+																u.email AS user_email,
+																i.response,
+																i.response_date,
+																r.id AS response_user_id, 
+																r.name AS response_user_name, 
+																r.email AS response_user_email
+													FROM ideas i
+													INNER JOIN users u
+													ON u.id = i.user_id
+													LEFT JOIN users r
+													ON r.id = i.response_user_id
+													WHERE`
 )
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
-	var ideas []*models.Idea
+	var ideas []*dbIdea
 	err := s.DB.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
 	if err != nil {
 		return nil, err
 	}
 
-	return ideas, nil
+	var result = make([]*models.Idea, len(ideas))
+	for i, idea := range ideas {
+		result[i] = idea.toModel()
+	}
+	return result, nil
 }
 
 // GetByID returns idea by given id
 func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
-	idea := models.Idea{}
+	idea := dbIdea{}
 
 	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", tenantID, ideaID)
 	if err == sql.ErrNoRows {
@@ -59,12 +121,12 @@ func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 		return nil, err
 	}
 
-	return &idea, nil
+	return idea.toModel(), nil
 }
 
 // GetByNumber returns idea by tenant and number
 func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
-	idea := models.Idea{}
+	idea := dbIdea{}
 
 	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", tenantID, number)
 	if err == sql.ErrNoRows {
@@ -73,12 +135,12 @@ func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
 		return nil, err
 	}
 
-	return &idea, nil
+	return idea.toModel(), nil
 }
 
 // GetCommentsByIdeaID returns all coments from given idea
 func (s *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
-	comments := []*models.Comment{}
+	comments := []*dbComment{}
 	err := s.DB.Select(&comments,
 		`SELECT c.id, 
 				c.content, 
@@ -98,7 +160,11 @@ func (s *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comme
 		return nil, err
 	}
 
-	return comments, nil
+	var result = make([]*models.Comment, len(comments))
+	for i, comment := range comments {
+		result[i] = comment.toModel()
+	}
+	return result, nil
 }
 
 // Save a new idea in the database

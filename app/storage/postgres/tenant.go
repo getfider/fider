@@ -16,6 +16,22 @@ type TenantStorage struct {
 	DB *dbx.Database
 }
 
+type dbTenant struct {
+	ID        int            `db:"id"`
+	Name      string         `db:"name"`
+	Subdomain string         `db:"subdomain"`
+	CNAME     sql.NullString `db:"cname"`
+}
+
+func (t *dbTenant) toModel() *models.Tenant {
+	return &models.Tenant{
+		ID:        t.ID,
+		Name:      t.Name,
+		Subdomain: t.Subdomain,
+		CNAME:     t.CNAME.String,
+	}
+}
+
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(tenant *models.Tenant) error {
 	row := s.DB.QueryRow(`INSERT INTO tenants (name, subdomain, cname, created_on) 
@@ -30,7 +46,7 @@ func (s *TenantStorage) Add(tenant *models.Tenant) error {
 
 // First returns first tenant
 func (s *TenantStorage) First() (*models.Tenant, error) {
-	tenant := models.Tenant{}
+	tenant := dbTenant{}
 
 	err := s.DB.Get(&tenant, "SELECT id, name, subdomain, cname FROM tenants LIMIT 1")
 	if err == sql.ErrNoRows {
@@ -39,12 +55,12 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return &tenant, nil
+	return tenant.toModel(), nil
 }
 
 // GetByDomain returns a tenant based on its domain
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
-	tenant := models.Tenant{}
+	tenant := dbTenant{}
 
 	err := s.DB.Get(&tenant, "SELECT id, name, subdomain, cname FROM tenants WHERE subdomain = $1 OR cname = $2", extractSubdomain(domain), domain)
 	if err == sql.ErrNoRows {
@@ -53,7 +69,7 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return &tenant, nil
+	return tenant.toModel(), nil
 }
 
 func extractSubdomain(domain string) string {

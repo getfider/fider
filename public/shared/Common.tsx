@@ -3,7 +3,7 @@ import * as moment from "moment";
 import md5 = require("md5");
 import { AxiosError, AxiosResponse } from "axios";
 import { get, getCurrentUser } from "../storage";
-import { User } from "../models";
+import { User, IdeaResponse } from "../models";
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : "";
@@ -59,21 +59,19 @@ export const IdeaStatusRibbon = (props: { status: number }) => {
 
 interface IdeaResponseProps {
   status: number;
-  user: User;
-  response?: string;
-  createdOn?: Date;
+  response: IdeaResponse;
 }
 
-export const IdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  if (props.createdOn) {
+export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
+  if (props.response) {
     return <div className="fdr-response item ui raised segment">
             <IdeaStatusRibbon status={props.status} />
             <div className="info">
-              <Gravatar email={props.user.email}/> <u>{props.user.name}</u>
-              <span title={props.createdOn.toString()}>{ moment(props.createdOn).fromNow() }</span>
+              <Gravatar email={props.response.user.email}/> <u>{props.response.user.name}</u>
+              <span title={props.response.createdOn.toString()}>{ moment(props.response.createdOn).fromNow() }</span>
             </div>
             <div className="content">
-              <MultiLineText text={ props.response } />
+              <MultiLineText text={ props.response.text } />
             </div>
           </div>;
   }

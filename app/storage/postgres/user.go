@@ -10,6 +10,42 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
+type dbUser struct {
+	ID             sql.NullInt64  `db:"id"`
+	Name           sql.NullString `db:"name"`
+	Email          sql.NullString `db:"email"`
+	Tenant         *dbTenant      `db:"tenant"`
+	Role           sql.NullInt64  `db:"role"`
+	Providers      []*dbUserProvider
+	SupportedIdeas []int
+}
+
+type dbUserProvider struct {
+	Name sql.NullString `db:"provider"`
+	UID  sql.NullString `db:"provider_uid"`
+}
+
+func (u *dbUser) toModel() *models.User {
+	user := &models.User{
+		ID:             int(u.ID.Int64),
+		Name:           u.Name.String,
+		Email:          u.Email.String,
+		Tenant:         u.Tenant.toModel(),
+		SupportedIdeas: u.SupportedIdeas,
+		Role:           int(u.Role.Int64),
+		Providers:      make([]*models.UserProvider, len(u.Providers)),
+	}
+
+	for i, p := range u.Providers {
+		user.Providers[i] = &models.UserProvider{
+			Name: p.Name.String,
+			UID:  p.UID.String,
+		}
+	}
+
+	return user
+}
+
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
 	DB *dbx.Database
@@ -56,7 +92,7 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 
 // GetByID returns a user based on given id
 func getUser(db *dbx.Database, filter string, args ...interface{}) (*models.User, error) {
-	user := models.User{}
+	user := dbUser{}
 	err := db.Get(&user, "SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
@@ -74,5 +110,5 @@ func getUser(db *dbx.Database, filter string, args ...interface{}) (*models.User
 		return nil, err
 	}
 
-	return &user, nil
+	return user.toModel(), nil
 }

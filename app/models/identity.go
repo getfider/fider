@@ -1,37 +1,33 @@
 package models
 
 import jwt "github.com/dgrijalva/jwt-go"
-import "database/sql"
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID        int            `json:"id" db:"id"`
-	Name      string         `json:"name" db:"name"`
-	Subdomain string         `json:"subdomain" db:"subdomain"`
-	CNAME     sql.NullString `json:"cname" db:"cname"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Subdomain string `json:"subdomain"`
+	CNAME     string `json:"cname"`
 }
 
 //User represents an user inside our application
 type User struct {
-	ID             int             `json:"id" db:"id"`
-	Name           string          `json:"name" db:"name"`
-	Email          string          `json:"email" db:"email"`
-	Tenant         *Tenant         `json:"tenant" db:"tenant"`
-	Role           Role            `json:"role" db:"role"`
+	ID             int             `json:"id"`
+	Name           string          `json:"name"`
+	Email          string          `json:"email"`
+	Tenant         *Tenant         `json:"tenant"`
+	Role           int             `json:"role"`
 	Providers      []*UserProvider `json:"providers"`
 	SupportedIdeas []int           `json:"supportedIdeas"`
 }
 
-//Role represents what the user can do inside its tenant
-type Role int
-
 var (
 	//RoleVisitor is the basic role for every user
-	RoleVisitor = Role(1)
+	RoleVisitor = 1
 	//RoleMember has limited access to administrative console
-	RoleMember = Role(2)
+	RoleMember = 2
 	//RoleAdministrator has full access to administrative console
-	RoleAdministrator = Role(3)
+	RoleAdministrator = 3
 )
 
 //HasProvider returns true if current user has given provider registered
@@ -46,8 +42,8 @@ func (u *User) HasProvider(provider string) bool {
 
 //UserProvider represents the relashionship between an User and an Authentication provide
 type UserProvider struct {
-	Name string `json:"name" db:"provider"`
-	UID  string `json:"uid" db:"provider_uid"`
+	Name string `json:"name"`
+	UID  string `json:"uid"`
 }
 
 //FiderClaims represents what goes into JWT tokens

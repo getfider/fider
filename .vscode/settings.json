@@ -27,8 +27,6 @@
     "vendor": true
   },
   "vsicons.presets.angular": true,
-  "go.coverageOptions": "showBothCoveredAndUncoveredCode",
-  "go.coverOnSave": true,
   "go.testEnvVars": {
     "GO_ENV": "test",
     "HOST_MODE": "multi",

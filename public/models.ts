@@ -26,7 +26,7 @@ export interface Idea {
 }
 
 export interface IdeaResponse {
-  userId: number;
+  user: User;
   text: string;
   createdOn: Date;
 }
