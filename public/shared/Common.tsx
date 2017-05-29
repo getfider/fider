@@ -57,7 +57,9 @@ interface IdeaResponseProps {
 }
 
 export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  if (props.response) {
+  const metadata = IdeaStatusMetadata[props.status];
+
+  if (props.response && metadata.showStatus) {
     return <div className="fdr-response item ui raised segment">
             <IdeaStatusRibbon status={props.status} />
             <div className="info">

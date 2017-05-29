@@ -32,7 +32,7 @@ export class Header extends React.Component<{}, {}> {
                             <div className="item">
                                 <b>{ this.user.email }</b>
                             </div>
-                            {   this.isMember() &&
+                            {   this.isStaff() &&
                                 <div className="item">
                                     <a href="/admin">
                                         Administration
@@ -67,7 +67,7 @@ export class Header extends React.Component<{}, {}> {
                </div>;
     }
 
-    private isMember() {
+    private isStaff() {
         return this.user.role >= 2;
     }
 }

@@ -7,6 +7,7 @@ import { CommentInput } from "../shared/CommentInput";
 import { Gravatar, MultiLineText, ShowIdeaResponse } from "../shared/Common";
 import { SocialSignInButton } from "../shared/SocialSignInButton";
 import { SupportCounter } from "../shared/SupportCounter";
+import { RespondForm } from "../shared/RespondForm";
 
 import { Footer } from "../shared/Footer";
 import { Header } from "../shared/Header";
@@ -44,6 +45,10 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
           </div>
         ) : <p>No comments yet.</p>;
 
+        const respond = <div className="ui blue labeled submit icon button false">
+                          <i className="icon announcement"></i>Respond
+                        </div>;
+
         return <div>
                   <Header />
                   <div className="ui container">
@@ -67,6 +72,8 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     <MultiLineText text={ this.idea.description } />
 
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
+                    <div className="ui hidden divider"></div>
+                    <RespondForm idea={ this.idea } />
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>
@@ -76,5 +83,9 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                   </div>
                   <Footer />
                </div>;
+    }
+
+    private isStaff() {
+        return this.user.role >= 2;
     }
 }

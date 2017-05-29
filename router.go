@@ -51,6 +51,7 @@ func GetMainEngine(ctx *AppServices) *web.Engine {
 
 		private.Post("/api/ideas", handlers.Handlers(ctx.Idea).PostIdea())
 		private.Post("/api/ideas/:number/comments", handlers.Handlers(ctx.Idea).PostComment())
+		private.Post("/api/ideas/:number/status", handlers.Handlers(ctx.Idea).SetResponse())
 		private.Post("/api/ideas/:number/support", handlers.Handlers(ctx.Idea).AddSupporter())
 		private.Post("/api/ideas/:number/unsupport", handlers.Handlers(ctx.Idea).RemoveSupporter())
 	}

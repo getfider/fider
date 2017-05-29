@@ -135,6 +135,41 @@ func (h AllHandlers) PostComment() web.HandlerFunc {
 	}
 }
 
+type setResponseInput struct {
+	Status int    `json:"status"`
+	Text   string `json:"text"`
+}
+
+// SetResponse changes current idea staff response
+func (h AllHandlers) SetResponse() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(setResponseInput)
+		if err := c.Bind(input); err != nil {
+			return c.Failure(err)
+		}
+
+		ideaNumber, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		if err != nil {
+			if err == app.ErrNotFound {
+				return c.NotFound()
+			}
+			return c.Failure(err)
+		}
+
+		err = h.ideas.SetResponse(c.Tenant().ID, idea.ID, input.Text, c.User().ID, input.Status)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.JSON(200, echo.Map{})
+	}
+}
+
 // AddSupporter adds current user to given idea list of supporters
 func (h AllHandlers) AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
