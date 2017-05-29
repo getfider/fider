@@ -1,6 +1,8 @@
 package inmemory
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 )
@@ -60,7 +62,7 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
+func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
 	for _, idea := range s.ideas {
 		if idea.ID == ideaID {
 			idea.TotalSupporters = idea.TotalSupporters + 1
@@ -70,10 +72,24 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
+func (s *IdeaStorage) RemoveSupporter(tenantID, userID, ideaID int) error {
 	for _, idea := range s.ideas {
 		if idea.ID == ideaID {
 			idea.TotalSupporters = idea.TotalSupporters - 1
+		}
+	}
+	return nil
+}
+
+// SetResponse changes current idea response
+func (s *IdeaStorage) SetResponse(tenantID, ideaID int, text string, userID, status int) error {
+	for _, idea := range s.ideas {
+		if idea.ID == ideaID {
+			idea.Response = &models.IdeaResponse{
+				Text:      text,
+				User:      &models.User{ID: userID},
+				CreatedOn: time.Now(),
+			}
 		}
 	}
 	return nil

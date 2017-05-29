@@ -206,7 +206,15 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
+func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
+	idea, err := s.GetByID(tenantID, ideaID)
+	if err != nil {
+		return err
+	}
+	if idea.Status >= models.IdeaCompleted {
+		return nil
+	}
+
 	alreadySupported, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
 	if err != nil {
 		return err
@@ -235,7 +243,16 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
+func (s *IdeaStorage) RemoveSupporter(tenantID, userID, ideaID int) error {
+	idea, err := s.GetByID(tenantID, ideaID)
+	if err != nil {
+		return err
+	}
+
+	if idea.Status >= models.IdeaCompleted {
+		return nil
+	}
+
 	didSupport, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
 	if err != nil {
 		return err
@@ -261,4 +278,12 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 	}
 
 	return tx.Commit()
+}
+
+// SetResponse changes current idea response
+func (s *IdeaStorage) SetResponse(tenantID, ideaID int, text string, userID, status int) error {
+	if err := s.DB.Execute(`UPDATE ideas SET response = $3, response_date = $4, response_user_id = $5, status = $6 WHERE id = $1 and tenant_id = $2`, ideaID, tenantID, text, time.Now(), userID, status); err != nil {
+		return err
+	}
+	return nil
 }

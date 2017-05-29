@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as React from "react";
-import { Idea, User } from "../models";
+import { Idea, User, IdeaStatusMetadata } from "../models";
 import * as storage from "../storage";
 import { SocialSignInList } from "./SocialSignInList";
 
@@ -61,6 +61,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public render() {
+        const metadata = IdeaStatusMetadata[this.props.idea.status];
+
         const support = <div className="ui mini violet inverted animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content">Want</div>
@@ -72,9 +74,11 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const undo = <div className="ui mini violet animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content"><i className="heart icon"></i></div>
-                    <div className="hidden content">
-                        Undo
-                    </div>
+                    <div className="hidden content">Undo</div>
+                </div>;
+
+        const disabled = <div className="ui disabled mini animated button">
+                    <div className="visible content">~</div>
                 </div>;
 
         return <div>
@@ -83,7 +87,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                             <div className="value">
                                 { this.state.total }
                             </div>
-                            {  this.state.supported ? undo : support }
+                            { metadata.closed ? disabled : this.state.supported ? undo : support }
                         </div>
                     </div>
                     <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">

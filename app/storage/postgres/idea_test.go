@@ -145,10 +145,10 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupporter(300, idea.ID)
+	err := ideas.AddSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(301, idea.ID)
+	err = ideas.AddSupporter(300, 301, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)
@@ -165,10 +165,10 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupporter(300, idea.ID)
+	err := ideas.AddSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(300, idea.ID)
+	err = ideas.AddSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)
@@ -185,10 +185,10 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupporter(300, idea.ID)
+	err := ideas.AddSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(300, idea.ID)
+	err = ideas.RemoveSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)
@@ -205,16 +205,67 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	ideas := &postgres.IdeaStorage{DB: db}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
-	err := ideas.AddSupporter(300, idea.ID)
+	err := ideas.AddSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(300, idea.ID)
+	err = ideas.RemoveSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(300, idea.ID)
+	err = ideas.RemoveSupporter(300, 300, idea.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(300, 1)
 	Expect(err).To(BeNil())
 	Expect(dbIdea.TotalSupporters).To(Equal(0))
+}
+
+func TestIdeaStorage_SetResponse(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
+	err := ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaStarted)
+
+	Expect(err).To(BeNil())
+
+	idea, _ = ideas.GetByID(300, idea.ID)
+	Expect(idea.Response.Text).To(Equal("We liked this idea"))
+	Expect(idea.Status).To(Equal(models.IdeaStarted))
+	Expect(idea.Response.User.ID).To(Equal(300))
+}
+
+func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
+	ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaCompleted)
+	ideas.AddSupporter(300, 300, idea.ID)
+
+	dbIdea, err := ideas.GetByNumber(300, 1)
+	Expect(err).To(BeNil())
+	Expect(dbIdea.TotalSupporters).To(Equal(0))
+}
+
+func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	ideas := &postgres.IdeaStorage{DB: db}
+	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
+	ideas.AddSupporter(300, 300, idea.ID)
+	ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaCompleted)
+	ideas.RemoveSupporter(300, 300, idea.ID)
+
+	dbIdea, err := ideas.GetByNumber(300, 1)
+	Expect(err).To(BeNil())
+	Expect(dbIdea.TotalSupporters).To(Equal(1))
 }

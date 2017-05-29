@@ -160,9 +160,9 @@ func TestRemoveSupporterHandler(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	ideas.Save(1, 1, "The Idea #1", "The Description #1")
-	ideas.AddSupporter(1, 1)
-	ideas.AddSupporter(2, 1)
-	ideas.AddSupporter(3, 1)
+	ideas.AddSupporter(1, 1, 1)
+	ideas.AddSupporter(1, 2, 1)
+	ideas.AddSupporter(1, 3, 1)
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 2, Name: "Arya"})

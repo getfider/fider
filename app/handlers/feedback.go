@@ -57,7 +57,7 @@ func (h AllHandlers) PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := h.ideas.AddSupporter(c.User().ID, idea.ID); err != nil {
+		if err := h.ideas.AddSupporter(c.Tenant().ID, c.User().ID, idea.ID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -149,7 +149,7 @@ func (h AllHandlers) RemoveSupporter() web.HandlerFunc {
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, h AllHandlers, addOrRemove func(userId, ideaId int) error) error {
+func addOrRemoveSupporter(c web.Context, h AllHandlers, addOrRemove func(tenantId, userId, ideaId int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
@@ -163,7 +163,7 @@ func addOrRemoveSupporter(c web.Context, h AllHandlers, addOrRemove func(userId,
 		return c.Failure(err)
 	}
 
-	err = addOrRemove(c.User().ID, idea.ID)
+	err = addOrRemove(c.Tenant().ID, c.User().ID, idea.ID)
 	if err != nil {
 		return c.Failure(err)
 	}

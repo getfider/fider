@@ -3,7 +3,7 @@ import * as moment from "moment";
 import md5 = require("md5");
 import { AxiosError, AxiosResponse } from "axios";
 import { get, getCurrentUser } from "../storage";
-import { User, IdeaResponse } from "../models";
+import { User, IdeaResponse, IdeaStatusMetadata } from "../models";
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : "";
@@ -47,14 +47,8 @@ export const EnvironmentInfo = () => {
 };
 
 export const IdeaStatusRibbon = (props: { status: number }) => {
-  const statusText =  props.status === 1 ? "Started" :
-                      props.status === 2 ? "Completed" :
-                      props.status === 3 ? "Declined" : "Unknown";
-  const color =  props.status === 1 ? "blue" :
-                 props.status === 2 ? "green" :
-                 props.status === 3 ? "red" : "black";
-
-  return <span className={`ui ribbon label ${color}`}>{ statusText }</span>;
+  const metadata = IdeaStatusMetadata[props.status];
+  return <span className={`ui ribbon label ${metadata.color}`}>{ metadata.title }</span>;
 };
 
 interface IdeaResponseProps {
