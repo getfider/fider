@@ -17,12 +17,15 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
 	now := time.Now()
 
-	db.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
-	db.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	dbIdeas, err := ideas.GetAll(300)
 
 	Expect(err).To(BeNil())
@@ -51,10 +54,13 @@ func TestIdeaStorage_SaveAndGet(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	trx.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, err := ideas.Save(1, 1, "My new idea", "with this description")
 	Expect(err).To(BeNil())
 	Expect(idea.ID).To(Equal(1))
@@ -79,7 +85,10 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	dbIdea, err := ideas.GetByID(1, 1)
 
 	Expect(err).To(Equal(app.ErrNotFound))
@@ -92,10 +101,13 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	db.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
-	db.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	trx.Execute("INSERT INTO users (name, email, created_on, role) VALUES ('Jon Snow','jon.snow@got.com', now(), 2)")
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(1, 1, "My new idea", "with this description")
 	ideas.AddComment(1, idea.ID, "Comment #1")
 	ideas.AddComment(1, idea.ID, "Comment #2")
@@ -114,7 +126,10 @@ func TestIdeaStorage_SaveAndGet_DifferentTenants(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	ideas.Save(300, 300, "My new idea", "with this description")
 	ideas.Save(400, 400, "My other idea", "with other description")
 
@@ -142,7 +157,10 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
 	err := ideas.AddSupporter(300, 300, idea.ID)
@@ -162,7 +180,10 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
 	err := ideas.AddSupporter(300, 300, idea.ID)
@@ -182,7 +203,10 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
 	err := ideas.AddSupporter(300, 300, idea.ID)
@@ -202,7 +226,10 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 
 	err := ideas.AddSupporter(300, 300, idea.ID)
@@ -225,7 +252,10 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 	err := ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaStarted)
 
@@ -243,7 +273,10 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 	ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaCompleted)
 	ideas.AddSupporter(300, 300, idea.ID)
@@ -259,7 +292,10 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	ideas := &postgres.IdeaStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := &postgres.IdeaStorage{Trx: trx}
 	idea, _ := ideas.Save(300, 300, "My new idea", "with this description")
 	ideas.AddSupporter(300, 300, idea.ID)
 	ideas.SetResponse(300, idea.ID, "We liked this idea", 300, models.IdeaCompleted)

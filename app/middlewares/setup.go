@@ -21,9 +21,9 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 
 			c.SetServices(&app.Services{
 				OAuth:   &oauth.HTTPService{},
-				Ideas:   &postgres.IdeaStorage{DB: db},
-				Users:   &postgres.UserStorage{DB: db},
-				Tenants: &postgres.TenantStorage{DB: db},
+				Ideas:   &postgres.IdeaStorage{Trx: tx},
+				Users:   &postgres.UserStorage{Trx: tx},
+				Tenants: &postgres.TenantStorage{Trx: tx},
 			})
 
 			defer func() {

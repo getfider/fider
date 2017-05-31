@@ -31,111 +31,17 @@ type Database struct {
 	conn *sql.DB
 }
 
-// Execute given SQL command
-func (db Database) Execute(command string, args ...interface{}) error {
-	_, err := db.conn.Exec(command, args...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// QueryIntArray executes given SQL command and return first column as int
-func (db Database) QueryIntArray(command string, args ...interface{}) ([]int, error) {
-	values := make([]int, 0)
-	var value int
-
-	rows, err := db.conn.Query(command, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	if rows != nil {
-		defer rows.Close()
-		for rows.Next() {
-			err := rows.Scan(&value)
-			if err != nil {
-				return nil, err
-			}
-			values = append(values, value)
-		}
-	}
-
-	return values, nil
-}
-
-// Query the database with given SQL command
-func (db Database) Query(command string, args ...interface{}) (*sql.Rows, error) {
-	return db.conn.Query(command, args...)
-}
-
-// QueryRow the database with given SQL command and returns only one row
-func (db Database) QueryRow(command string, args ...interface{}) *sql.Row {
-	return db.conn.QueryRow(command, args...)
-}
-
-// Exists returns true if at least one record is found
-func (db Database) Exists(command string, args ...interface{}) (bool, error) {
-	rows, err := db.conn.Query(command, args...)
-	if rows != nil {
-		defer rows.Close()
-		return rows.Next(), nil
-	}
-	return false, err
-}
-
-// Count returns number of rows
-func (db Database) Count(command string, args ...interface{}) (int, error) {
-	rows, err := db.conn.Query(command, args...)
-	defer rows.Close()
-	count := 0
-	for rows != nil && rows.Next() {
-		count++
-	}
-	return count, err
-}
-
 // Begin returns a new SQL transaction
-func (db Database) Begin() (*sql.Tx, error) {
-	return db.conn.Begin()
+func (db Database) Begin() (*Trx, error) {
+	tx, err := db.conn.Begin()
+	return &Trx{tx: tx}, err
 }
 
-// Get first row and bind to given data
-func (db Database) Get(data interface{}, command string, args ...interface{}) error {
-	rows, err := db.Query(command, args...)
-	if err != nil {
-		return err
+// Close connection to database
+func (db Database) Close() error {
+	if db.conn != nil {
+		return db.conn.Close()
 	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return fill(rows, data)
-	}
-
-	return sql.ErrNoRows
-}
-
-//Select all matched rows bind to given data
-func (db Database) Select(data interface{}, command string, args ...interface{}) error {
-	rows, err := db.Query(command, args...)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	sliceType := reflect.TypeOf(data).Elem()
-	items := reflect.New(sliceType).Elem()
-	itemType := sliceType.Elem().Elem()
-	for rows.Next() {
-		item := reflect.New(itemType)
-		err = fill(rows, item.Interface())
-		if err != nil {
-			return err
-		}
-		items = reflect.Append(items, item)
-	}
-
-	reflect.Indirect(reflect.ValueOf(data)).Set(items)
 	return nil
 }
 
@@ -191,21 +97,13 @@ func fill(rows *sql.Rows, data interface{}) error {
 	return nil
 }
 
-// Close connection to database
-func (db Database) Close() error {
-	if db.conn != nil {
-		return db.conn.Close()
-	}
-	return nil
-}
-
 func (db Database) load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
 		panic(err)
 	}
 
-	err = db.Execute(string(content))
+	_, err = db.conn.Exec(string(content))
 	if err != nil {
 		panic(err)
 	}
@@ -238,4 +136,122 @@ func (db Database) Migrate() {
 	} else {
 		fmt.Printf("Migrations finished with success.\n")
 	}
+}
+
+//Trx represents a Database transaction
+type Trx struct {
+	tx *sql.Tx
+}
+
+// Query the database with given SQL command
+func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
+	return trx.tx.Query(command, args...)
+}
+
+// Get first row and bind to given data
+func (trx Trx) Get(data interface{}, command string, args ...interface{}) error {
+	rows, err := trx.Query(command, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		return fill(rows, data)
+	}
+
+	return sql.ErrNoRows
+}
+
+// Execute given SQL command
+func (trx Trx) Execute(command string, args ...interface{}) error {
+	_, err := trx.tx.Exec(command, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// QueryIntArray executes given SQL command and return first column as int
+func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
+	values := make([]int, 0)
+	var value int
+
+	rows, err := trx.tx.Query(command, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows != nil {
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&value)
+			if err != nil {
+				return nil, err
+			}
+			values = append(values, value)
+		}
+	}
+
+	return values, nil
+}
+
+// QueryRow the database with given SQL command and returns only one row
+func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
+	return trx.tx.QueryRow(command, args...)
+}
+
+// Exists returns true if at least one record is found
+func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
+	rows, err := trx.tx.Query(command, args...)
+	if rows != nil {
+		defer rows.Close()
+		return rows.Next(), nil
+	}
+	return false, err
+}
+
+// Count returns number of rows
+func (trx Trx) Count(command string, args ...interface{}) (int, error) {
+	rows, err := trx.tx.Query(command, args...)
+	defer rows.Close()
+	count := 0
+	for rows != nil && rows.Next() {
+		count++
+	}
+	return count, err
+}
+
+//Select all matched rows bind to given data
+func (trx Trx) Select(data interface{}, command string, args ...interface{}) error {
+	rows, err := trx.tx.Query(command, args...)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	sliceType := reflect.TypeOf(data).Elem()
+	items := reflect.New(sliceType).Elem()
+	itemType := sliceType.Elem().Elem()
+	for rows.Next() {
+		item := reflect.New(itemType)
+		err = fill(rows, item.Interface())
+		if err != nil {
+			return err
+		}
+		items = reflect.Append(items, item)
+	}
+
+	reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	return nil
+}
+
+// Commit current transaction
+func (trx Trx) Commit() error {
+	return trx.tx.Commit()
+}
+
+// Rollback current transaction
+func (trx Trx) Rollback() error {
+	return trx.tx.Rollback()
 }

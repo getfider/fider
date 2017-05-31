@@ -45,9 +45,11 @@ func TestBind_SimpleStruct(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 	u := user{}
 
-	err := db.Get(&u, "SELECT id, name FROM users LIMIT 1")
+	err := trx.Get(&u, "SELECT id, name FROM users LIMIT 1")
 	Expect(err).To(BeNil())
 	Expect(u.ID).To(Equal(300))
 	Expect(u.Name).To(Equal("Jon Snow"))
@@ -59,9 +61,11 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 	u := userProvider{}
 
-	err := db.Get(&u, `SELECT up.provider,
+	err := trx.Get(&u, `SELECT up.provider,
 														up.user_id,
 														u.tenant_id AS user_tenant_id
 										 FROM user_providers up
@@ -72,7 +76,6 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 	Expect(u.Provider).To(Equal("facebook"))
 	Expect(u.User.ID).To(Equal(400))
 	Expect(u.User.Tenant.ID).To(Equal(400))
-
 }
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
@@ -80,9 +83,11 @@ func TestBind_SimpleStruct_SingleField(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 	u := user{}
 
-	err := db.Get(&u, "SELECT name FROM users LIMIT 1")
+	err := trx.Get(&u, "SELECT name FROM users LIMIT 1")
 	Expect(err).To(BeNil())
 	Expect(u.ID).To(Equal(0))
 	Expect(u.Name).To(Equal("Jon Snow"))
@@ -93,9 +98,11 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 	u := []*user{}
 
-	err := db.Select(&u, "SELECT name FROM users WHERE tenant_id = 300")
+	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 300")
 	Expect(err).To(BeNil())
 
 	Expect(len(u)).To(Equal(2))
@@ -108,9 +115,12 @@ func TestBind_NestedStruct(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
 	u := userWithTenant{}
 
-	err := db.Get(&u, `
+	err := trx.Get(&u, `
 		SELECT u.id, u.name, t.id AS tenant_id, t.name AS tenant_name
 		FROM users u
 		INNER JOIN tenants t
@@ -131,9 +141,12 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
 	u := []*userWithTenant{}
 
-	err := db.Select(&u, `
+	err := trx.Select(&u, `
 		SELECT u.id, u.name, t.id AS tenant_id, t.name AS tenant_name
 		FROM users u
 		INNER JOIN tenants t
@@ -146,6 +159,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 	Expect(*u[0].Tenant.Name).To(Equal("Demonstration"))
 	Expect(u[1].Name).To(Equal("Arya Stark"))
 	Expect(*u[1].Tenant.Name).To(Equal("Demonstration"))
+
 }
 
 func TestExists_True(t *testing.T) {
@@ -153,7 +167,10 @@ func TestExists_True(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	exists, err := db.Exists("SELECT 1 FROM users WHERE id = 300")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 300")
 	Expect(err).To(BeNil())
 	Expect(exists).To(BeTrue())
 }
@@ -163,7 +180,10 @@ func TestExists_False(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	exists, err := db.Exists("SELECT 1 FROM users WHERE id = 0")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 0")
 	Expect(err).To(BeNil())
 	Expect(exists).To(BeFalse())
 }
@@ -173,7 +193,10 @@ func TestCount(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	count, err := db.Count("SELECT 1 FROM users WHERE id = 300")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	count, err := trx.Count("SELECT 1 FROM users WHERE id = 300")
 	Expect(err).To(BeNil())
 	Expect(count).To(Equal(1))
 }
@@ -183,7 +206,10 @@ func TestCount_Empty(t *testing.T) {
 	db, _ := dbx.New()
 	defer db.Close()
 
-	count, err := db.Count("SELECT 1 FROM users WHERE id = 0")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	count, err := trx.Count("SELECT 1 FROM users WHERE id = 0")
 	Expect(err).To(BeNil())
 	Expect(count).To(Equal(0))
 }

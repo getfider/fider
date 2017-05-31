@@ -67,7 +67,7 @@ func (c *dbComment) toModel() *models.Comment {
 
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
-	DB *dbx.Database
+	Trx *dbx.Trx
 }
 
 var (
@@ -98,7 +98,7 @@ var (
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.DB.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
+	err := s.Trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
 func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", tenantID, ideaID)
+	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", tenantID, ideaID)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -128,7 +128,7 @@ func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
 func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.DB.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", tenantID, number)
+	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", tenantID, number)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -141,7 +141,7 @@ func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
 // GetCommentsByIdeaID returns all coments from given idea
 func (s *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error) {
 	comments := []*dbComment{}
-	err := s.DB.Select(&comments,
+	err := s.Trx.Select(&comments,
 		`SELECT c.id, 
 				c.content, 
 				c.created_on, 
@@ -169,40 +169,28 @@ func (s *IdeaStorage) GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comme
 
 // Save a new idea in the database
 func (s *IdeaStorage) Save(tenantID, userID int, title, description string) (*models.Idea, error) {
-	tx, err := s.DB.Begin()
-	if err != nil {
-		return nil, err
-	}
-
 	idea := new(models.Idea)
 	idea.Title = title
 	idea.Description = description
 
-	row := tx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
+	row := s.Trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
 						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
 						RETURNING id`, title, slug.Make(title), description, tenantID, userID, time.Now())
-	if err = row.Scan(&idea.ID); err != nil {
-		tx.Rollback()
+	if err := row.Scan(&idea.ID); err != nil {
 		return nil, err
 	}
 
-	return idea, tx.Commit()
+	return idea, nil
 }
 
 // AddComment places a new comment on an idea
 func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
-	tx, err := s.DB.Begin()
-	if err != nil {
-		return 0, err
-	}
-
 	var id int
-	if err = tx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", ideaID, content, userID, time.Now()).Scan(&id); err != nil {
-		tx.Rollback()
+	if err := s.Trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", ideaID, content, userID, time.Now()).Scan(&id); err != nil {
 		return 0, err
 	}
 
-	return id, tx.Commit()
+	return id, nil
 }
 
 // AddSupporter adds user to idea list of supporters
@@ -215,7 +203,7 @@ func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
 		return nil
 	}
 
-	alreadySupported, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	alreadySupported, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
 	if err != nil {
 		return err
 	}
@@ -224,22 +212,15 @@ func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
 		return nil
 	}
 
-	tx, err := s.DB.Begin()
-	if err != nil {
+	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, ideaID); err != nil {
 		return err
 	}
 
-	if _, err := tx.Exec(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, ideaID); err != nil {
-		tx.Rollback()
+	if err := s.Trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, ideaID, time.Now()); err != nil {
 		return err
 	}
 
-	if _, err := tx.Exec(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, ideaID, time.Now()); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
+	return nil
 }
 
 // RemoveSupporter removes user from idea list of supporters
@@ -253,7 +234,7 @@ func (s *IdeaStorage) RemoveSupporter(tenantID, userID, ideaID int) error {
 		return nil
 	}
 
-	didSupport, err := s.DB.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	didSupport, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
 	if err != nil {
 		return err
 	}
@@ -262,27 +243,20 @@ func (s *IdeaStorage) RemoveSupporter(tenantID, userID, ideaID int) error {
 		return nil
 	}
 
-	tx, err := s.DB.Begin()
-	if err != nil {
+	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, ideaID); err != nil {
 		return err
 	}
 
-	if _, err := tx.Exec(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, ideaID); err != nil {
-		tx.Rollback()
+	if err := s.Trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, ideaID); err != nil {
 		return err
 	}
 
-	if _, err := tx.Exec(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, ideaID); err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
+	return nil
 }
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(tenantID, ideaID int, text string, userID, status int) error {
-	if err := s.DB.Execute(`UPDATE ideas SET response = $3, response_date = $4, response_user_id = $5, status = $6 WHERE id = $1 and tenant_id = $2`, ideaID, tenantID, text, time.Now(), userID, status); err != nil {
+	if err := s.Trx.Execute(`UPDATE ideas SET response = $3, response_date = $4, response_user_id = $5, status = $6 WHERE id = $1 and tenant_id = $2`, ideaID, tenantID, text, time.Now(), userID, status); err != nil {
 		return err
 	}
 	return nil

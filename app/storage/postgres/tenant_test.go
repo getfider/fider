@@ -16,7 +16,10 @@ func TestTenantStorage_First(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	tenants := &postgres.TenantStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := &postgres.TenantStorage{Trx: trx}
 	tenant, err := tenants.First()
 
 	Expect(err).To(BeNil())
@@ -29,9 +32,12 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	db.Execute("TRUNCATE tenants CASCADE")
+	trx, _ := db.Begin()
+	defer trx.Rollback()
 
-	tenants := &postgres.TenantStorage{DB: db}
+	trx.Execute("TRUNCATE tenants CASCADE")
+
+	tenants := &postgres.TenantStorage{Trx: trx}
 	tenant, err := tenants.First()
 
 	Expect(err).To(Equal(app.ErrNotFound))
@@ -44,7 +50,10 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	tenants := &postgres.TenantStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := &postgres.TenantStorage{Trx: trx}
 	tenant, err := tenants.GetByDomain("mydomain")
 
 	Expect(tenant).To(BeNil())
@@ -57,7 +66,10 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	tenants := &postgres.TenantStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := &postgres.TenantStorage{Trx: trx}
 	tenants.Add(&models.Tenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
@@ -78,7 +90,10 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 	db.Seed()
 	defer db.Close()
 
-	tenants := &postgres.TenantStorage{DB: db}
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := &postgres.TenantStorage{Trx: trx}
 	tenants.Add(&models.Tenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
