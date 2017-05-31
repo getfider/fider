@@ -30,7 +30,6 @@ export const IdeaStarted = 1;
 export const IdeaCompleted = 2;
 export const IdeaDeclined = 3;
 
-
 export const IdeaStatusMetadata: { [key: number]: any} = { };
 
 IdeaStatusMetadata[IdeaNew] = {
