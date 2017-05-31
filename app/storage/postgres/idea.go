@@ -67,7 +67,8 @@ func (c *dbComment) toModel() *models.Comment {
 
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
-	Trx *dbx.Trx
+	Trx    *dbx.Trx
+	Tenant *models.Tenant
 }
 
 var (
@@ -96,9 +97,9 @@ var (
 )
 
 // GetAll returns all tenant ideas
-func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
+func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.Trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", tenantID)
+	err := s.Trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", s.Tenant.ID)
 	if err != nil {
 		return nil, err
 	}

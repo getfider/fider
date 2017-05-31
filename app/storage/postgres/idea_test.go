@@ -11,6 +11,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var demoTenant = &models.Tenant{
+	ID:   300,
+	Name: "Demonstration",
+}
+
 func TestIdeaStorage_GetAll(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
@@ -25,8 +30,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
 	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
 
-	ideas := &postgres.IdeaStorage{Trx: trx}
-	dbIdeas, err := ideas.GetAll(300)
+	ideas := &postgres.IdeaStorage{Trx: trx, Tenant: demoTenant}
+	dbIdeas, err := ideas.GetAll()
 
 	Expect(err).To(BeNil())
 	Expect(dbIdeas).To(HaveLen(2))

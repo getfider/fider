@@ -19,10 +19,8 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 				return err
 			}
 
+			c.SetActiveTransaction(tx)
 			c.SetServices(&app.Services{
-				OAuth:   &oauth.HTTPService{},
-				Ideas:   &postgres.IdeaStorage{Trx: tx},
-				Users:   &postgres.UserStorage{Trx: tx},
 				Tenants: &postgres.TenantStorage{Trx: tx},
 			})
 
@@ -38,12 +36,30 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 					c.Error(err)
 				}
 			}()
+
 			err = next(c)
 			if err == nil {
 				return tx.Commit()
 			}
 			tx.Rollback()
 			return err
+		}
+	}
+}
+
+//AddServices adds services to current context
+func AddServices() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			tx := c.ActiveTransaction()
+			tenant := c.Tenant()
+			services := c.Services()
+			services.OAuth = &oauth.HTTPService{}
+			services.Ideas = &postgres.IdeaStorage{Trx: tx, Tenant: tenant}
+			services.Users = &postgres.UserStorage{Trx: tx}
+			services.Tenants = &postgres.TenantStorage{Trx: tx}
+
+			return next(c)
 		}
 	}
 }

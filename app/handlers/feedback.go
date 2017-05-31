@@ -11,7 +11,7 @@ import (
 // Index is the default home page
 func Index() web.HandlerFunc {
 	return func(c web.Context) error {
-		ideas, err := c.Services().Ideas.GetAll(c.Tenant().ID)
+		ideas, err := c.Services().Ideas.GetAll()
 		if err != nil {
 			return c.Failure(err)
 		}

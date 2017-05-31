@@ -34,6 +34,7 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 	{
 		public.Use(middlewares.Setup(db))
 		public.Use(middlewares.Tenant())
+		public.Use(middlewares.AddServices())
 		public.Use(middlewares.JwtGetter())
 		public.Use(middlewares.JwtSetter())
 
@@ -48,6 +49,7 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 	{
 		private.Use(middlewares.Setup(db))
 		private.Use(middlewares.Tenant())
+		private.Use(middlewares.AddServices())
 		private.Use(middlewares.JwtGetter())
 		private.Use(middlewares.JwtSetter())
 		private.Use(middlewares.IsAuthenticated())
@@ -63,6 +65,7 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 	{
 		auth.Use(middlewares.Setup(db))
 		auth.Use(middlewares.Tenant())
+		auth.Use(middlewares.AddServices())
 
 		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
 		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
@@ -74,6 +77,7 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 	{
 		admin.Use(middlewares.Setup(db))
 		admin.Use(middlewares.Tenant())
+		admin.Use(middlewares.AddServices())
 		admin.Use(middlewares.JwtGetter())
 		admin.Use(middlewares.JwtSetter())
 		admin.Use(middlewares.IsAuthenticated())
