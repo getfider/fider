@@ -8,8 +8,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/oauth"
-	"github.com/getfider/fider/app/storage/postgres"
 	_ "github.com/lib/pq"
 	_ "github.com/mattes/migrate/database/postgres"
 	_ "github.com/mattes/migrate/source/file"
@@ -28,19 +26,13 @@ func main() {
 	}
 	db.Migrate()
 
-	ctx := &AppServices{
-		OAuth:  &oauth.HTTPService{},
-		Idea:   &postgres.IdeaStorage{DB: db},
-		User:   &postgres.UserStorage{DB: db},
-		Tenant: &postgres.TenantStorage{DB: db},
-		Settings: &models.AppSettings{
-			BuildTime:   buildtime,
-			Version:     version,
-			Compiler:    runtime.Version(),
-			Environment: env.Current(),
-		},
+	settings := &models.AppSettings{
+		BuildTime:   buildtime,
+		Version:     version,
+		Compiler:    runtime.Version(),
+		Environment: env.Current(),
 	}
 
-	e := GetMainEngine(ctx)
+	e := GetMainEngine(settings, db)
 	e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
 }

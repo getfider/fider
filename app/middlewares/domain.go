@@ -8,21 +8,21 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage"
 )
 
 // Tenant adds either SingleTenant or MultiTenant to the pipeline
-func Tenant(tenants storage.Tenant) web.MiddlewareFunc {
+func Tenant() web.MiddlewareFunc {
 	if env.IsSingleHostMode() {
-		return SingleTenant(tenants)
+		return SingleTenant()
 	}
-	return MultiTenant(tenants)
+	return MultiTenant()
 }
 
 // SingleTenant inject default tenant into current context
-func SingleTenant(tenants storage.Tenant) web.MiddlewareFunc {
+func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
+			tenants := c.Services().Tenants
 			tenant, err := tenants.First()
 			if err == app.ErrNotFound {
 				tenant = &models.Tenant{
@@ -39,9 +39,10 @@ func SingleTenant(tenants storage.Tenant) web.MiddlewareFunc {
 }
 
 // MultiTenant extract tenant information from hostname and inject it into current context
-func MultiTenant(tenants storage.Tenant) web.MiddlewareFunc {
+func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
+			tenants := c.Services().Tenants
 			hostname := stripPort(c.Request().Host)
 			u, err := url.Parse(c.AuthEndpoint())
 			if err != nil {

@@ -7,16 +7,16 @@ import (
 
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage"
 )
 
 // JwtGetter gets JWT token from cookie and add into context
-func JwtGetter(users storage.User) web.MiddlewareFunc {
+func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := jwt.Decode(cookie.Value); err == nil {
+					users := c.Services().Users
 					if user, err := users.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
 							c.SetUser(user)

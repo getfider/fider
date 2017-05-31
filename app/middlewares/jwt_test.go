@@ -6,6 +6,7 @@ import (
 
 	"net/url"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/mock"
 	"github.com/getfider/fider/app/models"
@@ -19,7 +20,7 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Use(middlewares.JwtGetter(nil))
+	server.Use(middlewares.JwtGetter())
 	status, _ := server.Execute(func(c web.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
@@ -48,13 +49,16 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	users := &inmemory.UserStorage{}
 	users.Register(user)
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{
+		Users: users,
+	})
 	server.Context.SetTenant(tenant)
 	server.Context.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
 	})
 
-	server.Use(middlewares.JwtGetter(users))
+	server.Use(middlewares.JwtGetter())
 	status, response := server.Execute(func(c web.Context) error {
 		return c.String(http.StatusOK, c.User().Name)
 	})
@@ -74,12 +78,15 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	users := &inmemory.UserStorage{}
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 400})
+	server.Context.SetServices(&app.Services{
+		Users: users,
+	})
 	server.Context.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,
 	})
 
-	server.Use(middlewares.JwtGetter(users))
+	server.Use(middlewares.JwtGetter())
 	status, _ := server.Execute(func(c web.Context) error {
 		if c.User() == nil {
 			return c.NoContent(http.StatusNoContent)

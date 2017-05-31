@@ -8,9 +8,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage"
 )
 
 type oauthUserProfile struct {
@@ -19,20 +17,8 @@ type oauthUserProfile struct {
 	Email string
 }
 
-// OAuthHandlers contains multiple oauth HTTP handlers
-type OAuthHandlers struct {
-	tenants storage.Tenant
-	oauth   oauth.Service
-	users   storage.User
-}
-
-// OAuth creates a new OAuthHandlers
-func OAuth(tenants storage.Tenant, oauth oauth.Service, users storage.User) OAuthHandlers {
-	return OAuthHandlers{tenants, oauth, users}
-}
-
-// Callback handles OAuth callbacks
-func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
+// OAuthCallback handles OAuth callbacks
+func OAuthCallback(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 
 		redirect := c.QueryParam("state")
@@ -51,18 +37,19 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 			// should get from context
 			// Single/Multi middleware should handle auth endpoint properly
 			// .Set("AuthEndpoint") is not good as well
-			tenant, err = h.tenants.GetByDomain(stripPort(redirectURL.Host))
+			tenant, err = c.Services().Tenants.GetByDomain(stripPort(redirectURL.Host))
 			if err != nil {
 				return c.Failure(err)
 			}
 		}
 
-		oauthUser, err := h.oauth.GetProfile(c.AuthEndpoint(), provider, code)
+		oauthUser, err := c.Services().OAuth.GetProfile(c.AuthEndpoint(), provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		user, err := h.users.GetByEmail(tenant.ID, oauthUser.Email)
+		users := c.Services().Users
+		user, err := users.GetByEmail(tenant.ID, oauthUser.Email)
 		if err != nil {
 			if err == app.ErrNotFound {
 				user = &models.User{
@@ -78,7 +65,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 					},
 				}
 
-				err = h.users.Register(user)
+				err = users.Register(user)
 				if err != nil {
 					return c.Failure(err)
 				}
@@ -86,7 +73,7 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = h.users.RegisterProvider(user.ID, &models.UserProvider{
+			err = users.RegisterProvider(user.ID, &models.UserProvider{
 				UID:  oauthUser.ID,
 				Name: provider,
 			})
@@ -115,9 +102,9 @@ func (h OAuthHandlers) Callback(provider string) web.HandlerFunc {
 }
 
 // Login handles OAuth logins
-func (h OAuthHandlers) Login(provider string) web.HandlerFunc {
+func Login(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
-		authURL := h.oauth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
+		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }

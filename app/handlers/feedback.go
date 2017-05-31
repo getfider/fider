@@ -5,24 +5,13 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage"
 	"github.com/labstack/echo"
 )
 
-// AllHandlers contains multiple feedback HTTP handlers
-type AllHandlers struct {
-	ideas storage.Idea
-}
-
-// Handlers handles feedback based page
-func Handlers(ideas storage.Idea) AllHandlers {
-	return AllHandlers{ideas}
-}
-
-// List all tenant ideas
-func (h AllHandlers) List() web.HandlerFunc {
+// Index is the default home page
+func Index() web.HandlerFunc {
 	return func(c web.Context) error {
-		ideas, err := h.ideas.GetAll(c.Tenant().ID)
+		ideas, err := c.Services().Ideas.GetAll(c.Tenant().ID)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -39,7 +28,7 @@ type newIdeaInput struct {
 }
 
 // PostIdea creates a new idea on current tenant
-func (h AllHandlers) PostIdea() web.HandlerFunc {
+func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(newIdeaInput)
 		if err := c.Bind(input); err != nil {
@@ -52,12 +41,13 @@ func (h AllHandlers) PostIdea() web.HandlerFunc {
 			})
 		}
 
-		idea, err := h.ideas.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
+		ideas := c.Services().Ideas
+		idea, err := ideas.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := h.ideas.AddSupporter(c.Tenant().ID, c.User().ID, idea.ID); err != nil {
+		if err := ideas.AddSupporter(c.Tenant().ID, c.User().ID, idea.ID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -65,8 +55,8 @@ func (h AllHandlers) PostIdea() web.HandlerFunc {
 	}
 }
 
-// Details shows details of given Idea by id
-func (h AllHandlers) Details() web.HandlerFunc {
+// IdeaDetails shows details of given Idea by id
+func IdeaDetails() web.HandlerFunc {
 	return func(c web.Context) error {
 		tenant := c.Tenant()
 
@@ -75,7 +65,8 @@ func (h AllHandlers) Details() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		idea, err := h.ideas.GetByNumber(tenant.ID, number)
+		ideas := c.Services().Ideas
+		idea, err := ideas.GetByNumber(tenant.ID, number)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -83,7 +74,7 @@ func (h AllHandlers) Details() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := h.ideas.GetCommentsByIdeaID(tenant.ID, idea.ID)
+		comments, err := ideas.GetCommentsByIdeaID(tenant.ID, idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -100,7 +91,7 @@ type newCommentInput struct {
 }
 
 // PostComment creates a new comment on given idea
-func (h AllHandlers) PostComment() web.HandlerFunc {
+func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(newCommentInput)
 		if err := c.Bind(input); err != nil {
@@ -118,7 +109,8 @@ func (h AllHandlers) PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		ideas := c.Services().Ideas
+		idea, err := ideas.GetByNumber(c.Tenant().ID, ideaNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -126,7 +118,7 @@ func (h AllHandlers) PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = h.ideas.AddComment(c.User().ID, idea.ID, input.Content)
+		_, err = ideas.AddComment(c.User().ID, idea.ID, input.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -141,7 +133,7 @@ type setResponseInput struct {
 }
 
 // SetResponse changes current idea staff response
-func (h AllHandlers) SetResponse() web.HandlerFunc {
+func SetResponse() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(setResponseInput)
 		if err := c.Bind(input); err != nil {
@@ -153,7 +145,8 @@ func (h AllHandlers) SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		ideas := c.Services().Ideas
+		idea, err := ideas.GetByNumber(c.Tenant().ID, ideaNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -161,7 +154,7 @@ func (h AllHandlers) SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = h.ideas.SetResponse(c.Tenant().ID, idea.ID, input.Text, c.User().ID, input.Status)
+		err = ideas.SetResponse(c.Tenant().ID, idea.ID, input.Text, c.User().ID, input.Status)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -171,26 +164,26 @@ func (h AllHandlers) SetResponse() web.HandlerFunc {
 }
 
 // AddSupporter adds current user to given idea list of supporters
-func (h AllHandlers) AddSupporter() web.HandlerFunc {
+func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, h, h.ideas.AddSupporter)
+		return addOrRemoveSupporter(c, c.Services().Ideas.AddSupporter)
 	}
 }
 
 // RemoveSupporter removes current user from given idea list of supporters
-func (h AllHandlers) RemoveSupporter() web.HandlerFunc {
+func RemoveSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, h, h.ideas.RemoveSupporter)
+		return addOrRemoveSupporter(c, c.Services().Ideas.RemoveSupporter)
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, h AllHandlers, addOrRemove func(tenantId, userId, ideaId int) error) error {
+func addOrRemoveSupporter(c web.Context, addOrRemove func(tenantId, userId, ideaId int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	idea, err := h.ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+	idea, err := c.Services().Ideas.GetByNumber(c.Tenant().ID, ideaNumber)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return c.NotFound()

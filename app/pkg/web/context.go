@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/labstack/echo"
@@ -14,6 +15,7 @@ var (
 	tenantContextKey       = preffixKey + "TENANT"
 	userContextKey         = preffixKey + "USER"
 	authEndpointContextKey = preffixKey + "AUTH_ENDPOINT"
+	servicesContextKey     = preffixKey + "SERVICES"
 )
 
 //Context wraps echo.context to provide userful information
@@ -67,6 +69,16 @@ func (ctx *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(claims *models.User) {
 	ctx.Set(userContextKey, claims)
+}
+
+//Services returns current app.Services from context
+func (ctx *Context) Services() *app.Services {
+	return ctx.Get(servicesContextKey).(*app.Services)
+}
+
+//SetServices update current context with app.Services
+func (ctx *Context) SetServices(services *app.Services) {
+	ctx.Set(servicesContextKey, services)
 }
 
 //BaseURL returns base URL as string

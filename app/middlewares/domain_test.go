@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/mock"
 	"github.com/getfider/fider/app/models"
@@ -45,8 +46,11 @@ func TestMultiTenant(t *testing.T) {
 
 			server := mock.NewServer()
 			server.Context.Request().Host = host
+			server.Context.SetServices(&app.Services{
+				Tenants: tenants,
+			})
 
-			server.Use(middlewares.MultiTenant(tenants))
+			server.Use(middlewares.MultiTenant())
 			status, response := server.Execute(func(c web.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})
@@ -63,8 +67,11 @@ func TestMultiTenant_AuthDomain(t *testing.T) {
 	tenants := &inmemory.TenantStorage{}
 	server := mock.NewServer()
 	server.Context.Request().Host = "login.test.fider.io"
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
 
-	server.Use(middlewares.MultiTenant(tenants))
+	server.Use(middlewares.MultiTenant())
 	status, _ := server.Execute(func(c web.Context) error {
 		if c.Tenant() == nil {
 			return c.NoContent(http.StatusOK)
@@ -81,8 +88,11 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	tenants := &inmemory.TenantStorage{}
 	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
 
-	server.Use(middlewares.MultiTenant(tenants))
+	server.Use(middlewares.MultiTenant())
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
@@ -96,8 +106,11 @@ func TestSingleTenant(t *testing.T) {
 	tenants := &inmemory.TenantStorage{}
 	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
 
-	server.Use(middlewares.SingleTenant(tenants))
+	server.Use(middlewares.SingleTenant())
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})

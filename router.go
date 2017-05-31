@@ -4,6 +4,7 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage"
@@ -20,8 +21,8 @@ type AppServices struct {
 }
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(ctx *AppServices) *web.Engine {
-	r := web.New(ctx.Settings)
+func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
+	r := web.New(settings)
 
 	assets := r.Group("/assets")
 	{
@@ -31,46 +32,49 @@ func GetMainEngine(ctx *AppServices) *web.Engine {
 
 	public := r.Group("")
 	{
-		public.Use(middlewares.Tenant(ctx.Tenant))
-		public.Use(middlewares.JwtGetter(ctx.User))
+		public.Use(middlewares.Setup(db))
+		public.Use(middlewares.Tenant())
+		public.Use(middlewares.JwtGetter())
 		public.Use(middlewares.JwtSetter())
 
-		public.Get("/", handlers.Handlers(ctx.Idea).List())
-		public.Get("/ideas/:number", handlers.Handlers(ctx.Idea).Details())
-		public.Get("/ideas/:number/*", handlers.Handlers(ctx.Idea).Details())
+		public.Get("/", handlers.Index())
+		public.Get("/ideas/:number", handlers.IdeaDetails())
+		public.Get("/ideas/:number/*", handlers.IdeaDetails())
 		public.Get("/logout", handlers.Logout())
-		public.Get("/api/status", handlers.Status(ctx.Settings))
+		public.Get("/api/status", handlers.Status(settings))
 	}
 
 	private := r.Group("")
 	{
-		private.Use(middlewares.Tenant(ctx.Tenant))
-		private.Use(middlewares.JwtGetter(ctx.User))
+		private.Use(middlewares.Setup(db))
+		private.Use(middlewares.Tenant())
+		private.Use(middlewares.JwtGetter())
 		private.Use(middlewares.JwtSetter())
 		private.Use(middlewares.IsAuthenticated())
 
-		private.Post("/api/ideas", handlers.Handlers(ctx.Idea).PostIdea())
-		private.Post("/api/ideas/:number/comments", handlers.Handlers(ctx.Idea).PostComment())
-		private.Post("/api/ideas/:number/status", handlers.Handlers(ctx.Idea).SetResponse())
-		private.Post("/api/ideas/:number/support", handlers.Handlers(ctx.Idea).AddSupporter())
-		private.Post("/api/ideas/:number/unsupport", handlers.Handlers(ctx.Idea).RemoveSupporter())
+		private.Post("/api/ideas", handlers.PostIdea())
+		private.Post("/api/ideas/:number/comments", handlers.PostComment())
+		private.Post("/api/ideas/:number/status", handlers.SetResponse())
+		private.Post("/api/ideas/:number/support", handlers.AddSupporter())
+		private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
 	}
 
 	auth := r.Group("/oauth")
 	{
-		auth.Use(middlewares.Tenant(ctx.Tenant))
-		authHandlers := handlers.OAuth(ctx.Tenant, ctx.OAuth, ctx.User)
+		auth.Use(middlewares.Setup(db))
+		auth.Use(middlewares.Tenant())
 
-		auth.Get("/facebook", authHandlers.Login(oauth.FacebookProvider))
-		auth.Get("/facebook/callback", authHandlers.Callback(oauth.FacebookProvider))
-		auth.Get("/google", authHandlers.Login(oauth.GoogleProvider))
-		auth.Get("/google/callback", authHandlers.Callback(oauth.GoogleProvider))
+		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
+		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
+		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
+		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
 	}
 
 	admin := r.Group("/admin")
 	{
-		admin.Use(middlewares.Tenant(ctx.Tenant))
-		admin.Use(middlewares.JwtGetter(ctx.User))
+		admin.Use(middlewares.Setup(db))
+		admin.Use(middlewares.Tenant())
+		admin.Use(middlewares.JwtGetter())
 		admin.Use(middlewares.JwtSetter())
 		admin.Use(middlewares.IsAuthenticated())
 		admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))

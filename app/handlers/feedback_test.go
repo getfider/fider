@@ -5,6 +5,7 @@ import (
 
 	"strconv"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/mock"
 	"github.com/getfider/fider/app/models"
@@ -12,15 +13,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestListHandler(t *testing.T) {
+func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 
-	code, _ := server.Execute(handlers.Handlers(ideas).List())
+	code, _ := server.Execute(handlers.Index())
 
 	Expect(code).To(Equal(200))
 }
@@ -31,12 +33,13 @@ func TestDetailsHandler(t *testing.T) {
 	ideas := &inmemory.IdeaStorage{}
 	idea, _ := ideas.Save(1, 1, "My Idea", "My Idea Description")
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues(strconv.Itoa(idea.Number))
 
-	code, _ := server.Execute(handlers.Handlers(ideas).Details())
+	code, _ := server.Execute(handlers.IdeaDetails())
 
 	Expect(code).To(Equal(200))
 }
@@ -46,12 +49,13 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("99")
 
-	code, _ := server.Execute(handlers.Handlers(ideas).Details())
+	code, _ := server.Execute(handlers.IdeaDetails())
 
 	Expect(code).To(Equal(404))
 }
@@ -61,10 +65,10 @@ func TestPostIdeaHandler(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	handler := handlers.Handlers(ideas).PostIdea()
-	code, _ := server.ExecutePost(handler, `{ "title": "My newest idea :)" }`)
+	code, _ := server.ExecutePost(handlers.PostIdea(), `{ "title": "My newest idea :)" }`)
 
 	idea, err := ideas.GetByID(1, 1)
 	Expect(code).To(Equal(200))
@@ -78,10 +82,10 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	handler := handlers.Handlers(ideas).PostIdea()
-	code, _ := server.ExecutePost(handler, `{ "title": "" }`)
+	code, _ := server.ExecutePost(handlers.PostIdea(), `{ "title": "" }`)
 
 	_, err := ideas.GetByID(1, 1)
 	Expect(code).To(Equal(400))
@@ -94,11 +98,12 @@ func TestPostCommentHandler(t *testing.T) {
 	ideas := &inmemory.IdeaStorage{}
 	ideas.Save(1, 1, "Title", "Description")
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
-	handler := handlers.Handlers(ideas).PostComment()
+	handler := handlers.PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "This is a comment!" }`)
 
 	Expect(code).To(Equal(200))
@@ -109,11 +114,12 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
-	handler := handlers.Handlers(ideas).PostComment()
+	handler := handlers.PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "" }`)
 
 	Expect(code).To(Equal(400))
@@ -126,12 +132,13 @@ func TestAddSupporterHandler(t *testing.T) {
 	ideas.Save(1, 1, "The Idea #1", "The Description #1")
 	ideas.Save(1, 1, "The Idea #2", "The Description #2")
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 2, Name: "Arya"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("2")
 
-	code, _ := server.Execute(handlers.Handlers(ideas).AddSupporter())
+	code, _ := server.Execute(handlers.AddSupporter())
 	first, _ := ideas.GetByNumber(1, 1)
 	second, _ := ideas.GetByNumber(1, 2)
 
@@ -145,12 +152,13 @@ func TestAddSupporterHandler_InvalidIdea(t *testing.T) {
 
 	ideas := &inmemory.IdeaStorage{}
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 
-	code, _ := server.Execute(handlers.Handlers(ideas).AddSupporter())
+	code, _ := server.Execute(handlers.AddSupporter())
 
 	Expect(code).To(Equal(404))
 }
@@ -164,12 +172,13 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	ideas.AddSupporter(1, 2, 1)
 	ideas.AddSupporter(1, 3, 1)
 	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 2, Name: "Arya"})
 	server.Context.SetParamNames("number")
 	server.Context.SetParamValues("1")
 
-	code, _ := server.Execute(handlers.Handlers(ideas).RemoveSupporter())
+	code, _ := server.Execute(handlers.RemoveSupporter())
 	idea, _ := ideas.GetByNumber(1, 1)
 
 	Expect(code).To(Equal(200))
