@@ -70,7 +70,7 @@ func TestPostIdeaHandler(t *testing.T) {
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	code, _ := server.ExecutePost(handlers.PostIdea(), `{ "title": "My newest idea :)" }`)
 
-	idea, err := ideas.GetByID(1, 1)
+	idea, err := ideas.GetByID(1)
 	Expect(code).To(Equal(200))
 	Expect(err).To(BeNil())
 	Expect(idea.Title).To(Equal("My newest idea :)"))
@@ -87,7 +87,7 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
 	code, _ := server.ExecutePost(handlers.PostIdea(), `{ "title": "" }`)
 
-	_, err := ideas.GetByID(1, 1)
+	_, err := ideas.GetByID(1)
 	Expect(code).To(Equal(400))
 	Expect(err).NotTo(BeNil())
 }

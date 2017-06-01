@@ -112,10 +112,10 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 }
 
 // GetByID returns idea by given id
-func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
+func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", tenantID, ideaID)
+	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", s.Tenant.ID, ideaID)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -196,7 +196,7 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 
 // AddSupporter adds user to idea list of supporters
 func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
-	idea, err := s.GetByID(tenantID, ideaID)
+	idea, err := s.GetByID(ideaID)
 	if err != nil {
 		return err
 	}
@@ -226,7 +226,7 @@ func (s *IdeaStorage) AddSupporter(tenantID, userID, ideaID int) error {
 
 // RemoveSupporter removes user from idea list of supporters
 func (s *IdeaStorage) RemoveSupporter(tenantID, userID, ideaID int) error {
-	idea, err := s.GetByID(tenantID, ideaID)
+	idea, err := s.GetByID(ideaID)
 	if err != nil {
 		return err
 	}

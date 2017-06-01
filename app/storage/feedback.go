@@ -4,7 +4,7 @@ import "github.com/getfider/fider/app/models"
 
 // Idea contains read and write operations for ideas
 type Idea interface {
-	GetByID(tenantID, ideaID int) (*models.Idea, error)
+	GetByID(ideaID int) (*models.Idea, error)
 	GetByNumber(tenantID, number int) (*models.Idea, error)
 	GetCommentsByIdeaID(tenantID, ideaID int) ([]*models.Comment, error)
 	GetAll() ([]*models.Idea, error)

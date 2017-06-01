@@ -14,7 +14,7 @@ type IdeaStorage struct {
 }
 
 // GetByID returns idea by given id
-func (s *IdeaStorage) GetByID(tenantID, ideaID int) (*models.Idea, error) {
+func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	for _, idea := range s.ideas {
 		if idea.ID == ideaID {
 			return idea, nil
@@ -34,7 +34,7 @@ func (s *IdeaStorage) GetByNumber(tenantID, number int) (*models.Idea, error) {
 }
 
 // GetAll returns all tenant ideas
-func (s *IdeaStorage) GetAll(tenantID int) ([]*models.Idea, error) {
+func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 
