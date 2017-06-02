@@ -22,8 +22,10 @@ func JwtGetter() web.MiddlewareFunc {
 					if user, err := services.Users.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
 							c.SetUser(user)
-							if ids, err := services.Ideas.SupportedBy(user.ID); err == nil {
-								c.AddRenderVar("supportedIdeas", ids)
+							if !c.IsAjax() {
+								if ids, err := services.Ideas.SupportedBy(user.ID); err == nil {
+									c.AddRenderVar("supportedIdeas", ids)
+								}
 							}
 						}
 					}

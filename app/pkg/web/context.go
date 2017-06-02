@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"strings"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -43,6 +45,11 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 //IsAuthenticated returns true if user is authenticated
 func (ctx *Context) IsAuthenticated() bool {
 	return ctx.Get(userContextKey) != nil
+}
+
+//IsAjax returns true if request is AJAX
+func (ctx *Context) IsAjax() bool {
+	return strings.Contains(ctx.Request().Header.Get("Accept"), "application/json")
 }
 
 //NotFound returns a 404 page

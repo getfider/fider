@@ -15,9 +15,9 @@ type User struct {
 	ID        int             `json:"id"`
 	Name      string          `json:"name"`
 	Email     string          `json:"email"`
-	Tenant    *Tenant         `json:"tenant"`
+	Tenant    *Tenant         `json:"-"`
 	Role      int             `json:"role"`
-	Providers []*UserProvider `json:"providers"`
+	Providers []*UserProvider `json:"-"`
 }
 
 var (
@@ -41,8 +41,8 @@ func (u *User) HasProvider(provider string) bool {
 
 //UserProvider represents the relashionship between an User and an Authentication provide
 type UserProvider struct {
-	Name string `json:"name"`
-	UID  string `json:"uid"`
+	Name string
+	UID  string
 }
 
 //FiderClaims represents what goes into JWT tokens

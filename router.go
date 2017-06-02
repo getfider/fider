@@ -32,25 +32,20 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 
 	assets := r.Group("/assets")
 	{
-		assets.Use(func(next web.HandlerFunc) web.HandlerFunc {
-			return func(c web.Context) error {
-				c.Response().Header().Add("Cache-Control", "public, max-age=30672000")
-				return next(c)
-			}
-		})
+		assets.Use(middlewares.OneYearCache())
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/", "dist")
 	}
 
-	site := r.Group("")
+	page := r.Group("")
 	{
-		site.Use(middlewares.Setup(db))
-		site.Use(middlewares.Tenant())
-		site.Use(middlewares.AddServices())
-		site.Use(middlewares.JwtGetter())
-		site.Use(middlewares.JwtSetter())
+		page.Use(middlewares.Setup(db))
+		page.Use(middlewares.Tenant())
+		page.Use(middlewares.AddServices())
+		page.Use(middlewares.JwtGetter())
+		page.Use(middlewares.JwtSetter())
 
-		public := site.Group("")
+		public := page.Group("")
 		{
 			public.Get("/", handlers.Index())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
@@ -59,7 +54,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/api/status", handlers.Status(settings))
 		}
 
-		private := site.Group("")
+		private := page.Group("")
 		{
 			private.Use(middlewares.IsAuthenticated())
 
@@ -70,7 +65,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
 		}
 
-		auth := site.Group("/oauth")
+		auth := page.Group("/oauth")
 		{
 			auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
 			auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
@@ -78,7 +73,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
 		}
 
-		admin := site.Group("/admin")
+		admin := page.Group("/admin")
 		{
 			admin.Use(middlewares.IsAuthenticated())
 			admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))

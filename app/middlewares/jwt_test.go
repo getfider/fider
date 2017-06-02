@@ -47,6 +47,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	})
 
 	users := &inmemory.UserStorage{}
+
 	users.Register(user)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{
