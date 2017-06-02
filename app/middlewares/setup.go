@@ -14,14 +14,14 @@ import (
 func Setup(db *dbx.Database) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			tx, err := db.Begin()
+			trx, err := db.Begin()
 			if err != nil {
 				return err
 			}
 
-			c.SetActiveTransaction(tx)
+			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
-				Tenants: &postgres.TenantStorage{Trx: tx},
+				Tenants: postgres.NewTenantStorage(trx),
 			})
 
 			defer func() {
@@ -38,11 +38,11 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 			}()
 
 			err = next(c)
-			if err == nil {
-				return tx.Commit()
+			if err != nil {
+				trx.Rollback()
+				return err
 			}
-			tx.Rollback()
-			return err
+			return trx.Commit()
 		}
 	}
 }
@@ -51,14 +51,12 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 func AddServices() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			tx := c.ActiveTransaction()
+			trx := c.ActiveTransaction()
 			tenant := c.Tenant()
 			services := c.Services()
 			services.OAuth = &oauth.HTTPService{}
-			services.Ideas = &postgres.IdeaStorage{Trx: tx, Tenant: tenant}
-			services.Users = &postgres.UserStorage{Trx: tx}
-			services.Tenants = &postgres.TenantStorage{Trx: tx}
-
+			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
+			services.Users = postgres.NewUserStorage(trx)
 			return next(c)
 		}
 	}

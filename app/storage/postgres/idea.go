@@ -67,8 +67,16 @@ func (c *dbComment) toModel() *models.Comment {
 
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
-	Trx    *dbx.Trx
-	Tenant *models.Tenant
+	trx    *dbx.Trx
+	tenant *models.Tenant
+}
+
+// NewIdeaStorage creates a new IdeaStorage
+func NewIdeaStorage(tenant *models.Tenant, trx *dbx.Trx) *IdeaStorage {
+	return &IdeaStorage{
+		trx:    trx,
+		tenant: tenant,
+	}
 }
 
 var (
@@ -99,7 +107,7 @@ var (
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.Trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", s.Tenant.ID)
+	err := s.trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +123,7 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", s.Tenant.ID, ideaID)
+	err := s.trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", s.tenant.ID, ideaID)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -129,7 +137,7 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.Trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", s.Tenant.ID, number)
+	err := s.trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", s.tenant.ID, number)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -142,7 +150,7 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 // GetCommentsByIdea returns all coments from given idea
 func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	comments := []*dbComment{}
-	err := s.Trx.Select(&comments,
+	err := s.trx.Select(&comments,
 		`SELECT c.id, 
 				c.content, 
 				c.created_on, 
@@ -156,7 +164,7 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		ON u.id = c.user_id
 		WHERE i.number = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on DESC`, number, s.Tenant.ID)
+		ORDER BY c.created_on DESC`, number, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -171,9 +179,9 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 // Add a new idea in the database
 func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
 	var id int
-	row := s.Trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
+	row := s.trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
 						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
-						RETURNING id`, title, slug.Make(title), description, s.Tenant.ID, userID, time.Now())
+						RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
 	if err := row.Scan(&id); err != nil {
 		return nil, err
 	}
@@ -189,7 +197,7 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	}
 
 	var id int
-	if err := s.Trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", idea.ID, content, userID, time.Now()).Scan(&id); err != nil {
+	if err := s.trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", idea.ID, content, userID, time.Now()).Scan(&id); err != nil {
 		return 0, err
 	}
 
@@ -206,7 +214,7 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	alreadySupported, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
+	alreadySupported, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
 	if err != nil {
 		return err
 	}
@@ -215,11 +223,11 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, idea.ID); err != nil {
+	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, idea.ID); err != nil {
 		return err
 	}
 
-	if err := s.Trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now()); err != nil {
+	if err := s.trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now()); err != nil {
 		return err
 	}
 
@@ -237,7 +245,7 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	didSupport, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
+	didSupport, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
 	if err != nil {
 		return err
 	}
@@ -246,11 +254,11 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, idea.ID); err != nil {
+	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, idea.ID); err != nil {
 		return err
 	}
 
-	if err := s.Trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID); err != nil {
+	if err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID); err != nil {
 		return err
 	}
 
@@ -264,11 +272,11 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 		return err
 	}
 
-	if err := s.Trx.Execute(`
+	if err := s.trx.Execute(`
 	UPDATE ideas 
 	SET response = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.Tenant.ID, text, time.Now(), userID, status); err != nil {
+	`, idea.ID, s.tenant.ID, text, time.Now(), userID, status); err != nil {
 		return err
 	}
 	return nil

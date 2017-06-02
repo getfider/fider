@@ -48,28 +48,33 @@ func (u *dbUser) toModel() *models.User {
 
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
-	Trx *dbx.Trx
+	trx *dbx.Trx
+}
+
+// NewUserStorage creates a new UserStorage
+func NewUserStorage(trx *dbx.Trx) *UserStorage {
+	return &UserStorage{trx: trx}
 }
 
 // GetByID returns a user based on given id
 func (s *UserStorage) GetByID(userID int) (*models.User, error) {
-	return getUser(s.Trx, "id = $1", userID)
+	return getUser(s.trx, "id = $1", userID)
 }
 
 // GetByEmail returns a user based on given email
 func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
-	return getUser(s.Trx, "email = $1 AND tenant_id = $2", email, tenantID)
+	return getUser(s.trx, "email = $1 AND tenant_id = $2", email, tenantID)
 }
 
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
-	if err := s.Trx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id", user.Name, user.Email, now, user.Tenant.ID, user.Role).Scan(&user.ID); err != nil {
+	if err := s.trx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id", user.Name, user.Email, now, user.Tenant.ID, user.Role).Scan(&user.ID); err != nil {
 		return err
 	}
 
 	for _, provider := range user.Providers {
-		if err := s.Trx.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", user.ID, provider.Name, provider.UID, now); err != nil {
+		if err := s.trx.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", user.ID, provider.Name, provider.UID, now); err != nil {
 			return err
 		}
 	}
@@ -80,7 +85,7 @@ func (s *UserStorage) Register(user *models.User) error {
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
 	cmd := "INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)"
-	return s.Trx.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
+	return s.trx.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
 }
 
 // GetByID returns a user based on given id
