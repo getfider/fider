@@ -50,10 +50,11 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   public render() {
-    const respond = <div className="ui blue labeled submit icon button false"
-                          onClick={() => this.activate()}>
-                      <i className="icon announcement"></i>Respond
-                    </div>;
+    const button = <div className="ui blue labeled submit icon button false"
+                         onClick={() => this.activate()}>
+                     <i className="icon announcement"></i>Respond
+                   </div>;
+
     const form = <form className="ui reply form">
                   <DisplayError error={this.state.error} />
                   <div className="two fields">
@@ -84,6 +85,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                     Cancel
                   </div>
                  </form>;
-    return this.state.active ? form : respond;
+
+    return this.state.active ? form : button;
   }
 }

@@ -36,6 +36,7 @@ func (ctx *Context) Tenant() *models.Tenant {
 
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
+	ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -69,8 +70,9 @@ func (ctx *Context) User() *models.User {
 }
 
 //SetUser update HTTP context with current user
-func (ctx *Context) SetUser(claims *models.User) {
-	ctx.Set(userContextKey, claims)
+func (ctx *Context) SetUser(user *models.User) {
+	ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
+	ctx.Set(userContextKey, user)
 }
 
 //Services returns current app.Services from context
@@ -123,4 +125,25 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 		return 0, err
 	}
 	return int(val), nil
+}
+
+//RenderVars returns all registered RenderVar
+func (ctx *Context) RenderVars() echo.Map {
+	vars := ctx.Get("__renderVars")
+	if vars != nil {
+		return vars.(echo.Map)
+	}
+	return nil
+}
+
+//AddRenderVar register given key/value to RenderVar map
+func (ctx *Context) AddRenderVar(name string, value interface{}) {
+	var renderVars = ctx.Get("__renderVars")
+	if renderVars == nil {
+		renderVars = make(echo.Map)
+		ctx.Set("__renderVars", renderVars)
+	}
+
+	ctx.Logger().Debugf("storage.%v: %v", name, value)
+	renderVars.(echo.Map)[name] = value
 }

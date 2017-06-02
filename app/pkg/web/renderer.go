@@ -69,6 +69,12 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	}
 	m["settings"] = r.settings
 
+	if renderVars := ctx.RenderVars(); renderVars != nil {
+		for key, value := range renderVars {
+			m[key] = value
+		}
+	}
+
 	if ctx.IsAuthenticated() {
 		m["__User"] = ctx.User()
 	}

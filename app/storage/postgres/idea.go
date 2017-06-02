@@ -281,3 +281,8 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	}
 	return nil
 }
+
+// SupportedBy returns a list of Idea ID supported by given user
+func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
+	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", userID)
+}

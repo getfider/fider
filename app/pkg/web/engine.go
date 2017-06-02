@@ -108,6 +108,7 @@ func errorHandler(e error, c echo.Context) {
 	}
 }
 
+// NewLogger creates a new logger
 func NewLogger() echo.Logger {
 	logger := log.New("")
 	logger.SetHeader(`${level} [${time_rfc3339}]`)

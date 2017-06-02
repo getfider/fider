@@ -13,4 +13,5 @@ type Idea interface {
 	AddSupporter(number, userID int) error
 	RemoveSupporter(number, userID int) error
 	SetResponse(number int, text string, userID, status int) error
+	SupportedBy(userID int) ([]int, error)
 }

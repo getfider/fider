@@ -94,3 +94,8 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	}
 	return nil
 }
+
+// SupportedBy returns a list of Idea ID supported by given user
+func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
+	return make([]int, 0), nil
+}

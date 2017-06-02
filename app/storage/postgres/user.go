@@ -11,13 +11,12 @@ import (
 )
 
 type dbUser struct {
-	ID             sql.NullInt64  `db:"id"`
-	Name           sql.NullString `db:"name"`
-	Email          sql.NullString `db:"email"`
-	Tenant         *dbTenant      `db:"tenant"`
-	Role           sql.NullInt64  `db:"role"`
-	Providers      []*dbUserProvider
-	SupportedIdeas []int
+	ID        sql.NullInt64  `db:"id"`
+	Name      sql.NullString `db:"name"`
+	Email     sql.NullString `db:"email"`
+	Tenant    *dbTenant      `db:"tenant"`
+	Role      sql.NullInt64  `db:"role"`
+	Providers []*dbUserProvider
 }
 
 type dbUserProvider struct {
@@ -27,13 +26,12 @@ type dbUserProvider struct {
 
 func (u *dbUser) toModel() *models.User {
 	user := &models.User{
-		ID:             int(u.ID.Int64),
-		Name:           u.Name.String,
-		Email:          u.Email.String,
-		Tenant:         u.Tenant.toModel(),
-		SupportedIdeas: u.SupportedIdeas,
-		Role:           int(u.Role.Int64),
-		Providers:      make([]*models.UserProvider, len(u.Providers)),
+		ID:        int(u.ID.Int64),
+		Name:      u.Name.String,
+		Email:     u.Email.String,
+		Tenant:    u.Tenant.toModel(),
+		Role:      int(u.Role.Int64),
+		Providers: make([]*models.UserProvider, len(u.Providers)),
 	}
 
 	for i, p := range u.Providers {
@@ -99,11 +97,6 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 	}
 
 	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	user.SupportedIdeas, err = trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", user.ID)
 	if err != nil {
 		return nil, err
 	}

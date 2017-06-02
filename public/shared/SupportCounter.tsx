@@ -20,9 +20,10 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     constructor(props: SupportCounterProps) {
         super(props);
+        const supportedIdeas = storage.getArray<number>('supportedIdeas');
 
         this.state = {
-          supported: props.user && props.user.supportedIdeas.indexOf(props.idea.id) >= 0,
+          supported: props.user && supportedIdeas && supportedIdeas.indexOf(props.idea.id) >= 0,
           total: props.idea.totalSupporters
         };
     }

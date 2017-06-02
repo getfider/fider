@@ -13,18 +13,26 @@ import (
 func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
+			var err error
 
 			if cookie, err := c.Cookie("auth"); err == nil {
 				if claims, err := jwt.Decode(cookie.Value); err == nil {
-					users := c.Services().Users
-					if user, err := users.GetByID(claims.UserID); err == nil {
+					services := c.Services()
+
+					if user, err := services.Users.GetByID(claims.UserID); err == nil {
 						if user.Tenant.ID == c.Tenant().ID {
 							c.SetUser(user)
+							if ids, err := services.Ideas.SupportedBy(user.ID); err == nil {
+								c.AddRenderVar("supportedIdeas", ids)
+							}
 						}
 					}
-				} else {
-					c.Logger().Error(err)
+
 				}
+			}
+
+			if err != nil {
+				return err
 			}
 
 			return next(c)

@@ -18,7 +18,8 @@ export function getCurrentUser(): User {
 }
 
 export function isStaff() {
-    return getCurrentUser().role >= 2;
+  const user = getCurrentUser();
+  return user && user.role >= 2;
 }
 
 export function set<T>(key: string, value: T) {
@@ -27,4 +28,8 @@ export function set<T>(key: string, value: T) {
 
 export function get<T>(key: string): T {
   return w[`_${key}`];
+}
+
+export function getArray<T>(key: string): T[] {
+  return w[`_${key}`] || [];
 }

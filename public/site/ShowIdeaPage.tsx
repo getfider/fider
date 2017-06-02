@@ -23,7 +23,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
       this.user = storage.getCurrentUser();
       this.idea = storage.get<Idea>('idea');
-      this.comments = storage.get<Comment[]>('comments') || [];
+      this.comments = storage.getArray<Comment>('comments');
     }
 
     public render() {
@@ -70,10 +70,14 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     </div>
 
                     <MultiLineText text={ this.idea.description } />
-
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
-                    <div className="ui hidden divider"></div>
-                    <ResponseForm idea={ this.idea } />
+
+                    {
+                      storage.isStaff() &&
+                      <div className="ui hidden divider">
+                        <ResponseForm idea={ this.idea } />
+                      </div>
+                    }
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>
@@ -83,9 +87,5 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                   </div>
                   <Footer />
                </div>;
-    }
-
-    private isStaff() {
-        return this.user.role >= 2;
     }
 }

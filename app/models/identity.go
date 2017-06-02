@@ -12,13 +12,12 @@ type Tenant struct {
 
 //User represents an user inside our application
 type User struct {
-	ID             int             `json:"id"`
-	Name           string          `json:"name"`
-	Email          string          `json:"email"`
-	Tenant         *Tenant         `json:"tenant"`
-	Role           int             `json:"role"`
-	Providers      []*UserProvider `json:"providers"`
-	SupportedIdeas []int           `json:"supportedIdeas"`
+	ID        int             `json:"id"`
+	Name      string          `json:"name"`
+	Email     string          `json:"email"`
+	Tenant    *Tenant         `json:"tenant"`
+	Role      int             `json:"role"`
+	Providers []*UserProvider `json:"providers"`
 }
 
 var (
