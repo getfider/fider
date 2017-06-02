@@ -29,15 +29,15 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   private async submit() {
     try {
-        await axios.post(`/api/ideas/${this.props.idea.number}/status`, {
-            status: parseInt(this.status.value, 10),
-            text: this.text.value
-        });
-        location.reload();
+      await axios.post(`/api/ideas/${this.props.idea.number}/status`, {
+          status: parseInt(this.status.value, 10),
+          text: this.text.value
+      });
+      location.reload();
     } catch (ex) {
-        this.setState({
-          error: ex.response.data
-        });
+      this.setState({
+        error: ex.response.data
+      });
     }
   }
 

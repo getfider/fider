@@ -54,6 +54,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 		Users: users,
 	})
 	server.Context.SetTenant(tenant)
+	server.Context.Request().Header.Add("Accept", "application/json")
 	server.Context.Request().AddCookie(&http.Cookie{
 		Name:  "auth",
 		Value: token,

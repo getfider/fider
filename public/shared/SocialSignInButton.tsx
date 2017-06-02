@@ -30,7 +30,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
         if (this.props.size === 'small') {
             return <a href={oauthUrl} className={cssClasses} onClick={() => this.setState({clicked: true})}>
                     <i className={providerClassName + ' icon'}></i>
-                   </a>;
+                    </a>;
         } else {
             return  <a href={oauthUrl} className={cssClasses} onClick={() => this.setState({clicked: true})}>
                         <i className={providerClassName + ' icon'}></i>

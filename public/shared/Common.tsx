@@ -56,21 +56,21 @@ interface IdeaResponseProps {
 }
 
 export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  const status = IdeaStatus.Get(props.status);
+    const status = IdeaStatus.Get(props.status);
 
-  if (props.response && status.show) {
-    return <div className="fdr-response item ui raised segment">
-            <IdeaStatusRibbon status={status} />
-            <div className="info">
-              <Gravatar email={props.response.user.email}/> <u>{props.response.user.name}</u>
-              <span title={props.response.respondedOn.toString()}>
-                { moment(props.response.respondedOn).fromNow() }
-              </span>
-            </div>
-            <div className="content">
-              <MultiLineText text={ props.response.text } />
-            </div>
-          </div>;
-  }
-  return <div/>;
+    if (props.response && status.show) {
+        return <div className="fdr-response item ui raised segment">
+                <IdeaStatusRibbon status={status} />
+                <div className="info">
+                    <Gravatar email={props.response.user.email}/> <u>{props.response.user.name}</u>
+                    <span title={props.response.respondedOn.toString()}>
+                    { moment(props.response.respondedOn).fromNow() }
+                    </span>
+                </div>
+                <div className="content">
+                    <MultiLineText text={ props.response.text } />
+                </div>
+                </div>;
+    }
+    return <div/>;
 };

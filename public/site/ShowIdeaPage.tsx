@@ -1,6 +1,6 @@
 import * as moment from 'moment';
 import * as React from 'react';
-import * as storage from '../storage';
+import { getCurrentUser, get, getArray, isStaff } from '../storage';
 
 import { User, Comment, Idea } from '../models';
 import { CommentInput } from '../shared/CommentInput';
@@ -21,9 +21,9 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
     constructor(props: {}) {
       super(props);
 
-      this.user = storage.getCurrentUser();
-      this.idea = storage.get<Idea>('idea');
-      this.comments = storage.getArray<Comment>('comments');
+      this.user = getCurrentUser();
+      this.idea = get<Idea>('idea');
+      this.comments = getArray<Comment>('comments');
     }
 
     public render() {
@@ -73,7 +73,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
 
                     {
-                      storage.isStaff() &&
+                      isStaff() &&
                       <div>
                         <div className="ui hidden divider"></div>
                         <ResponseForm idea={ this.idea } />
