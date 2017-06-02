@@ -1,10 +1,10 @@
-import axios from "axios";
-import * as React from "react";
+import axios from 'axios';
+import * as React from 'react';
 
-import { Idea } from "../models";
-import { getCurrentUser } from "../storage";
-import { DisplayError } from "./Common";
-import { SocialSignInList } from "./SocialSignInList";
+import { Idea } from '../models';
+import { getCurrentUser } from '../storage';
+import { DisplayError } from './Common';
+import { SocialSignInList } from './SocialSignInList';
 
 interface CommentInputProps {
     idea: Idea;
@@ -20,7 +20,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     constructor() {
         super();
         this.state = {
-          content: "",
+          content: '',
           clicked: false
         };
     }
@@ -47,7 +47,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     public render() {
         const user = getCurrentUser();
-        const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && "loading disabled"}`;
+        const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && 'loading disabled'}`;
 
         const addComment = user ? <form className="ui reply form">
           <DisplayError error={this.state.error} />

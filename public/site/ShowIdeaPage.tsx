@@ -1,17 +1,17 @@
-import * as moment from "moment";
-import * as React from "react";
-import * as storage from "../storage";
+import * as moment from 'moment';
+import * as React from 'react';
+import * as storage from '../storage';
 
-import { User, Comment, Idea } from "../models";
-import { CommentInput } from "../shared/CommentInput";
-import { Gravatar, MultiLineText, ShowIdeaResponse } from "../shared/Common";
-import { SocialSignInButton } from "../shared/SocialSignInButton";
-import { SupportCounter } from "../shared/SupportCounter";
-import { ResponseForm } from "../shared/ResponseForm";
+import { User, Comment, Idea } from '../models';
+import { CommentInput } from '../shared/CommentInput';
+import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
+import { SocialSignInButton } from '../shared/SocialSignInButton';
+import { SupportCounter } from '../shared/SupportCounter';
+import { ResponseForm } from '../shared/ResponseForm';
 
-import { Footer } from "../shared/Footer";
-import { Header } from "../shared/Header";
-import { IdeaInput } from "./IdeaInput";
+import { Footer } from '../shared/Footer';
+import { Header } from '../shared/Header';
+import { IdeaInput } from './IdeaInput';
 
 export class ShowIdeaPage extends React.Component<{}, {}> {
     private user: User;
@@ -22,8 +22,8 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
       super(props);
 
       this.user = storage.getCurrentUser();
-      this.idea = storage.get<Idea>("idea");
-      this.comments = storage.get<Comment[]>("comments") || [];
+      this.idea = storage.get<Idea>('idea');
+      this.comments = storage.get<Comment[]>('comments') || [];
     }
 
     public render() {

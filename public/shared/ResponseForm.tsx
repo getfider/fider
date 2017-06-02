@@ -1,8 +1,8 @@
-import axios from "axios";
-import * as React from "react";
-import * as storage from "../storage";
-import { User, Comment, Idea } from "../models";
-import { DisplayError } from "./Common";
+import axios from 'axios';
+import * as React from 'react';
+import * as storage from '../storage';
+import { User, Comment, Idea } from '../models';
+import { DisplayError } from './Common';
 
 interface ResponseFormProps {
   idea: Idea;

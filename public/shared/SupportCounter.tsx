@@ -1,8 +1,8 @@
-import axios from "axios";
-import * as React from "react";
-import { Idea, User, IdeaStatusMetadata } from "../models";
-import * as storage from "../storage";
-import { SocialSignInList } from "./SocialSignInList";
+import axios from 'axios';
+import * as React from 'react';
+import { Idea, User, IdeaStatus } from '../models';
+import * as storage from '../storage';
+import { SocialSignInList } from './SocialSignInList';
 
 interface SupportCounterProps {
     user: User;
@@ -33,8 +33,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                 inline: true,
                 hoverable: true,
                 popup: this.list,
-                on: "click",
-                position : "bottom left"
+                on: 'click',
+                position : 'bottom left'
             });
             return;
         }
@@ -45,7 +45,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
             return;
         }
 
-        const action = this.state.supported ? "unsupport" : "support";
+        const action = this.state.supported ? 'unsupport' : 'support';
 
         try {
             await axios.post(`/api/ideas/${this.props.idea.number}/${action}`);
@@ -61,7 +61,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public render() {
-        const metadata = IdeaStatusMetadata[this.props.idea.status];
+        const status = IdeaStatus.Get(this.props.idea.status);
 
         const support = <div className="ui mini violet inverted animated button"
                     onClick={async () => await this.supportOrUndo()}>
@@ -87,7 +87,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                             <div className="value">
                                 { this.state.total }
                             </div>
-                            { metadata.closed ? disabled : this.state.supported ? undo : support }
+                            { status.closed ? disabled : this.state.supported ? undo : support }
                         </div>
                     </div>
                     <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">

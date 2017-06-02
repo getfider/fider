@@ -28,16 +28,33 @@ type Engine struct {
 func New(settings *models.AppSettings) *Engine {
 	router := echo.New()
 	router.Use(middleware.Gzip())
-	router.Static("/favicon.ico", "favicon.ico")
-	router.Logger = createLogger()
+	configureAssets(router)
+	router.Logger = NewLogger()
 	router.Renderer = NewHTMLRenderer(settings, router.Logger)
 	router.HTTPErrorHandler = errorHandler
 	return &Engine{router: router}
 }
 
+func configureAssets(router *echo.Echo) {
+	assets := router.Group("/assets")
+	assets.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Response().Header().Add("Cache-Control", "public, max-age=30672000")
+			return next(c)
+		}
+	})
+	assets.Static("/favicon.ico", "favicon.ico")
+	assets.Static("/", "dist")
+}
+
 //Start an HTTP server.
 func (e *Engine) Start(address string) {
 	e.router.Logger.Fatal(e.router.Start(address))
+}
+
+//Use middleware on root router
+func (e *Engine) Use(middleware MiddlewareFunc) {
+	e.router.Use(wrapMiddleware(middleware))
 }
 
 //Group is our router group wrapper
@@ -91,7 +108,7 @@ func errorHandler(e error, c echo.Context) {
 	}
 }
 
-func createLogger() echo.Logger {
+func NewLogger() echo.Logger {
 	logger := log.New("")
 	logger.SetHeader(`${level} [${time_rfc3339}]`)
 

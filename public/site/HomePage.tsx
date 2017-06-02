@@ -1,13 +1,13 @@
-import * as moment from "moment";
-import * as React from "react";
-import { Idea, User } from "../models";
-import * as storage from "../storage";
-import { Gravatar, MultiLineText, ShowIdeaResponse } from "../shared/Common";
-import { SupportCounter } from "../shared/SupportCounter";
+import * as moment from 'moment';
+import * as React from 'react';
+import { Idea, User } from '../models';
+import * as storage from '../storage';
+import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
+import { SupportCounter } from '../shared/SupportCounter';
 
-import { Footer } from "../shared/Footer";
-import { Header } from "../shared/Header";
-import { IdeaInput } from "./IdeaInput";
+import { Footer } from '../shared/Footer';
+import { Header } from '../shared/Header';
+import { IdeaInput } from './IdeaInput';
 
 export class HomePage extends React.Component<{}, {}> {
     private user: User;
@@ -16,7 +16,7 @@ export class HomePage extends React.Component<{}, {}> {
     constructor(props: {}) {
         super(props);
         this.user = storage.getCurrentUser();
-        this.ideas = storage.get<Idea[]>("ideas") || [];
+        this.ideas = storage.get<Idea[]>('ideas') || [];
     }
 
     public render() {

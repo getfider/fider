@@ -1,7 +1,7 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { Footer } from "../shared/Footer";
-import { Header } from "../shared/Header";
+import { Footer } from '../shared/Footer';
+import { Header } from '../shared/Header';
 
 export class HomePage extends React.Component<{}, {}> {
 
@@ -12,10 +12,10 @@ export class HomePage extends React.Component<{}, {}> {
     public render() {
       return <div>
                 <Header />
-                    <div className="ui container">
-                    <h1 className="ui header">Administration</h1>
-                    <span>You're a Member or Admin!</span>
-                    </div>
+                <div className="ui container">
+                <h1 className="ui header">Administration</h1>
+                <span>You're a Member or Admin!</span>
+                </div>
                 <Footer />
             </div>;
     }

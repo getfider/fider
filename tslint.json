@@ -14,6 +14,9 @@
         "no-var-requires": false,
         "member-ordering": [
             false
+        ],
+        "quotemark": [
+            true, "single", "jsx-double"
         ]
     }
 }

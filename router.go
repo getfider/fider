@@ -23,21 +23,14 @@ type AppServices struct {
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 	r := web.New(settings)
-
-	assets := r.Group("/assets")
-	{
-		assets.Use(middlewares.OneYearCache())
-		assets.Static("/", "dist")
-	}
+	r.Use(middlewares.Setup(db))
+	r.Use(middlewares.Tenant())
+	r.Use(middlewares.AddServices())
+	r.Use(middlewares.JwtGetter())
+	r.Use(middlewares.JwtSetter())
 
 	public := r.Group("")
 	{
-		public.Use(middlewares.Setup(db))
-		public.Use(middlewares.Tenant())
-		public.Use(middlewares.AddServices())
-		public.Use(middlewares.JwtGetter())
-		public.Use(middlewares.JwtSetter())
-
 		public.Get("/", handlers.Index())
 		public.Get("/ideas/:number", handlers.IdeaDetails())
 		public.Get("/ideas/:number/*", handlers.IdeaDetails())
@@ -47,11 +40,6 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 
 	private := r.Group("")
 	{
-		private.Use(middlewares.Setup(db))
-		private.Use(middlewares.Tenant())
-		private.Use(middlewares.AddServices())
-		private.Use(middlewares.JwtGetter())
-		private.Use(middlewares.JwtSetter())
 		private.Use(middlewares.IsAuthenticated())
 
 		private.Post("/api/ideas", handlers.PostIdea())
@@ -63,10 +51,6 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 
 	auth := r.Group("/oauth")
 	{
-		auth.Use(middlewares.Setup(db))
-		auth.Use(middlewares.Tenant())
-		auth.Use(middlewares.AddServices())
-
 		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
 		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
 		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
@@ -75,11 +59,6 @@ func GetMainEngine(settings *models.AppSettings, db *dbx.Database) *web.Engine {
 
 	admin := r.Group("/admin")
 	{
-		admin.Use(middlewares.Setup(db))
-		admin.Use(middlewares.Tenant())
-		admin.Use(middlewares.AddServices())
-		admin.Use(middlewares.JwtGetter())
-		admin.Use(middlewares.JwtSetter())
 		admin.Use(middlewares.IsAuthenticated())
 		admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 

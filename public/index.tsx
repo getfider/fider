@@ -1,17 +1,17 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
-import { HomePage as AdminHomePage } from "./admin/HomePage";
-import { HomePage as SiteHomePage } from "./site/HomePage";
-import { ShowIdeaPage } from "./site/ShowIdeaPage";
-import { setup } from "./storage";
+import { HomePage as AdminHomePage } from './admin/HomePage';
+import { HomePage as SiteHomePage } from './site/HomePage';
+import { ShowIdeaPage } from './site/ShowIdeaPage';
+import { setup } from './storage';
 
-import "./style/main.scss";
+import './style/main.scss';
 
 const pathRegex = [
-    { regex: new RegExp("^\/$"), component: <SiteHomePage /> },
-    { regex: new RegExp("^\/admin$"), component: <AdminHomePage /> },
-    { regex: new RegExp("^\/ideas\/\\d+.*$"), component: <ShowIdeaPage /> },
+    { regex: new RegExp('^\/$'), component: <SiteHomePage /> },
+    { regex: new RegExp('^\/admin$'), component: <AdminHomePage /> },
+    { regex: new RegExp('^\/ideas\/\\d+.*$'), component: <ShowIdeaPage /> },
 
 ];
 
@@ -27,9 +27,9 @@ const resolveRootComponent = (path: string): JSX.Element => {
 
 setup();
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   ReactDOM.render(
       resolveRootComponent(location.pathname),
-      document.getElementById("root")
+      document.getElementById('root')
   );
 });

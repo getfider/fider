@@ -1,13 +1,13 @@
-import * as React from "react";
-import * as moment from "moment";
-import md5 = require("md5");
-import { AxiosError, AxiosResponse } from "axios";
-import { get, getCurrentUser } from "../storage";
-import { User, IdeaResponse, IdeaStatusMetadata } from "../models";
+import * as React from 'react';
+import * as moment from 'moment';
+import md5 = require('md5');
+import { AxiosError, AxiosResponse } from 'axios';
+import { get, getCurrentUser } from '../storage';
+import { User, IdeaResponse, IdeaStatus } from '../models';
 
 export const Gravatar = (props: {email?: string}) => {
-  const hash = props.email ? md5(props.email) : "";
-  return <img className="ui avatar image" src={ "https://www.gravatar.com/avatar/" + hash } />;
+  const hash = props.email ? md5(props.email) : '';
+  return <img className="ui avatar image" src={ 'https://www.gravatar.com/avatar/' + hash } />;
 };
 
 export const MultiLineText = (props: {text?: string}) => {
@@ -15,7 +15,7 @@ export const MultiLineText = (props: {text?: string}) => {
     return <p></p>;
   }
 
-  return <div>{props.text.split("\n").map((item, i) =>
+  return <div>{props.text.split('\n').map((item, i) =>
    <span>{item}<br/></span>
   )}</div>;
 };
@@ -34,8 +34,8 @@ export const DisplayError = (props: {error?: Error}) => {
 };
 
 export const EnvironmentInfo = () => {
-  const settings = get<any>("settings");
-  if (settings.Environment.toLowerCase() !== "production") {
+  const settings = get<any>('settings');
+  if (settings.Environment.toLowerCase() !== 'production') {
     return <div className="ui mini negative message no-border no-margin">
                 Env: { settings.Environment } |
                 Compiler: { settings.Compiler } |
@@ -46,9 +46,8 @@ export const EnvironmentInfo = () => {
   return <div/>;
 };
 
-export const IdeaStatusRibbon = (props: { status: number }) => {
-  const metadata = IdeaStatusMetadata[props.status];
-  return <span className={`ui ribbon label ${metadata.color}`}>{ metadata.title }</span>;
+export const IdeaStatusRibbon = (props: { status: IdeaStatus }) => {
+  return <span className={`ui ribbon label ${props.status.color}`}>{ props.status.title }</span>;
 };
 
 interface IdeaResponseProps {
@@ -57,11 +56,11 @@ interface IdeaResponseProps {
 }
 
 export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  const metadata = IdeaStatusMetadata[props.status];
+  const status = IdeaStatus.Get(props.status);
 
-  if (props.response && metadata.showStatus) {
+  if (props.response && status.show) {
     return <div className="fdr-response item ui raised segment">
-            <IdeaStatusRibbon status={props.status} />
+            <IdeaStatusRibbon status={status} />
             <div className="info">
               <Gravatar email={props.response.user.email}/> <u>{props.response.user.name}</u>
               <span title={props.response.respondedOn.toString()}>

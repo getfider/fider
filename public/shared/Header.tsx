@@ -1,8 +1,8 @@
-import * as React from "react";
-import { User, Tenant } from "../models";
-import { get, getCurrentUser, isStaff } from "../storage";
-import { EnvironmentInfo, Gravatar } from "./Common";
-import { SocialSignInList } from "./SocialSignInList";
+import * as React from 'react';
+import { User, Tenant } from '../models';
+import { get, getCurrentUser, isStaff } from '../storage';
+import { EnvironmentInfo, Gravatar } from './Common';
+import { SocialSignInList } from './SocialSignInList';
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
@@ -14,7 +14,7 @@ export class Header extends React.Component<{}, {}> {
         super(props);
 
         this.user = getCurrentUser();
-        this.tenant = get<Tenant>("tenant");
+        this.tenant = get<Tenant>('tenant');
     }
 
     public componentDidMount() {
@@ -22,7 +22,7 @@ export class Header extends React.Component<{}, {}> {
             inline: true,
             hoverable: true,
             popup: this.list,
-            position : "bottom right"
+            position : 'bottom right'
         });
     }
 
@@ -57,7 +57,7 @@ export class Header extends React.Component<{}, {}> {
                             </a>
                             <a ref={(e) => { this.dropdown = e; } } className="item right signin">
                                 <Gravatar email={this.user.email} />
-                                { this.user.name || "Sign in" }
+                                { this.user.name || 'Sign in' }
                                 <i className="dropdown icon"></i>
                             </a>
                         </div>

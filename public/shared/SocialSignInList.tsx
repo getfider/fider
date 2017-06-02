@@ -1,6 +1,6 @@
-import * as React from "react";
-import { get } from "../storage";
-import { SocialSignInButton } from "./SocialSignInButton";
+import * as React from 'react';
+import { get } from '../storage';
+import { SocialSignInButton } from './SocialSignInButton';
 
 interface AuthSettings {
     endpoint: string;
@@ -11,13 +11,13 @@ interface AuthSettings {
 }
 
 interface SocialSignInListProps {
-    size: "small" | "normal";
-    orientation: "horizontal" | "vertical";
+    size: 'small' | 'normal';
+    orientation: 'horizontal' | 'vertical';
 }
 
 export const SocialSignInList = (props: SocialSignInListProps) => {
-    const settings = get<AuthSettings>("auth");
-    const cssClasses = props.orientation === "horizontal" ? "horizontal divided" : "";
+    const settings = get<AuthSettings>('auth');
+    const cssClasses = props.orientation === 'horizontal' ? 'horizontal divided' : '';
 
     const google = settings.providers.google &&
                     <div className="item">

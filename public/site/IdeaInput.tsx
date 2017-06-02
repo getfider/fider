@@ -1,8 +1,8 @@
-import axios from "axios";
-import * as React from "react";
-import { getCurrentUser } from "../storage";
-import { DisplayError } from "../shared/Common";
-import { SocialSignInList } from "../shared/SocialSignInList";
+import axios from 'axios';
+import * as React from 'react';
+import { getCurrentUser } from '../storage';
+import { DisplayError } from '../shared/Common';
+import { SocialSignInList } from '../shared/SocialSignInList';
 
 interface IdeaInputState {
     title: string;
@@ -16,7 +16,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
     constructor() {
         super();
         this.state = {
-          title: "",
+          title: '',
           clicked: false
         };
     }
@@ -28,7 +28,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
       });
 
       try {
-        await axios.post("/api/ideas", {
+        await axios.post('/api/ideas', {
           title: this.state.title,
           description: this.description.value
         });
@@ -44,7 +44,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     public render() {
         const user = getCurrentUser();
-        const buttonClasses = `ui primary button ${this.state.clicked && "loading disabled"}`;
+        const buttonClasses = `ui primary button ${this.state.clicked && 'loading disabled'}`;
         const details = user ?
                         <div>
                           <div className="field">

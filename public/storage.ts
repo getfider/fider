@@ -1,4 +1,4 @@
-import { User } from "./models";
+import { User } from './models';
 
 const w: any = window;
 
@@ -10,11 +10,11 @@ export function setup() {
 }
 
 export function setUser(user: User) {
-  set<User>("user", user);
+  set<User>('user', user);
 }
 
 export function getCurrentUser(): User {
-  return get<User>("user");
+  return get<User>('user');
 }
 
 export function isStaff() {
