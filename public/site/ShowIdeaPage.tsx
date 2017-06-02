@@ -7,7 +7,7 @@ import { CommentInput } from "../shared/CommentInput";
 import { Gravatar, MultiLineText, ShowIdeaResponse } from "../shared/Common";
 import { SocialSignInButton } from "../shared/SocialSignInButton";
 import { SupportCounter } from "../shared/SupportCounter";
-import { RespondForm } from "../shared/RespondForm";
+import { ResponseForm } from "../shared/ResponseForm";
 
 import { Footer } from "../shared/Footer";
 import { Header } from "../shared/Header";
@@ -73,7 +73,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
                     <div className="ui hidden divider"></div>
-                    <RespondForm idea={ this.idea } />
+                    <ResponseForm idea={ this.idea } />
 
                     <div className="ui comments">
                       <h3 className="ui dividing header">Comments</h3>

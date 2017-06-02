@@ -38,13 +38,13 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 
-// GetCommentsByIdeaID returns all coments from given idea
-func (s *IdeaStorage) GetCommentsByIdeaID(ideaID int) ([]*models.Comment, error) {
+// GetCommentsByIdea returns all coments from given idea
+func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	return make([]*models.Comment, 0), nil
 }
 
-// Save a new idea in the database
-func (s *IdeaStorage) Save(userID int, title, description string) (*models.Idea, error) {
+// Add a new idea in the database
+func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
 	s.lastID = s.lastID + 1
 	idea := &models.Idea{
 		ID:          s.lastID,
@@ -57,34 +57,34 @@ func (s *IdeaStorage) Save(userID int, title, description string) (*models.Idea,
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
+func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, error) {
 	return 0, nil
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
-	for _, idea := range s.ideas {
-		if idea.ID == ideaID {
-			idea.TotalSupporters = idea.TotalSupporters + 1
-		}
+func (s *IdeaStorage) AddSupporter(number, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
 	}
+	idea.TotalSupporters = idea.TotalSupporters + 1
 	return nil
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
-	for _, idea := range s.ideas {
-		if idea.ID == ideaID {
-			idea.TotalSupporters = idea.TotalSupporters - 1
-		}
+func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
 	}
+	idea.TotalSupporters = idea.TotalSupporters - 1
 	return nil
 }
 
 // SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(ideaID int, text string, userID, status int) error {
+func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
 	for _, idea := range s.ideas {
-		if idea.ID == ideaID {
+		if idea.Number == number {
 			idea.Response = &models.IdeaResponse{
 				Text:      text,
 				User:      &models.User{ID: userID},

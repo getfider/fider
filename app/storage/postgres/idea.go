@@ -139,8 +139,8 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	return idea.toModel(), nil
 }
 
-// GetCommentsByIdeaID returns all coments from given idea
-func (s *IdeaStorage) GetCommentsByIdeaID(ideaID int) ([]*models.Comment, error) {
+// GetCommentsByIdea returns all coments from given idea
+func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.Trx.Select(&comments,
 		`SELECT c.id, 
@@ -154,9 +154,9 @@ func (s *IdeaStorage) GetCommentsByIdeaID(ideaID int) ([]*models.Comment, error)
 		ON i.id = c.idea_id
 		INNER JOIN users u
 		ON u.id = c.user_id
-		WHERE i.id = $1
+		WHERE i.number = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on DESC`, ideaID, s.Tenant.ID)
+		ORDER BY c.created_on DESC`, number, s.Tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -168,26 +168,28 @@ func (s *IdeaStorage) GetCommentsByIdeaID(ideaID int) ([]*models.Comment, error)
 	return result, nil
 }
 
-// Save a new idea in the database
-func (s *IdeaStorage) Save(userID int, title, description string) (*models.Idea, error) {
-	idea := new(models.Idea)
-	idea.Title = title
-	idea.Description = description
-
+// Add a new idea in the database
+func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
+	var id int
 	row := s.Trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
 						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
 						RETURNING id`, title, slug.Make(title), description, s.Tenant.ID, userID, time.Now())
-	if err := row.Scan(&idea.ID); err != nil {
+	if err := row.Scan(&id); err != nil {
 		return nil, err
 	}
 
-	return idea, nil
+	return s.GetByID(id)
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error) {
+func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, error) {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return 0, err
+	}
+
 	var id int
-	if err := s.Trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", ideaID, content, userID, time.Now()).Scan(&id); err != nil {
+	if err := s.Trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", idea.ID, content, userID, time.Now()).Scan(&id); err != nil {
 		return 0, err
 	}
 
@@ -195,8 +197,8 @@ func (s *IdeaStorage) AddComment(userID, ideaID int, content string) (int, error
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
-	idea, err := s.GetByID(ideaID)
+func (s *IdeaStorage) AddSupporter(number, userID int) error {
+	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err
 	}
@@ -204,7 +206,7 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 		return nil
 	}
 
-	alreadySupported, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	alreadySupported, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
 	if err != nil {
 		return err
 	}
@@ -213,11 +215,11 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 		return nil
 	}
 
-	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, ideaID); err != nil {
+	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, idea.ID); err != nil {
 		return err
 	}
 
-	if err := s.Trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, ideaID, time.Now()); err != nil {
+	if err := s.Trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now()); err != nil {
 		return err
 	}
 
@@ -225,8 +227,8 @@ func (s *IdeaStorage) AddSupporter(userID, ideaID int) error {
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
-	idea, err := s.GetByID(ideaID)
+func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
+	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err
 	}
@@ -235,7 +237,7 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 		return nil
 	}
 
-	didSupport, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, ideaID)
+	didSupport, err := s.Trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
 	if err != nil {
 		return err
 	}
@@ -244,11 +246,11 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 		return nil
 	}
 
-	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, ideaID); err != nil {
+	if err := s.Trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, idea.ID); err != nil {
 		return err
 	}
 
-	if err := s.Trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, ideaID); err != nil {
+	if err := s.Trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID); err != nil {
 		return err
 	}
 
@@ -256,8 +258,17 @@ func (s *IdeaStorage) RemoveSupporter(userID, ideaID int) error {
 }
 
 // SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(ideaID int, text string, userID, status int) error {
-	if err := s.Trx.Execute(`UPDATE ideas SET response = $3, response_date = $4, response_user_id = $5, status = $6 WHERE id = $1 and tenant_id = $2`, ideaID, s.Tenant.ID, text, time.Now(), userID, status); err != nil {
+func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+
+	if err := s.Trx.Execute(`
+	UPDATE ideas 
+	SET response = $3, response_date = $4, response_user_id = $5, status = $6 
+	WHERE id = $1 and tenant_id = $2
+	`, idea.ID, s.Tenant.ID, text, time.Now(), userID, status); err != nil {
 		return err
 	}
 	return nil

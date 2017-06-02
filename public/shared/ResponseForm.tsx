@@ -2,21 +2,23 @@ import axios from "axios";
 import * as React from "react";
 import * as storage from "../storage";
 import { User, Comment, Idea } from "../models";
+import { DisplayError } from "./Common";
 
-interface RespondFormProps {
+interface ResponseFormProps {
   idea: Idea;
 }
 
-interface RespondFormState {
+interface ResponseFormState {
   active: boolean;
+  error?: Error;
 }
 
-export class RespondForm extends React.Component<RespondFormProps, RespondFormState> {
+export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
   private user: User;
   private text: HTMLTextAreaElement;
   private status: HTMLSelectElement;
 
-  constructor(props: RespondFormProps) {
+  constructor(props: ResponseFormProps) {
     super(props);
 
     this.user = storage.getCurrentUser();
@@ -33,7 +35,9 @@ export class RespondForm extends React.Component<RespondFormProps, RespondFormSt
         });
         location.reload();
     } catch (ex) {
-        // TODO: handle this
+        this.setState({
+          error: ex.response.data
+        });
     }
   }
 
@@ -51,6 +55,7 @@ export class RespondForm extends React.Component<RespondFormProps, RespondFormSt
                       <i className="icon announcement"></i>Respond
                     </div>;
     const form = <form className="ui reply form">
+                  <DisplayError error={this.state.error} />
                   <div className="two fields">
                     <div className="field">
                       <label>Status</label>

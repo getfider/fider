@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/labstack/echo"
 )
@@ -42,12 +43,12 @@ func PostIdea() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.Save(c.User().ID, input.Title, input.Description)
+		idea, err := ideas.Add(input.Title, input.Description, c.User().ID)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := ideas.AddSupporter(c.User().ID, idea.ID); err != nil {
+		if err := ideas.AddSupporter(idea.Number, c.User().ID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -72,7 +73,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdeaID(idea.ID)
+		comments, err := ideas.GetCommentsByIdea(number)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -108,16 +109,11 @@ func PostComment() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(ideaNumber)
+		_, err = ideas.AddComment(ideaNumber, input.Content, c.User().ID)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
 			}
-			return c.Failure(err)
-		}
-
-		_, err = ideas.AddComment(c.User().ID, idea.ID, input.Content)
-		if err != nil {
 			return c.Failure(err)
 		}
 
@@ -138,22 +134,29 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if input.Status < models.IdeaNew || input.Status > models.IdeaDeclined {
+			return c.JSON(400, echo.Map{
+				"message": "Status is invalid.",
+			})
+		}
+
+		if strings.Trim(input.Text, " ") == "" {
+			return c.JSON(400, echo.Map{
+				"message": "Text is required.",
+			})
+		}
+
 		ideaNumber, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(ideaNumber)
+		err = ideas.SetResponse(ideaNumber, input.Text, c.User().ID, input.Status)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
 			}
-			return c.Failure(err)
-		}
-
-		err = ideas.SetResponse(idea.ID, input.Text, c.User().ID, input.Status)
-		if err != nil {
 			return c.Failure(err)
 		}
 
@@ -175,22 +178,17 @@ func RemoveSupporter() web.HandlerFunc {
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, addOrRemove func(userId, ideaId int) error) error {
+func addOrRemoveSupporter(c web.Context, addOrRemove func(number, userID int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	idea, err := c.Services().Ideas.GetByNumber(ideaNumber)
+	err = addOrRemove(ideaNumber, c.User().ID)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return c.NotFound()
 		}
-		return c.Failure(err)
-	}
-
-	err = addOrRemove(c.User().ID, idea.ID)
-	if err != nil {
 		return c.Failure(err)
 	}
 

@@ -31,7 +31,7 @@ func TestDetailsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	idea, _ := ideas.Save(1, "My Idea", "My Idea Description")
+	idea, _ := ideas.Add("My Idea", "My Idea Description", 1)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -96,7 +96,7 @@ func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, "Title", "Description")
+	ideas.Add("Title", "Description", 1)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -129,8 +129,8 @@ func TestAddSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, "The Idea #1", "The Description #1")
-	ideas.Save(1, "The Idea #2", "The Description #2")
+	ideas.Add("The Idea #1", "The Description #1", 1)
+	ideas.Add("The Idea #2", "The Description #2", 1)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -167,10 +167,10 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, "The Idea #1", "The Description #1")
+	ideas.Add("The Idea #1", "The Description #1", 1)
 	ideas.AddSupporter(1, 1)
-	ideas.AddSupporter(2, 1)
-	ideas.AddSupporter(3, 1)
+	ideas.AddSupporter(1, 2)
+	ideas.AddSupporter(1, 3)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
