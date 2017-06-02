@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	_ "github.com/lib/pq"
 	_ "github.com/mattes/migrate/database/postgres"
@@ -20,12 +19,6 @@ func main() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
-	db, err := dbx.New()
-	if err != nil {
-		panic(err)
-	}
-	db.Migrate()
-
 	settings := &models.AppSettings{
 		BuildTime:   buildtime,
 		Version:     version,
@@ -33,6 +26,6 @@ func main() {
 		Environment: env.Current(),
 	}
 
-	e := GetMainEngine(settings, db)
+	e := GetMainEngine(settings)
 	e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
 }

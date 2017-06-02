@@ -9,6 +9,6 @@ import (
 func TestGetMainEngine(t *testing.T) {
 	RegisterTestingT(t)
 
-	r := GetMainEngine(nil, nil)
+	r := GetMainEngine(nil)
 	Expect(r).ToNot(BeNil())
 }

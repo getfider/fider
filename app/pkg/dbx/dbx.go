@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"reflect"
 
+	"strings"
+
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/labstack/gommon/log"
 	"github.com/mattes/migrate"
 
 	//required
@@ -17,24 +20,30 @@ import (
 
 // New creates a new Database instance
 func New() (*Database, error) {
+	return NewWithLogger(log.New(""))
+}
+
+// NewWithLogger creates a new Database instance with logging
+func NewWithLogger(logger *log.Logger) (*Database, error) {
 	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
 
-	db := &Database{conn}
+	db := &Database{conn, logger}
 	return db, nil
 }
 
 // Database represents a connection to a SQL database
 type Database struct {
-	conn *sql.DB
+	conn   *sql.DB
+	logger *log.Logger
 }
 
 // Begin returns a new SQL transaction
 func (db Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
-	return &Trx{tx: tx}, err
+	return &Trx{tx: tx, logger: db.logger}, err
 }
 
 // Close connection to database
@@ -119,7 +128,7 @@ func (db Database) Seed() {
 // Migrate the database to latest verion
 func (db Database) Migrate() {
 
-	fmt.Printf("Running migrations... \n")
+	db.logger.Info("Running migrations...")
 	m, err := migrate.New(
 		"file://"+env.Path("migrations"),
 		env.MustGet("DATABASE_URL"),
@@ -130,22 +139,49 @@ func (db Database) Migrate() {
 	}
 
 	if err != nil && err != migrate.ErrNoChange {
-		fmt.Printf("Error: %s.\n", err)
+		db.logger.Infof("Error: %s.", err)
 
 		panic("Migrations failed.")
 	} else {
-		fmt.Printf("Migrations finished with success.\n")
+		db.logger.Info("Migrations finished with success.")
 	}
 }
 
 //Trx represents a Database transaction
 type Trx struct {
-	tx *sql.Tx
+	tx     *sql.Tx
+	logger *log.Logger
+}
+
+// QueryRow the database with given SQL command and returns only one row
+func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
+	command = formatCommand(command)
+	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
+	return trx.tx.QueryRow(command, args...)
 }
 
 // Query the database with given SQL command
 func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
+	command = formatCommand(command)
+	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
 	return trx.tx.Query(command, args...)
+}
+
+// Execute given SQL command
+func (trx Trx) Execute(command string, args ...interface{}) error {
+	command = formatCommand(command)
+	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
+	_, err := trx.tx.Exec(command, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func formatCommand(cmd string) string {
+	cmd = strings.Replace(cmd, "\t", "", -1)
+	cmd = strings.Replace(cmd, "\n", " ", -1)
+	return cmd
 }
 
 // Get first row and bind to given data
@@ -163,21 +199,12 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 	return sql.ErrNoRows
 }
 
-// Execute given SQL command
-func (trx Trx) Execute(command string, args ...interface{}) error {
-	_, err := trx.tx.Exec(command, args...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // QueryIntArray executes given SQL command and return first column as int
 func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
 	values := make([]int, 0)
 	var value int
 
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.Query(command, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -196,14 +223,9 @@ func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error)
 	return values, nil
 }
 
-// QueryRow the database with given SQL command and returns only one row
-func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
-	return trx.tx.QueryRow(command, args...)
-}
-
 // Exists returns true if at least one record is found
 func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.Query(command, args...)
 	if rows != nil {
 		defer rows.Close()
 		return rows.Next(), nil
@@ -213,7 +235,7 @@ func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
 
 // Count returns number of rows
 func (trx Trx) Count(command string, args ...interface{}) (int, error) {
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.Query(command, args...)
 	defer rows.Close()
 	count := 0
 	for rows != nil && rows.Next() {
@@ -224,7 +246,7 @@ func (trx Trx) Count(command string, args ...interface{}) (int, error) {
 
 //Select all matched rows bind to given data
 func (trx Trx) Select(data interface{}, command string, args ...interface{}) error {
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.Query(command, args...)
 	if err != nil {
 		return err
 	}

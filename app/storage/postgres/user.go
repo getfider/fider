@@ -96,7 +96,7 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 		return nil, err
 	}
 
-	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID)
+	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID.Int64)
 	if err != nil {
 		return nil, err
 	}

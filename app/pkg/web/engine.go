@@ -22,29 +22,20 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 //Engine is our web engine wrapper
 type Engine struct {
 	router *echo.Echo
+	Logger *log.Logger
 }
 
 //New creates a new Engine
 func New(settings *models.AppSettings) *Engine {
 	router := echo.New()
 	router.Use(middleware.Gzip())
-	configureAssets(router)
-	router.Logger = NewLogger()
+
+	logger := NewLogger()
+	router.Logger = logger
+
 	router.Renderer = NewHTMLRenderer(settings, router.Logger)
 	router.HTTPErrorHandler = errorHandler
-	return &Engine{router: router}
-}
-
-func configureAssets(router *echo.Echo) {
-	assets := router.Group("/assets")
-	assets.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Response().Header().Add("Cache-Control", "public, max-age=30672000")
-			return next(c)
-		}
-	})
-	assets.Static("/favicon.ico", "favicon.ico")
-	assets.Static("/", "dist")
+	return &Engine{router: router, Logger: logger}
 }
 
 //Start an HTTP server.
@@ -68,7 +59,7 @@ func (e *Engine) NewContext(req *http.Request, w http.ResponseWriter) Context {
 	return Context{Context: context}
 }
 
-//Group creates a new router group with prefix and optional group-level middleware
+//Group creates a new router group with prefix
 func (e *Engine) Group(preffix string) *Group {
 	return &Group{group: e.router.Group(preffix)}
 }
@@ -81,6 +72,11 @@ func (e *Engine) HandleError(err error, ctx Context) {
 //Use add middleware to sub-routes within the Group
 func (g *Group) Use(middleware MiddlewareFunc) {
 	g.group.Use(wrapMiddleware(middleware))
+}
+
+//Group creates asub-group with prefix
+func (g *Group) Group(preffix string) *Group {
+	return &Group{group: g.group.Group(preffix)}
 }
 
 //Static return files from given folder
@@ -109,8 +105,9 @@ func errorHandler(e error, c echo.Context) {
 }
 
 // NewLogger creates a new logger
-func NewLogger() echo.Logger {
+func NewLogger() *log.Logger {
 	logger := log.New("")
+	logger.EnableColor()
 	logger.SetHeader(`${level} [${time_rfc3339}]`)
 
 	if env.IsProduction() {

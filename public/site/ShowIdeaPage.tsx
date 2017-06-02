@@ -74,7 +74,8 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
                     {
                       storage.isStaff() &&
-                      <div className="ui hidden divider">
+                      <div>
+                        <div className="ui hidden divider"></div>
                         <ResponseForm idea={ this.idea } />
                       </div>
                     }

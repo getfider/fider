@@ -9,7 +9,7 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// JwtGetter gets JWT token from cookie and add into context
+// JwtGetter gets JWT token from cookie and insert into context
 func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {

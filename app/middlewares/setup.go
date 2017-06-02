@@ -8,12 +8,16 @@ import (
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
+	"github.com/labstack/gommon/log"
 )
 
 //Setup current context with some services
 func Setup(db *dbx.Database) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
+			logger := c.Logger().(*log.Logger)
+			logger.Debugf("HTTP Request %s", logger.Color().Bold(logger.Color().RedBg(c.Request().URL)))
+
 			trx, err := db.Begin()
 			if err != nil {
 				return err
@@ -38,6 +42,7 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 			}()
 
 			err = next(c)
+
 			if err != nil {
 				trx.Rollback()
 				return err
