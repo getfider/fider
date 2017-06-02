@@ -42,12 +42,12 @@ func PostIdea() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.Save(c.Tenant().ID, c.User().ID, input.Title, input.Description)
+		idea, err := ideas.Save(c.User().ID, input.Title, input.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := ideas.AddSupporter(c.Tenant().ID, c.User().ID, idea.ID); err != nil {
+		if err := ideas.AddSupporter(c.User().ID, idea.ID); err != nil {
 			return c.Failure(err)
 		}
 
@@ -58,15 +58,13 @@ func PostIdea() web.HandlerFunc {
 // IdeaDetails shows details of given Idea by id
 func IdeaDetails() web.HandlerFunc {
 	return func(c web.Context) error {
-		tenant := c.Tenant()
-
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(tenant.ID, number)
+		idea, err := ideas.GetByNumber(number)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -74,7 +72,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdeaID(tenant.ID, idea.ID)
+		comments, err := ideas.GetCommentsByIdeaID(idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -110,7 +108,7 @@ func PostComment() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		idea, err := ideas.GetByNumber(ideaNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -146,7 +144,7 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+		idea, err := ideas.GetByNumber(ideaNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -154,7 +152,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = ideas.SetResponse(c.Tenant().ID, idea.ID, input.Text, c.User().ID, input.Status)
+		err = ideas.SetResponse(idea.ID, input.Text, c.User().ID, input.Status)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -177,13 +175,13 @@ func RemoveSupporter() web.HandlerFunc {
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, addOrRemove func(tenantId, userId, ideaId int) error) error {
+func addOrRemoveSupporter(c web.Context, addOrRemove func(userId, ideaId int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	idea, err := c.Services().Ideas.GetByNumber(c.Tenant().ID, ideaNumber)
+	idea, err := c.Services().Ideas.GetByNumber(ideaNumber)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return c.NotFound()
@@ -191,7 +189,7 @@ func addOrRemoveSupporter(c web.Context, addOrRemove func(tenantId, userId, idea
 		return c.Failure(err)
 	}
 
-	err = addOrRemove(c.Tenant().ID, c.User().ID, idea.ID)
+	err = addOrRemove(c.User().ID, idea.ID)
 	if err != nil {
 		return c.Failure(err)
 	}

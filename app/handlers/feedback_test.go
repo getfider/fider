@@ -31,7 +31,7 @@ func TestDetailsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	idea, _ := ideas.Save(1, 1, "My Idea", "My Idea Description")
+	idea, _ := ideas.Save(1, "My Idea", "My Idea Description")
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -96,7 +96,7 @@ func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, 1, "Title", "Description")
+	ideas.Save(1, "Title", "Description")
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -129,8 +129,8 @@ func TestAddSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, 1, "The Idea #1", "The Description #1")
-	ideas.Save(1, 1, "The Idea #2", "The Description #2")
+	ideas.Save(1, "The Idea #1", "The Description #1")
+	ideas.Save(1, "The Idea #2", "The Description #2")
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -139,8 +139,8 @@ func TestAddSupporterHandler(t *testing.T) {
 	server.Context.SetParamValues("2")
 
 	code, _ := server.Execute(handlers.AddSupporter())
-	first, _ := ideas.GetByNumber(1, 1)
-	second, _ := ideas.GetByNumber(1, 2)
+	first, _ := ideas.GetByNumber(1)
+	second, _ := ideas.GetByNumber(2)
 
 	Expect(code).To(Equal(200))
 	Expect(first.TotalSupporters).To(Equal(0))
@@ -167,10 +167,10 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Save(1, 1, "The Idea #1", "The Description #1")
-	ideas.AddSupporter(1, 1, 1)
-	ideas.AddSupporter(1, 2, 1)
-	ideas.AddSupporter(1, 3, 1)
+	ideas.Save(1, "The Idea #1", "The Description #1")
+	ideas.AddSupporter(1, 1)
+	ideas.AddSupporter(2, 1)
+	ideas.AddSupporter(3, 1)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
@@ -179,7 +179,7 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	server.Context.SetParamValues("1")
 
 	code, _ := server.Execute(handlers.RemoveSupporter())
-	idea, _ := ideas.GetByNumber(1, 1)
+	idea, _ := ideas.GetByNumber(1)
 
 	Expect(code).To(Equal(200))
 	Expect(idea.TotalSupporters).To(Equal(2))
