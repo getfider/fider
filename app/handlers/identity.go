@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -106,6 +107,18 @@ func Login(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
+	}
+}
+
+// Logout remove auth cookies
+func Logout() web.HandlerFunc {
+	return func(c web.Context) error {
+		c.SetCookie(&http.Cookie{
+			Name:    "auth",
+			MaxAge:  -1,
+			Expires: time.Now().Add(-100 * time.Hour),
+		})
+		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
 	}
 }
 

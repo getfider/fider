@@ -41,9 +41,9 @@ func (i *dbIdea) toModel() *models.Idea {
 
 	if i.Response.Valid {
 		idea.Response = &models.IdeaResponse{
-			Text:      i.Response.String,
-			CreatedOn: i.RespondedOn.Time,
-			User:      i.ResponseUser.toModel(),
+			Text:        i.Response.String,
+			RespondedOn: i.RespondedOn.Time,
+			User:        i.ResponseUser.toModel(),
 		}
 	}
 	return idea

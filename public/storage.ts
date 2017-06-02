@@ -17,6 +17,10 @@ export function getCurrentUser(): User {
   return get<User>("user");
 }
 
+export function isStaff() {
+    return getCurrentUser().role >= 2;
+}
+
 export function set<T>(key: string, value: T) {
   w[`_${key}`] = value;
 }

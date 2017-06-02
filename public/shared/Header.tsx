@@ -1,6 +1,6 @@
 import * as React from "react";
 import { User, Tenant } from "../models";
-import { get, getCurrentUser } from "../storage";
+import { get, getCurrentUser, isStaff } from "../storage";
 import { EnvironmentInfo, Gravatar } from "./Common";
 import { SocialSignInList } from "./SocialSignInList";
 
@@ -32,7 +32,8 @@ export class Header extends React.Component<{}, {}> {
                             <div className="item">
                                 <b>{ this.user.email }</b>
                             </div>
-                            {   this.isStaff() &&
+                            {
+                                isStaff() &&
                                 <div className="item">
                                     <a href="/admin">
                                         Administration
@@ -65,9 +66,5 @@ export class Header extends React.Component<{}, {}> {
                         { items }
                     </div>
                </div>;
-    }
-
-    private isStaff() {
-        return this.user.role >= 2;
     }
 }

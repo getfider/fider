@@ -86,9 +86,9 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	for _, idea := range s.ideas {
 		if idea.Number == number {
 			idea.Response = &models.IdeaResponse{
-				Text:      text,
-				User:      &models.User{ID: userID},
-				CreatedOn: time.Now(),
+				Text:        text,
+				User:        &models.User{ID: userID},
+				RespondedOn: time.Now(),
 			}
 		}
 	}

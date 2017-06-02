@@ -18,9 +18,9 @@ type Idea struct {
 
 //IdeaResponse is a staff response to a given idea
 type IdeaResponse struct {
-	Text      string    `json:"text"`
-	CreatedOn time.Time `json:"createdOn"` //TODO: Rename??
-	User      *User     `json:"user"`
+	Text        string    `json:"text"`
+	RespondedOn time.Time `json:"respondedOn"`
+	User        *User     `json:"user"`
 }
 
 //Comment represents an user comment on an idea

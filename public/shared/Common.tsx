@@ -64,7 +64,9 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
             <IdeaStatusRibbon status={props.status} />
             <div className="info">
               <Gravatar email={props.response.user.email}/> <u>{props.response.user.name}</u>
-              <span title={props.response.createdOn.toString()}>{ moment(props.response.createdOn).fromNow() }</span>
+              <span title={props.response.respondedOn.toString()}>
+                { moment(props.response.respondedOn).fromNow() }
+              </span>
             </div>
             <div className="content">
               <MultiLineText text={ props.response.text } />

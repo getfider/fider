@@ -63,7 +63,7 @@ IdeaStatusMetadata[IdeaDeclined] = {
 export interface IdeaResponse {
   user: User;
   text: string;
-  createdOn: Date;
+  respondedOn: Date;
 }
 
 export interface Comment {

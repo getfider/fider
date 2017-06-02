@@ -55,7 +55,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                 total: this.state.total + (this.state.supported ? -1 : 1)
             });
         } catch (ex) {
-            // TODO: handle this
+            // TODO: handle this. we should have a global alert box
         }
 
     }
