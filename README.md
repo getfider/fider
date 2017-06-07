@@ -1,4 +1,4 @@
-![](/public/imgs/logo2.png)
+![](/public/imgs/logo.png)
 
 [![status](https://app.wercker.com/status/99ca65c4a8cd5711504a19deedbc6461/s/master)](https://app.wercker.com/project/byKey/99ca65c4a8cd5711504a19deedbc6461)
 [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)
@@ -6,6 +6,8 @@
 # What is Fider?
 
 Visit http://getfider.com for information on what it is and how to use it.
+
+[Live Demo](http://demo.fider.io/) | [Tell us what to do next](http://feedback.fider.io/)
 
 ![](docs/homepage.png)
 
