@@ -28,12 +28,12 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
       });
 
       try {
-        await axios.post('/api/ideas', {
+        const response = await axios.post('/api/ideas', {
           title: this.state.title,
           description: this.description.value
         });
 
-        location.reload();
+        location.href = `/ideas/${response.data.id}/${response.data.slug}`;
       } catch (ex) {
         this.setState({
           clicked: false,
