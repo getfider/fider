@@ -164,7 +164,7 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		ON u.id = c.user_id
 		WHERE i.number = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on DESC`, number, s.tenant.ID)
+		ORDER BY c.created_on ASC`, number, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
