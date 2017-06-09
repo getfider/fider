@@ -122,8 +122,8 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(len(comments)).To(Equal(2))
 
-	Expect(comments[0].Content).To(Equal("Comment #2"))
-	Expect(comments[1].Content).To(Equal("Comment #1"))
+	Expect(comments[0].Content).To(Equal("Comment #1"))
+	Expect(comments[1].Content).To(Equal("Comment #2"))
 }
 
 func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
