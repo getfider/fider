@@ -17,6 +17,9 @@
         ],
         "quotemark": [
             true, "single", "jsx-double"
+        ],
+        "max-line-length": [
+            false
         ]
     }
 }

@@ -52,6 +52,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
 			public.Get("/logout", handlers.Logout())
 			public.Get("/api/status", handlers.Status(settings))
+			public.Get("/install", func(ctx web.Context) error {
+				return ctx.Page(echo.Map{})
+			})
 		}
 
 		private := page.Group("")
