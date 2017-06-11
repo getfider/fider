@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Footer } from '../shared/Footer';
-import { EnvironmentInfo } from '../shared/Common';
+import { EnvironmentInfo, Gravatar } from '../shared/Common';
 import { AppSettings } from '../models';
 import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
@@ -11,14 +11,49 @@ const logo = require('../imgs/logo.png');
 
 import './signup.scss';
 
+function getQueryStringParameter(name: string) {
+    const url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+    const results = regex.exec(url);
+
+    if (!results) {
+        return null;
+    }
+
+    if (!results[2]) {
+        return '';
+    }
+
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+interface OAuthUser {
+    jwt: string;
+    name: string;
+    email: string;
+}
+
 export class SignUpPage extends React.Component<{}, {}> {
     private settings: AppSettings;
+    private user: OAuthUser;
 
     constructor(props: {}) {
         super(props);
 
         this.settings = getAppSettings();
         setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
+
+        const jwt = getQueryStringParameter('jwt');
+        if (jwt) {
+            const segments = jwt.split('.');
+            const data = JSON.parse(window.atob(segments[1]));
+            this.user = {
+                jwt,
+                name: data['oauth/name'],
+                email: data['oauth/email']
+            };
+        }
     }
 
     public render() {
@@ -28,8 +63,22 @@ export class SignUpPage extends React.Component<{}, {}> {
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
-                    <p>We need to identify you in order to setup your new Fider instance.</p>
-                    <SocialSignInList size="normal" orientation="horizontal" />
+
+                    {
+                        this.user ?
+                        <div>
+                            <p>
+                                Hello, &nbsp;
+                                <Gravatar email={this.user.email} />
+                                <b>{this.user.name}</b> ({this.user.email})
+                            </p>
+                        </div> :
+                        <div>
+                            <p>We need to identify you in order to setup your new Fider instance.</p>
+                            <SocialSignInList size="normal" orientation="horizontal" />
+                        </div>
+                    }
+
                     <div className="ui section divider"></div>
 
                     <h3 className="ui header">2. Organization details</h3>

@@ -78,7 +78,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.n73-Qqhb_6lIALS_H3UzrEuzLTHgtS6nCkG_Ua95v7s"))
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
@@ -96,7 +96,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	Expect(user.Name).To(Equal("Some Facebook Guy"))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.PGavs5a6HRotRozfXfNP39JPb0vSus_8LL9MAOeLGDs"))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.QklasoVtsMu_urLZsJv0CDu0VuMFI2CNC78ckx0nSfQ"))
 }
 
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
@@ -113,5 +113,5 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(len(user.Providers)).To(Equal(2))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.6_dLZrulH37ymBtqy-l7bhCti9hBv0lgEhH8tLm07CI"))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.n73-Qqhb_6lIALS_H3UzrEuzLTHgtS6nCkG_Ua95v7s"))
 }

@@ -40,6 +40,8 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	signup := r.Group("/signup")
 	{
 		signup.Use(middlewares.Setup(db))
+		signup.Use(middlewares.AddServices())
+
 		signup.Get("", func(ctx web.Context) error {
 			return ctx.Page(echo.Map{})
 		})

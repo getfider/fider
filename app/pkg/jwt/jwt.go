@@ -1,15 +1,15 @@
 package jwt
 
 import (
+	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
 var jwtSecret = env.MustGet("JWT_SECRET")
 
 //Encode creates new JWT tokens with given claims
-func Encode(claims *models.FiderClaims) (string, error) {
+func Encode(claims jwtgo.Claims) (string, error) {
 	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("HS256"), claims)
 	return jwtToken.SignedString([]byte(jwtSecret))
 }

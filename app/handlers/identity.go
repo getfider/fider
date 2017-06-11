@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	jwtgo "github.com/dgrijalva/jwt-go"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -33,60 +35,71 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, redirect)
 		}
 
-		tenant := c.Tenant()
-		if tenant == nil {
-			// should get from context
-			// Single/Multi middleware should handle auth endpoint properly
-			// .Set("AuthEndpoint") is not good as well
-			tenant, err = c.Services().Tenants.GetByDomain(stripPort(redirectURL.Host))
-			if err != nil {
-				return c.Failure(err)
-			}
-		}
-
 		oauthUser, err := c.Services().OAuth.GetProfile(c.AuthEndpoint(), provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		users := c.Services().Users
-		user, err := users.GetByEmail(tenant.ID, oauthUser.Email)
-		if err != nil {
-			if err == app.ErrNotFound {
-				user = &models.User{
-					Name:   oauthUser.Name,
-					Tenant: tenant,
-					Email:  oauthUser.Email,
-					Role:   models.RoleVisitor,
-					Providers: []*models.UserProvider{
-						&models.UserProvider{
-							UID:  oauthUser.ID,
-							Name: provider,
-						},
-					},
-				}
+		var claims jwtgo.Claims
+		if redirectURL.Path != "/signup" {
 
-				err = users.Register(user)
+			tenant := c.Tenant()
+			if tenant == nil {
+				// should get from context
+				// Single/Multi middleware should handle auth endpoint properly
+				// .Set("AuthEndpoint") is not good as well
+				tenant, err = c.Services().Tenants.GetByDomain(stripPort(redirectURL.Host))
 				if err != nil {
 					return c.Failure(err)
 				}
-			} else {
-				return c.Failure(err)
 			}
-		} else if !user.HasProvider(provider) {
-			err = users.RegisterProvider(user.ID, &models.UserProvider{
-				UID:  oauthUser.ID,
-				Name: provider,
-			})
-			if err != nil {
-				return c.Failure(err)
-			}
-		}
 
-		claims := &models.FiderClaims{
-			UserID:    user.ID,
-			UserName:  user.Name,
-			UserEmail: user.Email,
+			users := c.Services().Users
+			user, err := users.GetByEmail(tenant.ID, oauthUser.Email)
+			if err != nil {
+				if err == app.ErrNotFound {
+					user = &models.User{
+						Name:   oauthUser.Name,
+						Tenant: tenant,
+						Email:  oauthUser.Email,
+						Role:   models.RoleVisitor,
+						Providers: []*models.UserProvider{
+							&models.UserProvider{
+								UID:  oauthUser.ID,
+								Name: provider,
+							},
+						},
+					}
+
+					err = users.Register(user)
+					if err != nil {
+						return c.Failure(err)
+					}
+				} else {
+					return c.Failure(err)
+				}
+			} else if !user.HasProvider(provider) {
+				err = users.RegisterProvider(user.ID, &models.UserProvider{
+					UID:  oauthUser.ID,
+					Name: provider,
+				})
+				if err != nil {
+					return c.Failure(err)
+				}
+			}
+
+			claims = models.FiderClaims{
+				UserID:    user.ID,
+				UserName:  user.Name,
+				UserEmail: user.Email,
+			}
+		} else {
+			claims = models.OAuthClaims{
+				ID:       oauthUser.ID,
+				Provider: provider,
+				Name:     oauthUser.Name,
+				Email:    oauthUser.Email,
+			}
 		}
 
 		var token string
@@ -96,7 +109,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 		}
 
 		var query = redirectURL.Query()
-		query.Add("jwt", token)
+		query.Set("jwt", token)
 		redirectURL.RawQuery = query.Encode()
 		return c.Redirect(http.StatusTemporaryRedirect, redirectURL.String())
 	}
