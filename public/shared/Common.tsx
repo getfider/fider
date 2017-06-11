@@ -2,8 +2,8 @@ import * as React from 'react';
 import * as moment from 'moment';
 import md5 = require('md5');
 import { AxiosError, AxiosResponse } from 'axios';
-import { get, getCurrentUser } from '../storage';
-import { User, IdeaResponse, IdeaStatus, AppSettings } from '../models';
+import { getCurrentUser, getAppSettings, isProduction } from '../storage';
+import { User, IdeaResponse, IdeaStatus } from '../models';
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : '';
@@ -34,8 +34,8 @@ export const DisplayError = (props: {error?: Error}) => {
 };
 
 export const EnvironmentInfo = () => {
-  const settings = get<AppSettings>('settings');
-  if (settings.environment.toLowerCase() !== 'production') {
+  if (!isProduction()) {
+    const settings = getAppSettings();
     return <div className="ui mini negative message no-border no-margin">
                 Env: { settings.environment } |
                 Compiler: { settings.compiler } |

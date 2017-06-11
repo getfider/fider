@@ -34,6 +34,14 @@ export function getArray<T>(key: string): T[] {
   return w[`_${key}`] || [];
 }
 
+export function getAppSettings(): AppSettings {
+  return get<AppSettings>('settings');
+}
+
 export function isSingleHostMode() {
-  return get<AppSettings>('settings').mode === 'single';
+  return getAppSettings().mode.toLowerCase() === 'single';
+}
+
+export function isProduction() {
+  return getAppSettings().environment.toLowerCase() === 'production';
 }
