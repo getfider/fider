@@ -1,4 +1,4 @@
-import { User } from './models';
+import { User, AppSettings } from './models';
 
 const w: any = window;
 
@@ -32,4 +32,8 @@ export function get<T>(key: string): T {
 
 export function getArray<T>(key: string): T[] {
   return w[`_${key}`] || [];
+}
+
+export function isSingleHostMode() {
+  return get<AppSettings>('settings').mode === 'single';
 }

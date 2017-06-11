@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import md5 = require('md5');
 import { AxiosError, AxiosResponse } from 'axios';
 import { get, getCurrentUser } from '../storage';
-import { User, IdeaResponse, IdeaStatus } from '../models';
+import { User, IdeaResponse, IdeaStatus, AppSettings } from '../models';
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : '';
@@ -34,13 +34,13 @@ export const DisplayError = (props: {error?: Error}) => {
 };
 
 export const EnvironmentInfo = () => {
-  const settings = get<any>('settings');
-  if (settings.Environment.toLowerCase() !== 'production') {
+  const settings = get<AppSettings>('settings');
+  if (settings.environment.toLowerCase() !== 'production') {
     return <div className="ui mini negative message no-border no-margin">
-                Env: { settings.Environment } |
-                Compiler: { settings.Compiler } |
-                Version: { settings.Version } |
-                BuildTime: { settings.BuildTime }
+                Env: { settings.environment } |
+                Compiler: { settings.compiler } |
+                Version: { settings.version } |
+                BuildTime: { settings.buildTime }
             </div>;
   }
   return <div/>;

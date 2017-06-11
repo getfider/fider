@@ -5,7 +5,6 @@ import (
 	"net/url"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -24,12 +23,11 @@ func SingleTenant() web.MiddlewareFunc {
 		return func(c web.Context) error {
 			tenants := c.Services().Tenants
 			tenant, err := tenants.First()
-			if err == app.ErrNotFound {
-				tenant = &models.Tenant{
-					Name:      "Default",
-					Subdomain: "default",
+			if err != nil {
+				if err == app.ErrNotFound {
+					return c.Redirect(http.StatusTemporaryRedirect, "/install")
 				}
-				tenants.Add(tenant)
+				return err
 			}
 
 			c.SetTenant(tenant)

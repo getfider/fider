@@ -26,9 +26,14 @@ func MustGet(name string) string {
 	return value
 }
 
+// Mode returns HOST_MODE or its default value
+func Mode() string {
+	return GetEnvOrDefault("HOST_MODE", "single")
+}
+
 // IsSingleHostMode returns true if host mode is set to single tenant
 func IsSingleHostMode() bool {
-	return GetEnvOrDefault("HOST_MODE", "single") == "single"
+	return Mode() == "single"
 }
 
 // Current returns current Fider environment

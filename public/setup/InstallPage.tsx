@@ -2,13 +2,14 @@ import * as React from 'react';
 
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo } from '../shared/Common';
+import { AppSettings } from '../models';
+import { isSingleHostMode } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
 const logo = require('../imgs/logo.png');
 
 import './install.scss';
 
 export class InstallPage extends React.Component<{}, {}> {
-
     constructor(props: {}) {
         super(props);
     }
@@ -30,7 +31,7 @@ export class InstallPage extends React.Component<{}, {}> {
                             <label>Name</label>
                             <input type="text" placeholder="Your organization name"/>
                         </div>
-                        <div className="inline field">
+                        { !isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
@@ -40,7 +41,7 @@ export class InstallPage extends React.Component<{}, {}> {
                                 That subdomain is not available!
                                 </div>
                             </div>
-                        </div>
+                        </div> }
                     </div>
                     <div className="ui section divider"></div>
 
