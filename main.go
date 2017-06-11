@@ -20,10 +20,11 @@ func main() {
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
 	settings := &models.AppSettings{
-		BuildTime:   buildtime,
-		Version:     version,
-		Compiler:    runtime.Version(),
-		Environment: env.Current(),
+		BuildTime:       buildtime,
+		Version:         version,
+		Compiler:        runtime.Version(),
+		Environment:     env.Current(),
+		GoogleAnalytics: env.GetEnvOrDefault("GOOGLE_ANALYTICS", ""),
 	}
 
 	e := GetMainEngine(settings)
