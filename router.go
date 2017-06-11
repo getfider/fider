@@ -37,9 +37,10 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/", "dist")
 	}
 
-	install := r.Group("/install")
+	signup := r.Group("/signup")
 	{
-		install.Get("", func(ctx web.Context) error {
+		signup.Use(middlewares.Setup(db))
+		signup.Get("", func(ctx web.Context) error {
 			return ctx.Page(echo.Map{})
 		})
 	}

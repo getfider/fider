@@ -25,7 +25,7 @@ func SingleTenant() web.MiddlewareFunc {
 			tenant, err := tenants.First()
 			if err != nil {
 				if err == app.ErrNotFound {
-					return c.Redirect(http.StatusTemporaryRedirect, "/install")
+					return c.Redirect(http.StatusTemporaryRedirect, "/signup")
 				}
 				return err
 			}

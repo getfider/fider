@@ -3,21 +3,28 @@ import * as React from 'react';
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo } from '../shared/Common';
 import { AppSettings } from '../models';
-import { isSingleHostMode } from '../storage';
+import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
+import { setTitle } from '../page';
+
 const logo = require('../imgs/logo.png');
 
-import './install.scss';
+import './signup.scss';
 
-export class InstallPage extends React.Component<{}, {}> {
+export class SignUpPage extends React.Component<{}, {}> {
+    private settings: AppSettings;
+
     constructor(props: {}) {
         super(props);
+
+        this.settings = getAppSettings();
+        setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
     }
 
     public render() {
       return <div>
                 <EnvironmentInfo />
-                <div id="fdr-install-page" className="ui container">
+                <div id="fdr-signup-page" className="ui container">
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
@@ -36,7 +43,7 @@ export class InstallPage extends React.Component<{}, {}> {
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
                                 <input type="text" placeholder="orgname" />
-                                <div className="ui label">.dev.fider.io</div>
+                                <div className="ui label">{ this.settings.domain }</div>
                                 <div className="ui left pointing red basic label">
                                 That subdomain is not available!
                                 </div>

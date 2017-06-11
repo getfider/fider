@@ -8,4 +8,5 @@ type AppSettings struct {
 	Environment     string `json:"environment"`
 	GoogleAnalytics string `json:"googleAnalytics"`
 	Compiler        string `json:"compiler"`
+	Domain          string `json:"domain"`
 }

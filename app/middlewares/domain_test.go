@@ -100,7 +100,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	Expect(status).To(Equal(http.StatusNotFound))
 }
 
-func TestSingleTenant_NoTenants_RedirectToInstall(t *testing.T) {
+func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
@@ -116,7 +116,7 @@ func TestSingleTenant_NoTenants_RedirectToInstall(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.HeaderMap.Get("Location")).To(Equal("/install"))
+	Expect(response.HeaderMap.Get("Location")).To(Equal("/signup"))
 }
 
 func TestSingleTenant_WithTenants_ShouldSetToContext(t *testing.T) {

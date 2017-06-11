@@ -6,4 +6,5 @@ export interface AppSettings {
     environment: string;
     googleAnalytics: string;
     compiler: string;
+    domain: string;
 }
