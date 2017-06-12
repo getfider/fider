@@ -43,9 +43,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		signup.Use(middlewares.AddServices())
 
 		signup.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
-		signup.Get("/signup", func(ctx web.Context) error {
-			return ctx.Page(echo.Map{})
-		})
+		signup.Get("/signup", handlers.SignUp())
 	}
 
 	page := r.Group("")

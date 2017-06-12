@@ -47,8 +47,8 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	})
 
 	users := &inmemory.UserStorage{}
-
 	users.Register(user)
+
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{
 		Users: users,
@@ -72,12 +72,20 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
 
+	tenant := &models.Tenant{ID: 300}
+	user := &models.User{
+		ID:     300,
+		Name:   "Jon Snow",
+		Tenant: tenant,
+	}
 	token, _ := jwt.Encode(&models.FiderClaims{
 		UserID:   300,
 		UserName: "Jon Snow",
 	})
 
 	users := &inmemory.UserStorage{}
+	users.Register(user)
+
 	server := mock.NewServer()
 	server.Context.SetTenant(&models.Tenant{ID: 400})
 	server.Context.SetServices(&app.Services{

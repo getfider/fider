@@ -13,28 +13,35 @@ import (
 func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			var err error
 
-			if cookie, err := c.Cookie("auth"); err == nil {
-				if claims, err := jwt.Decode(cookie.Value); err == nil {
-					services := c.Services()
-
-					if user, err := services.Users.GetByID(claims.UserID); err == nil {
-						if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
-							c.SetUser(user)
-							if !c.IsAjax() {
-								if ids, err := services.Ideas.SupportedBy(user.ID); err == nil {
-									c.AddRenderVar("supportedIdeas", ids)
-								}
-							}
-						}
-					}
-
+			cookie, err := c.Cookie("auth")
+			if err != nil {
+				if err == http.ErrNoCookie {
+					return next(c)
 				}
+				return err
 			}
 
+			claims, err := jwt.Decode(cookie.Value)
 			if err != nil {
 				return err
+			}
+
+			services := c.Services()
+			user, err := services.Users.GetByID(claims.UserID)
+			if err != nil {
+				return err
+			}
+
+			if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
+				c.SetUser(user)
+				if !c.IsAjax() {
+					ids, err := services.Ideas.SupportedBy(user.ID)
+					if err != nil {
+						return err
+					}
+					c.AddRenderVar("supportedIdeas", ids)
+				}
 			}
 
 			return next(c)
