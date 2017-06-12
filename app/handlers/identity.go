@@ -7,6 +7,7 @@ import (
 	"time"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -132,6 +133,23 @@ func Logout() web.HandlerFunc {
 			Expires: time.Now().Add(-100 * time.Hour),
 		})
 		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
+	}
+}
+
+// CheckAvailability checks if given domain is available to be used
+func CheckAvailability() web.HandlerFunc {
+	return func(c web.Context) error {
+		subdomain := c.Param("subdomain")
+		available, err := c.Services().Tenants.IsSubdomainAvailable(subdomain)
+
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(echo.Map{
+			"isAvailable": available,
+			"subdomain":   subdomain,
+		})
 	}
 }
 

@@ -77,6 +77,12 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
+// IsSubdomainAvailable returns true if subdomain is available to use
+func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
+	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
+	return !exists, err
+}
+
 func extractSubdomain(domain string) string {
 	if idx := strings.Index(domain, "."); idx != -1 {
 		return domain[:idx]
