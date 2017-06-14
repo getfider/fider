@@ -33,7 +33,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
           description: this.description.value
         });
 
-        location.href = `/ideas/${response.data.id}/${response.data.slug}`;
+        location.href = `/ideas/${response.data.number}/${response.data.slug}`;
       } catch (ex) {
         this.setState({
           clicked: false,
