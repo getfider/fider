@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: fider_test-pw
 
 build-assets:
-  box: node:6.10
+  box: node:8.1
   steps:
     - npm-install
 
