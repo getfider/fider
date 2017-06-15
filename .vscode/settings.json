@@ -29,5 +29,5 @@
   "vsicons.presets.angular": true,
   "go.coverOnSave": true,
   "go.coverageOptions": "showBothCoveredAndUncoveredCode",
-  "go.testEnvFile": ".test.env"
+  "go.testEnvFile": "${workspaceRoot}/.test.env"
 }

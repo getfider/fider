@@ -67,6 +67,11 @@ func (ctx *Context) Ok(dict echo.Map) error {
 	return ctx.JSON(http.StatusOK, dict)
 }
 
+//BadRequest returns 400 BadRequest with JSON result
+func (ctx *Context) BadRequest(dict echo.Map) error {
+	return ctx.JSON(http.StatusBadRequest, dict)
+}
+
 //Page returns a page with given variables
 func (ctx *Context) Page(dict echo.Map) error {
 	return ctx.Render(http.StatusOK, "index.html", dict)
