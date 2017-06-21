@@ -15,6 +15,10 @@ func TestInvalidSubdomains(t *testing.T) {
 		"i",
 		"signup",
 		"",
+		"my company",
+		"my@company",
+		"my.company",
+		"my+company",
 		"1234567890123456789012345678901234567890ABC",
 	} {
 		ok, messages := validate.Subdomain(subdomain)
@@ -30,6 +34,8 @@ func TestValidSubdomains(t *testing.T) {
 		"footbook",
 		"yourcompany",
 		"newyork",
+		"my-company",
+		"123-company",
 	} {
 		ok, messages := validate.Subdomain(subdomain)
 		Expect(ok).To(BeTrue())

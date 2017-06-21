@@ -17,7 +17,7 @@ func CheckAvailability() web.HandlerFunc {
 		subdomain := c.Param("subdomain")
 		ok, messages := validate.Subdomain(subdomain)
 		if !ok {
-			return c.BadRequest(echo.Map{
+			return c.Ok(echo.Map{
 				"message": strings.Join(messages, ","),
 			})
 		}
@@ -28,8 +28,8 @@ func CheckAvailability() web.HandlerFunc {
 		}
 
 		if !available {
-			return c.BadRequest(echo.Map{
-				"message": "This subodmain is not available anymore",
+			return c.Ok(echo.Map{
+				"message": "This subdomain is not available anymore",
 			})
 		}
 

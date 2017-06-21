@@ -5,28 +5,13 @@ import { EnvironmentInfo, Gravatar } from '../shared/Common';
 import { AppSettings } from '../models';
 import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
-import { setTitle } from '../page';
+import { setTitle, getQueryString } from '../page';
+import axios from 'axios';
+const td = require('throttle-debounce');
 
 const logo = require('../imgs/logo.png');
 
 import './signup.scss';
-
-function getQueryStringParameter(name: string) {
-    const url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
-    const results = regex.exec(url);
-
-    if (!results) {
-        return null;
-    }
-
-    if (!results[2]) {
-        return '';
-    }
-
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
 
 interface OAuthUser {
     jwt: string;
@@ -34,17 +19,26 @@ interface OAuthUser {
     email: string;
 }
 
-export class SignUpPage extends React.Component<{}, {}> {
+interface SignUpPageState {
+    subdomain: { available: boolean, message?: string };
+}
+
+export class SignUpPage extends React.Component<{}, SignUpPageState> {
     private settings: AppSettings;
     private user: OAuthUser;
 
     constructor(props: {}) {
         super(props);
+        this.state = {
+            subdomain: { available: false }
+        };
+
+        this.checkAvailability = td.debounce(300, this.checkAvailability);
 
         this.settings = getAppSettings();
         setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
 
-        const jwt = getQueryStringParameter('jwt');
+        const jwt = getQueryString('jwt');
         if (jwt) {
             const segments = jwt.split('.');
             const data = JSON.parse(window.atob(segments[1]));
@@ -54,6 +48,18 @@ export class SignUpPage extends React.Component<{}, {}> {
                 email: data['oauth/email']
             };
         }
+    }
+
+    private async checkAvailability(subdomain: string) {
+        const url = `/api/tenants/${subdomain}/availability`;
+        const result = await axios.get(url);
+
+        this.setState({
+            subdomain: {
+                available: !result.data.message,
+                message: result.data.message
+            }
+        });
     }
 
     public render() {
@@ -91,11 +97,20 @@ export class SignUpPage extends React.Component<{}, {}> {
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
-                                <input type="text" placeholder="orgname" />
+                                <input type="text" placeholder="orgname" onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
-                                <div className="ui left pointing red basic label">
-                                That subdomain is not available!
-                                </div>
+                                {
+                                    this.state.subdomain.available &&
+                                    <div className="ui left pointing green basic label">
+                                        Great!
+                                    </div>
+                                }
+                                {
+                                    this.state.subdomain.message &&
+                                    <div className="ui left pointing red basic label">
+                                        { this.state.subdomain.message }
+                                    </div>
+                                }
                             </div>
                         </div> }
                     </div>
