@@ -68,7 +68,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 		Email:  "jon.snow@got.com",
 		Tenant: tenant,
 		Providers: []*models.UserProvider{
-			&models.UserProvider{UID: "FB1234", Name: oauth.FacebookProvider},
+			{UID: "FB1234", Name: oauth.FacebookProvider},
 		},
 	})
 

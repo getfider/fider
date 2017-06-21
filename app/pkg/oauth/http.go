@@ -21,7 +21,7 @@ type providerSettings struct {
 
 var (
 	oauthSettings = map[string]*providerSettings{
-		FacebookProvider: &providerSettings{
+		FacebookProvider: {
 			profileURL: func(token *oauth2.Token) string {
 				return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
 			},
@@ -35,7 +35,7 @@ var (
 				}
 			},
 		},
-		GoogleProvider: &providerSettings{
+		GoogleProvider: {
 			profileURL: func(token *oauth2.Token) string {
 				return "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + url.QueryEscape(token.AccessToken)
 			},

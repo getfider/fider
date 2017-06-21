@@ -8,7 +8,6 @@ func (p *MockOAuthService) GetAuthURL(authEndpoint string, provider string, redi
 	return "http://orange.test.canherayou.com/oauth/token?provider=" + provider + "&redirect=" + redirect
 }
 
-
 //GetProfile returns user profile based on provider and code
 func (p *MockOAuthService) GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error) {
 	if provider == "facebook" && code == "123" {
