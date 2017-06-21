@@ -1,9 +1,9 @@
 package jwt
 
 import (
+	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	jwtgo "github.com/dgrijalva/jwt-go"
 )
 
 var jwtSecret = env.MustGet("JWT_SECRET")

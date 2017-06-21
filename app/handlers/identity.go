@@ -59,7 +59,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 					Email:  oauthUser.Email,
 					Role:   models.RoleVisitor,
 					Providers: []*models.UserProvider{
-						&models.UserProvider{
+						{
 							UID:  oauthUser.ID,
 							Name: provider,
 						},
