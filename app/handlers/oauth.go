@@ -10,6 +10,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -43,15 +44,17 @@ func OAuthCallback(provider string) web.HandlerFunc {
 		var claims jwtgo.Claims
 		if redirectURL.Path != "/signup" {
 
-			tenant := c.Tenant()
-			if tenant == nil {
-				// should get from context
-				// Single/Multi middleware should handle auth endpoint properly
-				// .Set("AuthEndpoint") is not good as well
+			var (
+				tenant *models.Tenant
+				err    error
+			)
+			if env.IsSingleHostMode() {
+				tenant, err = c.Services().Tenants.First()
+			} else {
 				tenant, err = c.Services().Tenants.GetByDomain(stripPort(redirectURL.Host))
-				if err != nil {
-					return c.Failure(err)
-				}
+			}
+			if err != nil {
+				return c.Failure(err)
 			}
 
 			users := c.Services().Users
@@ -95,10 +98,10 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			}
 		} else {
 			claims = models.OAuthClaims{
-				ID:       oauthUser.ID,
-				Provider: provider,
-				Name:     oauthUser.Name,
-				Email:    oauthUser.Email,
+				OAuthID:       oauthUser.ID,
+				OAuthProvider: provider,
+				OAuthName:     oauthUser.Name,
+				OAuthEmail:    oauthUser.Email,
 			}
 		}
 

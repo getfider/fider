@@ -27,3 +27,17 @@ func Decode(token string) (*models.FiderClaims, error) {
 
 	return nil, err
 }
+
+//DecodeAsOAuthClaims extract OAuthClaims from given JWT token
+func DecodeAsOAuthClaims(token string) (*models.OAuthClaims, error) {
+	claims := &models.OAuthClaims{}
+	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (interface{}, error) {
+		return []byte(jwtSecret), nil
+	})
+
+	if err == nil && jwtToken.Valid {
+		return claims, nil
+	}
+
+	return nil, err
+}

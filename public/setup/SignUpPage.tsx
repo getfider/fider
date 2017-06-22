@@ -6,6 +6,7 @@ import { AppSettings } from '../models';
 import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
+import { DisplayError } from '../shared/Common';
 import axios from 'axios';
 const td = require('throttle-debounce');
 
@@ -14,13 +15,20 @@ const logo = require('../imgs/logo.png');
 import './signup.scss';
 
 interface OAuthUser {
-    jwt: string;
+    token: string;
     name: string;
     email: string;
 }
 
 interface SignUpPageState {
-    subdomain: { available: boolean, message?: string };
+    name?: string;
+    clicked: boolean;
+    error?: Error;
+    subdomain: {
+        available: boolean,
+        message?: string,
+        value?: string
+    };
 }
 
 export class SignUpPage extends React.Component<{}, SignUpPageState> {
@@ -30,6 +38,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     constructor(props: {}) {
         super(props);
         this.state = {
+            clicked: false,
             subdomain: { available: false }
         };
 
@@ -38,15 +47,41 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
         this.settings = getAppSettings();
         setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
 
-        const jwt = getQueryString('jwt');
-        if (jwt) {
-            const segments = jwt.split('.');
+        const token = getQueryString('jwt');
+        if (token) {
+            const segments = token.split('.');
             const data = JSON.parse(window.atob(segments[1]));
             this.user = {
-                jwt,
+                token,
                 name: data['oauth/name'],
                 email: data['oauth/email']
             };
+        }
+    }
+
+    private async confirm() {
+        this.setState({
+            clicked: true,
+            error: undefined
+        });
+
+        try {
+            const response = await axios.post('/api/tenants', {
+                token: this.user.token,
+                name: this.state.name,
+                subdomain: this.state.subdomain.value,
+            });
+
+            if (isSingleHostMode()) {
+                location.reload();
+            } else {
+                location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
+            }
+        } catch (ex) {
+            this.setState({
+                clicked: false,
+                error: ex.response.data
+            });
         }
     }
 
@@ -56,6 +91,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
         this.setState({
             subdomain: {
+                value: subdomain,
                 available: !result.data.message,
                 message: result.data.message
             }
@@ -63,7 +99,8 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     public render() {
-      return <div>
+        const buttonClasses = `ui positive button ${this.state.clicked && 'loading disabled'}`;
+        return <div>
                 <EnvironmentInfo />
                 <div id="fdr-signup-page" className="ui container">
                     <img className="logo" src={logo} />
@@ -91,13 +128,13 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <div className="ui form">
                         <div className="inline field">
                             <label>Name</label>
-                            <input type="text" placeholder="Your organization name"/>
+                            <input id="name" type="text" placeholder="Your organization name" onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
                         { !isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
-                                <input type="text" placeholder="orgname" onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
+                                <input id="subdomain" type="text" placeholder="orgname" onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
                                 {
                                     this.state.subdomain.available &&
@@ -119,8 +156,9 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <h3 className="ui header">3. Review and continue</h3>
 
                     <p>Please make sure information provided above is correct before proceeding.</p>
+                    <DisplayError error={this.state.error} />
 
-                    <button className="ui positive button disabled">Confirm</button>
+                    <button className={buttonClasses} onClick={() => this.confirm()}>Confirm</button>
                 </div>
                 <Footer />
             </div>;
