@@ -14,30 +14,33 @@ func Encode(claims jwtgo.Claims) (string, error) {
 	return jwtToken.SignedString([]byte(jwtSecret))
 }
 
-//Decode extract claims from JWT tokens
-func Decode(token string) (*models.FiderClaims, error) {
+//DecodeFiderClaims extract claims from JWT tokens
+func DecodeFiderClaims(token string) (*models.FiderClaims, error) {
 	claims := &models.FiderClaims{}
-	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (interface{}, error) {
-		return []byte(jwtSecret), nil
-	})
-
-	if err == nil && jwtToken.Valid {
+	err := decode(token, claims)
+	if err == nil {
 		return claims, nil
 	}
-
 	return nil, err
 }
 
-//DecodeAsOAuthClaims extract OAuthClaims from given JWT token
-func DecodeAsOAuthClaims(token string) (*models.OAuthClaims, error) {
+//DecodeOAuthClaims extract OAuthClaims from given JWT token
+func DecodeOAuthClaims(token string) (*models.OAuthClaims, error) {
 	claims := &models.OAuthClaims{}
+	err := decode(token, claims)
+	if err == nil {
+		return claims, nil
+	}
+	return nil, err
+}
+
+func decode(token string, claims jwtgo.Claims) error {
 	jwtToken, err := jwtgo.ParseWithClaims(token, claims, func(t *jwtgo.Token) (interface{}, error) {
 		return []byte(jwtSecret), nil
 	})
 
 	if err == nil && jwtToken.Valid {
-		return claims, nil
+		return nil
 	}
-
-	return nil, err
+	return err
 }

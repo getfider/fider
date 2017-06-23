@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 
 	"github.com/getfider/fider/app/middlewares"
@@ -22,8 +23,16 @@ type Server struct {
 	middleware web.MiddlewareFunc
 }
 
+// NewSingleTenantServer creates a new multitenant test server
+func NewSingleTenantServer() *Server {
+	server := NewServer()
+	os.Setenv("HOST_MODE", "single")
+	return server
+}
+
 // NewServer creates a new test server
 func NewServer() *Server {
+	os.Setenv("HOST_MODE", "multi")
 	settings := &models.AppSettings{}
 	engine := web.New(settings)
 

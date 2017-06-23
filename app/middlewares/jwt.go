@@ -22,7 +22,7 @@ func JwtGetter() web.MiddlewareFunc {
 				return err
 			}
 
-			claims, err := jwt.Decode(cookie.Value)
+			claims, err := jwt.DecodeFiderClaims(cookie.Value)
 			if err != nil {
 				return err
 			}

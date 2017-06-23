@@ -54,7 +54,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		claims, err := jwt.DecodeAsOAuthClaims(input.Token)
+		claims, err := jwt.DecodeOAuthClaims(input.Token)
 		if err != nil {
 			return c.Failure(err)
 		}
