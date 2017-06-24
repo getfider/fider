@@ -52,3 +52,12 @@ type FiderClaims struct {
 	UserEmail string `json:"user/email"`
 	jwt.StandardClaims
 }
+
+//OAuthClaims represents what goes into temporary OAuth JWT tokens
+type OAuthClaims struct {
+	OAuthID       string `json:"oauth/id"`
+	OAuthProvider string `json:"oauth/provider"`
+	OAuthName     string `json:"oauth/name"`
+	OAuthEmail    string `json:"oauth/email"`
+	jwt.StandardClaims
+}

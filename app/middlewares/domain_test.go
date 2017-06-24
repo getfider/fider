@@ -100,10 +100,32 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	Expect(status).To(Equal(http.StatusNotFound))
 }
 
-func TestSingleTenant(t *testing.T) {
+func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
+	server := mock.NewServer()
+	server.Context.Request().Host = "somedomain.com"
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
+
+	server.Use(middlewares.SingleTenant())
+	status, response := server.Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.HeaderMap.Get("Location")).To(Equal("/signup"))
+}
+
+func TestSingleTenant_WithTenants_ShouldSetToContext(t *testing.T) {
+	RegisterTestingT(t)
+
+	tenant := &models.Tenant{Name: "Some Tenant"}
+	tenants := &inmemory.TenantStorage{}
+	tenants.Add(tenant)
+
 	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"
 	server.Context.SetServices(&app.Services{
@@ -115,13 +137,8 @@ func TestSingleTenant(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	tenant, err := tenants.First()
-
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(err).To(BeNil())
-	Expect(tenant.Name).To(Equal("Default"))
-	Expect(tenant.Subdomain).To(Equal("default"))
-	Expect(server.Context.Tenant()).To(Equal(tenant))
+	Expect(server.Context.Tenant()).Should(Equal(tenant))
 }
 
 func TestHostChecker(t *testing.T) {

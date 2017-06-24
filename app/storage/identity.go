@@ -15,4 +15,5 @@ type Tenant interface {
 	Add(tenant *models.Tenant) error
 	First() (*models.Tenant, error)
 	GetByDomain(domain string) (*models.Tenant, error)
+	IsSubdomainAvailable(subdomain string) (bool, error)
 }

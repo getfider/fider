@@ -1,4 +1,4 @@
-import { User } from './models';
+import { User, AppSettings } from './models';
 
 const w: any = window;
 
@@ -32,4 +32,16 @@ export function get<T>(key: string): T {
 
 export function getArray<T>(key: string): T[] {
   return w[`_${key}`] || [];
+}
+
+export function getAppSettings(): AppSettings {
+  return get<AppSettings>('settings');
+}
+
+export function isSingleHostMode() {
+  return getAppSettings().mode.toLowerCase() === 'single';
+}
+
+export function isProduction() {
+  return getAppSettings().environment.toLowerCase() === 'production';
 }

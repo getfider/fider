@@ -16,7 +16,8 @@
     "moment": "^2.18.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
-    "semantic-ui-css": "^2.2.10"
+    "semantic-ui-css": "^2.2.10",
+    "throttle-debounce": "^1.0.1"
   },
   "devDependencies": {
     "@types/jquery": "^2.0.45",

@@ -8,6 +8,7 @@ import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
 import { SocialSignInButton } from '../shared/SocialSignInButton';
 import { SupportCounter } from '../shared/SupportCounter';
 import { ResponseForm } from '../shared/ResponseForm';
+import { setTitle } from '../page';
 
 import { Footer } from '../shared/Footer';
 import { Header } from '../shared/Header';
@@ -24,7 +25,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
       this.user = getCurrentUser();
       this.idea = get<Idea>('idea');
       this.comments = getArray<Comment>('comments');
-      document.title = `${this.idea.title} · Idea #${this.idea.number} · ${document.title}`;
+      setTitle(`${this.idea.title} · Idea #${this.idea.number} · ${document.title}`);
     }
 
     public render() {

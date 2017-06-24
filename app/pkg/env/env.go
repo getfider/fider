@@ -3,6 +3,7 @@ package env
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"path"
 )
@@ -26,9 +27,26 @@ func MustGet(name string) string {
 	return value
 }
 
+// Mode returns HOST_MODE or its default value
+func Mode() string {
+	return GetEnvOrDefault("HOST_MODE", "single")
+}
+
 // IsSingleHostMode returns true if host mode is set to single tenant
 func IsSingleHostMode() bool {
-	return GetEnvOrDefault("HOST_MODE", "single") == "single"
+	return Mode() == "single"
+}
+
+// MultiTenantDomain returns domain name of current instance for multi tenant hosts
+func MultiTenantDomain() string {
+	if !IsSingleHostMode() {
+		endpoint := MustGet("AUTH_ENDPOINT")
+		if idx := strings.Index(endpoint, "."); idx != -1 {
+			return endpoint[idx:]
+		}
+		panic(fmt.Sprintf("Could not extract domain from %s", endpoint))
+	}
+	return ""
 }
 
 // Current returns current Fider environment

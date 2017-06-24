@@ -29,11 +29,5 @@
   "vsicons.presets.angular": true,
   "go.coverOnSave": true,
   "go.coverageOptions": "showBothCoveredAndUncoveredCode",
-  "go.testEnvVars": {
-    "GO_ENV": "test",
-    "HOST_MODE": "multi",
-    "DATABASE_URL": "postgres://fider_test:fider_test-pw@localhost:5566/fider_test?sslmode=disable",
-    "AUTH_ENDPOINT": "http://login.test.fider.io:3000",
-    "JWT_SECRET": "I1$$MplJ-007A8]G#RE0VVfvv:I~o6+2yA0@)>2|{K$Z1628z9;w7lAsZ"
-  }
+  "go.testEnvFile": "${workspaceRoot}/.test.env"
 }

@@ -108,3 +108,35 @@ func TestTenantStorage_GetByDomain_FullDomain(t *testing.T) {
 	Expect(tenant.CNAME).To(Equal("mydomain.anydomain.com"))
 	Expect(err).To(BeNil())
 }
+
+func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	available, err := tenants.IsSubdomainAvailable("demo")
+
+	Expect(available).To(BeFalse())
+	Expect(err).To(BeNil())
+}
+
+func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	available, err := tenants.IsSubdomainAvailable("thisisanewdomain")
+
+	Expect(available).To(BeTrue())
+	Expect(err).To(BeNil())
+}

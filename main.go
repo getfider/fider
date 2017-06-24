@@ -25,6 +25,8 @@ func main() {
 		Compiler:        runtime.Version(),
 		Environment:     env.Current(),
 		GoogleAnalytics: env.GetEnvOrDefault("GOOGLE_ANALYTICS", ""),
+		Mode:            env.Mode(),
+		Domain:          env.MultiTenantDomain(),
 	}
 
 	e := GetMainEngine(settings)

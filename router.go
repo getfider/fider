@@ -37,6 +37,27 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/", "dist")
 	}
 
+	signup := r.Group("")
+	{
+		signup.Use(middlewares.Setup(db))
+		signup.Use(middlewares.AddServices())
+
+		signup.Post("/api/tenants", handlers.CreateTenant())
+		signup.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
+		signup.Get("/signup", handlers.SignUp())
+	}
+
+	auth := r.Group("/oauth")
+	{
+		auth.Use(middlewares.Setup(db))
+		auth.Use(middlewares.AddServices())
+
+		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
+		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
+		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
+		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
+	}
+
 	page := r.Group("")
 	{
 		page.Use(middlewares.Setup(db))
@@ -63,14 +84,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/status", handlers.SetResponse())
 			private.Post("/api/ideas/:number/support", handlers.AddSupporter())
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
-		}
-
-		auth := page.Group("/oauth")
-		{
-			auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
-			auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-			auth.Get("/google", handlers.Login(oauth.GoogleProvider))
-			auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
 		}
 
 		admin := page.Group("/admin")
