@@ -8,8 +8,8 @@ import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
 import { DisplayError } from '../shared/Common';
 import axios from 'axios';
+import { decode } from '../jwt';
 const td = require('throttle-debounce');
-
 const logo = require('../imgs/logo.png');
 
 import './signup.scss';
@@ -42,15 +42,14 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             subdomain: { available: false }
         };
 
+        this.settings = getAppSettings();
         this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        this.settings = getAppSettings();
         setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
 
         const token = getQueryString('jwt');
         if (token) {
-            const segments = token.split('.');
-            const data = JSON.parse(window.atob(segments[1]));
+            const data = decode(token);
             this.user = {
                 token,
                 name: data['oauth/name'],
@@ -67,7 +66,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
         try {
             const response = await axios.post('/api/tenants', {
-                token: this.user.token,
+                token: this.user ? this.user.token : null,
                 name: this.state.name,
                 subdomain: this.state.subdomain.value,
             });

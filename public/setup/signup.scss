@@ -4,4 +4,13 @@
     .logo {
         height: 100px;
     }
+
+    .ui.form {
+        label {
+            width: 50px;
+        }
+        input#name {
+            width: 300px;
+        }
+    }
 }
