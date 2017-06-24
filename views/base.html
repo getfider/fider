@@ -18,7 +18,7 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
       ga('create', '{{ .settings.GoogleAnalytics }}', 'auto');
-        ga('set', 'dimension1', '{{ .tenant.Subdomain }}');
+      ga('set', 'dimension1', '{{ .tenant.Subdomain }}');
       ga('send', 'pageview');
     </script>
     {{ end }}
