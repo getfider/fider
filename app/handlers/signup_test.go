@@ -46,3 +46,53 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 
 	Expect(code).To(Equal(307))
 }
+
+func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewSingleTenantServer()
+	tenants := &inmemory.TenantStorage{}
+	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
+	code, response := server.ExecuteAsJSON(handlers.CheckAvailability())
+
+	Expect(code).To(Equal(200))
+	Expect(response.String("message")).NotTo(BeNil())
+}
+
+func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewSingleTenantServer()
+	server.Context.SetParamNames("subdomain")
+	server.Context.SetParamValues("got")
+	tenants := &inmemory.TenantStorage{}
+	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
+	code, response := server.ExecuteAsJSON(handlers.CheckAvailability())
+
+	Expect(code).To(Equal(200))
+	Expect(response.String("message")).NotTo(BeNil())
+}
+
+func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewSingleTenantServer()
+	server.Context.SetParamNames("subdomain")
+	server.Context.SetParamValues("mycompany")
+	tenants := &inmemory.TenantStorage{}
+	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	server.Context.SetServices(&app.Services{
+		Tenants: tenants,
+	})
+	code, response := server.ExecuteAsJSON(handlers.CheckAvailability())
+
+	Expect(code).To(Equal(200))
+	_, err := response.String("message")
+	Expect(err).NotTo(BeNil())
+}
