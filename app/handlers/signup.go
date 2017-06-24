@@ -18,21 +18,14 @@ import (
 func CheckAvailability() web.HandlerFunc {
 	return func(c web.Context) error {
 		subdomain := c.Param("subdomain")
-		ok, messages := validate.Subdomain(subdomain)
-		if !ok {
-			return c.Ok(echo.Map{
-				"message": strings.Join(messages, ","),
-			})
-		}
-
-		available, err := c.Services().Tenants.IsSubdomainAvailable(subdomain)
+		ok, messages, err := validate.Subdomain(c.Services().Tenants, subdomain)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if !available {
+		if !ok {
 			return c.Ok(echo.Map{
-				"message": "This subdomain is not available anymore",
+				"message": strings.Join(messages, ","),
 			})
 		}
 
@@ -54,9 +47,19 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if input.Token == "" {
+			return c.BadRequest(echo.Map{
+				"message": "Please identify yourself before proceeding",
+			})
+		}
+
 		claims, err := jwt.DecodeOAuthClaims(input.Token)
 		if err != nil {
 			return c.Failure(err)
+		}
+
+		if env.IsSingleHostMode() {
+			input.Subdomain = "Default"
 		}
 
 		tenant := &models.Tenant{
@@ -64,8 +67,21 @@ func CreateTenant() web.HandlerFunc {
 			Subdomain: input.Subdomain,
 		}
 
-		if env.IsSingleHostMode() {
-			tenant.Subdomain = "Default"
+		if tenant.Name == "" {
+			return c.BadRequest(echo.Map{
+				"message": "Name is required",
+			})
+		}
+
+		ok, messages, err := validate.Subdomain(c.Services().Tenants, tenant.Subdomain)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if !ok {
+			return c.BadRequest(echo.Map{
+				"message": strings.Join(messages, ","),
+			})
 		}
 
 		if err := c.Services().Tenants.Add(tenant); err != nil {

@@ -3,10 +3,13 @@ package handlers_test
 import (
 	"testing"
 
+	"fmt"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/mock"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
@@ -50,7 +53,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewSingleTenantServer()
+	server := mock.NewServer()
 	tenants := &inmemory.TenantStorage{}
 	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
 	server.Context.SetServices(&app.Services{
@@ -65,7 +68,7 @@ func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewSingleTenantServer()
+	server := mock.NewServer()
 	server.Context.SetParamNames("subdomain")
 	server.Context.SetParamValues("got")
 	tenants := &inmemory.TenantStorage{}
@@ -82,7 +85,7 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewSingleTenantServer()
+	server := mock.NewServer()
 	server.Context.SetParamNames("subdomain")
 	server.Context.SetParamValues("mycompany")
 	tenants := &inmemory.TenantStorage{}
@@ -95,4 +98,71 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	Expect(code).To(Equal(200))
 	_, err := response.String("message")
 	Expect(err).NotTo(BeNil())
+}
+
+func TestCreateTenantHandler_EmptyInput(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{
+		Tenants: &inmemory.TenantStorage{},
+	})
+	code, _ := server.ExecutePost(handlers.CreateTenant(), `{ }`)
+
+	Expect(code).To(Equal(400))
+}
+
+func TestCreateTenantHandler_EmptyName(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{
+		Tenants: &inmemory.TenantStorage{},
+	})
+	token, _ := jwt.Encode(&models.OAuthClaims{
+		OAuthID:       "123",
+		OAuthName:     "Jon Snow",
+		OAuthEmail:    "jon.snow@got.com",
+		OAuthProvider: "facebook",
+	})
+	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s" }`, token))
+
+	Expect(code).To(Equal(400))
+}
+
+func TestCreateTenantHandler_EmptySubdomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{
+		Tenants: &inmemory.TenantStorage{},
+	})
+	token, _ := jwt.Encode(&models.OAuthClaims{
+		OAuthID:       "123",
+		OAuthName:     "Jon Snow",
+		OAuthEmail:    "jon.snow@got.com",
+		OAuthProvider: "facebook",
+	})
+	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s", "name": "My Company" }`, token))
+
+	Expect(code).To(Equal(400))
+}
+
+func TestCreateTenantHandler_ValidInput(t *testing.T) {
+	RegisterTestingT(t)
+
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{
+		Tenants: &inmemory.TenantStorage{},
+		Users:   &inmemory.UserStorage{},
+	})
+	token, _ := jwt.Encode(&models.OAuthClaims{
+		OAuthID:       "123",
+		OAuthName:     "Jon Snow",
+		OAuthEmail:    "jon.snow@got.com",
+		OAuthProvider: "facebook",
+	})
+	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s", "name": "My Company", "subdomain": "mycompany" }`, token))
+
+	Expect(code).To(Equal(200))
 }
