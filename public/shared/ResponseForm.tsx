@@ -61,7 +61,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                     <div className="field">
                       <label>Status</label>
                       <select className="ui dropdown"
-                        ref={(input) => this.status = input}>
+                        ref={(input) => this.status = input!}>
                         <option selected={this.props.idea.status === 0} value="0">New</option>
                         <option selected={this.props.idea.status === 1} value="1">Started</option>
                         <option selected={this.props.idea.status === 2} value="2">Completed</option>
@@ -71,7 +71,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                   </div>
                   <div className="field">
                     <textarea
-                      ref={(input) => this.text = input}
+                      ref={(input) => this.text = input!}
                       defaultValue={this.props.idea.response && this.props.idea.response.text}
                       placeholder="What's going on with this idea? Let your users know what are your plans...">
                     </textarea>

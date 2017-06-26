@@ -48,7 +48,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         const details = user ?
                         <div>
                           <div className="field">
-                            <textarea ref={(ref) => this.description = ref }
+                            <textarea ref={(ref) => this.description = ref! }
                                       rows={6}
                                       placeholder="Describe your idea (optional)"></textarea>
                             </div>

@@ -84,14 +84,14 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
         return <div>
                     <div className="support-counter ui small statistics">
-                        <div ref={(e) => { this.elem = e; } } className="statistic">
+                        <div ref={(e) => { this.elem = e!; } } className="statistic">
                             <div className="value">
                                 { this.state.total }
                             </div>
                             { status.closed ? disabled : this.state.supported ? undo : support }
                         </div>
                     </div>
-                    <div ref={(e) => { this.list = e; } } className="ui popup transition hidden">
+                    <div ref={(e) => { this.list = e!; } } className="ui popup transition hidden">
                         <p className="header">Please log in to support this idea</p>
                         <SocialSignInList orientation="horizontal" size="small" />
                     </div>

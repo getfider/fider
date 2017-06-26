@@ -14,27 +14,27 @@
     "jquery": "^3.2.1",
     "md5": "^2.2.1",
     "moment": "^2.18.1",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
     "semantic-ui-css": "^2.2.10",
     "throttle-debounce": "^1.0.1"
   },
   "devDependencies": {
-    "@types/jquery": "^2.0.45",
+    "@types/jquery": "^3.2.5",
     "@types/md5": "^2.1.32",
-    "@types/react": "^15.0.24",
-    "@types/react-dom": "^15.5.0",
+    "@types/react": "^15.0.31",
+    "@types/react-dom": "^15.5.1",
     "css-loader": "^0.28.1",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
     "node-sass": "^4.5.3",
     "rimraf": "^2.6.1",
-    "sass-loader": "^6.0.5",
-    "ts-loader": "^2.0.3",
+    "sass-loader": "^6.0.6",
+    "ts-loader": "^2.2.0",
     "tslint": "^5.2.0",
     "typescript": "^2.3.2",
-    "webpack": "^2.5.1",
-    "webpack-clean-obsolete-chunks": "^0.1.9"
+    "webpack": "^3.0.0",
+    "webpack-clean-obsolete-chunks": "^0.1.10"
   },
   "engines": {
     "node": "6.10.0"
