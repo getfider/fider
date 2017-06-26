@@ -55,14 +55,14 @@ export class Header extends React.Component<{}, {}> {
                             <a href="/" className="header item">
                                 { this.tenant.name }
                             </a>
-                            <a ref={(e) => { this.dropdown = e; } } className="item right signin">
+                            <a ref={(e) => { this.dropdown = e!; } } className="item right signin">
                                 <Gravatar email={this.user.email} />
                                 { this.user.name || 'Sign in' }
                                 <i className="dropdown icon"></i>
                             </a>
                         </div>
                     </div>
-                    <div ref={(e) => { this.list = e; } } className="fdr-profile-popup ui popup transition hidden">
+                    <div ref={(e) => { this.list = e!; } } className="fdr-profile-popup ui popup transition hidden">
                         { items }
                     </div>
                </div>;
