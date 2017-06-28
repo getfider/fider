@@ -2,9 +2,11 @@ import axios from 'axios';
 import * as React from 'react';
 
 import { Idea } from '../models';
-import { getCurrentUser } from '../storage';
 import { DisplayError } from './Common';
 import { SocialSignInList } from './SocialSignInList';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 interface CommentInputProps {
     idea: Idea;
@@ -17,6 +19,10 @@ interface CommentInputState {
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
+
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor() {
         super();
         this.state = {
@@ -46,7 +52,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     }
 
     public render() {
-        const user = getCurrentUser();
+        const user = this.session.getCurrentUser();
         const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && 'loading disabled'}`;
 
         const addComment = user ? <form className="ui reply form">

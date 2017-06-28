@@ -1,6 +1,5 @@
 import * as moment from 'moment';
 import * as React from 'react';
-import { getCurrentUser, get, getArray, isStaff } from '../storage';
 
 import { User, Comment, Idea } from '../models';
 import { CommentInput } from '../shared/CommentInput';
@@ -14,17 +13,23 @@ import { Footer } from '../shared/Footer';
 import { Header } from '../shared/Header';
 import { IdeaInput } from './IdeaInput';
 
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
+
 export class ShowIdeaPage extends React.Component<{}, {}> {
     private user: User;
     private idea: Idea;
     private comments: Comment[];
 
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor(props: {}) {
       super(props);
 
-      this.user = getCurrentUser();
-      this.idea = get<Idea>('idea');
-      this.comments = getArray<Comment>('comments');
+      this.user = this.session.getCurrentUser();
+      this.idea = this.session.get<Idea>('idea');
+      this.comments = this.session.getArray<Comment>('comments');
       setTitle(`${this.idea.title} · Idea #${this.idea.number} · ${document.title}`);
     }
 
@@ -75,7 +80,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
 
                     {
-                      isStaff() &&
+                      this.session.isStaff() &&
                       <div>
                         <div className="ui hidden divider"></div>
                         <ResponseForm idea={ this.idea } />

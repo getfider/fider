@@ -1,8 +1,10 @@
 import axios from 'axios';
 import * as React from 'react';
-import { getCurrentUser } from '../storage';
 import { DisplayError } from '../shared/Common';
 import { SocialSignInList } from '../shared/SocialSignInList';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 interface IdeaInputState {
     title: string;
@@ -12,6 +14,9 @@ interface IdeaInputState {
 
 export class IdeaInput extends React.Component<{}, IdeaInputState> {
     private description: HTMLTextAreaElement;
+
+    @inject(injectables.Session)
+    public session: Session;
 
     constructor() {
         super();
@@ -43,7 +48,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
     }
 
     public render() {
-        const user = getCurrentUser();
+        const user = this.session.getCurrentUser();
         const buttonClasses = `ui primary button ${this.state.clicked && 'loading disabled'}`;
         const details = user ?
                         <div>

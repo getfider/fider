@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo, Gravatar } from '../shared/Common';
 import { AppSettings } from '../models';
-import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
 import { DisplayError } from '../shared/Common';
@@ -11,6 +10,9 @@ import axios from 'axios';
 import { decode } from '../jwt';
 const td = require('throttle-debounce');
 const logo = require('../imgs/logo.png');
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 import './signup.scss';
 
@@ -35,6 +37,9 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     private settings: AppSettings;
     private user: OAuthUser;
 
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -42,10 +47,10 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             subdomain: { available: false }
         };
 
-        this.settings = getAppSettings();
+        this.settings = this.session.getAppSettings();
         this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
+        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
 
         const token = getQueryString('jwt');
         if (token) {
@@ -71,7 +76,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                 subdomain: this.state.subdomain.value,
             });
 
-            if (isSingleHostMode()) {
+            if (this.session.isSingleHostMode()) {
                 location.reload();
             } else {
                 location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
@@ -129,7 +134,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                             <label>Name</label>
                             <input id="name" type="text" placeholder="Your organization name" onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
-                        { !isSingleHostMode() && <div className="inline field">
+                        { !this.session.isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>

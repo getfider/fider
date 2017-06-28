@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { get } from '../storage';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 interface SocialSignInButtonProps {
     provider: string;
@@ -10,6 +12,10 @@ interface SocialSignInButtonState {
 }
 
 export class SocialSignInButton extends React.Component<SocialSignInButtonProps, SocialSignInButtonState> {
+
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor() {
         super();
         this.state = {
@@ -18,7 +24,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     }
 
     public render() {
-        const auth = get<any>('auth');
+        const auth = this.session.get<any>('auth');
         const providerClassName = this.props.provider === 'google' ? 'google plus' : 'facebook';
         const providerDisplayName = this.props.provider === 'google' ? 'Google' : 'Facebook';
         const oauthUrl = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;

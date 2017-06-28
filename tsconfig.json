@@ -6,6 +6,8 @@
         "strictNullChecks": true,
         "sourceMap": true,
         "jsx": "react",
-        "lib": ["dom", "es2015.promise", "es5"]
+        "lib": ["dom", "es2015.promise", "es6"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     }
 }

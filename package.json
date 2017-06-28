@@ -11,11 +11,14 @@
   },
   "dependencies": {
     "axios": "^0.16.1",
+    "inversify": "^4.1.1",
+    "inversify-inject-decorators": "^3.0.1",
     "jquery": "^3.2.1",
     "md5": "^2.2.1",
     "moment": "^2.18.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "reflect-metadata": "^0.1.10",
     "semantic-ui-css": "^2.2.10",
     "throttle-debounce": "^1.0.1"
   },

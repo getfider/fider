@@ -1,8 +1,10 @@
-import axios from 'axios';
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '../models';
-import * as storage from '../storage';
 import { SocialSignInList } from './SocialSignInList';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
+import { IdeaService } from '../services/IdeaService';
 
 interface SupportCounterProps {
     user: User;
@@ -18,9 +20,15 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     private elem: HTMLElement;
     private list: HTMLElement;
 
+    @inject(injectables.Session)
+    public session: Session;
+
+    @inject(injectables.IdeaService)
+    public service: IdeaService;
+
     constructor(props: SupportCounterProps) {
         super(props);
-        const supportedIdeas = storage.getArray<number>('supportedIdeas');
+        const supportedIdeas = this.session.getArray<number>('supportedIdeas');
 
         this.state = {
           supported: props.user && supportedIdeas && supportedIdeas.indexOf(props.idea.id) >= 0,
@@ -46,16 +54,15 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
             return;
         }
 
-        const action = this.state.supported ? 'unsupport' : 'support';
+        const action = this.state.supported ? this.service.removeSupport : this.service.addSupport;
 
-        try {
-            await axios.post(`/api/ideas/${this.props.idea.number}/${action}`);
-
+        const response = await action(this.props.idea.number);
+        if (response.ok) {
             this.setState({
                 supported: !this.state.supported,
                 total: this.state.total + (this.state.supported ? -1 : 1)
             });
-        } catch (ex) {
+        } else {
             // TODO: handle this. we should have a global alert box
         }
 

@@ -1,8 +1,10 @@
 import axios from 'axios';
 import * as React from 'react';
-import * as storage from '../storage';
 import { User, Comment, Idea } from '../models';
 import { DisplayError } from './Common';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 interface ResponseFormProps {
   idea: Idea;
@@ -18,10 +20,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   private text: HTMLTextAreaElement;
   private status: HTMLSelectElement;
 
+  @inject(injectables.Session)
+  public session: Session;
+
   constructor(props: ResponseFormProps) {
     super(props);
 
-    this.user = storage.getCurrentUser();
+    this.user = this.session.getCurrentUser();
     this.state = {
       active: false
     };
