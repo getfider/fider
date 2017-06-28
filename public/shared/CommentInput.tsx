@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Idea } from '../models';
 import { DisplayError } from './Common';
+import { Button } from '../components/common/Button';
 import { SocialSignInList } from './SocialSignInList';
 
 import { inject, injectables } from '../di';
@@ -13,7 +14,6 @@ interface CommentInputProps {
 
 interface CommentInputState {
     content: string;
-    clicked: boolean;
     error?: Failure;
 }
 
@@ -28,14 +28,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     constructor() {
         super();
         this.state = {
-          content: '',
-          clicked: false
+          content: ''
         };
     }
 
     public async submit() {
       this.setState({
-        clicked: true,
         error: undefined
       });
 
@@ -44,7 +42,6 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         location.reload();
       } else {
         this.setState({
-          clicked: false,
           error: result.error,
         });
       }
@@ -52,7 +49,6 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     public render() {
         const user = this.session.getCurrentUser();
-        const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && 'loading disabled'}`;
 
         const addComment = user ? <form className="ui reply form">
           <DisplayError error={this.state.error} />
@@ -60,9 +56,9 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
                       placeholder="Leave your comment here..."></textarea>
           </div>
-          <div className={ buttonClasses } onClick={async () => await this.submit()}>
+          <Button classes="blue" onClick={ () => this.submit() }>
             <i className="icon edit"></i> Add Comment
-          </div>
+          </Button>
         </form> :
         <div className="ui message">
           <div className="header">

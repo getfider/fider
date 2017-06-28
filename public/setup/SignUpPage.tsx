@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo, Gravatar } from '../shared/Common';
+import { Button } from '../components/common/Button';
 import { AppSettings } from '../models';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
@@ -23,7 +24,6 @@ interface OAuthUser {
 
 interface SignUpPageState {
     name?: string;
-    clicked: boolean;
     error?: Failure;
     subdomain: {
         available: boolean,
@@ -45,7 +45,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            clicked: false,
             subdomain: { available: false }
         };
 
@@ -67,7 +66,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
     private async confirm() {
         this.setState({
-            clicked: true,
             error: undefined
         });
 
@@ -84,7 +82,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             }
         } else {
             this.setState({
-                clicked: false,
                 error: result.error,
             });
         }
@@ -103,7 +100,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     public render() {
-        const buttonClasses = `ui positive button ${this.state.clicked && 'loading disabled'}`;
         return <div>
                 <EnvironmentInfo />
                 <div id="fdr-signup-page" className="ui container">
@@ -132,13 +128,19 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <div className="ui form">
                         <div className="inline field">
                             <label>Name</label>
-                            <input id="name" type="text" placeholder="Your organization name" onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
+                            <input id="name" type="text"
+                                   placeholder="Your organization name"
+                                   maxLength={60}
+                                   onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
                         { !this.session.isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
-                                <input id="subdomain" type="text" placeholder="orgname" onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
+                                <input id="subdomain" type="text"
+                                       maxLength={40}
+                                       placeholder="orgname"
+                                       onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
                                 {
                                     this.state.subdomain.available &&
@@ -162,7 +164,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <p>Please make sure information provided above is correct before proceeding.</p>
                     <DisplayError error={this.state.error} />
 
-                    <button className={buttonClasses} onClick={() => this.confirm()}>Confirm</button>
+                    <Button classes="positive" onClick={() => this.confirm()}>Confirm</Button>
                 </div>
                 <Footer />
             </div>;

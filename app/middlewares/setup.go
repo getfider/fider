@@ -16,7 +16,7 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			logger := c.Logger().(*log.Logger)
-			logger.Debugf("HTTP Request %s", logger.Color().Bold(logger.Color().RedBg(c.Request().URL)))
+			logger.Debugf("HTTP Request %s", logger.Color().Bold(logger.Color().RedBg(c.Request().Method+" "+c.Request().URL.String())))
 
 			trx, err := db.Begin()
 			if err != nil {

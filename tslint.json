@@ -5,6 +5,9 @@
         "trailing-comma": [
             false
         ],
+        "indent": [
+            true, "spaces", 4
+        ],
         "interface-name": [
             false
         ],

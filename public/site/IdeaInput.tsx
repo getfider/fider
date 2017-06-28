@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { DisplayError } from '../shared/Common';
 import { SocialSignInList } from '../shared/SocialSignInList';
+import { Button } from '../components/common/Button';
 
 import { inject, injectables } from '../di';
 import { Session, IdeaService, Failure } from '../services';
 
 interface IdeaInputState {
     title: string;
-    clicked: boolean;
     error?: Failure;
 }
 
@@ -24,13 +24,11 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         super();
         this.state = {
           title: '',
-          clicked: false
         };
     }
 
     public async submit() {
       this.setState({
-        clicked: true,
         error: undefined
       });
 
@@ -39,7 +37,6 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         location.href = `/ideas/${result.data.number}/${result.data.slug}`;
       } else if (result.error) {
         this.setState({
-          clicked: false,
           error: result.error
         });
       }
@@ -47,7 +44,6 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     public render() {
         const user = this.session.getCurrentUser();
-        const buttonClasses = `ui primary button ${this.state.clicked && 'loading disabled'}`;
         const details = user ?
                         <div>
                           <div className="field">
@@ -55,9 +51,9 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                                       rows={6}
                                       placeholder="Describe your idea (optional)"></textarea>
                             </div>
-                              <button className={buttonClasses} onClick={async () => { await this.submit(); } }>
+                              <Button classes="primary" onClick={async () => { await this.submit(); } }>
                                 Submit Idea
-                              </button>
+                              </Button>
                             </div> :
                           <div>
                           <div className="ui message">
