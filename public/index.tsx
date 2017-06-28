@@ -6,11 +6,18 @@ import { HomePage as SiteHomePage } from './site/HomePage';
 import { ShowIdeaPage } from './site/ShowIdeaPage';
 import { SignUpPage } from './setup/SignUpPage';
 import { container, injectables } from './di';
-import { Session, BrowserSession } from './services/Session';
-import { IdeaService, HttpIdeaService } from './services/IdeaService';
+import {
+    Session,
+    BrowserSession,
+    IdeaService,
+    HttpIdeaService,
+    TenantService,
+    HttpTenantService
+} from './services';
 
 container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
+container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 
 import './main.scss';
 

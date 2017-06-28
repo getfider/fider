@@ -4,12 +4,14 @@ axios.defaults.validateStatus = (status: number) => {
     return status < 500;
 };
 
+export interface Failure {
+    message: string;
+}
+
 export interface Result<T = void> {
     ok: boolean;
-    data?: T;
-    error?: {
-        message: string;
-    };
+    data: T;
+    error?: Failure;
 }
 
 function toResult<T>(response: AxiosResponse): Result<T> {
@@ -21,6 +23,7 @@ function toResult<T>(response: AxiosResponse): Result<T> {
     } else {
         return {
             ok: false,
+            data: response.data as T,
             error: { message: response.data.message }
         };
     }

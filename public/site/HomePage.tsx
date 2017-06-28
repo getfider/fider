@@ -30,7 +30,7 @@ export class HomePage extends React.Component<{}, {}> {
                           <SupportCounter user={this.user} idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}/${x.slug}`} className="header">
-                              <i className="idea icon"></i> { x.title }
+                              { x.title }
                             </a>
                             <div className="description">
                               <MultiLineText text={ x.description } />
@@ -44,7 +44,7 @@ export class HomePage extends React.Component<{}, {}> {
                         </div>);
 
         const displayIdeas = (this.ideas.length > 0) ? <div>
-                      <h3>Top Ideas</h3>
+                      <h3>Recent Ideas</h3>
                       <div className="ui divided unstackable items">
                         { ideasList }
                       </div>

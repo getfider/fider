@@ -6,13 +6,12 @@ import { AppSettings } from '../models';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
 import { DisplayError } from '../shared/Common';
-import axios from 'axios';
 import { decode } from '../jwt';
 const td = require('throttle-debounce');
 const logo = require('../imgs/logo.png');
 
 import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { Session, TenantService, Failure } from '../services';
 
 import './signup.scss';
 
@@ -25,7 +24,7 @@ interface OAuthUser {
 interface SignUpPageState {
     name?: string;
     clicked: boolean;
-    error?: Error;
+    error?: Failure;
     subdomain: {
         available: boolean,
         message?: string,
@@ -39,6 +38,9 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
     @inject(injectables.Session)
     public session: Session;
+
+    @inject(injectables.TenantService)
+    public service: TenantService;
 
     constructor(props: {}) {
         super(props);
@@ -69,35 +71,33 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             error: undefined
         });
 
-        try {
-            const response = await axios.post('/api/tenants', {
-                token: this.user ? this.user.token : null,
-                name: this.state.name,
-                subdomain: this.state.subdomain.value,
-            });
-
+        const result = await this.service.create(
+            this.user && this.user.token,
+            this.state.name,
+            this.state.subdomain.value
+        );
+        if (result.ok) {
             if (this.session.isSingleHostMode()) {
                 location.reload();
             } else {
                 location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
             }
-        } catch (ex) {
+        } else {
             this.setState({
                 clicked: false,
-                error: ex.response.data
+                error: result.error,
             });
         }
     }
 
     private async checkAvailability(subdomain: string) {
-        const url = `/api/tenants/${subdomain}/availability`;
-        const result = await axios.get(url);
+        const result = await this.service.checkAvailability(subdomain);
 
         this.setState({
             subdomain: {
                 value: subdomain,
                 available: !result.data.message,
-                message: result.data.message
+                message: result.data.message,
             }
         });
     }

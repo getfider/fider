@@ -4,7 +4,7 @@ import md5 = require('md5');
 import { User, IdeaResponse, IdeaStatus } from '../models';
 
 import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { Session, Failure } from '../services';
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : '';
@@ -21,7 +21,7 @@ export const MultiLineText = (props: {text?: string}) => {
   )}</div>;
 };
 
-export const DisplayError = (props: {error?: Error}) => {
+export const DisplayError = (props: {error?: Failure}) => {
   if (!props.error) {
     return <div></div>;
   }

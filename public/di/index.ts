@@ -14,6 +14,7 @@ const {
 const injectables = {
     Session: Symbol('Session'),
     IdeaService: Symbol('IdeaService'),
+    TenantService: Symbol('TenantService'),
 };
 
 export {

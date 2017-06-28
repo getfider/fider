@@ -1,4 +1,3 @@
-import axios from 'axios';
 import * as React from 'react';
 
 import { Idea } from '../models';
@@ -6,7 +5,7 @@ import { DisplayError } from './Common';
 import { SocialSignInList } from './SocialSignInList';
 
 import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { Session, IdeaService, Failure } from '../services';
 
 interface CommentInputProps {
     idea: Idea;
@@ -15,13 +14,16 @@ interface CommentInputProps {
 interface CommentInputState {
     content: string;
     clicked: boolean;
-    error?: Error;
+    error?: Failure;
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
 
     @inject(injectables.Session)
     public session: Session;
+
+    @inject(injectables.IdeaService)
+    public service: IdeaService;
 
     constructor() {
         super();
@@ -37,16 +39,13 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         error: undefined
       });
 
-      try {
-        await axios.post(`/api/ideas/${this.props.idea.number}/comments`, {
-          content: this.state.content
-        });
-
+      const result = await this.service.addComment(this.props.idea.number, this.state.content);
+      if (result.ok) {
         location.reload();
-      } catch (ex) {
+      } else {
         this.setState({
           clicked: false,
-          error: ex.response.data
+          error: result.error,
         });
       }
     }

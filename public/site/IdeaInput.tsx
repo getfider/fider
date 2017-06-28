@@ -1,15 +1,14 @@
-import axios from 'axios';
 import * as React from 'react';
 import { DisplayError } from '../shared/Common';
 import { SocialSignInList } from '../shared/SocialSignInList';
 
 import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { Session, IdeaService, Failure } from '../services';
 
 interface IdeaInputState {
     title: string;
     clicked: boolean;
-    error?: Error;
+    error?: Failure;
 }
 
 export class IdeaInput extends React.Component<{}, IdeaInputState> {
@@ -17,6 +16,9 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     @inject(injectables.Session)
     public session: Session;
+
+    @inject(injectables.IdeaService)
+    public service: IdeaService;
 
     constructor() {
         super();
@@ -32,17 +34,13 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         error: undefined
       });
 
-      try {
-        const response = await axios.post('/api/ideas', {
-          title: this.state.title,
-          description: this.description.value
-        });
-
-        location.href = `/ideas/${response.data.number}/${response.data.slug}`;
-      } catch (ex) {
+      const result = await this.service.addIdea(this.state.title, this.description.value);
+      if (result.ok) {
+        location.href = `/ideas/${result.data.number}/${result.data.slug}`;
+      } else if (result.error) {
         this.setState({
           clicked: false,
-          error: ex.response.data
+          error: result.error
         });
       }
     }
