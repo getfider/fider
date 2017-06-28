@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo, Gravatar } from '../shared/Common';
-import { Button } from '../components/common/Button';
+import { Button, Form } from '../components/common';
 import { AppSettings } from '../models';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
@@ -35,6 +35,7 @@ interface SignUpPageState {
 export class SignUpPage extends React.Component<{}, SignUpPageState> {
     private settings: AppSettings;
     private user: OAuthUser;
+    private form: Form;
 
     @inject(injectables.Session)
     public session: Session;
@@ -65,9 +66,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     private async confirm() {
-        this.setState({
-            error: undefined
-        });
+        this.form.clearFailure();
 
         const result = await this.service.create(
             this.user && this.user.token,
@@ -80,10 +79,8 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             } else {
                 location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
             }
-        } else {
-            this.setState({
-                error: result.error,
-            });
+        } else if (result.error) {
+            this.form.setFailure(result.error);
         }
     }
 
@@ -123,24 +120,23 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     }
 
                     <div className="ui section divider"></div>
-
                     <h3 className="ui header">2. Organization details</h3>
-                    <div className="ui form">
+                    <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.confirm()}>
                         <div className="inline field">
                             <label>Name</label>
                             <input id="name" type="text"
-                                   placeholder="Your organization name"
-                                   maxLength={60}
-                                   onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
+                                placeholder="Your organization name"
+                                maxLength={60}
+                                onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
                         { !this.session.isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
                                 <input id="subdomain" type="text"
-                                       maxLength={40}
-                                       placeholder="orgname"
-                                       onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
+                                    maxLength={40}
+                                    placeholder="orgname"
+                                    onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
                                 {
                                     this.state.subdomain.available &&
@@ -156,15 +152,14 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                                 }
                             </div>
                         </div> }
-                    </div>
+                    </Form>
                     <div className="ui section divider"></div>
 
                     <h3 className="ui header">3. Review and continue</h3>
 
                     <p>Please make sure information provided above is correct before proceeding.</p>
-                    <DisplayError error={this.state.error} />
 
-                    <Button classes="positive" onClick={() => this.confirm()}>Confirm</Button>
+                    <Button classes="positive" onClick={() => this.form.submit()}>Confirm</Button>
                 </div>
                 <Footer />
             </div>;

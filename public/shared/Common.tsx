@@ -27,9 +27,6 @@ export const DisplayError = (props: {error?: Failure}) => {
   }
 
   return <div className="ui negative message">
-            <div className="header">
-              Oops, an error ocurred...
-            </div>
             <p>{ props.error.message }</p>
          </div>;
 };
