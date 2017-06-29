@@ -1,7 +1,6 @@
 import * as moment from 'moment';
 import * as React from 'react';
 import { Idea, User } from '../models';
-import * as storage from '../storage';
 import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
 import { SupportCounter } from '../shared/SupportCounter';
 
@@ -9,14 +8,20 @@ import { Footer } from '../shared/Footer';
 import { Header } from '../shared/Header';
 import { IdeaInput } from './IdeaInput';
 
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
+
 export class HomePage extends React.Component<{}, {}> {
     private user: User;
     private ideas: Idea[];
 
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor(props: {}) {
         super(props);
-        this.user = storage.getCurrentUser();
-        this.ideas = storage.get<Idea[]>('ideas') || [];
+        this.user = this.session.getCurrentUser();
+        this.ideas = this.session.get<Idea[]>('ideas') || [];
     }
 
     public render() {
@@ -25,7 +30,7 @@ export class HomePage extends React.Component<{}, {}> {
                           <SupportCounter user={this.user} idea={x} />
                           <div className="content">
                             <a href={`/ideas/${x.number}/${x.slug}`} className="header">
-                              <i className="idea icon"></i> { x.title }
+                              { x.title }
                             </a>
                             <div className="description">
                               <MultiLineText text={ x.description } />
@@ -39,7 +44,7 @@ export class HomePage extends React.Component<{}, {}> {
                         </div>);
 
         const displayIdeas = (this.ideas.length > 0) ? <div>
-                      <h3>Top Ideas</h3>
+                      <h3>Recent Ideas</h3>
                       <div className="ui divided unstackable items">
                         { ideasList }
                       </div>

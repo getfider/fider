@@ -1,8 +1,9 @@
-import axios from 'axios';
 import * as React from 'react';
-import * as storage from '../storage';
 import { User, Comment, Idea } from '../models';
 import { DisplayError } from './Common';
+
+import { inject, injectables } from '../di';
+import { Session, IdeaService, Failure } from '../services';
 
 interface ResponseFormProps {
   idea: Idea;
@@ -10,7 +11,7 @@ interface ResponseFormProps {
 
 interface ResponseFormState {
   active: boolean;
-  error?: Error;
+  error?: Failure;
 }
 
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
@@ -18,25 +19,29 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   private text: HTMLTextAreaElement;
   private status: HTMLSelectElement;
 
+  @inject(injectables.Session)
+  public session: Session;
+
+  @inject(injectables.IdeaService)
+  public service: IdeaService;
+
   constructor(props: ResponseFormProps) {
     super(props);
 
-    this.user = storage.getCurrentUser();
+    this.user = this.session.getCurrentUser();
     this.state = {
       active: false
     };
   }
 
   private async submit() {
-    try {
-      await axios.post(`/api/ideas/${this.props.idea.number}/status`, {
-          status: parseInt(this.status.value, 10),
-          text: this.text.value
-      });
+    const status = parseInt(this.status.value, 10);
+    const result = await this.service.setResponse(this.props.idea.number, status, this.text.value);
+    if (result.ok) {
       location.reload();
-    } catch (ex) {
+    } else {
       this.setState({
-        error: ex.response.data
+        error: result.error
       });
     }
   }

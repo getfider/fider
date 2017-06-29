@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { User, Tenant } from '../models';
-import { get, getCurrentUser, isStaff } from '../storage';
 import { EnvironmentInfo, Gravatar } from './Common';
 import { SocialSignInList } from './SocialSignInList';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
@@ -10,11 +12,14 @@ export class Header extends React.Component<{}, {}> {
     private user: User;
     private tenant: Tenant;
 
+    @inject(injectables.Session)
+    public session: Session;
+
     constructor(props: {}) {
         super(props);
 
-        this.user = getCurrentUser();
-        this.tenant = get<Tenant>('tenant');
+        this.user = this.session.getCurrentUser();
+        this.tenant = this.session.get<Tenant>('tenant');
     }
 
     public componentDidMount() {
@@ -33,7 +38,7 @@ export class Header extends React.Component<{}, {}> {
                                 <b>{ this.user.email }</b>
                             </div>
                             {
-                                isStaff() &&
+                                this.session.isStaff() &&
                                 <div className="item">
                                     <a href="/admin">
                                         Administration

@@ -5,6 +5,9 @@
         "trailing-comma": [
             false
         ],
+        "indent": [
+            true, "spaces", 4
+        ],
         "interface-name": [
             false
         ],
@@ -19,6 +22,9 @@
             true, "single", "jsx-double"
         ],
         "max-line-length": [
+            false
+        ],
+        "max-classes-per-file": [
             false
         ]
     }

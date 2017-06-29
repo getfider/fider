@@ -1,10 +1,12 @@
-import axios from 'axios';
 import * as React from 'react';
 
 import { Idea } from '../models';
-import { getCurrentUser } from '../storage';
 import { DisplayError } from './Common';
+import { Button } from '../components/common/Button';
 import { SocialSignInList } from './SocialSignInList';
+
+import { inject, injectables } from '../di';
+import { Session, IdeaService, Failure } from '../services';
 
 interface CommentInputProps {
     idea: Idea;
@@ -12,42 +14,41 @@ interface CommentInputProps {
 
 interface CommentInputState {
     content: string;
-    clicked: boolean;
-    error?: Error;
+    error?: Failure;
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
+
+    @inject(injectables.Session)
+    public session: Session;
+
+    @inject(injectables.IdeaService)
+    public service: IdeaService;
+
     constructor() {
         super();
         this.state = {
-          content: '',
-          clicked: false
+          content: ''
         };
     }
 
     public async submit() {
       this.setState({
-        clicked: true,
         error: undefined
       });
 
-      try {
-        await axios.post(`/api/ideas/${this.props.idea.number}/comments`, {
-          content: this.state.content
-        });
-
+      const result = await this.service.addComment(this.props.idea.number, this.state.content);
+      if (result.ok) {
         location.reload();
-      } catch (ex) {
+      } else {
         this.setState({
-          clicked: false,
-          error: ex.response.data
+          error: result.error,
         });
       }
     }
 
     public render() {
-        const user = getCurrentUser();
-        const buttonClasses = `ui blue labeled submit icon button ${this.state.clicked && 'loading disabled'}`;
+        const user = this.session.getCurrentUser();
 
         const addComment = user ? <form className="ui reply form">
           <DisplayError error={this.state.error} />
@@ -55,9 +56,9 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
                       placeholder="Leave your comment here..."></textarea>
           </div>
-          <div className={ buttonClasses } onClick={async () => await this.submit()}>
+          <Button classes="blue" onClick={ () => this.submit() }>
             <i className="icon edit"></i> Add Comment
-          </div>
+          </Button>
         </form> :
         <div className="ui message">
           <div className="header">

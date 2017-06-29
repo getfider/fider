@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { get } from '../storage';
 import { SocialSignInButton } from './SocialSignInButton';
+
+import { inject, injectables } from '../di';
+import { Session } from '../services/Session';
 
 interface AuthSettings {
     endpoint: string;
@@ -15,29 +17,39 @@ interface SocialSignInListProps {
     orientation: 'horizontal' | 'vertical';
 }
 
-export const SocialSignInList = (props: SocialSignInListProps) => {
-    const settings = get<AuthSettings>('auth');
-    const cssClasses = props.orientation === 'horizontal' ? 'horizontal divided' : '';
+export class SocialSignInList extends React.Component<SocialSignInListProps, {}> {
 
-    const google = settings.providers.google &&
-                    <div className="item">
-                        <SocialSignInButton provider="google" size={props.size} />
-                    </div>;
-    const facebook = settings.providers.facebook &&
-                    <div className="item">
-                        <SocialSignInButton provider="facebook" size={props.size} />
-                    </div>;
+    @inject(injectables.Session)
+    public session: Session;
 
-    const noAuth = !facebook && !google &&
-                    <div className="item">
-                        <div className="ui tertiary inverted red segment">
-                            There are no authentication methods enabled.
-                        </div>
-                    </div>;
+    constructor(props: SocialSignInListProps) {
+        super(props);
+    }
 
-    return <div className={`ui list ${cssClasses}`}>
-                { facebook }
-                { google }
-                { noAuth }
-            </div>;
-};
+    public render() {
+        const settings = this.session.get<AuthSettings>('auth');
+        const cssClasses = this.props.orientation === 'horizontal' ? 'horizontal divided' : '';
+
+        const google = settings.providers.google &&
+                        <div className="item">
+                            <SocialSignInButton provider="google" size={this.props.size} />
+                        </div>;
+        const facebook = settings.providers.facebook &&
+                        <div className="item">
+                            <SocialSignInButton provider="facebook" size={this.props.size} />
+                        </div>;
+
+        const noAuth = !facebook && !google &&
+                        <div className="item">
+                            <div className="ui tertiary inverted red segment">
+                                There are no authentication methods enabled.
+                            </div>
+                        </div>;
+
+        return <div className={`ui list ${cssClasses}`}>
+                    { facebook }
+                    { google }
+                    { noAuth }
+                </div>;
+    }
+}

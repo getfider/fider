@@ -2,15 +2,17 @@ import * as React from 'react';
 
 import { Footer } from '../shared/Footer';
 import { EnvironmentInfo, Gravatar } from '../shared/Common';
+import { Button, Form } from '../components/common';
 import { AppSettings } from '../models';
-import { isSingleHostMode, getAppSettings } from '../storage';
 import { SocialSignInList } from '../shared/SocialSignInList';
 import { setTitle, getQueryString } from '../page';
 import { DisplayError } from '../shared/Common';
-import axios from 'axios';
 import { decode } from '../jwt';
 const td = require('throttle-debounce');
 const logo = require('../imgs/logo.png');
+
+import { inject, injectables } from '../di';
+import { Session, TenantService, Failure } from '../services';
 
 import './signup.scss';
 
@@ -22,8 +24,7 @@ interface OAuthUser {
 
 interface SignUpPageState {
     name?: string;
-    clicked: boolean;
-    error?: Error;
+    error?: Failure;
     subdomain: {
         available: boolean,
         message?: string,
@@ -34,18 +35,24 @@ interface SignUpPageState {
 export class SignUpPage extends React.Component<{}, SignUpPageState> {
     private settings: AppSettings;
     private user: OAuthUser;
+    private form: Form;
+
+    @inject(injectables.Session)
+    public session: Session;
+
+    @inject(injectables.TenantService)
+    public service: TenantService;
 
     constructor(props: {}) {
         super(props);
         this.state = {
-            clicked: false,
             subdomain: { available: false }
         };
 
-        this.settings = getAppSettings();
+        this.settings = this.session.getAppSettings();
         this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        setTitle(isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
+        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
 
         const token = getQueryString('jwt');
         if (token) {
@@ -59,46 +66,37 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     private async confirm() {
-        this.setState({
-            clicked: true,
-            error: undefined
-        });
+        this.form.clearFailure();
 
-        try {
-            const response = await axios.post('/api/tenants', {
-                token: this.user ? this.user.token : null,
-                name: this.state.name,
-                subdomain: this.state.subdomain.value,
-            });
-
-            if (isSingleHostMode()) {
+        const result = await this.service.create(
+            this.user && this.user.token,
+            this.state.name,
+            this.state.subdomain.value
+        );
+        if (result.ok) {
+            if (this.session.isSingleHostMode()) {
                 location.reload();
             } else {
                 location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
             }
-        } catch (ex) {
-            this.setState({
-                clicked: false,
-                error: ex.response.data
-            });
+        } else if (result.error) {
+            this.form.setFailure(result.error);
         }
     }
 
     private async checkAvailability(subdomain: string) {
-        const url = `/api/tenants/${subdomain}/availability`;
-        const result = await axios.get(url);
+        const result = await this.service.checkAvailability(subdomain);
 
         this.setState({
             subdomain: {
                 value: subdomain,
                 available: !result.data.message,
-                message: result.data.message
+                message: result.data.message,
             }
         });
     }
 
     public render() {
-        const buttonClasses = `ui positive button ${this.state.clicked && 'loading disabled'}`;
         return <div>
                 <EnvironmentInfo />
                 <div id="fdr-signup-page" className="ui container">
@@ -122,18 +120,23 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     }
 
                     <div className="ui section divider"></div>
-
                     <h3 className="ui header">2. Organization details</h3>
-                    <div className="ui form">
+                    <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.confirm()}>
                         <div className="inline field">
                             <label>Name</label>
-                            <input id="name" type="text" placeholder="Your organization name" onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
+                            <input id="name" type="text"
+                                placeholder="Your organization name"
+                                maxLength={60}
+                                onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
-                        { !isSingleHostMode() && <div className="inline field">
+                        { !this.session.isSingleHostMode() && <div className="inline field">
                             <label>Identity</label>
                             <div className="ui right labeled input">
                                 <div className="ui label">https://</div>
-                                <input id="subdomain" type="text" placeholder="orgname" onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
+                                <input id="subdomain" type="text"
+                                    maxLength={40}
+                                    placeholder="orgname"
+                                    onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
                                 {
                                     this.state.subdomain.available &&
@@ -149,15 +152,14 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                                 }
                             </div>
                         </div> }
-                    </div>
+                    </Form>
                     <div className="ui section divider"></div>
 
                     <h3 className="ui header">3. Review and continue</h3>
 
                     <p>Please make sure information provided above is correct before proceeding.</p>
-                    <DisplayError error={this.state.error} />
 
-                    <button className={buttonClasses} onClick={() => this.confirm()}>Confirm</button>
+                    <Button classes="positive" onClick={() => this.form.submit()}>Confirm</Button>
                 </div>
                 <Footer />
             </div>;

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import md5 = require('md5');
-import { AxiosError, AxiosResponse } from 'axios';
-import { getCurrentUser, getAppSettings, isProduction } from '../storage';
 import { User, IdeaResponse, IdeaStatus } from '../models';
+
+import { inject, injectables } from '../di';
+import { Session, Failure } from '../services';
 
 export const Gravatar = (props: {email?: string}) => {
   const hash = props.email ? md5(props.email) : '';
@@ -20,31 +21,34 @@ export const MultiLineText = (props: {text?: string}) => {
   )}</div>;
 };
 
-export const DisplayError = (props: {error?: Error}) => {
+export const DisplayError = (props: {error?: Failure}) => {
   if (!props.error) {
     return <div></div>;
   }
 
   return <div className="ui negative message">
-            <div className="header">
-              Oops, an error ocurred...
-            </div>
             <p>{ props.error.message }</p>
          </div>;
 };
 
-export const EnvironmentInfo = () => {
-  if (!isProduction()) {
-    const settings = getAppSettings();
-    return <div className="ui mini negative message no-border no-margin">
-                Env: { settings.environment } |
-                Compiler: { settings.compiler } |
-                Version: { settings.version } |
-                BuildTime: { settings.buildTime }
-            </div>;
+export class EnvironmentInfo extends React.Component<{}, {}> {
+
+  @inject(injectables.Session)
+  public session: Session;
+
+  public render() {
+    if (!this.session.isProduction()) {
+      const settings = this.session.getAppSettings();
+      return <div className="ui mini negative message no-border no-margin">
+                  Env: { settings.environment } |
+                  Compiler: { settings.compiler } |
+                  Version: { settings.version } |
+                  BuildTime: { settings.buildTime }
+              </div>;
+    }
+    return <div/>;
   }
-  return <div/>;
-};
+}
 
 export const IdeaStatusRibbon = (props: { status: IdeaStatus }) => {
   return <span className={`ui ribbon label ${props.status.color}`}>{ props.status.title }</span>;

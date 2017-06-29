@@ -1,73 +1,66 @@
-import axios from 'axios';
 import * as React from 'react';
-import { getCurrentUser } from '../storage';
 import { DisplayError } from '../shared/Common';
 import { SocialSignInList } from '../shared/SocialSignInList';
+import { Button, Form } from '../components/common';
+
+import { inject, injectables } from '../di';
+import { Session, IdeaService, Failure } from '../services';
 
 interface IdeaInputState {
     title: string;
-    clicked: boolean;
-    error?: Error;
 }
 
 export class IdeaInput extends React.Component<{}, IdeaInputState> {
     private description: HTMLTextAreaElement;
+    private form: Form;
+
+    @inject(injectables.Session)
+    public session: Session;
+
+    @inject(injectables.IdeaService)
+    public service: IdeaService;
 
     constructor() {
         super();
         this.state = {
           title: '',
-          clicked: false
         };
     }
 
     public async submit() {
-      this.setState({
-        clicked: true,
-        error: undefined
-      });
-
-      try {
-        const response = await axios.post('/api/ideas', {
-          title: this.state.title,
-          description: this.description.value
-        });
-
-        location.href = `/ideas/${response.data.number}/${response.data.slug}`;
-      } catch (ex) {
-        this.setState({
-          clicked: false,
-          error: ex.response.data
-        });
+      this.form.clearFailure();
+      const result = await this.service.addIdea(this.state.title, this.description.value);
+      if (result.ok) {
+        location.href = `/ideas/${result.data.number}/${result.data.slug}`;
+      } else if (result.error) {
+        this.form.setFailure(result.error);
       }
     }
 
     public render() {
-        const user = getCurrentUser();
-        const buttonClasses = `ui primary button ${this.state.clicked && 'loading disabled'}`;
+        const user = this.session.getCurrentUser();
         const details = user ?
-                        <div>
-                          <div className="field">
-                            <textarea ref={(ref) => this.description = ref! }
-                                      rows={6}
-                                      placeholder="Describe your idea (optional)"></textarea>
-                            </div>
-                              <button className={buttonClasses} onClick={async () => { await this.submit(); } }>
-                                Submit Idea
-                              </button>
-                            </div> :
                           <div>
-                          <div className="ui message">
-                            <div className="header">
-                              Please log in before posting an idea
+                            <div className="field">
+                              <textarea ref={(ref) => this.description = ref! }
+                                        rows={6}
+                                        placeholder="Describe your idea (optional)"></textarea>
                             </div>
-                            <p>This only takes a second and you'll be good to go!</p>
-                              <SocialSignInList orientation="horizontal" size="small" />
-                          </div>
-                        </div>;
+                            <Button classes="primary" onClick={() => this.form.submit() }>
+                              Submit Idea
+                            </Button>
+                          </div> :
+                          <div>
+                            <div className="ui message">
+                              <div className="header">
+                                Please log in before posting an idea
+                              </div>
+                              <p>This only takes a second and you'll be good to go!</p>
+                                <SocialSignInList orientation="horizontal" size="small" />
+                            </div>
+                          </div>;
 
-        return <div className="ui form">
-                <DisplayError error={this.state.error} />
+        return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
                 <div className="ui fluid input">
                     <input  id="new-idea-input"
                             type="text"
@@ -76,7 +69,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                             placeholder="Enter your idea, new feature or suggestion here ..." />
                 </div>
 
-                { this.state.title.length > 0 && details }
-               </div>;
+                { this.state.title && details }
+               </Form>;
     }
 }
