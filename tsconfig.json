@@ -8,6 +8,12 @@
         "jsx": "react",
         "lib": ["dom", "es2015.promise", "es6"],
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
+        "emitDecoratorMetadata": true,
+        "baseUrl": "./public",
+        "paths": {
+            "@fider/*": [
+                "*"
+            ]
+        }
     }
 }

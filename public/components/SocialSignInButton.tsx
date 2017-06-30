@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
-import { Button } from '../components/common/Button';
+import { inject, injectables } from '@fider/di';
+import { Session } from '@fider/services/Session';
+import { Button } from '@fider/components/common';
 
 interface SocialSignInButtonProps {
     provider: string;

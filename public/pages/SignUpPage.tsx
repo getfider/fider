@@ -1,18 +1,15 @@
 import * as React from 'react';
 
-import { Footer } from '../shared/Footer';
-import { EnvironmentInfo, Gravatar } from '../shared/Common';
-import { Button, Form } from '../components/common';
-import { AppSettings } from '../models';
-import { SocialSignInList } from '../shared/SocialSignInList';
-import { setTitle, getQueryString } from '../page';
-import { DisplayError } from '../shared/Common';
-import { decode } from '../jwt';
+import { Footer, Button, Form, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+import { AppSettings } from '@fider/models';
+import { SocialSignInList } from '@fider/components/SocialSignInList';
+import { setTitle, getQueryString } from '@fider/utils/page';
+import { decode } from '@fider/utils/jwt';
 const td = require('throttle-debounce');
-const logo = require('../imgs/logo.png');
+const logo = require('@fider/images/logo.png');
 
-import { inject, injectables } from '../di';
-import { Session, TenantService, Failure } from '../services';
+import { inject, injectables } from '@fider/di';
+import { Session, TenantService, Failure } from '@fider/services';
 
 import './signup.scss';
 

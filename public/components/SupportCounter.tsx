@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Idea, User, IdeaStatus } from '../models';
+import { Idea, User, IdeaStatus } from '@fider/models';
 import { SocialSignInList } from './SocialSignInList';
 
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
-import { IdeaService } from '../services/IdeaService';
+import { inject, injectables } from '@fider/di';
+import { Session, IdeaService } from '@fider/services';
 
 interface SupportCounterProps {
     user: User;

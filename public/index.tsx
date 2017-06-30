@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { HomePage as AdminHomePage } from './admin/HomePage';
-import { HomePage as SiteHomePage } from './site/HomePage';
-import { ShowIdeaPage } from './site/ShowIdeaPage';
-import { SignUpPage } from './setup/SignUpPage';
-import { container, injectables } from './di';
+import { AdminHomePage } from '@fider/pages/AdminHomePage';
+import { SiteHomePage } from '@fider/pages/SiteHomePage';
+import { ShowIdeaPage } from '@fider/pages/ShowIdeaPage';
+import { SignUpPage } from '@fider/pages/SignUpPage';
+import { container, injectables } from '@fider/di';
 import {
     Session,
     BrowserSession,
@@ -13,13 +13,13 @@ import {
     HttpIdeaService,
     TenantService,
     HttpTenantService
-} from './services';
+} from '@fider/services';
 
 container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 
-import './main.scss';
+import '@fider/main.scss';
 
 const pathRegex = [
     { regex: new RegExp('^\/$'), component: <SiteHomePage /> },

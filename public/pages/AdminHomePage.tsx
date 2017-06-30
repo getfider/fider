@@ -1,9 +1,8 @@
 import * as React from 'react';
 
-import { Footer } from '../shared/Footer';
-import { Header } from '../shared/Header';
+import { Header, Footer } from '@fider/components/common';
 
-export class HomePage extends React.Component<{}, {}> {
+export class AdminHomePage extends React.Component<{}, {}> {
 
     constructor(props: {}) {
         super(props);

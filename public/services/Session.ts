@@ -1,5 +1,5 @@
-import { User, AppSettings } from '../models';
-import { injectable } from '../di';
+import { User, AppSettings } from '@fider/models';
+import { injectable } from '@fider/di';
 
 export interface Session {
     getCurrentUser(): User;
