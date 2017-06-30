@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { User, Tenant } from '@fider/models';
-import { EnvironmentInfo, Gravatar } from '@fider/components/common';
-import { SocialSignInList } from './SocialSignInList';
+import { SocialSignInList, EnvironmentInfo, Gravatar } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';

@@ -3,14 +3,13 @@ import * as React from 'react';
 
 import { User, Comment, Idea } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
-import { Gravatar, MultiLineText, Footer, Header } from '@fider/components/common';
 
-import { CommentInput } from '@fider/components/CommentInput';
-import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { SocialSignInButton } from '@fider/components/SocialSignInButton';
-import { SupportCounter } from '@fider/components/SupportCounter';
-import { ResponseForm } from '@fider/components/ResponseForm';
 import { IdeaInput } from '@fider/components/IdeaInput';
+import { CommentInput } from '@fider/components/CommentInput';
+import { ResponseForm } from '@fider/components/ResponseForm';
+import { SupportCounter } from '@fider/components/SupportCounter';
+import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
+import { Gravatar, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';

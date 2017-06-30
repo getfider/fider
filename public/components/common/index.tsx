@@ -6,3 +6,5 @@ export * from './EnvironmentInfo';
 export * from './Gravatar';
 export * from './Footer';
 export * from './Header';
+export * from './SocialSignInButton';
+export * from './SocialSignInList';

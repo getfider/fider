@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { SocialSignInButton } from './SocialSignInButton';
-
+import { SocialSignInButton } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
 

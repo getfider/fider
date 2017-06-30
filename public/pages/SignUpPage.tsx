@@ -1,8 +1,7 @@
 import * as React from 'react';
 
-import { Footer, Button, Form, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+import { SocialSignInList, Footer, Button, Form, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
 import { AppSettings } from '@fider/models';
-import { SocialSignInList } from '@fider/components/SocialSignInList';
 import { setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
 const td = require('throttle-debounce');

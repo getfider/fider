@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { SocialSignInList } from '@fider/components/SocialSignInList';
-import { DisplayError, Button, Form } from '@fider/components/common';
+import { DisplayError, Button, Form, SocialSignInList } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
