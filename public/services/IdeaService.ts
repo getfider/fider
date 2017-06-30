@@ -1,6 +1,6 @@
-import { get, post, Result } from './http';
-import { injectable } from '../di';
-import { Idea } from '../models';
+import { get, post, Result } from '@fider/services/http';
+import { injectable } from '@fider/di';
+import { Idea } from '@fider/models';
 
 export interface IdeaService {
     addSupport(ideaNumber: number): Promise<Result>;

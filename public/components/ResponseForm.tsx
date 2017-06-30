@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { User, Comment, Idea } from '../models';
-import { DisplayError } from './Common';
+import { User, Comment, Idea } from '@fider/models';
+import { DisplayError } from '@fider/components/common';
 
-import { inject, injectables } from '../di';
-import { Session, IdeaService, Failure } from '../services';
+import { inject, injectables } from '@fider/di';
+import { Session, IdeaService, Failure } from '@fider/services';
 
 interface ResponseFormProps {
   idea: Idea;

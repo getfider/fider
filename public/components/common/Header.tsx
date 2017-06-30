@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { User, Tenant } from '../models';
-import { EnvironmentInfo, Gravatar } from './Common';
-import { SocialSignInList } from './SocialSignInList';
+import { User, Tenant } from '@fider/models';
+import { SocialSignInList, EnvironmentInfo, Gravatar } from '@fider/components/common';
 
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { inject, injectables } from '@fider/di';
+import { Session } from '@fider/services/Session';
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;

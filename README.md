@@ -1,4 +1,4 @@
-![](/public/imgs/logo.png)
+![](/public/images/logo.png)
 
 [![status](https://app.wercker.com/status/99ca65c4a8cd5711504a19deedbc6461/s/master)](https://app.wercker.com/project/byKey/99ca65c4a8cd5711504a19deedbc6461)
 [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)

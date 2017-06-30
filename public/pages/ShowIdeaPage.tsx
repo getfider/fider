@@ -1,20 +1,18 @@
 import * as moment from 'moment';
 import * as React from 'react';
 
-import { User, Comment, Idea } from '../models';
-import { CommentInput } from '../shared/CommentInput';
-import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
-import { SocialSignInButton } from '../shared/SocialSignInButton';
-import { SupportCounter } from '../shared/SupportCounter';
-import { ResponseForm } from '../shared/ResponseForm';
-import { setTitle } from '../page';
+import { User, Comment, Idea } from '@fider/models';
+import { setTitle } from '@fider/utils/page';
 
-import { Footer } from '../shared/Footer';
-import { Header } from '../shared/Header';
-import { IdeaInput } from './IdeaInput';
+import { IdeaInput } from '@fider/components/IdeaInput';
+import { CommentInput } from '@fider/components/CommentInput';
+import { ResponseForm } from '@fider/components/ResponseForm';
+import { SupportCounter } from '@fider/components/SupportCounter';
+import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
+import { Gravatar, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { inject, injectables } from '@fider/di';
+import { Session } from '@fider/services';
 
 export class ShowIdeaPage extends React.Component<{}, {}> {
     private user: User;

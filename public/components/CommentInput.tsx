@@ -1,12 +1,10 @@
 import * as React from 'react';
 
-import { Idea } from '../models';
-import { DisplayError } from './Common';
-import { Button } from '../components/common/Button';
-import { SocialSignInList } from './SocialSignInList';
+import { Idea } from '@fider/models';
+import { Button, DisplayError, SocialSignInList } from '@fider/components/common';
 
-import { inject, injectables } from '../di';
-import { Session, IdeaService, Failure } from '../services';
+import { inject, injectables } from '@fider/di';
+import { Session, IdeaService, Failure } from '@fider/services';
 
 interface CommentInputProps {
     idea: Idea;

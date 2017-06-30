@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Failure } from '../../services';
-import { DisplayError } from '../../shared/Common';
+import { Failure } from '@fider/services';
+import { DisplayError } from './';
 
 interface FormProps {
     onSubmit: () => Promise<any>;

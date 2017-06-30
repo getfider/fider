@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { DisplayError } from '../shared/Common';
-import { SocialSignInList } from '../shared/SocialSignInList';
-import { Button, Form } from '../components/common';
+import { DisplayError, Button, Form, SocialSignInList } from '@fider/components/common';
 
-import { inject, injectables } from '../di';
-import { Session, IdeaService, Failure } from '../services';
+import { inject, injectables } from '@fider/di';
+import { Session, IdeaService, Failure } from '@fider/services';
 
 interface IdeaInputState {
     title: string;

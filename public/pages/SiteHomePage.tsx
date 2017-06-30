@@ -1,17 +1,15 @@
 import * as moment from 'moment';
 import * as React from 'react';
-import { Idea, User } from '../models';
-import { Gravatar, MultiLineText, ShowIdeaResponse } from '../shared/Common';
-import { SupportCounter } from '../shared/SupportCounter';
+import { Idea, User } from '@fider/models';
+import { Gravatar, MultiLineText, Header, Footer} from '@fider/components/common';
+import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
+import { SupportCounter } from '@fider/components/SupportCounter';
+import { IdeaInput } from '@fider/components/IdeaInput';
 
-import { Footer } from '../shared/Footer';
-import { Header } from '../shared/Header';
-import { IdeaInput } from './IdeaInput';
+import { inject, injectables } from '@fider/di';
+import { Session } from '@fider/services';
 
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
-
-export class HomePage extends React.Component<{}, {}> {
+export class SiteHomePage extends React.Component<{}, {}> {
     private user: User;
     private ideas: Idea[];
 

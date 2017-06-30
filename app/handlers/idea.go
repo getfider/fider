@@ -38,7 +38,13 @@ func PostIdea() web.HandlerFunc {
 
 		if strings.Trim(input.Title, " ") == "" {
 			return c.JSON(400, echo.Map{
-				"message": "Idea title is required.",
+				"message": "Title is required.",
+			})
+		}
+
+		if len(input.Title) < 10 || len(strings.Split(input.Title, " ")) < 3 {
+			return c.JSON(400, echo.Map{
+				"message": "Title needs to be more descriptive.",
 			})
 		}
 

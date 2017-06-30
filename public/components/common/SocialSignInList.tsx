@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { SocialSignInButton } from './SocialSignInButton';
-
-import { inject, injectables } from '../di';
-import { Session } from '../services/Session';
+import { SocialSignInButton } from '@fider/components/common';
+import { inject, injectables } from '@fider/di';
+import { Session } from '@fider/services/Session';
 
 interface AuthSettings {
     endpoint: string;

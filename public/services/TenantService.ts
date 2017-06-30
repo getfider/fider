@@ -1,6 +1,6 @@
-import { get, post, Result } from './http';
-import { injectable } from '../di';
-import { Tenant } from '../models';
+import { get, post, Result } from '@fider/services/http';
+import { injectable } from '@fider/di';
+import { Tenant } from '@fider/models';
 
 export interface TenantService {
     create(token?: string, name?: string, subdomain?: string): Promise<Result>;
