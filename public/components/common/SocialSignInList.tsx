@@ -41,7 +41,7 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
         const noAuth = !facebook && !google &&
                         <div className="item">
                             <div className="ui tertiary inverted red segment">
-                                There are no authentication methods enabled.
+                                No authentication methods available.
                             </div>
                         </div>;
 
