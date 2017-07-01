@@ -17,7 +17,7 @@ import (
 // CheckAvailability checks if given domain is available to be used
 func CheckAvailability() web.HandlerFunc {
 	return func(c web.Context) error {
-		subdomain := c.Param("subdomain")
+		subdomain := strings.ToLower(c.Param("subdomain"))
 		ok, messages, err := validate.Subdomain(c.Services().Tenants, subdomain)
 		if err != nil {
 			return c.Failure(err)
@@ -59,13 +59,15 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if env.IsSingleHostMode() {
-			input.Subdomain = "Default"
+			input.Subdomain = "default"
 		}
 
 		tenant := &models.Tenant{
 			Name:      input.Name,
 			Subdomain: input.Subdomain,
 		}
+
+		tenant.Subdomain = strings.ToLower(input.Subdomain)
 
 		if tenant.Name == "" {
 			return c.BadRequest(echo.Map{

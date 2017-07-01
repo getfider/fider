@@ -5,7 +5,7 @@ import { AppSettings } from '@fider/models';
 import { setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
 const td = require('throttle-debounce');
-const logo = require('@fider/images/logo.png');
+const logo = require('@fider/images/logo-small.png');
 
 import { inject, injectables } from '@fider/di';
 import { Session, TenantService, Failure } from '@fider/services';

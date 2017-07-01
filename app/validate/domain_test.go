@@ -42,6 +42,7 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		"footbook",
 		"yourcompany",
 		"newyork",
+		"NewYork",
 	} {
 		ok, messages, err := validate.Subdomain(tenants, subdomain)
 		Expect(ok).To(BeFalse())
