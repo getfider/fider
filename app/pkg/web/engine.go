@@ -40,7 +40,19 @@ func New(settings *models.AppSettings) *Engine {
 
 //Start an HTTP server.
 func (e *Engine) Start(address string) {
-	e.router.Logger.Fatal(e.router.Start(address))
+	cert := env.GetEnvOrDefault("SSL_CERT", "")
+	key := env.GetEnvOrDefault("SSL_CERT_KEY", "")
+
+	var err error
+	if cert == "" && key == "" {
+		err = e.router.Start(address)
+	} else {
+		err = e.router.StartTLS(address, cert, key)
+	}
+
+	if err != nil {
+		e.router.Logger.Fatal(err)
+	}
 }
 
 //Use middleware on root router

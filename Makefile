@@ -19,6 +19,6 @@ watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
 run:
-	fider
+	godotenv -f .env ./fider
 
 .DEFAULT_GOAL := build
