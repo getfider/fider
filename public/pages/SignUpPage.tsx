@@ -111,27 +111,24 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                         </div> :
                         <div>
                             <p>We need to identify you in order to setup your new Fider instance.</p>
-                            <SocialSignInList size="normal" orientation="horizontal" />
+                            <SocialSignInList size="normal" orientation="vertical" />
                         </div>
                     }
 
                     <div className="ui section divider"></div>
-                    <h3 className="ui header">2. Organization details</h3>
+                    <h3 className="ui header">2. Company/Product details</h3>
                     <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.confirm()}>
                         <div className="inline field">
-                            <label>Name</label>
                             <input id="name" type="text"
-                                placeholder="Your organization name"
+                                placeholder="Name"
                                 maxLength={60}
                                 onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
                         { !this.session.isSingleHostMode() && <div className="inline field">
-                            <label>Identity</label>
                             <div className="ui right labeled input">
-                                <div className="ui label">https://</div>
                                 <input id="subdomain" type="text"
                                     maxLength={40}
-                                    placeholder="orgname"
+                                    placeholder="subdomain"
                                     onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
                                 <div className="ui label">{ this.settings.domain }</div>
                                 {
@@ -153,7 +150,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
                     <h3 className="ui header">3. Review and continue</h3>
 
-                    <p>Please make sure information provided above is correct before proceeding.</p>
+                    <p>Make sure information provided above is correct before proceeding.</p>
 
                     <Button classes="positive" onClick={() => this.form.submit()}>Confirm</Button>
                 </div>
