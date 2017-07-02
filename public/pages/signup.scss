@@ -1,16 +1,19 @@
 #fdr-signup-page {
     margin-top: 50px;
     max-width: 500px !important;
+    text-align: center;
+
+    .signin-list {
+        width: 300px;
+        margin: 0 auto;
+    }
 
     .logo {
         height: 100px;
     }
 
     .ui.form {
-        label {
-            width: 50px;
-        }
-        input#name {
+        .ui.input, .field > input {
             width: 300px;
         }
     }

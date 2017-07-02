@@ -45,7 +45,7 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
                             </div>
                         </div>;
 
-        return <div className={`ui list ${cssClasses}`}>
+        return <div className={`ui list signin-list ${cssClasses}`}>
                     { facebook }
                     { google }
                     { noAuth }
