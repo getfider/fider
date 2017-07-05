@@ -7,7 +7,7 @@
 
 Visit http://getfider.com for information on what it is and how to use it.
 
-[Live Demo](http://demo.fider.io/) | [Tell us what to do next](http://feedback.fider.io/)
+[Live Demo](https://demo.fider.io/) | [Tell us what to do next](https://feedback.fider.io/)
 
 ![](docs/homepage.png)
 
