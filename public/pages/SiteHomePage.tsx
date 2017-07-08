@@ -31,7 +31,7 @@ export class SiteHomePage extends React.Component<{}, {}> {
                               { x.title }
                             </a>
                             <div className="description">
-                              <MultiLineText text={ x.description } />
+                              <MultiLineText text={ x.description } markdown={true} />
                             </div>
                             <div className="extra">
                               #{ x.number } shared by <Gravatar hash={x.user.gravatar}/> <u>{x.user.name}</u>
