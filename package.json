@@ -27,6 +27,7 @@
     "@types/jquery": "^3.2.6",
     "@types/markdown-it": "0.0.2",
     "@types/md5": "^2.1.32",
+    "@types/moment": "^2.13.0",
     "@types/react": "^15.0.35",
     "@types/react-dom": "^15.5.1",
     "css-loader": "^0.28.4",

@@ -1,7 +1,6 @@
-import * as moment from 'moment';
 import * as React from 'react';
 import { Idea, User } from '@fider/models';
-import { Gravatar, MultiLineText, Header, Footer} from '@fider/components/common';
+import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { IdeaInput } from '@fider/components/IdeaInput';
@@ -35,7 +34,7 @@ export class SiteHomePage extends React.Component<{}, {}> {
                             </div>
                             <div className="extra">
                               #{ x.number } shared by <Gravatar hash={x.user.gravatar}/> <u>{x.user.name}</u>
-                              <span title={x.createdOn}>{ moment(x.createdOn).fromNow() }</span>
+                              <Moment date={x.createdOn} />
                             </div>
                             <ShowIdeaResponse status={ x.status } response={ x.response } />
                           </div>

@@ -8,3 +8,4 @@ export * from './Footer';
 export * from './Header';
 export * from './SocialSignInButton';
 export * from './SocialSignInList';
+export * from './Moment';

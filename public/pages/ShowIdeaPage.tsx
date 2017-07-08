@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import * as React from 'react';
 
 import { User, Comment, Idea } from '@fider/models';
@@ -9,7 +8,7 @@ import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { Gravatar, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
+import { Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -41,7 +40,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
             <div className="content">
               <span className="author">{ c.user.name }</span>
               <div className="metadata">
-                <span className="date" title={c.createdOn}>{ moment(c.createdOn).fromNow() }</span>
+                <Moment date={c.createdOn} />
               </div>
               <div className="text">
                 <MultiLineText text={ c.content } />
@@ -68,7 +67,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                           <p>
                             #{ this.idea.number } shared by &nbsp;
                             <Gravatar hash={this.idea.user.gravatar}/> <u>{this.idea.user.name}</u> &nbsp;
-                            <span title={this.idea.createdOn}>{ moment(this.idea.createdOn).fromNow() }</span>
+                            <Moment date={this.idea.createdOn} />
                           </p>
                         </div>
                       </div>
