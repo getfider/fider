@@ -9,13 +9,16 @@ import (
 
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
+	lastID  int
 	tenants []*models.Tenant
 }
 
 // Add given tenant to tenant list
-func (s *TenantStorage) Add(tenant *models.Tenant) error {
+func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
+	s.lastID = s.lastID + 1
+	tenant := &models.Tenant{ID: s.lastID, Name: name, Subdomain: subdomain}
 	s.tenants = append(s.tenants, tenant)
-	return nil
+	return tenant, nil
 }
 
 // First returns first tenant
