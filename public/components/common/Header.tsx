@@ -33,9 +33,6 @@ export class Header extends React.Component<{}, {}> {
     public render() {
         const items = this.user ?
                         <div className="ui divided list">
-                            <div className="item">
-                                <b>{ this.user.email }</b>
-                            </div>
                             {
                                 this.session.isStaff() &&
                                 <div className="item">
@@ -60,7 +57,7 @@ export class Header extends React.Component<{}, {}> {
                                 { this.tenant.name }
                             </a>
                             <a ref={(e) => { this.dropdown = e!; } } className="item right signin">
-                                <Gravatar email={this.user.email} />
+                                <Gravatar hash={this.user.gravatar} />
                                 { this.user.name || 'Sign in' }
                                 <i className="dropdown icon"></i>
                             </a>
