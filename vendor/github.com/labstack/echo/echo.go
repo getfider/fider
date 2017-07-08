@@ -165,28 +165,34 @@ const (
 
 // Headers
 const (
-	HeaderAcceptEncoding                = "Accept-Encoding"
-	HeaderAllow                         = "Allow"
-	HeaderAuthorization                 = "Authorization"
-	HeaderContentDisposition            = "Content-Disposition"
-	HeaderContentEncoding               = "Content-Encoding"
-	HeaderContentLength                 = "Content-Length"
-	HeaderContentType                   = "Content-Type"
-	HeaderCookie                        = "Cookie"
-	HeaderSetCookie                     = "Set-Cookie"
-	HeaderIfModifiedSince               = "If-Modified-Since"
-	HeaderLastModified                  = "Last-Modified"
-	HeaderLocation                      = "Location"
-	HeaderUpgrade                       = "Upgrade"
-	HeaderVary                          = "Vary"
-	HeaderWWWAuthenticate               = "WWW-Authenticate"
-	HeaderXForwardedProto               = "X-Forwarded-Proto"
-	HeaderXHTTPMethodOverride           = "X-HTTP-Method-Override"
-	HeaderXForwardedFor                 = "X-Forwarded-For"
-	HeaderXRealIP                       = "X-Real-IP"
-	HeaderXRequestID                    = "X-Request-ID"
-	HeaderServer                        = "Server"
-	HeaderOrigin                        = "Origin"
+	HeaderAccept              = "Accept"
+	HeaderAcceptEncoding      = "Accept-Encoding"
+	HeaderAllow               = "Allow"
+	HeaderAuthorization       = "Authorization"
+	HeaderContentDisposition  = "Content-Disposition"
+	HeaderContentEncoding     = "Content-Encoding"
+	HeaderContentLength       = "Content-Length"
+	HeaderContentType         = "Content-Type"
+	HeaderCookie              = "Cookie"
+	HeaderSetCookie           = "Set-Cookie"
+	HeaderIfModifiedSince     = "If-Modified-Since"
+	HeaderLastModified        = "Last-Modified"
+	HeaderLocation            = "Location"
+	HeaderUpgrade             = "Upgrade"
+	HeaderVary                = "Vary"
+	HeaderWWWAuthenticate     = "WWW-Authenticate"
+	HeaderXForwardedFor       = "X-Forwarded-For"
+	HeaderXForwardedProto     = "X-Forwarded-Proto"
+	HeaderXForwardedProtocol  = "X-Forwarded-Protocol"
+	HeaderXForwardedSsl       = "X-Forwarded-Ssl"
+	HeaderXUrlScheme          = "X-Url-Scheme"
+	HeaderXHTTPMethodOverride = "X-HTTP-Method-Override"
+	HeaderXRealIP             = "X-Real-IP"
+	HeaderXRequestID          = "X-Request-ID"
+	HeaderServer              = "Server"
+	HeaderOrigin              = "Origin"
+
+	// Access control
 	HeaderAccessControlRequestMethod    = "Access-Control-Request-Method"
 	HeaderAccessControlRequestHeaders   = "Access-Control-Request-Headers"
 	HeaderAccessControlAllowOrigin      = "Access-Control-Allow-Origin"
@@ -206,7 +212,7 @@ const (
 )
 
 const (
-	version = "3.1.0"
+	version = "3.2.1"
 	website = "https://echo.labstack.com"
 	// http://patorjk.com/software/taag/#p=display&f=Small%20Slant&t=Echo
 	banner = `
@@ -428,7 +434,11 @@ func (e *Echo) Static(prefix, root string) {
 
 func static(i i, prefix, root string) {
 	h := func(c Context) error {
-		name := filepath.Join(root, path.Clean("/"+c.Param("*"))) // "/"+ for security
+		p, err := PathUnescape(c.Param("*"))
+		if err != nil {
+			return err
+		}
+		name := filepath.Join(root, path.Clean("/"+p)) // "/"+ for security
 		return c.File(name)
 	}
 	i.GET(prefix, h)
@@ -647,7 +657,7 @@ func NewHTTPError(code int, message ...interface{}) *HTTPError {
 
 // Error makes it compatible with `error` interface.
 func (he *HTTPError) Error() string {
-	return fmt.Sprintf("code=%d, message=%s", he.Code, he.Message)
+	return fmt.Sprintf("code=%d, message=%v", he.Code, he.Message)
 }
 
 // WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.

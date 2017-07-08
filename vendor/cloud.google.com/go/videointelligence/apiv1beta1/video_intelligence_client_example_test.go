@@ -22,9 +22,9 @@ import (
 	videointelligencepb "google.golang.org/genproto/googleapis/cloud/videointelligence/v1beta1"
 )
 
-func ExampleNewVideoIntelligenceClient() {
+func ExampleNewClient() {
 	ctx := context.Background()
-	c, err := videointelligence.NewVideoIntelligenceClient(ctx)
+	c, err := videointelligence.NewClient(ctx)
 	if err != nil {
 		// TODO: Handle error.
 	}
@@ -32,9 +32,9 @@ func ExampleNewVideoIntelligenceClient() {
 	_ = c
 }
 
-func ExampleVideoIntelligenceClient_AnnotateVideo() {
+func ExampleClient_AnnotateVideo() {
 	ctx := context.Background()
-	c, err := videointelligence.NewVideoIntelligenceClient(ctx)
+	c, err := videointelligence.NewClient(ctx)
 	if err != nil {
 		// TODO: Handle error.
 	}

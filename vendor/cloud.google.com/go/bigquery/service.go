@@ -15,7 +15,6 @@
 package bigquery
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -38,7 +37,7 @@ import (
 type service interface {
 	// Jobs
 	insertJob(ctx context.Context, projectId string, conf *insertJobConf) (*Job, error)
-	getJobType(ctx context.Context, projectId, jobID string) (jobType, error)
+	getJob(ctx context.Context, projectId, jobID string) (*Job, error)
 	jobCancel(ctx context.Context, projectId, jobID string) error
 	jobStatus(ctx context.Context, projectId, jobID string) (*JobStatus, error)
 
@@ -62,10 +61,8 @@ type service interface {
 
 	// Misc
 
-	// readQuery reads data resulting from a query job. If the job is
-	// incomplete, an errIncompleteJob is returned. readQuery may be called
-	// repeatedly to poll for job completion.
-	readQuery(ctx context.Context, conf *readQueryConf, pageToken string) (*readDataResult, error)
+	// Waits for a query to complete.
+	waitForQuery(ctx context.Context, projectID, jobID string) (Schema, error)
 
 	// listDatasets returns a page of Datasets and a next page token. Note: the Datasets do not have their c field populated.
 	listDatasets(ctx context.Context, projectID string, maxResults int, pageToken string, all bool, filter string) ([]*Dataset, string, error)
@@ -119,11 +116,35 @@ func (s *bigqueryService) insertJob(ctx context.Context, projectID string, conf 
 	if conf.media != nil {
 		call.Media(conf.media)
 	}
-	res, err := call.Do()
+	var res *bq.Job
+	var err error
+	invoke := func() error {
+		res, err = call.Do()
+		return err
+	}
+	// A job with a client-generated ID can be retried; the presence of the
+	// ID makes the insert operation idempotent.
+	// We don't retry if there is media, because it is an io.Reader. We'd
+	// have to read the contents and keep it in memory, and that could be expensive.
+	// TODO(jba): Look into retrying if media != nil.
+	if conf.job.JobReference != nil && conf.media == nil {
+		err = runWithRetry(ctx, invoke)
+	} else {
+		err = invoke()
+	}
 	if err != nil {
 		return nil, err
 	}
-	return &Job{projectID: projectID, jobID: res.JobReference.JobId}, nil
+
+	var dt *bq.TableReference
+	if qc := res.Configuration.Query; qc != nil {
+		dt = qc.DestinationTable
+	}
+	return &Job{
+		projectID:        projectID,
+		jobID:            res.JobReference.JobId,
+		destinationTable: dt,
+	}, nil
 }
 
 type pagingConf struct {
@@ -139,16 +160,17 @@ type readTableConf struct {
 	schema                        Schema // lazily initialized when the first page of data is fetched.
 }
 
+func (conf *readTableConf) fetch(ctx context.Context, s service, token string) (*readDataResult, error) {
+	return s.readTabledata(ctx, conf, token)
+}
+
+func (conf *readTableConf) setPaging(pc *pagingConf) { conf.paging = *pc }
+
 type readDataResult struct {
 	pageToken string
 	rows      [][]Value
 	totalRows uint64
 	schema    Schema
-}
-
-type readQueryConf struct {
-	projectID, jobID string
-	paging           pagingConf
 }
 
 func (s *bigqueryService) readTabledata(ctx context.Context, conf *readTableConf, pageToken string) (*readDataResult, error) {
@@ -206,48 +228,30 @@ func (s *bigqueryService) readTabledata(ctx context.Context, conf *readTableConf
 	return result, nil
 }
 
-var errIncompleteJob = errors.New("internal error: query results not available because job is not complete")
-
-// getQueryResultsTimeout controls the maximum duration of a request to the
-// BigQuery GetQueryResults endpoint.  Setting a long timeout here does not
-// cause increased overall latency, as results are returned as soon as they are
-// available.
-const getQueryResultsTimeout = time.Minute
-
-func (s *bigqueryService) readQuery(ctx context.Context, conf *readQueryConf, pageToken string) (*readDataResult, error) {
-	req := s.s.Jobs.GetQueryResults(conf.projectID, conf.jobID).
-		TimeoutMs(getQueryResultsTimeout.Nanoseconds() / 1e6)
+func (s *bigqueryService) waitForQuery(ctx context.Context, projectID, jobID string) (Schema, error) {
+	// Use GetQueryResults only to wait for completion, not to read results.
+	req := s.s.Jobs.GetQueryResults(projectID, jobID).Context(ctx).MaxResults(0)
 	setClientHeader(req.Header())
-
-	if pageToken != "" {
-		req.PageToken(pageToken)
-	} else {
-		req.StartIndex(conf.paging.startIndex)
+	backoff := gax.Backoff{
+		Initial:    1 * time.Second,
+		Multiplier: 2,
+		Max:        60 * time.Second,
 	}
-
-	if conf.paging.setRecordsPerRequest {
-		req.MaxResults(conf.paging.recordsPerRequest)
-	}
-
-	res, err := req.Context(ctx).Do()
+	var res *bq.GetQueryResultsResponse
+	err := internal.Retry(ctx, backoff, func() (stop bool, err error) {
+		res, err = req.Do()
+		if err != nil {
+			return !retryableError(err), err
+		}
+		if !res.JobComplete { // GetQueryResults may return early without error; retry.
+			return false, nil
+		}
+		return true, nil
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	if !res.JobComplete {
-		return nil, errIncompleteJob
-	}
-	schema := convertTableSchema(res.Schema)
-	result := &readDataResult{
-		pageToken: res.PageToken,
-		totalRows: res.TotalRows,
-		schema:    schema,
-	}
-	result.rows, err = convertRows(res.Rows, schema)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
+	return convertTableSchema(res.Schema), nil
 }
 
 type insertRowsConf struct {
@@ -304,37 +308,26 @@ func (s *bigqueryService) insertRows(ctx context.Context, projectID, datasetID, 
 	return errs
 }
 
-type jobType int
-
-const (
-	copyJobType jobType = iota
-	extractJobType
-	loadJobType
-	queryJobType
-)
-
-func (s *bigqueryService) getJobType(ctx context.Context, projectID, jobID string) (jobType, error) {
+func (s *bigqueryService) getJob(ctx context.Context, projectID, jobID string) (*Job, error) {
 	res, err := s.s.Jobs.Get(projectID, jobID).
 		Fields("configuration").
 		Context(ctx).
 		Do()
-
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-
-	switch {
-	case res.Configuration.Copy != nil:
-		return copyJobType, nil
-	case res.Configuration.Extract != nil:
-		return extractJobType, nil
-	case res.Configuration.Load != nil:
-		return loadJobType, nil
-	case res.Configuration.Query != nil:
-		return queryJobType, nil
-	default:
-		return 0, errors.New("unknown job type")
+	var isQuery bool
+	var dest *bq.TableReference
+	if res.Configuration.Query != nil {
+		isQuery = true
+		dest = res.Configuration.Query.DestinationTable
 	}
+	return &Job{
+		projectID:        projectID,
+		jobID:            jobID,
+		isQuery:          isQuery,
+		destinationTable: dest,
+	}, nil
 }
 
 func (s *bigqueryService) jobCancel(ctx context.Context, projectID, jobID string) error {
@@ -568,9 +561,17 @@ func bqTableToMetadata(t *bq.Table) *TableMetadata {
 		md.View = t.View.Query
 	}
 	if t.TimePartitioning != nil {
-		md.TimePartitioning = &TimePartitioning{time.Duration(t.TimePartitioning.ExpirationMs) * time.Millisecond}
+		md.TimePartitioning = &TimePartitioning{
+			Expiration: time.Duration(t.TimePartitioning.ExpirationMs) * time.Millisecond,
+		}
 	}
-
+	if t.StreamingBuffer != nil {
+		md.StreamingBuffer = &StreamingBuffer{
+			EstimatedBytes:  t.StreamingBuffer.EstimatedBytes,
+			EstimatedRows:   t.StreamingBuffer.EstimatedRows,
+			OldestEntryTime: unixMillisToTime(int64(t.StreamingBuffer.OldestEntryTime)),
+		}
+	}
 	return md
 }
 
@@ -712,19 +713,19 @@ func runWithRetry(ctx context.Context, call func() error) error {
 		if err == nil {
 			return true, nil
 		}
-		e, ok := err.(*googleapi.Error)
-		if !ok {
-			return true, err
-		}
-		var reason string
-		if len(e.Errors) > 0 {
-			reason = e.Errors[0].Reason
-		}
-		// Retry using the criteria in
-		// https://cloud.google.com/bigquery/troubleshooting-errors
-		if reason == "backendError" && (e.Code == 500 || e.Code == 503) {
-			return false, nil
-		}
-		return true, err
+		return !retryableError(err), err
 	})
+}
+
+// Use the criteria in https://cloud.google.com/bigquery/troubleshooting-errors.
+func retryableError(err error) bool {
+	e, ok := err.(*googleapi.Error)
+	if !ok {
+		return false
+	}
+	var reason string
+	if len(e.Errors) > 0 {
+		reason = e.Errors[0].Reason
+	}
+	return reason == "backendError" && (e.Code == 500 || e.Code == 503)
 }

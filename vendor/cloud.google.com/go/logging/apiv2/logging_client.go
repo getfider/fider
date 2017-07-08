@@ -59,17 +59,7 @@ func defaultCallOptions() *CallOptions {
 			gax.WithRetry(func() gax.Retryer {
 				return gax.OnCodes([]codes.Code{
 					codes.DeadlineExceeded,
-					codes.Unavailable,
-				}, gax.Backoff{
-					Initial:    100 * time.Millisecond,
-					Max:        1000 * time.Millisecond,
-					Multiplier: 1.2,
-				})
-			}),
-		},
-		{"default", "non_idempotent"}: {
-			gax.WithRetry(func() gax.Retryer {
-				return gax.OnCodes([]codes.Code{
+					codes.Internal,
 					codes.Unavailable,
 				}, gax.Backoff{
 					Initial:    100 * time.Millisecond,
@@ -82,6 +72,7 @@ func defaultCallOptions() *CallOptions {
 			gax.WithRetry(func() gax.Retryer {
 				return gax.OnCodes([]codes.Code{
 					codes.DeadlineExceeded,
+					codes.Internal,
 					codes.Unavailable,
 				}, gax.Backoff{
 					Initial:    100 * time.Millisecond,
@@ -153,8 +144,8 @@ func (c *Client) SetGoogleClientInfo(keyval ...string) {
 	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
 }
 
-// LoggingProjectPath returns the path for the project resource.
-func LoggingProjectPath(project string) string {
+// ProjectPath returns the path for the project resource.
+func ProjectPath(project string) string {
 	path, err := loggingProjectPathTemplate.Render(map[string]string{
 		"project": project,
 	})
@@ -164,8 +155,8 @@ func LoggingProjectPath(project string) string {
 	return path
 }
 
-// LoggingLogPath returns the path for the log resource.
-func LoggingLogPath(project, log string) string {
+// LogPath returns the path for the log resource.
+func LogPath(project, log string) string {
 	path, err := loggingLogPathTemplate.Render(map[string]string{
 		"project": project,
 		"log":     log,

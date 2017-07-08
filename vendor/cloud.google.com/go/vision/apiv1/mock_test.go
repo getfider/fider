@@ -38,6 +38,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -135,7 +136,7 @@ func TestImageAnnotatorBatchAnnotateImages(t *testing.T) {
 
 func TestImageAnnotatorBatchAnnotateImagesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockImageAnnotator.err = grpc.Errorf(errCode, "test error")
+	mockImageAnnotator.err = gstatus.Error(errCode, "test error")
 
 	var requests []*visionpb.AnnotateImageRequest = nil
 	var request = &visionpb.BatchAnnotateImagesRequest{
@@ -149,7 +150,9 @@ func TestImageAnnotatorBatchAnnotateImagesError(t *testing.T) {
 
 	resp, err := c.BatchAnnotateImages(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp

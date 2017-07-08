@@ -46,7 +46,7 @@ var (
 		{Name: "name", Type: StringFieldType},
 		{Name: "num", Type: IntegerFieldType},
 	}
-	fiveMinutesFromNow time.Time
+	testTableExpiration time.Time
 )
 
 func TestMain(m *testing.M) {
@@ -83,6 +83,7 @@ func initIntegrationTest() {
 	if err := dataset.Create(ctx); err != nil && !hasStatusCode(err, http.StatusConflict) { // AlreadyExists is 409
 		log.Fatalf("creating dataset: %v", err)
 	}
+	testTableExpiration = time.Now().Add(10 * time.Minute).Round(time.Second)
 }
 
 func TestIntegration_Create(t *testing.T) {
@@ -140,7 +141,7 @@ func TestIntegration_TableMetadata(t *testing.T) {
 	if got, want := md.Type, RegularTable; got != want {
 		t.Errorf("metadata.Type: got %v, want %v", got, want)
 	}
-	if got, want := md.ExpirationTime, fiveMinutesFromNow; !got.Equal(want) {
+	if got, want := md.ExpirationTime, testTableExpiration; !got.Equal(want) {
 		t.Errorf("metadata.Type: got %v, want %v", got, want)
 	}
 
@@ -311,6 +312,7 @@ func TestIntegration_UploadAndRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	job2, err := client.JobFromID(ctx, job1.ID())
 	if err != nil {
 		t.Fatal(err)
@@ -914,10 +916,9 @@ func TestIntegration_ReadNullIntoStruct(t *testing.T) {
 
 // Creates a new, temporary table with a unique name and the given schema.
 func newTable(t *testing.T, s Schema) *Table {
-	fiveMinutesFromNow = time.Now().Add(5 * time.Minute).Round(time.Second)
 	name := fmt.Sprintf("t%d", time.Now().UnixNano())
 	table := dataset.Table(name)
-	err := table.Create(context.Background(), s, TableExpiration(fiveMinutesFromNow))
+	err := table.Create(context.Background(), s, TableExpiration(testTableExpiration))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -15,13 +15,17 @@
 package pubsub
 
 import (
+	"net"
 	"reflect"
 	"testing"
 	"time"
 
 	"golang.org/x/net/context"
-
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
+	pubsubpb "google.golang.org/genproto/googleapis/pubsub/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type topicListService struct {
@@ -131,35 +135,45 @@ func TestStopPublishOrder(t *testing.T) {
 	}
 }
 
-type publishService struct {
-	service
-}
-
-func (s *publishService) publishMessages(ctx context.Context, topicName string, msgs []*Message) ([]string, error) {
-	return []string{"abc"}, nil
-}
-
-func TestFlowControlledTryPublish(t *testing.T) {
-	// Check that a publish that cannot be published due to flow control settings
-	// returns the right error.
+func TestPublishTimeout(t *testing.T) {
 	ctx := context.Background()
-	serv := &publishService{}
-	c := &Client{projectID: "projid", s: serv}
-	topic := c.Topic("t")
-	topic.PublishSettings.MaxOutstandingMessages = 1
-	topic.PublishSettings.DelayThreshold = 1 * time.Minute
-
-	r1 := topic.TryPublish(ctx, &Message{
-		Data: []byte("HI"),
-	})
-	r2 := topic.TryPublish(ctx, &Message{
-		Data: []byte("HI"),
-	})
-	if r2 != nil {
-		t.Error("got PublishResult, want nil")
+	serv := grpc.NewServer()
+	pubsubpb.RegisterPublisherServer(serv, &alwaysFailPublish{})
+	lis, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatal(err)
 	}
-	topic.Stop()
-	r1.Get(ctx)
+	go serv.Serve(lis)
+	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := newPubSubService(context.Background(), []option.ClientOption{option.WithGRPCConn(conn)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := &Client{s: s}
+	topic := c.Topic("t")
+	topic.PublishSettings.Timeout = 3 * time.Second
+	r := topic.Publish(ctx, &Message{})
+	defer topic.Stop()
+	select {
+	case <-r.Ready():
+		_, err = r.Get(ctx)
+		if err != context.DeadlineExceeded {
+			t.Fatalf("got %v, want context.DeadlineExceeded", err)
+		}
+	case <-time.After(2 * topic.PublishSettings.Timeout):
+		t.Fatal("timed out")
+	}
+}
+
+type alwaysFailPublish struct {
+	pubsubpb.PublisherServer
+}
+
+func (s *alwaysFailPublish) Publish(ctx context.Context, req *pubsubpb.PublishRequest) (*pubsubpb.PublishResponse, error) {
+	return nil, grpc.Errorf(codes.Unavailable, "try again")
 }
 
 func topicNames(topics []*Topic) []string {

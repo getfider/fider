@@ -42,6 +42,7 @@ import (
 	"time"
 
 	"bytes"
+
 	emptypb "github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"golang.org/x/net/context"
@@ -118,7 +119,7 @@ func (s *server) CreateTable(ctx context.Context, req *btapb.CreateTableRequest)
 	s.mu.Lock()
 	if _, ok := s.tables[tbl]; ok {
 		s.mu.Unlock()
-		return nil, fmt.Errorf("table %q already exists", tbl)
+		return nil, grpc.Errorf(codes.AlreadyExists, "table %q already exists", tbl)
 	}
 	s.tables[tbl] = newTable(req)
 	s.mu.Unlock()
@@ -183,7 +184,7 @@ func (s *server) ModifyColumnFamilies(ctx context.Context, req *btapb.ModifyColu
 	for _, mod := range req.Modifications {
 		if create := mod.GetCreate(); create != nil {
 			if _, ok := tbl.families[mod.Id]; ok {
-				return nil, fmt.Errorf("family %q already exists", mod.Id)
+				return nil, grpc.Errorf(codes.AlreadyExists, "family %q already exists", mod.Id)
 			}
 			newcf := &columnFamily{
 				name:   req.Name + "/columnFamilies/" + mod.Id,

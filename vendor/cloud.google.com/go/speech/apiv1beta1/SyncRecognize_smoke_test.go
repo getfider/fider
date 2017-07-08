@@ -21,7 +21,9 @@ import (
 )
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/internal/testutil"
 	"golang.org/x/net/context"
@@ -30,6 +32,8 @@ import (
 )
 
 var _ = iterator.Done
+var _ = strconv.FormatUint
+var _ = time.Now
 
 func TestSpeechSmoke(t *testing.T) {
 	if testing.Short() {
@@ -42,8 +46,7 @@ func TestSpeechSmoke(t *testing.T) {
 	}
 
 	projectId := testutil.ProjID()
-	uidSpace := testutil.NewUIDSpace("TestSpeechSmoke")
-	_, _ = projectId, uidSpace
+	_ = projectId
 
 	c, err := NewClient(ctx, option.WithTokenSource(ts))
 	if err != nil {

@@ -64,7 +64,10 @@ func ExampleClient_CreateSubscription() {
 
 	// Create a new subscription to the previously created topic
 	// with the given name.
-	sub, err := client.CreateSubscription(ctx, "subName", topic, 10*time.Second, nil)
+	sub, err := client.CreateSubscription(ctx, "subName", pubsub.SubscriptionConfig{
+		Topic:       topic,
+		AckDeadline: 10 * time.Second,
+	})
 	if err != nil {
 		// TODO: Handle error.
 	}
@@ -113,30 +116,6 @@ func ExampleTopic_Publish() {
 	defer topic.Stop()
 	var results []*pubsub.PublishResult
 	r := topic.Publish(ctx, &pubsub.Message{
-		Data: []byte("hello world"),
-	})
-	results = append(results, r)
-	// Do other work ...
-	for _, r := range results {
-		id, err := r.Get(ctx)
-		if err != nil {
-			// TODO: Handle error.
-		}
-		fmt.Printf("Published a message with a message ID: %s\n", id)
-	}
-}
-
-func ExampleTopic_TryPublish() {
-	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, "project-id")
-	if err != nil {
-		// TODO: Handle error.
-	}
-
-	topic := client.Topic("topicName")
-	defer topic.Stop()
-	var results []*pubsub.PublishResult
-	r := topic.TryPublish(ctx, &pubsub.Message{
 		Data: []byte("hello world"),
 	})
 	results = append(results, r)
@@ -273,14 +252,18 @@ func ExampleSubscription_Receive_maxOutstanding() {
 	}
 }
 
-func ExampleSubscription_ModifyPushConfig() {
+func ExampleSubscription_Update() {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "project-id")
 	if err != nil {
 		// TODO: Handle error.
 	}
 	sub := client.Subscription("subName")
-	if err := sub.ModifyPushConfig(ctx, &pubsub.PushConfig{Endpoint: "https://example.com/push"}); err != nil {
+	subConfig, err := sub.Update(ctx, pubsub.SubscriptionConfigToUpdate{
+		PushConfig: &pubsub.PushConfig{Endpoint: "https://example.com/push"},
+	})
+	if err != nil {
 		// TODO: Handle error.
 	}
+	_ = subConfig // TODO: Use SubscriptionConfig.
 }

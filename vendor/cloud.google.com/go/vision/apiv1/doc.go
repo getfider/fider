@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package vision is an experimental, auto-generated package for the
-// vision API.
+// Google Cloud Vision API.
 //
 // Integrates Google Vision features, including image labeling, face, logo,
 // and landmark detection, optical character recognition (OCR), and detection
@@ -36,6 +36,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

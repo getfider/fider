@@ -24,17 +24,6 @@ import (
 	"testing"
 )
 
-type noopTransport struct{}
-
-func (rt *noopTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	resp := &http.Response{
-		Status:     "200 OK",
-		StatusCode: 200,
-		Body:       ioutil.NopCloser(strings.NewReader("{}")),
-	}
-	return resp, nil
-}
-
 type recorderTransport struct {
 	ch chan *http.Request
 }
@@ -55,9 +44,11 @@ func TestNewHTTPClient(t *testing.T) {
 	}
 
 	tc := newTestClient(&noopTransport{})
-	client := tc.NewHTTPClient(&http.Client{
-		Transport: rt,
-	})
+	client := &http.Client{
+		Transport: &Transport{
+			Base: rt,
+		},
+	}
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
 
 	t.Run("NoTrace", func(t *testing.T) {
@@ -90,7 +81,9 @@ func TestNewHTTPClient(t *testing.T) {
 
 func TestHTTPHandlerNoTrace(t *testing.T) {
 	tc := newTestClient(&noopTransport{})
-	client := tc.NewHTTPClient(&http.Client{})
+	client := &http.Client{
+		Transport: &Transport{},
+	}
 	handler := tc.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		span := FromContext(r.Context())
 		if span == nil {
@@ -105,5 +98,54 @@ func TestHTTPHandlerNoTrace(t *testing.T) {
 	_, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestHTTPHandler_response(t *testing.T) {
+	tc := newTestClient(&noopTransport{})
+	p, _ := NewLimitedSampler(1, 1<<32) // all
+	tc.SetSamplingPolicy(p)
+	handler := tc.HTTPHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	ts := httptest.NewServer(handler)
+	defer ts.Close()
+
+	tests := []struct {
+		name            string
+		traceHeader     string
+		wantTraceHeader string
+	}{
+		{
+			name:            "no global",
+			traceHeader:     "0123456789ABCDEF0123456789ABCDEF/123",
+			wantTraceHeader: "0123456789ABCDEF0123456789ABCDEF/123;o=1",
+		},
+		{
+			name:            "global=1",
+			traceHeader:     "0123456789ABCDEF0123456789ABCDEF/123;o=1",
+			wantTraceHeader: "",
+		},
+		{
+			name:            "global=0",
+			traceHeader:     "0123456789ABCDEF0123456789ABCDEF/123;o=0",
+			wantTraceHeader: "",
+		},
+		{
+			name:            "no trace context",
+			traceHeader:     "",
+			wantTraceHeader: "",
+		},
+	}
+
+	for _, tt := range tests {
+		req, _ := http.NewRequest("GET", ts.URL, nil)
+		req.Header.Set(httpHeader, tt.traceHeader)
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Errorf("failed to request: %v", err)
+		}
+		if got, want := res.Header.Get(httpHeader), tt.wantTraceHeader; got != want {
+			t.Errorf("%v: response context header = %q; want %q", tt.name, got, want)
+		}
 	}
 }

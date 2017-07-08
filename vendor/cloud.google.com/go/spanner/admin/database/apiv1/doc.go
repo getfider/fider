@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package database is an experimental, auto-generated package for the
-// database API.
+// Cloud Spanner Database Admin API.
 //
 package database // import "cloud.google.com/go/spanner/admin/database/apiv1"
 
@@ -31,6 +31,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

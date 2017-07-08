@@ -660,6 +660,10 @@ type Sigset_t struct {
 	X__val [32]uint32
 }
 
+const RNDGETENTCNT = 0x80045200
+
+const PERF_IOC_FLAG_GROUP = 0x1
+
 const _SC_PAGESIZE = 0x1e
 
 type Termios struct {

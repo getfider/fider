@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package admin is an experimental, auto-generated package for the
-// admin API.
+// Google Identity and Access Management (IAM) API.
 //
 // Manages identity and access control for Google Cloud Platform resources,
 // including the creation of service accounts, which you can use to
@@ -34,6 +34,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

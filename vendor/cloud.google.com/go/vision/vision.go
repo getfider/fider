@@ -35,6 +35,8 @@ type Client struct {
 }
 
 // NewClient creates a new vision client.
+//
+// Deprecated: Use NewImageAnnotatorClient from cloud.google.com/go/vision/apiv1 instead.
 func NewClient(ctx context.Context, opts ...option.ClientOption) (*Client, error) {
 	c, err := vkit.NewImageAnnotatorClient(ctx, opts...)
 	if err != nil {

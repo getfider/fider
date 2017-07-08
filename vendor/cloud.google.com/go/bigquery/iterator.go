@@ -144,14 +144,7 @@ func (it *RowIterator) fetch(pageSize int, pageToken string) (string, error) {
 		pc.startIndex = it.StartIndex
 	}
 	it.pf.setPaging(pc)
-	var res *readDataResult
-	var err error
-	for {
-		res, err = it.pf.fetch(it.ctx, it.service, pageToken)
-		if err != errIncompleteJob {
-			break
-		}
-	}
+	res, err := it.pf.fetch(it.ctx, it.service, pageToken)
 	if err != nil {
 		return "", err
 	}

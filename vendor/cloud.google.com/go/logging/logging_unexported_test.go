@@ -217,7 +217,7 @@ func TestFromHTTPRequest(t *testing.T) {
 		CacheHit:                       true,
 		CacheValidatedWithOriginServer: true,
 	}
-	if !reflect.DeepEqual(got, want) {
+	if !proto.Equal(got, want) {
 		t.Errorf("got  %+v\nwant %+v", got, want)
 	}
 }

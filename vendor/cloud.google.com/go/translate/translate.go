@@ -14,8 +14,6 @@
 
 // Package translate is a client for the Google Translation API.
 // See https://cloud.google.com/translation for details.
-//
-// This package is experimental and subject to change without notice.
 package translate
 
 import (

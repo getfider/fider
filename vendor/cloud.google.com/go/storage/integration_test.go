@@ -36,12 +36,9 @@ import (
 	"testing"
 	"time"
 
-	gax "github.com/googleapis/gax-go"
-
 	"golang.org/x/net/context"
 
 	"cloud.google.com/go/iam"
-	"cloud.google.com/go/internal"
 	"cloud.google.com/go/internal/testutil"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/iterator"
@@ -125,23 +122,131 @@ func TestBucketMethods(t *testing.T) {
 
 	projectID := testutil.ProjID()
 	newBucket := bucket + "-new"
+	b := client.Bucket(newBucket)
 	// Test Create and Delete.
-	if err := client.Bucket(newBucket).Create(ctx, projectID, nil); err != nil {
+	if err := b.Create(ctx, projectID, nil); err != nil {
 		t.Errorf("Bucket(%v).Create(%v, %v) failed: %v", newBucket, projectID, nil, err)
+	}
+	attrs, err := b.Attrs(ctx)
+	if err != nil {
+		t.Error(err)
+	} else {
+		if got, want := attrs.MetaGeneration, int64(1); got != want {
+			t.Errorf("got metagen %d, want %d", got, want)
+		}
+		if got, want := attrs.StorageClass, "STANDARD"; got != want {
+			t.Errorf("got storage class %q, want %q", got, want)
+		}
+		if attrs.VersioningEnabled {
+			t.Error("got versioning enabled, wanted it disabled")
+		}
 	}
 	if err := client.Bucket(newBucket).Delete(ctx); err != nil {
 		t.Errorf("Bucket(%v).Delete failed: %v", newBucket, err)
 	}
 
 	// Test Create and Delete with attributes.
-	attrs := BucketAttrs{
-		DefaultObjectACL: []ACLRule{{Entity: "domain-google.com", Role: RoleReader}},
+	labels := map[string]string{
+		"l1":    "v1",
+		"empty": "",
 	}
-	if err := client.Bucket(newBucket).Create(ctx, projectID, &attrs); err != nil {
+	attrs = &BucketAttrs{
+		StorageClass:      "NEARLINE",
+		VersioningEnabled: true,
+		Labels:            labels,
+	}
+	if err := client.Bucket(newBucket).Create(ctx, projectID, attrs); err != nil {
 		t.Errorf("Bucket(%v).Create(%v, %v) failed: %v", newBucket, projectID, attrs, err)
+	}
+	attrs, err = b.Attrs(ctx)
+	if err != nil {
+		t.Error(err)
+	} else {
+		if got, want := attrs.MetaGeneration, int64(1); got != want {
+			t.Errorf("got metagen %d, want %d", got, want)
+		}
+		if got, want := attrs.StorageClass, "NEARLINE"; got != want {
+			t.Errorf("got storage class %q, want %q", got, want)
+		}
+		if !attrs.VersioningEnabled {
+			t.Error("got versioning disabled, wanted it enabled")
+		}
+		if got, want := attrs.Labels, labels; !reflect.DeepEqual(got, want) {
+			t.Errorf("labels: got %v, want %v", got, want)
+		}
 	}
 	if err := client.Bucket(newBucket).Delete(ctx); err != nil {
 		t.Errorf("Bucket(%v).Delete failed: %v", newBucket, err)
+	}
+}
+
+func TestIntegration_BucketUpdate(t *testing.T) {
+	ctx := context.Background()
+	client, bucket := testConfig(ctx, t)
+	defer client.Close()
+
+	b := client.Bucket(bucket)
+	attrs, err := b.Attrs(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attrs.VersioningEnabled {
+		t.Fatal("bucket should not have versioning by default")
+	}
+	if len(attrs.Labels) > 0 {
+		t.Fatal("bucket should not have labels initially")
+	}
+
+	// Using empty BucketAttrsToUpdate should be a no-nop.
+	attrs, err = b.Update(ctx, BucketAttrsToUpdate{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attrs.VersioningEnabled {
+		t.Fatal("should not have versioning")
+	}
+	if len(attrs.Labels) > 0 {
+		t.Fatal("should not have labels")
+	}
+
+	// Turn on versioning, add some labels.
+	ua := BucketAttrsToUpdate{VersioningEnabled: true}
+	ua.SetLabel("l1", "v1")
+	ua.SetLabel("empty", "")
+	attrs, err = b.Update(ctx, ua)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !attrs.VersioningEnabled {
+		t.Fatal("should have versioning now")
+	}
+	wantLabels := map[string]string{
+		"l1":    "v1",
+		"empty": "",
+	}
+	if !reflect.DeepEqual(attrs.Labels, wantLabels) {
+		t.Fatalf("got %v, want %v", attrs.Labels, wantLabels)
+	}
+
+	// Turn  off versioning again; add and remove some more labels.
+	ua = BucketAttrsToUpdate{VersioningEnabled: false}
+	ua.SetLabel("l1", "v2")   // update
+	ua.SetLabel("new", "new") // create
+	ua.DeleteLabel("empty")   // delete
+	ua.DeleteLabel("absent")  // delete non-existent
+	attrs, err = b.Update(ctx, ua)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attrs.VersioningEnabled {
+		t.Fatal("should have versioning off")
+	}
+	wantLabels = map[string]string{
+		"l1":  "v2",
+		"new": "new",
+	}
+	if !reflect.DeepEqual(attrs.Labels, wantLabels) {
+		t.Fatalf("got %v, want %v", attrs.Labels, wantLabels)
 	}
 }
 
@@ -620,26 +725,11 @@ func testObjectIterator(t *testing.T, bkt *BucketHandle, objects []string) {
 		}
 		attrs = append(attrs, attr)
 	}
-	// The following iterator test fails occasionally, probably because the
-	// underlying Objects.List operation is eventually consistent. So we retry
-	// it.
-	tctx, cancel := context.WithTimeout(ctx, 30*time.Second)
-	defer cancel()
-	var msg string
-	var ok bool
-	err := internal.Retry(tctx, gax.Backoff{}, func() (stop bool, err error) {
-		msg, ok = itesting.TestIterator(attrs,
-			func() interface{} { return bkt.Objects(ctx, &Query{Prefix: "obj"}) },
-			func(it interface{}) (interface{}, error) { return it.(*ObjectIterator).Next() })
-		if ok {
-			return true, nil
-		} else {
-			t.Logf("TestIterator failed, trying again: %s", msg)
-			return false, nil
-		}
-	})
+	msg, ok := itesting.TestIterator(attrs,
+		func() interface{} { return bkt.Objects(ctx, &Query{Prefix: "obj"}) },
+		func(it interface{}) (interface{}, error) { return it.(*ObjectIterator).Next() })
 	if !ok {
-		t.Errorf("ObjectIterator.Next: %s (err=%v)", msg, err)
+		t.Errorf("ObjectIterator.Next: %s", msg)
 	}
 	// TODO(jba): test query.Delimiter != ""
 }

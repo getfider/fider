@@ -136,4 +136,8 @@ Also have a look at the [FAQ](FAQ.md).
 
 ---
 
-Looking for alternatives? [https://awesome-go.com/#database](https://awesome-go.com/#database).
+__Alternatives__
+
+https://bitbucket.org/liamstask/goose, https://github.com/tanel/dbmigrate,  
+https://github.com/BurntSushi/migration, https://github.com/DavidHuie/gomigrate,  
+https://github.com/rubenv/sql-migrate

@@ -21,6 +21,7 @@ import (
 
 	"cloud.google.com/go/internal/version"
 	"cloud.google.com/go/longrunning"
+	lroauto "cloud.google.com/go/longrunning/autogen"
 	gax "github.com/googleapis/gax-go"
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
@@ -31,19 +32,19 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// VideoIntelligenceCallOptions contains the retry settings for each method of VideoIntelligenceClient.
-type VideoIntelligenceCallOptions struct {
+// CallOptions contains the retry settings for each method of Client.
+type CallOptions struct {
 	AnnotateVideo []gax.CallOption
 }
 
-func defaultVideoIntelligenceClientOptions() []option.ClientOption {
+func defaultClientOptions() []option.ClientOption {
 	return []option.ClientOption{
 		option.WithEndpoint("videointelligence.googleapis.com:443"),
 		option.WithScopes(DefaultAuthScopes()...),
 	}
 }
 
-func defaultVideoIntelligenceCallOptions() *VideoIntelligenceCallOptions {
+func defaultCallOptions() *CallOptions {
 	retry := map[[2]string][]gax.CallOption{
 		{"default", "idempotent"}: {
 			gax.WithRetry(func() gax.Retryer {
@@ -58,59 +59,75 @@ func defaultVideoIntelligenceCallOptions() *VideoIntelligenceCallOptions {
 			}),
 		},
 	}
-	return &VideoIntelligenceCallOptions{
+	return &CallOptions{
 		AnnotateVideo: retry[[2]string{"default", "idempotent"}],
 	}
 }
 
-// VideoIntelligenceClient is a client for interacting with Google Cloud Video Intelligence API.
-type VideoIntelligenceClient struct {
+// Client is a client for interacting with Google Cloud Video Intelligence API.
+type Client struct {
 	// The connection to the service.
 	conn *grpc.ClientConn
 
 	// The gRPC API client.
-	videoIntelligenceClient videointelligencepb.VideoIntelligenceServiceClient
+	client videointelligencepb.VideoIntelligenceServiceClient
+
+	// LROClient is used internally to handle longrunning operations.
+	// It is exposed so that its CallOptions can be modified if required.
+	// Users should not Close this client.
+	LROClient *lroauto.OperationsClient
 
 	// The call options for this service.
-	CallOptions *VideoIntelligenceCallOptions
+	CallOptions *CallOptions
 
 	// The metadata to be sent with each request.
 	xGoogHeader []string
 }
 
-// NewVideoIntelligenceClient creates a new video intelligence service client.
+// NewClient creates a new video intelligence service client.
 //
 // Service that implements Google Cloud Video Intelligence API.
-func NewVideoIntelligenceClient(ctx context.Context, opts ...option.ClientOption) (*VideoIntelligenceClient, error) {
-	conn, err := transport.DialGRPC(ctx, append(defaultVideoIntelligenceClientOptions(), opts...)...)
+func NewClient(ctx context.Context, opts ...option.ClientOption) (*Client, error) {
+	conn, err := transport.DialGRPC(ctx, append(defaultClientOptions(), opts...)...)
 	if err != nil {
 		return nil, err
 	}
-	c := &VideoIntelligenceClient{
+	c := &Client{
 		conn:        conn,
-		CallOptions: defaultVideoIntelligenceCallOptions(),
+		CallOptions: defaultCallOptions(),
 
-		videoIntelligenceClient: videointelligencepb.NewVideoIntelligenceServiceClient(conn),
+		client: videointelligencepb.NewVideoIntelligenceServiceClient(conn),
 	}
 	c.SetGoogleClientInfo()
+
+	c.LROClient, err = lroauto.NewOperationsClient(ctx, option.WithGRPCConn(conn))
+	if err != nil {
+		// This error "should not happen", since we are just reusing old connection
+		// and never actually need to dial.
+		// If this does happen, we could leak conn. However, we cannot close conn:
+		// If the user invoked the function with option.WithGRPCConn,
+		// we would close a connection that's still in use.
+		// TODO(pongad): investigate error conditions.
+		return nil, err
+	}
 	return c, nil
 }
 
 // Connection returns the client's connection to the API service.
-func (c *VideoIntelligenceClient) Connection() *grpc.ClientConn {
+func (c *Client) Connection() *grpc.ClientConn {
 	return c.conn
 }
 
 // Close closes the connection to the API service. The user should invoke this when
 // the client is no longer required.
-func (c *VideoIntelligenceClient) Close() error {
+func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
 // SetGoogleClientInfo sets the name and version of the application in
 // the `x-goog-api-client` header passed on each request. Intended for
 // use by Google-written clients.
-func (c *VideoIntelligenceClient) SetGoogleClientInfo(keyval ...string) {
+func (c *Client) SetGoogleClientInfo(keyval ...string) {
 	kv := append([]string{"gl-go", version.Go()}, keyval...)
 	kv = append(kv, "gapic", version.Repo, "gax", gax.Version, "grpc", grpc.Version)
 	c.xGoogHeader = []string{gax.XGoogHeader(kv...)}
@@ -120,48 +137,42 @@ func (c *VideoIntelligenceClient) SetGoogleClientInfo(keyval ...string) {
 // retrieved through the `google.longrunning.Operations` interface.
 // `Operation.metadata` contains `AnnotateVideoProgress` (progress).
 // `Operation.response` contains `AnnotateVideoResponse` (results).
-func (c *VideoIntelligenceClient) AnnotateVideo(ctx context.Context, req *videointelligencepb.AnnotateVideoRequest, opts ...gax.CallOption) (*AnnotateVideoOperation, error) {
+func (c *Client) AnnotateVideo(ctx context.Context, req *videointelligencepb.AnnotateVideoRequest, opts ...gax.CallOption) (*AnnotateVideoOperation, error) {
 	ctx = insertXGoog(ctx, c.xGoogHeader)
 	opts = append(c.CallOptions.AnnotateVideo[0:len(c.CallOptions.AnnotateVideo):len(c.CallOptions.AnnotateVideo)], opts...)
 	var resp *longrunningpb.Operation
 	err := gax.Invoke(ctx, func(ctx context.Context, settings gax.CallSettings) error {
 		var err error
-		resp, err = c.videoIntelligenceClient.AnnotateVideo(ctx, req, settings.GRPC...)
+		resp, err = c.client.AnnotateVideo(ctx, req, settings.GRPC...)
 		return err
 	}, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return &AnnotateVideoOperation{
-		lro:         longrunning.InternalNewOperation(c.Connection(), resp),
-		xGoogHeader: c.xGoogHeader,
+		lro: longrunning.InternalNewOperation(c.LROClient, resp),
 	}, nil
 }
 
 // AnnotateVideoOperation manages a long-running operation from AnnotateVideo.
 type AnnotateVideoOperation struct {
 	lro *longrunning.Operation
-
-	// The metadata to be sent with each request.
-	xGoogHeader []string
 }
 
 // AnnotateVideoOperation returns a new AnnotateVideoOperation from a given name.
 // The name must be that of a previously created AnnotateVideoOperation, possibly from a different process.
-func (c *VideoIntelligenceClient) AnnotateVideoOperation(name string) *AnnotateVideoOperation {
+func (c *Client) AnnotateVideoOperation(name string) *AnnotateVideoOperation {
 	return &AnnotateVideoOperation{
-		lro:         longrunning.InternalNewOperation(c.Connection(), &longrunningpb.Operation{Name: name}),
-		xGoogHeader: c.xGoogHeader,
+		lro: longrunning.InternalNewOperation(c.LROClient, &longrunningpb.Operation{Name: name}),
 	}
 }
 
 // Wait blocks until the long-running operation is completed, returning the response and any errors encountered.
 //
 // See documentation of Poll for error-handling information.
-func (op *AnnotateVideoOperation) Wait(ctx context.Context) (*videointelligencepb.AnnotateVideoResponse, error) {
+func (op *AnnotateVideoOperation) Wait(ctx context.Context, opts ...gax.CallOption) (*videointelligencepb.AnnotateVideoResponse, error) {
 	var resp videointelligencepb.AnnotateVideoResponse
-	ctx = insertXGoog(ctx, op.xGoogHeader)
-	if err := op.lro.Wait(ctx, &resp); err != nil {
+	if err := op.lro.Wait(ctx, &resp, opts...); err != nil {
 		return nil, err
 	}
 	return &resp, nil
@@ -176,10 +187,9 @@ func (op *AnnotateVideoOperation) Wait(ctx context.Context) (*videointelligencep
 // If Poll succeeds and the operation has completed successfully,
 // op.Done will return true, and the response of the operation is returned.
 // If Poll succeeds and the operation has not completed, the returned response and error are both nil.
-func (op *AnnotateVideoOperation) Poll(ctx context.Context) (*videointelligencepb.AnnotateVideoResponse, error) {
+func (op *AnnotateVideoOperation) Poll(ctx context.Context, opts ...gax.CallOption) (*videointelligencepb.AnnotateVideoResponse, error) {
 	var resp videointelligencepb.AnnotateVideoResponse
-	ctx = insertXGoog(ctx, op.xGoogHeader)
-	if err := op.lro.Poll(ctx, &resp); err != nil {
+	if err := op.lro.Poll(ctx, &resp, opts...); err != nil {
 		return nil, err
 	}
 	if !op.Done() {

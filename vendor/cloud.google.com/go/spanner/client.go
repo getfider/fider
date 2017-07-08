@@ -28,6 +28,7 @@ import (
 	"google.golang.org/api/transport"
 	sppb "google.golang.org/genproto/googleapis/spanner/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -122,10 +123,9 @@ func NewClientWithConfig(ctx context.Context, database string, config ClientConf
 		database: database,
 		md: metadata.Pairs(
 			resourcePrefixHeader, database,
-			apiClientHeader, clientUserAgent,
-			"x-goog-api-client", fmt.Sprintf("gl-go/%s gccl/%s grpc/", version.Go(), version.Repo)),
+			apiClientHeader, clientUserAgent),
 	}
-	allOpts := []option.ClientOption{option.WithEndpoint(prodAddr), option.WithScopes(Scope), option.WithUserAgent(clientUserAgent)}
+	allOpts := []option.ClientOption{option.WithEndpoint(prodAddr), option.WithScopes(Scope), option.WithUserAgent(clientUserAgent), option.WithGRPCDialOption(grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(100<<20), grpc.MaxCallRecvMsgSize(100<<20)))}
 	allOpts = append(allOpts, opts...)
 	// Prepare gRPC channels.
 	if config.NumChannels == 0 {
@@ -209,6 +209,15 @@ func (c *Client) ReadOnlyTransaction() *ReadOnlyTransaction {
 	return t
 }
 
+type transactionInProgressKey struct{}
+
+func checkNestedTxn(ctx context.Context) error {
+	if ctx.Value(transactionInProgressKey{}) != nil {
+		return spannerErrorf(codes.FailedPrecondition, "Cloud Spanner does not support nested transactions")
+	}
+	return nil
+}
+
 // ReadWriteTransaction executes a read-write transaction, with retries as
 // necessary.
 //
@@ -224,7 +233,10 @@ func (c *Client) ReadOnlyTransaction() *ReadOnlyTransaction {
 // To limit the number of retries, set a deadline on the Context rather than
 // using a fixed limit on the number of attempts. ReadWriteTransaction will
 // retry as needed until that deadline is met.
-func (c *Client) ReadWriteTransaction(ctx context.Context, f func(t *ReadWriteTransaction) error) (time.Time, error) {
+func (c *Client) ReadWriteTransaction(ctx context.Context, f func(context.Context, *ReadWriteTransaction) error) (time.Time, error) {
+	if err := checkNestedTxn(ctx); err != nil {
+		return time.Time{}, err
+	}
 	var (
 		ts time.Time
 		sh *sessionHandle
@@ -300,7 +312,7 @@ func (c *Client) Apply(ctx context.Context, ms []*Mutation, opts ...ApplyOption)
 		opt(ao)
 	}
 	if !ao.atLeastOnce {
-		return c.ReadWriteTransaction(ctx, func(t *ReadWriteTransaction) error {
+		return c.ReadWriteTransaction(ctx, func(ctx context.Context, t *ReadWriteTransaction) error {
 			t.BufferWrite(ms)
 			return nil
 		})

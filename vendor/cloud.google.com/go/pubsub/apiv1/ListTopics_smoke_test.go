@@ -21,7 +21,9 @@ import (
 )
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/internal/testutil"
 	"golang.org/x/net/context"
@@ -30,6 +32,8 @@ import (
 )
 
 var _ = iterator.Done
+var _ = strconv.FormatUint
+var _ = time.Now
 
 func TestPublisherSmoke(t *testing.T) {
 	if testing.Short() {
@@ -42,8 +46,7 @@ func TestPublisherSmoke(t *testing.T) {
 	}
 
 	projectId := testutil.ProjID()
-	uidSpace := testutil.NewUIDSpace("TestPublisherSmoke")
-	_, _ = projectId, uidSpace
+	_ = projectId
 
 	c, err := NewPublisherClient(ctx, option.WithTokenSource(ts))
 	if err != nil {
