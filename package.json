@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
-    "inversify": "^4.1.1",
+    "inversify": "^4.2.0",
     "inversify-inject-decorators": "^3.0.1",
     "jquery": "^3.2.1",
     "md5": "^2.2.1",
@@ -23,9 +23,9 @@
     "throttle-debounce": "^1.0.1"
   },
   "devDependencies": {
-    "@types/jquery": "^3.2.5",
+    "@types/jquery": "^3.2.6",
     "@types/md5": "^2.1.32",
-    "@types/react": "^15.0.33",
+    "@types/react": "^15.0.35",
     "@types/react-dom": "^15.5.1",
     "css-loader": "^0.28.4",
     "extract-text-webpack-plugin": "^2.1.2",
@@ -33,10 +33,10 @@
     "node-sass": "^4.5.3",
     "rimraf": "^2.6.1",
     "sass-loader": "^6.0.6",
-    "ts-loader": "^2.2.1",
-    "tslint": "^5.4.3",
+    "ts-loader": "^2.2.2",
+    "tslint": "^5.5.0",
     "typescript": "^2.4.1",
-    "webpack": "^3.0.0",
+    "webpack": "^3.1.0",
     "webpack-clean-obsolete-chunks": "^0.1.10"
   },
   "engines": {
