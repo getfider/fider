@@ -3,7 +3,6 @@ package validate_test
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/storage/inmemory"
 	"github.com/getfider/fider/app/validate"
 	. "github.com/onsi/gomega"
@@ -34,9 +33,9 @@ func TestValidSubdomains_Availability(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Subdomain: "footbook"})
-	tenants.Add(&models.Tenant{Subdomain: "yourcompany"})
-	tenants.Add(&models.Tenant{Subdomain: "newyork"})
+	tenants.Add("Footbook", "footbook")
+	tenants.Add("Your Company", "yourcompany")
+	tenants.Add("New York", "newyork")
 
 	for _, subdomain := range []string{
 		"footbook",

@@ -62,20 +62,13 @@ func CreateTenant() web.HandlerFunc {
 			input.Subdomain = "default"
 		}
 
-		tenant := &models.Tenant{
-			Name:      input.Name,
-			Subdomain: input.Subdomain,
-		}
-
-		tenant.Subdomain = strings.ToLower(input.Subdomain)
-
-		if tenant.Name == "" {
+		if input.Name == "" {
 			return c.BadRequest(echo.Map{
 				"message": "Name is required",
 			})
 		}
 
-		ok, messages, err := validate.Subdomain(c.Services().Tenants, tenant.Subdomain)
+		ok, messages, err := validate.Subdomain(c.Services().Tenants, input.Subdomain)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -86,7 +79,8 @@ func CreateTenant() web.HandlerFunc {
 			})
 		}
 
-		if err := c.Services().Tenants.Add(tenant); err != nil {
+		tenant, err := c.Services().Tenants.Add(input.Name, input.Subdomain)
+		if err != nil {
 			return c.Failure(err)
 		}
 

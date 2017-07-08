@@ -59,8 +59,7 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenant := &models.Tenant{ID: 1, Name: "Demonstration", Subdomain: "demo"}
-	services.Tenants.Add(tenant)
+	tenant, _ := services.Tenants.Add("Demonstration", "demo")
 
 	services.Users.Register(&models.User{
 		ID:     300,
@@ -83,8 +82,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 
 func TestCallbackHandler_NewUser(t *testing.T) {
 	RegisterTestingT(t)
-	tenant := &models.Tenant{ID: 2, Name: "Orange", Subdomain: "orange"}
-	services.Tenants.Add(tenant)
+	tenant, _ := services.Tenants.Add("Orange", "orange")
 
 	server := mock.NewServer()
 	server.Context.SetServices(services)

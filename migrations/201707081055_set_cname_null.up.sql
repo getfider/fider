@@ -1,0 +1,1 @@
+UPDATE tenants SET cname = null WHERE cname = '';

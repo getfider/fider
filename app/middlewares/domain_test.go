@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/mock"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
@@ -38,8 +37,8 @@ func TestMultiTenant(t *testing.T) {
 	RegisterTestingT(t)
 
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Name: "The Orange Inc.", Subdomain: "orange"})
-	tenants.Add(&models.Tenant{Name: "Demonstration", Subdomain: "demo"})
+	tenants.Add("The Orange Inc.", "orange")
+	tenants.Add("Demonstration", "demo")
 
 	for _, testCase := range testCases {
 		for _, host := range testCase.hosts {
@@ -122,9 +121,8 @@ func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 func TestSingleTenant_WithTenants_ShouldSetToContext(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenant := &models.Tenant{Name: "Some Tenant"}
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(tenant)
+	tenant, _ := tenants.Add("Some Tenant", "mytenant")
 
 	server := mock.NewServer()
 	server.Context.Request().Host = "somedomain.com"

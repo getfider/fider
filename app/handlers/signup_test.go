@@ -41,7 +41,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 
 	server := mock.NewSingleTenantServer()
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{
 		Tenants: tenants,
 	})
@@ -55,7 +55,7 @@ func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 
 	server := mock.NewServer()
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{
 		Tenants: tenants,
 	})
@@ -72,7 +72,7 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	server.Context.SetParamNames("subdomain")
 	server.Context.SetParamValues("got")
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{
 		Tenants: tenants,
 	})
@@ -89,7 +89,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	server.Context.SetParamNames("subdomain")
 	server.Context.SetParamValues("mycompany")
 	tenants := &inmemory.TenantStorage{}
-	tenants.Add(&models.Tenant{Name: "Game of Thrones", Subdomain: "got"})
+	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{
 		Tenants: tenants,
 	})

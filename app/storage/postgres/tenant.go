@@ -38,15 +38,16 @@ func (t *dbTenant) toModel() *models.Tenant {
 }
 
 // Add given tenant to tenant list
-func (s *TenantStorage) Add(tenant *models.Tenant) error {
-	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, cname, created_on) 
-						VALUES ($1, $2, $3, $4) 
-						RETURNING id`, tenant.Name, tenant.Subdomain, tenant.CNAME, time.Now())
-	if err := row.Scan(&tenant.ID); err != nil {
-		return err
+func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
+	var id int
+	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on) 
+						VALUES ($1, $2, $3) 
+						RETURNING id`, name, subdomain, time.Now())
+	if err := row.Scan(&id); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return s.GetByDomain(subdomain)
 }
 
 // First returns first tenant
