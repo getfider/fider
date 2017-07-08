@@ -14,6 +14,12 @@ code {
   border-radius: 4px;
 }
 
+.ui.inline.dropdown {
+  .text {
+    border-bottom: 1px dashed #9e9e9e
+  }
+}
+
 .support-counter {
   width: 130px;
 
