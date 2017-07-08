@@ -7,6 +7,6 @@ export interface Tenant {
 export interface User {
   id: number;
   name: string;
-  email: string;
+  gravatar: string;
   role: number;
 }

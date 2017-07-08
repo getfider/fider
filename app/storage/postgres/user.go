@@ -1,9 +1,12 @@
 package postgres
 
 import (
+	"crypto/md5"
 	"time"
 
 	"database/sql"
+
+	"fmt"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -29,6 +32,7 @@ func (u *dbUser) toModel() *models.User {
 		ID:        int(u.ID.Int64),
 		Name:      u.Name.String,
 		Email:     u.Email.String,
+		Gravatar:  fmt.Sprintf("%x", md5.Sum([]byte(u.Email.String))),
 		Tenant:    u.Tenant.toModel(),
 		Role:      int(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),

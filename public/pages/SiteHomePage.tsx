@@ -34,7 +34,7 @@ export class SiteHomePage extends React.Component<{}, {}> {
                               <MultiLineText text={ x.description } />
                             </div>
                             <div className="extra">
-                              #{ x.number } shared by <Gravatar email={x.user.email}/> <u>{x.user.name}</u>
+                              #{ x.number } shared by <Gravatar hash={x.user.gravatar}/> <u>{x.user.name}</u>
                               <span title={x.createdOn}>{ moment(x.createdOn).fromNow() }</span>
                             </div>
                             <ShowIdeaResponse status={ x.status } response={ x.response } />
