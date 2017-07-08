@@ -88,6 +88,7 @@ func (f *fakeDatastoreServer) Lookup(ctx context.Context, req *dspb.LookupReques
 // uploaded any traces.
 func makeRequests(t *testing.T, span *Span, rt *fakeRoundTripper, synchronous bool, expectTrace bool) *http.Request {
 	ctx := NewContext(context.Background(), span)
+	tc := newTestClient(&noopTransport{})
 
 	// An HTTP request.
 	{
@@ -144,7 +145,7 @@ func makeRequests(t *testing.T, span *Span, rt *fakeRoundTripper, synchronous bo
 		}
 		dspb.RegisterDatastoreServer(srv.Gsrv, &fakeDatastoreServer{fail: fail})
 		srv.Start()
-		conn, err := grpc.Dial(srv.Addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(GRPCClientInterceptor()))
+		conn, err := grpc.Dial(srv.Addr, grpc.WithInsecure(), grpc.WithUnaryInterceptor(tc.GRPCClientInterceptor()))
 		if err != nil {
 			t.Fatalf("connecting to test datastore server: %v", err)
 		}
@@ -231,7 +232,7 @@ func TestHeader(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		traceID, parentSpanID, opts, ok := traceInfoFromHeader(tt.header)
+		traceID, parentSpanID, opts, _, ok := traceInfoFromHeader(tt.header)
 		if got, want := traceID, tt.wantTraceID; got != want {
 			t.Errorf("TraceID(%v) = %q; want %q", tt.header, got, want)
 		}

@@ -77,17 +77,6 @@ func defaultIamCallOptions() *IamCallOptions {
 				})
 			}),
 		},
-		{"default", "non_idempotent"}: {
-			gax.WithRetry(func() gax.Retryer {
-				return gax.OnCodes([]codes.Code{
-					codes.Unavailable,
-				}, gax.Backoff{
-					Initial:    100 * time.Millisecond,
-					Max:        60000 * time.Millisecond,
-					Multiplier: 1.3,
-				})
-			}),
-		},
 	}
 	return &IamCallOptions{
 		ListServiceAccounts:     retry[[2]string{"default", "idempotent"}],

@@ -36,8 +36,10 @@ type transactionID []byte
 type txReadEnv interface {
 	// acquire returns a read-transaction environment that can be used to perform a transactional read.
 	acquire(ctx context.Context) (*sessionHandle, *sppb.TransactionSelector, error)
-	// release should be called at the end of every transactional read to deal with session recycling and read timestamp recording.
-	release(time.Time, error)
+	// sets the transaction's read timestamp
+	setTimestamp(time.Time)
+	// release should be called at the end of every transactional read to deal with session recycling.
+	release(error)
 }
 
 // txReadOnly contains methods for doing transactional reads.
@@ -70,7 +72,7 @@ func (t *txReadOnly) ReadUsingIndex(ctx context.Context, table, index string, ke
 		ts  *sppb.TransactionSelector
 		err error
 	)
-	kset, err := keys.proto()
+	kset, err := keys.keySetProto()
 	if err != nil {
 		return &RowIterator{err: err}
 	}
@@ -97,6 +99,7 @@ func (t *txReadOnly) ReadUsingIndex(ctx context.Context, table, index string, ke
 					ResumeToken: resumeToken,
 				})
 		},
+		t.setTimestamp,
 		t.release,
 	)
 }
@@ -111,7 +114,7 @@ func errRowNotFound(table string, key Key) error {
 // If no row is present with the given key, then ReadRow returns an error where
 // spanner.ErrCode(err) is codes.NotFound.
 func (t *txReadOnly) ReadRow(ctx context.Context, table string, key Key, columns []string) (*Row, error) {
-	iter := t.Read(ctx, table, Keys(key), columns)
+	iter := t.Read(ctx, table, key, columns)
 	defer iter.Stop()
 	row, err := iter.Next()
 	switch err {
@@ -155,6 +158,7 @@ func (t *txReadOnly) Query(ctx context.Context, statement Statement) *RowIterato
 			req.ResumeToken = resumeToken
 			return client.ExecuteStreamingSql(ctx, req)
 		},
+		t.setTimestamp,
 		t.release)
 }
 
@@ -316,6 +320,9 @@ func (t *ReadOnlyTransaction) begin(ctx context.Context) error {
 
 // acquire implements txReadEnv.acquire.
 func (t *ReadOnlyTransaction) acquire(ctx context.Context) (*sessionHandle, *sppb.TransactionSelector, error) {
+	if err := checkNestedTxn(ctx); err != nil {
+		return nil, nil, err
+	}
 	if t.singleUse {
 		return t.acquireSingleUse(ctx)
 	}
@@ -406,12 +413,17 @@ func (t *ReadOnlyTransaction) acquireMultiUse(ctx context.Context) (*sessionHand
 	}
 }
 
-// release implements txReadEnv.release.
-func (t *ReadOnlyTransaction) release(rts time.Time, err error) {
+func (t *ReadOnlyTransaction) setTimestamp(ts time.Time) {
 	t.mu.Lock()
-	if t.singleUse && !rts.IsZero() {
-		t.rts = rts
+	defer t.mu.Unlock()
+	if t.rts.IsZero() {
+		t.rts = ts
 	}
+}
+
+// release implements txReadEnv.release.
+func (t *ReadOnlyTransaction) release(err error) {
+	t.mu.Lock()
 	sh := t.sh
 	t.mu.Unlock()
 	if sh != nil { // sh could be nil if t.acquire() fails.
@@ -437,10 +449,15 @@ func (t *ReadOnlyTransaction) Close() {
 	}
 	sh := t.sh
 	t.mu.Unlock()
+	if sh == nil {
+		return
+	}
 	// If session handle is already destroyed, this becomes a noop.
 	// If there are still active queries and if the recycled session is reused before they complete, Cloud Spanner will cancel them
 	// on behalf of the new transaction on the session.
-	sh.recycle()
+	if sh != nil {
+		sh.recycle()
+	}
 }
 
 // Timestamp returns the timestamp chosen to perform reads and
@@ -591,7 +608,7 @@ func (t *ReadWriteTransaction) acquire(ctx context.Context) (*sessionHandle, *sp
 }
 
 // release implements txReadEnv.release.
-func (t *ReadWriteTransaction) release(_ time.Time, err error) {
+func (t *ReadWriteTransaction) release(err error) {
 	t.mu.Lock()
 	sh := t.sh
 	t.mu.Unlock()
@@ -704,12 +721,12 @@ func (t *ReadWriteTransaction) rollback(ctx context.Context) {
 }
 
 // runInTransaction executes f under a read-write transaction context.
-func (t *ReadWriteTransaction) runInTransaction(ctx context.Context, f func(t *ReadWriteTransaction) error) (time.Time, error) {
+func (t *ReadWriteTransaction) runInTransaction(ctx context.Context, f func(context.Context, *ReadWriteTransaction) error) (time.Time, error) {
 	var (
 		ts  time.Time
 		err error
 	)
-	if err = f(t); err == nil {
+	if err = f(context.WithValue(ctx, transactionInProgressKey{}, 1), t); err == nil {
 		// Try to commit if transaction body returns no error.
 		ts, err = t.commit(ctx)
 	}

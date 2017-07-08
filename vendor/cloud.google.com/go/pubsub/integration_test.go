@@ -20,9 +20,12 @@ import (
 	"testing"
 	"time"
 
+	gax "github.com/googleapis/gax-go"
+
 	"golang.org/x/net/context"
 
 	"cloud.google.com/go/iam"
+	"cloud.google.com/go/internal"
 	"cloud.google.com/go/internal/testutil"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
@@ -45,8 +48,13 @@ func extractMessageData(m *Message) *messageData {
 }
 
 func TestAll(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("Integration tests skipped in short mode")
+	}
+	projID := testutil.ProjID()
+	if projID == "" {
+		t.Skip("Integration tests skipped. See CONTRIBUTING.md for details")
 	}
 	ctx := context.Background()
 	ts := testutil.TokenSource(ctx, ScopePubSub, ScopeCloudPlatform)
@@ -58,7 +66,7 @@ func TestAll(t *testing.T) {
 	topicName := fmt.Sprintf("topic-%d", now.Unix())
 	subName := fmt.Sprintf("subscription-%d", now.Unix())
 
-	client, err := NewClient(ctx, testutil.ProjID(), option.WithTokenSource(ts))
+	client, err := NewClient(ctx, projID, option.WithTokenSource(ts))
 	if err != nil {
 		t.Fatalf("Creating client error: %v", err)
 	}
@@ -71,7 +79,7 @@ func TestAll(t *testing.T) {
 	defer topic.Stop()
 
 	var sub *Subscription
-	if sub, err = client.CreateSubscription(ctx, subName, topic, 0, nil); err != nil {
+	if sub, err = client.CreateSubscription(ctx, subName, SubscriptionConfig{Topic: topic}); err != nil {
 		t.Errorf("CreateSub error: %v", err)
 	}
 
@@ -152,28 +160,49 @@ func TestAll(t *testing.T) {
 		t.Fatalf("CreateSnapshot error: %v", err)
 	}
 
-	snapIt := client.snapshots(ctx)
-	for {
-		s, err := snapIt.Next()
-		if err == nil && s.name == snap.name {
-			break
+	timeoutCtx, _ = context.WithTimeout(ctx, time.Minute)
+	err = internal.Retry(timeoutCtx, gax.Backoff{}, func() (bool, error) {
+		snapIt := client.snapshots(timeoutCtx)
+		for {
+			s, err := snapIt.Next()
+			if err == nil && s.name == snap.name {
+				return true, nil
+			}
+			if err == iterator.Done {
+				return false, fmt.Errorf("cannot find snapshot: %q", snap.name)
+			}
+			if err != nil {
+				return false, err
+			}
 		}
-		if err == iterator.Done {
-			t.Errorf("cannot find snapshot: %q", snap.name)
-			break
-		}
-		if err != nil {
-			t.Error(err)
-			break
-		}
+	})
+	if err != nil {
+		t.Error(err)
 	}
 
-	if err := sub.seekToSnapshot(ctx, snap.snapshot); err != nil {
-		t.Errorf("SeekToSnapshot error: %v", err)
+	err = internal.Retry(timeoutCtx, gax.Backoff{}, func() (bool, error) {
+		err := sub.seekToSnapshot(timeoutCtx, snap.snapshot)
+		return err == nil, err
+	})
+	if err != nil {
+		t.Error(err)
 	}
 
-	if err := snap.delete(ctx); err != nil {
-		t.Errorf("DeleteSnap error: %v", err)
+	err = internal.Retry(timeoutCtx, gax.Backoff{}, func() (bool, error) {
+		err := sub.seekToTime(timeoutCtx, time.Now())
+		return err == nil, err
+	})
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = internal.Retry(timeoutCtx, gax.Backoff{}, func() (bool, error) {
+		snapHandle := client.snapshot(snap.ID())
+		err := snapHandle.delete(timeoutCtx)
+		return err == nil, err
+	})
+	if err != nil {
+		t.Error(err)
 	}
 
 	if err := sub.Delete(ctx); err != nil {
@@ -241,4 +270,82 @@ func testIAM(ctx context.Context, h *iam.Handle, permission string) (msg string,
 		return fmt.Sprintf("TestPermissions: got %v, want %v", gotPerms, wantPerms), false
 	}
 	return "", true
+}
+
+func TestSubscriptionUpdate(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	if testing.Short() {
+		t.Skip("Integration tests skipped in short mode")
+	}
+	projID := testutil.ProjID()
+	if projID == "" {
+		t.Skip("Integration tests skipped. See CONTRIBUTING.md for details.")
+	}
+	ts := testutil.TokenSource(ctx, ScopePubSub, ScopeCloudPlatform)
+	if ts == nil {
+		t.Skip("Integration tests skipped. See CONTRIBUTING.md for details")
+	}
+
+	now := time.Now()
+	topicName := fmt.Sprintf("topic-modify-%d", now.Unix())
+	subName := fmt.Sprintf("subscription-modify-%d", now.Unix())
+
+	client, err := NewClient(ctx, projID, option.WithTokenSource(ts))
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
+	}
+	defer client.Close()
+
+	var topic *Topic
+	if topic, err = client.CreateTopic(ctx, topicName); err != nil {
+		t.Fatalf("CreateTopic error: %v", err)
+	}
+	defer topic.Stop()
+	defer topic.Delete(ctx)
+
+	var sub *Subscription
+	if sub, err = client.CreateSubscription(ctx, subName, SubscriptionConfig{Topic: topic}); err != nil {
+		t.Fatalf("CreateSub error: %v", err)
+	}
+	defer sub.Delete(ctx)
+
+	sc, err := sub.Config(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(sc.PushConfig, PushConfig{}) {
+		t.Fatalf("got %+v, want empty PushConfig")
+	}
+	// Add a PushConfig.
+	pc := PushConfig{
+		Endpoint:   "https://" + projID + ".appspot.com/_ah/push-handlers/push",
+		Attributes: map[string]string{"x-goog-version": "v1"},
+	}
+	sc, err = sub.Update(ctx, SubscriptionConfigToUpdate{PushConfig: &pc})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Despite the docs which say that Get always returns a valid "x-goog-version"
+	// attribute, none is returned. See
+	// https://cloud.google.com/pubsub/docs/reference/rpc/google.pubsub.v1#google.pubsub.v1.PushConfig
+	pc.Attributes = nil
+	if got, want := sc.PushConfig, pc; !reflect.DeepEqual(got, want) {
+		t.Fatalf("setting push config: got\n%+v\nwant\n%+v", got, want)
+	}
+	// Remove the PushConfig, turning the subscription back into pull mode.
+	pc = PushConfig{}
+	sc, err = sub.Update(ctx, SubscriptionConfigToUpdate{PushConfig: &pc})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := sc.PushConfig, pc; !reflect.DeepEqual(got, want) {
+		t.Fatalf("removing push config: got\n%+v\nwant %+v", got, want)
+	}
+
+	// If nothing changes, our client returns an error.
+	_, err = sub.Update(ctx, SubscriptionConfigToUpdate{})
+	if err == nil {
+		t.Fatal("got nil, wanted error")
+	}
 }

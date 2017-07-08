@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package trace is an experimental, auto-generated package for the
-// trace API.
+// Stackdriver Trace API.
 //
 // Send and retrieve trace data from Stackdriver Trace. Data is generated and
 // available by default for all App Engine applications. Data from other
@@ -37,6 +37,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

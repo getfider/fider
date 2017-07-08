@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package logging is an experimental, auto-generated package for the
-// logging API.
+// Stackdriver Logging API.
 //
 // The Stackdriver Logging API lets you write log entries and manage your
 // logs, log sinks and logs-based metrics.
@@ -35,6 +35,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

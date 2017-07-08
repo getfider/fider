@@ -216,7 +216,7 @@ func TestFromLogEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(got.Payload, alog) {
+	if !ltesting.PayloadEqual(got.Payload, alog) {
 		t.Errorf("got %+v, want %+v", got.Payload, alog)
 	}
 
@@ -234,7 +234,7 @@ func TestFromLogEntry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(got.Payload, jstruct) {
+	if !ltesting.PayloadEqual(got.Payload, jstruct) {
 		t.Errorf("got %+v, want %+v", got.Payload, jstruct)
 	}
 }

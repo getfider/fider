@@ -21,7 +21,9 @@ import (
 )
 
 import (
+	"strconv"
 	"testing"
+	"time"
 
 	"cloud.google.com/go/internal/testutil"
 	"golang.org/x/net/context"
@@ -30,6 +32,8 @@ import (
 )
 
 var _ = iterator.Done
+var _ = strconv.FormatUint
+var _ = time.Now
 
 func TestLoggingServiceV2Smoke(t *testing.T) {
 	if testing.Short() {
@@ -42,8 +46,7 @@ func TestLoggingServiceV2Smoke(t *testing.T) {
 	}
 
 	projectId := testutil.ProjID()
-	uidSpace := testutil.NewUIDSpace("TestLoggingServiceV2Smoke")
-	_, _ = projectId, uidSpace
+	_ = projectId
 
 	c, err := NewClient(ctx, option.WithTokenSource(ts))
 	if err != nil {
@@ -51,7 +54,7 @@ func TestLoggingServiceV2Smoke(t *testing.T) {
 	}
 
 	var entries []*loggingpb.LogEntry = nil
-	var formattedLogName string = LoggingLogPath(projectId, "test-"+uidSpace.New()+"")
+	var formattedLogName string = LogPath(projectId, "test-"+strconv.FormatInt(time.Now().UnixNano(), 10)+"")
 	var request = &loggingpb.WriteLogEntriesRequest{
 		Entries: entries,
 		LogName: formattedLogName,

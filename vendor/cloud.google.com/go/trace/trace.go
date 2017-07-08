@@ -335,7 +335,7 @@ func (c *Client) SpanFromHeader(name string, header string) *Span {
 	if c == nil {
 		return nil
 	}
-	traceID, parentSpanID, options, ok := traceInfoFromHeader(header)
+	traceID, parentSpanID, options, _, ok := traceInfoFromHeader(header)
 	if !ok {
 		traceID = nextTraceID()
 	}
@@ -373,7 +373,7 @@ func (c *Client) SpanFromRequest(r *http.Request) *Span {
 	if c == nil {
 		return nil
 	}
-	traceID, parentSpanID, options, ok := traceInfoFromHeader(r.Header.Get(httpHeader))
+	traceID, parentSpanID, options, _, ok := traceInfoFromHeader(r.Header.Get(httpHeader))
 	if !ok {
 		traceID = nextTraceID()
 	}
@@ -446,20 +446,22 @@ func FromContext(ctx context.Context) *Span {
 	return s
 }
 
-func traceInfoFromHeader(h string) (string, uint64, optionFlags, bool) {
+func traceInfoFromHeader(h string) (traceID string, spanID uint64, options optionFlags, optionsOk bool, ok bool) {
 	// See https://cloud.google.com/trace/docs/faq for the header format.
 	// Return if the header is empty or missing, or if the header is unreasonably
 	// large, to avoid making unnecessary copies of a large string.
 	if h == "" || len(h) > 200 {
-		return "", 0, 0, false
+		return "", 0, 0, false, false
+
 	}
 
 	// Parse the trace id field.
 	slash := strings.Index(h, `/`)
 	if slash == -1 {
-		return "", 0, 0, false
+		return "", 0, 0, false, false
+
 	}
-	traceID, h := h[:slash], h[slash+1:]
+	traceID, h = h[:slash], h[slash+1:]
 
 	// Parse the span id field.
 	spanstr := h
@@ -469,19 +471,22 @@ func traceInfoFromHeader(h string) (string, uint64, optionFlags, bool) {
 	}
 	spanID, err := strconv.ParseUint(spanstr, 10, 64)
 	if err != nil {
-		return "", 0, 0, false
+		return "", 0, 0, false, false
+
 	}
 
 	// Parse the options field, options field is optional.
 	if !strings.HasPrefix(h, "o=") {
-		return traceID, spanID, 0, true
+		return traceID, spanID, 0, false, true
+
 	}
 	o, err := strconv.ParseUint(h[2:], 10, 64)
 	if err != nil {
-		return "", 0, 0, false
+		return "", 0, 0, false, false
+
 	}
-	options := optionFlags(o)
-	return traceID, spanID, options, true
+	options = optionFlags(o)
+	return traceID, spanID, options, true, true
 }
 
 type optionFlags uint32
@@ -575,7 +580,11 @@ type Span struct {
 	statusCode int
 }
 
-func (s *Span) tracing() bool {
+// Traced reports whether the current span is sampled to be traced.
+func (s *Span) Traced() bool {
+	if s == nil {
+		return false
+	}
 	return s.trace.localOptions&optionTrace != 0
 }
 
@@ -585,7 +594,8 @@ func (s *Span) NewChild(name string) *Span {
 	if s == nil {
 		return nil
 	}
-	if !s.tracing() {
+	if !s.Traced() {
+		// TODO(jbd): Document this behavior in godoc here and elsewhere.
 		return s
 	}
 	return startNewChild(name, s.trace, s.span.SpanId)
@@ -610,13 +620,27 @@ func (s *Span) NewRemoteChild(r *http.Request) *Span {
 	if s == nil {
 		return nil
 	}
-	if !s.tracing() {
+	if !s.Traced() {
 		r.Header[httpHeader] = []string{spanHeader(s.trace.traceID, s.span.ParentSpanId, s.trace.globalOptions)}
 		return s
 	}
 	newSpan := startNewChildWithRequest(r, s.trace, s.span.SpanId)
 	r.Header[httpHeader] = []string{spanHeader(s.trace.traceID, newSpan.span.SpanId, s.trace.globalOptions)}
 	return newSpan
+}
+
+// Header returns the value of the X-Cloud-Trace-Context header that
+// should be used to propagate the span.  This is the inverse of
+// SpanFromHeader.
+//
+// Most users should use NewRemoteChild unless they have specific
+// propagation needs or want to control the naming of their span.
+// Header() does not create a new span.
+func (s *Span) Header() string {
+	if s == nil {
+		return ""
+	}
+	return spanHeader(s.trace.traceID, s.span.SpanId, s.trace.globalOptions)
 }
 
 func startNewChildWithRequest(r *http.Request, trace *trace, parentSpanID uint64) *Span {
@@ -672,7 +696,7 @@ func (s *Span) SetLabel(key, value string) {
 	if s == nil {
 		return
 	}
-	if !s.tracing() {
+	if !s.Traced() {
 		return
 	}
 	s.spanMu.Lock()
@@ -725,7 +749,7 @@ func (s *Span) Finish(opts ...FinishOption) {
 	if s == nil {
 		return
 	}
-	if !s.tracing() {
+	if !s.Traced() {
 		return
 	}
 	s.trace.finish(s, false, opts...)
@@ -737,7 +761,7 @@ func (s *Span) FinishWait(opts ...FinishOption) error {
 	if s == nil {
 		return nil
 	}
-	if !s.tracing() {
+	if !s.Traced() {
 		return nil
 	}
 	return s.trace.finish(s, true, opts...)

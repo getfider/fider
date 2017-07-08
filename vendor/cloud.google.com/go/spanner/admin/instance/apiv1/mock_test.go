@@ -42,6 +42,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -263,7 +264,7 @@ func TestInstanceAdminListInstanceConfigs(t *testing.T) {
 
 func TestInstanceAdminListInstanceConfigsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedParent string = InstanceAdminProjectPath("[PROJECT]")
 	var request = &instancepb.ListInstanceConfigsRequest{
@@ -277,7 +278,9 @@ func TestInstanceAdminListInstanceConfigsError(t *testing.T) {
 
 	resp, err := c.ListInstanceConfigs(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -322,7 +325,7 @@ func TestInstanceAdminGetInstanceConfig(t *testing.T) {
 
 func TestInstanceAdminGetInstanceConfigError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = InstanceAdminInstanceConfigPath("[PROJECT]", "[INSTANCE_CONFIG]")
 	var request = &instancepb.GetInstanceConfigRequest{
@@ -336,7 +339,9 @@ func TestInstanceAdminGetInstanceConfigError(t *testing.T) {
 
 	resp, err := c.GetInstanceConfig(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -392,7 +397,7 @@ func TestInstanceAdminListInstances(t *testing.T) {
 
 func TestInstanceAdminListInstancesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedParent string = InstanceAdminProjectPath("[PROJECT]")
 	var request = &instancepb.ListInstancesRequest{
@@ -406,7 +411,9 @@ func TestInstanceAdminListInstancesError(t *testing.T) {
 
 	resp, err := c.ListInstances(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -455,7 +462,7 @@ func TestInstanceAdminGetInstance(t *testing.T) {
 
 func TestInstanceAdminGetInstanceError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = InstanceAdminInstancePath("[PROJECT]", "[INSTANCE]")
 	var request = &instancepb.GetInstanceRequest{
@@ -469,7 +476,9 @@ func TestInstanceAdminGetInstanceError(t *testing.T) {
 
 	resp, err := c.GetInstance(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -566,7 +575,9 @@ func TestInstanceAdminCreateInstanceError(t *testing.T) {
 	}
 	resp, err := respLRO.Wait(context.Background())
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -659,7 +670,9 @@ func TestInstanceAdminUpdateInstanceError(t *testing.T) {
 	}
 	resp, err := respLRO.Wait(context.Background())
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -696,7 +709,7 @@ func TestInstanceAdminDeleteInstance(t *testing.T) {
 
 func TestInstanceAdminDeleteInstanceError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = InstanceAdminInstancePath("[PROJECT]", "[INSTANCE]")
 	var request = &instancepb.DeleteInstanceRequest{
@@ -710,7 +723,9 @@ func TestInstanceAdminDeleteInstanceError(t *testing.T) {
 
 	err = c.DeleteInstance(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }
@@ -756,7 +771,7 @@ func TestInstanceAdminSetIamPolicy(t *testing.T) {
 
 func TestInstanceAdminSetIamPolicyError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedResource string = InstanceAdminInstancePath("[PROJECT]", "[INSTANCE]")
 	var policy *iampb.Policy = &iampb.Policy{}
@@ -772,7 +787,9 @@ func TestInstanceAdminSetIamPolicyError(t *testing.T) {
 
 	resp, err := c.SetIamPolicy(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -817,7 +834,7 @@ func TestInstanceAdminGetIamPolicy(t *testing.T) {
 
 func TestInstanceAdminGetIamPolicyError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedResource string = InstanceAdminInstancePath("[PROJECT]", "[INSTANCE]")
 	var request = &iampb.GetIamPolicyRequest{
@@ -831,7 +848,9 @@ func TestInstanceAdminGetIamPolicyError(t *testing.T) {
 
 	resp, err := c.GetIamPolicy(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -873,7 +892,7 @@ func TestInstanceAdminTestIamPermissions(t *testing.T) {
 
 func TestInstanceAdminTestIamPermissionsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockInstanceAdmin.err = grpc.Errorf(errCode, "test error")
+	mockInstanceAdmin.err = gstatus.Error(errCode, "test error")
 
 	var formattedResource string = InstanceAdminInstancePath("[PROJECT]", "[INSTANCE]")
 	var permissions []string = nil
@@ -889,7 +908,9 @@ func TestInstanceAdminTestIamPermissionsError(t *testing.T) {
 
 	resp, err := c.TestIamPermissions(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp

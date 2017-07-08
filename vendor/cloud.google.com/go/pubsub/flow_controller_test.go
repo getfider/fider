@@ -201,7 +201,7 @@ func TestFlowControllerUnboundedCount(t *testing.T) {
 
 	// Successfully acquire 4 bytes.
 	if err := fc.acquire(ctx, 4); err != nil {
-		t.Errorf("got %v, wanted no error")
+		t.Errorf("got %v, wanted no error", err)
 	}
 
 	// Successfully tryAcquire 4 bytes.
@@ -221,7 +221,7 @@ func TestFlowControllerUnboundedBytes(t *testing.T) {
 
 	// Successfully acquire 4GB.
 	if err := fc.acquire(ctx, 4e9); err != nil {
-		t.Errorf("got %v, wanted no error")
+		t.Errorf("got %v, wanted no error", err)
 	}
 
 	// Successfully tryAcquire 4GB bytes.

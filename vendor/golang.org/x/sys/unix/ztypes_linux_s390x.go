@@ -684,6 +684,10 @@ type Sigset_t struct {
 	_ [16]uint64
 }
 
+const RNDGETENTCNT = 0x80045200
+
+const PERF_IOC_FLAG_GROUP = 0x1
+
 const _SC_PAGESIZE = 0x1e
 
 type Termios struct {

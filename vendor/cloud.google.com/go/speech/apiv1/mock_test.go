@@ -39,6 +39,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -187,7 +188,7 @@ func TestSpeechRecognize(t *testing.T) {
 
 func TestSpeechRecognizeError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockSpeech.err = grpc.Errorf(errCode, "test error")
+	mockSpeech.err = gstatus.Error(errCode, "test error")
 
 	var encoding speechpb.RecognitionConfig_AudioEncoding = speechpb.RecognitionConfig_FLAC
 	var sampleRateHertz int32 = 44100
@@ -215,7 +216,9 @@ func TestSpeechRecognizeError(t *testing.T) {
 
 	resp, err := c.Recognize(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -323,7 +326,9 @@ func TestSpeechLongRunningRecognizeError(t *testing.T) {
 	}
 	resp, err := respLRO.Wait(context.Background())
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -370,7 +375,7 @@ func TestSpeechStreamingRecognize(t *testing.T) {
 
 func TestSpeechStreamingRecognizeError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockSpeech.err = grpc.Errorf(errCode, "test error")
+	mockSpeech.err = gstatus.Error(errCode, "test error")
 
 	var request *speechpb.StreamingRecognizeRequest = &speechpb.StreamingRecognizeRequest{}
 
@@ -391,7 +396,9 @@ func TestSpeechStreamingRecognizeError(t *testing.T) {
 	}
 	resp, err := stream.Recv()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp

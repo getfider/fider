@@ -43,6 +43,22 @@ func TestAdminIntegration(t *testing.T) {
 	}
 	defer adminClient.Close()
 
+	iAdminClient, err := testEnv.NewInstanceAdminClient()
+	if err != nil {
+		t.Fatalf("NewInstanceAdminClient: %v", err)
+	}
+	if iAdminClient != nil {
+		defer iAdminClient.Close()
+
+		iInfo, err := iAdminClient.InstanceInfo(ctx, adminClient.instance)
+		if err != nil {
+			t.Errorf("InstanceInfo: %v", err)
+		}
+		if iInfo.Name != adminClient.instance {
+			t.Errorf("InstanceInfo returned name %#v, want %#v", iInfo.Name, adminClient.instance)
+		}
+	}
+
 	list := func() []string {
 		tbls, err := adminClient.Tables(ctx)
 		if err != nil {

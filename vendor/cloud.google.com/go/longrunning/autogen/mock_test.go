@@ -39,6 +39,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -177,7 +178,7 @@ func TestOperationsGetOperation(t *testing.T) {
 
 func TestOperationsGetOperationError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockOperations.err = grpc.Errorf(errCode, "test error")
+	mockOperations.err = gstatus.Error(errCode, "test error")
 
 	var name string = "name3373707"
 	var request = &longrunningpb.GetOperationRequest{
@@ -191,7 +192,9 @@ func TestOperationsGetOperationError(t *testing.T) {
 
 	resp, err := c.GetOperation(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -249,7 +252,7 @@ func TestOperationsListOperations(t *testing.T) {
 
 func TestOperationsListOperationsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockOperations.err = grpc.Errorf(errCode, "test error")
+	mockOperations.err = gstatus.Error(errCode, "test error")
 
 	var name string = "name3373707"
 	var filter string = "filter-1274492040"
@@ -265,7 +268,9 @@ func TestOperationsListOperationsError(t *testing.T) {
 
 	resp, err := c.ListOperations(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -302,7 +307,7 @@ func TestOperationsCancelOperation(t *testing.T) {
 
 func TestOperationsCancelOperationError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockOperations.err = grpc.Errorf(errCode, "test error")
+	mockOperations.err = gstatus.Error(errCode, "test error")
 
 	var name string = "name3373707"
 	var request = &longrunningpb.CancelOperationRequest{
@@ -316,7 +321,9 @@ func TestOperationsCancelOperationError(t *testing.T) {
 
 	err = c.CancelOperation(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }
@@ -352,7 +359,7 @@ func TestOperationsDeleteOperation(t *testing.T) {
 
 func TestOperationsDeleteOperationError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockOperations.err = grpc.Errorf(errCode, "test error")
+	mockOperations.err = gstatus.Error(errCode, "test error")
 
 	var name string = "name3373707"
 	var request = &longrunningpb.DeleteOperationRequest{
@@ -366,7 +373,9 @@ func TestOperationsDeleteOperationError(t *testing.T) {
 
 	err = c.DeleteOperation(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }

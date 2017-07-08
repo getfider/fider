@@ -41,6 +41,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -327,7 +328,7 @@ func TestGroupServiceListGroups(t *testing.T) {
 
 func TestGroupServiceListGroupsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = GroupProjectPath("[PROJECT]")
 	var request = &monitoringpb.ListGroupsRequest{
@@ -341,7 +342,9 @@ func TestGroupServiceListGroupsError(t *testing.T) {
 
 	resp, err := c.ListGroups(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -392,7 +395,7 @@ func TestGroupServiceGetGroup(t *testing.T) {
 
 func TestGroupServiceGetGroupError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = GroupGroupPath("[PROJECT]", "[GROUP]")
 	var request = &monitoringpb.GetGroupRequest{
@@ -406,7 +409,9 @@ func TestGroupServiceGetGroupError(t *testing.T) {
 
 	resp, err := c.GetGroup(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -459,7 +464,7 @@ func TestGroupServiceCreateGroup(t *testing.T) {
 
 func TestGroupServiceCreateGroupError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = GroupProjectPath("[PROJECT]")
 	var group *monitoringpb.Group = &monitoringpb.Group{}
@@ -475,7 +480,9 @@ func TestGroupServiceCreateGroupError(t *testing.T) {
 
 	resp, err := c.CreateGroup(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -526,7 +533,7 @@ func TestGroupServiceUpdateGroup(t *testing.T) {
 
 func TestGroupServiceUpdateGroupError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var group *monitoringpb.Group = &monitoringpb.Group{}
 	var request = &monitoringpb.UpdateGroupRequest{
@@ -540,7 +547,9 @@ func TestGroupServiceUpdateGroupError(t *testing.T) {
 
 	resp, err := c.UpdateGroup(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -577,7 +586,7 @@ func TestGroupServiceDeleteGroup(t *testing.T) {
 
 func TestGroupServiceDeleteGroupError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = GroupGroupPath("[PROJECT]", "[GROUP]")
 	var request = &monitoringpb.DeleteGroupRequest{
@@ -591,7 +600,9 @@ func TestGroupServiceDeleteGroupError(t *testing.T) {
 
 	err = c.DeleteGroup(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }
@@ -648,7 +659,7 @@ func TestGroupServiceListGroupMembers(t *testing.T) {
 
 func TestGroupServiceListGroupMembersError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockGroup.err = grpc.Errorf(errCode, "test error")
+	mockGroup.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = GroupGroupPath("[PROJECT]", "[GROUP]")
 	var request = &monitoringpb.ListGroupMembersRequest{
@@ -662,7 +673,9 @@ func TestGroupServiceListGroupMembersError(t *testing.T) {
 
 	resp, err := c.ListGroupMembers(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -718,7 +731,7 @@ func TestMetricServiceListMonitoredResourceDescriptors(t *testing.T) {
 
 func TestMetricServiceListMonitoredResourceDescriptorsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricProjectPath("[PROJECT]")
 	var request = &monitoringpb.ListMonitoredResourceDescriptorsRequest{
@@ -732,7 +745,9 @@ func TestMetricServiceListMonitoredResourceDescriptorsError(t *testing.T) {
 
 	resp, err := c.ListMonitoredResourceDescriptors(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -781,7 +796,7 @@ func TestMetricServiceGetMonitoredResourceDescriptor(t *testing.T) {
 
 func TestMetricServiceGetMonitoredResourceDescriptorError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricMonitoredResourceDescriptorPath("[PROJECT]", "[MONITORED_RESOURCE_DESCRIPTOR]")
 	var request = &monitoringpb.GetMonitoredResourceDescriptorRequest{
@@ -795,7 +810,9 @@ func TestMetricServiceGetMonitoredResourceDescriptorError(t *testing.T) {
 
 	resp, err := c.GetMonitoredResourceDescriptor(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -851,7 +868,7 @@ func TestMetricServiceListMetricDescriptors(t *testing.T) {
 
 func TestMetricServiceListMetricDescriptorsError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricProjectPath("[PROJECT]")
 	var request = &monitoringpb.ListMetricDescriptorsRequest{
@@ -865,7 +882,9 @@ func TestMetricServiceListMetricDescriptorsError(t *testing.T) {
 
 	resp, err := c.ListMetricDescriptors(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -916,7 +935,7 @@ func TestMetricServiceGetMetricDescriptor(t *testing.T) {
 
 func TestMetricServiceGetMetricDescriptorError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricMetricDescriptorPath("[PROJECT]", "[METRIC_DESCRIPTOR]")
 	var request = &monitoringpb.GetMetricDescriptorRequest{
@@ -930,7 +949,9 @@ func TestMetricServiceGetMetricDescriptorError(t *testing.T) {
 
 	resp, err := c.GetMetricDescriptor(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -983,7 +1004,7 @@ func TestMetricServiceCreateMetricDescriptor(t *testing.T) {
 
 func TestMetricServiceCreateMetricDescriptorError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricProjectPath("[PROJECT]")
 	var metricDescriptor *metricpb.MetricDescriptor = &metricpb.MetricDescriptor{}
@@ -999,7 +1020,9 @@ func TestMetricServiceCreateMetricDescriptorError(t *testing.T) {
 
 	resp, err := c.CreateMetricDescriptor(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -1036,7 +1059,7 @@ func TestMetricServiceDeleteMetricDescriptor(t *testing.T) {
 
 func TestMetricServiceDeleteMetricDescriptorError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricMetricDescriptorPath("[PROJECT]", "[METRIC_DESCRIPTOR]")
 	var request = &monitoringpb.DeleteMetricDescriptorRequest{
@@ -1050,7 +1073,9 @@ func TestMetricServiceDeleteMetricDescriptorError(t *testing.T) {
 
 	err = c.DeleteMetricDescriptor(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }
@@ -1111,7 +1136,7 @@ func TestMetricServiceListTimeSeries(t *testing.T) {
 
 func TestMetricServiceListTimeSeriesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricProjectPath("[PROJECT]")
 	var filter string = "filter-1274492040"
@@ -1131,7 +1156,9 @@ func TestMetricServiceListTimeSeriesError(t *testing.T) {
 
 	resp, err := c.ListTimeSeries(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -1170,7 +1197,7 @@ func TestMetricServiceCreateTimeSeries(t *testing.T) {
 
 func TestMetricServiceCreateTimeSeriesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockMetric.err = grpc.Errorf(errCode, "test error")
+	mockMetric.err = gstatus.Error(errCode, "test error")
 
 	var formattedName string = MetricProjectPath("[PROJECT]")
 	var timeSeries []*monitoringpb.TimeSeries = nil
@@ -1186,7 +1213,9 @@ func TestMetricServiceCreateTimeSeriesError(t *testing.T) {
 
 	err = c.CreateTimeSeries(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }

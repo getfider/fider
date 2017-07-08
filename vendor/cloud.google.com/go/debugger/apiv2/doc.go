@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package debugger is an experimental, auto-generated package for the
-// debugger API.
+// Stackdriver Debugger API.
 //
 // Examines the call stack and variables of a running application
 // without stopping or slowing it down.
@@ -35,6 +35,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

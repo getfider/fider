@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package longrunning is an experimental, auto-generated package for the
-// longrunning API.
+// Google Long Running Operations API.
 //
 //
 // Use the client at cloud.google.com/go/longrunning in preference to this.
@@ -33,6 +33,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{}
 }

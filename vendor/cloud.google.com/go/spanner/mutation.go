@@ -87,6 +87,9 @@ const (
 //	m := spanner.Delete("User", spanner.Key{UserId})
 //	_, err := client.Apply(ctx, []*spanner.Mutation{m})
 //
+// spanner.Delete accepts a KeySet, so you can also pass in a KeyRange, or use the
+// spanner.KeySets function to build any combination of Keys and KeyRanges.
+//
 // Note that deleting a row in a table may also delete rows from other tables
 // if cascading deletes are specified in those tables' schemas. Delete does
 // nothing if the named row does not exist (does not yield an error).
@@ -332,23 +335,13 @@ func ReplaceStruct(table string, in interface{}) (*Mutation, error) {
 	return Replace(table, cols, vals), nil
 }
 
-// Delete removes a key from a table. Succeeds whether or not the key was
-// present.
-func Delete(table string, key Key) *Mutation {
+// Delete removes the rows described by the KeySet from the table. It succeeds
+// whether or not the keys were present.
+func Delete(table string, ks KeySet) *Mutation {
 	return &Mutation{
 		op:     opDelete,
 		table:  table,
-		keySet: Keys(key),
-	}
-}
-
-// DeleteKeyRange removes a range of keys from a table. Succeeds whether or not
-// the keys were present.
-func DeleteKeyRange(table string, r KeyRange) *Mutation {
-	return &Mutation{
-		op:     opDelete,
-		table:  table,
-		keySet: Range(r),
+		keySet: ks,
 	}
 }
 
@@ -377,15 +370,19 @@ func (m Mutation) proto() (*sppb.Mutation, error) {
 	var pb *sppb.Mutation
 	switch m.op {
 	case opDelete:
-		keySetProto, err := m.keySet.proto()
-		if err != nil {
-			return nil, err
+		var kp *sppb.KeySet
+		if m.keySet != nil {
+			var err error
+			kp, err = m.keySet.keySetProto()
+			if err != nil {
+				return nil, err
+			}
 		}
 		pb = &sppb.Mutation{
 			Operation: &sppb.Mutation_Delete_{
 				Delete: &sppb.Mutation_Delete{
 					Table:  m.table,
-					KeySet: keySetProto,
+					KeySet: kp,
 				},
 			},
 		}

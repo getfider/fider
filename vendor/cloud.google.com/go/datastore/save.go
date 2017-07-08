@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"reflect"
 	"time"
+	"unicode/utf8"
 
 	timepb "github.com/golang/protobuf/ptypes/timestamp"
 	pb "google.golang.org/genproto/googleapis/datastore/v1"
@@ -338,6 +339,9 @@ func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
 	case string:
 		if len(v) > 1500 && !noIndex {
 			return nil, errors.New("string property too long to index")
+		}
+		if !utf8.ValidString(v) {
+			return nil, fmt.Errorf("string is not valid utf8: %q", v)
 		}
 		val.ValueType = &pb.Value_StringValue{StringValue: v}
 	case float32:

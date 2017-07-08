@@ -574,6 +574,12 @@ func (b byColumn) Len() int           { return len(b) }
 func (b byColumn) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
 func (b byColumn) Less(i, j int) bool { return b[i].Column < b[j].Column }
 
+type byFamilyName []bigtable.FamilyInfo
+
+func (b byFamilyName) Len() int           { return len(b) }
+func (b byFamilyName) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b byFamilyName) Less(i, j int) bool { return b[i].Name < b[j].Name }
+
 func doLS(ctx context.Context, args ...string) {
 	switch len(args) {
 	default:
@@ -593,10 +599,14 @@ func doLS(ctx context.Context, args ...string) {
 		if err != nil {
 			log.Fatalf("Getting table info: %v", err)
 		}
-		sort.Strings(ti.Families)
-		for _, fam := range ti.Families {
-			fmt.Println(fam)
+		sort.Sort(byFamilyName(ti.FamilyInfos))
+		tw := tabwriter.NewWriter(os.Stdout, 10, 8, 4, '\t', 0)
+		fmt.Fprintf(tw, "Family Name\tGC Policy\n")
+		fmt.Fprintf(tw, "-----------\t---------\n")
+		for _, fam := range ti.FamilyInfos {
+			fmt.Fprintf(tw, "%s\t%s\n", fam.Name, fam.GCPolicy)
 		}
+		tw.Flush()
 	}
 }
 

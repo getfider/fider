@@ -160,11 +160,11 @@ func TestPgpass(t *testing.T) {
 		rows, err := txn.Query("SELECT USER")
 		if err != nil {
 			txn.Rollback()
-			rows.Close()
 			if expected != "fail" {
 				t.Fatalf(reason, err)
 			}
 		} else {
+			rows.Close()
 			if expected != "ok" {
 				t.Fatalf(reason, err)
 			}
@@ -1581,5 +1581,34 @@ func TestRowsResultTag(t *testing.T) {
 			}
 			rows.Close()
 		}
+	}
+}
+
+// TestQuickClose tests that closing a query early allows a subsequent query to work.
+func TestQuickClose(t *testing.T) {
+	db := openTestConn(t)
+	defer db.Close()
+
+	tx, err := db.Begin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	rows, err := tx.Query("SELECT 1; SELECT 2;")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := rows.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	var id int
+	if err := tx.QueryRow("SELECT 3").Scan(&id); err != nil {
+		t.Fatal(err)
+	}
+	if id != 3 {
+		t.Fatalf("unexpected %d", id)
+	}
+	if err := tx.Commit(); err != nil {
+		t.Fatal(err)
 	}
 }

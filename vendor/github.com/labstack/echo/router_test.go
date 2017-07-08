@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	staticRoutes = []Route{
+	staticRoutes = []*Route{
 		{"GET", "/", ""},
 		{"GET", "/cmd.html", ""},
 		{"GET", "/code.html", ""},
@@ -170,7 +170,7 @@ var (
 		{"GET", "/progs/update.bash", ""},
 	}
 
-	gitHubAPI = []Route{
+	gitHubAPI = []*Route{
 		// OAuth Authorizations
 		{"GET", "/authorizations", ""},
 		{"GET", "/authorizations/:id", ""},
@@ -433,7 +433,7 @@ var (
 		{"DELETE", "/user/keys/:id", ""},
 	}
 
-	parseAPI = []Route{
+	parseAPI = []*Route{
 		// Objects
 		{"POST", "/1/classes/:className", ""},
 		{"GET", "/1/classes/:className/:objectId", ""},
@@ -477,7 +477,7 @@ var (
 		{"POST", "/1/functions", ""},
 	}
 
-	googlePlusAPI = []Route{
+	googlePlusAPI = []*Route{
 		// People
 		{"GET", "/people/:userId", ""},
 		{"GET", "/people", ""},
@@ -582,6 +582,33 @@ func TestRouterMatchAny(t *testing.T) {
 
 	r.Find(GET, "/users/joe", c)
 	assert.Equal(t, "joe", c.Param("*"))
+}
+
+func TestRouterMatchAnyMultiLevel(t *testing.T) {
+	e := New()
+	r := e.router
+	handler := func(c Context) error {
+		c.Set("path", c.Path())
+		return nil
+	}
+
+	// Routes
+	r.Add(GET, "/api/users/jack", handler)
+	r.Add(GET, "/api/users/jill", handler)
+	r.Add(GET, "/*", handler)
+
+	c := e.NewContext(nil, nil).(*context)
+	r.Find(GET, "/api/users/jack", c)
+	c.handler(c)
+	assert.Equal(t, "/api/users/jack", c.Get("path"))
+
+	r.Find(GET, "/api/users/jill", c)
+	c.handler(c)
+	assert.Equal(t, "/api/users/jill", c.Get("path"))
+
+	r.Find(GET, "/api/users/joe", c)
+	c.handler(c)
+	assert.Equal(t, "/*", c.Get("path"))
 }
 
 func TestRouterMicroParam(t *testing.T) {
@@ -812,7 +839,7 @@ func TestRouterStaticDynamicConflict(t *testing.T) {
 	assert.Equal(t, 3, c.Get("c"))
 }
 
-func testRouterAPI(t *testing.T, api []Route) {
+func testRouterAPI(t *testing.T, api []*Route) {
 	e := New()
 	r := e.router
 
@@ -839,7 +866,7 @@ func TestRouterGitHubAPI(t *testing.T) {
 
 // Issue #729
 func TestRouterParamAlias(t *testing.T) {
-	api := []Route{
+	api := []*Route{
 		{GET, "/users/:userID/following", ""},
 		{GET, "/users/:userID/followedBy", ""},
 		{GET, "/users/:userID/follow", ""},
@@ -847,7 +874,7 @@ func TestRouterParamAlias(t *testing.T) {
 	testRouterAPI(t, api)
 }
 
-func benchmarkRouterRoutes(b *testing.B, routes []Route) {
+func benchmarkRouterRoutes(b *testing.B, routes []*Route) {
 	e := New()
 	r := e.router
 	b.ReportAllocs()

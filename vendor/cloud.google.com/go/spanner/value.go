@@ -22,7 +22,6 @@ import (
 	"math"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 
 	"cloud.google.com/go/civil"
@@ -871,28 +870,6 @@ func decodeRowArray(ty *sppb.StructType, pb *proto3.ListValue) ([]NullRow, error
 	return a, nil
 }
 
-// structFieldColumn returns the name of i-th field of struct type typ if the field
-// is untagged; otherwise, it returns the tagged name of the field.
-func structFieldColumn(typ reflect.Type, i int) (col string, ok bool) {
-	desc := typ.Field(i)
-	if desc.PkgPath != "" || desc.Anonymous {
-		// Skip unexported or anonymous fields.
-		return "", false
-	}
-	col = desc.Name
-	if tag := desc.Tag.Get("spanner"); tag != "" {
-		if tag == "-" {
-			// Skip fields tagged "-" to match encoding/json and others.
-			return "", false
-		}
-		col = tag
-		if idx := strings.Index(tag, ","); idx != -1 {
-			col = tag[:idx]
-		}
-	}
-	return col, true
-}
-
 // errNilSpannerStructType returns error for unexpected nil Cloud Spanner STRUCT schema type in decoding.
 func errNilSpannerStructType() error {
 	return spannerErrorf(codes.FailedPrecondition, "unexpected nil StructType in decoding Cloud Spanner STRUCT")
@@ -1038,35 +1015,36 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 		if v.Valid {
 			return encodeValue(v.StringVal)
 		}
+		pt = stringType()
 	case []string:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(stringType())
 		}
+		pt = listType(stringType())
 	case []NullString:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(stringType())
 		}
+		pt = listType(stringType())
 	case []byte:
 		if v != nil {
 			pb.Kind = stringKind(base64.StdEncoding.EncodeToString(v))
-			pt = bytesType()
 		}
+		pt = bytesType()
 	case [][]byte:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(bytesType())
 		}
+		pt = listType(bytesType())
 	case int:
 		pb.Kind = stringKind(strconv.FormatInt(int64(v), 10))
 		pt = intType()
@@ -1076,8 +1054,8 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(intType())
 		}
+		pt = listType(intType())
 	case int64:
 		pb.Kind = stringKind(strconv.FormatInt(v, 10))
 		pt = intType()
@@ -1087,20 +1065,21 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(intType())
 		}
+		pt = listType(intType())
 	case NullInt64:
 		if v.Valid {
 			return encodeValue(v.Int64)
 		}
+		pt = intType()
 	case []NullInt64:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(intType())
 		}
+		pt = listType(intType())
 	case bool:
 		pb.Kind = &proto3.Value_BoolValue{BoolValue: v}
 		pt = boolType()
@@ -1110,20 +1089,21 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(boolType())
 		}
+		pt = listType(boolType())
 	case NullBool:
 		if v.Valid {
 			return encodeValue(v.Bool)
 		}
+		pt = boolType()
 	case []NullBool:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(boolType())
 		}
+		pt = listType(boolType())
 	case float64:
 		pb.Kind = &proto3.Value_NumberValue{NumberValue: v}
 		pt = floatType()
@@ -1133,20 +1113,21 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(floatType())
 		}
+		pt = listType(floatType())
 	case NullFloat64:
 		if v.Valid {
 			return encodeValue(v.Float64)
 		}
+		pt = floatType()
 	case []NullFloat64:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(floatType())
 		}
+		pt = listType(floatType())
 	case time.Time:
 		pb.Kind = stringKind(v.UTC().Format(time.RFC3339Nano))
 		pt = timeType()
@@ -1156,20 +1137,21 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(timeType())
 		}
+		pt = listType(timeType())
 	case NullTime:
 		if v.Valid {
 			return encodeValue(v.Time)
 		}
+		pt = timeType()
 	case []NullTime:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(timeType())
 		}
+		pt = listType(timeType())
 	case civil.Date:
 		pb.Kind = stringKind(v.String())
 		pt = dateType()
@@ -1179,20 +1161,21 @@ func encodeValue(v interface{}) (*proto3.Value, *sppb.Type, error) {
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(dateType())
 		}
+		pt = listType(dateType())
 	case NullDate:
 		if v.Valid {
 			return encodeValue(v.Date)
 		}
+		pt = dateType()
 	case []NullDate:
 		if v != nil {
 			pb, err = encodeArray(len(v), func(i int) interface{} { return v[i] })
 			if err != nil {
 				return nil, nil, err
 			}
-			pt = listType(dateType())
 		}
+		pt = listType(dateType())
 	case GenericColumnValue:
 		// Deep clone to ensure subsequent changes to v before
 		// transmission don't affect our encoded value.

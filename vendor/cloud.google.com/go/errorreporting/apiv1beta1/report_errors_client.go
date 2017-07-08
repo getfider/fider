@@ -17,8 +17,6 @@
 package errorreporting
 
 import (
-	"time"
-
 	"cloud.google.com/go/internal/version"
 	gax "github.com/googleapis/gax-go"
 	"golang.org/x/net/context"
@@ -26,7 +24,6 @@ import (
 	"google.golang.org/api/transport"
 	clouderrorreportingpb "google.golang.org/genproto/googleapis/devtools/clouderrorreporting/v1beta1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 var (
@@ -46,19 +43,7 @@ func defaultReportErrorsClientOptions() []option.ClientOption {
 }
 
 func defaultReportErrorsCallOptions() *ReportErrorsCallOptions {
-	retry := map[[2]string][]gax.CallOption{
-		{"default", "non_idempotent"}: {
-			gax.WithRetry(func() gax.Retryer {
-				return gax.OnCodes([]codes.Code{
-					codes.Unavailable,
-				}, gax.Backoff{
-					Initial:    100 * time.Millisecond,
-					Max:        60000 * time.Millisecond,
-					Multiplier: 1.3,
-				})
-			}),
-		},
-	}
+	retry := map[[2]string][]gax.CallOption{}
 	return &ReportErrorsCallOptions{
 		ReportErrorEvent: retry[[2]string{"default", "non_idempotent"}],
 	}

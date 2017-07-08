@@ -218,8 +218,8 @@ func (s *session) refreshIdle() bool {
 	if err = runRetryable(ctx, func(ctx context.Context) error {
 		_, e := s.client.DeleteSession(contextWithOutgoingMetadata(ctx, s.pool.md), &sppb.DeleteSessionRequest{Name: sid})
 		return e
-	}); err != nil {
-		return false
+	}); err != nil && log.V(2) {
+		log.Warningf("Failed to delete session %v. Error: %v", sid, err)
 	}
 	return true
 }
@@ -315,10 +315,13 @@ func (s *session) destroy(isExpire bool) bool {
 	defer cancel()
 	// Ignore the error returned by runRetryable because even if we fail to explicitly destroy the session,
 	// it will be eventually garbage collected by Cloud Spanner.
-	runRetryable(ctx, func(ctx context.Context) error {
+	err := runRetryable(ctx, func(ctx context.Context) error {
 		_, e := s.client.DeleteSession(ctx, &sppb.DeleteSessionRequest{Name: s.getID()})
 		return e
 	})
+	if err != nil && log.V(2) {
+		log.Warningf("Failed to delete session %v. Error: %v", s.getID(), err)
+	}
 	return true
 }
 
@@ -868,7 +871,7 @@ func (hc *healthChecker) healthCheck(s *session) {
 // worker performs the healthcheck on sessions in healthChecker's priority queue.
 func (hc *healthChecker) worker(i int) {
 	if log.V(2) {
-		log.Info("Starting health check worker %v", i)
+		log.Infof("Starting health check worker %v", i)
 	}
 	// Returns a session which we should ping to keep it alive.
 	getNextForPing := func() *session {
@@ -916,7 +919,7 @@ func (hc *healthChecker) worker(i int) {
 	for {
 		if hc.isClosing() {
 			if log.V(2) {
-				log.Info("Closing health check worker %v", i)
+				log.Infof("Closing health check worker %v", i)
 			}
 			// Exit when the pool has been closed and all sessions have been destroyed
 			// or when health checker has been closed.

@@ -4,7 +4,7 @@ A [go](http://www.golang.org) (or 'golang' for search engine friendliness) imple
 
 **BREAKING CHANGES:*** Version 3.0.0 is here. It includes _a lot_ of changes including a few that break the API.  We've tried to break as few things as possible, so there should just be a few type signature changes.  A full list of breaking changes is available in `VERSION_HISTORY.md`.  See `MIGRATION_GUIDE.md` for more information on updating your code.
 
-**NOTICE:** It's important that you [validate the `alg` presented is what you expect](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/). This library attempts to make it easy to do the right thing by requiring key types match the expected alg, but you should take the extra step to verify it in your usage.  See the examples provided.
+**NOTICE:** A vulnerability in JWT was [recently published](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/).  As this library doesn't force users to validate the `alg` is what they expected, it's possible your usage is effected.  There will be an update soon to remedy this, and it will likey require backwards-incompatible changes to the API.  In the short term, please make sure your implementation verifies the `alg` is what you expect.
 
 
 ## What the heck is a JWT?
@@ -25,8 +25,8 @@ This library supports the parsing and verification as well as the generation and
 
 See [the project documentation](https://godoc.org/github.com/dgrijalva/jwt-go) for examples of usage:
 
-* [Simple example of parsing and validating a token](https://godoc.org/github.com/dgrijalva/jwt-go#example-Parse--Hmac)
-* [Simple example of building and signing a token](https://godoc.org/github.com/dgrijalva/jwt-go#example-New--Hmac)
+* [Simple example of parsing and validating a token](https://godoc.org/github.com/dgrijalva/jwt-go#example_Parse_hmac)
+* [Simple example of building and signing a token](https://godoc.org/github.com/dgrijalva/jwt-go#example_New_hmac)
 * [Directory of Examples](https://godoc.org/github.com/dgrijalva/jwt-go#pkg-examples)
 
 ## Extensions

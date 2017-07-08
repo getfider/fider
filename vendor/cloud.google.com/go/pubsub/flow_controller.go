@@ -19,8 +19,7 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-// flowController implements flow control for Subscription.Receive and
-// Topic.Publish.
+// flowController implements flow control for Subscription.Receive.
 type flowController struct {
 	maxSize           int                 // max total size of messages
 	semCount, semSize *semaphore.Weighted // enforces max number and size of messages

@@ -39,6 +39,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	gstatus "google.golang.org/grpc/status"
 )
 
 var _ = io.EOF
@@ -159,7 +160,7 @@ func TestTraceServicePatchTraces(t *testing.T) {
 
 func TestTraceServicePatchTracesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockTrace.err = grpc.Errorf(errCode, "test error")
+	mockTrace.err = gstatus.Error(errCode, "test error")
 
 	var projectId string = "projectId-1969970175"
 	var traces *cloudtracepb.Traces = &cloudtracepb.Traces{}
@@ -175,7 +176,9 @@ func TestTraceServicePatchTracesError(t *testing.T) {
 
 	err = c.PatchTraces(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 }
@@ -221,7 +224,7 @@ func TestTraceServiceGetTrace(t *testing.T) {
 
 func TestTraceServiceGetTraceError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockTrace.err = grpc.Errorf(errCode, "test error")
+	mockTrace.err = gstatus.Error(errCode, "test error")
 
 	var projectId string = "projectId-1969970175"
 	var traceId string = "traceId1270300245"
@@ -237,7 +240,9 @@ func TestTraceServiceGetTraceError(t *testing.T) {
 
 	resp, err := c.GetTrace(context.Background(), request)
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp
@@ -293,7 +298,7 @@ func TestTraceServiceListTraces(t *testing.T) {
 
 func TestTraceServiceListTracesError(t *testing.T) {
 	errCode := codes.PermissionDenied
-	mockTrace.err = grpc.Errorf(errCode, "test error")
+	mockTrace.err = gstatus.Error(errCode, "test error")
 
 	var projectId string = "projectId-1969970175"
 	var request = &cloudtracepb.ListTracesRequest{
@@ -307,7 +312,9 @@ func TestTraceServiceListTracesError(t *testing.T) {
 
 	resp, err := c.ListTraces(context.Background(), request).Next()
 
-	if c := grpc.Code(err); c != errCode {
+	if st, ok := gstatus.FromError(err); !ok {
+		t.Errorf("got error %v, expected grpc error", err)
+	} else if c := st.Code(); c != errCode {
 		t.Errorf("got error code %q, want %q", c, errCode)
 	}
 	_ = resp

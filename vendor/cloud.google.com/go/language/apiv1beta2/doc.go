@@ -15,7 +15,7 @@
 // AUTO-GENERATED CODE. DO NOT EDIT.
 
 // Package language is an experimental, auto-generated package for the
-// language API.
+// Google Cloud Natural Language API.
 //
 // Google Cloud Natural Language API provides natural language understanding
 // technologies to developers. Examples include sentiment analysis, entity
@@ -34,6 +34,8 @@ func insertXGoog(ctx context.Context, val []string) context.Context {
 	return metadata.NewOutgoingContext(ctx, md)
 }
 
+// DefaultAuthScopes reports the authentication scopes required
+// by this package.
 func DefaultAuthScopes() []string {
 	return []string{
 		"https://www.googleapis.com/auth/cloud-platform",

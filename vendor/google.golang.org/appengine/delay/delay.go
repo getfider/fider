@@ -9,7 +9,6 @@ user request by using the taskqueue API.
 To declare a function that may be executed later, call Func
 in a top-level assignment context, passing it an arbitrary string key
 and a function whose first argument is of type context.Context.
-The key is used to look up the function so it can be called later.
 	var laterFunc = delay.Func("key", myFunc)
 It is also possible to use a function literal.
 	var laterFunc = delay.Func("key", func(c context.Context, x string) {

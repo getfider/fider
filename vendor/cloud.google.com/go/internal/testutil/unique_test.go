@@ -54,20 +54,9 @@ func TestTimestamp(t *testing.T) {
 
 func TestOlder(t *testing.T) {
 	s := NewUIDSpace("uid")
-	d := 100 * time.Millisecond
-	id := s.New()
-
-	if got, want := s.Older(id, d), false; got != want {
-		t.Errorf("got %t, want %t", got, want)
-	}
-	time.Sleep(100 * time.Millisecond)
-	if got, want := s.Older(id, d), true; got != want {
-		t.Errorf("got %t, want %t", got, want)
-	}
-
 	// A non-matching ID returns false.
 	id2 := NewUIDSpace("different-prefix").New()
-	if got, want := s.Older(id2, d), false; got != want {
+	if got, want := s.Older(id2, time.Second), false; got != want {
 		t.Errorf("got %t, want %t", got, want)
 	}
 }
