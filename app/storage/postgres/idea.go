@@ -176,6 +176,17 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	return result, nil
 }
 
+// Update given idea
+func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
+	err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
+												WHERE number = $4 AND tenant_id = $5`, title, slug.Make(title), description, number, s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetByNumber(number)
+}
+
 // Add a new idea in the database
 func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
 	var id int

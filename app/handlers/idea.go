@@ -6,6 +6,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/validate"
 )
 
 // Index is the default home page
@@ -35,15 +36,14 @@ func PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if strings.Trim(input.Title, " ") == "" {
-			return c.JSON(400, web.Map{
-				"message": "Title is required.",
-			})
+		ok, messages, err := validate.Idea(input.Title, input.Description)
+		if err != nil {
+			return c.Failure(err)
 		}
 
-		if len(input.Title) < 10 || len(strings.Split(input.Title, " ")) < 3 {
-			return c.JSON(400, web.Map{
-				"message": "Title needs to be more descriptive.",
+		if !ok {
+			return c.BadRequest(web.Map{
+				"message": strings.Join(messages, ","),
 			})
 		}
 
@@ -57,7 +57,46 @@ func PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, idea)
+		return c.Ok(idea)
+	}
+}
+
+// UpdateIdea updates an existing ideaof current tenant
+func UpdateIdea() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		input := new(newIdeaInput)
+		if err := c.Bind(input); err != nil {
+			return c.Failure(err)
+		}
+
+		ok, messages, err := validate.Idea(input.Title, input.Description)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if !ok {
+			return c.BadRequest(web.Map{
+				"message": strings.Join(messages, ","),
+			})
+		}
+
+		ideas := c.Services().Ideas
+		idea, err := ideas.GetByNumber(number)
+		if idea.User.ID == c.User().ID || c.User().Role >= models.RoleMember {
+			idea, err = ideas.Update(number, input.Title, input.Description)
+			if err != nil {
+				return c.Failure(err)
+			}
+		} else {
+			return c.Unauthorized()
+		}
+
+		return c.Ok(idea)
 	}
 }
 
@@ -122,7 +161,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, web.Map{})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -165,7 +204,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, web.Map{})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -197,5 +236,5 @@ func addOrRemoveSupporter(c web.Context, addOrRemove func(number, userID int) er
 		return c.Failure(err)
 	}
 
-	return c.JSON(200, web.Map{})
+	return c.Ok(web.Map{})
 }

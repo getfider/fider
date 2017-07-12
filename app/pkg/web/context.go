@@ -65,9 +65,14 @@ func (ctx *Context) Failure(err error) error {
 	return echo.NewHTTPError(http.StatusInternalServerError, err)
 }
 
+//Unauthorized returns a 401 response
+func (ctx *Context) Unauthorized() error {
+	return ctx.JSON(http.StatusUnauthorized, Map{})
+}
+
 //Ok returns 200 OK with JSON result
-func (ctx *Context) Ok(dict Map) error {
-	return ctx.JSON(http.StatusOK, dict)
+func (ctx *Context) Ok(data interface{}) error {
+	return ctx.JSON(http.StatusOK, data)
 }
 
 //BadRequest returns 400 BadRequest with JSON result

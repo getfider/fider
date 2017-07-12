@@ -9,6 +9,7 @@ type Idea interface {
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
 	GetAll() ([]*models.Idea, error)
 	Add(title, description string, userID int) (*models.Idea, error)
+	Update(number int, title, description string) (*models.Idea, error)
 	AddComment(number int, content string, userID int) (int, error)
 	AddSupporter(number, userID int) error
 	RemoveSupporter(number, userID int) error
