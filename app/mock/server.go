@@ -11,13 +11,11 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/jmoiron/jsonq"
-	"github.com/labstack/echo"
 )
 
 // Server is a HTTP server wrapper for testing purpose
 type Server struct {
 	engine     *web.Engine
-	handler    echo.HandlerFunc
 	Context    web.Context
 	recorder   *httptest.ResponseRecorder
 	middleware web.MiddlewareFunc
@@ -36,7 +34,7 @@ func NewServer() *Server {
 	settings := &models.AppSettings{}
 	engine := web.New(settings)
 
-	request, _ := http.NewRequest(echo.GET, "/", nil)
+	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
 	context := engine.NewContext(request, recorder)
 
@@ -74,7 +72,7 @@ func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) 
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
-	req.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
 	s.Context.SetRequest(req)
 
 	if err := s.middleware(handler)(s.Context); err != nil {

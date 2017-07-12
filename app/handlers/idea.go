@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/labstack/echo"
 )
 
 // Index is the default home page
@@ -17,7 +16,7 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(echo.Map{
+		return c.Page(web.Map{
 			"ideas": ideas,
 		})
 	}
@@ -37,13 +36,13 @@ func PostIdea() web.HandlerFunc {
 		}
 
 		if strings.Trim(input.Title, " ") == "" {
-			return c.JSON(400, echo.Map{
+			return c.JSON(400, web.Map{
 				"message": "Title is required.",
 			})
 		}
 
 		if len(input.Title) < 10 || len(strings.Split(input.Title, " ")) < 3 {
-			return c.JSON(400, echo.Map{
+			return c.JSON(400, web.Map{
 				"message": "Title needs to be more descriptive.",
 			})
 		}
@@ -84,7 +83,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(echo.Map{
+		return c.Page(web.Map{
 			"comments": comments,
 			"idea":     idea,
 		})
@@ -104,7 +103,7 @@ func PostComment() web.HandlerFunc {
 		}
 
 		if strings.Trim(input.Content, " ") == "" {
-			return c.JSON(400, echo.Map{
+			return c.JSON(400, web.Map{
 				"message": "Comment is required.",
 			})
 		}
@@ -123,7 +122,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, echo.Map{})
+		return c.JSON(200, web.Map{})
 	}
 }
 
@@ -141,13 +140,13 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		if input.Status < models.IdeaNew || input.Status > models.IdeaDeclined {
-			return c.JSON(400, echo.Map{
+			return c.JSON(400, web.Map{
 				"message": "Status is invalid.",
 			})
 		}
 
 		if strings.Trim(input.Text, " ") == "" {
-			return c.JSON(400, echo.Map{
+			return c.JSON(400, web.Map{
 				"message": "Text is required.",
 			})
 		}
@@ -166,7 +165,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.JSON(200, echo.Map{})
+		return c.JSON(200, web.Map{})
 	}
 }
 
@@ -198,5 +197,5 @@ func addOrRemoveSupporter(c web.Context, addOrRemove func(number, userID int) er
 		return c.Failure(err)
 	}
 
-	return c.JSON(200, echo.Map{})
+	return c.JSON(200, web.Map{})
 }

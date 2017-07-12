@@ -13,6 +13,9 @@ import (
 	"github.com/labstack/echo"
 )
 
+// Map defines a generic map of type `map[string]interface{}`.
+type Map map[string]interface{}
+
 var (
 	preffixKey             = "__CTX_"
 	tenantContextKey       = preffixKey + "TENANT"
@@ -63,17 +66,17 @@ func (ctx *Context) Failure(err error) error {
 }
 
 //Ok returns 200 OK with JSON result
-func (ctx *Context) Ok(dict echo.Map) error {
+func (ctx *Context) Ok(dict Map) error {
 	return ctx.JSON(http.StatusOK, dict)
 }
 
 //BadRequest returns 400 BadRequest with JSON result
-func (ctx *Context) BadRequest(dict echo.Map) error {
+func (ctx *Context) BadRequest(dict Map) error {
 	return ctx.JSON(http.StatusBadRequest, dict)
 }
 
 //Page returns a page with given variables
-func (ctx *Context) Page(dict echo.Map) error {
+func (ctx *Context) Page(dict Map) error {
 	return ctx.Render(http.StatusOK, "index.html", dict)
 }
 
@@ -145,10 +148,10 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 }
 
 //RenderVars returns all registered RenderVar
-func (ctx *Context) RenderVars() echo.Map {
+func (ctx *Context) RenderVars() Map {
 	vars := ctx.Get("__renderVars")
 	if vars != nil {
-		return vars.(echo.Map)
+		return vars.(Map)
 	}
 	return nil
 }
@@ -157,10 +160,10 @@ func (ctx *Context) RenderVars() echo.Map {
 func (ctx *Context) AddRenderVar(name string, value interface{}) {
 	var renderVars = ctx.Get("__renderVars")
 	if renderVars == nil {
-		renderVars = make(echo.Map)
+		renderVars = make(Map)
 		ctx.Set("__renderVars", renderVars)
 	}
 
 	ctx.Logger().Debugf("storage.%v: %v", name, value)
-	renderVars.(echo.Map)[name] = value
+	renderVars.(Map)[name] = value
 }

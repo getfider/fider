@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/validate"
-	"github.com/labstack/echo"
 )
 
 // CheckAvailability checks if given domain is available to be used
@@ -24,12 +23,12 @@ func CheckAvailability() web.HandlerFunc {
 		}
 
 		if !ok {
-			return c.Ok(echo.Map{
+			return c.Ok(web.Map{
 				"message": strings.Join(messages, ","),
 			})
 		}
 
-		return c.Ok(echo.Map{})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -48,7 +47,7 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if input.Token == "" {
-			return c.BadRequest(echo.Map{
+			return c.BadRequest(web.Map{
 				"message": "Please identify yourself before proceeding",
 			})
 		}
@@ -63,7 +62,7 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if input.Name == "" {
-			return c.BadRequest(echo.Map{
+			return c.BadRequest(web.Map{
 				"message": "Name is required",
 			})
 		}
@@ -74,7 +73,7 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		if !ok {
-			return c.BadRequest(echo.Map{
+			return c.BadRequest(web.Map{
 				"message": strings.Join(messages, ","),
 			})
 		}
@@ -97,7 +96,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Ok(echo.Map{
+		return c.Ok(web.Map{
 			"id": tenant.ID,
 		})
 	}
@@ -116,6 +115,6 @@ func SignUp() web.HandlerFunc {
 				return c.Redirect(http.StatusTemporaryRedirect, "/")
 			}
 		}
-		return c.Page(echo.Map{})
+		return c.Page(web.Map{})
 	}
 }

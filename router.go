@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage"
-	"github.com/labstack/echo"
 )
 
 // AppServices holds reference to all Fider services
@@ -92,7 +91,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
 			admin.Get("", func(ctx web.Context) error {
-				return ctx.Page(echo.Map{})
+				return ctx.Page(web.Map{})
 			})
 		}
 	}
