@@ -58,11 +58,11 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		tmpl = r.add(name)
 	}
 
-	m := data.(echo.Map)
+	m := data.(Map)
 	m["tenant"] = ctx.Tenant()
-	m["auth"] = echo.Map{
+	m["auth"] = Map{
 		"endpoint": ctx.AuthEndpoint(),
-		"providers": echo.Map{
+		"providers": Map{
 			oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
 			oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
 		},

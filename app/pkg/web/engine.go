@@ -109,10 +109,10 @@ func (g *Group) Post(path string, handler HandlerFunc) {
 func errorHandler(e error, c echo.Context) {
 	if strings.Contains(e.Error(), "code=404") {
 		c.Logger().Debug(fmt.Sprintf("%s [%s] %s", e, c.Request().Method, c.Request().URL.String()))
-		c.Render(http.StatusNotFound, "404.html", echo.Map{})
+		c.Render(http.StatusNotFound, "404.html", Map{})
 	} else {
 		c.Logger().Error(e)
-		c.Render(http.StatusInternalServerError, "500.html", echo.Map{})
+		c.Render(http.StatusInternalServerError, "500.html", Map{})
 	}
 }
 
