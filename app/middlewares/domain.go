@@ -57,7 +57,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return next(c)
 			}
 
-			c.Logger().Infof("Tenant not found for '%s'.", hostname)
+			c.Logger().Debugf("Tenant not found for '%s'.", hostname)
 			return c.NoContent(http.StatusNotFound)
 		}
 	}

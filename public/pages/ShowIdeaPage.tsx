@@ -73,7 +73,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                       </div>
                     </div>
 
-                    <MultiLineText text={ this.idea.description } markdown={true} />
+                    <MultiLineText className="description" text={ this.idea.description } markdown={true} />
                     <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
 
                     {
