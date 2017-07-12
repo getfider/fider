@@ -37,6 +37,10 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 					default:
 						err = fmt.Errorf("%v", r)
 					}
+
+					if trx != nil {
+						trx.Rollback()
+					}
 					c.Error(err)
 				}
 			}()
