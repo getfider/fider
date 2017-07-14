@@ -54,8 +54,8 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
                       placeholder="Leave your comment here..."></textarea>
           </div>
-          <Button classes="blue" onClick={ () => this.submit() }>
-            <i className="icon edit"></i> Add Comment
+          <Button className="primary" onClick={ () => this.submit() }>
+            Add Comment
           </Button>
         </form> :
         <div className="ui message">

@@ -44,7 +44,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                                         rows={6}
                                         placeholder="Describe your idea (optional)"></textarea>
                             </div>
-                            <Button classes="primary" onClick={() => this.form.submit() }>
+                            <Button className="primary" onClick={() => this.form.submit() }>
                               Submit Idea
                             </Button>
                           </div> :

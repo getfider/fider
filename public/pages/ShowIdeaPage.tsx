@@ -8,7 +8,7 @@ import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
+import { Button, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -48,10 +48,6 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
             </div>
           </div>
         ) : <p>No comments yet.</p>;
-
-        const respond = <div className="ui blue labeled submit icon button false">
-                          <i className="icon announcement"></i>Respond
-                        </div>;
 
         return <div>
                   <Header />

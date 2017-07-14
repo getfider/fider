@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { User, Comment, Idea } from '@fider/models';
-import { DisplayError } from '@fider/components/common';
+import { Button, DisplayError } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -55,10 +55,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   public render() {
-    const button = <div className="ui blue labeled submit icon button false"
-                         onClick={() => this.activate()}>
-                     <i className="icon announcement"></i>Respond
-                   </div>;
+    const button = <Button className="primary" onClick={async () => this.activate()}>Respond</Button>;
 
     const form = <form className="ui reply form">
                   <DisplayError error={this.state.error} />
@@ -81,14 +78,12 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                       placeholder="What's going on with this idea? Let your users know what are your plans...">
                     </textarea>
                   </div>
-                  <div className="ui blue labeled submit icon button false"
-                        onClick={() => this.submit()}>
-                    <i className="icon checkmark box"></i>Submit
-                  </div>
-                  <div className="ui submit button false"
-                        onClick={() => this.deactivate()}>
+                  <Button className="primary" onClick={() => this.submit()}>
+                    Submit
+                  </Button>
+                  <Button className="basic" onClick={async () => this.deactivate()}>
                     Cancel
-                  </div>
+                  </Button>
                  </form>;
 
     return this.state.active ? form : button;
