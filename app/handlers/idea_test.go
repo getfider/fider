@@ -5,8 +5,8 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
@@ -89,7 +89,7 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	Expect(err).NotTo(BeNil())
 }
 
-func TestUpdateIdeaHandler_Authorized(t *testing.T) {
+func TestUpdateIdeaHandler_IdeaOwner(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
@@ -98,6 +98,24 @@ func TestUpdateIdeaHandler_Authorized(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
+	server.Context.SetParams(web.Map{"number": idea.Number})
+	code, _ := server.ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
+
+	idea, _ = ideas.GetByNumber(idea.Number)
+	Expect(code).To(Equal(200))
+	Expect(idea.Title).To(Equal("the new title"))
+	Expect(idea.Description).To(Equal("new description"))
+}
+
+func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
+	RegisterTestingT(t)
+
+	ideas := &inmemory.IdeaStorage{}
+	idea, _ := ideas.Add("My First Idea", "With a description", 1)
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 2, Name: "Jon", Role: models.RoleAdministrator})
 	server.Context.SetParams(web.Map{"number": idea.Number})
 	code, _ := server.ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
