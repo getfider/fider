@@ -156,7 +156,27 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My other idea"))
 	Expect(dbIdea.Slug).To(Equal("my-other-idea"))
+}
 
+func TestIdeaStorage_Update(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	ideas := postgres.NewIdeaStorage(demoTenant, trx)
+	idea, err := ideas.Add("My new idea", "with this description", 300)
+	Expect(err).To(BeNil())
+
+	idea, err = ideas.Update(idea.Number, "The new comment", "With the new description")
+	Expect(err).To(BeNil())
+
+	Expect(idea.Title).To(Equal("The new comment"))
+	Expect(idea.Description).To(Equal("With the new description"))
+	Expect(idea.Slug).To(Equal("the-new-comment"))
 }
 
 func TestIdeaStorage_AddSupporter(t *testing.T) {

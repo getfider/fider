@@ -9,7 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"

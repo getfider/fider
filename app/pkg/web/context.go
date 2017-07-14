@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -65,9 +66,14 @@ func (ctx *Context) Failure(err error) error {
 	return echo.NewHTTPError(http.StatusInternalServerError, err)
 }
 
+//Unauthorized returns a 401 response
+func (ctx *Context) Unauthorized() error {
+	return ctx.JSON(http.StatusUnauthorized, Map{})
+}
+
 //Ok returns 200 OK with JSON result
-func (ctx *Context) Ok(dict Map) error {
-	return ctx.JSON(http.StatusOK, dict)
+func (ctx *Context) Ok(data interface{}) error {
+	return ctx.JSON(http.StatusOK, data)
 }
 
 //BadRequest returns 400 BadRequest with JSON result
@@ -78,6 +84,19 @@ func (ctx *Context) BadRequest(dict Map) error {
 //Page returns a page with given variables
 func (ctx *Context) Page(dict Map) error {
 	return ctx.Render(http.StatusOK, "index.html", dict)
+}
+
+//SetParams sets path parameter names and values.
+func (ctx *Context) SetParams(dict Map) {
+	names := make([]string, len(dict))
+	values := make([]string, len(dict))
+
+	for name, value := range dict {
+		names = append(names, name)
+		values = append(values, fmt.Sprint(value))
+	}
+	ctx.SetParamNames(names...)
+	ctx.SetParamValues(values...)
 }
 
 //User returns authenticated user

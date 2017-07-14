@@ -16,6 +16,11 @@ type Idea struct {
 	Response        *IdeaResponse `json:"response"`
 }
 
+//CanBeChangedBy returns true if given user can change this idea
+func (i *Idea) CanBeChangedBy(user *User) bool {
+	return user.IsStaff() || i.User.ID == user.ID
+}
+
 //IdeaResponse is a staff response to a given idea
 type IdeaResponse struct {
 	Text        string    `json:"text"`

@@ -23,6 +23,17 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	return nil, app.ErrNotFound
 }
 
+// Update given idea
+func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return nil, err
+	}
+	idea.Title = title
+	idea.Description = description
+	return idea, err
+}
+
 // GetByNumber returns idea by tenant and number
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	for _, idea := range s.ideas {
@@ -51,6 +62,9 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		Number:      s.lastID,
 		Title:       title,
 		Description: description,
+		User: &models.User{
+			ID: userID,
+		},
 	}
 	s.ideas = append(s.ideas, idea)
 	return idea, nil

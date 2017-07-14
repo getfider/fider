@@ -7,9 +7,10 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
@@ -69,8 +70,7 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.SetParamNames("subdomain")
-	server.Context.SetParamValues("got")
+	server.Context.SetParams(web.Map{"subdomain": "got"})
 	tenants := &inmemory.TenantStorage{}
 	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{
@@ -86,8 +86,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	server := mock.NewServer()
-	server.Context.SetParamNames("subdomain")
-	server.Context.SetParamValues("mycompany")
+	server.Context.SetParams(web.Map{"subdomain": "mycompany"})
 	tenants := &inmemory.TenantStorage{}
 	tenants.Add("Game of Thrones", "got")
 	server.Context.SetServices(&app.Services{

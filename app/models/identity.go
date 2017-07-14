@@ -30,7 +30,7 @@ var (
 	RoleAdministrator = 3
 )
 
-//HasProvider returns true if current user has given provider registered
+//HasProvider returns true if current user has registered with given provider
 func (u *User) HasProvider(provider string) bool {
 	for _, p := range u.Providers {
 		if p.Name == provider {
@@ -38,6 +38,11 @@ func (u *User) HasProvider(provider string) bool {
 		}
 	}
 	return false
+}
+
+//IsStaff returns true if user has special permissions
+func (u *User) IsStaff() bool {
+	return u.Role >= RoleMember
 }
 
 //UserProvider represents the relashionship between an User and an Authentication provide

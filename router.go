@@ -79,6 +79,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Use(middlewares.IsAuthenticated())
 
 			private.Post("/api/ideas", handlers.PostIdea())
+			private.Post("/api/ideas/:number", handlers.UpdateIdea())
 			private.Post("/api/ideas/:number/comments", handlers.PostComment())
 			private.Post("/api/ideas/:number/status", handlers.SetResponse())
 			private.Post("/api/ideas/:number/support", handlers.AddSupporter())

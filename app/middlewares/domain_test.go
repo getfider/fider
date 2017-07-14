@@ -6,7 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"

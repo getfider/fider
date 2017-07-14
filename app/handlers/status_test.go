@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
 	. "github.com/onsi/gomega"
 )
