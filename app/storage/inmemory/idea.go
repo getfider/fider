@@ -62,6 +62,9 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		Number:      s.lastID,
 		Title:       title,
 		Description: description,
+		User: &models.User{
+			ID: userID,
+		},
 	}
 	s.ideas = append(s.ideas, idea)
 	return idea, nil

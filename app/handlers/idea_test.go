@@ -3,12 +3,11 @@ package handlers_test
 import (
 	"testing"
 
-	"strconv"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/mock"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
@@ -36,8 +35,7 @@ func TestDetailsHandler(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues(strconv.Itoa(idea.Number))
+	server.Context.SetParams(web.Map{"number": idea.Number})
 
 	code, _ := server.Execute(handlers.IdeaDetails())
 
@@ -52,8 +50,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("99")
+	server.Context.SetParams(web.Map{"number": "99"})
 
 	code, _ := server.Execute(handlers.IdeaDetails())
 
@@ -92,17 +89,49 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	Expect(err).NotTo(BeNil())
 }
 
-func TestPostCommentHandler(t *testing.T) {
+func TestUpdateIdeaHandler_Authorized(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Add("Title", "Description", 1)
+	idea, _ := ideas.Add("My First Idea", "With a description", 1)
 	server := mock.NewServer()
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("1")
+	server.Context.SetParams(web.Map{"number": idea.Number})
+	code, _ := server.ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
+
+	idea, _ = ideas.GetByNumber(idea.Number)
+	Expect(code).To(Equal(200))
+	Expect(idea.Title).To(Equal("the new title"))
+	Expect(idea.Description).To(Equal("new description"))
+}
+
+func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	ideas := &inmemory.IdeaStorage{}
+	idea, _ := ideas.Add("My First Idea", "With a description", 1)
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 2, Name: "Jon"})
+	server.Context.SetParams(web.Map{"number": idea.Number})
+	code, _ := server.ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
+
+	Expect(code).To(Equal(401))
+}
+
+func TestPostCommentHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	ideas := &inmemory.IdeaStorage{}
+	idea, _ := ideas.Add("My First Idea", "With a description", 1)
+	server := mock.NewServer()
+	server.Context.SetServices(&app.Services{Ideas: ideas})
+	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
+	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
+	server.Context.SetParams(web.Map{"number": idea.Number})
 	handler := handlers.PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "This is a comment!" }`)
 
@@ -117,8 +146,7 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("1")
+	server.Context.SetParams(web.Map{"number": "1"})
 	handler := handlers.PostComment()
 	code, _ := server.ExecutePost(handler, `{ "content": "" }`)
 
@@ -135,8 +163,7 @@ func TestAddSupporterHandler(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 2, Name: "Arya"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("2")
+	server.Context.SetParams(web.Map{"number": "2"})
 
 	code, _ := server.Execute(handlers.AddSupporter())
 	first, _ := ideas.GetByNumber(1)
@@ -155,8 +182,7 @@ func TestAddSupporterHandler_InvalidIdea(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 1, Name: "Jon"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("1")
+	server.Context.SetParams(web.Map{"number": "1"})
 
 	code, _ := server.Execute(handlers.AddSupporter())
 
@@ -167,7 +193,7 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	ideas := &inmemory.IdeaStorage{}
-	ideas.Add("The Idea #1", "The Description #1", 1)
+	idea, _ := ideas.Add("The Idea #1", "The Description #1", 1)
 	ideas.AddSupporter(1, 1)
 	ideas.AddSupporter(1, 2)
 	ideas.AddSupporter(1, 3)
@@ -175,11 +201,10 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	server.Context.SetServices(&app.Services{Ideas: ideas})
 	server.Context.SetTenant(&models.Tenant{ID: 1, Name: "Any Tenant"})
 	server.Context.SetUser(&models.User{ID: 2, Name: "Arya"})
-	server.Context.SetParamNames("number")
-	server.Context.SetParamValues("1")
+	server.Context.SetParams(web.Map{"number": idea.Number})
 
 	code, _ := server.Execute(handlers.RemoveSupporter())
-	idea, _ := ideas.GetByNumber(1)
+	idea, _ = ideas.GetByNumber(idea.Number)
 
 	Expect(code).To(Equal(200))
 	Expect(idea.TotalSupporters).To(Equal(2))

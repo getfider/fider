@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/models"
@@ -11,7 +10,7 @@ import (
 //Status returns some useful information
 func Status(settings *models.AppSettings) web.HandlerFunc {
 	return func(c web.Context) error {
-		return c.JSON(http.StatusOK, web.Map{
+		return c.Ok(web.Map{
 			"build":    settings.BuildTime,
 			"version":  settings.Version,
 			"env":      settings.Environment,

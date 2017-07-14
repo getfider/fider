@@ -23,7 +23,7 @@ func Index() web.HandlerFunc {
 	}
 }
 
-type newIdeaInput struct {
+type ideaInput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
@@ -31,7 +31,7 @@ type newIdeaInput struct {
 // PostIdea creates a new idea on current tenant
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(newIdeaInput)
+		input := new(ideaInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
 		}
@@ -69,7 +69,7 @@ func UpdateIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		input := new(newIdeaInput)
+		input := new(ideaInput)
 		if err := c.Bind(input); err != nil {
 			return c.Failure(err)
 		}
@@ -85,10 +85,9 @@ func UpdateIdea() web.HandlerFunc {
 			})
 		}
 
-		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(number)
-		if idea.User.ID == c.User().ID || c.User().Role >= models.RoleMember {
-			idea, err = ideas.Update(number, input.Title, input.Description)
+		idea, err := c.Services().Ideas.GetByNumber(number)
+		if idea.CanBeChangedBy(c.User()) {
+			idea, err = c.Services().Ideas.Update(number, input.Title, input.Description)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -142,7 +141,7 @@ func PostComment() web.HandlerFunc {
 		}
 
 		if strings.Trim(input.Content, " ") == "" {
-			return c.JSON(400, web.Map{
+			return c.BadRequest(web.Map{
 				"message": "Comment is required.",
 			})
 		}
@@ -179,13 +178,13 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		if input.Status < models.IdeaNew || input.Status > models.IdeaDeclined {
-			return c.JSON(400, web.Map{
+			return c.BadRequest(web.Map{
 				"message": "Status is invalid.",
 			})
 		}
 
 		if strings.Trim(input.Text, " ") == "" {
-			return c.JSON(400, web.Map{
+			return c.BadRequest(web.Map{
 				"message": "Text is required.",
 			})
 		}
