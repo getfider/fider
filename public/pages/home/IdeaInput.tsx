@@ -6,9 +6,11 @@ import { Session, IdeaService, Failure } from '@fider/services';
 
 interface IdeaInputState {
     title: string;
+    focused: boolean;
 }
 
 export class IdeaInput extends React.Component<{}, IdeaInputState> {
+    private title: HTMLInputElement;
     private description: HTMLTextAreaElement;
     private form: Form;
 
@@ -22,17 +24,36 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
         super();
         this.state = {
           title: '',
+          focused: false
         };
     }
 
+    public componentDidMount() {
+      this.title.focus();
+    }
+
     public async submit() {
-      this.form.clearFailure();
-      const result = await this.service.addIdea(this.state.title, this.description.value);
-      if (result.ok) {
-        location.href = `/ideas/${result.data.number}/${result.data.slug}`;
-      } else if (result.error) {
-        this.form.setFailure(result.error);
+      if (this.state.title) {
+        this.form.clearFailure();
+        const result = await this.service.addIdea(this.state.title, this.description.value);
+        if (result.ok) {
+          location.href = `/ideas/${result.data.number}/${result.data.slug}`;
+        } else if (result.error) {
+          this.form.setFailure(result.error);
+        }
       }
+    }
+
+    public titleChanged(title: string) {
+      this.setState({ title });
+    }
+
+    public titleFocused() {
+      this.setState({ focused: true });
+    }
+
+    public titleUnfocused() {
+      this.setState({ focused: false });
     }
 
     public render() {
@@ -51,22 +72,20 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                           <div>
                             <div className="ui message">
                               <div className="header">
-                                Please log in before posting an idea
+                                Hey! We need to know who you are
                               </div>
                               <p>This only takes a second and you'll be good to go!</p>
-                                <SocialSignInList orientation="horizontal" size="small" />
+                              <SocialSignInList orientation="horizontal" size="small" />
                             </div>
                           </div>;
 
         return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
-                <div className="ui fluid input">
-                    <input  id="new-idea-input"
-                            type="text"
-                            maxLength={100}
-                            onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
-                            placeholder="Enter your idea, new feature or suggestion here ..." />
-                </div>
-
+                    <input id="new-idea-input"
+                           type="text"
+                           ref={(e) => this.title = e! }
+                           maxLength={100}
+                           onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
+                           placeholder="Tell us your ideas" />
                 { this.state.title && details }
                </Form>;
     }

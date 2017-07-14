@@ -3,7 +3,7 @@ import { Idea, IdeaStatus, User } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
-import { IdeaInput } from '@fider/components/IdeaInput';
+import { IdeaInput } from './IdeaInput';
 import { IdeaFilter } from './IdeaFilter';
 
 import { inject, injectables } from '@fider/di';
@@ -50,24 +50,27 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
           </div>);
 
         const displayIdeas = (this.state.ideas.length > 0) ?
-          <div className="ui divided unstackable items">
+          <div className="ui divided unstackable items fdr-idea-list">
               { ideasList }
           </div>
           : <p>No ideas found for given filter.</p>;
 
-        return <div>
+        return <div className="SiteHomePage">
                   <Header />
                   <div className="ui container">
                     <h1 className="ui header">Welcome to our feedback forum!</h1>
 
-                    <h3>I want ...</h3>
-
-                    <IdeaInput />
-
-                      <div className="ui container fdr-idea-list">
+                    <div className="ui grid">
+                      <div className="six wide column">
+                        <p>We'd love to hear what you're thinking about. This is the place for you to submit your feedback.</p>
+                        <IdeaInput />
+                      </div>
+                      <div className="ten wide column">
                         <IdeaFilter filterChanged={(filter) => this.setState({ ideas: filter(this.allIdeas) }) } />
                         { displayIdeas }
                       </div>
+                    </div>
+
                   </div>
                   <Footer />
                </div>;

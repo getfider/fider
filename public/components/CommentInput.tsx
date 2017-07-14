@@ -60,7 +60,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         </form> :
         <div className="ui message">
           <div className="header">
-            Please log in before leaving a comment.
+            Hey! We need to know who you are
           </div>
           <p>This only takes a second and you'll be good to go!</p>
           <SocialSignInList orientation="horizontal" size="small" />

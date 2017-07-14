@@ -3,7 +3,6 @@ import * as React from 'react';
 import { User, Comment, Idea } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
-import { IdeaInput } from '@fider/components/IdeaInput';
 import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
