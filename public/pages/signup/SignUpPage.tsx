@@ -10,7 +10,7 @@ const logo = require('@fider/images/logo-small.png');
 import { inject, injectables } from '@fider/di';
 import { Session, TenantService, Failure } from '@fider/services';
 
-import './signup.scss';
+import './SignUpPage.scss';
 
 interface OAuthUser {
     token: string;
@@ -152,7 +152,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
                     <p>Make sure information provided above is correct before proceeding.</p>
 
-                    <Button classes="positive" onClick={() => this.form.submit()}>Confirm</Button>
+                    <Button className="positive" size="large" onClick={() => this.form.submit()}>Confirm</Button>
                 </div>
                 <Footer />
             </div>;

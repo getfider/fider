@@ -48,24 +48,25 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     public render() {
         const user = this.session.getCurrentUser();
 
-        const addComment = user ? <form className="ui reply form">
-          <DisplayError error={this.state.error} />
-          <div className="field">
-            <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
-                      placeholder="Leave your comment here..."></textarea>
-          </div>
-          <Button classes="blue" onClick={ () => this.submit() }>
-            <i className="icon edit"></i> Add Comment
-          </Button>
-        </form> :
-        <div className="ui message">
-          <div className="header">
-            Please log in before leaving a comment.
-          </div>
-          <p>This only takes a second and you'll be good to go!</p>
-          <SocialSignInList orientation="horizontal" size="small" />
-        </div>;
+        const button = user
+          ? <Button className="primary" onClick={ () => this.submit() }>
+              Add Comment
+            </Button>
+          : <div className="ui message">
+              <div className="header">
+                Hey! We need to know who you are
+              </div>
+              <p>This only takes a second and you'll be good to go!</p>
+              <SocialSignInList orientation="horizontal" size="small" />
+            </div>;
 
-        return addComment;
+        return <form className="ui reply form">
+                  <DisplayError error={this.state.error} />
+                  <div className="field">
+                    <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
+                              placeholder="Leave your comment here..."></textarea>
+                  </div>
+                  { (this.state.content || user) && button }
+                </form>;
     }
 }

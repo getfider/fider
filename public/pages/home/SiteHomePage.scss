@@ -1,0 +1,61 @@
+.SiteHomePage {
+  h1.ui.header:first-child {
+    margin: 30px 0px;
+  }
+
+  .fdr-idea-list {
+    > .item {
+      min-height: 105px;
+    }
+    
+    > .item > .content {
+      margin-left: 20px;
+
+      .description {
+        min-height: 10px;
+      }
+    }
+  }
+
+  #new-idea-input {
+    margin-bottom: 20px;
+    border: none;
+    border-bottom: 1.5px dashed #a291fb;
+    color: #a291fb;
+    font-size: 20px;
+  }
+
+  #new-idea-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: #a291fb;
+  }
+  #new-idea-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: #a291fb;
+    opacity:  1;
+  }
+  #new-idea-input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: #a291fb;
+    opacity:  1;
+  }
+  #new-idea-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: #a291fb;
+  }
+  #new-idea-input::-ms-input-placeholder { /* Microsoft Edge */
+    color: #a291fb;
+  }
+
+  .idea-title {
+    color: rgb(162, 145, 251);
+    cursor: pointer;
+    max-width: 80%;
+    border-bottom: 2px dotted rgb(162, 145, 251);
+    display: inline-block;
+    padding-right: 9px;
+    padding-left: 10px;
+    text-align: left;
+    font-size: 20px;
+    text-decoration: none;
+    line-height: 30px;
+    list-style: none;
+    margin-bottom: 20px;
+  }
+}

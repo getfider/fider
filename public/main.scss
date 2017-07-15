@@ -1,9 +1,13 @@
-#new-idea-input {
-  margin-bottom: 20px;
+[contenteditable]:focus {
+    outline: 0px solid transparent;
 }
 
 .idea-header {
   margin-left: 20px;
+}
+
+.center {
+  text-align: center;
 }
 
 code {
@@ -51,18 +55,6 @@ code {
 
 .fdr-profile-popup div.item {
   padding: 10px 5px !important;
-}
-
-.fdr-idea-list {
-  margin-top: 40px;
-
-  .ui.items > .item > .content {
-    margin-left: 20px;
-
-    .description {
-      min-height: 10px;
-    }
-  }
 }
 
 .fdr-response {

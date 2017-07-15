@@ -3,12 +3,11 @@ import * as React from 'react';
 import { User, Comment, Idea } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
-import { IdeaInput } from '@fider/components/IdeaInput';
 import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
+import { Button, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -47,11 +46,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
               </div>
             </div>
           </div>
-        ) : <p>No comments yet.</p>;
-
-        const respond = <div className="ui blue labeled submit icon button false">
-                          <i className="icon announcement"></i>Respond
-                        </div>;
+        ) : <p>There are no comments yet.</p>;
 
         return <div>
                   <Header />

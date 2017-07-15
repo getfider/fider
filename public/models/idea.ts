@@ -11,6 +11,7 @@ export interface Idea {
   user: User;
   response: IdeaResponse;
   totalSupporters: number;
+  totalComments: number;
 }
 
 export class IdeaStatus {

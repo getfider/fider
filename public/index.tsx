@@ -2,9 +2,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { AdminHomePage } from '@fider/pages/AdminHomePage';
-import { SiteHomePage } from '@fider/pages/SiteHomePage';
+import { SiteHomePage } from '@fider/pages/home/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/ShowIdeaPage';
-import { SignUpPage } from '@fider/pages/SignUpPage';
+import { SignUpPage } from '@fider/pages/signup/SignUpPage';
 import { container, injectables } from '@fider/di';
 import {
     Session,
