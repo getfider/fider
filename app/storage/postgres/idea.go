@@ -20,6 +20,7 @@ type dbIdea struct {
 	CreatedOn       time.Time      `db:"created_on"`
 	User            *dbUser        `db:"user"`
 	TotalSupporters int            `db:"supporters"`
+	TotalComments   int            `db:"comments"`
 	Status          int            `db:"status"`
 	Response        sql.NullString `db:"response"`
 	RespondedOn     dbx.NullTime   `db:"response_date"`
@@ -35,6 +36,7 @@ func (i *dbIdea) toModel() *models.Idea {
 		Description:     i.Description,
 		CreatedOn:       i.CreatedOn,
 		TotalSupporters: i.TotalSupporters,
+		TotalComments:   i.TotalComments,
 		Status:          i.Status,
 		User:            i.User.toModel(),
 	}
@@ -86,7 +88,8 @@ var (
 																i.slug, 
 																i.description, 
 																i.created_on,
-																i.supporters, 
+																i.supporters,
+																(SELECT COUNT(*) FROM comments c WHERE c.idea_id = i.id) as comments,
 																i.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 

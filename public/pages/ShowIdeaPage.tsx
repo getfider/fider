@@ -46,7 +46,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
               </div>
             </div>
           </div>
-        ) : <p>No comments yet.</p>;
+        ) : <p>There are no comments yet.</p>;
 
         return <div>
                   <Header />

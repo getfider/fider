@@ -51,7 +51,7 @@ export class Header extends React.Component<{}, {}> {
 
         return <div>
                     <EnvironmentInfo />
-                    <div id="menu" className="ui menu no-border">
+                    <div id="menu" className="ui mini menu no-border">
                         <div className="ui container">
                             <a href="/" className="header item">
                                 { this.tenant.name }

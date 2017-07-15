@@ -6,7 +6,7 @@ export const DisplayError = (props: {error?: Failure}) => {
     return <div></div>;
   }
 
-  return <div className="ui negative message">
+  return <div className="ui small negative message">
             <p>{ props.error.message }</p>
          </div>;
 };

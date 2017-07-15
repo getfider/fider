@@ -86,7 +86,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                            maxLength={100}
                            onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
                            placeholder="Tell us your ideas" />
-                { this.state.title && details }
+                { (this.session.getCurrentUser() || this.state.title) && details }
                </Form>;
     }
 }

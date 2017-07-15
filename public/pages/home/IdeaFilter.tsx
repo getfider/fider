@@ -10,6 +10,7 @@ interface IdeaFilterProps {
 const filterers: {[key: string]: (idea: Idea) => boolean} = {
     'recent': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
     'most-wanted': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
+    'most-discussed': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
     'completed': (idea: Idea) => idea.status === IdeaStatus.Completed.value,
     'declined': (idea: Idea) => idea.status === IdeaStatus.Declined.value
 };
@@ -17,6 +18,7 @@ const filterers: {[key: string]: (idea: Idea) => boolean} = {
 const sorterers: {[key: string]: (left: Idea, right: Idea) => number} = {
     'recent': (left: Idea, right: Idea) => new Date(right.createdOn).getTime() - new Date(left.createdOn).getTime(),
     'most-wanted': (left: Idea, right: Idea) => right.totalSupporters - left.totalSupporters,
+    'most-discussed': (left: Idea, right: Idea) => right.totalComments - left.totalComments,
     'completed': (left: Idea, right: Idea) => new Date(left.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime(),
     'declined': (left: Idea, right: Idea) => new Date(left.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime()
 };
@@ -54,6 +56,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
                         <div className="header">What do you want to see?</div>
                         <div className="item" data-value="recent" data-text="recent ideas">Recent</div>
                         <div className="item" data-value="most-wanted" data-text="most wanted ideas">Most Wanted</div>
+                        <div className="item" data-value="most-discussed" data-text="most discussed ideas">Most Discussed</div>
                         <div className="item" data-value="completed" data-text="completed ideas">Completed</div>
                         <div className="item" data-value="declined" data-text="declined ideas">Declined</div>
                         </div>

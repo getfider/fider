@@ -12,6 +12,7 @@ type Idea struct {
 	CreatedOn       time.Time     `json:"createdOn"`
 	User            *User         `json:"user"`
 	TotalSupporters int           `json:"totalSupporters"`
+	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
 }
