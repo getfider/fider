@@ -70,13 +70,13 @@ coverage:
 
 dockerize:
   box:
-    id: alpine
+    id: golang:1.8.3-alpine3.6
     cmd: /bin/sh
   steps:
-    - script:
-        name: install apk packages
-        code: |
-          apk update && apk add ca-certificates
+    #- script:
+    #    name: install apk packages
+    #    code: |
+    #      apk update && apk add ca-certificates
 
     # Prepare output
     - script:
