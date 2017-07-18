@@ -59,6 +59,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	}
 
 	m := data.(Map)
+	m["baseUrl"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
 		"endpoint": ctx.AuthEndpoint(),
