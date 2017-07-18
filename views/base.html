@@ -6,7 +6,12 @@
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.css" integrity="sha256-lCqHBvboFPu7gyEswcz5UdbXKyB6FDOtfbOeMvUEfkY=" crossorigin="anonymous" />
     <link rel="stylesheet" href="/assets/css/{{ .__StyleBundle }}" />
-    <title>{{template "title" .}}</title>
+    <title>{{ template "title" .}}</title>
+    <meta property="og:title" content="{{template "title" .}}" />
+    <meta property="og:description" content="We'd love to hear what you're thinking about. This is the place for you to submit your feedback." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ .baseUrl }}" />
+    <meta property="og:image" content="http://getfider.com/images/logo-small.png">
 </head>
 <body>
   {{ if .tenant }}
