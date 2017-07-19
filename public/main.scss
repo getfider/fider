@@ -1,13 +1,26 @@
-[contenteditable]:focus {
-    outline: 0px solid transparent;
-}
-
 .idea-header {
   margin-left: 20px;
 }
 
 .center {
   text-align: center;
+}
+
+body {
+  background-color: #f9f9f9;
+}
+
+#menu {
+  margin-top: 0px;
+  //background-color: #e1dbff;
+  background-color: rgb(100, 53, 201);
+  div, a {
+    border: none;
+    color: #fff;
+  }
+  a::before {
+    content: none;
+  }
 }
 
 code {
@@ -47,10 +60,6 @@ code {
 
 .no-margin {
   margin: 0px !important;
-}
-
-#menu {
-  margin-top: 0px;
 }
 
 .fdr-profile-popup div.item {
