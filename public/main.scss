@@ -1,3 +1,5 @@
+@import '~@fider/variables.scss';
+
 .idea-header {
   margin-left: 20px;
 }
@@ -7,12 +9,12 @@
 }
 
 body {
-  background-color: #f9f9f9;
+  background-color: $bgcolor;
 }
 
 #menu {
   margin-top: 0px;
-  background-color: #6f42c1;
+  background-color: $violet;
   div, a {
     border: none;
     color: #fff;
@@ -23,7 +25,7 @@ body {
 }
 
 .ui.violet.button {
-  background-color: #6f42c1;
+  background-color: $violet;
 }
 
 code {
