@@ -1,3 +1,5 @@
+@import '~@fider/variables.scss';
+
 .SiteHomePage {
   h1.ui.header:first-child {
     margin: 30px 0px;
@@ -20,10 +22,10 @@
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
-    border-bottom: 1.5px dashed #6435c9;
-    color: #6435c9;
+    border-bottom: 1.5px dashed $violet;
+    color: $violet;
     font-size: 18px;
-    background-color: #f9f9f9;
+    background-color: $bgcolor;
     padding: 0px 0px 10px 0px;
     font-weight: bold;
     margin: 10px 0px;
