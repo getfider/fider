@@ -58,7 +58,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     public render() {
         const user = this.session.getCurrentUser();
-        const disabled = this.state.title === '' ? 'disabled': '';
+        const disabled = this.state.title === '' ? 'disabled' : '';
         const details = user ?
                           <div>
                             <div className="field">
