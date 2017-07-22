@@ -58,6 +58,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
 
     public render() {
         const user = this.session.getCurrentUser();
+        const disabled = this.state.title === '' ? 'disabled': '';
         const details = user ?
                           <div>
                             <div className="field">
@@ -65,7 +66,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                                         rows={6}
                                         placeholder="Describe your idea (optional)"></textarea>
                             </div>
-                            <Button className="primary" onClick={() => this.form.submit() }>
+                            <Button className={`primary ${disabled}`} onClick={() => this.form.submit() }>
                               Submit Idea
                             </Button>
                           </div> :

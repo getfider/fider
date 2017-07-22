@@ -5,7 +5,10 @@ axios.defaults.validateStatus = (status: number) => {
 };
 
 export interface Failure {
-    message: string;
+    messages: string[];
+    failures: {
+        [key: string]: string[]
+    };
 }
 
 export interface Result<T = void> {
@@ -24,7 +27,10 @@ function toResult<T>(response: AxiosResponse): Result<T> {
         return {
             ok: false,
             data: response.data as T,
-            error: { message: response.data.message }
+            error: {
+                messages: response.data.messages,
+                failures: response.data.failures,
+            }
         };
     }
 }

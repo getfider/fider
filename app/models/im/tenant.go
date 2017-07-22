@@ -23,13 +23,15 @@ func (i *CreateTenant) IsAuthorized(user *models.User) bool {
 
 // Validate is current model is valid
 func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+
 	var err error
 	if i.Token == "" {
-		return validate.Failed([]string{"Please identify yourself before proceeding."})
-	}
-
-	if i.UserClaims, err = jwt.DecodeOAuthClaims(i.Token); err != nil {
-		return validate.Error(err)
+		result.AddFieldFailure("token", "Please identify yourself before proceeding.")
+	} else {
+		if i.UserClaims, err = jwt.DecodeOAuthClaims(i.Token); err != nil {
+			return validate.Error(err)
+		}
 	}
 
 	if env.IsSingleHostMode() {
@@ -37,8 +39,13 @@ func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
 	}
 
 	if i.Name == "" {
-		return validate.Failed([]string{"Name is required."})
+		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	return validate.Subdomain(services.Tenants, i.Subdomain)
+	subdomainResult := validate.Subdomain(services.Tenants, i.Subdomain)
+	if !subdomainResult.Ok {
+		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
+	}
+
+	return result
 }

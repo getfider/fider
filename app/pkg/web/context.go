@@ -90,7 +90,8 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 	}
 
 	return ctx.BadRequest(Map{
-		"message": strings.Join(result.Messages, ","),
+		"message":  result.Messages,
+		"failures": result.Failures,
 	})
 }
 

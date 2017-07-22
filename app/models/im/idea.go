@@ -21,13 +21,14 @@ func (i *Idea) IsAuthorized(user *models.User) bool {
 
 // Validate is current model is valid
 func (i *Idea) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
 	if strings.Trim(i.Title, " ") == "" {
-		return validate.Failed([]string{"Title is required."})
+		result.AddFieldFailure("title", "Title is required.")
 	}
 
 	if len(i.Title) < 10 || len(strings.Split(i.Title, " ")) < 3 {
-		return validate.Failed([]string{"Title needs to be more descriptive."})
+		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
-	return validate.Success()
+	return result
 }

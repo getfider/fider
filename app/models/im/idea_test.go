@@ -22,8 +22,8 @@ func TestInvalidIdeaTitles(t *testing.T) {
 		"1234567890123456789012345678901234567890ABC",
 	} {
 		idea := im.Idea{Title: title}
-		result := idea.Validate(nil)
-		ExpectFailed(result)
+		result := idea.Validate(services)
+		ExpectFailed(result, "title")
 	}
 }
 
@@ -35,7 +35,7 @@ func TestValidIdeaTitles(t *testing.T) {
 		"this idea is very descriptive",
 	} {
 		idea := im.Idea{Title: title}
-		result := idea.Validate(nil)
+		result := idea.Validate(services)
 		ExpectSuccess(result)
 	}
 }

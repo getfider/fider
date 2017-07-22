@@ -108,3 +108,24 @@ code {
   }
 }
 
+.ui[class*="bottom pointing"].label:before, .ui[class*="pointing below"].label:before {
+  left: 20px;
+}
+
+.display-error {
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    text-align: left;
+    li {
+      padding: 5px;
+    }
+  }
+}
+
+.ui.basic.red.label {
+  background-color: #fff4f4 !important;
+  color: #d84e4e !important;
+  border-color: #ef7878 !important;
+}
