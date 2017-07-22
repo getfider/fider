@@ -3,8 +3,8 @@ package validate_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
-	"github.com/getfider/fider/app/validate"
 	. "github.com/onsi/gomega"
 )
 

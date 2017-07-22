@@ -1,9 +1,9 @@
-package validate_test
+package im_test
 
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/validate"
+	"github.com/getfider/fider/app/models/im"
 	. "github.com/onsi/gomega"
 )
 
@@ -21,10 +21,9 @@ func TestInvalidIdeaTitles(t *testing.T) {
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
 	} {
-		ok, messages, err := validate.Idea(title, "")
-		Expect(ok).To(BeFalse())
-		Expect(len(messages) > 0).To(BeTrue())
-		Expect(err).To(BeNil())
+		idea := im.Idea{Title: title}
+		result := idea.Validate(nil)
+		ExpectFailed(result)
 	}
 }
 
@@ -35,9 +34,8 @@ func TestValidIdeaTitles(t *testing.T) {
 		"this is my new idea",
 		"this idea is very descriptive",
 	} {
-		ok, messages, err := validate.Idea(title, "")
-		Expect(ok).To(BeTrue())
-		Expect(len(messages)).To(Equal(0))
-		Expect(err).To(BeNil())
+		idea := im.Idea{Title: title}
+		result := idea.Validate(nil)
+		ExpectSuccess(result)
 	}
 }

@@ -5,8 +5,8 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/validate"
 )
 
 // Index is the default home page
@@ -23,28 +23,12 @@ func Index() web.HandlerFunc {
 	}
 }
 
-type ideaInput struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-}
-
 // PostIdea creates a new idea on current tenant
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(ideaInput)
-		if err := c.Bind(input); err != nil {
-			return c.Failure(err)
-		}
-
-		ok, messages, err := validate.Idea(input.Title, input.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if !ok {
-			return c.BadRequest(web.Map{
-				"message": strings.Join(messages, ","),
-			})
+		input := new(im.Idea)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
 		}
 
 		ideas := c.Services().Ideas
@@ -69,20 +53,9 @@ func UpdateIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		input := new(ideaInput)
-		if err := c.Bind(input); err != nil {
-			return c.Failure(err)
-		}
-
-		ok, messages, err := validate.Idea(input.Title, input.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if !ok {
-			return c.BadRequest(web.Map{
-				"message": strings.Join(messages, ","),
-			})
+		input := new(im.Idea)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
 		}
 
 		idea, err := c.Services().Ideas.GetByNumber(number)

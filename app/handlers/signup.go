@@ -7,10 +7,10 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/validate"
 )
 
 // CheckAvailability checks if given domain is available to be used
@@ -32,50 +32,12 @@ func CheckAvailability() web.HandlerFunc {
 	}
 }
 
-type createTenantInput struct {
-	Token     string `json:"token"`
-	Name      string `json:"name"`
-	Subdomain string `json:"subdomain"`
-}
-
 //CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(createTenantInput)
-		if err := c.Bind(input); err != nil {
-			return c.Failure(err)
-		}
-
-		if input.Token == "" {
-			return c.BadRequest(web.Map{
-				"message": "Please identify yourself before proceeding",
-			})
-		}
-
-		claims, err := jwt.DecodeOAuthClaims(input.Token)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if env.IsSingleHostMode() {
-			input.Subdomain = "default"
-		}
-
-		if input.Name == "" {
-			return c.BadRequest(web.Map{
-				"message": "Name is required",
-			})
-		}
-
-		ok, messages, err := validate.Subdomain(c.Services().Tenants, input.Subdomain)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if !ok {
-			return c.BadRequest(web.Map{
-				"message": strings.Join(messages, ","),
-			})
+		input := new(im.CreateTenant)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
 		}
 
 		tenant, err := c.Services().Tenants.Add(input.Name, input.Subdomain)
@@ -84,14 +46,15 @@ func CreateTenant() web.HandlerFunc {
 		}
 
 		user := &models.User{
-			Name:   claims.OAuthName,
-			Email:  claims.OAuthEmail,
+			Name:   input.UserClaims.OAuthName,
+			Email:  input.UserClaims.OAuthEmail,
 			Tenant: tenant,
 			Role:   models.RoleAdministrator,
 			Providers: []*models.UserProvider{
-				{UID: claims.OAuthID, Name: claims.OAuthProvider},
+				{UID: input.UserClaims.OAuthID, Name: input.UserClaims.OAuthProvider},
 			},
 		}
+
 		if err := c.Services().Users.Register(user); err != nil {
 			return c.Failure(err)
 		}
