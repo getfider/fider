@@ -40,14 +40,5 @@ func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
 		return validate.Failed([]string{"Name is required."})
 	}
 
-	ok, messages, err := validate.Subdomain(services.Tenants, i.Subdomain)
-	if err != nil {
-		return validate.Error(err)
-	}
-
-	if !ok {
-		return validate.Failed(messages)
-	}
-
-	return validate.Success()
+	return validate.Subdomain(services.Tenants, i.Subdomain)
 }

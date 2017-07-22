@@ -12,35 +12,35 @@ import (
 var r, _ = regexp.Compile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
 
 //Subdomain validates given subdomain
-func Subdomain(tenants storage.Tenant, subdomain string) (bool, []string, error) {
+func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 	subdomain = strings.ToLower(subdomain)
 
 	if len(subdomain) <= 2 {
-		return false, []string{"Subdomain must be more than 2 characters"}, nil
+		return Failed([]string{"Subdomain must be more than 2 characters"})
 	}
 
 	if len(subdomain) > 40 {
-		return false, []string{"Subdomain must be less than 40 characters"}, nil
+		return Failed([]string{"Subdomain must be less than 40 characters"})
 	}
 
 	if !r.MatchString(subdomain) {
-		return false, []string{"Subdomain contains invalid characters"}, nil
+		return Failed([]string{"Subdomain contains invalid characters"})
 	}
 
 	switch subdomain {
 	case
 		"signup", "fider", "admin", "setup", "about", "wecanhearyou":
-		return false, []string{fmt.Sprintf("%s is not a valid subdomain name", subdomain)}, nil
+		return Failed([]string{fmt.Sprintf("%s is not a valid subdomain name", subdomain)})
 	}
 
 	available, err := tenants.IsSubdomainAvailable(subdomain)
 	if err != nil {
-		return false, make([]string, 0), err
+		return Error(err)
 	}
 
 	if !available {
-		return false, []string{"This subdomain is not available anymore"}, nil
+		return Failed([]string{"This subdomain is not available anymore"})
 	}
 
-	return true, make([]string, 0), nil
+	return Success()
 }

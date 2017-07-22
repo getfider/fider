@@ -17,14 +17,10 @@ import (
 func CheckAvailability() web.HandlerFunc {
 	return func(c web.Context) error {
 		subdomain := strings.ToLower(c.Param("subdomain"))
-		ok, messages, err := validate.Subdomain(c.Services().Tenants, subdomain)
-		if err != nil {
-			return c.Failure(err)
-		}
 
-		if !ok {
+		if result := validate.Subdomain(c.Services().Tenants, subdomain); !result.Ok {
 			return c.Ok(web.Map{
-				"message": strings.Join(messages, ","),
+				"message": strings.Join(result.Messages, ","),
 			})
 		}
 
