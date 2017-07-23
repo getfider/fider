@@ -158,7 +158,7 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 				c.content, 
 				c.created_on, 
 				u.id AS user_id, 
-				u.name AS user_email,
+				u.name AS user_name,
 				u.email AS user_email
 		FROM comments c
 		INNER JOIN ideas i
