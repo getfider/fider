@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"strings"
-
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -101,22 +98,12 @@ func IdeaDetails() web.HandlerFunc {
 	}
 }
 
-type newCommentInput struct {
-	Content string `json:"content"`
-}
-
 // PostComment creates a new comment on given idea
 func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(newCommentInput)
-		if err := c.Bind(input); err != nil {
-			return c.Failure(err)
-		}
-
-		if strings.Trim(input.Content, " ") == "" {
-			return c.BadRequest(web.Map{
-				"message": "Comment is required.",
-			})
+		input := new(im.NewComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
 		}
 
 		ideaNumber, err := c.ParamAsInt("number")
@@ -137,29 +124,12 @@ func PostComment() web.HandlerFunc {
 	}
 }
 
-type setResponseInput struct {
-	Status int    `json:"status"`
-	Text   string `json:"text"`
-}
-
 // SetResponse changes current idea staff response
 func SetResponse() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(setResponseInput)
-		if err := c.Bind(input); err != nil {
-			return c.Failure(err)
-		}
-
-		if input.Status < models.IdeaNew || input.Status > models.IdeaDeclined {
-			return c.BadRequest(web.Map{
-				"message": "Status is invalid.",
-			})
-		}
-
-		if strings.Trim(input.Text, " ") == "" {
-			return c.BadRequest(web.Map{
-				"message": "Text is required.",
-			})
+		input := new(im.SetResponse)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
 		}
 
 		ideaNumber, err := c.ParamAsInt("number")

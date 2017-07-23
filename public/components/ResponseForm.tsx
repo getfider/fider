@@ -57,8 +57,8 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   public render() {
     const button = <Button className="primary" onClick={async () => this.activate()}>Respond</Button>;
 
-    const form = <form className="ui reply form">
-                  <DisplayError error={this.state.error} />
+    const form = <div className="ui reply form">
+                  <DisplayError fields={['status']} error={this.state.error} />
                   <div className="two fields">
                     <div className="field">
                       <label>Status</label>
@@ -71,6 +71,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                       </select>
                     </div>
                   </div>
+                  <DisplayError fields={['text']} error={this.state.error} />
                   <div className="field">
                     <textarea
                       ref={(input) => this.text = input!}
@@ -84,7 +85,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                   <Button className="basic" onClick={async () => this.deactivate()}>
                     Cancel
                   </Button>
-                 </form>;
+                 </div>;
 
     return this.state.active ? form : button;
   }

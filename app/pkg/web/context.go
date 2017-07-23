@@ -89,6 +89,7 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 		return ctx.Unauthorized()
 	}
 
+	fmt.Print(result)
 	return ctx.BadRequest(Map{
 		"message":  result.Messages,
 		"failures": result.Failures,

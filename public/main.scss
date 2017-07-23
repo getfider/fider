@@ -24,10 +24,6 @@ body {
   }
 }
 
-.ui.violet.button {
-  background-color: $violet;
-}
-
 code {
   padding: 2px 4px;
   font-size: 90%;
@@ -128,4 +124,20 @@ code {
   background-color: #fff4f4 !important;
   color: #d84e4e !important;
   border-color: #ef7878 !important;
+}
+
+.ui.message.signin-message {
+  background-color: #fff;
+}
+
+.ui.popup.signin-message {
+  min-width: 290px;
+}
+
+.ui.violet.button {
+  background-color: $violet;
+}
+
+.ui.inverted.violet.button, .ui.inverted.violet.buttons .button {
+  background-color: #fff;
 }

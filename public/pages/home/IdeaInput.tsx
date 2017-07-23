@@ -71,7 +71,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                             </Button>
                           </div> :
                           <div>
-                            <div className="ui message">
+                            <div className="ui message signin-message">
                               <div className="header">
                                 Hey! We need to know who you are
                               </div>

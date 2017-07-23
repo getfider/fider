@@ -97,7 +97,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                             { status.closed ? disabled : this.state.supported ? undo : support }
                         </div>
                     </div>
-                    <div ref={(e) => { this.list = e!; } } className="ui popup transition hidden">
+                    <div ref={(e) => { this.list = e!; } } className="ui popup transition hidden signin-message">
                         <p className="header">Hey! We need to know who you are</p>
                         <SocialSignInList orientation="horizontal" size="small" />
                     </div>

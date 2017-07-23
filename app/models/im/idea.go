@@ -15,19 +15,69 @@ type Idea struct {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (i *Idea) IsAuthorized(user *models.User) bool {
+func (input *Idea) IsAuthorized(user *models.User) bool {
 	return true
 }
 
 // Validate is current model is valid
-func (i *Idea) Validate(services *app.Services) *validate.Result {
+func (input *Idea) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	if strings.Trim(i.Title, " ") == "" {
+
+	input.Title = strings.Trim(input.Title, " ")
+
+	if input.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	}
 
-	if len(i.Title) < 10 || len(strings.Split(i.Title, " ")) < 3 {
+	if len(input.Title) < 10 || len(strings.Split(input.Title, " ")) < 3 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
+	}
+
+	return result
+}
+
+// NewComment represents a new comment
+type NewComment struct {
+	Content string `json:"content"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (c *NewComment) IsAuthorized(user *models.User) bool {
+	return true
+}
+
+// Validate is current model is valid
+func (c *NewComment) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	if strings.Trim(c.Content, " ") == "" {
+		result.AddFieldFailure("content", "Comment is required.")
+	}
+
+	return result
+}
+
+// SetResponse represents the action to update an idea response
+type SetResponse struct {
+	Status int    `json:"status"`
+	Text   string `json:"text"`
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *SetResponse) IsAuthorized(user *models.User) bool {
+	return true
+}
+
+// Validate is current model is valid
+func (input *SetResponse) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	if input.Status < models.IdeaNew || input.Status > models.IdeaDeclined {
+		result.AddFieldFailure("status", "Status is invalid.")
+	}
+
+	if strings.Trim(input.Text, " ") == "" {
+		result.AddFieldFailure("text", "Text is required.")
 	}
 
 	return result
