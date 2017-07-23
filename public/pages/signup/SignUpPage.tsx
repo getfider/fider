@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { SocialSignInList, Footer, Button, Form, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+import { SocialSignInList, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
 import { AppSettings } from '@fider/models';
 import { setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
@@ -31,7 +31,6 @@ interface SignUpPageState {
 export class SignUpPage extends React.Component<{}, SignUpPageState> {
     private settings: AppSettings;
     private user: OAuthUser;
-    private form: Form;
 
     @inject(injectables.Session)
     public session: Session;
@@ -62,8 +61,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     private async confirm() {
-        this.form.clearFailure();
-
         const result = await this.service.create(
             this.user && this.user.token,
             this.state.name,
@@ -76,7 +73,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                 location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
             }
         } else if (result.error) {
-            this.form.setFailure(result.error);
+            this.setState({ error: result.error });
         }
     }
 
@@ -99,6 +96,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
+                    <DisplayError fields={['token']} error={this.state.error} />
 
                     {
                         this.user ?
@@ -117,7 +115,8 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
                     <div className="ui section divider"></div>
                     <h3 className="ui header">2. Company/Product details</h3>
-                    <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.confirm()}>
+                    <DisplayError fields={['name', 'subdomain']} error={this.state.error} />
+                    <div className="ui form">
                         <div className="inline field">
                             <input id="name" type="text"
                                 placeholder="Name"
@@ -145,14 +144,14 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                                 }
                             </div>
                         </div> }
-                    </Form>
+                    </div>
                     <div className="ui section divider"></div>
 
                     <h3 className="ui header">3. Review and continue</h3>
 
                     <p>Make sure information provided above is correct before proceeding.</p>
 
-                    <Button className="positive" size="large" onClick={() => this.form.submit()}>Confirm</Button>
+                    <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
                 </div>
                 <Footer />
             </div>;

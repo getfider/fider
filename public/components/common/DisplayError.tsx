@@ -5,21 +5,30 @@ const arrayToTag = (items: string[]) => {
   return items.map((m) => <li>{m}</li>);
 };
 
-export const DisplayError = (props: {error?: Failure}) => {
+interface DisplayErrorProps {
+  error?: Failure;
+  fields?: string[];
+}
+
+export const DisplayError = (props: DisplayErrorProps) => {
   if (!props.error) {
     return <div></div>;
   }
 
-  const items = props.error.messages ? arrayToTag(props.error.messages) : [];
+  let items: JSX.Element[] = [];
 
-  for (const field in props.error.failures) {
-    if (props.error.failures.hasOwnProperty(field)) {
-      const tags = arrayToTag(props.error.failures[field]);
-      tags.forEach((t) => items.push(t));
+  if (props.fields && props.error.failures) {
+    for (const field of props.fields) {
+      if (props.error.failures.hasOwnProperty(field)) {
+        const tags = arrayToTag(props.error.failures[field]);
+        tags.forEach((t) => items.push(t));
+      }
     }
+  } else if (props.error.messages) {
+    items = arrayToTag(props.error.messages);
   }
 
-  return <div className="display-error ui pointing below red basic label">
-            { items && <ul>{ items }</ul> }
-         </div>;
+  return items.length > 0 ? <div className="display-error ui pointing below red basic label">
+            <ul>{ items }</ul>
+         </div> : null;
 };
