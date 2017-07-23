@@ -116,14 +116,16 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	ideas.AddComment(idea.Number, "Comment #1", 300)
-	ideas.AddComment(idea.Number, "Comment #2", 300)
+	ideas.AddComment(idea.Number, "Comment #2", 301)
 
 	comments, err := ideas.GetCommentsByIdea(idea.Number)
 	Expect(err).To(BeNil())
 	Expect(len(comments)).To(Equal(2))
 
 	Expect(comments[0].Content).To(Equal("Comment #1"))
+	Expect(comments[0].User.Name).To(Equal("Jon Snow"))
 	Expect(comments[1].Content).To(Equal("Comment #2"))
+	Expect(comments[1].User.Name).To(Equal("Arya Stark"))
 }
 
 func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
