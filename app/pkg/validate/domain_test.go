@@ -3,8 +3,8 @@ package validate_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
-	"github.com/getfider/fider/app/validate"
 	. "github.com/onsi/gomega"
 )
 
@@ -22,10 +22,10 @@ func TestInvalidSubdomains(t *testing.T) {
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
 	} {
-		ok, messages, err := validate.Subdomain(nil, subdomain)
-		Expect(ok).To(BeFalse())
-		Expect(len(messages) > 0).To(BeTrue())
-		Expect(err).To(BeNil())
+		result := validate.Subdomain(nil, subdomain)
+		Expect(result.Ok).To(BeFalse())
+		Expect(len(result.Messages) > 0).To(BeTrue())
+		Expect(result.Error).To(BeNil())
 	}
 }
 
@@ -43,19 +43,19 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		"newyork",
 		"NewYork",
 	} {
-		ok, messages, err := validate.Subdomain(tenants, subdomain)
-		Expect(ok).To(BeFalse())
-		Expect(len(messages)).To(Equal(1))
-		Expect(err).To(BeNil())
+		result := validate.Subdomain(tenants, subdomain)
+		Expect(result.Ok).To(BeFalse())
+		Expect(len(result.Messages) > 0).To(BeTrue())
+		Expect(result.Error).To(BeNil())
 	}
 
 	for _, subdomain := range []string{
 		"my-company",
 		"123-company",
 	} {
-		ok, messages, err := validate.Subdomain(tenants, subdomain)
-		Expect(ok).To(BeTrue())
-		Expect(len(messages)).To(Equal(0))
-		Expect(err).To(BeNil())
+		result := validate.Subdomain(tenants, subdomain)
+		Expect(result.Ok).To(BeTrue())
+		Expect(len(result.Messages)).To(Equal(0))
+		Expect(result.Error).To(BeNil())
 	}
 }

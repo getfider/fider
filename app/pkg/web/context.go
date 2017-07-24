@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/labstack/echo"
 )
 
@@ -46,6 +47,18 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	ctx.Set(tenantContextKey, tenant)
 }
 
+//BindTo context values into given model
+func (ctx *Context) BindTo(i validate.Validatable) *validate.Result {
+	err := ctx.Bind(i)
+	if err != nil {
+		return validate.Error(err)
+	}
+	if !i.IsAuthorized(ctx.User()) {
+		return validate.Unauthorized()
+	}
+	return i.Validate(ctx.Services())
+}
+
 //IsAuthenticated returns true if user is authenticated
 func (ctx *Context) IsAuthenticated() bool {
 	return ctx.Get(userContextKey) != nil
@@ -64,6 +77,23 @@ func (ctx *Context) NotFound() error {
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
 	return echo.NewHTTPError(http.StatusInternalServerError, err)
+}
+
+//HandleValidation handles given validation result property to return 400 or 500
+func (ctx *Context) HandleValidation(result *validate.Result) error {
+	if result.Error != nil {
+		return ctx.Failure(result.Error)
+	}
+
+	if !result.Authorized {
+		return ctx.Unauthorized()
+	}
+
+	fmt.Print(result)
+	return ctx.BadRequest(Map{
+		"message":  result.Messages,
+		"failures": result.Failures,
+	})
 }
 
 //Unauthorized returns a 401 response

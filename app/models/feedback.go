@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 //Idea represents an idea on a tenant board
 type Idea struct {

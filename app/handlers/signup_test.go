@@ -7,9 +7,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
@@ -107,42 +107,6 @@ func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 		Tenants: &inmemory.TenantStorage{},
 	})
 	code, _ := server.ExecutePost(handlers.CreateTenant(), `{ }`)
-
-	Expect(code).To(Equal(400))
-}
-
-func TestCreateTenantHandler_EmptyName(t *testing.T) {
-	RegisterTestingT(t)
-
-	server := mock.NewServer()
-	server.Context.SetServices(&app.Services{
-		Tenants: &inmemory.TenantStorage{},
-	})
-	token, _ := jwt.Encode(&models.OAuthClaims{
-		OAuthID:       "123",
-		OAuthName:     "Jon Snow",
-		OAuthEmail:    "jon.snow@got.com",
-		OAuthProvider: "facebook",
-	})
-	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s" }`, token))
-
-	Expect(code).To(Equal(400))
-}
-
-func TestCreateTenantHandler_EmptySubdomain(t *testing.T) {
-	RegisterTestingT(t)
-
-	server := mock.NewServer()
-	server.Context.SetServices(&app.Services{
-		Tenants: &inmemory.TenantStorage{},
-	})
-	token, _ := jwt.Encode(&models.OAuthClaims{
-		OAuthID:       "123",
-		OAuthName:     "Jon Snow",
-		OAuthEmail:    "jon.snow@got.com",
-		OAuthProvider: "facebook",
-	})
-	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s", "name": "My Company" }`, token))
 
 	Expect(code).To(Equal(400))
 }

@@ -42,11 +42,11 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
                 { x.title }
               </a>
               <MultiLineText className="description" text={ x.description } markdown={true} />
-              <ShowIdeaResponse status={ x.status } response={ x.response } />
               <div className="extra">
                 shared <Moment date={x.createdOn} />
                 <div style={{float: 'right'}}>{ x.totalComments } <i className="comments icon"/></div>
               </div>
+              <ShowIdeaResponse status={ x.status } response={ x.response } />
             </div>
           </div>);
 
