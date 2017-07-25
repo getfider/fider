@@ -36,12 +36,7 @@ describe('Submit ideas', () => {
     ]);
   });
 
-  it('Authenticated user can add support to an idea', async () => {
-    // Action
-    await pages.home.navigate();
-  });
-
-  it('Can log in with Google', async () => {
+  it('Can log in with Google and support an idea', async () => {
     // Action
     await pages.home.navigate();
     await pages.home.signInWithGoogle();
@@ -49,5 +44,8 @@ describe('Submit ideas', () => {
 
     // Assert
     await ensure(pages.home.UserMenu).textIs('Darth Vader');
+
+    await pages.home.IdeaList.want(0);
+    await ensure(await pages.home.IdeaList.at(0)).textIs('2');
   });
 });

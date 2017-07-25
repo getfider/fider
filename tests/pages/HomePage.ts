@@ -1,7 +1,9 @@
-import { WebComponent, Browser, Page, findBy, Button, TextInput, elementIsVisible, pageHasLoaded } from '../lib';
+import { WebComponent, Browser, Page, findBy, findMultipleBy, Button, TextInput, elementIsVisible, pageHasLoaded } from '../lib';
 import { ShowIdeaPage, GoogleSignInPage, FacebookSignInPage } from './';
 import config from '../config';
 import { tenant } from '../context';
+
+import { IdeaList } from '../components/IdeaList';
 
 export class HomePage extends Page {
   constructor(browser: Browser) {
@@ -33,6 +35,9 @@ export class HomePage extends Page {
   @findBy('.signout')
   private SignOut: Button;
 
+  @findMultipleBy('.fdr-idea-list > .item')
+  public IdeaList: IdeaList;
+
   public loadCondition() {
     return elementIsVisible(() => this.IdeaTitle);
   }
@@ -47,10 +52,10 @@ export class HomePage extends Page {
   public async signOut(): Promise<void> {
     try {
       await this.SignOut.click();
-      await this.browser.wait(pageHasLoaded(HomePage));
     } catch (ex) {
       return;
     }
+    await this.browser.wait(pageHasLoaded(HomePage));
   }
 
   public async signInWithGoogle(): Promise<void> {

@@ -26,6 +26,10 @@ export class Browser {
     return this.driver.findElement(By.css(selector));
   }
 
+  public async findElements(selector: string): Promise<WebElement[]> {
+    return await this.driver.findElements(By.css(selector));
+  }
+
   public async wait(condition: WaitCondition) {
     await this.waitAny(condition);
   }
