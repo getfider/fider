@@ -3,7 +3,7 @@ import { Builder, ThenableWebDriver, WebElement, Capabilities, By, WebElementPro
 import { Page, NewablePage, WebComponent, WaitCondition, timeout } from './';
 
 export class Browser {
-  public driver: ThenableWebDriver;
+  private driver: ThenableWebDriver;
   public constructor(private browserName: string) {
     this.driver = new Builder().forBrowser('chrome').build();
   }

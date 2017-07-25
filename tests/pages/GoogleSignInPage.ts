@@ -42,9 +42,7 @@ export class GoogleSignInPage extends Page {
 
     await this.browser.wait(elementIsVisible(() => this.Password));
     await this.Password.type(password);
-
-    await this.browser.driver.executeScript('arguments[0].click();', await this.browser.findElement('#passwordNext'));
-    // await this.ConfirmPassword.click();
+    await this.ConfirmPassword.click();
     await this.browser.waitAny([
       pageHasLoaded(HomePage),
       pageHasLoaded(SignUpPage)

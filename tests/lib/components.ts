@@ -4,7 +4,15 @@ export class WebComponent {
   constructor(protected element: WebElementPromise, public selector: string) { }
 
   public async click() {
-    return await this.element.click();
+    try {
+      return await this.element.click();
+    } catch (clickErr) {
+      try {
+        await this.element.getDriver().executeScript('arguments[0].click();', this.element);
+      } catch (jsErr) {
+        throw clickErr;
+      }
+    }
   }
 
   public async isDisplayed() {
