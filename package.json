@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "build": "rm -rf dist && webpack -p",
-    "test": "rm -rf output && tsc && mocha -t 10000 output/tsc/tests/**.js",
+    "test": "rm -rf output && tsc && mocha -t 30000 output/tsc/tests/**.js",
     "build:watch": "rm -rf dist && webpack --watch",
     "lint": "tslint public/**/**.tsx public/**/**.ts"
   },

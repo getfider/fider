@@ -42,7 +42,7 @@ export class Header extends React.Component<{}, {}> {
                                 </div>
                             }
                             <div className="item">
-                                <a href="/logout?redirect=/">
+                                <a className="signout" href="/logout?redirect=/">
                                     Sign out
                                 </a>
                             </div>

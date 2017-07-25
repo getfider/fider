@@ -27,13 +27,13 @@ export class GoogleSignInPage extends Page {
   }
 
   public async signInAsDarthVader() {
-    return this.signInAs(config.users.darthvader.email, config.users.darthvader.password);
+    return this.signInAs('darthvader.fider@gmail.com', process.env.DARTHVADER_PASSWORD);
   }
 
   public async signInAs(email: string, password: string) {
 
     try {
-      const element = await this.browser.findElement(`p[data-email='${config.users.darthvader.email}']`);
+      const element = await this.browser.findElement(`p[data-email='${email}']`);
       await element.click();
     } catch (ex) {
       await this.Email.type(email);

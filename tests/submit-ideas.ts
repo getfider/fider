@@ -2,7 +2,8 @@ import { ensure } from './lib';
 import { pages, tenant, browser } from './context';
 
 describe('Submit ideas', () => {
-  it('Test Case #1: Unauthenticated cannot submit ideas', async () => {
+
+  it('Unauthenticated cannot submit ideas', async () => {
     // Action
     await pages.home.navigate();
     await pages.home.IdeaTitle.type('Add support to TypeScript');
@@ -15,16 +16,14 @@ describe('Submit ideas', () => {
     ]);
   });
 
-  it('Test Case #2: Authenticated can submit ideas', async () => {
+  it('Authenticated user can submit ideas', async () => {
     // Action
-    await browser.clearCookies('https://accounts.google.com');
-
     await pages.home.navigate();
-    await pages.home.signInWithGoogle();
-    await pages.google.signInAsDarthVader();
+    await pages.home.signInWithFacebook();
+    await pages.facebook.signInAsAryaStark();
 
     // Assert
-    await ensure(pages.home.UserMenu).textIs('Darth Vader');
+    await ensure(pages.home.UserMenu).textIs('Arya Stark');
 
     // Action
     await pages.home.submitNewIdea('Add support to TypeScript', 'Because the language and community is awesome! :)');
@@ -35,5 +34,20 @@ describe('Submit ideas', () => {
       ensure(pages.showIdea.Description).textIs('Because the language and community is awesome! :)'),
       ensure(pages.showIdea.SupportCounter).textIs('1'),
     ]);
+  });
+
+  it('Authenticated user can add support to an idea', async () => {
+    // Action
+    await pages.home.navigate();
+  });
+
+  it('Can log in with Google', async () => {
+    // Action
+    await pages.home.navigate();
+    await pages.home.signInWithGoogle();
+    await pages.google.signInAsDarthVader();
+
+    // Assert
+    await ensure(pages.home.UserMenu).textIs('Darth Vader');
   });
 });

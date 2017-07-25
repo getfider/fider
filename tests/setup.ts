@@ -15,8 +15,8 @@ before(async () => {
   pages = new AllPages(browser);
 
   await pages.signup.navigate();
-  await pages.signup.signInWithGoogle();
-  await pages.google.signInAsDarthVader();
+  await pages.signup.signInWithFacebook();
+  await pages.facebook.signInAsJonSnow();
 
   await pages.signup.signUpAs(tenantName, tenantSubdomain);
 

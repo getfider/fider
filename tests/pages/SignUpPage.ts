@@ -1,5 +1,5 @@
 import { WebComponent, Browser, Page, Button, TextInput, findBy, elementIsVisible, pageHasLoaded } from '../lib';
-import { GoogleSignInPage, HomePage } from './';
+import { GoogleSignInPage, FacebookSignInPage, HomePage } from './';
 
 export class SignUpPage extends Page {
   constructor(browser: Browser) {
@@ -12,6 +12,9 @@ export class SignUpPage extends Page {
 
   @findBy('#fdr-signup-page .button.google')
   public GoogleSignIn: Button;
+
+  @findBy('#fdr-signup-page .button.facebook')
+  public FacebookSignIn: Button;
 
   @findBy('.form #name')
   public Name: TextInput;
@@ -32,6 +35,11 @@ export class SignUpPage extends Page {
   public async signInWithGoogle(): Promise<void> {
     await this.GoogleSignIn.click();
     await this.browser.wait(pageHasLoaded(GoogleSignInPage));
+  }
+
+  public async signInWithFacebook(): Promise<void> {
+    await this.FacebookSignIn.click();
+    await this.browser.wait(pageHasLoaded(FacebookSignInPage));
   }
 
   public async signUpAs(name: string, subdomain: string): Promise<void> {
