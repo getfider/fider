@@ -1,6 +1,7 @@
 data/
 tmp/
 dist/
+output/
 node_modules/
 *.coverprofile
 

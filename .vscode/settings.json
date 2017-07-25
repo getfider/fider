@@ -14,6 +14,7 @@
     "tmp": true,
     "node_modules": true,
     "dist": true,
+    "output": true,
     "coverage.txt": true,
     "debug": true,
     "**/debug.test": true,

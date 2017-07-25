@@ -5,6 +5,7 @@
         "noImplicitAny": true,
         "strictNullChecks": true,
         "sourceMap": true,
+        "outDir": "output/tsc",
         "jsx": "react",
         "lib": ["dom", "es2015.promise", "es6"],
         "experimentalDecorators": true,
