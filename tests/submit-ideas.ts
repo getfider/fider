@@ -1,14 +1,7 @@
-import { Browser, ensure } from './lib';
-import { Builder, ThenableWebDriver, WebElement, By, WebElementPromise, until } from 'selenium-webdriver';
-import { AllPages } from './pages';
+import { ensure } from './lib';
+import { pages, tenant, browser } from './context';
 
 describe('Submit ideas', () => {
-  let pages: AllPages;
-
-  before(async () => {
-    pages = new AllPages(new Browser('chrome'));
-  });
-
   it('Test Case #1: Unauthenticated cannot submit ideas', async () => {
     // Action
     await pages.home.navigate();
@@ -24,6 +17,8 @@ describe('Submit ideas', () => {
 
   it('Test Case #2: Authenticated can submit ideas', async () => {
     // Action
+    await browser.clearCookies('https://accounts.google.com');
+
     await pages.home.navigate();
     await pages.home.signInWithGoogle();
     await pages.google.signInAsDarthVader();
@@ -40,9 +35,5 @@ describe('Submit ideas', () => {
       ensure(pages.showIdea.Description).textIs('Because the language and community is awesome! :)'),
       ensure(pages.showIdea.SupportCounter).textIs('1'),
     ]);
-  });
-
-  after(async () => {
-    await pages.dispose();
   });
 });

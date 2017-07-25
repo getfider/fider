@@ -1,11 +1,12 @@
 import { WebComponent, Browser, Page, findBy, Button, TextInput, elementIsVisible, pageHasLoaded } from '../lib';
 import { ShowIdeaPage, GoogleSignInPage } from './';
 import config from '../config';
+import { tenant } from '../context';
 
 export class HomePage extends Page {
   constructor(browser: Browser) {
     super(browser);
-    this.setUrl(`${config.baseUrl}/`);
+    this.setUrl(`http://${tenant}.dev.fider.io:3000/`);
   }
 
   @findBy('#new-idea-input')
@@ -41,6 +42,9 @@ export class HomePage extends Page {
     await this.UserMenu.click();
     await this.browser.wait(elementIsVisible(() => this.GoogleSignIn));
     await this.GoogleSignIn.click();
-    await this.browser.wait(pageHasLoaded(GoogleSignInPage));
+    await this.browser.waitAny([
+      pageHasLoaded(GoogleSignInPage),
+      pageHasLoaded(HomePage)
+    ]);
   }
 }

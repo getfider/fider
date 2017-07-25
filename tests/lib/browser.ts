@@ -1,15 +1,25 @@
 import 'chromedriver';
-import { Builder, ThenableWebDriver, WebElement, By, WebElementPromise } from 'selenium-webdriver';
+import { Builder, ThenableWebDriver, WebElement, Capabilities, By, WebElementPromise } from 'selenium-webdriver';
 import { Page, NewablePage, WebComponent, WaitCondition, timeout } from './';
 
 export class Browser {
-  private driver: ThenableWebDriver;
+  public driver: ThenableWebDriver;
   public constructor(private browserName: string) {
-    this.driver = new Builder().forBrowser(browserName).build();
+    this.driver = new Builder().forBrowser('chrome').build();
   }
 
   public async navigate(url: string): Promise<void> {
     await this.driver.navigate().to(url);
+  }
+
+  public async clearCookies(url?: string): Promise<void> {
+    if (url) {
+      const currentUrl = await this.driver.getCurrentUrl();
+      await this.navigate(url);
+      await this.driver.manage().deleteAllCookies();
+      await this.navigate(currentUrl);
+    }
+    await this.driver.manage().deleteAllCookies();
   }
 
   public findElement(selector: string): WebElementPromise {
@@ -24,18 +34,16 @@ export class Browser {
     const all = (!(conditions instanceof Array)) ? [ conditions ] : conditions;
 
     await this.driver.wait(async () => {
-        do {
-          for (const condition of all) {
-            try {
-              return await Promise.race([
-                condition(this),
-                timeout(500)
-              ]);
-            } catch (ex) {
-              continue;
-            }
+      for (const condition of all) {
+        try {
+          if (await condition(this) === true) {
+            return true;
           }
-        } while (true);
+          continue;
+        } catch (ex) {
+          continue;
+        }
+      }
     });
   }
 
