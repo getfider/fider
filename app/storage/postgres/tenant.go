@@ -22,10 +22,10 @@ func NewTenantStorage(trx *dbx.Trx) *TenantStorage {
 }
 
 type dbTenant struct {
-	ID        int            `db:"id"`
-	Name      string         `db:"name"`
-	Subdomain string         `db:"subdomain"`
-	CNAME     sql.NullString `db:"cname"`
+	ID        int    `db:"id"`
+	Name      string `db:"name"`
+	Subdomain string `db:"subdomain"`
+	CNAME     string `db:"cname"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -33,15 +33,15 @@ func (t *dbTenant) toModel() *models.Tenant {
 		ID:        t.ID,
 		Name:      t.Name,
 		Subdomain: t.Subdomain,
-		CNAME:     t.CNAME.String,
+		CNAME:     t.CNAME,
 	}
 }
 
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on) 
-						VALUES ($1, $2, $3) 
+	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname) 
+						VALUES ($1, $2, $3, '') 
 						RETURNING id`, name, subdomain, time.Now())
 	if err := row.Scan(&id); err != nil {
 		return nil, err

@@ -1,6 +1,6 @@
 TRUNCATE TABLE tenants RESTART IDENTITY CASCADE;
 
-INSERT INTO tenants (name, subdomain, created_on) VALUES ('Demonstration', 'demo', now());
+INSERT INTO tenants (name, subdomain, created_on, cname) VALUES ('Demonstration', 'demo', now(), '');
 
 INSERT INTO users (name, email, tenant_id, created_on, role) VALUES ('Jon Snow', 'jon.snow@got.com', 1, now(), 3);
 INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (1, 'facebook', 'FB1234', now());
