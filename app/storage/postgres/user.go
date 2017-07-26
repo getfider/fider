@@ -71,8 +71,13 @@ func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, erro
 // GetByProvider returns a user based on provider details
 func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (*models.User, error) {
 	var userID int
-	if err := s.trx.Scalar(&userID, "SELECT user_id FROM user_providers WHERE provider = $1 AND provider_uid = $2", provider, uid); err != nil {
-		return nil, err
+	query := "SELECT user_id FROM user_providers up INNER JOIN users u ON u.id = up.user_id WHERE up.provider = $1 AND up.provider_uid = $2 AND u.tenant_id = $3"
+	if err := s.trx.Scalar(&userID, query, provider, uid, tenantID); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, app.ErrNotFound
+		} else if err != nil {
+			return nil, err
+		}
 	}
 	return s.GetByID(userID)
 }

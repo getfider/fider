@@ -51,13 +51,11 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterTestingT(t)
 	services := getServices()
-	tenant, _ := services.Tenants.Add("Demonstration", "demo")
 
 	services.Users.Register(&models.User{
-		ID:     300,
 		Name:   "Jon Snow",
 		Email:  "jon.snow@got.com",
-		Tenant: tenant,
+		Tenant: demoTenant,
 		Providers: []*models.UserProvider{
 			{UID: "FB1234", Name: oauth.FacebookProvider},
 		},
@@ -69,20 +67,19 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozMDAsInVzZXIvbmFtZSI6IkpvbiBTbm93IiwidXNlci9lbWFpbCI6Impvbi5zbm93QGdvdC5jb20ifQ.n73-Qqhb_6lIALS_H3UzrEuzLTHgtS6nCkG_Ua95v7s"))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
 	RegisterTestingT(t)
 	services := getServices()
-	tenant, _ := services.Tenants.Add("Orange", "orange")
 
 	server := mock.NewServer()
 	server.Context.SetServices(services)
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io&code=456")
 	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
-	user, err := services.Users.GetByEmail(tenant.ID, "some.guy@facebook.com")
+	user, err := services.Users.GetByEmail(orangeTenant.ID, "some.guy@facebook.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Some Facebook Guy"))
 
@@ -93,11 +90,10 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 	RegisterTestingT(t)
 	services := getServices()
-	tenant, _ := services.Tenants.Add("Demonstration", "demo")
 	services.Users.Register(&models.User{
 		Name:   "Some Guy",
 		Email:  "",
-		Tenant: tenant,
+		Tenant: demoTenant,
 		Providers: []*models.UserProvider{
 			&models.UserProvider{UID: "GO999", Name: oauth.GoogleProvider},
 		},
@@ -125,11 +121,10 @@ func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterTestingT(t)
 	services := getServices()
-	tenant, _ := services.Tenants.Add("Demonstration", "demo")
 	services.Users.Register(&models.User{
 		Name:   "Jon Snow",
 		Email:  "jon.snow@got.com",
-		Tenant: tenant,
+		Tenant: demoTenant,
 		Providers: []*models.UserProvider{
 			&models.UserProvider{UID: "FB123", Name: oauth.FacebookProvider},
 		},
@@ -140,7 +135,7 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123")
 	code, response := server.Execute(handlers.OAuthCallback(oauth.GoogleProvider))
 
-	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
+	user, err := services.Users.GetByEmail(demoTenant.ID, "jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(len(user.Providers)).To(Equal(2))
 
