@@ -58,7 +58,13 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			}
 
 			users := c.Services().Users
-			user, err := users.GetByEmail(tenant.ID, oauthUser.Email)
+
+			var user *models.User
+			if oauthUser.Email == "" {
+				user, err = users.GetByProvider(tenant.ID, provider, oauthUser.ID)
+			} else {
+				user, err = users.GetByEmail(tenant.ID, oauthUser.Email)
+			}
 			if err != nil {
 				if err == app.ErrNotFound {
 					user = &models.User{

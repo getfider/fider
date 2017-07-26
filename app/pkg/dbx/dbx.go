@@ -184,6 +184,12 @@ func formatCommand(cmd string) string {
 	return cmd
 }
 
+// Scalar returns first row and first column
+func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) error {
+	row := trx.QueryRow(command, args...)
+	return row.Scan(data)
+}
+
 // Get first row and bind to given data
 func (trx Trx) Get(data interface{}, command string, args ...interface{}) error {
 	rows, err := trx.Query(command, args...)

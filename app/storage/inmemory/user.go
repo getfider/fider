@@ -31,6 +31,18 @@ func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, erro
 	return nil, app.ErrNotFound
 }
 
+// GetByProvider returns a user based on provider details
+func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (*models.User, error) {
+	for _, user := range s.users {
+		for _, item := range user.Providers {
+			if item.Name == provider && item.UID == uid {
+				return user, nil
+			}
+		}
+	}
+	return nil, app.ErrNotFound
+}
+
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
 	if user.ID == 0 {

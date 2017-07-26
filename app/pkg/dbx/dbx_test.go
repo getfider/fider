@@ -213,3 +213,17 @@ func TestCount_Empty(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(count).To(Equal(0))
 }
+
+func TestScalar(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	var value int
+	err := trx.Scalar(&value, "SELECT id FROM users WHERE id = 300")
+	Expect(err).To(BeNil())
+	Expect(value).To(Equal(300))
+}

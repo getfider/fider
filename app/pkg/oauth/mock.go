@@ -12,15 +12,7 @@ func (p *MockOAuthService) GetAuthURL(authEndpoint string, provider string, redi
 func (p *MockOAuthService) GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error) {
 	if provider == "facebook" && code == "123" {
 		return &UserProfile{
-			ID:    "FB1234",
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		}, nil
-	}
-
-	if provider == "google" && code == "123" {
-		return &UserProfile{
-			ID:    "GO1234",
+			ID:    "FB123",
 			Name:  "Jon Snow",
 			Email: "jon.snow@got.com",
 		}, nil
@@ -28,9 +20,33 @@ func (p *MockOAuthService) GetProfile(authEndpoint string, provider string, code
 
 	if provider == "facebook" && code == "456" {
 		return &UserProfile{
-			ID:    "FB5678",
+			ID:    "FB456",
 			Name:  "Some Facebook Guy",
 			Email: "some.guy@facebook.com",
+		}, nil
+	}
+
+	if provider == "facebook" && code == "798" {
+		return &UserProfile{
+			ID:    "FB798",
+			Name:  "Mark",
+			Email: "",
+		}, nil
+	}
+
+	if provider == "google" && code == "123" {
+		return &UserProfile{
+			ID:    "GO123",
+			Name:  "Jon Snow",
+			Email: "jon.snow@got.com",
+		}, nil
+	}
+
+	if provider == "google" && code == "456" {
+		return &UserProfile{
+			ID:    "GO456",
+			Name:  "Bob",
+			Email: "",
 		}, nil
 	}
 

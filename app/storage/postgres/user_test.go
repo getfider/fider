@@ -70,6 +70,28 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 	Expect(user.Providers[0].Name).To(Equal("facebook"))
 }
 
+func TestUserStorage_GetByProvider(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	users := postgres.NewUserStorage(trx)
+	user, err := users.GetByProvider(300, "facebook", "FB1234")
+
+	Expect(err).To(BeNil())
+	Expect(user.ID).To(Equal(int(300)))
+	Expect(user.Tenant.ID).To(Equal(300))
+	Expect(user.Name).To(Equal("Jon Snow"))
+	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(len(user.Providers)).To(Equal(1))
+	Expect(user.Providers[0].UID).To(Equal("FB1234"))
+	Expect(user.Providers[0].Name).To(Equal("facebook"))
+}
+
 func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()

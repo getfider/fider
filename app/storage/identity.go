@@ -6,6 +6,7 @@ import "github.com/getfider/fider/app/models"
 type User interface {
 	GetByID(userID int) (*models.User, error)
 	GetByEmail(tenantID int, email string) (*models.User, error)
+	GetByProvider(tenantID int, provider string, uid string) (*models.User, error)
 	Register(user *models.User) error
 	RegisterProvider(userID int, provider *models.UserProvider) error
 }

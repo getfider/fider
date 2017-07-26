@@ -68,6 +68,15 @@ func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, erro
 	return getUser(s.trx, "email = $1 AND tenant_id = $2", email, tenantID)
 }
 
+// GetByProvider returns a user based on provider details
+func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (*models.User, error) {
+	var userID int
+	if err := s.trx.Scalar(&userID, "SELECT user_id FROM user_providers WHERE provider = $1 AND provider_uid = $2", provider, uid); err != nil {
+		return nil, err
+	}
+	return s.GetByID(userID)
+}
+
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
