@@ -1,8 +1,9 @@
-import { User, AppSettings } from '@fider/models';
+import { User, AppSettings, Tenant } from '@fider/models';
 import { injectable } from '@fider/di';
 
 export interface Session {
     getCurrentUser(): User;
+    getCurrentTenant(): Tenant;
     setUser(user: User): void;
     isStaff(): boolean;
     set<T>(key: string, value: T): void;
@@ -28,6 +29,11 @@ export class BrowserSession implements Session {
     public getCurrentUser(): User {
         const w: any = window;
         return w[`_user`] as User;
+    }
+
+    public getCurrentTenant(): Tenant {
+        const w: any = window;
+        return w[`_tenant`] as Tenant;
     }
 
     public setUser(user: User): void {

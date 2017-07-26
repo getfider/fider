@@ -59,10 +59,10 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         return <div className="SiteHomePage">
                   <Header />
                   <div className="ui container">
-                    <h1 className="ui header">Welcome to our feedback forum!</h1>
 
                     <div className="ui grid stackable">
                       <div className="six wide column">
+                        <h2 className="ui header">Welcome to our feedback forum!</h2>
                         <p>We'd love to hear what you're thinking about. This is the place for you to submit your feedback.</p>
                         <IdeaInput />
                       </div>
