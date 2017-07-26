@@ -51,7 +51,7 @@ func TestBind_SimpleStruct(t *testing.T) {
 
 	err := trx.Get(&u, "SELECT id, name FROM users LIMIT 1")
 	Expect(err).To(BeNil())
-	Expect(u.ID).To(Equal(300))
+	Expect(u.ID).To(Equal(1))
 	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.IgnoreThis).To(Equal(""))
 }
@@ -74,8 +74,8 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 										 WHERE provider_uid = 'FB2222'`)
 	Expect(err).To(BeNil())
 	Expect(u.Provider).To(Equal("facebook"))
-	Expect(u.User.ID).To(Equal(400))
-	Expect(u.User.Tenant.ID).To(Equal(400))
+	Expect(u.User.ID).To(Equal(3))
+	Expect(u.User.Tenant.ID).To(Equal(2))
 }
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
@@ -102,7 +102,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	defer trx.Rollback()
 	u := []*user{}
 
-	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 300")
+	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1")
 	Expect(err).To(BeNil())
 
 	Expect(len(u)).To(Equal(2))
@@ -125,14 +125,14 @@ func TestBind_NestedStruct(t *testing.T) {
 		FROM users u
 		INNER JOIN tenants t
 		ON t.id = u.tenant_id
-		WHERE u.id = 300
+		WHERE u.id = 1
 		LIMIT 1
 	`)
 	Expect(err).To(BeNil())
-	Expect(u.ID).To(Equal(300))
+	Expect(u.ID).To(Equal(1))
 	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.Tenant).NotTo(BeNil())
-	Expect(u.Tenant.ID).To(Equal(300))
+	Expect(u.Tenant.ID).To(Equal(1))
 	Expect(*u.Tenant.Name).To(Equal("Demonstration"))
 }
 
@@ -151,7 +151,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 		FROM users u
 		INNER JOIN tenants t
 		ON t.id = u.tenant_id
-		WHERE u.tenant_id = 300
+		WHERE u.tenant_id = 1
 	`)
 	Expect(err).To(BeNil())
 	Expect(len(u)).To(Equal(2))
@@ -170,7 +170,7 @@ func TestExists_True(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 300")
+	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 1")
 	Expect(err).To(BeNil())
 	Expect(exists).To(BeTrue())
 }
@@ -196,7 +196,7 @@ func TestCount(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	count, err := trx.Count("SELECT 1 FROM users WHERE id = 300")
+	count, err := trx.Count("SELECT 1 FROM users WHERE id = 1")
 	Expect(err).To(BeNil())
 	Expect(count).To(Equal(1))
 }
@@ -212,4 +212,18 @@ func TestCount_Empty(t *testing.T) {
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 0")
 	Expect(err).To(BeNil())
 	Expect(count).To(Equal(0))
+}
+
+func TestScalar(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	var value int
+	err := trx.Scalar(&value, "SELECT id FROM users WHERE id = 1")
+	Expect(err).To(BeNil())
+	Expect(value).To(Equal(1))
 }

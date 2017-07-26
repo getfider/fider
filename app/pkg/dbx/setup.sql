@@ -1,17 +1,17 @@
 TRUNCATE TABLE tenants RESTART IDENTITY CASCADE;
 
-INSERT INTO tenants (id, name, subdomain, created_on) VALUES (300, 'Demonstration', 'demo', now());
+INSERT INTO tenants (name, subdomain, created_on, cname) VALUES ('Demonstration', 'demo', now(), '');
 
-INSERT INTO users (id, name, email, tenant_id, created_on, role) VALUES (300, 'Jon Snow', 'jon.snow@got.com', 300, now(), 3);
-INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (300, 'facebook', 'FB1234', now());
+INSERT INTO users (name, email, tenant_id, created_on, role) VALUES ('Jon Snow', 'jon.snow@got.com', 1, now(), 3);
+INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (1, 'facebook', 'FB1234', now());
 
-INSERT INTO users (id, name, email, tenant_id, created_on, role) VALUES (301, 'Arya Stark', 'arya.stark@got.com', 300, now(), 1);
-INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (301, 'google', 'GO5678', now());
+INSERT INTO users (name, email, tenant_id, created_on, role) VALUES ('Arya Stark', 'arya.stark@got.com', 1, now(), 1);
+INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (2, 'google', 'GO5678', now());
 
-INSERT INTO tenants (id, name, subdomain, created_on, cname) VALUES (400, 'Orange Inc.', 'orange', now(), 'feedback.orangeinc.com');
+INSERT INTO tenants (name, subdomain, created_on, cname) VALUES ('Orange Inc.', 'orange', now(), 'feedback.orangeinc.com');
 
-INSERT INTO users (id, name, email, tenant_id, created_on, role) VALUES (400, 'Tony Stark', 'tony.stark@avengers.com', 400, now(), 3);
-INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (400, 'facebook', 'FB2222', now());
+INSERT INTO users (name, email, tenant_id, created_on, role) VALUES ('Tony Stark', 'tony.stark@avengers.com', 2, now(), 3);
+INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (3, 'facebook', 'FB2222', now());
 
-INSERT INTO users (id, name, email, tenant_id, created_on, role) VALUES (401, 'The Hulk', 'the.hulk@avengers.com', 400, now(), 1);
-INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (401, 'google', 'GO1111', now());
+INSERT INTO users (name, email, tenant_id, created_on, role) VALUES ('The Hulk', 'the.hulk@avengers.com', 2, now(), 1);
+INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES (4, 'google', 'GO1111', now());

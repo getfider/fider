@@ -11,14 +11,14 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var demoTenant = &models.Tenant{
-	ID:   300,
-	Name: "Demonstration",
+func orangeTenant(tenants *postgres.TenantStorage) *models.Tenant {
+	tenant, _ := tenants.GetByDomain("orange")
+	return tenant
 }
 
-var orangeTenant = &models.Tenant{
-	ID:   400,
-	Name: "Orange Inc.",
+func demoTenant(tenants *postgres.TenantStorage) *models.Tenant {
+	tenant, _ := tenants.GetByDomain("demo")
+	return tenant
 }
 
 func TestIdeaStorage_GetAll(t *testing.T) {
@@ -32,10 +32,11 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 300, 300, 0, 1)", now)
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 300, 301, 5, 2)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 1, 1, 0, 1)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 1, 2, 5, 2)", now)
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
 	dbIdeas, err := ideas.GetAll()
 
 	Expect(err).To(BeNil())
@@ -67,8 +68,9 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, err := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 	Expect(idea.ID).To(Equal(1))
 
@@ -81,7 +83,7 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	Expect(dbIdea.Status).To(Equal(models.IdeaNew))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Description).To(Equal("with this description"))
-	Expect(dbIdea.User.ID).To(Equal(300))
+	Expect(dbIdea.User.ID).To(Equal(1))
 	Expect(dbIdea.User.Name).To(Equal("Jon Snow"))
 	Expect(dbIdea.User.Email).To(Equal("jon.snow@got.com"))
 }
@@ -95,7 +97,8 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
 	dbIdea, err := ideas.GetByID(1)
 
 	Expect(err).To(Equal(app.ErrNotFound))
@@ -111,12 +114,13 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, err := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
-	ideas.AddComment(idea.Number, "Comment #1", 300)
-	ideas.AddComment(idea.Number, "Comment #2", 301)
+	ideas.AddComment(idea.Number, "Comment #1", 1)
+	ideas.AddComment(idea.Number, "Comment #2", 2)
 
 	comments, err := ideas.GetCommentsByIdea(idea.Number)
 	Expect(err).To(BeNil())
@@ -137,11 +141,12 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	demoIdeas := postgres.NewIdeaStorage(demoTenant, trx)
-	demoIdeas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	demoIdeas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	demoIdeas.Add("My new idea", "with this description", 1)
 
-	orangeIdeas := postgres.NewIdeaStorage(orangeTenant, trx)
-	orangeIdeas.Add("My other idea", "with other description", 400)
+	orangeIdeas := postgres.NewIdeaStorage(orangeTenant(tenants), trx)
+	orangeIdeas.Add("My other idea", "with other description", 3)
 
 	dbIdea, err := demoIdeas.GetByNumber(1)
 
@@ -169,8 +174,9 @@ func TestIdeaStorage_Update(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, err := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
 	idea, err = ideas.Update(idea.Number, "The new comment", "With the new description")
@@ -190,13 +196,14 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	err := ideas.AddSupporter(idea.Number, 300)
+	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, 301)
+	err = ideas.AddSupporter(idea.Number, 2)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -213,13 +220,14 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	err := ideas.AddSupporter(idea.Number, 300)
+	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, 300)
+	err = ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -236,13 +244,14 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	err := ideas.AddSupporter(idea.Number, 300)
+	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 300)
+	err = ideas.RemoveSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -259,16 +268,17 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	err := ideas.AddSupporter(idea.Number, 300)
+	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 300)
+	err = ideas.RemoveSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 300)
+	err = ideas.RemoveSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -285,16 +295,17 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
-	err := ideas.SetResponse(idea.Number, "We liked this idea", 300, models.IdeaStarted)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
 
 	Expect(err).To(BeNil())
 
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.Text).To(Equal("We liked this idea"))
 	Expect(idea.Status).To(Equal(models.IdeaStarted))
-	Expect(idea.Response.User.ID).To(Equal(300))
+	Expect(idea.Response.User.ID).To(Equal(1))
 }
 
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
@@ -306,10 +317,11 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
-	ideas.SetResponse(idea.Number, "We liked this idea", 300, models.IdeaCompleted)
-	ideas.AddSupporter(idea.Number, 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
+	ideas.AddSupporter(idea.Number, 1)
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(err).To(BeNil())
@@ -325,11 +337,12 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	ideas := postgres.NewIdeaStorage(demoTenant, trx)
-	idea, _ := ideas.Add("My new idea", "with this description", 300)
-	ideas.AddSupporter(idea.Number, 300)
-	ideas.SetResponse(idea.Number, "We liked this idea", 300, models.IdeaCompleted)
-	ideas.RemoveSupporter(idea.Number, 300)
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	ideas.AddSupporter(idea.Number, 1)
+	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
+	ideas.RemoveSupporter(idea.Number, 1)
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(err).To(BeNil())

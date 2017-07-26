@@ -22,7 +22,7 @@ func TestTenantStorage_First(t *testing.T) {
 	tenant, err := tenants.First()
 
 	Expect(err).To(BeNil())
-	Expect(tenant.ID).To(Equal(300))
+	Expect(tenant.ID).To(Equal(1))
 }
 
 func TestTenantStorage_Empty_First(t *testing.T) {
@@ -69,13 +69,13 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	defer trx.Rollback()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tenants.Add("My Domain Inc.", "mydomain")
-
-	tenant, err := tenants.GetByDomain("mydomain")
-
-	//Expect(trx.Count("SELECT * FROM tenants WHERE subdomain = 'mydomain' AND CNAME IS NULL")).To(Equal(1))
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain")
 	Expect(err).To(BeNil())
-	Expect(tenant.ID).To(Equal(int(1)))
+
+	tenant, err = tenants.GetByDomain("mydomain")
+
+	Expect(err).To(BeNil())
+	Expect(tenant.ID).To(Equal(int(3)))
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.CNAME).To(Equal(""))
