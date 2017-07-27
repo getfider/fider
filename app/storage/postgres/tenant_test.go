@@ -112,3 +112,26 @@ func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
 	Expect(available).To(BeTrue())
 	Expect(err).To(BeNil())
 }
+
+func TestTenantStorage_UpdateSettings(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	tenant, _ := tenants.GetByDomain("demo")
+
+	err := tenants.UpdateSettings(tenant.ID, "New Demonstration", "Leave us your suggestion", "Welcome!")
+	Expect(err).To(BeNil())
+
+	tenant, err = tenants.GetByDomain("demo")
+	Expect(err).To(BeNil())
+	Expect(tenant.ID).To(Equal(1))
+	Expect(tenant.Name).To(Equal("New Demonstration"))
+	Expect(tenant.Invitation).To(Equal("Leave us your suggestion"))
+	Expect(tenant.WelcomeMessage).To(Equal("Welcome!"))
+}

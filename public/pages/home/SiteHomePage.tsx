@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Idea, IdeaStatus, User } from '@fider/models';
+import { Idea, IdeaStatus, User, Tenant } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
@@ -17,6 +17,7 @@ interface SiteHomePageState {
 
 export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
     private user: User;
+    private tenant: Tenant;
     private allIdeas: Idea[];
     private filter: HTMLDivElement;
 
@@ -26,6 +27,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
     constructor(props: {}) {
         super(props);
         this.user = this.session.getCurrentUser();
+        this.tenant = this.session.getCurrentTenant();
         this.allIdeas = this.session.get<Idea[]>('ideas') || [];
 
         this.state = {
@@ -56,15 +58,19 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
           </div>
           : <p>No ideas found for given filter.</p>;
 
+        const welcomeMessage = this.tenant.welcomeMessage ||
+        `## Welcome to our feedback forum!
+
+We'd love to hear what you're thinking about. This is the place for you to submit your feedback.`;
+
         return <div className="SiteHomePage">
                   <Header />
                   <div className="ui container">
 
                     <div className="ui grid stackable">
                       <div className="six wide column">
-                        <h2 className="ui header">Welcome to our feedback forum!</h2>
-                        <p>We'd love to hear what you're thinking about. This is the place for you to submit your feedback.</p>
-                        <IdeaInput />
+                        <MultiLineText className="welcome-message" text={ welcomeMessage } markdown={true} />
+                        <IdeaInput placeholder={this.tenant.invitation || 'Tell us your ideas'} />
                       </div>
                       <div className="ten wide column">
                         {

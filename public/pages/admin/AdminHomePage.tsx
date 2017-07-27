@@ -1,21 +1,24 @@
 import * as React from 'react';
 
-import { Header, Footer, Button } from '@fider/components/common';
-
+import { Header, Footer, Button, DisplayError } from '@fider/components/common';
 import { Tenant } from '@fider/models';
 import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services';
+import { Session, TenantService, Failure } from '@fider/services';
 
 interface AdminHomePageState {
     title: string;
-    welcome: string;
+    welcomeMessage: string;
     invitation: string;
+    error?: Failure;
 }
 
 export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
 
     @inject(injectables.Session)
     public session: Session;
+
+    @inject(injectables.TenantService)
+    public service: TenantService;
 
     private tenant: Tenant;
 
@@ -25,9 +28,18 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
 
         this.state = {
            title: this.tenant.name,
-           welcome: '',
-           invitation: ''
+           welcomeMessage: this.tenant.welcomeMessage,
+           invitation: this.tenant.invitation
         };
+    }
+
+    private async confirm() {
+        const result = await this.service.updateSettings(this.state.title, this.state.invitation, this.state.welcomeMessage);
+        if (result.ok) {
+            location.href = `/`;
+        } else if (result.error) {
+            this.setState({ error: result.error });
+        }
     }
 
     public render() {
@@ -38,23 +50,27 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                         <h4 className="ui header">General Settings</h4>
 
                         <div className="ui form">
+                            <DisplayError fields={['title']} error={this.state.error} />
                             <div className="six wide field">
                                 <label htmlFor="title">Title</label>
                                 <input id="title"
                                        type="text"
                                        placeholder="Title"
                                        maxLength={60}
-                                       value={this.state.title}
+                                       value={ this.state.title }
                                        onChange={(e) => this.setState({ title: e.currentTarget.value })}/>
                                 <p className="info">
                                     <p>Use this field to change the title that is shown on the top of your page.</p>
                                 </p>
                             </div>
                             <div className="six wide field">
+                            <DisplayError fields={['welcomeMessage']} error={this.state.error} />
                                 <label htmlFor="welcome-message">Welcome Message</label>
                                 <textarea id="welcome-message"
                                           placeholder="Welcome Message"
-                                          onChange={(e) => this.setState({ welcome: e.currentTarget.value })}/>
+                                          onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}>
+                                    { this.state.welcomeMessage }
+                                </textarea>
                                 <p className="info">
                                     <p>Use this space to change message of your initial page.</p>
                                     <p>Common use cases for this is to explain what is your Company/Product, why you created this space</p>
@@ -62,17 +78,20 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                 </p>
                             </div>
                             <div className="six wide field">
+                            <DisplayError fields={['invitation']} error={this.state.error} />
                                 <label htmlFor="invitation">Invitation</label>
                                 <input id="invitation"
                                        type="text"
                                        placeholder="Invitation"
+                                       maxLength={60}
+                                       value={ this.state.invitation }
                                        onChange={(e) => this.setState({ invitation: e.currentTarget.value })}/>
                                 <p className="info">
                                     <p>This is your customized message invition your users to share their ideas and suggestions.</p>
                                 </p>
                             </div>
                             <div className="six wide field">
-                                <Button className="positive" size="tiny">Confirm</Button>
+                                <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
                             </div>
                         </div>
                     </div>
