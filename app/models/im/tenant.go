@@ -1,6 +1,8 @@
 package im
 
 import (
+	"strings"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -45,6 +47,42 @@ func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
 	subdomainResult := validate.Subdomain(services.Tenants, i.Subdomain)
 	if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
+	}
+
+	return result
+}
+
+//UpdateTenantSettings is the input model used to update tenant settings
+type UpdateTenantSettings struct {
+	Title          string `json:"title"`
+	Invitation     string `json:"invitation"`
+	WelcomeMessage string `json:"welcomeMessage"`
+	UserClaims     *models.OAuthClaims
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *UpdateTenantSettings) IsAuthorized(user *models.User) bool {
+	return user != nil && user.Role == models.RoleAdministrator
+}
+
+// Validate is current model is valid
+func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	input.Title = strings.Trim(input.Title, " ")
+	input.Invitation = strings.Trim(input.Invitation, " ")
+	input.WelcomeMessage = strings.Trim(input.WelcomeMessage, " ")
+
+	if input.Title == "" {
+		result.AddFieldFailure("title", "Title is required.")
+	}
+
+	if len(input.Title) > 60 {
+		result.AddFieldFailure("title", "Title must have less than 60 characters.")
+	}
+
+	if len(input.Invitation) > 60 {
+		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
 	return result
