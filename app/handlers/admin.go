@@ -12,7 +12,6 @@ func UpdateSettings() web.HandlerFunc {
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
-
 		err := c.Services().Tenants.UpdateSettings(c.Tenant().ID, input.Title, input.Invitation, input.WelcomeMessage)
 		if err != nil {
 			return c.Failure(err)
