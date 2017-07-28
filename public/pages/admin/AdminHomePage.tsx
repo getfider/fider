@@ -75,8 +75,8 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                 </textarea>
                                 <p className="info">
                                     <p>Use this space to change message of your initial page.</p>
-                                    <p>Common use cases for this is to explain what is your Company/Product, why you created this space</p>
-                                    <p>This field is powered by Commonmark, which means you can style and add links to your message. Learn more <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
+                                    <p>Common use cases for this are to briefly explain what is your Company/Product, why you created this space and how the visitors can collaborate.</p>
+                                    <p>This field is powered by Commonmark, which means you can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
                                 </p>
                             </div>
                             <DisplayError fields={['invitation']} error={this.state.error} />
@@ -90,7 +90,7 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                        value={ this.state.invitation }
                                        onChange={(e) => this.setState({ invitation: e.currentTarget.value })}/>
                                 <p className="info">
-                                    <p>This is your customized message invition your users to share their ideas and suggestions.</p>
+                                    <p>This is your customized message to invite visitors to share their ideas and suggestions.</p>
                                 </p>
                             </div>
                             {
