@@ -51,6 +51,19 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	return true, nil
 }
 
+// UpdateSettings of given tenant
+func (s *TenantStorage) UpdateSettings(tenantID int, title, invitation, welcomeMessage string) error {
+	for _, tenant := range s.tenants {
+		if tenant.ID == tenantID {
+			tenant.Invitation = invitation
+			tenant.WelcomeMessage = welcomeMessage
+			tenant.Name = title
+			return nil
+		}
+	}
+	return nil
+}
+
 func extractSubdomain(domain string) string {
 	if idx := strings.Index(domain, "."); idx != -1 {
 		return domain[:idx]

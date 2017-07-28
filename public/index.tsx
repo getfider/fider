@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { AdminHomePage } from '@fider/pages/AdminHomePage';
+import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { SiteHomePage } from '@fider/pages/home/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/ShowIdeaPage';
 import { SignUpPage } from '@fider/pages/signup/SignUpPage';
@@ -19,7 +19,7 @@ container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 
-import '@fider/main.scss';
+import '@fider/styles/main.scss';
 
 const pathRegex = [
     { regex: new RegExp('^\/$'), component: <SiteHomePage /> },

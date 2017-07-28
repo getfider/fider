@@ -1,4 +1,5 @@
-@import '~@fider/variables.scss';
+@import 'variables.scss';
+@import 'form.scss';
 
 .idea-header {
   margin-left: 20px;
@@ -15,6 +16,7 @@ body {
 #menu {
   margin-top: 0px;
   background-color: $violet;
+  margin-bottom: 30px;
   div, a {
     border: none;
     color: #fff;
@@ -38,6 +40,14 @@ code {
   }
 }
 
+.no-border {
+  border-radius: 0px !important;
+}
+
+.no-margin {
+  margin: 0px !important;
+}
+
 .support-counter {
   width: 130px;
 
@@ -53,14 +63,6 @@ code {
   i.icon {
     margin: 0px;
   }
-}
-
-.no-border {
-  border-radius: 0px !important;
-}
-
-.no-margin {
-  margin: 0px !important;
 }
 
 .fdr-profile-popup div.item {

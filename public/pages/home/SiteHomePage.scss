@@ -1,8 +1,9 @@
-@import '~@fider/variables.scss';
+@import '~@fider/styles/variables.scss';
 
 .SiteHomePage {
-  h1.ui.header:first-child {
-    margin: 30px 0px;
+
+  .welcome-message {
+    margin-bottom: 20px;
   }
 
   .fdr-idea-list {

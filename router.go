@@ -83,6 +83,10 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/status", handlers.SetResponse())
 			private.Post("/api/ideas/:number/support", handlers.AddSupporter())
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
+
+			private.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
+
+			private.Post("/api/settings", handlers.UpdateSettings())
 		}
 
 		admin := page.Group("/admin")

@@ -4,12 +4,16 @@ import { DisplayError, Button, Form, SocialSignInList } from '@fider/components/
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
 
+interface IdeaInputProps {
+    placeholder: string;
+}
+
 interface IdeaInputState {
     title: string;
     focused: boolean;
 }
 
-export class IdeaInput extends React.Component<{}, IdeaInputState> {
+export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private description: HTMLTextAreaElement;
     private form: Form;
@@ -86,7 +90,7 @@ export class IdeaInput extends React.Component<{}, IdeaInputState> {
                            ref={(e) => this.title = e! }
                            maxLength={100}
                            onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
-                           placeholder="Tell us your ideas" />
+                           placeholder={this.props.placeholder} />
                 { (this.session.getCurrentUser() || this.state.title) && details }
                </Form>;
     }

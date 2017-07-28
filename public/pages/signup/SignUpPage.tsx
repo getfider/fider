@@ -114,7 +114,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     }
 
                     <div className="ui section divider"></div>
-                    <h3 className="ui header">2. Company/Product details</h3>
+                    <h3 className="ui header">2. Your Company/Product</h3>
                     <DisplayError fields={['name', 'subdomain']} error={this.state.error} />
                     <div className="ui form">
                         <div className="inline field">
