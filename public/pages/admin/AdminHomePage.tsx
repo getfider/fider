@@ -57,17 +57,19 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                        type="text"
                                        placeholder="Title"
                                        maxLength={60}
+                                       disabled={ !this.session.isAdmin() }
                                        value={ this.state.title }
                                        onChange={(e) => this.setState({ title: e.currentTarget.value })}/>
                                 <p className="info">
                                     <p>Use this field to change the title that is shown on the top of your page.</p>
                                 </p>
                             </div>
-                            <div className="six wide field">
                             <DisplayError fields={['welcomeMessage']} error={this.state.error} />
+                            <div className="six wide field">
                                 <label htmlFor="welcome-message">Welcome Message</label>
                                 <textarea id="welcome-message"
                                           placeholder="Welcome Message"
+                                          disabled={ !this.session.isAdmin() }
                                           onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}>
                                     { this.state.welcomeMessage }
                                 </textarea>
@@ -77,22 +79,26 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                     <p>This field is powered by Commonmark, which means you can style and add links to your message. Learn more <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
                                 </p>
                             </div>
-                            <div className="six wide field">
                             <DisplayError fields={['invitation']} error={this.state.error} />
+                            <div className="six wide field">
                                 <label htmlFor="invitation">Invitation</label>
                                 <input id="invitation"
                                        type="text"
                                        placeholder="Invitation"
                                        maxLength={60}
+                                       disabled={ !this.session.isAdmin() }
                                        value={ this.state.invitation }
                                        onChange={(e) => this.setState({ invitation: e.currentTarget.value })}/>
                                 <p className="info">
                                     <p>This is your customized message invition your users to share their ideas and suggestions.</p>
                                 </p>
                             </div>
-                            <div className="six wide field">
-                                <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
-                            </div>
+                            {
+                                this.session.isAdmin() &&
+                                <div className="six wide field">
+                                    <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
+                                </div>
+                            }
                         </div>
                     </div>
                 <Footer />

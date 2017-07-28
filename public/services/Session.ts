@@ -5,6 +5,7 @@ export interface Session {
     getCurrentUser(): User;
     getCurrentTenant(): Tenant;
     setUser(user: User): void;
+    isAdmin(): boolean;
     isStaff(): boolean;
     set<T>(key: string, value: T): void;
     get<T>(key: string): T;
@@ -38,6 +39,11 @@ export class BrowserSession implements Session {
 
     public setUser(user: User): void {
         this.set<User>('user', user);
+    }
+
+    public isAdmin(): boolean {
+        const user = this.getCurrentUser();
+        return user && user.role === 3;
     }
 
     public isStaff(): boolean {
