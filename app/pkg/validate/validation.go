@@ -11,11 +11,6 @@ type Validatable interface {
 	IsAuthorized(user *models.User) bool
 }
 
-// ValidationContext is the validation context
-type ValidationContext struct {
-	Services *app.Services
-}
-
 // Result is returned after each validation
 type Result struct {
 	Ok         bool
