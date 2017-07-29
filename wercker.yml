@@ -114,7 +114,7 @@ deploy:
           apk update && apk add openssh-client bash
     - add-to-known_hosts:
         hostname: fider.io
-        fingerprint: 30:cb:34:37:25:24:26:ca:9f:d8:aa:60:03:68:67:db
+        fingerprint: a5:63:bd:0d:bf:19:28:c4:bc:ea:59:c2:60:4c:53:e0
         type: rsa
     - add-ssh-key:
         keyname: CORE
