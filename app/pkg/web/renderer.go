@@ -66,6 +66,7 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 		"providers": Map{
 			oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
 			oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
+			oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
 		},
 	}
 	m["settings"] = r.settings

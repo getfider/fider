@@ -61,7 +61,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 
 			var user *models.User
 			if oauthUser.Email == "" {
-				user, err = users.GetByProvider(tenant.ID, provider, oauthUser.ID)
+				user, err = users.GetByProvider(tenant.ID, provider, oauthUser.ID.String())
 			} else {
 				user, err = users.GetByEmail(tenant.ID, oauthUser.Email)
 			}
@@ -74,7 +74,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 						Role:   models.RoleVisitor,
 						Providers: []*models.UserProvider{
 							&models.UserProvider{
-								UID:  oauthUser.ID,
+								UID:  oauthUser.ID.String(),
 								Name: provider,
 							},
 						},
@@ -89,7 +89,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 				}
 			} else if !user.HasProvider(provider) {
 				err = users.RegisterProvider(user.ID, &models.UserProvider{
-					UID:  oauthUser.ID,
+					UID:  oauthUser.ID.String(),
 					Name: provider,
 				})
 				if err != nil {
@@ -104,7 +104,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			}
 		} else {
 			claims = models.OAuthClaims{
-				OAuthID:       oauthUser.ID,
+				OAuthID:       oauthUser.ID.String(),
 				OAuthProvider: provider,
 				OAuthName:     oauthUser.Name,
 				OAuthEmail:    oauthUser.Email,

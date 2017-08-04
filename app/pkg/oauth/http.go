@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
+	"golang.org/x/oauth2/github"
 	"golang.org/x/oauth2/google"
 )
 
@@ -49,6 +50,22 @@ var (
 						"https://www.googleapis.com/auth/userinfo.email",
 					},
 					Endpoint: google.Endpoint,
+				}
+			},
+		},
+		GitHubProvider: {
+			profileURL: func(token *oauth2.Token) string {
+				return "https://api.github.com/user?access_token=" + url.QueryEscape(token.AccessToken)
+			},
+			config: func(authEndpoint string) *oauth2.Config {
+				return &oauth2.Config{
+					ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
+					ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
+					RedirectURL:  authEndpoint + "/oauth/github/callback",
+					Scopes: []string{
+						"user:email",
+					},
+					Endpoint: github.Endpoint,
 				}
 			},
 		},

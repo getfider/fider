@@ -31,5 +31,6 @@
   "go.coverOnSave": true,
   "go.coverageOptions": "showBothCoveredAndUncoveredCode",
   "go.coverageDecorator": "gutter",  
-  "go.testEnvFile": "${workspaceRoot}/.test.env"
+  "go.testEnvFile": "${workspaceRoot}/.test.env",
+  "go.lintTool": "golint"
 }

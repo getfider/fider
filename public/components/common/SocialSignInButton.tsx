@@ -5,9 +5,27 @@ import { Session } from '@fider/services/Session';
 import { Button } from '@fider/components/common';
 
 interface SocialSignInButtonProps {
-    provider: string;
+    provider: 'google' | 'facebook' | 'github';
     size: 'small' | 'normal';
 }
+
+const providers = {
+    google: {
+        name: 'Google',
+        class: 'google plus',
+        icon: 'google plus'
+    },
+    facebook: {
+        name: 'Facebook',
+        class: 'facebook',
+        icon: 'facebook'
+    },
+    github: {
+        name: 'GitHub',
+        class: 'github black',
+        icon: 'github'
+    }
+};
 
 export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
 
@@ -16,14 +34,13 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
 
     public render() {
         const auth = this.session.get<any>('auth');
-        const providerClassName = this.props.provider === 'google' ? 'google plus' : 'facebook';
-        const providerDisplayName = this.props.provider === 'google' ? 'Google' : 'Facebook';
+
         const href = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
-        const classes = `${providerClassName} ${this.props.size === 'small' ? 'circular icon' : 'fluid'}`;
+        const classes = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'circular icon' : 'fluid'}`;
 
         return <Button href={href} className={classes}>
-                    <i className={providerClassName + ' icon'}></i>
-                    { this.props.size === 'normal' && `Sign in with ${providerDisplayName}` }
+                    <i className={'icon ' + providers[this.props.provider].icon}></i>
+                    { this.props.size === 'normal' && `Sign in with ${providers[this.props.provider].name}` }
                 </Button>;
     }
 }

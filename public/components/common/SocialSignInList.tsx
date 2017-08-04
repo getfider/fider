@@ -7,7 +7,8 @@ interface AuthSettings {
     endpoint: string;
     providers: {
         google: boolean,
-        facebook: boolean
+        facebook: boolean,
+        github: boolean
     };
 }
 
@@ -37,6 +38,10 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
                         <div className="item">
                             <SocialSignInButton provider="facebook" size={this.props.size} />
                         </div>;
+        const github = settings.providers.github &&
+                        <div className="item">
+                            <SocialSignInButton provider="github" size={this.props.size} />
+                        </div>;
 
         const noAuth = !facebook && !google &&
                         <div className="item">
@@ -48,6 +53,7 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
         return <div className={`ui list signin-list ${cssClasses}`}>
                     { facebook }
                     { google }
+                    { github }
                     { noAuth }
                 </div>;
     }

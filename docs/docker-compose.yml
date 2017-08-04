@@ -34,9 +34,13 @@ services:
       # OAUTH_FACEBOOK_APPID: <fb_app_id>
       # OAUTH_FACEBOOK_SECRET: <fb_app_secret>
 
+      # GitHub: https://github.com/settings/applications/new
+      # OAUTH_GITHUB_APPID: <github_client_id>
+      # OAUTH_GITHUB_SECRET: <github_secret>
+
       # Google: https://console.developers.google.com
-      # OAUTH_GOOGLE_CLIENTID: <google_app_id>
-      # OAUTH_GOOGLE_SECRET: <google_app_secret>
+      # OAUTH_GOOGLE_CLIENTID: <google_client_id>
+      # OAUTH_GOOGLE_SECRET: <google_secret>
 
     depends_on:
       - db
