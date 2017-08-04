@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"encoding/json"
 	"os"
 )
 
@@ -9,11 +10,13 @@ const (
 	FacebookProvider = "facebook"
 	//GoogleProvider is const for 'google'
 	GoogleProvider = "google"
+	//GitHubProvider is const for 'github'
+	GitHubProvider = "github"
 )
 
 //UserProfile represents an OAuth user profile
 type UserProfile struct {
-	ID    string
+	ID    json.Number
 	Name  string
 	Email string
 }
@@ -24,6 +27,8 @@ func IsProviderEnabled(name string) bool {
 		return os.Getenv("OAUTH_GOOGLE_CLIENTID") != ""
 	} else if name == FacebookProvider {
 		return os.Getenv("OAUTH_FACEBOOK_APPID") != ""
+	} else if name == GitHubProvider {
+		return os.Getenv("OAUTH_GITHUB_CLIENTID") != ""
 	}
 	return false
 }

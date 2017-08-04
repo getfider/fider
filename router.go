@@ -55,6 +55,8 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
 		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
 		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
+		auth.Get("/github", handlers.Login(oauth.GitHubProvider))
+		auth.Get("/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
 	page := r.Group("")
