@@ -49,6 +49,8 @@ func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
 	}
 
+	i.Subdomain = strings.ToLower(i.Subdomain)
+
 	return result
 }
 
