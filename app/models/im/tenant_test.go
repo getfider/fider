@@ -31,6 +31,15 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	ExpectFailed(result, "subdomain")
 }
 
+func TestCreateTenant_UpperCaseSubdomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	input := im.CreateTenant{Token: jonSnowToken, Name: "My Company", Subdomain: "MyCompany"}
+	result := input.Validate(services)
+	ExpectSuccess(result)
+	Expect(input.Subdomain).To(Equal("mycompany"))
+}
+
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	RegisterTestingT(t)
 
