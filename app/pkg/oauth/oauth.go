@@ -18,6 +18,7 @@ const (
 type UserProfile struct {
 	ID    json.Number
 	Name  string
+	Login string
 	Email string
 }
 
