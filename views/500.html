@@ -1,7 +1,19 @@
 {{define "title"}}
-  500: Oops, something unexpected happened :(
+  Shoot! Well, this is unexpected… &middot; Fider
 {{end}}
         
 {{define "javascript"}}{{end}}
         
-{{define "content"}}<h1>500: Oops, something unexpected happened... :(</h1>{{end}}
+{{define "content"}}
+  <div class="ui middle aligned center aligned grid failure-page">
+    <div class="column">
+      <img src="http://getfider.com/images/logo-100x100.png"/>
+      <h1>Shoot! Well, this is unexpected…</h1>
+      <p>An error has occurred and we're working to fix the problem! </br> We’ll be up and running shortly.</p>
+
+      {{ if .tenant }}
+        <span>Take me back to <a href="{{ .baseUrl }}">{{ .tenant.Subdomain }}.fider.io</a> home page.</span>
+      {{ end }}
+    </div>
+  </div>
+{{end}}

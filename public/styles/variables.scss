@@ -1,2 +1,10 @@
-$violet: #6f42c1;
-$bgcolor: #f9f9f9;
+$main-color: #744fb7;
+$bg-color: #f9f9f9;
+
+@function textColorFor($color) {
+  @if (lightness($color) > 60) {
+    @return #484848; // Lighter backgorund, return dark color
+  } @else {
+    @return #ffffff; // Darker background, return light color
+  }
+}

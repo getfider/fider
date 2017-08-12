@@ -10,16 +10,16 @@
 }
 
 body {
-  background-color: $bgcolor;
+  background-color: $bg-color;
 }
 
 #menu {
   margin-top: 0px;
-  background-color: $violet;
+  background-color: $main-color;
   margin-bottom: 30px;
   div, a {
     border: none;
-    color: #fff;
+    color: textColorFor($main-color);
   }
   a::before {
     content: none;
@@ -136,10 +136,30 @@ code {
   min-width: 290px;
 }
 
-.ui.violet.button {
-  background-color: $violet;
+.ui.main-color {
+  background-color: $main-color;
+  color: #fff;
+
+  &.inverted {
+    box-shadow: 0 0 0 2px  lighten( $main-color, 10% ) inset !important;
+    background-color: #fff;
+    color: lighten( $main-color, 10% );
+  }
+
+  &:hover, &.inverted:hover {
+    box-shadow: 0 0 0 2px darken( $main-color, 10% ) inset !important;
+    background-color: darken( $main-color, 10% );
+    color: #fff;
+  }
 }
 
-.ui.inverted.violet.button, .ui.inverted.violet.buttons .button {
-  background-color: #fff;
+.failure-page {
+  height: 60%;
+  p {
+    font-size: 150%;
+  }
+  h1 {
+    font-size: 200%;
+    color: #3b4450;
+  }
 }
