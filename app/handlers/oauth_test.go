@@ -31,9 +31,10 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 	server := mock.NewServer()
 	server.Context.SetServices(getServices())
 	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=abc")
-	code, _ := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
-	Expect(code).To(Equal(http.StatusInternalServerError))
+	Expect(func() {
+		server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+	}).To(Panic())
 }
 
 func TestCallbackHandler_InvalidCode(t *testing.T) {
