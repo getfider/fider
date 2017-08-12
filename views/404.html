@@ -1,7 +1,22 @@
 {{define "title"}}
-  404: Page not found
+  Page not found &middot; Fider
 {{end}}
         
 {{define "javascript"}}{{end}}
-        
-{{define "content"}}<h1>404: Page not found</h1>{{end}}
+
+{{define "content"}}
+  <div class="ui middle aligned center aligned grid failure-page">
+    <div class="column">
+      <img src="http://getfider.com/images/logo-100x100.png"/>
+      <h1>PAGE NOT FOUND</h1>
+      <p>
+        The link you clicked may be broken or <br />
+        the page may have been removed.
+      </p>
+
+      {{ if .tenant }}
+        <span>Take me back to <a href="{{ .baseUrl }}">{{ .tenant.Subdomain }}.fider.io</a> home page.</span>
+      {{ end }}
+    </div>
+  </div>
+{{end}}

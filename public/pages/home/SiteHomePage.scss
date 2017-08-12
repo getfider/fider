@@ -23,31 +23,31 @@
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
-    border-bottom: 1.5px dashed $violet;
-    color: $violet;
+    border-bottom: 1.5px dashed $main-color;
+    color: $main-color;
     font-size: 18px;
-    background-color: $bgcolor;
+    background-color: $bg-color;
     padding: 0px 0px 10px 0px;
     font-weight: bold;
     margin: 10px 0px;
   }
 
   #new-idea-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color: #a291fb;
+    color: $main-color;
   }
   #new-idea-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: #a291fb;
+    color: $main-color;
     opacity:  1;
   }
   #new-idea-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: #a291fb;
+    color: $main-color;
     opacity:  1;
   }
   #new-idea-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: #a291fb;
+    color: $main-color;
   }
   #new-idea-input::-ms-input-placeholder { /* Microsoft Edge */
-    color: #a291fb;
+    color: $main-color;
   }
 
   .idea-title {
