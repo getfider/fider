@@ -4,6 +4,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
 
@@ -47,7 +48,15 @@ func setupServer() (*mock.Server, *app.Services) {
 		OAuth:   &mock.OAuthService{},
 	}
 
-	jonSnow = &models.User{Name: "Jon Snow", Email: "jon.snow@got.com", Tenant: demoTenant, Role: models.RoleAdministrator}
+	jonSnow = &models.User{
+		Name:   "Jon Snow",
+		Email:  "jon.snow@got.com",
+		Tenant: demoTenant,
+		Role:   models.RoleAdministrator,
+		Providers: []*models.UserProvider{
+			{UID: "FB1234", Name: oauth.FacebookProvider},
+		},
+	}
 	services.Users.Register(jonSnow)
 
 	aryaStark = &models.User{Name: "Arya Stark", Email: "arya.stark@got.com", Tenant: demoTenant, Role: models.RoleVisitor}
