@@ -43,7 +43,11 @@ func (ctx *Context) Tenant() *models.Tenant {
 
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
-	ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
+	if tenant != nil {
+		ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
+	} else {
+		ctx.Logger().Debug("Current tenant: nil")
+	}
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -117,6 +121,10 @@ func (ctx *Context) Page(dict Map) error {
 
 //SetParams sets path parameter names and values.
 func (ctx *Context) SetParams(dict Map) {
+	if dict == nil {
+		return
+	}
+
 	names := make([]string, len(dict))
 	values := make([]string, len(dict))
 
@@ -139,7 +147,11 @@ func (ctx *Context) User() *models.User {
 
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(user *models.User) {
-	ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
+	if user != nil {
+		ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
+	} else {
+		ctx.Logger().Debug("Logged as: nil")
+	}
 	ctx.Set(userContextKey, user)
 }
 

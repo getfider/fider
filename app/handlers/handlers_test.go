@@ -3,18 +3,21 @@ package handlers_test
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 var demoTenant *models.Tenant
 var orangeTenant *models.Tenant
 
+var jonSnow *models.User
+var aryaStark *models.User
+
 func getEmptyServices() *app.Services {
 	return &app.Services{
 		Tenants: &inmemory.TenantStorage{},
 		Users:   &inmemory.UserStorage{},
-		OAuth:   &MockOAuthService{},
+		OAuth:   &mock.OAuthService{},
 	}
 }
 
@@ -22,7 +25,7 @@ func getServices() *app.Services {
 	services := &app.Services{
 		Tenants: &inmemory.TenantStorage{},
 		Users:   &inmemory.UserStorage{},
-		OAuth:   &MockOAuthService{},
+		OAuth:   &mock.OAuthService{},
 	}
 
 	demoTenant, _ = services.Tenants.Add("Demonstration", "demo")
@@ -31,55 +34,27 @@ func getServices() *app.Services {
 	return services
 }
 
-//MockOAuthService implements a mocked OAuthService
-type MockOAuthService struct{}
+func setupServer() (*mock.Server, *app.Services) {
 
-//GetAuthURL returns authentication url for given provider
-func (p *MockOAuthService) GetAuthURL(authEndpoint string, provider string, redirect string) string {
-	return "http://orange.test.canherayou.com/oauth/token?provider=" + provider + "&redirect=" + redirect
-}
+	tenants := &inmemory.TenantStorage{}
+	demoTenant, _ = tenants.Add("Demonstration", "demo")
+	orangeTenant, _ = tenants.Add("Orange Inc.", "orange")
 
-//GetProfile returns user profile based on provider and code
-func (p *MockOAuthService) GetProfile(authEndpoint string, provider string, code string) (*oauth.UserProfile, error) {
-	if provider == "facebook" && code == "123" {
-		return &oauth.UserProfile{
-			ID:    "FB123",
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		}, nil
+	services := &app.Services{
+		Tenants: tenants,
+		Users:   &inmemory.UserStorage{},
+		Ideas:   &inmemory.IdeaStorage{},
+		OAuth:   &mock.OAuthService{},
 	}
 
-	if provider == "facebook" && code == "456" {
-		return &oauth.UserProfile{
-			ID:    "FB456",
-			Name:  "Some Facebook Guy",
-			Email: "some.guy@facebook.com",
-		}, nil
-	}
+	jonSnow = &models.User{Name: "Jon Snow", Email: "jon.snow@got.com", Tenant: demoTenant, Role: models.RoleAdministrator}
+	services.Users.Register(jonSnow)
 
-	if provider == "facebook" && code == "798" {
-		return &oauth.UserProfile{
-			ID:    "FB798",
-			Name:  "Mark",
-			Email: "",
-		}, nil
-	}
+	aryaStark = &models.User{Name: "Arya Stark", Email: "arya.stark@got.com", Tenant: demoTenant, Role: models.RoleVisitor}
+	services.Users.Register(aryaStark)
 
-	if provider == "google" && code == "123" {
-		return &oauth.UserProfile{
-			ID:    "GO123",
-			Name:  "Jon Snow",
-			Email: "jon.snow@got.com",
-		}, nil
-	}
+	server := mock.NewServer()
+	server.Context.SetServices(services)
 
-	if provider == "google" && code == "456" {
-		return &oauth.UserProfile{
-			ID:    "GO456",
-			Name:  "Bob",
-			Email: "",
-		}, nil
-	}
-
-	return nil, nil
+	return server, services
 }

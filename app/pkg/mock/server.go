@@ -51,8 +51,33 @@ func (s *Server) Use(middleware web.MiddlewareFunc) {
 	s.middleware = middleware
 }
 
+// OnTenant set current context tenant
+func (s *Server) OnTenant(tenant *models.Tenant) *Server {
+	s.Context.SetTenant(tenant)
+	return s
+}
+
+// AsUser set current context user
+func (s *Server) AsUser(user *models.User) *Server {
+	s.Context.SetUser(user)
+	return s
+}
+
+// WithParam set current context params
+func (s *Server) WithParam(name string, value interface{}) *Server {
+	s.Context.SetParams(web.Map{name: value})
+	return s
+}
+
+// WithParams set current context params
+func (s *Server) WithParams(params web.Map) *Server {
+	s.Context.SetParams(params)
+	return s
+}
+
 // Execute given handler and return response
 func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecorder) {
+
 	if err := s.middleware(handler)(s.Context); err != nil {
 		s.engine.HandleError(err, s.Context)
 	}
@@ -62,6 +87,7 @@ func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecord
 
 // ExecuteAsJSON given handler and return json response
 func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
+
 	if err := s.middleware(handler)(s.Context); err != nil {
 		s.engine.HandleError(err, s.Context)
 	}
@@ -71,6 +97,7 @@ func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) 
 
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
+
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
 	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
 	s.Context.SetRequest(req)
@@ -80,6 +107,7 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	}
 
 	return s.recorder.Code, s.recorder
+
 }
 
 func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
