@@ -70,7 +70,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     public render() {
         const status = IdeaStatus.Get(this.props.idea.status);
 
-        const support = <div className="ui mini violet inverted animated button"
+        const support = <div className="ui mini main-color inverted animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content">Want</div>
                     <div className="hidden content">
@@ -78,7 +78,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                     </div>
                 </div>;
 
-        const undo = <div className="ui mini violet animated button"
+        const undo = <div className="ui mini main-color animated button"
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content"><i className="heart icon"></i></div>
                     <div className="hidden content">Undo</div>
