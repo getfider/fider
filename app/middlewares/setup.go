@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"runtime/debug"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -30,13 +31,7 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 
 			defer func() {
 				if r := recover(); r != nil {
-					var err error
-					switch r := r.(type) {
-					case error:
-						err = r
-					default:
-						err = fmt.Errorf("%v", r)
-					}
+					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
 
 					if trx != nil {
 						trx.Rollback()

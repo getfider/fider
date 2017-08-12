@@ -76,7 +76,7 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, err)
+	panic(err)
 }
 
 //HandleValidation handles given validation result property to return 400 or 500
