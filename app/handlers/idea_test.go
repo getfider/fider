@@ -4,14 +4,15 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
 )
 
 func TestIndexHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, _ := setupServer()
-	code, _ := server.OnTenant(demoTenant).AsUser(jonSnow).Execute(handlers.Index())
+	server, _ := mock.NewServer()
+	code, _ := server.OnTenant(mock.DemoTenant).AsUser(mock.JonSnow).Execute(handlers.Index())
 
 	Expect(code).To(Equal(200))
 }
@@ -19,12 +20,12 @@ func TestIndexHandler(t *testing.T) {
 func TestDetailsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My Idea", "My Idea Description", jonSnow.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My Idea", "My Idea Description", mock.JonSnow.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		WithParam("number", idea.Number).
 		Execute(handlers.IdeaDetails())
 
@@ -34,10 +35,10 @@ func TestDetailsHandler(t *testing.T) {
 func TestDetailsHandler_NotFound(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, _ := setupServer()
+	server, _ := mock.NewServer()
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		WithParam("number", "99").
 		Execute(handlers.IdeaDetails())
 
@@ -47,10 +48,10 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 func TestPostIdeaHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
+	server, services := mock.NewServer()
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		ExecutePost(handlers.PostIdea(), `{ "title": "My newest idea :)" }`)
 
 	idea, err := services.Ideas.GetByID(1)
@@ -63,10 +64,10 @@ func TestPostIdeaHandler(t *testing.T) {
 func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
+	server, services := mock.NewServer()
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		ExecutePost(handlers.PostIdea(), `{ "title": "" }`)
 
 	_, err := services.Ideas.GetByID(1)
@@ -77,12 +78,12 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 func TestUpdateIdeaHandler_IdeaOwner(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", aryaStark.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.AryaStark.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(aryaStark).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
@@ -95,12 +96,12 @@ func TestUpdateIdeaHandler_IdeaOwner(t *testing.T) {
 func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", aryaStark.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.AryaStark.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
@@ -113,12 +114,12 @@ func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
 func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", jonSnow.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(aryaStark).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
@@ -128,12 +129,12 @@ func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", jonSnow.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.PostComment(), `{ "content": "This is a comment!" }`)
 
@@ -143,12 +144,12 @@ func TestPostCommentHandler(t *testing.T) {
 func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", jonSnow.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.PostComment(), `{ "content": "" }`)
 
@@ -158,13 +159,13 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 func TestAddSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	first, _ := services.Ideas.Add("The Idea #1", "The Description #1", jonSnow.ID)
-	second, _ := services.Ideas.Add("The Idea #2", "The Description #2", jonSnow.ID)
+	server, services := mock.NewServer()
+	first, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
+	second, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.JonSnow.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(aryaStark).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
 		WithParam("number", second.Number).
 		Execute(handlers.AddSupporter())
 
@@ -179,10 +180,10 @@ func TestAddSupporterHandler(t *testing.T) {
 func TestAddSupporterHandler_InvalidIdea(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, _ := setupServer()
+	server, _ := mock.NewServer()
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(aryaStark).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
 		WithParam("number", 999).
 		Execute(handlers.AddSupporter())
 
@@ -192,14 +193,14 @@ func TestAddSupporterHandler_InvalidIdea(t *testing.T) {
 func TestRemoveSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", jonSnow.ID)
-	services.Ideas.AddSupporter(idea.Number, jonSnow.ID)
-	services.Ideas.AddSupporter(idea.Number, aryaStark.ID)
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
+	services.Ideas.AddSupporter(idea.Number, mock.JonSnow.ID)
+	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
 
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(aryaStark).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
 		WithParam("number", idea.ID).
 		Execute(handlers.RemoveSupporter())
 

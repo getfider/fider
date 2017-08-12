@@ -3,6 +3,8 @@ package handlers_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/mock"
+
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/onsi/gomega"
 )
@@ -10,11 +12,10 @@ import (
 func TestUpdateSettingsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, services := setupServer()
-
+	server, services := mock.NewServer()
 	code, _ := server.
-		OnTenant(demoTenant).
-		AsUser(jonSnow).
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
 		ExecutePost(
 			handlers.UpdateSettings(),
 			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,

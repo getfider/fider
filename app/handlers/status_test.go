@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
 )
 
@@ -15,7 +16,7 @@ func TestStatusHandler(t *testing.T) {
 		BuildTime: "today",
 	}
 
-	server, _ := setupServer()
+	server, _ := mock.NewServer()
 	status, query := server.ExecuteAsJSON(handlers.Status(settings))
 
 	Expect(query.String("build")).To(Equal("today"))
