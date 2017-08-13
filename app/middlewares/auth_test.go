@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	. "github.com/onsi/gomega"
 )
@@ -14,14 +14,9 @@ import (
 func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Context.SetUser(&models.User{
-		ID:   1,
-		Role: models.RoleMember,
-	})
-
+	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.AsUser(mock.JonSnow).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -31,14 +26,9 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Context.SetUser(&models.User{
-		ID:   1,
-		Role: models.RoleVisitor,
-	})
-
+	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.AsUser(mock.AryaStark).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -48,13 +38,9 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 func TestIsAuthenticated_WithUser(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Context.SetUser(&models.User{
-		ID: 1,
-	})
-
+	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthenticated())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.AsUser(mock.AryaStark).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -64,7 +50,7 @@ func TestIsAuthenticated_WithUser(t *testing.T) {
 func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
+	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthenticated())
 
 	status, _ := server.Execute(func(c web.Context) error {

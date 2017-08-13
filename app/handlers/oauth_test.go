@@ -5,8 +5,6 @@ import (
 
 	"net/http"
 
-	"net/url"
-
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -28,10 +26,11 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=abc")
 
 	Expect(func() {
-		server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+		server.
+			WithURL("http://login.test.canherayou.com/oauth/callback?state=abc").
+			Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 	}).To(Panic())
 }
 
@@ -39,8 +38,9 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io")
-	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+	code, response := server.
+		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io"))
@@ -50,8 +50,9 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123")
-	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+	code, response := server.
+		WithURL("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
@@ -61,8 +62,9 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io&code=456")
-	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+	code, response := server.
+		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io&code=456").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	user, err := services.Users.GetByEmail(mock.OrangeTenant.ID, "some.guy@facebook.com")
 	Expect(err).To(BeNil())
@@ -85,8 +87,9 @@ func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 		},
 	})
 
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=798")
-	code, response := server.Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+	code, response := server.
+		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=798").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	user, err := services.Users.GetByID(3)
 	Expect(err).To(BeNil())
@@ -106,8 +109,9 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	server.Context.Request().URL, _ = url.Parse("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123")
-	code, response := server.Execute(handlers.OAuthCallback(oauth.GoogleProvider))
+	code, response := server.
+		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123").
+		Execute(handlers.OAuthCallback(oauth.GoogleProvider))
 
 	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
 	Expect(err).To(BeNil())

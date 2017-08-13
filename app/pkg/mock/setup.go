@@ -23,18 +23,16 @@ var AryaStark *models.User
 
 // NewSingleTenantServer creates a new multitenant test server
 func NewSingleTenantServer() (*Server, *app.Services) {
-	server := createServer()
 	services := createServices(false)
-	server.Context.SetServices(services)
+	server := createServer(services)
 	os.Setenv("HOST_MODE", "single")
 	return server, services
 }
 
 // NewServer creates a new server and services for HTTP testing
 func NewServer() (*Server, *app.Services) {
-	server := createServer()
 	services := createServices(true)
-	server.Context.SetServices(services)
+	server := createServer(services)
 	os.Setenv("HOST_MODE", "multi")
 	return server, services
 }
@@ -49,7 +47,7 @@ func createServices(seed bool) *app.Services {
 
 	if seed {
 		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo")
-		OrangeTenant, _ = services.Tenants.Add("Orange Inc.", "orange")
+		OrangeTenant, _ = services.Tenants.Add("The Orange Inc.", "orange")
 
 		JonSnow = &models.User{
 			Name:   "Jon Snow",

@@ -13,7 +13,7 @@ import (
 func TestCache(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
+	server, _ := mock.NewServer()
 	server.Use(middlewares.OneYearCache())
 	handler := func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
