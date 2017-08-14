@@ -33,21 +33,21 @@
   }
 
   #new-idea-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color: $main-color;
+    color: lighten($main-color, 25);
   }
   #new-idea-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: $main-color;
+    color: lighten($main-color, 25);
     opacity:  1;
   }
   #new-idea-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: $main-color;
+    color: lighten($main-color, 25);
     opacity:  1;
   }
   #new-idea-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: $main-color;
+    color: lighten($main-color, 25);
   }
   #new-idea-input::-ms-input-placeholder { /* Microsoft Edge */
-    color: $main-color;
+    color: lighten($main-color, 25);
   }
 
   .idea-title {
