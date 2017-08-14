@@ -24,6 +24,12 @@ func (i *Idea) CanBeChangedBy(user *User) bool {
 	return user.IsStaff() || i.User.ID == user.ID
 }
 
+// NewIdea represents a new idea
+type NewIdea struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
 //IdeaResponse is a staff response to a given idea
 type IdeaResponse struct {
 	Text        string    `json:"text"`

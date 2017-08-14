@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -23,13 +24,13 @@ func Index() web.HandlerFunc {
 // PostIdea creates a new idea on current tenant
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(im.Idea)
-		if result := c.BindTo(input); !result.Ok {
+		input := new(actions.CreateNewIdea)
+		if result := c.BindTo2(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.Add(input.Title, input.Description, c.User().ID)
+		idea, err := ideas.Add(input.Model.Title, input.Model.Description, c.User().ID)
 		if err != nil {
 			return c.Failure(err)
 		}
