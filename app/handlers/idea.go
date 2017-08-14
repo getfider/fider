@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -25,7 +24,7 @@ func Index() web.HandlerFunc {
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.CreateNewIdea)
-		if result := c.BindTo2(input); !result.Ok {
+		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
@@ -51,14 +50,14 @@ func UpdateIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		input := new(im.Idea)
+		input := new(actions.CreateNewIdea)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
 		idea, err := c.Services().Ideas.GetByNumber(number)
 		if idea.CanBeChangedBy(c.User()) {
-			idea, err = c.Services().Ideas.Update(number, input.Title, input.Description)
+			idea, err = c.Services().Ideas.Update(number, input.Model.Title, input.Model.Description)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -102,7 +101,7 @@ func IdeaDetails() web.HandlerFunc {
 // PostComment creates a new comment on given idea
 func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(im.NewComment)
+		input := new(actions.AddNewComment)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
@@ -113,7 +112,7 @@ func PostComment() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		_, err = ideas.AddComment(ideaNumber, input.Content, c.User().ID)
+		_, err = ideas.AddComment(ideaNumber, input.Model.Content, c.User().ID)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -128,7 +127,7 @@ func PostComment() web.HandlerFunc {
 // SetResponse changes current idea staff response
 func SetResponse() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(im.SetResponse)
+		input := new(actions.SetResponse)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
@@ -139,7 +138,7 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		err = ideas.SetResponse(ideaNumber, input.Text, c.User().ID, input.Status)
+		err = ideas.SetResponse(ideaNumber, input.Model.Text, c.User().ID, input.Model.Status)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()

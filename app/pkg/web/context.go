@@ -53,19 +53,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 }
 
 //BindTo context values into given model
-func (ctx *Context) BindTo(i validate.Validatable) *validate.Result {
-	err := ctx.Bind(i)
-	if err != nil {
-		return validate.Error(err)
-	}
-	if !i.IsAuthorized(ctx.User()) {
-		return validate.Unauthorized()
-	}
-	return i.Validate(ctx.Services())
-}
-
-//BindTo2 context values into given model
-func (ctx *Context) BindTo2(i actions.Actionable) *validate.Result {
+func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := ctx.Bind(i.NewModel())
 	if err != nil {
 		return validate.Error(err)

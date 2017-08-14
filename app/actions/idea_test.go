@@ -1,9 +1,11 @@
-package im_test
+package actions_test
 
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/models/im"
+	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models"
+
 	. "github.com/onsi/gomega"
 )
 
@@ -21,8 +23,8 @@ func TestInvalidIdeaTitles(t *testing.T) {
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
 	} {
-		idea := im.Idea{Title: title}
-		result := idea.Validate(services)
+		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
+		result := action.Validate(services)
 		ExpectFailed(result, "title")
 	}
 }
@@ -34,8 +36,8 @@ func TestValidIdeaTitles(t *testing.T) {
 		"this is my new idea",
 		"this idea is very descriptive",
 	} {
-		idea := im.Idea{Title: title}
-		result := idea.Validate(services)
+		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
+		result := action.Validate(services)
 		ExpectSuccess(result)
 	}
 }

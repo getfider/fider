@@ -1,6 +1,8 @@
 package models
 
-import jwt "github.com/dgrijalva/jwt-go"
+import (
+	jwt "github.com/dgrijalva/jwt-go"
+)
 
 //Tenant represents a tenant
 type Tenant struct {
@@ -68,4 +70,20 @@ type OAuthClaims struct {
 	OAuthName     string `json:"oauth/name"`
 	OAuthEmail    string `json:"oauth/email"`
 	jwt.StandardClaims
+}
+
+//CreateTenant is the input model used to create a tenant
+type CreateTenant struct {
+	Token      string `json:"token"`
+	Name       string `json:"name"`
+	Subdomain  string `json:"subdomain"`
+	UserClaims *OAuthClaims
+}
+
+//UpdateTenantSettings is the input model used to update tenant settings
+type UpdateTenantSettings struct {
+	Title          string `json:"title"`
+	Invitation     string `json:"invitation"`
+	WelcomeMessage string `json:"welcomeMessage"`
+	UserClaims     *OAuthClaims
 }
