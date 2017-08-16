@@ -2,6 +2,10 @@ export function setTitle(title: string) {
     document.title = title;
 }
 
+export function getBaseUrl(): string {
+    return (window as any)._baseUrl;
+}
+
 export function getQueryString(name: string) {
     const url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');

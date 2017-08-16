@@ -74,6 +74,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
 			public.Get("/logout", handlers.Logout())
 			public.Get("/api/status", handlers.Status(settings))
+			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
 		}
 
 		private := page.Group("/api")

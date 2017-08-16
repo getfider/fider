@@ -34,7 +34,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
         const commentsList = this.comments.length ? this.comments.map((c) =>
           <div className="comment">
             <a className="avatar">
-              <Gravatar hash={c.user.gravatar} />
+              <Gravatar name={c.user.name} hash={c.user.gravatar} />
             </a>
             <div className="content">
               <span className="author">{ c.user.name }</span>
@@ -61,7 +61,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
                           <p>
                             #{ this.idea.number } shared by &nbsp;
-                            <Gravatar hash={this.idea.user.gravatar}/> <u>{this.idea.user.name}</u> &nbsp;
+                            <Gravatar name={this.idea.user.name} hash={this.idea.user.gravatar}/> <u>{this.idea.user.name}</u> &nbsp;
                             <Moment date={this.idea.createdOn} />
                           </p>
                         </div>

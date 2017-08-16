@@ -15,6 +15,18 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/goenning/letteravatar"
+  packages = ["."]
+  revision = "67f3a5f74e15d5a3ccb9d83859040880c64b118d"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/freetype"
+  packages = [".","raster","truetype"]
+  revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
+
+[[projects]]
+  branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "6a1fa9404c0aebf36c879bc50152edcc953910d2"
@@ -99,6 +111,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/image"
+  packages = ["font","math/fixed"]
+  revision = "426cfd8eeb6e08ab1932954e09e3c2cb2bc6e36d"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp"]
   revision = "054b33e6527139ad5b1ec2f6232c3b175bd9a30c"
@@ -106,7 +124,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
-  packages = [".","facebook","google","internal","jws","jwt"]
+  packages = [".","facebook","github","google","internal","jws","jwt"]
   revision = "cce311a261e6fcf29de72ca96827bdb0b7d9c9e6"
 
 [[projects]]
@@ -130,6 +148,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b8441a9d22c6d5ba11ca193b3da24ca05c8809542239c6ad8f49b5a0627a24d4"
+  inputs-digest = "85ef71dfcaad35fbc998b5800f62d7b35b976fbb60aafe806a93030d6bd7a6e2"
   solver-name = "gps-cdcl"
   solver-version = 1
