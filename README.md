@@ -5,9 +5,11 @@
 
 # What is Fider?
 
-Visit http://getfider.com for information on what it is and how to use it.
+Fider is an open platform to collect and organize customer feedback. By using the platform, your customers can share, vote and discuss on ideas they have to make your product or company even better. 
 
-[Live Demo](https://demo.fider.io/) | [Tell us what to do next](https://feedback.fider.io/)
+Check the [Live Demo](https://demo.fider.io/) where you can try it yourself, or visit http://getfider.com for information on what it is and how to host your own instance.
+
+If you have a suggestion on how to make Fider better, please [share with us](https://feedback.fider.io).
 
 ![](docs/homepage.png)
 
