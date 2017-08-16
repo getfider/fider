@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -43,13 +44,17 @@ func (ctx *Context) Tenant() *models.Tenant {
 
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
-	ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
+	if tenant != nil {
+		ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
+	} else {
+		ctx.Logger().Debug("Current tenant: nil")
+	}
 	ctx.Set(tenantContextKey, tenant)
 }
 
 //BindTo context values into given model
-func (ctx *Context) BindTo(i validate.Validatable) *validate.Result {
-	err := ctx.Bind(i)
+func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
+	err := ctx.Bind(i.NewModel())
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -76,7 +81,7 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, err)
+	panic(err)
 }
 
 //HandleValidation handles given validation result property to return 400 or 500
@@ -117,6 +122,10 @@ func (ctx *Context) Page(dict Map) error {
 
 //SetParams sets path parameter names and values.
 func (ctx *Context) SetParams(dict Map) {
+	if dict == nil {
+		return
+	}
+
 	names := make([]string, len(dict))
 	values := make([]string, len(dict))
 
@@ -139,7 +148,11 @@ func (ctx *Context) User() *models.User {
 
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(user *models.User) {
-	ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
+	if user != nil {
+		ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
+	} else {
+		ctx.Logger().Debug("Logged as: nil")
+	}
 	ctx.Set(userContextKey, user)
 }
 

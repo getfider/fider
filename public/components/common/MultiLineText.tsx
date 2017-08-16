@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as md from 'markdown-it';
 
 const cm = md('commonmark', { html: false, linkify: true }).enable('linkify');
-const linkify = md('zero', { linkify: true }).enable('linkify');
 
 interface MultiLineText {
   className?: string;
@@ -20,6 +19,6 @@ export const MultiLineText = (props: MultiLineText) => {
   }
 
   return <div className={props.className}>{props.text.split('\n').map((item, i) =>
-    <span dangerouslySetInnerHTML={{__html: linkify.renderInline(item) + '<br />'}}></span>
+    <span dangerouslySetInnerHTML={{__html: cm.renderInline(item) + '<br />'}}></span>
   )}</div>;
 };

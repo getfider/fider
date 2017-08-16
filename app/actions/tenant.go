@@ -1,4 +1,4 @@
-package im
+package actions
 
 import (
 	"strings"
@@ -12,54 +12,60 @@ import (
 
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Token      string `json:"token"`
-	Name       string `json:"name"`
-	Subdomain  string `json:"subdomain"`
-	UserClaims *models.OAuthClaims
+	Model *models.CreateTenant
+}
+
+// NewModel initializes the model
+func (input *CreateTenant) NewModel() interface{} {
+	input.Model = new(models.CreateTenant)
+	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (i *CreateTenant) IsAuthorized(user *models.User) bool {
+func (input *CreateTenant) IsAuthorized(user *models.User) bool {
 	return true
 }
 
 // Validate is current model is valid
-func (i *CreateTenant) Validate(services *app.Services) *validate.Result {
+func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	var err error
-	if i.Token == "" {
+	if input.Model.Token == "" {
 		result.AddFieldFailure("token", "Please identify yourself before proceeding.")
 	} else {
-		if i.UserClaims, err = jwt.DecodeOAuthClaims(i.Token); err != nil {
+		if input.Model.UserClaims, err = jwt.DecodeOAuthClaims(input.Model.Token); err != nil {
 			return validate.Error(err)
 		}
 	}
 
 	if env.IsSingleHostMode() {
-		i.Subdomain = "default"
+		input.Model.Subdomain = "default"
 	}
 
-	if i.Name == "" {
+	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
-	subdomainResult := validate.Subdomain(services.Tenants, i.Subdomain)
+	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
 	if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
 	}
 
-	i.Subdomain = strings.ToLower(i.Subdomain)
+	input.Model.Subdomain = strings.ToLower(input.Model.Subdomain)
 
 	return result
 }
 
 //UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
-	Title          string `json:"title"`
-	Invitation     string `json:"invitation"`
-	WelcomeMessage string `json:"welcomeMessage"`
-	UserClaims     *models.OAuthClaims
+	Model *models.UpdateTenantSettings
+}
+
+// NewModel initializes the model
+func (input *UpdateTenantSettings) NewModel() interface{} {
+	input.Model = new(models.UpdateTenantSettings)
+	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
@@ -71,19 +77,19 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User) bool {
 func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	input.Title = strings.Trim(input.Title, " ")
-	input.Invitation = strings.Trim(input.Invitation, " ")
-	input.WelcomeMessage = strings.Trim(input.WelcomeMessage, " ")
+	input.Model.Title = strings.Trim(input.Model.Title, " ")
+	input.Model.Invitation = strings.Trim(input.Model.Invitation, " ")
+	input.Model.WelcomeMessage = strings.Trim(input.Model.WelcomeMessage, " ")
 
-	if input.Title == "" {
+	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	}
 
-	if len(input.Title) > 60 {
+	if len(input.Model.Title) > 60 {
 		result.AddFieldFailure("title", "Title must have less than 60 characters.")
 	}
 
-	if len(input.Invitation) > 60 {
+	if len(input.Model.Invitation) > 60 {
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 

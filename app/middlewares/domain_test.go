@@ -4,31 +4,29 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage/inmemory"
 	. "github.com/onsi/gomega"
 )
 
 var testCases = []struct {
 	expected string
-	hosts    []string
+	urls     []string
 }{
 	{
 		"The Orange Inc.",
 		[]string{
-			"orange.test.fider.io",
-			"orange.test.fider.io:3000",
+			"http://orange.test.fider.io",
+			"http://orange.test.fider.io:3000",
 		},
 	},
 	{
 		"Demonstration",
 		[]string{
-			"demo.test.fider.io",
-			"demo.test.fider.io:1231",
-			"demo.test.fider.io:80",
+			"http://demo.test.fider.io",
+			"http://demo.test.fider.io:1231",
+			"http://demo.test.fider.io:80",
 		},
 	},
 }
@@ -36,21 +34,13 @@ var testCases = []struct {
 func TestMultiTenant(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenants := &inmemory.TenantStorage{}
-	tenants.Add("The Orange Inc.", "orange")
-	tenants.Add("Demonstration", "demo")
-
 	for _, testCase := range testCases {
-		for _, host := range testCase.hosts {
+		for _, url := range testCase.urls {
 
-			server := mock.NewServer()
-			server.Context.Request().Host = host
-			server.Context.SetServices(&app.Services{
-				Tenants: tenants,
-			})
-
+			server, _ := mock.NewServer()
 			server.Use(middlewares.MultiTenant())
-			status, response := server.Execute(func(c web.Context) error {
+
+			status, response := server.WithURL(url).Execute(func(c web.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})
 
@@ -63,15 +53,10 @@ func TestMultiTenant(t *testing.T) {
 func TestMultiTenant_AuthDomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenants := &inmemory.TenantStorage{}
-	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.fider.io"
-	server.Context.SetServices(&app.Services{
-		Tenants: tenants,
-	})
-
+	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
-	status, _ := server.Execute(func(c web.Context) error {
+
+	status, _ := server.WithURL("http://login.test.fider.io").Execute(func(c web.Context) error {
 		if c.Tenant() == nil {
 			return c.NoContent(http.StatusOK)
 		}
@@ -84,15 +69,10 @@ func TestMultiTenant_AuthDomain(t *testing.T) {
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenants := &inmemory.TenantStorage{}
-	server := mock.NewServer()
-	server.Context.Request().Host = "somedomain.com"
-	server.Context.SetServices(&app.Services{
-		Tenants: tenants,
-	})
-
+	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
-	status, _ := server.Execute(func(c web.Context) error {
+
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -102,15 +82,10 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenants := &inmemory.TenantStorage{}
-	server := mock.NewServer()
-	server.Context.Request().Host = "somedomain.com"
-	server.Context.SetServices(&app.Services{
-		Tenants: tenants,
-	})
-
+	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
-	status, response := server.Execute(func(c web.Context) error {
+
+	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -118,35 +93,28 @@ func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 	Expect(response.HeaderMap.Get("Location")).To(Equal("/signup"))
 }
 
-func TestSingleTenant_WithTenants_ShouldSetToContext(t *testing.T) {
+func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	RegisterTestingT(t)
 
-	tenants := &inmemory.TenantStorage{}
-	tenant, _ := tenants.Add("Some Tenant", "mytenant")
-
-	server := mock.NewServer()
-	server.Context.Request().Host = "somedomain.com"
-	server.Context.SetServices(&app.Services{
-		Tenants: tenants,
-	})
-
+	server, services := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
-	status, _ := server.Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
+	services.Tenants.Add("MyCompany", "mycompany")
+
+	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(server.Context.Tenant()).Should(Equal(tenant))
+	Expect(response.Body.String()).Should(Equal("MyCompany"))
 }
 
 func TestHostChecker(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Context.Request().Host = "login.test.fider.io"
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.HostChecker("login.test.fider.io"))
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://login.test.fider.io").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -156,10 +124,9 @@ func TestHostChecker(t *testing.T) {
 func TestHostChecker_DifferentHost(t *testing.T) {
 	RegisterTestingT(t)
 
-	server := mock.NewServer()
-	server.Context.Request().Host = "orange.test.fider.io"
+	server, _ := mock.NewServer()
 	server.Use(middlewares.HostChecker("login.test.fider.io"))
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://orange.test.fider.io").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 

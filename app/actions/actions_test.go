@@ -1,4 +1,4 @@
-package im_test
+package actions_test
 
 import (
 	"github.com/getfider/fider/app"

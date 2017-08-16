@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/models/im"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
@@ -31,23 +31,23 @@ func CheckAvailability() web.HandlerFunc {
 //CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(im.CreateTenant)
+		input := new(actions.CreateTenant)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		tenant, err := c.Services().Tenants.Add(input.Name, input.Subdomain)
+		tenant, err := c.Services().Tenants.Add(input.Model.Name, input.Model.Subdomain)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		user := &models.User{
-			Name:   input.UserClaims.OAuthName,
-			Email:  input.UserClaims.OAuthEmail,
+			Name:   input.Model.UserClaims.OAuthName,
+			Email:  input.Model.UserClaims.OAuthEmail,
 			Tenant: tenant,
 			Role:   models.RoleAdministrator,
 			Providers: []*models.UserProvider{
-				{UID: input.UserClaims.OAuthID, Name: input.UserClaims.OAuthProvider},
+				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
 			},
 		}
 
