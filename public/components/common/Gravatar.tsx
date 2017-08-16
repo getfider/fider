@@ -9,14 +9,14 @@ interface GravatarProps {
 }
 
 export const Gravatar = (props: GravatarProps) => {
-  let element: any;
   const fallback = `${getBaseUrl()}/avatars/50/${props.name}`;
-
   const hash = props.email ? md5(props.email) : props.hash || '';
+
+  let element: any;
   return (hash && props.name) ?
     <img ref={(e) => element = e }
          onError={() => { element.src = fallback; }}
          className="ui avatar image"
-         src={ `https://www.gravatar.com/avatar/${hash}?d=${fallback}` }/> :
+         src={ `https://www.gravatar.com/avatar/${hash}?d=${encodeURIComponent(fallback)}` }/> :
     <div />;
 };
