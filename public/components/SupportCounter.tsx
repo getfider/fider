@@ -68,25 +68,28 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     }
 
     public render() {
+
+        const noTouch = !('ontouchstart' in window);
+
         const status = IdeaStatus.Get(this.props.idea.status);
 
-        const support = <div className="ui mini main-color inverted animated button"
+        const support = <div className={ `ui mini inverted main-color button ${noTouch && 'animated'}` }
                     onClick={async () => await this.supportOrUndo()}>
                     <div className="visible content">Want</div>
-                    <div className="hidden content">
+                    { noTouch && <div className="hidden content">
                         <i className="heart icon"></i>
-                    </div>
+                    </div> }
                 </div>;
 
-        const undo = <div className="ui mini main-color animated button"
-                    onClick={async () => await this.supportOrUndo()}>
-                    <div className="visible content"><i className="heart icon"></i></div>
-                    <div className="hidden content">Undo</div>
-                </div>;
+        const undo = <div className={ `ui mini main-color button ${noTouch && 'animated'}` }
+                        onClick={async () => await this.supportOrUndo()}>
+                        <div className="visible content"><i className="heart icon"></i></div>
+                        { noTouch && <div className="hidden content">Undo</div> }
+                    </div>;
 
-        const disabled = <div className="ui disabled mini animated button">
-                    <div className="visible content">~</div>
-                </div>;
+        const disabled = <div className="ui disabled mini button">
+                            <div className="visible content">Votes</div>
+                        </div>;
 
         return <div>
                     <div className="support-counter ui small statistics">
