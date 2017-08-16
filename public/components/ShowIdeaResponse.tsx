@@ -14,7 +14,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
         return <div className="fdr-response item ui raised segment">
                 <span className={`ui ribbon label ${status.color}`}>{ status.title }</span>
                     <div className="info">
-                        <Gravatar hash={props.response.user.gravatar}/> <u>{props.response.user.name}</u>
+                        <Gravatar name={props.response.user.name} hash={props.response.user.gravatar}/> <u>{props.response.user.name}</u>
                         <Moment date={props.response.respondedOn} />
                     </div>
                     <div className="content">
