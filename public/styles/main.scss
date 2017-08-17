@@ -141,13 +141,19 @@ code {
   background-color: $main-color;
   color: #fff;
 
-  &.inverted {
+  &.not-animated:hover {
+    background-color: $main-color;
+    color: #fff;
+  }
+
+  &.inverted, &.not-animated.inverted:hover {
     box-shadow: 0 0 0 2px  lighten( $main-color, 10% ) inset !important;
     background-color: #fff;
     color: lighten( $main-color, 10% );
   }
 
-  &:hover, &.inverted:hover {
+
+  &.animated:hover, &.animated.inverted:hover {
     box-shadow: 0 0 0 2px darken( $main-color, 10% ) inset !important;
     background-color: darken( $main-color, 10% );
     color: #fff;
