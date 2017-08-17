@@ -10,7 +10,7 @@ describe('Submit ideas', () => {
 
     // Assert
     await Promise.all([
-      ensure(pages.home.UserMenu).textIs('Sign in'),
+      ensure(pages.home.UserMenu).textIs('Log in'),
       ensure(pages.home.SubmitIdea).isNotVisible(),
       ensure(pages.home.IdeaDescription).isNotVisible(),
     ]);

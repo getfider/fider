@@ -40,15 +40,17 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
           <div className="item" key={x.id}>
             <SupportCounter user={this.user} idea={x} />
             <div className="content">
+              { x.totalComments > 0 && <div className="info right">
+                { x.totalComments } <i className="comments outline icon"/>
+              </div> }
               <a href={`/ideas/${x.number}/${x.slug}`} className="header">
                 { x.title }
               </a>
               <MultiLineText className="description" text={ x.description } markdown={true} />
-              <div className="extra">
-                shared <Moment date={x.createdOn} />
-                <div style={{float: 'right'}}>{ x.totalComments } <i className="comments icon"/></div>
-              </div>
               <ShowIdeaResponse status={ x.status } response={ x.response } />
+              <div className="info">
+                <Moment date={x.createdOn} />
+              </div>
             </div>
           </div>);
 

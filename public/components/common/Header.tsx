@@ -58,7 +58,7 @@ export class Header extends React.Component<{}, {}> {
                             </a>
                             <a ref={(e) => { this.dropdown = e!; } } className="item right signin">
                                 <Gravatar name={this.user.name} hash={this.user.gravatar} />
-                                { this.user.name || 'Sign in' }
+                                { this.user.name || 'Log in' }
                                 <i className="dropdown icon"></i>
                             </a>
                         </div>

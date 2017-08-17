@@ -46,7 +46,6 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
 
     public render() {
         return <h4 className="ui header">
-                    <i className="filter icon"></i>
                     <div className="content">
                     Showing {' '}
                     <div className="ui inline dropdown" ref={(e) => this.element = e!}>
