@@ -60,9 +60,10 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                           <h1 className="ui header">{ this.idea.title }</h1>
 
                           <p>
-                            #{ this.idea.number } shared by &nbsp;
-                            <Gravatar name={this.idea.user.name} hash={this.idea.user.gravatar}/> <u>{this.idea.user.name}</u> &nbsp;
-                            <Moment date={this.idea.createdOn} />
+                            <Gravatar name={this.idea.user.name} hash={this.idea.user.gravatar}/> <b>{this.idea.user.name}</b> &nbsp;
+                            <span className="info">
+                              <Moment date={this.idea.createdOn} />
+                            </span>
                           </p>
                         </div>
                       </div>

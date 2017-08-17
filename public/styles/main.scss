@@ -1,10 +1,6 @@
 @import 'variables.scss';
 @import 'form.scss';
 
-.idea-header {
-  margin-left: 20px;
-}
-
 .center {
   text-align: center;
 }
@@ -15,16 +11,26 @@ body {
 
 #menu {
   margin-top: 0px;
-  background-color: $main-color;
+  background-color: $menu-color;
   margin-bottom: 30px;
   height: 40px;
+  
   div, a {
     border: none;
-    color: textColorFor($main-color);
+    color: textColorFor($menu-color);
   }
   a::before {
     content: none;
   }
+}
+
+.info {
+  color: rgba(0,0,0,.4);
+  font-size: 90%;
+}
+
+.info.right {
+  float: right;
 }
 
 code {
@@ -41,6 +47,10 @@ code {
   }
 }
 
+.avatar {
+  border-radius: 500rem !important;
+}
+
 .no-border {
   border-radius: 0px !important;
 }
@@ -50,19 +60,27 @@ code {
 }
 
 .support-counter {
-  width: 130px;
+  width: 60px;
+  margin-right: 10px;
 
-  .statistic {
+  .button, 
+  .button.disabled { 
     margin: 0 auto !important;
+    padding: 0.5rem 1rem !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset !important;
   }
 
-  .button {
-    width: 60px;
-    margin: 0 auto !important;
+  .button.supported, 
+  .button.no-touch:hover {
+    background-color: lighten($main-color, 49%) !important;
+    color: $main-color;
+    box-shadow: 0 0 0 1px $main-color inset !important;
   }
 
   i.icon {
-    margin: 0px;
+    margin: 3px !important;
+    display: block;
   }
 }
 

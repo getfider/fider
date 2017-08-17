@@ -12,10 +12,8 @@
     }
     
     > .item > .content {
-      margin-left: 20px;
-
       .description {
-        min-height: 10px;
+        min-height: 40px;
       }
     }
   }
@@ -30,24 +28,6 @@
     padding: 0px 0px 10px 0px;
     font-weight: bold;
     margin: 10px 0px;
-  }
-
-  #new-idea-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-    color: lighten($main-color, 25);
-  }
-  #new-idea-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color: lighten($main-color, 25);
-    opacity:  1;
-  }
-  #new-idea-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color: lighten($main-color, 25);
-    opacity:  1;
-  }
-  #new-idea-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: lighten($main-color, 25);
-  }
-  #new-idea-input::-ms-input-placeholder { /* Microsoft Edge */
-    color: lighten($main-color, 25);
   }
 
   .idea-title {

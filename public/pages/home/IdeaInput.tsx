@@ -71,15 +71,15 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                                         placeholder="Describe your idea (optional)"></textarea>
                             </div>
                             <Button className={buttonCss} onClick={() => this.form.submit() }>
-                              Submit Idea
+                              Submit
                             </Button>
                           </div> :
                           <div>
                             <div className="ui message signin-message">
                               <div className="header">
-                                Hey! We need to know who you are
+                                Hey, we need to know who you are!
                               </div>
-                              <p>This only takes a second and you'll be good to go!</p>
+                              <p>It's only one second and you'll be good to go!</p>
                               <SocialSignInList orientation="horizontal" size="small" />
                             </div>
                           </div>;

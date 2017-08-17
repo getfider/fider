@@ -40,7 +40,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
 
         return <Button href={href} className={classes}>
                     <i className={'icon ' + providers[this.props.provider].icon}></i>
-                    { this.props.size === 'normal' && `Sign in with ${providers[this.props.provider].name}` }
+                    { this.props.size === 'normal' && `Log in with ${providers[this.props.provider].name}` }
                 </Button>;
     }
 }

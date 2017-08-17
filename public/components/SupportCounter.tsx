@@ -64,41 +64,28 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         } else {
             // TODO: handle this. we should have a global alert box
         }
-
     }
 
     public render() {
 
         const noTouch = !('ontouchstart' in window);
-
         const status = IdeaStatus.Get(this.props.idea.status);
 
-        const support = <div className={ `ui mini inverted main-color button ${noTouch ? 'animated' : 'not-animated'}` }
-                    onClick={async () => await this.supportOrUndo()}>
-                    <div className="visible content">Want</div>
-                    { noTouch && <div className="hidden content">
-                        <i className="heart icon"></i>
-                    </div> }
-                </div>;
-
-        const undo = <div className={ `ui mini main-color button ${noTouch ? 'animated' : 'not-animated'}` }
+        const vote = <button ref={(e) => { this.elem = e!; } }
+                        className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
                         onClick={async () => await this.supportOrUndo()}>
-                        <div className="visible content"><i className="heart icon"></i></div>
-                        { noTouch && <div className="hidden content">Undo</div> }
-                    </div>;
+                        { this.state.total }
+                        <i className="medium thumbs up icon"></i>
+                     </button>;
 
-        const disabled = <div className="ui disabled mini button">
-                            <div className="visible content">Votes</div>
-                        </div>;
+        const disabled = <div className="ui button disabled">
+                            { this.state.total }
+                            <i className="medium thumbs up icon"></i>
+                         </div>;
 
         return <div>
-                    <div className="support-counter ui small statistics">
-                        <div ref={(e) => { this.elem = e!; } } className="statistic">
-                            <div className="value">
-                                { this.state.total }
-                            </div>
-                            { status.closed ? disabled : this.state.supported ? undo : support }
-                        </div>
+                    <div className="support-counter ui">
+                        { status.closed ? disabled : vote }
                     </div>
                     <div ref={(e) => { this.list = e!; } } className="ui popup transition hidden signin-message">
                         <p className="header">Hey! We need to know who you are</p>
