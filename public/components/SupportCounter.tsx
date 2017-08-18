@@ -74,13 +74,13 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const vote = <button ref={(e) => { this.elem = e!; } }
                         className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
                         onClick={async () => await this.supportOrUndo()}>
+                        <i className="medium caret up icon"></i>
                         { this.state.total }
-                        <i className="medium thumbs up icon"></i>
                      </button>;
 
         const disabled = <div className="ui button disabled">
+                            <i className="medium caret up icon"></i>
                             { this.state.total }
-                            <i className="medium thumbs up icon"></i>
                          </div>;
 
         return <div>

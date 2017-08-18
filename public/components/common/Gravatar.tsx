@@ -17,6 +17,7 @@ export const Gravatar = (props: GravatarProps) => {
     <img ref={(e) => element = e }
          onError={() => { element.src = fallback; }}
          className="ui avatar image"
+         title={props.name}
          src={ `https://www.gravatar.com/avatar/${hash}?d=${encodeURIComponent(fallback)}` }/> :
     <div />;
 };
