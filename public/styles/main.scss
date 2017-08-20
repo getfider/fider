@@ -53,7 +53,7 @@ code {
   width: 2em;
   display: inline-block;
   margin-right: 0.5em;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .comment-input {
@@ -62,7 +62,11 @@ code {
 }
 
 .ui.comments {
-  .comment>.content {
+  .fdr-avatar {
+    vertical-align: top;
+    margin-top: 2px;
+  }
+  .comment > .content {
     display: inline-block;
     max-width: 600px;
   }
