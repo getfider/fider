@@ -58,7 +58,7 @@ code {
 
 .comment-input {
   display: inline-block;
-  min-width: 500px;
+  width: 90%;
 }
 
 .ui.comments {
@@ -68,7 +68,7 @@ code {
   }
   .comment > .content {
     display: inline-block;
-    max-width: 600px;
+    max-width: 90%;
   }
 }
 
@@ -109,14 +109,15 @@ code {
   padding: 10px 5px !important;
 }
 
-.fdr-response {
+.ui.segment.fdr-response {
+  padding: 0.5em;
+
   .content {
     margin-top: 10px;
   }
 
   .label {
-    line-height: 28px;
-    padding: 0px 1em;
+    text-transform: uppercase;
   }
 
   .fdr-avatar {
