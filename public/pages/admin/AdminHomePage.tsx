@@ -45,7 +45,7 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
     public render() {
       return <div>
                 <Header />
-                    <div className="ui container">
+                    <div className="page ui container">
                         <h1 className="ui header">Administration</h1>
                         <h4 className="ui header">General Settings</h4>
 

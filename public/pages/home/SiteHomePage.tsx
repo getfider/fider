@@ -67,7 +67,7 @@ We'd love to hear what you're thinking about. This is the place for you to submi
 
         return <div className="SiteHomePage">
                   <Header />
-                  <div className="ui container">
+                  <div className="page ui container">
 
                     <div className="ui grid stackable">
                       <div className="six wide column">

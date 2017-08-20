@@ -13,10 +13,10 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
     if (props.response && status.show) {
         return <div className="fdr-response item ui raised segment">
                 <span className={`ui ribbon label ${status.color}`}>{ status.title }</span>
-                        <Gravatar name={props.response.user.name} hash={props.response.user.gravatar}/> { props.response.user.name }
-                        <span className="info">
-                            <Moment date={props.response.respondedOn} />
-                        </span>
+                    <Gravatar name={props.response.user.name} hash={props.response.user.gravatar}/> { props.response.user.name }
+                    <span className="info">
+                        <Moment date={props.response.respondedOn} />
+                    </span>
                     <div className="content">
                         <MultiLineText text={ props.response.text } markdown={true} />
                     </div>

@@ -47,8 +47,24 @@ code {
   }
 }
 
-.avatar {
-  border-radius: 500rem !important;
+.fdr-avatar,
+.ui.menu .item>img:not(.ui) {
+  border-radius: .25rem;
+  width: 2em;
+  display: inline-block;
+  margin-right: 0.5em;
+  vertical-align: top;
+}
+
+.comment-input {
+  display: inline-block;
+  min-width: 500px;
+}
+
+.ui.comments {
+  .comment>.content {
+    display: inline-block;
+  }
 }
 
 .no-border {
@@ -113,8 +129,6 @@ code {
 }
 
 #footer {
-  margin-top: 50px;
-  
   #powered-by {
     text-align: center;
 

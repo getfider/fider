@@ -92,7 +92,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     public render() {
         return <div>
                 <EnvironmentInfo />
-                <div id="fdr-signup-page" className="ui container">
+                <div id="fdr-signup-page" className="page ui container">
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
