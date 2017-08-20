@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { Idea } from '@fider/models';
-import { Button, DisplayError, SocialSignInList } from '@fider/components/common';
+import { Idea, User } from '@fider/models';
+import { Gravatar, Button, DisplayError, SocialSignInList } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -23,8 +23,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     @inject(injectables.IdeaService)
     public service: IdeaService;
 
+    private user: User;
+
     constructor() {
         super();
+        this.user = this.session.getCurrentUser();
+
         this.state = {
           content: ''
         };
@@ -60,14 +64,17 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               <SocialSignInList orientation="horizontal" size="small" />
             </div>;
 
-        return <div className="ui reply form">
-                  <DisplayError error={this.state.error} />
-                  <div className="field">
-                    <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
-                              rows={3}
-                              placeholder="Write a comment..."></textarea>
+        return <div>
+                  <Gravatar name={this.user.name} hash={this.user.gravatar}/>
+                  <div className="ui form comment-input">
+                    <DisplayError error={this.state.error} />
+                    <div className="field">
+                      <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
+                                rows={3}
+                                placeholder="Write a comment..."></textarea>
+                    </div>
+                    { (this.state.content || user) && button }
                   </div>
-                  { (this.state.content || user) && button }
                 </div>;
     }
 }

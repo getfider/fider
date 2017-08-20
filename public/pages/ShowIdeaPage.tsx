@@ -33,9 +33,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
         const commentsList = this.comments.length ? this.comments.map((c) =>
           <div className="comment">
-            <a className="avatar">
-              <Gravatar name={c.user.name} hash={c.user.gravatar} />
-            </a>
+            <Gravatar name={c.user.name} hash={c.user.gravatar} />
             <div className="content">
               <span className="author">{ c.user.name }</span>
               <div className="metadata">
@@ -50,7 +48,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
         return <div>
                   <Header />
-                  <div className="ui container">
+                  <div className="page ui container">
                     <div className="ui items unstackable">
                       <div className="item">
 
@@ -81,10 +79,10 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                     }
 
                     <div className="ui comments">
-                      <h3 className="ui dividing header">Comments</h3>
+                      <h3 className="ui dividing header">Discussion</h3>
                       { commentsList }
+                      <CommentInput idea={this.idea} />
                     </div>
-                    <CommentInput idea={this.idea} />
                   </div>
                   <Footer />
                </div>;

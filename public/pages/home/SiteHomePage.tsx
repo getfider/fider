@@ -4,7 +4,7 @@ import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/componen
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { IdeaInput } from './IdeaInput';
-import { IdeaFilter } from './IdeaFilter';
+import { IdeaFilter, IdeaFilterFunction } from './IdeaFilter';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -20,6 +20,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
     private tenant: Tenant;
     private allIdeas: Idea[];
     private filter: HTMLDivElement;
+    private activeFilter: string;
 
     @inject(injectables.Session)
     public session: Session;
@@ -30,9 +31,17 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         this.tenant = this.session.getCurrentTenant();
         this.allIdeas = this.session.get<Idea[]>('ideas') || [];
 
+        this.activeFilter = window.location.hash.substring(1);
         this.state = {
-          ideas: IdeaFilter.defaultFilter(this.allIdeas)
+          ideas: IdeaFilter.getFilter(this.activeFilter)(this.allIdeas)
         };
+    }
+
+    private filterChanged(name: string, filter: IdeaFilterFunction) {
+      window.location.hash = `#${name}`;
+      this.setState({
+        ideas: filter(this.allIdeas)
+      });
     }
 
     public render() {
@@ -67,7 +76,7 @@ We'd love to hear what you're thinking about. This is the place for you to submi
 
         return <div className="SiteHomePage">
                   <Header />
-                  <div className="ui container">
+                  <div className="page ui container">
 
                     <div className="ui grid stackable">
                       <div className="six wide column">
@@ -82,7 +91,7 @@ We'd love to hear what you're thinking about. This is the place for you to submi
                               <p>It's lonely out here. Start by sharing an idea!</p>
                             </div>
                           : <div>
-                              <IdeaFilter filterChanged={(filter) => this.setState({ ideas: filter(this.allIdeas) }) } />
+                              <IdeaFilter activeFilter={ this.activeFilter } filterChanged={ this.filterChanged.bind(this) } />
                               { displayIdeas }
                             </div>
                         }
