@@ -9,6 +9,10 @@
   .fdr-idea-list {
     > .item {
       min-height: 105px;
+
+      .header {
+        max-width: 85%;
+      }
     }
     
     > .item > .content {
