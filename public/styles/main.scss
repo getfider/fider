@@ -64,6 +64,7 @@ code {
 .ui.comments {
   .comment>.content {
     display: inline-block;
+    max-width: 600px;
   }
 }
 

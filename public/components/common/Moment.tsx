@@ -12,9 +12,9 @@ export const Moment = (props: MomentText) => {
 
   const m = moment(props.date);
   const diff = m.diff(new Date(), 'years');
-  const display = (diff !== 0) ? m.format('Do MMM YYYY') : m.fromNow();
+  const display = (diff !== 0) ? m.format('MMMM D, YYYY') : m.fromNow();
 
-  return <span className="date" title={m.format('Do MMM YYYY, hh:mm')}>
+  return <span className="date" title={m.format('MMMM D, YYYY')}>
     { display }
   </span>;
 };
