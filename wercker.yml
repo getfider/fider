@@ -23,7 +23,7 @@ build-assets:
           npm run build
 
 test:
-  box: golang:1.8
+  box: golang:1.9
   base-path: /go/src/github.com/getfider/fider
   steps:
     # Get dependencies
@@ -45,7 +45,7 @@ test:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
 
 coverage:
-  box: golang:1.8
+  box: golang:1.9
   base-path: /go/src/github.com/getfider/fider
   steps:
     # Install jq
