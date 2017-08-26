@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/goenning/letteravatar"
   packages = ["."]
-  revision = "67f3a5f74e15d5a3ccb9d83859040880c64b118d"
+  revision = "60393e488e6e121fdbc76d32c4f3dba7f3d88377"
 
 [[projects]]
   branch = "master"
@@ -148,6 +148,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "85ef71dfcaad35fbc998b5800f62d7b35b976fbb60aafe806a93030d6bd7a6e2"
+  inputs-digest = "8a9e995d9270d7f2907ecd74867c5104f12830eae4a76ce802639457513aa1ed"
   solver-name = "gps-cdcl"
   solver-version = 1
