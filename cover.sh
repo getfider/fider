@@ -45,7 +45,7 @@ for pkg in "$@"; do
 
 	args=""
 	if [[ -n "$coverpkg" ]]; then
-		args="-p=1 -coverprofile $COVER/cover.${i}.out -covermode=count -coverpkg $coverpkg,$testcoverpkg"
+		args="-p=1 -coverprofile $COVER/cover.${i}.out -covermode=atomic -coverpkg $coverpkg,$testcoverpkg"
 	fi
 
 	echo go test $args -v -race "$pkg"
