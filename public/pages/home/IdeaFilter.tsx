@@ -17,7 +17,7 @@ const filterers: {[key: string]: (idea: Idea) => boolean} = {
 };
 
 const names: {[key: string]: string} = {
-    'recent': 'recent',
+    'recent': 'recent ideas',
     'most-wanted': 'most wanted ideas',
     'most-discussed': 'most discussed ideas',
     'completed': 'completed ideas',

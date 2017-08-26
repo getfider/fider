@@ -21,11 +21,11 @@ export class FacebookSignInPage extends Page {
   }
 
   public async signInAsJonSnow() {
-    await this.signInAs('jon_qvfhyum_snow@tfbnw.net', 'jon_qvfhyum_snow');
+    await this.signInAs('jon_jdrtrsd_snow@tfbnw.net', 'jon_jdrtrsd_snow');
   }
 
   public async signInAsAryaStark() {
-    await this.signInAs('arya_mdmwgdg_stark@tfbnw.net', 'arya_mdmwgdg_stark');
+    await this.signInAs('arya_xittsrj_stark@tfbnw.net', 'arya_xittsrj_stark');
   }
 
   public async signInAs(email: string, password: string) {

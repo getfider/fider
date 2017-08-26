@@ -29,8 +29,9 @@ func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 
 	switch subdomain {
 	case
-		"signup", "fider", "admin", "setup", "about", "wecanhearyou":
-		return Failed([]string{fmt.Sprintf("%s is not a valid subdomain name.", subdomain)})
+		"signup", "fider", "admin", "setup", "about", "wecanhearyou",
+		"billing", "www", "web", "translate", "help", "support", "staging":
+		return Failed([]string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)})
 	}
 
 	available, err := tenants.IsSubdomainAvailable(subdomain)

@@ -7,7 +7,7 @@ ENV_FILE=.test.env
 endif
 
 test:
-	godotenv -f ${ENV_FILE} go test $$(go list ./... | grep -v /vendor/) -cover -p=1
+	godotenv -f ${ENV_FILE} go test ./... -cover -p=1
 
 coverage:
 	godotenv -f ${ENV_FILE} ./cover.sh $$(go list ./... | grep -v /vendor/)

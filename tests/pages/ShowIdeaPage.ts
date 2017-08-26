@@ -11,7 +11,7 @@ export class ShowIdeaPage extends Page {
   @findBy('div.description')
   public Description: WebComponent;
 
-  @findBy('.support-counter .value')
+  @findBy('.support-counter .button')
   public SupportCounter: WebComponent;
 
   public loadCondition() {
