@@ -26,7 +26,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
       this.user = this.session.getCurrentUser();
       this.idea = this.session.get<Idea>('idea');
       this.comments = this.session.getArray<Comment>('comments');
-      setTitle(`${this.idea.title} · Idea #${this.idea.number} · ${document.title}`);
+      setTitle(`${this.idea.title} · ${document.title}`);
     }
 
     public render() {

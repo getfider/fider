@@ -3,6 +3,8 @@ package postgres_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/models"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/storage/postgres"
@@ -125,7 +127,12 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
 
-	err := tenants.UpdateSettings(tenant.ID, "New Demonstration", "Leave us your suggestion", "Welcome!")
+	settings := &models.UpdateTenantSettings{
+		Title:          "New Demonstration",
+		Invitation:     "Leave us your suggestion",
+		WelcomeMessage: "Welcome!",
+	}
+	err := tenants.UpdateSettings(tenant.ID, settings)
 	Expect(err).To(BeNil())
 
 	tenant, err = tenants.GetByDomain("demo")

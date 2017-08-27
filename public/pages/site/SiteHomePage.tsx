@@ -3,8 +3,8 @@ import { Idea, IdeaStatus, User, Tenant } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
-import { IdeaInput } from './IdeaInput';
-import { IdeaFilter, IdeaFilterFunction } from './IdeaFilter';
+import { IdeaInput } from '@fider/components/IdeaInput';
+import { IdeaFilter, IdeaFilterFunction } from '@fider/components/IdeaFilter';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';

@@ -52,12 +52,12 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 }
 
 // UpdateSettings of given tenant
-func (s *TenantStorage) UpdateSettings(tenantID int, title, invitation, welcomeMessage string) error {
+func (s *TenantStorage) UpdateSettings(tenantID int, settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
 		if tenant.ID == tenantID {
-			tenant.Invitation = invitation
-			tenant.WelcomeMessage = welcomeMessage
-			tenant.Name = title
+			tenant.Invitation = settings.Invitation
+			tenant.WelcomeMessage = settings.WelcomeMessage
+			tenant.Name = settings.Title
 			return nil
 		}
 	}

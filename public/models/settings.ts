@@ -8,3 +8,12 @@ export interface AppSettings {
     compiler: string;
     domain: string;
 }
+
+export interface AuthSettings {
+    endpoint: string;
+    providers: {
+        google: boolean,
+        facebook: boolean,
+        github: boolean
+    };
+}
