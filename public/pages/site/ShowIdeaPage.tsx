@@ -51,42 +51,51 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
         return <div className="ShowIdeaPage">
                   <Header />
                   <div className="page ui container">
-                    <div className="ui items unstackable">
-                      <div className="item">
-                        <SupportCounter user={this.user} idea={this.idea} />
+                    <div className="ui stackable grid container">
+                      <div className="twelve wide column">
+                        <div className="ui items unstackable">
+                          <div className="item">
+                            <SupportCounter user={this.user} idea={this.idea} />
 
-                        <div className="idea-header">
-                          <h1 className="ui header">{ this.idea.title }</h1>
+                            <div className="idea-header">
+                              <h1 className="ui header">{ this.idea.title }</h1>
 
-                          <span className="info">
-                            Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <b>{ this.idea.user.name }</b>
-                          </span>
+                              <span className="info">
+                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <b>{ this.idea.user.name }</b>
+                              </span>
+                            </div>
+                          </div>
                         </div>
+
+                        <span className="subtitle">Description</span>
+                        {
+                          this.idea.description
+                          ? <MultiLineText className="description" text={ this.idea.description } markdown={true} />
+                          : <p className="description">This idea has no description.</p>
+                        }
+
+                        <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
+
+                      </div>
+
+                      {
+                        this.session.isStaff() &&
+                        <div className="four wide column">
+                          <span className="subtitle">Actions</span>
+                          <br /><br />
+                          <ResponseForm idea={ this.idea } />
+                        </div>
+                      }
+
+                      <div className="sixteen wide column">
+                          <div className="ui comments">
+                            <span className="subtitle">Discussion</span>
+                            { commentsList }
+                            <CommentInput idea={this.idea} />
+                          </div>
                       </div>
                     </div>
 
-                    {
-                      this.session.isStaff() &&
-                      <div>
-                        <ResponseForm idea={ this.idea } />
-                        <div className="ui hidden divider"></div>
-                      </div>
-                    }
-
-                    <span className="subtitle">Description</span>
-                    {
-                      this.idea.description
-                      ? <MultiLineText className="description" text={ this.idea.description } markdown={true} />
-                      : <p className="description">This idea has no description.</p>
-                    }
-
-                    <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
-
-                    <div className="ui comments">
-                      <span className="subtitle">Discussion</span>
-                      { commentsList }
-                      <CommentInput idea={this.idea} />
-                    </div>
                   </div>
                   <Footer />
                </div>;
