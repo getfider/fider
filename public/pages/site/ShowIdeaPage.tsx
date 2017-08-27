@@ -12,6 +12,8 @@ import { Button, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInBu
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
 
+import './ShowIdeaPage.scss';
+
 export class ShowIdeaPage extends React.Component<{}, {}> {
     private user: User;
     private idea: Idea;
@@ -37,52 +39,63 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
             <div className="content">
               <span className="author">{ c.user.name }</span>
               <div className="metadata">
-                <Moment date={c.createdOn} />
+                · <Moment date={c.createdOn} />
               </div>
               <div className="text">
-                <MultiLineText text={ c.content } />
+                <MultiLineText text={ c.content } style="simple" />
               </div>
             </div>
           </div>
-        ) : <p>There are no comments yet.</p>;
+        ) : <p>No comments have been added yet.</p>;
 
-        return <div>
+        return <div className="ShowIdeaPage">
                   <Header />
                   <div className="page ui container">
-                    <div className="ui items unstackable">
-                      <div className="item">
+                    <div className="ui stackable grid container">
+                      <div className="twelve wide column">
+                        <div className="ui items unstackable">
+                          <div className="item">
+                            <SupportCounter user={this.user} idea={this.idea} />
 
-                        <SupportCounter user={this.user} idea={this.idea} />
+                            <div className="idea-header">
+                              <h1 className="ui header">{ this.idea.title }</h1>
 
-                        <div className="idea-header">
-                          <h1 className="ui header">{ this.idea.title }</h1>
-
-                          <p>
-                            <Gravatar name={this.idea.user.name} hash={this.idea.user.gravatar}/> <b>{this.idea.user.name}</b> &nbsp;
-                            <span className="info">
-                              <Moment date={this.idea.createdOn} />
-                            </span>
-                          </p>
+                              <span className="info">
+                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <b>{ this.idea.user.name }</b>
+                              </span>
+                            </div>
+                          </div>
                         </div>
+
+                        <span className="subtitle">Description</span>
+                        {
+                          this.idea.description
+                          ? <MultiLineText className="description" text={ this.idea.description } style="simple" />
+                          : <p className="description">This idea has no description.</p>
+                        }
+
+                        <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
+
+                      </div>
+
+                      {
+                        this.session.isStaff() &&
+                        <div className="four wide column">
+                          <span className="subtitle">Actions</span>
+                          <br /><br />
+                          <ResponseForm idea={ this.idea } />
+                        </div>
+                      }
+
+                      <div className="sixteen wide column">
+                          <div className="ui comments">
+                            <span className="subtitle">Discussion</span>
+                            { commentsList }
+                            <CommentInput idea={this.idea} />
+                          </div>
                       </div>
                     </div>
 
-                    <MultiLineText className="description" text={ this.idea.description } markdown={true} />
-                    <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
-
-                    {
-                      this.session.isStaff() &&
-                      <div>
-                        <div className="ui hidden divider"></div>
-                        <ResponseForm idea={ this.idea } />
-                      </div>
-                    }
-
-                    <div className="ui comments">
-                      <h3 className="ui dividing header">Discussion</h3>
-                      { commentsList }
-                      <CommentInput idea={this.idea} />
-                    </div>
                   </div>
                   <Footer />
                </div>;

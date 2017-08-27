@@ -54,7 +54,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
         const button = user
           ? <Button className="primary" onClick={ () => this.submit() }>
-              Add Comment
+              Submit
             </Button>
           : <div className="ui message signin-message">
               <div className="header">
@@ -64,16 +64,16 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               <SocialSignInList orientation="horizontal" size="small" />
             </div>;
 
-        return <div>
-                  <Gravatar name={this.user.name} hash={this.user.gravatar}/>
-                  <div className="ui form comment-input">
+        return <div className="comment-input">
+                  <Gravatar name={ this.user.name } hash={ this.user.gravatar }/>
+                  <div className="ui form">
                     <DisplayError error={this.state.error} />
                     <div className="field">
                       <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
                                 rows={3}
                                 placeholder="Write a comment..."></textarea>
                     </div>
-                    { (this.state.content || user) && button }
+                    { this.state.content && user && button }
                   </div>
                 </div>;
     }

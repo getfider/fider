@@ -18,7 +18,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
                         <Moment date={props.response.respondedOn} />
                     </span>
                     <div className="content">
-                        <MultiLineText text={ props.response.text } markdown={true} />
+                        <MultiLineText text={ props.response.text } style="full" />
                     </div>
                 </div>;
     }

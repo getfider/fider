@@ -8,15 +8,19 @@
 
   .fdr-idea-list {
     > .item {
-      min-height: 105px;
-
-      .header {
+      a {
         max-width: 85%;
+        color: #000;
+        font-size: 18px;
+        &:hover {
+          color: $main-color;
+        }
       }
     }
     
     > .item > .content {
       .description {
+        color:rgba(0, 0, 0, 0.6);
         min-height: 20px;
         margin-bottom: 10px;
       }
@@ -27,7 +31,6 @@
     margin-bottom: 20px;
     border: none;
     border-bottom: 1.5px dashed $main-color;
-    color: $main-color;
     font-size: 18px;
     background-color: $bg-color;
     padding: 0px 0px 10px 0px;

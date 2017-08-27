@@ -14,11 +14,16 @@ body {
   background-color: $menu-color;
   margin-bottom: 30px;
   height: 40px;
+
+  .fdr-avatar {
+    margin-right: 5px;
+  }
   
   div, a {
     border: none;
     color: textColorFor($menu-color);
   }
+
   a::before {
     content: none;
   }
@@ -33,12 +38,50 @@ body {
   float: right;
 }
 
+.subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: #999;
+}
+
 code {
-  padding: 2px 4px;
-  font-size: 90%;
-  color: #c7254e;
-  background-color: #f9f2f4;
-  border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body {
+  blockquote {
+      padding: 0 1em;
+      color: #6a737d;
+      border-left: 0.25em solid #dfe2e5;
+  }
+  pre {
+    overflow: hidden;
+    padding: 16px;
+    line-height: 1.45;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    code {
+      display: inline;
+      max-width: auto;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      line-height: inherit;
+      word-wrap: normal;
+      background-color: transparent;
+      border: 0;
+    }
+  }
+  code {
+    padding: 0.2em;
+    font-size: 85%;
+    margin: 0;
+    background-color: rgba(27,31,35,0.05);
+    border-radius: 3px;
+  }
 }
 
 .ui.inline.dropdown {
@@ -49,27 +92,9 @@ code {
 
 .fdr-avatar,
 .ui.menu .item>img:not(.ui) {
-  border-radius: .25rem;
-  width: 2em;
-  display: inline-block;
-  margin-right: 0.5em;
+  border-radius: 2rem;
+  width: 30px;
   vertical-align: middle;
-}
-
-.comment-input {
-  display: inline-block;
-  width: 85%;
-}
-
-.ui.comments {
-  .fdr-avatar {
-    vertical-align: top;
-    margin-top: 2px;
-  }
-  .comment > .content {
-    display: inline-block;
-    max-width: 85%;
-  }
 }
 
 .no-border {
