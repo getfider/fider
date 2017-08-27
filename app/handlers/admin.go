@@ -12,7 +12,7 @@ func UpdateSettings() web.HandlerFunc {
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
-		err := c.Services().Tenants.UpdateSettings(c.Tenant().ID, input.Model.Title, input.Model.Invitation, input.Model.WelcomeMessage)
+		err := c.Services().Tenants.UpdateSettings(c.Tenant().ID, input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -1,7 +1,9 @@
 import * as React from 'react';
 
-import { Header, Footer, Button, DisplayError } from '@fider/components/common';
 import { Tenant } from '@fider/models';
+import { setTitle } from '@fider/utils/page';
+
+import { Header, Footer, Button, DisplayError } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session, TenantService, Failure } from '@fider/services';
 
@@ -31,6 +33,8 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
            welcomeMessage: this.tenant.welcomeMessage,
            invitation: this.tenant.invitation
         };
+
+        setTitle(`Administration · ${document.title}`);
     }
 
     private async confirm() {

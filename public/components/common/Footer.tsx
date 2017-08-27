@@ -1,5 +1,5 @@
 import * as React from 'react';
-const logo = require('@fider/images/logo-small.png');
+const logo = require('@fider/assets/images/logo-small.png');
 
 export const Footer = () => {
         return  <div id="footer" className="ui vertical footer segment">
