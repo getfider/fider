@@ -2,15 +2,7 @@ import * as React from 'react';
 import { SocialSignInButton } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
-
-interface AuthSettings {
-    endpoint: string;
-    providers: {
-        google: boolean,
-        facebook: boolean,
-        github: boolean
-    };
-}
+import { AuthSettings } from '@fider/models';
 
 interface SocialSignInListProps {
     size: 'small' | 'normal';
