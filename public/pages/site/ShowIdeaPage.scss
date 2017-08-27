@@ -1,0 +1,32 @@
+.ShowIdeaPage {
+  .idea-header {
+    h1 {
+      font-weight: 400;
+      margin: 0px;
+    }
+    .fdr-avatar {
+      width: 24px;
+    }
+  }
+
+  .ui.comments {
+    .fdr-avatar {
+      margin-right: 5px;
+      vertical-align: top;
+      margin-top: 2px;
+    }
+    .comment > .content {
+      display: inline-block;
+      max-width: 85%;
+    }
+  }
+
+  .comment-input  {
+    margin-top: 10px;
+
+    .form {
+      display: inline-block;
+      width: 85%;
+    }
+  }
+}

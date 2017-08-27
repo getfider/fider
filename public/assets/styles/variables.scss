@@ -1,6 +1,6 @@
 $main-color: #0069ff; //#0c9
-$bg-color: #f9f9f9;
-$menu-color: #fff;
+$bg-color: #fff;
+$menu-color: #f9f9f9;
 
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
