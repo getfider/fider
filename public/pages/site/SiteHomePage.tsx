@@ -55,7 +55,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
               <a href={`/ideas/${x.number}/${x.slug}`}>
                 { x.title }
               </a>
-              <MultiLineText className="description" text={ x.description } markdown={true} />
+              <MultiLineText className="description" text={ x.description } style="simple" />
               <ShowIdeaResponse status={ x.status } response={ x.response } />
             </div>
           </div>);
@@ -77,7 +77,7 @@ We'd love to hear what you're thinking about. This is the place for you to submi
 
                     <div className="ui grid stackable">
                       <div className="six wide column">
-                        <MultiLineText className="welcome-message" text={ welcomeMessage } markdown={true} />
+                        <MultiLineText className="welcome-message" text={ welcomeMessage } style="full" />
                         <IdeaInput placeholder={this.tenant.invitation || 'Tell us your ideas'} />
                       </div>
                       <div className="ten wide column">

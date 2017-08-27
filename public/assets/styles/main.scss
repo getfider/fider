@@ -48,11 +48,40 @@ body {
 }
 
 code {
-  padding: 2px 4px;
-  font-size: 90%;
-  color: #c7254e;
-  background-color: #f9f2f4;
-  border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body {
+  blockquote {
+      padding: 0 1em;
+      color: #6a737d;
+      border-left: 0.25em solid #dfe2e5;
+  }
+  pre {
+    overflow: hidden;
+    padding: 16px;
+    line-height: 1.45;
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    code {
+      display: inline;
+      max-width: auto;
+      padding: 0;
+      margin: 0;
+      overflow: visible;
+      line-height: inherit;
+      word-wrap: normal;
+      background-color: transparent;
+      border: 0;
+    }
+  }
+  code {
+    padding: 0.2em;
+    font-size: 85%;
+    margin: 0;
+    background-color: rgba(27,31,35,0.05);
+    border-radius: 3px;
+  }
 }
 
 .ui.inline.dropdown {

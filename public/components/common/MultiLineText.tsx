@@ -1,12 +1,13 @@
 import * as React from 'react';
 import * as md from 'markdown-it';
 
-const cm = md('commonmark', { html: false, linkify: true }).enable('linkify');
+const simple = md('commonmark', { html: false, breaks: true, linkify: true }).disable('heading').disable('image');
+const full = md('commonmark', { html: false, breaks: true, linkify: true });
 
 interface MultiLineText {
   className?: string;
   text?: string;
-  markdown?: boolean;
+  style: 'full' | 'simple';
 }
 
 export const MultiLineText = (props: MultiLineText) => {
@@ -14,11 +15,6 @@ export const MultiLineText = (props: MultiLineText) => {
     return <p></p>;
   }
 
-  if (props.markdown) {
-    return <div className={props.className} dangerouslySetInnerHTML={{__html: cm.render(props.text)}}></div>;
-  }
-
-  return <div className={props.className}>{props.text.split('\n').map((item, i) =>
-    <span dangerouslySetInnerHTML={{__html: cm.renderInline(item) + '<br />'}}></span>
-  )}</div>;
+  const func = props.style === 'full' ? full : simple;
+  return <div className={ `markdown-body ${props.className || ''}` } dangerouslySetInnerHTML={{__html: func.render(props.text)}}></div>;
 };

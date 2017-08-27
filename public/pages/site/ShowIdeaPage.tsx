@@ -42,7 +42,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                 · <Moment date={c.createdOn} />
               </div>
               <div className="text">
-                <MultiLineText text={ c.content } />
+                <MultiLineText text={ c.content } style="simple" />
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                         <span className="subtitle">Description</span>
                         {
                           this.idea.description
-                          ? <MultiLineText className="description" text={ this.idea.description } markdown={true} />
+                          ? <MultiLineText className="description" text={ this.idea.description } style="simple" />
                           : <p className="description">This idea has no description.</p>
                         }
 
