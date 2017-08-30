@@ -7,7 +7,7 @@ import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { Button, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
+import { Button, UserName, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -37,7 +37,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
           <div className="comment">
             <Gravatar name={c.user.name} hash={c.user.gravatar} />
             <div className="content">
-              <span className="author">{ c.user.name }</span>
+              <UserName user={c.user} />
               <div className="metadata">
                 · <Moment date={c.createdOn} />
               </div>
@@ -61,7 +61,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                               <h1 className="ui header">{ this.idea.title }</h1>
 
                               <span className="info">
-                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <b>{ this.idea.user.name }</b>
+                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <UserName user={this.idea.user} />
                               </span>
                             </div>
                           </div>

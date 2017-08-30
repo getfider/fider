@@ -63,12 +63,12 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     public render() {
         const user = this.session.getCurrentUser();
         const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
-        const details = user ?
+        const details = user  ?
                           <div>
                             <div className="field">
                               <textarea ref={(ref) => this.description = ref! }
                                         rows={6}
-                                        placeholder="Describe your idea (optional)"></textarea>
+                                        placeholder="Describe your idea"></textarea>
                             </div>
                             <Button className={buttonCss} onClick={() => this.form.submit() }>
                               Submit
@@ -91,7 +91,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                            maxLength={100}
                            onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
                            placeholder={this.props.placeholder} />
-                { (this.session.getCurrentUser() || this.state.title) && details }
+                { this.state.title && details }
                </Form>;
     }
 }

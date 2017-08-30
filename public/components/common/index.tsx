@@ -9,3 +9,4 @@ export * from './Header';
 export * from './SocialSignInButton';
 export * from './SocialSignInList';
 export * from './Moment';
+export * from './UserName';
