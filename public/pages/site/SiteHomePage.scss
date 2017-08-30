@@ -8,7 +8,7 @@
 
   .fdr-idea-list {
     > .item {
-      a {
+      a.title {
         max-width: 85%;
         color: #000;
         font-size: 18px;
@@ -16,9 +16,7 @@
           color: $main-color;
         }
       }
-    }
-    
-    > .item > .content {
+      
       .description {
         color:rgba(0, 0, 0, 0.6);
         min-height: 20px;
