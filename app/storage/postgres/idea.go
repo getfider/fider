@@ -94,11 +94,13 @@ var (
 																u.id AS user_id, 
 																u.name AS user_name, 
 																u.email AS user_email,
+																u.role AS user_role,
 																i.response,
 																i.response_date,
 																r.id AS response_user_id, 
 																r.name AS response_user_name, 
-																r.email AS response_user_email
+																r.email AS response_user_email, 
+																r.role AS response_user_role
 													FROM ideas i
 													INNER JOIN users u
 													ON u.id = i.user_id
@@ -159,7 +161,8 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 				c.created_on, 
 				u.id AS user_id, 
 				u.name AS user_name,
-				u.email AS user_email
+				u.email AS user_email,
+				u.role AS user_role
 		FROM comments c
 		INNER JOIN ideas i
 		ON i.id = c.idea_id

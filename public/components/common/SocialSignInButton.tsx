@@ -14,12 +14,12 @@ const providers = {
     google: {
         name: 'Google',
         class: 'google plus',
-        icon: 'google plus'
+        icon: 'google'
     },
     facebook: {
         name: 'Facebook',
         class: 'facebook',
-        icon: 'facebook'
+        icon: 'facebook f'
     },
     github: {
         name: 'GitHub',
@@ -41,7 +41,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
 
         return <Button href={href} className={classes}>
                     <i className={'icon ' + providers[this.props.provider].icon}></i>
-                    { this.props.size === 'normal' && `Log in with ${providers[this.props.provider].name}` }
+                    { this.props.size === 'normal' && `${providers[this.props.provider].name}` }
                 </Button>;
     }
 }

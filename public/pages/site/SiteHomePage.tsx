@@ -78,7 +78,7 @@ We'd love to hear what you're thinking about. This is the place for you to submi
                     <div className="ui grid stackable">
                       <div className="six wide column">
                         <MultiLineText className="welcome-message" text={ welcomeMessage } style="full" />
-                        <IdeaInput placeholder={this.tenant.invitation || 'Tell us your ideas'} />
+                        <IdeaInput placeholder={this.tenant.invitation || 'I suggest you...'} />
                       </div>
                       <div className="ten wide column">
                         {

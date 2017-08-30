@@ -43,7 +43,7 @@ export class Header extends React.Component<{}, {}> {
                             }
                             <div className="item">
                                 <a className="signout" href="/logout?redirect=/">
-                                    Sign out
+                                    Log out
                                 </a>
                             </div>
                         </div> :
@@ -51,12 +51,12 @@ export class Header extends React.Component<{}, {}> {
 
         return <div>
                     <EnvironmentInfo />
-                    <div id="menu" className="ui mini menu no-border">
+                    <div id="menu" className="ui small menu no-border">
                         <div className="ui container">
                             <a href="/" className="header item">
                                 { this.tenant.name }
                             </a>
-                            <a ref={(e) => { this.dropdown = e!; } } className="item right signin">
+                            <a ref={(e) => { this.dropdown = e!; } } className={`item right signin ${!this.user.name && 'subtitle' }`}>
                                 <Gravatar name={this.user.name} hash={this.user.gravatar} />
                                 { this.user.name || 'Log in' }
                                 <i className="dropdown icon"></i>

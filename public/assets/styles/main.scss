@@ -38,11 +38,11 @@ body {
   float: right;
 }
 
+#menu a.subtitle,
 .subtitle {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: .3px;
-  line-height: 16px;
   text-transform: uppercase;
   color: #999;
 }
@@ -92,7 +92,7 @@ code {
 
 .fdr-avatar,
 .ui.menu .item>img:not(.ui) {
-  border-radius: 2rem;
+  border-radius: 50%;
   width: 30px;
   vertical-align: middle;
 }
@@ -105,33 +105,48 @@ code {
   margin: 0px !important;
 }
 
+.name {
+  color: #4f5e6b;
+  font-weight: 500;
+  &.staff {
+    font-weight: 700;
+    color: $admin-color;
+  }
+}
+
 .support-counter {
-  width: 60px;
   margin-right: 10px;
 
   .button, 
-  .button.disabled { 
+  .button.disabled {
+    font-size: 18px;
+    min-width: 45px;
     margin: 0 auto !important;
-    padding: 0rem 1rem 0.5rem 1rem !important;
+    padding: 0rem 0rem 0.5rem 0rem !important;
     background-color: #fff !important;
-    box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset !important;
+
+    i.icon {
+      color: #C4C9CD;
+    }
   }
 
   .button.supported, 
   .button.no-touch:hover {
-    background-color: lighten($main-color, 49%) !important;
     color: $main-color;
-    box-shadow: 0 0 0 1px $main-color inset !important;
+
+    i.icon {
+      color: lighten($main-color, 20%) !important;
+    }
   }
 
   i.icon {
-    margin: 3px !important;
+    margin: 0 auto !important;
     display: block;
   }
 }
 
 .fdr-profile-popup div.item {
-  padding: 10px 5px !important;
+  padding: 5px 0px !important;
 }
 
 .ui.segment.fdr-response {
@@ -205,12 +220,12 @@ code {
   border-color: #ef7878 !important;
 }
 
-.ui.message.signin-message {
-  background-color: #fff;
+.login-message {
+  background-color: $menu-color;
 }
 
-.ui.popup.signin-message {
-  min-width: 290px;
+.ui.popup.login-message {
+  min-width: 360px;
 }
 
 .ui.main-color {
