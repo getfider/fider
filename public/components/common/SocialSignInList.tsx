@@ -20,7 +20,7 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
 
     public render() {
         const settings = this.session.get<AuthSettings>('auth');
-        const cssClasses = this.props.orientation === 'horizontal' ? 'horizontal divided' : '';
+        const cssClasses = this.props.orientation === 'horizontal' ? 'horizontal' : '';
 
         const google = settings.providers.google &&
                         <div className="item">

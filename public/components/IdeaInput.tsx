@@ -75,12 +75,12 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                             </Button>
                           </div> :
                           <div>
-                            <div className="ui message signin-message">
+                            <div className="ui message login-message">
                               <div className="header">
-                                Hey, we need to know who you are!
+                                Log in to raise your voice.
                               </div>
-                              <p>It's only one second and you'll be good to go!</p>
-                              <SocialSignInList orientation="horizontal" size="small" />
+                              <p className="info">We'll never post to any of your accounts.</p>
+                              <SocialSignInList orientation="horizontal" size="normal" />
                             </div>
                           </div>;
 

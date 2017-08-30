@@ -38,11 +38,11 @@ body {
   float: right;
 }
 
+#menu a.subtitle,
 .subtitle {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: .3px;
-  line-height: 16px;
   text-transform: uppercase;
   color: #999;
 }
@@ -146,7 +146,7 @@ code {
 }
 
 .fdr-profile-popup div.item {
-  padding: 10px 5px !important;
+  padding: 5px 0px !important;
 }
 
 .ui.segment.fdr-response {
@@ -220,12 +220,12 @@ code {
   border-color: #ef7878 !important;
 }
 
-.ui.message.signin-message {
-  background-color: #fff;
+.login-message {
+  background-color: $menu-color;
 }
 
-.ui.popup.signin-message {
-  min-width: 290px;
+.ui.popup.login-message {
+  min-width: 360px;
 }
 
 .ui.main-color {

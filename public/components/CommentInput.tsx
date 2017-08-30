@@ -56,12 +56,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
           ? <Button className="primary" onClick={ () => this.submit() }>
               Submit
             </Button>
-          : <div className="ui message signin-message">
+          : <div className="ui message login-message">
               <div className="header">
-                Hey, we need to know who you are!
+                Log in to raise your voice.
               </div>
-              <p>It's only one second and you'll be good to go!</p>
-              <SocialSignInList orientation="horizontal" size="small" />
+              <p className="info">We'll never post to any of your accounts.</p>
+              <SocialSignInList orientation="horizontal" size="normal" />
             </div>;
 
         return <div className="comment-input">
@@ -73,7 +73,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
                                 rows={3}
                                 placeholder="Write a comment..."></textarea>
                     </div>
-                    { this.state.content && user && button }
+                    { this.state.content && button }
                   </div>
                 </div>;
     }
