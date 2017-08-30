@@ -52,7 +52,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
               { x.totalComments > 0 && <div className="info right">
                 { x.totalComments } <i className="comments outline icon"/>
               </div> }
-              <a href={`/ideas/${x.number}/${x.slug}`}>
+              <a className="title" href={`/ideas/${x.number}/${x.slug}`}>
                 { x.title }
               </a>
               <MultiLineText className="description" text={ x.description } style="simple" />

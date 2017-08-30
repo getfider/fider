@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as md from 'markdown-it';
 
-const simple = md('commonmark', { html: false, breaks: true, linkify: true }).disable('heading').disable('image');
-const full = md('commonmark', { html: false, breaks: true, linkify: true });
+const full = md('commonmark', { html: false, breaks: true, linkify: true }).enable('linkify');
+const simple = md('commonmark', { html: false, breaks: true, linkify: true }).enable('linkify').disable('heading').disable('image');
 
 interface MultiLineText {
   className?: string;
