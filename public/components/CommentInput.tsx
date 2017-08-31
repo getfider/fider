@@ -61,7 +61,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
                 Log in to raise your voice.
               </div>
               <p className="info">We'll never post to any of your accounts.</p>
-              <SocialSignInList orientation="horizontal" size="normal" />
+              <SocialSignInList orientation="horizontal" size="small" />
             </div>;
 
         return <div className="comment-input">
