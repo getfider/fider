@@ -37,10 +37,11 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
         const auth = this.session.get<AuthSettings>('auth');
 
         const href = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
-        const classes = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'circular icon' : 'fluid'}`;
+        const btnClasses = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'icon' : 'fluid'}`;
+        const iconClasses = `icon ${providers[this.props.provider].icon} ${this.props.size === 'small' ? 'large' : ''}`;
 
-        return <Button href={href} className={classes}>
-                    <i className={'icon ' + providers[this.props.provider].icon}></i>
+        return <Button href={href} className={btnClasses}>
+                    <i className={iconClasses}></i>
                     { this.props.size === 'normal' && `${providers[this.props.provider].name}` }
                 </Button>;
     }

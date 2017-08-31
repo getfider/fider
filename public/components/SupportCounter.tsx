@@ -92,7 +92,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                             Log in to raise your voice.
                         </div>
                         <p className="info">We'll never post to any of your accounts.</p>
-                        <SocialSignInList orientation="horizontal" size="normal" />
+                        <SocialSignInList orientation="horizontal" size="small" />
                     </div>
                 </div>;
     }
