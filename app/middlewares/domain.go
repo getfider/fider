@@ -47,6 +47,13 @@ func MultiTenant() web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
+			// If no tenant is specified, redirect user to getfider.com
+			// This is only vadid for fider.io hosting
+			if (env.IsProduction() && hostname == "fider.io") ||
+				(env.IsDevelopment() && hostname == "dev.fider.io") {
+				return c.Redirect(http.StatusTemporaryRedirect, "http://getfider.com")
+			}
+
 			if hostname == stripPort(u.Host) {
 				return next(c)
 			}
