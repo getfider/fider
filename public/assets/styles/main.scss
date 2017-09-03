@@ -208,16 +208,18 @@ code {
     margin: 0;
     list-style-type: none;
     text-align: left;
-    li {
-      padding: 5px;
-    }
   }
 }
 
 .ui.basic.red.label {
-  background-color: #fff4f4 !important;
-  color: #d84e4e !important;
+  color: #ef7878 !important;
   border-color: #ef7878 !important;
+
+  &.below {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
 }
 
 .login-message {

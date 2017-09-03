@@ -47,7 +47,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
         this.settings = this.session.getAppSettings();
         this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'New tenant sign up · Fider');
+        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'New tenant · Fider');
 
         const token = getQueryString('jwt');
         if (token) {
