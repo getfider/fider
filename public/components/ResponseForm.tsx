@@ -1,26 +1,24 @@
 import * as React from 'react';
+import Textarea from 'react-textarea-autosize';
+
 import { User, Comment, Idea } from '@fider/models';
 import { Button, DisplayError } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
-import { Session, IdeaService, Failure } from '@fider/services';
+import { IdeaService, Failure } from '@fider/services';
 
 interface ResponseFormProps {
   idea: Idea;
 }
 
 interface ResponseFormState {
+  status: number;
+  text: string;
   error?: Failure;
 }
 
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
-  private user: User;
   private modal: HTMLDivElement;
-  private text: HTMLTextAreaElement;
-  private status: HTMLSelectElement;
-
-  @inject(injectables.Session)
-  public session: Session;
 
   @inject(injectables.IdeaService)
   public service: IdeaService;
@@ -28,13 +26,14 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   constructor(props: ResponseFormProps) {
     super(props);
 
-    this.user = this.session.getCurrentUser();
-    this.state = { };
+    this.state = {
+      status: this.props.idea.status,
+      text: this.props.idea.response && this.props.idea.response.text
+    };
   }
 
   private async submit() {
-    const status = parseInt(this.status.value, 10);
-    const result = await this.service.setResponse(this.props.idea.number, status, this.text.value);
+    const result = await this.service.setResponse(this.props.idea.number, this.state.status, this.state.text);
     if (result.ok) {
       location.reload();
     } else {
@@ -63,7 +62,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                       <div className="field">
                         <label>Status</label>
                         <select className="ui dropdown"
-                          ref={(input) => this.status = input!}>
+                          onChange={ (e) => this.setState({ status: parseInt(e.currentTarget.value, 10) }) }>
                           <option selected={this.props.idea.status === 0} value="0">Open</option>
                           <option selected={this.props.idea.status === 1} value="1">Started</option>
                           <option selected={this.props.idea.status === 2} value="2">Completed</option>
@@ -73,11 +72,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                     </div>
                     <DisplayError fields={['text']} error={this.state.error} />
                     <div className="field">
-                      <textarea
-                        ref={(input) => this.text = input!}
-                        defaultValue={this.props.idea.response && this.props.idea.response.text}
-                        placeholder="What's going on with this idea? Let your users know what are your plans...">
-                      </textarea>
+                      <Textarea
+                        onChange={ (e) => this.setState({ text: e.currentTarget.value }) }
+                        defaultValue={ this.state.text }
+                        placeholder="What's going on with this idea? Let your users know what are your plans..." />
                     </div>
                   </div>
 

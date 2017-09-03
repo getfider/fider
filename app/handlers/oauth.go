@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 
@@ -135,11 +134,7 @@ func Login(provider string) web.HandlerFunc {
 // Logout remove auth cookies
 func Logout() web.HandlerFunc {
 	return func(c web.Context) error {
-		c.SetCookie(&http.Cookie{
-			Name:    "auth",
-			MaxAge:  -1,
-			Expires: time.Now().Add(-100 * time.Hour),
-		})
+		c.RemoveCookie("auth")
 		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
 	}
 }

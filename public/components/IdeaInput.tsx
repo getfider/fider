@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Textarea from 'react-textarea-autosize';
 import { DisplayError, Button, Form, SocialSignInList } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
@@ -10,12 +11,12 @@ interface IdeaInputProps {
 
 interface IdeaInputState {
     title: string;
+    description: string;
     focused: boolean;
 }
 
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
-    private description: HTMLTextAreaElement;
     private form: Form;
 
     @inject(injectables.Session)
@@ -28,6 +29,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
         super();
         this.state = {
           title: '',
+          description: '',
           focused: false
         };
     }
@@ -39,7 +41,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     public async submit() {
       if (this.state.title) {
         this.form.clearFailure();
-        const result = await this.service.addIdea(this.state.title, this.description.value);
+        const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
         } else if (result.error) {
@@ -66,9 +68,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
         const details = user  ?
                           <div>
                             <div className="field">
-                              <textarea ref={(ref) => this.description = ref! }
-                                        rows={6}
-                                        placeholder="Describe your idea"></textarea>
+                              <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
                             </div>
                             <Button className={buttonCss} onClick={() => this.form.submit() }>
                               Submit

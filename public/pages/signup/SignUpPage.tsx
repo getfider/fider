@@ -114,12 +114,14 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     }
 
                     <div className="ui section divider"></div>
-                    <h3 className="ui header">2. Your Company/Product</h3>
+
+                    <h3 className="ui header">2. What is this Feedback Forum for?</h3>
+
                     <DisplayError fields={['name', 'subdomain']} error={this.state.error} />
                     <div className="ui form">
                         <div className="inline field">
                             <input id="name" type="text"
-                                placeholder="Name"
+                                placeholder="Your Company/Product Name"
                                 maxLength={60}
                                 onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
                         </div>
@@ -150,6 +152,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                     <h3 className="ui header">3. Review and continue</h3>
 
                     <p>Make sure information provided above is correct before proceeding.</p>
+
 
                     <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
                 </div>

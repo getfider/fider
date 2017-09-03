@@ -16,10 +16,6 @@
       margin-top: 2px;
     }
 
-    .name {
-      line-height: 30px;
-    }
-
     .comment > .content {
       display: inline-block;
       max-width: 85%;
@@ -28,6 +24,10 @@
 
   .comment-input  {
     margin-top: 10px;
+
+    textarea {
+      margin-top: 5px;
+    }
 
     .form {
       display: inline-block;
