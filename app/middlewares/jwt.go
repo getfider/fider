@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -28,8 +29,13 @@ func JwtGetter() web.MiddlewareFunc {
 			}
 
 			services := c.Services()
+			c.Logger().Info(claims)
 			user, err := services.Users.GetByID(claims.UserID)
 			if err != nil {
+				if err == app.ErrNotFound {
+					c.RemoveCookie("auth")
+					return next(c)
+				}
 				return err
 			}
 

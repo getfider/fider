@@ -33,7 +33,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
     public render() {
 
-        const commentsList = this.comments.length ? this.comments.map((c) =>
+        const commentsList = this.comments.map((c) =>
           <div className="comment">
             <Gravatar name={c.user.name} hash={c.user.gravatar} />
             <div className="content">
@@ -46,7 +46,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
               </div>
             </div>
           </div>
-        ) : <p>No comments have been added yet.</p>;
+        );
 
         return <div className="ShowIdeaPage">
                   <Header />

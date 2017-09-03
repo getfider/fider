@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Textarea from 'react-textarea-autosize';
 
 import { Tenant } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
@@ -73,12 +74,11 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                     <DisplayError fields={['welcomeMessage']} error={this.state.error} />
                                     <div className="field">
                                         <label htmlFor="welcome-message">Welcome Message</label>
-                                        <textarea id="welcome-message"
+                                        <Textarea id="welcome-message"
                                                 placeholder="Welcome Message"
                                                 disabled={ !this.session.isAdmin() }
-                                                onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}>
-                                            { this.state.welcomeMessage }
-                                        </textarea>
+                                                onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}
+                                                value={ this.state.welcomeMessage } />
                                         <p className="info">
                                             <p>Use this space to change message of your initial page.</p>
                                             <p>Common use cases for this are to briefly explain what is your Company/Product, why you created this space and how the visitors can collaborate.</p>

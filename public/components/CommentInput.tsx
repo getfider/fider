@@ -1,7 +1,8 @@
 import * as React from 'react';
+import Textarea from 'react-textarea-autosize';
 
 import { Idea, User } from '@fider/models';
-import { Gravatar, Button, DisplayError, SocialSignInList } from '@fider/components/common';
+import { Gravatar, UserName, Button, DisplayError, SocialSignInList } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -67,11 +68,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         return <div className="comment-input">
                   <Gravatar name={ this.user.name } hash={ this.user.gravatar }/>
                   <div className="ui form">
+                    <UserName user={ user } />
                     <DisplayError error={this.state.error} />
                     <div className="field">
-                      <textarea onKeyUp={(e) => { this.setState({ content: e.currentTarget.value }); }}
-                                rows={3}
-                                placeholder="Write a comment..."></textarea>
+                      <Textarea onChange={(e) => { this.setState({ content: e.currentTarget.value }); }}
+                                rows={1}
+                                placeholder="Write a comment..."/>
                     </div>
                     { this.state.content && button }
                   </div>

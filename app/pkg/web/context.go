@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"strings"
 
@@ -159,6 +160,15 @@ func (ctx *Context) SetUser(user *models.User) {
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
 	return ctx.Get(servicesContextKey).(*app.Services)
+}
+
+//RemoveCookie removes a cookie
+func (ctx *Context) RemoveCookie(name string) {
+	ctx.SetCookie(&http.Cookie{
+		Name:    name,
+		MaxAge:  -1,
+		Expires: time.Now().Add(-100 * time.Hour),
+	})
 }
 
 //SetServices update current context with app.Services

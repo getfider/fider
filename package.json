@@ -11,6 +11,7 @@
     "lint": "tslint public/**/**.tsx public/**/**.ts"
   },
   "dependencies": {
+    "@types/react-textarea-autosize": "^4.3.1",
     "axios": "^0.16.2",
     "inversify": "^4.2.0",
     "inversify-inject-decorators": "^3.0.1",
@@ -20,6 +21,7 @@
     "moment": "^2.18.1",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
+    "react-textarea-autosize": "^5.1.0",
     "reflect-metadata": "^0.1.10",
     "semantic-ui-css": "^2.2.10",
     "throttle-debounce": "^1.0.1"
