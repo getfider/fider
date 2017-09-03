@@ -69,7 +69,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         const welcomeMessage = this.tenant.welcomeMessage ||
         `## Welcome to our feedback forum!
 
-We'd love to hear what you're thinking about. This is the place for you to submit your feedback.`;
+We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
         return <div className="SiteHomePage">
                   <Header />
