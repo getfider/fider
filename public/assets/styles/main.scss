@@ -1,5 +1,6 @@
 @import 'variables.scss';
 @import 'form.scss';
+@import 'semantic.scss';
 
 .center {
   text-align: center;
@@ -112,10 +113,6 @@ code {
     font-weight: 700;
     color: $admin-color;
   }
-}
-
-textarea {
-  resize: none !important;
 }
 
 .support-counter {

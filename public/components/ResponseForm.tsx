@@ -44,7 +44,9 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   private showModal() {
-    $(this.modal).modal('show');
+    $(this.modal).modal({
+      blurring: true
+    }).modal('show');
   }
 
   private closeModel() {
