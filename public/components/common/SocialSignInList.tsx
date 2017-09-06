@@ -6,7 +6,6 @@ import { AuthSettings } from '@fider/models';
 
 interface SocialSignInListProps {
     size: 'small' | 'normal';
-    orientation: 'horizontal' | 'vertical';
 }
 
 export class SocialSignInList extends React.Component<SocialSignInListProps, {}> {
@@ -20,33 +19,32 @@ export class SocialSignInList extends React.Component<SocialSignInListProps, {}>
 
     public render() {
         const settings = this.session.get<AuthSettings>('auth');
-        const cssClasses = this.props.orientation === 'horizontal' ? 'horizontal' : '';
 
         const google = settings.providers.google &&
-                        <div className="item">
+                        <div className="column">
                             <SocialSignInButton provider="google" size={this.props.size} />
                         </div>;
         const facebook = settings.providers.facebook &&
-                        <div className="item">
+                        <div className="column">
                             <SocialSignInButton provider="facebook" size={this.props.size} />
                         </div>;
         const github = settings.providers.github &&
-                        <div className="item">
+                        <div className="column">
                             <SocialSignInButton provider="github" size={this.props.size} />
                         </div>;
 
-        const noAuth = !facebook && !google &&
-                        <div className="item">
-                            <div className="ui tertiary inverted red segment">
-                                No authentication methods available.
-                            </div>
-                        </div>;
-
-        return <div className={`ui list signin-list ${cssClasses}`}>
-                    { facebook }
-                    { google }
-                    { github }
-                    { noAuth }
+        return  <div className="signin-options">
+                    <p className="info">We'll never post to any of your accounts.</p>
+                    <div className="ui stackable three column centered grid">
+                        { facebook }
+                        { google }
+                        { github }
+                    </div>
+                    <div className="ui horizontal divider">OR</div>
+                    <div id="signin-email" className="ui small action fluid input">
+                        <input type="text" placeholder="Log in with e-mail" className="small" />
+                        <button className="ui small disabled primary button">Log in</button>
+                    </div>
                 </div>;
     }
 }

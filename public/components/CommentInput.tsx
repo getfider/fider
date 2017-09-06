@@ -61,11 +61,10 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               <div className="header">
                 Log in to raise your voice.
               </div>
-              <p className="info">We'll never post to any of your accounts.</p>
-              <SocialSignInList orientation="horizontal" size="small" />
+              <SocialSignInList size="normal" />
             </div>;
 
-        return <div className="comment-input">
+        return <div className={`comment-input ${user && 'authenticated' }`}>
                   <Gravatar name={ this.user.name } hash={ this.user.gravatar }/>
                   <div className="ui form">
                     <UserName user={ user } />

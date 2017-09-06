@@ -18,7 +18,7 @@
       }
       
       .description {
-        color:rgba(0, 0, 0, 0.6);
+        color:rgba(0, 0, 0, 0.5) !important;
         min-height: 20px;
         margin-bottom: 10px;
       }
@@ -28,11 +28,23 @@
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
-    border-bottom: 1.5px dashed $main-color;
+    border-bottom: 1px dashed $main-color;
     font-size: 18px;
     background-color: $bg-color;
     padding: 0px 0px 10px 0px;
     font-weight: bold;
     margin: 0px 0px 10px 0px;
+    border-radius: 0;
+  }
+
+  .login-message {
+    @media only screen and (min-width: 768px) and (max-width: 991px) {
+      span {
+        display: none;
+      }
+      i {
+        margin: 0 auto !important;
+      }
+    }
   }
 }

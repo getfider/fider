@@ -40,9 +40,9 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
         const btnClasses = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'icon' : 'fluid'}`;
         const iconClasses = `icon ${providers[this.props.provider].icon} ${this.props.size === 'small' ? 'large' : ''}`;
 
-        return <Button href={href} className={btnClasses}>
+        return <Button size="small" href={href} className={btnClasses}>
                     <i className={iconClasses}></i>
-                    { this.props.size === 'normal' && `${providers[this.props.provider].name}` }
+                    <span>{ this.props.size === 'normal' && `${providers[this.props.provider].name}` }</span>
                 </Button>;
     }
 }

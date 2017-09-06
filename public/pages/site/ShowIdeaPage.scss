@@ -31,7 +31,13 @@
 
     .form {
       display: inline-block;
-      width: 85%;
+      width: 100%;
+    }
+
+    &.authenticated{
+      .form {
+        width: 85%;
+      }
     }
   }
 }

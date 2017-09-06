@@ -74,14 +74,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                               Submit
                             </Button>
                           </div> :
-                          <div>
-                            <div className="ui message login-message">
-                              <div className="header">
-                                Log in to raise your voice.
-                              </div>
-                              <p className="info">We'll never post to any of your accounts.</p>
-                              <SocialSignInList orientation="horizontal" size="small" />
+                          <div className="ui message login-message">
+                            <div className="header">
+                              Log in to raise your voice.
                             </div>
+                            <SocialSignInList size="normal" />
                           </div>;
 
         return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
