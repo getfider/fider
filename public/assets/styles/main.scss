@@ -231,7 +231,7 @@ code {
   background-color: $menu-color;
 }
 
-.signin-options{
+.login-options{
   .ui.stackable.grid>.column:not(.row),
   .column {
     padding: 10px 5px !important;
@@ -242,7 +242,7 @@ code {
   }
 }
 
-#signin-modal {
+#login-modal {
   text-align: center;
 
   @media only screen and (max-width: 767px) {
