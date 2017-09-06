@@ -1,5 +1,6 @@
 @import 'variables.scss';
 @import 'form.scss';
+@import 'semantic.scss';
 
 .center {
   text-align: center;
@@ -112,10 +113,6 @@ code {
     font-weight: 700;
     color: $admin-color;
   }
-}
-
-textarea {
-  resize: none !important;
 }
 
 .support-counter {
@@ -234,8 +231,29 @@ textarea {
   background-color: $menu-color;
 }
 
-.ui.popup.login-message {
-  min-width: 360px;
+.login-options{
+  .ui.stackable.grid>.column:not(.row),
+  .column {
+    padding: 10px 5px !important;
+  }
+
+  .button.fluid {
+    padding: 10px 5px;
+  }
+}
+
+#login-modal {
+  text-align: center;
+
+  @media only screen and (max-width: 767px) {
+    width: 95%;
+    margin: 0em 0em 0em -47.5%;
+  }
+
+  @media only screen and (min-width: 768px) {
+    width: 440px;
+    margin: 0 0 0 -220px;
+  }
 }
 
 .ui.main-color {

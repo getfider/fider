@@ -1,4 +1,4 @@
-.ShowIdeaPage {
+#fdr-show-idea-page {
   .idea-header {
     h1 {
       font-weight: 400;
@@ -31,7 +31,13 @@
 
     .form {
       display: inline-block;
-      width: 85%;
+      width: 100%;
+    }
+
+    &.authenticated{
+      .form {
+        width: 85%;
+      }
     }
   }
 }

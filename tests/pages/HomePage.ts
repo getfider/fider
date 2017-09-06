@@ -20,13 +20,13 @@ export class HomePage extends Page {
   @findBy('.ui.button.primary')
   public SubmitIdea: Button;
 
-  @findBy('.signin')
+  @findBy('.login')
   public UserMenu: WebComponent;
 
-  @findBy('.fdr-profile-popup .button.google')
+  @findBy('#login-modal .button.google')
   public GoogleSignIn: Button;
 
-  @findBy('.fdr-profile-popup .button.facebook')
+  @findBy('#login-modal .button.facebook')
   public FacebookSignIn: Button;
 
   @findBy('.ui.form .ui.negative.message')

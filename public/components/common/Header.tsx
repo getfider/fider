@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { User, Tenant } from '@fider/models';
-import { SocialSignInList, EnvironmentInfo, Gravatar } from '@fider/components/common';
+import { LogInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
@@ -22,17 +22,26 @@ export class Header extends React.Component<{}, {}> {
     }
 
     public componentDidMount() {
-        $(this.dropdown).popup({
-            inline: true,
-            hoverable: true,
-            popup: this.list,
-            position : 'bottom right'
-        });
+        if (this.user) {
+            $(this.dropdown).popup({
+                inline: true,
+                hoverable: true,
+                popup: this.list,
+                position : 'bottom right'
+            });
+        }
+    }
+
+    private showModal() {
+        if (!this.user) {
+            $('#login-modal').modal({
+                blurring: true
+            }).modal('show');
+        }
     }
 
     public render() {
-        const items = this.user ?
-                        <div className="ui divided list">
+        const items = <div className="ui divided list">
                             {
                                 this.session.isStaff() &&
                                 <div className="item">
@@ -46,8 +55,7 @@ export class Header extends React.Component<{}, {}> {
                                     Log out
                                 </a>
                             </div>
-                        </div> :
-                        <SocialSignInList orientation="vertical" size="normal" />;
+                        </div>;
 
         return <div>
                     <EnvironmentInfo />
@@ -56,10 +64,10 @@ export class Header extends React.Component<{}, {}> {
                             <a href="/" className="header item">
                                 { this.tenant.name }
                             </a>
-                            <a ref={(e) => { this.dropdown = e!; } } className={`item right signin ${!this.user.name && 'subtitle' }`}>
+                            <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item login right ${!this.user.name && 'subtitle' }`}>
                                 <Gravatar name={this.user.name} hash={this.user.gravatar} />
                                 { this.user.name || 'Log in' }
-                                <i className="dropdown icon"></i>
+                                { this.user.name && <i className="dropdown icon"></i> }
                             </a>
                         </div>
                     </div>

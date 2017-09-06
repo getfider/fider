@@ -5,9 +5,8 @@ import { Session } from '@fider/services/Session';
 import { Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
 
-interface SocialSignInButtonProps {
+interface SocialLogInButtonProps {
     provider: 'google' | 'facebook' | 'github';
-    size: 'small' | 'normal';
 }
 
 const providers = {
@@ -28,7 +27,7 @@ const providers = {
     }
 };
 
-export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
+export class SocialLogInButton extends React.Component<SocialLogInButtonProps, {}> {
 
     @inject(injectables.Session)
     public session: Session;
@@ -37,12 +36,10 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
         const auth = this.session.get<AuthSettings>('auth');
 
         const href = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
-        const btnClasses = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'icon' : 'fluid'}`;
-        const iconClasses = `icon ${providers[this.props.provider].icon} ${this.props.size === 'small' ? 'large' : ''}`;
 
-        return <Button href={href} className={btnClasses}>
-                    <i className={iconClasses}></i>
-                    { this.props.size === 'normal' && `${providers[this.props.provider].name}` }
+        return <Button size="small" href={href} className={`${providers[this.props.provider].class} fluid`}>
+                    <i className={`icon ${providers[this.props.provider].icon}`}></i>
+                    <span>{ providers[this.props.provider].name }</span>
                 </Button>;
     }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Textarea from 'react-textarea-autosize';
-import { DisplayError, Button, Form, SocialSignInList } from '@fider/components/common';
+import { DisplayError, Button, Form, LogInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -74,14 +74,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                               Submit
                             </Button>
                           </div> :
-                          <div>
-                            <div className="ui message login-message">
-                              <div className="header">
-                                Log in to raise your voice.
-                              </div>
-                              <p className="info">We'll never post to any of your accounts.</p>
-                              <SocialSignInList orientation="horizontal" size="small" />
+                          <div className="ui message login-message">
+                            <div className="header">
+                              Log in to raise your voice.
                             </div>
+                            <LogInControl />
                           </div>;
 
         return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>

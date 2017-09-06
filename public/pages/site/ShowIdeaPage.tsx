@@ -7,7 +7,7 @@ import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { Button, UserName, Gravatar, Moment, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
+import { Button, UserName, Gravatar, Moment, MultiLineText, Footer, Header, SocialLogInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -48,7 +48,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
           </div>
         );
 
-        return <div className="ShowIdeaPage">
+        return <div>
                   <Header />
                   <div className="page ui container">
                     <div className="ui stackable grid container">

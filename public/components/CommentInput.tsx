@@ -2,7 +2,7 @@ import * as React from 'react';
 import Textarea from 'react-textarea-autosize';
 
 import { Idea, User } from '@fider/models';
-import { Gravatar, UserName, Button, DisplayError, SocialSignInList } from '@fider/components/common';
+import { Gravatar, UserName, Button, DisplayError, LogInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -61,11 +61,10 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               <div className="header">
                 Log in to raise your voice.
               </div>
-              <p className="info">We'll never post to any of your accounts.</p>
-              <SocialSignInList orientation="horizontal" size="small" />
+              <LogInControl />
             </div>;
 
-        return <div className="comment-input">
+        return <div className={`comment-input ${user && 'authenticated' }`}>
                   <Gravatar name={ this.user.name } hash={ this.user.gravatar }/>
                   <div className="ui form">
                     <UserName user={ user } />

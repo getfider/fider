@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
-import { SocialSignInList } from '@fider/components/common';
+import { LogInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService } from '@fider/services';
@@ -16,9 +16,6 @@ interface SupportCounterState {
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
-    private elem: HTMLElement;
-    private list: HTMLElement;
-
     @inject(injectables.Session)
     public session: Session;
 
@@ -35,21 +32,11 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         };
     }
 
-    public componentDidMount() {
-        if (!this.props.user) {
-            $(this.elem).popup({
-                inline: true,
-                hoverable: true,
-                popup: this.list,
-                on: 'click',
-                position : 'bottom left'
-            });
-            return;
-        }
-    }
-
     public async supportOrUndo() {
         if (!this.props.user) {
+            $('#login-modal').modal({
+                blurring: true
+            }).modal('show');
             return;
         }
 
@@ -71,7 +58,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const noTouch = !('ontouchstart' in window);
         const status = IdeaStatus.Get(this.props.idea.status);
 
-        const vote = <button ref={(e) => { this.elem = e!; } }
+        const vote = <button
                         className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
                         onClick={async () => await this.supportOrUndo()}>
                         <i className="medium caret up icon"></i>
@@ -83,17 +70,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
                             { this.state.total }
                          </div>;
 
-        return <div>
-                    <div className="support-counter ui">
-                        { status.closed ? disabled : vote }
-                    </div>
-                    <div ref={(e) => { this.list = e!; } } className="ui popup transition hidden login-message">
-                        <div className="header">
-                            Log in to raise your voice.
-                        </div>
-                        <p className="info">We'll never post to any of your accounts.</p>
-                        <SocialSignInList orientation="horizontal" size="small" />
-                    </div>
+        return  <div className="support-counter ui">
+                    { status.closed ? disabled : vote }
                 </div>;
     }
 }

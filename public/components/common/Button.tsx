@@ -3,7 +3,7 @@ import * as React from 'react';
 interface ButtonProps {
     className?: string;
     href?: string;
-    size?: 'tiny' | 'large';
+    size?: 'tiny' | 'small' | 'large';
     onClick?: () => Promise<any>;
 }
 

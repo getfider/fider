@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { SocialSignInList, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+import { LogInControl, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
 import { AppSettings } from '@fider/models';
 import { setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
@@ -47,7 +47,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
         this.settings = this.session.getAppSettings();
         this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'New tenant · Fider');
+        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
         const token = getQueryString('jwt');
         if (token) {
@@ -92,7 +92,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     public render() {
         return <div>
                 <EnvironmentInfo />
-                <div id="fdr-signup-page" className="page ui container">
+                <div className="page ui container">
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
@@ -109,7 +109,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                         </div> :
                         <div>
                             <p>We need to identify you in order to setup your new Fider instance.</p>
-                            <SocialSignInList size="normal" orientation="horizontal" />
+                            <LogInControl />
                         </div>
                     }
 
