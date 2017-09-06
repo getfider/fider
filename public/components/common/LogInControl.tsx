@@ -4,33 +4,25 @@ import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
 
-interface LogInControlProps {
-    size: 'small' | 'normal';
-}
-
-export class LogInControl extends React.Component<LogInControlProps, {}> {
+export class LogInControl extends React.Component<{}, {}> {
 
     @inject(injectables.Session)
     public session: Session;
-
-    constructor(props: LogInControlProps) {
-        super(props);
-    }
 
     public render() {
         const settings = this.session.get<AuthSettings>('auth');
 
         const google = settings.providers.google &&
                         <div className="column">
-                            <SocialLogInButton provider="google" size={this.props.size} />
+                            <SocialLogInButton provider="google" />
                         </div>;
         const facebook = settings.providers.facebook &&
                         <div className="column">
-                            <SocialLogInButton provider="facebook" size={this.props.size} />
+                            <SocialLogInButton provider="facebook" />
                         </div>;
         const github = settings.providers.github &&
                         <div className="column">
-                            <SocialLogInButton provider="github" size={this.props.size} />
+                            <SocialLogInButton provider="github" />
                         </div>;
 
         return  <div className="login-options">

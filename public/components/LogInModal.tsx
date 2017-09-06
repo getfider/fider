@@ -8,7 +8,7 @@ export class LogInModal extends React.Component<{}, {}> {
                       Log in to raise your voice.
                     </div>
                     <div className="content">
-                        <LogInControl size="normal" />
+                        <LogInControl />
                     </div>
                </div>;
     }

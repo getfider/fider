@@ -48,7 +48,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
           </div>
         );
 
-        return <div className="ShowIdeaPage">
+        return <div>
                   <Header />
                   <div className="page ui container">
                     <div className="ui stackable grid container">

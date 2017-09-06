@@ -78,7 +78,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                             <div className="header">
                               Log in to raise your voice.
                             </div>
-                            <LogInControl size="normal" />
+                            <LogInControl />
                           </div>;
 
         return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>

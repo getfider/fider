@@ -1,7 +1,9 @@
 #fdr-signup-page {
-    margin-top: 50px;
-    max-width: 500px !important;
-    text-align: center;
+    .page {
+        margin-top: 50px;
+        max-width: 500px !important;
+        text-align: center;
+    }
 
     .fdr-avatar {
         margin-right: 5px;
@@ -9,6 +11,11 @@
 
     .logo {
         height: 100px;
+    }
+
+    .login-options {
+        width: 400px;
+        margin: 0 auto;
     }
 
     .ui.form {

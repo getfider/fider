@@ -7,7 +7,6 @@ import { AuthSettings } from '@fider/models';
 
 interface SocialLogInButtonProps {
     provider: 'google' | 'facebook' | 'github';
-    size: 'small' | 'normal';
 }
 
 const providers = {
@@ -37,12 +36,10 @@ export class SocialLogInButton extends React.Component<SocialLogInButtonProps, {
         const auth = this.session.get<AuthSettings>('auth');
 
         const href = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
-        const btnClasses = `${providers[this.props.provider].class} ${this.props.size === 'small' ? 'icon' : 'fluid'}`;
-        const iconClasses = `icon ${providers[this.props.provider].icon} ${this.props.size === 'small' ? 'large' : ''}`;
 
-        return <Button size="small" href={href} className={btnClasses}>
-                    <i className={iconClasses}></i>
-                    <span>{ this.props.size === 'normal' && `${providers[this.props.provider].name}` }</span>
+        return <Button size="small" href={href} className={`${providers[this.props.provider].class} fluid`}>
+                    <i className={`icon ${providers[this.props.provider].icon}`}></i>
+                    <span>{ providers[this.props.provider].name }</span>
                 </Button>;
     }
 }

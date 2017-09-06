@@ -22,28 +22,33 @@ container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 
+interface PageConfiguration {
+  id: string;
+  regex: RegExp;
+  component: JSX.Element;
+}
+
 const pathRegex = [
-  { regex: new RegExp('^\/$'), component: <SiteHomePage /> },
-  { regex: new RegExp('^\/admin$'), component: <AdminHomePage /> },
-  { regex: new RegExp('^\/signup$'), component: <SignUpPage /> },
-  { regex: new RegExp('^\/ideas\/\\d+.*$'), component: <ShowIdeaPage /> },
+  { regex: new RegExp('^\/$'), component: <SiteHomePage />, id: 'fdr-home-page' },
+  { regex: new RegExp('^\/admin$'), component: <AdminHomePage />, id: 'fdr-admin-page' },
+  { regex: new RegExp('^\/signup$'), component: <SignUpPage />, id: 'fdr-signup-page' },
+  { regex: new RegExp('^\/ideas\/\\d+.*$'), component: <ShowIdeaPage />, id: 'fdr-show-idea-page' },
 ];
 
-const resolveRootComponent = (path: string): JSX.Element => {
+const resolveRootComponent = (path: string): PageConfiguration | undefined => {
   for (const entry of pathRegex) {
     if (entry.regex.test(path)) {
-      return entry.component;
+      return entry;
     }
   }
-
-  return <div />;
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  const config = resolveRootComponent(location.pathname)!;
   ReactDOM.render(
-    <div>
+    <div id={ config.id }>
       <LogInModal />
-      { resolveRootComponent(location.pathname) }
+      { config.component }
     </div>, document.getElementById('root')
   );
 });

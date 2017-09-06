@@ -71,7 +71,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
 
 We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
-        return <div className="SiteHomePage">
+        return <div>
                   <Header />
                   <div className="page ui container">
 

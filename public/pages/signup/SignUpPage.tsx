@@ -92,7 +92,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     public render() {
         return <div>
                 <EnvironmentInfo />
-                <div id="fdr-signup-page" className="page ui container">
+                <div className="page ui container">
                     <img className="logo" src={logo} />
 
                     <h3 className="ui header">1. Who are you?</h3>
@@ -109,7 +109,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                         </div> :
                         <div>
                             <p>We need to identify you in order to setup your new Fider instance.</p>
-                            <LogInControl size="normal" />
+                            <LogInControl />
                         </div>
                     }
 

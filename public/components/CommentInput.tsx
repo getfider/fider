@@ -61,7 +61,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               <div className="header">
                 Log in to raise your voice.
               </div>
-              <LogInControl size="normal" />
+              <LogInControl />
             </div>;
 
         return <div className={`comment-input ${user && 'authenticated' }`}>
