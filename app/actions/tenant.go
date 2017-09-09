@@ -15,8 +15,8 @@ type CreateTenant struct {
 	Model *models.CreateTenant
 }
 
-// NewModel initializes the model
-func (input *CreateTenant) NewModel() interface{} {
+// Initialize the model
+func (input *CreateTenant) Initialize() interface{} {
 	input.Model = new(models.CreateTenant)
 	return input.Model
 }
@@ -62,8 +62,8 @@ type UpdateTenantSettings struct {
 	Model *models.UpdateTenantSettings
 }
 
-// NewModel initializes the model
-func (input *UpdateTenantSettings) NewModel() interface{} {
+// Initialize the model
+func (input *UpdateTenantSettings) Initialize() interface{} {
 	input.Model = new(models.UpdateTenantSettings)
 	return input.Model
 }

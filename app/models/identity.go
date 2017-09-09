@@ -87,3 +87,9 @@ type UpdateTenantSettings struct {
 	WelcomeMessage string `json:"welcomeMessage"`
 	UserClaims     *OAuthClaims
 }
+
+//LoginByEmail is the input model when user request to log in by email
+type LoginByEmail struct {
+	Email           string `json:"email"`
+	VerificationKey string
+}

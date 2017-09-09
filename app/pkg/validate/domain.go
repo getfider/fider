@@ -9,7 +9,7 @@ import (
 	"github.com/getfider/fider/app/storage"
 )
 
-var r, _ = regexp.Compile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
+var domainRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
 
 //Subdomain validates given subdomain
 func Subdomain(tenants storage.Tenant, subdomain string) *Result {
@@ -23,7 +23,7 @@ func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 		return Failed([]string{"Subdomain must be less than 40 characters."})
 	}
 
-	if !r.MatchString(subdomain) {
+	if !domainRegex.MatchString(subdomain) {
 		return Failed([]string{"Subdomain contains invalid characters."})
 	}
 

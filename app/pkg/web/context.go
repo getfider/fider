@@ -55,7 +55,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 
 //BindTo context values into given model
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := ctx.Bind(i.NewModel())
+	err := ctx.Bind(i.Initialize())
 	if err != nil {
 		return validate.Error(err)
 	}

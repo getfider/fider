@@ -18,6 +18,12 @@ func GetEnvOrDefault(name string, defaultValue string) string {
 	return value
 }
 
+// IsDefined returns true if given environment variable is defined
+func IsDefined(name string) bool {
+	value := os.Getenv(name)
+	return value != ""
+}
+
 // MustGet returns environment variable or panic
 func MustGet(name string) string {
 	value := os.Getenv(name)

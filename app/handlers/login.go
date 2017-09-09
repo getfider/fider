@@ -8,6 +8,7 @@ import (
 	jwtgo "github.com/dgrijalva/jwt-go"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -128,6 +129,18 @@ func Login(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
+	}
+}
+
+// SendEmailVerification sends a new e-mail with verification key
+func SendEmailVerification() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.LoginByEmail)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		return c.Ok(web.Map{})
 	}
 }
 

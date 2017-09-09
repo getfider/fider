@@ -29,7 +29,6 @@ func JwtGetter() web.MiddlewareFunc {
 			}
 
 			services := c.Services()
-			c.Logger().Info(claims)
 			user, err := services.Users.GetByID(claims.UserID)
 			if err != nil {
 				if err == app.ErrNotFound {

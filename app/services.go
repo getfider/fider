@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
 )
@@ -11,4 +12,5 @@ type Services struct {
 	Users   storage.User
 	Tenants storage.Tenant
 	Ideas   storage.Idea
+	Emailer email.Sender
 }
