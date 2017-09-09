@@ -50,6 +50,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	} else {
 		ctx.Logger().Debug("Current tenant: nil")
 	}
+	ctx.Services().Tenants.SetCurrentTenant(tenant)
 	ctx.Set(tenantContextKey, tenant)
 }
 

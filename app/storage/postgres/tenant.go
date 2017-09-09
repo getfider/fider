@@ -13,7 +13,8 @@ import (
 
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
-	trx *dbx.Trx
+	trx     *dbx.Trx
+	current *models.Tenant
 }
 
 // NewTenantStorage creates a new TenantStorage
@@ -39,6 +40,11 @@ func (t *dbTenant) toModel() *models.Tenant {
 		Invitation:     t.Invitation,
 		WelcomeMessage: t.WelcomeMessage,
 	}
+}
+
+// SetCurrentTenant tenant
+func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.current = tenant
 }
 
 // Add given tenant to tenant list
@@ -83,9 +89,9 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 }
 
 // UpdateSettings of given tenant
-func (s *TenantStorage) UpdateSettings(tenantID int, settings *models.UpdateTenantSettings) error {
+func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3 WHERE id = $4"
-	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, tenantID)
+	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, s.current.ID)
 }
 
 // IsSubdomainAvailable returns true if subdomain is available to use

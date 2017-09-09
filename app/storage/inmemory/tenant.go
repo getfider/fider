@@ -11,6 +11,12 @@ import (
 type TenantStorage struct {
 	lastID  int
 	tenants []*models.Tenant
+	current *models.Tenant
+}
+
+// SetCurrentTenant tenant
+func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.current = tenant
 }
 
 // Add given tenant to tenant list
@@ -52,9 +58,9 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 }
 
 // UpdateSettings of given tenant
-func (s *TenantStorage) UpdateSettings(tenantID int, settings *models.UpdateTenantSettings) error {
+func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
-		if tenant.ID == tenantID {
+		if tenant.ID == s.current.ID {
 			tenant.Invitation = settings.Invitation
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title

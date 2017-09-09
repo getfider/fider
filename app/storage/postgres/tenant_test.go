@@ -126,13 +126,14 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
 
 	settings := &models.UpdateTenantSettings{
 		Title:          "New Demonstration",
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
 	}
-	err := tenants.UpdateSettings(tenant.ID, settings)
+	err := tenants.UpdateSettings(settings)
 	Expect(err).To(BeNil())
 
 	tenant, err = tenants.GetByDomain("demo")
