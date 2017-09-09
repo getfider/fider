@@ -2,6 +2,7 @@ package postgres_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 
@@ -142,4 +143,61 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	Expect(tenant.Name).To(Equal("New Demonstration"))
 	Expect(tenant.Invitation).To(Equal("Leave us your suggestion"))
 	Expect(tenant.WelcomeMessage).To(Equal("Welcome!"))
+}
+
+func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	//Save new Key
+	err := tenants.SaveVerificationKey("jon.snow@got.com", "s3cr3tk3y")
+	Expect(err).To(BeNil())
+
+	//Find and check values
+	result, err := tenants.FindVerificationByKey("s3cr3tk3y")
+	Expect(err).To(BeNil())
+	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
+	Expect(result.VerifiedOn).To(BeNil())
+	Expect(result.Email).To(Equal("jon.snow@got.com"))
+	Expect(result.Key).To(Equal("s3cr3tk3y"))
+
+	//Set as verified check values
+	err = tenants.SetKeyAsVerified("s3cr3tk3y")
+	Expect(err).To(BeNil())
+
+	//Find and check that VerifiedOn is now set
+	result, err = tenants.FindVerificationByKey("s3cr3tk3y")
+	Expect(err).To(BeNil())
+	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
+	Expect(result.VerifiedOn.After(result.CreatedOn)).To(BeTrue())
+	Expect(result.Email).To(Equal("jon.snow@got.com"))
+	Expect(result.Key).To(Equal("s3cr3tk3y"))
+}
+
+func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	//Find and check values
+	result, err := tenants.FindVerificationByKey("blahblahblah")
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(result).To(BeNil())
 }

@@ -42,6 +42,29 @@ func (t *dbTenant) toModel() *models.Tenant {
 	}
 }
 
+type dbEmailVerification struct {
+	ID         int          `db:"id"`
+	Email      string       `db:"email"`
+	Key        string       `db:"key"`
+	CreatedOn  time.Time    `db:"created_on"`
+	VerifiedOn dbx.NullTime `db:"verified_on"`
+}
+
+func (t *dbEmailVerification) toModel() *models.EmailVerification {
+	model := &models.EmailVerification{
+		Email:      t.Email,
+		Key:        t.Key,
+		CreatedOn:  t.CreatedOn,
+		VerifiedOn: nil,
+	}
+
+	if t.VerifiedOn.Valid {
+		model.VerifiedOn = &t.VerifiedOn.Time
+	}
+
+	return model
+}
+
 // SetCurrentTenant tenant
 func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 	s.current = tenant
@@ -98,6 +121,32 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
 	return !exists, err
+}
+
+// SaveVerificationKey used by e-mail verification
+func (s *TenantStorage) SaveVerificationKey(email, key string) error {
+	query := "INSERT INTO email_verifications (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
+	return s.trx.Execute(query, s.current.ID, email, time.Now(), key)
+}
+
+// FindVerificationByKey based on current tenant
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+	verification := dbEmailVerification{}
+
+	err := s.trx.Get(&verification, "SELECT id, email, key, created_on, verified_on FROM email_verifications LIMIT 1")
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	return verification.toModel(), nil
+}
+
+// SetKeyAsVerified so that it cannot be used anymore
+func (s *TenantStorage) SetKeyAsVerified(key string) error {
+	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
+	return s.trx.Execute(query, time.Now(), s.current.ID, key)
 }
 
 func extractSubdomain(domain string) string {

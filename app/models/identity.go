@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
@@ -92,4 +94,12 @@ type UpdateTenantSettings struct {
 type LoginByEmail struct {
 	Email           string `json:"email"`
 	VerificationKey string
+}
+
+//EmailVerification is the model used by e-mail verification process
+type EmailVerification struct {
+	Email      string
+	Key        string
+	CreatedOn  time.Time
+	VerifiedOn *time.Time
 }

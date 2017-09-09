@@ -70,6 +70,21 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	return nil
 }
 
+// SaveVerificationKey used by e-mail verification
+func (s *TenantStorage) SaveVerificationKey(email, key string) error {
+	return nil
+}
+
+// FindVerificationByKey based on current tenant
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+	return nil, nil
+}
+
+// SetKeyAsVerified so that it cannot be used anymore
+func (s *TenantStorage) SetKeyAsVerified(key string) error {
+	return nil
+}
+
 func extractSubdomain(domain string) string {
 	if idx := strings.Index(domain, "."); idx != -1 {
 		return domain[:idx]
