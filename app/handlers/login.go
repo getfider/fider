@@ -137,6 +137,7 @@ func Login(provider string) web.HandlerFunc {
 // LoginByEmail sends a new e-mail with verification key
 func LoginByEmail() web.HandlerFunc {
 	return func(c web.Context) error {
+		//TODO: add lots of tests
 		input := new(actions.LoginByEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -148,7 +149,8 @@ func LoginByEmail() web.HandlerFunc {
 		}
 
 		subject := fmt.Sprintf("Log in to %s", c.Tenant().Name)
-		message := fmt.Sprintf("%s/login/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
+		link := fmt.Sprintf("%s/login/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
+		message := fmt.Sprintf("Click and confirm that you want to sign in. This link will expire in 15 minutes and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
 		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
 		if err != nil {
 			return c.Failure(err)
@@ -163,11 +165,26 @@ func VerifyLoginKey() web.HandlerFunc {
 	return func(c web.Context) error {
 		key := c.QueryParam("k")
 
-		//TODO: If not found, go to main page
-		//TODO: check if key didn't expire
 		result, err := c.Services().Tenants.FindVerificationByKey(key)
 		if err != nil {
+			if err == app.ErrNotFound {
+				return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+			}
 			return c.Failure(err)
+		}
+
+		//If key has been used, just go back to home page
+		if result.VerifiedOn != nil {
+			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		}
+
+		//If key expired (15 minutes), go back to home page
+		if time.Now().After(result.CreatedOn.Add(15 * time.Minute)) {
+			err = c.Services().Tenants.SetKeyAsVerified(key)
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
 		//TODO: If not found, request name and register user
@@ -176,30 +193,20 @@ func VerifyLoginKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		token, err := jwt.Encode(models.FiderClaims{
+			UserID:    user.ID,
+			UserName:  user.Name,
+			UserEmail: user.Email,
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		err = c.Services().Tenants.SetKeyAsVerified(key)
 		if err != nil {
 			return c.Failure(err)
 		}
-
-		//TODO: do something better with time
-		claims := models.FiderClaims{
-			UserID:    user.ID,
-			UserName:  user.Name,
-			UserEmail: user.Email,
-		}
-
-		token, err := jwt.Encode(claims)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		c.SetCookie(&http.Cookie{
-			Name:     "auth",
-			Value:    token,
-			HttpOnly: true,
-			Path:     "/",
-			Expires:  time.Now().Add(365 * 24 * time.Hour),
-		})
+		c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
 
 		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 	}
@@ -208,7 +215,7 @@ func VerifyLoginKey() web.HandlerFunc {
 // Logout remove auth cookies
 func Logout() web.HandlerFunc {
 	return func(c web.Context) error {
-		c.RemoveCookie("auth")
+		c.RemoveCookie(web.CookieAuthName)
 		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
 	}
 }

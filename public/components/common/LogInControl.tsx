@@ -4,6 +4,7 @@ import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
 import { TenantService } from '@fider/services';
+import { hideLogin } from '@fider/utils/page';
 
 interface LogInControlState {
   email: string;
@@ -45,7 +46,8 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
 
     if (this.state.sent) {
       return <div>
-                <p>We sent an e-mail to <b>{ this.state.email }</b> with a login link.</p>
+                <p>We sent a login link to <b>{ this.state.email }</b>. Please check your inbox.</p>
+                <p><a href="#" onClick={() => hideLogin()}>OK</a></p>
              </div>;
     }
 

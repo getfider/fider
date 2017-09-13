@@ -41,7 +41,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	status, response := server.
 		OnTenant(mock.DemoTenant).
 		AddHeader("Accept", "application/json").
-		AddCookie("auth", token).
+		AddCookie(web.CookieAuthName, token).
 		Execute(func(c web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
@@ -62,7 +62,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	server.Use(middlewares.JwtGetter())
 	status, _ := server.
 		OnTenant(mock.OrangeTenant).
-		AddCookie("auth", token).
+		AddCookie(web.CookieAuthName, token).
 		Execute(func(c web.Context) error {
 			if c.User() == nil {
 				return c.NoContent(http.StatusNoContent)

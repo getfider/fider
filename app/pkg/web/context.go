@@ -20,6 +20,9 @@ import (
 // Map defines a generic map of type `map[string]interface{}`.
 type Map map[string]interface{}
 
+// CookieAuthName is the name of the authentication cookie
+const CookieAuthName = "auth"
+
 var (
 	preffixKey             = "__CTX_"
 	tenantContextKey       = preffixKey + "TENANT"
@@ -161,6 +164,17 @@ func (ctx *Context) SetUser(user *models.User) {
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
 	return ctx.Get(servicesContextKey).(*app.Services)
+}
+
+//AddCookie adds a cookie
+func (ctx *Context) AddCookie(name, value string, expires time.Time) {
+	ctx.SetCookie(&http.Cookie{
+		Name:     name,
+		Value:    value,
+		HttpOnly: true,
+		Path:     "/",
+		Expires:  expires,
+	})
 }
 
 //RemoveCookie removes a cookie

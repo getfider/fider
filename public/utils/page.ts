@@ -12,6 +12,10 @@ export function showLogin(): void {
   }).modal('show');
 }
 
+export function hideLogin(): void {
+  $('#login-modal').modal('hide');
+}
+
 export function getQueryString(name: string) {
   const url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');

@@ -15,7 +15,7 @@ func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
-			cookie, err := c.Cookie("auth")
+			cookie, err := c.Cookie(web.CookieAuthName)
 			if err != nil {
 				if err == http.ErrNoCookie {
 					return next(c)
@@ -32,7 +32,7 @@ func JwtGetter() web.MiddlewareFunc {
 			user, err := services.Users.GetByID(claims.UserID)
 			if err != nil {
 				if err == app.ErrNotFound {
-					c.RemoveCookie("auth")
+					c.RemoveCookie(web.CookieAuthName)
 					return next(c)
 				}
 				return err
@@ -63,13 +63,7 @@ func JwtSetter() web.MiddlewareFunc {
 
 			jwt := query.Get("jwt")
 			if jwt != "" {
-				c.SetCookie(&http.Cookie{
-					Name:     "auth",
-					Value:    jwt,
-					HttpOnly: true,
-					Path:     "/",
-					Expires:  time.Now().Add(365 * 24 * time.Hour),
-				})
+				c.AddCookie(web.CookieAuthName, jwt, time.Now().Add(365*24*time.Hour))
 
 				query.Del("jwt")
 
