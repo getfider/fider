@@ -3,11 +3,11 @@ import * as ReactDOM from 'react-dom';
 import Textarea from 'react-textarea-autosize';
 
 import { Idea, User } from '@fider/models';
-import { Gravatar, UserName, Button, DisplayError, LogInControl } from '@fider/components/common';
+import { Gravatar, UserName, Button, DisplayError, SignInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
-import { showLogin } from '@fider/utils/page';
+import { showSignIn } from '@fider/utils/page';
 
 interface CommentInputProps {
     idea: Idea;
@@ -41,7 +41,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     private onTextFocused() {
       if (!this.user) {
         this.input.blur();
-        showLogin();
+        showSignIn();
       }
     }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { LogInControl, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+import { SignInControl, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
 import { AppSettings } from '@fider/models';
 import { setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
@@ -109,7 +109,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                         </div> :
                         <div>
                             <p>We need to identify you in order to setup your new Fider instance.</p>
-                            <LogInControl />
+                            <SignInControl />
                         </div>
                     }
 

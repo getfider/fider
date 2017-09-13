@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { SocialLogInButton, Form } from '@fider/components/common';
+import { SocialSignInButton, Form } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
 import { TenantService } from '@fider/services';
-import { hideLogin } from '@fider/utils/page';
+import { hideSignIn } from '@fider/utils/page';
 
-interface LogInControlState {
+interface SignInControlState {
   email: string;
   sent: boolean;
 }
 
-export class LogInControl extends React.Component<{}, LogInControlState> {
+export class SignInControl extends React.Component<{}, SignInControlState> {
   private form: Form;
 
   @inject(injectables.Session)
@@ -28,8 +28,8 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
     };
   }
 
-  private async login() {
-    const result = await this.service.login(this.state.email);
+  private async signIn() {
+    const result = await this.service.signIn(this.state.email);
     if (result.ok) {
       this.form.clearFailure();
       this.setState({ sent: true });
@@ -46,25 +46,25 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
 
     if (this.state.sent) {
       return <div>
-                <p>We sent a login link to <b>{ this.state.email }</b>. Please check your inbox.</p>
-                <p><a href="#" onClick={() => hideLogin()}>OK</a></p>
+                <p>We sent a sign in link to <b>{ this.state.email }</b>. <br /> Please check your inbox.</p>
+                <p><a href="#" onClick={() => hideSignIn()}>OK</a></p>
              </div>;
     }
 
     const google = settings.providers.google &&
                     <div className="column">
-                        <SocialLogInButton provider="google" />
+                        <SocialSignInButton provider="google" />
                     </div>;
     const facebook = settings.providers.facebook &&
                     <div className="column">
-                        <SocialLogInButton provider="facebook" />
+                        <SocialSignInButton provider="facebook" />
                     </div>;
     const github = settings.providers.github &&
                     <div className="column">
-                        <SocialLogInButton provider="github" />
+                        <SocialSignInButton provider="github" />
                     </div>;
 
-    return  <div className="login-options">
+    return  <div className="signin-options">
                 <div className="ui stackable three column centered grid">
                   { facebook }
                   { google }
@@ -72,12 +72,12 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
                 </div>
                 <p className="info">We'll never post to any of your accounts</p>
                 <div className="ui horizontal divider">OR</div>
-                <p>Enter your e-mail address to log in</p>
-                <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.login() }>
+                <p>Enter your e-mail address to sign in</p>
+                <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
                   <div className="ui small action fluid input">
                       <input onChange={(e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
                       <button onClick={ () => this.form.submit() } className={`ui small positive button ${this.state.email === '' && 'disabled'}`}>
-                        Log in
+                        Sign in
                       </button>
                   </div>
                 </Form>

@@ -119,7 +119,7 @@ func (p *HTTPService) GetProfile(authEndpoint string, provider string, code stri
 		return nil, fmt.Errorf("HTTP Get profile for %s failed with %s", provider, err)
 	}
 
-	//GitHub allows users to omit name, so we use their login
+	//GitHub allows users to omit name, so we use their login name
 	if strings.Trim(profile.Name, " ") == "" {
 		profile.Name = profile.Login
 	}

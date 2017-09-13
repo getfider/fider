@@ -126,19 +126,19 @@ func OAuthCallback(provider string) web.HandlerFunc {
 	}
 }
 
-// Login handles OAuth logins
-func Login(provider string) web.HandlerFunc {
+// SignIn handles OAuth sign in
+func SignIn(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
 	}
 }
 
-// LoginByEmail sends a new e-mail with verification key
-func LoginByEmail() web.HandlerFunc {
+// SignInByEmail sends a new e-mail with verification key
+func SignInByEmail() web.HandlerFunc {
 	return func(c web.Context) error {
 		//TODO: add lots of tests
-		input := new(actions.LoginByEmail)
+		input := new(actions.SignInByEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
@@ -148,8 +148,8 @@ func LoginByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subject := fmt.Sprintf("Log in to %s", c.Tenant().Name)
-		link := fmt.Sprintf("%s/login/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
+		subject := fmt.Sprintf("Sign in to %s", c.Tenant().Name)
+		link := fmt.Sprintf("%s/signin/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
 		message := fmt.Sprintf("Click and confirm that you want to sign in. This link will expire in 15 minutes and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
 		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
 		if err != nil {
@@ -160,8 +160,8 @@ func LoginByEmail() web.HandlerFunc {
 	}
 }
 
-// VerifyLoginKey checks if verify key is correct and log in user
-func VerifyLoginKey() web.HandlerFunc {
+// VerifySignInKey checks if verify key is correct and sign in user
+func VerifySignInKey() web.HandlerFunc {
 	return func(c web.Context) error {
 		key := c.QueryParam("k")
 
@@ -212,8 +212,8 @@ func VerifyLoginKey() web.HandlerFunc {
 	}
 }
 
-// Logout remove auth cookies
-func Logout() web.HandlerFunc {
+// SignOut remove auth cookies
+func SignOut() web.HandlerFunc {
 	return func(c web.Context) error {
 		c.RemoveCookie(web.CookieAuthName)
 		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))

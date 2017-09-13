@@ -10,7 +10,7 @@ describe('Submit ideas', () => {
 
     // Assert
     await Promise.all([
-      ensure(pages.home.UserMenu).textIs('LOG IN'),
+      ensure(pages.home.UserMenu).textIs('SIGN IN'),
       ensure(pages.home.SubmitIdea).isNotVisible(),
       ensure(pages.home.IdeaDescription).isNotVisible(),
     ]);
@@ -36,7 +36,7 @@ describe('Submit ideas', () => {
     ]);
   });
 
-  it('Can log in with Google and support an idea', async () => {
+  it('Can sign in with Google and support an idea', async () => {
     // Action
     await pages.home.navigate();
     await pages.home.signInWithGoogle();

@@ -90,8 +90,8 @@ type UpdateTenantSettings struct {
 	UserClaims     *OAuthClaims
 }
 
-//LoginByEmail is the input model when user request to log in by email
-type LoginByEmail struct {
+//SignInByEmail is the input model when user request to sign in by email
+type SignInByEmail struct {
 	Email           string `json:"email"`
 	VerificationKey string
 }

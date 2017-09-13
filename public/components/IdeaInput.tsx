@@ -5,7 +5,7 @@ import { DisplayError, Button, Form } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
 import { User } from '@fider/models';
-import { showLogin } from '@fider/utils/page';
+import { showSignIn } from '@fider/utils/page';
 
 interface IdeaInputProps {
     placeholder: string;
@@ -47,7 +47,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private onTitleFocused() {
       if (!this.user) {
         this.title.blur();
-        showLogin();
+        showSignIn();
       }
     }
 

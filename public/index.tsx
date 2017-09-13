@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { LogInModal } from '@fider/components/LogInModal';
+import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { SiteHomePage } from '@fider/pages/site/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const config = resolveRootComponent(location.pathname)!;
   ReactDOM.render(
     <div id={ config.id }>
-      <LogInModal />
+      <SignInModal />
       { config.component }
     </div>, document.getElementById('root')
   );

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { User, Tenant } from '@fider/models';
-import { LogInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
+import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
-import { showLogin } from '@fider/utils/page';
+import { showSignIn } from '@fider/utils/page';
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
@@ -35,7 +35,7 @@ export class Header extends React.Component<{}, {}> {
 
   private showModal() {
     if (!this.user) {
-      showLogin();
+      showSignIn();
     }
   }
 
@@ -50,8 +50,8 @@ export class Header extends React.Component<{}, {}> {
                           </div>
                         }
                         <div className="item">
-                          <a className="signout" href="/logout?redirect=/">
-                            Log out
+                          <a className="signout" href="/signout?redirect=/">
+                            Sign out
                           </a>
                         </div>
                     </div>;
@@ -63,9 +63,9 @@ export class Header extends React.Component<{}, {}> {
                         <a href="/" className="header item">
                             { this.tenant.name }
                         </a>
-                        <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item login right ${!this.user.name && 'subtitle' }`}>
+                        <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item signin right ${!this.user.name && 'subtitle' }`}>
                             <Gravatar name={this.user.name} hash={this.user.gravatar} />
-                            { this.user.name || 'Log in' }
+                            { this.user.name || 'Sign in' }
                             { this.user.name && <i className="dropdown icon"></i> }
                         </a>
                     </div>

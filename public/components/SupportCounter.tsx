@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
-import { LogInControl } from '@fider/components/common';
+import { SignInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService } from '@fider/services';
+import { showSignIn } from '@fider/utils/page';
 
 interface SupportCounterProps {
     user: User;
@@ -34,9 +35,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     public async supportOrUndo() {
         if (!this.props.user) {
-            $('#login-modal').modal({
-                blurring: true
-            }).modal('show');
+            showSignIn();
             return;
         }
 

@@ -68,11 +68,11 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		auth.Use(middlewares.Setup(db, emailer))
 		auth.Use(middlewares.AddServices())
 
-		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
+		auth.Get("/facebook", handlers.SignIn(oauth.FacebookProvider))
 		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
+		auth.Get("/google", handlers.SignIn(oauth.GoogleProvider))
 		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		auth.Get("/github", handlers.Login(oauth.GitHubProvider))
+		auth.Get("/github", handlers.SignIn(oauth.GitHubProvider))
 		auth.Get("/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
@@ -89,11 +89,11 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/", handlers.Index())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
-			public.Get("/logout", handlers.Logout())
+			public.Get("/signout", handlers.SignOut())
 			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
-			public.Get("/login/verify", handlers.VerifyLoginKey())
+			public.Get("/signin/verify", handlers.VerifySignInKey())
 			public.Get("/api/status", handlers.Status(settings))
-			public.Post("/api/login", handlers.LoginByEmail())
+			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
 		private := page.Group("/api")

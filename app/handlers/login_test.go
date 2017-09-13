@@ -12,11 +12,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestLoginHandler(t *testing.T) {
+func TestSignInHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.Execute(handlers.Login(oauth.FacebookProvider))
+	code, response := server.Execute(handlers.SignIn(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canherayou.com/oauth/token?provider=facebook&redirect="))

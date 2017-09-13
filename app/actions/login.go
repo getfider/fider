@@ -9,25 +9,25 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
-// LoginByEmail happens when user request to log in by email
-type LoginByEmail struct {
-	Model *models.LoginByEmail
+// SignInByEmail happens when user request to sign in by email
+type SignInByEmail struct {
+	Model *models.SignInByEmail
 }
 
 // Initialize the model
-func (input *LoginByEmail) Initialize() interface{} {
-	input.Model = new(models.LoginByEmail)
+func (input *SignInByEmail) Initialize() interface{} {
+	input.Model = new(models.SignInByEmail)
 	input.Model.VerificationKey = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *LoginByEmail) IsAuthorized(user *models.User) bool {
+func (input *SignInByEmail) IsAuthorized(user *models.User) bool {
 	return true
 }
 
 // Validate is current model is valid
-func (input *LoginByEmail) Validate(services *app.Services) *validate.Result {
+func (input *SignInByEmail) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Email == "" {

@@ -6,14 +6,14 @@ export function getBaseUrl(): string {
   return (window as any)._baseUrl;
 }
 
-export function showLogin(): void {
-  $('#login-modal').modal({
+export function showSignIn(): void {
+  $('#signin-modal').modal({
     blurring: true
   }).modal('show');
 }
 
-export function hideLogin(): void {
-  $('#login-modal').modal('hide');
+export function hideSignIn(): void {
+  $('#signin-modal').modal('hide');
 }
 
 export function getQueryString(name: string) {

@@ -9,26 +9,26 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestLoginByEmail_EmptyEmail(t *testing.T) {
+func TestSignInByEmail_EmptyEmail(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.LoginByEmail{Model: &models.LoginByEmail{Email: ""}}
+	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: ""}}
 	result := action.Validate(services)
 	ExpectFailed(result, "email")
 }
 
-func TestLoginByEmail_InvalidEmail(t *testing.T) {
+func TestSignInByEmail_InvalidEmail(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.LoginByEmail{Model: &models.LoginByEmail{Email: "Hi :)"}}
+	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: "Hi :)"}}
 	result := action.Validate(services)
 	ExpectFailed(result, "email")
 }
 
-func TestLoginByEmail_ShouldHaveVerificationKey(t *testing.T) {
+func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.LoginByEmail{}
+	action := actions.SignInByEmail{}
 	action.Initialize()
 	action.Model.Email = "jon.snow@got.com"
 

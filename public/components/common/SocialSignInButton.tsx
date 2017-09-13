@@ -5,7 +5,7 @@ import { Session } from '@fider/services/Session';
 import { Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
 
-interface SocialLogInButtonProps {
+interface SocialSignInButtonProps {
     provider: 'google' | 'facebook' | 'github';
 }
 
@@ -27,7 +27,7 @@ const providers = {
     }
 };
 
-export class SocialLogInButton extends React.Component<SocialLogInButtonProps, {}> {
+export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
 
     @inject(injectables.Session)
     public session: Session;
