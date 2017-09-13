@@ -44,7 +44,7 @@ func Extract(name string) string {
 	}
 
 	if len(slices) >= 2 {
-		return strings.ToUpper(first(slices[0]) + first(slices[1]))
+		return strings.ToUpper(first(slices[0]) + first(slices[len(slices)-1]))
 	}
 
 	return strings.ToUpper(first(name))

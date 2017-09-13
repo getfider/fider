@@ -16,6 +16,10 @@ func TestExtract(t *testing.T) {
 			expected: "JS",
 		},
 		{
+			input:    "Jon von Snow",
+			expected: "JS",
+		},
+		{
 			input:    "jon.snow",
 			expected: "JS",
 		},

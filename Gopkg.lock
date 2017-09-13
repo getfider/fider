@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/goenning/letteravatar"
   packages = ["."]
-  revision = "60393e488e6e121fdbc76d32c4f3dba7f3d88377"
+  revision = "2e66c7ba1cecb2fa416c0e9ba5f653865ec32efd"
 
 [[projects]]
   branch = "master"
