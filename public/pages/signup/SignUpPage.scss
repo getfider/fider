@@ -2,7 +2,6 @@
     .page {
         margin-top: 50px;
         max-width: 500px !important;
-        text-align: center;
     }
 
     .fdr-avatar {
@@ -13,14 +12,7 @@
         height: 100px;
     }
 
-    .login-options {
-        width: 400px;
-        margin: 0 auto;
-    }
-
-    .ui.form {
-        .ui.input, .field > input {
-            width: 300px;
-        }
+    input#name {
+        width: 310px;
     }
 }

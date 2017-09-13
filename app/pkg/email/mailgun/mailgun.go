@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/email"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
@@ -24,7 +26,7 @@ func NewSender(domain, apiKey string) *Sender {
 func (s *Sender) Send(from, to, subject, message string) error {
 
 	form := url.Values{}
-	form.Add("from", from)
+	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	form.Add("to", to)
 	form.Add("subject", subject)
 	form.Add("html", message)

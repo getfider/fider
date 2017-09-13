@@ -6,6 +6,7 @@ export interface TenantService {
     create(token?: string, name?: string, subdomain?: string): Promise<Result>;
     updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result>;
     checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>>;
+    login(email: string): Promise<Result>;
 }
 
 export interface CheckAvailabilityResponse {
@@ -28,5 +29,10 @@ export class HttpTenantService implements TenantService {
 
     public async checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>> {
         return await get<CheckAvailabilityResponse>(`/api/tenants/${subdomain}/availability`);
+    }
+    public async login(email: string): Promise<Result> {
+        return await post('/api/login', {
+            email,
+        });
     }
 }

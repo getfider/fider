@@ -133,7 +133,7 @@ func (s *TenantStorage) SaveVerificationKey(email, key string) error {
 func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
 	verification := dbEmailVerification{}
 
-	err := s.trx.Get(&verification, "SELECT id, email, key, created_on, verified_on FROM email_verifications LIMIT 1")
+	err := s.trx.Get(&verification, "SELECT id, email, key, created_on, verified_on FROM email_verifications WHERE key = $1 LIMIT 1", key)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

@@ -3,6 +3,8 @@ package smtp
 import (
 	"fmt"
 	gosmtp "net/smtp"
+
+	"github.com/getfider/fider/app/pkg/email"
 )
 
 //Sender is used to send e-mails
@@ -22,7 +24,7 @@ func NewSender(host, port, username, password string) *Sender {
 func (s *Sender) Send(from, to, subject, message string) error {
 
 	headers := make(map[string]string)
-	headers["From"] = from
+	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
 	headers["To"] = to
 	headers["Subject"] = subject
 	headers["MIME-version"] = "1.0"

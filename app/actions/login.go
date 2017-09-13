@@ -17,7 +17,7 @@ type LoginByEmail struct {
 // Initialize the model
 func (input *LoginByEmail) Initialize() interface{} {
 	input.Model = new(models.LoginByEmail)
-	input.Model.VerificationKey = uuid.NewV4().String()
+	input.Model.VerificationKey = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 	return input.Model
 }
 

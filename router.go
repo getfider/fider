@@ -91,8 +91,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
 			public.Get("/logout", handlers.Logout())
 			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
+			public.Get("/login/verify", handlers.VerifyLoginKey())
 			public.Get("/api/status", handlers.Status(settings))
-			public.Post("/api/login", handlers.SendEmailVerification())
+			public.Post("/api/login", handlers.LoginByEmail())
 		}
 
 		private := page.Group("/api")

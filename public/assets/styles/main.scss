@@ -229,6 +229,9 @@ code {
 
 .login-message {
   background-color: $menu-color;
+  .ui.basic.red.label {
+    background-color: $menu-color !important;
+  }
 }
 
 .login-options{

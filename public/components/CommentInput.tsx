@@ -59,7 +59,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             </Button>
           : <div className="ui message login-message">
               <div className="header">
-                Log in to raise your voice.
+                Log in to raise your voice
               </div>
               <LogInControl />
             </div>;

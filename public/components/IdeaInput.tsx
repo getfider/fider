@@ -40,26 +40,14 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
 
     public async submit() {
       if (this.state.title) {
-        this.form.clearFailure();
         const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
+          this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
         } else if (result.error) {
           this.form.setFailure(result.error);
         }
       }
-    }
-
-    public titleChanged(title: string) {
-      this.setState({ title });
-    }
-
-    public titleFocused() {
-      this.setState({ focused: true });
-    }
-
-    public titleUnfocused() {
-      this.setState({ focused: false });
     }
 
     public render() {
@@ -76,7 +64,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                           </div> :
                           <div className="ui message login-message">
                             <div className="header">
-                              Log in to raise your voice.
+                              Log in to raise your voice
                             </div>
                             <LogInControl />
                           </div>;

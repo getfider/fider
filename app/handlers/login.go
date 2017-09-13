@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 
@@ -132,15 +134,74 @@ func Login(provider string) web.HandlerFunc {
 	}
 }
 
-// SendEmailVerification sends a new e-mail with verification key
-func SendEmailVerification() web.HandlerFunc {
+// LoginByEmail sends a new e-mail with verification key
+func LoginByEmail() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.LoginByEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.Email, input.Model.VerificationKey)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		subject := fmt.Sprintf("Log in to %s", c.Tenant().Name)
+		message := fmt.Sprintf("%s/login/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
+		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Ok(web.Map{})
+	}
+}
+
+// VerifyLoginKey checks if verify key is correct and log in user
+func VerifyLoginKey() web.HandlerFunc {
+	return func(c web.Context) error {
+		key := c.QueryParam("k")
+
+		//TODO: If not found, go to main page
+		//TODO: check if key didn't expire
+		result, err := c.Services().Tenants.FindVerificationByKey(key)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		//TODO: If not found, request name and register user
+		user, err := c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.SetKeyAsVerified(key)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		//TODO: do something better with time
+		claims := models.FiderClaims{
+			UserID:    user.ID,
+			UserName:  user.Name,
+			UserEmail: user.Email,
+		}
+
+		token, err := jwt.Encode(claims)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.SetCookie(&http.Cookie{
+			Name:     "auth",
+			Value:    token,
+			HttpOnly: true,
+			Path:     "/",
+			Expires:  time.Now().Add(365 * 24 * time.Hour),
+		})
+
+		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 	}
 }
 
