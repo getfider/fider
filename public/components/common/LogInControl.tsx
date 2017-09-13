@@ -32,6 +32,9 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
     if (result.ok) {
       this.form.clearFailure();
       this.setState({ sent: true });
+      setTimeout(() => {
+        this.setState({ sent: false });
+      }, 5000);
     } else if (result.error) {
       this.form.setFailure(result.error);
     }
@@ -42,7 +45,7 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
 
     if (this.state.sent) {
       return <div>
-                <h1>Thanks</h1>
+                <p>We sent an e-mail to <b>{ this.state.email }</b> with a login link.</p>
              </div>;
     }
 
@@ -60,12 +63,12 @@ export class LogInControl extends React.Component<{}, LogInControlState> {
                     </div>;
 
     return  <div className="login-options">
-                <p className="info">We'll never post to any of your accounts</p>
                 <div className="ui stackable three column centered grid">
                   { facebook }
                   { google }
                   { github }
                 </div>
+                <p className="info">We'll never post to any of your accounts</p>
                 <div className="ui horizontal divider">OR</div>
                 <p>Enter your e-mail address to log in</p>
                 <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.login() }>

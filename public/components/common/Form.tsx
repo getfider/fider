@@ -18,9 +18,9 @@ export class Form extends React.Component<FormProps, FormState> {
   public async submit(e?: React.FormEvent<HTMLFormElement>) {
     if (e) {
       e.preventDefault();
-    }
-    if (this.props.onSubmit) {
-      await this.props.onSubmit();
+      if (this.props.onSubmit) {
+        await this.props.onSubmit();
+      }
     }
   }
 

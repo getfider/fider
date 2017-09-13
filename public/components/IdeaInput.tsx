@@ -1,9 +1,11 @@
 import * as React from 'react';
 import Textarea from 'react-textarea-autosize';
-import { DisplayError, Button, Form, LogInControl } from '@fider/components/common';
+import { DisplayError, Button, Form } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
+import { User } from '@fider/models';
+import { showLogin } from '@fider/utils/page';
 
 interface IdeaInputProps {
     placeholder: string;
@@ -18,27 +20,38 @@ interface IdeaInputState {
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private form: Form;
+    private user: User;
 
     @inject(injectables.Session)
-    public session: Session;
+    private session: Session;
 
     @inject(injectables.IdeaService)
-    public service: IdeaService;
+    private service: IdeaService;
 
     constructor() {
-        super();
-        this.state = {
-          title: '',
-          description: '',
-          focused: false
-        };
+      super();
+      this.user = this.session.getCurrentUser();
+      this.state = {
+        title: '',
+        description: '',
+        focused: false
+      };
     }
 
     public componentDidMount() {
-      this.title.focus();
+      if (this.user) {
+        this.title.focus();
+      }
     }
 
-    public async submit() {
+    private onTitleFocused() {
+      if (!this.user) {
+        this.title.blur();
+        showLogin();
+      }
+    }
+
+    private async submit() {
       if (this.state.title) {
         const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
@@ -51,32 +64,25 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     public render() {
-        const user = this.session.getCurrentUser();
-        const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
-        const details = user  ?
-                          <div>
-                            <div className="field">
-                              <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
-                            </div>
-                            <Button className={buttonCss} onClick={() => this.form.submit() }>
-                              Submit
-                            </Button>
-                          </div> :
-                          <div className="ui message login-message">
-                            <div className="header">
-                              Log in to raise your voice
-                            </div>
-                            <LogInControl />
-                          </div>;
+      const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
+      const details = <div>
+                        <div className="field">
+                          <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
+                        </div>
+                        <Button className={buttonCss} onClick={() => this.form.submit() }>
+                          Submit
+                        </Button>
+                      </div>;
 
-        return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
-                    <input id="new-idea-input"
-                           type="text"
-                           ref={(e) => this.title = e! }
-                           maxLength={100}
-                           onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
-                           placeholder={this.props.placeholder} />
-                { this.state.title && details }
-               </Form>;
+      return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
+                  <input id="new-idea-input"
+                          type="text"
+                          ref={(e) => this.title = e! }
+                          onFocus={() => this.onTitleFocused()}
+                          maxLength={100}
+                          onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
+                          placeholder={this.props.placeholder} />
+              { this.state.title && details }
+              </Form>;
     }
 }
