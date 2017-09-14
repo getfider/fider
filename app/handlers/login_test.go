@@ -9,8 +9,23 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/pkg/web"
 	. "github.com/onsi/gomega"
 )
+
+func TestSignOutHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		WithURL("http://demo.test.canherayou.com/signout?redirect=/").
+		AddCookie(web.CookieAuthName, "some-value").
+		Execute(handlers.SignOut())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("/"))
+	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(web.CookieAuthName + "=;"))
+}
 
 func TestSignInHandler(t *testing.T) {
 	RegisterTestingT(t)

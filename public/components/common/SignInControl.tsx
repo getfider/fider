@@ -35,7 +35,7 @@ export class SignInControl extends React.Component<{}, SignInControlState> {
       this.setState({ sent: true });
       setTimeout(() => {
         this.setState({ sent: false });
-      }, 5000);
+      }, 10000);
     } else if (result.error) {
       this.form.setFailure(result.error);
     }

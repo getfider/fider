@@ -34,7 +34,7 @@ type Tenant interface {
 	UpdateSettings(settings *models.UpdateTenantSettings) error
 	IsSubdomainAvailable(subdomain string) (bool, error)
 	SaveVerificationKey(email, key string) error
-	FindVerificationByKey(key string) (*models.EmailVerification, error)
+	FindVerificationByKey(key string) (*models.SignInRequest, error)
 	SetKeyAsVerified(key string) error
 	SetCurrentTenant(*models.Tenant)
 }

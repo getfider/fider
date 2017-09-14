@@ -42,7 +42,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 	}
 }
 
-type dbEmailVerification struct {
+type dbSignInRequest struct {
 	ID         int          `db:"id"`
 	Email      string       `db:"email"`
 	Key        string       `db:"key"`
@@ -50,8 +50,8 @@ type dbEmailVerification struct {
 	VerifiedOn dbx.NullTime `db:"verified_on"`
 }
 
-func (t *dbEmailVerification) toModel() *models.EmailVerification {
-	model := &models.EmailVerification{
+func (t *dbSignInRequest) toModel() *models.SignInRequest {
+	model := &models.SignInRequest{
 		Email:      t.Email,
 		Key:        t.Key,
 		CreatedOn:  t.CreatedOn,
@@ -123,29 +123,29 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	return !exists, err
 }
 
-// SaveVerificationKey used by e-mail verification
+// SaveVerificationKey used by e-mail verification process
 func (s *TenantStorage) SaveVerificationKey(email, key string) error {
-	query := "INSERT INTO email_verifications (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
+	query := "INSERT INTO signin_requests (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
 	return s.trx.Execute(query, s.current.ID, email, time.Now(), key)
 }
 
 // FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
-	verification := dbEmailVerification{}
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
+	request := dbSignInRequest{}
 
-	err := s.trx.Get(&verification, "SELECT id, email, key, created_on, verified_on FROM email_verifications WHERE key = $1 LIMIT 1", key)
+	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
 		return nil, err
 	}
 
-	return verification.toModel(), nil
+	return request.toModel(), nil
 }
 
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
-	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
+	query := "UPDATE signin_requests SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
 	return s.trx.Execute(query, time.Now(), s.current.ID, key)
 }
 

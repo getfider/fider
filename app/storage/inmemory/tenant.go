@@ -76,7 +76,7 @@ func (s *TenantStorage) SaveVerificationKey(email, key string) error {
 }
 
 // FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
 	return nil, nil
 }
 
