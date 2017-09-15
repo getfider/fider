@@ -1,12 +1,15 @@
 package handlers_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"net/http"
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
@@ -18,7 +21,7 @@ func TestSignOutHandler(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.canherayou.com/signout?redirect=/").
+		WithURL("http://demo.test.fider.io/signout?redirect=/").
 		AddCookie(web.CookieAuthName, "some-value").
 		Execute(handlers.SignOut())
 
@@ -34,7 +37,7 @@ func TestSignInHandler(t *testing.T) {
 	code, response := server.Execute(handlers.SignIn(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.canherayou.com/oauth/token?provider=facebook&redirect="))
+	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/oauth/token?provider=facebook&redirect="))
 }
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
@@ -44,7 +47,7 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 
 	Expect(func() {
 		server.
-			WithURL("http://login.test.canherayou.com/oauth/callback?state=abc").
+			WithURL("http://login.test.fider.io/oauth/callback?state=abc").
 			Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 	}).To(Panic())
 }
@@ -54,7 +57,7 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://orange.test.fider.io").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
@@ -66,7 +69,7 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123").
+		WithURL("http://demo.test.fider.io/oauth/callback?state=http://demo.test.fider.io&code=123").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
@@ -78,7 +81,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://orange.test.fider.io&code=456").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://orange.test.fider.io&code=456").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	user, err := services.Users.GetByEmail(mock.OrangeTenant.ID, "some.guy@facebook.com")
@@ -103,7 +106,7 @@ func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=798").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io&code=798").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	user, err := services.Users.GetByID(3)
@@ -125,7 +128,7 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	server, services := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.canherayou.com/oauth/callback?state=http://demo.test.fider.io&code=123").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io&code=123").
 		Execute(handlers.OAuthCallback(oauth.GoogleProvider))
 
 	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
@@ -134,4 +137,112 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
+}
+
+func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, _ := server.
+		ExecutePost(handlers.SignInByEmail(), "{ }")
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestSignInByEmailHandler_WithEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
+
+	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=unknown").
+		Execute(handlers.VerifySignInKey())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	services.Tenants.SetKeyAsVerified("1234567890")
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	request, _ := services.Tenants.FindVerificationByKey("1234567890")
+	request.CreatedOn = request.CreatedOn.Add(-16 * time.Minute) //reduce 16 minutes
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey())
+
+	token, _ := jwt.Encode(models.FiderClaims{
+		UserID:    mock.JonSnow.ID,
+		UserName:  mock.JonSnow.Name,
+		UserEmail: mock.JonSnow.Email,
+	})
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
+}
+
+func TestVerifySignInKeyHandler_CorrectKey_ExistingNewUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890")
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io/signin/complete"))
 }

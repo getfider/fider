@@ -9,3 +9,12 @@ var NoReply = env.MustGet("NOREPLY_EMAIL")
 type Sender interface {
 	Send(from, to, subject, message string) error
 }
+
+//NoopSender does not send e-mails
+type NoopSender struct {
+}
+
+//Send an e-mail
+func (s *NoopSender) Send(from, to, subject, message string) error {
+	return nil
+}

@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -9,9 +10,10 @@ import (
 
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
-	lastID  int
-	tenants []*models.Tenant
-	current *models.Tenant
+	lastID   int
+	tenants  []*models.Tenant
+	current  *models.Tenant
+	requests []*models.SignInRequest
 }
 
 // SetCurrentTenant tenant
@@ -72,16 +74,33 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 
 // SaveVerificationKey used by e-mail verification
 func (s *TenantStorage) SaveVerificationKey(email, key string) error {
+	s.requests = append(s.requests, &models.SignInRequest{
+		Email:      email,
+		Key:        key,
+		CreatedOn:  time.Now(),
+		VerifiedOn: nil,
+	})
 	return nil
 }
 
 // FindVerificationByKey based on current tenant
 func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
-	return nil, nil
+	for _, request := range s.requests {
+		if request.Key == key {
+			return request, nil
+		}
+	}
+	return nil, app.ErrNotFound
 }
 
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
+	for _, request := range s.requests {
+		if request.Key == key {
+			now := time.Now()
+			request.VerifiedOn = &now
+		}
+	}
 	return nil
 }
 

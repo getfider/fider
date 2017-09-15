@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -43,6 +44,7 @@ func createServices(seed bool) *app.Services {
 		Users:   &inmemory.UserStorage{},
 		Ideas:   &inmemory.IdeaStorage{},
 		OAuth:   &OAuthService{},
+		Emailer: &email.NoopSender{},
 	}
 
 	if seed {

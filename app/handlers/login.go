@@ -137,7 +137,6 @@ func SignIn(provider string) web.HandlerFunc {
 // SignInByEmail sends a new e-mail with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c web.Context) error {
-		//TODO: add lots of tests
 		input := new(actions.SignInByEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -190,6 +189,9 @@ func VerifySignInKey() web.HandlerFunc {
 		//TODO: If not found, request name and register user
 		user, err := c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
 		if err != nil {
+			if err == app.ErrNotFound {
+				return c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signin/complete", c.BaseURL()))
+			}
 			return c.Failure(err)
 		}
 
