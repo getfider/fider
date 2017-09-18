@@ -238,11 +238,53 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingNewUser(t *testing.T) {
 
 	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890")
 
-	code, response := server.
+	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
 		Execute(handlers.VerifySignInKey())
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io/signin/complete"))
+	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/complete").
+		ExecutePost(handlers.CompleteSignInProfile(), `{  }`)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestCompleteSignInProfileHandler_CorrecKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890")
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/complete").
+		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "1234567890" }`)
+	Expect(code).To(Equal(http.StatusOK))
+
+	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "hot.pie@got.com")
+	Expect(err).To(BeNil())
+	Expect(user.Name).To(Equal("Hot Pie"))
+	Expect(user.Email).To(Equal("hot.pie@got.com"))
+
+	token, _ := jwt.Encode(models.FiderClaims{
+		UserID:    user.ID,
+		UserName:  user.Name,
+		UserEmail: user.Email,
+	})
+	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
+
+	request, err := services.Tenants.FindVerificationByKey("1234567890")
+	Expect(err).To(BeNil())
+	Expect(request.VerifiedOn).NotTo(BeNil())
 }

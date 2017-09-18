@@ -5,6 +5,7 @@ import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { SiteHomePage } from '@fider/pages/site/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
+import { CompleteSignInProfile } from '@fider/pages/site/CompleteSignInProfile';
 import { SignUpPage } from '@fider/pages/signup/SignUpPage';
 import { container, injectables } from '@fider/di';
 import {
@@ -33,6 +34,7 @@ const pathRegex = [
   { regex: new RegExp('^\/admin$'), component: <AdminHomePage />, id: 'fdr-admin-page' },
   { regex: new RegExp('^\/signup$'), component: <SignUpPage />, id: 'fdr-signup-page' },
   { regex: new RegExp('^\/ideas\/\\d+.*$'), component: <ShowIdeaPage />, id: 'fdr-show-idea-page' },
+  { regex: new RegExp('^\/signin\/verify'), component: <CompleteSignInProfile />, id: 'fdr-complete-signin-profile' },
 ];
 
 const resolveRootComponent = (path: string): PageConfiguration | undefined => {

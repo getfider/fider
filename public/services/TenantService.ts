@@ -7,6 +7,7 @@ export interface TenantService {
     updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result>;
     checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>>;
     signIn(email: string): Promise<Result>;
+    completeProfile(key: string, name: string): Promise<Result>;
 }
 
 export interface CheckAvailabilityResponse {
@@ -30,9 +31,17 @@ export class HttpTenantService implements TenantService {
     public async checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>> {
         return await get<CheckAvailabilityResponse>(`/api/tenants/${subdomain}/availability`);
     }
+
     public async signIn(email: string): Promise<Result> {
         return await post('/api/signin', {
             email,
+        });
+    }
+
+    public async completeProfile(key: string, name: string): Promise<Result> {
+        return await post('/api/signin/complete', {
+            key,
+            name,
         });
     }
 }

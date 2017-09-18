@@ -217,6 +217,7 @@ code {
 }
 
 .ui.basic.red.label {
+  width: 100%;
   color: #ef7878 !important;
   border-color: #ef7878 !important;
 
@@ -245,7 +246,8 @@ code {
   }
 }
 
-#signin-modal {
+#signin-modal,
+#signin-complete-modal {
   text-align: center;
 
   @media only screen and (max-width: 767px) {

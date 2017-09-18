@@ -93,6 +93,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
 			public.Get("/signin/verify", handlers.VerifySignInKey())
 			public.Get("/api/status", handlers.Status(settings))
+			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())
 			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 

@@ -186,11 +186,11 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
-		//TODO: If not found, request name and register user
 		user, err := c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
 		if err != nil {
 			if err == app.ErrNotFound {
-				return c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/signin/complete", c.BaseURL()))
+				// This will render a page for /signin/verify URL using same variables as home page
+				return Index()(c)
 			}
 			return c.Failure(err)
 		}
@@ -211,6 +211,44 @@ func VerifySignInKey() web.HandlerFunc {
 		c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
 
 		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+	}
+}
+
+// CompleteSignInProfile handles the action to update user profile
+func CompleteSignInProfile() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.CompleteProfile)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		user := &models.User{
+			Name:   input.Model.Name,
+			Email:  input.Model.Email,
+			Tenant: c.Tenant(),
+			Role:   models.RoleVisitor,
+		}
+		err := c.Services().Users.Register(user)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		token, err := jwt.Encode(models.FiderClaims{
+			UserID:    user.ID,
+			UserName:  user.Name,
+			UserEmail: user.Email,
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.SetKeyAsVerified(input.Model.Key)
+		if err != nil {
+			return c.Failure(err)
+		}
+		c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+
+		return c.Ok(web.Map{})
 	}
 }
 

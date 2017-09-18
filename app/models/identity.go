@@ -103,3 +103,10 @@ type SignInRequest struct {
 	CreatedOn  time.Time
 	VerifiedOn *time.Time
 }
+
+// CompleteProfile is the model used to complete user profile during e-mail sign in
+type CompleteProfile struct {
+	Key   string `json:"key"`
+	Name  string `json:"name"`
+	Email string
+}

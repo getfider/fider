@@ -6,14 +6,26 @@ export function getBaseUrl(): string {
   return (window as any)._baseUrl;
 }
 
+export interface ModalOptions {
+  closable: boolean;
+}
+
+export function showModal(selector: string, options?: ModalOptions): void {
+  const opts = Object.assign({ blurring: true }, options || { });
+
+  $(selector).modal(opts).modal('show');
+}
+
+export function hideModal(selector: string): void {
+  $(selector).modal('hide');
+}
+
 export function showSignIn(): void {
-  $('#signin-modal').modal({
-    blurring: true
-  }).modal('show');
+  showModal('#signin-modal');
 }
 
 export function hideSignIn(): void {
-  $('#signin-modal').modal('hide');
+  hideModal('#signin-modal');
 }
 
 export function getQueryString(name: string) {
