@@ -115,7 +115,6 @@ func OAuthCallback(provider string) web.HandlerFunc {
 
 		var token string
 		if token, err = jwt.Encode(claims); err != nil {
-			c.Logger().Errorf("Encoding claims failed with %s", err)
 			return c.Failure(err)
 		}
 
@@ -195,20 +194,15 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		token, err := jwt.Encode(models.FiderClaims{
-			UserID:    user.ID,
-			UserName:  user.Name,
-			UserEmail: user.Email,
-		})
-		if err != nil {
-			return c.Failure(err)
-		}
-
 		err = c.Services().Tenants.SetKeyAsVerified(key)
 		if err != nil {
 			return c.Failure(err)
 		}
-		c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+
+		err = c.AddAuthCookie(user)
+		if err != nil {
+			return c.Failure(err)
+		}
 
 		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 	}
@@ -233,20 +227,15 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		token, err := jwt.Encode(models.FiderClaims{
-			UserID:    user.ID,
-			UserName:  user.Name,
-			UserEmail: user.Email,
-		})
-		if err != nil {
-			return c.Failure(err)
-		}
-
 		err = c.Services().Tenants.SetKeyAsVerified(input.Model.Key)
 		if err != nil {
 			return c.Failure(err)
 		}
-		c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+
+		err = c.AddAuthCookie(user)
+		if err != nil {
+			return c.Failure(err)
+		}
 
 		return c.Ok(web.Map{})
 	}

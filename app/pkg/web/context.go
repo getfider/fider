@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/labstack/echo"
 )
@@ -164,6 +165,22 @@ func (ctx *Context) SetUser(user *models.User) {
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
 	return ctx.Get(servicesContextKey).(*app.Services)
+}
+
+//AddAuthCookie generates and adds a cookie
+func (ctx *Context) AddAuthCookie(user *models.User) error {
+	token, err := jwt.Encode(models.FiderClaims{
+		UserID:    user.ID,
+		UserName:  user.Name,
+		UserEmail: user.Email,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	ctx.AddCookie(CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+	return nil
 }
 
 //AddCookie adds a cookie
