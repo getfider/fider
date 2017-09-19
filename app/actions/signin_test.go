@@ -12,7 +12,7 @@ import (
 func TestSignInByEmail_EmptyEmail(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: ""}}
+	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: " "}}
 	result := action.Validate(services)
 	ExpectFailed(result, "email")
 }

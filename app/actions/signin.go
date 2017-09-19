@@ -29,7 +29,7 @@ func (input *SignInByEmail) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *SignInByEmail) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	input.Model.Email = strings.ToLower(input.Model.Email)
+	input.Model.Email = strings.Trim(strings.ToLower(input.Model.Email), " ")
 
 	if input.Model.Email == "" {
 		result.AddFieldFailure("email", "E-mail is required.")

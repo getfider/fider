@@ -153,7 +153,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
                     <p>Make sure information provided above is correct before proceeding.</p>
 
-
                     <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
                 </div>
                 <Footer />
