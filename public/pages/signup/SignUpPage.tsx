@@ -109,7 +109,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                         </div> :
                         <div>
                             <p>We need to identify you in order to setup your new Fider instance.</p>
-                            <SignInControl />
+                            <SignInControl signInByEmail={ false } />
                         </div>
                     }
 

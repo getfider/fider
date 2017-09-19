@@ -8,7 +8,7 @@ export class SignInModal extends React.Component<{}, {}> {
                       Sign in to raise your voice
                     </div>
                     <div className="content">
-                        <SignInControl />
+                        <SignInControl signInByEmail={ true } />
                     </div>
                </div>;
     }

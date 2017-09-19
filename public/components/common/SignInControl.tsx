@@ -11,7 +11,11 @@ interface SignInControlState {
   sent: boolean;
 }
 
-export class SignInControl extends React.Component<{}, SignInControlState> {
+interface SignInControlProps {
+  signInByEmail: boolean;
+}
+
+export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
   private form: Form;
 
   @inject(injectables.Session)
@@ -20,8 +24,9 @@ export class SignInControl extends React.Component<{}, SignInControlState> {
   @inject(injectables.TenantService)
   public service: TenantService;
 
-  constructor() {
-    super();
+  constructor(props: SignInControlProps) {
+    super(props);
+
     this.state = {
       email: '',
       sent: false
@@ -71,16 +76,19 @@ export class SignInControl extends React.Component<{}, SignInControlState> {
                   { github }
                 </div>
                 <p className="info">We'll never post to any of your accounts</p>
-                <div className="ui horizontal divider">OR</div>
-                <p>Enter your e-mail address to sign in</p>
-                <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
-                  <div className="ui small action fluid input">
-                      <input onChange={(e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
-                      <button onClick={ () => this.form.submit() } className={`ui small positive button ${this.state.email === '' && 'disabled'}`}>
-                        Sign in
-                      </button>
-                  </div>
-                </Form>
+
+                { this.props.signInByEmail && <div>
+                  <div className="ui horizontal divider">OR</div>
+                  <p>Enter your e-mail address to sign in</p>
+                  <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
+                    <div className="ui small action fluid input">
+                        <input onChange={(e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
+                        <button onClick={ () => this.form.submit() } className={`ui small positive button ${this.state.email === '' && 'disabled'}`}>
+                          Sign in
+                        </button>
+                    </div>
+                  </Form>
+                </div> }
             </div>;
   }
 }
