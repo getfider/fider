@@ -48,9 +48,11 @@ const resolveRootComponent = (path: string): PageConfiguration | undefined => {
 document.addEventListener('DOMContentLoaded', () => {
   const config = resolveRootComponent(location.pathname)!;
   ReactDOM.render(
-    <div id={ config.id }>
+    <div>
       <SignInModal />
-      { config.component }
+      <div id={ config.id }>
+        { config.component }
+      </div>
     </div>, document.getElementById('root')
   );
 });

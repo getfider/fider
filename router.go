@@ -49,6 +49,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	assets := r.Group("/assets")
 	{
 		assets.Use(middlewares.OneYearCache())
+		assets.Get("/avatars/:size/:name", handlers.LetterAvatar())
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/", "dist")
 	}
@@ -90,7 +91,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
 			public.Get("/signin/verify", handlers.VerifySignInKey())
 			public.Get("/api/status", handlers.Status(settings))
 			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())

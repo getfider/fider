@@ -6,14 +6,10 @@ describe('Submit ideas', () => {
   it('Unauthenticated cannot submit ideas', async () => {
     // Action
     await pages.home.navigate();
-    await pages.home.IdeaTitle.type('Add support to TypeScript');
+    await pages.home.IdeaTitle.click();
 
     // Assert
-    await Promise.all([
-      ensure(pages.home.UserMenu).textIs('SIGN IN'),
-      ensure(pages.home.SubmitIdea).isNotVisible(),
-      ensure(pages.home.IdeaDescription).isNotVisible(),
-    ]);
+    await ensure(pages.home.SignInModal).isVisible();
   });
 
   it('Authenticated user can submit ideas', async () => {

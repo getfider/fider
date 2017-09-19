@@ -23,6 +23,9 @@ export class HomePage extends Page {
   @findBy('.signin')
   public UserMenu: WebComponent;
 
+  @findBy('#signin-modal')
+  public SignInModal: WebComponent;
+
   @findBy('#signin-modal .button.google')
   public GoogleSignIn: Button;
 
