@@ -50,22 +50,6 @@ func TestMultiTenant(t *testing.T) {
 	}
 }
 
-func TestMultiTenant_AuthDomain(t *testing.T) {
-	RegisterTestingT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.MultiTenant())
-
-	status, _ := server.WithURL("http://login.test.fider.io").Execute(func(c web.Context) error {
-		if c.Tenant() == nil {
-			return c.NoContent(http.StatusOK)
-		}
-		return c.NoContent(http.StatusInternalServerError)
-	})
-
-	Expect(status).To(Equal(http.StatusOK))
-}
-
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
