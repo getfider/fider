@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { User, Tenant } from '@fider/models';
-import { LogInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
+import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
+import { showSignIn } from '@fider/utils/page';
 
 export class Header extends React.Component<{}, {}> {
     private dropdown: HTMLElement;
@@ -15,65 +16,63 @@ export class Header extends React.Component<{}, {}> {
     public session: Session;
 
     constructor(props: {}) {
-        super(props);
+      super(props);
 
-        this.user = this.session.getCurrentUser();
-        this.tenant = this.session.get<Tenant>('tenant');
+      this.user = this.session.getCurrentUser();
+      this.tenant = this.session.get<Tenant>('tenant');
     }
 
     public componentDidMount() {
-        if (this.user) {
-            $(this.dropdown).popup({
-                inline: true,
-                hoverable: true,
-                popup: this.list,
-                position : 'bottom right'
-            });
-        }
+      if (this.user) {
+        $(this.dropdown).popup({
+          inline: true,
+          hoverable: true,
+          popup: this.list,
+          position : 'bottom right'
+        });
+      }
     }
 
-    private showModal() {
-        if (!this.user) {
-            $('#login-modal').modal({
-                blurring: true
-            }).modal('show');
-        }
+  private showModal() {
+    if (!this.user) {
+      showSignIn();
     }
+  }
 
-    public render() {
-        const items = <div className="ui divided list">
-                            {
-                                this.session.isStaff() &&
-                                <div className="item">
-                                    <a href="/admin">
-                                        Administration
-                                    </a>
-                                </div>
-                            }
-                            <div className="item">
-                                <a className="signout" href="/logout?redirect=/">
-                                    Log out
-                                </a>
-                            </div>
-                        </div>;
-
-        return <div>
-                    <EnvironmentInfo />
-                    <div id="menu" className="ui small menu no-border">
-                        <div className="ui container">
-                            <a href="/" className="header item">
-                                { this.tenant.name }
+  public render() {
+    const items = <div className="ui divided list">
+                        {
+                          this.session.isStaff() &&
+                          <div className="item">
+                            <a href="/admin">
+                                Administration
                             </a>
-                            <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item login right ${!this.user.name && 'subtitle' }`}>
-                                <Gravatar name={this.user.name} hash={this.user.gravatar} />
-                                { this.user.name || 'Log in' }
-                                { this.user.name && <i className="dropdown icon"></i> }
-                            </a>
+                          </div>
+                        }
+                        <div className="item">
+                          <a className="signout" href="/signout?redirect=/">
+                            Sign out
+                          </a>
                         </div>
+                    </div>;
+
+    return <div>
+                <EnvironmentInfo />
+                <div id="menu" className="ui small menu no-border">
+                    <div className="ui container">
+                        <a href="/" className="header item">
+                            { this.tenant.name }
+                        </a>
+                        <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item signin right ${!this.user.name && 'subtitle' }`}>
+                            <Gravatar name={this.user.name} hash={this.user.gravatar} />
+                            { this.user.name || 'Sign in' }
+                            { this.user.name && <i className="dropdown icon"></i> }
+                        </a>
                     </div>
-                    <div ref={(e) => { this.list = e!; } } className="fdr-profile-popup ui popup transition hidden">
-                        { items }
-                    </div>
-               </div>;
+                </div>
+                <div ref={(e) => { this.list = e!; } } className="fdr-profile-popup ui popup transition hidden">
+                    { items }
+                </div>
+            </div>;
     }
 }

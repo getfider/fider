@@ -5,6 +5,10 @@ import (
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/email/mailgun"
+	"github.com/getfider/fider/app/pkg/email/smtp"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage"
@@ -19,6 +23,18 @@ type AppServices struct {
 	Settings *models.AppSettings
 }
 
+func initEmailer() email.Sender {
+	if env.IsDefined("MAILGUN_API") {
+		return mailgun.NewSender(env.MustGet("MAILGUN_DOMAIN"), env.MustGet("MAILGUN_API"))
+	}
+	return smtp.NewSender(
+		env.MustGet("SMTP_HOST"),
+		env.MustGet("SMTP_PORT"),
+		env.MustGet("SMTP_USERNAME"),
+		env.MustGet("SMTP_PASSWORD"),
+	)
+}
+
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	r := web.New(settings)
@@ -28,17 +44,19 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		panic(err)
 	}
 	db.Migrate()
+	emailer := initEmailer()
 
 	assets := r.Group("/assets")
 	{
 		assets.Use(middlewares.OneYearCache())
+		assets.Get("/avatars/:size/:name", handlers.LetterAvatar())
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/", "dist")
 	}
 
 	signup := r.Group("")
 	{
-		signup.Use(middlewares.Setup(db))
+		signup.Use(middlewares.Setup(db, emailer))
 		signup.Use(middlewares.AddServices())
 
 		signup.Post("/api/tenants", handlers.CreateTenant())
@@ -48,20 +66,20 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 
 	auth := r.Group("/oauth")
 	{
-		auth.Use(middlewares.Setup(db))
+		auth.Use(middlewares.Setup(db, emailer))
 		auth.Use(middlewares.AddServices())
 
-		auth.Get("/facebook", handlers.Login(oauth.FacebookProvider))
+		auth.Get("/facebook", handlers.SignIn(oauth.FacebookProvider))
 		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		auth.Get("/google", handlers.Login(oauth.GoogleProvider))
+		auth.Get("/google", handlers.SignIn(oauth.GoogleProvider))
 		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		auth.Get("/github", handlers.Login(oauth.GitHubProvider))
+		auth.Get("/github", handlers.SignIn(oauth.GitHubProvider))
 		auth.Get("/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
 	page := r.Group("")
 	{
-		page.Use(middlewares.Setup(db))
+		page.Use(middlewares.Setup(db, emailer))
 		page.Use(middlewares.Tenant())
 		page.Use(middlewares.AddServices())
 		page.Use(middlewares.JwtGetter())
@@ -72,9 +90,11 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/", handlers.Index())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*", handlers.IdeaDetails())
-			public.Get("/logout", handlers.Logout())
+			public.Get("/signout", handlers.SignOut())
+			public.Get("/signin/verify", handlers.VerifySignInKey())
 			public.Get("/api/status", handlers.Status(settings))
-			public.Get("/avatars/:size/:name", handlers.LetterAvatar())
+			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())
+			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
 		private := page.Group("/api")

@@ -13,8 +13,8 @@ type CreateNewIdea struct {
 	Model *models.NewIdea
 }
 
-// NewModel initializes the model
-func (input *CreateNewIdea) NewModel() interface{} {
+// Initialize the model
+func (input *CreateNewIdea) Initialize() interface{} {
 	input.Model = new(models.NewIdea)
 	return input.Model
 }
@@ -46,8 +46,8 @@ type AddNewComment struct {
 	Model *models.NewComment
 }
 
-// NewModel initializes the model
-func (input *AddNewComment) NewModel() interface{} {
+// Initialize the model
+func (input *AddNewComment) Initialize() interface{} {
 	input.Model = new(models.NewComment)
 	return input.Model
 }
@@ -73,8 +73,8 @@ type SetResponse struct {
 	Model *models.SetResponse
 }
 
-// NewModel initializes the model
-func (input *SetResponse) NewModel() interface{} {
+// Initialize the model
+func (input *SetResponse) Initialize() interface{} {
 	input.Model = new(models.SetResponse)
 	return input.Model
 }

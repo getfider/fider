@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
+	"github.com/getfider/fider/app/pkg/email"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/oauth"
@@ -13,7 +15,7 @@ import (
 )
 
 //Setup current context with some services
-func Setup(db *dbx.Database) web.MiddlewareFunc {
+func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			logger := c.Logger().(*log.Logger)
@@ -25,8 +27,10 @@ func Setup(db *dbx.Database) web.MiddlewareFunc {
 			}
 
 			c.SetActiveTransaction(trx)
+
 			c.SetServices(&app.Services{
 				Tenants: postgres.NewTenantStorage(trx),
+				Emailer: emailer,
 			})
 
 			defer func() {
@@ -58,7 +62,9 @@ func AddServices() web.MiddlewareFunc {
 			trx := c.ActiveTransaction()
 			tenant := c.Tenant()
 			services := c.Services()
+			services.Tenants.SetCurrentTenant(tenant)
 			services.OAuth = &oauth.HTTPService{}
+			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Users = postgres.NewUserStorage(trx)
 			return next(c)

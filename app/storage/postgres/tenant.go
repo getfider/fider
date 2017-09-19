@@ -13,7 +13,8 @@ import (
 
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
-	trx *dbx.Trx
+	trx     *dbx.Trx
+	current *models.Tenant
 }
 
 // NewTenantStorage creates a new TenantStorage
@@ -39,6 +40,34 @@ func (t *dbTenant) toModel() *models.Tenant {
 		Invitation:     t.Invitation,
 		WelcomeMessage: t.WelcomeMessage,
 	}
+}
+
+type dbSignInRequest struct {
+	ID         int          `db:"id"`
+	Email      string       `db:"email"`
+	Key        string       `db:"key"`
+	CreatedOn  time.Time    `db:"created_on"`
+	VerifiedOn dbx.NullTime `db:"verified_on"`
+}
+
+func (t *dbSignInRequest) toModel() *models.SignInRequest {
+	model := &models.SignInRequest{
+		Email:      t.Email,
+		Key:        t.Key,
+		CreatedOn:  t.CreatedOn,
+		VerifiedOn: nil,
+	}
+
+	if t.VerifiedOn.Valid {
+		model.VerifiedOn = &t.VerifiedOn.Time
+	}
+
+	return model
+}
+
+// SetCurrentTenant tenant
+func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.current = tenant
 }
 
 // Add given tenant to tenant list
@@ -83,15 +112,41 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 }
 
 // UpdateSettings of given tenant
-func (s *TenantStorage) UpdateSettings(tenantID int, settings *models.UpdateTenantSettings) error {
+func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3 WHERE id = $4"
-	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, tenantID)
+	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, s.current.ID)
 }
 
 // IsSubdomainAvailable returns true if subdomain is available to use
 func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
 	return !exists, err
+}
+
+// SaveVerificationKey used by e-mail verification process
+func (s *TenantStorage) SaveVerificationKey(email, key string) error {
+	query := "INSERT INTO signin_requests (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
+	return s.trx.Execute(query, s.current.ID, email, time.Now(), key)
+}
+
+// FindVerificationByKey based on current tenant
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
+	request := dbSignInRequest{}
+
+	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	return request.toModel(), nil
+}
+
+// SetKeyAsVerified so that it cannot be used anymore
+func (s *TenantStorage) SetKeyAsVerified(key string) error {
+	query := "UPDATE signin_requests SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
+	return s.trx.Execute(query, time.Now(), s.current.ID, key)
 }
 
 func extractSubdomain(domain string) string {

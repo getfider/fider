@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
@@ -86,4 +88,25 @@ type UpdateTenantSettings struct {
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`
 	UserClaims     *OAuthClaims
+}
+
+//SignInByEmail is the input model when user request to sign in by email
+type SignInByEmail struct {
+	Email           string `json:"email"`
+	VerificationKey string
+}
+
+//SignInRequest is the model used by e-mail verification process
+type SignInRequest struct {
+	Email      string
+	Key        string
+	CreatedOn  time.Time
+	VerifiedOn *time.Time
+}
+
+// CompleteProfile is the model used to complete user profile during e-mail sign in
+type CompleteProfile struct {
+	Key   string `json:"key"`
+	Name  string `json:"name"`
+	Email string
 }

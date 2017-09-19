@@ -1,4 +1,4 @@
-import { WebComponent, Browser, Page, Button, TextInput, findBy, elementIsVisible, pageHasLoaded } from '../lib';
+import { WebComponent, Browser, Page, Button, TextInput, findBy, elementIsVisible, pageHasLoaded, delay } from '../lib';
 import { GoogleSignInPage, FacebookSignInPage, HomePage } from './';
 
 export class SignUpPage extends Page {
@@ -16,16 +16,16 @@ export class SignUpPage extends Page {
   @findBy('#fdr-signup-page .button.facebook')
   public FacebookSignIn: Button;
 
-  @findBy('.form #name')
+  @findBy('#fdr-signup-page .form #name')
   public Name: TextInput;
 
-  @findBy('.form #subdomain')
+  @findBy('#fdr-signup-page .form #subdomain')
   public Subdomain: TextInput;
 
-  @findBy('.button.positive')
+  @findBy('#fdr-signup-page .button.positive')
   public Confirm: Button;
 
-  @findBy('.green.basic.label')
+  @findBy('#fdr-signup-page .page .green.basic.label')
   private SubdomainOk: WebComponent;
 
   public loadCondition() {

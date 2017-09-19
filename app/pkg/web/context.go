@@ -13,12 +13,16 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/labstack/echo"
 )
 
 // Map defines a generic map of type `map[string]interface{}`.
 type Map map[string]interface{}
+
+// CookieAuthName is the name of the authentication cookie
+const CookieAuthName = "auth"
 
 var (
 	preffixKey             = "__CTX_"
@@ -50,12 +54,13 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	} else {
 		ctx.Logger().Debug("Current tenant: nil")
 	}
+	ctx.Services().Tenants.SetCurrentTenant(tenant)
 	ctx.Set(tenantContextKey, tenant)
 }
 
 //BindTo context values into given model
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := ctx.Bind(i.NewModel())
+	err := ctx.Bind(i.Initialize())
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -160,6 +165,33 @@ func (ctx *Context) SetUser(user *models.User) {
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
 	return ctx.Get(servicesContextKey).(*app.Services)
+}
+
+//AddAuthCookie generates and adds a cookie
+func (ctx *Context) AddAuthCookie(user *models.User) error {
+	token, err := jwt.Encode(models.FiderClaims{
+		UserID:    user.ID,
+		UserName:  user.Name,
+		UserEmail: user.Email,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	ctx.AddCookie(CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+	return nil
+}
+
+//AddCookie adds a cookie
+func (ctx *Context) AddCookie(name, value string, expires time.Time) {
+	ctx.SetCookie(&http.Cookie{
+		Name:     name,
+		Value:    value,
+		HttpOnly: true,
+		Path:     "/",
+		Expires:  expires,
+	})
 }
 
 //RemoveCookie removes a cookie

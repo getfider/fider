@@ -217,6 +217,7 @@ code {
 }
 
 .ui.basic.red.label {
+  width: 100%;
   color: #ef7878 !important;
   border-color: #ef7878 !important;
 
@@ -227,11 +228,14 @@ code {
   }
 }
 
-.login-message {
+.signin-message {
   background-color: $menu-color;
+  .ui.basic.red.label {
+    background-color: $menu-color !important;
+  }
 }
 
-.login-options{
+.signin-options{
   .ui.stackable.grid>.column:not(.row),
   .column {
     padding: 10px 5px !important;
@@ -242,7 +246,8 @@ code {
   }
 }
 
-#login-modal {
+#signin-modal,
+#signin-complete-modal {
   text-align: center;
 
   @media only screen and (max-width: 767px) {

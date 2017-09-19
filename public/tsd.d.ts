@@ -1,5 +1,5 @@
 interface JQuery {
-    modal(ops: any): any;
+    modal(opts: any): any;
     popup(args: any): any;
     dropdown(args?: any): any;
 }
