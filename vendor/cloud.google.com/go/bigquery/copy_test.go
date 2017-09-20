@@ -15,15 +15,18 @@
 package bigquery
 
 import (
-	"reflect"
 	"testing"
 
+	"cloud.google.com/go/internal/testutil"
+
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"golang.org/x/net/context"
 	bq "google.golang.org/api/bigquery/v2"
 )
 
 func defaultCopyJob() *bq.Job {
 	return &bq.Job{
+		JobReference: &bq.JobReference{ProjectId: "client-project-id"},
 		Configuration: &bq.JobConfiguration{
 			Copy: &bq.JobConfigurationTableCopy{
 				DestinationTable: &bq.TableReference{
@@ -105,16 +108,13 @@ func TestCopy(t *testing.T) {
 			config: CopyConfig{JobID: "job-id"},
 			want: func() *bq.Job {
 				j := defaultCopyJob()
-				j.JobReference = &bq.JobReference{
-					JobId:     "job-id",
-					ProjectId: "client-project-id",
-				}
+				j.JobReference.JobId = "job-id"
 				return j
 			}(),
 		},
 	}
 
-	for _, tc := range testCases {
+	for i, tc := range testCases {
 		s := &testService{}
 		c := &Client{
 			service:   s,
@@ -126,11 +126,24 @@ func TestCopy(t *testing.T) {
 		tc.config.Dst = tc.dst
 		copier.CopyConfig = tc.config
 		if _, err := copier.Run(context.Background()); err != nil {
-			t.Errorf("err calling Run: %v", err)
+			t.Errorf("#%d: err calling Run: %v", i, err)
 			continue
 		}
-		if !reflect.DeepEqual(s.Job, tc.want) {
-			t.Errorf("copying: got:\n%v\nwant:\n%v", s.Job, tc.want)
-		}
+		checkJob(t, i, s.Job, tc.want)
+	}
+}
+
+func checkJob(t *testing.T, i int, got, want *bq.Job) {
+	if got.JobReference == nil {
+		t.Errorf("#%d: empty job  reference", i)
+		return
+	}
+	if got.JobReference.JobId == "" {
+		t.Errorf("#%d: empty job ID", i)
+		return
+	}
+	d := testutil.Diff(got, want, cmpopts.IgnoreFields(bq.JobReference{}, "JobId"))
+	if d != "" {
+		t.Errorf("#%d: (got=-, want=+) %s", i, d)
 	}
 }

@@ -15,13 +15,14 @@
 package bigquery
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 	"time"
 
 	"cloud.google.com/go/internal"
+	"cloud.google.com/go/internal/optional"
 	"cloud.google.com/go/internal/version"
 	gax "github.com/googleapis/gax-go"
 
@@ -48,7 +49,7 @@ type service interface {
 
 	// listTables returns a page of Tables and a next page token. Note: the Tables do not have their c field populated.
 	listTables(ctx context.Context, projectID, datasetID string, pageSize int, pageToken string) ([]*Table, string, error)
-	patchTable(ctx context.Context, projectID, datasetID, tableID string, conf *patchTableConf) (*TableMetadata, error)
+	patchTable(ctx context.Context, projectID, datasetID, tableID string, conf *patchTableConf, etag string) (*TableMetadata, error)
 
 	// Table data
 	readTabledata(ctx context.Context, conf *readTableConf, pageToken string) (*readDataResult, error)
@@ -58,6 +59,7 @@ type service interface {
 	insertDataset(ctx context.Context, datasetID, projectID string) error
 	deleteDataset(ctx context.Context, datasetID, projectID string) error
 	getDatasetMetadata(ctx context.Context, projectID, datasetID string) (*DatasetMetadata, error)
+	patchDataset(ctx context.Context, projectID, datasetID string, dm *DatasetMetadataToUpdate, etag string) (*DatasetMetadata, error)
 
 	// Misc
 
@@ -177,7 +179,6 @@ func (s *bigqueryService) readTabledata(ctx context.Context, conf *readTableConf
 	// Prepare request to fetch one page of table data.
 	req := s.s.Tabledata.List(conf.projectID, conf.datasetID, conf.tableID)
 	setClientHeader(req.Header())
-
 	if pageToken != "" {
 		req.PageToken(pageToken)
 	} else {
@@ -189,33 +190,37 @@ func (s *bigqueryService) readTabledata(ctx context.Context, conf *readTableConf
 	}
 
 	// Fetch the table schema in the background, if necessary.
-	var schemaErr error
-	var schemaFetch sync.WaitGroup
-	if conf.schema == nil {
-		schemaFetch.Add(1)
+	errc := make(chan error, 1)
+	if conf.schema != nil {
+		errc <- nil
+	} else {
 		go func() {
-			defer schemaFetch.Done()
 			var t *bq.Table
-			t, schemaErr = s.s.Tables.Get(conf.projectID, conf.datasetID, conf.tableID).
-				Fields("schema").
-				Context(ctx).
-				Do()
-			if schemaErr == nil && t.Schema != nil {
+			err := runWithRetry(ctx, func() (err error) {
+				t, err = s.s.Tables.Get(conf.projectID, conf.datasetID, conf.tableID).
+					Fields("schema").
+					Context(ctx).
+					Do()
+				return err
+			})
+			if err == nil && t.Schema != nil {
 				conf.schema = convertTableSchema(t.Schema)
 			}
+			errc <- err
 		}()
 	}
-
-	res, err := req.Context(ctx).Do()
+	var res *bq.TableDataList
+	err := runWithRetry(ctx, func() (err error) {
+		res, err = req.Context(ctx).Do()
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	schemaFetch.Wait()
-	if schemaErr != nil {
-		return nil, schemaErr
+	err = <-errc
+	if err != nil {
+		return nil, err
 	}
-
 	result := &readDataResult{
 		pageToken: res.PageToken,
 		totalRows: uint64(res.TotalRows),
@@ -276,12 +281,11 @@ func (s *bigqueryService) insertRows(ctx context.Context, projectID, datasetID, 
 			Json:     m,
 		})
 	}
+	call := s.s.Tabledata.InsertAll(projectID, datasetID, tableID, req).Context(ctx)
+	setClientHeader(call.Header())
 	var res *bq.TableDataInsertAllResponse
-	err := runWithRetry(ctx, func() error {
-		var err error
-		req := s.s.Tabledata.InsertAll(projectID, datasetID, tableID, req).Context(ctx)
-		setClientHeader(req.Header())
-		res, err = req.Do()
+	err := runWithRetry(ctx, func() (err error) {
+		res, err = call.Do()
 		return err
 	})
 	if err != nil {
@@ -309,18 +313,15 @@ func (s *bigqueryService) insertRows(ctx context.Context, projectID, datasetID, 
 }
 
 func (s *bigqueryService) getJob(ctx context.Context, projectID, jobID string) (*Job, error) {
-	res, err := s.s.Jobs.Get(projectID, jobID).
-		Fields("configuration").
-		Context(ctx).
-		Do()
+	job, err := s.getJobInternal(ctx, projectID, jobID, "configuration")
 	if err != nil {
 		return nil, err
 	}
 	var isQuery bool
 	var dest *bq.TableReference
-	if res.Configuration.Query != nil {
+	if job.Configuration.Query != nil {
 		isQuery = true
-		dest = res.Configuration.Query.DestinationTable
+		dest = job.Configuration.Query.DestinationTable
 	}
 	return &Job{
 		projectID:        projectID,
@@ -330,33 +331,49 @@ func (s *bigqueryService) getJob(ctx context.Context, projectID, jobID string) (
 	}, nil
 }
 
+func (s *bigqueryService) jobStatus(ctx context.Context, projectID, jobID string) (*JobStatus, error) {
+	job, err := s.getJobInternal(ctx, projectID, jobID, "status", "statistics")
+	if err != nil {
+		return nil, err
+	}
+	st, err := jobStatusFromProto(job.Status)
+	if err != nil {
+		return nil, err
+	}
+	st.Statistics = jobStatisticsFromProto(job.Statistics)
+	return st, nil
+}
+
+func (s *bigqueryService) getJobInternal(ctx context.Context, projectID, jobID string, fields ...googleapi.Field) (*bq.Job, error) {
+	var job *bq.Job
+	call := s.s.Jobs.Get(projectID, jobID).
+		Fields(fields...).
+		Context(ctx)
+	setClientHeader(call.Header())
+	err := runWithRetry(ctx, func() (err error) {
+		job, err = call.Do()
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return job, nil
+}
+
 func (s *bigqueryService) jobCancel(ctx context.Context, projectID, jobID string) error {
 	// Jobs.Cancel returns a job entity, but the only relevant piece of
 	// data it may contain (the status of the job) is unreliable.  From the
 	// docs: "This call will return immediately, and the client will need
 	// to poll for the job status to see if the cancel completed
 	// successfully".  So it would be misleading to return a status.
-	_, err := s.s.Jobs.Cancel(projectID, jobID).
+	call := s.s.Jobs.Cancel(projectID, jobID).
 		Fields(). // We don't need any of the response data.
-		Context(ctx).
-		Do()
-	return err
-}
-
-func (s *bigqueryService) jobStatus(ctx context.Context, projectID, jobID string) (*JobStatus, error) {
-	res, err := s.s.Jobs.Get(projectID, jobID).
-		Fields("status", "statistics"). // Only fetch what we need.
-		Context(ctx).
-		Do()
-	if err != nil {
-		return nil, err
-	}
-	st, err := jobStatusFromProto(res.Status)
-	if err != nil {
-		return nil, err
-	}
-	st.Statistics = jobStatisticsFromProto(res.Statistics)
-	return st, nil
+		Context(ctx)
+	setClientHeader(call.Header())
+	return runWithRetry(ctx, func() error {
+		_, err := call.Do()
+		return err
+	})
 }
 
 var stateMap = map[string]State{"PENDING": Pending, "RUNNING": Running, "DONE": Done}
@@ -465,7 +482,11 @@ func (s *bigqueryService) listTables(ctx context.Context, projectID, datasetID s
 	if pageSize > 0 {
 		req.MaxResults(int64(pageSize))
 	}
-	res, err := req.Do()
+	var res *bq.TableList
+	err := runWithRetry(ctx, func() (err error) {
+		res, err = req.Do()
+		return err
+	})
 	if err != nil {
 		return nil, "", err
 	}
@@ -481,6 +502,7 @@ type createTableConf struct {
 	viewQuery                     string
 	schema                        *bq.TableSchema
 	useStandardSQL                bool
+	useLegacySQL                  bool
 	timePartitioning              *TimePartitioning
 }
 
@@ -490,7 +512,11 @@ type createTableConf struct {
 // Note: expiration can only be set during table creation.
 // Note: after table creation, a view can be modified only if its table was initially created with a view.
 func (s *bigqueryService) createTable(ctx context.Context, conf *createTableConf) error {
+	if conf.useStandardSQL && conf.useLegacySQL {
+		return errors.New("bigquery: cannot provide both UseStandardSQL and UseLegacySQL")
+	}
 	table := &bq.Table{
+		// TODO(jba): retry? Is this always idempotent?
 		TableReference: &bq.TableReference{
 			ProjectId: conf.projectID,
 			DatasetId: conf.datasetID,
@@ -508,6 +534,9 @@ func (s *bigqueryService) createTable(ctx context.Context, conf *createTableConf
 		if conf.useStandardSQL {
 			table.View.UseLegacySql = false
 			table.View.ForceSendFields = append(table.View.ForceSendFields, "UseLegacySql")
+		}
+		if conf.useLegacySQL {
+			table.View.UseLegacySql = true
 		}
 	}
 	if conf.schema != nil {
@@ -529,7 +558,11 @@ func (s *bigqueryService) createTable(ctx context.Context, conf *createTableConf
 func (s *bigqueryService) getTableMetadata(ctx context.Context, projectID, datasetID, tableID string) (*TableMetadata, error) {
 	req := s.s.Tables.Get(projectID, datasetID, tableID).Context(ctx)
 	setClientHeader(req.Header())
-	table, err := req.Do()
+	var table *bq.Table
+	err := runWithRetry(ctx, func() (err error) {
+		table, err = req.Do()
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -539,7 +572,7 @@ func (s *bigqueryService) getTableMetadata(ctx context.Context, projectID, datas
 func (s *bigqueryService) deleteTable(ctx context.Context, projectID, datasetID, tableID string) error {
 	req := s.s.Tables.Delete(projectID, datasetID, tableID).Context(ctx)
 	setClientHeader(req.Header())
-	return req.Do()
+	return runWithRetry(ctx, func() error { return req.Do() })
 }
 
 func bqTableToMetadata(t *bq.Table) *TableMetadata {
@@ -553,6 +586,7 @@ func bqTableToMetadata(t *bq.Table) *TableMetadata {
 		ExpirationTime:   unixMillisToTime(t.ExpirationTime),
 		CreationTime:     unixMillisToTime(t.CreationTime),
 		LastModifiedTime: unixMillisToTime(int64(t.LastModifiedTime)),
+		ETag:             t.Etag,
 	}
 	if t.Schema != nil {
 		md.Schema = convertTableSchema(t.Schema)
@@ -586,6 +620,7 @@ func bqDatasetToMetadata(d *bq.Dataset) *DatasetMetadata {
 		ID:                     d.Id,
 		Location:               d.Location,
 		Labels:                 d.Labels,
+		ETag:                   d.Etag,
 	}
 }
 
@@ -610,12 +645,13 @@ func convertTableReference(tr *bq.TableReference) *Table {
 // patchTableConf contains fields to be patched.
 type patchTableConf struct {
 	// These fields are omitted from the patch operation if nil.
-	Description *string
-	Name        *string
-	Schema      Schema
+	Description    *string
+	Name           *string
+	Schema         Schema
+	ExpirationTime time.Time
 }
 
-func (s *bigqueryService) patchTable(ctx context.Context, projectID, datasetID, tableID string, conf *patchTableConf) (*TableMetadata, error) {
+func (s *bigqueryService) patchTable(ctx context.Context, projectID, datasetID, tableID string, conf *patchTableConf, etag string) (*TableMetadata, error) {
 	t := &bq.Table{}
 	forceSend := func(field string) {
 		t.ForceSendFields = append(t.ForceSendFields, field)
@@ -633,9 +669,16 @@ func (s *bigqueryService) patchTable(ctx context.Context, projectID, datasetID, 
 		t.Schema = conf.Schema.asTableSchema()
 		forceSend("Schema")
 	}
-	table, err := s.s.Tables.Patch(projectID, datasetID, tableID, t).
-		Context(ctx).
-		Do()
+	if !conf.ExpirationTime.IsZero() {
+		t.ExpirationTime = conf.ExpirationTime.UnixNano() / 1e6
+		forceSend("ExpirationTime")
+	}
+	call := s.s.Tables.Patch(projectID, datasetID, tableID, t).Context(ctx)
+	setClientHeader(call.Header())
+	if etag != "" {
+		call.Header().Set("If-Match", etag)
+	}
+	table, err := call.Do()
 	if err != nil {
 		return nil, err
 	}
@@ -643,6 +686,7 @@ func (s *bigqueryService) patchTable(ctx context.Context, projectID, datasetID, 
 }
 
 func (s *bigqueryService) insertDataset(ctx context.Context, datasetID, projectID string) error {
+	// TODO(jba): retry?
 	ds := &bq.Dataset{
 		DatasetReference: &bq.DatasetReference{DatasetId: datasetID},
 	}
@@ -652,20 +696,75 @@ func (s *bigqueryService) insertDataset(ctx context.Context, datasetID, projectI
 	return err
 }
 
+func (s *bigqueryService) patchDataset(ctx context.Context, projectID, datasetID string, dm *DatasetMetadataToUpdate, etag string) (*DatasetMetadata, error) {
+	ds := bqDatasetFromMetadata(dm)
+	call := s.s.Datasets.Patch(projectID, datasetID, ds).Context(ctx)
+	setClientHeader(call.Header())
+	if etag != "" {
+		call.Header().Set("If-Match", etag)
+	}
+	ds2, err := call.Do()
+	if err != nil {
+		return nil, err
+	}
+	return bqDatasetToMetadata(ds2), nil
+}
+
+func bqDatasetFromMetadata(dm *DatasetMetadataToUpdate) *bq.Dataset {
+	ds := &bq.Dataset{}
+	forceSend := func(field string) {
+		ds.ForceSendFields = append(ds.ForceSendFields, field)
+	}
+
+	if dm.Description != nil {
+		ds.Description = optional.ToString(dm.Description)
+		forceSend("Description")
+	}
+	if dm.Name != nil {
+		ds.FriendlyName = optional.ToString(dm.Name)
+		forceSend("FriendlyName")
+	}
+	if dm.DefaultTableExpiration != nil {
+		dur := optional.ToDuration(dm.DefaultTableExpiration)
+		if dur == 0 {
+			// Send a null to delete the field.
+			ds.NullFields = append(ds.NullFields, "DefaultTableExpirationMs")
+		} else {
+			ds.DefaultTableExpirationMs = int64(dur.Seconds() * 1000)
+		}
+	}
+	if dm.setLabels != nil || dm.deleteLabels != nil {
+		ds.Labels = map[string]string{}
+		for k, v := range dm.setLabels {
+			ds.Labels[k] = v
+		}
+		if len(ds.Labels) == 0 && len(dm.deleteLabels) > 0 {
+			forceSend("Labels")
+		}
+		for l := range dm.deleteLabels {
+			ds.NullFields = append(ds.NullFields, "Labels."+l)
+		}
+	}
+	return ds
+}
+
 func (s *bigqueryService) deleteDataset(ctx context.Context, datasetID, projectID string) error {
 	req := s.s.Datasets.Delete(projectID, datasetID).Context(ctx)
 	setClientHeader(req.Header())
-	return req.Do()
+	return runWithRetry(ctx, func() error { return req.Do() })
 }
 
 func (s *bigqueryService) getDatasetMetadata(ctx context.Context, projectID, datasetID string) (*DatasetMetadata, error) {
 	req := s.s.Datasets.Get(projectID, datasetID).Context(ctx)
 	setClientHeader(req.Header())
-	table, err := req.Do()
-	if err != nil {
+	var ds *bq.Dataset
+	if err := runWithRetry(ctx, func() (err error) {
+		ds, err = req.Do()
+		return err
+	}); err != nil {
 		return nil, err
 	}
-	return bqDatasetToMetadata(table), nil
+	return bqDatasetToMetadata(ds), nil
 }
 
 func (s *bigqueryService) listDatasets(ctx context.Context, projectID string, maxResults int, pageToken string, all bool, filter string) ([]*Dataset, string, error) {
@@ -680,7 +779,11 @@ func (s *bigqueryService) listDatasets(ctx context.Context, projectID string, ma
 	if filter != "" {
 		req.Filter(filter)
 	}
-	res, err := req.Do()
+	var res *bq.DatasetList
+	err := runWithRetry(ctx, func() (err error) {
+		res, err = req.Do()
+		return err
+	})
 	if err != nil {
 		return nil, "", err
 	}

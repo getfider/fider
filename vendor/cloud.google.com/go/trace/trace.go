@@ -113,7 +113,7 @@
 //   ...
 //   childSpan.Finish(trace.WithResponse(resp))
 //
-// When a span created by SpanFromRequest or SpamFromHeader is finished, the
+// When a span created by SpanFromRequest or SpanFromHeader is finished, the
 // finished spans in the corresponding trace -- the span itself and its
 // descendants -- are uploaded to the Stackdriver Trace server using the
 // *Client that created the span.  Finish returns immediately, and uploading
@@ -164,7 +164,7 @@ import (
 	"google.golang.org/api/gensupport"
 	"google.golang.org/api/option"
 	"google.golang.org/api/support/bundler"
-	"google.golang.org/api/transport"
+	htransport "google.golang.org/api/transport/http"
 )
 
 const (
@@ -269,7 +269,7 @@ func NewClient(ctx context.Context, projectID string, opts ...option.ClientOptio
 		option.WithUserAgent(userAgent),
 	}
 	o = append(o, opts...)
-	hc, basePath, err := transport.NewHTTPClient(ctx, o...)
+	hc, basePath, err := htransport.NewClient(ctx, o...)
 	if err != nil {
 		return nil, fmt.Errorf("creating HTTP client for Google Stackdriver Trace API: %v", err)
 	}

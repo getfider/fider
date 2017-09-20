@@ -622,7 +622,7 @@ func TestClientAuthErrorList(t *testing.T) {
 				t.Fatalf("errors: got %v, want %v", e, publicKeyErr)
 			}
 		default:
-			t.Fatal("errors: got %v, expected 2 errors", authErrs.Errors)
+			t.Fatalf("errors: got %v, expected 2 errors", authErrs.Errors)
 		}
 	}
 }

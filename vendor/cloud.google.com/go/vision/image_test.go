@@ -15,8 +15,9 @@
 package vision
 
 import (
-	"reflect"
 	"testing"
+
+	"cloud.google.com/go/internal/testutil"
 
 	pb "google.golang.org/genproto/googleapis/cloud/vision/v1"
 )
@@ -29,13 +30,13 @@ func TestImageToProtos(t *testing.T) {
 
 	goti, gotc := img.toProtos()
 	wanti := &pb.Image{Source: &pb.ImageSource{ImageUri: url}}
-	if !reflect.DeepEqual(goti, wanti) {
+	if !testutil.Equal(goti, wanti) {
 		t.Errorf("got %+v, want %+v", goti, wanti)
 	}
 	wantc := &pb.ImageContext{
 		LanguageHints: langHints,
 	}
-	if !reflect.DeepEqual(gotc, wantc) {
+	if !testutil.Equal(gotc, wantc) {
 		t.Errorf("got %+v, want %+v", gotc, wantc)
 	}
 }

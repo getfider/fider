@@ -69,6 +69,7 @@ func TestSlugMakeLang(t *testing.T) {
 		{"de", "This & that", "this-und-that"},
 		{"pl", "This & that", "this-i-that"},
 		{"es", "This & that", "this-y-that"},
+		{"gr", "This & that", "this-kai-that"},
 		{"test", "This & that", "this-and-that"}, // unknown lang, fallback to "en"
 	}
 
@@ -203,6 +204,48 @@ func TestSlugMakeSmartTruncate(t *testing.T) {
 				index, smstt.maxLength, smstt.in, got, smstt.want)
 		}
 	}
+}
+
+func TestIsSlug(t *testing.T) {
+	MaxLength = 0
+	type args struct {
+		text string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"some", args{"some"}, true},
+		{"with -", args{"some-more"}, true},
+		{"with _", args{"some_more"}, true},
+		{"with numbers", args{"number-2"}, true},
+		{"empty string", args{""}, false},
+		{"upper case", args{"Some-more"}, false},
+		{"space", args{"some more"}, false},
+		{"starts with '-'", args{"-some"}, false},
+		{"ends with '-'", args{"some-"}, false},
+		{"starts with '_'", args{"_some"}, false},
+		{"ends with '_'", args{"some_"}, false},
+		{"outside ASCII", args{"Dobrosław Żybort"}, false},
+		{"outside ASCII –", args{"2000–2013"}, false},
+		{"smile ☺", args{"smile ☺"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsSlug(tt.args.text); got != tt.want {
+				t.Errorf("IsSlug() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+	t.Run("MaxLength", func(t *testing.T) {
+		MaxLength = 4
+		if got := IsSlug("012345"); got != false {
+			t.Errorf("IsSlug() = %v, want %v", got, false)
+		}
+		MaxLength = 0
+	})
 }
 
 func BenchmarkMakeShortAscii(b *testing.B) {
@@ -340,5 +383,39 @@ func BenchmarkSmartTruncateLong(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		smartTruncate(longStr)
+	}
+}
+
+func BenchmarkIsSlugShort(b *testing.B) {
+	shortStr := "hello-world"
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		IsSlug(shortStr)
+	}
+}
+
+func BenchmarkIsSlugLong(b *testing.B) {
+	longStr := "lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-morbi-" +
+		"pulvinar-sodales-ultrices-nulla-facilisi-sed-at-vestibulum-erat-ut-" +
+		"sit-amet-urna-posuere-sagittis-eros-ac-varius-nisi-morbi-ullamcorper-" +
+		"odio-at-nunc-pulvinar-mattis-vestibulum-rutrum-ante-eu-dictum-mattis,-" +
+		"elit-risus-finibus-nunc-consectetur-facilisis-eros-leo-ut-sapien-sed-" +
+		"pulvinar-volutpat-mi-cras-semper-mi-ac-eros-accumsan-at-feugiat-massa-" +
+		"elementum-morbi-eget-dolor-sit-amet-purus-condimentum-egestas-non-ut-" +
+		"sapien-duis-feugiat-magna-vitae-nisi-lobortis-quis-finibus-sem-" +
+		"sollicitudin-pellentesque-eleifend-blandit-ipsum-ut-porta-arcu-" +
+		"ultricies-et-fusce-vel-ipsum-porta-placerat-diam-ac-consectetur-" +
+		"magna-nulla-in-porta-sem-suspendisse-commodo-felis-in-molestie-" +
+		"ultricies-arcu-ipsum-aliquet-turpis-elementum-dapibus-ipsum-lorem-a-" +
+		"nisl-etiam-varius-imperdiet-placerat-aliquam-euismod-lacus-arcu-" +
+		"ultrices-hendrerit-est-pellentesque-vel-aliquam-sit-amet-laoreet-leo-" +
+		"integer-eros-libero-mollis-sed-posuere"
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		IsSlug(longStr)
 	}
 }
