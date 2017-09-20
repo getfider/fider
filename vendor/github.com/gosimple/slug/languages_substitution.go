@@ -43,3 +43,15 @@ var esSub = map[rune]string{
 	'&': "y",
 	'@': "en",
 }
+
+var grSub = map[rune]string{
+	'&': "kai",
+	'η': "i",
+	'ή': "i",
+	'Η': "i",
+	'ι': "i",
+	'ί': "i",
+	'Ι': "i",
+	'χ': "x",
+	'Χ': "x",
+}

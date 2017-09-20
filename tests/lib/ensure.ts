@@ -15,7 +15,7 @@ class WebComponentEnsurer {
 
   public async isVisible() {
     if (!await this.component.isDisplayed()) {
-      throw new Error(`Element ${this.component.selector} is visible`);
+      throw new Error(`Element ${this.component.selector} is not visible`);
     }
   }
 

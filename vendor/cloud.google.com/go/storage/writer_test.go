@@ -21,9 +21,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strings"
 	"testing"
+
+	"cloud.google.com/go/internal/testutil"
 
 	"golang.org/x/net/context"
 
@@ -117,7 +118,7 @@ func TestEncryption(t *testing.T) {
 	if err != nil {
 		t.Fatalf("decoding key: %v", err)
 	}
-	if !reflect.DeepEqual(gotKey, key) {
+	if !testutil.Equal(gotKey, key) {
 		t.Errorf("key: got %v, want %v", gotKey, key)
 	}
 	wantHash := sha256.Sum256(key)
@@ -125,7 +126,7 @@ func TestEncryption(t *testing.T) {
 	if err != nil {
 		t.Fatalf("decoding hash: %v", err)
 	}
-	if !reflect.DeepEqual(gotHash, wantHash[:]) { // wantHash is an array
+	if !testutil.Equal(gotHash, wantHash[:]) { // wantHash is an array
 		t.Errorf("hash: got\n%v, want\n%v", gotHash, wantHash)
 	}
 }

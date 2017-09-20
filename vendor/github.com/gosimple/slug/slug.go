@@ -60,6 +60,8 @@ func MakeLang(s string, lang string) (slug string) {
 		slug = SubstituteRune(slug, plSub)
 	case "es":
 		slug = SubstituteRune(slug, esSub)
+	case "gr":
+		slug = SubstituteRune(slug, grSub)
 	default: // fallback to "en" if lang not found
 		slug = SubstituteRune(slug, enSub)
 	}
@@ -132,4 +134,24 @@ func smartTruncate(text string) string {
 		}
 	}
 	return strings.Trim(truncated, "-")
+}
+
+// IsSlug returns True if provided text does not contain white characters,
+// punctuation, all letters are lower case and only from ASCII range.
+// It could contain `-` and `_` but not at the beginning or end of the text.
+// It should be in range of the MaxLength var if specified.
+// All output from slug.Make(text) should pass this test.
+func IsSlug(text string) bool {
+	if text == "" ||
+		(MaxLength > 0 && len(text) > MaxLength) ||
+		text[0] == '-' || text[0] == '_' ||
+		text[len(text)-1] == '-' || text[len(text)-1] == '_' {
+		return false
+	}
+	for _, c := range text {
+		if (c < 'a' || c > 'z') && c != '-' && c != '_' && (c < '0' || c > '9') {
+			return false
+		}
+	}
+	return true
 }

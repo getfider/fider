@@ -36,6 +36,8 @@ type Writer struct {
 	// SendCRC specifies whether to transmit a CRC32C field. It should be set
 	// to true in addition to setting the Writer's CRC32C field, because zero
 	// is a valid CRC and normally a zero would not be transmitted.
+	// If a CRC32C is sent, and the data written does not match the checksum,
+	// the write will be rejected.
 	SendCRC32C bool
 
 	// ChunkSize controls the maximum number of bytes of the object that the
@@ -119,6 +121,9 @@ func (w *Writer) open() error {
 		var resp *raw.Object
 		err := applyConds("NewWriter", w.o.gen, w.o.conds, call)
 		if err == nil {
+			if w.o.userProject != "" {
+				call.UserProject(w.o.userProject)
+			}
 			setClientHeader(call.Header())
 			// We will only retry here if the initial POST, which obtains a URI for
 			// the resumable upload, fails with a retryable error. The upload itself

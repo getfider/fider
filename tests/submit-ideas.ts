@@ -1,4 +1,4 @@
-import { ensure } from './lib';
+import { ensure, elementIsVisible } from './lib';
 import { pages, tenant, browser } from './context';
 
 describe('Submit ideas', () => {
@@ -9,7 +9,7 @@ describe('Submit ideas', () => {
     await pages.home.IdeaTitle.click();
 
     // Assert
-    await ensure(pages.home.SignInModal).isVisible();
+    await browser.wait(elementIsVisible(() => pages.home.SignInModal));
   });
 
   it('Authenticated user can submit ideas', async () => {
