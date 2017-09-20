@@ -216,13 +216,18 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		_, err := c.Services().Users.GetByEmail(c.Tenant().ID, input.Model.Email)
+		if err != app.ErrNotFound {
+			return c.Ok(web.Map{})
+		}
+
 		user := &models.User{
 			Name:   input.Model.Name,
 			Email:  input.Model.Email,
 			Tenant: c.Tenant(),
 			Role:   models.RoleVisitor,
 		}
-		err := c.Services().Users.Register(user)
+		err = c.Services().Users.Register(user)
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -259,7 +259,22 @@ func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
 	Expect(code).To(Equal(http.StatusBadRequest))
 }
 
-func TestCompleteSignInProfileHandler_CorrecKey(t *testing.T) {
+func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey(mock.JonSnow.Email, "1234567890")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/complete").
+		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "1234567890" }`)
+
+	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
