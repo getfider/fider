@@ -7,31 +7,18 @@ import { Session } from '@fider/services/Session';
 import { showSignIn } from '@fider/utils/page';
 
 export class Header extends React.Component<{}, {}> {
-    private dropdown: HTMLElement;
-    private list: HTMLElement;
-    private user: User;
-    private tenant: Tenant;
+  private user: User;
+  private tenant: Tenant;
 
-    @inject(injectables.Session)
-    public session: Session;
+  @inject(injectables.Session)
+  public session: Session;
 
-    constructor(props: {}) {
-      super(props);
+  constructor(props: {}) {
+    super(props);
 
-      this.user = this.session.getCurrentUser();
-      this.tenant = this.session.get<Tenant>('tenant');
-    }
-
-    public componentDidMount() {
-      if (this.user) {
-        $(this.dropdown).popup({
-          inline: true,
-          hoverable: true,
-          popup: this.list,
-          position : 'bottom right'
-        });
-      }
-    }
+    this.user = this.session.getCurrentUser();
+    this.tenant = this.session.get<Tenant>('tenant');
+  }
 
   private showModal() {
     if (!this.user) {
@@ -40,38 +27,38 @@ export class Header extends React.Component<{}, {}> {
   }
 
   public render() {
-    const items = <div className="ui divided list">
-                        {
-                          this.session.isStaff() &&
-                          <div className="item">
-                            <a href="/admin">
-                                Administration
-                            </a>
-                          </div>
-                        }
-                        <div className="item">
-                          <a className="signout" href="/signout?redirect=/">
-                            Sign out
-                          </a>
+    const items = <div className="menu">
+                      {
+                        this.session.isStaff() &&
+                        <div className="header">
+                          <i className="setting icon"></i>
+                          Administration
                         </div>
-                    </div>;
+                      }
+                      {
+                        this.session.isStaff() &&
+                        <a href="/admin" className="item">General Settings</a>
+                      }
+                      {
+                        this.session.isStaff() &&
+                        <div className="divider"></div>
+                      }
+                      <a href="/signout?redirect=/" className="item signout">Sign out</a>
+                  </div>;
 
     return <div>
                 <EnvironmentInfo />
-                <div id="menu" className="ui small menu no-border">
+                <div id="menu" className="ui small borderless menu">
                     <div className="ui container">
                         <a href="/" className="header item">
                             { this.tenant.name }
                         </a>
-                        <a ref={(e) => { this.dropdown = e!; } } onClick={ () => this.showModal() } className={`item signin right ${!this.user.name && 'subtitle' }`}>
+                        <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user.name && 'subtitle'}`}>
                             <Gravatar name={this.user.name} hash={this.user.gravatar} />
-                            { this.user.name || 'Sign in' }
-                            { this.user.name && <i className="dropdown icon"></i> }
-                        </a>
+                            { this.user.name || 'Sign in' } { this.user.name && <i className="dropdown icon"></i> }
+                            { this.user.name && items }
+                        </div>
                     </div>
-                </div>
-                <div ref={(e) => { this.list = e!; } } className="fdr-profile-popup ui popup transition hidden">
-                    { items }
                 </div>
             </div>;
     }
