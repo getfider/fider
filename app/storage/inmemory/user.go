@@ -1,6 +1,8 @@
 package inmemory
 
 import (
+	"errors"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 )
@@ -49,8 +51,12 @@ func (s *UserStorage) Register(user *models.User) error {
 		s.lastID = s.lastID + 1
 		user.ID = s.lastID
 	}
-	s.users = append(s.users, user)
-	return nil
+	_, err := s.GetByEmail(user.Tenant.ID, user.Email)
+	if err == app.ErrNotFound || user.Email == "" {
+		s.users = append(s.users, user)
+		return nil
+	}
+	return errors.New("User already registered")
 }
 
 // RegisterProvider adds given provider to userID
