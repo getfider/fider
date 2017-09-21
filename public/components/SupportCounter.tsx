@@ -7,7 +7,7 @@ import { Session, IdeaService } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface SupportCounterProps {
-    user: User;
+    user?: User;
     idea: Idea;
 }
 
@@ -28,7 +28,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const supportedIdeas = this.session.getArray<number>('supportedIdeas');
 
         this.state = {
-          supported: props.user && supportedIdeas && supportedIdeas.indexOf(props.idea.id) >= 0,
+          supported: props.user && supportedIdeas && supportedIdeas.indexOf(props.idea.id) >= 0 ? true : false,
           total: props.idea.totalSupporters
         };
     }

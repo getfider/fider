@@ -23,6 +23,9 @@ export class HomePage extends Page {
   @findBy('.signin')
   public UserMenu: WebComponent;
 
+  @findBy('.signin .name')
+  public UserName: WebComponent;
+
   @findBy('#signin-modal')
   public SignInModal: WebComponent;
 

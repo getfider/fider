@@ -4,7 +4,7 @@ import { DisplayError, Button, Form } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
-import { User } from '@fider/models';
+import { CurrentUser } from '@fider/models';
 import { showSignIn } from '@fider/utils/page';
 
 interface IdeaInputProps {
@@ -20,7 +20,7 @@ interface IdeaInputState {
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private form: Form;
-    private user: User;
+    private user?: CurrentUser;
 
     @inject(injectables.Session)
     private session: Session;

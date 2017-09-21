@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Textarea from 'react-textarea-autosize';
 
-import { Idea, User } from '@fider/models';
+import { Idea, CurrentUser } from '@fider/models';
 import { Gravatar, UserName, Button, DisplayError, SignInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
@@ -27,7 +27,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     @inject(injectables.IdeaService)
     public service: IdeaService;
 
-    private user: User;
+    private user?: CurrentUser;
 
     constructor() {
         super();
@@ -64,9 +64,9 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         const user = this.session.getCurrentUser();
 
         return <div className={`comment-input ${user && 'authenticated' }`}>
-                  <Gravatar name={ this.user.name } hash={ this.user.gravatar }/>
+                  { this.user && <Gravatar name={ this.user.name } hash={ this.user.gravatar }/> }
                   <div className="ui form">
-                    <UserName user={ user } />
+                    { this.user && <UserName user={ this.user } /> }
                     <DisplayError error={this.state.error} />
                     <div className="field">
                       <Textarea onChange={(e) => { this.setState({ content: e.currentTarget.value }); }}

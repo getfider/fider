@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { User, Comment, Idea } from '@fider/models';
+import { CurrentUser, Comment, Idea } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
 import { CommentInput } from '@fider/components/CommentInput';
@@ -15,7 +15,7 @@ import { Session } from '@fider/services';
 import './ShowIdeaPage.scss';
 
 export class ShowIdeaPage extends React.Component<{}, {}> {
-    private user: User;
+    private user?: CurrentUser;
     private idea: Idea;
     private comments: Comment[];
 
@@ -71,7 +71,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                         {
                           this.idea.description
                           ? <MultiLineText className="description" text={ this.idea.description } style="simple" />
-                          : <p className="description">This idea has no description.</p>
+                          : <p className="description">This idea doesn't have a description.</p>
                         }
 
                         <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />

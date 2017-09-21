@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Idea, IdeaStatus, User, Tenant } from '@fider/models';
+import { Idea, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
@@ -16,8 +16,8 @@ interface SiteHomePageState {
 }
 
 export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
-    private user: User;
-    private tenant: Tenant;
+  private user?: CurrentUser;
+  private tenant: Tenant;
     private allIdeas: Idea[];
     private filter: HTMLDivElement;
     private activeFilter: string;

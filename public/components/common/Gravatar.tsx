@@ -13,11 +13,9 @@ export const Gravatar = (props: GravatarProps) => {
   const hash = props.email ? md5(props.email) : props.hash || '';
 
   let element: any;
-  return (hash && props.name) ?
-    <img ref={(e) => element = e }
-         onError={() => { element.src = fallback; }}
-         className="fdr-avatar"
-         title={ props.name }
-         src={ `https://www.gravatar.com/avatar/${hash}?d=${encodeURIComponent(fallback)}` }/> :
-    <div />;
+  return <img ref={(e) => element = e }
+              onError={() => { element.src = fallback; }}
+              className="fdr-avatar"
+              title={ props.name }
+              src={ `https://www.gravatar.com/avatar/${hash}?d=${encodeURIComponent(fallback)}` }/>;
 };

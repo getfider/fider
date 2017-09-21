@@ -1,10 +1,9 @@
-import { User, AppSettings, Tenant } from '@fider/models';
+import { User, CurrentUser, AppSettings, Tenant } from '@fider/models';
 import { injectable } from '@fider/di';
 
 export interface Session {
-    getCurrentUser(): User;
+    getCurrentUser(): CurrentUser  | undefined;
     getCurrentTenant(): Tenant;
-    setUser(user: User): void;
     isAdmin(): boolean;
     isStaff(): boolean;
     set<T>(key: string, value: T): void;
@@ -21,15 +20,17 @@ export class BrowserSession implements Session {
 
     constructor(window: Window) {
         this.w = window;
-        this.w.setUser = this.setUser.bind(this);
         this.w.getCurrentUser = this.getCurrentUser.bind(this);
         this.w.set = this.set.bind(this);
         this.w.get = this.get.bind(this);
     }
 
-    public getCurrentUser(): User {
+    public getCurrentUser(): CurrentUser | undefined {
         const w: any = window;
-        return w[`_user`] as User;
+        if (`_email` in w) {
+            w[`_user`].email = w[`_email`];
+        }
+        return w[`_user`] as CurrentUser;
     }
 
     public getCurrentTenant(): Tenant {
@@ -37,18 +38,14 @@ export class BrowserSession implements Session {
         return w[`_tenant`] as Tenant;
     }
 
-    public setUser(user: User): void {
-        this.set<User>('user', user);
-    }
-
     public isAdmin(): boolean {
         const user = this.getCurrentUser();
-        return user && user.role === 3;
+        return !!user && user.role === 3;
     }
 
     public isStaff(): boolean {
         const user = this.getCurrentUser();
-        return user && user.role >= 2;
+        return !!user && user.role >= 2;
     }
 
     public set<T>(key: string, value: T): void {
