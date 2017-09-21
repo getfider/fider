@@ -17,9 +17,10 @@ describe('Submit ideas', () => {
     await pages.home.navigate();
     await pages.home.signInWithFacebook();
     await pages.facebook.signInAsAryaStark();
+    await pages.home.UserMenu.click();
 
     // Assert
-    await ensure(pages.home.UserMenu).textIs('Arya Stark');
+    await ensure(pages.home.UserName).textIs('ARYA STARK');
 
     // Action
     await pages.home.submitNewIdea('Add support to TypeScript', 'Because the language and community is awesome! :)');
@@ -37,9 +38,10 @@ describe('Submit ideas', () => {
     await pages.home.navigate();
     await pages.home.signInWithGoogle();
     await pages.google.signInAsDarthVader();
+    await pages.home.UserMenu.click();
 
     // Assert
-    await ensure(pages.home.UserMenu).textIs('Darth Vader');
+    await ensure(pages.home.UserName).textIs('DARTH VADER');
 
     await pages.home.IdeaList.want(0);
     await ensure(await pages.home.IdeaList.at(0)).textIs('2');

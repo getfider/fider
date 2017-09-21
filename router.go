@@ -97,19 +97,22 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
-		private := page.Group("/api")
+		private := page.Group("")
 		{
 			private.Use(middlewares.IsAuthenticated())
+			private.Get("/settings", func(ctx web.Context) error {
+				return ctx.Page(web.Map{})
+			})
 
-			private.Post("/ideas", handlers.PostIdea())
-			private.Post("/ideas/:number/comments", handlers.PostComment())
-			private.Post("/ideas/:number/status", handlers.SetResponse())
-			private.Post("/ideas/:number/support", handlers.AddSupporter())
-			private.Post("/ideas/:number/unsupport", handlers.RemoveSupporter())
+			private.Post("/api/ideas", handlers.PostIdea())
+			private.Post("/api/ideas/:number/comments", handlers.PostComment())
+			private.Post("/api/ideas/:number/status", handlers.SetResponse())
+			private.Post("/api/ideas/:number/support", handlers.AddSupporter())
+			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
 
 			private.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
-			private.Post("/settings", handlers.UpdateSettings())
+			private.Post("/api/admin/settings", handlers.UpdateSettings())
 		}
 
 		admin := page.Group("/admin")

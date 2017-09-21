@@ -12,3 +12,11 @@ export interface User {
   gravatar: string;
   role: number;
 }
+
+export interface CurrentUser {
+  id: number;
+  name: string;
+  email: string;
+  gravatar: string;
+  role: number;
+}

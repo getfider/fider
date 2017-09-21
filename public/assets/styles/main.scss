@@ -21,16 +21,8 @@ body {
   height: 40px;
   border-radius: 0px;
   
-  .fdr-avatar {
-    margin-right: 5px;
-  }
-  
   div, a {
     color: textColorFor($menu-color);
-  }
-
-  a::before {
-    content: none;
   }
 }
 

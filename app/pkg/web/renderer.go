@@ -78,7 +78,8 @@ func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo
 	}
 
 	if ctx.IsAuthenticated() {
-		m["__User"] = ctx.User()
+		m["user"] = ctx.User()
+		m["email"] = ctx.User().Email
 	}
 
 	files, _ := ioutil.ReadDir("dist/js")

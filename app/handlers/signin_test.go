@@ -7,6 +7,7 @@ import (
 
 	"net/http"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -121,6 +122,30 @@ func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjo0LCJ1c2VyL25hbWUiOiJNYXJrIiwidXNlci9lbWFpbCI6IiJ9.G93ZTFcDuHiIlYbDvMnjhoDebeJZMifWbv9v0rayQOI"))
+}
+
+func TestCallbackHandler_ExistingUser_WithoutEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.Users.Register(&models.User{
+		Name:   "Some Facebook Guy",
+		Email:  "",
+		Tenant: mock.DemoTenant,
+		Providers: []*models.UserProvider{
+			&models.UserProvider{UID: "FB456", Name: oauth.FacebookProvider},
+		},
+	})
+
+	code, response := server.
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io&code=456").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+
+	_, err := services.Users.GetByID(4)
+	Expect(err).To(Equal(app.ErrNotFound))
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiIifQ.DBcMmKSrGxiXGVCq9QT716xfw3M4kzP-Njazsk6vaFI"))
 }
 
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {

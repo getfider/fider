@@ -7,7 +7,7 @@ import { Session } from '@fider/services/Session';
 import { showSignIn } from '@fider/utils/page';
 
 export class Header extends React.Component<{}, {}> {
-  private user: User;
+  private user?: User;
   private tenant: Tenant;
 
   @inject(injectables.Session)
@@ -27,7 +27,13 @@ export class Header extends React.Component<{}, {}> {
   }
 
   public render() {
-    const items = <div className="menu">
+    const items = this.user ? <div className="menu">
+                      <div className="name header">
+                        <i className="user icon"></i>
+                        { this.user.name }
+                      </div>
+                      <a href="/settings" className="item">Settings</a>
+                      <div className="divider"></div>
                       {
                         this.session.isStaff() &&
                         <div className="header">
@@ -44,22 +50,22 @@ export class Header extends React.Component<{}, {}> {
                         <div className="divider"></div>
                       }
                       <a href="/signout?redirect=/" className="item signout">Sign out</a>
-                  </div>;
+                  </div> : <div />;
 
     return <div>
-                <EnvironmentInfo />
-                <div id="menu" className="ui small borderless menu">
-                    <div className="ui container">
-                        <a href="/" className="header item">
-                            { this.tenant.name }
-                        </a>
-                        <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user.name && 'subtitle'}`}>
-                            <Gravatar name={this.user.name} hash={this.user.gravatar} />
-                            { this.user.name || 'Sign in' } { this.user.name && <i className="dropdown icon"></i> }
-                            { this.user.name && items }
-                        </div>
-                    </div>
+              <EnvironmentInfo />
+              <div id="menu" className="ui small borderless menu">
+                <div className="ui container">
+                  <a href="/" className="header item">
+                    { this.tenant.name }
+                  </a>
+                  <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
+                    { this.user && <Gravatar name={this.user.name} hash={this.user.gravatar} /> }
+                    { !this.user && 'Sign in' } { this.user && <i className="dropdown icon"></i> }
+                    { items }
+                  </div>
                 </div>
+              </div>
             </div>;
     }
 }

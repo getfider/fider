@@ -23,7 +23,7 @@ export class HttpTenantService implements TenantService {
     }
 
     public async updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result> {
-        return await post('/api/settings', {
+        return await post('/api/admin/settings', {
             title, invitation, welcomeMessage,
         });
     }
