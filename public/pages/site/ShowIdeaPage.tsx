@@ -71,7 +71,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                         {
                           this.idea.description
                           ? <MultiLineText className="description" text={ this.idea.description } style="simple" />
-                          : <p className="description">This idea has no description.</p>
+                          : <p className="description">This idea doesn't have a description.</p>
                         }
 
                         <ShowIdeaResponse status={ this.idea.status } response={ this.idea.response } />
