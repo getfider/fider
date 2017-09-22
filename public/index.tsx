@@ -15,7 +15,9 @@ import {
   IdeaService,
   HttpIdeaService,
   TenantService,
-  HttpTenantService
+  HttpTenantService,
+  UserService,
+  HttpUserService
 } from '@fider/services';
 
 import '@fider/assets/styles/main.scss';
@@ -23,6 +25,7 @@ import '@fider/assets/styles/main.scss';
 container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
+container.bind<UserService>(injectables.UserService).to(HttpUserService);
 
 interface PageConfiguration {
   id: string;

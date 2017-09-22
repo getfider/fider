@@ -36,6 +36,10 @@ func (input *SignInByEmail) Validate(services *app.Services) *validate.Result {
 		return result
 	}
 
+	if len(input.Model.Email) > 200 {
+		result.AddFieldFailure("email", "E-mail must be less than 200 characters.")
+	}
+
 	emailResult := validate.Email(input.Model.Email)
 	if !emailResult.Ok {
 		result.AddFieldFailure("email", emailResult.Messages...)
@@ -44,7 +48,7 @@ func (input *SignInByEmail) Validate(services *app.Services) *validate.Result {
 	return result
 }
 
-// CompleteProfile happens when user completes his profile during first time sign in
+// CompleteProfile happens when users completes their profile during first time sign in
 type CompleteProfile struct {
 	Model *models.CompleteProfile
 }
@@ -68,6 +72,10 @@ func (input *CompleteProfile) Validate(services *app.Services) *validate.Result 
 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
+	}
+
+	if len(input.Model.Name) > 50 {
+		result.AddFieldFailure("name", "Name must be less than 50 characters.")
 	}
 
 	if input.Model.Key == "" {

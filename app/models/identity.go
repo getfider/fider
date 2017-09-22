@@ -110,3 +110,8 @@ type CompleteProfile struct {
 	Name  string `json:"name"`
 	Email string
 }
+
+// UpdateUserSettings is the model used to update user's settings
+type UpdateUserSettings struct {
+	Name string `json:"name"`
+}

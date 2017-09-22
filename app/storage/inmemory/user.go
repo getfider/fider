@@ -69,3 +69,14 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 	}
 	return app.ErrNotFound
 }
+
+// Update user settings
+func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
+	for _, user := range s.users {
+		if user.ID == userID {
+			user.Name = settings.Name
+			return nil
+		}
+	}
+	return app.ErrNotFound
+}
