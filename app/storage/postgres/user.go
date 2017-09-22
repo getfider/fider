@@ -104,6 +104,12 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 	return s.trx.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
 }
 
+// Update user settings
+func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
+	cmd := "UPDATE users SET name = $2 WHERE id = $1"
+	return s.trx.Execute(cmd, userID, settings.Name)
+}
+
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}

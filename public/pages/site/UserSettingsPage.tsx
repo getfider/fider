@@ -4,7 +4,7 @@ import { inject, injectables } from '@fider/di';
 import { Footer, Header, Form, DisplayError, Button, Gravatar } from '@fider/components/common';
 
 import { CurrentUser } from '@fider/models';
-import { Session, Failure } from '@fider/services';
+import { Session, Failure, UserService } from '@fider/services';
 
 interface UserSettingsPageState {
   name: string;
@@ -17,6 +17,9 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
   @inject(injectables.Session)
   private session: Session;
 
+  @inject(injectables.UserService)
+  private userService: UserService;
+
   constructor(props: {}) {
       super(props);
       this.user = this.session.getCurrentUser()!;
@@ -26,7 +29,12 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
   }
 
   private async confirm() {
-    console.log('Done!');
+    const result = await this.userService.updateSettings(this.state.name);
+    if (result.ok) {
+        location.reload();
+    } else if (result.error) {
+        this.setState({ error: result.error });
+    }
   }
 
   public render() {
@@ -40,7 +48,7 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
                       <div className="ui form">
                         <div className="field">
                             <label htmlFor="email">Avatar</label>
-                            <p><Gravatar hash={ this.user.gravatar } name={ this.state.name } /></p>
+                            <p><Gravatar hash={ this.user.gravatar } name={ this.user.name } /></p>
                             <p className="info">
                                 <p>
                                   We use <a href="https://en.gravatar.com/" target="blank">Gravatar</a> to display profile avatars. <br/>
@@ -63,10 +71,12 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
                             <label htmlFor="name">Name</label>
                             <input id="name"
                                    type="text"
-                                   disabled
                                    maxLength={100}
                                    value={ this.state.name }
                                    onChange={(e) => this.setState({ name: e.currentTarget.value })}/>
+                        </div>
+                        <div className="field">
+                            <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
                         </div>
                       </div>
                     </div>

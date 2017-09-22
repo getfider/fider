@@ -226,3 +226,20 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	Expect(user.Providers[1].UID).To(Equal("GO1234"))
 	Expect(user.Providers[1].Name).To(Equal("google"))
 }
+
+func TestUserStorage_UpdateSettings(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	users := postgres.NewUserStorage(trx)
+	err := users.Update(1, &models.UpdateUserSettings{Name: "Jon Stark"})
+	Expect(err).To(BeNil())
+
+	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	Expect(user.Name).To(Equal("Jon Stark"))
+}
