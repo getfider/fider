@@ -117,3 +117,30 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 
 	Expect(status).To(Equal(http.StatusBadRequest))
 }
+
+func TestOnlyActiveTenants_Active(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+
+	server.Use(middlewares.OnlyActiveTenants())
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusOK))
+}
+
+func TestOnlyActiveTenants_Inactive(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantInactive
+
+	server.Use(middlewares.OnlyActiveTenants())
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusNotFound))
+}
