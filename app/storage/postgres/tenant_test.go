@@ -197,12 +197,12 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	//Find and check values
 	result, err := tenants.FindVerificationByKey("s3cr3tk3y")
 	Expect(err).To(BeNil())
-	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
+	Expect(result.CreatedOn).NotTo(Equal(time.Time{}))
 	Expect(result.VerifiedOn).To(BeNil())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
-	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
+	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 
 	//Set as verified check values
 	err = tenants.SetKeyAsVerified("s3cr3tk3y")
