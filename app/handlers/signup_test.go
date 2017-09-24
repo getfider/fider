@@ -80,17 +80,63 @@ func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 	Expect(code).To(Equal(400))
 }
 
-func TestCreateTenantHandler_ValidInput(t *testing.T) {
+func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, _ := mock.NewServer()
+	server, services := mock.NewServer()
 	token, _ := jwt.Encode(&models.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
 		OAuthEmail:    "jon.snow@got.com",
 		OAuthProvider: "facebook",
 	})
-	code, _ := server.ExecutePost(handlers.CreateTenant(), fmt.Sprintf(`{ "token": "%s", "name": "My Company", "subdomain": "mycompany" }`, token))
+	code, response := server.ExecutePostAsJSON(
+		handlers.CreateTenant(),
+		fmt.Sprintf(`{ "token": "%s", "tenantName": "My Company", "subdomain": "mycompany" }`, token),
+	)
+
+	tenant, err := services.Tenants.GetByDomain("mycompany")
 
 	Expect(code).To(Equal(200))
+	Expect(response.String("token")).NotTo(BeNil())
+
+	Expect(err).To(BeNil())
+	Expect(tenant.Name).To(Equal("My Company"))
+	Expect(tenant.Subdomain).To(Equal("mycompany"))
+	Expect(tenant.Status).To(Equal(models.TenantActive))
+
+	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
+	Expect(err).To(BeNil())
+	Expect(user.Name).To(Equal("Jon Snow"))
+	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(user.Role).To(Equal(models.RoleAdministrator))
+}
+
+func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	code, response := server.ExecutePostAsJSON(
+		handlers.CreateTenant(),
+		`{ "name": "Jon Snow", "email": "jon.snow@got.com", "tenantName": "My Company", "subdomain": "mycompany" }`,
+	)
+
+	Expect(code).To(Equal(200))
+	_, err := response.String("token")
+	Expect(err).NotTo(BeNil())
+
+	tenant, err := services.Tenants.GetByDomain("mycompany")
+
+	Expect(code).To(Equal(200))
+
+	Expect(err).To(BeNil())
+	Expect(tenant.Name).To(Equal("My Company"))
+	Expect(tenant.Subdomain).To(Equal("mycompany"))
+	Expect(tenant.Status).To(Equal(models.TenantInactive))
+
+	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
+	Expect(err).To(BeNil())
+	Expect(user.Name).To(Equal("Jon Snow"))
+	Expect(user.Email).To(Equal("jon.snow@got.com"))
+	Expect(user.Role).To(Equal(models.RoleAdministrator))
 }

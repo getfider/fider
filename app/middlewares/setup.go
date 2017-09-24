@@ -74,7 +74,6 @@ func AddServices() web.MiddlewareFunc {
 			services.Tenants.SetCurrentTenant(tenant)
 			services.OAuth = &oauth.HTTPService{}
 			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
-			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Users = postgres.NewUserStorage(trx)
 			return next(c)
 		}

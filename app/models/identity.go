@@ -84,10 +84,13 @@ type OAuthClaims struct {
 
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Token      string `json:"token"`
-	Name       string `json:"name"`
-	Subdomain  string `json:"subdomain"`
-	UserClaims *OAuthClaims
+	Token           string `json:"token"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	VerificationKey string
+	TenantName      string `json:"tenantName"`
+	Subdomain       string `json:"subdomain"`
+	UserClaims      *OAuthClaims
 }
 
 //UpdateTenantSettings is the input model used to update tenant settings

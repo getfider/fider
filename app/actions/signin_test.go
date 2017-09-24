@@ -43,8 +43,7 @@ func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{}}
 	result := action.Validate(services)
-	ExpectFailed(result, "name")
-	ExpectFailed(result, "key")
+	ExpectFailed(result, "name", "key")
 }
 
 func TestCompleteProfile_LongName(t *testing.T) {
@@ -54,8 +53,7 @@ func TestCompleteProfile_LongName(t *testing.T) {
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
 	}}
 	result := action.Validate(services)
-	ExpectFailed(result, "name")
-	ExpectFailed(result, "key")
+	ExpectFailed(result, "name", "key")
 }
 
 func TestCompleteProfile_UnknownKey(t *testing.T) {

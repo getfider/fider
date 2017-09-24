@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Session, Failure } from '@fider/services';
 
 const arrayToTag = (items: string[]) => {
-  return items.map((m) => <li>{m}</li>);
+  return items.map((m) => <li key={m}>{m}</li>);
 };
 
 interface DisplayErrorProps {
