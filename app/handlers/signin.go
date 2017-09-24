@@ -144,7 +144,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subject := fmt.Sprintf("Sign in to %s", c.Tenant().Name)
+		subject := fmt.Sprintf("Sign in to %s feedback forum", c.Tenant().Name)
 		link := fmt.Sprintf("%s/signin/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
 		message := fmt.Sprintf("Click and confirm that you want to sign in. This link will expire in 15 minutes and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
 		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
