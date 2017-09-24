@@ -35,6 +35,7 @@ type User interface {
 type Tenant interface {
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
+	Activate(id int) error
 	GetByDomain(domain string) (*models.Tenant, error)
 	UpdateSettings(settings *models.UpdateTenantSettings) error
 	IsSubdomainAvailable(subdomain string) (bool, error)

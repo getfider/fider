@@ -54,27 +54,29 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/", "dist")
 	}
 
-	signup := r.Group("")
+	noTenant := r.Group("")
 	{
-		signup.Use(middlewares.Setup(db, emailer))
-		signup.Use(middlewares.AddServices())
+		noTenant.Use(middlewares.Setup(db, emailer))
+		noTenant.Use(middlewares.AddServices())
 
-		signup.Post("/api/tenants", handlers.CreateTenant())
-		signup.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
-		signup.Get("/signup", handlers.SignUp())
+		noTenant.Post("/api/tenants", handlers.CreateTenant())
+		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
+		noTenant.Get("/signup", handlers.SignUp())
+
+		noTenant.Get("/oauth/facebook", handlers.SignIn(oauth.FacebookProvider))
+		noTenant.Get("/oauth/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
+		noTenant.Get("/oauth/google", handlers.SignIn(oauth.GoogleProvider))
+		noTenant.Get("/oauth/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
+		noTenant.Get("/oauth/github", handlers.SignIn(oauth.GitHubProvider))
+		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
-	auth := r.Group("/oauth")
+	verify := r.Group("")
 	{
-		auth.Use(middlewares.Setup(db, emailer))
-		auth.Use(middlewares.AddServices())
-
-		auth.Get("/facebook", handlers.SignIn(oauth.FacebookProvider))
-		auth.Get("/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		auth.Get("/google", handlers.SignIn(oauth.GoogleProvider))
-		auth.Get("/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		auth.Get("/github", handlers.SignIn(oauth.GitHubProvider))
-		auth.Get("/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
+		verify.Use(middlewares.Setup(db, emailer))
+		verify.Use(middlewares.Tenant())
+		verify.Use(middlewares.AddServices())
+		verify.Get("/signup/verify", handlers.VerifySignUpKey())
 	}
 
 	page := r.Group("")

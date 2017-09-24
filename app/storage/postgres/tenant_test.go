@@ -12,6 +12,37 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func TestTenantStorage_Add_Activate(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+
+	Expect(err).To(BeNil())
+	Expect(tenant).NotTo(BeNil())
+
+	tenant, err = tenants.GetByDomain("mydomain")
+	Expect(err).To(BeNil())
+	Expect(tenant.Name).To(Equal("My Domain Inc."))
+	Expect(tenant.Subdomain).To(Equal("mydomain"))
+	Expect(tenant.Status).To(Equal(models.TenantInactive))
+
+	err = tenants.Activate(tenant.ID)
+	Expect(err).To(BeNil())
+
+	tenant, err = tenants.GetByDomain("mydomain")
+	Expect(err).To(BeNil())
+	Expect(tenant.Name).To(Equal("My Domain Inc."))
+	Expect(tenant.Subdomain).To(Equal("mydomain"))
+	Expect(tenant.Status).To(Equal(models.TenantActive))
+}
+
 func TestTenantStorage_First(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()
@@ -160,7 +191,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 
 	//Save new Key
-	err := tenants.SaveVerificationKey("s3cr3tk3y", 15*time.Minute, "jon.snow@got.com", "")
+	err := tenants.SaveVerificationKey("s3cr3tk3y", 15*time.Minute, "jon.snow@got.com", "Jon Snow")
 	Expect(err).To(BeNil())
 
 	//Find and check values
@@ -169,7 +200,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
 	Expect(result.VerifiedOn).To(BeNil())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
-	Expect(result.Name).To(Equal(""))
+	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
 	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
 
@@ -183,7 +214,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
 	Expect(result.VerifiedOn.After(result.CreatedOn)).To(BeTrue())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
-	Expect(result.Name).To(Equal(""))
+	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
 	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
 }

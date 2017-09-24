@@ -46,6 +46,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 
 type dbSignInRequest struct {
 	ID         int          `db:"id"`
+	Name       string       `db:"name"`
 	Email      string       `db:"email"`
 	Key        string       `db:"key"`
 	CreatedOn  time.Time    `db:"created_on"`
@@ -55,6 +56,7 @@ type dbSignInRequest struct {
 
 func (t *dbSignInRequest) toModel() *models.SignInRequest {
 	model := &models.SignInRequest{
+		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,
 		CreatedOn:  t.CreatedOn,
@@ -127,6 +129,12 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	return !exists, err
 }
 
+// Activate given tenant
+func (s *TenantStorage) Activate(id int) error {
+	query := "UPDATE tenants SET status = $1 WHERE id = $2"
+	return s.trx.Execute(query, models.TenantActive, id)
+}
+
 // SaveVerificationKey used by e-mail verification process
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
 	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key, name) VALUES ($1, $2, $3, $4, $5, $6)"
@@ -137,7 +145,7 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
 	request := dbSignInRequest{}
 
-	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
+	err := s.trx.Get(&request, "SELECT id, email, name, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

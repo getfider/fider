@@ -174,7 +174,7 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
-		//If key expired (15 minutes), go back to home page
+		//If key expired, go back to home page
 		if time.Now().After(result.ExpiresOn) {
 			err = c.Services().Tenants.SetKeyAsVerified(key)
 			if err != nil {
@@ -183,13 +183,31 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
-		user, err := c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
-		if err != nil {
-			if err == app.ErrNotFound {
-				// This will render a page for /signin/verify URL using same variables as home page
-				return Index()(c)
+		var user *models.User
+		if c.Tenant().Status == models.TenantInactive {
+			if err = c.Services().Tenants.Activate(c.Tenant().ID); err != nil {
+				return c.Failure(err)
 			}
-			return c.Failure(err)
+
+			user = &models.User{
+				Name:   result.Name,
+				Email:  result.Email,
+				Tenant: c.Tenant(),
+				Role:   models.RoleAdministrator,
+			}
+
+			if err = c.Services().Users.Register(user); err != nil {
+				return c.Failure(err)
+			}
+		} else {
+			user, err = c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
+			if err != nil {
+				if err == app.ErrNotFound {
+					// This will render a page for /signin/verify URL using same variables as home page
+					return Index()(c)
+				}
+				return c.Failure(err)
+			}
 		}
 
 		err = c.Services().Tenants.SetKeyAsVerified(key)

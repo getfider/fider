@@ -33,7 +33,7 @@ export class Form extends React.Component<FormProps, FormState> {
   }
 
   public render() {
-    return  <form className="ui form" onSubmit={(e) => this.submit(e)}>
+    return  <form autoComplete="off" className="ui form" onSubmit={(e) => this.submit(e)}>
                 <DisplayError error={this.state && this.state.failure} />
                 { this.props.children }
             </form>;

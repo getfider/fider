@@ -115,3 +115,13 @@ func SignUp() web.HandlerFunc {
 		return c.Page(web.Map{})
 	}
 }
+
+// VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
+func VerifySignUpKey() web.HandlerFunc {
+	return func(c web.Context) error {
+		if c.Tenant().Status == models.TenantInactive {
+			return VerifySignInKey()(c)
+		}
+		return c.NotFound()
+	}
+}

@@ -72,6 +72,17 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	return nil
 }
 
+// Activate given tenant
+func (s *TenantStorage) Activate(id int) error {
+	for _, tenant := range s.tenants {
+		if tenant.ID == id {
+			tenant.Status = models.TenantActive
+			return nil
+		}
+	}
+	return app.ErrNotFound
+}
+
 // SaveVerificationKey used by e-mail verification
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
 	s.requests = append(s.requests, &models.SignInRequest{
