@@ -109,6 +109,7 @@ type SignInRequest struct {
 	Email      string
 	Key        string
 	CreatedOn  time.Time
+	ExpiresOn  time.Time
 	VerifiedOn *time.Time
 }
 

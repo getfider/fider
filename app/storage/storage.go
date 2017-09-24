@@ -1,6 +1,10 @@
 package storage
 
-import "github.com/getfider/fider/app/models"
+import (
+	"time"
+
+	"github.com/getfider/fider/app/models"
+)
 
 // Idea contains read and write operations for ideas
 type Idea interface {
@@ -34,7 +38,7 @@ type Tenant interface {
 	GetByDomain(domain string) (*models.Tenant, error)
 	UpdateSettings(settings *models.UpdateTenantSettings) error
 	IsSubdomainAvailable(subdomain string) (bool, error)
-	SaveVerificationKey(email, key string) error
+	SaveVerificationKey(email, key string, duration time.Duration) error
 	FindVerificationByKey(key string) (*models.SignInRequest, error)
 	SetKeyAsVerified(key string) error
 	SetCurrentTenant(*models.Tenant)

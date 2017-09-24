@@ -49,6 +49,7 @@ type dbSignInRequest struct {
 	Email      string       `db:"email"`
 	Key        string       `db:"key"`
 	CreatedOn  time.Time    `db:"created_on"`
+	ExpiresOn  time.Time    `db:"expires_on"`
 	VerifiedOn dbx.NullTime `db:"verified_on"`
 }
 
@@ -57,6 +58,7 @@ func (t *dbSignInRequest) toModel() *models.SignInRequest {
 		Email:      t.Email,
 		Key:        t.Key,
 		CreatedOn:  t.CreatedOn,
+		ExpiresOn:  t.ExpiresOn,
 		VerifiedOn: nil,
 	}
 
@@ -126,16 +128,16 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 }
 
 // SaveVerificationKey used by e-mail verification process
-func (s *TenantStorage) SaveVerificationKey(email, key string) error {
-	query := "INSERT INTO signin_requests (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
-	return s.trx.Execute(query, s.current.ID, email, time.Now(), key)
+func (s *TenantStorage) SaveVerificationKey(email, key string, duration time.Duration) error {
+	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key) VALUES ($1, $2, $3, $4, $5)"
+	return s.trx.Execute(query, s.current.ID, email, time.Now(), time.Now().Add(duration), key)
 }
 
 // FindVerificationByKey based on current tenant
 func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
 	request := dbSignInRequest{}
 
-	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
+	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

@@ -139,7 +139,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.Email, input.Model.VerificationKey)
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.Email, input.Model.VerificationKey, 15*time.Minute)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -175,7 +175,7 @@ func VerifySignInKey() web.HandlerFunc {
 		}
 
 		//If key expired (15 minutes), go back to home page
-		if time.Now().After(result.CreatedOn.Add(15 * time.Minute)) {
+		if time.Now().After(result.ExpiresOn) {
 			err = c.Services().Tenants.SetKeyAsVerified(key)
 			if err != nil {
 				return c.Failure(err)

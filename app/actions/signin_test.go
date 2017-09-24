@@ -2,6 +2,7 @@ package actions_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
@@ -66,7 +67,7 @@ func TestCompleteProfile_UnknownKey(t *testing.T) {
 
 func TestCompleteProfile_ValidKey(t *testing.T) {
 	RegisterTestingT(t)
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890", 15*time.Minute)
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
 	result := action.Validate(services)
 	ExpectSuccess(result)

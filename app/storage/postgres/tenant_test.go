@@ -160,7 +160,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 
 	//Save new Key
-	err := tenants.SaveVerificationKey("jon.snow@got.com", "s3cr3tk3y")
+	err := tenants.SaveVerificationKey("jon.snow@got.com", "s3cr3tk3y", 15*time.Minute)
 	Expect(err).To(BeNil())
 
 	//Find and check values
@@ -170,6 +170,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.VerifiedOn).To(BeNil())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
+	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
 
 	//Set as verified check values
 	err = tenants.SetKeyAsVerified("s3cr3tk3y")
@@ -182,6 +183,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.VerifiedOn.After(result.CreatedOn)).To(BeTrue())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
+	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
