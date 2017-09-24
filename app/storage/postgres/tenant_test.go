@@ -216,7 +216,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
-	Expect(result.ExpiresOn).To(Equal(result.CreatedOn.Add(15 * time.Minute)))
+	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
