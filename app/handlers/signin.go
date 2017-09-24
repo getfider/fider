@@ -139,7 +139,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.Email, input.Model.VerificationKey, 15*time.Minute)
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 15*time.Minute, input.Model.Email, "")
 		if err != nil {
 			return c.Failure(err)
 		}

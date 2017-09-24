@@ -67,7 +67,7 @@ func TestCompleteProfile_UnknownKey(t *testing.T) {
 
 func TestCompleteProfile_ValidKey(t *testing.T) {
 	RegisterTestingT(t)
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "jon.snow@got.com", "")
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
 	result := action.Validate(services)
 	ExpectSuccess(result)

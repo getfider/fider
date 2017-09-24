@@ -128,9 +128,9 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 }
 
 // SaveVerificationKey used by e-mail verification process
-func (s *TenantStorage) SaveVerificationKey(email, key string, duration time.Duration) error {
-	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key) VALUES ($1, $2, $3, $4, $5)"
-	return s.trx.Execute(query, s.current.ID, email, time.Now(), time.Now().Add(duration), key)
+func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
+	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key, name) VALUES ($1, $2, $3, $4, $5, $6)"
+	return s.trx.Execute(query, s.current.ID, email, time.Now(), time.Now().Add(duration), key, name)
 }
 
 // FindVerificationByKey based on current tenant

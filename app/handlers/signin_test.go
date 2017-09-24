@@ -203,7 +203,7 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "jon.snow@got.com", "")
 	services.Tenants.SetKeyAsVerified("1234567890")
 
 	code, response := server.
@@ -220,7 +220,7 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890", 5*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 5*time.Minute, "jon.snow@got.com", "")
 	request, _ := services.Tenants.FindVerificationByKey("1234567890")
 	request.ExpiresOn = request.ExpiresOn.Add(-1 * time.Minute) //reduce 1 minute
 
@@ -238,7 +238,7 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "jon.snow@got.com", "")
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -261,7 +261,7 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingNewUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "hot.pie@got.com", "")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -289,7 +289,7 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey(mock.JonSnow.Email, "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, mock.JonSnow.Email, "")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -304,7 +304,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890", 15*time.Minute)
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "hot.pie@got.com", "")
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).

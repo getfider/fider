@@ -73,9 +73,10 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 }
 
 // SaveVerificationKey used by e-mail verification
-func (s *TenantStorage) SaveVerificationKey(email, key string, duration time.Duration) error {
+func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
 	s.requests = append(s.requests, &models.SignInRequest{
 		Email:      email,
+		Name:       name,
 		Key:        key,
 		CreatedOn:  time.Now(),
 		ExpiresOn:  time.Now().Add(duration),

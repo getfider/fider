@@ -107,6 +107,7 @@ type SignInByEmail struct {
 //SignInRequest is the model used by e-mail verification process
 type SignInRequest struct {
 	Email      string
+	Name       string
 	Key        string
 	CreatedOn  time.Time
 	ExpiresOn  time.Time
