@@ -168,7 +168,7 @@ func (ctx *Context) Services() *app.Services {
 }
 
 //AddAuthCookie generates and adds a cookie
-func (ctx *Context) AddAuthCookie(user *models.User) error {
+func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 	token, err := jwt.Encode(models.FiderClaims{
 		UserID:    user.ID,
 		UserName:  user.Name,
@@ -176,11 +176,11 @@ func (ctx *Context) AddAuthCookie(user *models.User) error {
 	})
 
 	if err != nil {
-		return err
+		return token, err
 	}
 
 	ctx.AddCookie(CookieAuthName, token, time.Now().Add(365*24*time.Hour))
-	return nil
+	return token, nil
 }
 
 //AddCookie adds a cookie

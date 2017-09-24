@@ -3,7 +3,7 @@ import { injectable } from '@fider/di';
 import { Tenant } from '@fider/models';
 
 export interface TenantService {
-    create(token?: string, name?: string, subdomain?: string): Promise<Result>;
+    create(token?: string, name?: string, subdomain?: string): Promise<Result<CreateTenantResponse>>;
     updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result>;
     checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>>;
     signIn(email: string): Promise<Result>;
@@ -14,10 +14,15 @@ export interface CheckAvailabilityResponse {
     message: string;
 }
 
+export interface CreateTenantResponse {
+    id: number;
+    token: string;
+}
+
 @injectable()
 export class HttpTenantService implements TenantService {
-    public async create(token?: string, name?: string, subdomain?: string): Promise<Result> {
-        return await post('/api/tenants', {
+    public async create(token?: string, name?: string, subdomain?: string): Promise<Result<CreateTenantResponse>> {
+        return await post<CreateTenantResponse>('/api/tenants', {
             token, name, subdomain,
         });
     }

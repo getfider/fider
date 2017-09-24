@@ -95,7 +95,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	})
 
 	server.Use(middlewares.JwtSetter())
-	status, response := server.WithURL("http://orange.test.fider.io/abc?jwt=" + token).Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://orange.test.fider.io/abc?token=" + token).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -112,7 +112,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	})
 
 	server.Use(middlewares.JwtSetter())
-	status, response := server.WithURL("http://orange.test.fider.io/abc?jwt=" + token + "&foo=bar").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://orange.test.fider.io/abc?token=" + token + "&foo=bar").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 

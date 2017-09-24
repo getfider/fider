@@ -61,11 +61,11 @@ func JwtSetter() web.MiddlewareFunc {
 
 			query := c.Request().URL.Query()
 
-			jwt := query.Get("jwt")
-			if jwt != "" {
-				c.AddCookie(web.CookieAuthName, jwt, time.Now().Add(365*24*time.Hour))
+			token := query.Get("token")
+			if token != "" {
+				c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
 
-				query.Del("jwt")
+				query.Del("token")
 
 				url := c.BaseURL() + c.Request().URL.Path
 				querystring := query.Encode()
