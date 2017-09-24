@@ -55,8 +55,14 @@ func CreateTenant() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		token, err := c.AddAuthCookie(user)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Ok(web.Map{
-			"id": tenant.ID,
+			"id":    tenant.ID,
+			"token": token,
 		})
 	}
 }

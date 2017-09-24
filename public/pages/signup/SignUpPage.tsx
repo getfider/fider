@@ -49,7 +49,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
         setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
-        const token = getQueryString('jwt');
+        const token = getQueryString('token');
         if (token) {
             const data = decode(token);
             this.user = {
@@ -70,7 +70,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             if (this.session.isSingleHostMode()) {
                 location.reload();
             } else {
-                location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
+                location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}?token=${result.data.token}`;
             }
         } else if (result.error) {
             this.setState({ error: result.error });

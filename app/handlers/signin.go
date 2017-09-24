@@ -117,7 +117,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 		}
 
 		var query = redirectURL.Query()
-		query.Set("jwt", token)
+		query.Set("token", token)
 		redirectURL.RawQuery = query.Encode()
 		return c.Redirect(http.StatusTemporaryRedirect, redirectURL.String())
 	}
@@ -197,7 +197,7 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.AddAuthCookie(user)
+		_, err = c.AddAuthCookie(user)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -235,7 +235,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.AddAuthCookie(user)
+		_, err = c.AddAuthCookie(user)
 		if err != nil {
 			return c.Failure(err)
 		}
