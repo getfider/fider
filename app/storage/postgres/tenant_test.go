@@ -72,7 +72,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	defer trx.Rollback()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tenant, err := tenants.Add("My Domain Inc.", "mydomain")
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
 	Expect(err).To(BeNil())
 
 	tenant, err = tenants.GetByDomain("mydomain")
@@ -82,6 +82,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.CNAME).To(Equal(""))
+	Expect(tenant.Status).To(Equal(models.TenantActive))
 }
 
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {

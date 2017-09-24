@@ -34,7 +34,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewSingleTenantServer()
-	services.Tenants.Add("Game of Thrones", "got")
+	services.Tenants.Add("Game of Thrones", "got", models.TenantActive)
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).To(Equal(307))

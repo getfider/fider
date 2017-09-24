@@ -29,6 +29,7 @@ type dbTenant struct {
 	CNAME          string `db:"cname"`
 	Invitation     string `db:"invitation"`
 	WelcomeMessage string `db:"welcome_message"`
+	Status         int    `db:"status"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -39,6 +40,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		CNAME:          t.CNAME,
 		Invitation:     t.Invitation,
 		WelcomeMessage: t.WelcomeMessage,
+		Status:         t.Status,
 	}
 }
 
@@ -71,11 +73,11 @@ func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 }
 
 // Add given tenant to tenant list
-func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
+func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message) 
-						VALUES ($1, $2, $3, '', '', '') 
-						RETURNING id`, name, subdomain, time.Now())
+	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status) 
+						VALUES ($1, $2, $3, '', '', '', $4) 
+						RETURNING id`, name, subdomain, time.Now(), status)
 	if err := row.Scan(&id); err != nil {
 		return nil, err
 	}
@@ -87,7 +89,7 @@ func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, erro
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message FROM tenants LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants LIMIT 1")
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -101,7 +103,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

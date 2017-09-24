@@ -14,6 +14,15 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+// Noop does nothing
+func Noop() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			return next(c)
+		}
+	}
+}
+
 //Setup current context with some services
 func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {

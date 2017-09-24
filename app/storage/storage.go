@@ -29,7 +29,7 @@ type User interface {
 
 // Tenant contains read and write operations for tenants
 type Tenant interface {
-	Add(name string, subdomain string) (*models.Tenant, error)
+	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	GetByDomain(domain string) (*models.Tenant, error)
 	UpdateSettings(settings *models.UpdateTenantSettings) error

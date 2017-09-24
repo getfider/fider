@@ -14,7 +14,15 @@ type Tenant struct {
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname"`
+	Status         int    `json:"-"`
 }
+
+var (
+	//TenantActive is the default status for most tenants
+	TenantActive = 1
+	//TenantInactive is used for signup via e-mail that requires user confirmation
+	TenantInactive = 2
+)
 
 //User represents an user inside our application
 type User struct {

@@ -36,7 +36,7 @@ func CreateTenant() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		tenant, err := c.Services().Tenants.Add(input.Model.Name, input.Model.Subdomain)
+		tenant, err := c.Services().Tenants.Add(input.Model.Name, input.Model.Subdomain, models.TenantActive)
 		if err != nil {
 			return c.Failure(err)
 		}

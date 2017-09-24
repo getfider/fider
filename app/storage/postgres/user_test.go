@@ -169,7 +169,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	trx.Execute("INSERT INTO tenants (name, subdomain, created_on) VALUES ('My Domain Inc.','mydomain', now())")
+	trx.Execute("INSERT INTO tenants (name, subdomain, created_on, status) VALUES ('My Domain Inc.','mydomain', now(), 1)")
 
 	users := postgres.NewUserStorage(trx)
 	user := &models.User{
