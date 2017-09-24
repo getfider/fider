@@ -49,6 +49,7 @@ func CreateTenant() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
 		c.Services().Tenants.SetCurrentTenant(tenant)
 
 		user := &models.User{

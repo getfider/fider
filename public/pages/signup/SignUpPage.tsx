@@ -43,27 +43,29 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     public service: TenantService;
 
     constructor(props: {}) {
-        super(props);
-        this.state = {
-            submitted: false,
-            tenantName: '',
-            subdomain: { available: false }
-        };
+      super(props);
+      this.state = {
+        submitted: false,
+        tenantName: '',
+        subdomain: { available: false }
+      };
 
-        this.settings = this.session.getAppSettings();
-        this.checkAvailability = td.debounce(300, this.checkAvailability);
+      this.settings = this.session.getAppSettings();
+      this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-        setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
+      setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
-        const token = getQueryString('token');
-        if (token) {
-            const data = decode(token);
-            this.user = {
-                token,
-                name: data['oauth/name'],
-                email: data['oauth/email']
-            };
+      const token = getQueryString('token');
+      if (token) {
+        const data = decode(token);
+        if (data) {
+          this.user = {
+            token,
+            name: data['oauth/name'],
+            email: data['oauth/email']
+          };
         }
+      }
     }
 
     public componentDidUpdate() {

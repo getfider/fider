@@ -1,4 +1,10 @@
 export function decode(token: string): any {
+  if (token) {
     const segments = token.split('.');
-    return JSON.parse(window.atob(segments[1]));
+    try {
+      return JSON.parse(window.atob(segments[1]));
+    } catch {
+      return undefined;
+    }
+  }
 }
