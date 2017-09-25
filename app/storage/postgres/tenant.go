@@ -93,7 +93,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants ORDER BY id LIMIT 1")
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

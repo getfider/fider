@@ -68,17 +68,22 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
                     <div className="column">
                         <SocialSignInButton provider="github" />
                     </div>;
+    const hasOAuth = !!(google || facebook || github);
 
     return  <div className="signin-options">
-                <div className="ui stackable three column centered grid">
-                  { facebook }
-                  { google }
-                  { github }
-                </div>
-                <p className="info">We'll never post to any of your accounts</p>
+                {
+                  hasOAuth && <div>
+                                <div className="ui stackable three column centered grid">
+                                  { facebook }
+                                  { google }
+                                  { github }
+                                </div>
+                                <p className="info">We'll never post to any of your accounts</p>
+                                <div className="ui horizontal divider">OR</div>
+                              </div>
+                }
 
                 { this.props.signInByEmail && <div>
-                  <div className="ui horizontal divider">OR</div>
                   <p>Enter your e-mail address to sign in</p>
                   <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
                     <div className="ui small action fluid input">

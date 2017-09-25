@@ -42,6 +42,14 @@ func TestCreateTenant_EmptyEmail(t *testing.T) {
 	ExpectFailed(result, "email", "tenantName", "subdomain")
 }
 
+func TestCreateTenant_InvalidEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "Jon Snow", Email: "jonsnow"}}
+	result := action.Validate(services)
+	ExpectFailed(result, "email", "tenantName", "subdomain")
+}
+
 func TestCreateTenant_EmptyName(t *testing.T) {
 	RegisterTestingT(t)
 

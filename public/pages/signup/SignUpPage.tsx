@@ -84,10 +84,12 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
       });
 
       if (result.ok) {
-        if (this.session.isSingleHostMode()) {
-          location.reload();
-        } else if (result.data.token) {
-          location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}?token=${result.data.token}`;
+        if (result.data.token) {
+          if (this.session.isSingleHostMode()) {
+            location.reload();
+          } else {
+            location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}?token=${result.data.token}`;
+          }
         } else {
           this.setState({ submitted: true });
         }
@@ -138,7 +140,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                       <div>
                         <p>We need to identify you to setup your new Fider account.</p>
                         <SignInControl signInByEmail={ false } />
-                        <div className="ui horizontal divider">OR</div>
                           <div className="ui form">
                           <DisplayError fields={['name', 'email']} error={this.state.error} />
                           <div className="fluid field">

@@ -32,7 +32,7 @@ func (input *CreateTenant) IsAuthorized(user *models.User) bool {
 func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 	input.Model.Name = strings.Trim(input.Model.Name, " ")
-	input.Model.Email = strings.Trim(input.Model.Email, " ")
+	input.Model.Email = strings.ToLower(strings.Trim(input.Model.Email, " "))
 	input.Model.TenantName = strings.Trim(input.Model.TenantName, " ")
 	input.Model.Subdomain = strings.ToLower(strings.Trim(input.Model.Subdomain, " "))
 
@@ -48,15 +48,14 @@ func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 	} else {
 		if input.Model.Email == "" {
 			result.AddFieldFailure("email", "E-mail is required.")
+		} else {
+			if emailResult := validate.Email(input.Model.Email); !emailResult.Ok {
+				result.AddFieldFailure("email", emailResult.Messages...)
+			}
 		}
 
 		if len(input.Model.Email) > 200 {
 			result.AddFieldFailure("email", "E-mail must be less than 200 characters.")
-		}
-
-		emailResult := validate.Email(input.Model.Email)
-		if !emailResult.Ok {
-			result.AddFieldFailure("email", emailResult.Messages...)
 		}
 
 		if input.Model.Name == "" {
