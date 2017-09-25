@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"strings"
 
@@ -36,34 +38,64 @@ func CreateTenant() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		tenant, err := c.Services().Tenants.Add(input.Model.Name, input.Model.Subdomain)
+		socialSignUp := input.Model.Token != ""
+
+		status := models.TenantInactive
+		if socialSignUp {
+			status = models.TenantActive
+		}
+
+		tenant, err := c.Services().Tenants.Add(input.Model.TenantName, input.Model.Subdomain, status)
 		if err != nil {
 			return c.Failure(err)
 		}
 
+		c.Services().Tenants.SetCurrentTenant(tenant)
+
 		user := &models.User{
-			Name:   input.Model.UserClaims.OAuthName,
-			Email:  input.Model.UserClaims.OAuthEmail,
 			Tenant: tenant,
 			Role:   models.RoleAdministrator,
-			Providers: []*models.UserProvider{
+		}
+
+		if socialSignUp {
+			user.Name = input.Model.UserClaims.OAuthName
+			user.Email = input.Model.UserClaims.OAuthEmail
+			user.Providers = []*models.UserProvider{
 				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
-			},
+			}
+		} else {
+			user.Name = input.Model.Name
+			user.Email = input.Model.Email
+
+			err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 48*time.Hour, user.Email, user.Name)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			subject := "Verify your new Fider instance"
+			link := fmt.Sprintf("%s/signup/verify?k=%s", c.TenantBaseURL(tenant), input.Model.VerificationKey)
+			message := fmt.Sprintf("Click and confirm that you created a new Fider instance. This link will expire in 48 hours and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
+			err = c.Services().Emailer.Send("Fider", user.Email, subject, message)
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		if err := c.Services().Users.Register(user); err != nil {
 			return c.Failure(err)
 		}
 
-		token, err := c.AddAuthCookie(user)
-		if err != nil {
-			return c.Failure(err)
+		if socialSignUp {
+			token, err := c.AddAuthCookie(user)
+			if err != nil {
+				return c.Failure(err)
+			}
+			return c.Ok(web.Map{
+				"token": token,
+			})
 		}
 
-		return c.Ok(web.Map{
-			"id":    tenant.ID,
-			"token": token,
-		})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -81,5 +113,15 @@ func SignUp() web.HandlerFunc {
 			}
 		}
 		return c.Page(web.Map{})
+	}
+}
+
+// VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
+func VerifySignUpKey() web.HandlerFunc {
+	return func(c web.Context) error {
+		if c.Tenant().Status == models.TenantInactive {
+			return VerifySignInKey()(c)
+		}
+		return c.NotFound()
 	}
 }

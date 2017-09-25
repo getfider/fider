@@ -203,7 +203,7 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "jon.snow@got.com", "")
 	services.Tenants.SetKeyAsVerified("1234567890")
 
 	code, response := server.
@@ -220,9 +220,9 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 5*time.Minute, "jon.snow@got.com", "")
 	request, _ := services.Tenants.FindVerificationByKey("1234567890")
-	request.CreatedOn = request.CreatedOn.Add(-16 * time.Minute) //reduce 16 minutes
+	request.ExpiresOn = request.CreatedOn.Add(-6 * time.Minute) //reduce 1 minute
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -238,7 +238,7 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("jon.snow@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "jon.snow@got.com", "")
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -256,12 +256,12 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
 }
 
-func TestVerifySignInKeyHandler_CorrectKey_ExistingNewUser(t *testing.T) {
+func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "hot.pie@got.com", "")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -269,6 +269,24 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingNewUser(t *testing.T) {
 		Execute(handlers.VerifySignInKey())
 
 	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "hot.pie@got.com", "Hot Pie")
+	mock.DemoTenant.Status = models.TenantInactive
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signup/verify?k=1234567890").
+		Execute(handlers.VerifySignUpKey())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	//Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
 }
 
 func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
@@ -289,7 +307,7 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey(mock.JonSnow.Email, "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, mock.JonSnow.Email, "")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -304,7 +322,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 
 	server, services := mock.NewServer()
 
-	services.Tenants.SaveVerificationKey("hot.pie@got.com", "1234567890")
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, "hot.pie@got.com", "")
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).

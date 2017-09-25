@@ -25,7 +25,8 @@ func JwtGetter() web.MiddlewareFunc {
 
 			claims, err := jwt.DecodeFiderClaims(cookie.Value)
 			if err != nil {
-				return err
+				c.RemoveCookie(web.CookieAuthName)
+				return next(c)
 			}
 
 			services := c.Services()

@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -18,6 +19,7 @@ type CreateTenant struct {
 // Initialize the model
 func (input *CreateTenant) Initialize() interface{} {
 	input.Model = new(models.CreateTenant)
+	input.Model.VerificationKey = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 	return input.Model
 }
 
@@ -29,13 +31,38 @@ func (input *CreateTenant) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
+	input.Model.Name = strings.Trim(input.Model.Name, " ")
+	input.Model.Email = strings.ToLower(strings.Trim(input.Model.Email, " "))
+	input.Model.TenantName = strings.Trim(input.Model.TenantName, " ")
+	input.Model.Subdomain = strings.ToLower(strings.Trim(input.Model.Subdomain, " "))
 
 	var err error
-	if input.Model.Token == "" {
-		result.AddFieldFailure("token", "Please identify yourself before proceeding.")
+	if input.Model.Name == "" && input.Model.Email == "" {
+		if input.Model.Token == "" {
+			result.AddFieldFailure("token", "Please identify yourself before proceeding.")
+		} else {
+			if input.Model.UserClaims, err = jwt.DecodeOAuthClaims(input.Model.Token); err != nil {
+				return validate.Error(err)
+			}
+		}
 	} else {
-		if input.Model.UserClaims, err = jwt.DecodeOAuthClaims(input.Model.Token); err != nil {
-			return validate.Error(err)
+		if input.Model.Email == "" {
+			result.AddFieldFailure("email", "E-mail is required.")
+		} else {
+			if emailResult := validate.Email(input.Model.Email); !emailResult.Ok {
+				result.AddFieldFailure("email", emailResult.Messages...)
+			}
+		}
+
+		if len(input.Model.Email) > 200 {
+			result.AddFieldFailure("email", "E-mail must be less than 200 characters.")
+		}
+
+		if input.Model.Name == "" {
+			result.AddFieldFailure("name", "Name is required.")
+		}
+		if len(input.Model.Name) > 50 {
+			result.AddFieldFailure("name", "Name must be less than 50 characters.")
 		}
 	}
 
@@ -43,16 +70,14 @@ func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 		input.Model.Subdomain = "default"
 	}
 
-	if input.Model.Name == "" {
-		result.AddFieldFailure("name", "Name is required.")
+	if input.Model.TenantName == "" {
+		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
 	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
 	if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
 	}
-
-	input.Model.Subdomain = strings.ToLower(input.Model.Subdomain)
 
 	return result
 }

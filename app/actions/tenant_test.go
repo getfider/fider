@@ -9,26 +9,59 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func TestCreateTenant_ShouldHaveVerificationKey(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.CreateTenant{}
+	action.Initialize()
+
+	Expect(action.Model.VerificationKey).NotTo(Equal(""))
+}
+
 func TestCreateTenant_EmptyToken(t *testing.T) {
 	RegisterTestingT(t)
 
 	action := actions.CreateTenant{Model: &models.CreateTenant{Token: ""}}
 	result := action.Validate(services)
-	ExpectFailed(result, "token")
+	ExpectFailed(result, "token", "tenantName", "subdomain")
+}
+
+func TestCreateTenant_EmptyTenantName(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, TenantName: ""}}
+	result := action.Validate(services)
+	ExpectFailed(result, "tenantName", "subdomain")
+}
+
+func TestCreateTenant_EmptyEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "Jon Snow", Email: ""}}
+	result := action.Validate(services)
+	ExpectFailed(result, "email", "tenantName", "subdomain")
+}
+
+func TestCreateTenant_InvalidEmail(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "Jon Snow", Email: "jonsnow"}}
+	result := action.Validate(services)
+	ExpectFailed(result, "email", "tenantName", "subdomain")
 }
 
 func TestCreateTenant_EmptyName(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, Name: ""}}
+	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "", Email: "jon.snow@got.com"}}
 	result := action.Validate(services)
-	ExpectFailed(result, "name")
+	ExpectFailed(result, "name", "tenantName", "subdomain")
 }
 
 func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, Name: "My Company"}}
+	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, TenantName: "My Company"}}
 	result := action.Validate(services)
 	ExpectFailed(result, "subdomain")
 }
@@ -36,7 +69,7 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 func TestCreateTenant_UpperCaseSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, Name: "My Company", Subdomain: "MyCompany"}}
+	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, TenantName: "My Company", Subdomain: "MyCompany"}}
 	result := action.Validate(services)
 	ExpectSuccess(result)
 	Expect(action.Model.Subdomain).To(Equal("mycompany"))

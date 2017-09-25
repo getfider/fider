@@ -139,12 +139,12 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.Email, input.Model.VerificationKey)
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 15*time.Minute, input.Model.Email, "")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		subject := fmt.Sprintf("Sign in to %s", c.Tenant().Name)
+		subject := fmt.Sprintf("Sign in to %s feedback forum", c.Tenant().Name)
 		link := fmt.Sprintf("%s/signin/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
 		message := fmt.Sprintf("Click and confirm that you want to sign in. This link will expire in 15 minutes and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
 		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
@@ -174,8 +174,8 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
-		//If key expired (15 minutes), go back to home page
-		if time.Now().After(result.CreatedOn.Add(15 * time.Minute)) {
+		//If key expired, go back to home page
+		if time.Now().After(result.ExpiresOn) {
 			err = c.Services().Tenants.SetKeyAsVerified(key)
 			if err != nil {
 				return c.Failure(err)
@@ -183,13 +183,31 @@ func VerifySignInKey() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 
-		user, err := c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
-		if err != nil {
-			if err == app.ErrNotFound {
-				// This will render a page for /signin/verify URL using same variables as home page
-				return Index()(c)
+		var user *models.User
+		if c.Tenant().Status == models.TenantInactive {
+			if err = c.Services().Tenants.Activate(c.Tenant().ID); err != nil {
+				return c.Failure(err)
 			}
-			return c.Failure(err)
+
+			user = &models.User{
+				Name:   result.Name,
+				Email:  result.Email,
+				Tenant: c.Tenant(),
+				Role:   models.RoleAdministrator,
+			}
+
+			if err = c.Services().Users.Register(user); err != nil {
+				return c.Failure(err)
+			}
+		} else {
+			user, err = c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
+			if err != nil {
+				if err == app.ErrNotFound {
+					// This will render a page for /signin/verify URL using same variables as home page
+					return Index()(c)
+				}
+				return c.Failure(err)
+			}
 		}
 
 		err = c.Services().Tenants.SetKeyAsVerified(key)

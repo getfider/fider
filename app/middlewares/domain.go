@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/getfider/fider/app/models"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
@@ -57,6 +59,18 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			c.Logger().Debugf("Tenant not found for '%s'.", hostname)
+			return c.NotFound()
+		}
+	}
+}
+
+// OnlyActiveTenants blocks requests for inactive tenants
+func OnlyActiveTenants() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			if c.Tenant().Status == models.TenantActive {
+				return next(c)
+			}
 			return c.NotFound()
 		}
 	}

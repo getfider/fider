@@ -22,9 +22,9 @@ func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 }
 
 // Add given tenant to tenant list
-func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
+func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	s.lastID = s.lastID + 1
-	tenant := &models.Tenant{ID: s.lastID, Name: name, Subdomain: subdomain}
+	tenant := &models.Tenant{ID: s.lastID, Name: name, Subdomain: subdomain, Status: status}
 	s.tenants = append(s.tenants, tenant)
 	return tenant, nil
 }
@@ -72,12 +72,25 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	return nil
 }
 
+// Activate given tenant
+func (s *TenantStorage) Activate(id int) error {
+	for _, tenant := range s.tenants {
+		if tenant.ID == id {
+			tenant.Status = models.TenantActive
+			return nil
+		}
+	}
+	return app.ErrNotFound
+}
+
 // SaveVerificationKey used by e-mail verification
-func (s *TenantStorage) SaveVerificationKey(email, key string) error {
+func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
 	s.requests = append(s.requests, &models.SignInRequest{
 		Email:      email,
+		Name:       name,
 		Key:        key,
 		CreatedOn:  time.Now(),
+		ExpiresOn:  time.Now().Add(duration),
 		VerifiedOn: nil,
 	})
 	return nil

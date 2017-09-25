@@ -81,8 +81,8 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                                 value={ this.state.welcomeMessage } />
                                         <p className="info">
                                             <p>Use this space to change message of your initial page.</p>
-                                            <p>Common use cases for this are to briefly explain what is your Company/Product, why you created this space and how the visitors can collaborate.</p>
-                                            <p>This field is powered by Commonmark, which means you can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
+                                            <p>Common use case for this area is a brief description of what is your company/product, why you created this space and how the visitors can collaborate.</p>
+                                            <p>This field is powered by Commonmark. You can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
                                         </p>
                                     </div>
                                     <DisplayError fields={['invitation']} error={this.state.error} />

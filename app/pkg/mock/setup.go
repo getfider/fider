@@ -48,8 +48,8 @@ func createServices(seed bool) *app.Services {
 	}
 
 	if seed {
-		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo")
-		OrangeTenant, _ = services.Tenants.Add("The Orange Inc.", "orange")
+		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
+		OrangeTenant, _ = services.Tenants.Add("The Orange Inc.", "orange", models.TenantActive)
 
 		JonSnow = &models.User{
 			Name:   "Jon Snow",

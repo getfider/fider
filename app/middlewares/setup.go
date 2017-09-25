@@ -14,6 +14,15 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+// Noop does nothing
+func Noop() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			return next(c)
+		}
+	}
+}
+
 //Setup current context with some services
 func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
@@ -64,7 +73,6 @@ func AddServices() web.MiddlewareFunc {
 			services := c.Services()
 			services.Tenants.SetCurrentTenant(tenant)
 			services.OAuth = &oauth.HTTPService{}
-			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Users = postgres.NewUserStorage(trx)
 			return next(c)

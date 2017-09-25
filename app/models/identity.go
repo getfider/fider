@@ -14,7 +14,15 @@ type Tenant struct {
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname"`
+	Status         int    `json:"-"`
 }
+
+var (
+	//TenantActive is the default status for most tenants
+	TenantActive = 1
+	//TenantInactive is used for signup via e-mail that requires user confirmation
+	TenantInactive = 2
+)
 
 //User represents an user inside our application
 type User struct {
@@ -76,10 +84,13 @@ type OAuthClaims struct {
 
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
-	Token      string `json:"token"`
-	Name       string `json:"name"`
-	Subdomain  string `json:"subdomain"`
-	UserClaims *OAuthClaims
+	Token           string `json:"token"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	VerificationKey string
+	TenantName      string `json:"tenantName"`
+	Subdomain       string `json:"subdomain"`
+	UserClaims      *OAuthClaims
 }
 
 //UpdateTenantSettings is the input model used to update tenant settings
@@ -99,8 +110,10 @@ type SignInByEmail struct {
 //SignInRequest is the model used by e-mail verification process
 type SignInRequest struct {
 	Email      string
+	Name       string
 	Key        string
 	CreatedOn  time.Time
+	ExpiresOn  time.Time
 	VerifiedOn *time.Time
 }
 

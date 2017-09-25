@@ -20,13 +20,19 @@ var services = &app.Services{
 	Tenants: &inmemory.TenantStorage{},
 }
 
-func ExpectFailed(result *validate.Result, field string) {
+func ExpectFailed(result *validate.Result, fields ...string) {
 	Expect(result.Ok).To(BeFalse())
 	Expect(result.Error).To(BeNil())
-	if field == "" {
-		Expect(len(result.Messages) > 0).To(BeTrue())
-	} else {
-		Expect(len(result.Failures[field]) > 0).To(BeTrue())
+	for _, field := range fields {
+		if field == "" {
+			Expect(len(result.Messages) > 0).To(BeTrue())
+		} else {
+			Expect(len(result.Failures[field]) > 0).To(BeTrue(), "Failures should contain field: "+field)
+		}
+	}
+
+	for field, _ := range result.Failures {
+		Expect(fields).To(ContainElement(field), "Failures should not contain field: "+field)
 	}
 }
 

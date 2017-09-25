@@ -99,17 +99,12 @@ func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecord
 
 // ExecuteAsJSON given handler and return json response
 func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
-
-	if err := s.middleware(handler)(s.context); err != nil {
-		s.engine.HandleError(err, s.context)
-	}
-
-	return parseJSONBody(s)
+	code, response := s.Execute(handler)
+	return code, parseJSONBody(code, response)
 }
 
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
-
 	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
 	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
 	s.context.SetRequest(req)
@@ -119,20 +114,25 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	}
 
 	return s.recorder.Code, s.recorder
-
 }
 
-func parseJSONBody(s *Server) (int, *jsonq.JsonQuery) {
+// ExecutePostAsJSON executes given handler as POST and return json response
+func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
+	code, response := s.ExecutePost(handler, body)
+	return code, parseJSONBody(code, response)
+}
 
-	if s.recorder.Code == 200 && hasJSON(s.recorder) {
+func parseJSONBody(code int, response *httptest.ResponseRecorder) *jsonq.JsonQuery {
+
+	if code == 200 && hasJSON(response) {
 		var data interface{}
-		decoder := json.NewDecoder(s.recorder.Body)
+		decoder := json.NewDecoder(response.Body)
 		decoder.Decode(&data)
 		query := jsonq.NewQuery(data)
-		return s.recorder.Code, query
+		return query
 	}
 
-	return s.recorder.Code, nil
+	return nil
 }
 
 func hasJSON(r *httptest.ResponseRecorder) bool {

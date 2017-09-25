@@ -29,6 +29,7 @@ type dbTenant struct {
 	CNAME          string `db:"cname"`
 	Invitation     string `db:"invitation"`
 	WelcomeMessage string `db:"welcome_message"`
+	Status         int    `db:"status"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -39,22 +40,27 @@ func (t *dbTenant) toModel() *models.Tenant {
 		CNAME:          t.CNAME,
 		Invitation:     t.Invitation,
 		WelcomeMessage: t.WelcomeMessage,
+		Status:         t.Status,
 	}
 }
 
 type dbSignInRequest struct {
 	ID         int          `db:"id"`
+	Name       string       `db:"name"`
 	Email      string       `db:"email"`
 	Key        string       `db:"key"`
 	CreatedOn  time.Time    `db:"created_on"`
+	ExpiresOn  time.Time    `db:"expires_on"`
 	VerifiedOn dbx.NullTime `db:"verified_on"`
 }
 
 func (t *dbSignInRequest) toModel() *models.SignInRequest {
 	model := &models.SignInRequest{
+		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,
 		CreatedOn:  t.CreatedOn,
+		ExpiresOn:  t.ExpiresOn,
 		VerifiedOn: nil,
 	}
 
@@ -71,11 +77,11 @@ func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 }
 
 // Add given tenant to tenant list
-func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, error) {
+func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message) 
-						VALUES ($1, $2, $3, '', '', '') 
-						RETURNING id`, name, subdomain, time.Now())
+	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status) 
+						VALUES ($1, $2, $3, '', '', '', $4) 
+						RETURNING id`, name, subdomain, time.Now(), status)
 	if err := row.Scan(&id); err != nil {
 		return nil, err
 	}
@@ -87,7 +93,7 @@ func (s *TenantStorage) Add(name string, subdomain string) (*models.Tenant, erro
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message FROM tenants LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants ORDER BY id LIMIT 1")
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -101,7 +107,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -123,17 +129,23 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	return !exists, err
 }
 
+// Activate given tenant
+func (s *TenantStorage) Activate(id int) error {
+	query := "UPDATE tenants SET status = $1 WHERE id = $2"
+	return s.trx.Execute(query, models.TenantActive, id)
+}
+
 // SaveVerificationKey used by e-mail verification process
-func (s *TenantStorage) SaveVerificationKey(email, key string) error {
-	query := "INSERT INTO signin_requests (tenant_id, email, created_on, key) VALUES ($1, $2, $3, $4)"
-	return s.trx.Execute(query, s.current.ID, email, time.Now(), key)
+func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
+	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key, name) VALUES ($1, $2, $3, $4, $5, $6)"
+	return s.trx.Execute(query, s.current.ID, email, time.Now(), time.Now().Add(duration), key, name)
 }
 
 // FindVerificationByKey based on current tenant
 func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
 	request := dbSignInRequest{}
 
-	err := s.trx.Get(&request, "SELECT id, email, key, created_on, verified_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
+	err := s.trx.Get(&request, "SELECT id, email, name, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

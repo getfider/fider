@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	. "github.com/onsi/gomega"
@@ -82,7 +83,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 
 	server, services := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
-	services.Tenants.Add("MyCompany", "mycompany")
+	services.Tenants.Add("MyCompany", "mycompany", models.TenantActive)
 
 	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
@@ -115,4 +116,31 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusBadRequest))
+}
+
+func TestOnlyActiveTenants_Active(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+
+	server.Use(middlewares.OnlyActiveTenants())
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusOK))
+}
+
+func TestOnlyActiveTenants_Inactive(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantInactive
+
+	server.Use(middlewares.OnlyActiveTenants())
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusNotFound))
 }

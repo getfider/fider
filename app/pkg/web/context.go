@@ -227,6 +227,19 @@ func (ctx *Context) BaseURL() string {
 	return protocol + "://" + ctx.Request().Host
 }
 
+//TenantBaseURL returns base URL for a given tenant
+func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
+	if env.IsSingleHostMode() {
+		return ctx.BaseURL()
+	}
+
+	protocol := "http"
+	if ctx.Request().TLS != nil {
+		protocol = "https"
+	}
+	return protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()
+}
+
 //AuthEndpoint auth endpoint
 func (ctx *Context) AuthEndpoint() string {
 	endpoint, ok := ctx.Get(authEndpointContextKey).(string)
