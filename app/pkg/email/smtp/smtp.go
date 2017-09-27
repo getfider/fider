@@ -38,5 +38,5 @@ func (s *Sender) Send(from, to, subject, message string) error {
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
-	return gosmtp.SendMail(servername, auth, from, []string{to}, []byte(body))
+	return gosmtp.SendMail(servername, auth, email.NoReply, []string{to}, []byte(body))
 }
