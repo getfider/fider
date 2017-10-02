@@ -86,7 +86,6 @@ func (s *Server) WithURL(fullURL string) *Server {
 
 // Execute given handler and return response
 func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecorder) {
-
 	if err := s.middleware(handler)(s.context); err != nil {
 		s.context.Failure(err)
 	}
@@ -97,7 +96,7 @@ func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecord
 // ExecuteAsJSON given handler and return json response
 func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
 	code, response := s.Execute(handler)
-	return code, parseJSONBody(code, response)
+	return code, toJSONQuery(response)
 }
 
 // ExecutePost executes given handler as POST and return response
@@ -117,28 +116,13 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 // ExecutePostAsJSON executes given handler as POST and return json response
 func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
 	code, response := s.ExecutePost(handler, body)
-	return code, parseJSONBody(code, response)
+	return code, toJSONQuery(response)
 }
 
-func parseJSONBody(code int, response *httptest.ResponseRecorder) *jsonq.JsonQuery {
-
-	if code == 200 && hasJSON(response) {
-		var data interface{}
-		decoder := json.NewDecoder(response.Body)
-		decoder.Decode(&data)
-		query := jsonq.NewQuery(data)
-		return query
-	}
-
-	return nil
-}
-
-func hasJSON(r *httptest.ResponseRecorder) bool {
-	isJSONContentType := strings.Contains(r.Result().Header.Get("Content-Type"), "application/json")
-
-	if r.Body.Len() > 0 && isJSONContentType {
-		return true
-	}
-
-	return false
+func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.JsonQuery {
+	var data interface{}
+	decoder := json.NewDecoder(response.Body)
+	decoder.Decode(&data)
+	query := jsonq.NewQuery(data)
+	return query
 }
