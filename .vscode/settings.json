@@ -31,5 +31,8 @@
   "go.coverOnSave": true,
   "go.coverageOptions": "showBothCoveredAndUncoveredCode",
   "go.testEnvFile": "${workspaceRoot}/.test.env",
-  "go.lintTool": "golint"
+  "go.lintTool": "golint",
+  "vsicons.associations.folders": [
+    { "overrides": "log", "disabled": true }
+  ]
 }

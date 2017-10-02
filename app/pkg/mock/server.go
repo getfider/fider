@@ -2,6 +2,8 @@ package mock
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/jmoiron/jsonq"
+	"github.com/julienschmidt/httprouter"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -28,7 +31,7 @@ func createServer(services *app.Services) *Server {
 
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
-	context := engine.NewContext(request, recorder)
+	context := engine.NewContext(recorder, request, make([]httprouter.Param, 0))
 	context.SetServices(services)
 
 	return &Server{
@@ -58,7 +61,7 @@ func (s *Server) AsUser(user *models.User) *Server {
 
 // WithParam set current context params
 func (s *Server) WithParam(name string, value interface{}) *Server {
-	s.context.SetParams(web.Map{name: value})
+	s.context.SetParams(web.StringMap{name: fmt.Sprintf("%v", value)})
 	return s
 }
 
@@ -74,12 +77,6 @@ func (s *Server) AddCookie(name string, value string) *Server {
 	return s
 }
 
-// WithParams set current context params
-func (s *Server) WithParams(params web.Map) *Server {
-	s.context.SetParams(params)
-	return s
-}
-
 // WithURL set current context Request URL
 func (s *Server) WithURL(fullURL string) *Server {
 	s.context.Request().URL, _ = url.Parse(fullURL)
@@ -91,7 +88,7 @@ func (s *Server) WithURL(fullURL string) *Server {
 func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecorder) {
 
 	if err := s.middleware(handler)(s.context); err != nil {
-		s.engine.HandleError(err, s.context)
+		s.context.Failure(err)
 	}
 
 	return s.recorder.Code, s.recorder
@@ -105,12 +102,13 @@ func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) 
 
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
-	req, _ := http.NewRequest("POST", "/", strings.NewReader(body))
-	req.Header.Add("Content-Type", "application/json; charset=UTF-8")
-	s.context.SetRequest(req)
+	s.context.Request().Method = "POST"
+	s.context.Request().URL.Path = "/"
+	s.context.Request().Body = ioutil.NopCloser(strings.NewReader(body))
+	s.context.Request().Header.Set("Content-Type", web.JSONContentType)
 
 	if err := s.middleware(handler)(s.context); err != nil {
-		s.engine.HandleError(err, s.context)
+		s.context.Failure(err)
 	}
 
 	return s.recorder.Code, s.recorder

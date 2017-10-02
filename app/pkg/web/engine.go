@@ -1,16 +1,14 @@
 package web
 
 import (
-	"net/http"
-	"strings"
-
 	"fmt"
+	"net/http"
+	"os"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/getfider/fider/app/pkg/log"
+	"github.com/julienschmidt/httprouter"
 )
 
 //HandlerFunc represents an HTTP handler
@@ -21,21 +19,27 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
 //Engine is our web engine wrapper
 type Engine struct {
-	router *echo.Echo
-	Logger *log.Logger
+	mux      *httprouter.Router
+	logger   log.Logger
+	renderer *Renderer
 }
 
 //New creates a new Engine
 func New(settings *models.AppSettings) *Engine {
-	router := echo.New()
-	router.Use(middleware.Gzip())
-
 	logger := NewLogger()
-	router.Logger = logger
+	router := &Engine{
+		mux:      httprouter.New(),
+		logger:   logger,
+		renderer: NewRenderer(settings, logger),
+	}
 
-	router.Renderer = NewHTMLRenderer(settings, router.Logger)
-	router.HTTPErrorHandler = errorHandler
-	return &Engine{router: router, Logger: logger}
+	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {
+		ctx := router.NewContext(res, req, nil)
+		ctx.NotFound()
+	}
+	//TODO: add GZIP
+	//router.Use(middleware.Gzip())
+	return router
 }
 
 //Start an HTTP server.
@@ -45,82 +49,118 @@ func (e *Engine) Start(address string) {
 
 	var err error
 	if cert == "" && key == "" {
-		err = e.router.Start(address)
+		err = http.ListenAndServe(address, e.mux)
 	} else {
-		err = e.router.StartTLS(address, cert, key)
+		err = http.ListenAndServeTLS(address, cert, key, e.mux)
 	}
 
 	if err != nil {
-		e.router.Logger.Fatal(err)
+		e.logger.Error(err)
 	}
 }
 
-//Use middleware on root router
-func (e *Engine) Use(middleware MiddlewareFunc) {
-	e.router.Use(wrapMiddleware(middleware))
+//NewContext creates and return a new context
+func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, ps httprouter.Params) Context {
+	params := make(StringMap, 0)
+	for _, p := range ps {
+		params[p.Key] = p.Value
+	}
+	return Context{
+		engine: e,
+		res:    res,
+		req:    req,
+		logger: e.logger,
+		params: params,
+	}
+}
+
+//Logger returns current logger
+func (e *Engine) Logger() log.Logger {
+	return e.logger
+}
+
+//Group creates a new route group
+func (e *Engine) Group() *Group {
+	g := &Group{
+		engine:      e,
+		middlewares: make([]MiddlewareFunc, 0),
+	}
+	return g
 }
 
 //Group is our router group wrapper
 type Group struct {
-	group *echo.Group
+	engine      *Engine
+	middlewares []MiddlewareFunc
 }
 
-//NewContext creates and return a new context
-func (e *Engine) NewContext(req *http.Request, w http.ResponseWriter) Context {
-	context := e.router.NewContext(req, w)
-	return Context{Context: context}
+//Group creates a new route group
+func (g *Group) Group() *Group {
+	g2 := &Group{
+		engine:      g.engine,
+		middlewares: g.middlewares,
+	}
+	return g2
 }
 
-//Group creates a new router group with prefix
-func (e *Engine) Group(preffix string) *Group {
-	return &Group{group: e.router.Group(preffix)}
-}
-
-//HandleError redirect error to router
-func (e *Engine) HandleError(err error, ctx Context) {
-	e.router.HTTPErrorHandler(err, ctx)
-}
-
-//Use add middleware to sub-routes within the Group
+//Use adds a middleware to current route stack
 func (g *Group) Use(middleware MiddlewareFunc) {
-	g.group.Use(wrapMiddleware(middleware))
-}
-
-//Group creates asub-group with prefix
-func (g *Group) Group(preffix string) *Group {
-	return &Group{group: g.group.Group(preffix)}
-}
-
-//Static return files from given folder
-func (g *Group) Static(prefix, root string) {
-	g.group.Static(prefix, root)
+	g.middlewares = append(g.middlewares, middleware)
 }
 
 //Get handles HTTP GET requests
 func (g *Group) Get(path string, handler HandlerFunc) {
-	g.group.GET(path, wrapFunc(handler))
+	g.engine.mux.Handle("GET", path, g.handler(handler))
 }
 
 //Post handles HTTP POST requests
 func (g *Group) Post(path string, handler HandlerFunc) {
-	g.group.POST(path, wrapFunc(handler))
+	g.engine.mux.Handle("POST", path, g.handler(handler))
 }
 
-func errorHandler(e error, c echo.Context) {
-	if strings.Contains(e.Error(), "code=404") {
-		c.Logger().Debug(fmt.Sprintf("%s [%s] %s", e, c.Request().Method, c.Request().URL.String()))
-		c.Render(http.StatusNotFound, "404.html", Map{})
-	} else {
-		c.Logger().Error(e)
-		c.Render(http.StatusInternalServerError, "500.html", Map{})
+func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
+	next := handler
+	for i := len(g.middlewares) - 1; i >= 0; i-- {
+		next = g.middlewares[i](next)
 	}
+	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		ctx := g.engine.NewContext(res, req, ps)
+		next(ctx)
+	}
+	return h
+}
+
+// Static return files from given folder
+func (g *Group) Static(prefix, root string) {
+
+	fi, err := os.Stat(root)
+	if err != nil {
+		panic(fmt.Sprintf("Path '%s' not found", root))
+	}
+
+	var h HandlerFunc
+	if fi.IsDir() {
+		h = func(c Context) error {
+			path := root + c.Param("filepath")
+			fi, err := os.Stat(path)
+			if err == nil && !fi.IsDir() {
+				http.ServeFile(c.Response(), c.Request(), path)
+				return nil
+			}
+			return c.NotFound()
+		}
+	} else {
+		h = func(c Context) error {
+			http.ServeFile(c.Response(), c.Request(), root)
+			return nil
+		}
+	}
+	g.engine.mux.Handle("GET", prefix, g.handler(h))
 }
 
 // NewLogger creates a new logger
-func NewLogger() *log.Logger {
-	logger := log.New("")
-	logger.EnableColor()
-	logger.SetHeader(`${level} [${time_rfc3339}]`)
+func NewLogger() log.Logger {
+	logger := log.NewConsoleLogger()
 
 	if env.IsProduction() {
 		logger.SetLevel(log.INFO)
@@ -129,19 +169,4 @@ func NewLogger() *log.Logger {
 	}
 
 	return logger
-}
-
-func wrapMiddleware(mw MiddlewareFunc) echo.MiddlewareFunc {
-	return func(h echo.HandlerFunc) echo.HandlerFunc {
-		return wrapFunc(mw(func(c Context) error {
-			return h(c)
-		}))
-	}
-}
-
-func wrapFunc(handler HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		ctx := Context{Context: c}
-		return handler(ctx)
-	}
 }

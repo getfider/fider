@@ -9,20 +9,20 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/oauth"
-	"github.com/labstack/echo"
 )
 
-//HTMLRenderer renderer
-type HTMLRenderer struct {
+//Renderer is the default HTML Render
+type Renderer struct {
 	templates map[string]*template.Template
-	logger    echo.Logger
+	logger    log.Logger
 	settings  *models.AppSettings
 }
 
-// NewHTMLRenderer creates a new HTMLRenderer
-func NewHTMLRenderer(settings *models.AppSettings, logger echo.Logger) *HTMLRenderer {
-	renderer := &HTMLRenderer{nil, logger, settings}
+// NewRenderer creates a new Renderer
+func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
+	renderer := &Renderer{nil, logger, settings}
 	renderer.templates = make(map[string]*template.Template)
 
 	renderer.add("index.html")
@@ -33,7 +33,7 @@ func NewHTMLRenderer(settings *models.AppSettings, logger echo.Logger) *HTMLRend
 }
 
 //Render a template based on parameters
-func (r *HTMLRenderer) add(name string) *template.Template {
+func (r *Renderer) add(name string) *template.Template {
 	base := env.Path("/views/base.html")
 	file := env.Path("/views", name)
 	tpl, err := template.ParseFiles(base, file)
@@ -46,9 +46,7 @@ func (r *HTMLRenderer) add(name string) *template.Template {
 }
 
 //Render a template based on parameters
-func (r *HTMLRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	ctx := Context{Context: c}
-
+func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Context) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
 		panic(fmt.Errorf("The template '%s' does not exist", name))

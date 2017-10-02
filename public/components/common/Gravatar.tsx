@@ -9,7 +9,7 @@ interface GravatarProps {
 }
 
 export const Gravatar = (props: GravatarProps) => {
-  const fallback = `${getBaseUrl()}/assets/avatars/50/${props.name}`;
+  const fallback = `${getBaseUrl()}/avatars/50/${props.name}`;
   const hash = props.email ? md5(props.email) : props.hash || '';
 
   let element: any;

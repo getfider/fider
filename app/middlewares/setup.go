@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
-	"github.com/labstack/gommon/log"
 )
 
 // Noop does nothing
@@ -27,8 +26,7 @@ func Noop() web.MiddlewareFunc {
 func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			logger := c.Logger().(*log.Logger)
-			logger.Debugf("HTTP Request %s", logger.Color().Bold(logger.Color().RedBg(c.Request().Method+" "+c.Request().URL.String())))
+			c.Logger().Debugf("HTTP Request %s %s", c.Request().Method, c.Request().URL.String())
 
 			trx, err := db.Begin()
 			if err != nil {
