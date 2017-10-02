@@ -69,9 +69,21 @@ func (l *ConsoleLogger) Error(err error) {
 	l.log(ERROR, err.Error())
 }
 
-// LevelString returns log level as string
-func (l *ConsoleLogger) LevelString() string {
-	switch l.level {
+func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
+	if level >= l.level {
+		message := ""
+		if format == "" {
+			message = fmt.Sprint(args...)
+		} else {
+			message = fmt.Sprintf(format, args...)
+		}
+
+		fmt.Printf("%s [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), message)
+	}
+}
+
+func levelString(level Level) string {
+	switch level {
 	case DEBUG:
 		return "DEBUG"
 	case INFO:
@@ -82,18 +94,5 @@ func (l *ConsoleLogger) LevelString() string {
 		return "ERROR"
 	default:
 		return "???"
-	}
-}
-
-func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
-	if level >= l.level {
-		message := ""
-		if format == "" {
-			message = fmt.Sprint(args...)
-		} else {
-			message = fmt.Sprintf(format, args...)
-		}
-
-		fmt.Printf("%s [%s] %s\n", l.LevelString(), time.Now().Format(time.RFC3339), message)
 	}
 }

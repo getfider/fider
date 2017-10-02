@@ -49,8 +49,10 @@ func (e *Engine) Start(address string) {
 
 	var err error
 	if cert == "" && key == "" {
+		e.logger.Infof("http server started on %s", address)
 		err = http.ListenAndServe(address, e.mux)
 	} else {
+		e.logger.Infof("https server started on %s", address)
 		err = http.ListenAndServeTLS(address, cert, key, e.mux)
 	}
 
