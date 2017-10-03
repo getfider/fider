@@ -37,8 +37,6 @@ func New(settings *models.AppSettings) *Engine {
 		ctx := router.NewContext(res, req, nil)
 		ctx.NotFound()
 	}
-	//TODO: add GZIP
-	//router.Use(middleware.Gzip())
 	return router
 }
 
