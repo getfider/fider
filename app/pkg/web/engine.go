@@ -62,11 +62,7 @@ func (e *Engine) Start(address string) {
 }
 
 //NewContext creates and return a new context
-func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, ps httprouter.Params) Context {
-	params := make(StringMap, 0)
-	for _, p := range ps {
-		params[p.Key] = p.Value
-	}
+func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
 	return Context{
 		engine: e,
 		res:    res,
@@ -126,7 +122,11 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 		next = g.middlewares[i](next)
 	}
 	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		ctx := g.engine.NewContext(res, req, ps)
+		params := make(StringMap, 0)
+		for _, p := range ps {
+			params[p.Key] = p.Value
+		}
+		ctx := g.engine.NewContext(res, req, params)
 		next(ctx)
 	}
 	return h

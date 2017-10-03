@@ -32,11 +32,13 @@ type NewIdea struct {
 
 // NewComment represents a new comment
 type NewComment struct {
+	Number  int    `route:"number"`
 	Content string `json:"content"`
 }
 
 // SetResponse represents the action to update an idea response
 type SetResponse struct {
+	Number int    `route:"number"`
 	Status int    `json:"status"`
 	Text   string `json:"text"`
 }
