@@ -39,22 +39,22 @@ func initEmailer() email.Sender {
 func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	r := web.New(settings)
 
-	db, err := dbx.NewWithLogger(r.Logger)
+	db, err := dbx.NewWithLogger(r.Logger())
 	if err != nil {
 		panic(err)
 	}
 	db.Migrate()
 	emailer := initEmailer()
 
-	assets := r.Group("/assets")
+	assets := r.Group()
 	{
 		assets.Use(middlewares.OneYearCache())
 		assets.Get("/avatars/:size/:name", handlers.LetterAvatar())
 		assets.Static("/favicon.ico", "favicon.ico")
-		assets.Static("/", "dist")
+		assets.Static("/assets/*filepath", "dist")
 	}
 
-	noTenant := r.Group("")
+	noTenant := r.Group()
 	{
 		noTenant.Use(middlewares.Setup(db, emailer))
 		noTenant.Use(middlewares.AddServices())
@@ -71,7 +71,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
-	verify := r.Group("")
+	verify := r.Group()
 	{
 		verify.Use(middlewares.Setup(db, emailer))
 		verify.Use(middlewares.Tenant())
@@ -79,7 +79,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		verify.Get("/signup/verify", handlers.VerifySignUpKey())
 	}
 
-	page := r.Group("")
+	page := r.Group()
 	{
 		page.Use(middlewares.Setup(db, emailer))
 		page.Use(middlewares.Tenant())
@@ -88,11 +88,11 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
 
-		public := page.Group("")
+		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
-			public.Get("/ideas/:number/*", handlers.IdeaDetails())
+			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
 			public.Get("/signin/verify", handlers.VerifySignInKey())
 			public.Get("/api/status", handlers.Status(settings))
@@ -100,7 +100,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
-		private := page.Group("")
+		private := page.Group()
 		{
 			private.Use(middlewares.IsAuthenticated())
 			private.Get("/settings", func(ctx web.Context) error {
@@ -119,12 +119,12 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
 		}
 
-		admin := page.Group("/admin")
+		admin := page.Group()
 		{
 			admin.Use(middlewares.IsAuthenticated())
 			admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
 
-			admin.Get("", func(ctx web.Context) error {
+			admin.Get("/admin", func(ctx web.Context) error {
 				return ctx.Page(web.Map{})
 			})
 		}

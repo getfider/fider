@@ -18,6 +18,9 @@ build:
 watch:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
 
+watch-ssl:
+	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'" --certFile etc/server.crt --keyFile etc/server.key
+
 run:
 	godotenv -f .env ./fider
 

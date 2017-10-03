@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/labstack/gommon/log"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/mattes/migrate"
 
 	//required
@@ -20,11 +20,11 @@ import (
 
 // New creates a new Database instance
 func New() (*Database, error) {
-	return NewWithLogger(log.New(""))
+	return NewWithLogger(log.NewConsoleLogger())
 }
 
 // NewWithLogger creates a new Database instance with logging
-func NewWithLogger(logger *log.Logger) (*Database, error) {
+func NewWithLogger(logger log.Logger) (*Database, error) {
 	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func NewWithLogger(logger *log.Logger) (*Database, error) {
 // Database represents a connection to a SQL database
 type Database struct {
 	conn   *sql.DB
-	logger *log.Logger
+	logger log.Logger
 }
 
 // Begin returns a new SQL transaction
@@ -128,7 +128,7 @@ func (db Database) Seed() {
 // Migrate the database to latest verion
 func (db Database) Migrate() {
 
-	db.logger.Info("Running migrations...")
+	db.logger.Infof("Running migrations...")
 	m, err := migrate.New(
 		"file://"+env.Path("migrations"),
 		env.MustGet("DATABASE_URL"),
@@ -143,34 +143,34 @@ func (db Database) Migrate() {
 
 		panic("Migrations failed.")
 	} else {
-		db.logger.Info("Migrations finished with success.")
+		db.logger.Infof("Migrations finished with success.")
 	}
 }
 
 //Trx represents a Database transaction
 type Trx struct {
 	tx     *sql.Tx
-	logger *log.Logger
+	logger log.Logger
 }
 
 // QueryRow the database with given SQL command and returns only one row
 func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
 	command = formatCommand(command)
-	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
+	trx.logger.Debugf("%s %v", command, args)
 	return trx.tx.QueryRow(command, args...)
 }
 
 // Query the database with given SQL command
 func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
 	command = formatCommand(command)
-	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
+	trx.logger.Debugf("%s %v", command, args)
 	return trx.tx.Query(command, args...)
 }
 
 // Execute given SQL command
 func (trx Trx) Execute(command string, args ...interface{}) error {
 	command = formatCommand(command)
-	trx.logger.Debug(trx.logger.Color().Bold(trx.logger.Color().Yellow(command)), " ", args)
+	trx.logger.Debugf("%s %v", command, args)
 	_, err := trx.tx.Exec(command, args...)
 	if err != nil {
 		return err
