@@ -22,6 +22,7 @@ type Engine struct {
 	mux      *httprouter.Router
 	logger   log.Logger
 	renderer *Renderer
+	binder   *DefaultBinder
 }
 
 //New creates a new Engine
@@ -31,6 +32,7 @@ func New(settings *models.AppSettings) *Engine {
 		mux:      httprouter.New(),
 		logger:   logger,
 		renderer: NewRenderer(settings, logger),
+		binder:   NewDefaultBinder(),
 	}
 
 	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {

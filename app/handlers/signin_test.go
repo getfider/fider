@@ -45,12 +45,11 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
+	code, _ := server.
+		WithURL("http://login.test.fider.io/oauth/callback?state=abc").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
-	Expect(func() {
-		server.
-			WithURL("http://login.test.fider.io/oauth/callback?state=abc").
-			Execute(handlers.OAuthCallback(oauth.FacebookProvider))
-	}).To(Panic())
+	Expect(code).To(Equal(http.StatusInternalServerError))
 }
 
 func TestCallbackHandler_InvalidCode(t *testing.T) {

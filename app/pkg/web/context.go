@@ -75,7 +75,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 
 //BindTo context values into given model
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := ctx.Bind(i.Initialize())
+	err := ctx.engine.binder.Bind(i.Initialize(), ctx)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -107,7 +107,8 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	panic(err)
+	ctx.Logger().Error(err)
+	return ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 }
 
 //HandleValidation handles given validation result property to return 400 or 500
@@ -144,12 +145,6 @@ func (ctx *Context) BadRequest(dict Map) error {
 //Page returns a page with given variables
 func (ctx *Context) Page(dict Map) error {
 	return ctx.Render(http.StatusOK, "index.html", dict)
-}
-
-// Error logs and returns a 500 response
-func (ctx *Context) Error(err error) error {
-	ctx.Logger().Error(err)
-	return ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 }
 
 // Render renders a template with data and sends a text/html response with status
@@ -372,18 +367,6 @@ func (ctx *Context) Blob(code int, contentType string, b []byte) (err error) {
 	ctx.res.WriteHeader(code)
 	_, err = ctx.res.Write(b)
 	return
-}
-
-// Bind binds the request body into provided type `i`. The default binder
-// does it based on Content-Type header.
-func (ctx *Context) Bind(i interface{}) error {
-	req := ctx.Request()
-	if req.Method == "POST" {
-		if err := json.NewDecoder(req.Body).Decode(i); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // Cookie returns the named cookie provided in the request.

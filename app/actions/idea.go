@@ -28,8 +28,6 @@ func (input *CreateNewIdea) IsAuthorized(user *models.User) bool {
 func (input *CreateNewIdea) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	input.Model.Title = strings.Trim(input.Model.Title, " ")
-
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	}
@@ -61,7 +59,7 @@ func (input *AddNewComment) IsAuthorized(user *models.User) bool {
 func (input *AddNewComment) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if strings.Trim(input.Model.Content, " ") == "" {
+	if input.Model.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
@@ -92,7 +90,7 @@ func (input *SetResponse) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if strings.Trim(input.Model.Text, " ") == "" {
+	if input.Model.Text == "" {
 		result.AddFieldFailure("text", "Text is required.")
 	}
 

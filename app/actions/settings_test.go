@@ -14,7 +14,6 @@ func TestInvalidUserNames(t *testing.T) {
 
 	for _, name := range []string{
 		"",
-		" ",
 		"123456789012345678901234567890123456789012345678901", // 51 chars
 	} {
 		action := &actions.UpdateUserSettings{Model: &models.UpdateUserSettings{Name: name}}

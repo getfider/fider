@@ -29,7 +29,6 @@ func (input *SignInByEmail) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *SignInByEmail) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	input.Model.Email = strings.ToLower(strings.Trim(input.Model.Email, " "))
 
 	if input.Model.Email == "" {
 		result.AddFieldFailure("email", "E-mail is required.")
@@ -67,8 +66,6 @@ func (input *CompleteProfile) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *CompleteProfile) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	input.Model.Key = strings.Trim(input.Model.Key, " ")
-	input.Model.Name = strings.Trim(input.Model.Name, " ")
 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")

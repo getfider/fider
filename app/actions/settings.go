@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"strings"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -27,7 +25,6 @@ func (input *UpdateUserSettings) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *UpdateUserSettings) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	input.Model.Name = strings.Trim(input.Model.Name, " ")
 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")

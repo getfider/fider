@@ -86,10 +86,10 @@ type OAuthClaims struct {
 type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
-	Email           string `json:"email"`
+	Email           string `json:"email" format:"lower"`
 	VerificationKey string
 	TenantName      string `json:"tenantName"`
-	Subdomain       string `json:"subdomain"`
+	Subdomain       string `json:"subdomain" format:"lower"`
 	UserClaims      *OAuthClaims
 }
 
@@ -103,7 +103,7 @@ type UpdateTenantSettings struct {
 
 //SignInByEmail is the input model when user request to sign in by email
 type SignInByEmail struct {
-	Email           string `json:"email"`
+	Email           string `json:"email" format:"lower"`
 	VerificationKey string
 }
 
