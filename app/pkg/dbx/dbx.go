@@ -26,6 +26,8 @@ func New() (*Database, error) {
 // NewWithLogger creates a new Database instance with logging
 func NewWithLogger(logger log.Logger) (*Database, error) {
 	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
+	conn.SetMaxIdleConns(20)
+	conn.SetMaxOpenConns(50)
 	if err != nil {
 		return nil, err
 	}
