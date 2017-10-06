@@ -27,7 +27,7 @@ export class Header extends React.Component<{}, {}> {
   }
 
   public render() {
-    const items = this.user ? <div className="menu">
+    const items = this.user && <div className="menu">
                       <div className="name header">
                         <i className="user icon"></i>
                         { this.user.name }
@@ -35,22 +35,17 @@ export class Header extends React.Component<{}, {}> {
                       <a href="/settings" className="item">Settings</a>
                       <div className="divider"></div>
                       {
-                        this.session.isStaff() &&
-                        <div className="header">
-                          <i className="setting icon"></i>
-                          Administration
-                        </div>
-                      }
-                      {
-                        this.session.isStaff() &&
-                        <a href="/admin" className="item">General Settings</a>
-                      }
-                      {
-                        this.session.isStaff() &&
-                        <div className="divider"></div>
+                        this.session.isStaff() && [
+                          <div key={1} className="header">
+                            <i className="setting icon"></i>
+                            Administration
+                          </div>,
+                          <a key={2} href="/admin" className="item">General Settings</a>,
+                          <div key={3} className="divider"></div>
+                        ]
                       }
                       <a href="/signout?redirect=/" className="item signout">Sign out</a>
-                  </div> : <div />;
+                  </div>;
 
     return <div>
               <EnvironmentInfo />

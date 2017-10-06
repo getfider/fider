@@ -64,11 +64,12 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                       <div className="field">
                         <label>Status</label>
                         <select className="ui dropdown"
+                          defaultValue={this.props.idea.status.toString()}
                           onChange={ (e) => this.setState({ status: parseInt(e.currentTarget.value, 10) }) }>
-                          <option selected={this.props.idea.status === 0} value="0">Open</option>
-                          <option selected={this.props.idea.status === 1} value="1">Started</option>
-                          <option selected={this.props.idea.status === 2} value="2">Completed</option>
-                          <option selected={this.props.idea.status === 3} value="3">Declined</option>
+                          <option value="0">Open</option>
+                          <option value="1">Started</option>
+                          <option value="2">Completed</option>
+                          <option value="3">Declined</option>
                         </select>
                       </div>
                     </div>
