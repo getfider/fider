@@ -34,7 +34,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
     public render() {
 
         const commentsList = this.comments.map((c) =>
-          <div className="comment">
+          <div key={c.id} className="comment">
             <Gravatar name={c.user.name} hash={c.user.gravatar} />
             <div className="content">
               <UserName user={c.user} />

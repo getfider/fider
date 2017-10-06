@@ -3,9 +3,19 @@ import { pages, tenant, browser } from './context';
 
 describe('Submit ideas', () => {
 
+  it('User is authenticated after sign up', async () => {
+    // Action
+    await pages.home.navigate();
+    await pages.home.UserMenu.click();
+
+    // Assert
+    await ensure(pages.home.UserName).textIs('JON SNOW');
+  });
+
   it('Unauthenticated cannot submit ideas', async () => {
     // Action
     await pages.home.navigate();
+    await pages.home.signOut();
     await pages.home.IdeaTitle.click();
 
     // Assert

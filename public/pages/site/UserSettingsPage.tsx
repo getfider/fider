@@ -49,22 +49,22 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
                         <div className="field">
                             <label htmlFor="email">Avatar</label>
                             <p><Gravatar hash={ this.user.gravatar } name={ this.user.name } /></p>
-                            <p className="info">
+                            <div className="info">
                                 <p>
                                   We use <a href="https://en.gravatar.com/" target="blank">Gravatar</a> to display profile avatars. <br/>
                                   A letter avatar based on your name is generated for profiles without e-mail.
                                 </p>
-                            </p>
+                            </div>
                         </div>
                         <div className="field">
                             <label htmlFor="email">E-mail</label>
                             <p><b>{ this.user.email }</b></p>
-                            <p className="info">
+                            <div className="info">
                                 {
                                   this.user.email ? <p>Your e-mail is private and will never be displayed to anyone.</p>
                                                   : <p>Your account doesn't have an e-mail.</p>
                                 }
-                            </p>
+                            </div>
                         </div>
                         <DisplayError fields={['name']} error={this.state.error} />
                         <div className="field">

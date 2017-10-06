@@ -67,9 +67,9 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                             disabled={ !this.session.isAdmin() }
                                             value={ this.state.title }
                                             onChange={(e) => this.setState({ title: e.currentTarget.value })}/>
-                                        <p className="info">
+                                        <div className="info">
                                             <p>Use this field to change the title that is shown on the top of your page.</p>
-                                        </p>
+                                        </div>
                                     </div>
                                     <DisplayError fields={['welcomeMessage']} error={this.state.error} />
                                     <div className="field">
@@ -79,11 +79,11 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                                 disabled={ !this.session.isAdmin() }
                                                 onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}
                                                 value={ this.state.welcomeMessage } />
-                                        <p className="info">
+                                        <div className="info">
                                             <p>Use this space to change message of your initial page.</p>
                                             <p>Common use case for this area is a brief description of what is your company/product, why you created this space and how the visitors can collaborate.</p>
                                             <p>This field is powered by Commonmark. You can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
-                                        </p>
+                                        </div>
                                     </div>
                                     <DisplayError fields={['invitation']} error={this.state.error} />
                                     <div className="field">
@@ -95,9 +95,9 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                             disabled={ !this.session.isAdmin() }
                                             value={ this.state.invitation }
                                             onChange={(e) => this.setState({ invitation: e.currentTarget.value })}/>
-                                        <p className="info">
+                                        <div className="info">
                                             <p>This is your customized message to invite visitors to share their ideas and suggestions.</p>
-                                        </p>
+                                        </div>
                                     </div>
                                     {
                                         this.session.isAdmin() &&

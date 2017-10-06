@@ -16,8 +16,8 @@ export class SignUpPage extends Page {
   @findBy('#fdr-signup-page .button.facebook')
   public FacebookSignIn: Button;
 
-  @findBy('#fdr-signup-page .form #name')
-  public Name: TextInput;
+  @findBy('#fdr-signup-page .form #tenantName')
+  public TenantName: TextInput;
 
   @findBy('#fdr-signup-page .form #subdomain')
   public Subdomain: TextInput;
@@ -43,7 +43,7 @@ export class SignUpPage extends Page {
   }
 
   public async signUpAs(name: string, subdomain: string): Promise<void> {
-    await this.Name.type(name);
+    await this.TenantName.type(name);
     await this.Subdomain.type(subdomain);
     await this.browser.wait(elementIsVisible(() => this.SubdomainOk));
     await this.Confirm.click();
