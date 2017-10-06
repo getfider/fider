@@ -11,17 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/storage"
 )
-
-// AppServices holds reference to all Fider services
-type AppServices struct {
-	OAuth    oauth.Service
-	User     storage.User
-	Tenant   storage.Tenant
-	Idea     storage.Idea
-	Settings *models.AppSettings
-}
 
 func initEmailer() email.Sender {
 	if env.IsDefined("MAILGUN_API") {
