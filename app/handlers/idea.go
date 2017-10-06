@@ -106,13 +106,7 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		ideaNumber, err := c.ParamAsInt("number")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		ideas := c.Services().Ideas
-		_, err = ideas.AddComment(ideaNumber, input.Model.Content, c.User().ID)
+		_, err := c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()
@@ -132,13 +126,7 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		ideaNumber, err := c.ParamAsInt("number")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		ideas := c.Services().Ideas
-		err = ideas.SetResponse(ideaNumber, input.Model.Text, c.User().ID, input.Model.Status)
+		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.NotFound()

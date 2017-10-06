@@ -31,10 +31,6 @@ func (input *CreateTenant) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-	input.Model.Name = strings.Trim(input.Model.Name, " ")
-	input.Model.Email = strings.ToLower(strings.Trim(input.Model.Email, " "))
-	input.Model.TenantName = strings.Trim(input.Model.TenantName, " ")
-	input.Model.Subdomain = strings.ToLower(strings.Trim(input.Model.Subdomain, " "))
 
 	var err error
 	if input.Model.Name == "" && input.Model.Email == "" {
@@ -101,10 +97,6 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User) bool {
 // Validate is current model is valid
 func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
-
-	input.Model.Title = strings.Trim(input.Model.Title, " ")
-	input.Model.Invitation = strings.Trim(input.Model.Invitation, " ")
-	input.Model.WelcomeMessage = strings.Trim(input.Model.WelcomeMessage, " ")
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")

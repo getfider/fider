@@ -22,6 +22,7 @@ type Engine struct {
 	mux      *httprouter.Router
 	logger   log.Logger
 	renderer *Renderer
+	binder   *DefaultBinder
 }
 
 //New creates a new Engine
@@ -31,6 +32,7 @@ func New(settings *models.AppSettings) *Engine {
 		mux:      httprouter.New(),
 		logger:   logger,
 		renderer: NewRenderer(settings, logger),
+		binder:   NewDefaultBinder(),
 	}
 
 	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {
@@ -60,11 +62,7 @@ func (e *Engine) Start(address string) {
 }
 
 //NewContext creates and return a new context
-func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, ps httprouter.Params) Context {
-	params := make(StringMap, 0)
-	for _, p := range ps {
-		params[p.Key] = p.Value
-	}
+func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
 	return Context{
 		engine: e,
 		res:    res,
@@ -124,8 +122,14 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 		next = g.middlewares[i](next)
 	}
 	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		ctx := g.engine.NewContext(res, req, ps)
-		next(ctx)
+		params := make(StringMap, 0)
+		for _, p := range ps {
+			params[p.Key] = p.Value
+		}
+		ctx := g.engine.NewContext(res, req, params)
+		if err := next(ctx); err != nil {
+			ctx.Failure(err)
+		}
 	}
 	return h
 }

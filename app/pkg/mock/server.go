@@ -14,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/jmoiron/jsonq"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -31,7 +30,7 @@ func createServer(services *app.Services) *Server {
 
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
-	context := engine.NewContext(recorder, request, make([]httprouter.Param, 0))
+	context := engine.NewContext(recorder, request, make(web.StringMap, 0))
 	context.SetServices(services)
 
 	return &Server{
