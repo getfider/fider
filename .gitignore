@@ -3,7 +3,6 @@ tmp/
 dist/
 output/
 node_modules/
-*.coverprofile
 .vscode/
 
 fider
@@ -18,7 +17,5 @@ profile.out
 debug
 debug.test
 .DS_Store
-.cover
 cover.out
 coverage.tmp
-coverage.txt
