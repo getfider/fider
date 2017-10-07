@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: fider_test-pw
 
 build-assets:
-  box: node:8.1
+  box: node:8.6
   steps:
     - npm-install
 
@@ -28,7 +28,7 @@ test:
   steps:
     # Get dependencies
     - script:
-        name: get dotenv
+        name: get dependencies
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
 
@@ -48,18 +48,11 @@ coverage:
   box: golang:1.9
   base-path: /go/src/github.com/getfider/fider
   steps:
-    # Install jq
-    - script:
-        name: install jq
-        code: |
-          curl -L http://stedolan.github.io/jq/download/linux64/jq -o /usr/local/bin/jq
-          chmod +x /usr/local/bin/jq
     # Get dependencies
     - script:
         name: get dependencies
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
-          go get github.com/wadey/gocovmerge
 
     # Publish to codecov.io
     - script:

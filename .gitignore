@@ -3,7 +3,6 @@ tmp/
 dist/
 output/
 node_modules/
-*.coverprofile
 .vscode/
 
 fider
@@ -14,10 +13,9 @@ gin-bin.exe~
 .env
 npm-debug.log
 
-coverage.txt
 profile.out
 debug
 debug.test
 .DS_Store
-.cover
 cover.out
+coverage.tmp

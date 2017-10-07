@@ -10,7 +10,9 @@ test:
 	godotenv -f ${ENV_FILE} go test ./... -cover -p=1
 
 coverage:
-	godotenv -f ${ENV_FILE} ./cover.sh $$(go list ./... | grep -v /vendor/)
+	echo 'mode: atomic' > cover.out
+	go list ./... | xargs -n1 -I{} sh -c 'godotenv -f ${ENV_FILE} go test -covermode=atomic -coverpkg=./... -coverprofile=coverage.tmp {} && tail -n +2 coverage.tmp >> cover.out'
+	rm coverage.tmp
 
 build:
 	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o fider .
