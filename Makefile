@@ -10,7 +10,7 @@ test:
 	godotenv -f ${ENV_FILE} go test ./... -cover -p=1
 
 coverage:
-	godotenv -f ${ENV_FILE} ./cover.sh $$(go list ./... | grep -v /vendor/)
+	godotenv -f ${ENV_FILE} ./cover.sh
 
 build:
 	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o fider .
