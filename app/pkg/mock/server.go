@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -12,8 +11,8 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/jmoiron/jsonq"
 )
 
 // Server is a HTTP server wrapper for testing purpose
@@ -93,7 +92,7 @@ func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecord
 }
 
 // ExecuteAsJSON given handler and return json response
-func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.JsonQuery) {
+func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.Query) {
 	code, response := s.Execute(handler)
 	return code, toJSONQuery(response)
 }
@@ -113,15 +112,15 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 }
 
 // ExecutePostAsJSON executes given handler as POST and return json response
-func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.JsonQuery) {
+func (s *Server) ExecutePostAsJSON(handler web.HandlerFunc, body string) (int, *jsonq.Query) {
 	code, response := s.ExecutePost(handler, body)
 	return code, toJSONQuery(response)
 }
 
-func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.JsonQuery {
-	var data interface{}
-	decoder := json.NewDecoder(response.Body)
-	decoder.Decode(&data)
-	query := jsonq.NewQuery(data)
-	return query
+func toJSONQuery(response *httptest.ResponseRecorder) *jsonq.Query {
+	b, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+	return jsonq.New(string(b))
 }
