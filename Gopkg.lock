@@ -38,12 +38,6 @@
   version = "v1.1.1"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/jmoiron/jsonq"
-  packages = ["."]
-  revision = "e874b168d07ecc7808bc950a17998a8aa3141d82"
-
-[[projects]]
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
   revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
@@ -106,6 +100,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "73b06db72d4552f552bd4826e1c039c7f5798e375b38dcfe0623cab466a46d5f"
+  inputs-digest = "198beeaa534bac7c24eacfcfe544c93b2213b6e8e40fbf6b25332383eac38961"
   solver-name = "gps-cdcl"
   solver-version = 1

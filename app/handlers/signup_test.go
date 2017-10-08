@@ -67,8 +67,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	code, response := server.WithParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).To(Equal(200))
-	_, err := response.String("message")
-	Expect(err).NotTo(BeNil())
+	Expect(response.Contains("message")).To(BeFalse())
 }
 
 func TestCreateTenantHandler_EmptyInput(t *testing.T) {
@@ -122,8 +121,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	)
 
 	Expect(code).To(Equal(200))
-	_, err := response.String("token")
-	Expect(err).NotTo(BeNil())
+	Expect(response.Contains("token")).To(BeFalse())
 
 	tenant, err := services.Tenants.GetByDomain("mycompany")
 
