@@ -10,6 +10,10 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+var (
+	minSize = 1024
+)
+
 type gzipResponseWriter struct {
 	code     int
 	response http.ResponseWriter
@@ -45,7 +49,7 @@ func (w *gzipResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (w *gzipResponseWriter) Flush() {
-	if len(w.buffer) >= 1024 {
+	if len(w.buffer) >= minSize {
 		w.Header().Del("Content-Length")
 		w.Header().Set("Content-Encoding", "gzip")
 		w.response.WriteHeader(w.code)
