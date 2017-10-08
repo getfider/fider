@@ -24,9 +24,8 @@ func NewDefaultBinder() *DefaultBinder {
 
 //Bind request data to object i
 func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
-	req := c.Request()
-	if req.Method == http.MethodPost {
-		if err := json.NewDecoder(req.Body).Decode(target); err != nil {
+	if c.Request.Method == http.MethodPost {
+		if err := json.NewDecoder(c.Request.Body).Decode(target); err != nil {
 			return err
 		}
 	}

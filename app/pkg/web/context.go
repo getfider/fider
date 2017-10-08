@@ -44,13 +44,14 @@ var (
 	servicesContextKey     = preffixKey + "SERVICES"
 )
 
+//Context shared between http pipeline
 type Context struct {
-	engine *Engine
-	res    http.ResponseWriter
-	req    *http.Request
-	logger log.Logger
-	params StringMap
-	store  Map
+	Response http.ResponseWriter
+	Request  *http.Request
+	engine   *Engine
+	logger   log.Logger
+	params   StringMap
+	store    Map
 }
 
 //Tenant returns current tenant
@@ -97,7 +98,7 @@ func (ctx *Context) IsAuthenticated() bool {
 
 //IsAjax returns true if request is AJAX
 func (ctx *Context) IsAjax() bool {
-	return strings.Contains(ctx.Request().Header.Get("Accept"), "application/json")
+	return strings.Contains(ctx.Request.Header.Get("Accept"), "application/json")
 }
 
 //NotFound returns a 404 page
@@ -243,10 +244,10 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 //BaseURL returns base URL as string
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
-	if ctx.Request().TLS != nil {
+	if ctx.Request.TLS != nil {
 		protocol = "https"
 	}
-	return protocol + "://" + ctx.req.Host
+	return protocol + "://" + ctx.Request.Host
 }
 
 //TenantBaseURL returns base URL for a given tenant
@@ -256,7 +257,7 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	}
 
 	protocol := "http"
-	if ctx.req.TLS != nil {
+	if ctx.Request.TLS != nil {
 		protocol = "https"
 	}
 	return protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()
@@ -278,7 +279,7 @@ func (ctx *Context) AuthEndpoint() string {
 
 //QueryParam returns querystring parameter for given key
 func (ctx *Context) QueryParam(key string) string {
-	return ctx.req.URL.Query().Get(key)
+	return ctx.Request.URL.Query().Get(key)
 }
 
 //Param returns parameter as string
@@ -319,16 +320,6 @@ func (ctx *Context) AddRenderVar(name string, value interface{}) {
 	renderVars.(Map)[name] = value
 }
 
-//Request returns current request
-func (ctx *Context) Request() *http.Request {
-	return ctx.req
-}
-
-//Response returns current response writer
-func (ctx *Context) Response() http.ResponseWriter {
-	return ctx.res
-}
-
 // Get retrieves data from the context.
 func (ctx *Context) Get(key string) interface{} {
 	return ctx.store[key]
@@ -362,37 +353,37 @@ func (ctx *Context) JSON(code int, i interface{}) error {
 }
 
 // Blob sends a blob response with status code and content type.
-func (ctx *Context) Blob(code int, contentType string, b []byte) (err error) {
-	ctx.res.Header().Set("Content-Type", contentType)
-	ctx.res.WriteHeader(code)
-	_, err = ctx.res.Write(b)
-	return
+func (ctx *Context) Blob(code int, contentType string, b []byte) error {
+	ctx.Response.Header().Set("Content-Type", contentType)
+	ctx.Response.WriteHeader(code)
+	_, err := ctx.Response.Write(b)
+	return err
 }
 
 // Cookie returns the named cookie provided in the request.
 func (ctx *Context) Cookie(name string) (*http.Cookie, error) {
-	return ctx.req.Cookie(name)
+	return ctx.Request.Cookie(name)
 }
 
 // SetCookie adds a `Set-Cookie` header in HTTP response.
 func (ctx *Context) SetCookie(cookie *http.Cookie) {
-	http.SetCookie(ctx.res, cookie)
+	http.SetCookie(ctx.Response, cookie)
 }
 
 // Cookies returns the HTTP cookies sent with the request.
 func (ctx *Context) Cookies() []*http.Cookie {
-	return ctx.req.Cookies()
+	return ctx.Request.Cookies()
 }
 
 // NoContent sends a response with no body and a status code.
 func (ctx *Context) NoContent(code int) error {
-	ctx.res.WriteHeader(code)
+	ctx.Response.WriteHeader(code)
 	return nil
 }
 
 // Redirect redirects the request to a provided URL with status code.
 func (ctx *Context) Redirect(code int, url string) error {
-	ctx.res.Header().Set("Location", url)
-	ctx.res.WriteHeader(code)
+	ctx.Response.Header().Set("Location", url)
+	ctx.Response.WriteHeader(code)
 	return nil
 }

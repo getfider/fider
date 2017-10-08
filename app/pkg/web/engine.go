@@ -19,20 +19,22 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
 //Engine is our web engine wrapper
 type Engine struct {
-	mux      *httprouter.Router
-	logger   log.Logger
-	renderer *Renderer
-	binder   *DefaultBinder
+	mux         *httprouter.Router
+	logger      log.Logger
+	renderer    *Renderer
+	binder      *DefaultBinder
+	middlewares []MiddlewareFunc
 }
 
 //New creates a new Engine
 func New(settings *models.AppSettings) *Engine {
 	logger := NewLogger()
 	router := &Engine{
-		mux:      httprouter.New(),
-		logger:   logger,
-		renderer: NewRenderer(settings, logger),
-		binder:   NewDefaultBinder(),
+		mux:         httprouter.New(),
+		logger:      logger,
+		renderer:    NewRenderer(settings, logger),
+		binder:      NewDefaultBinder(),
+		middlewares: make([]MiddlewareFunc, 0),
 	}
 
 	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {
@@ -64,11 +66,11 @@ func (e *Engine) Start(address string) {
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
 	return Context{
-		engine: e,
-		res:    res,
-		req:    req,
-		logger: e.logger,
-		params: params,
+		Response: res,
+		Request:  req,
+		engine:   e,
+		logger:   e.logger,
+		params:   params,
 	}
 }
 
@@ -81,9 +83,14 @@ func (e *Engine) Logger() log.Logger {
 func (e *Engine) Group() *Group {
 	g := &Group{
 		engine:      e,
-		middlewares: make([]MiddlewareFunc, 0),
+		middlewares: e.middlewares,
 	}
 	return g
+}
+
+//Use adds a middleware to the root engine
+func (e *Engine) Use(middleware MiddlewareFunc) {
+	e.middlewares = append(e.middlewares, middleware)
 }
 
 //Group is our router group wrapper
@@ -136,7 +143,6 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 
 // Static return files from given folder
 func (g *Group) Static(prefix, root string) {
-
 	fi, err := os.Stat(root)
 	if err != nil {
 		panic(fmt.Sprintf("Path '%s' not found", root))
@@ -148,14 +154,14 @@ func (g *Group) Static(prefix, root string) {
 			path := root + c.Param("filepath")
 			fi, err := os.Stat(path)
 			if err == nil && !fi.IsDir() {
-				http.ServeFile(c.Response(), c.Request(), path)
+				http.ServeFile(c.Response, c.Request, path)
 				return nil
 			}
 			return c.NotFound()
 		}
 	} else {
 		h = func(c Context) error {
-			http.ServeFile(c.Response(), c.Request(), root)
+			http.ServeFile(c.Response, c.Request, root)
 			return nil
 		}
 	}

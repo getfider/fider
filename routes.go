@@ -36,6 +36,8 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	db.Migrate()
 	emailer := initEmailer()
 
+	r.Use(middlewares.Compress())
+
 	assets := r.Group()
 	{
 		assets.Use(middlewares.OneYearCache())

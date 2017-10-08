@@ -43,7 +43,7 @@ func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			tenants := c.Services().Tenants
-			hostname := stripPort(c.Request().Host)
+			hostname := stripPort(c.Request.Host)
 
 			// If no tenant is specified, redirect user to getfider.com
 			// This is only vadid for fider.io hosting
@@ -85,8 +85,8 @@ func HostChecker(baseURL string) web.MiddlewareFunc {
 				return c.Failure(err)
 			}
 
-			if c.Request().Host != u.Host {
-				c.Logger().Errorf("%s is not valid for this operation. Only %s is allowed.", c.Request().Host, u.Host)
+			if c.Request.Host != u.Host {
+				c.Logger().Errorf("%s is not valid for this operation. Only %s is allowed.", c.Request.Host, u.Host)
 				return c.NoContent(http.StatusBadRequest)
 			}
 
