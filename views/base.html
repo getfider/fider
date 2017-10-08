@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.css" />
     <link rel="stylesheet" href="/assets/css/{{ .__StyleBundle }}" />
     <title>{{ template "title" .}}</title>
     <meta property="og:title" content="{{template "title" .}}" />
@@ -30,8 +30,8 @@
   {{ end }}
   {{template "content" .}}
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.13/dist/semantic.min.js"></script>
   <script src="/assets/js/{{ .__JavaScriptBundle }}"></script>
   <script type="text/javascript">
     {{template "javascript" .}}
