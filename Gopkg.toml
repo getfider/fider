@@ -30,10 +30,6 @@
   version = "1.0.3"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/jmoiron/jsonq"
-
-[[constraint]]
   name = "github.com/labstack/echo"
   version = "=3.2.3"
 
