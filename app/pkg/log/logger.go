@@ -26,6 +26,7 @@ type Logger interface {
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
+	Error(err error)
 }
 
 // ConsoleLogger output messages to console
@@ -61,6 +62,11 @@ func (l *ConsoleLogger) Warnf(format string, args ...interface{}) {
 // Errorf logs a ERROR message
 func (l *ConsoleLogger) Errorf(format string, args ...interface{}) {
 	l.log(ERROR, format, args...)
+}
+
+// Error logs a ERROR message
+func (l *ConsoleLogger) Error(err error) {
+	l.log(ERROR, err.Error())
 }
 
 func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
