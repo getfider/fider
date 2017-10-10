@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/getfider/fider/app/handlers"
@@ -123,7 +124,7 @@ func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 		WithParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
-	Expect(code).To(Equal(401))
+	Expect(code).To(Equal(http.StatusForbidden))
 }
 
 func TestPostCommentHandler(t *testing.T) {

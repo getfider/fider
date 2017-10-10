@@ -26,6 +26,7 @@ func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
 	renderer.templates = make(map[string]*template.Template)
 
 	renderer.add("index.html")
+	renderer.add("403.html")
 	renderer.add("404.html")
 	renderer.add("500.html")
 
