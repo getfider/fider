@@ -101,6 +101,14 @@ func (ctx *Context) IsAjax() bool {
 	return strings.Contains(ctx.Request.Header.Get("Accept"), "application/json")
 }
 
+//Unauthorized returns a 403 response
+func (ctx *Context) Unauthorized() error {
+	if ctx.IsAjax() {
+		return ctx.JSON(http.StatusForbidden, Map{})
+	}
+	return ctx.Render(http.StatusForbidden, "403.html", Map{})
+}
+
 //NotFound returns a 404 page
 func (ctx *Context) NotFound() error {
 	return ctx.Render(http.StatusNotFound, "404.html", Map{})
@@ -127,11 +135,6 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 		"message":  result.Messages,
 		"failures": result.Failures,
 	})
-}
-
-//Unauthorized returns a 401 response
-func (ctx *Context) Unauthorized() error {
-	return ctx.JSON(http.StatusUnauthorized, Map{})
 }
 
 //Ok returns 200 OK with JSON result

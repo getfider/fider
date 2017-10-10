@@ -1,0 +1,21 @@
+{{define "title"}}
+Not Authorized &middot; Fider
+{{end}}
+      
+{{define "javascript"}}{{end}}
+
+{{define "content"}}
+<div class="ui middle aligned center aligned grid failure-page">
+  <div class="column">
+    <img src="http://getfider.com/images/logo-100x100.png"/>
+    <h1>NOT AUTHORIZED</h1>
+    <p>
+      You are not authorized to view this page.
+    </p>
+
+    {{ if .tenant }}
+      <span>Take me back to <a href="{{ .baseUrl }}">{{ .tenant.Subdomain }}.fider.io</a> home page.</span>
+    {{ end }}
+  </div>
+</div>
+{{end}}

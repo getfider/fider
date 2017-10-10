@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"net/http"
-
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -11,7 +9,7 @@ func IsAuthenticated() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			if c.User() == nil {
-				return c.NoContent(http.StatusForbidden)
+				return c.Unauthorized()
 			}
 			return next(c)
 		}
@@ -28,7 +26,7 @@ func IsAuthorized(roles ...int) web.MiddlewareFunc {
 					return next(c)
 				}
 			}
-			return c.NoContent(http.StatusForbidden)
+			return c.Unauthorized()
 		}
 	}
 }
