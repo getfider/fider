@@ -55,12 +55,14 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 			}()
 
 			err = next(c)
+			c.Logger().Debugf("Finished Request %s", path)
 
 			if err != nil {
+				c.Logger().Debugf("Transaction rolled back")
 				trx.Rollback()
 				return err
 			}
-			c.Logger().Debugf("Finished Request %s", path)
+			c.Logger().Debugf("Transaction committed")
 			return trx.Commit()
 		}
 	}

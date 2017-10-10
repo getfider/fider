@@ -134,9 +134,7 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 			params[p.Key] = p.Value
 		}
 		ctx := g.engine.NewContext(res, req, params)
-		if err := next(ctx); err != nil {
-			ctx.Failure(err)
-		}
+		next(ctx)
 	}
 	return h
 }
