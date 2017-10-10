@@ -108,7 +108,7 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	ctx.Logger().Error(err)
+	ctx.Logger().Errorf("%s", log.Red(err.Error()))
 	return ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 }
 
