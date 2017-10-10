@@ -58,8 +58,12 @@ func MultiTenant() web.MiddlewareFunc {
 				return next(c)
 			}
 
-			c.Logger().Debugf("Tenant not found for '%s'.", hostname)
-			return c.NotFound()
+			if err == app.ErrNotFound {
+				c.Logger().Debugf("Tenant not found for '%s'.", hostname)
+				return c.NotFound()
+			}
+
+			return c.Failure(err)
 		}
 	}
 }

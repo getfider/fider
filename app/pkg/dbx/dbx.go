@@ -158,21 +158,21 @@ type Trx struct {
 // QueryRow the database with given SQL command and returns only one row
 func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
 	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", command, args)
+	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
 	return trx.tx.QueryRow(command, args...)
 }
 
 // Query the database with given SQL command
 func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
 	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", command, args)
+	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
 	return trx.tx.Query(command, args...)
 }
 
 // Execute given SQL command
 func (trx Trx) Execute(command string, args ...interface{}) error {
 	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", command, args)
+	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
 	_, err := trx.tx.Exec(command, args...)
 	if err != nil {
 		return err

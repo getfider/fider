@@ -64,7 +64,7 @@ func (l *ConsoleLogger) Errorf(format string, args ...interface{}) {
 	l.log(ERROR, format, args...)
 }
 
-// Errorf logs a ERROR message
+// Error logs a ERROR message
 func (l *ConsoleLogger) Error(err error) {
 	l.log(ERROR, err.Error())
 }
@@ -85,14 +85,14 @@ func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
 func levelString(level Level) string {
 	switch level {
 	case DEBUG:
-		return "DEBUG"
+		return Bold(Magenta("DEBUG"))
 	case INFO:
-		return "INFO"
+		return Bold(Blue("INFO"))
 	case WARN:
-		return "WARN"
+		return Bold(Yellow("WARN"))
 	case ERROR:
-		return "ERROR"
+		return Bold(Red("ERROR"))
 	default:
-		return "???"
+		return Bold(Red("???"))
 	}
 }
