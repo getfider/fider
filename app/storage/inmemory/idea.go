@@ -9,8 +9,17 @@ import (
 
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
-	lastID int
-	ideas  []*models.Idea
+	lastID           int
+	ideas            []*models.Idea
+	ideasSupportedBy map[int][]int
+}
+
+// NewIdeaStorage creates a new IdeaStorage
+func NewIdeaStorage() *IdeaStorage {
+	return &IdeaStorage{
+		ideas:            make([]*models.Idea, 0),
+		ideasSupportedBy: make(map[int][]int, 0),
+	}
 }
 
 // GetByID returns idea by given id
@@ -67,6 +76,7 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		},
 	}
 	s.ideas = append(s.ideas, idea)
+	s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID], idea.ID)
 	return idea, nil
 }
 
@@ -81,6 +91,7 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 	if err != nil {
 		return err
 	}
+	s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID], idea.ID)
 	idea.TotalSupporters = idea.TotalSupporters + 1
 	return nil
 }
@@ -91,6 +102,13 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 	if err != nil {
 		return err
 	}
+
+	for i, id := range s.ideasSupportedBy[userID] {
+		if id == idea.ID {
+			s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID][:i], s.ideasSupportedBy[userID][i+1:]...)
+			break
+		}
+	}
 	idea.TotalSupporters = idea.TotalSupporters - 1
 	return nil
 }
@@ -99,6 +117,7 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
 	for _, idea := range s.ideas {
 		if idea.Number == number {
+			idea.Status = status
 			idea.Response = &models.IdeaResponse{
 				Text:        text,
 				User:        &models.User{ID: userID},
@@ -111,5 +130,5 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
-	return make([]int, 0), nil
+	return s.ideasSupportedBy[userID], nil
 }

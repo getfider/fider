@@ -42,9 +42,9 @@ func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Tenants: &inmemory.TenantStorage{},
 		Users:   &inmemory.UserStorage{},
-		Ideas:   &inmemory.IdeaStorage{},
+		Ideas:   inmemory.NewIdeaStorage(),
 		OAuth:   &OAuthService{},
-		Emailer: &email.NoopSender{},
+		Emailer: email.NewNoopSender(),
 	}
 
 	if seed {

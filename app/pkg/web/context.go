@@ -116,6 +116,9 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
+	if err == app.ErrNotFound {
+		return ctx.NotFound()
+	}
 	ctx.Logger().Errorf("%s", log.Red(err.Error()))
 	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 	return err
@@ -161,13 +164,9 @@ func (ctx *Context) Render(code int, template string, data Map) error {
 	return ctx.Blob(code, HTMLContentType, buf.Bytes())
 }
 
-//SetParams sets path parameter names and values.
-func (ctx *Context) SetParams(dict StringMap) {
-	if dict == nil {
-		return
-	}
-
-	ctx.params = dict
+//AddParam add a single param to route parameters list
+func (ctx *Context) AddParam(name, value string) {
+	ctx.params[name] = value
 }
 
 //User returns authenticated user
@@ -342,11 +341,6 @@ func (ctx *Context) String(code int, text string) error {
 	return ctx.Blob(code, PlainContentType, []byte(text))
 }
 
-// HTML returns a HTML response with status code.
-func (ctx *Context) HTML(code int, html string) error {
-	return ctx.Blob(code, HTMLContentType, []byte(html))
-}
-
 // JSON returns a JSON response with status code.
 func (ctx *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
@@ -372,11 +366,6 @@ func (ctx *Context) Cookie(name string) (*http.Cookie, error) {
 // SetCookie adds a `Set-Cookie` header in HTTP response.
 func (ctx *Context) SetCookie(cookie *http.Cookie) {
 	http.SetCookie(ctx.Response, cookie)
-}
-
-// Cookies returns the HTTP cookies sent with the request.
-func (ctx *Context) Cookies() []*http.Cookie {
-	return ctx.Request.Cookies()
 }
 
 // NoContent sends a response with no body and a status code.

@@ -44,7 +44,7 @@ func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.WithParam("subdomain", "").ExecuteAsJSON(handlers.CheckAvailability())
+	code, response := server.AddParam("subdomain", "").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).To(Equal(200))
 	Expect(response.String("message")).NotTo(BeNil())
@@ -54,7 +54,7 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.WithParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
+	code, response := server.AddParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).To(Equal(200))
 	Expect(response.String("message")).NotTo(BeNil())
@@ -64,7 +64,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.WithParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
+	code, response := server.AddParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).To(Equal(200))
 	Expect(response.Contains("message")).To(BeFalse())

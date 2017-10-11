@@ -14,6 +14,11 @@ type Sender interface {
 type NoopSender struct {
 }
 
+//NewNoopSender creates a new NoopSender
+func NewNoopSender() *NoopSender {
+	return &NoopSender{}
+}
+
 //Send an e-mail
 func (s *NoopSender) Send(from, to, subject, message string) error {
 	return nil

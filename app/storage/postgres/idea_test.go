@@ -348,3 +348,23 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(dbIdea.TotalSupporters).To(Equal(1))
 }
+
+func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	idea1, _ := ideas.Add("My new idea", "with this description", 1)
+	idea2, _ := ideas.Add("My other idea", "with better description", 1)
+	ideas.AddSupporter(idea1.Number, 2)
+	ideas.AddSupporter(idea2.Number, 2)
+
+	Expect(ideas.SupportedBy(1)).To(Equal([]int{}))
+	Expect(ideas.SupportedBy(2)).To(Equal([]int{idea1.ID, idea2.ID}))
+}

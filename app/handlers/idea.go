@@ -80,9 +80,6 @@ func IdeaDetails() web.HandlerFunc {
 		ideas := c.Services().Ideas
 		idea, err := ideas.GetByNumber(number)
 		if err != nil {
-			if err == app.ErrNotFound {
-				return c.NotFound()
-			}
 			return c.Failure(err)
 		}
 
@@ -108,9 +105,6 @@ func PostComment() web.HandlerFunc {
 
 		_, err := c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
 		if err != nil {
-			if err == app.ErrNotFound {
-				return c.NotFound()
-			}
 			return c.Failure(err)
 		}
 
@@ -128,9 +122,6 @@ func SetResponse() web.HandlerFunc {
 
 		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
 		if err != nil {
-			if err == app.ErrNotFound {
-				return c.NotFound()
-			}
 			return c.Failure(err)
 		}
 

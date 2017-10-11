@@ -53,6 +53,7 @@ coverage:
         name: get dependencies
         code: |
           go get github.com/joho/godotenv/cmd/godotenv
+          go get -u github.com/dave/courtney 
 
     # Publish to codecov.io
     - script:
