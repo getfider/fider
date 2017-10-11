@@ -116,6 +116,9 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
+	if err == app.ErrNotFound {
+		return ctx.NotFound()
+	}
 	ctx.Logger().Errorf("%s", log.Red(err.Error()))
 	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 	return err
@@ -164,15 +167,6 @@ func (ctx *Context) Render(code int, template string, data Map) error {
 //AddParam add a single param to route parameters list
 func (ctx *Context) AddParam(name, value string) {
 	ctx.params[name] = value
-}
-
-//SetParams sets path parameter names and values.
-func (ctx *Context) SetParams(dict StringMap) {
-	if dict == nil {
-		return
-	}
-
-	ctx.params = dict
 }
 
 //User returns authenticated user
