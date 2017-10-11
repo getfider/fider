@@ -76,6 +76,18 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
 }
 
+func TestCallbackHandler_SignUp(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		WithURL("http://demo.test.fider.io/oauth/callback?state=http://demo.test.fider.io/signup&code=123").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io/signup?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvYXV0aC9pZCI6IkZCMTIzIiwib2F1dGgvcHJvdmlkZXIiOiJmYWNlYm9vayIsIm9hdXRoL25hbWUiOiJKb24gU25vdyIsIm9hdXRoL2VtYWlsIjoiam9uLnNub3dAZ290LmNvbSJ9.AFMEtMLxd2nAxPzMVeGVrJomn-n56WdhLvgYSmSq008"))
+}
+
 func TestCallbackHandler_NewUser(t *testing.T) {
 	RegisterTestingT(t)
 

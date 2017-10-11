@@ -44,13 +44,5 @@ func (p *OAuthService) GetProfile(authEndpoint string, provider string, code str
 		}, nil
 	}
 
-	if provider == "google" && code == "456" {
-		return &oauth.UserProfile{
-			ID:    "GO456",
-			Name:  "Bob",
-			Email: "",
-		}, nil
-	}
-
 	return nil, nil
 }

@@ -20,15 +20,6 @@ type Result struct {
 	Failures   map[string][]string
 }
 
-//AddFailure as a general message
-func (r *Result) AddFailure(message string) {
-	if r.Messages == nil {
-		r.Messages = []string{}
-	}
-	r.Messages = append(r.Messages, message)
-	r.Ok = false
-}
-
 //AddFieldFailure add failure message to specific field
 func (r *Result) AddFieldFailure(field string, messages ...string) {
 	if r.Failures == nil {
