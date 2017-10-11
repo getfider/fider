@@ -50,6 +50,55 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	Expect(response.Body.String()).To(Equal("Jon Snow"))
 }
 
+func TestJwtGetter_WithCookie_ShouldSetSupportedIdeas(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+
+	token, _ := jwt.Encode(&models.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	var ids []int
+	server.Use(middlewares.JwtGetter())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			ids = c.RenderVars()["supportedIdeas"].([]int)
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).To(Equal(http.StatusOK))
+	Expect(ids).To(Equal([]int{idea.ID}))
+}
+
+func TestJwtGetter_WithCookie_InvalidUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	token, _ := jwt.Encode(&models.FiderClaims{
+		UserID:   999,
+		UserName: "Unknown",
+	})
+
+	server.Use(middlewares.JwtGetter())
+	status, response := server.
+		OnTenant(mock.OrangeTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			if c.User() == nil {
+				return c.NoContent(http.StatusNoContent)
+			}
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).To(Equal(http.StatusNoContent))
+	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(web.CookieAuthName + "=;"))
+}
+
 func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterTestingT(t)
 

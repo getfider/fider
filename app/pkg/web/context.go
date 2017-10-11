@@ -342,11 +342,6 @@ func (ctx *Context) String(code int, text string) error {
 	return ctx.Blob(code, PlainContentType, []byte(text))
 }
 
-// HTML returns a HTML response with status code.
-func (ctx *Context) HTML(code int, html string) error {
-	return ctx.Blob(code, HTMLContentType, []byte(html))
-}
-
 // JSON returns a JSON response with status code.
 func (ctx *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
@@ -372,11 +367,6 @@ func (ctx *Context) Cookie(name string) (*http.Cookie, error) {
 // SetCookie adds a `Set-Cookie` header in HTTP response.
 func (ctx *Context) SetCookie(cookie *http.Cookie) {
 	http.SetCookie(ctx.Response, cookie)
-}
-
-// Cookies returns the HTTP cookies sent with the request.
-func (ctx *Context) Cookies() []*http.Cookie {
-	return ctx.Request.Cookies()
 }
 
 // NoContent sends a response with no body and a status code.

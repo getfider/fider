@@ -285,6 +285,7 @@ func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	//TODO: check this
 	//Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
 }
 
