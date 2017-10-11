@@ -283,10 +283,11 @@ func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 		WithURL("http://demo.test.fider.io/signup/verify?k=1234567890").
 		Execute(handlers.VerifySignUpKey())
 
+	tenant, _ := services.Tenants.GetByDomain("demo")
+
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(tenant.Status).To(Equal(models.TenantActive))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
-	//TODO: check this
-	//Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
 }
 
 func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {

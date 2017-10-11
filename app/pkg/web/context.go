@@ -161,6 +161,11 @@ func (ctx *Context) Render(code int, template string, data Map) error {
 	return ctx.Blob(code, HTMLContentType, buf.Bytes())
 }
 
+//AddParam add a single param to route parameters list
+func (ctx *Context) AddParam(name, value string) {
+	ctx.params[name] = value
+}
+
 //SetParams sets path parameter names and values.
 func (ctx *Context) SetParams(dict StringMap) {
 	if dict == nil {

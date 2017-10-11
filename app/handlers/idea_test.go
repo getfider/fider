@@ -27,7 +27,7 @@ func TestDetailsHandler(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		Execute(handlers.IdeaDetails())
 
 	Expect(code).To(Equal(200))
@@ -40,7 +40,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithParam("number", "99").
+		AddParam("number", "99").
 		Execute(handlers.IdeaDetails())
 
 	Expect(code).To(Equal(404))
@@ -85,7 +85,7 @@ func TestUpdateIdeaHandler_IdeaOwner(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
 	idea, _ = services.Ideas.GetByNumber(idea.Number)
@@ -103,7 +103,7 @@ func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
 	idea, _ = services.Ideas.GetByNumber(idea.Number)
@@ -121,7 +121,7 @@ func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
 
 	Expect(code).To(Equal(http.StatusForbidden))
@@ -136,7 +136,7 @@ func TestPostCommentHandler(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		ExecutePost(handlers.PostComment(), `{ "content": "This is a comment!" }`)
 
 	Expect(code).To(Equal(200))
@@ -151,7 +151,7 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithParam("number", idea.Number).
+		AddParam("number", idea.Number).
 		ExecutePost(handlers.PostComment(), `{ "content": "" }`)
 
 	Expect(code).To(Equal(400))
@@ -167,7 +167,7 @@ func TestAddSupporterHandler(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithParam("number", second.Number).
+		AddParam("number", second.Number).
 		Execute(handlers.AddSupporter())
 
 	first, _ = services.Ideas.GetByNumber(1)
@@ -185,7 +185,7 @@ func TestAddSupporterHandler_InvalidIdea(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithParam("number", 999).
+		AddParam("number", 999).
 		Execute(handlers.AddSupporter())
 
 	Expect(code).To(Equal(404))
@@ -202,7 +202,7 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithParam("number", idea.ID).
+		AddParam("number", idea.ID).
 		Execute(handlers.RemoveSupporter())
 
 	idea, _ = services.Ideas.GetByNumber(idea.Number)

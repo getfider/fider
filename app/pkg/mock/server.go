@@ -57,9 +57,9 @@ func (s *Server) AsUser(user *models.User) *Server {
 	return s
 }
 
-// WithParam set current context params
-func (s *Server) WithParam(name string, value interface{}) *Server {
-	s.context.SetParams(web.StringMap{name: fmt.Sprintf("%v", value)})
+// AddParam to current context route parameters
+func (s *Server) AddParam(name string, value interface{}) *Server {
+	s.context.AddParam(name, fmt.Sprintf("%v", value))
 	return s
 }
 
