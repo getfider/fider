@@ -44,7 +44,7 @@ func createServices(seed bool) *app.Services {
 		Users:   &inmemory.UserStorage{},
 		Ideas:   inmemory.NewIdeaStorage(),
 		OAuth:   &OAuthService{},
-		Emailer: &email.NoopSender{},
+		Emailer: email.NewNoopSender(),
 	}
 
 	if seed {
