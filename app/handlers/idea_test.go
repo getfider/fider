@@ -1,8 +1,11 @@
 package handlers_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
+
+	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -209,4 +212,44 @@ func TestRemoveSupporterHandler(t *testing.T) {
 
 	Expect(code).To(Equal(200))
 	Expect(idea.TotalSupporters).To(Equal(1))
+}
+
+func TestSetResponseHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.ID).
+		ExecutePost(handlers.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.IdeaCompleted))
+
+	idea, _ = services.Ideas.GetByNumber(idea.Number)
+
+	Expect(code).To(Equal(http.StatusOK))
+	Expect(idea.Status).To(Equal(models.IdeaCompleted))
+	Expect(idea.Response.Text).To(Equal("Done!"))
+	Expect(idea.Response.User.ID).To(Equal(mock.JonSnow.ID))
+}
+
+func TestSetResponseHandler_Unauthorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", idea.ID).
+		ExecutePost(handlers.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.IdeaCompleted))
+
+	idea, _ = services.Ideas.GetByNumber(idea.Number)
+
+	Expect(code).To(Equal(http.StatusForbidden))
+	Expect(idea.Status).To(Equal(models.IdeaNew))
 }

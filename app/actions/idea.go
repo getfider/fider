@@ -21,7 +21,7 @@ func (input *CreateNewIdea) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *CreateNewIdea) IsAuthorized(user *models.User) bool {
-	return true
+	return user != nil
 }
 
 // Validate is current model is valid
@@ -52,7 +52,7 @@ func (input *AddNewComment) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *AddNewComment) IsAuthorized(user *models.User) bool {
-	return true
+	return user != nil
 }
 
 // Validate is current model is valid
@@ -79,7 +79,7 @@ func (input *SetResponse) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *SetResponse) IsAuthorized(user *models.User) bool {
-	return true
+	return user != nil && user.IsStaff()
 }
 
 // Validate is current model is valid
