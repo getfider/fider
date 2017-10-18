@@ -55,7 +55,7 @@ export class Header extends React.Component<{}, {}> {
                     { this.tenant.name }
                   </a>
                   <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
-                    { this.user && <Gravatar name={this.user.name} hash={this.user.gravatar} /> }
+                    { this.user && <Gravatar user={ this.user } /> }
                     { !this.user && 'Sign in' } { this.user && <i className="dropdown icon"></i> }
                     { items }
                   </div>

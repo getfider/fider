@@ -87,11 +87,18 @@ code {
   }
 }
 
-.fdr-avatar,
-.ui.menu .item>img:not(.ui) {
+.fdr-avatar {
   border-radius: 50%;
-  width: 30px;
+  width: 40px;
   vertical-align: middle;
+  padding: 1px;
+  &.staff {
+    border: 1px solid $admin-color;
+  }
+}
+
+.ui.menu .item>img:not(.ui) {
+  width: 30px;
 }
 
 .no-margin {

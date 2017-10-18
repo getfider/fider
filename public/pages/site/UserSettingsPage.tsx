@@ -48,7 +48,7 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
                       <div className="ui form">
                         <div className="field">
                             <label htmlFor="email">Avatar</label>
-                            <p><Gravatar hash={ this.user.gravatar } name={ this.user.name } /></p>
+                            <p><Gravatar user={ this.user } /></p>
                             <div className="info">
                                 <p>
                                   We use <a href="https://en.gravatar.com/" target="blank">Gravatar</a> to display profile avatars. <br/>
