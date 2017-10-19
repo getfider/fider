@@ -141,7 +141,7 @@ func TestUserStorage_Register(t *testing.T) {
 		Tenant: &models.Tenant{
 			ID: 1,
 		},
-		Role: models.RoleMember,
+		Role: models.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
@@ -155,7 +155,7 @@ func TestUserStorage_Register(t *testing.T) {
 	user, err = users.GetByEmail(1, "rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(5)))
-	Expect(user.Role).To(Equal(models.RoleMember))
+	Expect(user.Role).To(Equal(models.RoleCollaborator))
 	Expect(user.Name).To(Equal("Rob Stark"))
 	Expect(user.Email).To(Equal("rob.stark@got.com"))
 }
@@ -178,7 +178,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		Tenant: &models.Tenant{
 			ID: 3,
 		},
-		Role: models.RoleMember,
+		Role: models.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",

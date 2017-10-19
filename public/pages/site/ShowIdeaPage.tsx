@@ -79,7 +79,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                       </div>
 
                       {
-                        this.session.isStaff() &&
+                        this.session.isCollaborator() &&
                         <div className="four wide column">
                           <span className="subtitle">Actions</span>
                           <br /><br />

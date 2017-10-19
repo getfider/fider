@@ -89,16 +89,12 @@ code {
 
 .fdr-avatar {
   border-radius: 50%;
-  width: 40px;
+  width: 30px;
   vertical-align: middle;
   padding: 1px;
   &.staff {
     border: 1px solid $admin-color;
   }
-}
-
-.ui.menu .item>img:not(.ui) {
-  width: 30px;
 }
 
 .no-margin {

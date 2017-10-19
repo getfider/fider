@@ -13,12 +13,12 @@ export const Gravatar = (props: GravatarProps) => {
   const name = props.name ? props.name : props.user ? props.user.name : '';
   const hash = props.email ? md5(props.email) : props.user ? props.user.gravatar : '';
   const fallback = `${getBaseUrl()}/avatars/50/${name}`;
-  const isStaff = props.user ? props.user.role >= 2 : false;
+  const isCollaborator = props.user ? props.user.role >= 2 : false;
 
   let element: any;
   return <img ref={(e) => element = e }
               onError={() => { element.src = fallback; }}
-              className={`fdr-avatar ${isStaff && 'staff'}`}
+              className={`fdr-avatar ${isCollaborator && 'staff'}`}
               title={ name }
               src={ `https://www.gravatar.com/avatar/${hash}?d=${encodeURIComponent(fallback)}` }/>;
 };

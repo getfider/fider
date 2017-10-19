@@ -106,7 +106,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 
-			private.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
+			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
 		}
@@ -114,7 +114,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		admin := page.Group()
 		{
 			admin.Use(middlewares.IsAuthenticated())
-			admin.Use(middlewares.IsAuthorized(models.RoleMember, models.RoleAdministrator))
+			admin.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 			admin.Get("/admin", func(ctx web.Context) error {
 				return ctx.Page(web.Map{})

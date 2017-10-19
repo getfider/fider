@@ -15,7 +15,7 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
+	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
 	status, _ := server.AsUser(mock.JonSnow).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -27,7 +27,7 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleMember))
+	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
 	status, _ := server.AsUser(mock.AryaStark).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})

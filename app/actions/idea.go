@@ -79,7 +79,7 @@ func (input *SetResponse) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *SetResponse) IsAuthorized(user *models.User) bool {
-	return user != nil && user.IsStaff()
+	return user != nil && user.IsCollaborator()
 }
 
 // Validate is current model is valid

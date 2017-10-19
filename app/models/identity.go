@@ -38,8 +38,8 @@ type User struct {
 var (
 	//RoleVisitor is the basic role for every user
 	RoleVisitor = 1
-	//RoleMember has limited access to administrative console
-	RoleMember = 2
+	//RoleCollaborator has limited access to administrative console
+	RoleCollaborator = 2
 	//RoleAdministrator has full access to administrative console
 	RoleAdministrator = 3
 )
@@ -54,9 +54,14 @@ func (u *User) HasProvider(provider string) bool {
 	return false
 }
 
-//IsStaff returns true if user has special permissions
-func (u *User) IsStaff() bool {
-	return u.Role >= RoleMember
+// IsCollaborator returns true if user has special permissions
+func (u *User) IsCollaborator() bool {
+	return u.Role == RoleCollaborator || u.Role == RoleAdministrator
+}
+
+// IsAdministrator returns true if user is administrator
+func (u *User) IsAdministrator() bool {
+	return u.Role == RoleAdministrator
 }
 
 //UserProvider represents the relashionship between an User and an Authentication provide
