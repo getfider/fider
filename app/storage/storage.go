@@ -29,6 +29,7 @@ type User interface {
 	Register(user *models.User) error
 	RegisterProvider(userID int, provider *models.UserProvider) error
 	Update(userID int, settings *models.UpdateUserSettings) error
+	ChangeRole(userID int, role models.Role) error
 }
 
 // Tenant contains read and write operations for tenants

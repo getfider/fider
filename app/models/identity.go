@@ -31,17 +31,20 @@ type User struct {
 	Email     string          `json:"-"`
 	Gravatar  string          `json:"gravatar"`
 	Tenant    *Tenant         `json:"-"`
-	Role      int             `json:"role"`
+	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"-"`
 }
 
-var (
+//Role is the role of a user inside a tenant
+type Role int
+
+const (
 	//RoleVisitor is the basic role for every user
-	RoleVisitor = 1
+	RoleVisitor Role = 1
 	//RoleCollaborator has limited access to administrative console
-	RoleCollaborator = 2
+	RoleCollaborator Role = 2
 	//RoleAdministrator has full access to administrative console
-	RoleAdministrator = 3
+	RoleAdministrator Role = 3
 )
 
 //HasProvider returns true if current user has registered with given provider
@@ -132,4 +135,10 @@ type CompleteProfile struct {
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
 	Name string `json:"name"`
+}
+
+// ChangeUserRole is the input model change role of an user
+type ChangeUserRole struct {
+	UserID int  `json:"user_id"`
+	Role   Role `json:"role"`
 }

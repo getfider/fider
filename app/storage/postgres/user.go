@@ -34,7 +34,7 @@ func (u *dbUser) toModel() *models.User {
 		Email:     u.Email.String,
 		Gravatar:  fmt.Sprintf("%x", md5.Sum([]byte(u.Email.String))),
 		Tenant:    u.Tenant.toModel(),
-		Role:      int(u.Role.Int64),
+		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
 	}
 
@@ -50,12 +50,13 @@ func (u *dbUser) toModel() *models.User {
 
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
-	trx *dbx.Trx
+	tenant *models.Tenant
+	trx    *dbx.Trx
 }
 
 // NewUserStorage creates a new UserStorage
-func NewUserStorage(trx *dbx.Trx) *UserStorage {
-	return &UserStorage{trx: trx}
+func NewUserStorage(tenant *models.Tenant, trx *dbx.Trx) *UserStorage {
+	return &UserStorage{tenant: tenant, trx: trx}
 }
 
 // GetByID returns a user based on given id
@@ -108,6 +109,12 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
 	cmd := "UPDATE users SET name = $2 WHERE id = $1"
 	return s.trx.Execute(cmd, userID, settings.Name)
+}
+
+// ChangeRole of given user
+func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
+	cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
+	return s.trx.Execute(cmd, userID, s.tenant.ID, role)
 }
 
 // GetByID returns a user based on given id

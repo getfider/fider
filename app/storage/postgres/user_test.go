@@ -20,7 +20,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByID(1)
 
 	Expect(err).To(BeNil())
@@ -42,7 +42,7 @@ func TestUserStorage_GetByEmail_Error(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByEmail(1, "unknown@got.com")
 
 	Expect(user).To(BeNil())
@@ -58,7 +58,7 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
 
 	Expect(err).To(BeNil())
@@ -80,7 +80,7 @@ func TestUserStorage_GetByProvider(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByProvider(1, "facebook", "FB1234")
 
 	Expect(err).To(BeNil())
@@ -102,7 +102,7 @@ func TestUserStorage_GetByProvider_WrongTenant(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByProvider(2, "facebook", "FB1234")
 
 	Expect(user).To(BeNil())
@@ -118,7 +118,7 @@ func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user, err := users.GetByEmail(2, "jon.snow@got.com")
 
 	Expect(user).To(BeNil())
@@ -134,7 +134,7 @@ func TestUserStorage_Register(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
@@ -171,7 +171,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 
 	trx.Execute("INSERT INTO tenants (name, subdomain, created_on, status) VALUES ('My Domain Inc.','mydomain', now(), 1)")
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	user := &models.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
@@ -207,7 +207,7 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	users.RegisterProvider(1, &models.UserProvider{
 		UID:  "GO1234",
 		Name: "google",
@@ -236,10 +236,29 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	users := postgres.NewUserStorage(trx)
+	users := postgres.NewUserStorage(nil, trx)
 	err := users.Update(1, &models.UpdateUserSettings{Name: "Jon Stark"})
 	Expect(err).To(BeNil())
 
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
 	Expect(user.Name).To(Equal("Jon Stark"))
+}
+
+func TestUserStorage_ChangeRole(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+
+	users := postgres.NewUserStorage(demoTenant(tenants), trx)
+	err := users.ChangeRole(1, models.RoleVisitor)
+	Expect(err).To(BeNil())
+
+	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	Expect(user.Role).To(Equal(models.RoleVisitor))
 }
