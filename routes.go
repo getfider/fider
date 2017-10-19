@@ -106,9 +106,10 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 
-			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
+			private.Post("/api/users/:user_id/role", handlers.ChangeUserRole())
 		}
 
 		admin := page.Group()

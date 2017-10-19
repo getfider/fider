@@ -139,6 +139,6 @@ type UpdateUserSettings struct {
 
 // ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
-	UserID int  `json:"user_id"`
+	UserID int  `route:"user_id"`
 	Role   Role `json:"role"`
 }
