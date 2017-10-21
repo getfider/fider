@@ -27,8 +27,8 @@ body {
 }
 
 .info {
-  color: rgba(0,0,0,.4);
   font-size: 90%;
+  color: rgba(0,0,0,.6);
 }
 
 .info.right {
@@ -160,22 +160,8 @@ code {
     margin-left: 0.5em;
   }
 
-  .info {
-    display: inline !important;
-    position: relative;
-    top: 0px;
-    left: 0px;
-    color: rgba(0, 0, 0, 0.4);
-    box-shadow: none;
-    background: 0px 0px;
-    margin: 0.5rem 0px 0px;
-    padding: 0px;
-    transition: color 0.1s ease;
-    border-top: none;
-
-    span {
-      margin-left: 6px;
-    }
+  span.date {
+    margin-left: 6px;
   }
 }
 

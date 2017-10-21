@@ -95,9 +95,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		private := page.Group()
 		{
 			private.Use(middlewares.IsAuthenticated())
-			private.Get("/settings", func(ctx web.Context) error {
-				return ctx.Page(web.Map{})
-			})
+			private.Get("/settings", handlers.Page())
 
 			private.Post("/api/ideas", handlers.PostIdea())
 			private.Post("/api/ideas/:number/comments", handlers.PostComment())
@@ -117,9 +115,8 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			admin.Use(middlewares.IsAuthenticated())
 			admin.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
-			admin.Get("/admin", func(ctx web.Context) error {
-				return ctx.Page(web.Map{})
-			})
+			admin.Get("/admin", handlers.Page())
+			admin.Get("/admin/members", handlers.ManageMembers())
 		}
 	}
 

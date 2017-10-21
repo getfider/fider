@@ -262,3 +262,22 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
 	Expect(user.Role).To(Equal(models.RoleVisitor))
 }
+
+func TestUserStorage_GetAll(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+
+	users := postgres.NewUserStorage(demoTenant(tenants), trx)
+	all, err := users.GetAll()
+	Expect(err).To(BeNil())
+	Expect(len(all)).To(Equal(2))
+	Expect(all[0].Name).To(Equal("Jon Snow"))
+	Expect(all[1].Name).To(Equal("Arya Stark"))
+}

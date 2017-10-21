@@ -134,3 +134,18 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 
 	return user.toModel(), nil
 }
+
+// GetAll return all users of current tenant
+func (s *UserStorage) GetAll() ([]*models.User, error) {
+	var users []*dbUser
+	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.User, len(users))
+	for i, user := range users {
+		result[i] = user.toModel()
+	}
+	return result, nil
+}

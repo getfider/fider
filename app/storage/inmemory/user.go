@@ -91,3 +91,8 @@ func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 	}
 	return app.ErrNotFound
 }
+
+// GetAll return all users of current tenant
+func (s *UserStorage) GetAll() ([]*models.User, error) {
+	return s.users, nil
+}
