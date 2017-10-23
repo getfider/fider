@@ -51,8 +51,13 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
       return <div>
                 <Header />
                     <div className="page ui container">
-                        <h1 className="ui header">Administration</h1>
-                        <h4 className="ui header">General Settings</h4>
+                        <h2 className="ui header">
+                            <i className="circular settings icon"></i>
+                            <div className="content">
+                            General Settings
+                            <div className="sub header">Manage your account basic settings.</div>
+                            </div>
+                        </h2>
 
                         <div className="ui grid">
                             <div className="eight wide computer sixteen wide mobile column">
