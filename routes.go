@@ -107,7 +107,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
-			private.Post("/api/users/:user_id/role", handlers.ChangeUserRole())
+			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 
 		admin := page.Group()

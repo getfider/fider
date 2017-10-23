@@ -1,0 +1,12 @@
+.ui.list {
+  .item {
+    .showover {
+      visibility: hidden;
+    }
+    &:hover {
+      .showover {
+        visibility: visible;
+      }
+    }
+  }
+}

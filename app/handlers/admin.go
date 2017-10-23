@@ -24,7 +24,6 @@ func UpdateSettings() web.HandlerFunc {
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
 	return func(c web.Context) error {
-		// TODO: write test for this
 		users, err := c.Services().Users.GetAll()
 		if err != nil {
 			return c.Failure(err)

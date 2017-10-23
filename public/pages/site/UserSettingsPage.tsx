@@ -41,7 +41,13 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
     return <div>
               <Header />
                 <div className="page ui container">
-                  <h1 className="ui header">Settings</h1>
+                  <h2 className="ui header">
+                      <i className="circular id badge icon"></i>
+                      <div className="content">
+                      Settings
+                      <div className="sub header">Manage your profile settings</div>
+                      </div>
+                  </h2>
 
                   <div className="ui grid">
                     <div className="eight wide computer sixteen wide mobile column">
@@ -51,8 +57,8 @@ export class UserSettingsPage extends React.Component<{}, UserSettingsPageState>
                             <p><Gravatar user={ this.user } /></p>
                             <div className="info">
                                 <p>
-                                  We use <a href="https://en.gravatar.com/" target="blank">Gravatar</a> to display profile avatars. <br/>
-                                  A letter avatar based on your name is generated for profiles without e-mail.
+                                  This site uses <a href="https://en.gravatar.com/" target="blank">Gravatar</a> to display profile avatars. <br/>
+                                  A letter avatar based on your name is generated for profiles without a Gravatar.
                                 </p>
                             </div>
                         </div>
