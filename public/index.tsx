@@ -3,12 +3,14 @@ import * as ReactDOM from 'react-dom';
 
 import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
+import { MembersPage } from '@fider/pages/admin/MembersPage';
 import { SiteHomePage } from '@fider/pages/site/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
 import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
 import { CompleteSignInProfilePage } from '@fider/pages/site/CompleteSignInProfilePage';
 import { SignUpPage } from '@fider/pages/signup/SignUpPage';
 import { container, injectables } from '@fider/di';
+
 import {
   Session,
   BrowserSession,
@@ -30,16 +32,17 @@ container.bind<UserService>(injectables.UserService).to(HttpUserService);
 interface PageConfiguration {
   id: string;
   regex: RegExp;
-  component: JSX.Element;
+  component: any;
 }
 
 const pathRegex = [
-  { regex: new RegExp('^\/$'), component: <SiteHomePage />, id: 'fdr-home-page' },
-  { regex: new RegExp('^\/admin$'), component: <AdminHomePage />, id: 'fdr-admin-page' },
-  { regex: new RegExp('^\/signup$'), component: <SignUpPage />, id: 'fdr-signup-page' },
-  { regex: new RegExp('^\/ideas\/\\d+.*$'), component: <ShowIdeaPage />, id: 'fdr-show-idea-page' },
-  { regex: new RegExp('^\/signin\/verify'), component: <CompleteSignInProfilePage />, id: 'fdr-complete-signin-profile' },
-  { regex: new RegExp('^\/settings$'), component: <UserSettingsPage />, id: 'fdr-user-settings' },
+  { regex: new RegExp('^\/$'), component: SiteHomePage, id: 'fdr-home-page' },
+  { regex: new RegExp('^\/admin\/members$'), component: MembersPage, id: 'fdr-admin-members-page' },
+  { regex: new RegExp('^\/admin$'), component: AdminHomePage, id: 'fdr-admin-page' },
+  { regex: new RegExp('^\/signup$'), component: SignUpPage, id: 'fdr-signup-page' },
+  { regex: new RegExp('^\/ideas\/\\d+.*$'), component: ShowIdeaPage, id: 'fdr-show-idea-page' },
+  { regex: new RegExp('^\/signin\/verify'), component: CompleteSignInProfilePage, id: 'fdr-complete-signin-profile' },
+  { regex: new RegExp('^\/settings$'), component: UserSettingsPage, id: 'fdr-user-settings' },
 ];
 
 const resolveRootComponent = (path: string): PageConfiguration | undefined => {
@@ -58,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div>
         <SignInModal />
         <div id={ config.id }>
-          { config.component }
+          { React.createElement(config.component) }
         </div>
       </div>, root
     );

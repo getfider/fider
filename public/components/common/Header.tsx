@@ -35,13 +35,14 @@ export class Header extends React.Component<{}, {}> {
                       <a href="/settings" className="item">Settings</a>
                       <div className="divider"></div>
                       {
-                        this.session.isStaff() && [
+                        this.session.isCollaborator() && [
                           <div key={1} className="header">
                             <i className="setting icon"></i>
                             Administration
                           </div>,
                           <a key={2} href="/admin" className="item">General Settings</a>,
-                          <div key={3} className="divider"></div>
+                          <a key={3} href="/admin/members" className="item">Members</a>,
+                          <div key={4} className="divider"></div>
                         ]
                       }
                       <a href="/signout?redirect=/" className="item signout">Sign out</a>
@@ -55,7 +56,7 @@ export class Header extends React.Component<{}, {}> {
                     { this.tenant.name }
                   </a>
                   <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
-                    { this.user && <Gravatar name={this.user.name} hash={this.user.gravatar} /> }
+                    { this.user && <Gravatar user={ this.user } /> }
                     { !this.user && 'Sign in' } { this.user && <i className="dropdown icon"></i> }
                     { items }
                   </div>

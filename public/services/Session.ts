@@ -5,7 +5,7 @@ export interface Session {
     getCurrentUser(): CurrentUser  | undefined;
     getCurrentTenant(): Tenant;
     isAdmin(): boolean;
-    isStaff(): boolean;
+    isCollaborator(): boolean;
     set<T>(key: string, value: T): void;
     get<T>(key: string): T;
     getArray<T>(key: string): T[];
@@ -43,7 +43,7 @@ export class BrowserSession implements Session {
         return !!user && user.role === 3;
     }
 
-    public isStaff(): boolean {
+    public isCollaborator(): boolean {
         const user = this.getCurrentUser();
         return !!user && user.role >= 2;
     }

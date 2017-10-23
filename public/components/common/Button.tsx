@@ -3,7 +3,7 @@ import * as React from 'react';
 interface ButtonProps {
     className?: string;
     href?: string;
-    size?: 'tiny' | 'small' | 'large';
+    size?: 'mini' | 'tiny' | 'small' | 'large';
     onClick?: () => Promise<any>;
 }
 
@@ -12,6 +12,8 @@ interface ButtonState {
 }
 
 export class Button extends React.Component<ButtonProps, ButtonState> {
+    private unmounted: boolean;
+
     public static defaultProps: Partial<ButtonProps> = {
         size: 'tiny'
     };
@@ -23,11 +25,17 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
         };
     }
 
+    public componentWillUnmount() {
+        this.unmounted = true;
+    }
+
     private async click() {
         this.setState({ clicked: true });
         if (this.props.onClick) {
             await this.props.onClick();
-            this.setState({ clicked: false });
+            if (!this.unmounted) {
+                this.setState({ clicked: false });
+            }
         }
     }
 

@@ -80,3 +80,19 @@ func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) er
 	}
 	return app.ErrNotFound
 }
+
+// ChangeRole of given user
+func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
+	for _, user := range s.users {
+		if user.ID == userID {
+			user.Role = role
+			return nil
+		}
+	}
+	return app.ErrNotFound
+}
+
+// GetAll return all users of current tenant
+func (s *UserStorage) GetAll() ([]*models.User, error) {
+	return s.users, nil
+}

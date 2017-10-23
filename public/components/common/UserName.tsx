@@ -6,6 +6,6 @@ interface UserNameProps {
 }
 
 export const UserName = (props: UserNameProps) => {
-  const isStaff = props.user.role >= 2;
-  return <span className={`name ${isStaff ? 'staff' : ''}`}>{ props.user.name }</span>;
+  const isCollaborator = props.user.role >= 2;
+  return <span className={`name ${isCollaborator ? 'staff' : ''}`}>{ props.user.name }</span>;
 };

@@ -35,7 +35,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
 
         const commentsList = this.comments.map((c) =>
           <div key={c.id} className="comment">
-            <Gravatar name={c.user.name} hash={c.user.gravatar} />
+            <Gravatar user={ c.user } />
             <div className="content">
               <UserName user={c.user} />
               <div className="metadata">
@@ -61,7 +61,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                               <h1 className="ui header">{ this.idea.title }</h1>
 
                               <span className="info">
-                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar name={ this.idea.user.name } hash={ this.idea.user.gravatar }/> <UserName user={this.idea.user} />
+                                Shared <Moment date={this.idea.createdOn} /> by <Gravatar user={ this.idea.user } /> <UserName user={this.idea.user} />
                               </span>
                             </div>
                           </div>
@@ -79,7 +79,7 @@ export class ShowIdeaPage extends React.Component<{}, {}> {
                       </div>
 
                       {
-                        this.session.isStaff() &&
+                        this.session.isCollaborator() &&
                         <div className="four wide column">
                           <span className="subtitle">Actions</span>
                           <br /><br />

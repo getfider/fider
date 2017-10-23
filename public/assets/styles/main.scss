@@ -27,8 +27,8 @@ body {
 }
 
 .info {
-  color: rgba(0,0,0,.4);
   font-size: 90%;
+  color: rgba(0,0,0,.6);
 }
 
 .info.right {
@@ -87,11 +87,14 @@ code {
   }
 }
 
-.fdr-avatar,
-.ui.menu .item>img:not(.ui) {
+.fdr-avatar {
   border-radius: 50%;
   width: 30px;
   vertical-align: middle;
+  padding: 1px;
+  &.staff {
+    border: 1px solid $admin-color;
+  }
 }
 
 .no-margin {
@@ -157,22 +160,8 @@ code {
     margin-left: 0.5em;
   }
 
-  .info {
-    display: inline !important;
-    position: relative;
-    top: 0px;
-    left: 0px;
-    color: rgba(0, 0, 0, 0.4);
-    box-shadow: none;
-    background: 0px 0px;
-    margin: 0.5rem 0px 0px;
-    padding: 0px;
-    transition: color 0.1s ease;
-    border-top: none;
-
-    span {
-      margin-left: 6px;
-    }
+  span.date {
+    margin-left: 6px;
   }
 }
 

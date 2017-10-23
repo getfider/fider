@@ -34,7 +34,7 @@ func (u *dbUser) toModel() *models.User {
 		Email:     u.Email.String,
 		Gravatar:  fmt.Sprintf("%x", md5.Sum([]byte(u.Email.String))),
 		Tenant:    u.Tenant.toModel(),
-		Role:      int(u.Role.Int64),
+		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
 	}
 
@@ -50,12 +50,13 @@ func (u *dbUser) toModel() *models.User {
 
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
-	trx *dbx.Trx
+	tenant *models.Tenant
+	trx    *dbx.Trx
 }
 
 // NewUserStorage creates a new UserStorage
-func NewUserStorage(trx *dbx.Trx) *UserStorage {
-	return &UserStorage{trx: trx}
+func NewUserStorage(tenant *models.Tenant, trx *dbx.Trx) *UserStorage {
+	return &UserStorage{tenant: tenant, trx: trx}
 }
 
 // GetByID returns a user based on given id
@@ -110,6 +111,12 @@ func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) er
 	return s.trx.Execute(cmd, userID, settings.Name)
 }
 
+// ChangeRole of given user
+func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
+	cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
+	return s.trx.Execute(cmd, userID, s.tenant.ID, role)
+}
+
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
@@ -126,4 +133,19 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 	}
 
 	return user.toModel(), nil
+}
+
+// GetAll return all users of current tenant
+func (s *UserStorage) GetAll() ([]*models.User, error) {
+	var users []*dbUser
+	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.User, len(users))
+	for i, user := range users {
+		result[i] = user.toModel()
+	}
+	return result, nil
 }

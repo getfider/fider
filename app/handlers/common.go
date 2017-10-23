@@ -19,3 +19,10 @@ func Status(settings *models.AppSettings) web.HandlerFunc {
 		})
 	}
 }
+
+//Page returns a page without properties
+func Page() web.HandlerFunc {
+	return func(c web.Context) error {
+		return c.Page(web.Map{})
+	}
+}

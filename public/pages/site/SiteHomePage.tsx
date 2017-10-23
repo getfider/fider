@@ -16,8 +16,8 @@ interface SiteHomePageState {
 }
 
 export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
-  private user?: CurrentUser;
-  private tenant: Tenant;
+    private user?: CurrentUser;
+    private tenant: Tenant;
     private allIdeas: Idea[];
     private filter: HTMLDivElement;
     private activeFilter: string;

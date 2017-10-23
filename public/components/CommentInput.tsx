@@ -64,7 +64,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         const user = this.session.getCurrentUser();
 
         return <div className={`comment-input ${user && 'authenticated' }`}>
-                  { this.user && <Gravatar name={ this.user.name } hash={ this.user.gravatar }/> }
+                  { this.user && <Gravatar user={ this.user } /> }
                   <div className="ui form">
                     { this.user && <UserName user={ this.user } /> }
                     <DisplayError error={this.state.error} />

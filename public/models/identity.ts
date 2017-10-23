@@ -13,6 +13,12 @@ export interface User {
   role: number;
 }
 
+export enum UserRole {
+  Visitor = 1,
+  Collaborator = 2,
+  Administrator = 3,
+}
+
 export interface CurrentUser {
   id: number;
   name: string;

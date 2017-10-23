@@ -1,6 +1,6 @@
 import { get, post, Result } from '@fider/services/http';
 import { injectable } from '@fider/di';
-import { Tenant } from '@fider/models';
+import { Tenant, UserRole } from '@fider/models';
 
 export interface TenantService {
     create(request: CreateTenantRequest): Promise<Result<CreateTenantResponse>>;
@@ -8,6 +8,7 @@ export interface TenantService {
     checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>>;
     signIn(email: string): Promise<Result>;
     completeProfile(key: string, name: string): Promise<Result>;
+    changeRole(userId: number, role: UserRole): Promise<Result>;
 }
 
 export interface CheckAvailabilityResponse {
@@ -52,6 +53,12 @@ export class HttpTenantService implements TenantService {
         return await post('/api/signin/complete', {
             key,
             name,
+        });
+    }
+
+    public async changeRole(userId: number, role: UserRole): Promise<Result> {
+        return await post(`/api/admin/users/${userId}/role`, {
+            role,
         });
     }
 }

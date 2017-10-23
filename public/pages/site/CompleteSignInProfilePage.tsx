@@ -61,10 +61,9 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
                         </div>
                   </div>;
 
-    // TODO: remove this duplicated id, should use from index.tsx
-    return <div id="fdr-home-page">
-                { modal }
-                <SiteHomePage />
-            </div>;
+    return <div>
+              { modal }
+              <SiteHomePage />
+           </div>;
   }
 }

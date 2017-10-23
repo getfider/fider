@@ -11,16 +11,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func orangeTenant(tenants *postgres.TenantStorage) *models.Tenant {
-	tenant, _ := tenants.GetByDomain("orange")
-	return tenant
-}
-
-func demoTenant(tenants *postgres.TenantStorage) *models.Tenant {
-	tenant, _ := tenants.GetByDomain("demo")
-	return tenant
-}
-
 func TestIdeaStorage_GetAll(t *testing.T) {
 	RegisterTestingT(t)
 	db, _ := dbx.New()

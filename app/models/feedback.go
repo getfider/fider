@@ -21,7 +21,7 @@ type Idea struct {
 
 //CanBeChangedBy returns true if given user can change this idea
 func (i *Idea) CanBeChangedBy(user *User) bool {
-	return user.IsStaff() || i.User.ID == user.ID
+	return user.IsCollaborator() || i.User.ID == user.ID
 }
 
 // NewIdea represents a new idea
