@@ -1,9 +1,12 @@
 package web
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"os"
+
+	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -48,14 +51,30 @@ func New(settings *models.AppSettings) *Engine {
 func (e *Engine) Start(address string) {
 	cert := env.GetEnvOrDefault("SSL_CERT", "")
 	key := env.GetEnvOrDefault("SSL_CERT_KEY", "")
+	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
+
+	server := &http.Server{
+		Addr:    address,
+		Handler: e.mux,
+	}
 
 	var err error
-	if cert == "" && key == "" {
+	if autoSSL == "true" {
+		certManager := autocert.Manager{
+			Prompt: autocert.AcceptTOS,
+			Cache:  autocert.DirCache("certs"),
+		}
+		server.TLSConfig = &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		}
+		e.logger.Infof("https (auto ssl) server started on %s", address)
+		err = server.ListenAndServeTLS("", "")
+	} else if cert == "" && key == "" {
 		e.logger.Infof("http server started on %s", address)
-		err = http.ListenAndServe(address, e.mux)
+		err = server.ListenAndServe()
 	} else {
 		e.logger.Infof("https server started on %s", address)
-		err = http.ListenAndServeTLS(address, cert, key, e.mux)
+		err = server.ListenAndServeTLS(cert, key)
 	}
 
 	if err != nil {
