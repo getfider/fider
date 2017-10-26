@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -133,8 +134,6 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(tenant.Status).To(Equal(models.TenantInactive))
 
 	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
-	Expect(err).To(BeNil())
-	Expect(user.Name).To(Equal("Jon Snow"))
-	Expect(user.Email).To(Equal("jon.snow@got.com"))
-	Expect(user.Role).To(Equal(models.RoleAdministrator))
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(user).To(BeNil())
 }

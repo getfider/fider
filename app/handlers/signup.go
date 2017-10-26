@@ -81,11 +81,10 @@ func CreateTenant() web.HandlerFunc {
 			}
 		}
 
-		if err := c.Services().Users.Register(user); err != nil {
-			return c.Failure(err)
-		}
-
 		if socialSignUp {
+			if err := c.Services().Users.Register(user); err != nil {
+				return c.Failure(err)
+			}
 			token, err := c.AddAuthCookie(user)
 			if err != nil {
 				return c.Failure(err)
