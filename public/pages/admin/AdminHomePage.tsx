@@ -124,7 +124,7 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                                     {
                                                         this.state.cname ?
                                                         <p key={0}>
-                                                            Input following settings into your domain DNS zone records: <br />
+                                                            Input following record into your domain DNS zone records: <br />
                                                             <strong>{ this.state.cname }</strong> CNAME <strong>{ this.session.getCurrentTenant().subdomain }{ this.session.getAppSettings().domain }</strong>
                                                         </p> :
                                                         <p>Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcomany.com</code>).</p>
