@@ -50,10 +50,6 @@ func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
 			}
 		}
 
-		if len(input.Model.Email) > 200 {
-			result.AddFieldFailure("email", "E-mail must be less than 200 characters.")
-		}
-
 		if input.Model.Name == "" {
 			result.AddFieldFailure("name", "Name is required.")
 		}
@@ -111,8 +107,8 @@ func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Re
 	}
 
 	if input.Model.CNAME != "" {
-		if hostnameResult := validate.CNAME(services.Tenants, input.Model.CNAME); !hostnameResult.Ok {
-			result.AddFieldFailure("cname", hostnameResult.Messages...)
+		if cnameResult := validate.CNAME(services.Tenants, input.Model.CNAME); !cnameResult.Ok {
+			result.AddFieldFailure("cname", cnameResult.Messages...)
 		}
 	}
 

@@ -65,6 +65,19 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	result := action.Validate(services)
 	ExpectFailed(result, "subdomain")
 }
+func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	admin := &models.User{ID: 1, Role: models.RoleAdministrator}
+	collaborator := &models.User{ID: 2, Role: models.RoleCollaborator}
+
+	action := actions.UpdateTenantSettings{}
+	action.Initialize()
+
+	Expect(action.IsAuthorized(admin)).To(BeTrue())
+	Expect(action.IsAuthorized(collaborator)).To(BeFalse())
+	Expect(action.IsAuthorized(nil)).To(BeFalse())
+}
 
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	RegisterTestingT(t)
