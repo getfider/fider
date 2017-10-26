@@ -74,6 +74,14 @@ func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	ExpectFailed(result, "title")
 }
 
+func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}}
+	result := action.Validate(services)
+	ExpectFailed(result, "cname")
+}
+
 func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 	RegisterTestingT(t)
 

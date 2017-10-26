@@ -165,6 +165,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 		Title:          "New Demonstration",
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
+		CNAME:          "demo.company.com",
 	}
 	err := tenants.UpdateSettings(settings)
 	Expect(err).To(BeNil())
@@ -175,6 +176,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	Expect(tenant.Name).To(Equal("New Demonstration"))
 	Expect(tenant.Invitation).To(Equal("Leave us your suggestion"))
 	Expect(tenant.WelcomeMessage).To(Equal("Welcome!"))
+	Expect(tenant.CNAME).To(Equal("demo.company.com"))
 }
 
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {

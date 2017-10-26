@@ -1,7 +1,8 @@
 export interface Tenant {
   id: number;
   name: string;
-  domain: string;
+  cname: string;
+  subdomain: string;
   invitation: string;
   welcomeMessage: string;
 }

@@ -119,13 +119,19 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 // UpdateSettings of given tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
-	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3 WHERE id = $4"
-	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, s.current.ID)
+	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
+	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
 }
 
 // IsSubdomainAvailable returns true if subdomain is available to use
 func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
+	return !exists, err
+}
+
+// IsCNAMEAvailable returns true if cname is available to use
+func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
+	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", cname, s.current.ID)
 	return !exists, err
 }
 

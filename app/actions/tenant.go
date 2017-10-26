@@ -110,5 +110,11 @@ func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Re
 		result.AddFieldFailure("invitation", "Invitation must have less than 60 characters.")
 	}
 
+	if input.Model.CNAME != "" {
+		if hostnameResult := validate.CNAME(services.Tenants, input.Model.CNAME); !hostnameResult.Ok {
+			result.AddFieldFailure("cname", hostnameResult.Messages...)
+		}
+	}
+
 	return result
 }
