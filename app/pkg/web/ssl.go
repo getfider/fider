@@ -44,7 +44,7 @@ func NewCertificateManager(certFile, keyFile, cacheDir string) (*CertificateMana
 //Otherwise fallsback to a automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	if m.leaf != nil {
-		if m.leaf.VerifyHostname(hello.ServerName) != nil {
+		if m.leaf.VerifyHostname(hello.ServerName) == nil {
 			return &m.cert, nil
 		}
 	}
