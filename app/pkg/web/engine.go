@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"golang.org/x/crypto/acme/autocert"
-
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
@@ -49,8 +47,8 @@ func New(settings *models.AppSettings) *Engine {
 
 //Start an HTTP server.
 func (e *Engine) Start(address string) {
-	cert := env.GetEnvOrDefault("SSL_CERT", "")
-	key := env.GetEnvOrDefault("SSL_CERT_KEY", "")
+	certFile := env.GetEnvOrDefault("SSL_CERT", "")
+	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
 	server := &http.Server{
@@ -60,25 +58,26 @@ func (e *Engine) Start(address string) {
 
 	var err error
 	if autoSSL == "true" {
-		certManager := autocert.Manager{
-			Prompt: autocert.AcceptTOS,
-			Cache:  autocert.DirCache("certs"),
+		certManager, err := NewCertificateManager(certFile, keyFile, "certs")
+		if err != nil {
+			panic(err)
 		}
+
 		server.TLSConfig = &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		}
 		e.logger.Infof("https (auto ssl) server started on %s", address)
 		err = server.ListenAndServeTLS("", "")
-	} else if cert == "" && key == "" {
+	} else if certFile == "" && keyFile == "" {
 		e.logger.Infof("http server started on %s", address)
 		err = server.ListenAndServe()
 	} else {
 		e.logger.Infof("https server started on %s", address)
-		err = server.ListenAndServeTLS(cert, key)
+		err = server.ListenAndServeTLS(certFile, keyFile)
 	}
 
 	if err != nil {
-		e.logger.Error(err)
+		panic(err)
 	}
 }
 
