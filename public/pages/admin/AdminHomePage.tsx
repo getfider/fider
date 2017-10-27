@@ -122,11 +122,13 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                                     onChange={(e) => this.setState({ cname: e.currentTarget.value })}/>
                                                 <div className="info">
                                                     {
-                                                        this.state.cname ?
-                                                        <p key={0}>
-                                                            Input following record into your domain DNS zone records: <br />
-                                                            <strong>{ this.state.cname }</strong> CNAME <strong>{ this.session.getCurrentTenant().subdomain }{ this.session.getAppSettings().domain }</strong>
-                                                        </p> :
+                                                        this.state.cname ? [
+                                                            <p key={0}>Input following record into your domain DNS zone records:</p>,
+                                                            <p key={1}><strong>{ this.state.cname }</strong> CNAME <strong>{ this.session.getCurrentTenant().subdomain }{ this.session.getAppSettings().domain }</strong></p>,
+                                                            <div key={2} className="ui negative message">
+                                                                <p>Custom Domain is a <strong>experimental feature</strong> and you're invited to test it. In case of any issue, feedback or question, please contact us at <a href="mailto:admin@fider.io">admin@fider.io</a>.</p>
+                                                            </div>
+                                                        ] :
                                                         <p>Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcomany.com</code>).</p>
                                                     }
                                                 </div>
