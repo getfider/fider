@@ -47,8 +47,13 @@ func IsSingleHostMode() bool {
 func MultiTenantDomain() string {
 	if !IsSingleHostMode() {
 		endpoint := MustGet("AUTH_ENDPOINT")
-		if idx := strings.Index(endpoint, "."); idx != -1 {
-			return endpoint[idx:]
+		firstIdx := strings.Index(endpoint, ".")
+		if firstIdx != -1 {
+			lastIdx := strings.LastIndex(endpoint, ":")
+			if lastIdx != -1 && lastIdx > firstIdx {
+				return endpoint[firstIdx:lastIdx]
+			}
+			return endpoint[firstIdx:]
 		}
 		panic(fmt.Sprintf("Could not extract domain from %s", endpoint))
 	}

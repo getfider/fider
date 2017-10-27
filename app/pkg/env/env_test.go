@@ -55,3 +55,16 @@ func TestMustGet(t *testing.T) {
 		env.MustGet("THIS_DOES_NOT_EXIST")
 	}).To(Panic())
 }
+
+func TestMultiTenantDomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	os.Setenv("AUTH_ENDPOINT", "https://login.test.fider.io:3000")
+	Expect(env.MultiTenantDomain()).To(Equal(".test.fider.io"))
+
+	os.Setenv("AUTH_ENDPOINT", "https://login.test.fider.io")
+	Expect(env.MultiTenantDomain()).To(Equal(".test.fider.io"))
+
+	os.Setenv("HOST_MODE", "single")
+	Expect(env.MultiTenantDomain()).To(Equal(""))
+}
