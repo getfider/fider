@@ -88,7 +88,12 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
           if (this.session.isSingleHostMode()) {
             location.reload();
           } else {
-            location.href = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}?token=${result.data.token}`;
+            let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.settings.domain}`;
+            if (location.port) {
+              baseUrl = `${baseUrl}:${location.port}`;
+            }
+
+            location.href = `${baseUrl}?token=${result.data.token}`;
           }
         } else {
           this.setState({ submitted: true });

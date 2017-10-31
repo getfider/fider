@@ -12,6 +12,7 @@ interface AdminHomePageState {
     title: string;
     welcomeMessage: string;
     invitation: string;
+    cname: string;
     error?: Failure;
 }
 
@@ -31,6 +32,7 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
 
         this.state = {
            title: this.tenant.name,
+           cname: this.tenant.cname,
            welcomeMessage: this.tenant.welcomeMessage,
            invitation: this.tenant.invitation
         };
@@ -39,7 +41,12 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
     }
 
     private async confirm() {
-        const result = await this.service.updateSettings(this.state.title, this.state.invitation, this.state.welcomeMessage);
+        const result = await this.service.updateSettings(
+            this.state.title,
+            this.state.invitation,
+            this.state.welcomeMessage,
+            this.state.cname,
+        );
         if (result.ok) {
             location.href = `/`;
         } else if (result.error) {
@@ -67,7 +74,6 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                         <label htmlFor="title">Title</label>
                                         <input id="title"
                                             type="text"
-                                            placeholder="Title"
                                             maxLength={60}
                                             disabled={ !this.session.isAdmin() }
                                             value={ this.state.title }
@@ -80,7 +86,6 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                     <div className="field">
                                         <label htmlFor="welcome-message">Welcome Message</label>
                                         <Textarea id="welcome-message"
-                                                placeholder="Welcome Message"
                                                 disabled={ !this.session.isAdmin() }
                                                 onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}
                                                 value={ this.state.welcomeMessage } />
@@ -95,7 +100,6 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                         <label htmlFor="invitation">Invitation</label>
                                         <input id="invitation"
                                             type="text"
-                                            placeholder="Invitation"
                                             maxLength={60}
                                             disabled={ !this.session.isAdmin() }
                                             value={ this.state.invitation }
@@ -104,6 +108,33 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                                             <p>This is your customized message to invite visitors to share their ideas and suggestions.</p>
                                         </div>
                                     </div>
+                                    {
+                                        !this.session.isSingleHostMode() && [
+                                            <DisplayError key={1} fields={['cname']} error={this.state.error} />,
+                                            <div key={2} className="field">
+                                                <label htmlFor="cname">Custom Domain</label>
+                                                <input id="cname"
+                                                    type="text"
+                                                    placeholder="feedback.yourcompany.com"
+                                                    maxLength={100}
+                                                    disabled={ !this.session.isAdmin() }
+                                                    value={ this.state.cname }
+                                                    onChange={(e) => this.setState({ cname: e.currentTarget.value })}/>
+                                                <div className="info">
+                                                    {
+                                                        this.state.cname ? [
+                                                            <p key={0}>Input following record into your domain DNS zone records:</p>,
+                                                            <p key={1}><strong>{ this.state.cname }</strong> CNAME <strong>{ this.session.getCurrentTenant().subdomain }{ this.session.getAppSettings().domain }</strong></p>,
+                                                            <div key={2} className="ui negative message">
+                                                                <p>Custom Domain is a <strong>experimental feature</strong> and you're invited to test it. In case of any issue, feedback or question, please contact us at <a href="mailto:admin@fider.io">admin@fider.io</a>.</p>
+                                                            </div>
+                                                        ] :
+                                                        <p>Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcomany.com</code>).</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        ]
+                                    }
                                     {
                                         this.session.isAdmin() &&
                                         <div className="field">

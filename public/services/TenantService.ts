@@ -4,7 +4,7 @@ import { Tenant, UserRole } from '@fider/models';
 
 export interface TenantService {
     create(request: CreateTenantRequest): Promise<Result<CreateTenantResponse>>;
-    updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result>;
+    updateSettings(title: string, invitation: string, welcomeMessage: string, cname: string): Promise<Result>;
     checkAvailability(subdomain: string): Promise<Result<CheckAvailabilityResponse>>;
     signIn(email: string): Promise<Result>;
     completeProfile(key: string, name: string): Promise<Result>;
@@ -33,9 +33,9 @@ export class HttpTenantService implements TenantService {
         return await post<CreateTenantResponse>('/api/tenants', request);
     }
 
-    public async updateSettings(title: string, invitation: string, welcomeMessage: string): Promise<Result> {
+    public async updateSettings(title: string, invitation: string, welcomeMessage: string, cname: string): Promise<Result> {
         return await post('/api/admin/settings', {
-            title, invitation, welcomeMessage,
+            title, invitation, welcomeMessage, cname
         });
     }
 

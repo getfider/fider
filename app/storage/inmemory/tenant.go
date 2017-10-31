@@ -59,6 +59,16 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	return true, nil
 }
 
+// IsCNAMEAvailable returns true if cname is available to use
+func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
+	for _, tenant := range s.tenants {
+		if tenant.CNAME == cname {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
 // UpdateSettings of given tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
@@ -66,6 +76,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 			tenant.Invitation = settings.Invitation
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title
+			tenant.CNAME = settings.CNAME
 			return nil
 		}
 	}
