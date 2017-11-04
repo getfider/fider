@@ -45,27 +45,17 @@ func PostIdea() web.HandlerFunc {
 // UpdateIdea updates an existing ideaof current tenant
 func UpdateIdea() web.HandlerFunc {
 	return func(c web.Context) error {
-		number, err := c.ParamAsInt("number")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		input := new(actions.CreateNewIdea)
+		input := new(actions.UpdateIdea)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		idea, err := c.Services().Ideas.GetByNumber(number)
-		if idea.CanBeChangedBy(c.User()) {
-			idea, err = c.Services().Ideas.Update(number, input.Model.Title, input.Model.Description)
-			if err != nil {
-				return c.Failure(err)
-			}
-		} else {
-			return c.Unauthorized()
+		_, err := c.Services().Ideas.Update(input.Model.Number, input.Model.Title, input.Model.Description)
+		if err != nil {
+			return c.Failure(err)
 		}
 
-		return c.Ok(idea)
+		return c.Ok(web.Map{})
 	}
 }
 

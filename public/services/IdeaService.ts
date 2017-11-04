@@ -8,6 +8,7 @@ export interface IdeaService {
     addComment(ideaNumber: number, content: string): Promise<Result>;
     setResponse(ideaNumber: number, status: number, text: string): Promise<Result>;
     addIdea(title: string, description: string): Promise<Result<Idea>>;
+    updateIdea(ideaNumber: number, title: string, description: string): Promise<Result>;
 }
 
 @injectable()
@@ -30,5 +31,9 @@ export class HttpIdeaService implements IdeaService {
 
     public async addIdea(title: string, description: string): Promise<Result<Idea>> {
         return await post<Idea>(`/api/ideas`, { title, description });
+    }
+
+    public async updateIdea(ideaNumber: number, title: string, description: string): Promise<Result> {
+        return await post(`/api/ideas/${ideaNumber}`, { title, description });
     }
 }

@@ -54,7 +54,9 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   public render() {
-    const button = <Button className="primary" onClick={async () => this.showModal()}>Respond</Button>;
+    const button = <Button className="icon fluid text-left"  onClick={async () => this.showModal()}>
+                     <i className="announcement icon"></i> Respond
+                   </Button>;
 
     const modal = <div className="ui form modal" ref={(e) => this.modal = e! }>
 

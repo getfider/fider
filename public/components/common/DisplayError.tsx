@@ -6,6 +6,7 @@ const arrayToTag = (items: string[]) => {
 };
 
 interface DisplayErrorProps {
+  pointing?: 'above' | 'below';
   error?: Failure;
   fields?: string[];
 }
@@ -14,6 +15,8 @@ export const DisplayError = (props: DisplayErrorProps) => {
   if (!props.error) {
     return <div></div>;
   }
+
+  const pointing = props.pointing || 'below';
 
   let items: JSX.Element[] = [];
 
@@ -28,7 +31,7 @@ export const DisplayError = (props: DisplayErrorProps) => {
     }
   }
 
-  return items.length > 0 ? <div className="display-error ui pointing below red basic label">
+  return items.length > 0 ? <div className={`display-error ui pointing ${pointing} red basic label`}>
             <ul>{ items }</ul>
          </div> : null;
 };
