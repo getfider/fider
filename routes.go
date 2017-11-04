@@ -98,6 +98,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Get("/settings", handlers.Page())
 
 			private.Post("/api/ideas", handlers.PostIdea())
+			private.Post("/api/ideas/:number", handlers.UpdateIdea())
 			private.Post("/api/ideas/:number/comments", handlers.PostComment())
 			private.Post("/api/ideas/:number/status", handlers.SetResponse())
 			private.Post("/api/ideas/:number/support", handlers.AddSupporter())

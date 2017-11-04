@@ -6,6 +6,10 @@
   text-align: center;
 }
 
+.ui.button.text-left {
+  text-align: left;
+}
+
 body {
   background-color: $bg-color;
 }
@@ -180,7 +184,10 @@ code {
   }
 }
 
-.ui[class*="bottom pointing"].label:before, .ui[class*="pointing below"].label:before {
+.ui[class*="top pointing"].label:before, 
+.ui[class*="pointing above"].label:before ,
+.ui[class*="bottom pointing"].label:before, 
+.ui[class*="pointing below"].label:before {
   left: 20px;
 }
 
@@ -206,6 +213,12 @@ code {
     border-left: none;
     border-right: none;
     border-top: none;
+  }
+
+  &.above {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
   }
 }
 
