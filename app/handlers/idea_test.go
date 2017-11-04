@@ -79,24 +79,6 @@ func TestPostIdeaHandler_WithoutTitle(t *testing.T) {
 	Expect(err).NotTo(BeNil())
 }
 
-func TestUpdateIdeaHandler_IdeaOwner(t *testing.T) {
-	RegisterTestingT(t)
-
-	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.AryaStark.ID)
-
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.AryaStark).
-		AddParam("number", idea.Number).
-		ExecutePost(handlers.UpdateIdea(), `{ "title": "the new title", "description": "new description" }`)
-
-	idea, _ = services.Ideas.GetByNumber(idea.Number)
-	Expect(code).To(Equal(200))
-	Expect(idea.Title).To(Equal("the new title"))
-	Expect(idea.Description).To(Equal("new description"))
-}
-
 func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
 	RegisterTestingT(t)
 

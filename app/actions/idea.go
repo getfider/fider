@@ -39,6 +39,42 @@ func (input *CreateNewIdea) Validate(services *app.Services) *validate.Result {
 	return result
 }
 
+// EditIdea is used to edit an existing new idea
+type EditIdea struct {
+	Model *models.EditIdea
+}
+
+// Initialize the model
+func (input *EditIdea) Initialize() interface{} {
+	input.Model = new(models.EditIdea)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *EditIdea) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsCollaborator()
+}
+
+// Validate is current model is valid
+func (input *EditIdea) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	if input.Model.Title == "" {
+		result.AddFieldFailure("title", "Title is required.")
+	}
+
+	if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+		result.AddFieldFailure("title", "Title needs to be more descriptive.")
+	}
+
+	_, err := services.Ideas.GetByNumber(input.Model.Number)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	return result
+}
+
 // AddNewComment represents a new comment to be added
 type AddNewComment struct {
 	Model *models.NewComment
