@@ -25,8 +25,8 @@ type NewIdea struct {
 	Description string `json:"description"`
 }
 
-// EditIdea represents a request to edit an existing idea
-type EditIdea struct {
+// UpdateIdea represents a request to edit an existing idea
+type UpdateIdea struct {
 	Number      int    `route:"number"`
 	Title       string `json:"title"`
 	Description string `json:"description"`

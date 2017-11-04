@@ -45,7 +45,7 @@ func PostIdea() web.HandlerFunc {
 // UpdateIdea updates an existing ideaof current tenant
 func UpdateIdea() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(actions.EditIdea)
+		input := new(actions.UpdateIdea)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}

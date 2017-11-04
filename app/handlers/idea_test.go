@@ -112,6 +112,35 @@ func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 	Expect(code).To(Equal(http.StatusForbidden))
 }
 
+func TestUpdateIdeaHandler_InvalidTitle(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.Number).
+		ExecutePost(handlers.UpdateIdea(), `{ "title": "", "description": "" }`)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestUpdateIdeaHandler_InvalidIdea(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", 999).
+		ExecutePost(handlers.UpdateIdea(), `{ "title": "This is a good title!", "description": "And description too..." }`)
+
+	Expect(code).To(Equal(http.StatusNotFound))
+}
+
 func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
