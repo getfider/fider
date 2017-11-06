@@ -18,9 +18,9 @@ interface SiteHomePageState {
   showCount: number;
 }
 
-const ListIdeaItem = (props: { idea: Idea }) => {
+const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser }) => {
   return <div className="item">
-            <SupportCounter user={this.user} idea={props.idea} />
+            <SupportCounter user={props.user} idea={props.idea} />
             <div className="content">
               { props.idea.totalComments > 0 && <div className="info right">
                 { props.idea.totalComments } <i className="comments outline icon"/>
@@ -70,11 +70,11 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
 
         const displayIdeas = (ideasToList.length > 0) ?
           <div className="ui divided unstackable items fdr-idea-list">
-              { ideasToList.map((x) => <ListIdeaItem key={x.id} idea={x} />) }
+              { ideasToList.map((x) => <ListIdeaItem key={x.id} user={this.user} idea={x} />) }
               {
                 this.state.ideas.length > this.state.showCount &&
                 <h5 className="ui blue header show-more" onClick={() => this.setState({ showCount: this.state.showCount + defaultShowCount })}>
-                  Show { this.state.ideas.length - this.state.showCount } more ideas
+                  View { this.state.ideas.length - this.state.showCount } more ideas
                 </h5>
               }
           </div>
