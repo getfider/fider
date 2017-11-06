@@ -11,9 +11,28 @@ import { Session } from '@fider/services';
 
 import './SiteHomePage.scss';
 
+const defaultShowCount = 20;
+
 interface SiteHomePageState {
   ideas: Idea[];
+  showCount: number;
 }
+
+const ListIdeaItem = (props: { idea: Idea }) => {
+  return <div className="item">
+            <SupportCounter user={this.user} idea={props.idea} />
+            <div className="content">
+              { props.idea.totalComments > 0 && <div className="info right">
+                { props.idea.totalComments } <i className="comments outline icon"/>
+              </div> }
+              <a className="title" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
+                { props.idea.title }
+              </a>
+              <MultiLineText className="description" text={ props.idea.description } style="simple" />
+              <ShowIdeaResponse status={ props.idea.status } response={ props.idea.response } />
+            </div>
+          </div>;
+};
 
 export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
     private user?: CurrentUser;
@@ -33,36 +52,31 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
 
         this.activeFilter = window.location.hash.substring(1);
         this.state = {
-          ideas: IdeaFilter.getFilter(this.activeFilter)(this.allIdeas)
+          ideas: IdeaFilter.getFilter(this.activeFilter)(this.allIdeas),
+          showCount: defaultShowCount
         };
     }
 
     private filterChanged(name: string, filter: IdeaFilterFunction) {
       window.location.hash = `#${name}`;
       this.setState({
-        ideas: filter(this.allIdeas)
+        ideas: filter(this.allIdeas),
+        showCount: defaultShowCount
       });
     }
 
     public render() {
-        const ideasList = this.state.ideas.map((x) =>
-          <div className="item" key={x.id}>
-            <SupportCounter user={this.user} idea={x} />
-            <div className="content">
-              { x.totalComments > 0 && <div className="info right">
-                { x.totalComments } <i className="comments outline icon"/>
-              </div> }
-              <a className="title" href={`/ideas/${x.number}/${x.slug}`}>
-                { x.title }
-              </a>
-              <MultiLineText className="description" text={ x.description } style="simple" />
-              <ShowIdeaResponse status={ x.status } response={ x.response } />
-            </div>
-          </div>);
+        const ideasToList = this.state.ideas.slice(0, this.state.showCount);
 
-        const displayIdeas = (this.state.ideas.length > 0) ?
+        const displayIdeas = (ideasToList.length > 0) ?
           <div className="ui divided unstackable items fdr-idea-list">
-              { ideasList }
+              { ideasToList.map((x) => <ListIdeaItem key={x.id} idea={x} />) }
+              {
+                this.state.ideas.length > this.state.showCount &&
+                <h5 className="ui blue header show-more" onClick={() => this.setState({ showCount: this.state.showCount + defaultShowCount })}>
+                  Show { this.state.ideas.length - this.state.showCount } more ideas
+                </h5>
+              }
           </div>
           : <p>No ideas found for given filter.</p>;
 
