@@ -65,6 +65,13 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
       });
     }
 
+    private showMore(event: React.SyntheticEvent<TouchEvent>): void {
+      event.preventDefault();
+      this.setState({
+        showCount: this.state.showCount + defaultShowCount
+      });
+    }
+
     public render() {
         const ideasToList = this.state.ideas.slice(0, this.state.showCount);
 
@@ -73,7 +80,9 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
               { ideasToList.map((x) => <ListIdeaItem key={x.id} user={this.user} idea={x} />) }
               {
                 this.state.ideas.length > this.state.showCount &&
-                <h5 className="ui blue header show-more" onClick={() => this.setState({ showCount: this.state.showCount + defaultShowCount })}>
+                <h5 className="ui blue header show-more"
+                    onTouchEnd={ this.showMore.bind(this) }
+                    onClick={ this.showMore.bind(this) }>
                   View { this.state.ideas.length - this.state.showCount } more ideas
                 </h5>
               }
