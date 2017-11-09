@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 // TenantStorage contains read and write operations for tenants
@@ -128,9 +129,11 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	return nil
 }
 
-func extractSubdomain(domain string) string {
-	if idx := strings.Index(domain, "."); idx != -1 {
-		return domain[:idx]
+func extractSubdomain(hostname string) string {
+	domain := env.MultiTenantDomain()
+	if domain == "" {
+		return ""
 	}
-	return domain
+
+	return strings.Replace(hostname, domain, "", -1)
 }

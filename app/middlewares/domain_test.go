@@ -51,6 +51,19 @@ func TestMultiTenant(t *testing.T) {
 	}
 }
 
+func TestMultiTenant_SubSubDomain(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.MultiTenant())
+
+	status, _ := server.WithURL("http://demo.demo.test.fider.io").Execute(func(c web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
+	})
+
+	Expect(status).To(Equal(http.StatusNotFound))
+}
+
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterTestingT(t)
 
