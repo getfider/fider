@@ -3,7 +3,7 @@ import axios from 'axios';
 
 export const mailgun = {
   getLinkFromLastEmailTo: async (to: string): Promise<string> => {
-    const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=accepted&ascending=no`;
+    const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=accepted&limit=1&ascending=no`;
     let response = await axios.get(url, {
       auth: {
         username: 'api',
