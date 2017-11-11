@@ -1,5 +1,5 @@
-import { ensure, elementIsVisible } from './lib';
-import { pages, tenant, browser } from './context';
+import { ensure, elementIsVisible } from '../lib';
+import { pages, tenant, browser } from '../context';
 
 describe('Submit ideas', () => {
 

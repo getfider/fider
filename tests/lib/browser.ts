@@ -30,6 +30,14 @@ export class Browser {
     return await this.driver.findElements(By.css(selector));
   }
 
+  public async switchTo(element: string | WebElement): Promise<void> {
+    if (typeof element === 'string') {
+      await this.driver.switchTo().frame(this.findElement(element));
+    } else {
+      return await this.driver.switchTo().frame(element);
+    }
+  }
+
   public async wait(condition: WaitCondition) {
     await this.waitAny(condition);
   }

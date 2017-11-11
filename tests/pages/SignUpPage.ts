@@ -16,6 +16,12 @@ export class SignUpPage extends Page {
   @findBy('#fdr-signup-page .button.facebook')
   public FacebookSignIn: Button;
 
+  @findBy('#fdr-signup-page .form #name')
+  public UserName: TextInput;
+
+  @findBy('#fdr-signup-page .form #email')
+  public UserEmail: TextInput;
+
   @findBy('#fdr-signup-page .form #tenantName')
   public TenantName: TextInput;
 
@@ -27,6 +33,9 @@ export class SignUpPage extends Page {
 
   @findBy('#fdr-signup-page .page .green.basic.label')
   private SubdomainOk: WebComponent;
+
+  @findBy('#submitted-modal')
+  private SubmitConfirmation: WebComponent;
 
   public loadCondition() {
     return elementIsVisible(() => this.Container);
@@ -42,11 +51,19 @@ export class SignUpPage extends Page {
     await this.browser.wait(pageHasLoaded(FacebookSignInPage));
   }
 
+  public async signInWithEmail(name: string, email: string): Promise<void> {
+    await this.UserName.type(name);
+    await this.UserEmail.type(email);
+  }
+
   public async signUpAs(name: string, subdomain: string): Promise<void> {
     await this.TenantName.type(name);
     await this.Subdomain.type(subdomain);
     await this.browser.wait(elementIsVisible(() => this.SubdomainOk));
     await this.Confirm.click();
-    await this.browser.wait(pageHasLoaded(HomePage));
+    await this.browser.waitAny([
+      pageHasLoaded(HomePage),
+      elementIsVisible(() => this.SubmitConfirmation)
+    ]);
   }
 }

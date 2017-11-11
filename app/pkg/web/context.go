@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"net"
 	"net/http"
 	"strconv"
 	"time"
@@ -245,6 +246,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL as string
+//TODO: missing unit tests
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
 	if ctx.Request.TLS != nil {
@@ -254,16 +256,22 @@ func (ctx *Context) BaseURL() string {
 }
 
 //TenantBaseURL returns base URL for a given tenant
+//TODO: missing unit tests
 func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	if env.IsSingleHostMode() {
 		return ctx.BaseURL()
 	}
 
 	protocol := "http"
+	_, port, _ := net.SplitHostPort(ctx.Request.Host)
 	if ctx.Request.TLS != nil {
 		protocol = "https"
 	}
-	return protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()
+	address := protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()
+	if port != "" {
+		address += ":" + port
+	}
+	return address
 }
 
 //AuthEndpoint auth endpoint

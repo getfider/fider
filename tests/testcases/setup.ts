@@ -1,6 +1,6 @@
-import { Browser } from './lib';
-import { AllPages } from './pages';
-import { setPages, setBrowser, setTenant } from './context';
+import { Browser } from '../lib';
+import { AllPages } from '../pages';
+import { setPages, setBrowser, setTenant } from '../context';
 
 let browser: Browser;
 let pages: AllPages;
