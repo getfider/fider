@@ -1,4 +1,4 @@
-import { WebComponent, Browser, Page, findBy, findMultipleBy, Button, TextInput, elementIsVisible, pageHasLoaded } from '../lib';
+import { WebComponent, Browser, Page, findBy, findMultipleBy, Button, TextInput, elementIsVisible, elementIsNotVisible, pageHasLoaded } from '../lib';
 import { ShowIdeaPage, GoogleSignInPage, FacebookSignInPage } from './';
 import config from '../config';
 import { tenant } from '../context';
@@ -34,6 +34,12 @@ export class HomePage extends Page {
 
   @findBy('#signin-modal .button.facebook')
   public FacebookSignIn: Button;
+
+  @findBy('#email-signin input')
+  public EmailSignInInput: TextInput;
+
+  @findBy('#email-signin button')
+  public EmailSignInButton: TextInput;
 
   @findBy('.ui.form .ui.negative.message')
   public ErrorBox: WebComponent;
@@ -86,7 +92,18 @@ export class HomePage extends Page {
     ]);
   }
 
-  public async signIn(locator: () => WebComponent): Promise<void> {
+  public async signInWithEmail(email: string): Promise<void> {
+    await this.signOut();
+    await this.UserMenu.click();
+    await this.browser.wait(elementIsVisible(() => this.EmailSignInInput));
+    await this.EmailSignInInput.type(email);
+    await this.EmailSignInButton.click();
+    await this.browser.wait(
+      elementIsNotVisible(() => this.EmailSignInButton)
+    );
+  }
+
+  private async signIn(locator: () => WebComponent): Promise<void> {
     await this.UserMenu.click();
     await this.browser.wait(elementIsVisible(locator));
     await locator().click();

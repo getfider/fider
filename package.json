@@ -25,16 +25,17 @@
     "throttle-debounce": "^1.0.1"
   },
   "devDependencies": {
-    "@types/react-textarea-autosize": "^4.3.1",
     "@types/jquery": "^3.2.13",
     "@types/markdown-it": "0.0.4",
     "@types/md5": "^2.1.32",
     "@types/mocha": "^2.2.43",
     "@types/react": "^16.0.10",
     "@types/react-dom": "^16.0.0",
+    "@types/react-textarea-autosize": "^4.3.1",
     "@types/selenium-webdriver": "^3.0.7",
     "chromedriver": "^2.33.0",
     "css-loader": "^0.28.7",
+    "dotenv": "^4.0.0",
     "extract-text-webpack-plugin": "^3.0.1",
     "file-loader": "^1.1.5",
     "mocha": "^4.0.1",

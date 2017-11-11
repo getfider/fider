@@ -1,27 +1,23 @@
-import { ensure, elementIsVisible } from '../lib';
+import { ensure, elementIsVisible, mailgun } from '../lib';
 import { pages, tenant, browser } from '../context';
+import config from '../config';
 
 describe('Sign up by e-mail', () => {
-    it('User can sign up using e-mail', async () => {
+  it('User can sign up using e-mail', async () => {
+    const now = new Date().getTime();
 
-      // Action
-      await pages.inboxBear.navigate();
-      await pages.inboxBear.clearInbox();
+    // Action
+    await pages.signup.navigate();
+    await pages.signup.signInWithEmail('Darth Vader 1', `darthvader.fider+1@gmail.com`);
+    await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
-      const now = new Date().getTime();
+    const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+1@gmail.com`);
 
-      await pages.signup.navigate();
-      await pages.signup.signInWithEmail('Selenium Tester', 'fiderselenium@inboxbear.com');
-      await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
+    await pages.goTo(link);
+    browser.wait(pages.home.loadCondition());
 
-      await pages.inboxBear.navigate();
-      const link = await pages.inboxBear.getLinkFromEmail(0);
-
-      await pages.goTo(link);
-      browser.wait(pages.home.loadCondition());
-
-      // Assert
-      await pages.home.UserMenu.click();
-      await ensure(pages.home.UserName).textIs('SELENIUM TESTER');
-    });
+    // Assert
+    await pages.home.UserMenu.click();
+    await ensure(pages.home.UserName).textIs('DARTH VADER 1');
+  });
 });
