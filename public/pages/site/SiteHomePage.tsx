@@ -63,7 +63,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         const search = getQueryString('q');
         const activeFilter = window.location.hash.substring(1);
         this.state = {
-          ideas: this.filterIdeas(activeFilter, search),
+          ideas: this.filterIdeas(activeFilter, search, false),
           showCount: defaultShowCount,
           activeFilter,
           searching: !!search,
@@ -80,7 +80,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         return true;
     }
 
-    private filterIdeas(activeFilter: string, search?: string): Idea[] {
+    private filterIdeas(activeFilter: string, search: string | undefined, push: boolean): Idea[] {
       let newUrl = getBaseUrl();
       let ideas = [];
 
@@ -100,15 +100,16 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         ideas = IdeaFilter.getFilter(activeFilter)(this.allIdeas);
       }
 
-      if (history.replaceState) {
+      if (push && history.replaceState) {
         window.history.replaceState({ path: newUrl }, '', newUrl);
       }
+
       return ideas;
     }
 
     private filterChanged(name: string) {
       this.setState({
-        ideas: this.filterIdeas(name, this.state.search),
+        ideas: this.filterIdeas(name, this.state.search, true),
         showCount: defaultShowCount,
         activeFilter: name,
       });
@@ -125,14 +126,14 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
       this.setState({
         search: '',
         searching: false,
-        ideas: this.filterIdeas(this.state.activeFilter, ''),
+        ideas: this.filterIdeas(this.state.activeFilter, '', true),
       });
     }
 
     private searchIdea(input: string): void {
       this.setState({
         search: input,
-        ideas: this.filterIdeas(this.state.activeFilter, input)
+        ideas: this.filterIdeas(this.state.activeFilter, input, true)
       });
     }
 
