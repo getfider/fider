@@ -5,7 +5,7 @@ export type IdeaFilterFunction = (ideas: Idea[]) => Idea[];
 
 interface IdeaFilterProps {
     activeFilter: string;
-    filterChanged: (name: string, filter: IdeaFilterFunction) => void;
+    filterChanged: (name: string) => void;
 }
 
 const filterers: {[key: string]: (idea: Idea) => boolean} = {
@@ -50,7 +50,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
     public componentDidMount() {
         $(this.element).dropdown({
             onChange: (value: string) => {
-                this.props.filterChanged(value, IdeaFilter.getFilter(value));
+                this.props.filterChanged(value);
             }
         });
     }

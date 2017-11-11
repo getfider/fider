@@ -30,7 +30,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
 
   private async submit() {
     const key = getQueryString('k');
-    const result = await this.service.completeProfile(key!, this.state.name);
+    const result = await this.service.completeProfile(key, this.state.name);
     if (result.ok) {
       location.href = '/';
     } else if (result.error) {

@@ -29,6 +29,15 @@
     }
   }
 
+  .filter-column {
+    display: flex;
+    align-items: center;
+  }
+
+  .no-ideas-found {
+    margin-top: 10px;
+  }
+
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
