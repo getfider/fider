@@ -28,6 +28,10 @@ export class AllPages {
       this.showIdea = new ShowIdeaPage(browser);
     }
 
+    public async goTo(url: string): Promise<void> {
+      return this.browser.navigate(url);
+    }
+
     public async dispose(): Promise<void> {
       await this.browser.close();
     }

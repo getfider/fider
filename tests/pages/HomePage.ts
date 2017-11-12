@@ -1,4 +1,4 @@
-import { WebComponent, Browser, Page, findBy, findMultipleBy, Button, TextInput, elementIsVisible, pageHasLoaded } from '../lib';
+import { WebComponent, Browser, Page, findBy, findMultipleBy, Button, TextInput, elementIsVisible, elementIsNotVisible, pageHasLoaded } from '../lib';
 import { ShowIdeaPage, GoogleSignInPage, FacebookSignInPage } from './';
 import config from '../config';
 import { tenant } from '../context';
@@ -8,7 +8,10 @@ import { IdeaList } from '../components/IdeaList';
 export class HomePage extends Page {
   constructor(browser: Browser) {
     super(browser);
-    this.setUrl(`http://${tenant}.dev.fider.io:3000/`);
+  }
+
+  public getUrl(): string {
+    return `http://${tenant}.dev.fider.io:3000/`;
   }
 
   @findBy('#new-idea-input')
@@ -35,6 +38,12 @@ export class HomePage extends Page {
   @findBy('#signin-modal .button.facebook')
   public FacebookSignIn: Button;
 
+  @findBy('#email-signin input')
+  private EmailSignInInput: TextInput;
+
+  @findBy('#email-signin button')
+  private EmailSignInButton: TextInput;
+
   @findBy('.ui.form .ui.negative.message')
   public ErrorBox: WebComponent;
 
@@ -43,6 +52,12 @@ export class HomePage extends Page {
 
   @findMultipleBy('.fdr-idea-list > .item')
   public IdeaList: IdeaList;
+
+  @findBy('#signin-complete-modal input')
+  private CompleteEmailSignInInput: TextInput;
+
+  @findBy('#signin-complete-modal button')
+  private CompleteEmailSignInButton: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.IdeaTitle);
@@ -86,7 +101,25 @@ export class HomePage extends Page {
     ]);
   }
 
-  public async signIn(locator: () => WebComponent): Promise<void> {
+  public async signInWithEmail(email: string): Promise<void> {
+    await this.signOut();
+    await this.UserMenu.click();
+    await this.browser.wait(elementIsVisible(() => this.EmailSignInInput));
+    await this.EmailSignInInput.type(email);
+    await this.EmailSignInButton.click();
+    await this.browser.wait(
+      elementIsNotVisible(() => this.EmailSignInButton)
+    );
+  }
+
+  public async completeSignIn(name: string): Promise<void> {
+    await this.browser.wait(elementIsVisible(() => this.CompleteEmailSignInInput));
+    await this.CompleteEmailSignInInput.type(name);
+    await this.CompleteEmailSignInButton.click();
+    await this.browser.wait(this.loadCondition());
+  }
+
+  private async signIn(locator: () => WebComponent): Promise<void> {
     await this.UserMenu.click();
     await this.browser.wait(elementIsVisible(locator));
     await locator().click();

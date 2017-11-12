@@ -6,6 +6,10 @@ export function elementIsVisible(locator: () => WebComponent): WaitCondition {
   return async () => await locator().isDisplayed();
 }
 
+export function elementIsNotVisible(locator: () => WebComponent): WaitCondition {
+  return async () => await locator().isDisplayed() === false;
+}
+
 export function elementIsPresent(locator: () => WebComponent): WaitCondition {
   return async () => await locator() !== undefined;
 }

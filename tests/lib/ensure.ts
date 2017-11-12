@@ -1,28 +1,50 @@
 import { WebElementPromise } from 'selenium-webdriver';
-import { WebComponent, Button, TextInput } from './';
+import { WebComponent, Button, TextInput, delay } from './';
 
 class WebComponentEnsurer {
+  public async retry(fn: () => Promise<void>) {
+    let count = 0;
+    let lastErr: Error;
+    do {
+      try {
+        await fn();
+        return;
+      } catch (err) {
+        lastErr = err;
+        await delay(500);
+        count++;
+      }
+    } while (count !== 3);
+    throw lastErr;
+  }
+
   constructor(private component: WebComponent) {
   }
 
   public async textIs(expected: string) {
-    const text = await this.component.getText();
+    await this.retry(async () => {
+      const text = await this.component.getText();
 
-    if (expected.trim() !== text.trim()) {
-      throw new Error(`Element ${this.component.selector} text is '${text}'. Expected value is '${expected}'`);
-    }
+      if (expected.trim() !== text.trim()) {
+        throw new Error(`Element ${this.component.selector} text is '${text}'. Expected value is '${expected}'`);
+      }
+    });
   }
 
   public async isVisible() {
-    if (!await this.component.isDisplayed()) {
-      throw new Error(`Element ${this.component.selector} is not visible`);
-    }
+    await this.retry(async () => {
+      if (!await this.component.isDisplayed()) {
+        throw new Error(`Element ${this.component.selector} is not visible`);
+      }
+    });
   }
 
   public async isNotVisible() {
-    if (await this.component.isDisplayed()) {
-      throw new Error(`Element ${this.component.selector} is visible`);
-    }
+    await this.retry(async () => {
+      if (await this.component.isDisplayed()) {
+        throw new Error(`Element ${this.component.selector} is visible`);
+      }
+    });
   }
 }
 
@@ -34,9 +56,11 @@ class ButtonEnsurer extends WebComponentEnsurer {
   }
 
   public async isNotDisabled() {
-    if (await this.button.isDisabled()) {
-      throw new Error(`Button ${this.button.selector} is disabled`);
-    }
+    await this.retry(async () => {
+      if (await this.button.isDisabled()) {
+        throw new Error(`Button ${this.button.selector} is disabled`);
+      }
+    });
   }
 }
 
