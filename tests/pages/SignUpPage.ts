@@ -4,7 +4,10 @@ import { GoogleSignInPage, FacebookSignInPage, HomePage } from './';
 export class SignUpPage extends Page {
   constructor(browser: Browser) {
     super(browser);
-    this.setUrl('http://login.dev.fider.io:3000/signup');
+  }
+
+  public getUrl(): string {
+    return `http://login.dev.fider.io:3000/signup`;
   }
 
   @findBy('#fdr-signup-page')

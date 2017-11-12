@@ -8,7 +8,10 @@ import { IdeaList } from '../components/IdeaList';
 export class HomePage extends Page {
   constructor(browser: Browser) {
     super(browser);
-    this.setUrl(`http://${tenant}.dev.fider.io:3000/`);
+  }
+
+  public getUrl(): string {
+    return `http://${tenant}.dev.fider.io:3000/`;
   }
 
   @findBy('#new-idea-input')
@@ -36,10 +39,10 @@ export class HomePage extends Page {
   public FacebookSignIn: Button;
 
   @findBy('#email-signin input')
-  public EmailSignInInput: TextInput;
+  private EmailSignInInput: TextInput;
 
   @findBy('#email-signin button')
-  public EmailSignInButton: TextInput;
+  private EmailSignInButton: TextInput;
 
   @findBy('.ui.form .ui.negative.message')
   public ErrorBox: WebComponent;
@@ -49,6 +52,12 @@ export class HomePage extends Page {
 
   @findMultipleBy('.fdr-idea-list > .item')
   public IdeaList: IdeaList;
+
+  @findBy('#signin-complete-modal input')
+  private CompleteEmailSignInInput: TextInput;
+
+  @findBy('#signin-complete-modal button')
+  private CompleteEmailSignInButton: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.IdeaTitle);
@@ -101,6 +110,13 @@ export class HomePage extends Page {
     await this.browser.wait(
       elementIsNotVisible(() => this.EmailSignInButton)
     );
+  }
+
+  public async completeSignIn(name: string): Promise<void> {
+    await this.browser.wait(elementIsVisible(() => this.CompleteEmailSignInInput));
+    await this.CompleteEmailSignInInput.type(name);
+    await this.CompleteEmailSignInButton.click();
+    await this.browser.wait(this.loadCondition());
   }
 
   private async signIn(locator: () => WebComponent): Promise<void> {

@@ -5,18 +5,16 @@ export interface NewablePage<T extends Page> {
 }
 
 export abstract class Page {
-  private url: string;
-
-  protected setUrl(url: string) {
-    this.url = url;
-  }
 
   public async navigate(): Promise<void> {
-    await this.browser.navigate(this.url);
+    await this.browser.navigate(this.getUrl());
     await this.browser.wait(this.loadCondition());
   }
 
   public abstract loadCondition(): WaitCondition;
+  protected getUrl(): string {
+    throw new Error('getUrl not implemented');
+  }
 
   public constructor(protected browser: Browser) {
 

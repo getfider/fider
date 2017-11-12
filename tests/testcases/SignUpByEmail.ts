@@ -1,23 +1,31 @@
-import { ensure, elementIsVisible, mailgun } from '../lib';
+import { ensure, elementIsVisible, mailgun, delay } from '../lib';
 import { pages, tenant, browser } from '../context';
-import config from '../config';
+import { initialize } from './setup';
 
 describe('Sign up by e-mail', () => {
+  before(async () => {
+    initialize();
+  });
+
+  after(async () => {
+    await pages.dispose();
+  });
+
   it('User can sign up using e-mail', async () => {
     const now = new Date().getTime();
 
     // Action
     await pages.signup.navigate();
-    await pages.signup.signInWithEmail('Darth Vader 1', `darthvader.fider+1@gmail.com`);
+    await pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider+${now}@gmail.com`);
     await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
-    const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+1@gmail.com`);
+    const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+${now}@gmail.com`);
 
     await pages.goTo(link);
-    browser.wait(pages.home.loadCondition());
+    await browser.wait(pages.home.loadCondition());
 
     // Assert
     await pages.home.UserMenu.click();
-    await ensure(pages.home.UserName).textIs('DARTH VADER 1');
+    await ensure(pages.home.UserName).textIs(`DARTH VADER ${now}`);
   });
 });
