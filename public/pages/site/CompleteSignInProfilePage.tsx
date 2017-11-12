@@ -13,12 +13,14 @@ interface CompleteSignInProfilePageState {
 
 export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignInProfilePageState> {
   private form: Form;
+  private key: string;
 
   @inject(injectables.TenantService)
   public service: TenantService;
 
   constructor(props: {}) {
     super(props);
+    this.key = getQueryString('k');
     this.state = {
       name: '',
     };
@@ -29,8 +31,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
   }
 
   private async submit() {
-    const key = getQueryString('k');
-    const result = await this.service.completeProfile(key, this.state.name);
+    const result = await this.service.completeProfile(this.key, this.state.name);
     if (result.ok) {
       location.href = '/';
     } else if (result.error) {
