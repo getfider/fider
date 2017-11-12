@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Textarea from 'react-textarea-autosize';
-import { DisplayError, Button, Form } from '@fider/components/common';
+import { DisplayError, Button, ButtonClickEvent, Form } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -51,12 +51,13 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       }
     }
 
-    private async submit() {
+    private async submit(event: ButtonClickEvent) {
       if (this.state.title) {
         const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
           this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
+          event.preventEnable();
         } else if (result.error) {
           this.form.setFailure(result.error);
         }
@@ -69,16 +70,16 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
                         <div className="field">
                           <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
                         </div>
-                        <Button className={buttonCss} onClick={() => this.form.submit() }>
+                        <Button className={ buttonCss } onClick={ (e) => this.submit(e) }>
                           Submit
                         </Button>
                       </div>;
 
-      return <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.submit()}>
+      return <Form ref={(f) => { this.form = f!; } } >
                   <input id="new-idea-input"
                           type="text"
-                          ref={(e) => this.title = e! }
-                          onFocus={() => this.onTitleFocused()}
+                          ref={ (e) => this.title = e! }
+                          onFocus={ () => this.onTitleFocused() }
                           maxLength={100}
                           onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
                           placeholder={this.props.placeholder} />
