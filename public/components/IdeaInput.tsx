@@ -66,24 +66,30 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
 
     public render() {
       const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
-      const details = <div>
-                        <div className="field">
-                          <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
-                        </div>
-                        <Button className={ buttonCss } onClick={ (e) => this.submit(e) }>
-                          Submit
-                        </Button>
-                      </div>;
+      const details = (
+        <div>
+          <div className="field">
+            <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
+          </div>
+          <Button className={buttonCss} onClick={(e) => this.submit(e)}>
+            Submit
+          </Button>
+        </div>
+      );
 
-      return <Form ref={(f) => { this.form = f!; } } >
-                  <input id="new-idea-input"
-                          type="text"
-                          ref={ (e) => this.title = e! }
-                          onFocus={ () => this.onTitleFocused() }
-                          maxLength={100}
-                          onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
-                          placeholder={this.props.placeholder} />
-              { this.state.title && details }
-              </Form>;
+      return (
+      <Form ref={(f) => { this.form = f!; }} >
+        <input
+          id="new-idea-input"
+          type="text"
+          ref={(e) => this.title = e!}
+          onFocus={() => this.onTitleFocused()}
+          maxLength={100}
+          onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
+          placeholder={this.props.placeholder}
+        />
+        {this.state.title && details}
+      </Form>
+      );
     }
 }

@@ -12,9 +12,14 @@ interface MultiLineText {
 
 export const MultiLineText = (props: MultiLineText) => {
   if (!props.text) {
-    return <p></p>;
+    return <p />;
   }
 
   const func = props.style === 'full' ? full : simple;
-  return <div className={ `markdown-body ${props.className || ''}` } dangerouslySetInnerHTML={{__html: func.render(props.text)}}></div>;
+  return (
+    <div
+      className={`markdown-body ${props.className || ''}`}
+      dangerouslySetInnerHTML={{__html: func.render(props.text)}}
+    />
+  );
 };

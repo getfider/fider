@@ -27,41 +27,46 @@ export class Header extends React.Component<{}, {}> {
   }
 
   public render() {
-    const items = this.user && <div className="menu">
-                      <div className="name header">
-                        <i className="user icon"></i>
-                        { this.user.name }
-                      </div>
-                      <a href="/settings" className="item">Settings</a>
-                      <div className="divider"></div>
-                      {
-                        this.session.isCollaborator() && [
-                          <div key={1} className="header">
-                            <i className="setting icon"></i>
-                            Administration
-                          </div>,
-                          <a key={2} href="/admin" className="item">General Settings</a>,
-                          <a key={3} href="/admin/members" className="item">Members</a>,
-                          <div key={4} className="divider"></div>
-                        ]
-                      }
-                      <a href="/signout?redirect=/" className="item signout">Sign out</a>
-                  </div>;
+    const items = this.user && (
+      <div className="menu">
+          <div className="name header">
+            <i className="user icon" />
+            {this.user.name}
+          </div>
+          <a href="/settings" className="item">Settings</a>
+          <div className="divider" />
+          {
+            this.session.isCollaborator() && [
+              <div key={1} className="header">
+                <i className="setting icon" />
+                Administration
+              </div>,
+              <a key={2} href="/admin" className="item">General Settings</a>,
+              <a key={3} href="/admin/members" className="item">Members</a>,
+              <div key={4} className="divider" />
+            ]
+          }
+          <a href="/signout?redirect=/" className="item signout">Sign out</a>
+      </div>
+    );
 
-    return <div>
-              <EnvironmentInfo />
-              <div id="menu" className="ui small borderless menu">
-                <div className="ui container">
-                  <a href="/" className="header item">
-                    { this.tenant.name }
-                  </a>
-                  <div onClick={ () => this.showModal() } className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
-                    { this.user && <Gravatar user={ this.user } /> }
-                    { !this.user && 'Sign in' } { this.user && <i className="dropdown icon"></i> }
-                    { items }
-                  </div>
-                </div>
-              </div>
-            </div>;
+    return (
+      <div>
+        <EnvironmentInfo />
+        <div id="menu" className="ui small borderless menu">
+          <div className="ui container">
+            <a href="/" className="header item">
+              {this.tenant.name}
+            </a>
+            <div onClick={() => this.showModal()} className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
+              {this.user && <Gravatar user={this.user} />}
+              {!this.user && 'Sign in'} {this.user && <i className="dropdown icon" />}
+              {items}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
     }
 }

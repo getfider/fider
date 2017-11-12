@@ -10,12 +10,17 @@ export class EnvironmentInfo extends React.Component<{}, {}> {
   public render() {
     if (!this.session.isProduction()) {
       const settings = this.session.getAppSettings();
-      return <div id="environment-info" className=" ui mini negative message no-border no-margin">
-                  Env: { settings.environment } |
-                  Compiler: { settings.compiler } |
-                  Version: { settings.version } |
-                  BuildTime: { settings.buildTime }
-              </div>;
+      return (
+        <div
+          id="environment-info"
+          className=" ui mini negative message no-border no-margin"
+        >
+          Env: {settings.environment} |
+          Compiler: {settings.compiler} |
+          Version: {settings.version} |
+          BuildTime: {settings.buildTime}
+        </div>
+      );
     }
     return <div/>;
   }

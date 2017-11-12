@@ -8,7 +8,7 @@
     "build": "rm -rf dist && webpack -p",
     "test": "rm -rf output && tsc && mocha -t 30000 output/tsc/tests/testcases/*.js",
     "watch": "rm -rf dist && webpack --watch",
-    "lint": "tslint public/**/**.tsx public/**/**.ts"
+    "lint": "tslint -c tslint.json 'public/**/*.{ts,tsx}'"
   },
   "dependencies": {
     "axios": "^0.16.2",
@@ -43,8 +43,9 @@
     "sass-loader": "^6.0.6",
     "selenium-webdriver": "^3.6.0",
     "ts-loader": "^2.3.7",
-    "tslint": "^5.7.0",
-    "typescript": "^2.5.3",
+    "tslint": "^5.8.0",
+    "tslint-react": "^3.2.0",
+    "typescript": "^2.6.1",
     "webpack": "^3.6.0",
     "webpack-clean-obsolete-chunks": "^0.2.0"
   }
