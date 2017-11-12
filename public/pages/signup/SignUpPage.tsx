@@ -116,90 +116,101 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
 
     public render() {
-      const modal = this.state.submitted &&
-          <div id="submitted-modal" className="ui modal small">
-            <div className="header">Thank you for registering!</div>
-            <div className="content">
-              <p>Please check your inbox for a confirmation link to finish your registration.</p>
-            </div>
-          </div>;
+      const modal = this.state.submitted && (
+        <div id="submitted-modal" className="ui modal small">
+          <div className="header">Thank you for registering!</div>
+          <div className="content">
+            <p>Please check your inbox for a confirmation link to finish your registration.</p>
+          </div>
+        </div>
+      );
 
-      return <div>
-              <EnvironmentInfo />
-              <div className="page ui container">
-                  { modal }
-                  <img className="logo" src={logo} />
+      return (
+        <div>
+          <EnvironmentInfo />
+          <div className="page ui container">
+            {modal}
+            <img className="logo" src={logo} />
 
-                  <h3 className="ui header">1. Who are you?</h3>
-                  <DisplayError fields={['token']} error={this.state.error} />
+            <h3 className="ui header">1. Who are you?</h3>
+            <DisplayError fields={['token']} error={this.state.error} />
 
-                  {
-                      this.user ?
-                      <div>
-                        <p>
-                          Hello, &nbsp;
-                          <Gravatar name={this.user.name} email={this.user.email} />
-                          <b>{this.user.name}</b> ({this.user.email})
-                        </p>
-                      </div> :
-                      <div>
-                        <p>We need to identify you to setup your new Fider account.</p>
-                        <SignInControl signInByEmail={ false } />
-                          <div className="ui form">
-                          <DisplayError fields={['name', 'email']} error={this.state.error} />
-                          <div className="fluid field">
-                            <input id="name" onChange={(e) => this.setState({ name: e.currentTarget.value }) } type="text" placeholder="your name" className="small" />
-                          </div>
-                          <div className="fluid field">
-                            <input id="email" onChange={(e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
-                          </div>
-                        </div>
-                      </div>
-                  }
-
-                  <div className="ui section divider"></div>
-
-                  <h3 className="ui header">2. What is this Feedback Forum for?</h3>
-
-                  <DisplayError fields={['tenantName', 'subdomain']} error={this.state.error} />
+            {
+              this.user ?
+              <div>
+                <p>
+                  Hello, &nbsp;
+                  <Gravatar name={this.user.name} email={this.user.email} />
+                  <b>{this.user.name}</b> ({this.user.email})
+                </p>
+              </div> :
+              <div>
+                <p>We need to identify you to setup your new Fider account.</p>
+                <SignInControl signInByEmail={false} />
                   <div className="ui form">
-                    <div className="fluid field">
-                      <input id="tenantName" type="text"
-                          placeholder="your company or product name"
-                          maxLength={60}
-                          onChange={(e) => this.setState({ tenantName: e.currentTarget.value })}/>
-                    </div>
-                    { !this.session.isSingleHostMode() && <div className="fluid field">
-                        <div className="ui right labeled input">
-                          <input id="subdomain" type="text"
-                              maxLength={40}
-                              placeholder="subdomain"
-                              onChange={(e) => this.checkAvailability(e.currentTarget.value)} />
-                          <div className="ui label">{ this.settings.domain }</div>
-                          {
-                            this.state.subdomain.available &&
-                            <div className="ui left pointing green basic label">
-                                Great!
-                            </div>
-                          }
-                          {
-                            this.state.subdomain.message &&
-                            <div className="ui left pointing red basic label">
-                                { this.state.subdomain.message }
-                            </div>
-                          }
-                        </div>
-                    </div> }
+                  <DisplayError fields={['name', 'email']} error={this.state.error} />
+                  <div className="fluid field">
+                    <input id="name" onChange={(e) => this.setState({ name: e.currentTarget.value })} type="text" placeholder="your name" className="small" />
                   </div>
-                  <div className="ui section divider"></div>
-
-                  <h3 className="ui header">3. Review and continue</h3>
-
-                  <p>Make sure information provided above is correct before proceeding.</p>
-
-                  <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
+                  <div className="fluid field">
+                    <input id="email" onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
+                  </div>
+                </div>
               </div>
-              <Footer />
-          </div>;
+            }
+
+            <div className="ui section divider" />
+
+            <h3 className="ui header">2. What is this Feedback Forum for?</h3>
+
+            <DisplayError fields={['tenantName', 'subdomain']} error={this.state.error} />
+            <div className="ui form">
+              <div className="fluid field">
+                <input
+                  id="tenantName"
+                  type="text"
+                  placeholder="your company or product name"
+                  maxLength={60}
+                  onChange={(e) => this.setState({ tenantName: e.currentTarget.value })}
+                />
+              </div>
+              {
+                !this.session.isSingleHostMode() && <div className="fluid field">
+                  <div className="ui right labeled input">
+                    <input
+                      id="subdomain"
+                      type="text"
+                      maxLength={40}
+                      placeholder="subdomain"
+                      onChange={(e) => this.checkAvailability(e.currentTarget.value)}
+                    />
+                    <div className="ui label">{this.settings.domain}</div>
+                    {
+                      this.state.subdomain.available &&
+                      <div className="ui left pointing green basic label">
+                        Great!
+                      </div>
+                    }
+                    {
+                      this.state.subdomain.message &&
+                      <div className="ui left pointing red basic label">
+                        {this.state.subdomain.message}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            <div className="ui section divider" />
+
+            <h3 className="ui header">3. Review and continue</h3>
+
+            <p>Make sure information provided above is correct before proceeding.</p>
+
+            <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
+          </div>
+          <Footer />
+        </div>
+      );
     }
 }

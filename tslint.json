@@ -1,12 +1,12 @@
 {
-    "extends": "tslint:recommended",
+    "extends": [ "tslint:recommended", "tslint-react"],
     "rules": {
         "object-literal-sort-keys": false,
         "trailing-comma": [
             false
         ],
         "indent": [
-            true, "spaces", 4
+            true, "spaces", 2
         ],
         "interface-name": [
             false
@@ -26,6 +26,8 @@
         ],
         "max-classes-per-file": [
             false
-        ]
+        ],
+        "jsx-no-lambda": false,
+        "jsx-no-multiline-js": false
     }
 }

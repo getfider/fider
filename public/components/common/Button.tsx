@@ -58,13 +58,17 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     public render() {
         const cssClasses = `ui ${this.props.size} button ${this.props.className || ''} ${this.state.clicked ? 'loading disabled' : ''}`;
         if (this.props.href) {
-            return <a href={ this.props.href } className={ cssClasses } onClick={ () => this.click() }>
-                        { this.props.children }
-                   </a>;
+            return (
+                <a href={this.props.href} className={cssClasses} onClick={() => this.click()}>
+                    {this.props.children}
+                </a>
+            );
         } else {
-            return <button type="button" className={ cssClasses } onClick={ (e) => this.click(e) }>
-                        { this.props.children }
-                   </button>;
+            return (
+                <button type="button" className={cssClasses} onClick={(e) => this.click(e)}>
+                    {this.props.children}
+                </button>
+            );
         }
     }
 

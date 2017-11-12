@@ -50,50 +50,59 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     const settings = this.session.get<AuthSettings>('auth');
 
     if (this.state.sent) {
-      return <div>
-                <p>We sent a sign in link to <b>{ this.state.email }</b>. <br /> Please check your inbox.</p>
-                <p><a href="#" onClick={() => hideSignIn()}>OK</a></p>
-             </div>;
+      return (
+        <div>
+          <p>We sent a sign in link to <b>{this.state.email}</b>. <br /> Please check your inbox.</p>
+          <p><a href="#" onClick={() => hideSignIn()}>OK</a></p>
+        </div>
+      );
     }
 
-    const google = settings.providers.google &&
+    const google = settings.providers.google && (
                     <div className="column">
-                        <SocialSignInButton provider="google" />
-                    </div>;
-    const facebook = settings.providers.facebook &&
-                    <div className="column">
+                      <SocialSignInButton provider="google" />
+                    </div>
+                  );
+    const facebook = settings.providers.facebook && (
+                      <div className="column">
                         <SocialSignInButton provider="facebook" />
-                    </div>;
-    const github = settings.providers.github &&
-                    <div className="column">
+                      </div>
+                    );
+    const github = settings.providers.github && (
+                      <div className="column">
                         <SocialSignInButton provider="github" />
-                    </div>;
+                      </div>
+                    );
     const hasOAuth = !!(google || facebook || github);
 
-    return  <div className="signin-options">
-                {
-                  hasOAuth && <div>
-                                <div className="ui stackable three column centered grid">
-                                  { facebook }
-                                  { google }
-                                  { github }
-                                </div>
-                                <p className="info">We'll never post to any of your accounts</p>
-                                <div className="ui horizontal divider">OR</div>
-                              </div>
-                }
+    return (
+      <div className="signin-options">
+          {
+            hasOAuth && (
+              <div>
+                <div className="ui stackable three column centered grid">
+                  {facebook}
+                  {google}
+                  {github}
+                </div>
+                <p className="info">We'll never post to any of your accounts</p>
+                <div className="ui horizontal divider">OR</div>
+              </div>
+            )
+          }
 
-                { this.props.signInByEmail && <div>
-                  <p>Enter your e-mail address to sign in</p>
-                  <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
-                    <div id="email-signin" className="ui small action fluid input">
-                        <input onChange={ (e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
-                        <Button onClick={ () => this.signIn() } className={`positive ${this.state.email === '' && 'disabled'}`}>
-                          Sign in
-                        </Button>
-                    </div>
-                  </Form>
-                </div> }
-            </div>;
+          { this.props.signInByEmail && <div>
+            <p>Enter your e-mail address to sign in</p>
+            <Form ref={(f) => { this.form = f!; }} onSubmit={() => this.signIn()}>
+              <div id="email-signin" className="ui small action fluid input">
+                  <input onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
+                  <Button onClick={() => this.signIn()} className={`positive ${this.state.email === '' && 'disabled'}`}>
+                    Sign in
+                  </Button>
+              </div>
+            </Form>
+          </div> }
+      </div>
+    );
   }
 }

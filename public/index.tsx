@@ -60,8 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ReactDOM.render(
       <div>
         <SignInModal />
-        <div id={ config.id }>
-          { React.createElement(config.component) }
+        <div id={config.id}>
+          {React.createElement(config.component)}
         </div>
       </div>, root
     );

@@ -10,77 +10,82 @@ import { Session, IdeaService, Failure } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface CommentInputProps {
-    idea: Idea;
+  idea: Idea;
 }
 
 interface CommentInputState {
-    content: string;
-    error?: Failure;
+  content: string;
+  error?: Failure;
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
-    private input: HTMLTextAreaElement;
+  private input: HTMLTextAreaElement;
 
-    @inject(injectables.Session)
-    public session: Session;
+  @inject(injectables.Session)
+  public session: Session;
 
-    @inject(injectables.IdeaService)
-    public service: IdeaService;
+  @inject(injectables.IdeaService)
+  public service: IdeaService;
 
-    private user?: CurrentUser;
+  private user?: CurrentUser;
 
-    constructor() {
-        super();
-        this.user = this.session.getCurrentUser();
+  constructor() {
+      super();
+      this.user = this.session.getCurrentUser();
 
-        this.state = {
-          content: ''
-        };
+      this.state = {
+        content: ''
+      };
+  }
+
+  private onTextFocused() {
+    if (!this.user) {
+      this.input.blur();
+      showSignIn();
     }
+  }
 
-    private onTextFocused() {
-      if (!this.user) {
-        this.input.blur();
-        showSignIn();
-      }
-    }
+  public async submit() {
+    this.setState({
+      error: undefined
+    });
 
-    public async submit() {
+    const result = await this.service.addComment(this.props.idea.number, this.state.content);
+    if (result.ok) {
+      location.reload();
+    } else {
       this.setState({
-        error: undefined
+        error: result.error,
       });
-
-      const result = await this.service.addComment(this.props.idea.number, this.state.content);
-      if (result.ok) {
-        location.reload();
-      } else {
-        this.setState({
-          error: result.error,
-        });
-      }
     }
+  }
 
-    public render() {
-        const user = this.session.getCurrentUser();
+  public render() {
+    const user = this.session.getCurrentUser();
 
-        return <div className={`comment-input ${user && 'authenticated' }`}>
-                  { this.user && <Gravatar user={ this.user } /> }
-                  <div className="ui form">
-                    { this.user && <UserName user={ this.user } /> }
-                    <DisplayError error={this.state.error} />
-                    <div className="field">
-                      <Textarea onChange={(e) => { this.setState({ content: e.currentTarget.value }); }}
-                                onFocus={() => this.onTextFocused()}
-                                inputRef={(e) => this.input = e!}
-                                rows={1}
-                                placeholder="Write a comment..."/>
-                    </div>
-                    { this.state.content &&
-                      <Button className="primary" onClick={ () => this.submit() }>
-                        Submit
-                      </Button>
-                    }
-                  </div>
-                </div>;
-    }
+    return (
+      <div className={`comment-input ${user && 'authenticated' }`}>
+        {this.user && <Gravatar user={this.user} />}
+        <div className="ui form">
+          {this.user && <UserName user={this.user} />}
+          <DisplayError error={this.state.error} />
+          <div className="field">
+            <Textarea
+              onChange={(e) => { this.setState({ content: e.currentTarget.value }); }}
+              onFocus={() => this.onTextFocused()}
+              inputRef={(e) => this.input = e!}
+              rows={1}
+              placeholder="Write a comment..."
+            />
+          </div>
+          {
+            this.state.content &&
+            <Button className="primary" onClick={() => this.submit()}>
+              Submit
+            </Button>
+          }
+        </div>
+      </div>
+    );
+  }
 }

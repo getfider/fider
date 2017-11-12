@@ -54,49 +54,57 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   public render() {
-    const button = <Button className="icon fluid text-left"  onClick={async () => this.showModal()}>
-                     <i className="announcement icon"></i> Respond
-                   </Button>;
+    const button = (
+      <Button className="icon fluid text-left"  onClick={async () => this.showModal()}>
+        <i className="announcement icon" /> Respond
+      </Button>
+    );
 
-    const modal = <div className="ui form modal" ref={(e) => this.modal = e! }>
+    const modal = (
+      <div className="ui form modal" ref={(e) => this.modal = e!}>
+        <div className="content">
+          <DisplayError fields={['status']} error={this.state.error} />
+          <div className="two fields">
+            <div className="field">
+              <label>Status</label>
+              <select
+                className="ui dropdown"
+                defaultValue={this.props.idea.status.toString()}
+                onChange={(e) => this.setState({ status: parseInt(e.currentTarget.value, 10) })}
+              >
+                <option value="0">Open</option>
+                <option value="1">Started</option>
+                <option value="2">Completed</option>
+                <option value="3">Declined</option>
+              </select>
+            </div>
+          </div>
+          <DisplayError fields={['text']} error={this.state.error} />
+          <div className="field">
+            <Textarea
+              onChange={(e) => this.setState({ text: e.currentTarget.value })}
+              defaultValue={this.state.text}
+              placeholder="What's going on with this idea? Let your users know what are your plans..."
+            />
+          </div>
+        </div>
 
-                  <div className="content">
-                    <DisplayError fields={['status']} error={this.state.error} />
-                    <div className="two fields">
-                      <div className="field">
-                        <label>Status</label>
-                        <select className="ui dropdown"
-                          defaultValue={this.props.idea.status.toString()}
-                          onChange={ (e) => this.setState({ status: parseInt(e.currentTarget.value, 10) }) }>
-                          <option value="0">Open</option>
-                          <option value="1">Started</option>
-                          <option value="2">Completed</option>
-                          <option value="3">Declined</option>
-                        </select>
-                      </div>
-                    </div>
-                    <DisplayError fields={['text']} error={this.state.error} />
-                    <div className="field">
-                      <Textarea
-                        onChange={ (e) => this.setState({ text: e.currentTarget.value }) }
-                        defaultValue={ this.state.text }
-                        placeholder="What's going on with this idea? Let your users know what are your plans..." />
-                    </div>
-                  </div>
+        <div className="actions">
+          <Button className="primary" onClick={() => this.submit()}>
+            Submit
+          </Button>
+          <Button className="basic" onClick={async () => this.closeModel()}>
+            Cancel
+          </Button>
+        </div>
+        </div>
+      );
 
-                  <div className="actions">
-                    <Button className="primary" onClick={() => this.submit()}>
-                      Submit
-                    </Button>
-                    <Button className="basic" onClick={async () => this.closeModel()}>
-                      Cancel
-                    </Button>
-                  </div>
-                 </div>;
-
-    return <div>
-            { button }
-            { modal }
-          </div>;
+    return (
+      <div>
+        {button}
+        {modal}
+      </div>
+    );
   }
 }

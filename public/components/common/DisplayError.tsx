@@ -13,7 +13,7 @@ interface DisplayErrorProps {
 
 export const DisplayError = (props: DisplayErrorProps) => {
   if (!props.error) {
-    return <div></div>;
+    return null;
   }
 
   const pointing = props.pointing || 'below';
@@ -31,7 +31,12 @@ export const DisplayError = (props: DisplayErrorProps) => {
     }
   }
 
-  return items.length > 0 ? <div className={`display-error ui pointing ${pointing} red basic label`}>
-            <ul>{ items }</ul>
-         </div> : null;
+  return (
+    items.length > 0
+    ? (
+      <div className={`display-error ui pointing ${pointing} red basic label`}>
+        <ul>{items}</ul>
+      </div>
+    ) : null
+  );
 };

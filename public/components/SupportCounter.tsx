@@ -57,20 +57,27 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         const noTouch = !('ontouchstart' in window);
         const status = IdeaStatus.Get(this.props.idea.status);
 
-        const vote = <button
-                        className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
-                        onClick={async () => await this.supportOrUndo()}>
-                        <i className="medium caret up icon"></i>
-                        { this.state.total }
-                     </button>;
+        const vote = (
+            <button
+              className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
+              onClick={async () => await this.supportOrUndo()}
+            >
+              <i className="medium caret up icon" />
+              {this.state.total}
+            </button>
+        );
 
-        const disabled = <div className="ui button disabled">
-                            <i className="medium caret up icon"></i>
-                            { this.state.total }
-                         </div>;
+        const disabled = (
+          <div className="ui button disabled">
+            <i className="medium caret up icon" />
+            {this.state.total}
+          </div>
+        );
 
-        return  <div className="support-counter ui">
-                    { status.closed ? disabled : vote }
-                </div>;
+        return  (
+          <div className="support-counter ui">
+            {status.closed ? disabled : vote}
+          </div>
+        );
     }
 }
