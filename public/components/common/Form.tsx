@@ -3,7 +3,7 @@ import { Failure } from '@fider/services';
 import { DisplayError } from './';
 
 interface FormProps {
-  onSubmit: () => Promise<any>;
+  onSubmit?: () => Promise<any>;
 }
 
 interface FormState {
@@ -18,9 +18,9 @@ export class Form extends React.Component<FormProps, FormState> {
   public async submit(e?: React.FormEvent<HTMLFormElement>) {
     if (e) {
       e.preventDefault();
-      if (this.props.onSubmit) {
-        await this.props.onSubmit();
-      }
+    }
+    if (this.props.onSubmit) {
+      await this.props.onSubmit();
     }
   }
 
@@ -33,7 +33,7 @@ export class Form extends React.Component<FormProps, FormState> {
   }
 
   public render() {
-    return  <form autoComplete="off" className="ui form" onSubmit={(e) => this.submit(e)}>
+    return  <form autoComplete="off" className="ui form" onSubmit={ (e) => this.submit(e) }>
                 <DisplayError error={this.state && this.state.failure} />
                 { this.props.children }
             </form>;

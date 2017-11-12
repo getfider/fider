@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SocialSignInButton, Form } from '@fider/components/common';
+import { SocialSignInButton, Form, Button } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
@@ -40,7 +40,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       this.setState({ sent: true });
       setTimeout(() => {
         this.setState({ sent: false });
-      }, 10000);
+      }, 5000);
     } else if (result.error) {
       this.form.setFailure(result.error);
     }
@@ -87,10 +87,10 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
                   <p>Enter your e-mail address to sign in</p>
                   <Form ref={(f) => { this.form = f!; } } onSubmit={() => this.signIn() }>
                     <div id="email-signin" className="ui small action fluid input">
-                        <input onChange={(e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
-                        <button onClick={ () => this.form.submit() } className={`ui small positive button ${this.state.email === '' && 'disabled'}`}>
+                        <input onChange={ (e) => this.setState({ email: e.currentTarget.value }) } type="text" placeholder="yourname@example.com" className="small" />
+                        <Button onClick={ () => this.signIn() } className={`positive ${this.state.email === '' && 'disabled'}`}>
                           Sign in
-                        </button>
+                        </Button>
                     </div>
                   </Form>
                 </div> }
