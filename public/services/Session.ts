@@ -12,6 +12,9 @@ export interface Session {
     getAppSettings(): AppSettings;
     isSingleHostMode(): boolean;
     isProduction(): boolean;
+    setCache(key: string, value: string): void;
+    getCache(key: string): string | null;
+    removeCache(...key: string[]): void;
 }
 
 @injectable()
@@ -70,5 +73,26 @@ export class BrowserSession implements Session {
 
     public isProduction(): boolean {
         return this.getAppSettings().environment.toLowerCase() === 'production';
+    }
+
+    public setCache(key: string, value: string): void {
+        if (this.w.sessionStorage) {
+            this.w.sessionStorage.setItem(key, value);
+        }
+    }
+
+    public getCache(key: string): string | null {
+        if (this.w.sessionStorage) {
+            return this.w.sessionStorage.getItem(key);
+        }
+        return null;
+    }
+
+    public removeCache(...keys: string[]): void {
+        if (this.w.sessionStorage && keys) {
+            for (const key of keys) {
+                return this.w.sessionStorage.removeItem(key);
+            }
+        }
     }
 }

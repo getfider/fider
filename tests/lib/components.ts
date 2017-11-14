@@ -1,4 +1,4 @@
-import { WebElementPromise } from 'selenium-webdriver';
+import { WebElementPromise, Key } from 'selenium-webdriver';
 
 export class WebComponent {
   constructor(protected element: WebElementPromise, public selector: string) { }
@@ -24,6 +24,9 @@ export class WebComponent {
   }
 
   public async getText() {
+    if (await this.element.getTagName() === 'input') {
+      return await this.element.getAttribute('value');
+    }
     return await this.element.getText();
   }
 }
@@ -47,7 +50,15 @@ export class TextInput extends WebComponent {
     super(element, selector);
   }
 
-  public type(text: string) {
-    return this.element.sendKeys(text);
+  public async type(text: string) {
+    await this.element.sendKeys(text);
+  }
+
+  public async clear() {
+    const text = await this.getText();
+    for (const char of text) {
+      await this.element.sendKeys(Key.ARROW_RIGHT);
+      await this.element.sendKeys(Key.BACK_SPACE);
+    }
   }
 }

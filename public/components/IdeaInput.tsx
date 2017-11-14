@@ -17,6 +17,9 @@ interface IdeaInputState {
     focused: boolean;
 }
 
+const CACHE_TITLE_KEY = 'IdeaInput-Title';
+const CACHE_DESCRIPTION_KEY = 'IdeaInput-Description';
+
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private form: Form;
@@ -32,8 +35,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       super();
       this.user = this.session.getCurrentUser();
       this.state = {
-        title: '',
-        description: '',
+        title: this.session.getCache(CACHE_TITLE_KEY) || '',
+        description: this.session.getCache(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
     }
@@ -51,10 +54,21 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       }
     }
 
+    private onTitleChanged(title: string) {
+      this.session.setCache(CACHE_TITLE_KEY, title);
+      this.setState({ title });
+    }
+
+    private onDescriptionChanged(description: string) {
+      this.session.setCache(CACHE_DESCRIPTION_KEY, description);
+      this.setState({ description });
+    }
+
     private async submit(event: ButtonClickEvent) {
       if (this.state.title) {
         const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
+          this.session.removeCache(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
           this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
           event.preventEnable();
@@ -69,7 +83,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       const details = (
         <div>
           <div className="field">
-            <Textarea onChange={(e) => this.setState({ description: e.currentTarget.value })} placeholder="Describe your idea" />
+            <Textarea
+              onChange={(e) => this.onDescriptionChanged(e.currentTarget.value)}
+              defaultValue={this.state.description}
+              placeholder="Describe your idea"
+            />
           </div>
           <Button className={buttonCss} onClick={(e) => this.submit(e)}>
             Submit
@@ -85,7 +103,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
           ref={(e) => this.title = e!}
           onFocus={() => this.onTitleFocused()}
           maxLength={100}
-          onKeyUp={(e) => { this.setState({ title: e.currentTarget.value }); }}
+          defaultValue={this.state.title}
+          onChange={(e) => this.onTitleChanged(e.currentTarget.value)}
           placeholder={this.props.placeholder}
         />
         {this.state.title && details}

@@ -1,4 +1,4 @@
-import { ensure, elementIsVisible, mailgun } from '../lib';
+import { ensure, elementIsVisible, elementIsNotVisible, mailgun, delay } from '../lib';
 import { pages, tenant, browser } from '../context';
 import { createTenant } from './setup';
 
@@ -19,6 +19,36 @@ describe('Submit ideas', () => {
 
     // Assert
     await ensure(pages.home.UserName).textIs('JON SNOW');
+  });
+
+  it('User doesn\'t lose what they typed', async () => {
+    // Action
+    await pages.home.navigate();
+    await pages.home.IdeaTitle.type('My Great Idea');
+    await pages.home.IdeaDescription.type('With an awesome description');
+
+    await pages.home.IdeaTitle.clear();
+    await pages.home.IdeaTitle.type('My Great Idea has a new title');
+
+    // Assert
+    await ensure(pages.home.IdeaTitle).textIs('My Great Idea has a new title');
+    await ensure(pages.home.IdeaDescription).textIs('With an awesome description');
+
+    // Action
+    await pages.home.navigate();
+
+    // Assert
+    await ensure(pages.home.IdeaTitle).textIs('My Great Idea has a new title');
+    await ensure(pages.home.IdeaDescription).textIs('With an awesome description');
+
+    // Action
+    await pages.home.IdeaDescription.clear();
+    await pages.home.IdeaTitle.clear();
+    await pages.home.navigate();
+
+    // Assert
+    await ensure(pages.home.IdeaTitle).textIs('');
+    await browser.wait(elementIsNotVisible(() => pages.home.IdeaDescription));
   });
 
   it('Unauthenticated cannot submit ideas', async () => {
