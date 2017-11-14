@@ -17,8 +17,8 @@ interface IdeaInputState {
     focused: boolean;
 }
 
-const SESSION_STORAGE_TITLE = 'IdeaInput-Title';
-const SESSION_STORAGE_DESCRIPTION = 'IdeaInput-Description';
+const CACHE_TITLE_KEY = 'IdeaInput-Title';
+const CACHE_DESCRIPTION_KEY = 'IdeaInput-Description';
 
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
@@ -35,8 +35,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       super();
       this.user = this.session.getCurrentUser();
       this.state = {
-        title: this.session.getCache(SESSION_STORAGE_TITLE) || '',
-        description: this.session.getCache(SESSION_STORAGE_DESCRIPTION) || '',
+        title: this.session.getCache(CACHE_TITLE_KEY) || '',
+        description: this.session.getCache(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
     }
@@ -55,12 +55,12 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     private onTitleChanged(title: string) {
-      this.session.setCache(SESSION_STORAGE_TITLE, title);
+      this.session.setCache(CACHE_TITLE_KEY, title);
       this.setState({ title });
     }
 
     private onDescriptionChanged(description: string) {
-      this.session.setCache(SESSION_STORAGE_DESCRIPTION, description);
+      this.session.setCache(CACHE_DESCRIPTION_KEY, description);
       this.setState({ description });
     }
 
@@ -68,10 +68,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       if (this.state.title) {
         const result = await this.service.addIdea(this.state.title, this.state.description);
         if (result.ok) {
-          if (window.sessionStorage) {
-            window.sessionStorage.removeItem(SESSION_STORAGE_TITLE);
-            window.sessionStorage.removeItem(SESSION_STORAGE_DESCRIPTION);
-          }
+          this.session.removeCache(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
           this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
           event.preventEnable();

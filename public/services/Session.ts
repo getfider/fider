@@ -14,6 +14,7 @@ export interface Session {
     isProduction(): boolean;
     setCache(key: string, value: string): void;
     getCache(key: string): string | null;
+    removeCache(...key: string[]): void;
 }
 
 @injectable()
@@ -85,5 +86,13 @@ export class BrowserSession implements Session {
             return this.w.sessionStorage.getItem(key);
         }
         return null;
+    }
+
+    public removeCache(...keys: string[]): void {
+        if (this.w.sessionStorage && keys) {
+            for (const key of keys) {
+                return this.w.sessionStorage.removeItem(key);
+            }
+        }
     }
 }
