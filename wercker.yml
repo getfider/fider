@@ -89,6 +89,7 @@ dockerize:
           mv /app /pipeline/output
 
     - internal/docker-push:
+        registry: https://registry.hub.docker.com/v2
         repository: getfider/fider
         username: $DOCKER_USER
         password: $DOCKER_PASS
