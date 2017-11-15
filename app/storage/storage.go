@@ -47,3 +47,11 @@ type Tenant interface {
 	SetKeyAsVerified(key string) error
 	SetCurrentTenant(*models.Tenant)
 }
+
+// Tags contains read and write operations for tags
+type Tags interface {
+	Add(name, color string, isPublic bool) (*models.Tag, error)
+	GetBySlug(slug string) (*models.Tag, error)
+	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
+	Remove(tagID int) error
+}
