@@ -42,6 +42,7 @@ func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Tenants: &inmemory.TenantStorage{},
 		Users:   &inmemory.UserStorage{},
+		Tags:    inmemory.NewTagStorage(),
 		Ideas:   inmemory.NewIdeaStorage(),
 		OAuth:   &OAuthService{},
 		Emailer: email.NewNoopSender(),

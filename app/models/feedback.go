@@ -69,6 +69,13 @@ type Tag struct {
 	IsPublic bool   `json:"isPublic"`
 }
 
+//CreateNewTag is used for creating new tags
+type CreateNewTag struct {
+	Name     string `json:"name"`
+	Color    string `json:"color" format:"upper"`
+	IsPublic bool   `json:"isPublic"`
+}
+
 var (
 	//IdeaNew is the default status
 	IdeaNew = 0

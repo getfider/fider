@@ -79,6 +79,7 @@ func AddServices() web.MiddlewareFunc {
 			services.OAuth = &oauth.HTTPService{}
 			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
 			services.Users = postgres.NewUserStorage(tenant, trx)
+			services.Tags = postgres.NewTagStorage(tenant, trx)
 			return next(c)
 		}
 	}

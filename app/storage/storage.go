@@ -48,8 +48,8 @@ type Tenant interface {
 	SetCurrentTenant(*models.Tenant)
 }
 
-// Tags contains read and write operations for tags
-type Tags interface {
+// Tag contains read and write operations for tags
+type Tag interface {
 	Add(name, color string, isPublic bool) (*models.Tag, error)
 	GetBySlug(slug string) (*models.Tag, error)
 	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)

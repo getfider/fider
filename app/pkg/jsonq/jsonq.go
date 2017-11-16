@@ -2,6 +2,7 @@ package jsonq
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 type Query struct {
@@ -24,5 +25,18 @@ func (q *Query) String(key string) (string, error) {
 }
 
 func (q *Query) Contains(key string) bool {
-	return q.m[key] != nil
+	keys := strings.Split(key, ".")
+	var message *json.RawMessage
+
+	var m map[string]*json.RawMessage
+	m = q.m
+
+	for _, key := range keys {
+		message = m[key]
+		if message != nil {
+			bytes, _ := message.MarshalJSON()
+			json.Unmarshal(bytes, &m)
+		}
+	}
+	return message != nil
 }
