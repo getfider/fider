@@ -27,7 +27,7 @@ func TestCreateTagHandler_ValidRequests(t *testing.T) {
 	Expect(tag.Name).To(Equal("Feature Request"))
 	Expect(tag.Slug).To(Equal("feature-request"))
 	Expect(tag.Color).To(Equal("00FF00"))
-	Expect(tag.IsPublic).To(Equal(true))
+	Expect(tag.IsPublic).To(BeTrue())
 }
 
 func TestCreateTagHandler_InvalidRequests(t *testing.T) {
@@ -57,6 +57,23 @@ func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 		}
 	}
 
+}
+
+func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.Tags.Add("Bug", "0000FF", true)
+
+	status, query := server.
+		AsUser(mock.JonSnow).
+		ExecutePostAsJSON(
+			handlers.CreateTag(),
+			`{ "name": "Bug", "color": "0000FF", "isPublic": true }`,
+		)
+
+	Expect(status).To(Equal(http.StatusBadRequest))
+	Expect(query.Contains("failures.name")).To(BeTrue())
 }
 
 func TestCreateTagHandler_Collaborator(t *testing.T) {

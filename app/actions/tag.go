@@ -6,6 +6,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/gosimple/slug"
 )
 
 var colorRegex = regexp.MustCompile(`^([A-Fa-f0-9]{6})$`)
@@ -34,6 +35,13 @@ func (input *CreateNewTag) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("name", "Name is required.")
 	} else if len(input.Model.Name) > 30 {
 		result.AddFieldFailure("name", "Name must be less than 30 characters.")
+	} else {
+		_, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
+		if err != nil && err != app.ErrNotFound {
+			return validate.Error(err)
+		} else if err == nil {
+			result.AddFieldFailure("name", "This tag name is already in use.")
+		}
 	}
 
 	if input.Model.Color == "" {
