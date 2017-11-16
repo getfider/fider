@@ -45,6 +45,7 @@ func NewTagStorage(tenant *models.Tenant, trx *dbx.Trx) *TagStorage {
 // Add creates a new tag with given input
 func (s *TagStorage) Add(name, color string, isPublic bool) (*models.Tag, error) {
 	tagSlug := slug.Make(name)
+
 	var id int
 	row := s.trx.QueryRow(`
 		INSERT INTO tags (name, slug, color, is_public, created_on, tenant_id) 
@@ -73,10 +74,18 @@ func (s *TagStorage) GetBySlug(slug string) (*models.Tag, error) {
 
 // Update a tag with given input
 func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*models.Tag, error) {
-	return nil, app.ErrNotFound
+	tagSlug := slug.Make(name)
+
+	err := s.trx.Execute(`UPDATE tags SET name = $1, slug = $2, color = $3, is_public = $4
+												WHERE id = $5 AND tenant_id = $6`, name, tagSlug, color, isPublic, tagID, s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.GetBySlug(tagSlug)
 }
 
 // Remove a tag by its id
 func (s *TagStorage) Remove(tagID int) error {
-	return nil
+	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
 }
