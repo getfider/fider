@@ -69,8 +69,9 @@ type Tag struct {
 	IsPublic bool   `json:"isPublic"`
 }
 
-//CreateNewTag is used for creating new tags
-type CreateNewTag struct {
+//CreateEditTag is used to create a new tag or edit existing
+type CreateEditTag struct {
+	Slug     string `route:"slug"`
 	Name     string `json:"name"`
 	Color    string `json:"color" format:"upper"`
 	IsPublic bool   `json:"isPublic"`

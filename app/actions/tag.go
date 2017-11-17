@@ -11,35 +11,43 @@ import (
 
 var colorRegex = regexp.MustCompile(`^([A-Fa-f0-9]{6})$`)
 
-// CreateNewTag is used to create a new tag
-type CreateNewTag struct {
-	Model *models.CreateNewTag
+// CreateEditTag is used to create a new tag or edit existing
+type CreateEditTag struct {
+	Tag   *models.Tag
+	Model *models.CreateEditTag
 }
 
 // Initialize the model
-func (input *CreateNewTag) Initialize() interface{} {
-	input.Model = new(models.CreateNewTag)
+func (input *CreateEditTag) Initialize() interface{} {
+	input.Model = new(models.CreateEditTag)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewTag) IsAuthorized(user *models.User) bool {
+func (input *CreateEditTag) IsAuthorized(user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate is current model is valid
-func (input *CreateNewTag) Validate(services *app.Services) *validate.Result {
+func (input *CreateEditTag) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
+	if input.Model.Slug != "" {
+		tag, err := services.Tags.GetBySlug(input.Model.Slug)
+		if err != nil {
+			return validate.Error(err)
+		}
+		input.Tag = tag
+	}
 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	} else if len(input.Model.Name) > 30 {
 		result.AddFieldFailure("name", "Name must be less than 30 characters.")
 	} else {
-		_, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
+		duplicateTag, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
 		if err != nil && err != app.ErrNotFound {
 			return validate.Error(err)
-		} else if err == nil {
+		} else if err == nil && (input.Tag == nil || input.Tag.ID != duplicateTag.ID) {
 			result.AddFieldFailure("name", "This tag name is already in use.")
 		}
 	}

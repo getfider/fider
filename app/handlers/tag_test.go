@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
@@ -16,7 +17,7 @@ func TestCreateTagHandler_ValidRequests(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.CreateTag(),
+			handlers.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "00FF00", "isPublic": true }`,
 		)
 
@@ -49,7 +50,7 @@ func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 		server, _ := mock.NewServer()
 		status, query := server.
 			AsUser(mock.JonSnow).
-			ExecutePostAsJSON(handlers.CreateTag(), testCase.input)
+			ExecutePostAsJSON(handlers.CreateEditTag(), testCase.input)
 
 		Expect(status).To(Equal(http.StatusBadRequest))
 		for _, failure := range testCase.failures {
@@ -68,7 +69,7 @@ func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 	status, query := server.
 		AsUser(mock.JonSnow).
 		ExecutePostAsJSON(
-			handlers.CreateTag(),
+			handlers.CreateEditTag(),
 			`{ "name": "Bug", "color": "0000FF", "isPublic": true }`,
 		)
 
@@ -83,9 +84,48 @@ func TestCreateTagHandler_Collaborator(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.AryaStark).
 		ExecutePost(
-			handlers.CreateTag(),
+			handlers.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
 	Expect(status).To(Equal(http.StatusForbidden))
+}
+
+func TestEditInvalidTagHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	status, _ := server.
+		AsUser(mock.JonSnow).
+		AddParam("slug", "bug").
+		ExecutePost(
+			handlers.CreateEditTag(),
+			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
+		)
+
+	Expect(status).To(Equal(http.StatusNotFound))
+}
+
+func TestEditExistingTagHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.Tags.Add("Bug", "0000FF", true)
+
+	status, _ := server.
+		AsUser(mock.JonSnow).
+		AddParam("slug", "bug").
+		ExecutePost(
+			handlers.CreateEditTag(),
+			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
+		)
+
+	Expect(status).To(Equal(http.StatusOK))
+	tag, err := services.Tags.GetBySlug("bug")
+	Expect(tag).To(BeNil())
+	Expect(err).To(Equal(app.ErrNotFound))
+
+	tag, err = services.Tags.GetBySlug("feature-request")
+	Expect(tag).ToNot(BeNil())
+	Expect(err).To(BeNil())
 }
