@@ -129,3 +129,29 @@ func TestEditExistingTagHandler(t *testing.T) {
 	Expect(tag).ToNot(BeNil())
 	Expect(err).To(BeNil())
 }
+
+func TestRemoveInvalidTagHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	status, _ := server.
+		AsUser(mock.JonSnow).
+		AddParam("slug", "bug").
+		Execute(handlers.RemoveTag())
+
+	Expect(status).To(Equal(http.StatusNotFound))
+}
+
+func TestRemoveExistingTagHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.Tags.Add("Bug", "0000FF", true)
+
+	status, _ := server.
+		AsUser(mock.JonSnow).
+		AddParam("slug", "bug").
+		Execute(handlers.RemoveTag())
+
+	Expect(status).To(Equal(http.StatusOK))
+}

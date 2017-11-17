@@ -32,3 +32,21 @@ func CreateEditTag() web.HandlerFunc {
 		return c.Ok(tag)
 	}
 }
+
+// RemoveTag deletes anexisting tag
+func RemoveTag() web.HandlerFunc {
+	return func(c web.Context) error {
+		slug := c.Param("slug")
+		tag, err := c.Services().Tags.GetBySlug(slug)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tags.Remove(tag.ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
