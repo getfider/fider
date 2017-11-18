@@ -29,8 +29,8 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
   private user?: CurrentUser;
 
-  constructor() {
-      super();
+  constructor(props: CommentInputProps) {
+      super(props);
       this.user = this.session.getCurrentUser();
 
       this.state = {

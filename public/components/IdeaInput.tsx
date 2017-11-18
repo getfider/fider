@@ -31,8 +31,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     @inject(injectables.IdeaService)
     private service: IdeaService;
 
-    constructor() {
-      super();
+    constructor(props: IdeaInputProps) {
+      super(props);
       this.user = this.session.getCurrentUser();
       this.state = {
         title: this.session.getCache(CACHE_TITLE_KEY) || '',
