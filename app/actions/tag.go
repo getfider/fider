@@ -1,0 +1,127 @@
+package actions
+
+import (
+	"regexp"
+
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/gosimple/slug"
+)
+
+var colorRegex = regexp.MustCompile(`^([A-Fa-f0-9]{6})$`)
+
+// CreateEditTag is used to create a new tag or edit existing
+type CreateEditTag struct {
+	Tag   *models.Tag
+	Model *models.CreateEditTag
+}
+
+// Initialize the model
+func (input *CreateEditTag) Initialize() interface{} {
+	input.Model = new(models.CreateEditTag)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *CreateEditTag) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsAdministrator()
+}
+
+// Validate is current model is valid
+func (input *CreateEditTag) Validate(services *app.Services) *validate.Result {
+	result := validate.Success()
+	if input.Model.Slug != "" {
+		tag, err := services.Tags.GetBySlug(input.Model.Slug)
+		if err != nil {
+			return validate.Error(err)
+		}
+		input.Tag = tag
+	}
+
+	if input.Model.Name == "" {
+		result.AddFieldFailure("name", "Name is required.")
+	} else if len(input.Model.Name) > 30 {
+		result.AddFieldFailure("name", "Name must be less than 30 characters.")
+	} else {
+		duplicateTag, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
+		if err != nil && err != app.ErrNotFound {
+			return validate.Error(err)
+		} else if err == nil && (input.Tag == nil || input.Tag.ID != duplicateTag.ID) {
+			result.AddFieldFailure("name", "This tag name is already in use.")
+		}
+	}
+
+	if input.Model.Color == "" {
+		result.AddFieldFailure("color", "Color is required.")
+	} else if len(input.Model.Color) != 6 {
+		result.AddFieldFailure("color", "Color must be exactly 6 characters.")
+	} else if !colorRegex.MatchString(input.Model.Color) {
+		result.AddFieldFailure("color", "Color is invalid.")
+	}
+
+	return result
+}
+
+// RemoveTag is used to delete an existing tag
+type RemoveTag struct {
+	Tag   *models.Tag
+	Model *models.RemoveTag
+}
+
+// Initialize the model
+func (input *RemoveTag) Initialize() interface{} {
+	input.Model = new(models.RemoveTag)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *RemoveTag) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsAdministrator()
+}
+
+// Validate is current model is valid
+func (input *RemoveTag) Validate(services *app.Services) *validate.Result {
+	tag, err := services.Tags.GetBySlug(input.Model.Slug)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	input.Tag = tag
+	return validate.Success()
+}
+
+// AssignUnassignTag is used to assign or remove a tag to/from an idea
+type AssignUnassignTag struct {
+	Tag   *models.Tag
+	Idea  *models.Idea
+	Model *models.AssignUnassignTag
+}
+
+// Initialize the model
+func (input *AssignUnassignTag) Initialize() interface{} {
+	input.Model = new(models.AssignUnassignTag)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *AssignUnassignTag) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsCollaborator()
+}
+
+// Validate is current model is valid
+func (input *AssignUnassignTag) Validate(services *app.Services) *validate.Result {
+	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	tag, err := services.Tags.GetBySlug(input.Model.Slug)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	input.Tag = tag
+	input.Idea = idea
+	return validate.Success()
+}

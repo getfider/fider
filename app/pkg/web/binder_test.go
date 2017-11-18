@@ -53,14 +53,16 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 	type user struct {
 		Name  string `json:"name"`
 		Email string `json:"email" format:"lower"`
+		Color string `json:"color" format:"upper"`
 		Other string
 	}
 
-	ctx := newPostContext(make(web.StringMap, 0), `{ "name": " Jon Snow ", "email": " JON.SNOW@got.com " }`)
+	ctx := newPostContext(make(web.StringMap, 0), `{ "name": " Jon Snow ", "email": " JON.SNOW@got.com ", "color": "ff00ad" }`)
 	u := new(user)
 	err := binder.Bind(u, ctx)
 	Expect(err).To(BeNil())
 	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.Email).To(Equal("jon.snow@got.com"))
+	Expect(u.Color).To(Equal("FF00AD"))
 	Expect(u.Other).To(Equal(""))
 }

@@ -10,6 +10,7 @@ import (
 type Services struct {
 	OAuth   oauth.Service
 	Users   storage.User
+	Tags    storage.Tag
 	Tenants storage.Tenant
 	Ideas   storage.Idea
 	Emailer email.Sender

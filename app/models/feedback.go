@@ -60,6 +60,34 @@ type Comment struct {
 	User      *User     `json:"user"`
 }
 
+//Tag represents a simple tag
+type Tag struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Slug     string `json:"slug"`
+	Color    string `json:"color"`
+	IsPublic bool   `json:"isPublic"`
+}
+
+//CreateEditTag is used to create a new tag or edit existing
+type CreateEditTag struct {
+	Slug     string `route:"slug"`
+	Name     string `json:"name"`
+	Color    string `json:"color" format:"upper"`
+	IsPublic bool   `json:"isPublic"`
+}
+
+// RemoveTag is used to delete an existing tag
+type RemoveTag struct {
+	Slug string `route:"slug"`
+}
+
+// AssignUnassignTag is used to assign or remove a tag to/from an idea
+type AssignUnassignTag struct {
+	Slug   string `route:"slug"`
+	Number int    `route:"number"`
+}
+
 var (
 	//IdeaNew is the default status
 	IdeaNew = 0

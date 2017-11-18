@@ -67,6 +67,8 @@ func (b *DefaultBinder) format(idx int, target reflect.Value, targetType reflect
 	str = strings.TrimSpace(str)
 	if format == "lower" {
 		str = strings.ToLower(str)
+	} else if format == "upper" {
+		str = strings.ToUpper(str)
 	}
 	field.SetString(str)
 }
