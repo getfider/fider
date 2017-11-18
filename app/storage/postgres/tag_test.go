@@ -4,19 +4,13 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
 func TestTagStorage_AddAndGet(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
@@ -35,13 +29,8 @@ func TestTagStorage_AddAndGet(t *testing.T) {
 }
 
 func TestTagStorage_AddUpdateAndGet(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
@@ -51,7 +40,7 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 	dbTag, err := tags.GetBySlug("bug")
 
 	Expect(err).To(BeNil())
-	Expect(dbTag.ID).To(Equal(1))
+	Expect(dbTag.ID).To(Equal(tag.ID))
 	Expect(dbTag.Name).To(Equal("Bug"))
 	Expect(dbTag.Slug).To(Equal("bug"))
 	Expect(dbTag.Color).To(Equal("000000"))
@@ -59,13 +48,8 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 }
 
 func TestTagStorage_AddRemoveAndGet(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
@@ -81,13 +65,8 @@ func TestTagStorage_AddRemoveAndGet(t *testing.T) {
 }
 
 func TestTagStorage_Assign_Unassign(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -116,13 +95,8 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 }
 
 func TestTagStorage_Assign_RemoveTag(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
