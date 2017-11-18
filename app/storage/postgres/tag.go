@@ -87,5 +87,59 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 
 // Remove a tag by its id
 func (s *TagStorage) Remove(tagID int) error {
-	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
+	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1`, tagID)
+	if err != nil {
+		return err
+	}
+	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2;`, tagID, s.tenant.ID)
+}
+
+// AssignTag adds a tag to an idea
+func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1", ideaID)
+	if err != nil {
+		return err
+	}
+
+	if alreadyAssigned {
+		return nil
+	}
+
+	if err := s.trx.Execute(
+		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id) VALUES ($1, $2, $3, $4)`,
+		tagID, ideaID, time.Now(), userID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnassignTag removes a tag from an idea
+func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
+	return s.trx.Execute(
+		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2`,
+		tagID, ideaID,
+	)
+}
+
+// GetAssigned returns all tags assigned to given idea
+func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
+	tags := []*dbTag{}
+	err := s.trx.Select(&tags, `
+		SELECT t.id, t.name, t.slug, t.color, t.is_public 
+		FROM tags t
+		INNER JOIN idea_tags it
+		ON it.tag_id = t.id
+		WHERE it.idea_id = $1 AND t.tenant_id = $2
+	`, ideaID, s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.Tag, len(tags))
+	for i, tag := range tags {
+		result[i] = tag.toModel()
+	}
+	return result, nil
 }

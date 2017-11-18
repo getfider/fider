@@ -62,3 +62,66 @@ func (input *CreateEditTag) Validate(services *app.Services) *validate.Result {
 
 	return result
 }
+
+// RemoveTag is used to delete an existing tag
+type RemoveTag struct {
+	Tag   *models.Tag
+	Model *models.RemoveTag
+}
+
+// Initialize the model
+func (input *RemoveTag) Initialize() interface{} {
+	input.Model = new(models.RemoveTag)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *RemoveTag) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsAdministrator()
+}
+
+// Validate is current model is valid
+func (input *RemoveTag) Validate(services *app.Services) *validate.Result {
+	tag, err := services.Tags.GetBySlug(input.Model.Slug)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	input.Tag = tag
+	return validate.Success()
+}
+
+// AssignUnassignTag is used to assign or remove a tag to/from an idea
+type AssignUnassignTag struct {
+	Tag   *models.Tag
+	Idea  *models.Idea
+	Model *models.AssignUnassignTag
+}
+
+// Initialize the model
+func (input *AssignUnassignTag) Initialize() interface{} {
+	input.Model = new(models.AssignUnassignTag)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *AssignUnassignTag) IsAuthorized(user *models.User) bool {
+	return user != nil && user.IsCollaborator()
+}
+
+// Validate is current model is valid
+func (input *AssignUnassignTag) Validate(services *app.Services) *validate.Result {
+	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	tag, err := services.Tags.GetBySlug(input.Model.Slug)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	input.Tag = tag
+	input.Idea = idea
+	return validate.Success()
+}

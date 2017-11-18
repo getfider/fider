@@ -54,4 +54,7 @@ type Tag interface {
 	GetBySlug(slug string) (*models.Tag, error)
 	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
 	Remove(tagID int) error
+	GetAssigned(ideaID int) ([]*models.Tag, error)
+	AssignTag(tagID, ideaID, userID int) error
+	UnassignTag(tagID, ideaID int) error
 }

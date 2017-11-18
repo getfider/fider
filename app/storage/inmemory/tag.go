@@ -8,14 +8,16 @@ import (
 
 // TagStorage contains read and write operations for tags
 type TagStorage struct {
-	lastID int
-	tags   []*models.Tag
+	lastID   int
+	tags     []*models.Tag
+	assigned map[int][]*models.Tag
 }
 
 // NewTagStorage creates a new TagStorage
 func NewTagStorage() *TagStorage {
 	return &TagStorage{
-		tags: make([]*models.Tag, 0),
+		tags:     make([]*models.Tag, 0),
+		assigned: make(map[int][]*models.Tag),
 	}
 }
 
@@ -66,4 +68,54 @@ func (s *TagStorage) Remove(tagID int) error {
 		}
 	}
 	return nil
+}
+
+// AssignTag adds a tag to an idea
+func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
+	var tagToAssign *models.Tag
+	for _, tag := range s.tags {
+		if tag.ID == tagID {
+			tagToAssign = tag
+			break
+		}
+	}
+
+	if tagToAssign == nil {
+		return app.ErrNotFound
+	}
+
+	assigned := s.assigned[ideaID]
+	if assigned != nil {
+		for _, tag := range assigned {
+			if tag.ID == tagID {
+				return nil
+			}
+		}
+	}
+
+	s.assigned[ideaID] = append(s.assigned[ideaID], tagToAssign)
+	return nil
+}
+
+// UnassignTag removes a tag from an idea
+func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
+	assigned := s.assigned[ideaID]
+	if assigned != nil {
+		for i, tag := range assigned {
+			if tag.ID == tagID {
+				s.assigned[ideaID] = append(s.assigned[ideaID][:i], s.assigned[ideaID][i+1:]...)
+				return nil
+			}
+		}
+	}
+	return nil
+}
+
+// GetAssigned returns all tags assigned to given idea
+func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
+	assigned := s.assigned[ideaID]
+	if assigned != nil {
+		return assigned, nil
+	}
+	return make([]*models.Tag, 0), nil
 }

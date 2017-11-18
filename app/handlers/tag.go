@@ -36,13 +36,46 @@ func CreateEditTag() web.HandlerFunc {
 // RemoveTag deletes anexisting tag
 func RemoveTag() web.HandlerFunc {
 	return func(c web.Context) error {
-		slug := c.Param("slug")
-		tag, err := c.Services().Tags.GetBySlug(slug)
+		input := new(actions.RemoveTag)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tags.Remove(input.Tag.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tags.Remove(tag.ID)
+		return c.Ok(web.Map{})
+	}
+}
+
+// AssignTag to existing dea
+func AssignTag() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.AssignUnassignTag)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tags.AssignTag(input.Tag.ID, input.Idea.ID, c.User().ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UnassignTag from existing dea
+func UnassignTag() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.AssignUnassignTag)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tags.UnassignTag(input.Tag.ID, input.Idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}

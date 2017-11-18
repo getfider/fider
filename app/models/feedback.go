@@ -77,6 +77,17 @@ type CreateEditTag struct {
 	IsPublic bool   `json:"isPublic"`
 }
 
+// RemoveTag is used to delete an existing tag
+type RemoveTag struct {
+	Slug string `route:"slug"`
+}
+
+// AssignUnassignTag is used to assign or remove a tag to/from an idea
+type AssignUnassignTag struct {
+	Slug   string `route:"slug"`
+	Number int    `route:"number"`
+}
+
 var (
 	//IdeaNew is the default status
 	IdeaNew = 0

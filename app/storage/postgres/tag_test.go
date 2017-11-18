@@ -79,3 +79,64 @@ func TestTagStorage_AddRemoveAndGet(t *testing.T) {
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(dbTag).To(BeNil())
 }
+
+func TestTagStorage_Assign_Unassign(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My great idea", "with a great description", 2)
+	tag, _ := tags.Add("Bug", "FFFFFF", true)
+
+	err := tags.AssignTag(tag.ID, idea.ID, 2)
+	Expect(err).To(BeNil())
+
+	assigned, err := tags.GetAssigned(idea.ID)
+	Expect(err).To(BeNil())
+	Expect(len(assigned)).To(Equal(1))
+	Expect(assigned[0].ID).To(Equal(tag.ID))
+	Expect(assigned[0].Name).To(Equal("Bug"))
+	Expect(assigned[0].Slug).To(Equal("bug"))
+	Expect(assigned[0].Color).To(Equal("FFFFFF"))
+	Expect(assigned[0].IsPublic).To(BeTrue())
+
+	err = tags.UnassignTag(tag.ID, idea.ID)
+	Expect(err).To(BeNil())
+
+	assigned, err = tags.GetAssigned(idea.ID)
+	Expect(err).To(BeNil())
+	Expect(len(assigned)).To(Equal(0))
+}
+
+func TestTagStorage_Assign_RemoveTag(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	db.Seed()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	idea, _ := ideas.Add("My great idea", "with a great description", 2)
+	tag, _ := tags.Add("Bug", "FFFFFF", true)
+
+	err := tags.AssignTag(tag.ID, idea.ID, 2)
+	Expect(err).To(BeNil())
+
+	err = tags.Remove(tag.ID)
+	Expect(err).To(BeNil())
+
+	assigned, err := tags.GetAssigned(idea.ID)
+	Expect(err).To(BeNil())
+	Expect(len(assigned)).To(Equal(0))
+}
