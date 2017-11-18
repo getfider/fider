@@ -7,19 +7,13 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
 func TestTenantStorage_Add_Activate(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
@@ -44,13 +38,8 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 }
 
 func TestTenantStorage_First(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.First()
@@ -60,13 +49,8 @@ func TestTenantStorage_First(t *testing.T) {
 }
 
 func TestTenantStorage_Empty_First(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	trx.Execute("TRUNCATE tenants CASCADE")
 
@@ -78,13 +62,8 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 }
 
 func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.GetByDomain("mydomain")
@@ -94,13 +73,8 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 }
 
 func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
@@ -109,7 +83,7 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	tenant, err = tenants.GetByDomain("mydomain")
 
 	Expect(err).To(BeNil())
-	Expect(tenant.ID).To(Equal(int(3)))
+	Expect(tenant.ID).NotTo(BeZero())
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.CNAME).To(Equal(""))
@@ -117,13 +91,8 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 }
 
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	available, err := tenants.IsSubdomainAvailable("demo")
@@ -133,13 +102,8 @@ func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
 }
 
 func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	available, err := tenants.IsSubdomainAvailable("thisisanewdomain")
@@ -149,13 +113,8 @@ func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
 }
 
 func TestTenantStorage_UpdateSettings(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
@@ -180,13 +139,8 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 }
 
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
@@ -222,13 +176,8 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")

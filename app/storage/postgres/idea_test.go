@@ -6,19 +6,13 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
 func TestIdeaStorage_GetAll(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	now := time.Now()
 
@@ -50,24 +44,18 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 }
 
 func TestIdeaStorage_AddAndGet(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
-	Expect(idea.ID).To(Equal(1))
 
-	dbIdea, err := ideas.GetByID(1)
+	dbIdea, err := ideas.GetByID(idea.ID)
 
 	Expect(err).To(BeNil())
-	Expect(dbIdea.ID).To(Equal(1))
+	Expect(dbIdea.ID).To(Equal(idea.ID))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.TotalSupporters).To(Equal(0))
 	Expect(dbIdea.Status).To(Equal(models.IdeaNew))
@@ -79,13 +67,8 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 }
 
 func TestIdeaStorage_GetInvalid(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -96,13 +79,8 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 }
 
 func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -123,25 +101,20 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 }
 
 func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	demoIdeas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
-	demoIdeas.Add("My new idea", "with this description", 1)
+	demoIdea, _ := demoIdeas.Add("My new idea", "with this description", 1)
 
 	orangeIdeas := postgres.NewIdeaStorage(orangeTenant(tenants), trx)
-	orangeIdeas.Add("My other idea", "with other description", 3)
+	orangeIdea, _ := orangeIdeas.Add("My other idea", "with other description", 3)
 
 	dbIdea, err := demoIdeas.GetByNumber(1)
 
 	Expect(err).To(BeNil())
-	Expect(dbIdea.ID).To(Equal(1))
+	Expect(dbIdea.ID).To(Equal(demoIdea.ID))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Slug).To(Equal("my-new-idea"))
@@ -149,20 +122,15 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	dbIdea, err = orangeIdeas.GetByNumber(1)
 
 	Expect(err).To(BeNil())
-	Expect(dbIdea.ID).To(Equal(2))
+	Expect(dbIdea.ID).To(Equal(orangeIdea.ID))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My other idea"))
 	Expect(dbIdea.Slug).To(Equal("my-other-idea"))
 }
 
 func TestIdeaStorage_Update(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -178,13 +146,8 @@ func TestIdeaStorage_Update(t *testing.T) {
 }
 
 func TestIdeaStorage_AddSupporter(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -202,13 +165,8 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 }
 
 func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -226,13 +184,8 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 }
 
 func TestIdeaStorage_RemoveSupporter(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -250,13 +203,8 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 }
 
 func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -277,13 +225,8 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 }
 
 func TestIdeaStorage_SetResponse(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -299,13 +242,8 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 }
 
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -319,13 +257,8 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 }
 
 func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
@@ -340,13 +273,8 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 }
 
 func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
-	RegisterTestingT(t)
-	db, _ := dbx.New()
-	db.Seed()
-	defer db.Close()
-
-	trx, _ := db.Begin()
-	defer trx.Rollback()
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
 	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
