@@ -1,0 +1,13 @@
+#fdr-admin-tags-page {
+  .ui.list {
+    .item {
+      .content {
+        display: inline-block;
+        line-height: 26px;
+      }
+      button.as-link {
+        line-height: 26px;
+      }
+    }
+  }
+}

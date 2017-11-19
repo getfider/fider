@@ -44,3 +44,8 @@ export async function post<T = void>(url: string, data?: any): Promise<Result<T>
     const response = await axios.post(url, data);
     return toResult<T>(response);
 }
+
+export async function doDelete<T = void>(url: string, data?: any): Promise<Result<T>> {
+    const response = await axios.delete(url, data);
+    return toResult<T>(response);
+}

@@ -119,3 +119,8 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 	}
 	return make([]*models.Tag, 0), nil
 }
+
+// GetAll returns all tags
+func (s *TagStorage) GetAll() ([]*models.Tag, error) {
+	return s.tags, nil
+}

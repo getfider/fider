@@ -57,4 +57,5 @@ type Tag interface {
 	GetAssigned(ideaID int) ([]*models.Tag, error)
 	AssignTag(tagID, ideaID, userID int) error
 	UnassignTag(tagID, ideaID int) error
+	GetAll() ([]*models.Tag, error)
 }

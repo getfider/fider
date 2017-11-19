@@ -3,6 +3,10 @@ $admin-color: #365899;
 $bg-color: #fff;
 $menu-color: #f9f9f9;
 
+$link-color: #07C;
+$negative-color: #db2828;
+$positive-color: #21ba45;
+
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
     @return #484848; // Lighter backgorund, return dark color

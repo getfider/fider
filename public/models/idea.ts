@@ -55,3 +55,11 @@ export interface Comment {
   createdOn: string;
   user: User;
 }
+
+export interface Tag {
+  id: number;
+  slug: string;
+  name: string;
+  color: string;
+  isPublic: boolean;
+}

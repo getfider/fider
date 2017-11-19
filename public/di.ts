@@ -16,6 +16,7 @@ const injectables = {
     IdeaService: Symbol('IdeaService'),
     UserService: Symbol('UserService'),
     TenantService: Symbol('TenantService'),
+    TagService: Symbol('TagService'),
 };
 
 export {
