@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { MembersPage } from '@fider/pages/admin/MembersPage';
+import { ManageTagsPage } from '@fider/pages/admin/ManageTagsPage';
 import { SiteHomePage } from '@fider/pages/site/SiteHomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
 import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
@@ -19,7 +20,9 @@ import {
   TenantService,
   HttpTenantService,
   UserService,
-  HttpUserService
+  HttpUserService,
+  TagService,
+  HttpTagService
 } from '@fider/services';
 
 import '@fider/assets/styles/main.scss';
@@ -28,6 +31,7 @@ container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 container.bind<UserService>(injectables.UserService).to(HttpUserService);
+container.bind<TagService>(injectables.TagService).to(HttpTagService);
 
 interface PageConfiguration {
   id: string;
@@ -38,6 +42,7 @@ interface PageConfiguration {
 const pathRegex = [
   { regex: new RegExp('^\/$'), component: SiteHomePage, id: 'fdr-home-page' },
   { regex: new RegExp('^\/admin\/members$'), component: MembersPage, id: 'fdr-admin-members-page' },
+  { regex: new RegExp('^\/admin\/tags$'), component: ManageTagsPage, id: 'fdr-admin-tags-page' },
   { regex: new RegExp('^\/admin$'), component: AdminHomePage, id: 'fdr-admin-page' },
   { regex: new RegExp('^\/signup$'), component: SignUpPage, id: 'fdr-signup-page' },
   { regex: new RegExp('^\/ideas\/\\d+.*$'), component: ShowIdeaPage, id: 'fdr-show-idea-page' },

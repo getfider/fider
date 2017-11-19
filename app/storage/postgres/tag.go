@@ -125,14 +125,28 @@ func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
 
 // GetAssigned returns all tags assigned to given idea
 func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
-	tags := []*dbTag{}
-	err := s.trx.Select(&tags, `
+	return s.getTags(`
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
 		INNER JOIN idea_tags it
 		ON it.tag_id = t.id
 		WHERE it.idea_id = $1 AND t.tenant_id = $2
 	`, ideaID, s.tenant.ID)
+}
+
+// GetAll returns all tags
+func (s *TagStorage) GetAll() ([]*models.Tag, error) {
+	return s.getTags(`
+		SELECT t.id, t.name, t.slug, t.color, t.is_public 
+		FROM tags t
+		WHERE t.tenant_id = $1
+	`, s.tenant.ID)
+}
+
+// GetAll returns all tags
+func (s *TagStorage) getTags(query string, args ...interface{}) ([]*models.Tag, error) {
+	tags := []*dbTag{}
+	err := s.trx.Select(&tags, query, args...)
 	if err != nil {
 		return nil, err
 	}

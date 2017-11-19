@@ -114,3 +114,30 @@ func TestTagStorage_Assign_RemoveTag(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(len(assigned)).To(Equal(0))
 }
+
+func TestTagStorage_GetAll(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenants := postgres.NewTenantStorage(trx)
+	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	tags.Add("Feature Request", "FF0000", true)
+	tags.Add("Bug", "0F0F0F", false)
+
+	allTags, err := tags.GetAll()
+
+	Expect(err).To(BeNil())
+	Expect(len(allTags)).To(Equal(2))
+
+	Expect(allTags[0].ID).NotTo(BeZero())
+	Expect(allTags[0].Name).To(Equal("Feature Request"))
+	Expect(allTags[0].Slug).To(Equal("feature-request"))
+	Expect(allTags[0].Color).To(Equal("FF0000"))
+	Expect(allTags[0].IsPublic).To(BeTrue())
+
+	Expect(allTags[1].ID).NotTo(BeZero())
+	Expect(allTags[1].Name).To(Equal("Bug"))
+	Expect(allTags[1].Slug).To(Equal("bug"))
+	Expect(allTags[1].Color).To(Equal("0F0F0F"))
+	Expect(allTags[1].IsPublic).To(BeFalse())
+}

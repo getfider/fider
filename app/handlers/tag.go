@@ -6,6 +6,20 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// ManageTags is the home page for managing tags
+func ManageTags() web.HandlerFunc {
+	return func(c web.Context) error {
+		tags, err := c.Services().Tags.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Page(web.Map{
+			"tags": tags,
+		})
+	}
+}
+
 // CreateEditTag creates a new tag on current tenant
 func CreateEditTag() web.HandlerFunc {
 	return func(c web.Context) error {

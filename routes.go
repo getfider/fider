@@ -108,6 +108,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
+			private.Delete("/api/admin/tags/:slug", handlers.RemoveTag())
+			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
+			private.Post("/api/admin/tags", handlers.CreateEditTag())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 
@@ -118,6 +121,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 
 			admin.Get("/admin", handlers.Page())
 			admin.Get("/admin/members", handlers.ManageMembers())
+			admin.Get("/admin/tags", handlers.ManageTags())
 		}
 	}
 
