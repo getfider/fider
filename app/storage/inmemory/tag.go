@@ -124,3 +124,17 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 func (s *TagStorage) GetAll() ([]*models.Tag, error) {
 	return s.tags, nil
 }
+
+// GetVisibleFor returns all tags visible for given user
+func (s *TagStorage) GetVisibleFor(user *models.User) ([]*models.Tag, error) {
+	if user != nil && user.IsCollaborator() {
+		return s.GetAll()
+	}
+	tags := make([]*models.Tag, 0)
+	for _, tag := range s.tags {
+		if tag.IsPublic {
+			tags = append(tags, tag)
+		}
+	}
+	return tags, nil
+}
