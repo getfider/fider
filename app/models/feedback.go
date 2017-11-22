@@ -77,8 +77,8 @@ type CreateEditTag struct {
 	IsPublic bool   `json:"isPublic"`
 }
 
-// RemoveTag is used to delete an existing tag
-type RemoveTag struct {
+// DeleteTag is used to delete an existing tag
+type DeleteTag struct {
 	Slug string `route:"slug"`
 }
 

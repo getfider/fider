@@ -59,8 +59,8 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 	return nil, app.ErrNotFound
 }
 
-// Remove a tag by its id
-func (s *TagStorage) Remove(tagID int) error {
+// Delete a tag by its id
+func (s *TagStorage) Delete(tagID int) error {
 	for i, tag := range s.tags {
 		if tag.ID == tagID {
 			s.tags = append(s.tags[:i], s.tags[i+1:]...)
