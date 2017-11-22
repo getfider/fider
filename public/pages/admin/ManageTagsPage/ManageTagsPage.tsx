@@ -5,7 +5,7 @@ import { inject, injectables } from '@fider/di';
 import { Session, TagService } from '@fider/services';
 import { Tag, CurrentUser, UserRole } from '@fider/models';
 
-import { NewTagForm, NewTagFormState } from './';
+import { TagForm, TagFormState } from './';
 import { Failure } from 'services/http';
 
 interface ManageTagsPageState {
@@ -32,7 +32,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
         };
     }
 
-    private async saveNewTag(data: NewTagFormState): Promise<Failure | undefined> {
+    private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
       const result = await this.tagService.add(data.name, data.color, data.isPublic);
       if (result.ok) {
         this.setState({
@@ -44,7 +44,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
       }
     }
 
-    private async updateTag(tag: Tag, data: NewTagFormState): Promise<Failure | undefined> {
+    private async updateTag(tag: Tag, data: TagFormState): Promise<Failure | undefined> {
       const result = await this.tagService.update(tag.slug, data.name, data.color, data.isPublic);
       if (result.ok) {
         tag.name = result.data.name;
@@ -76,7 +76,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
           if (this.state.editing === t.id) {
             return (
               <div key={t.id} className="item">
-                <NewTagForm
+                <TagForm
                   name={t.name}
                   color={t.color}
                   isPublic={t.isPublic}
@@ -153,7 +153,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
                 this.session.isAdmin() && (
                   this.state.isAdding
                   ? <div className="ui segment">
-                    <NewTagForm
+                    <TagForm
                       onSave={async (data) => this.saveNewTag(data)}
                       onCancel={() => this.setState({ isAdding: false })}
                     />
