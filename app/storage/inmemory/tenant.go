@@ -14,12 +14,18 @@ type TenantStorage struct {
 	lastID   int
 	tenants  []*models.Tenant
 	current  *models.Tenant
+	user     *models.User
 	requests []*models.SignInRequest
 }
 
 // SetCurrentTenant tenant
 func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 	s.current = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TenantStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add given tenant to tenant list

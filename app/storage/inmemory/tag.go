@@ -10,6 +10,8 @@ import (
 type TagStorage struct {
 	lastID   int
 	tags     []*models.Tag
+	user     *models.User
+	tenant   *models.Tenant
 	assigned map[int][]*models.Tag
 }
 
@@ -19,6 +21,16 @@ func NewTagStorage() *TagStorage {
 		tags:     make([]*models.Tag, 0),
 		assigned: make(map[int][]*models.Tag),
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *TagStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TagStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add creates a new tag with given input
@@ -122,13 +134,8 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 
 // GetAll returns all tags
 func (s *TagStorage) GetAll() ([]*models.Tag, error) {
-	return s.tags, nil
-}
-
-// GetVisibleFor returns all tags visible for given user
-func (s *TagStorage) GetVisibleFor(user *models.User) ([]*models.Tag, error) {
-	if user != nil && user.IsCollaborator() {
-		return s.GetAll()
+	if s.user != nil && s.user.IsCollaborator() {
+		return s.tags, nil
 	}
 	tags := make([]*models.Tag, 0)
 	for _, tag := range s.tags {

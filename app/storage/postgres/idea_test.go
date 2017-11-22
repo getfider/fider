@@ -20,7 +20,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 1, 2, 5, 2)", now)
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	dbIdeas, err := ideas.GetAll()
 
 	Expect(err).To(BeNil())
@@ -48,7 +49,8 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
@@ -71,7 +73,8 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	dbIdea, err := ideas.GetByID(1)
 
 	Expect(err).To(Equal(app.ErrNotFound))
@@ -83,7 +86,8 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
@@ -105,10 +109,12 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	demoIdeas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	demoIdeas := postgres.NewIdeaStorage(trx)
+	demoIdeas.SetCurrentTenant(demoTenant(tenants))
 	demoIdea, _ := demoIdeas.Add("My new idea", "with this description", 1)
 
-	orangeIdeas := postgres.NewIdeaStorage(orangeTenant(tenants), trx)
+	orangeIdeas := postgres.NewIdeaStorage(trx)
+	orangeIdeas.SetCurrentTenant(orangeTenant(tenants))
 	orangeIdea, _ := orangeIdeas.Add("My other idea", "with other description", 3)
 
 	dbIdea, err := demoIdeas.GetByNumber(1)
@@ -133,7 +139,8 @@ func TestIdeaStorage_Update(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
@@ -150,7 +157,8 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -169,7 +177,8 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -188,7 +197,8 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -207,7 +217,8 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -229,7 +240,8 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
 
@@ -246,7 +258,8 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
 	ideas.AddSupporter(idea.Number, 1)
@@ -261,7 +274,8 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	ideas.AddSupporter(idea.Number, 1)
 	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
@@ -277,7 +291,8 @@ func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
 	idea1, _ := ideas.Add("My new idea", "with this description", 1)
 	idea2, _ := ideas.Add("My other idea", "with better description", 1)
 	ideas.AddSupporter(idea1.Number, 2)

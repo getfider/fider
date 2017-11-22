@@ -3,8 +3,6 @@ package postgres_test
 import (
 	"testing"
 
-	"github.com/getfider/fider/app/models"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
@@ -15,7 +13,8 @@ func TestTagStorage_AddAndGet(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
 	tag, err := tags.Add("Feature Request", "FF0000", true)
 	Expect(err).To(BeNil())
 	Expect(tag.ID).To(Equal(1))
@@ -35,7 +34,8 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
 	tag, err := tags.Add("Feature Request", "FF0000", true)
 	tag, err = tags.Update(tag.ID, "Bug", "000000", false)
 
@@ -54,7 +54,8 @@ func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
 	tag, err := tags.Add("Bug", "FFFFFF", true)
 
 	err = tags.Delete(tag.ID)
@@ -71,8 +72,13 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
+
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
+
 	idea, _ := ideas.Add("My great idea", "with a great description", 2)
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
@@ -101,8 +107,13 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(demoTenant(tenants), trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
+
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
+
 	idea, _ := ideas.Add("My great idea", "with a great description", 2)
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
@@ -122,7 +133,12 @@ func TestTagStorage_GetAll(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	tenants := postgres.NewTenantStorage(trx)
-	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
+	users := postgres.NewUserStorage(trx)
+	users.SetCurrentTenant(demoTenant(tenants))
+
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
+	tags.SetCurrentUser(jonSnow(users))
 	tags.Add("Feature Request", "FF0000", true)
 	tags.Add("Bug", "0F0F0F", false)
 
@@ -143,14 +159,10 @@ func TestTagStorage_GetAll(t *testing.T) {
 	Expect(allTags[1].Color).To(Equal("0F0F0F"))
 	Expect(allTags[1].IsPublic).To(BeFalse())
 
-	visitorTags, err := tags.GetVisibleFor(nil)
+	tags.SetCurrentUser(aryaStark(users))
+
+	visitorTags, err := tags.GetAll()
 	Expect(err).To(BeNil())
 	Expect(len(visitorTags)).To(Equal(1))
 	Expect(visitorTags[0].Name).To(Equal("Feature Request"))
-
-	adminTags, err := tags.GetVisibleFor(&models.User{Role: models.RoleCollaborator})
-	Expect(err).To(BeNil())
-	Expect(len(adminTags)).To(Equal(2))
-	Expect(adminTags[0].Name).To(Equal("Feature Request"))
-	Expect(adminTags[1].Name).To(Equal("Bug"))
 }

@@ -51,12 +51,23 @@ func (u *dbUser) toModel() *models.User {
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
 	tenant *models.Tenant
+	user   *models.User
 	trx    *dbx.Trx
 }
 
 // NewUserStorage creates a new UserStorage
-func NewUserStorage(tenant *models.Tenant, trx *dbx.Trx) *UserStorage {
-	return &UserStorage{tenant: tenant, trx: trx}
+func NewUserStorage(trx *dbx.Trx) *UserStorage {
+	return &UserStorage{trx: trx}
+}
+
+// SetCurrentTenant to current context
+func (s *UserStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *UserStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // GetByID returns a user based on given id

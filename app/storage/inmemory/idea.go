@@ -12,6 +12,8 @@ type IdeaStorage struct {
 	lastID           int
 	ideas            []*models.Idea
 	ideasSupportedBy map[int][]int
+	tenant           *models.Tenant
+	user             *models.User
 }
 
 // NewIdeaStorage creates a new IdeaStorage
@@ -20,6 +22,16 @@ func NewIdeaStorage() *IdeaStorage {
 		ideas:            make([]*models.Idea, 0),
 		ideasSupportedBy: make(map[int][]int, 0),
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *IdeaStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *IdeaStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // GetByID returns idea by given id

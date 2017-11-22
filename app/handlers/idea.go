@@ -78,7 +78,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		tags, err := c.Services().Tags.GetVisibleFor(c.User())
+		tags, err := c.Services().Tags.GetAll()
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -71,14 +71,24 @@ func (c *dbComment) toModel() *models.Comment {
 type IdeaStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
+	user   *models.User
 }
 
 // NewIdeaStorage creates a new IdeaStorage
-func NewIdeaStorage(tenant *models.Tenant, trx *dbx.Trx) *IdeaStorage {
+func NewIdeaStorage(trx *dbx.Trx) *IdeaStorage {
 	return &IdeaStorage{
-		trx:    trx,
-		tenant: tenant,
+		trx: trx,
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *IdeaStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *IdeaStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 var (
