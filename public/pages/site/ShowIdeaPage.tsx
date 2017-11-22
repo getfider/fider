@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import { CurrentUser, Comment, Idea } from '@fider/models';
+import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
 import { CommentInput } from '@fider/components/CommentInput';
 import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
+import { ShowTag } from '@fider/components/ShowTag';
 import { DisplayError, Button, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 import Textarea from 'react-textarea-autosize';
 
@@ -26,6 +27,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   private user?: CurrentUser;
   private idea: Idea;
   private comments: Comment[];
+  private tags: Tag[];
 
   @inject(injectables.Session)
   public session: Session;
@@ -38,6 +40,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
 
     this.user = this.session.getCurrentUser();
     this.idea = this.session.get<Idea>('idea');
+    this.tags = this.session.getArray<Tag>('tags');
     this.comments = this.session.getArray<Comment>('comments');
 
     this.state = {
@@ -67,73 +70,74 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   }
 
   public render() {
-
-      const commentsList = this.comments.map((c) => (
-        <div key={c.id} className="comment">
-          <Gravatar user={c.user} />
-          <div className="content">
-            <UserName user={c.user} />
-            <div className="metadata">
-              · <Moment date={c.createdOn} />
-            </div>
-            <div className="text">
-              <MultiLineText text={c.content} style="simple" />
-            </div>
+    const commentsList = this.comments.map((c) => (
+      <div key={c.id} className="comment">
+        <Gravatar user={c.user} />
+        <div className="content">
+          <UserName user={c.user} />
+          <div className="metadata">
+            · <Moment date={c.createdOn} />
+          </div>
+          <div className="text">
+            <MultiLineText text={c.content} style="simple" />
           </div>
         </div>
-      ));
+      </div>
+    ));
 
-      return (
-        <div>
-          <Header />
-          <div className="page ui container">
-            <div className="ui stackable grid container">
-              <div className="thirteen wide column">
-                <div className="ui items unstackable">
-                  <div className="item">
-                    <SupportCounter user={this.user} idea={this.idea} />
+    return (
+      <div>
+        <Header />
+        <div className="page ui container">
+          <div className="ui stackable grid container">
+            <div className="thirteen wide column">
+              <div className="ui items unstackable">
+                <div className="item">
+                  <SupportCounter user={this.user} idea={this.idea} />
 
-                    <div className="idea-header">
-                      { this.state.editMode
-                        ? [
-                          <div key={1} className="ui input huge fluid">
-                            <input type="text" onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
-                          </div>,
-                          <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
-                          ]
-                        : <h1 className="ui header">{this.idea.title}</h1>
-                      }
+                  <div className="idea-header">
+                    { this.state.editMode
+                      ? [
+                        <div key={1} className="ui input huge fluid">
+                          <input type="text" onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
+                        </div>,
+                        <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
+                        ]
+                      : <h1 className="ui header">{this.idea.title}</h1>
+                    }
 
-                      <span className="info">
-                        Shared <Moment date={this.idea.createdOn} /> by <Gravatar user={this.idea.user} /> <UserName user={this.idea.user} />
-                      </span>
-                    </div>
+                    <span className="info">
+                      Shared <Moment date={this.idea.createdOn} /> by <Gravatar user={this.idea.user} /> <UserName user={this.idea.user} />
+                    </span>
                   </div>
                 </div>
-
-                <span className="subtitle">Description</span>
-                {
-                  this.state.editMode
-                  ? <div className="ui form">
-                      <div className="field">
-                        <DisplayError fields={['description']} error={this.state.error} />
-                        <Textarea onChange={(e) => this.setState({ newDescription: e.currentTarget.value })} defaultValue={this.state.newDescription} />
-                      </div>
-                    </div>
-                  : this.idea.description
-                  ? <MultiLineText className="description" text={this.idea.description} style="simple" />
-                  : <p className="description">This idea doesn't have a description.</p>
-                }
-
-                <ShowIdeaResponse status={this.idea.status} response={this.idea.response} />
-
               </div>
 
+              <span className="subtitle">Description</span>
               {
-                this.session.isCollaborator() &&
-                <div className="three wide column">
-                  <span className="subtitle">Actions</span>
-                  { this.state.editMode && <div className="ui list">
+                this.state.editMode
+                ? <div className="ui form">
+                    <div className="field">
+                      <DisplayError fields={['description']} error={this.state.error} />
+                      <Textarea onChange={(e) => this.setState({ newDescription: e.currentTarget.value })} defaultValue={this.state.newDescription} />
+                    </div>
+                  </div>
+                : this.idea.description
+                ? <MultiLineText className="description" text={this.idea.description} style="simple" />
+                : <p className="description">This idea doesn't have a description.</p>
+              }
+
+              <ShowIdeaResponse status={this.idea.status} response={this.idea.response} />
+
+            </div>
+
+            <div className="three wide column">
+              {
+                this.session.isCollaborator() && [
+                  <span key={0} className="subtitle">Actions</span>,
+                  this.state.editMode
+                    ?
+                    <div key={1} className="ui list">
                       <div className="item">
                         <Button className="positive icon fluid text-left" onClick={async () => this.saveChanges()}>
                           <i className="save icon" /> Save
@@ -145,11 +149,8 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                         </Button>
                       </div>
                     </div>
-                  }
-
-                  {
-                    !this.state.editMode &&
-                    <div className="ui list">
+                    :
+                    <div key={1} className="ui list">
                       <div className="item">
                           <Button className="icon fluid text-left" onClick={async () => this.setState({ editMode: true })}>
                             <i className="edit icon" /> Edit
@@ -159,22 +160,37 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                         <ResponseForm idea={this.idea} />
                       </div>
                     </div>
-                  }
-                </div>
+                ]
               }
 
-              <div className="sixteen wide column">
-                  <div className="ui comments">
-                    <span className="subtitle">Discussion</span>
-                    {commentsList}
-                    <CommentInput idea={this.idea} />
+              <span className="subtitle active">
+                Tags
+                <i className="setting icon" />
+              </span>
+
+              <div className="ui list">
+              {
+                this.tags.map((t) => (
+                  <div key={t.id} className="item">
+                    <ShowTag name={t.name} color={t.color} isPublic={t.isPublic} />
                   </div>
+                ))
+              }
               </div>
             </div>
 
+            <div className="sixteen wide column">
+                <div className="ui comments">
+                  <span className="subtitle">Discussion</span>
+                  {commentsList}
+                  <CommentInput idea={this.idea} />
+                </div>
+            </div>
           </div>
-          <Footer />
+
         </div>
-      );
-    }
+        <Footer />
+      </div>
+    );
+  }
 }

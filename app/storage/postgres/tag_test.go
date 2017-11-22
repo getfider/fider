@@ -3,6 +3,8 @@ package postgres_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/models"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
@@ -140,4 +142,15 @@ func TestTagStorage_GetAll(t *testing.T) {
 	Expect(allTags[1].Slug).To(Equal("bug"))
 	Expect(allTags[1].Color).To(Equal("0F0F0F"))
 	Expect(allTags[1].IsPublic).To(BeFalse())
+
+	visitorTags, err := tags.GetVisibleFor(nil)
+	Expect(err).To(BeNil())
+	Expect(len(visitorTags)).To(Equal(1))
+	Expect(visitorTags[0].Name).To(Equal("Feature Request"))
+
+	adminTags, err := tags.GetVisibleFor(&models.User{Role: models.RoleCollaborator})
+	Expect(err).To(BeNil())
+	Expect(len(adminTags)).To(Equal(2))
+	Expect(adminTags[0].Name).To(Equal("Feature Request"))
+	Expect(adminTags[1].Name).To(Equal("Bug"))
 }

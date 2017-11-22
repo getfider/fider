@@ -78,9 +78,15 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		tags, err := c.Services().Tags.GetVisibleFor(c.User())
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Map{
 			"comments": comments,
 			"idea":     idea,
+			"tags":     tags,
 		})
 	}
 }

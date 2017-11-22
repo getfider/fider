@@ -143,6 +143,19 @@ func (s *TagStorage) GetAll() ([]*models.Tag, error) {
 	`, s.tenant.ID)
 }
 
+// GetVisibleFor returns all tags visible for given user
+func (s *TagStorage) GetVisibleFor(user *models.User) ([]*models.Tag, error) {
+	if user != nil && user.IsCollaborator() {
+		return s.GetAll()
+	}
+	return s.getTags(`
+		SELECT t.id, t.name, t.slug, t.color, t.is_public 
+		FROM tags t
+		WHERE t.tenant_id = $1
+		AND t.is_public = true
+	`, s.tenant.ID)
+}
+
 // GetAll returns all tags
 func (s *TagStorage) getTags(query string, args ...interface{}) ([]*models.Tag, error) {
 	tags := []*dbTag{}

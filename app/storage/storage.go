@@ -58,4 +58,5 @@ type Tag interface {
 	AssignTag(tagID, ideaID, userID int) error
 	UnassignTag(tagID, ideaID int) error
 	GetAll() ([]*models.Tag, error)
+	GetVisibleFor(user *models.User) ([]*models.Tag, error)
 }
