@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -32,14 +33,24 @@ func (t *dbTag) toModel() *models.Tag {
 type TagStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
+	user   *models.User
 }
 
 // NewTagStorage creates a new TagStorage
-func NewTagStorage(tenant *models.Tenant, trx *dbx.Trx) *TagStorage {
+func NewTagStorage(trx *dbx.Trx) *TagStorage {
 	return &TagStorage{
-		trx:    trx,
-		tenant: tenant,
+		trx: trx,
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *TagStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TagStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add creates a new tag with given input
@@ -136,24 +147,17 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 
 // GetAll returns all tags
 func (s *TagStorage) GetAll() ([]*models.Tag, error) {
-	return s.getTags(`
-		SELECT t.id, t.name, t.slug, t.color, t.is_public 
-		FROM tags t
-		WHERE t.tenant_id = $1
-	`, s.tenant.ID)
-}
-
-// GetVisibleFor returns all tags visible for given user
-func (s *TagStorage) GetVisibleFor(user *models.User) ([]*models.Tag, error) {
-	if user != nil && user.IsCollaborator() {
-		return s.GetAll()
+	condition := `AND t.is_public = true`
+	if s.user != nil && s.user.IsCollaborator() {
+		condition = ``
 	}
-	return s.getTags(`
+
+	query := fmt.Sprintf(`
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
-		WHERE t.tenant_id = $1
-		AND t.is_public = true
-	`, s.tenant.ID)
+		WHERE t.tenant_id = $1 %s
+	`, condition)
+	return s.getTags(query, s.tenant.ID)
 }
 
 // GetAll returns all tags

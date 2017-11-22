@@ -9,6 +9,8 @@ import (
 
 // UserStorage is used for user operations
 type UserStorage struct {
+	user   *models.User
+	tenant *models.Tenant
 	users  []*models.User
 	lastID int
 }
@@ -21,6 +23,16 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 		}
 	}
 	return nil, app.ErrNotFound
+}
+
+// SetCurrentTenant tenant
+func (s *UserStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *UserStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // GetByEmail returns a user based on given email

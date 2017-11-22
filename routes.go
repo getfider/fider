@@ -75,8 +75,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	{
 		page.Use(middlewares.Setup(db, emailer))
 		page.Use(middlewares.Tenant())
-		page.Use(middlewares.AddServices())
+		page.Use(middlewares.AddServices()) // first call will set tenant to storage
 		page.Use(middlewares.JwtGetter())
+		page.Use(middlewares.AddServices()) // second call will set user to storage (if available)
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
 

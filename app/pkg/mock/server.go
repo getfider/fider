@@ -48,12 +48,14 @@ func (s *Server) Use(middleware web.MiddlewareFunc) {
 // OnTenant set current context tenant
 func (s *Server) OnTenant(tenant *models.Tenant) *Server {
 	s.context.SetTenant(tenant)
+	s.context.Services().SetCurrentTenant(tenant)
 	return s
 }
 
 // AsUser set current context user
 func (s *Server) AsUser(user *models.User) *Server {
 	s.context.SetUser(user)
+	s.context.Services().SetCurrentUser(user)
 	return s
 }
 
