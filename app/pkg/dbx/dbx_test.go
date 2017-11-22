@@ -227,3 +227,25 @@ func TestScalar(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(value).To(Equal(1))
 }
+
+func TestArray(t *testing.T) {
+	RegisterTestingT(t)
+	db, _ := dbx.New()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	type ideaTags struct {
+		ID   int     `db:"id"`
+		Tags []int64 `db:"tags"`
+	}
+
+	result := ideaTags{}
+	err := trx.Get(&result, "SELECT 1 as id, array[5,10] as tags")
+	Expect(err).To(BeNil())
+	Expect(result.ID).To(Equal(1))
+	Expect(len(result.Tags)).To(Equal(2))
+	Expect(result.Tags[0]).To(Equal(int64(5)))
+	Expect(result.Tags[1]).To(Equal(int64(10)))
+}
