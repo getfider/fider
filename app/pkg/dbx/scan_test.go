@@ -40,7 +40,6 @@ func TestScan(t *testing.T) {
 	Expect(result["name"]).To(Equal(&u.Name))
 	Expect(result["tenant_id"]).To(Equal(&u.Tenant.ID))
 	Expect(result["tenant_name"]).To(Equal(&u.Tenant.Name))
-
 }
 
 func TestScan_WithStringPointer(t *testing.T) {

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"reflect"
 
+	"github.com/lib/pq"
+
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/env"
@@ -65,10 +67,16 @@ func scan(prefix string, data interface{}) map[string]interface{} {
 	for i := 0; i < numfield; i++ {
 		field := s.Field(i)
 		typeField := s.Type().Field(i)
+		fmt.Println(typeField)
 		tag := typeField.Tag.Get("db")
 
 		if tag != "" {
-			if typeField.Type.Kind() != reflect.Ptr {
+			println(typeField.Type.Kind())
+			if typeField.Type.Kind() == reflect.Slice {
+				obj := reflect.New(reflect.MakeSlice(typeField.Type, 0, 0).Type()).Elem()
+				field.Set(obj)
+				fields[prefix+tag] = pq.Array(field.Addr().Interface())
+			} else if typeField.Type.Kind() != reflect.Ptr {
 				fields[prefix+tag] = field.Addr().Interface()
 			} else if field.Type().Elem().Kind() != reflect.Struct || field.Type().Elem().String() == "time.Time" {
 				obj := reflect.New(field.Type().Elem()).Elem()
