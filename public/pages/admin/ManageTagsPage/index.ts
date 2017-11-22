@@ -1,2 +1,2 @@
 export * from './ManageTagsPage';
-export * from './NewTagForm';
+export * from './TagForm';

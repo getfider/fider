@@ -4,25 +4,25 @@ import { ShowTag } from '@fider/components/ShowTag';
 import { Tag } from '@fider/models';
 import { Failure } from '@fider/services';
 
-interface NewTagFormProps {
+interface TagFormProps {
   name?: string;
   color?: string;
   isPublic?: boolean;
-  onSave: (data: NewTagFormState) => Promise<Failure | undefined>;
+  onSave: (data: TagFormState) => Promise<Failure | undefined>;
   onCancel: () => void;
 }
 
-export interface NewTagFormState {
+export interface TagFormState {
   name: string;
   color: string;
   isPublic: boolean;
   error?: Failure;
 }
 
-import './NewTagForm.scss';
+import './TagForm.scss';
 
-export class NewTagForm extends React.Component<NewTagFormProps, NewTagFormState> {
-  constructor(props: NewTagFormProps) {
+export class TagForm extends React.Component<TagFormProps, TagFormState> {
+  constructor(props: TagFormProps) {
     super(props);
     this.state = {
       color: props.color || this.randomizeColor(),
@@ -49,7 +49,7 @@ export class NewTagForm extends React.Component<NewTagFormProps, NewTagFormState
 
   public render() {
     return (
-      <div id="new-tag-form" className="ui form">
+      <div id="tag-form" className="ui form">
         <div className="four fields">
           <div className="four wide field">
             <label>Name</label>
