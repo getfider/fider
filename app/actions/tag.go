@@ -63,25 +63,25 @@ func (input *CreateEditTag) Validate(services *app.Services) *validate.Result {
 	return result
 }
 
-// RemoveTag is used to delete an existing tag
-type RemoveTag struct {
+// DeleteTag is used to delete an existing tag
+type DeleteTag struct {
 	Tag   *models.Tag
-	Model *models.RemoveTag
+	Model *models.DeleteTag
 }
 
 // Initialize the model
-func (input *RemoveTag) Initialize() interface{} {
-	input.Model = new(models.RemoveTag)
+func (input *DeleteTag) Initialize() interface{} {
+	input.Model = new(models.DeleteTag)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *RemoveTag) IsAuthorized(user *models.User) bool {
+func (input *DeleteTag) IsAuthorized(user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate is current model is valid
-func (input *RemoveTag) Validate(services *app.Services) *validate.Result {
+func (input *DeleteTag) Validate(services *app.Services) *validate.Result {
 	tag, err := services.Tags.GetBySlug(input.Model.Slug)
 	if err != nil {
 		return validate.Error(err)

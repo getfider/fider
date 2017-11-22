@@ -85,8 +85,8 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 	return s.GetBySlug(tagSlug)
 }
 
-// Remove a tag by its id
-func (s *TagStorage) Remove(tagID int) error {
+// Delete a tag by its id
+func (s *TagStorage) Delete(tagID int) error {
 	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1`, tagID)
 	if err != nil {
 		return err

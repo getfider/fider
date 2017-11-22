@@ -47,7 +47,7 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 	Expect(dbTag.IsPublic).To(BeFalse())
 }
 
-func TestTagStorage_AddRemoveAndGet(t *testing.T) {
+func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -55,7 +55,7 @@ func TestTagStorage_AddRemoveAndGet(t *testing.T) {
 	tags := postgres.NewTagStorage(demoTenant(tenants), trx)
 	tag, err := tags.Add("Bug", "FFFFFF", true)
 
-	err = tags.Remove(tag.ID)
+	err = tags.Delete(tag.ID)
 	Expect(err).To(BeNil())
 
 	dbTag, err := tags.GetBySlug("bug")
@@ -94,7 +94,7 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	Expect(len(assigned)).To(Equal(0))
 }
 
-func TestTagStorage_Assign_RemoveTag(t *testing.T) {
+func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -107,7 +107,7 @@ func TestTagStorage_Assign_RemoveTag(t *testing.T) {
 	err := tags.AssignTag(tag.ID, idea.ID, 2)
 	Expect(err).To(BeNil())
 
-	err = tags.Remove(tag.ID)
+	err = tags.Delete(tag.ID)
 	Expect(err).To(BeNil())
 
 	assigned, err := tags.GetAssigned(idea.ID)

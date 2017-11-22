@@ -131,19 +131,19 @@ func TestEditExistingTagHandler(t *testing.T) {
 	Expect(err).To(BeNil())
 }
 
-func TestRemoveInvalidTagHandler(t *testing.T) {
+func TestDeleteInvalidTagHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
-		Execute(handlers.RemoveTag())
+		Execute(handlers.DeleteTag())
 
 	Expect(status).To(Equal(http.StatusNotFound))
 }
 
-func TestRemoveExistingTagHandler(t *testing.T) {
+func TestDeleteExistingTagHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
@@ -152,7 +152,7 @@ func TestRemoveExistingTagHandler(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
-		Execute(handlers.RemoveTag())
+		Execute(handlers.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).To(Equal(http.StatusOK))
@@ -160,7 +160,7 @@ func TestRemoveExistingTagHandler(t *testing.T) {
 	Expect(tag).To(BeNil())
 }
 
-func TestRemoveExistingTagHandler_Collaborator(t *testing.T) {
+func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
@@ -169,7 +169,7 @@ func TestRemoveExistingTagHandler_Collaborator(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.AryaStark).
 		AddParam("slug", "bug").
-		Execute(handlers.RemoveTag())
+		Execute(handlers.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).To(Equal(http.StatusForbidden))
