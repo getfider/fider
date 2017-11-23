@@ -107,7 +107,7 @@ func (s *TagStorage) Delete(tagID int) error {
 
 // AssignTag adds a tag to an idea
 func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
-	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1", ideaID)
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2", ideaID, tagID)
 	if err != nil {
 		return err
 	}
