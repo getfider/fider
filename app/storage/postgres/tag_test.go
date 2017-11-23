@@ -17,12 +17,12 @@ func TestTagStorage_AddAndGet(t *testing.T) {
 	tags.SetCurrentTenant(demoTenant(tenants))
 	tag, err := tags.Add("Feature Request", "FF0000", true)
 	Expect(err).To(BeNil())
-	Expect(tag.ID).To(Equal(1))
+	Expect(tag.ID).ToNot(BeZero())
 
 	dbTag, err := tags.GetBySlug("feature-request")
 
 	Expect(err).To(BeNil())
-	Expect(dbTag.ID).To(Equal(1))
+	Expect(dbTag.ID).ToNot(BeZero())
 	Expect(dbTag.Name).To(Equal("Feature Request"))
 	Expect(dbTag.Slug).To(Equal("feature-request"))
 	Expect(dbTag.Color).To(Equal("FF0000"))

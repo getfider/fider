@@ -67,11 +67,9 @@ func scan(prefix string, data interface{}) map[string]interface{} {
 	for i := 0; i < numfield; i++ {
 		field := s.Field(i)
 		typeField := s.Type().Field(i)
-		fmt.Println(typeField)
 		tag := typeField.Tag.Get("db")
 
 		if tag != "" {
-			println(typeField.Type.Kind())
 			if typeField.Type.Kind() == reflect.Slice {
 				obj := reflect.New(reflect.MakeSlice(typeField.Type, 0, 0).Type()).Elem()
 				field.Set(obj)

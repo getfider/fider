@@ -17,6 +17,7 @@ type Idea struct {
 	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
+	Tags            []int64       `json:"tags"`
 }
 
 // NewIdea represents a new idea

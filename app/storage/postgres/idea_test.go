@@ -301,3 +301,32 @@ func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
 	Expect(ideas.SupportedBy(1)).To(Equal([]int{}))
 	Expect(ideas.SupportedBy(2)).To(Equal([]int{idea1.ID, idea2.ID}))
 }
+
+func TestIdeaStorage_WithTags(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenants := postgres.NewTenantStorage(trx)
+	users := postgres.NewUserStorage(trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
+	tags := postgres.NewTagStorage(trx)
+	tags.SetCurrentTenant(demoTenant(tenants))
+
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	bug, _ := tags.Add("Bug", "FF0000", true)
+	featureRequest, _ := tags.Add("Feature Request", "00FF00", false)
+
+	tags.AssignTag(bug.ID, idea.ID, 1)
+	tags.AssignTag(featureRequest.ID, idea.ID, 1)
+
+	idea, _ = ideas.GetByID(idea.ID)
+	Expect(len(idea.Tags)).To(Equal(1))
+	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))
+
+	ideas.SetCurrentUser(jonSnow(users))
+	idea, _ = ideas.GetByID(idea.ID)
+	Expect(len(idea.Tags)).To(Equal(2))
+	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))
+	Expect(idea.Tags[1]).To(Equal(int64(featureRequest.ID)))
+}
