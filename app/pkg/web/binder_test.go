@@ -66,3 +66,22 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 	Expect(u.Color).To(Equal("FF00AD"))
 	Expect(u.Other).To(Equal(""))
 }
+
+func TestDefaultBinder_POST_WithoutBody(t *testing.T) {
+	RegisterTestingT(t)
+
+	type action struct {
+		Number int    `route:"number"`
+		Slug   string `route:"slug"`
+	}
+
+	params := make(web.StringMap, 0)
+	params["number"] = "2"
+	params["slug"] = "jon-snow"
+	ctx := newPostContext(params, "")
+	a := new(action)
+	err := binder.Bind(a, ctx)
+	Expect(err).To(BeNil())
+	Expect(a.Number).To(Equal(2))
+	Expect(a.Slug).To(Equal("jon-snow"))
+}

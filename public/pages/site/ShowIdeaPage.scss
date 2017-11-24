@@ -25,6 +25,30 @@
     }
   }
 
+  .tag-list {
+    .tag-icon {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      margin-right: 5px;
+      border-radius: 50%;
+    }
+    .selectable {
+      &.item {
+        margin: 5px 0px;
+      }
+      i {
+        display: inline-block;
+        color: $positive-color;
+      }
+      &:hover {
+        font-weight: bold;
+        border-radius: 5px;
+      }
+      cursor: pointer;
+    }
+  }
+
   .ui.comments {
     .fdr-avatar {
       margin-right: 5px;

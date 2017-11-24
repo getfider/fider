@@ -71,14 +71,3 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 		}
 	}
 }
-
-//AddServices adds services to current context
-func AddServices() web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			c.Services().SetCurrentTenant(c.Tenant())
-			c.Services().SetCurrentUser(c.User())
-			return next(c)
-		}
-	}
-}

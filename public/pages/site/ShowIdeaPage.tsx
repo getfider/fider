@@ -12,15 +12,21 @@ import { DisplayError, Button, UserName, Gravatar, Moment, Form, MultiLineText, 
 import Textarea from 'react-textarea-autosize';
 
 import { inject, injectables } from '@fider/di';
-import { Session, IdeaService, Failure } from '@fider/services';
+import { Session, IdeaService, TagService, Failure } from '@fider/services';
 
 import './ShowIdeaPage.scss';
 
 interface ShowIdeaPageState {
   editMode: boolean;
+  editTags: boolean;
   newTitle: string;
   newDescription: string;
+  assignedTags: number[];
   error?: Failure;
+}
+
+interface NumberKey<T> {
+  [key: number]: T;
 }
 
 export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
@@ -28,6 +34,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   private idea: Idea;
   private comments: Comment[];
   private tags: Tag[];
+  private tagsById: NumberKey<Tag>;
 
   @inject(injectables.Session)
   public session: Session;
@@ -35,18 +42,27 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   @inject(injectables.IdeaService)
   public ideaService: IdeaService;
 
+  @inject(injectables.TagService)
+  public tagService: TagService;
+
   constructor(props: {}) {
     super(props);
 
     this.user = this.session.getCurrentUser();
     this.idea = this.session.get<Idea>('idea');
-    this.tags = this.session.getArray<Tag>('tags');
     this.comments = this.session.getArray<Comment>('comments');
+    this.tags = this.session.getArray<Tag>('tags');
+    this.tagsById = this.tags.reduce<NumberKey<Tag>>((map, t) => {
+      map[t.id] = t;
+      return map;
+    }, {});
 
     this.state = {
       editMode: false,
+      editTags: false,
       newTitle: this.idea.title,
-      newDescription: this.idea.description
+      newDescription: this.idea.description,
+      assignedTags: this.idea.tags,
     };
 
     setTitle(`${this.idea.title} · ${document.title}`);
@@ -69,6 +85,26 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
     }
   }
 
+  private async assignOrUnassignTag(tag: Tag) {
+    const idx = this.state.assignedTags.indexOf(tag.id);
+    let assignedTags: number[] = [];
+    if (idx >= 0) {
+      const response = await this.tagService.unassign(tag.slug, this.idea.number);
+      if (response.ok) {
+        assignedTags = this.state.assignedTags.splice(idx, 1) && this.state.assignedTags;
+      }
+    } else {
+      const response = await this.tagService.assign(tag.slug, this.idea.number);
+      if (response.ok) {
+        assignedTags = this.state.assignedTags.concat(tag.id);
+      }
+    }
+
+    this.setState({
+      assignedTags
+    });
+  }
+
   public render() {
     const commentsList = this.comments.map((c) => (
       <div key={c.id} className="comment">
@@ -84,6 +120,16 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
         </div>
       </div>
     ));
+
+    const tagsList = this.state.assignedTags.length
+      ?
+      this.state.assignedTags.map((id) => (
+        <div key={id} className="item">
+          <ShowTag name={this.tagsById[id].name} color={this.tagsById[id].color} isPublic={this.tagsById[id].isPublic} />
+        </div>
+      ))
+      :
+      <span className="info">None yet</span>;
 
     return (
       <div>
@@ -163,16 +209,25 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                 ]
               }
 
-              <span className="subtitle active">
+              <span
+                className={`subtitle ${this.session.isCollaborator() && 'active'}`}
+                onClick={() => this.session.isCollaborator() && this.setState({ editTags: !this.state.editTags })}
+              >
                 Tags
-                <i className="setting icon" />
+                {this.session.isCollaborator() && <i className="setting icon" />}
               </span>
 
-              <div className="ui list">
+              <div className="ui list tag-list">
+                {
+                  !this.state.editTags && tagsList
+              }
               {
-                this.tags.map((t) => (
-                  <div key={t.id} className="item">
-                    <ShowTag name={t.name} color={t.color} isPublic={t.isPublic} />
+                this.state.editTags &&
+                this.tags.map((tag) => (
+                  <div key={tag.id} className="item selectable" onClick={async () => this.assignOrUnassignTag(tag)}>
+                    <i className={`icon ${this.state.assignedTags.indexOf(tag.id) >= 0 && 'check'}`} />
+                    <div className="tag-icon" style={{backgroundColor: `#${tag.color}`}} />
+                    <span>{tag.name}</span>
                   </div>
                 ))
               }
