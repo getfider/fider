@@ -2,14 +2,12 @@ language: go
 
 go: 1.9.x
 
-services:
-  - postgresql
-
 addons:
   postgresql: "9.6"
 
 before_script:
   - psql -c 'create database fider_ci;' -U postgres
+  - psql -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';" -U postgres
 
 install:
   - go get -u github.com/joho/godotenv/cmd/godotenv
