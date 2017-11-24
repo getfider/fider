@@ -5,18 +5,24 @@ go: 1.9.x
 addons:
   postgresql: "9.6"
 
-before_script:
-  - psql -c 'create database fider_ci;' -U postgres
-  - psql -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';" -U postgres
-
 install:
   - go get -u github.com/joho/godotenv/cmd/godotenv
   - go get -u github.com/dave/courtney
   - nvm install 8
-  - npm install
+
+before_script:
+  - psql -c 'create database fider_ci;' -U postgres
+  - psql -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';" -U postgres
 
 script:
+  - npm install
   - npm run lint
   - npm run build
   - make test
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+  - docker build -t getfider/fider .
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker push getfider/fider:travis
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

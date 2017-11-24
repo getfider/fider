@@ -97,23 +97,3 @@ dockerize:
         tag: latest
         ports: 8080
         cmd: ./fider
-
-deploy:
-  box:
-    id: alpine
-    cmd: /bin/sh
-  steps:
-    - script:
-        name: install packages
-        code: |
-          apk update && apk add openssh-client bash
-    - add-to-known_hosts:
-        hostname: fider.io
-        fingerprint: SHA256:U27CmUMQry6uaq2anx445n88eZN7jgqy0K3Yei2Bou4
-        type: rsa
-    - add-ssh-key:
-        keyname: CORE
-    - script:
-        name: restart
-        code: |
-          ssh core@fider.io "/home/core/start-app.sh"
