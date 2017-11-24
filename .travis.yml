@@ -1,14 +1,24 @@
 language: go
 
-go:
-  - 1.8.x
-  - 1.9.x
+go: 1.9.x
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "9.6"
+
+before_script:
+  - psql -c 'create database fider_ci;' -U postgres
 
 install:
+  - go get -u github.com/joho/godotenv/cmd/godotenv
+  - go get -u github.com/dave/courtney
   - nvm install 8
   - npm install
 
 script:
   - npm run lint
   - npm run build
+  - make test
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
