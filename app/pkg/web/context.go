@@ -71,7 +71,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	} else {
 		ctx.Logger().Debugf("Current tenant: nil")
 	}
-	ctx.Services().Tenants.SetCurrentTenant(tenant)
+	ctx.Services().SetCurrentTenant(tenant)
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -187,6 +187,7 @@ func (ctx *Context) SetUser(user *models.User) {
 		ctx.Logger().Debugf("Logged as: nil")
 	}
 	ctx.Set(userContextKey, user)
+	ctx.Services().SetCurrentUser(user)
 }
 
 //Services returns current app.Services from context

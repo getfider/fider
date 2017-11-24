@@ -12,6 +12,7 @@ export interface Idea {
   response: IdeaResponse;
   totalSupporters: number;
   totalComments: number;
+  tags: number[];
 }
 
 export class IdeaStatus {

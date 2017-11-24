@@ -75,11 +75,9 @@ describe('Submit ideas', () => {
     await pages.home.submitNewIdea('Add support to TypeScript', 'Because the language and community is awesome! :)');
 
     // Assert
-    await Promise.all([
-      ensure(pages.showIdea.Title).textIs('Add support to TypeScript'),
-      ensure(pages.showIdea.Description).textIs('Because the language and community is awesome! :)'),
-      ensure(pages.showIdea.SupportCounter).textIs('1'),
-    ]);
+    await ensure(pages.showIdea.Title).textIs('Add support to TypeScript');
+    await ensure(pages.showIdea.Description).textIs('Because the language and community is awesome! :)');
+    await ensure(pages.showIdea.SupportCounter).textIs('1');
   });
 
   it('Can sign in with Google and support an idea', async () => {
