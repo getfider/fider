@@ -1,0 +1,21 @@
+# NOT USED YET
+
+builds:
+  - binary: fider
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+
+archive:
+  format: tar.gz
+  format_overrides:
+    - goos: windows
+      format: zip
+  replacements:
+    amd64: 64-bit
+    darwin: macOS
+  files:
+    - LICENSE
