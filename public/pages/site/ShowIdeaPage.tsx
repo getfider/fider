@@ -210,11 +210,11 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
               }
 
               <span
-                className={`subtitle ${this.session.isCollaborator() && 'active'}`}
-                onClick={() => this.session.isCollaborator() && this.setState({ editTags: !this.state.editTags })}
+                className={`subtitle ${this.session.isCollaborator() && this.tags.length > 0 && 'active'}`}
+                onClick={() => this.session.isCollaborator() && this.tags.length > 0 && this.setState({ editTags: !this.state.editTags })}
               >
                 Tags
-                {this.session.isCollaborator() && <i className="setting icon" />}
+                {this.session.isCollaborator() && this.tags.length > 0 && <i className="setting icon" />}
               </span>
 
               <div className="ui list tag-list">
