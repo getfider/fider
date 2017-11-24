@@ -32,6 +32,7 @@ watch-ssl:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'" --certFile etc/server.crt --keyFile etc/server.key
 
 echo:
+	printenv
 	echo ${TRAVIS_BRANCH}
 	echo ${TRAVIS_PULL_REQUEST}
 	echo ${DOCKER_TAG}
