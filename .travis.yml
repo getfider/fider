@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.8.x
+  - 1.9.x
+
+install:
+  - nvm install 8
+  - npm install
+  - npm run lint
+  - npm run build
