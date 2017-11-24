@@ -2,8 +2,6 @@ BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 
 ENV_FILE=.test.env
 
-TRAVIS_PULL_REQUEST=asdfsdf
-
 ifeq ($(TRAVIS), true)
 ENV_FILE=.ci.env
 endif
@@ -34,6 +32,8 @@ watch-ssl:
 	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'" --certFile etc/server.crt --keyFile etc/server.key
 
 echo:
+	echo ${TRAVIS_BRANCH}
+	echo ${TRAVIS_PULL_REQUEST}
 	echo ${DOCKER_TAG}
 
 dockerize:
