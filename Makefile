@@ -1,9 +1,12 @@
 BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 
+ENV_FILE=.test.env
+
 ifeq ($(WERCKER), true)
 ENV_FILE=.ci.env
-else
-ENV_FILE=.test.env
+endif
+ifeq ($(TRAVIS), true)
+ENV_FILE=.ci.env
 endif
 
 test:
