@@ -9,6 +9,8 @@ addons:
   postgresql: "9.6"
 
 install:
+  - make echo
+  - exit 1
   - go get -u github.com/joho/godotenv/cmd/godotenv
   - go get -u github.com/dave/courtney
   - nvm install 8
