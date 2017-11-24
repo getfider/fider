@@ -6,7 +6,7 @@ ifeq ($(WERCKER), true)
 ENV_FILE=.ci.env
 endif
 ifeq ($(TRAVIS), true)
-ENV_FILE=.ci.env
+ENV_FILE=.ci-travis.env
 endif
 
 test:
