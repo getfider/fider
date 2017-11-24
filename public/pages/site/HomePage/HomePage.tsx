@@ -1,20 +1,23 @@
 import * as React from 'react';
-import { Idea, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
+import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { IdeaInput } from '@fider/components/IdeaInput';
 import { IdeaFilter, IdeaFilterFunction } from '@fider/components/IdeaFilter';
+import { ShowTag } from '@fider/components/ShowTag';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
 import { getBaseUrl, getQueryString } from '@fider/utils/page';
 
-import './SiteHomePage.scss';
+import { TagsFilter } from './TagsFilter';
+
+import './HomePage.scss';
 
 const defaultShowCount = 20;
 
-interface SiteHomePageState {
+interface HomePageState {
   ideas: Idea[];
   showCount: number;
   searching: boolean;
@@ -31,7 +34,7 @@ const EmptyList = () => {
   );
 };
 
-const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser }) => {
+const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<Tag> }) => {
   return (
     <div className="item">
       <SupportCounter user={props.user} idea={props.idea} />
@@ -47,15 +50,26 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser }) => {
         </a>
         <MultiLineText className="description" text={props.idea.description} style="simple" />
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
+        {
+          props.idea.tags.map((t) => (
+            <ShowTag key={t} name={props.tags[t].name} color={props.tags[t].color} isPublic={props.tags[t].isPublic} />
+          ))
+        }
       </div>
     </div>
   );
 };
 
-export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
+interface NumberKey<T> {
+  [key: number]: T;
+}
+
+export class HomePage extends React.Component<{}, HomePageState> {
     private user?: CurrentUser;
     private tenant: Tenant;
     private allIdeas: Idea[];
+    private allTags: Tag[];
+    private allTagsById: NumberKey<Tag>;
     private filter: HTMLDivElement;
 
     @inject(injectables.Session)
@@ -65,7 +79,12 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
         super(props);
         this.user = this.session.getCurrentUser();
         this.tenant = this.session.getCurrentTenant();
-        this.allIdeas = this.session.get<Idea[]>('ideas') || [];
+        this.allIdeas = this.session.getArray<Idea>('ideas');
+        this.allTags = this.session.getArray<Tag>('tags');
+        this.allTagsById = this.allTags.reduce<NumberKey<Tag>>((map, t) => {
+          map[t.id] = t;
+          return map;
+        }, {});
 
         const search = getQueryString('q');
         const activeFilter = window.location.hash.substring(1);
@@ -85,6 +104,17 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
            }
         }
         return true;
+    }
+
+    private selectedTagsChanged(tags: number[]): void {
+      const ideas = this.filterIdeas(this.state.activeFilter, this.state.search);
+      this.setState({
+        ideas: ideas.filter(
+          (i) => i.tags.filter(
+            (t) => tags.indexOf(t) >= 0
+          ).length === tags.length
+        ),
+      });
     }
 
     private filterIdeas(activeFilter: string, search: string | undefined): Idea[] {
@@ -150,7 +180,7 @@ export class SiteHomePage extends React.Component<{}, SiteHomePageState> {
     const displayIdeas = (ideasToList.length > 0)
       ? (
         <div className="ui divided unstackable items fdr-idea-list">
-            {ideasToList.map((x) => <ListIdeaItem key={x.id} user={this.user} idea={x} />)}
+            {ideasToList.map((x) => <ListIdeaItem key={x.id} user={this.user} idea={x} tags={this.allTagsById} />)}
             {
               this.state.ideas.length > this.state.showCount &&
               <h5
@@ -186,9 +216,12 @@ We'd love to hear what you're thinking about. What can we do better? This is the
                 ? <EmptyList />
                 : <div>
                     <div className="ui grid">
-                      { !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
+                      {
+                        !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
                         <IdeaFilter activeFilter={this.state.activeFilter} filterChanged={(name) => this.filterChanged(name)} />
-                      </div> }
+                        <TagsFilter tags={this.allTags} selectionChanged={(selected) => this.selectedTagsChanged(selected)} />
+                      </div>
+                      }
                       <div className={!this.state.searching ? `six wide mobile six wide tablet four wide computer column` : 'column'}>
                         <div className="ui search">
                           <div className="ui icon fluid input">
