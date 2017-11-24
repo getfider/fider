@@ -20,18 +20,7 @@ script:
   - npm run build
   - make coverage
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-  - docker build -t getfider/fider .
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  - | 
-    if [ $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]; then
-      docker tag getfider/fider getfider/fider:master
-      docker push getfider/fider:master
-    fi
-  - | 
-    if [ $TRAVIS_BRANCH != "master" && $TRAVIS_PULL_REQUEST != "false" ]; then
-      docker tag getfider/fider getfider/fider:PR_$TRAVIS_PULL_REQUEST
-      docker push getfider/fider:PR_$TRAVIS_PULL_REQUEST
-    fi
+  - make dockerize
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
