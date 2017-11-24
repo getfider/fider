@@ -5,7 +5,7 @@ import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { MembersPage } from '@fider/pages/admin/MembersPage';
 import { ManageTagsPage } from '@fider/pages/admin/ManageTagsPage';
-import { SiteHomePage } from '@fider/pages/site/SiteHomePage';
+import { HomePage } from '@fider/pages/site/HomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
 import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
 import { CompleteSignInProfilePage } from '@fider/pages/site/CompleteSignInProfilePage';
@@ -40,7 +40,7 @@ interface PageConfiguration {
 }
 
 const pathRegex = [
-  { regex: new RegExp('^\/$'), component: SiteHomePage, id: 'fdr-home-page' },
+  { regex: new RegExp('^\/$'), component: HomePage, id: 'fdr-home-page' },
   { regex: new RegExp('^\/admin\/members$'), component: MembersPage, id: 'fdr-admin-members-page' },
   { regex: new RegExp('^\/admin\/tags$'), component: ManageTagsPage, id: 'fdr-admin-tags-page' },
   { regex: new RegExp('^\/admin$'), component: AdminHomePage, id: 'fdr-admin-page' },

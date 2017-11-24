@@ -41,9 +41,8 @@
         display: inline-block;
         color: $positive-color;
       }
-      &:hover {
-        font-weight: bold;
-        border-radius: 5px;
+      .ui.circular.label {
+        margin-right: 5px;
       }
       cursor: pointer;
     }

@@ -226,7 +226,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                 this.tags.map((tag) => (
                   <div key={tag.id} className="item selectable" onClick={async () => this.assignOrUnassignTag(tag)}>
                     <i className={`icon ${this.state.assignedTags.indexOf(tag.id) >= 0 && 'check'}`} />
-                    <div className="tag-icon" style={{backgroundColor: `#${tag.color}`}} />
+                    <div className="ui empty circular label" style={{backgroundColor: `#${tag.color}`}} />
                     <span>{tag.name}</span>
                   </div>
                 ))
