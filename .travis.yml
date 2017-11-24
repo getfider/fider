@@ -26,7 +26,7 @@ script:
   - docker build -t getfider/fider .
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - |
-    if [ $TRAVIS_BRANCH == "master" && $TRAVIS_PULL_REQUEST == "false" ]; then
+    if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
       docker tag getfider/fider getfider/fider:master
       docker push getfider/fider:master
     fi
