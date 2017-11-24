@@ -20,8 +20,8 @@ script:
   - npm run build
   - make test
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-  - docker build -t getfider/fider .
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker build -t getfider/fider:travis .
+  - docker login -e "$DOCKER_EMAIL" -p "$DOCKER_PASSWORD"
   - docker push getfider/fider:travis
 
 after_success:
