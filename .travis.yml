@@ -7,5 +7,7 @@ go:
 install:
   - nvm install 8
   - npm install
+
+script:
   - npm run lint
   - npm run build
