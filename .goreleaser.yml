@@ -1,7 +1,15 @@
 # NOT USED YET
 
+# TODO:
+# Add GITHUB_TOKEN to Travis
+# Add https://goreleaser.com/#continous_integration
+
 builds:
-  - binary: fider
+  - 
+    binary: fider
+    ldflags: -s -w -X main.version={{.Version}} -X main.buildtime={{.Date}}
+    env:
+      - CGO_ENABLED=0
     goos:
       - windows
       - darwin
@@ -15,7 +23,13 @@ archive:
     - goos: windows
       format: zip
   replacements:
-    amd64: 64-bit
     darwin: macOS
   files:
     - LICENSE
+    - favicon.ico
+    - migrations/*
+    - views/*
+#    - dist/*  -> Rename output?
+
+release:
+  name_template: "{{.Version}}"
