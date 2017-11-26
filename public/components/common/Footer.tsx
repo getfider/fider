@@ -8,7 +8,10 @@ export const Footer = () => {
         <div className="ui inverted section divider"/>
         <div className="ui horizontal small divided link list">
           <div id="powered-by">
-            <a className="item" target="_blank" href="http://getfider.com/"><img src={logo} /></a>
+            <a className="item" target="_blank" href="http://getfider.com/">
+              <span>Powered by Fider</span>
+              <img src={logo} />
+            </a>
           </div>
         </div>
       </div>
