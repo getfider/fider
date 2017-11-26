@@ -68,7 +68,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
     return (
       <div>
         {modal}
-        <SiteHomePage />
+        <HomePage />
       </div>
     );
   }

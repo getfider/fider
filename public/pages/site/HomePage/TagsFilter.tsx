@@ -40,28 +40,30 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
 
   public render() {
     return (
-      <div className="ui multiple dropdown" ref={(e) => this.element = e!}>
-        <i className="filter icon"/>
-        <span className="text">Filter ...</span>
-        <div className="menu">
-          <div className="ui icon search input">
-            <i className="search icon"/>
-            <input type="text" placeholder="Search tags..."/>
-          </div>
-          <div className="divider"/>
-          <div className="header">
-            <i className="tags icon"/>
-            Tag
-          </div>
-          <div className="scrolling menu">
-            {
-              this.props.tags.map((t) => (
-                <div key={t.id} className="item" data-value={t.id}>
-                  <div className="ui empty circular label" style={{backgroundColor: `#${t.color}`}} />
-                  {t.name}
-                </div>
-              ))
-            }
+      <div className={`tags-filter ${this.state.selected.length > 0 ? 'has-selection' : ''}`}>
+        <div className={`ui multiple dropdown `} ref={(e) => this.element = e!}>
+          <i className="filter icon"/>
+          <span className="text">Filter by tag...</span>
+          <div className="menu">
+            <div className="ui icon search input">
+              <i className="search icon"/>
+              <input type="text" placeholder="Search tags..."/>
+            </div>
+            <div className="divider"/>
+            <div className="header">
+              <i className="tags icon"/>
+              Tag
+            </div>
+            <div className="scrolling menu">
+              {
+                this.props.tags.map((t) => (
+                  <div key={t.id} className="item" data-value={t.id}>
+                    <div className="ui empty circular label" style={{backgroundColor: `#${t.color}`}} />
+                    {t.name}
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ interface TagProps {
   name: string;
   color: string;
   isPublic: boolean;
+  size?: 'mini' | 'tiny' | 'small' | 'normal' | 'large';
 }
 
 const getRGB = (color: string) => {
@@ -29,8 +30,8 @@ const idealTextColor = (color: string) => {
 export const ShowTag = (props: TagProps) => {
   return (
     <div
-      title={`${props.name} ${!props.isPublic && '(Private)'}`}
-      className="ui label"
+      title={`${props.name}${!props.isPublic ? ' (Private)' : ''}`}
+      className={`ui label ${props.size || 'normal'}`}
       style={{
         backgroundColor: `#${props.color}`,
         color: idealTextColor(props.color)

@@ -52,7 +52,7 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<T
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
         {
           props.idea.tags.map((t) => (
-            <ShowTag key={t} name={props.tags[t].name} color={props.tags[t].color} isPublic={props.tags[t].isPublic} />
+            <ShowTag key={t} size="tiny" name={props.tags[t].name} color={props.tags[t].color} isPublic={props.tags[t].isPublic} />
           ))
         }
       </div>
@@ -219,7 +219,6 @@ We'd love to hear what you're thinking about. What can we do better? This is the
                       {
                         !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
                         <IdeaFilter activeFilter={this.state.activeFilter} filterChanged={(name) => this.filterChanged(name)} />
-                        <TagsFilter tags={this.allTags} selectionChanged={(selected) => this.selectedTagsChanged(selected)} />
                       </div>
                       }
                       <div className={!this.state.searching ? `six wide mobile six wide tablet four wide computer column` : 'column'}>
@@ -242,6 +241,7 @@ We'd love to hear what you're thinking about. What can we do better? This is the
                         </div>
                       </div>
                     </div>
+                    <TagsFilter tags={this.allTags} selectionChanged={(selected) => this.selectedTagsChanged(selected)} />
                     {displayIdeas}
                   </div>
               }
