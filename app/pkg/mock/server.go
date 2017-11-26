@@ -48,12 +48,14 @@ func (s *Server) Use(middleware web.MiddlewareFunc) {
 // OnTenant set current context tenant
 func (s *Server) OnTenant(tenant *models.Tenant) *Server {
 	s.context.SetTenant(tenant)
+	s.context.Services().SetCurrentTenant(tenant)
 	return s
 }
 
 // AsUser set current context user
 func (s *Server) AsUser(user *models.User) *Server {
 	s.context.SetUser(user)
+	s.context.Services().SetCurrentUser(user)
 	return s
 }
 
@@ -102,6 +104,7 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	s.context.Request.Method = "POST"
 	s.context.Request.URL.Path = "/"
 	s.context.Request.Body = ioutil.NopCloser(strings.NewReader(body))
+	s.context.Request.ContentLength = int64(len(body))
 	s.context.Request.Header.Set("Content-Type", web.JSONContentType)
 
 	if err := s.middleware(handler)(s.context); err != nil {

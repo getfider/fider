@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"time"
 
 	"database/sql"
@@ -25,6 +26,7 @@ type dbIdea struct {
 	Response        sql.NullString `db:"response"`
 	RespondedOn     dbx.NullTime   `db:"response_date"`
 	ResponseUser    *dbUser        `db:"response_user"`
+	Tags            []int64        `db:"tags"`
 }
 
 func (i *dbIdea) toModel() *models.Idea {
@@ -39,6 +41,7 @@ func (i *dbIdea) toModel() *models.Idea {
 		TotalComments:   i.TotalComments,
 		Status:          i.Status,
 		User:            i.User.toModel(),
+		Tags:            i.Tags,
 	}
 
 	if i.Response.Valid {
@@ -71,14 +74,24 @@ func (c *dbComment) toModel() *models.Comment {
 type IdeaStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
+	user   *models.User
 }
 
 // NewIdeaStorage creates a new IdeaStorage
-func NewIdeaStorage(tenant *models.Tenant, trx *dbx.Trx) *IdeaStorage {
+func NewIdeaStorage(trx *dbx.Trx) *IdeaStorage {
 	return &IdeaStorage{
-		trx:    trx,
-		tenant: tenant,
+		trx: trx,
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *IdeaStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *IdeaStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 var (
@@ -100,19 +113,36 @@ var (
 																r.id AS response_user_id, 
 																r.name AS response_user_name, 
 																r.email AS response_user_email, 
-																r.role AS response_user_role
+																r.role AS response_user_role,
+																array_remove(array_agg(t.id), NULL) AS tags
 													FROM ideas i
 													INNER JOIN users u
 													ON u.id = i.user_id
 													LEFT JOIN users r
 													ON r.id = i.response_user_id
-													WHERE`
+													LEFT JOIN idea_tags it
+													ON it.idea_id = i.id
+													LEFT JOIN tags t
+													ON t.id = it.tag_id
+													%s
+													WHERE %s
+													GROUP BY i.id, u.id, r.id
+													ORDER BY %s`
 )
+
+// GetAll returns all tenant ideas
+func (s *IdeaStorage) getIdeaQuery(filter, order string) string {
+	tagCondition := `AND t.is_public = true`
+	if s.user != nil && s.user.IsCollaborator() {
+		tagCondition = ``
+	}
+	return fmt.Sprintf(sqlSelectIdeasWhere, tagCondition, filter, order)
+}
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.trx.Select(&ideas, sqlSelectIdeasWhere+" i.tenant_id = $1 ORDER BY i.created_on DESC", s.tenant.ID)
+	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1", "i.created_on DESC"), s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +158,7 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.id = $2 ORDER BY i.created_on DESC", s.tenant.ID, ideaID)
+	err := s.trx.Get(&idea, s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2", "i.created_on DESC"), s.tenant.ID, ideaID)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {
@@ -142,7 +172,7 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.trx.Get(&idea, sqlSelectIdeasWhere+" i.tenant_id = $1 AND i.number = $2 ORDER BY i.created_on DESC", s.tenant.ID, number)
+	err := s.trx.Get(&idea, s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2", "i.created_on DESC"), s.tenant.ID, number)
 	if err == sql.ErrNoRows {
 		return nil, app.ErrNotFound
 	} else if err != nil {

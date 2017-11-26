@@ -39,6 +39,10 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 
 			c.SetServices(&app.Services{
 				Tenants: postgres.NewTenantStorage(trx),
+				OAuth:   &oauth.HTTPService{},
+				Users:   postgres.NewUserStorage(trx),
+				Ideas:   postgres.NewIdeaStorage(trx),
+				Tags:    postgres.NewTagStorage(trx),
 				Emailer: emailer,
 			})
 
@@ -64,23 +68,6 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 			}
 			c.Logger().Debugf("Transaction committed")
 			return trx.Commit()
-		}
-	}
-}
-
-//AddServices adds services to current context
-func AddServices() web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			trx := c.ActiveTransaction()
-			tenant := c.Tenant()
-			services := c.Services()
-			services.Tenants.SetCurrentTenant(tenant)
-			services.OAuth = &oauth.HTTPService{}
-			services.Ideas = postgres.NewIdeaStorage(tenant, trx)
-			services.Users = postgres.NewUserStorage(tenant, trx)
-			services.Tags = postgres.NewTagStorage(tenant, trx)
-			return next(c)
 		}
 	}
 }

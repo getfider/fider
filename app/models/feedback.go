@@ -17,6 +17,7 @@ type Idea struct {
 	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
+	Tags            []int64       `json:"tags"`
 }
 
 // NewIdea represents a new idea
@@ -77,8 +78,8 @@ type CreateEditTag struct {
 	IsPublic bool   `json:"isPublic"`
 }
 
-// RemoveTag is used to delete an existing tag
-type RemoveTag struct {
+// DeleteTag is used to delete an existing tag
+type DeleteTag struct {
 	Slug string `route:"slug"`
 }
 

@@ -29,6 +29,21 @@
     }
   }
 
+  .tags-filter.has-selection {
+    i.filter {
+      vertical-align: middle;
+    }
+    .ui.label.transition {
+      background-color: transparent;
+      box-shadow: none;
+      font-weight: 500;
+      .ui.empty.circular.label {
+        font-size: .71428571rem;
+        margin-right: 5px;
+      }
+    }
+  }
+
   .filter-column {
     display: flex;
     align-items: center;

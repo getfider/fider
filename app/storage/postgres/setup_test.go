@@ -20,6 +20,16 @@ func demoTenant(tenants *postgres.TenantStorage) *models.Tenant {
 	return tenant
 }
 
+func jonSnow(users *postgres.UserStorage) *models.User {
+	user, _ := users.GetByID(1)
+	return user
+}
+
+func aryaStark(users *postgres.UserStorage) *models.User {
+	user, _ := users.GetByID(2)
+	return user
+}
+
 var db *dbx.Database
 var trx *dbx.Trx
 

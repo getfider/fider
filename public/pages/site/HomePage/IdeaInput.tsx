@@ -1,6 +1,5 @@
 import * as React from 'react';
-import Textarea from 'react-textarea-autosize';
-import { DisplayError, Button, ButtonClickEvent, Form } from '@fider/components/common';
+import { DisplayError, Button, ButtonClickEvent, Form, Textarea } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';
@@ -31,8 +30,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     @inject(injectables.IdeaService)
     private service: IdeaService;
 
-    constructor() {
-      super();
+    constructor(props: IdeaInputProps) {
+      super(props);
       this.user = this.session.getCurrentUser();
       this.state = {
         title: this.session.getCache(CACHE_TITLE_KEY) || '',

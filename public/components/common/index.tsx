@@ -10,3 +10,5 @@ export * from './SocialSignInButton';
 export * from './SignInControl';
 export * from './Moment';
 export * from './UserName';
+import Textarea from 'react-textarea-autosize';
+export { Textarea };

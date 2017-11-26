@@ -10,6 +10,8 @@ import (
 type TagStorage struct {
 	lastID   int
 	tags     []*models.Tag
+	user     *models.User
+	tenant   *models.Tenant
 	assigned map[int][]*models.Tag
 }
 
@@ -19,6 +21,16 @@ func NewTagStorage() *TagStorage {
 		tags:     make([]*models.Tag, 0),
 		assigned: make(map[int][]*models.Tag),
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *TagStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TagStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add creates a new tag with given input
@@ -59,8 +71,8 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 	return nil, app.ErrNotFound
 }
 
-// Remove a tag by its id
-func (s *TagStorage) Remove(tagID int) error {
+// Delete a tag by its id
+func (s *TagStorage) Delete(tagID int) error {
 	for i, tag := range s.tags {
 		if tag.ID == tagID {
 			s.tags = append(s.tags[:i], s.tags[i+1:]...)
@@ -118,4 +130,18 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 		return assigned, nil
 	}
 	return make([]*models.Tag, 0), nil
+}
+
+// GetAll returns all tags
+func (s *TagStorage) GetAll() ([]*models.Tag, error) {
+	if s.user != nil && s.user.IsCollaborator() {
+		return s.tags, nil
+	}
+	tags := make([]*models.Tag, 0)
+	for _, tag := range s.tags {
+		if tag.IsPublic {
+			tags = append(tags, tag)
+		}
+	}
+	return tags, nil
 }

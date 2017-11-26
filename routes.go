@@ -49,7 +49,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	noTenant := r.Group()
 	{
 		noTenant.Use(middlewares.Setup(db, emailer))
-		noTenant.Use(middlewares.AddServices())
 
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
@@ -67,7 +66,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	{
 		verify.Use(middlewares.Setup(db, emailer))
 		verify.Use(middlewares.Tenant())
-		verify.Use(middlewares.AddServices())
 		verify.Get("/signup/verify", handlers.VerifySignUpKey())
 	}
 
@@ -75,7 +73,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	{
 		page.Use(middlewares.Setup(db, emailer))
 		page.Use(middlewares.Tenant())
-		page.Use(middlewares.AddServices())
 		page.Use(middlewares.JwtGetter())
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
@@ -103,11 +100,16 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			private.Post("/api/ideas/:number/status", handlers.SetResponse())
 			private.Post("/api/ideas/:number/support", handlers.AddSupporter())
 			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
+			private.Post("/api/ideas/:number/tags/:slug", handlers.AssignTag())
+			private.Delete("/api/ideas/:number/tags/:slug", handlers.UnassignTag())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Post("/api/admin/settings", handlers.UpdateSettings())
+			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
+			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
+			private.Post("/api/admin/tags", handlers.CreateEditTag())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 
@@ -118,6 +120,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 
 			admin.Get("/admin", handlers.Page())
 			admin.Get("/admin/members", handlers.ManageMembers())
+			admin.Get("/admin/tags", handlers.ManageTags())
 		}
 	}
 

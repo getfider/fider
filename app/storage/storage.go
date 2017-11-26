@@ -6,8 +6,15 @@ import (
 	"github.com/getfider/fider/app/models"
 )
 
+// Base is a generic storage base interface
+type Base interface {
+	SetCurrentTenant(*models.Tenant)
+	SetCurrentUser(*models.User)
+}
+
 // Idea contains read and write operations for ideas
 type Idea interface {
+	Base
 	GetByID(ideaID int) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
@@ -23,6 +30,7 @@ type Idea interface {
 
 // User is used for user operations
 type User interface {
+	Base
 	GetByID(userID int) (*models.User, error)
 	GetByEmail(tenantID int, email string) (*models.User, error)
 	GetByProvider(tenantID int, provider string, uid string) (*models.User, error)
@@ -35,6 +43,7 @@ type User interface {
 
 // Tenant contains read and write operations for tenants
 type Tenant interface {
+	Base
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	Activate(id int) error
@@ -45,16 +54,17 @@ type Tenant interface {
 	SaveVerificationKey(key string, duration time.Duration, email, name string) error
 	FindVerificationByKey(key string) (*models.SignInRequest, error)
 	SetKeyAsVerified(key string) error
-	SetCurrentTenant(*models.Tenant)
 }
 
 // Tag contains read and write operations for tags
 type Tag interface {
+	Base
 	Add(name, color string, isPublic bool) (*models.Tag, error)
 	GetBySlug(slug string) (*models.Tag, error)
 	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
-	Remove(tagID int) error
+	Delete(tagID int) error
 	GetAssigned(ideaID int) ([]*models.Tag, error)
 	AssignTag(tagID, ideaID, userID int) error
 	UnassignTag(tagID, ideaID int) error
+	GetAll() ([]*models.Tag, error)
 }

@@ -14,8 +14,14 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		tags, err := c.Services().Tags.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Map{
 			"ideas": ideas,
+			"tags":  tags,
 		})
 	}
 }
@@ -78,9 +84,15 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		tags, err := c.Services().Tags.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Map{
 			"comments": comments,
 			"idea":     idea,
+			"tags":     tags,
 		})
 	}
 }

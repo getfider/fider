@@ -141,6 +141,11 @@ func (g *Group) Post(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("POST", path, g.handler(handler))
 }
 
+//Delete handles HTTP DELETE requests
+func (g *Group) Delete(path string, handler HandlerFunc) {
+	g.engine.mux.Handle("DELETE", path, g.handler(handler))
+}
+
 func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 	next := handler
 	for i := len(g.middlewares) - 1; i >= 0; i-- {
@@ -152,7 +157,10 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 			params[p.Key] = p.Value
 		}
 		ctx := g.engine.NewContext(res, req, params)
-		next(ctx)
+		err := next(ctx)
+		if err != nil {
+			ctx.Failure(err)
+		}
 	}
 	return h
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { SiteHomePage } from './SiteHomePage';
+import { HomePage } from './HomePage';
 import { showModal, getQueryString } from '@fider/utils/page';
 import { Form } from '@fider/components/common';
 
@@ -68,7 +68,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
     return (
       <div>
         {modal}
-        <SiteHomePage />
+        <HomePage />
       </div>
     );
   }

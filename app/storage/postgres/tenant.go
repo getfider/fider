@@ -12,17 +12,6 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 )
 
-// TenantStorage contains read and write operations for tenants
-type TenantStorage struct {
-	trx     *dbx.Trx
-	current *models.Tenant
-}
-
-// NewTenantStorage creates a new TenantStorage
-func NewTenantStorage(trx *dbx.Trx) *TenantStorage {
-	return &TenantStorage{trx: trx}
-}
-
 type dbTenant struct {
 	ID             int    `db:"id"`
 	Name           string `db:"name"`
@@ -72,9 +61,26 @@ func (t *dbSignInRequest) toModel() *models.SignInRequest {
 	return model
 }
 
-// SetCurrentTenant tenant
+// TenantStorage contains read and write operations for tenants
+type TenantStorage struct {
+	trx     *dbx.Trx
+	current *models.Tenant
+	user    *models.User
+}
+
+// NewTenantStorage creates a new TenantStorage
+func NewTenantStorage(trx *dbx.Trx) *TenantStorage {
+	return &TenantStorage{trx: trx}
+}
+
+// SetCurrentTenant to current context
 func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 	s.current = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TenantStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add given tenant to tenant list

@@ -6,6 +6,20 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// ManageTags is the home page for managing tags
+func ManageTags() web.HandlerFunc {
+	return func(c web.Context) error {
+		tags, err := c.Services().Tags.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Page(web.Map{
+			"tags": tags,
+		})
+	}
+}
+
 // CreateEditTag creates a new tag on current tenant
 func CreateEditTag() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -33,15 +47,15 @@ func CreateEditTag() web.HandlerFunc {
 	}
 }
 
-// RemoveTag deletes anexisting tag
-func RemoveTag() web.HandlerFunc {
+// DeleteTag deletes anexisting tag
+func DeleteTag() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(actions.RemoveTag)
+		input := new(actions.DeleteTag)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.Remove(input.Tag.ID)
+		err := c.Services().Tags.Delete(input.Tag.ID)
 		if err != nil {
 			return c.Failure(err)
 		}

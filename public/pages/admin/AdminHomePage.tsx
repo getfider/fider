@@ -1,10 +1,9 @@
 import * as React from 'react';
-import Textarea from 'react-textarea-autosize';
 
 import { Tenant } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
-import { Header, Footer, Button, DisplayError } from '@fider/components/common';
+import { Header, Footer, Button, Textarea, DisplayError } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
 import { Session, TenantService, Failure } from '@fider/services';
 

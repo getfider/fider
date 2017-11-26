@@ -1,0 +1,82 @@
+@import '~@fider/assets/styles/variables.scss';
+
+#fdr-show-idea-page {
+  .idea-header {
+    width: 100%;
+    h1 {
+      font-weight: 400;
+      margin: 0px;
+    }
+    .fdr-avatar {
+      width: 24px;
+    }
+  }
+
+  .subtitle {
+    display: block;
+    &.active {
+      cursor: pointer;
+      &:hover {
+        color: $main-color;
+      }
+      i {
+        float: right;
+      }
+    }
+  }
+
+  .tag-list {
+    .tag-icon {
+      width: 10px;
+      height: 10px;
+      display: inline-block;
+      margin-right: 5px;
+      border-radius: 50%;
+    }
+    .selectable {
+      &.item {
+        margin: 5px 0px;
+      }
+      i {
+        display: inline-block;
+        color: $positive-color;
+      }
+      .ui.circular.label {
+        margin-right: 5px;
+      }
+      cursor: pointer;
+    }
+  }
+
+  .ui.comments {
+    .fdr-avatar {
+      margin-right: 5px;
+      vertical-align: top;
+      margin-top: 2px;
+    }
+
+    .comment > .content {
+      display: inline-block;
+      max-width: 85%;
+    }
+  }
+
+  .comment-input  {
+    margin-top: 10px;
+
+    textarea {
+      margin-top: 5px;
+    }
+
+    .form {
+      display: inline-block;
+      width: 100%;
+    }
+
+    &.authenticated{
+      .form {
+        width: 85%;
+      }
+    }
+  }
+}

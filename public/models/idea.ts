@@ -12,6 +12,7 @@ export interface Idea {
   response: IdeaResponse;
   totalSupporters: number;
   totalComments: number;
+  tags: number[];
 }
 
 export class IdeaStatus {
@@ -54,4 +55,12 @@ export interface Comment {
   content: string;
   createdOn: string;
   user: User;
+}
+
+export interface Tag {
+  id: number;
+  slug: string;
+  name: string;
+  color: string;
+  isPublic: boolean;
 }

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
@@ -14,4 +15,20 @@ type Services struct {
 	Tenants storage.Tenant
 	Ideas   storage.Idea
 	Emailer email.Sender
+}
+
+// SetCurrentTenant to current context
+func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
+	s.Users.SetCurrentTenant(tenant)
+	s.Tags.SetCurrentTenant(tenant)
+	s.Tenants.SetCurrentTenant(tenant)
+	s.Ideas.SetCurrentTenant(tenant)
+}
+
+// SetCurrentUser to current context
+func (s *Services) SetCurrentUser(user *models.User) {
+	s.Users.SetCurrentUser(user)
+	s.Tags.SetCurrentUser(user)
+	s.Tenants.SetCurrentUser(user)
+	s.Ideas.SetCurrentUser(user)
 }

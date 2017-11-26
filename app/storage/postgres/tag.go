@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -32,14 +33,24 @@ func (t *dbTag) toModel() *models.Tag {
 type TagStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
+	user   *models.User
 }
 
 // NewTagStorage creates a new TagStorage
-func NewTagStorage(tenant *models.Tenant, trx *dbx.Trx) *TagStorage {
+func NewTagStorage(trx *dbx.Trx) *TagStorage {
 	return &TagStorage{
-		trx:    trx,
-		tenant: tenant,
+		trx: trx,
 	}
+}
+
+// SetCurrentTenant to current context
+func (s *TagStorage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+// SetCurrentUser to current context
+func (s *TagStorage) SetCurrentUser(user *models.User) {
+	s.user = user
 }
 
 // Add creates a new tag with given input
@@ -85,8 +96,8 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 	return s.GetBySlug(tagSlug)
 }
 
-// Remove a tag by its id
-func (s *TagStorage) Remove(tagID int) error {
+// Delete a tag by its id
+func (s *TagStorage) Delete(tagID int) error {
 	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1`, tagID)
 	if err != nil {
 		return err
@@ -96,7 +107,7 @@ func (s *TagStorage) Remove(tagID int) error {
 
 // AssignTag adds a tag to an idea
 func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
-	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1", ideaID)
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2", ideaID, tagID)
 	if err != nil {
 		return err
 	}
@@ -125,14 +136,34 @@ func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
 
 // GetAssigned returns all tags assigned to given idea
 func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
-	tags := []*dbTag{}
-	err := s.trx.Select(&tags, `
+	return s.getTags(`
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
 		INNER JOIN idea_tags it
 		ON it.tag_id = t.id
 		WHERE it.idea_id = $1 AND t.tenant_id = $2
 	`, ideaID, s.tenant.ID)
+}
+
+// GetAll returns all tags
+func (s *TagStorage) GetAll() ([]*models.Tag, error) {
+	condition := `AND t.is_public = true`
+	if s.user != nil && s.user.IsCollaborator() {
+		condition = ``
+	}
+
+	query := fmt.Sprintf(`
+		SELECT t.id, t.name, t.slug, t.color, t.is_public 
+		FROM tags t
+		WHERE t.tenant_id = $1 %s
+	`, condition)
+	return s.getTags(query, s.tenant.ID)
+}
+
+// GetAll returns all tags
+func (s *TagStorage) getTags(query string, args ...interface{}) ([]*models.Tag, error) {
+	tags := []*dbTag{}
+	err := s.trx.Select(&tags, query, args...)
 	if err != nil {
 		return nil, err
 	}

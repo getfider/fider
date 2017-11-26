@@ -2,6 +2,7 @@ import * as React from 'react';
 
 interface ButtonProps {
     className?: string;
+    simple?: boolean;
     href?: string;
     size?: 'mini' | 'tiny' | 'small' | 'large';
     onClick?: (event: ButtonClickEvent) => Promise<any>;
@@ -10,6 +11,8 @@ interface ButtonProps {
 interface ButtonState {
     clicked: boolean;
 }
+
+import './Button.scss';
 
 export class ButtonClickEvent {
     private shouldEnable = true;
@@ -25,7 +28,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     private unmounted: boolean;
 
     public static defaultProps: Partial<ButtonProps> = {
-        size: 'tiny'
+        size: 'tiny',
     };
 
     public constructor(props: ButtonProps) {
@@ -56,7 +59,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     }
 
     public render() {
-        const cssClasses = `ui ${this.props.size} button ${this.props.className || ''} ${this.state.clicked ? 'loading disabled' : ''}`;
+        const cssClasses = `ui ${this.props.size} ${this.props.simple ? 'as-link' : 'button'} ${this.props.className || ''} ${this.state.clicked ? 'loading disabled' : ''}`;
         if (this.props.href) {
             return (
                 <a href={this.props.href} className={cssClasses} onClick={() => this.click()}>
