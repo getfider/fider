@@ -24,7 +24,7 @@ const idealTextColor = (color: string) => {
   const components = getRGB(color);
   const bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
 
-  return ((components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114) > 186) ? '#000000' : '#ffffff';
+  return (bgDelta > 186) ? '#000000' : '#ffffff';
 };
 
 export const ShowTag = (props: TagProps) => {
