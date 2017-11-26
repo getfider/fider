@@ -34,7 +34,7 @@ const EmptyList = () => {
   );
 };
 
-const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<Tag> }) => {
+const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: Tag[] }) => {
   return (
     <div className="item">
       <SupportCounter user={props.user} idea={props.idea} />
@@ -51,8 +51,8 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<T
         <MultiLineText className="description" text={props.idea.description} style="simple" />
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
         {
-          props.idea.tags.map((t) => (
-            <ShowTag key={t} size="tiny" tag={props.tags[t]} />
+          props.tags.map((tag) => (
+            <ShowTag key={tag.id} size="tiny" tag={tag} />
           ))
         }
       </div>
@@ -60,16 +60,11 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<T
   );
 };
 
-interface NumberKey<T> {
-  [key: number]: T;
-}
-
 export class HomePage extends React.Component<{}, HomePageState> {
     private user?: CurrentUser;
     private tenant: Tenant;
     private allIdeas: Idea[];
     private allTags: Tag[];
-    private allTagsById: NumberKey<Tag>;
     private filter: HTMLDivElement;
 
     @inject(injectables.Session)
@@ -81,10 +76,6 @@ export class HomePage extends React.Component<{}, HomePageState> {
         this.tenant = this.session.getCurrentTenant();
         this.allIdeas = this.session.getArray<Idea>('ideas');
         this.allTags = this.session.getArray<Tag>('tags');
-        this.allTagsById = this.allTags.reduce<NumberKey<Tag>>((map, t) => {
-          map[t.id] = t;
-          return map;
-        }, {});
 
         const search = getQueryString('q');
         const activeFilter = window.location.hash.substring(1);
@@ -180,7 +171,14 @@ export class HomePage extends React.Component<{}, HomePageState> {
     const displayIdeas = (ideasToList.length > 0)
       ? (
         <div className="ui divided unstackable items fdr-idea-list">
-            {ideasToList.map((x) => <ListIdeaItem key={x.id} user={this.user} idea={x} tags={this.allTagsById} />)}
+            {
+              ideasToList.map((idea) =>
+              <ListIdeaItem
+                key={idea.id}
+                user={this.user}
+                idea={idea}
+                tags={this.allTags.filter((tag) => idea.tags.indexOf(tag.id) >= 0)}
+              />)}
             {
               this.state.ideas.length > this.state.showCount &&
               <h5
