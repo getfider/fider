@@ -172,13 +172,22 @@ code {
 #footer {
   #powered-by {
     text-align: center;
-
-    img {
-      width: 30px;
-      filter: grayscale(100%);
-
+    font-size: 11px;
+    a {
+      display: block;
+      span {
+        display: block;
+      }
+  
+      img {
+        width: 15px;
+        filter: grayscale(100%);
+      }
+  
       &:hover {
-        filter: grayscale(0%)
+        img {
+          filter: grayscale(0%);
+        }
       }
     }
   }
