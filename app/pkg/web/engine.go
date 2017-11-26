@@ -157,7 +157,10 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 			params[p.Key] = p.Value
 		}
 		ctx := g.engine.NewContext(res, req, params)
-		next(ctx)
+		err := next(ctx)
+		if err != nil {
+			ctx.Failure(err)
+		}
 	}
 	return h
 }
