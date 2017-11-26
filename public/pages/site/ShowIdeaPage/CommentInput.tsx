@@ -1,9 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import Textarea from 'react-textarea-autosize';
 
 import { Idea, CurrentUser } from '@fider/models';
-import { Gravatar, UserName, Button, DisplayError, SignInControl } from '@fider/components/common';
+import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';

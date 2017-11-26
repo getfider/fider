@@ -3,9 +3,9 @@ import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
 import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
 import { SupportCounter } from '@fider/components/SupportCounter';
-import { IdeaInput } from '@fider/components/IdeaInput';
-import { IdeaFilter, IdeaFilterFunction } from '@fider/components/IdeaFilter';
 import { ShowTag } from '@fider/components/ShowTag';
+import { IdeaInput } from './IdeaInput';
+import { IdeaFilter, IdeaFilterFunction } from './IdeaFilter';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
@@ -52,7 +52,7 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: NumberKey<T
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
         {
           props.idea.tags.map((t) => (
-            <ShowTag key={t} size="tiny" name={props.tags[t].name} color={props.tags[t].color} isPublic={props.tags[t].isPublic} />
+            <ShowTag key={t} size="tiny" tag={props.tags[t]} />
           ))
         }
       </div>

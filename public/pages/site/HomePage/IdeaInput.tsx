@@ -1,6 +1,5 @@
 import * as React from 'react';
-import Textarea from 'react-textarea-autosize';
-import { DisplayError, Button, ButtonClickEvent, Form } from '@fider/components/common';
+import { DisplayError, Button, ButtonClickEvent, Form, Textarea } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, Failure } from '@fider/services';

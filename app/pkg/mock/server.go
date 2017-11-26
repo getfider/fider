@@ -104,6 +104,7 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	s.context.Request.Method = "POST"
 	s.context.Request.URL.Path = "/"
 	s.context.Request.Body = ioutil.NopCloser(strings.NewReader(body))
+	s.context.Request.ContentLength = int64(len(body))
 	s.context.Request.Header.Set("Content-Type", web.JSONContentType)
 
 	if err := s.middleware(handler)(s.context); err != nil {

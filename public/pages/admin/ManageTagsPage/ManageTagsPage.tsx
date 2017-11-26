@@ -91,7 +91,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
             return (
               <div key={t.id} className="item">
                 <div className="content">
-                  <b>Are you sure?</b> <span>The tag <ShowTag name={t.name} color={t.color} isPublic={t.isPublic} /> will be removed from all ideas.</span>
+                  <b>Are you sure?</b> <span>The tag <ShowTag tag={t} /> will be removed from all ideas.</span>
                 </div>
                 <Button
                   className="right floated"
@@ -111,7 +111,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
 
           return (
             <div key={t.id} className="item">
-              <ShowTag name={t.name} color={t.color} isPublic={t.isPublic} />
+              <ShowTag tag={t} />
               {
                 this.session.isAdmin() && [
                   <Button

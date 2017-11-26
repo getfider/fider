@@ -112,9 +112,13 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
           <div className="field">
             <label>Preview</label>
             <ShowTag
-              name={this.state.name}
-              color={this.state.color}
-              isPublic={this.state.isPublic}
+              tag={{
+                id: 0,
+                slug: '',
+                name: this.state.name,
+                color: this.state.color,
+                isPublic: this.state.isPublic
+              }}
             />
           </div>
         </div>

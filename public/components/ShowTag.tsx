@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { Tag } from '@fider/models';
 
 interface TagProps {
-  name: string;
-  color: string;
-  isPublic: boolean;
+  tag: Tag;
   size?: 'mini' | 'tiny' | 'small' | 'normal' | 'large';
+  circular?: boolean;
 }
 
 const getRGB = (color: string) => {
@@ -28,17 +28,20 @@ const idealTextColor = (color: string) => {
 };
 
 export const ShowTag = (props: TagProps) => {
+  const formatClass = props.circular === true ? 'empty circular' : '';
+  const sizeClass = props.size || 'normal';
+
   return (
     <div
-      title={`${props.name}${!props.isPublic ? ' (Private)' : ''}`}
-      className={`ui label ${props.size || 'normal'}`}
+      title={`${props.tag.name}${!props.tag.isPublic ? ' (Private)' : ''}`}
+      className={`ui label ${sizeClass} ${formatClass}`}
       style={{
-        backgroundColor: `#${props.color}`,
-        color: idealTextColor(props.color)
+        backgroundColor: `#${props.tag.color}`,
+        color: idealTextColor(props.tag.color)
       }}
     >
-      {!props.isPublic && <i className="lock icon"/>}
-      {props.name || 'Tag'}
+      {!props.tag.isPublic && !props.circular && <i className="lock icon"/>}
+      {props.circular ? '' : props.tag.name || 'Tag'}
     </div>
   );
 };

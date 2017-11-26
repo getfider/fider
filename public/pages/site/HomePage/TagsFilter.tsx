@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Tag } from '@fider/models';
+import { ShowTag } from '@fider/components/ShowTag';
 
 interface TagsFilterProps {
   tags: Tag[];
@@ -39,6 +40,10 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
   }
 
   public render() {
+    if (this.props.tags.length === 0) {
+      return null;
+    }
+
     return (
       <div className={`tags-filter ${this.state.selected.length > 0 ? 'has-selection' : ''}`}>
         <div className={`ui multiple dropdown `} ref={(e) => this.element = e!}>
@@ -58,7 +63,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
               {
                 this.props.tags.map((t) => (
                   <div key={t.id} className="item" data-value={t.id}>
-                    <div className="ui empty circular label" style={{backgroundColor: `#${t.color}`}} />
+                    <ShowTag tag={t} circular={true}/>
                     {t.name}
                   </div>
                 ))

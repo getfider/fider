@@ -2,14 +2,12 @@ import * as React from 'react';
 
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
-
-import { CommentInput } from '@fider/components/CommentInput';
-import { ResponseForm } from '@fider/components/ResponseForm';
 import { SupportCounter } from '@fider/components/SupportCounter';
 import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
+import { CommentInput } from './CommentInput';
+import { ResponseForm } from './ResponseForm';
 import { ShowTag } from '@fider/components/ShowTag';
-import { DisplayError, Button, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
-import Textarea from 'react-textarea-autosize';
+import { DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { Session, IdeaService, TagService, Failure } from '@fider/services';
@@ -21,12 +19,8 @@ interface ShowIdeaPageState {
   editTags: boolean;
   newTitle: string;
   newDescription: string;
-  assignedTags: number[];
+  assignedTags: Tag[];
   error?: Failure;
-}
-
-interface NumberKey<T> {
-  [key: number]: T;
 }
 
 export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
@@ -34,7 +28,6 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   private idea: Idea;
   private comments: Comment[];
   private tags: Tag[];
-  private tagsById: NumberKey<Tag>;
 
   @inject(injectables.Session)
   public session: Session;
@@ -52,17 +45,13 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
     this.idea = this.session.get<Idea>('idea');
     this.comments = this.session.getArray<Comment>('comments');
     this.tags = this.session.getArray<Tag>('tags');
-    this.tagsById = this.tags.reduce<NumberKey<Tag>>((map, t) => {
-      map[t.id] = t;
-      return map;
-    }, {});
 
     this.state = {
       editMode: false,
       editTags: false,
       newTitle: this.idea.title,
       newDescription: this.idea.description,
-      assignedTags: this.idea.tags,
+      assignedTags: this.tags.filter((t) => this.idea.tags.indexOf(t.id) >= 0),
     };
 
     setTitle(`${this.idea.title} · ${document.title}`);
@@ -86,8 +75,8 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   }
 
   private async assignOrUnassignTag(tag: Tag) {
-    const idx = this.state.assignedTags.indexOf(tag.id);
-    let assignedTags: number[] = [];
+    const idx = this.state.assignedTags.indexOf(tag);
+    let assignedTags: Tag[] = [];
     if (idx >= 0) {
       const response = await this.tagService.unassign(tag.slug, this.idea.number);
       if (response.ok) {
@@ -96,7 +85,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
     } else {
       const response = await this.tagService.assign(tag.slug, this.idea.number);
       if (response.ok) {
-        assignedTags = this.state.assignedTags.concat(tag.id);
+        assignedTags = this.state.assignedTags.concat(tag);
       }
     }
 
@@ -123,9 +112,9 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
 
     const tagsList = this.state.assignedTags.length
       ?
-      this.state.assignedTags.map((id) => (
-        <div key={id} className="item">
-          <ShowTag name={this.tagsById[id].name} color={this.tagsById[id].color} isPublic={this.tagsById[id].isPublic} />
+      this.state.assignedTags.map((tag) => (
+        <div key={tag.id} className="item">
+          <ShowTag tag={tag} />
         </div>
       ))
       :
@@ -225,8 +214,8 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                 this.state.editTags &&
                 this.tags.map((tag) => (
                   <div key={tag.id} className="item selectable" onClick={async () => this.assignOrUnassignTag(tag)}>
-                    <i className={`icon ${this.state.assignedTags.indexOf(tag.id) >= 0 && 'check'}`} />
-                    <div className="ui empty circular label" style={{backgroundColor: `#${tag.color}`}} />
+                    <i className={`icon ${this.state.assignedTags.indexOf(tag) >= 0 && 'check'}`} />
+                    <ShowTag tag={tag} circular={true}/>
                     <span>{tag.name}</span>
                   </div>
                 ))
