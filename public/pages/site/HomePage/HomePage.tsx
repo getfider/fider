@@ -5,7 +5,7 @@ import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
-import { getBaseUrl, getQueryString, getQueryStringNumberArray } from '@fider/utils/page';
+import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
 
 import './HomePage.scss';
 
@@ -17,7 +17,7 @@ interface HomePageState {
   showCount: number;
   searching: boolean;
   activeFilter: string;
-  tags: number[];
+  tags: string[];
 }
 
 const EmptyList = () => {
@@ -73,7 +73,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
         this.allTags = this.session.getArray<Tag>('tags');
 
         const search = getQueryString('q');
-        const tags = getQueryStringNumberArray('t');
+        const tags = getQueryStringArray('t');
         const activeFilter = window.location.hash.substring(1);
         this.state = {
           ideas: this.filterIdeas(activeFilter, search, tags),
@@ -94,7 +94,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
         return true;
     }
 
-    private selectedTagsChanged(tags: number[]): void {
+    private selectedTagsChanged(tags: string[]): void {
       const ideas = this.filterIdeas(this.state.activeFilter, this.state.search, tags);
       this.setState({
         ideas,
@@ -102,7 +102,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
       });
     }
 
-    private filterIdeas(activeFilter: string, search: string | undefined, tags: number[]): Idea[] {
+    private filterIdeas(activeFilter: string, search: string | undefined, tags: string[]): Idea[] {
       let path = '';
       let ideas = [];
 
@@ -133,10 +133,11 @@ export class HomePage extends React.Component<{}, HomePageState> {
       }
 
       if (tags.length > 0) {
+        const tagsToFilter = this.allTags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
         ideas = ideas.filter(
           (i) => i.tags.filter(
-            (t) => tags.indexOf(t) >= 0
-          ).length === tags.length
+            (t) => tagsToFilter.indexOf(t) >= 0
+          ).length === tagsToFilter.length
         );
       }
 

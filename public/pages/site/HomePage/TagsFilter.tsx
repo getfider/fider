@@ -4,12 +4,12 @@ import { ShowTag } from '@fider/components/ShowTag';
 
 interface TagsFilterProps {
   tags: Tag[];
-  defaultSelection: number[];
-  selectionChanged: (selected: number[]) => void;
+  defaultSelection: string[];
+  selectionChanged: (selected: string[]) => void;
 }
 
 interface TagsFilterState {
-  selected: number[];
+  selected: string[];
 }
 
 export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
@@ -30,13 +30,12 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     $element.dropdown({
       onAdd: (value: string) => {
         const id = parseInt(value, 10);
-        const selected = this.state.selected.concat(id);
+        const selected = this.state.selected.concat(value);
         this.setState({ selected });
         this.props.selectionChanged(selected);
       },
       onRemove: (value: string) => {
-        const id = parseInt(value, 10);
-        const idx = this.state.selected.indexOf(id);
+        const idx = this.state.selected.indexOf(value);
         const selected = this.state.selected.splice(idx, 1) && this.state.selected;
         this.setState({ selected });
         this.props.selectionChanged(selected);
@@ -67,7 +66,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
             <div className="scrolling menu">
               {
                 this.props.tags.map((t) => (
-                  <div key={t.id} className="item" data-value={t.id}>
+                  <div key={t.id} className="item" data-value={t.slug}>
                     <ShowTag tag={t} circular={true}/>
                     {t.name}
                   </div>

@@ -41,10 +41,10 @@ export function getQueryString(name: string): string {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-export function getQueryStringNumberArray(name: string): number[] {
+export function getQueryStringArray(name: string): string[] {
   const qs = getQueryString(name);
   if (qs) {
-    return qs.split(',').filter((i) => i).map((i) => parseInt(i, 10));
+    return qs.split(',').filter((i) => i);
   }
 
   return [];
