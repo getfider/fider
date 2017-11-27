@@ -17,11 +17,11 @@ const filterers: {[key: string]: (idea: Idea) => boolean} = {
 };
 
 const names: {[key: string]: string} = {
-    'recent': 'recent ideas',
-    'most-wanted': 'most wanted ideas',
-    'most-discussed': 'most discussed ideas',
-    'completed': 'completed ideas',
-    'declined': 'declined ideas'
+    'recent': 'recent',
+    'most-wanted': 'most wanted',
+    'most-discussed': 'most discussed',
+    'completed': 'completed',
+    'declined': 'declined'
 };
 
 const sorterers: {[key: string]: (left: Idea, right: Idea) => number} = {
@@ -70,11 +70,11 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
                   <i className="dropdown icon" />
                   <div className="menu">
                   <div className="header">What do you want to see?</div>
-                  <div className={`item ${activeFilter === 'recent' && 'active'}`} data-value="recent" data-text="recent ideas">Recent</div>
-                  <div className={`item ${activeFilter === 'most-wanted' && 'active'}`} data-value="most-wanted" data-text="most wanted ideas">Most Wanted</div>
-                  <div className={`item ${activeFilter === 'most-discussed' && 'active'}`} data-value="most-discussed" data-text="most discussed ideas">Most Discussed</div>
-                  <div className={`item ${activeFilter === 'completed' && 'active'}`} data-value="completed" data-text="completed ideas">Completed</div>
-                  <div className={`item ${activeFilter === 'declined' && 'active'}`} data-value="declined" data-text="declined ideas">Declined</div>
+                  <div className={`item ${activeFilter === 'recent' && 'active'}`} data-value="recent" data-text="recent">Recent</div>
+                  <div className={`item ${activeFilter === 'most-wanted' && 'active'}`} data-value="most-wanted" data-text="most wanted">Most Wanted</div>
+                  <div className={`item ${activeFilter === 'most-discussed' && 'active'}`} data-value="most-discussed" data-text="most discussed">Most Discussed</div>
+                  <div className={`item ${activeFilter === 'completed' && 'active'}`} data-value="completed" data-text="completed">Completed</div>
+                  <div className={`item ${activeFilter === 'declined' && 'active'}`} data-value="declined" data-text="declined">Declined</div>
                   </div>
               </div>
               </div>
