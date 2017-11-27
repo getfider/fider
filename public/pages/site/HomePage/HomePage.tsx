@@ -1,17 +1,11 @@
 import * as React from 'react';
 import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
-import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
-import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { SupportCounter } from '@fider/components/SupportCounter';
-import { ShowTag } from '@fider/components/ShowTag';
-import { IdeaInput } from './IdeaInput';
-import { IdeaFilter, IdeaFilterFunction } from './IdeaFilter';
+import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components';
+import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
 import { getBaseUrl, getQueryString } from '@fider/utils/page';
-
-import { TagsFilter } from './TagsFilter';
 
 import './HomePage.scss';
 
