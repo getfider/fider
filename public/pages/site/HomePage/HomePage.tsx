@@ -123,7 +123,6 @@ export class HomePage extends React.Component<{}, HomePageState> {
       }
 
       if (tags.length > 0) {
-        console.log(tags)
         const prefix = (!path) ? '?' : '&';
         path += `${prefix}t=${tags.join(',')}`;
       }
