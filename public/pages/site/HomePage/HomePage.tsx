@@ -1,17 +1,11 @@
 import * as React from 'react';
 import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
-import { Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components/common';
-import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { SupportCounter } from '@fider/components/SupportCounter';
-import { ShowTag } from '@fider/components/ShowTag';
-import { IdeaInput } from './IdeaInput';
-import { IdeaFilter, IdeaFilterFunction } from './IdeaFilter';
+import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components';
+import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
 
 import { inject, injectables } from '@fider/di';
 import { Session } from '@fider/services';
-import { getBaseUrl, getQueryString } from '@fider/utils/page';
-
-import { TagsFilter } from './TagsFilter';
+import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
 
 import './HomePage.scss';
 
@@ -19,10 +13,11 @@ const defaultShowCount = 20;
 
 interface HomePageState {
   ideas: Idea[];
+  search?: string;
   showCount: number;
   searching: boolean;
-  search?: string;
   activeFilter: string;
+  tags: string[];
 }
 
 const EmptyList = () => {
@@ -78,13 +73,15 @@ export class HomePage extends React.Component<{}, HomePageState> {
         this.allTags = this.session.getArray<Tag>('tags');
 
         const search = getQueryString('q');
+        const tags = getQueryStringArray('t');
         const activeFilter = window.location.hash.substring(1);
         this.state = {
-          ideas: this.filterIdeas(activeFilter, search),
+          ideas: this.filterIdeas(activeFilter, search, tags),
           showCount: defaultShowCount,
           activeFilter,
           searching: !!search,
-          search
+          search,
+          tags
         };
     }
 
@@ -97,24 +94,21 @@ export class HomePage extends React.Component<{}, HomePageState> {
         return true;
     }
 
-    private selectedTagsChanged(tags: number[]): void {
-      const ideas = this.filterIdeas(this.state.activeFilter, this.state.search);
+    private selectedTagsChanged(tags: string[]): void {
+      const ideas = this.filterIdeas(this.state.activeFilter, this.state.search, tags);
       this.setState({
-        ideas: ideas.filter(
-          (i) => i.tags.filter(
-            (t) => tags.indexOf(t) >= 0
-          ).length === tags.length
-        ),
+        ideas,
+        tags,
       });
     }
 
-    private filterIdeas(activeFilter: string, search: string | undefined): Idea[] {
-      let newUrl = getBaseUrl();
+    private filterIdeas(activeFilter: string, search: string | undefined, tags: string[]): Idea[] {
+      let path = '';
       let ideas = [];
 
       if (search) {
         const s = search.trim().toLowerCase();
-        newUrl += `?q=${encodeURIComponent(s).replace(/%20/g, '+')}`;
+        path += `?q=${encodeURIComponent(s).replace(/%20/g, '+')}`;
         ideas = this.allIdeas.filter((idea) => {
           const terms = s.split(' ').filter((x) => x.length >= 2);
           return (
@@ -124,12 +118,27 @@ export class HomePage extends React.Component<{}, HomePageState> {
           );
         });
       } else {
-        newUrl += activeFilter ? `#${activeFilter}` : '';
+        path += activeFilter ? `#${activeFilter}` : '';
         ideas = IdeaFilter.getFilter(activeFilter)(this.allIdeas);
       }
 
+      if (tags.length > 0) {
+        const prefix = (!path) ? '?' : '&';
+        path += `${prefix}t=${tags.join(',')}`;
+      }
+
       if (history.replaceState) {
+        const newUrl = getBaseUrl() + path;
         window.history.replaceState({ path: newUrl }, '', newUrl);
+      }
+
+      if (tags.length > 0) {
+        const tagsToFilter = this.allTags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
+        ideas = ideas.filter(
+          (i) => i.tags.filter(
+            (t) => tagsToFilter.indexOf(t) >= 0
+          ).length === tagsToFilter.length
+        );
       }
 
       return ideas;
@@ -137,7 +146,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
 
     private filterChanged(name: string) {
       this.setState({
-        ideas: this.filterIdeas(name, this.state.search),
+        ideas: this.filterIdeas(name, this.state.search, this.state.tags),
         showCount: defaultShowCount,
         activeFilter: name,
       });
@@ -154,14 +163,14 @@ export class HomePage extends React.Component<{}, HomePageState> {
       this.setState({
         search: '',
         searching: false,
-        ideas: this.filterIdeas(this.state.activeFilter, ''),
+        ideas: this.filterIdeas(this.state.activeFilter, '', this.state.tags),
       });
     }
 
     private searchIdea(input: string): void {
       this.setState({
         search: input,
-        ideas: this.filterIdeas(this.state.activeFilter, input)
+        ideas: this.filterIdeas(this.state.activeFilter, input, this.state.tags)
       });
     }
 
@@ -239,7 +248,11 @@ We'd love to hear what you're thinking about. What can we do better? This is the
                         </div>
                       </div>
                     </div>
-                    <TagsFilter tags={this.allTags} selectionChanged={(selected) => this.selectedTagsChanged(selected)} />
+                    <TagsFilter
+                      tags={this.allTags}
+                      selectionChanged={(selected) => this.selectedTagsChanged(selected)}
+                      defaultSelection={this.state.tags}
+                    />
                     {displayIdeas}
                   </div>
               }

@@ -40,3 +40,12 @@ export function getQueryString(name: string): string {
 
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+export function getQueryStringArray(name: string): string[] {
+  const qs = getQueryString(name);
+  if (qs) {
+    return qs.split(',').filter((i) => i);
+  }
+
+  return [];
+}

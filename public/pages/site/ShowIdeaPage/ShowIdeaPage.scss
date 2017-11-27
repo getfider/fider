@@ -12,18 +12,27 @@
     }
   }
 
-  .subtitle {
-    display: block;
-    &.active {
-      cursor: pointer;
-      &:hover {
-        color: $main-color;
-      }
-      i {
-        float: right;
+  .action-col {
+    @media only screen and (min-width: 768px) {
+      height: 0;
+    }
+    .ui.list {
+      margin: 0.5em 0em;
+    }
+    .subtitle {
+      display: block;
+      &.active {
+        cursor: pointer;
+        &:hover {
+          color: $main-color;
+        }
+        i {
+          float: right;
+        }
       }
     }
   }
+
 
   .tag-list {
     .tag-icon {
@@ -62,7 +71,7 @@
   }
 
   .comment-input  {
-    margin-top: 10px;
+    margin-top: 0.3em;
 
     textarea {
       margin-top: 5px;
