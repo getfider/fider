@@ -1,25 +1,20 @@
 import * as React from 'react';
 
-import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
-import { setTitle } from '@fider/utils/page';
-import { SupportCounter } from '@fider/components/SupportCounter';
-import { ShowIdeaResponse } from '@fider/components/ShowIdeaResponse';
-import { CommentInput } from './CommentInput';
-import { ResponseForm } from './ResponseForm';
-import { ShowTag } from '@fider/components/ShowTag';
-import { DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header, SocialSignInButton } from '@fider/components/common';
-
 import { inject, injectables } from '@fider/di';
-import { Session, IdeaService, TagService, Failure } from '@fider/services';
+import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
+import { Session, IdeaService, Failure } from '@fider/services';
+
+import { setTitle } from '@fider/utils/page';
+
+import { TagsPanel, CommentInput, CommentList, ResponseForm } from './';
+import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header } from '@fider/components';
 
 import './ShowIdeaPage.scss';
 
 interface ShowIdeaPageState {
   editMode: boolean;
-  editTags: boolean;
   newTitle: string;
   newDescription: string;
-  assignedTags: Tag[];
   error?: Failure;
 }
 
@@ -35,9 +30,6 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
   @inject(injectables.IdeaService)
   public ideaService: IdeaService;
 
-  @inject(injectables.TagService)
-  public tagService: TagService;
-
   constructor(props: {}) {
     super(props);
 
@@ -48,10 +40,8 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
 
     this.state = {
       editMode: false,
-      editTags: false,
       newTitle: this.idea.title,
       newDescription: this.idea.description,
-      assignedTags: this.tags.filter((t) => this.idea.tags.indexOf(t.id) >= 0),
     };
 
     setTitle(`${this.idea.title} · ${document.title}`);
@@ -74,52 +64,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
     }
   }
 
-  private async assignOrUnassignTag(tag: Tag) {
-    const idx = this.state.assignedTags.indexOf(tag);
-    let assignedTags: Tag[] = [];
-    if (idx >= 0) {
-      const response = await this.tagService.unassign(tag.slug, this.idea.number);
-      if (response.ok) {
-        assignedTags = this.state.assignedTags.splice(idx, 1) && this.state.assignedTags;
-      }
-    } else {
-      const response = await this.tagService.assign(tag.slug, this.idea.number);
-      if (response.ok) {
-        assignedTags = this.state.assignedTags.concat(tag);
-      }
-    }
-
-    this.setState({
-      assignedTags
-    });
-  }
-
   public render() {
-    const commentsList = this.comments.map((c) => (
-      <div key={c.id} className="comment">
-        <Gravatar user={c.user} />
-        <div className="content">
-          <UserName user={c.user} />
-          <div className="metadata">
-            · <Moment date={c.createdOn} />
-          </div>
-          <div className="text">
-            <MultiLineText text={c.content} style="simple" />
-          </div>
-        </div>
-      </div>
-    ));
-
-    const tagsList = this.state.assignedTags.length
-      ?
-      this.state.assignedTags.map((tag) => (
-        <div key={tag.id} className="item">
-          <ShowTag tag={tag} />
-        </div>
-      ))
-      :
-      <span className="info">None yet</span>;
-
     return (
       <div>
         <Header />
@@ -166,7 +111,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
 
             </div>
 
-            <div className="three wide column">
+            <div className="three wide column action-col">
               {
                 this.session.isCollaborator() && [
                   <span key={0} className="subtitle">Actions</span>,
@@ -198,35 +143,13 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                 ]
               }
 
-              <span
-                className={`subtitle ${this.session.isCollaborator() && this.tags.length > 0 && 'active'}`}
-                onClick={() => this.session.isCollaborator() && this.tags.length > 0 && this.setState({ editTags: !this.state.editTags })}
-              >
-                Tags
-                {this.session.isCollaborator() && this.tags.length > 0 && <i className="setting icon" />}
-              </span>
-
-              <div className="ui list tag-list">
-                {
-                  !this.state.editTags && tagsList
-              }
-              {
-                this.state.editTags &&
-                this.tags.map((tag) => (
-                  <div key={tag.id} className="item selectable" onClick={async () => this.assignOrUnassignTag(tag)}>
-                    <i className={`icon ${this.state.assignedTags.indexOf(tag) >= 0 && 'check'}`} />
-                    <ShowTag tag={tag} circular={true}/>
-                    <span>{tag.name}</span>
-                  </div>
-                ))
-              }
-              </div>
+              <TagsPanel idea={this.idea} tags={this.tags} />
             </div>
 
             <div className="sixteen wide column">
                 <div className="ui comments">
                   <span className="subtitle">Discussion</span>
-                  {commentsList}
+                  <CommentList comments={this.comments} />
                   <CommentInput idea={this.idea} />
                 </div>
             </div>
