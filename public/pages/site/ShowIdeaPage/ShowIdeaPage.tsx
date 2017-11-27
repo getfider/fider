@@ -69,7 +69,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
       <div>
         <Header />
         <div className="page ui container">
-          <div className="ui stackable grid container">
+          <div className="ui stackable vertically padded grid container">
             <div className="thirteen wide column">
               <div className="ui items unstackable">
                 <div className="item">
@@ -82,7 +82,7 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
                           <input type="text" onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
                         </div>,
                         <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
-                        ]
+                      ]
                       : <h1 className="ui header">{this.idea.title}</h1>
                     }
 
@@ -110,7 +110,6 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
               <ShowIdeaResponse status={this.idea.status} response={this.idea.response} />
 
             </div>
-
             <div className="three wide column action-col">
               {
                 this.session.isCollaborator() && [
@@ -145,14 +144,14 @@ export class ShowIdeaPage extends React.Component<{}, ShowIdeaPageState> {
 
               <TagsPanel idea={this.idea} tags={this.tags} />
             </div>
-
-            <div className="sixteen wide column">
+            <div className="thirteen wide column">
                 <div className="ui comments">
                   <span className="subtitle">Discussion</span>
                   <CommentList comments={this.comments} />
                   <CommentInput idea={this.idea} />
                 </div>
             </div>
+
           </div>
 
         </div>
