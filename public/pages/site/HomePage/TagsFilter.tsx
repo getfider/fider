@@ -4,6 +4,7 @@ import { ShowTag } from '@fider/components/ShowTag';
 
 interface TagsFilterProps {
   tags: Tag[];
+  defaultSelection: number[];
   selectionChanged: (selected: number[]) => void;
 }
 
@@ -17,12 +18,16 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
   constructor(props: TagsFilterProps) {
     super(props);
     this.state = {
-      selected: []
+      selected: props.defaultSelection
     };
   }
 
   public componentDidMount() {
-    $(this.element).dropdown({
+    const $element = $(this.element);
+    this.props.defaultSelection.forEach((t) => {
+      $element.dropdown('set selected', t);
+    });
+    $element.dropdown({
       onAdd: (value: string) => {
         const id = parseInt(value, 10);
         const selected = this.state.selected.concat(id);
