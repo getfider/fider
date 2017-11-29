@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -35,6 +36,19 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.Status).To(Equal(models.TenantActive))
+}
+
+func TestTenantStorage_SingleTenant_Add(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	os.Setenv("HOST_MODE", "single")
+
+	tenants := postgres.NewTenantStorage(trx)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+
+	Expect(err).To(BeNil())
+	Expect(tenant).NotTo(BeNil())
 }
 
 func TestTenantStorage_First(t *testing.T) {

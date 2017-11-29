@@ -177,7 +177,7 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 func extractSubdomain(hostname string) string {
 	domain := env.MultiTenantDomain()
 	if domain == "" {
-		return ""
+		return hostname
 	}
 
 	return strings.Replace(hostname, domain, "", -1)
