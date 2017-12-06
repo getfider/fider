@@ -42,10 +42,14 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
         this.unmounted = true;
     }
 
-    private async click(e?: React.MouseEvent<HTMLButtonElement>) {
+    public async click(e?: React.MouseEvent<HTMLButtonElement>) {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
+        }
+
+        if (this.state.clicked) {
+            return;
         }
 
         const event = new ButtonClickEvent();

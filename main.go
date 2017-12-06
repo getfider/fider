@@ -13,7 +13,7 @@ import (
 )
 
 var buildtime string
-var version = "0.8.0"
+var version = "0.9.0-beta"
 
 func main() {
 	fmt.Printf("Application is starting...\n")

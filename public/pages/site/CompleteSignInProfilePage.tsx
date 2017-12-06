@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { HomePage } from './HomePage';
 import { showModal, getQueryString } from '@fider/utils/page';
-import { Form } from '@fider/components/common';
+import { Form, Button } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
 import { TenantService } from '@fider/services';
@@ -47,7 +47,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
         </div>
         <div className="content">
           <p>Because this is your first sign in, please input your display name.</p>
-          <Form ref={(f) => { this.form = f!; }} onSubmit={() => this.submit()}>
+          <Form ref={(f) => { this.form = f!; }}>
             <div className="ui small action fluid input">
               <input
                 onChange={(e) => this.setState({ name: e.currentTarget.value })}
@@ -56,9 +56,9 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
                 placeholder="Your display name"
                 className="small"
               />
-              <button onClick={() => this.form.submit()} className={`ui small positive button ${this.state.name === '' && 'disabled'}`}>
+              <Button onClick={() => this.submit()} className={`small positive ${this.state.name === '' && 'disabled'}`}>
                 Submit
-              </button>
+              </Button>
             </div>
           </Form>
         </div>
