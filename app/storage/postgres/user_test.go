@@ -142,7 +142,6 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 
 	user, err = users.GetByID(user.ID)
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int(5)))
 	Expect(user.Role).To(Equal(models.RoleCollaborator))
 	Expect(user.Name).To(Equal("Rob Stark"))
 	Expect(user.Email).To(Equal(""))
