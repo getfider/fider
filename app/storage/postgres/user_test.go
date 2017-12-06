@@ -124,6 +124,30 @@ func TestUserStorage_Register(t *testing.T) {
 	Expect(user.Email).To(Equal("rob.stark@got.com"))
 }
 
+func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users := postgres.NewUserStorage(trx)
+	user := &models.User{
+		Name:  "Rob Stark",
+		Email: "   ",
+		Tenant: &models.Tenant{
+			ID: 1,
+		},
+		Role: models.RoleCollaborator,
+	}
+	err := users.Register(user)
+	Expect(err).To(BeNil())
+
+	user, err = users.GetByID(user.ID)
+	Expect(err).To(BeNil())
+	Expect(user.ID).To(Equal(int(5)))
+	Expect(user.Role).To(Equal(models.RoleCollaborator))
+	Expect(user.Name).To(Equal("Rob Stark"))
+	Expect(user.Email).To(Equal(""))
+}
+
 func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

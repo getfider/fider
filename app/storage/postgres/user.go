@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"crypto/md5"
+	"strings"
 	"time"
 
 	"database/sql"
@@ -97,6 +98,7 @@ func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
+	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id", user.Name, user.Email, now, user.Tenant.ID, user.Role).Scan(&user.ID); err != nil {
 		return err
 	}
