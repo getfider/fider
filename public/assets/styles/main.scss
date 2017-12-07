@@ -53,6 +53,8 @@ code {
 }
 
 .markdown-body {
+  overflow-wrap: break-word;
+  word-break: break-word;
   blockquote {
       padding: 0 1em;
       color: #6a737d;
