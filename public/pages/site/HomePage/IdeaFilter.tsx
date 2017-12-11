@@ -28,8 +28,8 @@ const sorterers: {[key: string]: (left: Idea, right: Idea) => number} = {
     'recent': (left: Idea, right: Idea) => new Date(right.createdOn).getTime() - new Date(left.createdOn).getTime(),
     'most-wanted': (left: Idea, right: Idea) => right.totalSupporters - left.totalSupporters,
     'most-discussed': (left: Idea, right: Idea) => right.totalComments - left.totalComments,
-    'completed': (left: Idea, right: Idea) => new Date(left.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime(),
-    'declined': (left: Idea, right: Idea) => new Date(left.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime()
+    'completed': (left: Idea, right: Idea) => new Date(right.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime(),
+    'declined': (left: Idea, right: Idea) => new Date(right.response.respondedOn).getTime() - new Date(left.response.respondedOn).getTime()
 };
 
 export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
