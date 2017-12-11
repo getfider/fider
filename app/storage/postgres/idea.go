@@ -274,11 +274,7 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return err
 	}
 
-	if err := s.trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now()); err != nil {
-		return err
-	}
-
-	return nil
+	return s.trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now())
 }
 
 // RemoveSupporter removes user from idea list of supporters
@@ -305,11 +301,7 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return err
 	}
 
-	if err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID); err != nil {
-		return err
-	}
-
-	return nil
+	return s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID)
 }
 
 // SetResponse changes current idea response
@@ -319,14 +311,16 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 		return err
 	}
 
-	if err := s.trx.Execute(`
+	respondedOn := time.Now()
+	if idea.Status == status {
+		respondedOn = idea.Response.RespondedOn
+	}
+
+	return s.trx.Execute(`
 	UPDATE ideas 
 	SET response = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, text, time.Now(), userID, status); err != nil {
-		return err
-	}
-	return nil
+	`, idea.ID, s.tenant.ID, text, respondedOn, userID, status)
 }
 
 // SupportedBy returns a list of Idea ID supported by given user

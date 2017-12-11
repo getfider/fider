@@ -253,6 +253,27 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	Expect(idea.Response.User.ID).To(Equal(1))
 }
 
+func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
+	idea, _ = ideas.GetByID(idea.ID)
+	respondedOn := idea.Response.RespondedOn
+
+	ideas.SetResponse(idea.Number, "We liked this idea and we'll work on it", 1, models.IdeaStarted)
+	idea, _ = ideas.GetByID(idea.ID)
+	Expect(idea.Response.RespondedOn).To(Equal(respondedOn))
+
+	ideas.SetResponse(idea.Number, "We finished it", 1, models.IdeaCompleted)
+	idea, _ = ideas.GetByID(idea.ID)
+	Expect(idea.Response.RespondedOn).Should(BeTemporally(">", respondedOn))
+}
+
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
