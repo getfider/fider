@@ -122,7 +122,7 @@ func (input *SetResponse) IsAuthorized(user *models.User) bool {
 func (input *SetResponse) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < models.IdeaNew || input.Model.Status > models.IdeaDeclined {
+	if input.Model.Status < models.IdeaNew || input.Model.Status > models.IdeaPlanned {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 

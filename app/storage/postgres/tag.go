@@ -116,14 +116,10 @@ func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
 		return nil
 	}
 
-	if err := s.trx.Execute(
+	return s.trx.Execute(
 		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id) VALUES ($1, $2, $3, $4)`,
 		tagID, ideaID, time.Now(), userID,
-	); err != nil {
-		return err
-	}
-
-	return nil
+	)
 }
 
 // UnassignTag removes a tag from an idea

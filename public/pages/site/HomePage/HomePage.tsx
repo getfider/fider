@@ -225,7 +225,11 @@ We'd love to hear what you're thinking about. What can we do better? This is the
                     <div className="ui grid">
                       {
                         !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
-                        <IdeaFilter activeFilter={this.state.activeFilter} filterChanged={(name) => this.filterChanged(name)} />
+                        <IdeaFilter
+                          ideas={this.allIdeas}
+                          activeFilter={this.state.activeFilter}
+                          filterChanged={(name) => this.filterChanged(name)}
+                        />
                       </div>
                       }
                       <div className={!this.state.searching ? `six wide mobile six wide tablet four wide computer column` : 'column'}>

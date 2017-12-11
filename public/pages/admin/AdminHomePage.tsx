@@ -131,11 +131,9 @@ export class AdminHomePage extends React.Component<{}, AdminHomePageState> {
                         <div className="info">
                           {
                             this.state.cname ? [
-                              <p key={0}>Input following record into your domain DNS zone records:</p>,
+                              <p key={0}>Enter the following record into your DNS zone records:</p>,
                               <p key={1}><strong>{this.state.cname}</strong> CNAME <strong>{this.session.getCurrentTenant().subdomain}{this.session.getAppSettings().domain}</strong></p>,
-                              <div key={2} className="ui negative message">
-                                <p>Custom Domain is a <strong>experimental feature</strong> and you're invited to test it. In case of any issue, feedback or question, please contact us at <a href="mailto:admin@fider.io">admin@fider.io</a>.</p>
-                              </div>
+                              <p key={2}>Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.</p>
                             ] :
                             <p>Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcomany.com</code>).</p>
                           }

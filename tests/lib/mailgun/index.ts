@@ -21,9 +21,9 @@ export const mailgun = {
       if (events.data.items.length > 0 && events.data.items[0].message.headers.to === to) {
         messageUrl = events.data.items[0].storage.url;
       } else {
-        delay(2000);
+        await delay(5000);
       }
-    } while (!messageUrl || count === 3);
+    } while (!messageUrl && count < 3);
 
     if (count === 3) {
       throw new Error(`Message not found for ${to}.`);
