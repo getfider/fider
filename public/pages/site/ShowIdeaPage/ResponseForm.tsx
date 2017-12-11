@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { User, Comment, Idea } from '@fider/models';
+import { User, Comment, Idea, IdeaStatus } from '@fider/models';
 import { Button, DisplayError, Textarea } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
@@ -71,10 +71,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 defaultValue={this.props.idea.status.toString()}
                 onChange={(e) => this.setState({ status: parseInt(e.currentTarget.value, 10) })}
               >
-                <option value="0">Open</option>
-                <option value="1">Started</option>
-                <option value="2">Completed</option>
-                <option value="3">Declined</option>
+                {IdeaStatus.All.map((s) => <option key={s.value} value={s.value.toString()}>{s.title}</option>)}
               </select>
             </div>
           </div>

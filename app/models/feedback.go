@@ -98,4 +98,6 @@ var (
 	IdeaCompleted = 2
 	//IdeaDeclined is used when organizers decide to decline an idea
 	IdeaDeclined = 3
+	//IdeaPlanned is used when organizers have accepted an idea and it's on the roadmap
+	IdeaPlanned = 4
 )

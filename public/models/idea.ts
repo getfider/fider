@@ -18,14 +18,16 @@ export interface Idea {
 export class IdeaStatus {
   constructor(public value: number,
               public title: string,
+              public slug: string,
               public show: boolean,
               public closed: boolean,
               public color: string) { }
 
-  public static New = new IdeaStatus(0, 'New', false, false, 'black');
-  public static Started = new IdeaStatus(1, 'Started', true, false, 'blue');
-  public static Completed = new IdeaStatus(2, 'Completed', true, true, 'green');
-  public static Declined = new IdeaStatus(3, 'Declined', true, true, 'red');
+  public static Open = new IdeaStatus(0, 'Open', 'open', false, false, '');
+  public static Started = new IdeaStatus(1, 'Started', 'started', true, false, 'blue');
+  public static Completed = new IdeaStatus(2, 'Completed', 'completed', true, true, 'green');
+  public static Declined = new IdeaStatus(3, 'Declined', 'declined', true, true, 'red');
+  public static Planned = new IdeaStatus(4, 'Planned', 'planned', true, true, 'violet');
 
   public static Get(value: number): IdeaStatus {
     for (const status of IdeaStatus.All) {
@@ -37,8 +39,9 @@ export class IdeaStatus {
   }
 
   public static All = [
-    IdeaStatus.New,
+    IdeaStatus.Open,
     IdeaStatus.Started,
+    IdeaStatus.Planned,
     IdeaStatus.Completed,
     IdeaStatus.Declined
   ];
