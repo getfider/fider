@@ -24,10 +24,10 @@ export class IdeaStatus {
               public color: string) { }
 
   public static Open = new IdeaStatus(0, 'Open', 'open', false, false, '');
+  public static Planned = new IdeaStatus(4, 'Planned', 'planned', true, false, 'violet');
   public static Started = new IdeaStatus(1, 'Started', 'started', true, false, 'blue');
   public static Completed = new IdeaStatus(2, 'Completed', 'completed', true, true, 'green');
   public static Declined = new IdeaStatus(3, 'Declined', 'declined', true, true, 'red');
-  public static Planned = new IdeaStatus(4, 'Planned', 'planned', true, true, 'violet');
 
   public static Get(value: number): IdeaStatus {
     for (const status of IdeaStatus.All) {
@@ -40,8 +40,8 @@ export class IdeaStatus {
 
   public static All = [
     IdeaStatus.Open,
-    IdeaStatus.Started,
     IdeaStatus.Planned,
+    IdeaStatus.Started,
     IdeaStatus.Completed,
     IdeaStatus.Declined
   ];
