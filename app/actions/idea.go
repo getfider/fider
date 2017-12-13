@@ -68,7 +68,7 @@ func (input *UpdateIdea) IsAuthorized(user *models.User) bool {
 func (input *UpdateIdea) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	_, err := services.Ideas.GetByNumber(input.Model.Number)
+	idea, err := services.Ideas.GetByNumber(input.Model.Number)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -81,10 +81,10 @@ func (input *UpdateIdea) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
-	idea, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
+	another, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
 	if err != nil && err != app.ErrNotFound {
 		return validate.Error(err)
-	} else if idea != nil {
+	} else if another != nil && another.ID != idea.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
