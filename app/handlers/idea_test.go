@@ -143,6 +143,22 @@ func TestUpdateIdeaHandler_InvalidIdea(t *testing.T) {
 	Expect(code).To(Equal(http.StatusNotFound))
 }
 
+func TestUpdateIdeaHandler_DuplicateTitle(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea1, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+	services.Ideas.Add("My Second Idea", "With a description", mock.JonSnow.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea1.Number).
+		ExecutePost(handlers.UpdateIdea(), `{ "title": "My Second Idea", "description": "And description too..." }`)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
 func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 

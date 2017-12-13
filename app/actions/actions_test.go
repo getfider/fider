@@ -19,6 +19,7 @@ var jonSnowToken, _ = jwt.Encode(&models.OAuthClaims{
 var services = &app.Services{
 	Tenants: &inmemory.TenantStorage{},
 	Users:   &inmemory.UserStorage{},
+	Ideas:   inmemory.NewIdeaStorage(),
 }
 
 func ExpectFailed(result *validate.Result, fields ...string) {
