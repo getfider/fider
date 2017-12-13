@@ -54,18 +54,31 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
-	dbIdea, err := ideas.GetByID(idea.ID)
+	dbIdeaById, err := ideas.GetByID(idea.ID)
 
 	Expect(err).To(BeNil())
-	Expect(dbIdea.ID).To(Equal(idea.ID))
-	Expect(dbIdea.Number).To(Equal(1))
-	Expect(dbIdea.TotalSupporters).To(Equal(0))
-	Expect(dbIdea.Status).To(Equal(models.IdeaNew))
-	Expect(dbIdea.Title).To(Equal("My new idea"))
-	Expect(dbIdea.Description).To(Equal("with this description"))
-	Expect(dbIdea.User.ID).To(Equal(1))
-	Expect(dbIdea.User.Name).To(Equal("Jon Snow"))
-	Expect(dbIdea.User.Email).To(Equal("jon.snow@got.com"))
+	Expect(dbIdeaById.ID).To(Equal(idea.ID))
+	Expect(dbIdeaById.Number).To(Equal(1))
+	Expect(dbIdeaById.TotalSupporters).To(Equal(0))
+	Expect(dbIdeaById.Status).To(Equal(models.IdeaNew))
+	Expect(dbIdeaById.Title).To(Equal("My new idea"))
+	Expect(dbIdeaById.Description).To(Equal("with this description"))
+	Expect(dbIdeaById.User.ID).To(Equal(1))
+	Expect(dbIdeaById.User.Name).To(Equal("Jon Snow"))
+	Expect(dbIdeaById.User.Email).To(Equal("jon.snow@got.com"))
+
+	dbIdeaBySlug, err := ideas.GetBySlug("my-new-idea")
+
+	Expect(err).To(BeNil())
+	Expect(dbIdeaBySlug.ID).To(Equal(idea.ID))
+	Expect(dbIdeaBySlug.Number).To(Equal(1))
+	Expect(dbIdeaBySlug.TotalSupporters).To(Equal(0))
+	Expect(dbIdeaBySlug.Status).To(Equal(models.IdeaNew))
+	Expect(dbIdeaBySlug.Title).To(Equal("My new idea"))
+	Expect(dbIdeaBySlug.Description).To(Equal("with this description"))
+	Expect(dbIdeaBySlug.User.ID).To(Equal(1))
+	Expect(dbIdeaBySlug.User.Name).To(Equal("Jon Snow"))
+	Expect(dbIdeaBySlug.User.Email).To(Equal("jon.snow@got.com"))
 }
 
 func TestIdeaStorage_GetInvalid(t *testing.T) {

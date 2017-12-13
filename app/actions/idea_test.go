@@ -9,8 +9,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestInvalidIdeaTitles(t *testing.T) {
+func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
 	RegisterTestingT(t)
+
+	services.Ideas.Add("My great idea", "With a great description", 1)
 
 	for _, title := range []string{
 		"me",
@@ -22,6 +24,7 @@ func TestInvalidIdeaTitles(t *testing.T) {
 		"my.company",
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
+		"my GREAT idea",
 	} {
 		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
 		result := action.Validate(services)
@@ -29,7 +32,7 @@ func TestInvalidIdeaTitles(t *testing.T) {
 	}
 }
 
-func TestValidIdeaTitles(t *testing.T) {
+func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
 	RegisterTestingT(t)
 
 	for _, title := range []string{

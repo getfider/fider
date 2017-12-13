@@ -140,6 +140,35 @@ func (s *IdeaStorage) getIdeaQuery(filter, order string) string {
 }
 
 // GetAll returns all tenant ideas
+func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea, error) {
+	idea := dbIdea{}
+
+	err := s.trx.Get(&idea, query, args...)
+	if err == sql.ErrNoRows {
+		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, err
+	}
+
+	return idea.toModel(), nil
+}
+
+// GetByID returns idea by given id
+func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2", "i.created_on DESC"), s.tenant.ID, ideaID)
+}
+
+// GetBySlug returns idea by tenant and slug
+func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2", "i.created_on DESC"), s.tenant.ID, slug)
+}
+
+// GetByNumber returns idea by tenant and number
+func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2", "i.created_on DESC"), s.tenant.ID, number)
+}
+
+// GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
 	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1", "i.created_on DESC"), s.tenant.ID)
@@ -152,34 +181,6 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 		result[i] = idea.toModel()
 	}
 	return result, nil
-}
-
-// GetByID returns idea by given id
-func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
-	idea := dbIdea{}
-
-	err := s.trx.Get(&idea, s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2", "i.created_on DESC"), s.tenant.ID, ideaID)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
-		return nil, err
-	}
-
-	return idea.toModel(), nil
-}
-
-// GetByNumber returns idea by tenant and number
-func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
-	idea := dbIdea{}
-
-	err := s.trx.Get(&idea, s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2", "i.created_on DESC"), s.tenant.ID, number)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
-		return nil, err
-	}
-
-	return idea.toModel(), nil
 }
 
 // GetCommentsByIdea returns all coments from given idea

@@ -16,6 +16,7 @@ type Base interface {
 type Idea interface {
 	Base
 	GetByID(ideaID int) (*models.Idea, error)
+	GetBySlug(slug string) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
 	GetAll() ([]*models.Idea, error)

@@ -3,6 +3,8 @@ package inmemory
 import (
 	"time"
 
+	"github.com/gosimple/slug"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 )
@@ -65,6 +67,16 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	return nil, app.ErrNotFound
 }
 
+// GetBySlug returns idea by tenant and slug
+func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
+	for _, idea := range s.ideas {
+		if idea.Slug == slug {
+			return idea, nil
+		}
+	}
+	return nil, app.ErrNotFound
+}
+
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
@@ -82,6 +94,7 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		ID:          s.lastID,
 		Number:      s.lastID,
 		Title:       title,
+		Slug:        slug.Make(title),
 		Description: description,
 		User: &models.User{
 			ID: userID,
