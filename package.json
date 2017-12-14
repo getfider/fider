@@ -1,15 +1,8 @@
 {
   "name": "fider",
-  "description": "Fider is an open source, cross platform and free to use feedback system for companies and products.",
   "version": "0.0.0",
   "repository": "https://github.com/getfider/fider",
-  "license": "GPL-3.0",
-  "scripts": {
-    "build": "rm -rf dist && webpack -p",
-    "test": "rm -rf output && tsc && mocha -t 30000 output/tsc/tests/testcases/*.js",
-    "watch": "rm -rf dist && webpack --watch",
-    "lint": "tslint -c tslint.json 'public/**/*.{ts,tsx}'"
-  },
+  "private": true,
   "dependencies": {
     "axios": "^0.17.1",
     "inversify": "^4.5.1",

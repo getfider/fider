@@ -14,5 +14,9 @@ export const setBrowser = (value: Browser) => {
 };
 
 export const setTenant = (value: string) => {
-  tenant = value;
+  if (process.env.HOST_MODE === 'single') {
+    tenant = 'login';
+  } else {
+    tenant = value;
+  }
 };

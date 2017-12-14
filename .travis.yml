@@ -19,8 +19,7 @@ before_script:
 
 script:
   - npm install
-  - npm run lint
-  - npm run build
+  - make lint
   - make coverage
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   - docker build -t getfider/fider .

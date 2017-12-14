@@ -5,21 +5,32 @@ ENV_FILE=.test.env
 ifeq ($(TRAVIS), true)
 ENV_FILE=.ci.env
 endif
+	
 
+# Building
+build:
+	rm -rf dist
+	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME}' -o fider .
+	webpack -p
+
+lint: 
+	tslint -c tslint.json 'public/**/*.{ts,tsx}'
+
+# Testing
 test:
 	godotenv -f ${ENV_FILE} go test ./... -cover -p=1
 
 coverage:
 	godotenv -f ${ENV_FILE} courtney -o cover.out $$(go list ./...)
 
-build:
-	go build -a -ldflags='-X main.buildtime=${BUILD_TIME}' -o fider .
+e2e:
+	./scripts/e2e.sh
 
+# Development
 watch:
-	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'"
-
-watch-ssl:
-	gin --buildArgs "-ldflags='-X main.buildtime=${BUILD_TIME}'" --certFile etc/server.crt --keyFile etc/server.key
+	rm -rf dist
+	gin --buildArgs "-ldflags='-s -w -X main.buildtime=${BUILD_TIME}'" & 
+	webpack --watch
 
 run:
 	godotenv -f .env ./fider

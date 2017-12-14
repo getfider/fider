@@ -23,9 +23,9 @@ export const mailgun = {
       } else {
         await delay(5000);
       }
-    } while (!messageUrl && count < 3);
+    } while (!messageUrl && count < 6);
 
-    if (count === 3) {
+    if (count === 6) {
       throw new Error(`Message not found for ${to}.`);
     }
 

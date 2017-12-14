@@ -4,6 +4,7 @@ dist/
 output/
 node_modules/
 .vscode/
+logs/
 
 fider
 fider.exe
