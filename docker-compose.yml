@@ -2,19 +2,19 @@ version: '2'
 services:
   pgdev:
     restart: always
-    image: postgres:9.6
+    image: postgres:9.6.2
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     ports:
       - "5555:5432"
     environment:
       POSTGRES_USER: fider
-      POSTGRES_PASSWORD: fider-pw
+      POSTGRES_PASSWORD: fider_pw
   pgtest:
     restart: always
-    image: postgres:9.6
+    image: postgres:9.6.2
     ports:
       - "5566:5432"
     environment:
       POSTGRES_USER: fider_test
-      POSTGRES_PASSWORD: fider_test-pw
+      POSTGRES_PASSWORD: fider_test_pw

@@ -116,6 +116,7 @@ export class HomePage extends Page {
     await this.browser.wait(elementIsVisible(() => this.CompleteEmailSignInInput));
     await this.CompleteEmailSignInInput.type(name);
     await this.CompleteEmailSignInButton.click();
+    await this.browser.wait(elementIsNotVisible(() => this.CompleteEmailSignInInput));
     await this.browser.wait(this.loadCondition());
   }
 
