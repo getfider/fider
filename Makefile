@@ -14,7 +14,7 @@ build:
 	webpack -p
 
 lint: 
-	tslint -c tslint.json 'public/**/*.{ts,tsx}'
+	./node_modules/.bin/tslint -c tslint.json 'public/**/*.{ts,tsx}'
 
 # Testing
 test:

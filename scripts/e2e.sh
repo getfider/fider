@@ -18,7 +18,7 @@ FIDER_PID=$!
 {
   {
     echo "Running e2e tests ..."
-    mocha -t 60000 output/tsc/tests/e2e-single.js
+    ./node_modules/.bin/mocha -t 60000 output/tsc/tests/e2e-single.js
   } || { 
     echo "Tests failed..."; 
   }
@@ -34,7 +34,7 @@ FIDER_PID=$!
 {
   {
     echo "Running e2e tests ..."
-    mocha -t 60000 output/tsc/tests/e2e-multi.js
+    ./node_modules/.bin/mocha -t 60000 output/tsc/tests/e2e-multi.js
   } || { 
     echo "Tests failed..."; 
   }
