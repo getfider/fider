@@ -60,7 +60,7 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	Expect(dbIdeaById.ID).To(Equal(idea.ID))
 	Expect(dbIdeaById.Number).To(Equal(1))
 	Expect(dbIdeaById.TotalSupporters).To(Equal(0))
-	Expect(dbIdeaById.Status).To(Equal(models.IdeaNew))
+	Expect(dbIdeaById.Status).To(Equal(models.IdeaOpen))
 	Expect(dbIdeaById.Title).To(Equal("My new idea"))
 	Expect(dbIdeaById.Description).To(Equal("with this description"))
 	Expect(dbIdeaById.User.ID).To(Equal(1))
@@ -73,7 +73,7 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	Expect(dbIdeaBySlug.ID).To(Equal(idea.ID))
 	Expect(dbIdeaBySlug.Number).To(Equal(1))
 	Expect(dbIdeaBySlug.TotalSupporters).To(Equal(0))
-	Expect(dbIdeaBySlug.Status).To(Equal(models.IdeaNew))
+	Expect(dbIdeaBySlug.Status).To(Equal(models.IdeaOpen))
 	Expect(dbIdeaBySlug.Title).To(Equal("My new idea"))
 	Expect(dbIdeaBySlug.Description).To(Equal("with this description"))
 	Expect(dbIdeaBySlug.User.ID).To(Equal(1))
@@ -264,6 +264,18 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	Expect(idea.Response.Text).To(Equal("We liked this idea"))
 	Expect(idea.Status).To(Equal(models.IdeaStarted))
 	Expect(idea.Response.User.ID).To(Equal(1))
+}
+
+func TestIdeaStorage_SetResponse_KeepOpen(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenants := postgres.NewTenantStorage(trx)
+	ideas := postgres.NewIdeaStorage(trx)
+	ideas.SetCurrentTenant(demoTenant(tenants))
+	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaOpen)
+	Expect(err).To(BeNil())
 }
 
 func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {

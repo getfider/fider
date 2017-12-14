@@ -138,12 +138,12 @@ func (input *SetResponse) IsAuthorized(user *models.User) bool {
 func (input *SetResponse) Validate(services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < models.IdeaNew || input.Model.Status > models.IdeaPlanned {
+	if input.Model.Status < models.IdeaOpen || input.Model.Status > models.IdeaPlanned {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if input.Model.Text == "" {
-		result.AddFieldFailure("text", "Text is required.")
+	if input.Model.Status != models.IdeaOpen && input.Model.Text == "" {
+		result.AddFieldFailure("text", "Description is required.")
 	}
 
 	return result
