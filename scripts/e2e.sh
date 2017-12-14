@@ -1,8 +1,12 @@
 #!/bin/bash
 
 CONTAINER="fider_pge2e"
+PORT=3000
 
-# TODO: check if something is running on port 3000 and then abort
+if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+    echo "Another process is already running on port $PORT."
+    exit 1;
+fi
 
 echo "Clean up ..."
 rm -rf output
