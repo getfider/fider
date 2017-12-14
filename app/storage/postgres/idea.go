@@ -313,7 +313,7 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	}
 
 	respondedOn := time.Now()
-	if idea.Status == status {
+	if idea.Status == status && idea.Response != nil {
 		respondedOn = idea.Response.RespondedOn
 	}
 

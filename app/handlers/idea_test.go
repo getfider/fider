@@ -280,5 +280,5 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 	idea, _ = services.Ideas.GetByNumber(idea.Number)
 
 	Expect(code).To(Equal(http.StatusForbidden))
-	Expect(idea.Status).To(Equal(models.IdeaNew))
+	Expect(idea.Status).To(Equal(models.IdeaOpen))
 }

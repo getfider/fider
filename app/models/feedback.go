@@ -90,8 +90,8 @@ type AssignUnassignTag struct {
 }
 
 var (
-	//IdeaNew is the default status
-	IdeaNew = 0
+	//IdeaOpen is the default status
+	IdeaOpen = 0
 	//IdeaStarted is used when the idea has been accepted and work is in progress
 	IdeaStarted = 1
 	//IdeaCompleted is used when the idea has been accepted and already implemented
