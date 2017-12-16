@@ -9,6 +9,7 @@ export interface Idea {
   createdOn: string;
   status: number;
   user: User;
+  viewerSupported: boolean;
   response: IdeaResponse;
   totalSupporters: number;
   totalComments: number;

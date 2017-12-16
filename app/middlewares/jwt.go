@@ -41,13 +41,6 @@ func JwtGetter() web.MiddlewareFunc {
 
 			if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
 				c.SetUser(user)
-				if !c.IsAjax() {
-					ids, err := services.Ideas.SupportedBy(user.ID)
-					if err != nil {
-						return err
-					}
-					c.AddRenderVar("supportedIdeas", ids)
-				}
 			}
 
 			return next(c)

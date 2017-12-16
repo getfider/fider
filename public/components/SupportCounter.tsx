@@ -25,10 +25,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     constructor(props: SupportCounterProps) {
         super(props);
-        const supportedIdeas = this.session.getArray<number>('supportedIdeas');
-
         this.state = {
-          supported: props.user && supportedIdeas && supportedIdeas.indexOf(props.idea.id) >= 0 ? true : false,
+          supported: props.idea.viewerSupported,
           total: props.idea.totalSupporters
         };
     }
@@ -43,10 +41,10 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
         const response = await action(this.props.idea.number);
         if (response.ok) {
-            this.setState({
-                supported: !this.state.supported,
-                total: this.state.total + (this.state.supported ? -1 : 1)
-            });
+            this.setState((state) => ({
+                supported: !state.supported,
+                total: state.total + (state.supported ? -1 : 1)
+            }));
         } else {
             // TODO: handle this. we should have a global alert box
         }
