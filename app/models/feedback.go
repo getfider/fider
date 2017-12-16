@@ -13,11 +13,17 @@ type Idea struct {
 	Description     string        `json:"description"`
 	CreatedOn       time.Time     `json:"createdOn"`
 	User            *User         `json:"user"`
+	ViewerSupported bool          `json:"viewerSupported"`
 	TotalSupporters int           `json:"totalSupporters"`
 	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
 	Tags            []int64       `json:"tags"`
+}
+
+// CanBeSupported returns true if this idea can be Supported/UnSupported
+func (i *Idea) CanBeSupported() bool {
+	return i.Status != IdeaCompleted && i.Status != IdeaDeclined
 }
 
 // NewIdea represents a new idea

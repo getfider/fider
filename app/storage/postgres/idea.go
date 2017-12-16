@@ -20,6 +20,7 @@ type dbIdea struct {
 	Description     string         `db:"description"`
 	CreatedOn       time.Time      `db:"created_on"`
 	User            *dbUser        `db:"user"`
+	ViewerSupported bool           `db:"viewer_supported"`
 	TotalSupporters int            `db:"supporters"`
 	TotalComments   int            `db:"comments"`
 	Status          int            `db:"status"`
@@ -37,6 +38,7 @@ func (i *dbIdea) toModel() *models.Idea {
 		Slug:            i.Slug,
 		Description:     i.Description,
 		CreatedOn:       i.CreatedOn,
+		ViewerSupported: i.ViewerSupported,
 		TotalSupporters: i.TotalSupporters,
 		TotalComments:   i.TotalComments,
 		Status:          i.Status,
@@ -114,7 +116,8 @@ var (
 																r.name AS response_user_name, 
 																r.email AS response_user_email, 
 																r.role AS response_user_role,
-																array_remove(array_agg(t.id), NULL) AS tags
+																array_remove(array_agg(t.id), NULL) AS tags,
+																COALESCE(%s, false) AS viewer_supported
 													FROM ideas i
 													INNER JOIN users u
 													ON u.id = i.user_id
@@ -132,11 +135,15 @@ var (
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) getIdeaQuery(filter, order string) string {
+	viewerSupportedSubQuery := "null"
+	if s.user != nil {
+		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM idea_supporters WHERE idea_id = i.id AND user_id = %d)", s.user.ID)
+	}
 	tagCondition := `AND t.is_public = true`
 	if s.user != nil && s.user.IsCollaborator() {
 		tagCondition = ``
 	}
-	return fmt.Sprintf(sqlSelectIdeasWhere, tagCondition, filter, order)
+	return fmt.Sprintf(sqlSelectIdeasWhere, viewerSupportedSubQuery, tagCondition, filter, order)
 }
 
 // GetAll returns all tenant ideas
@@ -258,7 +265,8 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 	if err != nil {
 		return err
 	}
-	if idea.Status >= models.IdeaCompleted {
+
+	if !idea.CanBeSupported() {
 		return nil
 	}
 
@@ -285,7 +293,7 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return err
 	}
 
-	if idea.Status >= models.IdeaCompleted {
+	if !idea.CanBeSupported() {
 		return nil
 	}
 
