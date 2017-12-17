@@ -14,6 +14,13 @@
     <meta property="og:image" content="http://getfider.com/images/logo-small.png">
 </head>
 <body>
+  <noscript class="ui container">
+    <div class="ui yellow segment">
+      <h2 class="ui header">Please enable JavaScript</h2>
+      <p>This website relies on JavaScript-based technologies and services.</p>
+      <p>Please enable JavaScript and then reload the page.</p>
+    </div>
+  </noscript>
   {{ if .tenant }}
     {{ if ne .settings.GoogleAnalytics "" }}
     <script>
