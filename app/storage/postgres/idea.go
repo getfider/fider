@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"database/sql"
@@ -13,24 +14,31 @@ import (
 )
 
 type dbIdea struct {
-	ID              int            `db:"id"`
-	Number          int            `db:"number"`
-	Title           string         `db:"title"`
-	Slug            string         `db:"slug"`
-	Description     string         `db:"description"`
-	CreatedOn       time.Time      `db:"created_on"`
-	User            *dbUser        `db:"user"`
-	ViewerSupported bool           `db:"viewer_supported"`
-	TotalSupporters int            `db:"supporters"`
-	TotalComments   int            `db:"comments"`
-	Status          int            `db:"status"`
-	Response        sql.NullString `db:"response"`
-	RespondedOn     dbx.NullTime   `db:"response_date"`
-	ResponseUser    *dbUser        `db:"response_user"`
-	Tags            []int64        `db:"tags"`
+	ID               int            `db:"id"`
+	Number           int            `db:"number"`
+	Title            string         `db:"title"`
+	Slug             string         `db:"slug"`
+	Description      string         `db:"description"`
+	CreatedOn        time.Time      `db:"created_on"`
+	User             *dbUser        `db:"user"`
+	ViewerSupported  bool           `db:"viewer_supported"`
+	TotalSupporters  int            `db:"supporters"`
+	TotalComments    int            `db:"comments"`
+	RecentSupporters int            `db:"recent_supporters"`
+	RecentComments   int            `db:"recent_comments"`
+	Status           int            `db:"status"`
+	Response         sql.NullString `db:"response"`
+	RespondedOn      dbx.NullTime   `db:"response_date"`
+	ResponseUser     *dbUser        `db:"response_user"`
+	Tags             []int64        `db:"tags"`
 }
 
 func (i *dbIdea) toModel() *models.Idea {
+	ranking := float64((i.RecentSupporters*5)+(i.RecentComments*3)-1) / math.Pow((time.Since(i.CreatedOn).Hours()+2), 0.8)
+	if math.IsNaN(ranking) {
+		ranking = 0
+	}
+
 	idea := &models.Idea{
 		ID:              i.ID,
 		Number:          i.Number,
@@ -44,6 +52,7 @@ func (i *dbIdea) toModel() *models.Idea {
 		Status:          i.Status,
 		User:            i.User.toModel(),
 		Tags:            i.Tags,
+		Ranking:         ranking,
 	}
 
 	if i.Response.Valid {
@@ -104,7 +113,9 @@ var (
 																i.description, 
 																i.created_on,
 																i.supporters,
-																(SELECT COUNT(*) FROM comments c WHERE c.idea_id = i.id) as comments,
+																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id) as comments,
+																(SELECT COUNT(*) FROM idea_supporters WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_supporters,
+																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_comments,
 																i.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -129,12 +140,10 @@ var (
 													ON t.id = it.tag_id
 													%s
 													WHERE %s
-													GROUP BY i.id, u.id, r.id
-													ORDER BY %s`
+													GROUP BY i.id, u.id, r.id`
 )
 
-// GetAll returns all tenant ideas
-func (s *IdeaStorage) getIdeaQuery(filter, order string) string {
+func (s *IdeaStorage) getIdeaQuery(filter string) string {
 	viewerSupportedSubQuery := "null"
 	if s.user != nil {
 		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM idea_supporters WHERE idea_id = i.id AND user_id = %d)", s.user.ID)
@@ -143,10 +152,9 @@ func (s *IdeaStorage) getIdeaQuery(filter, order string) string {
 	if s.user != nil && s.user.IsCollaborator() {
 		tagCondition = ``
 	}
-	return fmt.Sprintf(sqlSelectIdeasWhere, viewerSupportedSubQuery, tagCondition, filter, order)
+	return fmt.Sprintf(sqlSelectIdeasWhere, viewerSupportedSubQuery, tagCondition, filter)
 }
 
-// GetAll returns all tenant ideas
 func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea, error) {
 	idea := dbIdea{}
 
@@ -162,23 +170,23 @@ func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea
 
 // GetByID returns idea by given id
 func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2", "i.created_on DESC"), s.tenant.ID, ideaID)
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, ideaID)
 }
 
 // GetBySlug returns idea by tenant and slug
 func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2", "i.created_on DESC"), s.tenant.ID, slug)
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
 }
 
 // GetByNumber returns idea by tenant and number
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2", "i.created_on DESC"), s.tenant.ID, number)
+	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
 }
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1", "i.created_on DESC"), s.tenant.ID)
+	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1"), s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}

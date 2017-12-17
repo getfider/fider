@@ -10,9 +10,10 @@ interface IdeaFilterProps {
 }
 
 const filterers: {[key: string]: (idea: Idea) => boolean} = {
-    'recent': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
-    'most-wanted': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
-    'most-discussed': (idea: Idea) => idea.status !== IdeaStatus.Completed.value && idea.status !== IdeaStatus.Declined.value,
+    'trending': (idea: Idea) =>  IdeaStatus.Get(idea.status).closed === false,
+    'recent': (idea: Idea) => IdeaStatus.Get(idea.status).closed === false,
+    'most-wanted': (idea: Idea) => IdeaStatus.Get(idea.status).closed === false,
+    'most-discussed': (idea: Idea) => IdeaStatus.Get(idea.status).closed === false,
     'planned': (idea: Idea) => idea.status === IdeaStatus.Planned.value,
     'started': (idea: Idea) => idea.status === IdeaStatus.Started.value,
     'completed': (idea: Idea) => idea.status === IdeaStatus.Completed.value,
@@ -20,6 +21,7 @@ const filterers: {[key: string]: (idea: Idea) => boolean} = {
 };
 
 const names: {[key: string]: string} = {
+    'trending': 'trending',
     'recent': 'recent',
     'most-wanted': 'most wanted',
     'most-discussed': 'most discussed',
@@ -30,6 +32,7 @@ const names: {[key: string]: string} = {
 };
 
 const sorterers: {[key: string]: (left: Idea, right: Idea) => number} = {
+    'trending': (left: Idea, right: Idea) => right.ranking !== left.ranking ? right.ranking - left.ranking : new Date(right.createdOn).getTime() - new Date(left.createdOn).getTime(),
     'recent': (left: Idea, right: Idea) => new Date(right.createdOn).getTime() - new Date(left.createdOn).getTime(),
     'most-wanted': (left: Idea, right: Idea) => right.totalSupporters - left.totalSupporters,
     'most-discussed': (left: Idea, right: Idea) => right.totalComments - left.totalComments,
@@ -48,7 +51,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
 
     public static getFilter(value: string): IdeaFilterFunction {
         if (!filterers[value]) {
-            value = 'recent';
+            value = 'trending';
         }
 
         return (ideas: Idea[]) => ideas.filter(filterers[value]).sort(sorterers[value]);
@@ -65,7 +68,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
     public render() {
         let activeFilter = this.props.activeFilter;
         if (!(this.props.activeFilter in names)) {
-            activeFilter = 'recent';
+            activeFilter = 'trending';
         }
 
         const grouped = this.props.ideas.reduce<{ [status: number]: number }>((group, idea) => {
@@ -89,6 +92,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
                     <i className="dropdown icon" />
                     <div className="menu">
                         <div className="header">What do you want to see?</div>
+                        <div className={`item ${activeFilter === 'trending' && 'active'}`} data-value="trending" data-text="trending">Trending</div>
                         <div className={`item ${activeFilter === 'recent' && 'active'}`} data-value="recent" data-text="recent">Recent</div>
                         <div className={`item ${activeFilter === 'most-wanted' && 'active'}`} data-value="most-wanted" data-text="most wanted">Most Wanted</div>
                         <div className={`item ${activeFilter === 'most-discussed' && 'active'}`} data-value="most-discussed" data-text="most discussed">Most Discussed</div>
