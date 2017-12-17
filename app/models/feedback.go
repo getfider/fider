@@ -19,6 +19,7 @@ type Idea struct {
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
 	Tags            []int64       `json:"tags"`
+	Ranking         float64       `json:"ranking"`
 }
 
 // CanBeSupported returns true if this idea can be Supported/UnSupported

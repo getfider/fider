@@ -14,6 +14,7 @@ export interface Idea {
   totalSupporters: number;
   totalComments: number;
   tags: number[];
+  ranking: number;
 }
 
 export class IdeaStatus {
