@@ -9,7 +9,6 @@
     "inversify-inject-decorators": "^3.0.2",
     "jquery": "^3.2.1",
     "markdown-it": "^8.4.0",
-    "md5": "^2.2.1",
     "moment": "^2.19.2",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
@@ -20,7 +19,6 @@
   "devDependencies": {
     "@types/jquery": "^3.2.16",
     "@types/markdown-it": "0.0.4",
-    "@types/md5": "^2.1.32",
     "@types/mocha": "^2.2.44",
     "@types/react": "^16.0.25",
     "@types/react-dom": "^16.0.3",

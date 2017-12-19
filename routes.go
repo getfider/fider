@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
@@ -37,19 +39,19 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	emailer := initEmailer()
 
 	r.Use(middlewares.Compress())
+	r.Use(middlewares.Setup(db, emailer))
 
 	assets := r.Group()
 	{
-		assets.Use(middlewares.OneYearCache())
-		assets.Get("/avatars/:size/:name", handlers.LetterAvatar())
+		assets.Use(middlewares.ClientCache(72 * time.Hour))
+		assets.Use(middlewares.Tenant())
+		assets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/assets/*filepath", "dist")
 	}
 
 	noTenant := r.Group()
 	{
-		noTenant.Use(middlewares.Setup(db, emailer))
-
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())
@@ -64,14 +66,12 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 
 	verify := r.Group()
 	{
-		verify.Use(middlewares.Setup(db, emailer))
 		verify.Use(middlewares.Tenant())
 		verify.Get("/signup/verify", handlers.VerifySignUpKey())
 	}
 
 	page := r.Group()
 	{
-		page.Use(middlewares.Setup(db, emailer))
 		page.Use(middlewares.Tenant())
 		page.Use(middlewares.JwtGetter())
 		page.Use(middlewares.JwtSetter())
