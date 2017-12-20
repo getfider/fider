@@ -21,10 +21,11 @@ func Avatar() web.HandlerFunc {
 		email := c.QueryParam("e")
 
 		id, err := c.ParamAsInt("id")
-		if err == nil && id > 0 && email != "" {
+		if err == nil && id > 0 && email == "" {
 			user, err := c.Services().Users.GetByID(id)
 			if err == nil && user.Tenant.ID == c.Tenant().ID {
 				email = user.Email
+				println(user.Email)
 			}
 		}
 

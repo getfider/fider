@@ -11,7 +11,9 @@ interface GravatarProps {
 export const Gravatar = (props: GravatarProps) => {
   const name = props.name ? props.name : props.user ? props.user.name : '_';
   const id = props.user ? props.user.id : 0;
-  const url = `${getBaseUrl()}/avatars/50/${id}/${name}${props.email ? `?e=${encodeURIComponent(props.email)}` : ''}`;
+  const queryString = props.email ? `?e=${encodeURIComponent(props.email)}` : '';
+
+  const url = `${getBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name)}${queryString}`;
   const isCollaborator = props.user ? props.user.role >= 2 : false;
 
   let element: any;
