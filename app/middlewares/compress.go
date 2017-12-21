@@ -34,7 +34,6 @@ func Compress() web.MiddlewareFunc {
 		return func(c web.Context) error {
 			res := c.Response
 			if strings.Contains(c.Request.Header.Get("Accept-Encoding"), "gzip") {
-				c.Request.Header.Add("Vary", "Accept-Encoding")
 				writer := pool.Get().(*gzip.Writer)
 				defer pool.Put(writer)
 				gzipResponse := &gzipResponseWriter{response: res, writer: writer, buffer: &bytes.Buffer{}}
@@ -58,6 +57,7 @@ func (w *gzipResponseWriter) Write(b []byte) (int, error) {
 }
 
 func (w *gzipResponseWriter) Flush() {
+	w.Header().Add("Vary", "Accept-Encoding")
 	if w.buffer.Len() >= minSize {
 		w.Header().Del("Content-Length")
 		w.Header().Set("Content-Encoding", "gzip")
