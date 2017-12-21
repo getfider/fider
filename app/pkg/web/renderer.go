@@ -24,32 +24,21 @@ type Renderer struct {
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
-	renderer := &Renderer{
+	r := &Renderer{
 		templates: make(map[string]*template.Template),
 		logger:    logger,
 		settings:  settings,
 	}
 
-	renderer.add("index.html")
-	renderer.add("403.html")
-	renderer.add("404.html")
-	renderer.add("500.html")
+	r.add("index.html")
+	r.add("403.html")
+	r.add("404.html")
+	r.add("500.html")
 
-	files, _ := ioutil.ReadDir(env.Path("/dist/js"))
-	if len(files) > 0 {
-		renderer.jsBundle = files[0].Name()
-	} else {
-		panic("JavaScript Bundle not found.")
-	}
+	r.jsBundle = r.getBundle("/dist/js")
+	r.cssBundle = r.getBundle("/dist/css")
 
-	files, _ = ioutil.ReadDir(env.Path("/dist/css"))
-	if len(files) > 0 {
-		renderer.cssBundle = files[0].Name()
-	} else {
-		panic("CSS Bundle not found.")
-	}
-
-	return renderer
+	return r
 }
 
 //Render a template based on parameters
@@ -65,6 +54,14 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
+func (r *Renderer) getBundle(folder string) string {
+	files, _ := ioutil.ReadDir(env.Path(folder))
+	if len(files) > 0 {
+		return files[0].Name()
+	}
+	panic(fmt.Sprintf("Bundle not found: %s.", folder))
+}
+
 //Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Context) error {
 	tmpl, ok := r.templates[name]
@@ -74,6 +71,8 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 
 	if env.IsDevelopment() {
 		tmpl = r.add(name)
+		r.jsBundle = r.getBundle("/dist/js")
+		r.cssBundle = r.getBundle("/dist/css")
 	}
 
 	m := data.(Map)

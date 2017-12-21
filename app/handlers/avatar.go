@@ -18,7 +18,7 @@ func Avatar() web.HandlerFunc {
 	return func(c web.Context) error {
 		name := c.Param("name")
 		size, _ := c.ParamAsInt("size")
-		email := c.QueryParam("e")
+		email := c.QueryParam("e") //TODO: remove this parameter, not used anymore
 
 		id, err := c.ParamAsInt("id")
 		if err == nil && id > 0 && email == "" {

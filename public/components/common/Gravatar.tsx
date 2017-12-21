@@ -4,16 +4,13 @@ import { User } from '@fider/models';
 
 interface GravatarProps {
   user?: User;
-  name?: string;
-  email?: string;
 }
 
 export const Gravatar = (props: GravatarProps) => {
-  const name = props.name ? props.name : props.user ? props.user.name : '_';
+  const name = props.user ? props.user.name : '_';
   const id = props.user ? props.user.id : 0;
-  const queryString = props.email ? `?e=${encodeURIComponent(props.email)}` : '';
 
-  const url = `${getBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name)}${queryString}`;
+  const url = `${getBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name)}`;
   const isCollaborator = props.user ? props.user.role >= 2 : false;
 
   let element: any;
