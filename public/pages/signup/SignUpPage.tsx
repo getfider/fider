@@ -141,12 +141,12 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
                 <p>
                   Hello, &nbsp;
                   <Gravatar name={this.user.name} email={this.user.email} />
-                  <b>{this.user.name}</b> ({this.user.email})
+                  <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
                 </p>
               </div> :
               <div>
                 <p>We need to identify you to setup your new Fider account.</p>
-                <SignInControl signInByEmail={false} />
+                  <SignInControl signInByEmail={false} />
                   <div className="ui form">
                   <DisplayError fields={['name', 'email']} error={this.state.error} />
                   <div className="fluid field">

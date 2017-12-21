@@ -3,6 +3,7 @@ package middlewares_test
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -14,7 +15,7 @@ func TestCache(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.OneYearCache())
+	server.Use(middlewares.ClientCache(5 * time.Minute))
 	handler := func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
@@ -22,5 +23,5 @@ func TestCache(t *testing.T) {
 	status, response := server.Execute(handler)
 
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Cache-Control")).To(Equal("public, max-age=30672000"))
+	Expect(response.Header().Get("Cache-Control")).To(Equal("public, max-age=300"))
 }

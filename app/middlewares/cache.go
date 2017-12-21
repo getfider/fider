@@ -1,12 +1,17 @@
 package middlewares
 
-import "github.com/getfider/fider/app/pkg/web"
+import (
+	"fmt"
+	"time"
 
-// OneYearCache adds Cache-Control header for one year
-func OneYearCache() web.MiddlewareFunc {
+	"github.com/getfider/fider/app/pkg/web"
+)
+
+// ClientCache adds Cache-Control header for X seconds
+func ClientCache(d time.Duration) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			c.Response.Header().Add("Cache-Control", "public, max-age=30672000")
+			c.Response.Header().Add("Cache-Control", fmt.Sprintf("public, max-age=%.f", d.Seconds()))
 			return next(c)
 		}
 	}

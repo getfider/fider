@@ -66,7 +66,11 @@ func (l *ConsoleLogger) Errorf(format string, args ...interface{}) {
 
 // Error logs a ERROR message
 func (l *ConsoleLogger) Error(err error) {
-	l.log(ERROR, err.Error())
+	if err != nil {
+		l.log(ERROR, err.Error())
+	} else {
+		l.log(ERROR, "nil")
+	}
 }
 
 func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {

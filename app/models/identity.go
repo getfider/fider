@@ -29,7 +29,6 @@ type User struct {
 	ID        int             `json:"id"`
 	Name      string          `json:"name"`
 	Email     string          `json:"-"`
-	Gravatar  string          `json:"gravatar"`
 	Tenant    *Tenant         `json:"-"`
 	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"-"`
