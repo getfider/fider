@@ -1,12 +1,5 @@
 BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 
-ENV_FILE=.test.env
-
-ifeq ($(TRAVIS), true)
-ENV_FILE=.ci.env
-endif
-	
-
 # Building
 build:
 	rm -rf dist
@@ -18,10 +11,10 @@ lint:
 
 # Testing
 test:
-	godotenv -f ${ENV_FILE} go test ./... -cover -p=1
+	godotenv -f .test.env go test ./... -cover -p=1
 
 coverage:
-	godotenv -f ${ENV_FILE} courtney -o cover.out $$(go list ./...)
+	godotenv -f .test.env courtney -o cover.out $$(go list ./...)
 
 e2e:
 	./scripts/e2e.sh

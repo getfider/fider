@@ -21,7 +21,7 @@ script:
   - npm install
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   - make lint
-  - make coverage
+  - DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
   - docker build -t getfider/fider .
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - |
