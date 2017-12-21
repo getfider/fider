@@ -39,16 +39,15 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	emailer := initEmailer()
 
 	r.Use(middlewares.Compress())
-	r.Use(middlewares.Setup(db, emailer))
 
 	assets := r.Group()
 	{
-		assets.Use(middlewares.ClientCache(72 * time.Hour))
-		assets.Use(middlewares.Tenant())
-		assets.Get("/avatars/:size/:id/:name", handlers.Avatar())
+		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/assets/*filepath", "dist")
 	}
+
+	r.Use(middlewares.Setup(db, emailer))
 
 	noTenant := r.Group()
 	{
@@ -64,15 +63,21 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
+	r.Use(middlewares.Tenant())
+
+	avatar := r.Group()
+	{
+		avatar.Use(middlewares.ClientCache(72 * time.Hour))
+		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
+	}
+
 	verify := r.Group()
 	{
-		verify.Use(middlewares.Tenant())
 		verify.Get("/signup/verify", handlers.VerifySignUpKey())
 	}
 
 	page := r.Group()
 	{
-		page.Use(middlewares.Tenant())
 		page.Use(middlewares.JwtGetter())
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())

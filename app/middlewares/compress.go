@@ -2,10 +2,13 @@ package middlewares
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -17,17 +20,23 @@ var (
 type gzipResponseWriter struct {
 	code     int
 	response http.ResponseWriter
-	buffer   []byte
+	writer   *gzip.Writer
+	buffer   *bytes.Buffer
 }
 
 // Compress returns a middleware which compresses HTTP response using gzip compression
 func Compress() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
+		var pool sync.Pool
+		pool.New = func() interface{} {
+			return gzip.NewWriter(ioutil.Discard)
+		}
 		return func(c web.Context) error {
 			res := c.Response
-			res.Header().Add("Vary", "Accept-Encoding")
 			if strings.Contains(c.Request.Header.Get("Accept-Encoding"), "gzip") {
-				gzipResponse := &gzipResponseWriter{response: res}
+				writer := pool.Get().(*gzip.Writer)
+				defer pool.Put(writer)
+				gzipResponse := &gzipResponseWriter{response: res, writer: writer, buffer: &bytes.Buffer{}}
 				c.Response = gzipResponse
 				defer gzipResponse.Flush()
 			}
@@ -44,22 +53,21 @@ func (w *gzipResponseWriter) WriteHeader(code int) {
 }
 
 func (w *gzipResponseWriter) Write(b []byte) (int, error) {
-	w.buffer = append(w.buffer, b...)
-	return len(b), nil
+	return w.buffer.Write(b)
 }
 
 func (w *gzipResponseWriter) Flush() {
-	if len(w.buffer) >= minSize {
+	if w.buffer.Len() >= minSize {
 		w.Header().Del("Content-Length")
 		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Add("Vary", "Accept-Encoding")
 		w.response.WriteHeader(w.code)
-		gzipWriter := gzip.NewWriter(w.response)
-		gzipWriter.Write(w.buffer)
-		gzipWriter.Flush()
-		gzipWriter.Close()
+		w.writer.Reset(w.response)
+		w.buffer.WriteTo(w.writer)
+		w.writer.Close()
 	} else {
 		w.response.WriteHeader(w.code)
-		w.response.Write(w.buffer)
+		w.buffer.WriteTo(w.response)
 	}
 }
 
