@@ -53,12 +53,10 @@ func TestPostIdeaHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	code, resp := server.
+	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(handlers.PostIdea(), `{ "title": "My newest idea :)" }`)
-
-	println(resp.Body.String())
 
 	idea, err := services.Ideas.GetByID(1)
 	Expect(code).To(Equal(200))
