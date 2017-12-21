@@ -9,8 +9,7 @@ addons:
   postgresql: "9.6"
 
 install:
-  - go get -u github.com/joho/godotenv/cmd/godotenv
-  - go get -u github.com/dave/courtney
+  - go get github.com/joho/godotenv/cmd/godotenv github.com/dave/courtney
   - nvm use 8.9
 
 before_script:
