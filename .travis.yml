@@ -9,10 +9,9 @@ addons:
   postgresql: "9.6"
 
 install:
-  - go get github.com/joho/godotenv/cmd/godotenv github.com/dave/courtney
+  - go get github.com/joho/godotenv/cmd/godotenv &
+  - go get github.com/dave/courtney &
   - nvm use 8.9
-
-before_script:
   - psql -c 'create database fider_ci;' -U postgres
   - psql -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';" -U postgres
 
