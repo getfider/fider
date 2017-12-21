@@ -11,7 +11,7 @@ addons:
 install:
   - go get -u github.com/joho/godotenv/cmd/godotenv
   - go get -u github.com/dave/courtney
-  - nvm install 8
+  - nvm use 8.9
 
 before_script:
   - psql -c 'create database fider_ci;' -U postgres
