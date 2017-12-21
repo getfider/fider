@@ -140,7 +140,6 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
               <div>
                 <p>
                   Hello, &nbsp;
-                  <Gravatar name={this.user.name} email={this.user.email} />
                   <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
                 </p>
               </div> :
