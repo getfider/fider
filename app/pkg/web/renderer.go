@@ -18,17 +18,36 @@ type Renderer struct {
 	templates map[string]*template.Template
 	logger    log.Logger
 	settings  *models.AppSettings
+	jsBundle  string
+	cssBundle string
 }
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
-	renderer := &Renderer{nil, logger, settings}
-	renderer.templates = make(map[string]*template.Template)
+	renderer := &Renderer{
+		templates: make(map[string]*template.Template),
+		logger:    logger,
+		settings:  settings,
+	}
 
 	renderer.add("index.html")
 	renderer.add("403.html")
 	renderer.add("404.html")
 	renderer.add("500.html")
+
+	files, _ := ioutil.ReadDir(env.Path("/dist/js"))
+	if len(files) > 0 {
+		renderer.jsBundle = files[0].Name()
+	} else {
+		panic("JavaScript Bundle not found.")
+	}
+
+	files, _ = ioutil.ReadDir(env.Path("/dist/css"))
+	if len(files) > 0 {
+		renderer.cssBundle = files[0].Name()
+	} else {
+		panic("CSS Bundle not found.")
+	}
 
 	return renderer
 }
@@ -58,6 +77,10 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	}
 
 	m := data.(Map)
+	m["__JavaScriptBundle"] = r.jsBundle
+	m["__StyleBundle"] = r.cssBundle
+	m["settings"] = r.settings
+
 	m["baseUrl"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
@@ -68,7 +91,6 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 			oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
 		},
 	}
-	m["settings"] = r.settings
 
 	if renderVars := ctx.RenderVars(); renderVars != nil {
 		for key, value := range renderVars {
@@ -79,16 +101,6 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	if ctx.IsAuthenticated() {
 		m["user"] = ctx.User()
 		m["email"] = ctx.User().Email
-	}
-
-	files, _ := ioutil.ReadDir("dist/js")
-	if len(files) > 0 {
-		m["__JavaScriptBundle"] = files[0].Name()
-	}
-
-	files, _ = ioutil.ReadDir("dist/css")
-	if len(files) > 0 {
-		m["__StyleBundle"] = files[0].Name()
 	}
 
 	return tmpl.Execute(w, m)
