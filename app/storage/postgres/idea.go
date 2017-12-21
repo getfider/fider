@@ -34,7 +34,7 @@ type dbIdea struct {
 }
 
 func (i *dbIdea) toModel() *models.Idea {
-	ranking := float64((i.RecentSupporters*5)+(i.RecentComments*3)-1) / math.Pow((time.Since(i.CreatedOn).Hours()+2), 0.8)
+	ranking := float64((i.RecentSupporters*5)+(i.RecentComments*3)-1) / math.Pow((time.Since(i.CreatedOn).Hours()+2), 1.4)
 	if math.IsNaN(ranking) {
 		ranking = 0
 	}
