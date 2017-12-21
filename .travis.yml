@@ -9,19 +9,17 @@ addons:
   postgresql: "9.6"
 
 install:
-  - go get -u github.com/joho/godotenv/cmd/godotenv
-  - go get -u github.com/dave/courtney
-  - nvm install 8
-
-before_script:
-  - psql -c 'create database fider_ci;' -U postgres
+  - go get github.com/joho/godotenv/cmd/godotenv &
+  - go get github.com/dave/courtney &
+  - nvm use 8.9
+  - psql -c 'CREATE DATABASE fider_ci;' -U postgres
   - psql -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';" -U postgres
 
 script:
   - npm install
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   - make lint
-  - make coverage
+  - DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
   - docker build -t getfider/fider .
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - |
