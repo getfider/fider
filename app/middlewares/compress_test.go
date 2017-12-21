@@ -52,5 +52,6 @@ func TestCompress_SmallResponse(t *testing.T) {
 
 	Expect(ioutil.ReadAll(response.Body)).To(Equal([]byte("Hello World")))
 	Expect(status).To(Equal(http.StatusOK))
+	Expect(response.Header().Get("Vary")).To(Equal("Accept-Encoding"))
 	Expect(response.Header().Get("Content-Encoding")).To(Equal(""))
 }
