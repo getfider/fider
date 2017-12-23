@@ -1,6 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
+import * as $ from 'jquery';
+(window as any).$ = (window as any).jQuery = $;
+import 'semantic-ui/dist/semantic.min.js';
+import 'semantic-ui/dist/semantic.min.css';
+import '@fider/assets/styles/main.scss';
+
 import { SignInModal } from '@fider/components/SignInModal';
 import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
 import { MembersPage } from '@fider/pages/admin/MembersPage';
@@ -24,8 +30,6 @@ import {
   TagService,
   HttpTagService
 } from '@fider/services';
-
-import '@fider/assets/styles/main.scss';
 
 container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
