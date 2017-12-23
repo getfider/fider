@@ -6,7 +6,6 @@ import (
 
 	"database/sql"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
@@ -82,11 +81,7 @@ func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (
 	var userID int
 	query := "SELECT user_id FROM user_providers up INNER JOIN users u ON u.id = up.user_id WHERE up.provider = $1 AND up.provider_uid = $2 AND u.tenant_id = $3"
 	if err := s.trx.Scalar(&userID, query, provider, uid, tenantID); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, app.ErrNotFound
-		} else if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 	return s.GetByID(userID)
 }
@@ -130,9 +125,7 @@ func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
 	err := trx.Get(&user, "SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

@@ -10,6 +10,7 @@ import (
 
 	"strings"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/mattes/migrate"
@@ -195,7 +196,11 @@ func formatCommand(cmd string) string {
 // Scalar returns first row and first column
 func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) error {
 	row := trx.QueryRow(command, args...)
-	return row.Scan(data)
+	err := row.Scan(data)
+	if err == sql.ErrNoRows {
+		return app.ErrNotFound
+	}
+	return err
 }
 
 // Get first row and bind to given data
@@ -210,7 +215,7 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 		return fill(rows, data)
 	}
 
-	return sql.ErrNoRows
+	return app.ErrNotFound
 }
 
 // QueryIntArray executes given SQL command and return first column as int

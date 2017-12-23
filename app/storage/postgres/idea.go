@@ -7,7 +7,6 @@ import (
 
 	"database/sql"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/gosimple/slug"
@@ -158,10 +157,7 @@ func (s *IdeaStorage) getIdeaQuery(filter string) string {
 func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea, error) {
 	idea := dbIdea{}
 
-	err := s.trx.Get(&idea, query, args...)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err := s.trx.Get(&idea, query, args...); err != nil {
 		return nil, err
 	}
 

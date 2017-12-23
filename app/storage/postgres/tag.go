@@ -1,11 +1,9 @@
 package postgres
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/gosimple/slug"
@@ -74,9 +72,7 @@ func (s *TagStorage) GetBySlug(slug string) (*models.Tag, error) {
 	tag := dbTag{}
 
 	err := s.trx.Get(&tag, "SELECT id, name, slug, color, is_public FROM tags WHERE tenant_id = $1 AND slug = $2", s.tenant.ID, slug)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
