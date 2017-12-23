@@ -6,7 +6,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
@@ -19,11 +18,9 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 1, 1, 0, 1)", now)
 	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 1, 2, 5, 2)", now)
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
-	dbIdeas, err := ideas.GetAll()
+	ideas.SetCurrentTenant(demoTenant)
 
+	dbIdeas, err := ideas.GetAll()
 	Expect(err).To(BeNil())
 	Expect(dbIdeas).To(HaveLen(2))
 
@@ -48,14 +45,11 @@ func TestIdeaStorage_AddAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
 	dbIdeaById, err := ideas.GetByID(idea.ID)
-
 	Expect(err).To(BeNil())
 	Expect(dbIdeaById.ID).To(Equal(idea.ID))
 	Expect(dbIdeaById.Number).To(Equal(1))
@@ -87,11 +81,9 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
-	dbIdea, err := ideas.GetByID(1)
+	ideas.SetCurrentTenant(demoTenant)
 
+	dbIdea, err := ideas.GetByID(1)
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(dbIdea).To(BeNil())
 }
@@ -100,9 +92,7 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
@@ -123,16 +113,14 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	demoIdeas := postgres.NewIdeaStorage(trx)
-	demoIdeas.SetCurrentTenant(demoTenant(tenants))
-	demoIdea, _ := demoIdeas.Add("My new idea", "with this description", 1)
+	ideas.SetCurrentTenant(demoTenant)
+	demoIdea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	orangeIdeas := postgres.NewIdeaStorage(trx)
-	orangeIdeas.SetCurrentTenant(orangeTenant(tenants))
-	orangeIdea, _ := orangeIdeas.Add("My other idea", "with other description", 3)
+	ideas.SetCurrentTenant(orangeTenant)
+	orangeIdea, _ := ideas.Add("My other idea", "with other description", 3)
 
-	dbIdea, err := demoIdeas.GetByNumber(1)
+	ideas.SetCurrentTenant(demoTenant)
+	dbIdea, err := ideas.GetByNumber(1)
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(demoIdea.ID))
@@ -140,7 +128,8 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Slug).To(Equal("my-new-idea"))
 
-	dbIdea, err = orangeIdeas.GetByNumber(1)
+	ideas.SetCurrentTenant(orangeTenant)
+	dbIdea, err = ideas.GetByNumber(1)
 
 	Expect(err).To(BeNil())
 	Expect(dbIdea.ID).To(Equal(orangeIdea.ID))
@@ -153,15 +142,13 @@ func TestIdeaStorage_Update(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
+
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
 	idea, err = ideas.Update(idea.Number, "The new comment", "With the new description")
 	Expect(err).To(BeNil())
-
 	Expect(idea.Title).To(Equal("The new comment"))
 	Expect(idea.Description).To(Equal("With the new description"))
 	Expect(idea.Slug).To(Equal("the-new-comment"))
@@ -171,23 +158,21 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	users := postgres.NewUserStorage(trx)
-	users.SetCurrentTenant(demoTenant(tenants))
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
-	ideas.SetCurrentUser(jonSnow(users))
+	users.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(jonSnow)
+
 	idea, err := ideas.Add("My new idea", "with this description", 1)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, aryaStark(users).ID)
+	err = ideas.AddSupporter(idea.Number, aryaStark.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(dbIdea.ViewerSupported).To(BeFalse())
 	Expect(dbIdea.TotalSupporters).To(Equal(1))
 
-	err = ideas.AddSupporter(idea.Number, jonSnow(users).ID)
+	err = ideas.AddSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err = ideas.GetByNumber(1)
@@ -200,9 +185,7 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -220,9 +203,7 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -240,9 +221,7 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 
 	err := ideas.AddSupporter(idea.Number, 1)
@@ -263,9 +242,7 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
 
@@ -281,9 +258,7 @@ func TestIdeaStorage_SetResponse_KeepOpen(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaOpen)
 	Expect(err).To(BeNil())
@@ -293,9 +268,7 @@ func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
 	idea, _ = ideas.GetByID(idea.ID)
@@ -314,9 +287,7 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
 	ideas.AddSupporter(idea.Number, 1)
@@ -330,9 +301,7 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	ideas.AddSupporter(idea.Number, 1)
 	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
@@ -347,9 +316,7 @@ func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
 	idea1, _ := ideas.Add("My new idea", "with this description", 1)
 	idea2, _ := ideas.Add("My other idea", "with better description", 1)
 	ideas.AddSupporter(idea1.Number, 2)
@@ -363,12 +330,8 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-	users := postgres.NewUserStorage(trx)
-	ideas := postgres.NewIdeaStorage(trx)
-	ideas.SetCurrentTenant(demoTenant(tenants))
-	tags := postgres.NewTagStorage(trx)
-	tags.SetCurrentTenant(demoTenant(tenants))
+	ideas.SetCurrentTenant(demoTenant)
+	tags.SetCurrentTenant(demoTenant)
 
 	idea, _ := ideas.Add("My new idea", "with this description", 1)
 	bug, _ := tags.Add("Bug", "FF0000", true)
@@ -381,7 +344,7 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	Expect(len(idea.Tags)).To(Equal(1))
 	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))
 
-	ideas.SetCurrentUser(jonSnow(users))
+	ideas.SetCurrentUser(jonSnow)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(2))
 	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))

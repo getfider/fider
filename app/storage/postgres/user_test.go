@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/oauth"
-	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
@@ -14,9 +13,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByID(1)
-
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Tenant.ID).To(Equal(1))
@@ -31,9 +28,7 @@ func TestUserStorage_GetByEmail_Error(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByEmail(1, "unknown@got.com")
-
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
 }
@@ -42,9 +37,7 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
-
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Tenant.ID).To(Equal(1))
@@ -59,9 +52,7 @@ func TestUserStorage_GetByProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByProvider(1, "facebook", "FB1234")
-
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Tenant.ID).To(Equal(1))
@@ -76,9 +67,7 @@ func TestUserStorage_GetByProvider_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByProvider(2, "facebook", "FB1234")
-
 	Expect(user).To(BeNil())
 	Expect(err).To(Equal(app.ErrNotFound))
 }
@@ -87,9 +76,7 @@ func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user, err := users.GetByEmail(2, "jon.snow@got.com")
-
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
 }
@@ -98,7 +85,6 @@ func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
@@ -128,7 +114,6 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "   ",
@@ -158,7 +143,6 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		RETURNING id
 	`).Scan(&tenantID)
 
-	users := postgres.NewUserStorage(trx)
 	user := &models.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
@@ -177,8 +161,8 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 			},
 		},
 	}
-	err := users.Register(user)
 
+	err := users.Register(user)
 	Expect(err).To(BeNil())
 	Expect(user.ID).NotTo(BeZero())
 	Expect(user.Name).To(Equal("Jon Snow"))
@@ -189,7 +173,6 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	users.RegisterProvider(1, &models.UserProvider{
 		UID:  "GO1234",
 		Name: "google",
@@ -213,7 +196,6 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users := postgres.NewUserStorage(trx)
 	err := users.Update(1, &models.UpdateUserSettings{Name: "Jon Stark"})
 	Expect(err).To(BeNil())
 
@@ -225,10 +207,7 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
-
-	users := postgres.NewUserStorage(trx)
-	users.SetCurrentTenant(demoTenant(tenants))
+	users.SetCurrentTenant(demoTenant)
 	err := users.ChangeRole(1, models.RoleVisitor)
 	Expect(err).To(BeNil())
 
@@ -240,10 +219,8 @@ func TestUserStorage_GetAll(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
+	users.SetCurrentTenant(demoTenant)
 
-	users := postgres.NewUserStorage(trx)
-	users.SetCurrentTenant(demoTenant(tenants))
 	all, err := users.GetAll()
 	Expect(err).To(BeNil())
 	Expect(len(all)).To(Equal(2))
