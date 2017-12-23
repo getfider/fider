@@ -18,8 +18,9 @@ var users *postgres.UserStorage
 var ideas *postgres.IdeaStorage
 var tags *postgres.TagStorage
 
-var orangeTenant *models.Tenant
 var demoTenant *models.Tenant
+var avengersTenant *models.Tenant
+var gotTenant *models.Tenant
 var jonSnow *models.User
 var aryaStark *models.User
 
@@ -32,8 +33,8 @@ func SetupDatabaseTest(t *testing.T) {
 	ideas = postgres.NewIdeaStorage(trx)
 	tags = postgres.NewTagStorage(trx)
 
-	orangeTenant, _ = tenants.GetByDomain("orange")
 	demoTenant, _ = tenants.GetByDomain("demo")
+	avengersTenant, _ = tenants.GetByDomain("avengers")
 	jonSnow, _ = users.GetByID(1)
 	aryaStark, _ = users.GetByID(2)
 }

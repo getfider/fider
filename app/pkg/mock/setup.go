@@ -13,8 +13,8 @@ import (
 // DemoTenant is a mocked tenant
 var DemoTenant *models.Tenant
 
-// OrangeTenant is a mocked tenant
-var OrangeTenant *models.Tenant
+// AvengersTenant is a mocked tenant
+var AvengersTenant *models.Tenant
 
 // JonSnow is a mocked user
 var JonSnow *models.User
@@ -50,7 +50,7 @@ func createServices(seed bool) *app.Services {
 
 	if seed {
 		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
-		OrangeTenant, _ = services.Tenants.Add("The Orange Inc.", "orange", models.TenantActive)
+		AvengersTenant, _ = services.Tenants.Add("Avengers", "avengers", models.TenantActive)
 
 		JonSnow = &models.User{
 			Name:   "Jon Snow",

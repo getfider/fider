@@ -116,8 +116,8 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	demoIdea, _ := ideas.Add("My new idea", "with this description", 1)
 
-	ideas.SetCurrentTenant(orangeTenant)
-	orangeIdea, _ := ideas.Add("My other idea", "with other description", 3)
+	ideas.SetCurrentTenant(avengersTenant)
+	avengersIdea, _ := ideas.Add("My other idea", "with other description", 3)
 
 	ideas.SetCurrentTenant(demoTenant)
 	dbIdea, err := ideas.GetByNumber(1)
@@ -128,11 +128,11 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	Expect(dbIdea.Title).To(Equal("My new idea"))
 	Expect(dbIdea.Slug).To(Equal("my-new-idea"))
 
-	ideas.SetCurrentTenant(orangeTenant)
+	ideas.SetCurrentTenant(avengersTenant)
 	dbIdea, err = ideas.GetByNumber(1)
 
 	Expect(err).To(BeNil())
-	Expect(dbIdea.ID).To(Equal(orangeIdea.ID))
+	Expect(dbIdea.ID).To(Equal(avengersIdea.ID))
 	Expect(dbIdea.Number).To(Equal(1))
 	Expect(dbIdea.Title).To(Equal("My other idea"))
 	Expect(dbIdea.Slug).To(Equal("my-other-idea"))
