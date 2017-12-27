@@ -16,26 +16,6 @@ import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
 import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
 import { CompleteSignInProfilePage } from '@fider/pages/site/CompleteSignInProfilePage';
 import { SignUpPage } from '@fider/pages/signup/SignUpPage';
-import { container, injectables } from '@fider/di';
-
-import {
-  Session,
-  BrowserSession,
-  IdeaService,
-  HttpIdeaService,
-  TenantService,
-  HttpTenantService,
-  UserService,
-  HttpUserService,
-  TagService,
-  HttpTagService
-} from '@fider/services';
-
-container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
-container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
-container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
-container.bind<UserService>(injectables.UserService).to(HttpUserService);
-container.bind<TagService>(injectables.TagService).to(HttpTagService);
 
 interface PageConfiguration {
   id: string;
@@ -43,15 +23,24 @@ interface PageConfiguration {
   component: any;
 }
 
+const route = (path: string, component: any, id: string): PageConfiguration => {
+  path = path.replace('/', '\/')
+             .replace(':number', '\\d+')
+             .replace('*', '.*');
+
+  const regex = new RegExp(`^${path}$`);
+  return { regex, component, id };
+};
+
 const pathRegex = [
-  { regex: new RegExp('^\/$'), component: HomePage, id: 'fdr-home-page' },
-  { regex: new RegExp('^\/admin\/members$'), component: MembersPage, id: 'fdr-admin-members-page' },
-  { regex: new RegExp('^\/admin\/tags$'), component: ManageTagsPage, id: 'fdr-admin-tags-page' },
-  { regex: new RegExp('^\/admin$'), component: AdminHomePage, id: 'fdr-admin-page' },
-  { regex: new RegExp('^\/signup$'), component: SignUpPage, id: 'fdr-signup-page' },
-  { regex: new RegExp('^\/ideas\/\\d+.*$'), component: ShowIdeaPage, id: 'fdr-show-idea-page' },
-  { regex: new RegExp('^\/signin\/verify'), component: CompleteSignInProfilePage, id: 'fdr-complete-signin-profile' },
-  { regex: new RegExp('^\/settings$'), component: UserSettingsPage, id: 'fdr-user-settings' },
+  route('/', HomePage, 'fdr-home-page'),
+  route('/ideas/:number/*', ShowIdeaPage, 'fdr-show-idea-page'),
+  route('/admin/members', MembersPage, 'fdr-admin-members-page'),
+  route('/admin/tags', ManageTagsPage, 'fdr-admin-tags-page'),
+  route('/admin', AdminHomePage, 'fdr-admin-page'),
+  route('/signup', SignUpPage, 'fdr-signup-page'),
+  route('/signin/verify', CompleteSignInProfilePage, 'fdr-complete-signin-profile'),
+  route('/settings', UserSettingsPage, 'fdr-user-settings'),
 ];
 
 const resolveRootComponent = (path: string): PageConfiguration | undefined => {
