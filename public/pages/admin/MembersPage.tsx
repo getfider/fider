@@ -4,7 +4,7 @@ import { Header, Footer, Button, Gravatar, UserName } from '@fider/components/co
 import { User, CurrentUser, UserRole } from '@fider/models';
 
 import { inject, injectables } from '@fider/di';
-import { Session, TenantService } from '@fider/services';
+import { TenantService } from '@fider/services';
 
 interface MembersPageState {
     administrators: User[];
@@ -16,20 +16,18 @@ interface MembersPageState {
     newCollaboratorFilter: string;
 }
 
-export class MembersPage extends React.Component<{}, MembersPageState> {
-    private allUsers: User[];
-    private currentUser: CurrentUser;
+interface MembersPageProps {
+  user: CurrentUser;
+  users: User[];
+}
 
-    @inject(injectables.Session)
-    public session: Session;
+export class MembersPage extends React.Component<MembersPageProps, MembersPageState> {
 
     @inject(injectables.TenantService)
     public tenantService: TenantService;
 
-    constructor(props: {}) {
+    constructor(props: MembersPageProps) {
         super(props);
-        this.allUsers = this.session.get<User[]>('users') || [];
-        this.currentUser = this.session.getCurrentUser()!;
         this.state = this.groupUsers();
     }
 
@@ -42,7 +40,7 @@ export class MembersPage extends React.Component<{}, MembersPageState> {
     }
 
     private groupUsers(): MembersPageState {
-        const usersByRole = this.allUsers.reduce<{ [key: number]: User[] }>((groups, x) => {
+        const usersByRole = this.props.users.reduce<{ [key: number]: User[] }>((groups, x) => {
             groups[x.role] = [ x ].concat(groups[x.role] || []);
             return groups;
         }, {});
@@ -59,7 +57,7 @@ export class MembersPage extends React.Component<{}, MembersPageState> {
     }
 
     private showUser(user: User, role: UserRole, addable: boolean, removable: boolean) {
-      if (user.id === this.currentUser.id || this.currentUser.role !== UserRole.Administrator) {
+      if (user.id === this.props.user.id || this.props.user.role !== UserRole.Administrator) {
         removable = false;
       }
 
@@ -108,85 +106,81 @@ export class MembersPage extends React.Component<{}, MembersPageState> {
 
     public render() {
       return (
-        <div>
-          <Header />
-            <div className="page ui container">
-              <h2 className="ui header">
-                <i className="circular users icon" />
-                <div className="content">
-                  Members
-                  <div className="sub header">Manage your account administrators and collaborators.</div>
+        <div className="page ui container">
+          <h2 className="ui header">
+            <i className="circular users icon" />
+            <div className="content">
+              Members
+              <div className="sub header">Manage your account administrators and collaborators.</div>
+            </div>
+          </h2>
+
+          <div className="ui grid">
+
+            <div className="eight wide computer sixteen wide mobile column">
+              <div className="ui segment">
+                <h4 className="ui header">Administrators</h4>
+                <p className="info">Administrators have full access to edit and manage content, permissions and settings.</p>
+                <div className="ui middle aligned very relaxed selection list">
+                  {this.state.administrators.map((x) => this.showUser(x, UserRole.Administrator, false, true))}
                 </div>
-              </h2>
-
-              <div className="ui grid">
-
-                <div className="eight wide computer sixteen wide mobile column">
-                  <div className="ui segment">
-                    <h4 className="ui header">Administrators</h4>
-                    <p className="info">Administrators have full access to edit and manage content, permissions and settings.</p>
+                {
+                  this.props.user.role === UserRole.Administrator &&
+                  <div className="ui mini form">
+                    <p>Add new administrator</p>
+                    <div className="mini field">
+                      <input
+                        type="text"
+                        value={this.state.newAdministratorFilter}
+                        onChange={(x) => this.filterVisitors('administrator', x.currentTarget.value)}
+                        placeholder="Search users by name"
+                      />
+                    </div>
                     <div className="ui middle aligned very relaxed selection list">
-                      {this.state.administrators.map((x) => this.showUser(x, UserRole.Administrator, false, true))}
+                      {this.state.filteredNewAdministrators.map((x) => this.showUser(x, UserRole.Administrator, true, false))}
                     </div>
                     {
-                      this.currentUser.role === UserRole.Administrator &&
-                      <div className="ui mini form">
-                        <p>Add new administrator</p>
-                        <div className="mini field">
-                          <input
-                            type="text"
-                            value={this.state.newAdministratorFilter}
-                            onChange={(x) => this.filterVisitors('administrator', x.currentTarget.value)}
-                            placeholder="Search users by name"
-                          />
-                        </div>
-                        <div className="ui middle aligned very relaxed selection list">
-                          {this.state.filteredNewAdministrators.map((x) => this.showUser(x, UserRole.Administrator, true, false))}
-                        </div>
-                        {
-                          this.state.newAdministratorFilter &&
-                          this.state.filteredNewAdministrators.length === 0 &&
-                          <p className="info">No users to show.</p>
-                        }
-                      </div>
+                      this.state.newAdministratorFilter &&
+                      this.state.filteredNewAdministrators.length === 0 &&
+                      <p className="info">No users to show.</p>
                     }
                   </div>
-                </div>
-
-                <div className="eight wide computer sixteen wide mobile column">
-                  <div className="ui segment">
-                    <h4 className="ui header">Collaborators</h4>
-                    <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
-                    <div className="ui middle aligned very relaxed selection list">
-                        {this.state.collaborators.map((x) => this.showUser(x, UserRole.Collaborator, false, true))}
-                    </div>
-                    {
-                      this.currentUser.role === UserRole.Administrator &&
-                      <div className="ui mini form">
-                        <p>Add new collaborator</p>
-                        <div className="mini field">
-                          <input
-                            type="text"
-                            value={this.state.newCollaboratorFilter}
-                            onChange={(x) => this.filterVisitors('collaborator', x.currentTarget.value)}
-                            placeholder="Search users by name"
-                          />
-                        </div>
-                        <div className="ui middle aligned very relaxed selection list">
-                          {this.state.filteredNewCollaborators.map((x) => this.showUser(x, UserRole.Collaborator, true, false))}
-                        </div>
-                        {
-                          this.state.newCollaboratorFilter &&
-                          this.state.filteredNewCollaborators.length === 0 &&
-                          <p className="info">No users to show.</p>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
+                }
               </div>
             </div>
-          <Footer />
+
+            <div className="eight wide computer sixteen wide mobile column">
+              <div className="ui segment">
+                <h4 className="ui header">Collaborators</h4>
+                <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
+                <div className="ui middle aligned very relaxed selection list">
+                    {this.state.collaborators.map((x) => this.showUser(x, UserRole.Collaborator, false, true))}
+                </div>
+                {
+                  this.props.user.role === UserRole.Administrator &&
+                  <div className="ui mini form">
+                    <p>Add new collaborator</p>
+                    <div className="mini field">
+                      <input
+                        type="text"
+                        value={this.state.newCollaboratorFilter}
+                        onChange={(x) => this.filterVisitors('collaborator', x.currentTarget.value)}
+                        placeholder="Search users by name"
+                      />
+                    </div>
+                    <div className="ui middle aligned very relaxed selection list">
+                      {this.state.filteredNewCollaborators.map((x) => this.showUser(x, UserRole.Collaborator, true, false))}
+                    </div>
+                    {
+                      this.state.newCollaboratorFilter &&
+                      this.state.filteredNewCollaborators.length === 0 &&
+                      <p className="info">No users to show.</p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
         </div>
       );
     }

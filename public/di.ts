@@ -32,6 +32,7 @@ const injectables = {
 };
 
 export {
+    container,
     injectables,
     injectable,
     lazyInject as inject

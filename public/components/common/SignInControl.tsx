@@ -13,13 +13,11 @@ interface SignInControlState {
 
 interface SignInControlProps {
   signInByEmail: boolean;
+  auth: AuthSettings;
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
   private form: Form;
-
-  @inject(injectables.Session)
-  public session: Session;
 
   @inject(injectables.TenantService)
   public service: TenantService;
@@ -47,8 +45,6 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   }
 
   public render() {
-    const settings = this.session.get<AuthSettings>('auth');
-
     if (this.state.sent) {
       return (
         <div>
@@ -58,19 +54,28 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       );
     }
 
-    const google = settings.providers.google && (
+    const google = this.props.auth.providers.google && (
                     <div className="column">
-                      <SocialSignInButton provider="google" />
+                      <SocialSignInButton
+                        oauthEndpoint={this.props.auth.endpoint}
+                        provider="google"
+                      />
                     </div>
                   );
-    const facebook = settings.providers.facebook && (
+    const facebook = this.props.auth.providers.facebook && (
                       <div className="column">
-                        <SocialSignInButton provider="facebook" />
+                        <SocialSignInButton
+                          oauthEndpoint={this.props.auth.endpoint}
+                          provider="facebook"
+                        />
                       </div>
                     );
-    const github = settings.providers.github && (
+    const github = this.props.auth.providers.github && (
                       <div className="column">
-                        <SocialSignInButton provider="github" />
+                        <SocialSignInButton
+                          oauthEndpoint={this.props.auth.endpoint}
+                          provider="github"
+                        />
                       </div>
                     );
     const hasOAuth = !!(google || facebook || github);

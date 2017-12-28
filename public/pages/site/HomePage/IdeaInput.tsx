@@ -7,7 +7,8 @@ import { CurrentUser } from '@fider/models';
 import { showSignIn } from '@fider/utils/page';
 
 interface IdeaInputProps {
-    placeholder: string;
+  user?: CurrentUser;
+  placeholder: string;
 }
 
 interface IdeaInputState {
@@ -22,7 +23,6 @@ const CACHE_DESCRIPTION_KEY = 'IdeaInput-Description';
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private form: Form;
-    private user?: CurrentUser;
 
     @inject(injectables.Session)
     private session: Session;
@@ -32,7 +32,6 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
 
     constructor(props: IdeaInputProps) {
       super(props);
-      this.user = this.session.getCurrentUser();
       this.state = {
         title: this.session.getCache(CACHE_TITLE_KEY) || '',
         description: this.session.getCache(CACHE_DESCRIPTION_KEY) || '',
@@ -41,13 +40,13 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     public componentDidMount() {
-      if (this.user) {
+      if (this.props.user) {
         this.title.focus();
       }
     }
 
     private onTitleFocused() {
-      if (!this.user) {
+      if (!this.props.user) {
         this.title.blur();
         showSignIn();
       }

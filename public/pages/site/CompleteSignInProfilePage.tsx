@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { HomePage } from './HomePage';
+import { HomePage, HomePageProps } from './HomePage';
 import { showModal, getQueryString } from '@fider/utils/page';
 import { Form, Button } from '@fider/components/common';
 
@@ -11,14 +11,14 @@ interface CompleteSignInProfilePageState {
   name: string;
 }
 
-export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignInProfilePageState> {
+export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
   private form: Form;
   private key: string;
 
   @inject(injectables.TenantService)
   public service: TenantService;
 
-  constructor(props: {}) {
+  constructor(props: HomePageProps) {
     super(props);
     this.key = getQueryString('k');
     this.state = {
@@ -68,7 +68,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
     return (
       <div>
         {modal}
-        <HomePage />
+        {React.createElement(HomePage, this.props)}
       </div>
     );
   }

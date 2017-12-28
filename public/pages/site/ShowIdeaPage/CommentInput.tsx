@@ -9,6 +9,7 @@ import { Session, IdeaService, Failure } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface CommentInputProps {
+  user?: CurrentUser;
   idea: Idea;
 }
 
@@ -20,17 +21,11 @@ interface CommentInputState {
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
   private input: HTMLTextAreaElement;
 
-  @inject(injectables.Session)
-  public session: Session;
-
   @inject(injectables.IdeaService)
   public service: IdeaService;
 
-  private user?: CurrentUser;
-
   constructor(props: CommentInputProps) {
       super(props);
-      this.user = this.session.getCurrentUser();
 
       this.state = {
         content: ''
@@ -38,7 +33,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   private onTextFocused() {
-    if (!this.user) {
+    if (!this.props.user) {
       this.input.blur();
       showSignIn();
     }
@@ -60,13 +55,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   public render() {
-    const user = this.session.getCurrentUser();
 
     return (
-      <div className={`comment-input ${user && 'authenticated' }`}>
-        {this.user && <Gravatar user={this.user} />}
+      <div className={`comment-input ${this.props.user && 'authenticated' }`}>
+        {this.props.user && <Gravatar user={this.props.user} />}
         <div className="ui form">
-          {this.user && <UserName user={this.user} />}
+          {this.props.user && <UserName user={this.props.user} />}
           <DisplayError error={this.state.error} />
           <div className="field">
             <Textarea

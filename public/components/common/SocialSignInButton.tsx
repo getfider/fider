@@ -1,11 +1,10 @@
 import * as React from 'react';
 
-import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services/Session';
 import { Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
 
 interface SocialSignInButtonProps {
+  oauthEndpoint: string;
   provider: 'google' | 'facebook' | 'github';
 }
 
@@ -28,13 +27,8 @@ const providers = {
 };
 
 export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
-  @inject(injectables.Session)
-  public session: Session;
-
   public render() {
-    const auth = this.session.get<AuthSettings>('auth');
-
-    const href = `${auth.endpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
+    const href = `${this.props.oauthEndpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
 
     return (
       <Button size="small" href={href} className={`${providers[this.props.provider].class} fluid`}>

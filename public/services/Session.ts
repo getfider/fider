@@ -3,9 +3,9 @@ import { injectable } from '@fider/di';
 
 export interface Session {
   getCurrentUser(): CurrentUser  | undefined;
-  getCurrentTenant(): Tenant;
   isAdmin(): boolean;
   isCollaborator(): boolean;
+  props(): any;
   set<T>(key: string, value: T): void;
   get<T>(key: string): T;
   getArray<T>(key: string): T[];
@@ -23,22 +23,14 @@ export class BrowserSession implements Session {
 
   constructor(window: Window) {
     this.w = window;
+    this.w.props = {};
     this.w.getCurrentUser = this.getCurrentUser.bind(this);
     this.w.set = this.set.bind(this);
     this.w.get = this.get.bind(this);
   }
 
   public getCurrentUser(): CurrentUser | undefined {
-    const w: any = window;
-    if (`_email` in w) {
-      w[`_user`].email = w[`_email`];
-    }
-    return w[`_user`] as CurrentUser;
-  }
-
-  public getCurrentTenant(): Tenant {
-    const w: any = window;
-    return w[`_tenant`] as Tenant;
+    return this.w.props.user as CurrentUser;
   }
 
   public isAdmin(): boolean {
@@ -51,16 +43,23 @@ export class BrowserSession implements Session {
     return !!user && user.role >= 2;
   }
 
+  public props(): any {
+    return this.w.props;
+  }
+
   public set<T>(key: string, value: T): void {
-    this.w[`_${key}`] = value;
+    this.w.props[`${key}`] = value;
+    if (key === 'user') {
+      this.w.props.user.email = this.w.props.email;
+    }
   }
 
   public get<T>(key: string): T {
-    return this.w[`_${key}`];
+    return this.w.props[`${key}`];
   }
 
   public getArray<T>(key: string): T[] {
-    return this.w[`_${key}`] || [];
+    return this.w.props[`${key}`] || [];
   }
 
   public getAppSettings(): AppSettings {

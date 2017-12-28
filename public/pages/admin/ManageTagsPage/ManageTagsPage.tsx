@@ -8,6 +8,10 @@ import { Tag, CurrentUser, UserRole } from '@fider/models';
 import { TagForm, TagFormState } from './';
 import { Failure } from 'services/http';
 
+interface ManageTagsPageProps {
+  tags: Tag[];
+}
+
 interface ManageTagsPageState {
   isAdding: boolean;
   allTags: Tag[];
@@ -17,18 +21,18 @@ interface ManageTagsPageState {
 
 import './ManageTagsPage.scss';
 
-export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
+export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
     @inject(injectables.Session)
     public session: Session;
 
     @inject(injectables.TagService)
     public tagService: TagService;
 
-    constructor(props: {}) {
+    constructor(props: ManageTagsPageProps) {
         super(props);
         this.state = {
           isAdding: false,
-          allTags: this.session.get<Tag[]>('tags') || []
+          allTags: this.props.tags
         };
     }
 
@@ -138,43 +142,39 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
       );
 
       return (
-        <div>
-          <Header />
-            <div className="page ui container">
-              <h2 className="ui header">
-                <i className="circular tags icon" />
-                <div className="content">
-                  Tags
-                  <div className="sub header">Manage your account tags.</div>
-                </div>
-              </h2>
-
-              {
-                this.session.isAdmin() && (
-                  this.state.isAdding
-                  ? <div className="ui segment">
-                    <TagForm
-                      onSave={async (data) => this.saveNewTag(data)}
-                      onCancel={() => this.setState({ isAdding: false })}
-                    />
-                  </div>
-                  : <Button
-                    className="positive"
-                    onClick={async (e) => this.setState({ isAdding: true, deleting: undefined, editing: undefined })}
-                  >
-                    Add new
-                  </Button>
-                )
-              }
-
-              <div className="ui segment">
-                <div className="ui middle aligned very relaxed divided list">
-                {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
-                </div>
-              </div>
-
+        <div className="page ui container">
+          <h2 className="ui header">
+            <i className="circular tags icon" />
+            <div className="content">
+              Tags
+              <div className="sub header">Manage your account tags.</div>
             </div>
-          <Footer />
+          </h2>
+
+          {
+            this.session.isAdmin() && (
+              this.state.isAdding
+              ? <div className="ui segment">
+                <TagForm
+                  onSave={async (data) => this.saveNewTag(data)}
+                  onCancel={() => this.setState({ isAdding: false })}
+                />
+              </div>
+              : <Button
+                className="positive"
+                onClick={async (e) => this.setState({ isAdding: true, deleting: undefined, editing: undefined })}
+              >
+                Add new
+              </Button>
+            )
+          }
+
+          <div className="ui segment">
+            <div className="ui middle aligned very relaxed divided list">
+            {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
+            </div>
+          </div>
+
         </div>
       );
     }

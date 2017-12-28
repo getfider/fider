@@ -3,7 +3,7 @@ export function setTitle(title: string) {
 }
 
 export function getBaseUrl(): string {
-  return (window as any)._baseUrl;
+  return (window as any).props.baseUrl;
 }
 
 export interface ModalOptions {
