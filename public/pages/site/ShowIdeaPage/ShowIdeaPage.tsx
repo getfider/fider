@@ -107,7 +107,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
           </div>
           <div className="three wide column action-col">
             {
-              this.session.isCollaborator() && [
+              this.props.user && this.props.user.isCollaborator && [
                 <span key={0} className="subtitle">Actions</span>,
                 this.state.editMode
                   ?

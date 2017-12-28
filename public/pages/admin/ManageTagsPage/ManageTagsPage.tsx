@@ -9,6 +9,7 @@ import { TagForm, TagFormState } from './';
 import { Failure } from 'services/http';
 
 interface ManageTagsPageProps {
+  user: CurrentUser;
   tags: Tag[];
 }
 
@@ -117,7 +118,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
             <div key={t.id} className="item">
               <ShowTag tag={t} />
               {
-                this.session.isAdmin() && [
+                this.props.user.isAdministrator && [
                   <Button
                     key={0}
                     simple={true}
@@ -152,7 +153,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
           </h2>
 
           {
-            this.session.isAdmin() && (
+            this.props.user.isAdministrator && (
               this.state.isAdding
               ? <div className="ui segment">
                 <TagForm

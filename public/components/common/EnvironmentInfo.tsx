@@ -8,12 +8,8 @@ interface EnvironmentInfoProps {
 }
 
 export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
-
-  @inject(injectables.Session)
-  public session: Session;
-
   public render() {
-    if (!this.session.isProduction()) {
+    if (this.props.settings.environment !== 'production') {
       return (
         <div
           id="environment-info"

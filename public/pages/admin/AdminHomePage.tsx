@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { AppSettings, Tenant } from '@fider/models';
+import { AppSettings, CurrentUser, Tenant } from '@fider/models';
 import { setTitle } from '@fider/utils/page';
 
 import { Header, Footer, Button, Textarea, DisplayError } from '@fider/components/common';
@@ -8,6 +8,7 @@ import { inject, injectables } from '@fider/di';
 import { Session, TenantService, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
+  user: CurrentUser;
   tenant: Tenant;
   settings: AppSettings;
 }
@@ -76,7 +77,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                   id="title"
                   type="text"
                   maxLength={60}
-                  disabled={!this.session.isAdmin()}
+                  disabled={!this.props.user.isAdministrator}
                   value={this.state.title}
                   onChange={(e) => this.setState({ title: e.currentTarget.value })}
                 />
@@ -89,7 +90,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                 <label htmlFor="welcome-message">Welcome Message</label>
                 <Textarea
                   id="welcome-message"
-                  disabled={!this.session.isAdmin()}
+                  disabled={!this.props.user.isAdministrator}
                   onChange={(e) => this.setState({ welcomeMessage: e.currentTarget.value })}
                   value={this.state.welcomeMessage}
                 />
@@ -106,7 +107,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                   id="invitation"
                   type="text"
                   maxLength={60}
-                  disabled={!this.session.isAdmin()}
+                  disabled={!this.props.user.isAdministrator}
                   value={this.state.invitation}
                   onChange={(e) => this.setState({ invitation: e.currentTarget.value })}
                 />
@@ -124,7 +125,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                         type="text"
                         placeholder="feedback.yourcompany.com"
                         maxLength={100}
-                        disabled={!this.session.isAdmin()}
+                        disabled={!this.props.user.isAdministrator}
                         value={this.state.cname}
                         onChange={(e) => this.setState({ cname: e.currentTarget.value })}
                     />
@@ -142,7 +143,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                 ]
               }
               {
-                this.session.isAdmin() &&
+                this.props.user.isAdministrator &&
                 <div className="field">
                   <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
                 </div>

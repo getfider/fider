@@ -98,8 +98,15 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	}
 
 	if ctx.IsAuthenticated() {
-		m["user"] = ctx.User()
-		m["email"] = ctx.User().Email
+		u := ctx.User()
+		m["user"] = &Map{
+			"id":              u.ID,
+			"name":            u.Name,
+			"email":           u.Email,
+			"role":            u.Role,
+			"isAdministrator": u.IsAdministrator(),
+			"isCollaborator":  u.IsCollaborator(),
+		}
 	}
 
 	return tmpl.Execute(w, m)

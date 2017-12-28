@@ -36,7 +36,7 @@ export class Header extends React.Component<HeaderProps, {}> {
           <a href="/settings" className="item">Settings</a>
           <div className="divider" />
           {
-            this.session.isCollaborator() && [
+            this.props.user.isCollaborator && [
               <div key={1} className="header">
                 <i className="setting icon" />
                 Administration

@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { Tag, Idea } from '@fider/models';
+import { CurrentUser, Tag, Idea } from '@fider/models';
 import { inject, injectables } from '@fider/di';
 import { Session, TagService } from '@fider/services';
 
 import { ShowTag } from '@fider/components';
 
 interface TagsPanelProps {
+  user?: CurrentUser;
   idea: Idea;
   tags: Tag[];
 }
@@ -27,7 +28,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
   constructor(props: TagsPanelProps) {
     super(props);
     this.state = {
-      canEdit: this.session.isCollaborator() === true && this.props.tags.length > 0,
+      canEdit: !!this.props.user && this.props.user.isCollaborator && this.props.tags.length > 0,
       isEditing: false,
       assignedTags: this.props.tags.filter((t) => this.props.idea.tags.indexOf(t.id) >= 0),
     };

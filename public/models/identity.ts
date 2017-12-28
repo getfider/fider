@@ -24,4 +24,6 @@ export interface CurrentUser {
   name: string;
   email: string;
   role: number;
+  isAdministrator: boolean;
+  isCollaborator: boolean;
 }
