@@ -19,9 +19,6 @@ interface TagsPanelState {
 
 export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
 
-  @inject(injectables.Session)
-  public session: Session;
-
   @inject(injectables.TagService)
   public tagService: TagService;
 

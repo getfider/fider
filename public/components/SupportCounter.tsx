@@ -17,8 +17,6 @@ interface SupportCounterState {
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
-    @inject(injectables.Session)
-    public session: Session;
 
     @inject(injectables.IdeaService)
     public service: IdeaService;

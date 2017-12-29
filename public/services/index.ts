@@ -1,4 +1,4 @@
-export * from './Session';
+export * from './Cache';
 export * from './IdeaService';
 export * from './TenantService';
 export * from './UserService';

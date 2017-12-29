@@ -13,8 +13,6 @@ interface HeaderProps {
 }
 
 export class Header extends React.Component<HeaderProps, {}> {
-  @inject(injectables.Session)
-  public session: Session;
 
   constructor(props: HeaderProps) {
     super(props);

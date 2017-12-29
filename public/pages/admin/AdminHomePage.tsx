@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
-import { setTitle } from '@fider/utils/page';
+import { isSingleHostMode, setTitle } from '@fider/utils/page';
 
 import { Header, Footer, Button, Textarea, DisplayError } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
@@ -22,9 +22,6 @@ interface AdminHomePageState {
 }
 
 export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHomePageState> {
-
-  @inject(injectables.Session)
-  public session: Session;
 
   @inject(injectables.TenantService)
   public service: TenantService;
@@ -116,7 +113,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                 </div>
               </div>
               {
-                !this.session.isSingleHostMode() && [
+                !isSingleHostMode() && [
                   <DisplayError key={1} fields={['cname']} error={this.state.error} />,
                   <div key={2} className="field">
                     <label htmlFor="cname">Custom Domain</label>

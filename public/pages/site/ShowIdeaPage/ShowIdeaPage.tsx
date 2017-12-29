@@ -26,8 +26,6 @@ interface ShowIdeaPageState {
 }
 
 export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPageState> {
-  @inject(injectables.Session)
-  public session: Session;
 
   @inject(injectables.IdeaService)
   public ideaService: IdeaService;
@@ -137,13 +135,13 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               ]
             }
 
-            <TagsPanel idea={this.props.idea} tags={this.props.tags} />
+            <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
           </div>
           <div className="thirteen wide column">
               <div className="ui comments">
                 <span className="subtitle">Discussion</span>
                 <CommentList comments={this.props.comments} />
-                <CommentInput idea={this.props.idea} />
+                <CommentInput user={this.props.user} idea={this.props.idea} />
               </div>
           </div>
 

@@ -6,6 +6,10 @@ export function getBaseUrl(): string {
   return (window as any).props.baseUrl;
 }
 
+export function isSingleHostMode(): boolean {
+  return (window as any).props.settings.mode === 'single';
+}
+
 export interface ModalOptions {
   closable: boolean;
 }

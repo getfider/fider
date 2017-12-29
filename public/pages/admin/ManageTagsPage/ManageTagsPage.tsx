@@ -23,8 +23,6 @@ interface ManageTagsPageState {
 import './ManageTagsPage.scss';
 
 export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
-    @inject(injectables.Session)
-    public session: Session;
 
     @inject(injectables.TagService)
     public tagService: TagService;

@@ -65,9 +65,6 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: Tag[] }) =>
 export class HomePage extends React.Component<HomePageProps, HomePageState> {
     private filter: HTMLDivElement;
 
-    @inject(injectables.Session)
-    public session: Session;
-
     constructor(props: HomePageProps) {
         super(props);
 
@@ -212,7 +209,10 @@ We'd love to hear what you're thinking about. What can we do better? This is the
         <div className="ui grid stackable">
           <div className="six wide column">
             <MultiLineText className="welcome-message" text={welcomeMessage} style="full" />
-            <IdeaInput placeholder={this.props.tenant.invitation || 'I suggest you...'} />
+            <IdeaInput
+              user={this.props.user}
+              placeholder={this.props.tenant.invitation || 'I suggest you...'}
+            />
           </div>
           <div className="ten wide column">
             {

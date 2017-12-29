@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { SignInControl, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
 import { AuthSettings, AppSettings } from '@fider/models';
-import { setTitle, getQueryString } from '@fider/utils/page';
+import { isSingleHostMode, setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
 const td = require('throttle-debounce');
 const logo = require('@fider/assets/images/logo-small.png');
@@ -40,9 +40,6 @@ interface SignUpPageState {
 export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState> {
     private user: OAuthUser;
 
-    @inject(injectables.Session)
-    public session: Session;
-
     @inject(injectables.TenantService)
     public service: TenantService;
 
@@ -56,7 +53,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
       this.checkAvailability = td.debounce(300, this.checkAvailability);
 
-      setTitle(this.session.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
+      setTitle(isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
       const token = getQueryString('token');
       if (token) {
@@ -88,7 +85,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
       if (result.ok) {
         if (result.data.token) {
-          if (this.session.isSingleHostMode()) {
+          if (isSingleHostMode()) {
             location.reload();
           } else {
             let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.props.settings.domain}`;
@@ -175,7 +172,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
               />
             </div>
             {
-              !this.session.isSingleHostMode() && <div className="fluid field">
+              !isSingleHostMode() && <div className="fluid field">
                 <div className="ui right labeled input">
                   <input
                     id="subdomain"

@@ -11,7 +11,9 @@ import {
   UserService,
   HttpUserService,
   TagService,
-  HttpTagService
+  HttpTagService,
+  Cache,
+  BrowserCache,
 } from '@fider/services';
 
 const container = new Container();
@@ -24,7 +26,7 @@ const {
 } = getDecorators(container);
 
 const injectables = {
-    Session: Symbol('Session'),
+    Cache: Symbol('Cache'),
     IdeaService: Symbol('IdeaService'),
     UserService: Symbol('UserService'),
     TenantService: Symbol('TenantService'),
@@ -38,7 +40,7 @@ export {
     lazyInject as inject
 };
 
-container.bind<Session>(injectables.Session).toConstantValue(new BrowserSession(window));
+container.bind<Cache>(injectables.Cache).toConstantValue(new BrowserCache(window));
 container.bind<IdeaService>(injectables.IdeaService).to(HttpIdeaService);
 container.bind<TenantService>(injectables.TenantService).to(HttpTenantService);
 container.bind<UserService>(injectables.UserService).to(HttpUserService);
