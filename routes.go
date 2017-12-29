@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/email/mailgun"
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -82,28 +81,6 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		page.Use(middlewares.JwtGetter())
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
-
-		page.Get("/su/:id", func(c web.Context) error {
-			id, _ := c.ParamAsInt("id")
-			user, err := c.Services().Users.GetByID(id)
-			if err != nil {
-				return c.Failure(err)
-			}
-			if user == nil || user.Tenant.ID != c.Tenant().ID {
-				return c.NotFound()
-			}
-			c.SetUser(user)
-
-			claims := models.FiderClaims{
-				UserID:    user.ID,
-				UserName:  user.Name,
-				UserEmail: user.Email,
-			}
-			token, _ := jwt.Encode(claims)
-			c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
-
-			return c.Ok(web.Map{})
-		})
 
 		public := page.Group()
 		{
