@@ -10,7 +10,7 @@ export interface Tenant {
 export interface User {
   id: number;
   name: string;
-  role: number;
+  role: UserRole;
 }
 
 export enum UserRole {
@@ -23,7 +23,7 @@ export interface CurrentUser {
   id: number;
   name: string;
   email: string;
-  role: number;
+  role: UserRole;
   isAdministrator: boolean;
   isCollaborator: boolean;
 }
