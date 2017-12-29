@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = resolveRootComponent(location.pathname);
     ReactDOM.render(
       <div>
-        {React.createElement(SignInModal, w.props)}
+        {!w.props.user && React.createElement(SignInModal, w.props)}
         <div id={config.id}>
           {config.showHeader && React.createElement(Header, w.props)}
           {React.createElement(config.component, w.props)}
