@@ -204,7 +204,6 @@ We'd love to hear what you're thinking about. What can we do better? This is the
 
     return (
       <div className="page ui container">
-
         <div className="ui grid stackable">
           <div className="six wide column">
             <MultiLineText className="welcome-message" text={welcomeMessage} style="full" />

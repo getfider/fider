@@ -35,17 +35,17 @@ function toResult<T>(response: AxiosResponse): Result<T> {
   }
 }
 
-export async function get<T = void>(url: string): Promise<Result<T>> {
-  const response = await axios.get(url);
-  return toResult<T>(response);
-}
-
-export async function post<T = void>(url: string, data?: any): Promise<Result<T>> {
-  const response = await axios.post(url, data);
-  return toResult<T>(response);
-}
-
-export async function doDelete<T = void>(url: string, data?: any): Promise<Result<T>> {
-  const response = await axios.delete(url, data);
-  return toResult<T>(response);
-}
+export const http = {
+  get: async <T = void>(url: string): Promise<Result<T>> => {
+    const response = await axios.get(url);
+    return toResult<T>(response);
+  },
+  post: async <T = void>(url: string, data?: any): Promise<Result<T>> => {
+    const response = await axios.post(url, data);
+    return toResult<T>(response);
+  },
+  delete: async <T = void>(url: string, data?: any): Promise<Result<T>> => {
+    const response = await axios.delete(url, data);
+    return toResult<T>(response);
+  }
+};

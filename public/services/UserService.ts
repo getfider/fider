@@ -1,4 +1,4 @@
-import { get, post, Result } from '@fider/services/http';
+import { http, Result } from '@fider/services/http';
 import { injectable } from '@fider/di';
 import { Tenant } from '@fider/models';
 
@@ -9,7 +9,7 @@ export interface UserService {
 @injectable()
 export class HttpUserService implements UserService {
     public async updateSettings(name: string): Promise<Result> {
-        return await post('/api/user/settings', {
+        return await http.post('/api/user/settings', {
           name,
         });
     }

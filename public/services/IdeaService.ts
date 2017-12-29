@@ -1,4 +1,4 @@
-import { get, post, Result } from '@fider/services/http';
+import { http, Result } from '@fider/services/http';
 import { injectable } from '@fider/di';
 import { Idea } from '@fider/models';
 
@@ -14,26 +14,26 @@ export interface IdeaService {
 @injectable()
 export class HttpIdeaService implements IdeaService {
     public async addSupport(ideaNumber: number): Promise<Result> {
-        return await post(`/api/ideas/${ideaNumber}/support`);
+        return await http.post(`/api/ideas/${ideaNumber}/support`);
     }
 
     public async removeSupport(ideaNumber: number): Promise<Result> {
-        return await post(`/api/ideas/${ideaNumber}/unsupport`);
+        return await http.post(`/api/ideas/${ideaNumber}/unsupport`);
     }
 
     public async addComment(ideaNumber: number, content: string): Promise<Result> {
-        return await post(`/api/ideas/${ideaNumber}/comments`, { content });
+        return await http.post(`/api/ideas/${ideaNumber}/comments`, { content });
     }
 
     public async setResponse(ideaNumber: number, status: number, text: string): Promise<Result> {
-        return await post(`/api/ideas/${ideaNumber}/status`, { status, text });
+        return await http.post(`/api/ideas/${ideaNumber}/status`, { status, text });
     }
 
     public async addIdea(title: string, description: string): Promise<Result<Idea>> {
-        return await post<Idea>(`/api/ideas`, { title, description });
+        return await http.post<Idea>(`/api/ideas`, { title, description });
     }
 
     public async updateIdea(ideaNumber: number, title: string, description: string): Promise<Result> {
-        return await post(`/api/ideas/${ideaNumber}`, { title, description });
+        return await http.post(`/api/ideas/${ideaNumber}`, { title, description });
     }
 }
