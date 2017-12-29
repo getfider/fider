@@ -8,7 +8,7 @@ const td = require('throttle-debounce');
 const logo = require('@fider/assets/images/logo-small.png');
 
 import { inject, injectables } from '@fider/di';
-import { Session, TenantService, Failure } from '@fider/services';
+import { TenantService, Failure } from '@fider/services';
 import { showModal } from '@fider/utils/page';
 
 import './SignUpPage.scss';

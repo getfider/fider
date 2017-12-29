@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
 import { TenantService } from '@fider/services';
 import { hideSignIn } from '@fider/utils/page';

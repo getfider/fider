@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services';
 import { AppSettings } from '@fider/models';
 
 interface EnvironmentInfoProps {

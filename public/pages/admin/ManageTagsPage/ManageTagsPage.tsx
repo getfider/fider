@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Header, Footer, Button, Gravatar, UserName } from '@fider/components/common';
 import { ShowTag } from '@fider/components/ShowTag';
 import { inject, injectables } from '@fider/di';
-import { Session, TagService } from '@fider/services';
+import { TagService } from '@fider/services';
 import { Tag, CurrentUser, UserRole } from '@fider/models';
 
 import { TagForm, TagFormState } from './';

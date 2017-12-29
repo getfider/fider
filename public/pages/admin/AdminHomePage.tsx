@@ -5,7 +5,7 @@ import { isSingleHostMode, setTitle } from '@fider/utils/page';
 
 import { Header, Footer, Button, Textarea, DisplayError } from '@fider/components/common';
 import { inject, injectables } from '@fider/di';
-import { Session, TenantService, Failure } from '@fider/services';
+import { TenantService, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
   user: CurrentUser;

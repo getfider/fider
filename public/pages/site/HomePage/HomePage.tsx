@@ -4,7 +4,6 @@ import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Mom
 import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
 
 import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services';
 import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
 
 import './HomePage.scss';

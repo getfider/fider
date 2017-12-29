@@ -2,8 +2,6 @@ import 'reflect-metadata';
 import getDecorators from 'inversify-inject-decorators';
 import { Container, injectable } from 'inversify';
 import {
-  Session,
-  BrowserSession,
   IdeaService,
   HttpIdeaService,
   TenantService,

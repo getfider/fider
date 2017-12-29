@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { inject, injectables } from '@fider/di';
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
-import { Session, IdeaService, Failure } from '@fider/services';
+import { IdeaService, Failure } from '@fider/services';
 
 import { setTitle } from '@fider/utils/page';
 

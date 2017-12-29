@@ -3,7 +3,7 @@ import { Idea, User, IdeaStatus } from '@fider/models';
 import { SignInControl } from '@fider/components/common';
 
 import { inject, injectables } from '@fider/di';
-import { Session, IdeaService } from '@fider/services';
+import { IdeaService } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface SupportCounterProps {

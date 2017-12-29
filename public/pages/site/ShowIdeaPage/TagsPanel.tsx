@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { CurrentUser, Tag, Idea } from '@fider/models';
 import { inject, injectables } from '@fider/di';
-import { Session, TagService } from '@fider/services';
+import { TagService } from '@fider/services';
 
 import { ShowTag } from '@fider/components';
 
