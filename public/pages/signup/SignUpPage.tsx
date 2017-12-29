@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-import { SignInControl, Footer, Button, EnvironmentInfo, Gravatar, DisplayError } from '@fider/components/common';
+const logo = require('@fider/assets/images/logo-small.png');
+
+import { SignInControl, Button, DisplayError } from '@fider/components/common';
 import { AuthSettings, AppSettings } from '@fider/models';
 import { isSingleHostMode, setTitle, getQueryString } from '@fider/utils/page';
 import { decode } from '@fider/utils/jwt';
-const td = require('throttle-debounce');
-const logo = require('@fider/assets/images/logo-small.png');
 
 import { inject, injectables } from '@fider/di';
 import { TenantService, Failure } from '@fider/services';
@@ -50,8 +50,6 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         tenantName: '',
         subdomain: { available: false }
       };
-
-      this.checkAvailability = td.debounce(300, this.checkAvailability);
 
       setTitle(isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
