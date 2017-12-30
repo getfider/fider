@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { DisplayError, Button, ButtonClickEvent, Form, Textarea } from '@fider/components/common';
-
-import { inject, injectables } from '@fider/di';
-import { Cache, IdeaService, Failure } from '@fider/services';
+import { cache, actions, Failure } from '@fider/services';
 import { CurrentUser } from '@fider/models';
 import { showSignIn } from '@fider/utils/page';
 
@@ -24,17 +22,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private title: HTMLInputElement;
     private form: Form;
 
-    @inject(injectables.Cache)
-    private cache: Cache;
-
-    @inject(injectables.IdeaService)
-    private service: IdeaService;
-
     constructor(props: IdeaInputProps) {
       super(props);
       this.state = {
-        title: this.cache.get(CACHE_TITLE_KEY) || '',
-        description: this.cache.get(CACHE_DESCRIPTION_KEY) || '',
+        title: cache.get(CACHE_TITLE_KEY) || '',
+        description: cache.get(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
     }
@@ -53,20 +45,20 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     private onTitleChanged(title: string) {
-      this.cache.set(CACHE_TITLE_KEY, title);
+      cache.set(CACHE_TITLE_KEY, title);
       this.setState({ title });
     }
 
     private onDescriptionChanged(description: string) {
-      this.cache.set(CACHE_DESCRIPTION_KEY, description);
+      cache.set(CACHE_DESCRIPTION_KEY, description);
       this.setState({ description });
     }
 
     private async submit(event: ButtonClickEvent) {
       if (this.state.title) {
-        const result = await this.service.addIdea(this.state.title, this.state.description);
+        const result = await actions.addIdea(this.state.title, this.state.description);
         if (result.ok) {
-          this.cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
+          cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
           this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
           event.preventEnable();

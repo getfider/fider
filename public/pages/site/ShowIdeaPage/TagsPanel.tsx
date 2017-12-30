@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { CurrentUser, Tag, Idea } from '@fider/models';
-import { inject, injectables } from '@fider/di';
-import { TagService } from '@fider/services';
-
+import { actions } from '@fider/services';
 import { ShowTag } from '@fider/components';
 
 interface TagsPanelProps {
@@ -19,9 +17,6 @@ interface TagsPanelState {
 
 export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
 
-  @inject(injectables.TagService)
-  public tagService: TagService;
-
   constructor(props: TagsPanelProps) {
     super(props);
     this.state = {
@@ -35,12 +30,12 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     const idx = this.state.assignedTags.indexOf(tag);
     let assignedTags: Tag[] = [];
     if (idx >= 0) {
-      const response = await this.tagService.unassign(tag.slug, this.props.idea.number);
+      const response = await actions.unassignTag(tag.slug, this.props.idea.number);
       if (response.ok) {
         assignedTags = this.state.assignedTags.splice(idx, 1) && this.state.assignedTags;
       }
     } else {
-      const response = await this.tagService.assign(tag.slug, this.props.idea.number);
+      const response = await actions.assignTag(tag.slug, this.props.idea.number);
       if (response.ok) {
         assignedTags = this.state.assignedTags.concat(tag);
       }

@@ -3,9 +3,7 @@ import * as React from 'react';
 import { HomePage, HomePageProps } from './HomePage';
 import { showModal, getQueryString } from '@fider/utils/page';
 import { Form, Button } from '@fider/components/common';
-
-import { inject, injectables } from '@fider/di';
-import { TenantService } from '@fider/services';
+import { actions } from '@fider/services';
 
 interface CompleteSignInProfilePageState {
   name: string;
@@ -14,9 +12,6 @@ interface CompleteSignInProfilePageState {
 export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
   private form: Form;
   private key: string;
-
-  @inject(injectables.TenantService)
-  public service: TenantService;
 
   constructor(props: HomePageProps) {
     super(props);
@@ -31,7 +26,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
   }
 
   private async submit() {
-    const result = await this.service.completeProfile(this.key, this.state.name);
+    const result = await actions.completeProfile(this.key, this.state.name);
     if (result.ok) {
       location.href = '/';
     } else if (result.error) {

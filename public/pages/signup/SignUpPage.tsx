@@ -4,12 +4,10 @@ const logo = require('@fider/assets/images/logo-small.png');
 
 import { SignInControl, Button, DisplayError } from '@fider/components/common';
 import { AuthSettings, AppSettings } from '@fider/models';
-import { isSingleHostMode, setTitle, getQueryString } from '@fider/utils/page';
-import { decode } from '@fider/utils/jwt';
+import { showModal, isSingleHostMode, setTitle, getQueryString } from '@fider/utils/page';
 
-import { inject, injectables } from '@fider/di';
-import { TenantService, Failure } from '@fider/services';
-import { showModal } from '@fider/utils/page';
+import { decode } from '@fider/utils/jwt';
+import { actions, Failure } from '@fider/services';
 
 import './SignUpPage.scss';
 
@@ -39,9 +37,6 @@ interface SignUpPageState {
 
 export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState> {
     private user: OAuthUser;
-
-    @inject(injectables.TenantService)
-    public service: TenantService;
 
     constructor(props: SignUpPageProps) {
       super(props);
@@ -73,7 +68,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     }
 
     private async confirm() {
-      const result = await this.service.create({
+      const result = await actions.createTenant({
         token: this.user && this.user.token,
         tenantName: this.state.tenantName,
         subdomain: this.state.subdomain.value,
@@ -102,7 +97,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     }
 
     private async checkAvailability(subdomain: string) {
-      const result = await this.service.checkAvailability(subdomain);
+      const result = await actions.checkAvailability(subdomain);
 
       this.setState({
         subdomain: {

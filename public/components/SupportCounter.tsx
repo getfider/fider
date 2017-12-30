@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
 import { SignInControl } from '@fider/components/common';
 
-import { inject, injectables } from '@fider/di';
-import { IdeaService } from '@fider/services';
+import { actions } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface SupportCounterProps {
@@ -17,9 +16,6 @@ interface SupportCounterState {
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
-
-    @inject(injectables.IdeaService)
-    public service: IdeaService;
 
     constructor(props: SupportCounterProps) {
         super(props);
@@ -35,7 +31,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
             return;
         }
 
-        const action = this.state.supported ? this.service.removeSupport : this.service.addSupport;
+        const action = this.state.supported ? actions.removeSupport : actions.addSupport;
 
         const response = await action(this.props.idea.number);
         if (response.ok) {

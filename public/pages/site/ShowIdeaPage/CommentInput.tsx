@@ -4,8 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { Idea, CurrentUser } from '@fider/models';
 import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from '@fider/components/common';
 
-import { inject, injectables } from '@fider/di';
-import { IdeaService, Failure } from '@fider/services';
+import { actions, Failure } from '@fider/services';
 import { showSignIn } from '@fider/utils/page';
 
 interface CommentInputProps {
@@ -21,15 +20,12 @@ interface CommentInputState {
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
   private input: HTMLTextAreaElement;
 
-  @inject(injectables.IdeaService)
-  public service: IdeaService;
-
   constructor(props: CommentInputProps) {
-      super(props);
+    super(props);
 
-      this.state = {
-        content: ''
-      };
+    this.state = {
+      content: ''
+    };
   }
 
   private onTextFocused() {
@@ -44,7 +40,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       error: undefined
     });
 
-    const result = await this.service.addComment(this.props.idea.number, this.state.content);
+    const result = await actions.addComment(this.props.idea.number, this.state.content);
     if (result.ok) {
       location.reload();
     } else {

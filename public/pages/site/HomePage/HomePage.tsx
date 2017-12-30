@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
-import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components';
+import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment } from '@fider/components';
 import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
 
-import { inject, injectables } from '@fider/di';
 import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
 
 import './HomePage.scss';

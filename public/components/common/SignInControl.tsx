@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
-import { inject, injectables } from '@fider/di';
 import { AuthSettings } from '@fider/models';
-import { TenantService } from '@fider/services';
+import { actions } from '@fider/services';
 import { hideSignIn } from '@fider/utils/page';
 
 interface SignInControlState {
@@ -18,9 +17,6 @@ interface SignInControlProps {
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
   private form: Form;
 
-  @inject(injectables.TenantService)
-  public service: TenantService;
-
   constructor(props: SignInControlProps) {
     super(props);
 
@@ -31,7 +27,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   }
 
   private async signIn() {
-    const result = await this.service.signIn(this.state.email);
+    const result = await actions.signIn(this.state.email);
     if (result.ok) {
       this.form.clearFailure();
       this.setState({ sent: true });

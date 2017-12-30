@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { Header, Footer, Button, Gravatar, UserName } from '@fider/components/common';
+import { Button, Gravatar, UserName } from '@fider/components/common';
 import { ShowTag } from '@fider/components/ShowTag';
-import { inject, injectables } from '@fider/di';
-import { TagService } from '@fider/services';
 import { Tag, CurrentUser, UserRole } from '@fider/models';
 
 import { TagForm, TagFormState } from './';
-import { Failure } from 'services/http';
+import { actions, Failure } from '@fider/services';
 
 interface ManageTagsPageProps {
   user: CurrentUser;
@@ -24,9 +22,6 @@ import './ManageTagsPage.scss';
 
 export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
 
-    @inject(injectables.TagService)
-    public tagService: TagService;
-
     constructor(props: ManageTagsPageProps) {
         super(props);
         this.state = {
@@ -36,7 +31,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
 
     private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
-      const result = await this.tagService.add(data.name, data.color, data.isPublic);
+      const result = await actions.addTag(data.name, data.color, data.isPublic);
       if (result.ok) {
         this.setState({
           isAdding: false,
@@ -48,7 +43,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
 
     private async updateTag(tag: Tag, data: TagFormState): Promise<Failure | undefined> {
-      const result = await this.tagService.update(tag.slug, data.name, data.color, data.isPublic);
+      const result = await actions.updateTag(tag.slug, data.name, data.color, data.isPublic);
       if (result.ok) {
         tag.name = result.data.name;
         tag.slug = result.data.slug;
@@ -63,7 +58,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
 
     private async deleteTag(tag: Tag) {
-      const result = await this.tagService.delete(tag.slug);
+      const result = await actions.deleteTag(tag.slug);
       const idx = this.state.allTags.indexOf(tag);
       if (result.ok) {
         this.setState({

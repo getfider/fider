@@ -1,13 +1,12 @@
 import * as React from 'react';
 
-import { inject, injectables } from '@fider/di';
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
-import { IdeaService, Failure } from '@fider/services';
+import { actions, Failure } from '@fider/services';
 
 import { setTitle } from '@fider/utils/page';
 
 import { TagsPanel, CommentInput, CommentList, ResponseForm } from './';
-import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText, Footer, Header } from '@fider/components';
+import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText } from '@fider/components';
 
 import './ShowIdeaPage.scss';
 
@@ -27,9 +26,6 @@ interface ShowIdeaPageState {
 
 export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPageState> {
 
-  @inject(injectables.IdeaService)
-  public ideaService: IdeaService;
-
   constructor(props: ShowIdeaPageProps) {
     super(props);
 
@@ -43,7 +39,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
   }
 
   private async saveChanges() {
-    const result = await this.ideaService.updateIdea(this.props.idea.number, this.state.newTitle, this.state.newDescription);
+    const result = await actions.updateIdea(this.props.idea.number, this.state.newTitle, this.state.newDescription);
     if (result.ok) {
       this.setState({
         error: undefined,

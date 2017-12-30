@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
-
-import { inject, injectables } from '@fider/di';
 import { showSignIn } from '@fider/utils/page';
 
 interface HeaderProps {

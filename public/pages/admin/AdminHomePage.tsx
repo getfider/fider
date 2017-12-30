@@ -3,9 +3,8 @@ import * as React from 'react';
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
 import { isSingleHostMode, setTitle } from '@fider/utils/page';
 
-import { Header, Footer, Button, Textarea, DisplayError } from '@fider/components/common';
-import { inject, injectables } from '@fider/di';
-import { TenantService, Failure } from '@fider/services';
+import { Button, Textarea, DisplayError } from '@fider/components/common';
+import { actions, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
   user: CurrentUser;
@@ -23,9 +22,6 @@ interface AdminHomePageState {
 
 export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHomePageState> {
 
-  @inject(injectables.TenantService)
-  public service: TenantService;
-
   constructor(props: AdminHomePageProps) {
     super(props);
 
@@ -40,7 +36,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
   }
 
   private async confirm() {
-    const result = await this.service.updateSettings(
+    const result = await actions.updateTenantSettings(
       this.state.title,
       this.state.invitation,
       this.state.welcomeMessage,

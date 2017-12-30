@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { inject, injectables } from '@fider/di';
-import { Footer, Header, Form, DisplayError, Button, Gravatar } from '@fider/components/common';
+import { Form, DisplayError, Button, Gravatar } from '@fider/components/common';
 
 import { CurrentUser } from '@fider/models';
-import { Failure, UserService } from '@fider/services';
+import { Failure, actions } from '@fider/services';
 
 interface UserSettingsPageState {
   name: string;
@@ -17,18 +16,15 @@ interface UserSettingsPageProps {
 
 export class UserSettingsPage extends React.Component<UserSettingsPageProps, UserSettingsPageState> {
 
-  @inject(injectables.UserService)
-  private userService: UserService;
-
   constructor(props: UserSettingsPageProps) {
-      super(props);
-      this.state = {
-        name: this.props.user.name
-      };
+    super(props);
+    this.state = {
+      name: this.props.user.name
+    };
   }
 
   private async confirm() {
-    const result = await this.userService.updateSettings(this.state.name);
+    const result = await actions.updateUserSettings(this.state.name);
     if (result.ok) {
       location.reload();
     } else if (result.error) {

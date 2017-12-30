@@ -1,6 +1,4 @@
-export * from './Cache';
-export * from './IdeaService';
-export * from './TenantService';
-export * from './UserService';
-export * from './TagService';
-export { Failure } from './http';
+export * from './cache';
+import * as actions from './actions';
+export * from './http';
+export { actions };

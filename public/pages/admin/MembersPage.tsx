@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { Header, Footer, Button, Gravatar, UserName } from '@fider/components/common';
+import { Button, Gravatar, UserName } from '@fider/components/common';
 
 import { User, CurrentUser, UserRole } from '@fider/models';
-
-import { inject, injectables } from '@fider/di';
-import { TenantService } from '@fider/services';
+import { actions } from '@fider/services';
 
 interface MembersPageState {
     administrators: User[];
@@ -23,16 +21,13 @@ interface MembersPageProps {
 
 export class MembersPage extends React.Component<MembersPageProps, MembersPageState> {
 
-    @inject(injectables.TenantService)
-    public tenantService: TenantService;
-
     constructor(props: MembersPageProps) {
         super(props);
         this.state = this.groupUsers();
     }
 
     private async changeRole(user: User, role: UserRole): Promise<any> {
-        const response = await this.tenantService.changeRole(user.id, role);
+        const response = await actions.changeUserRole(user.id, role);
         if (response.ok) {
             user.role = role;
             this.setState(this.groupUsers());
