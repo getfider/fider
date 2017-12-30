@@ -27,6 +27,7 @@ type Logger interface {
 	Warnf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
 	Error(err error)
+	Write(p []byte) (int, error)
 }
 
 // ConsoleLogger output messages to console
@@ -71,6 +72,12 @@ func (l *ConsoleLogger) Error(err error) {
 	} else {
 		l.log(ERROR, "nil")
 	}
+}
+
+// Write writes len(p) bytes from p to the underlying data stream.
+func (l *ConsoleLogger) Write(p []byte) (int, error) {
+	l.Debugf("%s", p)
+	return len(p), nil
 }
 
 func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {

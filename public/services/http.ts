@@ -1,9 +1,3 @@
-import axios, { AxiosResponse } from 'axios';
-
-axios.defaults.validateStatus = (status: number) => {
-  return status < 500;
-};
-
 export interface Failure {
   messages: string[];
   failures: {
@@ -17,35 +11,40 @@ export interface Result<T = void> {
   error?: Failure;
 }
 
-function toResult<T>(response: AxiosResponse): Result<T> {
+async function toResult<T>(response: Response): Promise<Result<T>> {
+  const body = await response.json();
   if (response.status < 400) {
     return {
       ok: true,
-      data: response.data as T,
+      data: body as T,
     };
   } else {
     return {
       ok: false,
-      data: response.data as T,
+      data: body as T,
       error: {
-        messages: response.data.messages,
-        failures: response.data.failures,
+        messages: body.messages,
+        failures: body.failures,
       }
     };
   }
 }
+async function request<T>(url: string, method: 'GET' | 'POST' | 'DELETE', body?: any): Promise<Result<T>> {
+  const headers = [[
+    'Content-Type', 'application/json'
+  ]];
+  const response = await fetch(url, { method, headers, body: JSON.stringify(body), credentials: 'same-origin' });
+  return await toResult<T>(response);
+}
 
 export const http = {
   get: async <T = void>(url: string): Promise<Result<T>> => {
-    const response = await axios.get(url);
-    return toResult<T>(response);
+    return await request<T>(url, 'GET');
   },
-  post: async <T = void>(url: string, data?: any): Promise<Result<T>> => {
-    const response = await axios.post(url, data);
-    return toResult<T>(response);
+  post: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
+    return await request<T>(url, 'POST', body);
   },
-  delete: async <T = void>(url: string, data?: any): Promise<Result<T>> => {
-    const response = await axios.delete(url, data);
-    return toResult<T>(response);
+  delete: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
+    return await request<T>(url, 'DELETE', body);
   }
 };

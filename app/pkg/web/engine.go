@@ -3,6 +3,7 @@ package web
 import (
 	"crypto/tls"
 	"fmt"
+	stdLog "log"
 	"net/http"
 	"os"
 
@@ -52,8 +53,9 @@ func (e *Engine) Start(address string) {
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
 	server := &http.Server{
-		Addr:    address,
-		Handler: e.mux,
+		Addr:     address,
+		Handler:  e.mux,
+		ErrorLog: stdLog.New(e.logger, "", 0),
 	}
 
 	var err error
