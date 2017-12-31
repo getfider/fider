@@ -6,7 +6,7 @@ Fider is an open platform to collect and organize customer feedback. By using th
 
 [See it in action](https://feedback.fider.io/) or visit http://getfider.com for information about it and how to host your own instance.
 
-![](docs/homepage.png)
+![](etc/homepage.png)
 
 # How Fider is organized
 
