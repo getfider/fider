@@ -1,4 +1,5 @@
 export * from './cache';
-import * as actions from './actions';
 export * from './http';
+export * from './analytics';
+import * as actions from './actions';
 export { actions };

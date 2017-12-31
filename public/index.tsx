@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { resolveRootComponent } from '@fider/router';
 import { SignInModal } from '@fider/components/SignInModal';
 import { Header, Footer } from '@fider/components/common';
+import { analytics } from '@fider/services';
 import * as $ from 'jquery';
 
 const w = window as any;
@@ -16,6 +17,11 @@ w.props = { };
 w.set = (key: string, value: any): void => {
   w.props[key] = value;
 };
+
+// TODO: check if this is the best way of getting errors
+window.addEventListener('error', (evt: ErrorEvent) => {
+  analytics.error(evt.error);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.getElementById('root');
