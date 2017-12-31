@@ -1,8 +1,6 @@
 package web_test
 
 import (
-	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app/pkg/web"
@@ -10,22 +8,6 @@ import (
 )
 
 var binder = web.NewDefaultBinder()
-
-func newGetContext(params web.StringMap) *web.Context {
-	e := web.New(nil)
-	res := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/", nil)
-	ctx := e.NewContext(res, req, params)
-	return &ctx
-}
-
-func newPostContext(params web.StringMap, body string) *web.Context {
-	e := web.New(nil)
-	res := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/", strings.NewReader(body))
-	ctx := e.NewContext(res, req, params)
-	return &ctx
-}
 
 func TestDefaultBinder_FromParams(t *testing.T) {
 	type updateUser struct {
