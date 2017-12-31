@@ -18,25 +18,22 @@ func Avatar() web.HandlerFunc {
 	return func(c web.Context) error {
 		name := c.Param("name")
 		size, _ := c.ParamAsInt("size")
-		email := c.QueryParam("e") //TODO: remove this parameter, not used anymore
-
 		id, err := c.ParamAsInt("id")
-		if err == nil && id > 0 && email == "" {
+
+		if err == nil && id > 0 {
 			user, err := c.Services().Users.GetByID(id)
 			if err == nil && user.Tenant.ID == c.Tenant().ID {
-				email = user.Email
-			}
-		}
-
-		if email != "" {
-			hash := md5.Sum([]byte(email))
-			url := fmt.Sprintf("https://www.gravatar.com/avatar/%x?s=%d&d=404", hash, size)
-			c.Logger().Debugf("Requesting gravatar: %s", url)
-			resp, err := http.Get(url)
-			if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
-				bytes, err := ioutil.ReadAll(resp.Body)
-				if err == nil {
-					return c.Blob(http.StatusOK, "image/png", bytes)
+				if user.Email != "" {
+					hash := md5.Sum([]byte(user.Email))
+					url := fmt.Sprintf("https://www.gravatar.com/avatar/%x?s=%d&d=404", hash, size)
+					c.Logger().Debugf("Requesting gravatar: %s", url)
+					resp, err := http.Get(url)
+					if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
+						bytes, err := ioutil.ReadAll(resp.Body)
+						if err == nil {
+							return c.Blob(http.StatusOK, "image/png", bytes)
+						}
+					}
 				}
 			}
 		}
