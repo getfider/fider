@@ -1,6 +1,15 @@
 require('dotenv').config();
 import axios from 'axios';
+import * as https from 'https';
 import { delay } from '../';
+
+const httpGet = (url: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res: https.IncomingMessage) => {
+      // TODO: implement this, add authentication and remove axios
+    });
+  });
+};
 
 const mailgunOptions = {
   auth: {
