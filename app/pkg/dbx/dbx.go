@@ -64,8 +64,7 @@ func scan(prefix string, data interface{}) map[string]interface{} {
 
 	s := reflect.ValueOf(data).Elem()
 
-	numfield := s.NumField()
-	for i := 0; i < numfield; i++ {
+	for i := 0; i < s.NumField(); i++ {
 		field := s.Field(i)
 		typeField := s.Type().Field(i)
 		tag := typeField.Tag.Get("db")
@@ -84,8 +83,7 @@ func scan(prefix string, data interface{}) map[string]interface{} {
 			} else {
 				obj := reflect.New(field.Type().Elem()).Elem()
 				field.Set(obj.Addr())
-				nestedFields := scan(prefix+tag+"_", field.Interface())
-				for name, address := range nestedFields {
+				for name, address := range scan(prefix+tag+"_", field.Interface()) {
 					fields[name] = address
 				}
 			}
@@ -108,11 +106,7 @@ func fill(rows *sql.Rows, data interface{}) error {
 		}
 	}
 
-	err := rows.Scan(pointers...)
-	if err != nil {
-		return err
-	}
-	return nil
+	return rows.Scan(pointers...)
 }
 
 func (db Database) load(path string) {
@@ -181,10 +175,7 @@ func (trx Trx) Execute(command string, args ...interface{}) error {
 	command = formatCommand(command)
 	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
 	_, err := trx.tx.Exec(command, args...)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func formatCommand(cmd string) string {
