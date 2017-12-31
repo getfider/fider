@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
-import { showSignIn } from '@fider/utils/page';
+import { page } from '@fider/services';
 
 interface HeaderProps {
   user?: CurrentUser;
@@ -17,7 +17,7 @@ export class Header extends React.Component<HeaderProps, {}> {
 
   private showModal() {
     if (!this.props.user) {
-      showSignIn();
+      page.showSignIn();
     }
   }
 

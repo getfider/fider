@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { DisplayError, Button, ButtonClickEvent, Form, Textarea } from '@fider/components/common';
-import { cache, actions, Failure } from '@fider/services';
+import { page, cache, actions, Failure } from '@fider/services';
 import { CurrentUser } from '@fider/models';
-import { showSignIn } from '@fider/utils/page';
 
 interface IdeaInputProps {
   user?: CurrentUser;
@@ -40,7 +39,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private onTitleFocused() {
       if (!this.props.user) {
         this.title.blur();
-        showSignIn();
+        page.showSignIn();
       }
     }
 

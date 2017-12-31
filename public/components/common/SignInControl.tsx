@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
-import { actions } from '@fider/services';
-import { hideSignIn } from '@fider/utils/page';
+import { page, actions } from '@fider/services';
 
 interface SignInControlState {
   email: string;
@@ -44,7 +43,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       return (
         <div>
           <p>We sent a sign in link to <b>{this.state.email}</b>. <br /> Please check your inbox.</p>
-          <p><a href="#" onClick={() => hideSignIn()}>OK</a></p>
+          <p><a href="#" onClick={() => page.hideSignIn()}>OK</a></p>
         </div>
       );
     }

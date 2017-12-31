@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
 import { SignInControl } from '@fider/components/common';
 
-import { actions } from '@fider/services';
-import { showSignIn } from '@fider/utils/page';
+import { page, actions } from '@fider/services';
 
 interface SupportCounterProps {
     user?: User;
@@ -27,7 +26,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     public async supportOrUndo() {
         if (!this.props.user) {
-            showSignIn();
+            page.showSignIn();
             return;
         }
 

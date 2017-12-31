@@ -1,12 +1,10 @@
 import * as React from 'react';
 
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
-import { actions, Failure } from '@fider/services';
-
-import { setTitle } from '@fider/utils/page';
+import { page, actions, Failure } from '@fider/services';
 
 import { TagsPanel, CommentInput, CommentList, ResponseForm } from './';
-import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, Form, MultiLineText } from '@fider/components';
+import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, MultiLineText } from '@fider/components';
 
 import './ShowIdeaPage.scss';
 
@@ -35,7 +33,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
       newDescription: this.props.idea.description,
     };
 
-    setTitle(`${this.props.idea.title} · ${document.title}`);
+    page.setTitle(`${this.props.idea.title} · ${document.title}`);
   }
 
   private async saveChanges() {

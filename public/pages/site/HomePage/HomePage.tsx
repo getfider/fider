@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
 import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment } from '@fider/components';
 import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
-
-import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
+import { page } from '@fider/services';
 
 import './HomePage.scss';
 
@@ -66,8 +65,8 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     constructor(props: HomePageProps) {
         super(props);
 
-        const search = getQueryString('q');
-        const tags = getQueryStringArray('t');
+        const search = page.getQueryString('q');
+        const tags = page.getQueryStringArray('t');
         const activeFilter = window.location.hash.substring(1);
         this.state = {
           ideas: this.filterIdeas(activeFilter, search, tags),
@@ -122,7 +121,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
       }
 
       if (history.replaceState) {
-        const newUrl = getBaseUrl() + path;
+        const newUrl = page.getBaseUrl() + path;
         window.history.replaceState({ path: newUrl }, '', newUrl);
       }
 

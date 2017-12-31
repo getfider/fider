@@ -4,10 +4,7 @@ const logo = require('@fider/assets/images/logo-small.png');
 
 import { SignInControl, Button, DisplayError } from '@fider/components/common';
 import { AuthSettings, AppSettings } from '@fider/models';
-import { showModal, isSingleHostMode, setTitle, getQueryString } from '@fider/utils/page';
-
-import { decode } from '@fider/utils/jwt';
-import { actions, Failure } from '@fider/services';
+import { jwt, page, actions, Failure } from '@fider/services';
 
 import './SignUpPage.scss';
 
@@ -46,11 +43,11 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         subdomain: { available: false }
       };
 
-      setTitle(isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
+      page.setTitle(page.isSingleHostMode() ? 'Installation · Fider' : 'Sign up · Fider');
 
-      const token = getQueryString('token');
+      const token = page.getQueryString('token');
       if (token) {
-        const data = decode(token);
+        const data = jwt.decode(token);
         if (data) {
           this.user = {
             token,
@@ -63,7 +60,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
     public componentDidUpdate() {
       if (this.state.submitted) {
-        showModal('#submitted-modal', { closable: false });
+        page.showModal('#submitted-modal', { closable: false });
       }
     }
 
@@ -78,7 +75,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
       if (result.ok) {
         if (result.data.token) {
-          if (isSingleHostMode()) {
+          if (page.isSingleHostMode()) {
             location.reload();
           } else {
             let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.props.settings.domain}`;
@@ -165,7 +162,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
               />
             </div>
             {
-              !isSingleHostMode() && <div className="fluid field">
+              !page.isSingleHostMode() && <div className="fluid field">
                 <div className="ui right labeled input">
                   <input
                     id="subdomain"

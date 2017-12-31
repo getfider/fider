@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getBaseUrl } from '@fider/utils/page';
+import { page } from '@fider/services';
 import { User, UserRole } from '@fider/models';
 
 interface GravatarProps {
@@ -10,7 +10,7 @@ export const Gravatar = (props: GravatarProps) => {
   const name = props.user ? props.user.name : '_';
   const id = props.user ? props.user.id : 0;
 
-  const url = `${getBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name)}`;
+  const url = `${page.getBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name)}`;
   const isCollaborator = props.user ? props.user.role >= UserRole.Collaborator : false;
 
   let element: any;

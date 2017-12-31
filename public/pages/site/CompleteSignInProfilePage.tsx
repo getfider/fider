@@ -1,9 +1,8 @@
 import * as React from 'react';
 
 import { HomePage, HomePageProps } from './HomePage';
-import { showModal, getQueryString } from '@fider/utils/page';
 import { Form, Button } from '@fider/components/common';
-import { actions } from '@fider/services';
+import { page, actions } from '@fider/services';
 
 interface CompleteSignInProfilePageState {
   name: string;
@@ -15,14 +14,14 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
 
   constructor(props: HomePageProps) {
     super(props);
-    this.key = getQueryString('k');
+    this.key = page.getQueryString('k');
     this.state = {
       name: '',
     };
   }
 
   public componentDidMount() {
-    showModal('#signin-complete-modal', { closable: false });
+    page.showModal('#signin-complete-modal', { closable: false });
   }
 
   private async submit() {

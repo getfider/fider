@@ -1,10 +1,8 @@
 import * as React from 'react';
 
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
-import { isSingleHostMode, setTitle } from '@fider/utils/page';
-
 import { Button, Textarea, DisplayError } from '@fider/components/common';
-import { actions, Failure } from '@fider/services';
+import { actions, page, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
   user: CurrentUser;
@@ -32,7 +30,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
       invitation: this.props.tenant.invitation
     };
 
-    setTitle(`Administration · ${document.title}`);
+    page.setTitle(`Administration · ${document.title}`);
   }
 
   private async confirm() {
@@ -109,7 +107,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                 </div>
               </div>
               {
-                !isSingleHostMode() && [
+                !page.isSingleHostMode() && [
                   <DisplayError key={1} fields={['cname']} error={this.state.error} />,
                   <div key={2} className="field">
                     <label htmlFor="cname">Custom Domain</label>

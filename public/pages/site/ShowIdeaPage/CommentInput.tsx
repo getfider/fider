@@ -4,8 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { Idea, CurrentUser } from '@fider/models';
 import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from '@fider/components/common';
 
-import { actions, Failure } from '@fider/services';
-import { showSignIn } from '@fider/utils/page';
+import { page, actions, Failure } from '@fider/services';
 
 interface CommentInputProps {
   user?: CurrentUser;
@@ -31,7 +30,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   private onTextFocused() {
     if (!this.props.user) {
       this.input.blur();
-      showSignIn();
+      page.showSignIn();
     }
   }
 

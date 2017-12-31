@@ -1,17 +1,16 @@
 import * as React from 'react';
 import { Button, Gravatar, UserName } from '@fider/components/common';
-
 import { User, CurrentUser, UserRole } from '@fider/models';
 import { actions } from '@fider/services';
 
 interface MembersPageState {
-    administrators: User[];
-    collaborators: User[];
-    visitors: User[];
-    filteredNewAdministrators: User[];
-    filteredNewCollaborators: User[];
-    newAdministratorFilter: string;
-    newCollaboratorFilter: string;
+  administrators: User[];
+  collaborators: User[];
+  visitors: User[];
+  filteredNewAdministrators: User[];
+  filteredNewCollaborators: User[];
+  newAdministratorFilter: string;
+  newCollaboratorFilter: string;
 }
 
 interface MembersPageProps {
