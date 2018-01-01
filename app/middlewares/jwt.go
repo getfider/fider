@@ -29,8 +29,7 @@ func JwtGetter() web.MiddlewareFunc {
 				return next(c)
 			}
 
-			services := c.Services()
-			user, err := services.Users.GetByID(claims.UserID)
+			user, err := c.Services().Users.GetByID(claims.UserID)
 			if err != nil {
 				if err == app.ErrNotFound {
 					c.RemoveCookie(web.CookieAuthName)

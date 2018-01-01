@@ -261,7 +261,6 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL as string
-//TODO: missing unit tests
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
 	if ctx.Request.TLS != nil {
@@ -271,7 +270,6 @@ func (ctx *Context) BaseURL() string {
 }
 
 //TenantBaseURL returns base URL for a given tenant
-//TODO: missing unit tests
 func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	if env.IsSingleHostMode() {
 		return ctx.BaseURL()
