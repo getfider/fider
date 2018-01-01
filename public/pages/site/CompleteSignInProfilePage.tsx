@@ -37,7 +37,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
     const modal = (
       <div id="signin-complete-modal" className="ui modal small">
         <div className="header">
-            Complete your profile
+          Complete your profile
         </div>
         <div className="content">
           <p>Because this is your first sign in, please input your display name.</p>

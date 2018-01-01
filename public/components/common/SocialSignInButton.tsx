@@ -1,7 +1,5 @@
 import * as React from 'react';
-
 import { Button } from '@fider/components/common';
-import { AuthSettings } from '@fider/models';
 
 interface SocialSignInButtonProps {
   oauthEndpoint: string;
