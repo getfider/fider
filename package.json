@@ -10,7 +10,7 @@
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-textarea-autosize": "^5.2.1",
-    "semantic-ui": "^2.2.13"
+    "semantic-ui-css": "^2.2.12"
   },
   "devDependencies": {
     "axios": "^0.17.1",

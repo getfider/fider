@@ -9,8 +9,8 @@ import * as $ from 'jquery';
 const w = window as any;
 w.$ = w.jQuery = $;
 
-import 'semantic-ui/dist/semantic.min.js';
-import 'semantic-ui/dist/semantic.min.css';
+import 'semantic-ui-css/semantic.min.js';
+import 'semantic-ui-css/semantic.min.css';
 import '@fider/assets/styles/main.scss';
 
 w.props = { };
