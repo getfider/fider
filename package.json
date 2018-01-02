@@ -6,7 +6,6 @@
   "dependencies": {
     "jquery": "^3.2.1",
     "markdown-it": "^8.4.0",
-    "moment": "^2.19.2",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-textarea-autosize": "^5.2.1",
