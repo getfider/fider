@@ -39,7 +39,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       error: undefined
     });
 
-    const result = await actions.addComment(this.props.idea.number, this.state.content);
+    const result = await actions.createComment(this.props.idea.number, this.state.content);
     if (result.ok) {
       location.reload();
     } else {

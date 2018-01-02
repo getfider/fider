@@ -63,28 +63,28 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     private filter: HTMLDivElement;
 
     constructor(props: HomePageProps) {
-        super(props);
+      super(props);
 
-        const search = page.getQueryString('q');
-        const tags = page.getQueryStringArray('t');
-        const activeFilter = window.location.hash.substring(1);
-        this.state = {
-          ideas: this.filterIdeas(activeFilter, search, tags),
-          showCount: defaultShowCount,
-          activeFilter,
-          searching: !!search,
-          search,
-          tags
-        };
+      const search = page.getQueryString('q');
+      const tags = page.getQueryStringArray('t');
+      const activeFilter = window.location.hash.substring(1);
+      this.state = {
+        ideas: this.filterIdeas(activeFilter, search, tags),
+        showCount: defaultShowCount,
+        activeFilter,
+        searching: !!search,
+        search,
+        tags
+      };
     }
 
     private containsAll(str: string, substrings: string[]): boolean {
-        for (let i = 0; i !== substrings.length; i++) {
-           if (str.indexOf(substrings[i]) === - 1) {
-             return false;
-           }
-        }
-        return true;
+      for (let i = 0; i !== substrings.length; i++) {
+          if (str.indexOf(substrings[i]) === - 1) {
+            return false;
+          }
+      }
+      return true;
     }
 
     private selectedTagsChanged(tags: string[]): void {

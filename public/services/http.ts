@@ -1,3 +1,5 @@
+import { analytics } from '@fider/services';
+
 export interface Failure {
   messages: string[];
   failures: {
@@ -46,5 +48,11 @@ export const http = {
   },
   delete: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
     return await request<T>(url, 'DELETE', body);
+  },
+  event: (category: string, action: string) => <T>(result: Result<T>): Result<T> => {
+    if (result && result.ok) {
+      analytics.event(category, action);
+    }
+    return result;
   }
 };

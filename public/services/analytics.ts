@@ -1,13 +1,18 @@
 export const analytics = {
-  event: (evtName: string): void => {
+  event: (eventCategory: string, eventAction: string): void => {
     if (window.ga) {
-      // TODO: implement correct API and use this on every action
-      window.ga('send', evtName);
+      window.ga('send', 'event', {
+        eventCategory,
+        eventAction
+      });
     }
   },
   error: (err: Error): void => {
     if (window.ga) {
-      // TODO: send to GoogleAnalytics
+      window.ga('send', 'exception', {
+        exDescription: err.stack,
+        exFatal: false
+      });
     }
   }
 };

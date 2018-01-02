@@ -31,7 +31,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
 
     private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
-      const result = await actions.addTag(data.name, data.color, data.isPublic);
+      const result = await actions.createTag(data.name, data.color, data.isPublic);
       if (result.ok) {
         this.setState({
           isAdding: false,

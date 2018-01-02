@@ -55,7 +55,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
 
     private async submit(event: ButtonClickEvent) {
       if (this.state.title) {
-        const result = await actions.addIdea(this.state.title, this.state.description);
+        const result = await actions.createIdea(this.state.title, this.state.description);
         if (result.ok) {
           cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
           this.form.clearFailure();

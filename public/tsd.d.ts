@@ -5,6 +5,5 @@ interface JQuery {
 }
 
 interface Window {
-  // TODO: implement correct API
-  ga?: (cmd: string, evt: string) => void;
+  ga?: (cmd: string, evt: string, args?: any) => void;
 }

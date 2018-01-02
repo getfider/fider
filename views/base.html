@@ -34,6 +34,7 @@
   </script>
   {{ end }}
   {{template "content" .}}
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch"></script>
   <script src="/assets/js/{{ .__JavaScriptBundle }}"></script>
   <script type="text/javascript">
     {{template "javascript" .}}
