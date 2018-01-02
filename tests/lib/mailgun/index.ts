@@ -1,21 +1,25 @@
 require('dotenv').config();
-import axios from 'axios';
+import { parse as parseURL } from 'url';
+import * as http from 'http';
 import * as https from 'https';
 import { delay } from '../';
 
-const httpGet = (url: string): Promise<any> => {
+const httpGet = (endpoint: string): Promise<any> => {
+  const url = parseURL(endpoint);
   return new Promise((resolve, reject) => {
-    https.get(url, (res: https.IncomingMessage) => {
-      // TODO: implement this, add authentication and remove axios
+    const opts = {
+      host: url.host,
+      port: 443,
+      method: 'GET',
+      auth: `api:${process.env.MAILGUN_API}`,
+      path: url.path,
+    };
+    https.get(opts, (res: http.IncomingMessage) => {
+      const content: any[] = [];
+      res.on('data', (chunk) => content.push(chunk));
+      res.on('end', () => resolve(JSON.parse(content.join(''))));
     });
   });
-};
-
-const mailgunOptions = {
-  auth: {
-    username: 'api',
-    password: process.env.MAILGUN_API!
-  }
 };
 
 export const mailgun = {
@@ -26,9 +30,9 @@ export const mailgun = {
     do {
       count++;
       const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=accepted&limit=1&ascending=no`;
-      const events = await axios.get(url, mailgunOptions);
-      if (events.data.items.length > 0 && events.data.items[0].message.headers.to === to) {
-        messageUrl = events.data.items[0].storage.url;
+      const events = await httpGet(url);
+      if (events.items.length > 0 && events.items[0].message.headers.to === to) {
+        messageUrl = events.items[0].storage.url;
       } else {
         await delay(5000);
       }
@@ -38,9 +42,9 @@ export const mailgun = {
       throw new Error(`Message not found for ${to}.`);
     }
 
-    const message = await axios.get(messageUrl, mailgunOptions);
+    const messages = await httpGet(messageUrl);
 
-    const matches = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/.exec(message.data['body-html']);
+    const matches = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/.exec(messages['body-html']);
     if (matches) {
       return matches[2];
     }
