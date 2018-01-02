@@ -35,7 +35,7 @@ func NewWithLogger(logger log.Logger) (*Database, error) {
 		return nil, err
 	}
 
-	db := &Database{conn, logger}
+	db := &Database{conn, logger, NewRowMapper()}
 	return db, nil
 }
 
@@ -43,12 +43,13 @@ func NewWithLogger(logger log.Logger) (*Database, error) {
 type Database struct {
 	conn   *sql.DB
 	logger log.Logger
+	mapper RowMapper
 }
 
 // Begin returns a new SQL transaction
 func (db Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
-	return &Trx{tx: tx, logger: db.logger}, err
+	return &Trx{tx: tx, logger: db.logger, mapper: db.mapper}, err
 }
 
 // Close connection to database
@@ -154,6 +155,7 @@ func (db Database) Migrate() {
 type Trx struct {
 	tx     *sql.Tx
 	logger log.Logger
+	mapper RowMapper
 }
 
 // QueryRow the database with given SQL command and returns only one row
@@ -203,7 +205,8 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 	defer rows.Close()
 
 	if rows.Next() {
-		return fill(rows, data)
+		columns, _ := rows.Columns()
+		return trx.mapper.Map(data, columns, rows.Scan)
 	}
 
 	return app.ErrNotFound
@@ -222,8 +225,7 @@ func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error)
 	if rows != nil {
 		defer rows.Close()
 		for rows.Next() {
-			err := rows.Scan(&value)
-			if err != nil {
+			if err := rows.Scan(&value); err != nil {
 				return nil, err
 			}
 			values = append(values, value)
@@ -265,10 +267,13 @@ func (trx Trx) Select(data interface{}, command string, args ...interface{}) err
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
 	itemType := sliceType.Elem().Elem()
+	var columns []string
 	for rows.Next() {
+		if columns == nil {
+			columns, _ = rows.Columns()
+		}
 		item := reflect.New(itemType)
-		err = fill(rows, item.Interface())
-		if err != nil {
+		if err = trx.mapper.Map(item.Interface(), columns, rows.Scan); err != nil {
 			return err
 		}
 		items = reflect.Append(items, item)
