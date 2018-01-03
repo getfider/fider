@@ -7,18 +7,20 @@ interface EnvironmentInfoProps {
 
 export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
   public render() {
-    if (this.props.settings.environment !== 'production') {
-      return (
-        <div
-          id="environment-info"
-          className=" ui mini negative message no-border no-margin"
-        >
-          Env: {this.props.settings.environment} |
-          Compiler: {this.props.settings.compiler} |
-          Version: {this.props.settings.version} |
-          BuildTime: {this.props.settings.buildTime}
-        </div>
-      );
+    if (this.props.settings.environment === 'production') {
+      return null;
     }
+
+    return (
+      <div
+        id="environment-info"
+        className=" ui mini negative message no-border no-margin"
+      >
+        Env: {this.props.settings.environment} |
+        Compiler: {this.props.settings.compiler} |
+        Version: {this.props.settings.version} |
+        BuildTime: {this.props.settings.buildTime}
+      </div>
+    );
   }
 }
