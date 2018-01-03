@@ -134,7 +134,7 @@ type NullUUID struct {
 	Valid bool
 }
 
-// The nil UUID is special form of UUID that is specified to have all
+// Nil is the nil UUID is special form of UUID that is specified to have all
 // 128 bits set to zero.
 var Nil = UUID{}
 

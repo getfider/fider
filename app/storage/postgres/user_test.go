@@ -200,6 +200,7 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Jon Stark"))
 }
 
@@ -212,6 +213,7 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	Expect(err).To(BeNil())
 	Expect(user.Role).To(Equal(models.RoleVisitor))
 }
 
