@@ -7,16 +7,19 @@ import (
 	"github.com/lib/pq"
 )
 
+//RowMapper is resposible for mapping a sql.Rows into a Struct (model)
 type RowMapper struct {
 	cache map[reflect.Type]TypeMapper
 }
 
+//NewRowMapper creates a new instance of RowMapper
 func NewRowMapper() RowMapper {
 	return RowMapper{
 		cache: make(map[reflect.Type]TypeMapper, 0),
 	}
 }
 
+//Map values from scanner (usually sql.Rows.Scan) into dest based on columns
 func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ...interface{}) error) error {
 	t := reflect.TypeOf(dest)
 	if t.Kind() == reflect.Ptr {
@@ -64,11 +67,13 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 	return scanner(pointers...)
 }
 
+//TypeMapper holds information about how to map SQL ResultSet to a Struct
 type TypeMapper struct {
 	Type   reflect.Type
 	Fields map[string]FieldInfo
 }
 
+//NewTypeMapper creates a new instance of TypeMapper for given reflect.Type
 func NewTypeMapper(t reflect.Type) TypeMapper {
 	all := make(map[string]FieldInfo, 0)
 	for i := 0; i < t.NumField(); i++ {
@@ -102,6 +107,7 @@ func NewTypeMapper(t reflect.Type) TypeMapper {
 	}
 }
 
+//FieldInfo is a simple struct to map Column -> Field
 type FieldInfo struct {
 	FieldName  []string
 	ColumnName string
