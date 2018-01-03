@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"net/http"
 
 	"io/ioutil"
 
@@ -35,8 +36,8 @@ func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
 	r.add("404.html")
 	r.add("500.html")
 
-	r.jsBundle = r.getBundle("/dist/js")
-	r.cssBundle = r.getBundle("/dist/css")
+	r.jsBundle = r.getBundle("js")
+	r.cssBundle = r.getBundle("css")
 
 	return r
 }
@@ -54,12 +55,12 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) getBundle(folder string) string {
-	files, _ := ioutil.ReadDir(env.Path(folder))
+func (r *Renderer) getBundle(name string) string {
+	files, _ := ioutil.ReadDir(env.Path("/dist/" + name))
 	if len(files) > 0 {
-		return files[0].Name()
+		return "/assets/" + name + "/" + files[0].Name()
 	}
-	panic(fmt.Sprintf("Bundle not found: %s.", folder))
+	panic(fmt.Sprintf("Bundle '%s' not found.", name))
 }
 
 //Render a template based on parameters
@@ -71,14 +72,19 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 
 	if env.IsDevelopment() {
 		tmpl = r.add(name)
-		r.jsBundle = r.getBundle("/dist/js")
-		r.cssBundle = r.getBundle("/dist/css")
+		r.jsBundle = r.getBundle("js")
+		r.cssBundle = r.getBundle("css")
 	}
 
 	m := data.(Map)
 	m["__JavaScriptBundle"] = r.jsBundle
 	m["__StyleBundle"] = r.cssBundle
 	m["settings"] = r.settings
+
+	if pusher, ok := ctx.Response.(http.Pusher); ok {
+		pusher.Push(r.jsBundle, nil)
+		pusher.Push(r.cssBundle, nil)
+	}
 
 	m["baseUrl"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()

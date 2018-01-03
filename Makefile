@@ -28,4 +28,7 @@ watch:
 run:
 	godotenv -f .env ./fider
 
+run-ssl:
+	SSL_CERT=etc/development.crt SSL_CERT_KEY=etc/development.key godotenv -f .env ./fider
+
 .DEFAULT_GOAL := build

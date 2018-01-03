@@ -71,6 +71,13 @@ func (w *gzipResponseWriter) Flush() {
 	}
 }
 
+func (w *gzipResponseWriter) Push(target string, opts *http.PushOptions) error {
+	if pusher, ok := w.response.(http.Pusher); ok {
+		return pusher.Push(target, opts)
+	}
+	return nil
+}
+
 func (w *gzipResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return w.response.(http.Hijacker).Hijack()
 }
