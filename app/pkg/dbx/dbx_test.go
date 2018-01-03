@@ -26,8 +26,8 @@ type userProvider struct {
 }
 
 type tenant struct {
-	ID   int     `db:"id"`
-	Name *string `db:"name"`
+	ID   int    `db:"id"`
+	Name string `db:"name"`
 }
 
 func TestMain(m *testing.M) {
@@ -133,7 +133,7 @@ func TestBind_NestedStruct(t *testing.T) {
 	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.Tenant).NotTo(BeNil())
 	Expect(u.Tenant.ID).To(Equal(1))
-	Expect(*u.Tenant.Name).To(Equal("Demonstration"))
+	Expect(u.Tenant.Name).To(Equal("Demonstration"))
 }
 
 func TestBind_NestedStruct_Multiple(t *testing.T) {
@@ -156,10 +156,9 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(len(u)).To(Equal(2))
 	Expect(u[0].Name).To(Equal("Jon Snow"))
-	Expect(*u[0].Tenant.Name).To(Equal("Demonstration"))
+	Expect(u[0].Tenant.Name).To(Equal("Demonstration"))
 	Expect(u[1].Name).To(Equal("Arya Stark"))
-	Expect(*u[1].Tenant.Name).To(Equal("Demonstration"))
-
+	Expect(u[1].Tenant.Name).To(Equal("Demonstration"))
 }
 
 func TestExists_True(t *testing.T) {

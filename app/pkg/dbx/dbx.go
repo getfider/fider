@@ -2,11 +2,8 @@ package dbx
 
 import (
 	"database/sql"
-	"fmt"
 	"io/ioutil"
 	"reflect"
-
-	"github.com/lib/pq"
 
 	"strings"
 
@@ -58,56 +55,6 @@ func (db Database) Close() error {
 		return db.conn.Close()
 	}
 	return nil
-}
-
-func scan(prefix string, data interface{}) map[string]interface{} {
-	fields := make(map[string]interface{})
-
-	s := reflect.ValueOf(data).Elem()
-
-	for i := 0; i < s.NumField(); i++ {
-		field := s.Field(i)
-		typeField := s.Type().Field(i)
-		tag := typeField.Tag.Get("db")
-
-		if tag != "" {
-			if typeField.Type.Kind() == reflect.Slice {
-				obj := reflect.New(reflect.MakeSlice(typeField.Type, 0, 0).Type()).Elem()
-				field.Set(obj)
-				fields[prefix+tag] = pq.Array(field.Addr().Interface())
-			} else if typeField.Type.Kind() != reflect.Ptr {
-				fields[prefix+tag] = field.Addr().Interface()
-			} else if field.Type().Elem().Kind() != reflect.Struct || field.Type().Elem().String() == "time.Time" {
-				obj := reflect.New(field.Type().Elem()).Elem()
-				field.Set(obj.Addr())
-				fields[prefix+tag] = field.Interface()
-			} else {
-				obj := reflect.New(field.Type().Elem()).Elem()
-				field.Set(obj.Addr())
-				for name, address := range scan(prefix+tag+"_", field.Interface()) {
-					fields[name] = address
-				}
-			}
-		}
-	}
-
-	return fields
-}
-
-func fill(rows *sql.Rows, data interface{}) error {
-	columns, _ := rows.Columns()
-	fields := scan("", data)
-
-	pointers := make([]interface{}, len(columns))
-	for i, column := range columns {
-		if pointer, ok := fields[column]; ok {
-			pointers[i] = pointer
-		} else {
-			panic(fmt.Sprintf("No target for column %s", column))
-		}
-	}
-
-	return rows.Scan(pointers...)
 }
 
 func (db Database) load(path string) {
