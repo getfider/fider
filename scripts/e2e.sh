@@ -11,6 +11,7 @@ fi
 echo "Clean up ..."
 rm -rf output
 tsc
+mkdir -p logs/
 docker rm -f $CONTAINER || true
 docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw -p 5577:5432 --name $CONTAINER postgres:9.6.2
 docker run --link $CONTAINER -e TARGETS=$CONTAINER:5432 waisbrot/wait

@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
-import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services/Session';
 import { AuthSettings } from '@fider/models';
-import { TenantService } from '@fider/services';
-import { hideSignIn } from '@fider/utils/page';
+import { page, actions } from '@fider/services';
 
 interface SignInControlState {
   email: string;
@@ -13,16 +10,11 @@ interface SignInControlState {
 
 interface SignInControlProps {
   signInByEmail: boolean;
+  auth: AuthSettings;
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
   private form: Form;
-
-  @inject(injectables.Session)
-  public session: Session;
-
-  @inject(injectables.TenantService)
-  public service: TenantService;
 
   constructor(props: SignInControlProps) {
     super(props);
@@ -34,7 +26,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   }
 
   private async signIn() {
-    const result = await this.service.signIn(this.state.email);
+    const result = await actions.signIn(this.state.email);
     if (result.ok) {
       this.form.clearFailure();
       this.setState({ sent: true });
@@ -47,30 +39,37 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   }
 
   public render() {
-    const settings = this.session.get<AuthSettings>('auth');
-
     if (this.state.sent) {
       return (
         <div>
           <p>We sent a sign in link to <b>{this.state.email}</b>. <br /> Please check your inbox.</p>
-          <p><a href="#" onClick={() => hideSignIn()}>OK</a></p>
+          <p><a href="#" onClick={() => page.hideSignIn()}>OK</a></p>
         </div>
       );
     }
 
-    const google = settings.providers.google && (
+    const google = this.props.auth.providers.google && (
                     <div className="column">
-                      <SocialSignInButton provider="google" />
+                      <SocialSignInButton
+                        oauthEndpoint={this.props.auth.endpoint}
+                        provider="google"
+                      />
                     </div>
                   );
-    const facebook = settings.providers.facebook && (
+    const facebook = this.props.auth.providers.facebook && (
                       <div className="column">
-                        <SocialSignInButton provider="facebook" />
+                        <SocialSignInButton
+                          oauthEndpoint={this.props.auth.endpoint}
+                          provider="facebook"
+                        />
                       </div>
                     );
-    const github = settings.providers.github && (
+    const github = this.props.auth.providers.github && (
                       <div className="column">
-                        <SocialSignInButton provider="github" />
+                        <SocialSignInButton
+                          oauthEndpoint={this.props.auth.endpoint}
+                          provider="github"
+                        />
                       </div>
                     );
     const hasOAuth = !!(google || facebook || github);

@@ -10,32 +10,33 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func orangeTenant(tenants *postgres.TenantStorage) *models.Tenant {
-	tenant, _ := tenants.GetByDomain("orange")
-	return tenant
-}
-
-func demoTenant(tenants *postgres.TenantStorage) *models.Tenant {
-	tenant, _ := tenants.GetByDomain("demo")
-	return tenant
-}
-
-func jonSnow(users *postgres.UserStorage) *models.User {
-	user, _ := users.GetByID(1)
-	return user
-}
-
-func aryaStark(users *postgres.UserStorage) *models.User {
-	user, _ := users.GetByID(2)
-	return user
-}
-
 var db *dbx.Database
 var trx *dbx.Trx
+
+var tenants *postgres.TenantStorage
+var users *postgres.UserStorage
+var ideas *postgres.IdeaStorage
+var tags *postgres.TagStorage
+
+var demoTenant *models.Tenant
+var avengersTenant *models.Tenant
+var gotTenant *models.Tenant
+var jonSnow *models.User
+var aryaStark *models.User
 
 func SetupDatabaseTest(t *testing.T) {
 	RegisterTestingT(t)
 	trx, _ = db.Begin()
+
+	tenants = postgres.NewTenantStorage(trx)
+	users = postgres.NewUserStorage(trx)
+	ideas = postgres.NewIdeaStorage(trx)
+	tags = postgres.NewTagStorage(trx)
+
+	demoTenant, _ = tenants.GetByDomain("demo")
+	avengersTenant, _ = tenants.GetByDomain("avengers")
+	jonSnow, _ = users.GetByID(1)
+	aryaStark, _ = users.GetByID(2)
 }
 
 func TeardownDatabaseTest() {

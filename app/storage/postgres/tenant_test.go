@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/storage/postgres"
 	. "github.com/onsi/gomega"
 )
 
@@ -16,7 +15,6 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
 
 	Expect(err).To(BeNil())
@@ -44,9 +42,7 @@ func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 
 	os.Setenv("HOST_MODE", "single")
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
-
 	Expect(err).To(BeNil())
 	Expect(tenant).NotTo(BeNil())
 }
@@ -55,9 +51,7 @@ func TestTenantStorage_First(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.First()
-
 	Expect(err).To(BeNil())
 	Expect(tenant.ID).To(Equal(1))
 }
@@ -68,9 +62,7 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 
 	trx.Execute("TRUNCATE tenants CASCADE")
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.First()
-
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(tenant).To(BeNil())
 }
@@ -79,7 +71,6 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.GetByDomain("mydomain")
 
 	Expect(tenant).To(BeNil())
@@ -90,12 +81,10 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
 	Expect(err).To(BeNil())
 
 	tenant, err = tenants.GetByDomain("mydomain")
-
 	Expect(err).To(BeNil())
 	Expect(tenant.ID).NotTo(BeZero())
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
@@ -108,9 +97,7 @@ func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	available, err := tenants.IsSubdomainAvailable("demo")
-
 	Expect(available).To(BeFalse())
 	Expect(err).To(BeNil())
 }
@@ -119,9 +106,7 @@ func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	available, err := tenants.IsSubdomainAvailable("thisisanewdomain")
-
 	Expect(available).To(BeTrue())
 	Expect(err).To(BeNil())
 }
@@ -130,7 +115,6 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
 	tenants.SetCurrentTenant(tenant)
 
@@ -156,7 +140,6 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
 	tenants.SetCurrentTenant(tenant)
 
@@ -193,7 +176,6 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenants := postgres.NewTenantStorage(trx)
 	tenant, _ := tenants.GetByDomain("demo")
 	tenants.SetCurrentTenant(tenant)
 

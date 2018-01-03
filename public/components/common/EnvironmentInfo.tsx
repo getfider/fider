@@ -1,27 +1,24 @@
 import * as React from 'react';
-import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services';
+import { AppSettings } from '@fider/models';
 
-export class EnvironmentInfo extends React.Component<{}, {}> {
+interface EnvironmentInfoProps {
+  settings: AppSettings;
+}
 
-  @inject(injectables.Session)
-  public session: Session;
-
+export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
   public render() {
-    if (!this.session.isProduction()) {
-      const settings = this.session.getAppSettings();
+    if (this.props.settings.environment !== 'production') {
       return (
         <div
           id="environment-info"
           className=" ui mini negative message no-border no-margin"
         >
-          Env: {settings.environment} |
-          Compiler: {settings.compiler} |
-          Version: {settings.version} |
-          BuildTime: {settings.buildTime}
+          Env: {this.props.settings.environment} |
+          Compiler: {this.props.settings.compiler} |
+          Version: {this.props.settings.version} |
+          BuildTime: {this.props.settings.buildTime}
         </div>
       );
     }
-    return <div/>;
   }
 }

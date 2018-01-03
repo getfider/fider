@@ -9,7 +9,7 @@ import (
 func IsAuthenticated() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			if c.User() == nil {
+			if !c.IsAuthenticated() {
 				return c.Unauthorized()
 			}
 			return next(c)

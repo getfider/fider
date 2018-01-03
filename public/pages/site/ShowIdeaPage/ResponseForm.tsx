@@ -3,8 +3,7 @@ import * as React from 'react';
 import { User, Comment, Idea, IdeaStatus } from '@fider/models';
 import { Button, DisplayError, Textarea } from '@fider/components/common';
 
-import { inject, injectables } from '@fider/di';
-import { IdeaService, Failure } from '@fider/services';
+import { actions, Failure } from '@fider/services';
 
 interface ResponseFormProps {
   idea: Idea;
@@ -19,9 +18,6 @@ interface ResponseFormState {
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
   private modal: HTMLDivElement;
 
-  @inject(injectables.IdeaService)
-  public service: IdeaService;
-
   constructor(props: ResponseFormProps) {
     super(props);
 
@@ -32,7 +28,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   }
 
   private async submit() {
-    const result = await this.service.setResponse(this.props.idea.number, this.state.status, this.state.text);
+    const result = await actions.setResponse(this.props.idea.number, this.state.status, this.state.text);
     if (result.ok) {
       location.reload();
     } else {

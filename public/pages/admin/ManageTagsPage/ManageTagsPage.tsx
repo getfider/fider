@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { Header, Footer, Button, Gravatar, UserName } from '@fider/components/common';
+import { Button, Gravatar, UserName } from '@fider/components/common';
 import { ShowTag } from '@fider/components/ShowTag';
-import { inject, injectables } from '@fider/di';
-import { Session, TagService } from '@fider/services';
 import { Tag, CurrentUser, UserRole } from '@fider/models';
 
 import { TagForm, TagFormState } from './';
-import { Failure } from 'services/http';
+import { actions, Failure } from '@fider/services';
+
+interface ManageTagsPageProps {
+  user: CurrentUser;
+  tags: Tag[];
+}
 
 interface ManageTagsPageState {
   isAdding: boolean;
@@ -17,23 +20,18 @@ interface ManageTagsPageState {
 
 import './ManageTagsPage.scss';
 
-export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
-    @inject(injectables.Session)
-    public session: Session;
+export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
 
-    @inject(injectables.TagService)
-    public tagService: TagService;
-
-    constructor(props: {}) {
+    constructor(props: ManageTagsPageProps) {
         super(props);
         this.state = {
           isAdding: false,
-          allTags: this.session.get<Tag[]>('tags') || []
+          allTags: this.props.tags
         };
     }
 
     private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
-      const result = await this.tagService.add(data.name, data.color, data.isPublic);
+      const result = await actions.createTag(data.name, data.color, data.isPublic);
       if (result.ok) {
         this.setState({
           isAdding: false,
@@ -45,7 +43,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
     }
 
     private async updateTag(tag: Tag, data: TagFormState): Promise<Failure | undefined> {
-      const result = await this.tagService.update(tag.slug, data.name, data.color, data.isPublic);
+      const result = await actions.updateTag(tag.slug, data.name, data.color, data.isPublic);
       if (result.ok) {
         tag.name = result.data.name;
         tag.slug = result.data.slug;
@@ -60,7 +58,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
     }
 
     private async deleteTag(tag: Tag) {
-      const result = await this.tagService.delete(tag.slug);
+      const result = await actions.deleteTag(tag.slug);
       const idx = this.state.allTags.indexOf(tag);
       if (result.ok) {
         this.setState({
@@ -113,7 +111,7 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
             <div key={t.id} className="item">
               <ShowTag tag={t} />
               {
-                this.session.isAdmin() && [
+                this.props.user.isAdministrator && [
                   <Button
                     key={0}
                     simple={true}
@@ -138,43 +136,39 @@ export class ManageTagsPage extends React.Component<{}, ManageTagsPageState> {
       );
 
       return (
-        <div>
-          <Header />
-            <div className="page ui container">
-              <h2 className="ui header">
-                <i className="circular tags icon" />
-                <div className="content">
-                  Tags
-                  <div className="sub header">Manage your account tags.</div>
-                </div>
-              </h2>
-
-              {
-                this.session.isAdmin() && (
-                  this.state.isAdding
-                  ? <div className="ui segment">
-                    <TagForm
-                      onSave={async (data) => this.saveNewTag(data)}
-                      onCancel={() => this.setState({ isAdding: false })}
-                    />
-                  </div>
-                  : <Button
-                    className="positive"
-                    onClick={async (e) => this.setState({ isAdding: true, deleting: undefined, editing: undefined })}
-                  >
-                    Add new
-                  </Button>
-                )
-              }
-
-              <div className="ui segment">
-                <div className="ui middle aligned very relaxed divided list">
-                {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
-                </div>
-              </div>
-
+        <div className="page ui container">
+          <h2 className="ui header">
+            <i className="circular tags icon" />
+            <div className="content">
+              Tags
+              <div className="sub header">Manage your account tags.</div>
             </div>
-          <Footer />
+          </h2>
+
+          {
+            this.props.user.isAdministrator && (
+              this.state.isAdding
+              ? <div className="ui segment">
+                <TagForm
+                  onSave={async (data) => this.saveNewTag(data)}
+                  onCancel={() => this.setState({ isAdding: false })}
+                />
+              </div>
+              : <Button
+                className="positive"
+                onClick={async (e) => this.setState({ isAdding: true, deleting: undefined, editing: undefined })}
+              >
+                Add new
+              </Button>
+            )
+          }
+
+          <div className="ui segment">
+            <div className="ui middle aligned very relaxed divided list">
+            {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
+            </div>
+          </div>
+
         </div>
       );
     }

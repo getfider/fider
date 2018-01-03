@@ -23,13 +23,12 @@ func Tenant() web.MiddlewareFunc {
 func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			tenants := c.Services().Tenants
-			tenant, err := tenants.First()
+			tenant, err := c.Services().Tenants.First()
 			if err != nil {
 				if err == app.ErrNotFound {
 					return c.Redirect(http.StatusTemporaryRedirect, "/signup")
 				}
-				return err
+				return c.Failure(err)
 			}
 
 			c.SetTenant(tenant)
@@ -42,7 +41,6 @@ func SingleTenant() web.MiddlewareFunc {
 func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			tenants := c.Services().Tenants
 			hostname := stripPort(c.Request.Host)
 
 			// If no tenant is specified, redirect user to getfider.com
@@ -52,7 +50,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return c.Redirect(http.StatusTemporaryRedirect, "http://getfider.com")
 			}
 
-			tenant, err := tenants.GetByDomain(hostname)
+			tenant, err := c.Services().Tenants.GetByDomain(hostname)
 			if err == nil {
 				c.SetTenant(tenant)
 				return next(c)

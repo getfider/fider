@@ -1,37 +1,31 @@
 import * as React from 'react';
 
-import { HomePage } from './HomePage';
-import { showModal, getQueryString } from '@fider/utils/page';
+import { HomePage, HomePageProps } from './HomePage';
 import { Form, Button } from '@fider/components/common';
-
-import { inject, injectables } from '@fider/di';
-import { TenantService } from '@fider/services';
+import { page, actions } from '@fider/services';
 
 interface CompleteSignInProfilePageState {
   name: string;
 }
 
-export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignInProfilePageState> {
+export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
   private form: Form;
   private key: string;
 
-  @inject(injectables.TenantService)
-  public service: TenantService;
-
-  constructor(props: {}) {
+  constructor(props: HomePageProps) {
     super(props);
-    this.key = getQueryString('k');
+    this.key = page.getQueryString('k');
     this.state = {
       name: '',
     };
   }
 
   public componentDidMount() {
-    showModal('#signin-complete-modal', { closable: false });
+    page.showModal('#signin-complete-modal', { closable: false });
   }
 
   private async submit() {
-    const result = await this.service.completeProfile(this.key, this.state.name);
+    const result = await actions.completeProfile(this.key, this.state.name);
     if (result.ok) {
       location.href = '/';
     } else if (result.error) {
@@ -43,7 +37,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
     const modal = (
       <div id="signin-complete-modal" className="ui modal small">
         <div className="header">
-            Complete your profile
+          Complete your profile
         </div>
         <div className="content">
           <p>Because this is your first sign in, please input your display name.</p>
@@ -68,7 +62,7 @@ export class CompleteSignInProfilePage extends React.Component<{}, CompleteSignI
     return (
       <div>
         {modal}
-        <HomePage />
+        {React.createElement(HomePage, this.props)}
       </div>
     );
   }

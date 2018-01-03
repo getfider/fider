@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"strconv"
@@ -120,7 +121,20 @@ func (ctx *Context) Failure(err error) error {
 	if err == app.ErrNotFound {
 		return ctx.NotFound()
 	}
-	ctx.Logger().Errorf("%s", log.Red(err.Error()))
+
+	url := ctx.BaseURL() + ctx.Request.RequestURI
+	tenant := "undefined"
+	if ctx.Tenant() != nil {
+		tenant = fmt.Sprintf("%s (%d)", ctx.Tenant().Name, ctx.Tenant().ID)
+	}
+
+	user := "not signed in"
+	if ctx.User() != nil {
+		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
+	}
+
+	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
+	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
 	return err
 }
@@ -247,7 +261,6 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL as string
-//TODO: missing unit tests
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
 	if ctx.Request.TLS != nil {
@@ -257,7 +270,6 @@ func (ctx *Context) BaseURL() string {
 }
 
 //TenantBaseURL returns base URL for a given tenant
-//TODO: missing unit tests
 func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	if env.IsSingleHostMode() {
 		return ctx.BaseURL()

@@ -16,10 +16,10 @@ var testCases = []struct {
 	urls     []string
 }{
 	{
-		"The Orange Inc.",
+		"Avengers",
 		[]string{
-			"http://orange.test.fider.io",
-			"http://orange.test.fider.io:3000",
+			"http://avengers.test.fider.io",
+			"http://avengers.test.fider.io:3000",
 		},
 	},
 	{
@@ -124,7 +124,7 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.HostChecker("login.test.fider.io"))
-	status, _ := server.WithURL("http://orange.test.fider.io").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://avengers.test.fider.io").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 

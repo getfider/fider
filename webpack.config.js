@@ -19,7 +19,7 @@ module.exports = {
     module: {
         rules: [
             { 
-                test: /\.scss$/, 
+                test: /\.(css|scss)$/, 
                 loader: ExtractTextPlugin.extract("css-loader!sass-loader")
             },
             { test: /\.(ts|tsx)$/, loader: "ts-loader" },
@@ -40,8 +40,5 @@ module.exports = {
             disable: false, 
             allChunks: true 
         })
-    ],
-    externals: {
-        "jquery": "jQuery"
-    }
+    ]
 };

@@ -61,7 +61,7 @@ func TestJwtGetter_WithCookie_InvalidUser(t *testing.T) {
 
 	server.Use(middlewares.JwtGetter())
 	status, response := server.
-		OnTenant(mock.OrangeTenant).
+		OnTenant(mock.AvengersTenant).
 		AddCookie(web.CookieAuthName, token).
 		Execute(func(c web.Context) error {
 			if c.User() == nil {
@@ -85,7 +85,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 
 	server.Use(middlewares.JwtGetter())
 	status, _ := server.
-		OnTenant(mock.OrangeTenant).
+		OnTenant(mock.AvengersTenant).
 		AddCookie(web.CookieAuthName, token).
 		Execute(func(c web.Context) error {
 			if c.User() == nil {
@@ -103,7 +103,7 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 	server, _ := mock.NewServer()
 
 	server.Use(middlewares.JwtSetter())
-	status, _ := server.WithURL("http://orange.test.fider.io/abc").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://avengers.test.fider.io/abc").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -119,12 +119,12 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	})
 
 	server.Use(middlewares.JwtSetter())
-	status, response := server.WithURL("http://orange.test.fider.io/abc?token=" + token).Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://avengers.test.fider.io/abc?token=" + token).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/abc"))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/abc"))
 }
 
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
@@ -136,10 +136,10 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	})
 
 	server.Use(middlewares.JwtSetter())
-	status, response := server.WithURL("http://orange.test.fider.io/abc?token=" + token + "&foo=bar").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://avengers.test.fider.io/abc?token=" + token + "&foo=bar").Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
 	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/abc?foo=bar"))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/abc?foo=bar"))
 }

@@ -1,15 +1,19 @@
 import * as React from 'react';
 import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from '@fider/models';
-import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment, Header, Footer } from '@fider/components';
+import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment } from '@fider/components';
 import { IdeaInput, TagsFilter, IdeaFilter, IdeaFilterFunction } from './';
-
-import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services';
-import { getBaseUrl, getQueryString, getQueryStringArray } from '@fider/utils/page';
+import { page } from '@fider/services';
 
 import './HomePage.scss';
 
 const defaultShowCount = 20;
+
+export interface HomePageProps {
+  user?: CurrentUser;
+  tenant: Tenant;
+  ideas: Idea[];
+  tags: Tag[];
+}
 
 interface HomePageState {
   ideas: Idea[];
@@ -55,43 +59,32 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: Tag[] }) =>
   );
 };
 
-export class HomePage extends React.Component<{}, HomePageState> {
-    private user?: CurrentUser;
-    private tenant: Tenant;
-    private allIdeas: Idea[];
-    private allTags: Tag[];
+export class HomePage extends React.Component<HomePageProps, HomePageState> {
     private filter: HTMLDivElement;
 
-    @inject(injectables.Session)
-    public session: Session;
+    constructor(props: HomePageProps) {
+      super(props);
 
-    constructor(props: {}) {
-        super(props);
-        this.user = this.session.getCurrentUser();
-        this.tenant = this.session.getCurrentTenant();
-        this.allIdeas = this.session.getArray<Idea>('ideas');
-        this.allTags = this.session.getArray<Tag>('tags');
-
-        const search = getQueryString('q');
-        const tags = getQueryStringArray('t');
-        const activeFilter = window.location.hash.substring(1);
-        this.state = {
-          ideas: this.filterIdeas(activeFilter, search, tags),
-          showCount: defaultShowCount,
-          activeFilter,
-          searching: !!search,
-          search,
-          tags
-        };
+      const search = page.getQueryString('q');
+      const tags = page.getQueryStringArray('t');
+      const activeFilter = window.location.hash.substring(1);
+      this.state = {
+        ideas: this.filterIdeas(activeFilter, search, tags),
+        showCount: defaultShowCount,
+        activeFilter,
+        searching: !!search,
+        search,
+        tags
+      };
     }
 
     private containsAll(str: string, substrings: string[]): boolean {
-        for (let i = 0; i !== substrings.length; i++) {
-           if (str.indexOf(substrings[i]) === - 1) {
-             return false;
-           }
-        }
-        return true;
+      for (let i = 0; i !== substrings.length; i++) {
+          if (str.indexOf(substrings[i]) === - 1) {
+            return false;
+          }
+      }
+      return true;
     }
 
     private selectedTagsChanged(tags: string[]): void {
@@ -109,7 +102,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
       if (search) {
         const s = search.trim().toLowerCase();
         path += `?q=${encodeURIComponent(s).replace(/%20/g, '+')}`;
-        ideas = this.allIdeas.filter((idea) => {
+        ideas = this.props.ideas.filter((idea) => {
           const terms = s.split(' ').filter((x) => x.length >= 2);
           return (
             this.containsAll(idea.title.toLowerCase(), terms) ||
@@ -119,7 +112,7 @@ export class HomePage extends React.Component<{}, HomePageState> {
         });
       } else {
         path += activeFilter ? `#${activeFilter}` : '';
-        ideas = IdeaFilter.getFilter(activeFilter)(this.allIdeas);
+        ideas = IdeaFilter.getFilter(activeFilter)(this.props.ideas);
       }
 
       if (tags.length > 0) {
@@ -128,12 +121,12 @@ export class HomePage extends React.Component<{}, HomePageState> {
       }
 
       if (history.replaceState) {
-        const newUrl = getBaseUrl() + path;
+        const newUrl = page.getBaseUrl() + path;
         window.history.replaceState({ path: newUrl }, '', newUrl);
       }
 
       if (tags.length > 0) {
-        const tagsToFilter = this.allTags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
+        const tagsToFilter = this.props.tags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
         ideas = ideas.filter(
           (i) => i.tags.filter(
             (t) => tagsToFilter.indexOf(t) >= 0
@@ -184,9 +177,9 @@ export class HomePage extends React.Component<{}, HomePageState> {
               ideasToList.map((idea) =>
               <ListIdeaItem
                 key={idea.id}
-                user={this.user}
+                user={this.props.user}
                 idea={idea}
-                tags={this.allTags.filter((tag) => idea.tags.indexOf(tag.id) >= 0)}
+                tags={this.props.tags.filter((tag) => idea.tags.indexOf(tag.id) >= 0)}
               />)}
             {
               this.state.ideas.length > this.state.showCount &&
@@ -202,68 +195,66 @@ export class HomePage extends React.Component<{}, HomePageState> {
       )
       : <p className="no-ideas-found">No ideas found for given filter.</p>;
 
-    const welcomeMessage = this.tenant.welcomeMessage ||
+    const welcomeMessage = this.props.tenant.welcomeMessage ||
     `## Welcome to our feedback forum!
 
 We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
     return (
-      <div>
-        <Header />
-        <div className="page ui container">
-
-          <div className="ui grid stackable">
-            <div className="six wide column">
-              <MultiLineText className="welcome-message" text={welcomeMessage} style="full" />
-              <IdeaInput placeholder={this.tenant.invitation || 'I suggest you...'} />
-            </div>
-            <div className="ten wide column">
-              {
-                this.allIdeas.length === 0
-                ? <EmptyList />
-                : <div>
-                    <div className="ui grid">
-                      {
-                        !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
-                        <IdeaFilter
-                          ideas={this.allIdeas}
-                          activeFilter={this.state.activeFilter}
-                          filterChanged={(name) => this.filterChanged(name)}
-                        />
-                      </div>
-                      }
-                      <div className={!this.state.searching ? `six wide mobile six wide tablet four wide computer column` : 'column'}>
-                        <div className="ui search">
-                          <div className="ui icon fluid input">
-                            <input
-                              onFocus={() => this.setState({ searching: true })}
-                              onBlur={(x) => this.setState({ searching: !!this.state.search })}
-                              onChange={(x) => this.searchIdea(x.currentTarget.value)}
-                              value={this.state.search}
-                              type="text"
-                              placeholder="Search..."
-                            />
-                            {
-                              this.state.searching
-                              ? <i onClick={() => this.resetSearch()} className="cancel link icon" />
-                              : <i className="search icon" />
-                            }
-                          </div>
+      <div className="page ui container">
+        <div className="ui grid stackable">
+          <div className="six wide column">
+            <MultiLineText className="welcome-message" text={welcomeMessage} style="full" />
+            <IdeaInput
+              user={this.props.user}
+              placeholder={this.props.tenant.invitation || 'I suggest you...'}
+            />
+          </div>
+          <div className="ten wide column">
+            {
+              this.props.ideas.length === 0
+              ? <EmptyList />
+              : <div>
+                  <div className="ui grid">
+                    {
+                      !this.state.searching && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
+                      <IdeaFilter
+                        ideas={this.props.ideas}
+                        activeFilter={this.state.activeFilter}
+                        filterChanged={(name) => this.filterChanged(name)}
+                      />
+                    </div>
+                    }
+                    <div className={!this.state.searching ? `six wide mobile six wide tablet four wide computer column` : 'column'}>
+                      <div className="ui search">
+                        <div className="ui icon fluid input">
+                          <input
+                            onFocus={() => this.setState({ searching: true })}
+                            onBlur={(x) => this.setState({ searching: !!this.state.search })}
+                            onChange={(x) => this.searchIdea(x.currentTarget.value)}
+                            value={this.state.search}
+                            type="text"
+                            placeholder="Search..."
+                          />
+                          {
+                            this.state.searching
+                            ? <i onClick={() => this.resetSearch()} className="cancel link icon" />
+                            : <i className="search icon" />
+                          }
                         </div>
                       </div>
                     </div>
-                    <TagsFilter
-                      tags={this.allTags}
-                      selectionChanged={(selected) => this.selectedTagsChanged(selected)}
-                      defaultSelection={this.state.tags}
-                    />
-                    {displayIdeas}
                   </div>
-              }
-            </div>
+                  <TagsFilter
+                    tags={this.props.tags}
+                    selectionChanged={(selected) => this.selectedTagsChanged(selected)}
+                    defaultSelection={this.state.tags}
+                  />
+                  {displayIdeas}
+                </div>
+            }
           </div>
         </div>
-        <Footer />
       </div>
     );
   }

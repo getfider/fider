@@ -1,42 +1,37 @@
 import * as React from 'react';
-import { User, Tenant } from '@fider/models';
+import { AppSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
+import { page } from '@fider/services';
 
-import { inject, injectables } from '@fider/di';
-import { Session } from '@fider/services/Session';
-import { showSignIn } from '@fider/utils/page';
+interface HeaderProps {
+  user?: CurrentUser;
+  settings: AppSettings;
+  tenant: Tenant;
+}
 
-export class Header extends React.Component<{}, {}> {
-  private user?: User;
-  private tenant: Tenant;
+export class Header extends React.Component<HeaderProps, {}> {
 
-  @inject(injectables.Session)
-  public session: Session;
-
-  constructor(props: {}) {
+  constructor(props: HeaderProps) {
     super(props);
-
-    this.user = this.session.getCurrentUser();
-    this.tenant = this.session.get<Tenant>('tenant');
   }
 
   private showModal() {
-    if (!this.user) {
-      showSignIn();
+    if (!this.props.user) {
+      page.showSignIn();
     }
   }
 
   public render() {
-    const items = this.user && (
+    const items = this.props.user && (
       <div className="menu">
           <div className="name header">
             <i className="user icon" />
-            {this.user.name}
+            {this.props.user.name}
           </div>
           <a href="/settings" className="item">Settings</a>
           <div className="divider" />
           {
-            this.session.isCollaborator() && [
+            this.props.user.isCollaborator && [
               <div key={1} className="header">
                 <i className="setting icon" />
                 Administration
@@ -53,15 +48,15 @@ export class Header extends React.Component<{}, {}> {
 
     return (
       <div>
-        <EnvironmentInfo />
+        <EnvironmentInfo settings={this.props.settings}/>
         <div id="menu" className="ui small borderless menu">
           <div className="ui container">
             <a href="/" className="header item">
-              {this.tenant.name}
+              {this.props.tenant.name}
             </a>
-            <div onClick={() => this.showModal()} className={`ui right simple dropdown item signin ${!this.user && 'subtitle'}`}>
-              {this.user && <Gravatar user={this.user} />}
-              {!this.user && 'Sign in'} {this.user && <i className="dropdown icon" />}
+            <div onClick={() => this.showModal()} className={`ui right simple dropdown item signin ${!this.props.user && 'subtitle'}`}>
+              {this.props.user && <Gravatar user={this.props.user} />}
+              {!this.props.user && 'Sign in'} {this.props.user && <i className="dropdown icon" />}
               {items}
             </div>
           </div>

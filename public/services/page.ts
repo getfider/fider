@@ -1,34 +1,37 @@
-export function setTitle(title: string) {
+export const setTitle = (title: string): void => {
   document.title = title;
-}
+};
 
-export function getBaseUrl(): string {
-  return (window as any)._baseUrl;
-}
+export const getBaseUrl = (): string => {
+  return (window as any).props.baseUrl;
+};
+
+export const isSingleHostMode = (): boolean => {
+  return (window as any).props.settings.mode === 'single';
+};
 
 export interface ModalOptions {
   closable: boolean;
 }
 
-export function showModal(selector: string, options?: ModalOptions): void {
+export const showModal = (selector: string, options?: ModalOptions): void => {
   const opts = Object.assign({ blurring: true }, options || { });
-
   $(selector).modal(opts).modal('show');
-}
+};
 
-export function hideModal(selector: string): void {
+export const hideModal = (selector: string): void => {
   $(selector).modal('hide');
-}
+};
 
-export function showSignIn(): void {
+export const showSignIn = (): void => {
   showModal('#signin-modal');
-}
+};
 
-export function hideSignIn(): void {
+export const hideSignIn = (): void => {
   hideModal('#signin-modal');
-}
+};
 
-export function getQueryString(name: string): string {
+export const getQueryString = (name: string): string => {
   const url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
   const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
@@ -39,13 +42,13 @@ export function getQueryString(name: string): string {
   }
 
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
-}
+};
 
-export function getQueryStringArray(name: string): string[] {
+export const getQueryStringArray = (name: string): string[] => {
   const qs = getQueryString(name);
   if (qs) {
     return qs.split(',').filter((i) => i);
   }
 
   return [];
-}
+};

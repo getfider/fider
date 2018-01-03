@@ -53,8 +53,8 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 					if trx != nil {
 						trx.Rollback()
 					}
-					c.Logger().Debugf("Finished Request %s", path)
 					c.Failure(err)
+					c.Logger().Debugf("Finished Request %s", path)
 				}
 			}()
 

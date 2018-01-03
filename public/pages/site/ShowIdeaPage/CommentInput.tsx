@@ -4,11 +4,10 @@ import * as ReactDOM from 'react-dom';
 import { Idea, CurrentUser } from '@fider/models';
 import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from '@fider/components/common';
 
-import { inject, injectables } from '@fider/di';
-import { Session, IdeaService, Failure } from '@fider/services';
-import { showSignIn } from '@fider/utils/page';
+import { page, actions, Failure } from '@fider/services';
 
 interface CommentInputProps {
+  user?: CurrentUser;
   idea: Idea;
 }
 
@@ -20,27 +19,18 @@ interface CommentInputState {
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
   private input: HTMLTextAreaElement;
 
-  @inject(injectables.Session)
-  public session: Session;
-
-  @inject(injectables.IdeaService)
-  public service: IdeaService;
-
-  private user?: CurrentUser;
-
   constructor(props: CommentInputProps) {
-      super(props);
-      this.user = this.session.getCurrentUser();
+    super(props);
 
-      this.state = {
-        content: ''
-      };
+    this.state = {
+      content: ''
+    };
   }
 
   private onTextFocused() {
-    if (!this.user) {
+    if (!this.props.user) {
       this.input.blur();
-      showSignIn();
+      page.showSignIn();
     }
   }
 
@@ -49,7 +39,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       error: undefined
     });
 
-    const result = await this.service.addComment(this.props.idea.number, this.state.content);
+    const result = await actions.createComment(this.props.idea.number, this.state.content);
     if (result.ok) {
       location.reload();
     } else {
@@ -60,13 +50,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   public render() {
-    const user = this.session.getCurrentUser();
 
     return (
-      <div className={`comment-input ${user && 'authenticated' }`}>
-        {this.user && <Gravatar user={this.user} />}
+      <div className={`comment-input ${this.props.user && 'authenticated' }`}>
+        {this.props.user && <Gravatar user={this.props.user} />}
         <div className="ui form">
-          {this.user && <UserName user={this.user} />}
+          {this.props.user && <UserName user={this.props.user} />}
           <DisplayError error={this.state.error} />
           <div className="field">
             <Textarea

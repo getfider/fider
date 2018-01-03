@@ -38,7 +38,7 @@ func TestSignInHandler(t *testing.T) {
 	code, response := server.Execute(handlers.SignIn(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io/oauth/token?provider=facebook&redirect="))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect="))
 }
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
@@ -57,11 +57,11 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://orange.test.fider.io").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io"))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io"))
 }
 
 func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
@@ -93,15 +93,15 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 	code, response := server.
-		WithURL("http://login.test.fider.io/oauth/callback?state=http://orange.test.fider.io&code=456").
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io&code=456").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
-	user, err := services.Users.GetByEmail(mock.OrangeTenant.ID, "some.guy@facebook.com")
+	user, err := services.Users.GetByEmail(mock.AvengersTenant.ID, "some.guy@facebook.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Some Facebook Guy"))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://orange.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.ydyGDIZZHbJ-mgvpAsXTZnbs1rBH6cTVjHctZEACUOo"))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.ydyGDIZZHbJ-mgvpAsXTZnbs1rBH6cTVjHctZEACUOo"))
 }
 
 func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {

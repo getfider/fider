@@ -7,7 +7,7 @@ type OAuthService struct{}
 
 //GetAuthURL returns authentication url for given provider
 func (p *OAuthService) GetAuthURL(authEndpoint string, provider string, redirect string) string {
-	return "http://orange.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect
+	return "http://avengers.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect
 }
 
 //GetProfile returns user profile based on provider and code

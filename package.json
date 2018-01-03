@@ -4,19 +4,15 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "axios": "^0.17.1",
-    "inversify": "^4.5.1",
-    "inversify-inject-decorators": "^3.0.2",
     "jquery": "^3.2.1",
     "markdown-it": "^8.4.0",
-    "moment": "^2.19.2",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-textarea-autosize": "^5.2.1",
-    "reflect-metadata": "^0.1.10",
-    "throttle-debounce": "^1.0.1"
+    "semantic-ui-css": "^2.2.12"
   },
   "devDependencies": {
+    "reflect-metadata": "^0.1.10",
     "@types/jquery": "^3.2.16",
     "@types/markdown-it": "0.0.4",
     "@types/mocha": "^2.2.44",

@@ -4,9 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"database/sql"
-
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -101,9 +98,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
 	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants ORDER BY id LIMIT 1")
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -115,9 +110,7 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
 	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -159,9 +152,7 @@ func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest
 	request := dbSignInRequest{}
 
 	err := s.trx.Get(&request, "SELECT id, email, name, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
-	if err == sql.ErrNoRows {
-		return nil, app.ErrNotFound
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 

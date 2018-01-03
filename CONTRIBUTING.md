@@ -6,7 +6,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 Tools you'll need:
 
 - Go 1.9 (https://golang.org)
-- Node.js 6+ (https://nodejs.org/)
+- Node.js 8+ (https://nodejs.org/)
 - Docker (https://www.docker.com/)
 - github.com/codegangsta/gin (https://github.com/codegangsta/gin)
 
@@ -14,11 +14,10 @@ Step by step:
 
 1) clone this repository into `$GOPATH/src/github.com/getfider/fider`
 2) run `npm install` to install front end packages 
-3) run `npm run watch` to pack the front end source into a bundle on every file change.
-4) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
-5) run `cp .example.env .env` to create a local environment configuration file.
-6) run `make watch` to start the application.
-7) Navigate to `http://localhost:3000/` and boom! Welcome to your new local Fider development copy!
+3) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
+4) run `cp .example.env .env` to create a local environment configuration file.
+5) run `make watch` to start the application.
+6) Navigate to `http://localhost:3000/` and boom! Welcome to your new local Fider development copy!
 
 Change some code, fix some bugs, implement some features and send us your Pull Request!
 
