@@ -2,11 +2,8 @@ package dbx
 
 import (
 	"database/sql"
-	"fmt"
 	"io/ioutil"
 	"reflect"
-
-	"github.com/lib/pq"
 
 	"strings"
 
@@ -35,7 +32,7 @@ func NewWithLogger(logger log.Logger) (*Database, error) {
 		return nil, err
 	}
 
-	db := &Database{conn, logger}
+	db := &Database{conn, logger, NewRowMapper()}
 	return db, nil
 }
 
@@ -43,12 +40,13 @@ func NewWithLogger(logger log.Logger) (*Database, error) {
 type Database struct {
 	conn   *sql.DB
 	logger log.Logger
+	mapper RowMapper
 }
 
 // Begin returns a new SQL transaction
 func (db Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
-	return &Trx{tx: tx, logger: db.logger}, err
+	return &Trx{tx: tx, logger: db.logger, mapper: db.mapper}, err
 }
 
 // Close connection to database
@@ -57,56 +55,6 @@ func (db Database) Close() error {
 		return db.conn.Close()
 	}
 	return nil
-}
-
-func scan(prefix string, data interface{}) map[string]interface{} {
-	fields := make(map[string]interface{})
-
-	s := reflect.ValueOf(data).Elem()
-
-	for i := 0; i < s.NumField(); i++ {
-		field := s.Field(i)
-		typeField := s.Type().Field(i)
-		tag := typeField.Tag.Get("db")
-
-		if tag != "" {
-			if typeField.Type.Kind() == reflect.Slice {
-				obj := reflect.New(reflect.MakeSlice(typeField.Type, 0, 0).Type()).Elem()
-				field.Set(obj)
-				fields[prefix+tag] = pq.Array(field.Addr().Interface())
-			} else if typeField.Type.Kind() != reflect.Ptr {
-				fields[prefix+tag] = field.Addr().Interface()
-			} else if field.Type().Elem().Kind() != reflect.Struct || field.Type().Elem().String() == "time.Time" {
-				obj := reflect.New(field.Type().Elem()).Elem()
-				field.Set(obj.Addr())
-				fields[prefix+tag] = field.Interface()
-			} else {
-				obj := reflect.New(field.Type().Elem()).Elem()
-				field.Set(obj.Addr())
-				for name, address := range scan(prefix+tag+"_", field.Interface()) {
-					fields[name] = address
-				}
-			}
-		}
-	}
-
-	return fields
-}
-
-func fill(rows *sql.Rows, data interface{}) error {
-	columns, _ := rows.Columns()
-	fields := scan("", data)
-
-	pointers := make([]interface{}, len(columns))
-	for i, column := range columns {
-		if pointer, ok := fields[column]; ok {
-			pointers[i] = pointer
-		} else {
-			panic(fmt.Sprintf("No target for column %s", column))
-		}
-	}
-
-	return rows.Scan(pointers...)
 }
 
 func (db Database) load(path string) {
@@ -154,6 +102,7 @@ func (db Database) Migrate() {
 type Trx struct {
 	tx     *sql.Tx
 	logger log.Logger
+	mapper RowMapper
 }
 
 // QueryRow the database with given SQL command and returns only one row
@@ -203,7 +152,8 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 	defer rows.Close()
 
 	if rows.Next() {
-		return fill(rows, data)
+		columns, _ := rows.Columns()
+		return trx.mapper.Map(data, columns, rows.Scan)
 	}
 
 	return app.ErrNotFound
@@ -222,8 +172,7 @@ func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error)
 	if rows != nil {
 		defer rows.Close()
 		for rows.Next() {
-			err := rows.Scan(&value)
-			if err != nil {
+			if err := rows.Scan(&value); err != nil {
 				return nil, err
 			}
 			values = append(values, value)
@@ -265,10 +214,13 @@ func (trx Trx) Select(data interface{}, command string, args ...interface{}) err
 	sliceType := reflect.TypeOf(data).Elem()
 	items := reflect.New(sliceType).Elem()
 	itemType := sliceType.Elem().Elem()
+	var columns []string
 	for rows.Next() {
+		if columns == nil {
+			columns, _ = rows.Columns()
+		}
 		item := reflect.New(itemType)
-		err = fill(rows, item.Interface())
-		if err != nil {
+		if err = trx.mapper.Map(item.Interface(), columns, rows.Scan); err != nil {
 			return err
 		}
 		items = reflect.Append(items, item)

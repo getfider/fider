@@ -20,6 +20,10 @@ type dbTenant struct {
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
+	if t == nil {
+		return nil
+	}
+
 	return &models.Tenant{
 		ID:             t.ID,
 		Name:           t.Name,
