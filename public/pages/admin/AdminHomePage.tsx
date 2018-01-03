@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { AppSettings, CurrentUser, Tenant } from '@fider/models';
-import { Button, Textarea, DisplayError } from '@fider/components/common';
+import { Button, ButtonClickEvent, Textarea, DisplayError } from '@fider/components/common';
 import { actions, page, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
@@ -33,7 +33,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
     page.setTitle(`Administration · ${document.title}`);
   }
 
-  private async confirm() {
+  private async confirm(e: ButtonClickEvent) {
     const result = await actions.updateTenantSettings(
       this.state.title,
       this.state.invitation,
@@ -41,6 +41,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
       this.state.cname,
     );
     if (result.ok) {
+      e.preventEnable();
       location.href = `/`;
     } else if (result.error) {
       this.setState({ error: result.error });
@@ -136,7 +137,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
               {
                 this.props.user.isAdministrator &&
                 <div className="field">
-                  <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
+                  <Button className="positive" size="tiny" onClick={async (e) => await this.confirm(e)}>Confirm</Button>
                 </div>
               }
             </div>
