@@ -58,9 +58,12 @@ func (e *Engine) Start(address string) {
 		ErrorLog: stdLog.New(e.logger, "", 0),
 	}
 
-	var err error
+	var (
+		err         error
+		certManager *CertificateManager
+	)
 	if autoSSL == "true" {
-		certManager, err := NewCertificateManager(certFile, keyFile, "certs")
+		certManager, err = NewCertificateManager(certFile, keyFile, "certs")
 		if err != nil {
 			panic(err)
 		}
