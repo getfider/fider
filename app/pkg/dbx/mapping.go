@@ -33,11 +33,10 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 		m.cache[t] = typeMapper
 	}
 
-	vd := reflect.ValueOf(dest).Elem()
 	pointers := make([]interface{}, len(columns))
 	for i, c := range columns {
 		mapping := typeMapper.Fields[c]
-		field := vd
+		field := reflect.ValueOf(dest).Elem()
 
 		for _, f := range mapping.FieldName {
 			if field.Kind() == reflect.Ptr {
