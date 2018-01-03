@@ -48,6 +48,7 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 			}
 			field = field.FieldByName(f)
 		}
+
 		if !field.CanAddr() {
 			panic(fmt.Sprintf("Field not found for column %s", c))
 		}
