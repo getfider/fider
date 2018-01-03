@@ -18,7 +18,7 @@ docker run --link $CONTAINER -e TARGETS=$CONTAINER:5432 waisbrot/wait
 
 run_e2e () {
   echo "Starting Fider (HOST_MODE: $1)..."
-  HOST_MODE=$1 DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@localhost:5577/fider_e2e?sslmode=disable godotenv -f .env ./fider > logs/e2e.log 2>&1 &
+  GO_ENV=production HOST_MODE=$1 DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@localhost:5577/fider_e2e?sslmode=disable godotenv -f .env ./fider > logs/e2e.log 2>&1 &
   FIDER_PID=$!
 
   {
