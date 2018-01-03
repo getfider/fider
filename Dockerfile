@@ -10,6 +10,6 @@ COPY views /app/views
 COPY dist /app/dist
 COPY fider /app
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD [ "./fider" ]
