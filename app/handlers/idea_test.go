@@ -280,3 +280,41 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 	Expect(code).To(Equal(http.StatusForbidden))
 	Expect(idea.Status).To(Equal(models.IdeaOpen))
 }
+
+func TestSetResponseHandler_Duplicate(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	idea2, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "duplicate_number": %d }`, models.IdeaDuplicate, idea2.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+	Expect(code).To(Equal(http.StatusOK))
+
+	idea1, _ = services.Ideas.GetByNumber(idea1.Number)
+	Expect(idea1.Status).To(Equal(models.IdeaDuplicate))
+
+	idea2, _ = services.Ideas.GetByNumber(idea2.Number)
+	Expect(idea2.Status).To(Equal(models.IdeaOpen))
+}
+
+func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "duplicate_number": 9999 }`, models.IdeaDuplicate)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}

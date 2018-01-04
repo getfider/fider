@@ -153,6 +153,32 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	return nil
 }
 
+// MarkAsDuplicate set idea as a duplicate of another idea
+func (s *IdeaStorage) MarkAsDuplicate(number, duplicateNumber, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+	duplicate, err := s.GetByNumber(duplicateNumber)
+	if err != nil {
+		return err
+	}
+
+	idea.Status = models.IdeaDuplicate
+	idea.Response = &models.IdeaResponse{
+		Duplicate: &models.DuplicateIdea{
+			Number: duplicate.Number,
+			Title:  duplicate.Title,
+			Slug:   duplicate.Slug,
+			Status: duplicate.Status,
+		},
+		Text:        "",
+		User:        &models.User{ID: userID},
+		RespondedOn: time.Now(),
+	}
+	return nil
+}
+
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
 	return s.ideasSupportedBy[userID], nil

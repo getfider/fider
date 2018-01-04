@@ -283,6 +283,35 @@ func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
 	Expect(idea.Response.RespondedOn).Should(BeTemporally(">", respondedOn))
 }
 
+func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+	idea1, _ := ideas.Add("My new idea", "with this description", 1)
+	ideas.AddSupporter(idea1.Number, 1)
+	idea2, _ := ideas.Add("My other idea", "with similar description", 2)
+	ideas.AddSupporter(idea2.Number, 2)
+
+	ideas.MarkAsDuplicate(idea2.Number, idea1.Number, 1)
+	idea1, _ = ideas.GetByID(idea1.ID)
+
+	Expect(idea1.TotalSupporters).To(Equal(2))
+	Expect(idea1.Status).To(Equal(models.IdeaOpen))
+	Expect(idea1.Response).To(BeNil())
+
+	idea2, _ = ideas.GetByID(idea2.ID)
+
+	Expect(idea2.Response.Text).To(Equal(""))
+	Expect(idea2.TotalSupporters).To(Equal(1))
+	Expect(idea2.Status).To(Equal(models.IdeaDuplicate))
+	Expect(idea2.Response.User.ID).To(Equal(1))
+	Expect(idea2.Response.Duplicate.Number).To(Equal(idea1.Number))
+	Expect(idea2.Response.Duplicate.Title).To(Equal(idea1.Title))
+	Expect(idea2.Response.Duplicate.Slug).To(Equal(idea1.Slug))
+	Expect(idea2.Response.Duplicate.Status).To(Equal(idea1.Status))
+}
+
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
