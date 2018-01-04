@@ -19,15 +19,15 @@ interface PageConfiguration {
 const route = (path: string, component: any, id: string, showHeader: boolean): PageConfiguration => {
   path = path.replace('/', '\/')
              .replace(':number', '\\d+')
-             .replace('*', '.*');
+             .replace('*', '\/?.*');
 
   const regex = new RegExp(`^${path}$`);
   return { regex, component, id, showHeader };
 };
 
 const pathRegex = [
-  route('/', HomePage, 'fdr-home-page', true),
-  route('/ideas/:number/*', ShowIdeaPage, 'fdr-show-idea-page', true),
+  route('', HomePage, 'fdr-home-page', true),
+  route('/ideas/:number*', ShowIdeaPage, 'fdr-show-idea-page', true),
   route('/admin/members', MembersPage, 'fdr-admin-members-page', true),
   route('/admin/tags', ManageTagsPage, 'fdr-admin-tags-page', true),
   route('/admin', AdminHomePage, 'fdr-admin-page', true),
@@ -37,6 +37,9 @@ const pathRegex = [
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {
+  if (path.length > 0 && path.charAt(path.length - 1) === '/') {
+    path = path.substring(0, path.length - 1);
+  }
   for (const entry of pathRegex) {
     if (entry.regex.test(path)) {
       return entry;

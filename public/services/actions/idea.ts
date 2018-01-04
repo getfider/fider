@@ -13,8 +13,18 @@ export const createComment = async (ideaNumber: number, content: string): Promis
   return http.post(`/api/ideas/${ideaNumber}/comments`, { content }).then(http.event('comment', 'create'));
 };
 
-export const setResponse = async (ideaNumber: number, status: number, text: string): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/status`, { status, text }).then(http.event('idea', 'respond'));
+interface SetResponseInput {
+  status: number;
+  text: string;
+  duplicateNumber: number;
+}
+
+export const respond = async (ideaNumber: number, input: SetResponseInput): Promise<Result> => {
+  return http.post(`/api/ideas/${ideaNumber}/status`, {
+    status: input.status,
+    text: input.text,
+    duplicateNumber: input.duplicateNumber,
+  }).then(http.event('idea', 'respond'));
 };
 
 export const createIdea = async (title: string, description: string): Promise<Result<Idea>> => {

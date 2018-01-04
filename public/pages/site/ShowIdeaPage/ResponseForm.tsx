@@ -12,6 +12,7 @@ interface ResponseFormProps {
 interface ResponseFormState {
   status: number;
   text: string;
+  duplicateNumber: number;
   error?: Failure;
 }
 
@@ -23,12 +24,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
     this.state = {
       status: this.props.idea.status,
+      duplicateNumber: 0,
       text: this.props.idea.response && this.props.idea.response.text
     };
   }
 
   private async submit() {
-    const result = await actions.setResponse(this.props.idea.number, this.state.status, this.state.text);
+    const result = await actions.respond(this.props.idea.number, this.state);
     if (result.ok) {
       location.reload();
     } else {
@@ -71,14 +73,29 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
               </select>
             </div>
           </div>
-          <DisplayError fields={['text']} error={this.state.error} />
-          <div className="field">
-            <Textarea
-              onChange={(e) => this.setState({ text: e.currentTarget.value })}
-              defaultValue={this.state.text}
-              placeholder="What's going on with this idea? Let your users know what are your plans..."
-            />
-          </div>
+          {
+            this.state.status === IdeaStatus.Duplicate.value
+            ?
+             <>
+              <span>Search...</span>
+              <DisplayError fields={['duplicateNumber']} error={this.state.error} />
+              <input
+                type="text"
+                onChange={(e) => this.setState({ duplicateNumber: parseInt(e.currentTarget.value, 10) })}
+              />
+              <span className="info">Votes from this idea will be merged into original idea.</span>
+             </>
+            : <>
+                <DisplayError fields={['text']} error={this.state.error} />
+                <div className="field">
+                  <Textarea
+                    onChange={(e) => this.setState({ text: e.currentTarget.value })}
+                    defaultValue={this.state.text}
+                    placeholder="What's going on with this idea? Let your users know what are your plans..."
+                  />
+                </div>
+              </>
+          }
         </div>
 
         <div className="actions">

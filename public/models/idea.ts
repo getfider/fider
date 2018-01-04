@@ -23,13 +23,15 @@ export class IdeaStatus {
               public slug: string,
               public show: boolean,
               public closed: boolean,
+              public filterable: boolean,
               public color: string) { }
 
-  public static Open = new IdeaStatus(0, 'Open', 'open', false, false, '');
-  public static Planned = new IdeaStatus(4, 'Planned', 'planned', true, false, 'violet');
-  public static Started = new IdeaStatus(1, 'Started', 'started', true, false, 'blue');
-  public static Completed = new IdeaStatus(2, 'Completed', 'completed', true, true, 'green');
-  public static Declined = new IdeaStatus(3, 'Declined', 'declined', true, true, 'red');
+  public static Open = new IdeaStatus(0, 'Open', 'open', false, false, false, '');
+  public static Planned = new IdeaStatus(4, 'Planned', 'planned', true, false,  true, 'violet');
+  public static Started = new IdeaStatus(1, 'Started', 'started', true, false,  true, 'blue');
+  public static Completed = new IdeaStatus(2, 'Completed', 'completed', true, true,  true, 'green');
+  public static Declined = new IdeaStatus(3, 'Declined', 'declined', true, true,  true, 'red');
+  public static Duplicate = new IdeaStatus(5, 'Duplicate', 'duplicate', true, true,  false, 'yellow');
 
   public static Get(value: number): IdeaStatus {
     for (const status of IdeaStatus.All) {
@@ -45,7 +47,8 @@ export class IdeaStatus {
     IdeaStatus.Planned,
     IdeaStatus.Started,
     IdeaStatus.Completed,
-    IdeaStatus.Declined
+    IdeaStatus.Duplicate,
+    IdeaStatus.Declined,
   ];
 }
 
@@ -53,6 +56,12 @@ export interface IdeaResponse {
   user: User;
   text: string;
   respondedOn: Date;
+  duplicate?: {
+    number: number;
+    title: string;
+    slug: string;
+    status: number;
+  };
 }
 
 export interface Comment {

@@ -288,7 +288,7 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
 	idea2, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.AryaStark.ID)
 
-	body := fmt.Sprintf(`{ "status": %d, "duplicate_number": %d }`, models.IdeaDuplicate, idea2.Number)
+	body := fmt.Sprintf(`{ "status": %d, "duplicateNumber": %d }`, models.IdeaDuplicate, idea2.Number)
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -309,11 +309,43 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 	server, services := mock.NewServer()
 	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
 
-	body := fmt.Sprintf(`{ "status": %d, "duplicate_number": 9999 }`, models.IdeaDuplicate)
+	body := fmt.Sprintf(`{ "status": %d, "duplicateNumber": 9999 }`, models.IdeaDuplicate)
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", idea1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "duplicateNumber": %d }`, models.IdeaDuplicate, idea.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "duplicateNumber": %d }`, models.IdeaDuplicate, idea.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.ID).
 		ExecutePost(handlers.SetResponse(), body)
 
 	Expect(code).To(Equal(http.StatusBadRequest))

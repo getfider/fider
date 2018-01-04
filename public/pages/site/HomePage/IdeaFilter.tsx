@@ -76,7 +76,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
             return group;
         }, {});
 
-        const statusFilterItems = IdeaStatus.All.filter((s) => s.show && grouped[s.value]).map((s) => (
+        const statusFilterItems = IdeaStatus.All.filter((s) => s.filterable && grouped[s.value]).map((s) => (
             <div key={s.value} className={`item ${activeFilter === s.slug && 'active'}`} data-value={s.slug} data-text={s.title.toLowerCase()}>
                 {s.title}
                 <a className="ui mini circular label">{grouped[s.value]}</a>

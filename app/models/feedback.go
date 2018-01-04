@@ -51,7 +51,7 @@ type SetResponse struct {
 	Number          int    `route:"number"`
 	Status          int    `json:"status"`
 	Text            string `json:"text"`
-	DuplicateNumber int    `json:"duplicate_number"`
+	DuplicateNumber int    `json:"duplicateNumber"`
 }
 
 //IdeaResponse is a staff response to a given idea

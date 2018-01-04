@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"time"
@@ -201,7 +200,7 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1"), s.tenant.ID)
+	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2"), s.tenant.ID, models.IdeaDuplicate)
 	if err != nil {
 		return nil, err
 	}
@@ -338,10 +337,6 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
-	if status == models.IdeaDuplicate {
-		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
-	}
-
 	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err

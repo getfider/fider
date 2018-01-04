@@ -144,10 +144,14 @@ func (input *SetResponse) Validate(services *app.Services) *validate.Result {
 	}
 
 	if input.Model.Status == models.IdeaDuplicate {
+		if input.Model.DuplicateNumber == input.Model.Number {
+			result.AddFieldFailure("duplicateNumber", "Cannot be a duplicate of itself")
+		}
+
 		duplicate, err := services.Ideas.GetByNumber(input.Model.DuplicateNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
-				result.AddFieldFailure("duplicate_number", "Idea not found")
+				result.AddFieldFailure("duplicateNumber", "Idea not found")
 			} else {
 				return validate.Error(err)
 			}
