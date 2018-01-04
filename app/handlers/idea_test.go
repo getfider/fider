@@ -334,19 +334,3 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusBadRequest))
 }
-
-func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
-	RegisterTestingT(t)
-
-	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
-
-	body := fmt.Sprintf(`{ "status": %d, "duplicateNumber": %d }`, models.IdeaDuplicate, idea.Number)
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		AddParam("number", idea.ID).
-		ExecutePost(handlers.SetResponse(), body)
-
-	Expect(code).To(Equal(http.StatusBadRequest))
-}
