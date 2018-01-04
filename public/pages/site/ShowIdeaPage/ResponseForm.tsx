@@ -12,7 +12,7 @@ interface ResponseFormProps {
 interface ResponseFormState {
   status: number;
   text: string;
-  duplicateNumber: number;
+  originalNumber: number;
   error?: Failure;
 }
 
@@ -24,7 +24,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
     this.state = {
       status: this.props.idea.status,
-      duplicateNumber: 0,
+      originalNumber: 0,
       text: this.props.idea.response && this.props.idea.response.text
     };
   }
@@ -78,10 +78,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             ?
              <>
               <span>Search...</span>
-              <DisplayError fields={['duplicateNumber']} error={this.state.error} />
+              <DisplayError fields={['originalNumber']} error={this.state.error} />
               <input
                 type="text"
-                onChange={(e) => this.setState({ duplicateNumber: parseInt(e.currentTarget.value, 10) })}
+                onChange={(e) => this.setState({ originalNumber: parseInt(e.currentTarget.value, 10) })}
               />
               <span className="info">Votes from this idea will be merged into original idea.</span>
              </>

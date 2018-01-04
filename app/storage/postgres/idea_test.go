@@ -306,10 +306,10 @@ func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
 	Expect(idea2.TotalSupporters).To(Equal(1))
 	Expect(idea2.Status).To(Equal(models.IdeaDuplicate))
 	Expect(idea2.Response.User.ID).To(Equal(1))
-	Expect(idea2.Response.Duplicate.Number).To(Equal(idea1.Number))
-	Expect(idea2.Response.Duplicate.Title).To(Equal(idea1.Title))
-	Expect(idea2.Response.Duplicate.Slug).To(Equal(idea1.Slug))
-	Expect(idea2.Response.Duplicate.Status).To(Equal(idea1.Status))
+	Expect(idea2.Response.Original.Number).To(Equal(idea1.Number))
+	Expect(idea2.Response.Original.Title).To(Equal(idea1.Title))
+	Expect(idea2.Response.Original.Slug).To(Equal(idea1.Slug))
+	Expect(idea2.Response.Original.Status).To(Equal(idea1.Status))
 }
 
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {

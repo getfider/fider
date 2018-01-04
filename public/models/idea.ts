@@ -56,7 +56,7 @@ export interface IdeaResponse {
   user: User;
   text: string;
   respondedOn: Date;
-  duplicate?: {
+  original?: {
     number: number;
     title: string;
     slug: string;

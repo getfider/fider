@@ -125,7 +125,7 @@ func SetResponse() web.HandlerFunc {
 
 		var err error
 		if input.Model.Status == models.IdeaDuplicate {
-			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Duplicate.Number, c.User().ID)
+			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
 		} else {
 			err = c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
 		}

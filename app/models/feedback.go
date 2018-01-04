@@ -48,22 +48,22 @@ type NewComment struct {
 
 // SetResponse represents the action to update an idea response
 type SetResponse struct {
-	Number          int    `route:"number"`
-	Status          int    `json:"status"`
-	Text            string `json:"text"`
-	DuplicateNumber int    `json:"duplicateNumber"`
+	Number         int    `route:"number"`
+	Status         int    `json:"status"`
+	Text           string `json:"text"`
+	OriginalNumber int    `json:"originalNumber"`
 }
 
 //IdeaResponse is a staff response to a given idea
 type IdeaResponse struct {
-	Text        string         `json:"text"`
-	RespondedOn time.Time      `json:"respondedOn"`
-	User        *User          `json:"user"`
-	Duplicate   *DuplicateIdea `json:"duplicate"`
+	Text        string        `json:"text"`
+	RespondedOn time.Time     `json:"respondedOn"`
+	User        *User         `json:"user"`
+	Original    *OriginalIdea `json:"original"`
 }
 
-//DuplicateIdea holds details of a duplicated idea
-type DuplicateIdea struct {
+//OriginalIdea holds details of the original idea of a duplicate
+type OriginalIdea struct {
 	Number int    `json:"number"`
 	Title  string `json:"title"`
 	Slug   string `json:"slug"`

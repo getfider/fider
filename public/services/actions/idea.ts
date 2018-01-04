@@ -16,14 +16,14 @@ export const createComment = async (ideaNumber: number, content: string): Promis
 interface SetResponseInput {
   status: number;
   text: string;
-  duplicateNumber: number;
+  originalNumber: number;
 }
 
 export const respond = async (ideaNumber: number, input: SetResponseInput): Promise<Result> => {
   return http.post(`/api/ideas/${ideaNumber}/status`, {
     status: input.status,
     text: input.text,
-    duplicateNumber: input.duplicateNumber,
+    originalNumber: input.originalNumber,
   }).then(http.event('idea', 'respond'));
 };
 

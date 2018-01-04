@@ -8,17 +8,17 @@ interface IdeaResponseProps {
 }
 
 const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
-  const duplicate = props.response.duplicate;
-  if (!duplicate) {
+  const original = props.response.original;
+  if (!original) {
     return null;
   }
-  const status = IdeaStatus.Get(duplicate.status);
+  const status = IdeaStatus.Get(original.status);
 
   return (
     <div className="content">
       <span>&#8618;</span>
       <span title={status.title} className={`ui mini empty circular ${status.color} label`} />
-      <a href={`/ideas/${duplicate.number}/${duplicate.slug}`}>{duplicate.title}</a>
+      <a href={`/ideas/${original.number}/${original.slug}`}>{original.title}</a>
     </div>
   );
 };

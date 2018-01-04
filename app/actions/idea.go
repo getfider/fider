@@ -120,8 +120,8 @@ func (input *AddNewComment) Validate(services *app.Services) *validate.Result {
 
 // SetResponse represents the action to update an idea response
 type SetResponse struct {
-	Model     *models.SetResponse
-	Duplicate *models.Idea
+	Model    *models.SetResponse
+	Original *models.Idea
 }
 
 // Initialize the model
@@ -144,20 +144,20 @@ func (input *SetResponse) Validate(services *app.Services) *validate.Result {
 	}
 
 	if input.Model.Status == models.IdeaDuplicate {
-		if input.Model.DuplicateNumber == input.Model.Number {
-			result.AddFieldFailure("duplicateNumber", "Cannot be a duplicate of itself")
+		if input.Model.OriginalNumber == input.Model.Number {
+			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		duplicate, err := services.Ideas.GetByNumber(input.Model.DuplicateNumber)
+		original, err := services.Ideas.GetByNumber(input.Model.OriginalNumber)
 		if err != nil {
 			if err == app.ErrNotFound {
-				result.AddFieldFailure("duplicateNumber", "Idea not found")
+				result.AddFieldFailure("originalNumber", "Original idea not found")
 			} else {
 				return validate.Error(err)
 			}
 		}
-		if duplicate != nil {
-			input.Duplicate = duplicate
+		if original != nil {
+			input.Original = original
 		}
 	} else if input.Model.Status != models.IdeaOpen && input.Model.Text == "" {
 		result.AddFieldFailure("text", "Description is required.")
