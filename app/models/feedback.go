@@ -27,6 +27,16 @@ func (i *Idea) CanBeSupported() bool {
 	return i.Status != IdeaCompleted && i.Status != IdeaDeclined && i.Status != IdeaDuplicate
 }
 
+//BasicIdea is a subset of Idea with few fields
+type BasicIdea struct {
+	ID              int    `json:"id"`
+	Number          int    `json:"number"`
+	Title           string `json:"title"`
+	Slug            string `json:"slug"`
+	TotalSupporters int    `json:"totalSupporters"`
+	Status          int    `json:"status"`
+}
+
 // NewIdea represents a new idea
 type NewIdea struct {
 	Title       string `json:"title"`

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { User, Comment, Idea, IdeaStatus } from '@fider/models';
 import { Button, DisplayError, Textarea } from '@fider/components/common';
+import { IdeaSearch } from './';
 
 import { actions, Failure } from '@fider/services';
 
@@ -58,7 +59,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     );
 
     const modal = (
-      <div className="ui form modal" ref={(e) => this.modal = e!}>
+      <div className="ui form modal fdr-response-form" ref={(e) => this.modal = e!}>
         <div className="content">
           <DisplayError fields={['status']} error={this.state.error} />
           <div className="two fields">
@@ -77,11 +78,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             this.state.status === IdeaStatus.Duplicate.value
             ?
              <>
-              <span>Search...</span>
               <DisplayError fields={['originalNumber']} error={this.state.error} />
-              <input
-                type="text"
-                onChange={(e) => this.setState({ originalNumber: parseInt(e.currentTarget.value, 10) })}
+              <IdeaSearch
+                exclude={[this.props.idea.number]}
+                onChanged={(originalNumber) => this.setState({ originalNumber })}
               />
               <span className="info">Votes from this idea will be merged into original idea.</span>
              </>

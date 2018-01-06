@@ -20,6 +20,7 @@ type Idea interface {
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
 	GetAll() ([]*models.Idea, error)
+	GetAllBasic() ([]*models.BasicIdea, error)
 	Add(title, description string, userID int) (*models.Idea, error)
 	Update(number int, title, description string) (*models.Idea, error)
 	AddComment(number int, content string, userID int) (int, error)

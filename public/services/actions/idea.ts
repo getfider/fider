@@ -1,5 +1,9 @@
 import { http, Result } from '@fider/services';
-import { Idea } from '@fider/models';
+import { Idea, BasicIdea } from '@fider/models';
+
+export const getIdeas = async (): Promise<Result<BasicIdea[]>> => {
+  return await http.get<BasicIdea[]>('/api/ideas');
+};
 
 export const addSupport = async (ideaNumber: number): Promise<Result> => {
   return http.post(`/api/ideas/${ideaNumber}/support`).then(http.event('idea', 'support'));

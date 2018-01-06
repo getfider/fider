@@ -18,7 +18,19 @@ func TestIndexHandler(t *testing.T) {
 	server, _ := mock.NewServer()
 	code, _ := server.OnTenant(mock.DemoTenant).AsUser(mock.JonSnow).Execute(handlers.Index())
 
-	Expect(code).To(Equal(200))
+	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestGetIdeasHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, query := server.OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecuteAsJSON(handlers.GetIdeas())
+
+	Expect(code).To(Equal(http.StatusOK))
+	Expect(query.IsArray()).To(BeTrue())
 }
 
 func TestDetailsHandler(t *testing.T) {

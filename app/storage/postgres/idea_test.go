@@ -39,6 +39,22 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
 	Expect(dbIdeas[1].TotalSupporters).To(Equal(5))
 	Expect(dbIdeas[1].Status).To(Equal(models.IdeaCompleted))
+
+	dbBasicIdeas, err := ideas.GetAllBasic()
+	Expect(err).To(BeNil())
+	Expect(dbBasicIdeas).To(HaveLen(2))
+
+	Expect(dbBasicIdeas[0].Title).To(Equal("Idea #1"))
+	Expect(dbBasicIdeas[0].Slug).To(Equal("idea-1"))
+	Expect(dbBasicIdeas[0].Number).To(Equal(1))
+	Expect(dbBasicIdeas[0].TotalSupporters).To(Equal(0))
+	Expect(dbBasicIdeas[0].Status).To(Equal(models.IdeaStarted))
+
+	Expect(dbBasicIdeas[1].Title).To(Equal("Idea #2"))
+	Expect(dbBasicIdeas[1].Slug).To(Equal("idea-2"))
+	Expect(dbBasicIdeas[1].Number).To(Equal(2))
+	Expect(dbBasicIdeas[1].TotalSupporters).To(Equal(5))
+	Expect(dbBasicIdeas[1].Status).To(Equal(models.IdeaCompleted))
 }
 
 func TestIdeaStorage_AddAndGet(t *testing.T) {

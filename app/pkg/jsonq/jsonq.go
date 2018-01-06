@@ -7,17 +7,23 @@ import (
 
 //Query is a JSON query interface
 type Query struct {
-	m map[string]*json.RawMessage
+	json string
+	m    map[string]*json.RawMessage
 }
 
 //New creates a new Query object based on given input as a JSON
 func New(content string) *Query {
 	var m map[string]*json.RawMessage
-	err := json.Unmarshal([]byte(content), &m)
-	if err != nil {
-		panic(err)
+	if len(content) > 0 && string(content[0]) == "{" {
+		err := json.Unmarshal([]byte(content), &m)
+		if err != nil {
+			panic(err)
+		}
 	}
-	return &Query{m: m}
+	return &Query{
+		m:    m,
+		json: content,
+	}
 }
 
 //String returns a string value from the json object based on its key
@@ -29,6 +35,11 @@ func (q *Query) String(key string) (string, error) {
 		return str, err
 	}
 	return "", nil
+}
+
+//IsArray returns true if the json object is an array
+func (q *Query) IsArray() bool {
+	return q.m == nil
 }
 
 //Contains returns true if the json object has the key

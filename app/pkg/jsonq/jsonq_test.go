@@ -25,15 +25,25 @@ func TestContains(t *testing.T) {
 	RegisterTestingT(t)
 
 	query := jsonq.New(`{ "name": "Jon Snow" }`)
+	Expect(query.IsArray()).To(BeFalse())
 	Expect(query.Contains("name")).To(BeTrue())
 	Expect(query.Contains("what")).To(BeFalse())
 	Expect(query.Contains("feature.name")).To(BeFalse())
+}
+
+func TestIsArray(t *testing.T) {
+	RegisterTestingT(t)
+
+	query := jsonq.New(`[0,1,2,3]`)
+	Expect(query.IsArray()).To(BeTrue())
 }
 
 func TestContainsNested(t *testing.T) {
 	RegisterTestingT(t)
 
 	query := jsonq.New(`{ "failures": { "name": "Name is required" } }`)
+	Expect(query.IsArray()).To(BeFalse())
+
 	Expect(query.Contains("failures")).To(BeTrue())
 	Expect(query.Contains("failures.name")).To(BeTrue())
 

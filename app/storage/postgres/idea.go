@@ -76,6 +76,17 @@ func (i *dbIdea) toModel() *models.Idea {
 	return idea
 }
 
+func (i *dbIdea) toBasic() *models.BasicIdea {
+	return &models.BasicIdea{
+		ID:              i.ID,
+		Number:          i.Number,
+		Title:           i.Title,
+		Slug:            i.Slug,
+		TotalSupporters: i.TotalSupporters,
+		Status:          i.Status,
+	}
+}
+
 type dbComment struct {
 	ID        int       `db:"id"`
 	Content   string    `db:"content"`
@@ -208,6 +219,23 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var result = make([]*models.Idea, len(ideas))
 	for i, idea := range ideas {
 		result[i] = idea.toModel()
+	}
+	return result, nil
+}
+
+// GetAllBasic returns all tenant ideas in a Basic model
+func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
+	var ideas []*dbIdea
+	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2")
+	query := fmt.Sprintf("SELECT id, number, title, slug, supporters, status FROM (%s) AS q", innerQuery)
+	err := s.trx.Select(&ideas, query, s.tenant.ID, models.IdeaDuplicate)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.BasicIdea, len(ideas))
+	for i, idea := range ideas {
+		result[i] = idea.toBasic()
 	}
 	return result, nil
 }

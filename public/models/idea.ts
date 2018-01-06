@@ -17,6 +17,15 @@ export interface Idea {
   ranking: number;
 }
 
+export interface BasicIdea {
+  id: number;
+  number: number;
+  slug: string;
+  title: string;
+  status: number;
+  totalSupporters: number;
+}
+
 export class IdeaStatus {
   constructor(public value: number,
               public title: string,

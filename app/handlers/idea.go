@@ -27,6 +27,17 @@ func Index() web.HandlerFunc {
 	}
 }
 
+// GetIdeas return basic model of all tenant ideas
+func GetIdeas() web.HandlerFunc {
+	return func(c web.Context) error {
+		ideas, err := c.Services().Ideas.GetAllBasic()
+		if err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(ideas)
+	}
+}
+
 // PostIdea creates a new idea on current tenant
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {
