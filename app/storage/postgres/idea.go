@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"time"
@@ -365,6 +366,10 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
+	if status == models.IdeaDuplicate {
+		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
+	}
+
 	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err
