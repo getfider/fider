@@ -39,6 +39,22 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
 	Expect(dbIdeas[1].TotalSupporters).To(Equal(5))
 	Expect(dbIdeas[1].Status).To(Equal(models.IdeaCompleted))
+
+	dbBasicIdeas, err := ideas.GetAllBasic()
+	Expect(err).To(BeNil())
+	Expect(dbBasicIdeas).To(HaveLen(2))
+
+	Expect(dbBasicIdeas[0].Title).To(Equal("Idea #1"))
+	Expect(dbBasicIdeas[0].Slug).To(Equal("idea-1"))
+	Expect(dbBasicIdeas[0].Number).To(Equal(1))
+	Expect(dbBasicIdeas[0].TotalSupporters).To(Equal(0))
+	Expect(dbBasicIdeas[0].Status).To(Equal(models.IdeaStarted))
+
+	Expect(dbBasicIdeas[1].Title).To(Equal("Idea #2"))
+	Expect(dbBasicIdeas[1].Slug).To(Equal("idea-2"))
+	Expect(dbBasicIdeas[1].Number).To(Equal(2))
+	Expect(dbBasicIdeas[1].TotalSupporters).To(Equal(5))
+	Expect(dbBasicIdeas[1].Status).To(Equal(models.IdeaCompleted))
 }
 
 func TestIdeaStorage_AddAndGet(t *testing.T) {
@@ -281,6 +297,35 @@ func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
 	ideas.SetResponse(idea.Number, "We finished it", 1, models.IdeaCompleted)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.RespondedOn).Should(BeTemporally(">", respondedOn))
+}
+
+func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+	idea1, _ := ideas.Add("My new idea", "with this description", 1)
+	ideas.AddSupporter(idea1.Number, 1)
+	idea2, _ := ideas.Add("My other idea", "with similar description", 2)
+	ideas.AddSupporter(idea2.Number, 2)
+
+	ideas.MarkAsDuplicate(idea2.Number, idea1.Number, 1)
+	idea1, _ = ideas.GetByID(idea1.ID)
+
+	Expect(idea1.TotalSupporters).To(Equal(2))
+	Expect(idea1.Status).To(Equal(models.IdeaOpen))
+	Expect(idea1.Response).To(BeNil())
+
+	idea2, _ = ideas.GetByID(idea2.ID)
+
+	Expect(idea2.Response.Text).To(Equal(""))
+	Expect(idea2.TotalSupporters).To(Equal(1))
+	Expect(idea2.Status).To(Equal(models.IdeaDuplicate))
+	Expect(idea2.Response.User.ID).To(Equal(1))
+	Expect(idea2.Response.Original.Number).To(Equal(idea1.Number))
+	Expect(idea2.Response.Original.Title).To(Equal(idea1.Title))
+	Expect(idea2.Response.Original.Slug).To(Equal(idea1.Slug))
+	Expect(idea2.Response.Original.Status).To(Equal(idea1.Status))
 }
 
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {

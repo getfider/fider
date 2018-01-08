@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -23,6 +24,17 @@ func Index() web.HandlerFunc {
 			"ideas": ideas,
 			"tags":  tags,
 		})
+	}
+}
+
+// GetIdeas return basic model of all tenant ideas
+func GetIdeas() web.HandlerFunc {
+	return func(c web.Context) error {
+		ideas, err := c.Services().Ideas.GetAllBasic()
+		if err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(ideas)
 	}
 }
 
@@ -122,7 +134,12 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
+		var err error
+		if input.Model.Status == models.IdeaDuplicate {
+			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
+		} else {
+			err = c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
+		}
 		if err != nil {
 			return c.Failure(err)
 		}

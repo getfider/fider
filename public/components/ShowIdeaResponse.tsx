@@ -7,6 +7,30 @@ interface IdeaResponseProps {
   response: IdeaResponse;
 }
 
+const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
+  const original = props.response.original;
+  if (!original) {
+    return null;
+  }
+  const status = IdeaStatus.Get(original.status);
+
+  return (
+    <div className="content">
+      <span>&#8618;</span>
+      <span title={status.title} className={`ui mini empty circular ${status.color} label`} />
+      <a href={`/ideas/${original.number}/${original.slug}`}>{original.title}</a>
+    </div>
+  );
+};
+
+const StatusDetails = (props: IdeaResponseProps): JSX.Element => {
+  return (
+    <div className="content">
+      <MultiLineText text={props.response.text} style="full" />
+    </div>
+  );
+};
+
 export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
   const status = IdeaStatus.Get(props.status);
 
@@ -18,9 +42,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
         <span className="info">
             <Moment date={props.response.respondedOn} />
         </span>
-        <div className="content">
-            <MultiLineText text={props.response.text} style="full" />
-        </div>
+        {status === IdeaStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </div>
     );
   }

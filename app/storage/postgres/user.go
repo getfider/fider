@@ -25,6 +25,10 @@ type dbUserProvider struct {
 }
 
 func (u *dbUser) toModel() *models.User {
+	if u == nil {
+		return nil
+	}
+
 	user := &models.User{
 		ID:        int(u.ID.Int64),
 		Name:      u.Name.String,

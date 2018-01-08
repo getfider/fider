@@ -20,12 +20,14 @@ type Idea interface {
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
 	GetAll() ([]*models.Idea, error)
+	GetAllBasic() ([]*models.BasicIdea, error)
 	Add(title, description string, userID int) (*models.Idea, error)
 	Update(number int, title, description string) (*models.Idea, error)
 	AddComment(number int, content string, userID int) (int, error)
 	AddSupporter(number, userID int) error
 	RemoveSupporter(number, userID int) error
 	SetResponse(number int, text string, userID, status int) error
+	MarkAsDuplicate(number, originalNumber, userID int) error
 	SupportedBy(userID int) ([]int, error)
 }
 

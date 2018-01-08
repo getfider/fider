@@ -6,8 +6,8 @@
   "dependencies": {
     "jquery": "^3.2.1",
     "markdown-it": "^8.4.0",
-    "react": "^16.1.1",
-    "react-dom": "^16.1.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-textarea-autosize": "^5.2.1",
     "semantic-ui-css": "^2.2.12"
   },
@@ -16,7 +16,7 @@
     "@types/jquery": "^3.2.16",
     "@types/markdown-it": "0.0.4",
     "@types/mocha": "^2.2.44",
-    "@types/react": "^16.0.25",
+    "@types/react": "^16.0.34",
     "@types/react-dom": "^16.0.3",
     "@types/react-textarea-autosize": "^4.3.1",
     "@types/selenium-webdriver": "^3.0.8",

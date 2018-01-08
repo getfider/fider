@@ -82,6 +82,22 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 
+// GetAllBasic returns all tenant ideas in a Basic model
+func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
+	var result = make([]*models.BasicIdea, len(s.ideas))
+	for i, idea := range s.ideas {
+		result[i] = &models.BasicIdea{
+			ID:              idea.ID,
+			Number:          idea.Number,
+			Title:           idea.Title,
+			Slug:            idea.Slug,
+			TotalSupporters: idea.TotalSupporters,
+			Status:          idea.Status,
+		}
+	}
+	return result, nil
+}
+
 // GetCommentsByIdea returns all coments from given idea
 func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	return make([]*models.Comment, 0), nil
@@ -149,6 +165,32 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 				RespondedOn: time.Now(),
 			}
 		}
+	}
+	return nil
+}
+
+// MarkAsDuplicate set idea as a duplicate of another idea
+func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+	original, err := s.GetByNumber(originalNumber)
+	if err != nil {
+		return err
+	}
+
+	idea.Status = models.IdeaDuplicate
+	idea.Response = &models.IdeaResponse{
+		Original: &models.OriginalIdea{
+			Number: original.Number,
+			Title:  original.Title,
+			Slug:   original.Slug,
+			Status: original.Status,
+		},
+		Text:        "",
+		User:        &models.User{ID: userID},
+		RespondedOn: time.Now(),
 	}
 	return nil
 }

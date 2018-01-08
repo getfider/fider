@@ -18,7 +18,23 @@ func TestIndexHandler(t *testing.T) {
 	server, _ := mock.NewServer()
 	code, _ := server.OnTenant(mock.DemoTenant).AsUser(mock.JonSnow).Execute(handlers.Index())
 
-	Expect(code).To(Equal(200))
+	Expect(code).To(Equal(http.StatusOK))
+}
+
+func TestGetIdeasHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.Ideas.Add("My Idea", "My Idea Description", mock.JonSnow.ID)
+	services.Ideas.Add("My Idea 2", "My Idea 2 Description", mock.JonSnow.ID)
+
+	code, query := server.OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecuteAsJSON(handlers.GetIdeas())
+
+	Expect(code).To(Equal(http.StatusOK))
+	Expect(query.IsArray()).To(BeTrue())
+	Expect(query.ArrayLength()).To(Equal(2))
 }
 
 func TestDetailsHandler(t *testing.T) {
@@ -279,4 +295,58 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusForbidden))
 	Expect(idea.Status).To(Equal(models.IdeaOpen))
+}
+
+func TestSetResponseHandler_Duplicate(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	idea2, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.IdeaDuplicate, idea2.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+	Expect(code).To(Equal(http.StatusOK))
+
+	idea1, _ = services.Ideas.GetByNumber(idea1.Number)
+	Expect(idea1.Status).To(Equal(models.IdeaDuplicate))
+
+	idea2, _ = services.Ideas.GetByNumber(idea2.Number)
+	Expect(idea2.Status).To(Equal(models.IdeaOpen))
+}
+
+func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": 9999 }`, models.IdeaDuplicate)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
+}
+
+func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.IdeaDuplicate, idea.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).To(Equal(http.StatusBadRequest))
 }

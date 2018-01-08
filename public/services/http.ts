@@ -32,9 +32,10 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   }
 }
 async function request<T>(url: string, method: 'GET' | 'POST' | 'DELETE', body?: any): Promise<Result<T>> {
-  const headers = [[
-    'Content-Type', 'application/json'
-  ]];
+  const headers = [
+    [ 'Accept', 'application/json' ],
+    [ 'Content-Type', 'application/json' ]
+  ];
   const response = await fetch(url, { method, headers, body: JSON.stringify(body), credentials: 'same-origin' });
   return await toResult<T>(response);
 }

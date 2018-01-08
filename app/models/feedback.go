@@ -24,7 +24,17 @@ type Idea struct {
 
 // CanBeSupported returns true if this idea can be Supported/UnSupported
 func (i *Idea) CanBeSupported() bool {
-	return i.Status != IdeaCompleted && i.Status != IdeaDeclined
+	return i.Status != IdeaCompleted && i.Status != IdeaDeclined && i.Status != IdeaDuplicate
+}
+
+//BasicIdea is a subset of Idea with few fields
+type BasicIdea struct {
+	ID              int    `json:"id"`
+	Number          int    `json:"number"`
+	Title           string `json:"title"`
+	Slug            string `json:"slug"`
+	TotalSupporters int    `json:"totalSupporters"`
+	Status          int    `json:"status"`
 }
 
 // NewIdea represents a new idea
@@ -48,16 +58,26 @@ type NewComment struct {
 
 // SetResponse represents the action to update an idea response
 type SetResponse struct {
-	Number int    `route:"number"`
-	Status int    `json:"status"`
-	Text   string `json:"text"`
+	Number         int    `route:"number"`
+	Status         int    `json:"status"`
+	Text           string `json:"text"`
+	OriginalNumber int    `json:"originalNumber"`
 }
 
 //IdeaResponse is a staff response to a given idea
 type IdeaResponse struct {
-	Text        string    `json:"text"`
-	RespondedOn time.Time `json:"respondedOn"`
-	User        *User     `json:"user"`
+	Text        string        `json:"text"`
+	RespondedOn time.Time     `json:"respondedOn"`
+	User        *User         `json:"user"`
+	Original    *OriginalIdea `json:"original"`
+}
+
+//OriginalIdea holds details of the original idea of a duplicate
+type OriginalIdea struct {
+	Number int    `json:"number"`
+	Title  string `json:"title"`
+	Slug   string `json:"slug"`
+	Status int    `json:"status"`
 }
 
 //Comment represents an user comment on an idea
@@ -107,4 +127,6 @@ var (
 	IdeaDeclined = 3
 	//IdeaPlanned is used when organizers have accepted an idea and it's on the roadmap
 	IdeaPlanned = 4
+	//IdeaDuplicate is used when the idea has already been posted before
+	IdeaDuplicate = 5
 )

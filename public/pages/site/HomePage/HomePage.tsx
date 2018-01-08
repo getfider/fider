@@ -60,112 +60,112 @@ const ListIdeaItem = (props: { idea: Idea, user?: CurrentUser, tags: Tag[] }) =>
 };
 
 export class HomePage extends React.Component<HomePageProps, HomePageState> {
-    private filter: HTMLDivElement;
+  private filter: HTMLDivElement;
 
-    constructor(props: HomePageProps) {
-      super(props);
+  constructor(props: HomePageProps) {
+    super(props);
 
-      const search = page.getQueryString('q');
-      const tags = page.getQueryStringArray('t');
-      const activeFilter = window.location.hash.substring(1);
-      this.state = {
-        ideas: this.filterIdeas(activeFilter, search, tags),
-        showCount: defaultShowCount,
-        activeFilter,
-        searching: !!search,
-        search,
-        tags
-      };
+    const search = page.getQueryString('q');
+    const tags = page.getQueryStringArray('t');
+    const activeFilter = window.location.hash.substring(1);
+    this.state = {
+      ideas: this.filterIdeas(activeFilter, search, tags),
+      showCount: defaultShowCount,
+      activeFilter,
+      searching: !!search,
+      search,
+      tags
+    };
+  }
+
+  private containsAll(str: string, substrings: string[]): boolean {
+    for (let i = 0; i !== substrings.length; i++) {
+        if (str.indexOf(substrings[i]) === - 1) {
+          return false;
+        }
     }
+    return true;
+  }
 
-    private containsAll(str: string, substrings: string[]): boolean {
-      for (let i = 0; i !== substrings.length; i++) {
-          if (str.indexOf(substrings[i]) === - 1) {
-            return false;
-          }
-      }
-      return true;
-    }
+  private selectedTagsChanged(tags: string[]): void {
+    const ideas = this.filterIdeas(this.state.activeFilter, this.state.search, tags);
+    this.setState({
+      ideas,
+      tags,
+    });
+  }
 
-    private selectedTagsChanged(tags: string[]): void {
-      const ideas = this.filterIdeas(this.state.activeFilter, this.state.search, tags);
-      this.setState({
-        ideas,
-        tags,
-      });
-    }
+  private filterIdeas(activeFilter: string, search: string | undefined, tags: string[]): Idea[] {
+    let path = '';
+    let ideas = [];
 
-    private filterIdeas(activeFilter: string, search: string | undefined, tags: string[]): Idea[] {
-      let path = '';
-      let ideas = [];
-
-      if (search) {
-        const s = search.trim().toLowerCase();
-        path += `?q=${encodeURIComponent(s).replace(/%20/g, '+')}`;
-        ideas = this.props.ideas.filter((idea) => {
-          const terms = s.split(' ').filter((x) => x.length >= 2);
-          return (
-            this.containsAll(idea.title.toLowerCase(), terms) ||
-            this.containsAll(idea.description.toLowerCase(), terms) ||
-            (idea.response && this.containsAll(idea.response.text.toLowerCase(), terms))
-          );
-        });
-      } else {
-        path += activeFilter ? `#${activeFilter}` : '';
-        ideas = IdeaFilter.getFilter(activeFilter)(this.props.ideas);
-      }
-
-      if (tags.length > 0) {
-        const prefix = (!path) ? '?' : '&';
-        path += `${prefix}t=${tags.join(',')}`;
-      }
-
-      if (history.replaceState) {
-        const newUrl = page.getBaseUrl() + path;
-        window.history.replaceState({ path: newUrl }, '', newUrl);
-      }
-
-      if (tags.length > 0) {
-        const tagsToFilter = this.props.tags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
-        ideas = ideas.filter(
-          (i) => i.tags.filter(
-            (t) => tagsToFilter.indexOf(t) >= 0
-          ).length === tagsToFilter.length
+    if (search) {
+      const s = search.trim().toLowerCase();
+      path += `?q=${encodeURIComponent(s).replace(/%20/g, '+')}`;
+      ideas = this.props.ideas.filter((idea) => {
+        const terms = s.split(' ').filter((x) => x.length >= 2);
+        return (
+          this.containsAll(idea.title.toLowerCase(), terms) ||
+          this.containsAll(idea.description.toLowerCase(), terms) ||
+          (idea.response && this.containsAll(idea.response.text.toLowerCase(), terms))
         );
-      }
-
-      return ideas;
-    }
-
-    private filterChanged(name: string) {
-      this.setState({
-        ideas: this.filterIdeas(name, this.state.search, this.state.tags),
-        showCount: defaultShowCount,
-        activeFilter: name,
       });
+    } else {
+      path += activeFilter ? `#${activeFilter}` : '';
+      ideas = IdeaFilter.getFilter(activeFilter)(this.props.ideas);
     }
 
-    private showMore(event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void {
-      event.preventDefault();
-      this.setState({
-        showCount: this.state.showCount + defaultShowCount
-      });
+    if (tags.length > 0) {
+      const prefix = (!path) ? '?' : '&';
+      path += `${prefix}t=${tags.join(',')}`;
     }
 
-    private resetSearch() {
-      this.setState({
-        search: '',
-        searching: false,
-        ideas: this.filterIdeas(this.state.activeFilter, '', this.state.tags),
-      });
+    if (history.replaceState) {
+      const newUrl = page.getBaseUrl() + path;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
     }
 
-    private searchIdea(input: string): void {
-      this.setState({
-        search: input,
-        ideas: this.filterIdeas(this.state.activeFilter, input, this.state.tags)
-      });
+    if (tags.length > 0) {
+      const tagsToFilter = this.props.tags.filter((x) => tags.indexOf(x.slug) >= 0).map((x) => x.id);
+      ideas = ideas.filter(
+        (i) => i.tags.filter(
+          (t) => tagsToFilter.indexOf(t) >= 0
+        ).length === tagsToFilter.length
+      );
     }
+
+    return ideas;
+  }
+
+  private filterChanged(name: string) {
+    this.setState({
+      ideas: this.filterIdeas(name, this.state.search, this.state.tags),
+      showCount: defaultShowCount,
+      activeFilter: name,
+    });
+  }
+
+  private showMore(event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void {
+    event.preventDefault();
+    this.setState({
+      showCount: this.state.showCount + defaultShowCount
+    });
+  }
+
+  private resetSearch() {
+    this.setState({
+      search: '',
+      searching: false,
+      ideas: this.filterIdeas(this.state.activeFilter, '', this.state.tags),
+    });
+  }
+
+  private searchIdea(input: string): void {
+    this.setState({
+      search: input,
+      ideas: this.filterIdeas(this.state.activeFilter, input, this.state.tags)
+    });
+  }
 
   public render() {
     const ideasToList = this.state.ideas.slice(0, this.state.showCount);

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"time"
@@ -29,6 +30,10 @@ type dbIdea struct {
 	Response         sql.NullString `db:"response"`
 	RespondedOn      dbx.NullTime   `db:"response_date"`
 	ResponseUser     *dbUser        `db:"response_user"`
+	OriginalNumber   sql.NullInt64  `db:"original_number"`
+	OriginalTitle    sql.NullString `db:"original_title"`
+	OriginalSlug     sql.NullString `db:"original_slug"`
+	OriginalStatus   sql.NullInt64  `db:"original_status"`
 	Tags             []int64        `db:"tags"`
 }
 
@@ -60,8 +65,27 @@ func (i *dbIdea) toModel() *models.Idea {
 			RespondedOn: i.RespondedOn.Time,
 			User:        i.ResponseUser.toModel(),
 		}
+		if idea.Status == models.IdeaDuplicate && i.OriginalNumber.Valid {
+			idea.Response.Original = &models.OriginalIdea{
+				Number: int(i.OriginalNumber.Int64),
+				Slug:   i.OriginalSlug.String,
+				Title:  i.OriginalTitle.String,
+				Status: int(i.OriginalStatus.Int64),
+			}
+		}
 	}
 	return idea
+}
+
+func (i *dbIdea) toBasic() *models.BasicIdea {
+	return &models.BasicIdea{
+		ID:              i.ID,
+		Number:          i.Number,
+		Title:           i.Title,
+		Slug:            i.Slug,
+		TotalSupporters: i.TotalSupporters,
+		Status:          i.Status,
+	}
 }
 
 type dbComment struct {
@@ -126,6 +150,10 @@ var (
 																r.name AS response_user_name, 
 																r.email AS response_user_email, 
 																r.role AS response_user_role,
+																d.number AS original_number,
+																d.title AS original_title,
+																d.slug AS original_slug,
+																d.status AS original_status,
 																array_remove(array_agg(t.id), NULL) AS tags,
 																COALESCE(%s, false) AS viewer_supported
 													FROM ideas i
@@ -135,11 +163,13 @@ var (
 													ON r.id = i.response_user_id
 													LEFT JOIN idea_tags it
 													ON it.idea_id = i.id
+													LEFT JOIN ideas d
+													ON d.id = i.original_id
 													LEFT JOIN tags t
 													ON t.id = it.tag_id
 													%s
 													WHERE %s
-													GROUP BY i.id, u.id, r.id`
+													GROUP BY i.id, u.id, r.id, d.id`
 )
 
 func (s *IdeaStorage) getIdeaQuery(filter string) string {
@@ -182,7 +212,7 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var ideas []*dbIdea
-	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1"), s.tenant.ID)
+	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2"), s.tenant.ID, models.IdeaDuplicate)
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +220,23 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var result = make([]*models.Idea, len(ideas))
 	for i, idea := range ideas {
 		result[i] = idea.toModel()
+	}
+	return result, nil
+}
+
+// GetAllBasic returns all tenant ideas in a Basic model
+func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
+	var ideas []*dbIdea
+	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2")
+	query := fmt.Sprintf("SELECT id, number, title, slug, supporters, status FROM (%s) AS q", innerQuery)
+	err := s.trx.Select(&ideas, query, s.tenant.ID, models.IdeaDuplicate)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.BasicIdea, len(ideas))
+	for i, idea := range ideas {
+		result[i] = idea.toBasic()
 	}
 	return result, nil
 }
@@ -319,6 +366,10 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
+	if status == models.IdeaDuplicate {
+		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
+	}
+
 	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err
@@ -328,12 +379,45 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	if idea.Status == status && idea.Response != nil {
 		respondedOn = idea.Response.RespondedOn
 	}
+	return s.trx.Execute(`
+	UPDATE ideas 
+	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
+	WHERE id = $1 and tenant_id = $2
+	`, idea.ID, s.tenant.ID, text, respondedOn, userID, status)
+}
+
+// MarkAsDuplicate set idea as a duplicate of another idea
+func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+	original, err := s.GetByNumber(originalNumber)
+	if err != nil {
+		return err
+	}
+
+	respondedOn := time.Now()
+	if idea.Status == models.IdeaDuplicate && idea.Response != nil {
+		respondedOn = idea.Response.RespondedOn
+	}
+
+	users, err := s.trx.QueryIntArray("SELECT user_id FROM idea_supporters WHERE idea_id = $1", idea.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, u := range users {
+		if err := s.AddSupporter(original.Number, u); err != nil {
+			return err
+		}
+	}
 
 	return s.trx.Execute(`
 	UPDATE ideas 
-	SET response = $3, response_date = $4, response_user_id = $5, status = $6 
+	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, text, respondedOn, userID, status)
+	`, idea.ID, s.tenant.ID, original.ID, respondedOn, userID, models.IdeaDuplicate)
 }
 
 // SupportedBy returns a list of Idea ID supported by given user

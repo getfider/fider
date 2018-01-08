@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { User, Comment, Idea, IdeaStatus } from '@fider/models';
 import { Button, DisplayError, Textarea } from '@fider/components/common';
+import { IdeaSearch } from './';
 
 import { actions, Failure } from '@fider/services';
 
@@ -12,6 +13,7 @@ interface ResponseFormProps {
 interface ResponseFormState {
   status: number;
   text: string;
+  originalNumber: number;
   error?: Failure;
 }
 
@@ -23,12 +25,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
     this.state = {
       status: this.props.idea.status,
+      originalNumber: 0,
       text: this.props.idea.response && this.props.idea.response.text
     };
   }
 
   private async submit() {
-    const result = await actions.setResponse(this.props.idea.number, this.state.status, this.state.text);
+    const result = await actions.respond(this.props.idea.number, this.state);
     if (result.ok) {
       location.reload();
     } else {
@@ -56,7 +59,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     );
 
     const modal = (
-      <div className="ui form modal" ref={(e) => this.modal = e!}>
+      <div className="ui form modal fdr-response-form" ref={(e) => this.modal = e!}>
         <div className="content">
           <DisplayError fields={['status']} error={this.state.error} />
           <div className="two fields">
@@ -71,14 +74,28 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
               </select>
             </div>
           </div>
-          <DisplayError fields={['text']} error={this.state.error} />
-          <div className="field">
-            <Textarea
-              onChange={(e) => this.setState({ text: e.currentTarget.value })}
-              defaultValue={this.state.text}
-              placeholder="What's going on with this idea? Let your users know what are your plans..."
-            />
-          </div>
+          {
+            this.state.status === IdeaStatus.Duplicate.value
+            ?
+             <>
+              <DisplayError fields={['originalNumber']} error={this.state.error} />
+              <IdeaSearch
+                exclude={[this.props.idea.number]}
+                onChanged={(originalNumber) => this.setState({ originalNumber })}
+              />
+              <span className="info">Votes from this idea will be merged into original idea.</span>
+             </>
+            : <>
+                <DisplayError fields={['text']} error={this.state.error} />
+                <div className="field">
+                  <Textarea
+                    onChange={(e) => this.setState({ text: e.currentTarget.value })}
+                    defaultValue={this.state.text}
+                    placeholder="What's going on with this idea? Let your users know what are your plans..."
+                  />
+                </div>
+              </>
+          }
         </div>
 
         <div className="actions">

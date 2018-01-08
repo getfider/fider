@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CONTAINER="fider_pge2e"
+FIDER_CONTAINER="fider_e2e"
+PG_CONTAINER="fider_pge2e"
 PORT=3000
 
 if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
@@ -10,16 +11,17 @@ fi
 
 echo "Clean up ..."
 rm -rf output
+docker rm -f $PG_CONTAINER || true
+docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw --name $PG_CONTAINER postgres:9.6.2
+
+echo "Building ..."
 tsc
-mkdir -p logs/
-docker rm -f $CONTAINER || true
-docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw -p 5577:5432 --name $CONTAINER postgres:9.6.2
-docker run --link $CONTAINER -e TARGETS=$CONTAINER:5432 waisbrot/wait
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+docker build -t getfider/fider:e2e .
 
 run_e2e () {
   echo "Starting Fider (HOST_MODE: $1)..."
-  HOST_MODE=$1 DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@localhost:5577/fider_e2e?sslmode=disable godotenv -f .env ./fider > logs/e2e.log 2>&1 &
-  FIDER_PID=$!
+  docker run -d -p 3000:3000 --link $PG_CONTAINER -e HOST_MODE=$1 -e DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@$PG_CONTAINER:5432/fider_e2e?sslmode=disable --env-file .env --name $FIDER_CONTAINER getfider/fider:e2e
 
   {
     {
@@ -29,13 +31,13 @@ run_e2e () {
       echo "Tests failed..."; 
     }
   } && {
-      echo "Killing Fider -> $FIDER_PID ..."
-      kill $(ps -ef | grep $FIDER_PID | grep -v grep | awk '{print $2}')
+      echo "Stopping Fider ..."
+      docker rm -f $FIDER_CONTAINER
   }
 }
 
 run_e2e single
 run_e2e multi
 
-echo "Killing Container -> $CONTAINER ..."
-docker rm -f $CONTAINER || true
+echo "Stopping Postgres ..."
+docker rm -f $PG_CONTAINER || true
