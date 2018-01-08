@@ -8,7 +8,7 @@ interface IdeaSearchProps {
 }
 
 interface IdeaSearchState {
-  ideas: BasicIdea[];
+  ideas?: BasicIdea[];
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
@@ -16,9 +16,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
 
   constructor(props: IdeaSearchProps) {
     super(props);
-    this.state = {
-      ideas: []
-    };
+    this.state = { };
     actions.getIdeas().then((res) => {
       const ideas = this.props.exclude && this.props.exclude.length > 0
         ? res.data.filter((i) => this.props.exclude!.indexOf(i.number) === -1)
@@ -39,7 +37,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   }
 
   public render() {
-    const items = this.state.ideas.length > 0 && (
+    const items = this.state.ideas && (
       <div className="menu">
         {this.state.ideas.map((i) => {
           const status = IdeaStatus.Get(i.status);
