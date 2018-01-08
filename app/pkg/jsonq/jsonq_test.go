@@ -36,6 +36,7 @@ func TestIsArray(t *testing.T) {
 
 	query := jsonq.New(`[0,1,2,3]`)
 	Expect(query.IsArray()).To(BeTrue())
+	Expect(query.ArrayLength()).To(Equal(4))
 }
 
 func TestContainsNested(t *testing.T) {

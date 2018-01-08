@@ -26,6 +26,7 @@ func TestGetIdeasHandler(t *testing.T) {
 
 	server, services := mock.NewServer()
 	services.Ideas.Add("My Idea", "My Idea Description", mock.JonSnow.ID)
+	services.Ideas.Add("My Idea 2", "My Idea 2 Description", mock.JonSnow.ID)
 
 	code, query := server.OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -33,6 +34,7 @@ func TestGetIdeasHandler(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusOK))
 	Expect(query.IsArray()).To(BeTrue())
+	Expect(query.ArrayLength()).To(Equal(2))
 }
 
 func TestDetailsHandler(t *testing.T) {

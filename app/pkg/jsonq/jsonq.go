@@ -42,6 +42,16 @@ func (q *Query) IsArray() bool {
 	return q.m == nil
 }
 
+//ArrayLength returns number of elements in the array
+func (q *Query) ArrayLength() int {
+	if q.IsArray() {
+		var arr []interface{}
+		json.Unmarshal([]byte(q.json), &arr)
+		return len(arr)
+	}
+	return 0
+}
+
 //Contains returns true if the json object has the key
 func (q *Query) Contains(key string) bool {
 	return q.get(key) != nil
