@@ -24,7 +24,9 @@ func TestIndexHandler(t *testing.T) {
 func TestGetIdeasHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	server, _ := mock.NewServer()
+	server, services := mock.NewServer()
+	services.Ideas.Add("My Idea", "My Idea Description", mock.JonSnow.ID)
+
 	code, query := server.OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecuteAsJSON(handlers.GetIdeas())
