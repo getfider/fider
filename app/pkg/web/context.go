@@ -29,9 +29,12 @@ type StringMap map[string]string
 
 // HTMLMimeType is the mimetype for HTML responses
 var (
-	PlainContentType = "text/plain; charset=utf-8"
-	HTMLContentType  = "text/html; charset=utf-8"
-	JSONContentType  = "application/json; charset=utf-8"
+	PlainContentType     = "text/plain"
+	HTMLContentType      = "text/html"
+	JSONContentType      = "application/json"
+	UTF8PlainContentType = PlainContentType + "; charset=utf-8"
+	UTF8HTMLContentType  = HTMLContentType + "; charset=utf-8"
+	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
 // CookieAuthName is the name of the authentication cookie
@@ -359,7 +362,7 @@ func (ctx *Context) Set(key string, val interface{}) {
 
 // String returns a text response with status code.
 func (ctx *Context) String(code int, text string) error {
-	return ctx.Blob(code, PlainContentType, []byte(text))
+	return ctx.Blob(code, UTF8PlainContentType, []byte(text))
 }
 
 // JSON returns a JSON response with status code.

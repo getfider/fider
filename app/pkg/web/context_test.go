@@ -19,10 +19,11 @@ func newGetContext(params web.StringMap) *web.Context {
 	return &ctx
 }
 
-func newPostContext(params web.StringMap, body string) *web.Context {
+func newPostContext(params web.StringMap, body, contentType string) *web.Context {
 	e := web.New(nil)
 	res := httptest.NewRecorder()
 	req := httptest.NewRequest("POST", "http://demo.test.fider.io:3000/some/resource", strings.NewReader(body))
+	req.Header.Set("Content-Type", contentType)
 	ctx := e.NewContext(res, req, params)
 	return &ctx
 }
