@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -9,8 +10,10 @@ import (
 )
 
 var (
-	intType    = reflect.TypeOf(0)
-	stringType = reflect.TypeOf("")
+	//ErrContentTypeNotAllowed is used when POSTing a body that is not json
+	ErrContentTypeNotAllowed = errors.New("Only Content-Type application/json is allowed")
+	intType                  = reflect.TypeOf(0)
+	stringType               = reflect.TypeOf("")
 )
 
 //DefaultBinder is the default HTTP binder
@@ -25,6 +28,11 @@ func NewDefaultBinder() *DefaultBinder {
 //Bind request data to object i
 func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
 	if c.Request.Method == http.MethodPost && c.Request.ContentLength > 0 {
+		contentType := strings.Split(c.Request.Header.Get("Content-Type"), ";")
+		if len(contentType) == 0 || contentType[0] != JSONContentType {
+			return ErrContentTypeNotAllowed
+		}
+
 		if err := json.NewDecoder(c.Request.Body).Decode(target); err != nil {
 			return err
 		}
