@@ -110,7 +110,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         <div id="submitted-modal" className="ui modal small">
           <div className="header">Thank you for registering!</div>
           <div className="content">
-            <p>Please check your inbox for a confirmation link to finish your registration.</p>
+            <p>We just emailed a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.</p>
           </div>
         </div>
       );
