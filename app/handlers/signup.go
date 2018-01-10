@@ -72,9 +72,15 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			subject := "Verify your new Fider instance"
+			subject := "Confirm your new Fider instance"
 			link := fmt.Sprintf("%s/signup/verify?k=%s", c.TenantBaseURL(tenant), input.Model.VerificationKey)
-			message := fmt.Sprintf("Click and confirm that you created a new Fider instance. This link will expire in 48 hours and can only be used once. <br /><br /> <a href='%s'>%s</a>", link, link)
+			message := fmt.Sprintf(`
+				Click the link below to confirm your new Fider instance.
+				<br /><br />
+				<a href='%s'>%s</a> 
+				<br /><br />
+				<span style="color:#b3b3b1;font-size:11px">This link will expire in 48 hours and can only be used once.</span>
+			`, link, link)
 			err = c.Services().Emailer.Send("Fider", user.Email, subject, message)
 			if err != nil {
 				return c.Failure(err)
