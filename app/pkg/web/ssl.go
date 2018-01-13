@@ -3,6 +3,7 @@ package web
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"net/http"
 
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -49,4 +50,9 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 		}
 	}
 	return m.autossl.GetCertificate(hello)
+}
+
+//StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
+func (m *CertificateManager) StartHTTPServer() {
+	http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
 }
