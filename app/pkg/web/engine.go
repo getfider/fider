@@ -71,7 +71,9 @@ func (e *Engine) Start(address string) {
 		server.TLSConfig = &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		}
+
 		e.logger.Infof("https (auto ssl) server started on %s", address)
+		go certManager.StartHTTPServer()
 		err = server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
 		e.logger.Infof("http server started on %s", address)
