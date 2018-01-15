@@ -144,16 +144,21 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 
 	//Save new Key
-	err := tenants.SaveVerificationKey("s3cr3tk3y", 15*time.Minute, "jon.snow@got.com", "Jon Snow")
+	request := &models.CreateTenant{
+		Email: "jon.snow@got.com",
+		Name:  "Jon Snow",
+	}
+	err := tenants.SaveVerificationKey("s3cr3tk3y", 15*time.Minute, request)
 	Expect(err).To(BeNil())
 
 	//Find and check values
-	result, err := tenants.FindVerificationByKey("s3cr3tk3y")
+	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindSignUp, "s3cr3tk3y")
 	Expect(err).To(BeNil())
 	Expect(result.CreatedOn).NotTo(Equal(time.Time{}))
 	Expect(result.VerifiedOn).To(BeNil())
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Name).To(Equal("Jon Snow"))
+	Expect(result.Kind).To(Equal(models.EmailVerificationKindSignUp))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
 	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 
@@ -162,7 +167,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	//Find and check that VerifiedOn is now set
-	result, err = tenants.FindVerificationByKey("s3cr3tk3y")
+	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignUp, "s3cr3tk3y")
 	Expect(err).To(BeNil())
 	Expect(time.Now().After(result.CreatedOn)).To(BeTrue())
 	Expect(result.VerifiedOn.After(result.CreatedOn)).To(BeTrue())
@@ -170,6 +175,11 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
 	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
+
+	//Wrong kind should not find it
+	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "s3cr3tk3y")
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(result).To(BeNil())
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
@@ -180,7 +190,7 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 
 	//Find and check values
-	result, err := tenants.FindVerificationByKey("blahblahblah")
+	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "blahblahblah")
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(result).To(BeNil())
 }

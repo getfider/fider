@@ -102,10 +102,11 @@ func (s *TenantStorage) Activate(id int) error {
 }
 
 // SaveVerificationKey used by e-mail verification
-func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
+func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
 	s.verifications = append(s.verifications, &models.EmailVerification{
-		Email:      email,
-		Name:       name,
+		Email:      request.GetEmail(),
+		Name:       request.GetName(),
+		Kind:       request.GetKind(),
 		Key:        key,
 		CreatedOn:  time.Now(),
 		ExpiresOn:  time.Now().Add(duration),
@@ -115,9 +116,9 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 }
 
 // FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error) {
 	for _, verification := range s.verifications {
-		if verification.Key == key {
+		if verification.Key == key && verification.Kind == kind {
 			return verification, nil
 		}
 	}

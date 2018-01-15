@@ -46,6 +46,16 @@ const (
 	RoleAdministrator Role = 3
 )
 
+//EmailVerificationKind specifies which kind of process is being verified by e-mail
+type EmailVerificationKind int16
+
+const (
+	//EmailVerificationKindSignIn is the sign in by e-mail process
+	EmailVerificationKindSignIn EmailVerificationKind = 1
+	//EmailVerificationKindSignUp is the sign up (create tenant) by name and e-mail process
+	EmailVerificationKindSignUp EmailVerificationKind = 2
+)
+
 //HasProvider returns true if current user has registered with given provider
 func (u *User) HasProvider(provider string) bool {
 	for _, p := range u.Providers {
@@ -100,6 +110,21 @@ type CreateTenant struct {
 	UserClaims      *OAuthClaims
 }
 
+//GetEmail returns the email being verified
+func (e *CreateTenant) GetEmail() string {
+	return e.Email
+}
+
+//GetName returns the name of the email owner
+func (e *CreateTenant) GetName() string {
+	return e.Name
+}
+
+//GetKind returns EmailVerificationKindSignUp
+func (e *CreateTenant) GetKind() EmailVerificationKind {
+	return EmailVerificationKindSignUp
+}
+
 //UpdateTenantSettings is the input model used to update tenant settings
 type UpdateTenantSettings struct {
 	Title          string `json:"title"`
@@ -115,11 +140,34 @@ type SignInByEmail struct {
 	VerificationKey string
 }
 
+//GetEmail returns the email being verified
+func (e *SignInByEmail) GetEmail() string {
+	return e.Email
+}
+
+//GetName returns empty for this kind of process
+func (e *SignInByEmail) GetName() string {
+	return ""
+}
+
+//GetKind returns EmailVerificationKindSignIn
+func (e *SignInByEmail) GetKind() EmailVerificationKind {
+	return EmailVerificationKindSignIn
+}
+
+//NewEmailVerification is used to register a new e-mail verification process
+type NewEmailVerification interface {
+	GetEmail() string
+	GetName() string
+	GetKind() EmailVerificationKind
+}
+
 //EmailVerification is the model used by e-mail verification process
 type EmailVerification struct {
 	Email      string
 	Name       string
 	Key        string
+	Kind       EmailVerificationKind
 	CreatedOn  time.Time
 	ExpiresOn  time.Time
 	VerifiedOn *time.Time

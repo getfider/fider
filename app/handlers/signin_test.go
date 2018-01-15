@@ -232,7 +232,7 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 	server, services := mock.NewServer()
 
 	services.Tenants.SaveVerificationKey("1234567890", 5*time.Minute, "jon.snow@got.com", "")
-	request, _ := services.Tenants.FindVerificationByKey("1234567890")
+	request, _ := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
 	request.ExpiresOn = request.CreatedOn.Add(-6 * time.Minute) //reduce 1 minute
 
 	code, response := server.
@@ -355,7 +355,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	})
 	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token)))
 
-	request, err := services.Tenants.FindVerificationByKey("1234567890")
+	request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
 	Expect(err).To(BeNil())
 	Expect(request.VerifiedOn).NotTo(BeNil())
 }

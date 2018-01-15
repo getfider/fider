@@ -78,7 +78,7 @@ func (input *CompleteProfile) Validate(services *app.Services) *validate.Result 
 	if input.Model.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		request, err := services.Tenants.FindVerificationByKey(input.Model.Key)
+		request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
 		if err != nil {
 			if err == app.ErrNotFound {
 				result.AddFieldFailure("key", "Key is invalid.")
