@@ -11,11 +11,11 @@ import (
 
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
-	lastID   int
-	tenants  []*models.Tenant
-	current  *models.Tenant
-	user     *models.User
-	requests []*models.SignInRequest
+	lastID        int
+	tenants       []*models.Tenant
+	current       *models.Tenant
+	user          *models.User
+	verifications []*models.EmailVerification
 }
 
 // SetCurrentTenant tenant
@@ -103,7 +103,7 @@ func (s *TenantStorage) Activate(id int) error {
 
 // SaveVerificationKey used by e-mail verification
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
-	s.requests = append(s.requests, &models.SignInRequest{
+	s.verifications = append(s.verifications, &models.EmailVerification{
 		Email:      email,
 		Name:       name,
 		Key:        key,
@@ -115,10 +115,10 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 }
 
 // FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
-	for _, request := range s.requests {
-		if request.Key == key {
-			return request, nil
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+	for _, verification := range s.verifications {
+		if verification.Key == key {
+			return verification, nil
 		}
 	}
 	return nil, app.ErrNotFound
@@ -126,10 +126,10 @@ func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest
 
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
-	for _, request := range s.requests {
-		if request.Key == key {
+	for _, verification := range s.verifications {
+		if verification.Key == key {
 			now := time.Now()
-			request.VerifiedOn = &now
+			verification.VerifiedOn = &now
 		}
 	}
 	return nil

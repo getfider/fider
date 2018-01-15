@@ -115,8 +115,8 @@ type SignInByEmail struct {
 	VerificationKey string
 }
 
-//SignInRequest is the model used by e-mail verification process
-type SignInRequest struct {
+//EmailVerification is the model used by e-mail verification process
+type EmailVerification struct {
 	Email      string
 	Name       string
 	Key        string

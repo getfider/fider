@@ -35,7 +35,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 	}
 }
 
-type dbSignInRequest struct {
+type dbEmailVerification struct {
 	ID         int          `db:"id"`
 	Name       string       `db:"name"`
 	Email      string       `db:"email"`
@@ -45,8 +45,8 @@ type dbSignInRequest struct {
 	VerifiedOn dbx.NullTime `db:"verified_on"`
 }
 
-func (t *dbSignInRequest) toModel() *models.SignInRequest {
-	model := &models.SignInRequest{
+func (t *dbEmailVerification) toModel() *models.EmailVerification {
+	model := &models.EmailVerification{
 		Name:       t.Name,
 		Email:      t.Email,
 		Key:        t.Key,
@@ -147,25 +147,25 @@ func (s *TenantStorage) Activate(id int) error {
 
 // SaveVerificationKey used by e-mail verification process
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, email, name string) error {
-	query := "INSERT INTO signin_requests (tenant_id, email, created_on, expires_on, key, name) VALUES ($1, $2, $3, $4, $5, $6)"
+	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name) VALUES ($1, $2, $3, $4, $5, $6)"
 	return s.trx.Execute(query, s.current.ID, email, time.Now(), time.Now().Add(duration), key, name)
 }
 
 // FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(key string) (*models.SignInRequest, error) {
-	request := dbSignInRequest{}
+func (s *TenantStorage) FindVerificationByKey(key string) (*models.EmailVerification, error) {
+	verification := dbEmailVerification{}
 
-	err := s.trx.Get(&request, "SELECT id, email, name, key, created_on, verified_on, expires_on FROM signin_requests WHERE key = $1 LIMIT 1", key)
+	err := s.trx.Get(&verification, "SELECT id, email, name, key, created_on, verified_on, expires_on FROM email_verifications WHERE key = $1 LIMIT 1", key)
 	if err != nil {
 		return nil, err
 	}
 
-	return request.toModel(), nil
+	return verification.toModel(), nil
 }
 
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
-	query := "UPDATE signin_requests SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
+	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
 	return s.trx.Execute(query, time.Now(), s.current.ID, key)
 }
 

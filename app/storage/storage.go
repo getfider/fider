@@ -55,7 +55,7 @@ type Tenant interface {
 	IsSubdomainAvailable(subdomain string) (bool, error)
 	IsCNAMEAvailable(cname string) (bool, error)
 	SaveVerificationKey(key string, duration time.Duration, email, name string) error
-	FindVerificationByKey(key string) (*models.SignInRequest, error)
+	FindVerificationByKey(key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
 }
 
