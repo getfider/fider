@@ -85,6 +85,10 @@ func (input *UpdateIdea) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
+	if len(input.Model.Title) > 100 {
+		result.AddFieldFailure("title", "Title must be less than 100 characters.")
+	}
+
 	another, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
 	if err != nil && err != app.ErrNotFound {
 		return validate.Error(err)
