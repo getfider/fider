@@ -19,6 +19,7 @@ func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
 		"",
 		"  ",
 		"signup",
+		"My great great great great great great great great great great great great great great great great great idea.",
 		"my company",
 		"my@company",
 		"my.company",

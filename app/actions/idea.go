@@ -34,6 +34,10 @@ func (input *CreateNewIdea) Validate(services *app.Services) *validate.Result {
 		result.AddFieldFailure("title", "Title is required.")
 	}
 
+	if len(input.Model.Title) > 100 {
+		result.AddFieldFailure("title", "Title must be less than 100 characters.")
+	}
+
 	if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
