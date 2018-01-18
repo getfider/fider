@@ -88,7 +88,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/signin/verify", handlers.VerifySignInKey())
+			public.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 			public.Get("/api/status", handlers.Status(settings))
 			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())
 			public.Post("/api/signin", handlers.SignInByEmail())

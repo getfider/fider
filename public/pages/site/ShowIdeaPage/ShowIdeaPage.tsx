@@ -66,7 +66,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                   { this.state.editMode
                     ? [
                       <div key={1} className="ui input huge fluid">
-                        <input type="text" onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
+                        <input type="text" maxLength={100} onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
                       </div>,
                       <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
                     ]

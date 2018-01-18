@@ -139,7 +139,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 15*time.Minute, input.Model.Email, "")
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 15*time.Minute, input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -163,11 +163,11 @@ func SignInByEmail() web.HandlerFunc {
 }
 
 // VerifySignInKey checks if verify key is correct and sign in user
-func VerifySignInKey() web.HandlerFunc {
+func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 	return func(c web.Context) error {
 		key := c.QueryParam("k")
 
-		result, err := c.Services().Tenants.FindVerificationByKey(key)
+		result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
 		if err != nil {
 			if err == app.ErrNotFound {
 				return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
@@ -190,7 +190,7 @@ func VerifySignInKey() web.HandlerFunc {
 		}
 
 		var user *models.User
-		if c.Tenant().Status == models.TenantInactive {
+		if kind == models.EmailVerificationKindSignUp && c.Tenant().Status == models.TenantInactive {
 			if err = c.Services().Tenants.Activate(c.Tenant().ID); err != nil {
 				return c.Failure(err)
 			}
@@ -205,7 +205,7 @@ func VerifySignInKey() web.HandlerFunc {
 			if err = c.Services().Users.Register(user); err != nil {
 				return c.Failure(err)
 			}
-		} else {
+		} else if kind == models.EmailVerificationKindSignIn {
 			user, err = c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
 			if err != nil {
 				if err == app.ErrNotFound {
@@ -214,6 +214,8 @@ func VerifySignInKey() web.HandlerFunc {
 				}
 				return c.Failure(err)
 			}
+		} else {
+			return c.NotFound()
 		}
 
 		err = c.Services().Tenants.SetKeyAsVerified(key)

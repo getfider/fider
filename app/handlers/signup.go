@@ -67,7 +67,7 @@ func CreateTenant() web.HandlerFunc {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
 
-			err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 48*time.Hour, user.Email, user.Name)
+			err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 48*time.Hour, input.Model)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -125,7 +125,7 @@ func SignUp() web.HandlerFunc {
 func VerifySignUpKey() web.HandlerFunc {
 	return func(c web.Context) error {
 		if c.Tenant().Status == models.TenantInactive {
-			return VerifySignInKey()(c)
+			return VerifySignInKey(models.EmailVerificationKindSignUp)(c)
 		}
 		return c.NotFound()
 	}
