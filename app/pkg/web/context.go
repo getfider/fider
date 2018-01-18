@@ -88,7 +88,7 @@ func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	if !i.IsAuthorized(ctx.User()) {
 		return validate.Unauthorized()
 	}
-	return i.Validate(ctx.Services())
+	return i.Validate(ctx.User(), ctx.Services())
 }
 
 //Logger returns current logger

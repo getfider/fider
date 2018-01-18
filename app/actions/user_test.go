@@ -45,7 +45,7 @@ func TestChangeUserRole_InvalidRole(t *testing.T) {
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: 4}}
 	action.IsAuthorized(currentUser)
-	result := action.Validate(services)
+	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "role")
 }
 
@@ -59,7 +59,7 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: models.RoleAdministrator}}
 	action.IsAuthorized(currentUser)
-	result := action.Validate(services)
+	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "user_id")
 }
 
@@ -79,6 +79,6 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: models.RoleAdministrator}}
 	action.IsAuthorized(currentUser)
-	result := action.Validate(services)
+	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "user_id")
 }

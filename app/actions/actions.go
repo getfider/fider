@@ -9,6 +9,6 @@ import (
 // Actionable is any action that the user can perform using the web app
 type Actionable interface {
 	Initialize() interface{}
-	Validate(services *app.Services) *validate.Result
+	Validate(user *models.User, services *app.Services) *validate.Result
 	IsAuthorized(user *models.User) bool
 }
