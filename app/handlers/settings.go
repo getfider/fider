@@ -1,9 +1,51 @@
 package handlers
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/web"
 )
+
+// ChangeUserEmail register the intent of changing user e-mail
+func ChangeUserEmail() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.ChangeUserEmail)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 24*time.Hour, input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		subject := "Confirm your new e-mail"
+		link := fmt.Sprintf("%s/change-email/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
+		previous := c.User().Email
+		if previous == "" {
+			previous = "(empty)"
+		}
+		message := fmt.Sprintf(`
+			Hi %s,
+			<br /><br />
+			Looks like you have requested to change your e-mail from %s to %s.
+			<br />
+			Click the link below to confirm this operation.
+			<br /><br />
+			<a href='%s'>%s</a> 
+			<br /><br />
+			<span style="color:#b3b3b1;font-size:11px">This link will expire in 24 hours and can only be used once.</span>
+		`, c.User().Name, c.User().Email, input.Model.Email, link, link)
+		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
 
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {

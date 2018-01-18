@@ -53,3 +53,39 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 	Expect(code).To(Equal(http.StatusOK))
 	Expect(user.Role).To(Equal(models.RoleAdministrator))
 }
+
+func TestChangeUserEmailHandler_Valid(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, email := range []string{
+		"jon.another@got.com",
+		"another.snow@got.com",
+	} {
+		server, _ := mock.NewServer()
+		code, _ := server.
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(handlers.ChangeUserEmail(), fmt.Sprintf(`{ "email": "%s" }`, email))
+
+		Expect(code).To(Equal(http.StatusOK))
+	}
+}
+
+func TestChangeUserEmailHandler_Invalid(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, email := range []string{
+		"",
+		"jon.snow@got.com",
+		"jon.snow",
+		"arya.stark@got.com",
+	} {
+		server, _ := mock.NewServer()
+		code, _ := server.
+			OnTenant(mock.DemoTenant).
+			AsUser(mock.JonSnow).
+			ExecutePost(handlers.ChangeUserEmail(), fmt.Sprintf(`{ "email": "%s" }`, email))
+
+		Expect(code).To(Equal(http.StatusBadRequest))
+	}
+}
