@@ -5,3 +5,9 @@ export const updateUserSettings = async (name: string): Promise<Result> => {
     name,
   });
 };
+
+export const changeUserEmail = async (email: string): Promise<Result> => {
+  return await http.post('/api/user/change-email', {
+    email,
+  });
+};

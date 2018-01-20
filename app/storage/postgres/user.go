@@ -125,6 +125,12 @@ func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 	return s.trx.Execute(cmd, userID, s.tenant.ID, role)
 }
 
+// ChangeEmail of given user
+func (s *UserStorage) ChangeEmail(userID int, email string) error {
+	cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
+	return s.trx.Execute(cmd, userID, s.tenant.ID, email)
+}
+
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}

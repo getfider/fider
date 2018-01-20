@@ -41,6 +41,7 @@ type dbEmailVerification struct {
 	Email      string                       `db:"email"`
 	Key        string                       `db:"key"`
 	Kind       models.EmailVerificationKind `db:"kind"`
+	UserID     dbx.NullInt                  `db:"user_id"`
 	CreatedOn  time.Time                    `db:"created_on"`
 	ExpiresOn  time.Time                    `db:"expires_on"`
 	VerifiedOn dbx.NullTime                 `db:"verified_on"`
@@ -59,6 +60,10 @@ func (t *dbEmailVerification) toModel() *models.EmailVerification {
 
 	if t.VerifiedOn.Valid {
 		model.VerifiedOn = &t.VerifiedOn.Time
+	}
+
+	if t.UserID.Valid {
+		model.UserID = int(t.UserID.Int64)
 	}
 
 	return model
@@ -149,15 +154,19 @@ func (s *TenantStorage) Activate(id int) error {
 
 // SaveVerificationKey used by e-mail verification process
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
-	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind) VALUES ($1, $2, $3, $4, $5, $6, $7)"
-	return s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind())
+	var userID interface{}
+	if request.GetUser() != nil {
+		userID = request.GetUser().ID
+	}
+	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+	return s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
 }
 
 // FindVerificationByKey based on current tenant
 func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error) {
 	verification := dbEmailVerification{}
 
-	query := "SELECT id, email, name, key, created_on, verified_on, expires_on, kind FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
+	query := "SELECT id, email, name, key, created_on, verified_on, expires_on, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
 	err := s.trx.Get(&verification, query, key, kind)
 	if err != nil {
 		return nil, err

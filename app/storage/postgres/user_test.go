@@ -209,12 +209,29 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	users.SetCurrentTenant(demoTenant)
-	err := users.ChangeRole(1, models.RoleVisitor)
+	err := users.ChangeRole(jonSnow.ID, models.RoleVisitor)
 	Expect(err).To(BeNil())
 
-	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	user, err := users.GetByEmail(jonSnow.Tenant.ID, "jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Role).To(Equal(models.RoleVisitor))
+}
+
+func TestUserStorage_ChangeEmail(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	err := users.ChangeEmail(jonSnow.ID, "jon.stark@got.com")
+	Expect(err).To(BeNil())
+
+	user, err := users.GetByEmail(jonSnow.Tenant.ID, "jon.stark@got.com")
+	Expect(err).To(BeNil())
+	Expect(user.Email).To(Equal("jon.stark@got.com"))
+
+	user, err = users.GetByEmail(jonSnow.Tenant.ID, "jon.snow@got.com")
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(user).To(BeNil())
 }
 
 func TestUserStorage_GetAll(t *testing.T) {

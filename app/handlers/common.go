@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -25,4 +27,32 @@ func Page() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Map{})
 	}
+}
+
+func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.EmailVerification, error) {
+	key := c.QueryParam("k")
+
+	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
+	if err != nil {
+		if err == app.ErrNotFound {
+			return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		}
+		return nil, c.Failure(err)
+	}
+
+	//If key has been used, just go back to home page
+	if result.VerifiedOn != nil {
+		return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+	}
+
+	//If key expired, go back to home page
+	if time.Now().After(result.ExpiresOn) {
+		err = c.Services().Tenants.SetKeyAsVerified(key)
+		if err != nil {
+			return nil, c.Failure(err)
+		}
+		return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+	}
+
+	return result, nil
 }

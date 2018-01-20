@@ -122,6 +122,11 @@ func (e *CreateTenant) GetName() string {
 	return e.Name
 }
 
+//GetUser returns the current user performing this action
+func (e *CreateTenant) GetUser() *User {
+	return nil
+}
+
 //GetKind returns EmailVerificationKindSignUp
 func (e *CreateTenant) GetKind() EmailVerificationKind {
 	return EmailVerificationKindSignUp
@@ -152,6 +157,11 @@ func (e *SignInByEmail) GetName() string {
 	return ""
 }
 
+//GetUser returns the current user performing this action
+func (e *SignInByEmail) GetUser() *User {
+	return nil
+}
+
 //GetKind returns EmailVerificationKindSignIn
 func (e *SignInByEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindSignIn
@@ -161,6 +171,7 @@ func (e *SignInByEmail) GetKind() EmailVerificationKind {
 type ChangeUserEmail struct {
 	Email           string `json:"email" format:"lower"`
 	VerificationKey string
+	Requestor       *User
 }
 
 //GetEmail returns the email being verified
@@ -173,6 +184,11 @@ func (e *ChangeUserEmail) GetName() string {
 	return ""
 }
 
+//GetUser returns the current user performing this action
+func (e *ChangeUserEmail) GetUser() *User {
+	return e.Requestor
+}
+
 //GetKind returns EmailVerificationKindSignIn
 func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindChangeEmail
@@ -182,6 +198,7 @@ func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
 type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string
+	GetUser() *User
 	GetKind() EmailVerificationKind
 }
 
@@ -190,6 +207,7 @@ type EmailVerification struct {
 	Email      string
 	Name       string
 	Key        string
+	UserID     int
 	Kind       EmailVerificationKind
 	CreatedOn  time.Time
 	ExpiresOn  time.Time

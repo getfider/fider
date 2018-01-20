@@ -98,6 +98,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		{
 			private.Use(middlewares.IsAuthenticated())
 			private.Get("/settings", handlers.Page())
+			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
 			private.Get("/api/ideas", handlers.GetIdeas())
 			private.Post("/api/ideas", handlers.PostIdea())

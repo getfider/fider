@@ -97,6 +97,6 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 		result.AddFieldFailure("email", "This e-mail is already in use by someone else")
 		return result
 	}
-
+	input.Model.Requestor = user
 	return result
 }

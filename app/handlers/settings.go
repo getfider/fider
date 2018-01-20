@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"time"
+
+	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/web"
@@ -44,6 +47,31 @@ func ChangeUserEmail() web.HandlerFunc {
 		}
 
 		return c.Ok(web.Map{})
+	}
+}
+
+// VerifyChangeEmailKey checks if key is correct and update user's email
+func VerifyChangeEmailKey() web.HandlerFunc {
+	return func(c web.Context) error {
+		result, err := validateKey(models.EmailVerificationKindChangeEmail, c)
+		if err != nil {
+			return err
+		}
+
+		if result.UserID != c.User().ID {
+			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		}
+
+		err = c.Services().Users.ChangeEmail(result.UserID, result.Email)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.SetKeyAsVerified(result.Key)
+		if err != nil {
+			return c.Failure(err)
+		}
+		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL()+"/settings")
 	}
 }
 
