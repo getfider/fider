@@ -113,7 +113,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                       <span className="ui info clickable" onClick={() => this.setState({ changingEmail: true })}>change</span>
                     </p>
                   }
-                  
+
               </div>
               <DisplayError fields={['name']} error={this.state.error} />
               <div className="field">
