@@ -160,6 +160,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Kind).To(Equal(models.EmailVerificationKindSignUp))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
+	Expect(result.UserID).To(Equal(0))
 	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 
 	//Set as verified check values
@@ -174,12 +175,41 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(result.Email).To(Equal("jon.snow@got.com"))
 	Expect(result.Name).To(Equal("Jon Snow"))
 	Expect(result.Key).To(Equal("s3cr3tk3y"))
+	Expect(result.UserID).To(Equal(0))
 	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 
 	//Wrong kind should not find it
 	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "s3cr3tk3y")
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(result).To(BeNil())
+}
+
+func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	//Save new Key
+	request := &models.ChangeUserEmail{
+		Email:     "jon.stark@got.com",
+		Requestor: jonSnow,
+	}
+	err := tenants.SaveVerificationKey("th3-s3cr3t", 15*time.Minute, request)
+	Expect(err).To(BeNil())
+
+	//Find and check values
+	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
+	Expect(err).To(BeNil())
+	Expect(result.CreatedOn).NotTo(Equal(time.Time{}))
+	Expect(result.VerifiedOn).To(BeNil())
+	Expect(result.Email).To(Equal("jon.stark@got.com"))
+	Expect(result.Name).To(Equal(""))
+	Expect(result.Kind).To(Equal(models.EmailVerificationKindChangeEmail))
+	Expect(result.Key).To(Equal("th3-s3cr3t"))
+	Expect(result.UserID).To(Equal(jonSnow.ID))
+	Expect(result.ExpiresOn).To(BeTemporally("~", result.CreatedOn.Add(15*time.Minute), 1*time.Second))
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {

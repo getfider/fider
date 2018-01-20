@@ -42,7 +42,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     if (this.state.sent) {
       return (
         <div>
-          <p>We just emailed a confirmation link to <b>{this.state.email}</b>. <br /> Click the link and you’ll be signed in.</p>
+          <p>We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link and you’ll be signed in.</p>
           <p><a href="#" onClick={() => page.hideSignIn()}>OK</a></p>
         </div>
       );

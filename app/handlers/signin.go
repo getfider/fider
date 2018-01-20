@@ -165,28 +165,9 @@ func SignInByEmail() web.HandlerFunc {
 // VerifySignInKey checks if verify key is correct and sign in user
 func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 	return func(c web.Context) error {
-		key := c.QueryParam("k")
-
-		result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
-		if err != nil {
-			if err == app.ErrNotFound {
-				return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
-			}
-			return c.Failure(err)
-		}
-
-		//If key has been used, just go back to home page
-		if result.VerifiedOn != nil {
-			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
-		}
-
-		//If key expired, go back to home page
-		if time.Now().After(result.ExpiresOn) {
-			err = c.Services().Tenants.SetKeyAsVerified(key)
-			if err != nil {
-				return c.Failure(err)
-			}
-			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		result, err := validateKey(kind, c)
+		if result == nil {
+			return err
 		}
 
 		var user *models.User
@@ -218,7 +199,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		err = c.Services().Tenants.SetKeyAsVerified(key)
+		err = c.Services().Tenants.SetKeyAsVerified(result.Key)
 		if err != nil {
 			return c.Failure(err)
 		}

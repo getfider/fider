@@ -28,7 +28,7 @@ func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
 		"my GREAT idea",
 	} {
 		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
-		result := action.Validate(services)
+		result := action.Validate(nil, services)
 		ExpectFailed(result, "title")
 	}
 }
@@ -41,7 +41,7 @@ func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
 		"this idea is very descriptive",
 	} {
 		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
-		result := action.Validate(services)
+		result := action.Validate(nil, services)
 		ExpectSuccess(result)
 	}
 }

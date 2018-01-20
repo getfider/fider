@@ -103,11 +103,16 @@ func (s *TenantStorage) Activate(id int) error {
 
 // SaveVerificationKey used by e-mail verification
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
+	userID := 0
+	if request.GetUser() != nil {
+		userID = request.GetUser().ID
+	}
 	s.verifications = append(s.verifications, &models.EmailVerification{
 		Email:      request.GetEmail(),
 		Name:       request.GetName(),
 		Kind:       request.GetKind(),
 		Key:        key,
+		UserID:     userID,
 		CreatedOn:  time.Now(),
 		ExpiresOn:  time.Now().Add(duration),
 		VerifiedOn: nil,

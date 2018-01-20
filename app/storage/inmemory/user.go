@@ -73,35 +73,38 @@ func (s *UserStorage) Register(user *models.User) error {
 
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
-	for _, user := range s.users {
-		if user.ID == userID {
-			user.Providers = append(user.Providers, provider)
-			return nil
-		}
+	user, err := s.GetByID(userID)
+	if err == nil {
+		user.Providers = append(user.Providers, provider)
 	}
-	return app.ErrNotFound
+	return err
 }
 
 // Update user settings
 func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
-	for _, user := range s.users {
-		if user.ID == userID {
-			user.Name = settings.Name
-			return nil
-		}
+	user, err := s.GetByID(userID)
+	if err == nil {
+		user.Name = settings.Name
 	}
-	return app.ErrNotFound
+	return err
 }
 
 // ChangeRole of given user
 func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
-	for _, user := range s.users {
-		if user.ID == userID {
-			user.Role = role
-			return nil
-		}
+	user, err := s.GetByID(userID)
+	if err == nil {
+		user.Role = role
 	}
-	return app.ErrNotFound
+	return err
+}
+
+// ChangeEmail of given user
+func (s *UserStorage) ChangeEmail(userID int, email string) error {
+	user, err := s.GetByID(userID)
+	if err == nil {
+		user.Email = email
+	}
+	return err
 }
 
 // GetAll return all users of current tenant

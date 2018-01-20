@@ -29,7 +29,7 @@ func (input *CreateEditTag) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *CreateEditTag) Validate(services *app.Services) *validate.Result {
+func (input *CreateEditTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 	if input.Model.Slug != "" {
 		tag, err := services.Tags.GetBySlug(input.Model.Slug)
@@ -81,7 +81,7 @@ func (input *DeleteTag) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *DeleteTag) Validate(services *app.Services) *validate.Result {
+func (input *DeleteTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	tag, err := services.Tags.GetBySlug(input.Model.Slug)
 	if err != nil {
 		return validate.Error(err)
@@ -110,7 +110,7 @@ func (input *AssignUnassignTag) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *AssignUnassignTag) Validate(services *app.Services) *validate.Result {
+func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	idea, err := services.Ideas.GetByNumber(input.Model.Number)
 	if err != nil {
 		return validate.Error(err)

@@ -29,7 +29,7 @@ func (input *CreateTenant) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *CreateTenant) Validate(services *app.Services) *validate.Result {
+func (input *CreateTenant) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	var err error
@@ -91,7 +91,7 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *UpdateTenantSettings) Validate(services *app.Services) *validate.Result {
+func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Title == "" {

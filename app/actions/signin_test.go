@@ -14,7 +14,7 @@ func TestSignInByEmail_EmptyEmail(t *testing.T) {
 	RegisterTestingT(t)
 
 	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: " "}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectFailed(result, "email")
 }
 
@@ -22,7 +22,7 @@ func TestSignInByEmail_InvalidEmail(t *testing.T) {
 	RegisterTestingT(t)
 
 	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: "Hi :)"}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectFailed(result, "email")
 }
 
@@ -33,7 +33,7 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 	action.Initialize()
 	action.Model.Email = "jon.snow@got.com"
 
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectSuccess(result)
 	Expect(action.Model.VerificationKey).NotTo(Equal(""))
 }
@@ -42,7 +42,7 @@ func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 	RegisterTestingT(t)
 
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectFailed(result, "name", "key")
 }
 
@@ -52,14 +52,14 @@ func TestCompleteProfile_LongName(t *testing.T) {
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
 	}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectFailed(result, "name", "key")
 }
 
 func TestCompleteProfile_UnknownKey(t *testing.T) {
 	RegisterTestingT(t)
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectFailed(result, "key")
 }
 
@@ -68,7 +68,7 @@ func TestCompleteProfile_ValidKey(t *testing.T) {
 	e := &models.SignInByEmail{Email: "jon.snow@got.com"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
-	result := action.Validate(services)
+	result := action.Validate(nil, services)
 	ExpectSuccess(result)
 	Expect(action.Model.Email).To(Equal("jon.snow@got.com"))
 }

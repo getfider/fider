@@ -23,7 +23,7 @@ func (input *UpdateUserSettings) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *UpdateUserSettings) Validate(services *app.Services) *validate.Result {
+func (input *UpdateUserSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {

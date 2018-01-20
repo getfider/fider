@@ -17,7 +17,7 @@ func TestInvalidUserNames(t *testing.T) {
 		"123456789012345678901234567890123456789012345678901", // 51 chars
 	} {
 		action := &actions.UpdateUserSettings{Model: &models.UpdateUserSettings{Name: name}}
-		result := action.Validate(services)
+		result := action.Validate(nil, services)
 		ExpectFailed(result, "name")
 	}
 }
@@ -30,7 +30,7 @@ func TestValidUserNames(t *testing.T) {
 		"Arya",
 	} {
 		action := &actions.UpdateUserSettings{Model: &models.UpdateUserSettings{Name: name}}
-		result := action.Validate(services)
+		result := action.Validate(nil, services)
 		ExpectSuccess(result)
 	}
 }

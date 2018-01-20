@@ -27,7 +27,7 @@ func (input *CreateNewIdea) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *CreateNewIdea) Validate(services *app.Services) *validate.Result {
+func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Title == "" {
@@ -69,7 +69,7 @@ func (input *UpdateIdea) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *UpdateIdea) Validate(services *app.Services) *validate.Result {
+func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	idea, err := services.Ideas.GetByNumber(input.Model.Number)
@@ -116,7 +116,7 @@ func (input *AddNewComment) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *AddNewComment) Validate(services *app.Services) *validate.Result {
+func (input *AddNewComment) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Content == "" {
@@ -144,7 +144,7 @@ func (input *SetResponse) IsAuthorized(user *models.User) bool {
 }
 
 // Validate is current model is valid
-func (input *SetResponse) Validate(services *app.Services) *validate.Result {
+func (input *SetResponse) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Status < models.IdeaOpen || input.Model.Status > models.IdeaDuplicate {
