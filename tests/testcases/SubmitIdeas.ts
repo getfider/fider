@@ -1,6 +1,9 @@
 import { ensure, elementIsVisible, elementIsNotVisible, mailgun, delay } from '../lib';
 import { pages, tenant, browser } from '../context';
 import { createTenant } from './setup';
+import {
+  equal as assertEqual
+} from 'assert';
 
 describe('Submit ideas', () => {
 
@@ -51,7 +54,7 @@ describe('Submit ideas', () => {
     await browser.wait(elementIsNotVisible(() => pages.home.IdeaDescription));
   });
 
-  it('Unauthenticated cannot submit ideas', async () => {
+  it('Unauthenticated users cannot submit ideas', async () => {
     // Action
     await pages.home.navigate();
     await pages.home.signOut();
@@ -65,11 +68,11 @@ describe('Submit ideas', () => {
     // Action
     await pages.home.navigate();
     await pages.home.signInWithFacebook();
-    await pages.facebook.signInAsAryaStark();
+    await pages.facebook.signInAsJonSnow();
     await pages.home.UserMenu.click();
 
     // Assert
-    await ensure(pages.home.UserName).textIs('ARYA STARK');
+    await ensure(pages.home.UserName).textIs('JON SNOW');
 
     // Action
     await pages.home.submitNewIdea('Add support to TypeScript', 'Because the language and community is awesome! :)');
@@ -80,16 +83,74 @@ describe('Submit ideas', () => {
     await ensure(pages.showIdea.SupportCounter).textIs('1');
   });
 
+  it('Admin can change status', async () => {
+    // Action & Assert
+    await pages.home.navigate();
+    await pages.home.IdeaList.navigateAndWait(0, pages.showIdea.loadCondition());
+    await pages.showIdea.RespondButton.click();
+    await browser.wait(elementIsVisible(() => pages.showIdea.ResponseModal));
+
+    // Action & Assert
+    await pages.showIdea.changeStatus('Planned', 'We will work on this soon...');
+    await browser.wait(elementIsVisible(() => pages.showIdea.Status));
+    await ensure(pages.showIdea.Status).textIs('PLANNED');
+    await ensure(pages.showIdea.ResponseText).textIs('We will work on this soon...');
+  });
+
+  it('Admin can change status to another one', async () => {
+    // Action & Assert
+    await pages.showIdea.RespondButton.click();
+    await browser.wait(elementIsVisible(() => pages.showIdea.ResponseModal));
+    await pages.showIdea.changeStatus('Planned', 'We will work on this soon...');
+    await browser.wait(elementIsVisible(() => pages.showIdea.Status));
+    await ensure(pages.showIdea.Status).textIs('PLANNED');
+    await ensure(pages.showIdea.ResponseText).textIs('We will work on this soon...');
+  });
+
+  it('Authenticated user can comment on an idea', async () => {
+    // Action & Assert
+    await pages.home.navigate();
+    await pages.home.IdeaList.navigateAndWait(0, pages.showIdea.loadCondition());
+    await ensure(pages.showIdea.SubmitCommentButton).isNotVisible();
+
+    // Action & Assert
+    await pages.showIdea.CommentInput.type('This is my first comment');
+    await ensure(pages.showIdea.SubmitCommentButton).isVisible();
+
+    // Action & Assert
+    await pages.showIdea.SubmitCommentButton.click();
+    await browser.wait(async () => await pages.showIdea.CommentList.count() === 1);
+  });
+
+  it('Unauthenticated user cannot comment on an idea', async () => {
+    // Action & Assert
+    await pages.home.navigate();
+    await pages.home.signOut();
+    await pages.home.IdeaList.navigateAndWait(0, pages.showIdea.loadCondition());
+    assertEqual(await pages.showIdea.CommentList.count(), 1);
+
+    // Action & Assert
+    await pages.showIdea.CommentInput.click();
+    await browser.wait(elementIsVisible(() => pages.home.SignInModal));
+  });
+
+  it('Unauthenticated user cannot see actions', async () => {
+    // Action & Assert
+    await pages.home.navigate();
+    await pages.home.signOut();
+    await pages.home.IdeaList.navigateAndWait(0, pages.showIdea.loadCondition());
+    await ensure(pages.showIdea.RespondButton).isNotVisible();
+  });
+
   it('Can sign in with Google and support an idea', async () => {
-    // Action
+    // Action & Assert
     await pages.home.navigate();
     await pages.home.signInWithGoogle();
     await pages.google.signInAsDarthVader();
     await pages.home.UserMenu.click();
-
-    // Assert
     await ensure(pages.home.UserName).textIs('DARTH VADER');
 
+    // Action & Assert
     await pages.home.IdeaList.want(0);
     await ensure(await pages.home.IdeaList.at(0)).textIs('2');
   });
@@ -111,5 +172,9 @@ describe('Submit ideas', () => {
     // Assert
     await pages.home.UserMenu.click();
     await ensure(pages.home.UserName).textIs(`DARTH VADER ${now}`);
+  });
+
+  it.skip('Admin can change Title, Invitation and Welcom Message', async () => {
+    return true;
   });
 });

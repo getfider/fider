@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { ThenableWebDriver, WebElementPromise } from 'selenium-webdriver';
+import { Browser } from './';
 
 export const delay = (ms: number) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -16,8 +17,9 @@ export function findBy(selector: string, t?: new(element: WebElementPromise, sel
         configurable: true,
         enumerable: true,
         get() {
-          const promise = ((this as any).browser as ThenableWebDriver).findElement(selector);
-          return new type(promise, selector);
+          const browser = (this as any).browser;
+          const promise = (browser as Browser).findElement(selector);
+          return new type(promise, selector, browser);
         },
     });
   };
@@ -30,8 +32,9 @@ export function findMultipleBy(selector: string, t?: new(element: WebElementProm
         configurable: true,
         enumerable: true,
         get() {
-          const promise = ((this as any).browser as ThenableWebDriver).findElements(selector);
-          return new type(promise, selector);
+          const browser = (this as any).browser;
+          const promise = (browser as Browser).findElements(selector);
+          return new type(promise, selector, browser);
         },
     });
   };

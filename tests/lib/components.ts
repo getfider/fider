@@ -1,4 +1,4 @@
-import { WebElementPromise, Key } from 'selenium-webdriver';
+import { WebElementPromise, Key, By } from 'selenium-webdriver';
 
 export class WebComponent {
   constructor(protected element: WebElementPromise, public selector: string) { }
@@ -42,6 +42,22 @@ export class Button extends WebComponent {
     } catch (ex) {
       return false;
     }
+  }
+}
+
+export class DropDownList extends WebComponent {
+  constructor(element: WebElementPromise, selector: string) {
+    super(element, selector);
+  }
+
+  public async selectByText(text: string) {
+    const options = await this.element.findElements(By.tagName('option'));
+    for (const option of options) {
+      if (await option.getText() === text) {
+        return await option.click();
+      }
+    }
+    throw new Error(`No option found for text '${text}'.`);
   }
 }
 

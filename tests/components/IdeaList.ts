@@ -1,12 +1,20 @@
 import { WebElement, By } from 'selenium-webdriver';
-import { WebComponent } from '../lib';
+import { Browser, WebComponent, WaitCondition } from '../lib';
 
 export class IdeaList {
-  constructor(private elements: Promise<WebElement[]>, private selector: string) {
+  constructor(
+    private elements: Promise<WebElement[]>,
+    private selector: string,
+    private browser: Browser) {
   }
 
   public async want(index: number) {
     await (await this.elements)[index].findElement(By.css('.support-counter .button')).click();
+  }
+
+  public async navigateAndWait(index: number, condition: WaitCondition) {
+    await (await this.elements)[index].findElement(By.css('a.title')).click();
+    await this.browser.wait(condition);
   }
 
   public async at(index: number): Promise<WebComponent> {
