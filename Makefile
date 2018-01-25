@@ -16,6 +16,15 @@ test:
 coverage:
 	godotenv -f .test.env courtney -o cover.out $$(go list ./...)
 
+e2e-single:
+	./scripts/e2e.sh single
+
+e2e-multi:
+	./scripts/e2e.sh multi
+
+e2e-build:
+	./scripts/e2e.sh build
+
 e2e:
 	./scripts/e2e.sh
 

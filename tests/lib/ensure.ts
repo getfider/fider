@@ -7,8 +7,7 @@ class WebComponentEnsurer {
     let lastErr: Error;
     do {
       try {
-        await fn();
-        return;
+        return await fn();
       } catch (err) {
         lastErr = err;
         await delay(500);

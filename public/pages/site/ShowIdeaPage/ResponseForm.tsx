@@ -53,7 +53,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   public render() {
     const button = (
-      <Button className="icon fluid text-left"  onClick={async () => this.showModal()}>
+      <Button className="respond icon fluid text-left" onClick={async () => this.showModal()}>
         <i className="announcement icon" /> Respond
       </Button>
     );
@@ -106,14 +106,14 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             Cancel
           </Button>
         </div>
-        </div>
+      </div>
       );
 
     return (
-      <div>
+      <>
         {button}
         {modal}
-      </div>
+      </>
     );
   }
 }
