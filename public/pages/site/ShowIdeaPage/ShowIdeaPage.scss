@@ -12,27 +12,29 @@
     }
   }
 
+  @media only screen and (min-width: 768px) {
+    .header-col, 
+    .comments-col {
+      float: left;
+      width: calc(100% - 230px);
+    }
+    .action-col {
+      float: right;
+    }
+  }
+
+  .header-col {
+    margin-bottom: 5px;
+  }
+
   .action-col {
     @media only screen and (min-width: 768px) {
-      height: 0;
+      width: 200px;
     }
     .ui.list {
       margin: 0.5em 0em;
     }
-    .subtitle {
-      display: block;
-      &.active {
-        cursor: pointer;
-        &:hover {
-          color: $main-color;
-        }
-        i {
-          float: right;
-        }
-      }
-    }
   }
-
 
   .tag-list {
     .tag-icon {
