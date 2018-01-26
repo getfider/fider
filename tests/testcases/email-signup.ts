@@ -1,10 +1,13 @@
-import { ensure, elementIsVisible, mailgun, delay } from '../lib';
-import { pages, tenant, browser } from '../context';
-import { initialize } from './setup';
+import { ensure, elementIsVisible, mailgun, Browser } from '../lib';
+import { AllPages } from '../pages';
 
 describe('Sign up by e-mail', () => {
+  let browser: Browser;
+  let pages: AllPages;
+
   before(async () => {
-    initialize();
+    browser = new Browser('chrome');
+    pages = new AllPages(browser);
   });
 
   after(async () => {
