@@ -8,9 +8,9 @@ interface TagProps {
 }
 
 const getRGB = (color: string) => {
-  const r = color.substring(1, 3);
-  const g = color.substring(3, 5);
-  const b = color.substring(5, 7);
+  const r = color.substring(0, 2);
+  const g = color.substring(2, 4);
+  const b = color.substring(4, 6);
 
   return {
     R: parseInt(r, 16),
@@ -20,11 +20,9 @@ const getRGB = (color: string) => {
 };
 
 const idealTextColor = (color: string) => {
-  const nThreshold = 105;
   const components = getRGB(color);
   const bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
-
-  return (bgDelta > 186) ? '#000000' : '#ffffff';
+  return (bgDelta > 140) ? '#333' : '#fff';
 };
 
 export const ShowTag = (props: TagProps) => {

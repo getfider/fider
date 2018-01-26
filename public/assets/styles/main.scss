@@ -6,6 +6,12 @@
   text-align: center;
 }
 
+.page::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
 noscript {
   margin-top: 20px;
 }
@@ -51,6 +57,19 @@ body {
   letter-spacing: .3px;
   text-transform: uppercase;
   color: #999;
+}
+
+.subtitle {
+  display: block;
+  &.active {
+    cursor: pointer;
+    &:hover {
+      color: $main-color;
+    }
+    i {
+      float: right;
+    }
+  }
 }
 
 code {

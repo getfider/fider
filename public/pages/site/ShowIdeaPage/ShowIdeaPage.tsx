@@ -56,91 +56,89 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
   public render() {
     return (
       <div className="page ui container">
-        <div className="ui stackable vertically padded grid container">
-          <div className="thirteen wide column">
-            <div className="ui items unstackable">
-              <div className="item">
-                <SupportCounter user={this.props.user} idea={this.props.idea} />
+        <div className="header-col">
+          <div className="ui items unstackable">
+            <div className="item">
+              <SupportCounter user={this.props.user} idea={this.props.idea} />
 
-                <div className="idea-header">
-                  { this.state.editMode
-                    ? [
-                      <div key={1} className="ui input huge fluid">
-                        <input type="text" maxLength={100} onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
-                      </div>,
-                      <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
-                    ]
-                    : <h1 className="ui header">{this.props.idea.title}</h1>
-                  }
+              <div className="idea-header">
+                { this.state.editMode
+                  ? [
+                    <div key={1} className="ui input huge fluid">
+                      <input type="text" maxLength={100} onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
+                    </div>,
+                    <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
+                  ]
+                  : <h1 className="ui header">{this.props.idea.title}</h1>
+                }
 
-                  <span className="info">
-                    Shared <Moment date={this.props.idea.createdOn} /> by <Gravatar user={this.props.idea.user} /> <UserName user={this.props.idea.user} />
-                  </span>
-                </div>
+                <span className="info">
+                  Shared <Moment date={this.props.idea.createdOn} /> by <Gravatar user={this.props.idea.user} /> <UserName user={this.props.idea.user} />
+                </span>
               </div>
             </div>
+          </div>
 
-            <span className="subtitle">Description</span>
-            {
-              this.state.editMode
-              ? <div className="ui form">
-                  <div className="field">
-                    <DisplayError fields={['description']} error={this.state.error} />
-                    <Textarea onChange={(e) => this.setState({ newDescription: e.currentTarget.value })} defaultValue={this.state.newDescription} />
-                  </div>
+          <span className="subtitle">Description</span>
+          {
+            this.state.editMode
+            ? <div className="ui form">
+                <div className="field">
+                  <DisplayError fields={['description']} error={this.state.error} />
+                  <Textarea onChange={(e) => this.setState({ newDescription: e.currentTarget.value })} defaultValue={this.state.newDescription} />
                 </div>
-              : this.props.idea.description
-              ? <MultiLineText className="description" text={this.props.idea.description} style="simple" />
-              : <p className="description">This idea doesn't have a description.</p>
-            }
-
-            <ShowIdeaResponse status={this.props.idea.status} response={this.props.idea.response} />
-
-          </div>
-          <div className="three wide column action-col">
-            {
-              this.props.user && this.props.user.isCollaborator && [
-                <span key={0} className="subtitle">Actions</span>,
-                this.state.editMode
-                  ?
-                  <div key={1} className="ui list">
-                    <div className="item">
-                      <Button className="positive icon fluid text-left" onClick={async () => this.saveChanges()}>
-                        <i className="save icon" /> Save
-                      </Button>
-                    </div>
-                    <div className="item">
-                      <Button className="icon fluid text-left" onClick={async () => this.setState({ error: undefined, editMode: false })}>
-                        <i className="cancel icon" /> Cancel
-                      </Button>
-                    </div>
-                  </div>
-                  :
-                  <div key={1} className="ui list">
-                    <div className="item">
-                        <Button className="icon fluid text-left" onClick={async () => this.setState({ editMode: true })}>
-                          <i className="edit icon" /> Edit
-                        </Button>
-                    </div>
-                    <div className="item">
-                      <ResponseForm idea={this.props.idea} />
-                    </div>
-                  </div>
-              ]
-            }
-
-            <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
-          </div>
-          <div className="thirteen wide column">
-              <div className="ui comments">
-                <span className="subtitle">Discussion</span>
-                <CommentList comments={this.props.comments} />
-                <CommentInput user={this.props.user} idea={this.props.idea} />
               </div>
-          </div>
+            : this.props.idea.description
+            ? <MultiLineText className="description" text={this.props.idea.description} style="simple" />
+            : <p className="description">This idea doesn't have a description.</p>
+          }
+
+          <ShowIdeaResponse status={this.props.idea.status} response={this.props.idea.response} />
 
         </div>
 
+        <div className="action-col">
+          {
+            this.props.user && this.props.user.isCollaborator && [
+              <span key={0} className="subtitle">Actions</span>,
+              this.state.editMode
+                ?
+                <div key={1} className="ui list">
+                  <div className="item">
+                    <Button className="positive icon fluid text-left" onClick={async () => this.saveChanges()}>
+                      <i className="save icon" /> Save
+                    </Button>
+                  </div>
+                  <div className="item">
+                    <Button className="icon fluid text-left" onClick={async () => this.setState({ error: undefined, editMode: false })}>
+                      <i className="cancel icon" /> Cancel
+                    </Button>
+                  </div>
+                </div>
+                :
+                <div key={1} className="ui list">
+                  <div className="item">
+                      <Button className="icon fluid text-left" onClick={async () => this.setState({ editMode: true })}>
+                        <i className="edit icon" /> Edit
+                      </Button>
+                  </div>
+                  <div className="item">
+                    <ResponseForm idea={this.props.idea} />
+                  </div>
+                </div>
+            ]
+          }
+
+          <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
+        </div>
+
+        <div className="comments-col">
+            <div className="ui comments">
+              <span className="subtitle">Discussion</span>
+              <CommentList comments={this.props.comments} />
+              <CommentInput user={this.props.user} idea={this.props.idea} />
+            </div>
+        </div>
       </div>
     );
   }
