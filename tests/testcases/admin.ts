@@ -90,6 +90,23 @@ it('Can comment on an idea', async () => {
   await browser.wait(async () => await pages.showIdea.CommentList.count() === 1);
 });
 
-it.skip('Can change Title, Invitation and Welcom Message', async () => {
-  return true;
+it('Can change Title, Invitation and Welcome Message', async () => {
+  await pages.adminSettings.navigate();
+
+  await pages.adminSettings.TitleInput.clear();
+  await pages.adminSettings.TitleInput.type('Selenium Feedback');
+
+  await pages.adminSettings.WelcomeMessageInput.clear();
+  await pages.adminSettings.WelcomeMessageInput.type('Welcome to our Selenium Feedback Forum');
+
+  await pages.adminSettings.InvitationInput.clear();
+  await pages.adminSettings.InvitationInput.type('Say something...');
+
+  await pages.adminSettings.ConfirmButton.click();
+
+  await browser.wait(pages.home.loadCondition());
+
+  await ensure(pages.home.MenuTitle).textIs('Selenium Feedback');
+  await ensure(pages.home.WelcomeMessage).textIs('Welcome to our Selenium Feedback Forum');
+  await ensure(pages.home.IdeaTitle).attributeIs('placeholder', 'Say something...');
 });

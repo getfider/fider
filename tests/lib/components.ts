@@ -15,6 +15,10 @@ export class WebComponent {
     }
   }
 
+  public async getAttribute(attrName: string): Promise<string> {
+    return await this.element.getAttribute(attrName);
+  }
+
   public async isDisplayed() {
     try {
       return await this.element.isDisplayed();

@@ -30,6 +30,16 @@ class WebComponentEnsurer {
     });
   }
 
+  public async attributeIs(attrName: string, expected: string) {
+    await this.retry(async () => {
+      const value = await this.component.getAttribute(attrName);
+
+      if (value.trim() !== expected.trim()) {
+        throw new Error(`Element ${this.component.selector} attribute '${attrName}' is '${value}'. Expected value is '${expected}'`);
+      }
+    });
+  }
+
   public async isVisible() {
     await this.retry(async () => {
       if (!await this.component.isDisplayed()) {
