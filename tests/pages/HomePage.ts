@@ -14,6 +14,12 @@ export class HomePage extends Page {
     return `http://${tenant}.dev.fider.io:3000/`;
   }
 
+  @findBy('.menu a.header')
+  public MenuTitle: WebComponent;
+
+  @findBy('.page .welcome-message')
+  public WelcomeMessage: WebComponent;
+
   @findBy('#new-idea-input')
   public IdeaTitle: TextInput;
 

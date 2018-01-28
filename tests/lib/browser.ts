@@ -6,7 +6,6 @@ export class Browser {
   private driver: ThenableWebDriver;
   public constructor(private browserName: string) {
     this.driver = new Builder().forBrowser('chrome').build();
-    this.driver.manage().timeouts().implicitlyWait(5 * 1000);
   }
 
   public async navigate(url: string): Promise<void> {

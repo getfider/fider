@@ -1,4 +1,4 @@
-import { WebComponent, Browser, Page, Button, TextInput, findBy, elementIsVisible, pageHasLoaded, delay } from '../lib';
+import { WebComponent, Browser, Page, Button, TextInput, findBy, elementIsVisible, pageHasLoaded } from '../lib';
 import { GoogleSignInPage, FacebookSignInPage, HomePage } from './';
 
 export class SignUpPage extends Page {
