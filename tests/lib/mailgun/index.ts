@@ -34,11 +34,11 @@ export const mailgun = {
       if (events.items.length > 0 && events.items[0].message.headers.to === to) {
         messageUrl = events.items[0].storage.url;
       } else {
-        await delay(5000);
+        await delay(500);
       }
-    } while (!messageUrl && count < 6);
+    } while (!messageUrl && count < 60);
 
-    if (count === 6) {
+    if (count === 60) {
       throw new Error(`Message not found for ${to}.`);
     }
 

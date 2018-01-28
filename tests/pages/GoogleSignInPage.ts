@@ -1,4 +1,4 @@
-import { TextInput, Button, Browser, WebComponent, Page, findBy, elementIsVisible, elementIsPresent, pageHasLoaded, delay } from '../lib';
+import { TextInput, Button, Browser, WebComponent, Page, findBy, elementIsVisible, elementIsPresent, pageHasLoaded } from '../lib';
 import { HomePage, SignUpPage } from './';
 import config from '../config';
 
