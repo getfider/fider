@@ -3,7 +3,7 @@ language: go
 sudo: false
 dist: trusty
 
-go: tip
+go: 1.9.x
 
 addons:
   postgresql: "9.6"
