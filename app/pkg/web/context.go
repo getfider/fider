@@ -266,7 +266,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 //BaseURL returns base URL as string
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
-	if ctx.Request.TLS != nil {
+	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
 	return protocol + "://" + ctx.Request.Host
