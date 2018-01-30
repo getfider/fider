@@ -20,15 +20,17 @@ script:
   - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   - make lint
   - DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
-  - docker build -t getfider/fider .
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - |
-    if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+    if [ $DOCKER_USERNAME != "" ] && [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+      docker build -t getfider/fider .
+      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       docker tag getfider/fider getfider/fider:master
       docker push getfider/fider:master
     fi
   - |
-    if [ $TRAVIS_PULL_REQUEST != "false" ]; then
+    if [ $DOCKER_USERNAME != "" ] && [ $TRAVIS_PULL_REQUEST != "false" ]; then
+      docker build -t getfider/fider .
+      docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
       docker tag getfider/fider getfider/fider:PR_$TRAVIS_PULL_REQUEST
       docker push getfider/fider:PR_$TRAVIS_PULL_REQUEST
     fi
