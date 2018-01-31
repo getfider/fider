@@ -27,7 +27,7 @@ func ChangeUserEmail() web.HandlerFunc {
 		if previous == "" {
 			previous = "(empty)"
 		}
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "Confirm your new e-mail", "change_emailaddress_email", web.Map{
+		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "change_emailaddress_email", web.Map{
 			"name":            c.User().Name,
 			"oldEmail":        previous,
 			"newEmail":        input.Model.Email,

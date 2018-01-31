@@ -71,7 +71,7 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			err = c.Services().Emailer.Send("Fider", user.Email, "Confirm your new Fider instance", "signup_email", web.Map{
+			err = c.Services().Emailer.Send("Fider", user.Email, "signup_email", web.Map{
 				"baseUrl":         c.TenantBaseURL(tenant),
 				"verificationKey": input.Model.VerificationKey,
 			})

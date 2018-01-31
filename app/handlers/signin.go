@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -144,8 +143,8 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subject := fmt.Sprintf("Sign in to %s", c.Tenant().Name)
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, "signin_email", web.Map{
+		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "signin_email", web.Map{
+			"tenant":          c.Tenant(),
 			"baseUrl":         c.BaseURL(),
 			"verificationKey": input.Model.VerificationKey,
 		})

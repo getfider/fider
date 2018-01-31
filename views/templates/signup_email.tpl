@@ -1,3 +1,5 @@
+subject: Confirm your new Fider instance
+body:
 Click the link below to confirm your new Fider instance.
 <br /><br />
 <a href='{{ .baseUrl }}/signup/verify?k={{ .verificationKey }}'>{{ .baseUrl }}/signup/verify?k={{ .verificationKey }}</a> 

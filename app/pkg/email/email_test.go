@@ -12,13 +12,9 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterTestingT(t)
 
-	message := email.RenderMessage("echo", web.Map{
+	message := email.RenderMessage("echo_test", web.Map{
 		"name": "Fider",
 	})
-	Expect(message).To(Equal("Hello World Fider!"))
-
-	message = email.RenderMessage("echo", web.Map{
-		"name": "Golang",
-	})
-	Expect(message).To(Equal("Hello World Golang!"))
+	Expect(message.Subject).To(Equal("Message to: Fider"))
+	Expect(message.Body).To(Equal("Hello World Fider!"))
 }

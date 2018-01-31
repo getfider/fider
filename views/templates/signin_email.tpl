@@ -1,3 +1,5 @@
+subject: Sign in to {{ .tenant.Name }}
+body:
 Click the link below to sign in. 
 <br /><br />
 <a href='{{ .baseUrl }}/signin/verify?k={{ .verificationKey }}'>{{ .baseUrl }}/signin/verify?k={{ .verificationKey }}</a> 

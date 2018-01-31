@@ -1,3 +1,5 @@
+subject: Confirm your new e-mail
+body:
 Hi {{ .name }},
 <br /><br />
 Looks like you have requested to change your e-mail from {{ .oldEmail }} to {{ .newEmail }}.
