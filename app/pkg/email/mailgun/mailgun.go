@@ -23,13 +23,13 @@ func NewSender(domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, subject, message string) error {
+func (s *Sender) Send(from, to, subject, templateName string, params map[string]interface{}) error {
 
 	form := url.Values{}
 	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	form.Add("to", to)
 	form.Add("subject", subject)
-	form.Add("html", message)
+	form.Add("html", email.RenderMessage(templateName, params))
 
 	url := fmt.Sprintf(baseURL, s.domain)
 	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))

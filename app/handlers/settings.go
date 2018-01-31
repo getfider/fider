@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -24,24 +23,17 @@ func ChangeUserEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subject := "Confirm your new e-mail"
-		link := fmt.Sprintf("%s/change-email/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
 		previous := c.User().Email
 		if previous == "" {
 			previous = "(empty)"
 		}
-		message := fmt.Sprintf(`
-			Hi %s,
-			<br /><br />
-			Looks like you have requested to change your e-mail from %s to %s.
-			<br />
-			Click the link below to confirm this operation.
-			<br /><br />
-			<a href='%s'>%s</a> 
-			<br /><br />
-			<span style="color:#b3b3b1;font-size:11px">This link will expire in 24 hours and can only be used once.</span>
-		`, c.User().Name, c.User().Email, input.Model.Email, link, link)
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
+		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "Confirm your new e-mail", "change_emailaddress_email", web.Map{
+			"name":            c.User().Name,
+			"oldEmail":        previous,
+			"newEmail":        input.Model.Email,
+			"baseUrl":         c.BaseURL(),
+			"verificationKey": input.Model.VerificationKey,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}

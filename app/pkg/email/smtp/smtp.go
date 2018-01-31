@@ -21,7 +21,7 @@ func NewSender(host, port, username, password string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, subject, message string) error {
+func (s *Sender) Send(from, to, subject, templateName string, params map[string]interface{}) error {
 
 	headers := make(map[string]string)
 	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
@@ -34,7 +34,7 @@ func (s *Sender) Send(from, to, subject, message string) error {
 	for k, v := range headers {
 		body += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
-	body += "\r\n" + message
+	body += "\r\n" + email.RenderMessage(templateName, params)
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
