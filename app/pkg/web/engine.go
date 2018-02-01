@@ -6,10 +6,12 @@ import (
 	stdLog "log"
 	"net/http"
 	"os"
+	"runtime"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -26,17 +28,19 @@ type Engine struct {
 	renderer    *Renderer
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
+	worker      worker.Worker
 }
 
 //New creates a new Engine
 func New(settings *models.AppSettings) *Engine {
-	logger := NewLogger()
+	logger := log.NewConsoleLogger("WEB")
 	router := &Engine{
 		mux:         httprouter.New(),
 		logger:      logger,
 		renderer:    NewRenderer(settings, logger),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
+		worker:      worker.New(),
 	}
 
 	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {
@@ -56,6 +60,11 @@ func (e *Engine) Start(address string) {
 		Addr:     address,
 		Handler:  e.mux,
 		ErrorLog: stdLog.New(e.logger, "", 0),
+	}
+
+	for i := 0; i < runtime.NumCPU(); i++ {
+		e.logger.Infof("Starting worker %d.", i)
+		go e.Worker().Run(i)
 	}
 
 	var (
@@ -96,12 +105,18 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 		engine:   e,
 		logger:   e.logger,
 		params:   params,
+		worker:   e.worker,
 	}
 }
 
 //Logger returns current logger
 func (e *Engine) Logger() log.Logger {
 	return e.logger
+}
+
+//Worker returns current worker referenc
+func (e *Engine) Worker() worker.Worker {
+	return e.worker
 }
 
 //Group creates a new route group
@@ -197,17 +212,4 @@ func (g *Group) Static(prefix, root string) {
 		}
 	}
 	g.engine.mux.Handle("GET", prefix, g.handler(h))
-}
-
-// NewLogger creates a new logger
-func NewLogger() log.Logger {
-	logger := log.NewConsoleLogger()
-
-	if env.IsProduction() {
-		logger.SetLevel(log.INFO)
-	} else {
-		logger.SetLevel(log.DEBUG)
-	}
-
-	return logger
 }

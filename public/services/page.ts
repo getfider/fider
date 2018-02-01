@@ -3,7 +3,7 @@ export const setTitle = (title: string): void => {
 };
 
 export const getBaseUrl = (): string => {
-  return (window as any).props.baseUrl;
+  return (window as any).props.baseURL;
 };
 
 export const isSingleHostMode = (): boolean => {

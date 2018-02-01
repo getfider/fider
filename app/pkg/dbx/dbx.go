@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"reflect"
+	"time"
 
 	"strings"
 
@@ -18,22 +19,21 @@ import (
 	_ "github.com/mattes/migrate/source/file"
 )
 
-// New creates a new Database instance
-func New() (*Database, error) {
-	return NewWithLogger(log.NewConsoleLogger())
+// New creates a new Database instance without logging
+func New() *Database {
+	return NewWithLogger(&log.NoopLogger{})
 }
 
-// NewWithLogger creates a new Database instance with logging
-func NewWithLogger(logger log.Logger) (*Database, error) {
+// NewWithLogger creates a new Database instance with logging or panic
+func NewWithLogger(logger log.Logger) *Database {
 	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
 	conn.SetMaxIdleConns(20)
 	conn.SetMaxOpenConns(50)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	db := &Database{conn, logger, NewRowMapper()}
-	return db, nil
+	return &Database{conn, logger, NewRowMapper()}
 }
 
 // Database represents a connection to a SQL database
@@ -105,32 +105,43 @@ type Trx struct {
 	mapper RowMapper
 }
 
+var formatter = strings.NewReplacer("\t", "", "\n", " ")
+
 // QueryRow the database with given SQL command and returns only one row
 func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
-	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
 	return trx.tx.QueryRow(command, args...)
 }
 
 // Query the database with given SQL command
 func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
-	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
 	return trx.tx.Query(command, args...)
 }
 
 // Execute given SQL command
 func (trx Trx) Execute(command string, args ...interface{}) error {
-	command = formatCommand(command)
-	trx.logger.Debugf("%s %v", log.Yellow(command), log.Blue(args))
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
 	_, err := trx.tx.Exec(command, args...)
 	return err
-}
-
-func formatCommand(cmd string) string {
-	cmd = strings.Replace(cmd, "\t", "", -1)
-	cmd = strings.Replace(cmd, "\n", " ", -1)
-	return cmd
 }
 
 // Scalar returns first row and first column

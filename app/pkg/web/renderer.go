@@ -80,7 +80,7 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	m["__StyleBundle"] = r.cssBundle
 	m["settings"] = r.settings
 
-	m["baseUrl"] = ctx.BaseURL()
+	m["baseURL"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
 		"endpoint": ctx.AuthEndpoint(),

@@ -14,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 type oauthUserProfile struct {
@@ -143,14 +144,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "signin_email", web.Map{
-			"tenant":          c.Tenant(),
-			"baseUrl":         c.BaseURL(),
-			"verificationKey": input.Model.VerificationKey,
-		})
-		if err != nil {
-			return c.Failure(err)
-		}
+		go c.Enqueue(tasks.SendSignInEmail(input.Model, c.BaseURL()))
 
 		return c.Ok(web.Map{})
 	}

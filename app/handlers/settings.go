@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/tasks"
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/web"
@@ -23,20 +24,7 @@ func ChangeUserEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		previous := c.User().Email
-		if previous == "" {
-			previous = "(empty)"
-		}
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, "change_emailaddress_email", web.Map{
-			"name":            c.User().Name,
-			"oldEmail":        previous,
-			"newEmail":        input.Model.Email,
-			"baseUrl":         c.BaseURL(),
-			"verificationKey": input.Model.VerificationKey,
-		})
-		if err != nil {
-			return c.Failure(err)
-		}
+		go c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model, c.BaseURL()))
 
 		return c.Ok(web.Map{})
 	}
@@ -46,7 +34,7 @@ func ChangeUserEmail() web.HandlerFunc {
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c web.Context) error {
 		result, err := validateKey(models.EmailVerificationKindChangeEmail, c)
-		if err != nil {
+		if result == nil {
 			return err
 		}
 

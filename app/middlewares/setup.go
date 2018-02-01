@@ -3,6 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"runtime/debug"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/log"
@@ -27,8 +28,10 @@ func Noop() web.MiddlewareFunc {
 func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			path := log.Reverse(log.Magenta(c.Request.Method + " " + c.Request.URL.String()))
-			c.Logger().Debugf("Starting Request %s", path)
+			path := log.Magenta(c.Request.Method + " " + c.Request.URL.String())
+
+			start := time.Now()
+			c.Logger().Infof("%s started", path)
 
 			trx, err := db.Begin()
 			if err != nil {
@@ -49,25 +52,25 @@ func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
 			defer func() {
 				if r := recover(); r != nil {
 					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
-
+					c.Failure(err)
+					c.Logger().Infof("%s finished in %s", path, log.Magenta(time.Since(start).String()))
 					if trx != nil {
 						trx.Rollback()
 					}
-					c.Failure(err)
-					c.Logger().Debugf("Finished Request %s", path)
 				}
 			}()
 
-			err = next(c)
-			c.Logger().Debugf("Finished Request %s", path)
-
-			if err != nil {
-				c.Logger().Debugf("Transaction rolled back")
-				trx.Rollback()
-				return err
+			if err = next(c); err != nil {
+				panic(err)
 			}
+
+			if err = trx.Commit(); err != nil {
+				panic(err)
+			}
+
+			c.Logger().Infof("%s finished in %s", path, log.Magenta(time.Since(start).String()))
 			c.Logger().Debugf("Transaction committed")
-			return trx.Commit()
+			return err
 		}
 	}
 }

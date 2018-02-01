@@ -72,7 +72,7 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 			err = c.Services().Emailer.Send("Fider", user.Email, "signup_email", web.Map{
-				"baseUrl":         c.TenantBaseURL(tenant),
+				"baseURL":         c.TenantBaseURL(tenant),
 				"verificationKey": input.Model.VerificationKey,
 			})
 			if err != nil {

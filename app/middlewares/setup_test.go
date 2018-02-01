@@ -17,7 +17,7 @@ import (
 func TestSetup(t *testing.T) {
 	RegisterTestingT(t)
 
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	server, _ := mock.NewServer()
@@ -33,7 +33,7 @@ func TestSetup(t *testing.T) {
 func TestSetup_Failure(t *testing.T) {
 	RegisterTestingT(t)
 
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	server, _ := mock.NewServer()
@@ -48,7 +48,7 @@ func TestSetup_Failure(t *testing.T) {
 func TestSetup_Panic(t *testing.T) {
 	RegisterTestingT(t)
 
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	server, _ := mock.NewServer()

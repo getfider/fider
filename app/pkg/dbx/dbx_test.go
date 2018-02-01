@@ -31,7 +31,7 @@ type tenant struct {
 }
 
 func TestMain(m *testing.M) {
-	db, _ := dbx.New()
+	db := dbx.New()
 	db.Migrate()
 	db.Seed()
 	db.Close()
@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 
 func TestBind_SimpleStruct(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -58,7 +58,7 @@ func TestBind_SimpleStruct(t *testing.T) {
 
 func TestBind_DeepNestedStruct(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -80,7 +80,7 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -95,7 +95,7 @@ func TestBind_SimpleStruct_SingleField(t *testing.T) {
 
 func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -112,7 +112,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 
 func TestBind_NestedStruct(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -138,7 +138,7 @@ func TestBind_NestedStruct(t *testing.T) {
 
 func TestBind_NestedStruct_Multiple(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -163,7 +163,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 
 func TestExists_True(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -176,7 +176,7 @@ func TestExists_True(t *testing.T) {
 
 func TestExists_False(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -189,7 +189,7 @@ func TestExists_False(t *testing.T) {
 
 func TestCount(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -202,7 +202,7 @@ func TestCount(t *testing.T) {
 
 func TestCount_Empty(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -215,7 +215,7 @@ func TestCount_Empty(t *testing.T) {
 
 func TestScalar(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
@@ -229,7 +229,7 @@ func TestScalar(t *testing.T) {
 
 func TestArray(t *testing.T) {
 	RegisterTestingT(t)
-	db, _ := dbx.New()
+	db := dbx.New()
 	defer db.Close()
 
 	trx, _ := db.Begin()
