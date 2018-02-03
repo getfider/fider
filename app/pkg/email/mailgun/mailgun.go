@@ -25,14 +25,16 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) error {
+func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
 	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
 
 	message := email.RenderMessage(templateName, params)
+	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply))
+	message.To = to
 
 	form := url.Values{}
-	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
-	form.Add("to", to)
+	form.Add("from", message.From)
+	form.Add("to", message.To)
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
 
@@ -45,11 +47,11 @@ func (s *Sender) Send(from, to, templateName string, params map[string]interface
 	request.SetBasicAuth("api", s.apiKey)
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	_, err = http.DefaultClient.Do(request)
+	resp, err = http.DefaultClient.Do(request)
 	if err == nil {
-		s.logger.Debugf("E-mail sent.")
-	} else {
-		s.logger.Errorf("Failed to send e-mail")
-	}
-	return err
+		s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)
+		return message, nil
+	} 
+	s.logger.Errorf("Failed to send e-mail")
+	return nil, err
 }

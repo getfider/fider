@@ -13,13 +13,16 @@ import (
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
+//Job is what's going to be run on background
 type Job func(c *Context) error
 
+//Task represents the Name and Job to be run on background
 type Task struct {
 	Name string
 	Job  Job
 }
 
+//Context holds references to services available for jobs
 type Context struct {
 	services *app.Services
 	logger   log.Logger
@@ -27,32 +30,47 @@ type Context struct {
 	tenant   *models.Tenant
 }
 
+//NewContext creates a new context
+func NewContext(s *app.Services, l log.Logger) *Context {
+	return &Context{
+		services: s,
+		logger:   l,
+	}
+}
+
+//SetUser on context
 func (c *Context) SetUser(user *models.User) {
 	c.user = user
 	c.services.SetCurrentUser(user)
 }
 
+//SetTenant on context
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	c.tenant = tenant
 	c.services.SetCurrentTenant(tenant)
 }
 
+//User from current context
 func (c *Context) User() *models.User {
 	return c.user
 }
 
+//Tenant from current context
 func (c *Context) Tenant() *models.Tenant {
 	return c.tenant
 }
 
+//Services from current context
 func (c *Context) Services() *app.Services {
 	return c.services
 }
 
+//Logger from current context
 func (c *Context) Logger() log.Logger {
 	return c.logger
 }
 
+//Worker is a process that runs tasks
 type Worker interface {
 	Run(id int)
 	Enqueue(task Task)
@@ -60,6 +78,7 @@ type Worker interface {
 	Use(db *dbx.Database, emailer email.Sender)
 }
 
+//BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
 	db      *dbx.Database
 	logger  log.Logger
@@ -67,6 +86,7 @@ type BackgroundWorker struct {
 	queue   chan Task
 }
 
+//New creates a new BackgroundWorker
 func New() *BackgroundWorker {
 	return &BackgroundWorker{
 		logger: log.NewConsoleLogger("BGW"),
@@ -74,22 +94,23 @@ func New() *BackgroundWorker {
 	}
 }
 
+//Run initializes the worker loop
 func (w *BackgroundWorker) Run(id int) {
 	for task := range w.queue {
 		trx, err := w.db.Begin()
 		if err != nil {
 			w.logger.Error(err)
 		} else {
-			c := &Context{
-				services: &app.Services{
+			c := NewContext(
+				&app.Services{
 					Tenants: postgres.NewTenantStorage(trx),
 					Users:   postgres.NewUserStorage(trx),
 					Ideas:   postgres.NewIdeaStorage(trx),
 					Tags:    postgres.NewTagStorage(trx),
 					Emailer: w.emailer,
 				},
-				logger: w.logger,
-			}
+				w.logger,
+			)
 
 			start := time.Now()
 			w.logger.Infof("Task '%s' started on worker '%d'", log.Magenta(task.Name), log.Magenta(string(id)))
@@ -113,14 +134,17 @@ func (w *BackgroundWorker) Run(id int) {
 	}
 }
 
+//Enqueue a task on current worker
 func (w *BackgroundWorker) Enqueue(task Task) {
 	w.queue <- task
 }
 
+//Logger from current worker
 func (w *BackgroundWorker) Logger() log.Logger {
 	return w.logger
 }
 
+//Use this to inject worker dependencies
 func (w *BackgroundWorker) Use(db *dbx.Database, emailer email.Sender) {
 	w.db = db
 	w.emailer = emailer

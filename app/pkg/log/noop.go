@@ -4,13 +4,18 @@ package log
 type NoopLogger struct {
 }
 
+// NewNoopLogger creates a new NoopLogger
+func NewNoopLogger() *NoopLogger {
+	return &NoopLogger{}
+}
+
 // SetLevel increases/decreases current log level
 func (l *NoopLogger) SetLevel(level Level) {
 }
 
 // IsEnabled returns true if given level is enabled
 func (l *NoopLogger) IsEnabled(level Level) bool {
-	return false
+	return true
 }
 
 // Debugf logs a DEBUG message

@@ -23,12 +23,14 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) error {
+func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
 
 	message := email.RenderMessage(templateName, params)
+	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
+	message.To = to
 	headers := make(map[string]string)
-	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	headers["To"] = to
+	headers["From"] = message.From
+	headers["To"] = message.To
 	headers["Subject"] = message.Subject
 	headers["MIME-version"] = "1.0"
 	headers["Content-Type"] = "text/html; charset=\"UTF-8\""
@@ -44,8 +46,8 @@ func (s *Sender) Send(from, to, templateName string, params map[string]interface
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to}, []byte(body))
 	if err == nil {
 		s.logger.Debugf("E-mail sent.")
-	} else {
-		s.logger.Errorf("Failed to send e-mail")
+		return message, nil
 	}
-	return err
+	s.logger.Errorf("Failed to send e-mail")
+	return nil, err
 }
