@@ -25,7 +25,8 @@ func Noop() web.MiddlewareFunc {
 }
 
 //WorkerSetup current context with some services
-func WorkerSetup(db *dbx.Database, logger log.Logger) worker.MiddlewareFunc {
+func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
+	db := dbx.NewWithLogger(logger)
 	emailer := app.NewEmailer(logger)
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) error {
@@ -62,7 +63,8 @@ func WorkerSetup(db *dbx.Database, logger log.Logger) worker.MiddlewareFunc {
 }
 
 //WebSetup current context with some services
-func WebSetup(db *dbx.Database, logger log.Logger) web.MiddlewareFunc {
+func WebSetup(logger log.Logger) web.MiddlewareFunc {
+	db := dbx.NewWithLogger(logger)
 	emailer := app.NewEmailer(logger)
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {

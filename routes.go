@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
@@ -16,12 +15,7 @@ import (
 func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	r := web.New(settings)
 
-	webDb := dbx.NewWithLogger(r.Logger())
-	webDb.Migrate()
-
-	worker := r.Worker()
-	bgwDb := dbx.NewWithLogger(worker.Logger())
-	worker.Use(middlewares.WorkerSetup(bgwDb, worker.Logger()))
+	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
 
 	r.Use(middlewares.Compress())
 
@@ -32,7 +26,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
-	r.Use(middlewares.WebSetup(webDb, r.Logger()))
+	r.Use(middlewares.WebSetup(r.Logger()))
 
 	noTenant := r.Group()
 	{

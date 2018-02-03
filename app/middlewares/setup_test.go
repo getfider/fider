@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
@@ -16,11 +15,8 @@ import (
 func TestSetup(t *testing.T) {
 	RegisterTestingT(t)
 
-	db := dbx.New()
-	defer db.Close()
-
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(db, log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
 	status, _ := server.Execute(func(c web.Context) error {
 		Expect(c.ActiveTransaction()).NotTo(BeNil())
 		return c.NoContent(http.StatusOK)
@@ -32,11 +28,8 @@ func TestSetup(t *testing.T) {
 func TestSetup_Failure(t *testing.T) {
 	RegisterTestingT(t)
 
-	db := dbx.New()
-	defer db.Close()
-
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(db, log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
@@ -47,11 +40,8 @@ func TestSetup_Failure(t *testing.T) {
 func TestSetup_Panic(t *testing.T) {
 	RegisterTestingT(t)
 
-	db := dbx.New()
-	defer db.Close()
-
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(db, log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
 	status, _ := server.Execute(func(c web.Context) error {
 		panic("Boom!")
 	})
