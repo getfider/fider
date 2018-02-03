@@ -9,10 +9,11 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/worker"
 	. "github.com/onsi/gomega"
 )
 
-func TestSetup(t *testing.T) {
+func TestWebSetup(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
@@ -25,7 +26,7 @@ func TestSetup(t *testing.T) {
 	Expect(status).To(Equal(http.StatusOK))
 }
 
-func TestSetup_Failure(t *testing.T) {
+func TestWebSetup_Failure(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
@@ -37,7 +38,7 @@ func TestSetup_Failure(t *testing.T) {
 	Expect(status).To(Equal(http.StatusInternalServerError))
 }
 
-func TestSetup_Panic(t *testing.T) {
+func TestWebSetup_Panic(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
@@ -47,4 +48,16 @@ func TestSetup_Panic(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusInternalServerError))
+}
+
+func TestWorkerSetup(t *testing.T) {
+	RegisterTestingT(t)
+
+	c := worker.NewContext(log.NewNoopLogger())
+	mw := middlewares.WorkerSetup(log.NewNoopLogger())
+	err := mw(func(c *worker.Context) error {
+		Expect(c.Services()).NotTo(BeNil())
+		return errors.New("Not Found")
+	})(c)
+	Expect(err).NotTo(BeNil())
 }

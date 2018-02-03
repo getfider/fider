@@ -29,7 +29,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 	db := dbx.NewWithLogger(logger)
 	emailer := app.NewEmailer(logger)
 	return func(next worker.Job) worker.Job {
-		return func(c *worker.Context) error {
+		return func(c *worker.Context) (err error) {
 			trx, err := db.Begin()
 			if err != nil {
 				return err
@@ -45,15 +45,14 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 
 			defer func() {
 				if r := recover(); r != nil {
-					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
+					err = fmt.Errorf("%v\n%v", r, string(debug.Stack()))
 
-					c.Logger().Error(err)
 					if trx != nil {
 						trx.Rollback()
 					}
 				}
 			}()
-			if err := next(c); err != nil {
+			if err = next(c); err != nil {
 				panic(err)
 			}
 			trx.Commit()
