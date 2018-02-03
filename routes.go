@@ -7,27 +7,10 @@ import (
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/email/mailgun"
-	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
-
-func newEmailer(logger log.Logger) email.Sender {
-	if env.IsDefined("MAILGUN_API") {
-		return mailgun.NewSender(logger, env.MustGet("MAILGUN_DOMAIN"), env.MustGet("MAILGUN_API"))
-	}
-	return smtp.NewSender(
-		logger,
-		env.MustGet("SMTP_HOST"),
-		env.MustGet("SMTP_PORT"),
-		env.MustGet("SMTP_USERNAME"),
-		env.MustGet("SMTP_PASSWORD"),
-	)
-}
 
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(settings *models.AppSettings) *web.Engine {
@@ -36,8 +19,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	webDb := dbx.NewWithLogger(r.Logger())
 	webDb.Migrate()
 
-	bgwDb := dbx.NewWithLogger(r.Worker().Logger())
-	r.Worker().Use(bgwDb, newEmailer(r.Worker().Logger()))
+	worker := r.Worker()
+	bgwDb := dbx.NewWithLogger(worker.Logger())
+	worker.Use(middlewares.WorkerSetup(bgwDb, worker.Logger()))
 
 	r.Use(middlewares.Compress())
 
@@ -48,7 +32,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
-	r.Use(middlewares.Setup(webDb, newEmailer(r.Logger())))
+	r.Use(middlewares.WebSetup(webDb, r.Logger()))
 
 	noTenant := r.Group()
 	{

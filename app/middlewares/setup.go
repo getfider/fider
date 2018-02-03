@@ -5,8 +5,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -24,8 +24,46 @@ func Noop() web.MiddlewareFunc {
 	}
 }
 
-//Setup current context with some services
-func Setup(db *dbx.Database, emailer email.Sender) web.MiddlewareFunc {
+//WorkerSetup current context with some services
+func WorkerSetup(db *dbx.Database, logger log.Logger) worker.MiddlewareFunc {
+	emailer := app.NewEmailer(logger)
+	return func(next worker.Job) worker.Job {
+		return func(c *worker.Context) error {
+			trx, err := db.Begin()
+			if err != nil {
+				return err
+			}
+
+			c.SetServices(&app.Services{
+				Tenants: postgres.NewTenantStorage(trx),
+				Users:   postgres.NewUserStorage(trx),
+				Ideas:   postgres.NewIdeaStorage(trx),
+				Tags:    postgres.NewTagStorage(trx),
+				Emailer: emailer,
+			})
+
+			defer func() {
+				if r := recover(); r != nil {
+					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
+
+					c.Logger().Error(err)
+					if trx != nil {
+						trx.Rollback()
+					}
+				}
+			}()
+			if err := next(c); err != nil {
+				panic(err)
+			}
+			trx.Commit()
+			return err
+		}
+	}
+}
+
+//WebSetup current context with some services
+func WebSetup(db *dbx.Database, logger log.Logger) web.MiddlewareFunc {
+	emailer := app.NewEmailer(logger)
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			path := log.Magenta(c.Request.Method + " " + c.Request.URL.String())

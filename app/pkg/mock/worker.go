@@ -13,8 +13,10 @@ type Worker struct {
 }
 
 func createWorker(services *app.Services) *Worker {
+	context := worker.NewContext(log.NewNoopLogger())
+	context.SetServices(services)
 	return &Worker{
-		context: worker.NewContext(services, log.NewNoopLogger()),
+		context: context,
 	}
 }
 
