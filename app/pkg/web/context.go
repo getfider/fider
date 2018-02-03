@@ -61,6 +61,12 @@ type Context struct {
 	worker   worker.Worker
 }
 
+//Engine returns main HTTP engine
+func (ctx *Context) Engine() *Engine {
+	return ctx.engine
+}
+
+//Enqueue given task to be processed in background
 func (ctx *Context) Enqueue(task worker.Task) {
 	wrap := func(c *Context) worker.Job {
 		return func(wc *worker.Context) error {

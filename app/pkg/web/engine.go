@@ -63,7 +63,7 @@ func (e *Engine) Start(address string) {
 		ErrorLog: stdLog.New(e.logger, "", 0),
 	}
 
-	for i := 0; i < runtime.NumCPU(); i++ {
+	for i := 0; i < runtime.NumCPU()*2; i++ {
 		go e.Worker().Run(strconv.Itoa(i))
 	}
 

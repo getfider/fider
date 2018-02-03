@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -111,11 +110,9 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		}
 	}
 
-	if env.IsDevelopment() {
-		debug := r.Group()
-		{
-			debug.Get("/debug/stats", handlers.RuntimeStats())
-		}
+	debug := r.Group()
+	{
+		debug.Get("/debug/stats", handlers.RuntimeStats())
 	}
 
 	return r

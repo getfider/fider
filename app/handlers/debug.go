@@ -13,9 +13,10 @@ func RuntimeStats() web.HandlerFunc {
 		runtime.ReadMemStats(memStats)
 
 		return c.Ok(web.Map{
-			"goroutines": runtime.NumGoroutine(),
-			"heapInMB":   memStats.HeapAlloc / 1048576,
-			"stackInMB":  memStats.StackInuse / 1048576,
+			"goroutines":  runtime.NumGoroutine(),
+			"workerQueue": c.Engine().Worker().Length(),
+			"heapInMB":    memStats.HeapAlloc / 1048576,
+			"stackInMB":   memStats.StackInuse / 1048576,
 		})
 	}
 }
