@@ -23,7 +23,7 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
+func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
 
 	message := email.RenderMessage(templateName, params)
 	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)

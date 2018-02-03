@@ -25,11 +25,11 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
+func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
 	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
 
 	message := email.RenderMessage(templateName, params)
-	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply))
+	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
 	message.To = to
 
 	form := url.Values{}
@@ -41,17 +41,17 @@ func (s *Sender) Send(from, to, templateName string, params map[string]interface
 	url := fmt.Sprintf(baseURL, s.domain)
 	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	request.SetBasicAuth("api", s.apiKey)
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err = http.DefaultClient.Do(request)
+	resp, err := http.DefaultClient.Do(request)
 	if err == nil {
 		s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)
 		return message, nil
-	} 
+	}
 	s.logger.Errorf("Failed to send e-mail")
 	return nil, err
 }
