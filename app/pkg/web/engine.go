@@ -64,9 +64,7 @@ func (e *Engine) Start(address string) {
 	}
 
 	for i := 0; i < runtime.NumCPU(); i++ {
-		id := strconv.Itoa(i)
-		e.logger.Infof("Starting worker %s.", log.Magenta(id))
-		go e.Worker().Run(id)
+		go e.Worker().Run(strconv.Itoa(i))
 	}
 
 	var (

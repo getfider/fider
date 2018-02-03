@@ -144,7 +144,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		go c.Enqueue(tasks.SendSignInEmail(input.Model, c.BaseURL()))
+		c.Enqueue(tasks.SendSignInEmail(input.Model, c.BaseURL()))
 
 		return c.Ok(web.Map{})
 	}

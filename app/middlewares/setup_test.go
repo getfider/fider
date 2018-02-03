@@ -57,6 +57,18 @@ func TestWorkerSetup(t *testing.T) {
 	mw := middlewares.WorkerSetup(log.NewNoopLogger())
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).NotTo(BeNil())
+		return nil
+	})(c)
+	Expect(err).To(BeNil())
+}
+
+func TestWorkerSetup_Failure(t *testing.T) {
+	RegisterTestingT(t)
+
+	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
+	mw := middlewares.WorkerSetup(log.NewNoopLogger())
+	err := mw(func(c *worker.Context) error {
+		Expect(c.Services()).NotTo(BeNil())
 		return errors.New("Not Found")
 	})(c)
 	Expect(err).NotTo(BeNil())

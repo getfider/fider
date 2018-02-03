@@ -22,6 +22,7 @@ type Worker interface {
 	Enqueue(task Task)
 	Logger() log.Logger
 	Use(middleware MiddlewareFunc)
+	Length() int
 }
 
 //BackgroundWorker is a worker that runs tasks on background
@@ -31,11 +32,13 @@ type BackgroundWorker struct {
 	middleware MiddlewareFunc
 }
 
+var maxQueueSize = 100
+
 //New creates a new BackgroundWorker
 func New() *BackgroundWorker {
 	return &BackgroundWorker{
 		logger: log.NewConsoleLogger("BGW"),
-		queue:  make(chan Task),
+		queue:  make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next
 		},
@@ -44,6 +47,7 @@ func New() *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(id string) {
+	w.logger.Infof("Starting worker %s.", log.Magenta(id))
 	for task := range w.queue {
 
 		c := &Context{
@@ -67,6 +71,11 @@ func (w *BackgroundWorker) Enqueue(task Task) {
 //Logger from current worker
 func (w *BackgroundWorker) Logger() log.Logger {
 	return w.logger
+}
+
+//Length from current queue length
+func (w *BackgroundWorker) Length() int {
+	return len(w.queue)
 }
 
 //Use this to inject worker dependencies
