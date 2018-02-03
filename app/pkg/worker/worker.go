@@ -3,6 +3,7 @@ package worker
 import (
 	"fmt"
 	"runtime/debug"
+	"strconv"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -113,7 +114,7 @@ func (w *BackgroundWorker) Run(id int) {
 			)
 
 			start := time.Now()
-			w.logger.Infof("Task '%s' started on worker '%d'", log.Magenta(task.Name), log.Magenta(string(id)))
+			w.logger.Infof("Task '%s' started on worker '%s'", log.Magenta(task.Name), log.Magenta(strconv.Itoa(id)))
 			defer func() {
 				if r := recover(); r != nil {
 					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
