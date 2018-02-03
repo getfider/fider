@@ -110,10 +110,5 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		}
 	}
 
-	debug := r.Group()
-	{
-		debug.Get("/debug/stats", handlers.RuntimeStats())
-	}
-
 	return r
 }
