@@ -9,30 +9,34 @@ import (
 
 // Worker is fake wrapper for background worker
 type Worker struct {
-	context *worker.Context
+	tenant   *models.Tenant
+	user     *models.User
+	services *app.Services
 }
 
 func createWorker(services *app.Services) *Worker {
-	context := worker.NewContext(log.NewNoopLogger())
-	context.SetServices(services)
 	return &Worker{
-		context: context,
+		services: services,
 	}
 }
 
 // OnTenant set current context tenant
 func (w *Worker) OnTenant(tenant *models.Tenant) *Worker {
-	w.context.SetTenant(tenant)
+	w.tenant = tenant
 	return w
 }
 
 // AsUser set current context user
 func (w *Worker) AsUser(user *models.User) *Worker {
-	w.context.SetUser(user)
+	w.user = user
 	return w
 }
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	return task.Job(w.context)
+	context := worker.NewContext("0", task.Name, log.NewNoopLogger())
+	context.SetServices(w.services)
+	context.SetUser(w.user)
+	context.SetTenant(w.tenant)
+	return task.Job(context)
 }

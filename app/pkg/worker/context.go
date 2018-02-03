@@ -8,6 +8,8 @@ import (
 
 //Context holds references to services available for jobs
 type Context struct {
+	workerID string
+	taskName string
 	services *app.Services
 	logger   log.Logger
 	user     *models.User
@@ -15,9 +17,11 @@ type Context struct {
 }
 
 //NewContext creates a new context
-func NewContext(l log.Logger) *Context {
+func NewContext(workerID, taskName string, logger log.Logger) *Context {
 	return &Context{
-		logger: l,
+		workerID: workerID,
+		taskName: taskName,
+		logger:   logger,
 	}
 }
 
@@ -36,6 +40,16 @@ func (c *Context) SetTenant(tenant *models.Tenant) {
 //SetServices on current context
 func (c *Context) SetServices(services *app.Services) {
 	c.services = services
+}
+
+//WorkerID executing current context
+func (c *Context) WorkerID() string {
+	return c.workerID
+}
+
+//TaskName from current context
+func (c *Context) TaskName() string {
+	return c.taskName
 }
 
 //User from current context

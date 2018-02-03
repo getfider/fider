@@ -53,7 +53,7 @@ func TestWebSetup_Panic(t *testing.T) {
 func TestWorkerSetup(t *testing.T) {
 	RegisterTestingT(t)
 
-	c := worker.NewContext(log.NewNoopLogger())
+	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
 	mw := middlewares.WorkerSetup(log.NewNoopLogger())
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).NotTo(BeNil())

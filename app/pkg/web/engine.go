@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -63,8 +64,9 @@ func (e *Engine) Start(address string) {
 	}
 
 	for i := 0; i < runtime.NumCPU(); i++ {
-		e.logger.Infof("Starting worker %d.", i)
-		go e.Worker().Run(i)
+		id := strconv.Itoa(i)
+		e.logger.Infof("Starting worker %s.", log.Magenta(id))
+		go e.Worker().Run(id)
 	}
 
 	var (

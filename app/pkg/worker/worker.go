@@ -1,9 +1,6 @@
 package worker
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -21,7 +18,7 @@ type Task struct {
 
 //Worker is a process that runs tasks
 type Worker interface {
-	Run(id int)
+	Run(id string)
 	Enqueue(task Task)
 	Logger() log.Logger
 	Use(middleware MiddlewareFunc)
@@ -46,19 +43,18 @@ func New() *BackgroundWorker {
 }
 
 //Run initializes the worker loop
-func (w *BackgroundWorker) Run(id int) {
+func (w *BackgroundWorker) Run(id string) {
 	for task := range w.queue {
 
 		c := &Context{
-			logger: w.logger,
+			workerID: id,
+			taskName: task.Name,
+			logger:   w.logger,
 		}
 
-		start := time.Now()
-		c.Logger().Infof("Task '%s' started on worker '%s'", log.Magenta(task.Name), log.Magenta(strconv.Itoa(id)))
 		if err := w.middleware(task.Job)(c); err != nil {
 			w.logger.Error(err)
 		}
-		c.Logger().Infof("Task '%s' finished in %s", log.Magenta(task.Name), log.Magenta(time.Since(start).String()))
 
 	}
 }

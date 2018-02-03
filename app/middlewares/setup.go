@@ -52,10 +52,14 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 					}
 				}
 			}()
+
+			start := time.Now()
+			c.Logger().Infof("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
 			if err = next(c); err != nil {
 				panic(err)
 			}
 			trx.Commit()
+			c.Logger().Infof("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
 			return err
 		}
 	}
