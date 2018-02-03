@@ -24,6 +24,7 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 
 //Send an e-mail
 func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
+	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
 
 	message := email.RenderMessage(templateName, params)
 	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
