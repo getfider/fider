@@ -68,6 +68,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 //WebSetup current context with some services
 func WebSetup(logger log.Logger) web.MiddlewareFunc {
 	db := dbx.NewWithLogger(logger)
+	db.Migrate()
 	emailer := app.NewEmailer(logger)
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
