@@ -2,6 +2,8 @@ package log
 
 import (
 	"fmt"
+	stdLog "log"
+	"os"
 	"strings"
 	"time"
 
@@ -36,13 +38,14 @@ type Logger interface {
 
 // ConsoleLogger output messages to console
 type ConsoleLogger struct {
-	level Level
-	tag   string
+	logger *stdLog.Logger
+	level  Level
+	tag    string
 }
 
 // NewConsoleLogger creates a new ConsoleLogger
 func NewConsoleLogger(tag string) *ConsoleLogger {
-	logger := &ConsoleLogger{tag: tag}
+	logger := &ConsoleLogger{tag: tag, logger: stdLog.New(os.Stdout, "", 0)}
 	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
 
 	switch level {
@@ -112,7 +115,7 @@ func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
 			message = fmt.Sprintf(format, args...)
 		}
 
-		fmt.Printf("%s [%s] [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), l.tag, message)
+		l.logger.Printf("%s [%s] [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), l.tag, message)
 	}
 }
 
