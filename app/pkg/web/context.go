@@ -19,6 +19,7 @@ import (
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/getfider/fider/app/pkg/worker"
 )
 
 // Map defines a generic map of type `map[string]interface{}`.
@@ -57,6 +58,28 @@ type Context struct {
 	logger   log.Logger
 	params   StringMap
 	store    Map
+	worker   worker.Worker
+}
+
+//Engine returns main HTTP engine
+func (ctx *Context) Engine() *Engine {
+	return ctx.engine
+}
+
+//Enqueue given task to be processed in background
+func (ctx *Context) Enqueue(task worker.Task) {
+	wrap := func(c *Context) worker.Job {
+		return func(wc *worker.Context) error {
+			wc.SetUser(c.User())
+			wc.SetTenant(c.Tenant())
+			return task.Job(wc)
+		}
+	}
+
+	ctx.worker.Enqueue(worker.Task{
+		Name: task.Name,
+		Job:  wrap(ctx),
+	})
 }
 
 //Tenant returns current tenant

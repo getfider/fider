@@ -6,37 +6,15 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/email/mailgun"
-	"github.com/getfider/fider/app/pkg/email/smtp"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
-
-func initEmailer() email.Sender {
-	if env.IsDefined("MAILGUN_API") {
-		return mailgun.NewSender(env.MustGet("MAILGUN_DOMAIN"), env.MustGet("MAILGUN_API"))
-	}
-	return smtp.NewSender(
-		env.MustGet("SMTP_HOST"),
-		env.MustGet("SMTP_PORT"),
-		env.MustGet("SMTP_USERNAME"),
-		env.MustGet("SMTP_PASSWORD"),
-	)
-}
 
 // GetMainEngine returns main HTTP engine
 func GetMainEngine(settings *models.AppSettings) *web.Engine {
 	r := web.New(settings)
 
-	db, err := dbx.NewWithLogger(r.Logger())
-	if err != nil {
-		panic(err)
-	}
-	db.Migrate()
-	emailer := initEmailer()
+	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
 
 	r.Use(middlewares.Compress())
 
@@ -47,7 +25,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
-	r.Use(middlewares.Setup(db, emailer))
+	r.Use(middlewares.WebSetup(r.Logger()))
 
 	noTenant := r.Group()
 	{

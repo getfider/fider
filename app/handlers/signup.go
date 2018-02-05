@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -72,16 +71,10 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			subject := "Confirm your new Fider instance"
-			link := fmt.Sprintf("%s/signup/verify?k=%s", c.TenantBaseURL(tenant), input.Model.VerificationKey)
-			message := fmt.Sprintf(`
-				Click the link below to confirm your new Fider instance.
-				<br /><br />
-				<a href='%s'>%s</a> 
-				<br /><br />
-				<span style="color:#b3b3b1;font-size:11px">This link will expire in 48 hours and can only be used once.</span>
-			`, link, link)
-			err = c.Services().Emailer.Send("Fider", user.Email, subject, message)
+			_, err = c.Services().Emailer.Send("Fider", user.Email, "signup_email", web.Map{
+				"baseURL":         c.TenantBaseURL(tenant),
+				"verificationKey": input.Model.VerificationKey,
+			})
 			if err != nil {
 				return c.Failure(err)
 			}

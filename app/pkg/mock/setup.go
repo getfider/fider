@@ -38,6 +38,13 @@ func NewServer() (*Server, *app.Services) {
 	return server, services
 }
 
+// NewWorker creates a new worker and services for worker testing
+func NewWorker() (*Worker, *app.Services) {
+	services := createServices(true)
+	worker := createWorker(services)
+	return worker, services
+}
+
 func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Tenants: &inmemory.TenantStorage{},

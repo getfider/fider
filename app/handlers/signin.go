@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 type oauthUserProfile struct {
@@ -144,19 +144,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subject := fmt.Sprintf("Sign in to %s", c.Tenant().Name)
-		link := fmt.Sprintf("%s/signin/verify?k=%s", c.BaseURL(), input.Model.VerificationKey)
-		message := fmt.Sprintf(`
-			Click the link below to sign in. 
-			<br /><br />
-			<a href='%s'>%s</a> 
-			<br /><br />
-			<span style="color:#b3b3b1;font-size:11px">This link will expire in 15 minutes and can only be used once.</span>
-		`, link, link)
-		err = c.Services().Emailer.Send(c.Tenant().Name, input.Model.Email, subject, message)
-		if err != nil {
-			return c.Failure(err)
-		}
+		c.Enqueue(tasks.SendSignInEmail(input.Model, c.BaseURL()))
 
 		return c.Ok(web.Map{})
 	}

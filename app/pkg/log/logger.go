@@ -2,7 +2,12 @@ package log
 
 import (
 	"fmt"
+	stdLog "log"
+	"os"
+	"strings"
 	"time"
+
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 // Level defines all possible log levels
@@ -27,22 +32,43 @@ type Logger interface {
 	Warnf(format string, args ...interface{})
 	Errorf(format string, args ...interface{})
 	Error(err error)
+	IsEnabled(level Level) bool
 	Write(p []byte) (int, error)
 }
 
 // ConsoleLogger output messages to console
 type ConsoleLogger struct {
-	level Level
+	logger *stdLog.Logger
+	level  Level
+	tag    string
 }
 
 // NewConsoleLogger creates a new ConsoleLogger
-func NewConsoleLogger() *ConsoleLogger {
-	return &ConsoleLogger{}
+func NewConsoleLogger(tag string) *ConsoleLogger {
+	logger := &ConsoleLogger{tag: tag, logger: stdLog.New(os.Stdout, "", 0)}
+	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
+
+	switch level {
+	case "DEBUG":
+		logger.SetLevel(DEBUG)
+	case "WARN":
+		logger.SetLevel(WARN)
+	case "ERROR":
+		logger.SetLevel(ERROR)
+	default:
+		logger.SetLevel(INFO)
+	}
+	return logger
 }
 
 // SetLevel increases/decreases current log level
 func (l *ConsoleLogger) SetLevel(level Level) {
 	l.level = level
+}
+
+// IsEnabled returns true if given level is enabled
+func (l *ConsoleLogger) IsEnabled(level Level) bool {
+	return level >= l.level
 }
 
 // Debugf logs a DEBUG message
@@ -89,7 +115,7 @@ func (l *ConsoleLogger) log(level Level, format string, args ...interface{}) {
 			message = fmt.Sprintf(format, args...)
 		}
 
-		fmt.Printf("%s [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), message)
+		l.logger.Printf("%s [%s] [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), l.tag, message)
 	}
 }
 
