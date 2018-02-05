@@ -107,30 +107,6 @@ type Trx struct {
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
-// QueryRow the database with given SQL command and returns only one row
-func (trx Trx) QueryRow(command string, args ...interface{}) *sql.Row {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
-		}()
-	}
-	return trx.tx.QueryRow(command, args...)
-}
-
-// Query the database with given SQL command
-func (trx Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
-		}()
-	}
-	return trx.tx.Query(command, args...)
-}
-
 // Execute given SQL command
 func (trx Trx) Execute(command string, args ...interface{}) error {
 	if trx.logger.IsEnabled(log.DEBUG) {
@@ -140,13 +116,22 @@ func (trx Trx) Execute(command string, args ...interface{}) error {
 			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
 		}()
 	}
+
 	_, err := trx.tx.Exec(command, args...)
 	return err
 }
 
 // Scalar returns first row and first column
 func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) error {
-	row := trx.QueryRow(command, args...)
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
+	row := trx.tx.QueryRow(command, args...)
 	err := row.Scan(data)
 	if err == sql.ErrNoRows {
 		return app.ErrNotFound
@@ -156,7 +141,15 @@ func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) err
 
 // Get first row and bind to given data
 func (trx Trx) Get(data interface{}, command string, args ...interface{}) error {
-	rows, err := trx.Query(command, args...)
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
+	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
 		return err
 	}
@@ -172,10 +165,18 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 
 // QueryIntArray executes given SQL command and return first column as int
 func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
 	values := make([]int, 0)
 	var value int
 
-	rows, err := trx.Query(command, args...)
+	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +196,15 @@ func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error)
 
 // Exists returns true if at least one record is found
 func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
-	rows, err := trx.Query(command, args...)
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
+	rows, err := trx.tx.Query(command, args...)
 	if rows != nil {
 		defer rows.Close()
 		return rows.Next(), nil
@@ -205,7 +214,15 @@ func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
 
 // Count returns number of rows
 func (trx Trx) Count(command string, args ...interface{}) (int, error) {
-	rows, err := trx.Query(command, args...)
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
+	rows, err := trx.tx.Query(command, args...)
 	defer rows.Close()
 	count := 0
 	for rows != nil && rows.Next() {
@@ -216,7 +233,15 @@ func (trx Trx) Count(command string, args ...interface{}) (int, error) {
 
 //Select all matched rows bind to given data
 func (trx Trx) Select(data interface{}, command string, args ...interface{}) error {
-	rows, err := trx.Query(command, args...)
+	if trx.logger.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+		}()
+	}
+
+	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
 		return err
 	}

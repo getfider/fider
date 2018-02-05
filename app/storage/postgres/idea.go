@@ -285,10 +285,11 @@ func (s *IdeaStorage) Update(number int, title, description string) (*models.Ide
 // Add a new idea in the database
 func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
-						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
-						RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
-	if err := row.Scan(&id); err != nil {
+	err := s.trx.Get(&id,
+		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
+		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
+		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
+	if err != nil {
 		return nil, err
 	}
 
@@ -303,7 +304,9 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	}
 
 	var id int
-	if err := s.trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", idea.ID, content, userID, time.Now()).Scan(&id); err != nil {
+	if err := s.trx.Get(&id,
+		"INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id",
+		idea.ID, content, userID, time.Now()); err != nil {
 		return 0, err
 	}
 
