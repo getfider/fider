@@ -129,16 +129,38 @@ func (s *IdeaStorage) SetCurrentUser(user *models.User) {
 }
 
 var (
-	sqlSelectIdeasWhere = `SELECT i.id, 
+	sqlSelectIdeasWhere = `	WITH agg_comments AS (
+															SELECT 
+																	idea_id, 
+																	COUNT(CASE WHEN comments.created_on > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
+																	COUNT(*) as all
+															FROM comments 
+															INNER JOIN ideas
+															ON ideas.id = comments.idea_id
+															WHERE ideas.tenant_id = $1
+															GROUP BY idea_id
+													),
+													agg_supporters AS (
+															SELECT 
+																	idea_id, 
+																	COUNT(*) as recent
+															FROM idea_supporters 
+															INNER JOIN ideas
+															ON ideas.id = idea_supporters.idea_id
+															WHERE ideas.tenant_id = $1
+															AND idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days' 
+															GROUP BY idea_id
+													)
+													SELECT i.id, 
 																i.number, 
 																i.title, 
 																i.slug, 
 																i.description, 
 																i.created_on,
 																i.supporters,
-																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id) as comments,
-																(SELECT COUNT(*) FROM idea_supporters WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_supporters,
-																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_comments,
+																COALESCE(agg_c.all, 0) as comments,
+																COALESCE(agg_s.recent, 0) AS recent_supporters,
+																COALESCE(agg_c.recent, 0) AS recent_comments,
 																i.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -168,8 +190,12 @@ var (
 													LEFT JOIN tags t
 													ON t.id = it.tag_id
 													%s
+													LEFT JOIN agg_comments agg_c
+													ON agg_c.idea_id = i.id
+													LEFT JOIN agg_supporters agg_s
+													ON agg_s.idea_id = i.id
 													WHERE %s
-													GROUP BY i.id, u.id, r.id, d.id`
+													GROUP BY i.id, u.id, r.id, d.id, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
 func (s *IdeaStorage) getIdeaQuery(filter string) string {
