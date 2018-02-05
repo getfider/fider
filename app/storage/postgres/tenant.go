@@ -94,10 +94,11 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status) 
-						VALUES ($1, $2, $3, '', '', '', $4) 
-						RETURNING id`, name, subdomain, time.Now(), status)
-	if err := row.Scan(&id); err != nil {
+	err := s.trx.Get(&id,
+		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status) 
+		 VALUES ($1, $2, $3, '', '', '', $4) 
+		 RETURNING id`, name, subdomain, time.Now(), status)
+	if err != nil {
 		return nil, err
 	}
 

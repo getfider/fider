@@ -129,16 +129,38 @@ func (s *IdeaStorage) SetCurrentUser(user *models.User) {
 }
 
 var (
-	sqlSelectIdeasWhere = `SELECT i.id, 
+	sqlSelectIdeasWhere = `	WITH agg_comments AS (
+															SELECT 
+																	idea_id, 
+																	COUNT(CASE WHEN comments.created_on > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
+																	COUNT(*) as all
+															FROM comments 
+															INNER JOIN ideas
+															ON ideas.id = comments.idea_id
+															WHERE ideas.tenant_id = $1
+															GROUP BY idea_id
+													),
+													agg_supporters AS (
+															SELECT 
+																	idea_id, 
+																	COUNT(*) as recent
+															FROM idea_supporters 
+															INNER JOIN ideas
+															ON ideas.id = idea_supporters.idea_id
+															WHERE ideas.tenant_id = $1
+															AND idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days' 
+															GROUP BY idea_id
+													)
+													SELECT i.id, 
 																i.number, 
 																i.title, 
 																i.slug, 
 																i.description, 
 																i.created_on,
 																i.supporters,
-																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id) as comments,
-																(SELECT COUNT(*) FROM idea_supporters WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_supporters,
-																(SELECT COUNT(*) FROM comments WHERE idea_id = i.id AND created_on > CURRENT_DATE - INTERVAL '30 days') AS recent_comments,
+																COALESCE(agg_c.all, 0) as comments,
+																COALESCE(agg_s.recent, 0) AS recent_supporters,
+																COALESCE(agg_c.recent, 0) AS recent_comments,
 																i.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -168,8 +190,12 @@ var (
 													LEFT JOIN tags t
 													ON t.id = it.tag_id
 													%s
+													LEFT JOIN agg_comments agg_c
+													ON agg_c.idea_id = i.id
+													LEFT JOIN agg_supporters agg_s
+													ON agg_s.idea_id = i.id
 													WHERE %s
-													GROUP BY i.id, u.id, r.id, d.id`
+													GROUP BY i.id, u.id, r.id, d.id, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
 func (s *IdeaStorage) getIdeaQuery(filter string) string {
@@ -285,10 +311,11 @@ func (s *IdeaStorage) Update(number int, title, description string) (*models.Ide
 // Add a new idea in the database
 func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
 	var id int
-	row := s.trx.QueryRow(`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
-						VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
-						RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
-	if err := row.Scan(&id); err != nil {
+	err := s.trx.Get(&id,
+		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
+		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
+		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
+	if err != nil {
 		return nil, err
 	}
 
@@ -303,7 +330,9 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	}
 
 	var id int
-	if err := s.trx.QueryRow("INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id", idea.ID, content, userID, time.Now()).Scan(&id); err != nil {
+	if err := s.trx.Get(&id,
+		"INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id",
+		idea.ID, content, userID, time.Now()); err != nil {
 		return 0, err
 	}
 

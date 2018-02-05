@@ -56,11 +56,11 @@ func (s *TagStorage) Add(name, color string, isPublic bool) (*models.Tag, error)
 	tagSlug := slug.Make(name)
 
 	var id int
-	row := s.trx.QueryRow(`
+	err := s.trx.Get(&id, `
 		INSERT INTO tags (name, slug, color, is_public, created_on, tenant_id) 
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`, name, tagSlug, color, isPublic, time.Now(), s.tenant.ID)
-	if err := row.Scan(&id); err != nil {
+	if err != nil {
 		return nil, err
 	}
 

@@ -17,6 +17,13 @@ func createScanner(values ...interface{}) func(dest ...interface{}) error {
 	}
 }
 
+func TestTypeMapper_NonStruct(t *testing.T) {
+	RegisterTestingT(t)
+	var id int
+	mapping := dbx.NewTypeMapper(reflect.TypeOf(id))
+	Expect(len(mapping.Fields)).To(Equal(0))
+}
+
 func TestTypeMapper_SimpleStruct(t *testing.T) {
 	RegisterTestingT(t)
 	u := user{}
@@ -56,6 +63,14 @@ func TestTypeMapper_DeepNestedStruct(t *testing.T) {
 	Expect(mapping.Fields["user_name"].FieldName).To(Equal([]string{"User", "Name"}))
 	Expect(mapping.Fields["user_tenant_id"].FieldName).To(Equal([]string{"User", "Tenant", "ID"}))
 	Expect(mapping.Fields["user_tenant_name"].FieldName).To(Equal([]string{"User", "Tenant", "Name"}))
+}
+
+func TestRowMapper_NonStruct(t *testing.T) {
+	RegisterTestingT(t)
+	mapper := dbx.NewRowMapper()
+	var id int
+	mapper.Map(&id, []string{"id"}, createScanner(5))
+	Expect(id).To(Equal(5))
 }
 
 func TestRowMapper_SimpleStruct(t *testing.T) {

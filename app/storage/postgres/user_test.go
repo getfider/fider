@@ -137,11 +137,11 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	var tenantID int
-	trx.QueryRow(`
+	trx.Get(&tenantID, `
 		INSERT INTO tenants (name, subdomain, created_on, status) 
 		VALUES ('My Domain Inc.','mydomain', now(), 1)
 		RETURNING id
-	`).Scan(&tenantID)
+	`)
 
 	user := &models.User{
 		Name:  "Jon Snow",

@@ -94,7 +94,9 @@ func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
 	user.Email = strings.TrimSpace(user.Email)
-	if err := s.trx.QueryRow("INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id", user.Name, user.Email, now, user.Tenant.ID, user.Role).Scan(&user.ID); err != nil {
+	if err := s.trx.Get(&user.ID,
+		"INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+		user.Name, user.Email, now, user.Tenant.ID, user.Role); err != nil {
 		return err
 	}
 

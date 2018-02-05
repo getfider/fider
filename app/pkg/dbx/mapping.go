@@ -76,6 +76,14 @@ type TypeMapper struct {
 //NewTypeMapper creates a new instance of TypeMapper for given reflect.Type
 func NewTypeMapper(t reflect.Type) TypeMapper {
 	all := make(map[string]FieldInfo, 0)
+
+	if t.Kind() != reflect.Struct {
+		return TypeMapper{
+			Type:   t,
+			Fields: all,
+		}
+	}
+
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		columnName := field.Tag.Get("db")
