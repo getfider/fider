@@ -1,7 +1,8 @@
 create table if not exists idea_subscribers (
   user_id     int not null,
   idea_id     int not null,
-  created_on  timestamptz not null,
+  created_on  timestamptz not null default now(),
+  updated_on  timestamptz not null default now(),
   status      smallint not null,
   primary key (user_id, idea_id),
   foreign key (idea_id) references ideas(id),
