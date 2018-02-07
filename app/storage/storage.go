@@ -26,6 +26,9 @@ type Idea interface {
 	AddComment(number int, content string, userID int) (int, error)
 	AddSupporter(number, userID int) error
 	RemoveSupporter(number, userID int) error
+	AddSubscriber(number, userID int) error
+	RemoveSubscriber(number, userID int) error
+	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(number int, text string, userID, status int) error
 	MarkAsDuplicate(number, originalNumber, userID int) error
 	SupportedBy(userID int) ([]int, error)
@@ -43,6 +46,7 @@ type User interface {
 	ChangeEmail(userID int, email string) error
 	ChangeRole(userID int, role models.Role) error
 	GetAll() ([]*models.User, error)
+	UpdateSettings(userID int, settings map[string]string) error
 }
 
 // Tenant contains read and write operations for tenants

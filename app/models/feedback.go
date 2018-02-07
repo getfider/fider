@@ -130,3 +130,55 @@ var (
 	//IdeaDuplicate is used when the idea has already been posted before
 	IdeaDuplicate = 5
 )
+
+var (
+	//SubscriberInactive means that the user cancelled the subscription
+	SubscriberInactive = 0
+	//SubscriberActive means that the subscription is active
+	SubscriberActive = 1
+)
+
+//NotificationChannel represents the medium that the notification is sent
+type NotificationChannel int
+
+var (
+	//NotificationChannelWeb is a in-app notification
+	NotificationChannelWeb NotificationChannel = 1
+	//NotificationChannelEmail is an e-mail notification
+	NotificationChannelEmail NotificationChannel = 2
+)
+
+//NotificationEvent represents all possible notification events
+type NotificationEvent struct {
+	UserSettingsKeyName     string
+	DefaultEnabledUserRoles []Role
+}
+
+var (
+	//NotificationEventNewIdea is triggered when a new idea is posted
+	NotificationEventNewIdea = NotificationEvent{
+		UserSettingsKeyName: "event_notification_new_idea",
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+		},
+	}
+	//NotificationEventNewComment is triggered when a new comment is posted
+	NotificationEventNewComment = NotificationEvent{
+		UserSettingsKeyName: "event_notification_new_comment",
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+			RoleVisitor,
+		},
+	}
+	//NotificationEventChangeStatus is triggered when a new idea has its status changed
+	NotificationEventChangeStatus = NotificationEvent{
+		UserSettingsKeyName: "event_notification_change_status",
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+			RoleVisitor,
+		},
+	}
+)

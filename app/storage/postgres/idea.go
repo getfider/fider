@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/gosimple/slug"
+	"github.com/lib/pq"
 )
 
 type dbIdea struct {
@@ -319,14 +320,16 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		return nil, err
 	}
 
-	if err := s.trx.Execute(
-		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
-		userID, id, time.Now(),
-	); err != nil {
+	idea, err := s.GetByID(id)
+	if err != nil {
 		return nil, err
 	}
 
-	return s.GetByID(id)
+	if err := s.internalAddSubscriber(idea.Number, userID, false); err != nil {
+		return nil, err
+	}
+
+	return idea, nil
 }
 
 // AddComment places a new comment on an idea
@@ -343,10 +346,7 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 		return 0, err
 	}
 
-	if err := s.trx.Execute(
-		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
-		userID, idea.ID, time.Now(),
-	); err != nil {
+	if err := s.internalAddSubscriber(number, userID, false); err != nil {
 		return 0, err
 	}
 
@@ -383,10 +383,7 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return err
 	}
 
-	return s.trx.Execute(
-		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
-		userID, idea.ID, time.Now(),
-	)
+	return s.internalAddSubscriber(number, userID, false)
 }
 
 // RemoveSupporter removes user from idea list of supporters
@@ -414,6 +411,79 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 	}
 
 	return s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID)
+}
+
+// AddSubscriber adds user to the idea list of subscribers
+func (s *IdeaStorage) AddSubscriber(number, userID int) error {
+	return s.internalAddSubscriber(number, userID, true)
+}
+
+func (s *IdeaStorage) internalAddSubscriber(number, userID int, force bool) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+
+	conflict := " DO NOTHING"
+	if force {
+		conflict = "(user_id, idea_id) DO UPDATE SET status = $4, updated_on = $3"
+	}
+
+	return s.trx.Execute(fmt.Sprintf(`
+	INSERT INTO idea_subscribers (user_id, idea_id, created_on, updated_on, status)
+	VALUES ($1, $2, $3, $3, $4)  ON CONFLICT %s`, conflict),
+		userID, idea.ID, time.Now(), models.SubscriberActive,
+	)
+}
+
+// RemoveSubscriber removes user from idea list of subscribers
+func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+
+	return s.trx.Execute(`
+		INSERT INTO idea_subscribers (user_id, idea_id, created_on, updated_on, status)
+		VALUES ($1, $2, $3, $3, 0) ON CONFLICT (user_id, idea_id)
+		DO UPDATE SET status = 0, updated_on = $3`,
+		userID, idea.ID, time.Now(),
+	)
+}
+
+// GetActiveSubscribers based on input and settings
+func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return make([]*models.User, 0), err
+	}
+
+	var users []*dbUser
+	err = s.trx.Select(&users, `
+	SELECT u.id, u.name, u.email, u.tenant_id, u.role
+	FROM users u
+	LEFT JOIN idea_subscribers sub
+	ON sub.user_id = u.id
+	AND sub.idea_id = $1
+	LEFT JOIN user_settings set
+	ON set.user_id = u.id
+	AND set.key = $3
+	WHERE u.tenant_id = $4
+	AND (sub.status IS NULL OR sub.status = $2)
+	AND (
+		(set.value IS NULL AND u.role = ANY($5))
+		OR CAST(set.value AS integer) & $6 > 0
+	)
+	`, idea.ID, models.SubscriberActive, event.UserSettingsKeyName, s.tenant.ID, pq.Array(event.DefaultEnabledUserRoles), channel)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.User, len(users))
+	for i, user := range users {
+		result[i] = user.toModel()
+	}
+	return result, nil
 }
 
 // SetResponse changes current idea response

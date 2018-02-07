@@ -115,10 +115,29 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 	return s.trx.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
 }
 
-// Update user settings
+// Update user profile
 func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
 	cmd := "UPDATE users SET name = $2 WHERE id = $1"
 	return s.trx.Execute(cmd, userID, settings.Name)
+}
+
+// UpdateSettings of given user
+func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
+	if settings != nil && len(settings) > 0 {
+		query := `
+		INSERT INTO user_settings (user_id, key, value)
+		VALUES ($1, $2, $3) ON CONFLICT (user_id, key) DO UPDATE SET value = $3
+		`
+
+		for key, value := range settings {
+			err := s.trx.Execute(query, userID, key, value)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // ChangeRole of given user
