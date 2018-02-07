@@ -319,6 +319,13 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		return nil, err
 	}
 
+	if err := s.trx.Execute(
+		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
+		userID, id, time.Now(),
+	); err != nil {
+		return nil, err
+	}
+
 	return s.GetByID(id)
 }
 
@@ -333,6 +340,13 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	if err := s.trx.Get(&id,
 		"INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id",
 		idea.ID, content, userID, time.Now()); err != nil {
+		return 0, err
+	}
+
+	if err := s.trx.Execute(
+		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
+		userID, idea.ID, time.Now(),
+	); err != nil {
 		return 0, err
 	}
 
@@ -363,7 +377,16 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return err
 	}
 
-	return s.trx.Execute(`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)`, userID, idea.ID, time.Now())
+	if err := s.trx.Execute(
+		`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)  ON CONFLICT DO NOTHING`,
+		userID, idea.ID, time.Now()); err != nil {
+		return err
+	}
+
+	return s.trx.Execute(
+		`INSERT INTO idea_subscribers (user_id, idea_id, created_on, status) VALUES ($1, $2, $3, 1)  ON CONFLICT DO NOTHING`,
+		userID, idea.ID, time.Now(),
+	)
 }
 
 // RemoveSupporter removes user from idea list of supporters
