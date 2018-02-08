@@ -111,3 +111,8 @@ func (s *UserStorage) ChangeEmail(userID int, email string) error {
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	return s.users, nil
 }
+
+// UpdateSettings of given user
+func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
+	return nil
+}

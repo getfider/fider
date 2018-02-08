@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gosimple/slug"
@@ -14,6 +15,7 @@ type IdeaStorage struct {
 	lastID           int
 	ideas            []*models.Idea
 	ideasSupportedBy map[int][]int
+	ideaSubscribers  map[int][]int
 	tenant           *models.Tenant
 	user             *models.User
 }
@@ -23,6 +25,7 @@ func NewIdeaStorage() *IdeaStorage {
 	return &IdeaStorage{
 		ideas:            make([]*models.Idea, 0),
 		ideasSupportedBy: make(map[int][]int, 0),
+		ideaSubscribers:  make(map[int][]int, 0),
 	}
 }
 
@@ -198,4 +201,50 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
 	return s.ideasSupportedBy[userID], nil
+}
+
+// AddSubscriber adds user to the idea list of subscribers
+func (s *IdeaStorage) AddSubscriber(number, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+	s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID], userID)
+	return nil
+}
+
+// RemoveSubscriber removes user from idea list of subscribers
+func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return err
+	}
+
+	for i, id := range s.ideaSubscribers[idea.ID] {
+		if id == userID {
+			s.ideaSubscribers[idea.ID] = append(s.ideasSupportedBy[idea.ID][:i], s.ideasSupportedBy[idea.ID][i+1:]...)
+			break
+		}
+	}
+	return nil
+}
+
+// GetActiveSubscribers based on input and settings
+func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return make([]*models.User, 0), err
+	}
+	subscribers, ok := s.ideaSubscribers[idea.ID]
+	if ok {
+		users := make([]*models.User, len(subscribers))
+		for i, id := range subscribers {
+			users[i] = &models.User{
+				ID:    id,
+				Name:  fmt.Sprintf("User %d", id),
+				Email: fmt.Sprintf("user%d@test.com", id),
+			}
+		}
+	}
+	return make([]*models.User, 0), nil
 }
