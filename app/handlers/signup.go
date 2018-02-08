@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/email"
+
 	"strings"
 
 	"github.com/getfider/fider/app"
@@ -71,10 +73,12 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			_, err = c.Services().Emailer.Send("Fider", user.Email, "signup_email", web.Map{
+			to := email.NewRecipient(user.Email, web.Map{
 				"baseURL":         c.TenantBaseURL(tenant),
 				"verificationKey": input.Model.VerificationKey,
 			})
+
+			_, err = c.Services().Emailer.Send("signup_email", "Fider", to)
 			if err != nil {
 				return c.Failure(err)
 			}

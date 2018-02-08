@@ -44,9 +44,23 @@ func RenderMessage(templateName string, params map[string]interface{}) *Message 
 // NoReply is the default 'from' address
 var NoReply = env.MustGet("NOREPLY_EMAIL")
 
+// Recipient contains details of who is receiving the e-mail
+type Recipient struct {
+	Address string
+	Params  map[string]interface{}
+}
+
+// NewRecipient creates a new Recipient
+func NewRecipient(address string, params map[string]interface{}) Recipient {
+	return Recipient{
+		Address: address,
+		Params:  params,
+	}
+}
+
 // Sender is used to send e-mails
 type Sender interface {
-	Send(from, to, templateName string, params map[string]interface{}) (*Message, error)
+	Send(templateName, from string, to Recipient) (*Message, error)
 }
 
 //NoopSender does not send e-mails
@@ -59,9 +73,9 @@ func NewNoopSender() *NoopSender {
 }
 
 //Send an e-mail
-func (s *NoopSender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
-	msg := RenderMessage(templateName, params)
-	msg.To = to
+func (s *NoopSender) Send(templateName, from string, to Recipient) (*Message, error) {
+	msg := RenderMessage(templateName, to.Params)
+	msg.To = to.Address
 	msg.From = fmt.Sprintf("%s <%s>", from, NoReply)
 	return msg, nil
 }

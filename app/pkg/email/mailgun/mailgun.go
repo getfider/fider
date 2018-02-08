@@ -25,12 +25,12 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
-	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
+func (s *Sender) Send(templateName, from string, to email.Recipient) (*email.Message, error) {
+	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to.Address, templateName, to.Params)
 
-	message := email.RenderMessage(templateName, params)
+	message := email.RenderMessage(templateName, to.Params)
 	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	message.To = to
+	message.To = to.Address
 
 	form := url.Values{}
 	form.Add("from", message.From)

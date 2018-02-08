@@ -23,12 +23,12 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
-	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
+func (s *Sender) Send(templateName, from string, to email.Recipient) (*email.Message, error) {
+	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to.Address, templateName, to.Params)
 
-	message := email.RenderMessage(templateName, params)
+	message := email.RenderMessage(templateName, to.Params)
 	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	message.To = to
+	message.To = to.Address
 	headers := make(map[string]string)
 	headers["From"] = message.From
 	headers["To"] = message.To
@@ -44,7 +44,7 @@ func (s *Sender) Send(from, to, templateName string, params map[string]interface
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
-	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to}, []byte(body))
+	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err == nil {
 		s.logger.Debugf("E-mail sent.")
 		return message, nil

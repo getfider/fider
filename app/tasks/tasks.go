@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
@@ -13,11 +14,12 @@ func describe(name string, job worker.Job) worker.Task {
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail, baseURL string) worker.Task {
 	return describe("Send sign in e-mail", func(c *worker.Context) error {
-		_, err := c.Services().Emailer.Send(c.Tenant().Name, model.Email, "signin_email", web.Map{
+		to := email.NewRecipient(model.Email, web.Map{
 			"tenantName":      c.Tenant().Name,
 			"baseURL":         baseURL,
 			"verificationKey": model.VerificationKey,
 		})
+		_, err := c.Services().Emailer.Send("signin_email", c.Tenant().Name, to)
 		return err
 	})
 }
@@ -29,13 +31,15 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail, baseURL string) 
 		if previous == "" {
 			previous = "(empty)"
 		}
-		_, err := c.Services().Emailer.Send(c.Tenant().Name, model.Email, "change_emailaddress_email", web.Map{
+
+		to := email.NewRecipient(model.Email, web.Map{
 			"name":            c.User().Name,
 			"oldEmail":        previous,
 			"newEmail":        model.Email,
 			"baseURL":         baseURL,
 			"verificationKey": model.VerificationKey,
 		})
+		_, err := c.Services().Emailer.Send("change_emailaddress_email", c.Tenant().Name, to)
 		return err
 	})
 }
