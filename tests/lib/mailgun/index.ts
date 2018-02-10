@@ -29,7 +29,7 @@ export const mailgun = {
 
     do {
       count++;
-      const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=accepted&limit=1&ascending=no`;
+      const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=delivered&limit=1&ascending=no`;
       const events = await httpGet(url);
       if (events.items.length > 0 && events.items[0].message.headers.to === to) {
         messageUrl = events.items[0].storage.url;

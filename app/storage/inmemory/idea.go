@@ -233,7 +233,7 @@ func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
 func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
 	idea, err := s.GetByNumber(number)
 	if err != nil {
-		return make([]*models.User, 0), err
+		return nil, err
 	}
 	subscribers, ok := s.ideaSubscribers[idea.ID]
 	if ok {

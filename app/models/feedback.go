@@ -169,7 +169,6 @@ var (
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
-			RoleVisitor,
 		},
 	}
 	//NotificationEventChangeStatus is triggered when a new idea has its status changed

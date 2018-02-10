@@ -23,15 +23,18 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 }
 
 //Send an e-mail
-func (s *Sender) Send(templateName, from string, to email.Recipient) (*email.Message, error) {
+func (s *Sender) Send(templateName, from string, to email.Recipient) error {
+	if !email.CanSendTo(to.Address) {
+		s.logger.Warnf("Skipping e-mail to %s due to whitelist.", to.Address)
+		return nil
+	}
+
 	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to.Address, templateName, to.Params)
 
 	message := email.RenderMessage(templateName, to.Params)
-	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	message.To = to.Address
 	headers := make(map[string]string)
-	headers["From"] = message.From
-	headers["To"] = message.To
+	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
+	headers["To"] = to.Address
 	headers["Subject"] = message.Subject
 	headers["MIME-version"] = "1.0"
 	headers["Content-Type"] = "text/html; charset=\"UTF-8\""
@@ -45,10 +48,20 @@ func (s *Sender) Send(templateName, from string, to email.Recipient) (*email.Mes
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
-	if err == nil {
-		s.logger.Debugf("E-mail sent.")
-		return message, nil
+	if err != nil {
+		s.logger.Errorf("Failed to send e-mail")
+		return err
 	}
-	s.logger.Errorf("Failed to send e-mail")
-	return nil, err
+	s.logger.Debugf("E-mail sent.")
+	return nil
+}
+
+// BatchSend an e-mail to multiple recipients
+func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) error {
+	for _, r := range to {
+		if err := s.Send(templateName, from, r); err != nil {
+			return err
+		}
+	}
+	return nil
 }
