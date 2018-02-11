@@ -150,14 +150,16 @@ var (
 
 //NotificationEvent represents all possible notification events
 type NotificationEvent struct {
-	UserSettingsKeyName     string
-	DefaultEnabledUserRoles []Role
+	UserSettingsKeyName          string
+	RequiresSubscripionUserRoles []Role
+	DefaultEnabledUserRoles      []Role
 }
 
 var (
 	//NotificationEventNewIdea is triggered when a new idea is posted
 	NotificationEventNewIdea = NotificationEvent{
-		UserSettingsKeyName: "event_notification_new_idea",
+		UserSettingsKeyName:          "event_notification_new_idea",
+		RequiresSubscripionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
@@ -166,14 +168,21 @@ var (
 	//NotificationEventNewComment is triggered when a new comment is posted
 	NotificationEventNewComment = NotificationEvent{
 		UserSettingsKeyName: "event_notification_new_comment",
+		RequiresSubscripionUserRoles: []Role{
+			RoleVisitor,
+		},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
+			RoleVisitor,
 		},
 	}
 	//NotificationEventChangeStatus is triggered when a new idea has its status changed
 	NotificationEventChangeStatus = NotificationEvent{
 		UserSettingsKeyName: "event_notification_change_status",
+		RequiresSubscripionUserRoles: []Role{
+			RoleVisitor,
+		},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,

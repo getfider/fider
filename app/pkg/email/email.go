@@ -68,6 +68,9 @@ func SetWhitelist(s string) {
 
 // CanSendTo returns true if Fider is allowed to send e-mail to given address
 func CanSendTo(address string) bool {
+	if strings.TrimSpace(address) == "" {
+		return false
+	}
 	if whitelist == "" {
 		return true
 	}

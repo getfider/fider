@@ -23,8 +23,9 @@ func TestSubscription_NoSettings(t *testing.T) {
 
 	subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).To(BeNil())
-	Expect(len(subscribers)).To(Equal(1))
+	Expect(len(subscribers)).To(Equal(2))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
+	Expect(subscribers[1].ID).To(Equal(aryaStark.ID))
 
 	subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 	Expect(err).To(BeNil())
@@ -78,9 +79,8 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 
 	subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 	Expect(err).To(BeNil())
-	Expect(len(subscribers)).To(Equal(2))
+	Expect(len(subscribers)).To(Equal(1))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
-	Expect(subscribers[1].ID).To(Equal(aryaStark.ID))
 }
 
 func TestSubscription_DisabledEmail(t *testing.T) {

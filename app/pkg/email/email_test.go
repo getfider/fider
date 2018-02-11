@@ -36,6 +36,7 @@ func TestEmailWhitelist_Valid(t *testing.T) {
 	}
 
 	for _, address := range []string{
+		"",
 		"me@fidero.io",
 		"@fider.io",
 		"me+123@fider.iod",

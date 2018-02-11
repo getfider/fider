@@ -459,22 +459,50 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	}
 
 	var users []*dbUser
-	err = s.trx.Select(&users, `
-	SELECT u.id, u.name, u.email, u.tenant_id, u.role
-	FROM users u
-	LEFT JOIN idea_subscribers sub
-	ON sub.user_id = u.id
-	AND sub.idea_id = $1
-	LEFT JOIN user_settings set
-	ON set.user_id = u.id
-	AND set.key = $3
-	WHERE u.tenant_id = $4
-	AND (sub.status IS NULL OR sub.status = $2)
-	AND (
-		(set.value IS NULL AND u.role = ANY($5))
-		OR CAST(set.value AS integer) & $6 > 0
-	)
-	`, idea.ID, models.SubscriberActive, event.UserSettingsKeyName, s.tenant.ID, pq.Array(event.DefaultEnabledUserRoles), channel)
+
+	if len(event.RequiresSubscripionUserRoles) == 0 {
+		err = s.trx.Select(&users, `
+			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			FROM users u
+			LEFT JOIN user_settings set
+			ON set.user_id = u.id
+			AND set.key = $1
+			WHERE u.tenant_id = $2
+			AND (
+				(set.value IS NULL AND u.role = ANY($3))
+				OR CAST(set.value AS integer) & $4 > 0
+			)`,
+			event.UserSettingsKeyName,
+			s.tenant.ID,
+			pq.Array(event.DefaultEnabledUserRoles),
+			channel,
+		)
+	} else {
+		err = s.trx.Select(&users, `
+			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			FROM users u
+			LEFT JOIN idea_subscribers sub
+			ON sub.user_id = u.id
+			AND sub.idea_id = $1
+			LEFT JOIN user_settings set
+			ON set.user_id = u.id
+			AND set.key = $3
+			WHERE u.tenant_id = $4
+			AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
+			AND (
+				(set.value IS NULL AND u.role = ANY($5))
+				OR CAST(set.value AS integer) & $6 > 0
+			)`,
+			idea.ID,
+			models.SubscriberActive,
+			event.UserSettingsKeyName,
+			s.tenant.ID,
+			pq.Array(event.DefaultEnabledUserRoles),
+			channel,
+			pq.Array(event.RequiresSubscripionUserRoles),
+		)
+	}
+
 	if err != nil {
 		return nil, err
 	}

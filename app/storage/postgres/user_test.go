@@ -104,7 +104,7 @@ func TestUserStorage_Register(t *testing.T) {
 
 	user, err = users.GetByEmail(1, "rob.stark@got.com")
 	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(int(5)))
+	Expect(user.ID).To(Equal(int(6)))
 	Expect(user.Role).To(Equal(models.RoleCollaborator))
 	Expect(user.Name).To(Equal("Rob Stark"))
 	Expect(user.Email).To(Equal("rob.stark@got.com"))
@@ -242,7 +242,8 @@ func TestUserStorage_GetAll(t *testing.T) {
 
 	all, err := users.GetAll()
 	Expect(err).To(BeNil())
-	Expect(len(all)).To(Equal(2))
+	Expect(len(all)).To(Equal(3))
 	Expect(all[0].Name).To(Equal("Jon Snow"))
 	Expect(all[1].Name).To(Equal("Arya Stark"))
+	Expect(all[2].Name).To(Equal("Sansa Stark"))
 }

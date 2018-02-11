@@ -66,7 +66,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		}
 
 		for _, user := range users {
-			if user.ID != c.User().ID {
+			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
 				c.Logger().Infof("Notify %s (%s)  about %s", user.Name, user.Email, idea.Title)
 			}
 		}
@@ -84,7 +84,7 @@ func NotifyAboutNewComment(comment *models.NewComment) worker.Task {
 		}
 
 		for _, user := range users {
-			if user.ID != c.User().ID {
+			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
 				c.Logger().Infof("Notify %s (%s)  about comment %s", user.Name, user.Email, comment.Content)
 			}
 		}
@@ -102,7 +102,7 @@ func NotifyAboutStatusChange(response *models.SetResponse) worker.Task {
 		}
 
 		for _, user := range users {
-			if user.ID != c.User().ID {
+			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
 				c.Logger().Infof("Notify %s (%s) about new status %d - %s", user.Name, user.Email, response.Status, response.Text)
 			}
 		}
