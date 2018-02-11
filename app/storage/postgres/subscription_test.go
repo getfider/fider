@@ -83,6 +83,21 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
 }
 
+func TestSubscription_AdminUnsubscribed(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+
+	idea1, _ := ideas.Add("Idea #1", "Description #1", aryaStark.ID)
+	ideas.RemoveSubscriber(idea1.Number, aryaStark.ID)
+	ideas.RemoveSubscriber(idea1.Number, jonSnow.ID)
+
+	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+	Expect(err).To(BeNil())
+	Expect(len(subscribers)).To(Equal(0))
+}
+
 func TestSubscription_DisabledEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
