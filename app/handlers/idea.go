@@ -5,6 +5,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // Index is the default home page
@@ -55,6 +56,8 @@ func PostIdea() web.HandlerFunc {
 		if err := ideas.AddSupporter(idea.Number, c.User().ID); err != nil {
 			return c.Failure(err)
 		}
+
+		c.Enqueue(tasks.NotifyAboutNewIdea(idea))
 
 		return c.Ok(idea)
 	}
@@ -122,6 +125,8 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		c.Enqueue(tasks.NotifyAboutNewComment(input.Model))
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -143,6 +148,8 @@ func SetResponse() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		c.Enqueue(tasks.NotifyAboutStatusChange(input.Model))
 
 		return c.Ok(web.Map{})
 	}

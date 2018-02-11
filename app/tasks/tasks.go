@@ -56,3 +56,57 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail, baseURL string) 
 		return c.Services().Emailer.Send("change_emailaddress_email", c.Tenant().Name, to)
 	})
 }
+
+//NotifyAboutNewIdea sends a notification (web and e-mail) to subscribers
+func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
+	return describe("Notify about new idea", func(c *worker.Context) error {
+		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
+		if err != nil {
+			return err
+		}
+
+		for _, user := range users {
+			if user.ID != c.User().ID {
+				c.Logger().Infof("Notify %s (%s)  about %s", user.Name, user.Email, idea.Title)
+			}
+		}
+
+		return nil
+	})
+}
+
+//NotifyAboutNewComment sends a notification (web and e-mail) to subscribers
+func NotifyAboutNewComment(comment *models.NewComment) worker.Task {
+	return describe("Notify about new comment", func(c *worker.Context) error {
+		users, err := c.Services().Ideas.GetActiveSubscribers(comment.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+		if err != nil {
+			return err
+		}
+
+		for _, user := range users {
+			if user.ID != c.User().ID {
+				c.Logger().Infof("Notify %s (%s)  about comment %s", user.Name, user.Email, comment.Content)
+			}
+		}
+
+		return nil
+	})
+}
+
+//NotifyAboutStatusChange sends a notification (web and e-mail) to subscribers
+func NotifyAboutStatusChange(response *models.SetResponse) worker.Task {
+	return describe("Notify about new comment", func(c *worker.Context) error {
+		users, err := c.Services().Ideas.GetActiveSubscribers(response.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		if err != nil {
+			return err
+		}
+
+		for _, user := range users {
+			if user.ID != c.User().ID {
+				c.Logger().Infof("Notify %s (%s) about new status %d - %s", user.Name, user.Email, response.Status, response.Text)
+			}
+		}
+
+		return nil
+	})
+}
