@@ -2,8 +2,8 @@ package email
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
+	"regexp"
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/env"
@@ -13,8 +13,6 @@ var cache = make(map[string]*template.Template, 0)
 
 // Message represents what is sent by e-mail
 type Message struct {
-	To      string
-	From    string
 	Subject string
 	Body    string
 }
@@ -44,24 +42,60 @@ func RenderMessage(templateName string, params map[string]interface{}) *Message 
 // NoReply is the default 'from' address
 var NoReply = env.MustGet("NOREPLY_EMAIL")
 
-// Sender is used to send e-mails
-type Sender interface {
-	Send(from, to, templateName string, params map[string]interface{}) (*Message, error)
+// Recipient contains details of who is receiving the e-mail
+type Recipient struct {
+	Name    string
+	Address string
+	Params  map[string]interface{}
 }
 
-//NoopSender does not send e-mails
+// NewRecipient creates a new Recipient
+func NewRecipient(address string, params map[string]interface{}) Recipient {
+	return Recipient{
+		Address: address,
+		Params:  params,
+	}
+}
+
+var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
+var whitelistRegex = regexp.MustCompile(whitelist)
+
+// SetWhitelist can be used to change e-mail whitelist during rutime
+func SetWhitelist(s string) {
+	whitelist = s
+	whitelistRegex = regexp.MustCompile(whitelist)
+}
+
+// CanSendTo returns true if Fider is allowed to send e-mail to given address
+func CanSendTo(address string) bool {
+	if whitelist == "" {
+		return true
+	}
+	return whitelistRegex.MatchString(address)
+}
+
+// Sender is used to send e-mails
+type Sender interface {
+	Send(templateName, from string, to Recipient) error
+	BatchSend(templateName, from string, to []Recipient) error
+}
+
+// NoopSender does not send e-mails
 type NoopSender struct {
 }
 
-//NewNoopSender creates a new NoopSender
+// NewNoopSender creates a new NoopSender
 func NewNoopSender() *NoopSender {
 	return &NoopSender{}
 }
 
-//Send an e-mail
-func (s *NoopSender) Send(from, to, templateName string, params map[string]interface{}) (*Message, error) {
-	msg := RenderMessage(templateName, params)
-	msg.To = to
-	msg.From = fmt.Sprintf("%s <%s>", from, NoReply)
-	return msg, nil
+// Send an e-mail
+func (s *NoopSender) Send(templateName, from string, to Recipient) error {
+	return nil
+
+}
+
+// BatchSend an e-mail to multiple recipients
+func (s *NoopSender) BatchSend(templateName, from string, to []Recipient) error {
+	return nil
 }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/tasks"
+
 	"strings"
 
 	"github.com/getfider/fider/app"
@@ -71,13 +73,7 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			_, err = c.Services().Emailer.Send("Fider", user.Email, "signup_email", web.Map{
-				"baseURL":         c.TenantBaseURL(tenant),
-				"verificationKey": input.Model.VerificationKey,
-			})
-			if err != nil {
-				return c.Failure(err)
-			}
+			c.Enqueue(tasks.SendSignUpEmail(input.Model, c.TenantBaseURL(tenant)))
 		}
 
 		if socialSignUp {

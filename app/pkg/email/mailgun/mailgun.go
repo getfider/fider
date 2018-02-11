@@ -1,6 +1,7 @@
 package mailgun
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -25,33 +26,80 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(from, to, templateName string, params map[string]interface{}) (*email.Message, error) {
-	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to, templateName, params)
+func (s *Sender) Send(templateName, from string, to email.Recipient) error {
+	return s.BatchSend(templateName, from, []email.Recipient{to})
+}
 
-	message := email.RenderMessage(templateName, params)
-	message.From = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	message.To = to
+// BatchSend an e-mail to multiple recipients
+func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) error {
+	if len(to) == 0 {
+		return nil
+	}
+
+	isBatch := len(to) > 1
+
+	var message *email.Message
+	if isBatch {
+		// Replace Go's templates var with Mailgun's template vars
+		mgParams := make(map[string]interface{}, len(to[0].Params))
+		for k := range to[0].Params {
+			mgParams[k] = fmt.Sprintf("%%recipient.%s%%", k)
+		}
+		message = email.RenderMessage(templateName, mgParams)
+	} else {
+		message = email.RenderMessage(templateName, to[0].Params)
+	}
 
 	form := url.Values{}
-	form.Add("from", message.From)
-	form.Add("to", message.To)
+	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
+
+	// Set Mailgun's var based on each recipient's variables
+	recipientVariables := make(map[string]map[string]interface{}, 0)
+	for _, r := range to {
+		if email.CanSendTo(r.Address) {
+			form.Add("to", r.Address)
+			recipientVariables[r.Address] = r.Params
+		} else {
+			s.logger.Warnf("Skipping e-mail to %s due to whitelist.", r.Address)
+		}
+	}
+
+	// If we skipped all recipients due to whitelist, just return
+	if len(recipientVariables) == 0 {
+		return nil
+	}
+
+	if isBatch {
+		json, err := json.Marshal(recipientVariables)
+		if err != nil {
+			return err
+		}
+
+		form.Add("recipient-variables", string(json))
+	}
+
+	if isBatch {
+		s.logger.Debugf("Sending e-mail to %d recipients with template %s.", len(recipientVariables), templateName)
+	} else {
+		s.logger.Debugf("Sending e-mail to %s with template %s.", to[0].Address, templateName)
+	}
 
 	url := fmt.Sprintf(baseURL, s.domain)
 	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	request.SetBasicAuth("api", s.apiKey)
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := http.DefaultClient.Do(request)
-	if err == nil {
-		s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)
-		return message, nil
+	if err != nil {
+		s.logger.Errorf("Failed to send e-mail")
+		return err
 	}
-	s.logger.Errorf("Failed to send e-mail")
-	return nil, err
+	s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)
+	return nil
 }
