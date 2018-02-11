@@ -10,6 +10,17 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func TestSendSignUpEmailTask(t *testing.T) {
+	RegisterTestingT(t)
+
+	worker, _ := mock.NewWorker()
+	task := tasks.SendSignUpEmail(&models.CreateTenant{}, "http://anywhere.com")
+	err := worker.
+		AsUser(mock.JonSnow).
+		Execute(task)
+	Expect(err).To(BeNil())
+}
+
 func TestSendSignInEmailTask(t *testing.T) {
 	RegisterTestingT(t)
 
