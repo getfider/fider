@@ -32,6 +32,19 @@ func TestSubscription_NoSettings(t *testing.T) {
 	Expect(len(subscribers)).To(Equal(2))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
 	Expect(subscribers[1].ID).To(Equal(aryaStark.ID))
+
+	users.SetCurrentUser(nil)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
+	users.SetCurrentUser(jonSnow)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(aryaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(sansaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
 }
 
 func TestSubscription_RemoveSubscriber(t *testing.T) {
@@ -57,6 +70,15 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(len(subscribers)).To(Equal(1))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
+
+	users.SetCurrentUser(jonSnow)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(aryaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
+	users.SetCurrentUser(sansaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
 }
 
 func TestSubscription_AdminSubmitted(t *testing.T) {
@@ -81,6 +103,15 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(len(subscribers)).To(Equal(1))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
+
+	users.SetCurrentUser(jonSnow)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(aryaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
+	users.SetCurrentUser(sansaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
 }
 
 func TestSubscription_AdminUnsubscribed(t *testing.T) {
@@ -96,6 +127,15 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).To(BeNil())
 	Expect(len(subscribers)).To(Equal(0))
+
+	users.SetCurrentUser(jonSnow)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
+	users.SetCurrentUser(aryaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
+
+	users.SetCurrentUser(sansaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
 }
 
 func TestSubscription_DisabledEmail(t *testing.T) {
@@ -126,6 +166,15 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	Expect(len(subscribers)).To(Equal(2))
 	Expect(subscribers[0].ID).To(Equal(jonSnow.ID))
 	Expect(subscribers[1].ID).To(Equal(aryaStark.ID))
+
+	users.SetCurrentUser(jonSnow)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(aryaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeTrue())
+
+	users.SetCurrentUser(sansaStark)
+	Expect(users.HasSubscribedTo(idea1.ID)).To(BeFalse())
 }
 
 func TestSubscription_VisitorEnabledNewIdea(t *testing.T) {

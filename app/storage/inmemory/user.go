@@ -116,3 +116,8 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
 	return nil
 }
+
+// HasSubscribedTo returns true if current user is receiving notification from specific idea
+func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+	return false, nil
+}

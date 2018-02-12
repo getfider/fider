@@ -104,10 +104,16 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		subscribed, err := c.Services().Users.HasSubscribedTo(idea.ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Map{
-			"comments": comments,
-			"idea":     idea,
-			"tags":     tags,
+			"comments":   comments,
+			"subscribed": subscribed,
+			"idea":       idea,
+			"tags":       tags,
 		})
 	}
 }
@@ -158,18 +164,32 @@ func SetResponse() web.HandlerFunc {
 // AddSupporter adds current user to given idea list of supporters
 func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, c.Services().Ideas.AddSupporter)
+		return addOrRemove(c, c.Services().Ideas.AddSupporter)
 	}
 }
 
 // RemoveSupporter removes current user from given idea list of supporters
 func RemoveSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, c.Services().Ideas.RemoveSupporter)
+		return addOrRemove(c, c.Services().Ideas.RemoveSupporter)
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, addOrRemove func(number, userID int) error) error {
+// Subscribe adds current user to list of subscribers of given idea
+func Subscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemove(c, c.Services().Ideas.AddSubscriber)
+	}
+}
+
+// Unsubscribe removes current user from list of subscribers of given idea
+func Unsubscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemove(c, c.Services().Ideas.RemoveSubscriber)
+	}
+}
+
+func addOrRemove(c web.Context, addOrRemove func(number, userID int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)

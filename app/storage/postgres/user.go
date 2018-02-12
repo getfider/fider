@@ -6,6 +6,7 @@ import (
 
 	"database/sql"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
@@ -181,4 +182,34 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 		result[i] = user.toModel()
 	}
 	return result, nil
+}
+
+// HasSubscribedTo returns true if current user is receiving notification from specific idea
+func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+	if s.user == nil {
+		return false, nil
+	}
+
+	var status int
+	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, ideaID)
+	if err != nil && err != app.ErrNotFound {
+		return false, err
+	}
+
+	if err == app.ErrNotFound {
+		for _, e := range models.AllNotificationEvents {
+			for _, r := range e.RequiresSubscripionUserRoles {
+				if r == s.user.Role {
+					return false, nil
+				}
+			}
+		}
+		return true, nil
+	}
+
+	if status == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }

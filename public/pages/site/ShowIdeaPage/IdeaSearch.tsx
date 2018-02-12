@@ -12,7 +12,7 @@ interface IdeaSearchState {
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
-  private element: HTMLDivElement;
+  private element?: HTMLDivElement;
 
   constructor(props: IdeaSearchProps) {
     super(props);

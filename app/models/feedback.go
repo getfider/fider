@@ -189,4 +189,10 @@ var (
 			RoleVisitor,
 		},
 	}
+	//AllNotificationEvents contains all possible notification events
+	AllNotificationEvents = []NotificationEvent{
+		NotificationEventNewIdea,
+		NotificationEventNewComment,
+		NotificationEventChangeStatus,
+	}
 )

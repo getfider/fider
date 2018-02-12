@@ -47,6 +47,7 @@ type User interface {
 	ChangeRole(userID int, role models.Role) error
 	GetAll() ([]*models.User, error)
 	UpdateSettings(userID int, settings map[string]string) error
+	HasSubscribedTo(ideaID int) (bool, error)
 }
 
 // Tenant contains read and write operations for tenants
