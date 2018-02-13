@@ -81,6 +81,11 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		err = c.Services().Users.UpdateSettings(input.Model.Settings)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Ok(web.Map{})
 	}
 }

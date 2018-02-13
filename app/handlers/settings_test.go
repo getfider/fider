@@ -40,6 +40,34 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 	Expect(user.Name).To(Equal("Jon Stark"))
 }
 
+func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(handlers.UpdateUserSettings(), `{ 
+			"name": "Jon Stark",
+			"settings": {
+				"event_notification_new_idea": "1",
+				"event_notification_new_comment": "2",
+				"event_notification_change_status": "3"
+			}
+		}`)
+
+	user, _ := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
+	Expect(code).To(Equal(http.StatusOK))
+	Expect(user.Name).To(Equal("Jon Stark"))
+
+	settings, _ := services.Users.GetUserSettings()
+	Expect(settings).To(Equal(map[string]string{
+		models.NotificationEventNewIdea.UserSettingsKeyName:      "1",
+		models.NotificationEventNewComment.UserSettingsKeyName:   "2",
+		models.NotificationEventChangeStatus.UserSettingsKeyName: "3",
+	}))
+}
+
 func TestChangeRoleHandler_Valid(t *testing.T) {
 	RegisterTestingT(t)
 
