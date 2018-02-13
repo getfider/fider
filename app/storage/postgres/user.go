@@ -49,6 +49,11 @@ func (u *dbUser) toModel() *models.User {
 	return user
 }
 
+type dbUserSetting struct {
+	Key   string `db:"key"`
+	Value string `db:"value"`
+}
+
 // UserStorage is used for user operations using a Postgres database
 type UserStorage struct {
 	tenant *models.Tenant
@@ -123,15 +128,15 @@ func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) er
 }
 
 // UpdateSettings of given user
-func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
-	if settings != nil && len(settings) > 0 {
+func (s *UserStorage) UpdateSettings(settings map[string]string) error {
+	if s.user != nil && settings != nil && len(settings) > 0 {
 		query := `
 		INSERT INTO user_settings (user_id, key, value)
 		VALUES ($1, $2, $3) ON CONFLICT (user_id, key) DO UPDATE SET value = $3
 		`
 
 		for key, value := range settings {
-			err := s.trx.Execute(query, userID, key, value)
+			err := s.trx.Execute(query, s.user.ID, key, value)
 			if err != nil {
 				return err
 			}
@@ -139,6 +144,34 @@ func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) err
 	}
 
 	return nil
+}
+
+// GetUserSettings returns current user's settings
+func (s *UserStorage) GetUserSettings() (map[string]string, error) {
+	if s.user == nil {
+		return make(map[string]string, 0), nil
+	}
+
+	var settings []*dbUserSetting
+	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1", s.user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make(map[string]string, len(settings))
+
+	for _, e := range models.AllNotificationEvents {
+		for _, r := range e.DefaultEnabledUserRoles {
+			if r == s.user.Role {
+				result[e.UserSettingsKeyName] = e.DefaultSettingValue
+			}
+		}
+	}
+
+	for _, s := range settings {
+		result[s.Key] = s.Value
+	}
+	return result, nil
 }
 
 // ChangeRole of given user

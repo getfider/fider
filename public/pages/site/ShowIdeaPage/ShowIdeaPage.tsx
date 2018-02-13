@@ -18,7 +18,6 @@ interface ShowIdeaPageProps {
 
 interface ShowIdeaPageState {
   editMode: boolean;
-  subscribed: boolean;
   newTitle: string;
   newDescription: string;
   error?: Failure;
@@ -31,7 +30,6 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
     this.state = {
       editMode: false,
-      subscribed: this.props.subscribed,
       newTitle: this.props.idea.title,
       newDescription: this.props.idea.description,
     };

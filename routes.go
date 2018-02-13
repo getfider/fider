@@ -11,7 +11,7 @@ import (
 )
 
 // GetMainEngine returns main HTTP engine
-func GetMainEngine(settings *models.AppSettings) *web.Engine {
+func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 	r := web.New(settings)
 
 	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
@@ -75,7 +75,7 @@ func GetMainEngine(settings *models.AppSettings) *web.Engine {
 		private := page.Group()
 		{
 			private.Use(middlewares.IsAuthenticated())
-			private.Get("/settings", handlers.Page())
+			private.Get("/settings", handlers.UserSettings())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
 			private.Get("/api/ideas", handlers.GetIdeas())

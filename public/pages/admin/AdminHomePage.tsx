@@ -1,13 +1,13 @@
 import * as React from 'react';
 
-import { AppSettings, CurrentUser, Tenant } from '@fider/models';
+import { SystemSettings, CurrentUser, Tenant } from '@fider/models';
 import { Button, ButtonClickEvent, Textarea, DisplayError } from '@fider/components/common';
 import { actions, page, Failure } from '@fider/services';
 
 interface AdminHomePageProps {
   user: CurrentUser;
   tenant: Tenant;
-  settings: AppSettings;
+  system: SystemSettings;
 }
 
 interface AdminHomePageState {
@@ -125,7 +125,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                       {
                         this.state.cname ? [
                           <p key={0}>Enter the following record into your DNS zone records:</p>,
-                          <p key={1}><strong>{this.state.cname}</strong> CNAME <strong>{this.props.tenant.subdomain}{this.props.settings.domain}</strong></p>,
+                          <p key={1}><strong>{this.state.cname}</strong> CNAME <strong>{this.props.tenant.subdomain}{this.props.system.domain}</strong></p>,
                           <p key={2}>Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.</p>
                         ] :
                         <p>Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcomany.com</code>).</p>

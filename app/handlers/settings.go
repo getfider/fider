@@ -55,6 +55,19 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 	}
 }
 
+// UserSettings is the current user's profile settings page
+func UserSettings() web.HandlerFunc {
+	return func(c web.Context) error {
+		settings, err := c.Services().Users.GetUserSettings()
+		if err != nil {
+			return err
+		}
+		return c.Page(web.Map{
+			"settings": settings,
+		})
+	}
+}
+
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c web.Context) error {

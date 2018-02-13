@@ -212,10 +212,10 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 		models.NotificationEventNewComment.UserSettingsKeyName:   "0",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
-	err := users.UpdateSettings(jonSnow.ID, disableAll)
-	Expect(err).To(BeNil())
-	err = users.UpdateSettings(aryaStark.ID, disableAll)
-	Expect(err).To(BeNil())
+	users.SetCurrentUser(jonSnow)
+	Expect(users.UpdateSettings(disableAll)).To(BeNil())
+	users.SetCurrentUser(aryaStark)
+	Expect(users.UpdateSettings(disableAll)).To(BeNil())
 
 	idea1, _ := ideas.Add("Idea #1", "Description #1", jonSnow.ID)
 

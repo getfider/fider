@@ -247,3 +247,73 @@ func TestUserStorage_GetAll(t *testing.T) {
 	Expect(all[1].Name).To(Equal("Arya Stark"))
 	Expect(all[2].Name).To(Equal("Sansa Stark"))
 }
+
+func TestUserStorage_DefaultUserSettings(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentUser(jonSnow)
+	settings, _ := users.GetCurrentUserSettings()
+	Expect(settings).To(Equal(map[string]string{
+		models.NotificationEventNewIdea.UserSettingsKeyName:      models.NotificationEventNewIdea.DefaultSettingValue,
+		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
+		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
+	}))
+
+	users.SetCurrentUser(aryaStark)
+	settings, _ = users.GetCurrentUserSettings()
+	Expect(settings).To(Equal(map[string]string{
+		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
+		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
+	}))
+}
+
+func TestUserStorage_SaveGetUserSettings(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentUser(aryaStark)
+	disableAll := map[string]string{
+		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
+		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
+	}
+
+	users.UpdateSettings(disableAll)
+	settings, _ := users.GetCurrentUserSettings()
+	Expect(settings).To(Equal(map[string]string{
+		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
+		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
+		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
+	}))
+}
+
+// err := users.UpdateSettings(jonSnow.ID, disableAll)
+// Expect(err).To(BeNil())
+// err = users.UpdateSettings(aryaStark.ID, disableAll)
+// Expect(err).To(BeNil())
+
+// idea1, _ := ideas.Add("Idea #1", "Description #1", jonSnow.ID)
+
+// subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))
+
+// subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))
+
+// subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))
+
+// subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))
+
+// subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))
+
+// subscribers, err = ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+// Expect(err).To(BeNil())
+// Expect(len(subscribers)).To(Equal(0))

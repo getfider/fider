@@ -46,7 +46,8 @@ type User interface {
 	ChangeEmail(userID int, email string) error
 	ChangeRole(userID int, role models.Role) error
 	GetAll() ([]*models.User, error)
-	UpdateSettings(userID int, settings map[string]string) error
+	GetUserSettings() (map[string]string, error)
+	UpdateSettings(settings map[string]string) error
 	HasSubscribedTo(ideaID int) (bool, error)
 }
 

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { AppSettings, CurrentUser, Tenant } from '@fider/models';
+import { SystemSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
 import { page } from '@fider/services';
 
 interface HeaderProps {
   user?: CurrentUser;
-  settings: AppSettings;
+  system: SystemSettings;
   tenant: Tenant;
 }
 
@@ -48,7 +48,7 @@ export class Header extends React.Component<HeaderProps, {}> {
 
     return (
       <div>
-        <EnvironmentInfo settings={this.props.settings}/>
+        <EnvironmentInfo system={this.props.system}/>
         <div id="menu" className="ui small borderless menu">
           <div className="ui container">
             <a href="/" className="header item">

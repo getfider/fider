@@ -5,6 +5,7 @@
         "trailing-comma": [
             false
         ],
+        "no-bitwise": false,
         "indent": [
             true, "spaces", 2
         ],

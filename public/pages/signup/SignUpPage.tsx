@@ -3,7 +3,7 @@ import * as React from 'react';
 const logo = require('@fider/assets/images/logo-small.png');
 
 import { SignInControl, Button, DisplayError } from '@fider/components/common';
-import { AuthSettings, AppSettings } from '@fider/models';
+import { AuthSettings, SystemSettings } from '@fider/models';
 import { jwt, page, actions, Failure } from '@fider/services';
 
 import './SignUpPage.scss';
@@ -15,7 +15,7 @@ interface OAuthUser {
 }
 
 interface SignUpPageProps {
-  settings: AppSettings;
+  system: SystemSettings;
   auth: AuthSettings;
 }
 
@@ -78,7 +78,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
           if (page.isSingleHostMode()) {
             location.reload();
           } else {
-            let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.props.settings.domain}`;
+            let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.props.system.domain}`;
             if (location.port) {
               baseUrl = `${baseUrl}:${location.port}`;
             }
@@ -171,7 +171,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
                     placeholder="subdomain"
                     onChange={(e) => this.checkAvailability(e.currentTarget.value)}
                   />
-                  <div className="ui label">{this.props.settings.domain}</div>
+                  <div className="ui label">{this.props.system.domain}</div>
                   {
                     this.state.subdomain.available &&
                     <div className="ui left pointing green basic label">

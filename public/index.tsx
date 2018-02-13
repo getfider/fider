@@ -18,6 +18,7 @@ import 'semantic-ui-css/components/dimmer.min.js';
 import 'semantic-ui-css/components/reset.min.css';
 import 'semantic-ui-css/components/site.min.css';
 import 'semantic-ui-css/components/segment.min.css';
+import 'semantic-ui-css/components/table.min.css';
 import 'semantic-ui-css/components/checkbox.min.css';
 import 'semantic-ui-css/components/transition.min.css';
 import 'semantic-ui-css/components/header.min.css';

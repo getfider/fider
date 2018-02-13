@@ -1,8 +1,9 @@
 import * as React from 'react';
 
 import { Form, DisplayError, Button, Gravatar } from '@fider/components/common';
+import { NotificationSettings } from './';
 
-import { CurrentUser } from '@fider/models';
+import { CurrentUser, UserSettings } from '@fider/models';
 import { Failure, actions } from '@fider/services';
 
 import './UserSettingsPage.scss';
@@ -16,6 +17,7 @@ interface UserSettingsPageState {
 
 interface UserSettingsPageProps {
   user: CurrentUser;
+  settings: UserSettings;
 }
 
 export class UserSettingsPage extends React.Component<UserSettingsPageProps, UserSettingsPageState> {
@@ -93,7 +95,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                         <input
                           id="new-email"
                           type="text"
-                          style={{'max-width': '200px', 'margin-right': '10px'}}
+                          style={{maxWidth: '200px', marginRight: '10px'}}
                           maxLength={200}
                           placeholder={this.props.user.email}
                           value={this.state.newEmail}
@@ -115,6 +117,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                   }
 
               </div>
+
               <DisplayError fields={['name']} error={this.state.error} />
               <div className="field">
                 <label htmlFor="name">Name</label>
@@ -126,6 +129,9 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                   onChange={(e) => this.setState({ name: e.currentTarget.value })}
                 />
               </div>
+
+              <NotificationSettings user={this.props.user} settings={this.props.settings} />
+
               <div className="field">
                 <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
               </div>
