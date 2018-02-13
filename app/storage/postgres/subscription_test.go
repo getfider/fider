@@ -143,7 +143,8 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	err := users.UpdateSettings(aryaStark.ID, map[string]string{
+	users.SetCurrentUser(aryaStark)
+	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
 	})
 	Expect(err).To(BeNil())
@@ -182,7 +183,8 @@ func TestSubscription_VisitorEnabledNewIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	err := users.UpdateSettings(aryaStark.ID, map[string]string{
+	users.SetCurrentUser(aryaStark)
+	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
 	})
 	Expect(err).To(BeNil())

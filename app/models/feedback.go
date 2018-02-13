@@ -155,6 +155,11 @@ type NotificationEvent struct {
 	DefaultSettingValue          string
 	RequiresSubscripionUserRoles []Role
 	DefaultEnabledUserRoles      []Role
+	Validate                     func(string) bool
+}
+
+func notificationEventValidation(v string) bool {
+	return v == "0" || v == "1" || v == "2" || v == "3"
 }
 
 var (
@@ -167,6 +172,7 @@ var (
 			RoleAdministrator,
 			RoleCollaborator,
 		},
+		Validate: notificationEventValidation,
 	}
 	//NotificationEventNewComment is triggered when a new comment is posted
 	NotificationEventNewComment = NotificationEvent{
@@ -180,6 +186,7 @@ var (
 			RoleCollaborator,
 			RoleVisitor,
 		},
+		Validate: notificationEventValidation,
 	}
 	//NotificationEventChangeStatus is triggered when a new idea has its status changed
 	NotificationEventChangeStatus = NotificationEvent{
@@ -193,6 +200,7 @@ var (
 			RoleCollaborator,
 			RoleVisitor,
 		},
+		Validate: notificationEventValidation,
 	}
 	//AllNotificationEvents contains all possible notification events
 	AllNotificationEvents = []NotificationEvent{

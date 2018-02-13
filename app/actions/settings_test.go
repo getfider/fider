@@ -34,3 +34,50 @@ func TestValidUserNames(t *testing.T) {
 		ExpectSuccess(result)
 	}
 }
+
+func TestInvalidSettings(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, settings := range []map[string]string{
+		map[string]string{
+			"bad_name": "3",
+		},
+		map[string]string{
+			models.NotificationEventNewComment.UserSettingsKeyName: "4",
+		},
+	} {
+		action := &actions.UpdateUserSettings{
+			Model: &models.UpdateUserSettings{
+				Name:     "John Snow",
+				Settings: settings,
+			},
+		}
+		result := action.Validate(nil, services)
+		ExpectFailed(result, "settings")
+	}
+}
+
+func TestValidSettings(t *testing.T) {
+	RegisterTestingT(t)
+
+	for _, settings := range []map[string]string{
+		nil,
+		map[string]string{
+			models.NotificationEventNewIdea.UserSettingsKeyName:      models.NotificationEventNewIdea.DefaultSettingValue,
+			models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
+			models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
+		},
+		map[string]string{
+			models.NotificationEventNewComment.UserSettingsKeyName: models.NotificationEventNewComment.DefaultSettingValue,
+		},
+	} {
+		action := &actions.UpdateUserSettings{
+			Model: &models.UpdateUserSettings{
+				Name:     "John Snow",
+				Settings: settings,
+			},
+		}
+		result := action.Validate(nil, services)
+		ExpectSuccess(result)
+	}
+}

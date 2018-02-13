@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -32,6 +34,23 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 
 	if len(input.Model.Name) > 50 {
 		result.AddFieldFailure("name", "Name must be less than 50 characters.")
+	}
+
+	if input.Model.Settings != nil {
+		for k, v := range input.Model.Settings {
+			ok := false
+			for _, e := range models.AllNotificationEvents {
+				if e.UserSettingsKeyName == k {
+					ok = true
+					if !e.Validate(v) {
+						result.AddFieldFailure("settings", fmt.Sprintf("Settings %s has an invalid value %s.", k, v))
+					}
+				}
+			}
+			if ok == false {
+				result.AddFieldFailure("settings", fmt.Sprintf("Unknown settings named %s.", k))
+			}
+		}
 	}
 
 	return result

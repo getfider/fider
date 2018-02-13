@@ -24,7 +24,7 @@ type Server struct {
 }
 
 func createServer(services *app.Services) *Server {
-	settings := &models.AppSettings{}
+	settings := &models.SystemSettings{}
 	engine := web.New(settings)
 
 	request, _ := http.NewRequest("GET", "/", nil)
