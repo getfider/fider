@@ -5,60 +5,68 @@ import { CurrentUser, UserSettings } from '@fider/models';
 interface NotificationSettingsProps {
   user: CurrentUser;
   settings: UserSettings;
+  settingsChanged: (settings: UserSettings) => void;
 }
 
 interface NotificationSettingsState {
-  newIdeaWeb: boolean;
-  newIdeaEmail: boolean;
-  newCommentWeb: boolean;
-  newCommentEmail: boolean;
-  changeStatusWeb: boolean;
-  changeStatusEmail: boolean;
+  settings: UserSettings;
 }
 
-const WebChannel = 1;
-const EmailChannel = 1;
+type Channel = number;
+const WebChannel: Channel = 1;
+const EmailChannel: Channel = 2;
 
 export class NotificationSettings extends React.Component<NotificationSettingsProps, NotificationSettingsState> {
   constructor(props: NotificationSettingsProps) {
     super(props);
 
-    const isEnabled = (key: string, flag: number): boolean => {
-      if (key in this.props.settings) {
-        return (parseInt(this.props.settings[key], 10) & flag) > 0;
-      }
-      return false;
-    };
-
     this.state = {
-      newIdeaWeb: isEnabled('event_notification_new_idea', WebChannel),
-      newIdeaEmail: isEnabled('event_notification_new_idea', EmailChannel),
-      newCommentWeb: isEnabled('event_notification_new_comment', WebChannel),
-      newCommentEmail: isEnabled('event_notification_new_comment', EmailChannel),
-      changeStatusWeb: isEnabled('event_notification_change_status', WebChannel),
-      changeStatusEmail: isEnabled('event_notification_change_status', EmailChannel),
+      settings: this.props.settings
     };
   }
 
-  private icon(key: keyof NotificationSettingsState) {
-    return this.state[key]
-    ? <i className="green large toggle on icon" onClick={() => this.setState({ [key]: false } as any)} />
-    : <i className="large toggle off icon" onClick={() => this.setState({ [key]: true } as any)} />;
+  private isEnabled(settingsKey: string, channel: Channel): boolean {
+    if (settingsKey in this.state.settings) {
+      return (parseInt(this.state.settings[settingsKey], 10) & channel) > 0;
+    }
+    return false;
   }
 
-  private info(web: keyof NotificationSettingsState, email: keyof NotificationSettingsState, aboutForVisitors: string, aboutForCollaborators: string) {
+  private toggle(settingsKey: string, channel: Channel) {
+    const settings = {...this.state.settings};
+    settings[settingsKey] = (parseInt(this.state.settings[settingsKey], 10) ^ channel).toString();
+
+    this.setState({ settings });
+    this.props.settingsChanged(settings);
+  }
+
+  private icon(settingsKey: string, channel: Channel) {
+    const i = this.isEnabled(settingsKey, channel)
+      ? <i className="green large toggle on icon" />
+      : <i className="large toggle off icon" />;
+    const text = channel === WebChannel
+      ? 'Web *'
+      : 'E-mail';
+    return (
+      <span className="option" onClick={this.toggle.bind(this, settingsKey, channel)}>
+        {i} {text}
+      </span>
+    );
+  }
+
+  private info(settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) {
     const about = this.props.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
-    if (!this.state[web] && !this.state[email]) {
-      return <span className="info">You'll <strong>NOT</strong> receive any notification about this event.</span>;
-    }
-    if (this.state[web] && !this.state[email]) {
-      return <span className="info">You'll receive <strong>web</strong> notifications about {about}.</span>;
-    }
-    if (!this.state[web] && this.state[email]) {
-      return <span className="info">You'll receive <strong>e-mail</strong> notifications about {about}.</span>;
-    }
-    if (this.state[web] && this.state[email]) {
-      return <span className="info">You'll receive <strong>web</strong> and <strong>e-mail</strong> notifications about {about}.</span>;
+    const webEnabled = this.isEnabled(settingsKey, WebChannel);
+    const emailEnabled = this.isEnabled(settingsKey, EmailChannel);
+
+    if (!webEnabled && !emailEnabled) {
+      return <p className="info">You'll <strong>NOT</strong> receive any notification about this event.</p>;
+    } else if (webEnabled && !emailEnabled) {
+      return <p className="info">You'll receive <strong>web</strong> notifications about {about}.</p>;
+    } else if (!webEnabled && emailEnabled) {
+      return <p className="info">You'll receive <strong>e-mail</strong> notifications about {about}.</p>;
+    } else if (webEnabled && emailEnabled) {
+      return <p className="info">You'll receive <strong>web</strong> and <strong>e-mail</strong> notifications about {about}.</p>;
     }
     return null;
   }
@@ -68,37 +76,40 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
       <>
         <div className="field">
           <label htmlFor="notifications">Notifications</label>
+          <p className="info">Use following panel to choose which events you'd like to receive notification</p>
         </div>
-        <table className="ui very basic table notifications-settings">
-          <thead>
-            <tr>
-              <th className="five wide">Event</th>
-              <th className="two wide">Web <span className="info">*</span></th>
-              <th className="two wide">E-mail</th>
-              <th className="seven wide"><span className="info">* web notifications are comming soon!</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>New Ideas</td>
-              <td>{this.icon('newIdeaWeb')}</td>
-              <td>{this.icon('newIdeaEmail')}</td>
-              <td>{this.info('newIdeaWeb', 'newIdeaEmail', 'new ideas posted on this site', 'new ideas posted on this site')}</td>
-            </tr>
-            <tr>
-              <td>Discussion</td>
-              <td>{this.icon('newCommentWeb')}</td>
-              <td>{this.icon('newCommentEmail')}</td>
-              <td>{this.info('newCommentWeb', 'newCommentEmail', 'comments on ideas you\'ve subscribed to', 'comments on all ideas unless individually unsubscribed')}</td>
-            </tr>
-            <tr>
-              <td>Status Changed</td>
-              <td>{this.icon('changeStatusWeb')}</td>
-              <td>{this.icon('changeStatusEmail')}</td>
-              <td>{this.info('changeStatusWeb', 'changeStatusEmail', 'status change on ideas you\'ve subscribed to', 'status change on all ideas unless individually unsubscribed')}</td>
-            </tr>
-          </tbody>
-        </table>
+
+        <div className="ui segments notifications-settings">
+          <div className="ui segment">
+            <span className="event-title">New Idea</span>
+            {this.info('event_notification_new_idea', 'new ideas posted on this site', 'new ideas posted on this site')}
+            <p>
+              {this.icon('event_notification_new_idea', WebChannel)}
+              {this.icon('event_notification_new_idea', EmailChannel)}
+            </p>
+          </div>
+          <div className="ui segment">
+            <span className="event-title">Discussion</span>
+            {this.info('event_notification_new_comment', 'comments on ideas you\'ve subscribed to', 'comments on all ideas unless individually unsubscribed')}
+            <p>
+              {this.icon('event_notification_new_comment', WebChannel)}
+              {this.icon('event_notification_new_comment', EmailChannel)}
+            </p>
+          </div>
+          <div className="ui segment">
+            <span className="event-title">Status Changed</span>
+            {this.info('event_notification_change_status', 'status change on ideas you\'ve subscribed to', 'status change on all ideas unless individually unsubscribed')}
+            <p>
+              {this.icon('event_notification_change_status', WebChannel)}
+              {this.icon('event_notification_change_status', EmailChannel)}
+            </p>
+          </div>
+          <div className="ui segment">
+            <p className="info">
+              * web notifications are comming soon!
+            </p>
+          </div>
+        </div>
       </>
     );
   }

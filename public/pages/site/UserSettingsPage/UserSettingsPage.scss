@@ -4,8 +4,14 @@
   }
   
   .notifications-settings {
-    i {
+    .option {
       cursor: pointer;
+      margin-right: 20px;
+    }
+    .event-title {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
     }
   }
 }
