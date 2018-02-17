@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
@@ -76,7 +77,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 }
 
 //NotifyAboutNewComment sends a notification (web and e-mail) to subscribers
-func NotifyAboutNewComment(comment *models.NewComment) worker.Task {
+func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		users, err := c.Services().Ideas.GetActiveSubscribers(comment.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
@@ -89,13 +90,14 @@ func NotifyAboutNewComment(comment *models.NewComment) worker.Task {
 				to[i] = email.Recipient{
 					Address: user.Email,
 					Params: web.Map{
-						"name": user.Name,
+						"title":   idea.Title,
+						"content": markdown.Parse(comment.Content),
 					},
 				}
 			}
 		}
 
-		return c.Services().Emailer.BatchSend("echo_test", "Testing...", to)
+		return c.Services().Emailer.BatchSend("new_comment", c.Tenant().Name, to)
 	})
 }
 

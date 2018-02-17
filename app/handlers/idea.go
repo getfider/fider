@@ -126,12 +126,17 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(input.Model))
+		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model))
 
 		return c.Ok(web.Map{})
 	}

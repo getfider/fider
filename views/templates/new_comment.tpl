@@ -1,0 +1,3 @@
+subject: {{ .title }}
+body:
+{{ .content }}
