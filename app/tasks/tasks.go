@@ -83,13 +83,19 @@ func NotifyAboutNewComment(comment *models.NewComment) worker.Task {
 			return err
 		}
 
-		for _, user := range users {
-			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
-				c.Logger().Infof("Notify %s (%s)  about comment %s", user.Name, user.Email, comment.Content)
+		to := make([]email.Recipient, len(users))
+		for i, user := range users {
+			if user.ID != c.User().ID {
+				to[i] = email.Recipient{
+					Address: user.Email,
+					Params: web.Map{
+						"name": user.Name,
+					},
+				}
 			}
 		}
 
-		return nil
+		return c.Services().Emailer.BatchSend("echo_test", "Testing...", to)
 	})
 }
 
