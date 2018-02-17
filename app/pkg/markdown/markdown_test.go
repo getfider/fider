@@ -1,6 +1,7 @@
 package markdown_test
 
 import (
+	"html/template"
 	"testing"
 
 	"github.com/getfider/fider/app/pkg/markdown"
@@ -32,6 +33,6 @@ func TestParseMarkdown(t *testing.T) {
 `,
 	} {
 		output := markdown.Parse(input)
-		Expect(output).To(Equal(expected))
+		Expect(output).To(Equal(template.HTML(expected)))
 	}
 }

@@ -25,7 +25,7 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 //Send an e-mail
 func (s *Sender) Send(templateName, from string, to email.Recipient) error {
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping e-mail to %s due to whitelist.", to.Address)
+		s.logger.Warnf("Skipping e-mail to %s <%s> due to whitelist.", to.Name, to.Address)
 		return nil
 	}
 
@@ -34,7 +34,7 @@ func (s *Sender) Send(templateName, from string, to email.Recipient) error {
 	message := email.RenderMessage(templateName, to.Params)
 	headers := make(map[string]string)
 	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	headers["To"] = to.Address
+	headers["To"] = fmt.Sprintf("%s <%s>", to.Name, to.Address)
 	headers["Subject"] = message.Subject
 	headers["MIME-version"] = "1.0"
 	headers["Content-Type"] = "text/html; charset=\"UTF-8\""

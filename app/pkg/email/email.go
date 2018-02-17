@@ -20,7 +20,7 @@ type Message struct {
 // RenderMessage returns the HTML of an e-mail based on template and params
 func RenderMessage(templateName string, params map[string]interface{}) *Message {
 	tpl, ok := cache[templateName]
-	if !ok {
+	if !ok || env.IsDevelopment() {
 		var err error
 		file := env.Path("/views/templates", templateName+".tpl")
 		tpl, err = template.ParseFiles(file)
@@ -50,8 +50,9 @@ type Recipient struct {
 }
 
 // NewRecipient creates a new Recipient
-func NewRecipient(address string, params map[string]interface{}) Recipient {
+func NewRecipient(name, address string, params map[string]interface{}) Recipient {
 	return Recipient{
+		Name:    name,
 		Address: address,
 		Params:  params,
 	}

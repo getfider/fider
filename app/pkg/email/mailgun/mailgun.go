@@ -59,10 +59,10 @@ func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) erro
 	recipientVariables := make(map[string]map[string]interface{}, 0)
 	for _, r := range to {
 		if email.CanSendTo(r.Address) {
-			form.Add("to", r.Address)
+			form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
 			recipientVariables[r.Address] = r.Params
 		} else {
-			s.logger.Warnf("Skipping e-mail to %s due to whitelist.", r.Address)
+			s.logger.Warnf("Skipping e-mail to '%s <%s>' due to whitelist.", r.Name, r.Address)
 		}
 	}
 

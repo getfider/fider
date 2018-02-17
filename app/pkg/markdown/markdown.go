@@ -1,6 +1,8 @@
 package markdown
 
 import (
+	"html/template"
+
 	"github.com/russross/blackfriday"
 )
 
@@ -8,7 +10,7 @@ import (
 //const simple = md('commonmark', { html: false, breaks: true, linkify: true }).enable('linkify').disable('heading').disable('image');
 
 // Parse given markdown input into html with all enabled features
-func Parse(input string) string {
+func Parse(input string) template.HTML {
 	mdExtns := 0
 	mdExtns |= blackfriday.EXTENSION_TABLES
 	mdExtns |= blackfriday.EXTENSION_AUTOLINK
@@ -27,5 +29,5 @@ func Parse(input string) string {
 
 	renderer := blackfriday.HtmlRenderer(htmlExtns, "", "")
 	output := blackfriday.Markdown([]byte(input), renderer, mdExtns)
-	return string(output)
+	return template.HTML(output)
 }
