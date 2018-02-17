@@ -12,6 +12,7 @@ type Context struct {
 	taskName string
 	services *app.Services
 	logger   log.Logger
+	baseURL  string
 	user     *models.User
 	tenant   *models.Tenant
 }
@@ -23,6 +24,11 @@ func NewContext(workerID, taskName string, logger log.Logger) *Context {
 		taskName: taskName,
 		logger:   logger,
 	}
+}
+
+//SetBaseURL on context
+func (c *Context) SetBaseURL(baseURL string) {
+	c.baseURL = baseURL
 }
 
 //SetUser on context
@@ -50,6 +56,11 @@ func (c *Context) WorkerID() string {
 //TaskName from current context
 func (c *Context) TaskName() string {
 	return c.taskName
+}
+
+//BaseURL from current context
+func (c *Context) BaseURL() string {
+	return c.baseURL
 }
 
 //User from current context

@@ -24,7 +24,7 @@ func ChangeUserEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model, c.BaseURL()))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model))
 
 		return c.Ok(web.Map{})
 	}

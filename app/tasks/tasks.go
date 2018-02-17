@@ -34,18 +34,18 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 }
 
 //SendSignInEmail is used to send the sign in email to requestor
-func SendSignInEmail(model *models.SignInByEmail, baseURL string) worker.Task {
+func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in e-mail", func(c *worker.Context) error {
 		to := email.NewRecipient("", model.Email, web.Map{
 			"tenantName": c.Tenant().Name,
-			"link":       link(baseURL, "/signin/verify?k=%s", model.VerificationKey),
+			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
 		return c.Services().Emailer.Send("signin_email", c.Tenant().Name, to)
 	})
 }
 
 //SendChangeEmailConfirmation is used to send the change e-mail confirmation e-mail to requestor
-func SendChangeEmailConfirmation(model *models.ChangeUserEmail, baseURL string) worker.Task {
+func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 	return describe("Send change e-mail confirmation", func(c *worker.Context) error {
 		previous := c.User().Email
 		if previous == "" {
@@ -56,7 +56,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail, baseURL string) 
 			"name":     c.User().Name,
 			"oldEmail": previous,
 			"newEmail": model.Email,
-			"link":     link(baseURL, "/change-email/verify?k=%s", model.VerificationKey),
+			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
 		return c.Services().Emailer.Send("change_emailaddress_email", c.Tenant().Name, to)
 	})
@@ -81,7 +81,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 }
 
 //NotifyAboutNewComment sends a notification (web and e-mail) to subscribers
-func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment, baseURL string) worker.Task {
+func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		users, err := c.Services().Ideas.GetActiveSubscribers(comment.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
@@ -94,9 +94,9 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment, baseUR
 				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
 					"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
 					"content":     markdown.Parse(comment.Content),
-					"view":        linkWithText("View it on your browser", baseURL, "/ideas/%d/%s", idea.Number, idea.Slug),
-					"unsubscribe": linkWithText("unsubscribe from it", baseURL, "/ideas/%d/%s", idea.Number, idea.Slug),
-					"update":      linkWithText("update your notification settings", baseURL, "/settings"),
+					"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+					"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+					"update":      linkWithText("update your notification settings", c.BaseURL(), "/settings"),
 				}))
 			}
 		}

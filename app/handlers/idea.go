@@ -136,7 +136,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model, c.BaseURL()))
+		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model))
 
 		return c.Ok(web.Map{})
 	}
