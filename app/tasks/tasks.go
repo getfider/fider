@@ -70,13 +70,19 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 			return err
 		}
 
+		to := make([]email.Recipient, 0)
 		for _, user := range users {
-			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
-				c.Logger().Infof("Notify %s (%s)  about %s", user.Name, user.Email, idea.Title)
+			if user.ID != c.User().ID {
+				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
+					"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+					"content": markdown.Parse(idea.Description),
+					"view":    linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+					"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+				}))
 			}
 		}
 
-		return nil
+		return c.Services().Emailer.BatchSend("new_idea", c.User().Name, to)
 	})
 }
 
@@ -96,7 +102,7 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 					"content":     markdown.Parse(comment.Content),
 					"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
 					"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"update":      linkWithText("update your notification settings", c.BaseURL(), "/settings"),
+					"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 				}))
 			}
 		}
