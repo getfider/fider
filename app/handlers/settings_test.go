@@ -14,6 +14,17 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+func TestSettingsHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, _ := server.
+		AsUser(mock.JonSnow).
+		Execute(handlers.UserSettings())
+
+	Expect(code).To(Equal(http.StatusOK))
+}
+
 func TestUpdateUserSettingsHandler_EmptyInput(t *testing.T) {
 	RegisterTestingT(t)
 

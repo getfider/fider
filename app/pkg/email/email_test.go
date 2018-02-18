@@ -46,3 +46,21 @@ func TestEmailWhitelist_Valid(t *testing.T) {
 		Expect(email.CanSendTo(address)).To(BeFalse())
 	}
 }
+
+func TestParamsMerge(t *testing.T) {
+	RegisterTestingT(t)
+
+	p1 := email.Params{
+		"name": "Jon",
+		"age":  26,
+	}
+	p2 := p1.Merge(email.Params{
+		"age":   30,
+		"email": "john.snow@got.com",
+	})
+	Expect(p2).To(Equal(email.Params{
+		"name":  "Jon",
+		"age":   30,
+		"email": "john.snow@got.com",
+	}))
+}
