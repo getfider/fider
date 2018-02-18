@@ -132,6 +132,26 @@ var (
 	IdeaDuplicate = 5
 )
 
+// GetIdeaStatusName returns the name of an idea status
+func GetIdeaStatusName(status int) string {
+	switch status {
+	case 0:
+		return "Open"
+	case 1:
+		return "Started"
+	case 2:
+		return "Completed"
+	case 3:
+		return "Declined"
+	case 4:
+		return "Planned"
+	case 5:
+		return "Duplicate"
+	default:
+		return "Unknown"
+	}
+}
+
 var (
 	//SubscriberInactive means that the user cancelled the subscription
 	SubscriberInactive = 0

@@ -112,19 +112,48 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 }
 
 //NotifyAboutStatusChange sends a notification (web and e-mail) to subscribers
-func NotifyAboutStatusChange(response *models.SetResponse) worker.Task {
-	return describe("Notify about new comment", func(c *worker.Context) error {
+func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) worker.Task {
+	return describe("Notify about idea status change", func(c *worker.Context) error {
+
+		//Don't notify if status is the same
+		if idea.Status == response.Status {
+			return nil
+		}
+
 		users, err := c.Services().Ideas.GetActiveSubscribers(response.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
 			return err
 		}
 
+		var duplicate template.HTML
+		if response.Status == models.IdeaDuplicate {
+			originalIdea, err := c.Services().Ideas.GetByNumber(response.OriginalNumber)
+			if err != nil {
+				return err
+			}
+			duplicate = linkWithText(originalIdea.Title, c.BaseURL(), "/ideas/%d/%s", originalIdea.Number, originalIdea.Slug)
+		}
+
+		to := make([]email.Recipient, 0)
 		for _, user := range users {
-			if user.ID != c.User().ID && email.CanSendTo(user.Email) {
-				c.Logger().Infof("Notify %s (%s) about new status %d - %s", user.Name, user.Email, response.Status, response.Text)
+			if user.ID != c.User().ID {
+				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
+					"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+					"content":     markdown.Parse(response.Text),
+					"status":      models.GetIdeaStatusName(response.Status),
+					"duplicate":   duplicate,
+					"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+					"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+					"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+				}))
 			}
 		}
 
-		return nil
+		templateName := "change_status"
+		if duplicate != "" {
+			templateName = "mark_as_duplicate"
+		}
+
+		return c.Services().Emailer.BatchSend(templateName, c.User().Name, to)
 	})
 }

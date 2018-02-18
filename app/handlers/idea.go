@@ -150,7 +150,11 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		var err error
+		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		if input.Model.Status == models.IdeaDuplicate {
 			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
 		} else {
@@ -160,7 +164,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(input.Model))
+		c.Enqueue(tasks.NotifyAboutStatusChange(idea, input.Model))
 
 		return c.Ok(web.Map{})
 	}
