@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
 )
@@ -64,6 +65,11 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 //NotifyAboutNewIdea sends a notification (web and e-mail) to subscribers
 func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 	return describe("Notify about new idea", func(c *worker.Context) error {
+		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
+			c.Logger().Warnf("Notifications is currently disabled.")
+			return nil
+		}
+
 		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
 		if err != nil {
 			return err
@@ -90,6 +96,11 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 //NotifyAboutNewComment sends a notification (web and e-mail) to subscribers
 func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
+		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
+			c.Logger().Warnf("Notifications is currently disabled.")
+			return nil
+		}
+
 		users, err := c.Services().Ideas.GetActiveSubscribers(comment.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
 			return err
@@ -117,6 +128,10 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 //NotifyAboutStatusChange sends a notification (web and e-mail) to subscribers
 func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) worker.Task {
 	return describe("Notify about idea status change", func(c *worker.Context) error {
+		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
+			c.Logger().Warnf("Notifications is currently disabled.")
+			return nil
+		}
 
 		//Don't notify if status is the same
 		if idea.Status == response.Status {
