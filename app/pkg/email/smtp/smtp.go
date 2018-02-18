@@ -23,18 +23,18 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 }
 
 //Send an e-mail
-func (s *Sender) Send(templateName, from string, to email.Recipient) error {
+func (s *Sender) Send(templateName string, params email.Params, from string, to email.Recipient) error {
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping e-mail to %s due to whitelist.", to.Address)
+		s.logger.Warnf("Skipping e-mail to %s <%s> due to whitelist.", to.Name, to.Address)
 		return nil
 	}
 
 	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to.Address, templateName, to.Params)
 
-	message := email.RenderMessage(templateName, to.Params)
+	message := email.RenderMessage(templateName, params.Merge(to.Params))
 	headers := make(map[string]string)
 	headers["From"] = fmt.Sprintf("%s <%s>", from, email.NoReply)
-	headers["To"] = to.Address
+	headers["To"] = fmt.Sprintf("%s <%s>", to.Name, to.Address)
 	headers["Subject"] = message.Subject
 	headers["MIME-version"] = "1.0"
 	headers["Content-Type"] = "text/html; charset=\"UTF-8\""
@@ -57,9 +57,9 @@ func (s *Sender) Send(templateName, from string, to email.Recipient) error {
 }
 
 // BatchSend an e-mail to multiple recipients
-func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
-		if err := s.Send(templateName, from, r); err != nil {
+		if err := s.Send(templateName, params, from, r); err != nil {
 			return err
 		}
 	}

@@ -1,4 +1,4 @@
-export interface AppSettings {
+export interface SystemSettings {
   mode: string;
   buildTime: string;
   version: string;
@@ -16,4 +16,8 @@ export interface AuthSettings {
     facebook: boolean,
     github: boolean
   };
+}
+
+export interface UserSettings {
+  [key: string]: string;
 }

@@ -24,7 +24,7 @@ func ChangeUserEmail() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model, c.BaseURL()))
+		c.Enqueue(tasks.SendChangeEmailConfirmation(input.Model))
 
 		return c.Ok(web.Map{})
 	}
@@ -55,6 +55,19 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 	}
 }
 
+// UserSettings is the current user's profile settings page
+func UserSettings() web.HandlerFunc {
+	return func(c web.Context) error {
+		settings, err := c.Services().Users.GetUserSettings()
+		if err != nil {
+			return err
+		}
+		return c.Page(web.Map{
+			"settings": settings,
+		})
+	}
+}
+
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -64,6 +77,11 @@ func UpdateUserSettings() web.HandlerFunc {
 		}
 
 		err := c.Services().Users.Update(c.User().ID, input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Users.UpdateSettings(input.Model.Settings)
 		if err != nil {
 			return c.Failure(err)
 		}

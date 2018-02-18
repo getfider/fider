@@ -74,7 +74,7 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 										 WHERE provider_uid = 'FB2222'`)
 	Expect(err).To(BeNil())
 	Expect(u.Provider).To(Equal("facebook"))
-	Expect(u.User.ID).To(Equal(3))
+	Expect(u.User.ID).To(Equal(4))
 	Expect(u.User.Tenant.ID).To(Equal(2))
 }
 
@@ -105,9 +105,10 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1")
 	Expect(err).To(BeNil())
 
-	Expect(len(u)).To(Equal(2))
+	Expect(len(u)).To(Equal(3))
 	Expect(u[0].Name).To(Equal("Jon Snow"))
 	Expect(u[1].Name).To(Equal("Arya Stark"))
+	Expect(u[2].Name).To(Equal("Sansa Stark"))
 }
 
 func TestBind_NestedStruct(t *testing.T) {
@@ -154,11 +155,13 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 		WHERE u.tenant_id = 1
 	`)
 	Expect(err).To(BeNil())
-	Expect(len(u)).To(Equal(2))
+	Expect(len(u)).To(Equal(3))
 	Expect(u[0].Name).To(Equal("Jon Snow"))
 	Expect(u[0].Tenant.Name).To(Equal("Demonstration"))
 	Expect(u[1].Name).To(Equal("Arya Stark"))
 	Expect(u[1].Tenant.Name).To(Equal("Demonstration"))
+	Expect(u[2].Name).To(Equal("Sansa Stark"))
+	Expect(u[2].Tenant.Name).To(Equal("Demonstration"))
 }
 
 func TestExists_True(t *testing.T) {

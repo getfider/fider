@@ -11,7 +11,7 @@ import (
 )
 
 //Status returns some useful information
-func Status(settings *models.AppSettings) web.HandlerFunc {
+func Status(settings *models.SystemSettings) web.HandlerFunc {
 	return func(c web.Context) error {
 		memStats := &runtime.MemStats{}
 		runtime.ReadMemStats(memStats)

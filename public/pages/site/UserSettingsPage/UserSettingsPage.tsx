@@ -1,8 +1,9 @@
 import * as React from 'react';
 
 import { Form, DisplayError, Button, Gravatar } from '@fider/components/common';
+import { NotificationSettings } from './';
 
-import { CurrentUser } from '@fider/models';
+import { CurrentUser, UserSettings } from '@fider/models';
 import { Failure, actions } from '@fider/services';
 
 import './UserSettingsPage.scss';
@@ -12,10 +13,12 @@ interface UserSettingsPageState {
   newEmail: string;
   changingEmail: boolean;
   error?: Failure;
+  settings: UserSettings;
 }
 
 interface UserSettingsPageProps {
   user: CurrentUser;
+  settings: UserSettings;
 }
 
 export class UserSettingsPage extends React.Component<UserSettingsPageProps, UserSettingsPageState> {
@@ -25,12 +28,13 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
     this.state = {
       changingEmail: false,
       newEmail: '',
-      name: this.props.user.name
+      name: this.props.user.name,
+      settings: this.props.settings
     };
   }
 
   private async confirm() {
-    const result = await actions.updateUserSettings(this.state.name);
+    const result = await actions.updateUserSettings(this.state.name, this.state.settings);
     if (result.ok) {
       location.reload();
     } else if (result.error) {
@@ -71,7 +75,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
         </h2>
 
         <div className="ui grid">
-          <div className="eight wide computer sixteen wide mobile column">
+          <div className="ten wide computer sixteen wide mobile column">
             <div className="ui form">
               <div className="field">
                   <label htmlFor="email">Avatar</label>
@@ -93,7 +97,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                         <input
                           id="new-email"
                           type="text"
-                          style={{'max-width': '200px', 'margin-right': '10px'}}
+                          style={{maxWidth: '200px', marginRight: '10px'}}
                           maxLength={200}
                           placeholder={this.props.user.email}
                           value={this.state.newEmail}
@@ -115,6 +119,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                   }
 
               </div>
+
               <DisplayError fields={['name']} error={this.state.error} />
               <div className="field">
                 <label htmlFor="name">Name</label>
@@ -126,6 +131,13 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                   onChange={(e) => this.setState({ name: e.currentTarget.value })}
                 />
               </div>
+
+              <NotificationSettings
+                user={this.props.user}
+                settings={this.props.settings}
+                settingsChanged={(settings) => this.setState({ settings })}
+              />
+
               <div className="field">
                 <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
               </div>

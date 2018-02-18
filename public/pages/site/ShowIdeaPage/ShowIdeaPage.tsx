@@ -3,7 +3,7 @@ import * as React from 'react';
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
 import { page, actions, Failure } from '@fider/services';
 
-import { TagsPanel, CommentInput, CommentList, ResponseForm } from './';
+import { TagsPanel, CommentInput, CommentList, ResponseForm, NotificationsPanel } from './';
 import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, MultiLineText } from '@fider/components';
 
 import './ShowIdeaPage.scss';
@@ -11,6 +11,7 @@ import './ShowIdeaPage.scss';
 interface ShowIdeaPageProps {
   user?: CurrentUser;
   idea: Idea;
+  subscribed: boolean;
   comments: Comment[];
   tags: Tag[];
 }
@@ -130,6 +131,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
           }
 
           <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
+          <NotificationsPanel user={this.props.user} idea={this.props.idea} subscribed={this.props.subscribed} />
         </div>
 
         <div className="comments-col">

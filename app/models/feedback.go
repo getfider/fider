@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -131,6 +132,26 @@ var (
 	IdeaDuplicate = 5
 )
 
+// GetIdeaStatusName returns the name of an idea status
+func GetIdeaStatusName(status int) string {
+	switch status {
+	case 0:
+		return "Open"
+	case 1:
+		return "Started"
+	case 2:
+		return "Completed"
+	case 3:
+		return "Declined"
+	case 4:
+		return "Planned"
+	case 5:
+		return "Duplicate"
+	default:
+		return "Unknown"
+	}
+}
+
 var (
 	//SubscriberInactive means that the user cancelled the subscription
 	SubscriberInactive = 0
@@ -150,34 +171,61 @@ var (
 
 //NotificationEvent represents all possible notification events
 type NotificationEvent struct {
-	UserSettingsKeyName     string
-	DefaultEnabledUserRoles []Role
+	UserSettingsKeyName          string
+	DefaultSettingValue          string
+	RequiresSubscripionUserRoles []Role
+	DefaultEnabledUserRoles      []Role
+	Validate                     func(string) bool
+}
+
+func notificationEventValidation(v string) bool {
+	return v == "0" || v == "1" || v == "2" || v == "3"
 }
 
 var (
 	//NotificationEventNewIdea is triggered when a new idea is posted
 	NotificationEventNewIdea = NotificationEvent{
-		UserSettingsKeyName: "event_notification_new_idea",
+		UserSettingsKeyName:          "event_notification_new_idea",
+		DefaultSettingValue:          strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscripionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
 		},
+		Validate: notificationEventValidation,
 	}
 	//NotificationEventNewComment is triggered when a new comment is posted
 	NotificationEventNewComment = NotificationEvent{
 		UserSettingsKeyName: "event_notification_new_comment",
-		DefaultEnabledUserRoles: []Role{
-			RoleAdministrator,
-			RoleCollaborator,
+		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscripionUserRoles: []Role{
+			RoleVisitor,
 		},
-	}
-	//NotificationEventChangeStatus is triggered when a new idea has its status changed
-	NotificationEventChangeStatus = NotificationEvent{
-		UserSettingsKeyName: "event_notification_change_status",
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
 			RoleVisitor,
 		},
+		Validate: notificationEventValidation,
+	}
+	//NotificationEventChangeStatus is triggered when a new idea has its status changed
+	NotificationEventChangeStatus = NotificationEvent{
+		UserSettingsKeyName: "event_notification_change_status",
+		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscripionUserRoles: []Role{
+			RoleVisitor,
+		},
+		DefaultEnabledUserRoles: []Role{
+			RoleAdministrator,
+			RoleCollaborator,
+			RoleVisitor,
+		},
+		Validate: notificationEventValidation,
+	}
+	//AllNotificationEvents contains all possible notification events
+	AllNotificationEvents = []NotificationEvent{
+		NotificationEventNewIdea,
+		NotificationEventNewComment,
+		NotificationEventChangeStatus,
 	}
 )

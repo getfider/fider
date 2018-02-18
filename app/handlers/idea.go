@@ -5,6 +5,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // Index is the default home page
@@ -56,6 +57,8 @@ func PostIdea() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		c.Enqueue(tasks.NotifyAboutNewIdea(idea))
+
 		return c.Ok(idea)
 	}
 }
@@ -101,10 +104,16 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		subscribed, err := c.Services().Users.HasSubscribedTo(idea.ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Map{
-			"comments": comments,
-			"idea":     idea,
-			"tags":     tags,
+			"comments":   comments,
+			"subscribed": subscribed,
+			"idea":       idea,
+			"tags":       tags,
 		})
 	}
 }
@@ -117,10 +126,17 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model))
 
 		return c.Ok(web.Map{})
 	}
@@ -134,7 +150,11 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		var err error
+		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		if input.Model.Status == models.IdeaDuplicate {
 			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
 		} else {
@@ -144,6 +164,8 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		c.Enqueue(tasks.NotifyAboutStatusChange(idea, input.Model))
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -151,18 +173,32 @@ func SetResponse() web.HandlerFunc {
 // AddSupporter adds current user to given idea list of supporters
 func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, c.Services().Ideas.AddSupporter)
+		return addOrRemove(c, c.Services().Ideas.AddSupporter)
 	}
 }
 
 // RemoveSupporter removes current user from given idea list of supporters
 func RemoveSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemoveSupporter(c, c.Services().Ideas.RemoveSupporter)
+		return addOrRemove(c, c.Services().Ideas.RemoveSupporter)
 	}
 }
 
-func addOrRemoveSupporter(c web.Context, addOrRemove func(number, userID int) error) error {
+// Subscribe adds current user to list of subscribers of given idea
+func Subscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemove(c, c.Services().Ideas.AddSubscriber)
+	}
+}
+
+// Unsubscribe removes current user from list of subscribers of given idea
+func Unsubscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		return addOrRemove(c, c.Services().Ideas.RemoveSubscriber)
+	}
+}
+
+func addOrRemove(c web.Context, addOrRemove func(number, userID int) error) error {
 	ideaNumber, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)

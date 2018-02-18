@@ -94,6 +94,12 @@
   revision = "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c"
 
 [[projects]]
+  name = "github.com/russross/blackfriday"
+  packages = ["."]
+  revision = "4048872b16cc0fc2c5fd9eacf0ed2c2fedaa0c8c"
+  version = "v1.5"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = [
@@ -160,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f53a7f19eff2021037e54a4d9bb74f86bfae2779d85cd886d6d5475371e22591"
+  inputs-digest = "d0c83951eaaa140852324af4098edb7c9f4255d608ae7d3d5d35cbf5075d6470"
   solver-name = "gps-cdcl"
   solver-version = 1

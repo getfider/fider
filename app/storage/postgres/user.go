@@ -6,6 +6,7 @@ import (
 
 	"database/sql"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
@@ -46,6 +47,11 @@ func (u *dbUser) toModel() *models.User {
 	}
 
 	return user
+}
+
+type dbUserSetting struct {
+	Key   string `db:"key"`
+	Value string `db:"value"`
 }
 
 // UserStorage is used for user operations using a Postgres database
@@ -122,15 +128,15 @@ func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) er
 }
 
 // UpdateSettings of given user
-func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
-	if settings != nil && len(settings) > 0 {
+func (s *UserStorage) UpdateSettings(settings map[string]string) error {
+	if s.user != nil && settings != nil && len(settings) > 0 {
 		query := `
 		INSERT INTO user_settings (user_id, key, value)
 		VALUES ($1, $2, $3) ON CONFLICT (user_id, key) DO UPDATE SET value = $3
 		`
 
 		for key, value := range settings {
-			err := s.trx.Execute(query, userID, key, value)
+			err := s.trx.Execute(query, s.user.ID, key, value)
 			if err != nil {
 				return err
 			}
@@ -138,6 +144,34 @@ func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) err
 	}
 
 	return nil
+}
+
+// GetUserSettings returns current user's settings
+func (s *UserStorage) GetUserSettings() (map[string]string, error) {
+	if s.user == nil {
+		return make(map[string]string, 0), nil
+	}
+
+	var settings []*dbUserSetting
+	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1", s.user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make(map[string]string, len(settings))
+
+	for _, e := range models.AllNotificationEvents {
+		for _, r := range e.DefaultEnabledUserRoles {
+			if r == s.user.Role {
+				result[e.UserSettingsKeyName] = e.DefaultSettingValue
+			}
+		}
+	}
+
+	for _, s := range settings {
+		result[s.Key] = s.Value
+	}
+	return result, nil
 }
 
 // ChangeRole of given user
@@ -181,4 +215,34 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 		result[i] = user.toModel()
 	}
 	return result, nil
+}
+
+// HasSubscribedTo returns true if current user is receiving notification from specific idea
+func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+	if s.user == nil {
+		return false, nil
+	}
+
+	var status int
+	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, ideaID)
+	if err != nil && err != app.ErrNotFound {
+		return false, err
+	}
+
+	if err == app.ErrNotFound {
+		for _, e := range models.AllNotificationEvents {
+			for _, r := range e.RequiresSubscripionUserRoles {
+				if r == s.user.Role {
+					return false, nil
+				}
+			}
+		}
+		return true, nil
+	}
+
+	if status == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }

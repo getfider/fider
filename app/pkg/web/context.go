@@ -72,6 +72,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 		return func(wc *worker.Context) error {
 			wc.SetUser(c.User())
 			wc.SetTenant(c.Tenant())
+			wc.SetBaseURL(c.BaseURL())
 			return task.Job(wc)
 		}
 	}
@@ -303,7 +304,7 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 
 	protocol := "http"
 	_, port, _ := net.SplitHostPort(ctx.Request.Host)
-	if ctx.Request.TLS != nil {
+	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
 	address := protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()

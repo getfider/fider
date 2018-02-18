@@ -7,7 +7,7 @@ export const getBaseUrl = (): string => {
 };
 
 export const isSingleHostMode = (): boolean => {
-  return (window as any).props.settings.mode === 'single';
+  return (window as any).props.system.mode === 'single';
 };
 
 export interface ModalOptions {

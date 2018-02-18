@@ -33,7 +33,7 @@ type Engine struct {
 }
 
 //New creates a new Engine
-func New(settings *models.AppSettings) *Engine {
+func New(settings *models.SystemSettings) *Engine {
 	logger := log.NewConsoleLogger("WEB")
 	router := &Engine{
 		mux:         httprouter.New(),

@@ -23,6 +23,7 @@ var avengersTenant *models.Tenant
 var gotTenant *models.Tenant
 var jonSnow *models.User
 var aryaStark *models.User
+var sansaStark *models.User
 
 func SetupDatabaseTest(t *testing.T) {
 	RegisterTestingT(t)
@@ -37,6 +38,7 @@ func SetupDatabaseTest(t *testing.T) {
 	avengersTenant, _ = tenants.GetByDomain("avengers")
 	jonSnow, _ = users.GetByID(1)
 	aryaStark, _ = users.GetByID(2)
+	sansaStark, _ = users.GetByID(3)
 }
 
 func TeardownDatabaseTest() {

@@ -17,13 +17,13 @@ import (
 type Renderer struct {
 	templates map[string]*template.Template
 	logger    log.Logger
-	settings  *models.AppSettings
+	settings  *models.SystemSettings
 	jsBundle  string
 	cssBundle string
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.AppSettings, logger log.Logger) *Renderer {
+func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 	r := &Renderer{
 		templates: make(map[string]*template.Template),
 		logger:    logger,
@@ -78,7 +78,7 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	m := data.(Map)
 	m["__JavaScriptBundle"] = r.jsBundle
 	m["__StyleBundle"] = r.cssBundle
-	m["settings"] = r.settings
+	m["system"] = r.settings
 
 	m["baseURL"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()

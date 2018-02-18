@@ -12,7 +12,7 @@ import (
 func TestStatusHandler(t *testing.T) {
 	RegisterTestingT(t)
 
-	settings := &models.AppSettings{
+	settings := &models.SystemSettings{
 		BuildTime: "today",
 	}
 

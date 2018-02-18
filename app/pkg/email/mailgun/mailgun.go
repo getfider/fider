@@ -26,12 +26,12 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an e-mail
-func (s *Sender) Send(templateName, from string, to email.Recipient) error {
-	return s.BatchSend(templateName, from, []email.Recipient{to})
+func (s *Sender) Send(templateName string, params email.Params, from string, to email.Recipient) error {
+	return s.BatchSend(templateName, params, from, []email.Recipient{to})
 }
 
 // BatchSend an e-mail to multiple recipients
-func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	if len(to) == 0 {
 		return nil
 	}
@@ -40,14 +40,13 @@ func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) erro
 
 	var message *email.Message
 	if isBatch {
-		// Replace Go's templates var with Mailgun's template vars
-		mgParams := make(map[string]interface{}, len(to[0].Params))
+		// Replace recipient specific Go templates variables with Mailgun template variables
 		for k := range to[0].Params {
-			mgParams[k] = fmt.Sprintf("%%recipient.%s%%", k)
+			params[k] = fmt.Sprintf("%%recipient.%s%%", k)
 		}
-		message = email.RenderMessage(templateName, mgParams)
+		message = email.RenderMessage(templateName, params)
 	} else {
-		message = email.RenderMessage(templateName, to[0].Params)
+		message = email.RenderMessage(templateName, params.Merge(to[0].Params))
 	}
 
 	form := url.Values{}
@@ -56,13 +55,13 @@ func (s *Sender) BatchSend(templateName, from string, to []email.Recipient) erro
 	form.Add("html", message.Body)
 
 	// Set Mailgun's var based on each recipient's variables
-	recipientVariables := make(map[string]map[string]interface{}, 0)
+	recipientVariables := make(map[string]email.Params, 0)
 	for _, r := range to {
 		if email.CanSendTo(r.Address) {
-			form.Add("to", r.Address)
+			form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
 			recipientVariables[r.Address] = r.Params
 		} else {
-			s.logger.Warnf("Skipping e-mail to %s due to whitelist.", r.Address)
+			s.logger.Warnf("Skipping e-mail to '%s <%s>' due to whitelist.", r.Name, r.Address)
 		}
 	}
 

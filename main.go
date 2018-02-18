@@ -19,7 +19,7 @@ func main() {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
-	settings := &models.AppSettings{
+	settings := &models.SystemSettings{
 		BuildTime:       buildtime,
 		Version:         version,
 		Compiler:        runtime.Version(),

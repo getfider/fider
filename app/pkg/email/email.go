@@ -11,6 +11,17 @@ import (
 
 var cache = make(map[string]*template.Template, 0)
 
+// Params used to replace variables on e-mails
+type Params map[string]interface{}
+
+// Merge given params into current params
+func (p Params) Merge(p2 Params) Params {
+	for k, v := range p2 {
+		p[k] = v
+	}
+	return p
+}
+
 // Message represents what is sent by e-mail
 type Message struct {
 	Subject string
@@ -18,9 +29,9 @@ type Message struct {
 }
 
 // RenderMessage returns the HTML of an e-mail based on template and params
-func RenderMessage(templateName string, params map[string]interface{}) *Message {
+func RenderMessage(templateName string, params Params) *Message {
 	tpl, ok := cache[templateName]
-	if !ok {
+	if !ok || env.IsDevelopment() {
 		var err error
 		file := env.Path("/views/templates", templateName+".tpl")
 		tpl, err = template.ParseFiles(file)
@@ -46,12 +57,13 @@ var NoReply = env.MustGet("NOREPLY_EMAIL")
 type Recipient struct {
 	Name    string
 	Address string
-	Params  map[string]interface{}
+	Params  Params
 }
 
 // NewRecipient creates a new Recipient
-func NewRecipient(address string, params map[string]interface{}) Recipient {
+func NewRecipient(name, address string, params Params) Recipient {
 	return Recipient{
+		Name:    name,
 		Address: address,
 		Params:  params,
 	}
@@ -68,6 +80,9 @@ func SetWhitelist(s string) {
 
 // CanSendTo returns true if Fider is allowed to send e-mail to given address
 func CanSendTo(address string) bool {
+	if strings.TrimSpace(address) == "" {
+		return false
+	}
 	if whitelist == "" {
 		return true
 	}
@@ -76,8 +91,8 @@ func CanSendTo(address string) bool {
 
 // Sender is used to send e-mails
 type Sender interface {
-	Send(templateName, from string, to Recipient) error
-	BatchSend(templateName, from string, to []Recipient) error
+	Send(templateName string, params Params, from string, to Recipient) error
+	BatchSend(templateName string, params Params, from string, to []Recipient) error
 }
 
 // NoopSender does not send e-mails
@@ -90,12 +105,12 @@ func NewNoopSender() *NoopSender {
 }
 
 // Send an e-mail
-func (s *NoopSender) Send(templateName, from string, to Recipient) error {
+func (s *NoopSender) Send(templateName string, params Params, from string, to Recipient) error {
 	return nil
 
 }
 
 // BatchSend an e-mail to multiple recipients
-func (s *NoopSender) BatchSend(templateName, from string, to []Recipient) error {
+func (s *NoopSender) BatchSend(templateName string, params Params, from string, to []Recipient) error {
 	return nil
 }

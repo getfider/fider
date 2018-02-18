@@ -223,7 +223,8 @@ type CompleteProfile struct {
 
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
-	Name string `json:"name"`
+	Name     string            `json:"name"`
+	Settings map[string]string `json:"settings"`
 }
 
 // ChangeUserRole is the input model change role of an user

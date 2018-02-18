@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { AppSettings } from '@fider/models';
+import { SystemSettings } from '@fider/models';
 
 interface EnvironmentInfoProps {
-  settings: AppSettings;
+  system: SystemSettings;
 }
 
 export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
   public render() {
-    if (this.props.settings.environment === 'production') {
+    if (this.props.system.environment === 'production') {
       return null;
     }
 
@@ -16,10 +16,10 @@ export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
         id="environment-info"
         className=" ui mini negative message no-border no-margin"
       >
-        Env: {this.props.settings.environment} |
-        Compiler: {this.props.settings.compiler} |
-        Version: {this.props.settings.version} |
-        BuildTime: {this.props.settings.buildTime}
+        Env: {this.props.system.environment} |
+        Compiler: {this.props.system.compiler} |
+        Version: {this.props.system.version} |
+        BuildTime: {this.props.system.buildTime}
       </div>
     );
   }

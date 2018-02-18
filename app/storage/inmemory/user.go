@@ -9,10 +9,11 @@ import (
 
 // UserStorage is used for user operations
 type UserStorage struct {
-	user   *models.User
-	tenant *models.Tenant
-	users  []*models.User
-	lastID int
+	user            *models.User
+	tenant          *models.Tenant
+	users           []*models.User
+	lastID          int
+	settingsPerUser map[int]map[string]string
 }
 
 // GetByID returns a user based on given id
@@ -113,6 +114,30 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 }
 
 // UpdateSettings of given user
-func (s *UserStorage) UpdateSettings(userID int, settings map[string]string) error {
+func (s *UserStorage) UpdateSettings(settings map[string]string) error {
+	if s.user == nil {
+		return nil
+	}
+	if s.settingsPerUser == nil {
+		s.settingsPerUser = make(map[int]map[string]string, 0)
+	}
+	s.settingsPerUser[s.user.ID] = settings
 	return nil
+}
+
+// GetUserSettings returns current user's settings
+func (s *UserStorage) GetUserSettings() (map[string]string, error) {
+	if s.settingsPerUser == nil || s.user == nil {
+		return make(map[string]string, 0), nil
+	}
+	settings, ok := s.settingsPerUser[s.user.ID]
+	if ok {
+		return settings, nil
+	}
+	return make(map[string]string, 0), nil
+}
+
+// HasSubscribedTo returns true if current user is receiving notification from specific idea
+func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+	return false, nil
 }

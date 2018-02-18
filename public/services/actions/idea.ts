@@ -13,6 +13,14 @@ export const removeSupport = async (ideaNumber: number): Promise<Result> => {
   return http.post(`/api/ideas/${ideaNumber}/unsupport`).then(http.event('idea', 'unsupport'));
 };
 
+export const subscribe = async (ideaNumber: number): Promise<Result> => {
+  return http.post(`/api/ideas/${ideaNumber}/subscribe`).then(http.event('idea', 'subscribe'));
+};
+
+export const unsubscribe = async (ideaNumber: number): Promise<Result> => {
+  return http.post(`/api/ideas/${ideaNumber}/unsubscribe`).then(http.event('idea', 'unsubscribe'));
+};
+
 export const createComment = async (ideaNumber: number, content: string): Promise<Result> => {
   return http.post(`/api/ideas/${ideaNumber}/comments`, { content }).then(http.event('comment', 'create'));
 };
