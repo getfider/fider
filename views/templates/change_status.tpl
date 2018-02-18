@@ -1,10 +1,13 @@
 subject: {{ .title }}
 body:
 
-Status has changed to <strong>{{ .status }}</strong>. <br /><br />
+{{ if .duplicate }}
+  <p>This idea has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}. </p>
+{{ else }}
+  Status has changed to <strong>{{ .status }}</strong>. <br />
 
-{{ .content }}
-
+  {{ .content }}
+{{ end }}
 
 <span style="color:#666;font-size:small">
 — <br />

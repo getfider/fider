@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -26,21 +25,21 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 //SendSignUpEmail is used to send the sign up email to requestor
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up e-mail", func(c *worker.Context) error {
-		to := email.NewRecipient(model.Name, model.Email, web.Map{
+		to := email.NewRecipient(model.Name, model.Email, email.Params{
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send("signup_email", "Fider", to)
+		return c.Services().Emailer.Send("signup_email", email.Params{}, "Fider", to)
 	})
 }
 
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in e-mail", func(c *worker.Context) error {
-		to := email.NewRecipient("", model.Email, web.Map{
+		to := email.NewRecipient("", model.Email, email.Params{
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send("signin_email", c.Tenant().Name, to)
+		return c.Services().Emailer.Send("signin_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -52,13 +51,13 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			previous = "(empty)"
 		}
 
-		to := email.NewRecipient(model.Requestor.Name, model.Email, web.Map{
+		to := email.NewRecipient(model.Requestor.Name, model.Email, email.Params{
 			"name":     c.User().Name,
 			"oldEmail": previous,
 			"newEmail": model.Email,
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send("change_emailaddress_email", c.Tenant().Name, to)
+		return c.Services().Emailer.Send("change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -73,16 +72,18 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		to := make([]email.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
-					"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-					"content": markdown.Parse(idea.Description),
-					"view":    linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-				}))
+				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
 			}
 		}
 
-		return c.Services().Emailer.BatchSend("new_idea", c.User().Name, to)
+		params := email.Params{
+			"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+			"content": markdown.Parse(idea.Description),
+			"view":    linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+		}
+
+		return c.Services().Emailer.BatchSend("new_idea", params, c.User().Name, to)
 	})
 }
 
@@ -97,17 +98,19 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 		to := make([]email.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
-					"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-					"content":     markdown.Parse(comment.Content),
-					"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-				}))
+				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
 			}
 		}
 
-		return c.Services().Emailer.BatchSend("new_comment", c.User().Name, to)
+		params := email.Params{
+			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+			"content":     markdown.Parse(comment.Content),
+			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+		}
+
+		return c.Services().Emailer.BatchSend("new_comment", params, c.User().Name, to)
 	})
 }
 
@@ -137,23 +140,20 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		to := make([]email.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, web.Map{
-					"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-					"content":     markdown.Parse(response.Text),
-					"status":      models.GetIdeaStatusName(response.Status),
-					"duplicate":   duplicate,
-					"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-					"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-				}))
+				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
 			}
 		}
 
-		templateName := "change_status"
-		if duplicate != "" {
-			templateName = "mark_as_duplicate"
+		params := email.Params{
+			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+			"content":     markdown.Parse(response.Text),
+			"status":      models.GetIdeaStatusName(response.Status),
+			"duplicate":   duplicate,
+			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(templateName, c.User().Name, to)
+		return c.Services().Emailer.BatchSend("change_status", params, c.User().Name, to)
 	})
 }
