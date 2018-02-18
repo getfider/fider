@@ -8,4 +8,4 @@ Click the link below to confirm this operation.
 <br /><br />
 {{ .link }}
 <br /><br />
-<span style="color:#b3b3b1;font-size:11px">This link will expire in 24 hours and can only be used once.</span>
+<span style="color:#666;font-size:11px">This link will expire in 24 hours and can only be used once.</span>

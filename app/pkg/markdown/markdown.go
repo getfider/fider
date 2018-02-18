@@ -18,6 +18,8 @@ func Parse(input string) template.HTML {
 	mdExtns |= blackfriday.EXTENSION_TITLEBLOCK
 	mdExtns |= blackfriday.EXTENSION_STRIKETHROUGH
 	mdExtns |= blackfriday.EXTENSION_DEFINITION_LISTS
+	mdExtns |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
+	mdExtns |= blackfriday.EXTENSION_HARD_LINE_BREAK
 
 	htmlExtns := 0 |
 		blackfriday.HTML_USE_XHTML |

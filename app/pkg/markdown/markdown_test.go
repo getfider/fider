@@ -18,18 +18,28 @@ func TestParseMarkdown(t *testing.T) {
 `,
 		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>
 `,
-		`Can you try this?
-
+		`
 - **Option 1**
 - *Option 2*
-- ~~Option 3~~
-`: `<p>Can you try this?</p>
-
-<ul>
-<li><strong>Option 1</strong></li>
-<li><em>Option 2</em></li>
-<li><del>Option 3</del></li>
+- ~~Option 3~~`: `<ul>
+<li><strong>Option 1</strong><br /></li>
+<li><em>Option 2</em><br /></li>
+<li><del>Option 3</del><br /></li>
 </ul>
+`,
+		`Please add:
+– SEND_SMS
+– RECEIVE_SMS
+– READ_PHONE_STATE
+This will allow to send and receive SMS and get the IMEI No. in our app.
+
+Thanks!`: `<p>Please add:<br />
+– SEND_SMS<br />
+– RECEIVE_SMS<br />
+– READ_PHONE_STATE<br />
+This will allow to send and receive SMS and get the IMEI No. in our app.</p>
+
+<p>Thanks!</p>
 `,
 	} {
 		output := markdown.Parse(input)
