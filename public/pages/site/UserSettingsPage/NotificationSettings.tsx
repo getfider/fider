@@ -64,9 +64,9 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
     } else if (webEnabled && !emailEnabled) {
       return <p className="info">You'll receive <strong>web</strong> notifications about {about}.</p>;
     } else if (!webEnabled && emailEnabled) {
-      return <p className="info">You'll receive <strong>e-mail</strong> notifications about {about}.</p>;
+      return <p className="info">You'll receive <strong>email</strong> notifications about {about}.</p>;
     } else if (webEnabled && emailEnabled) {
-      return <p className="info">You'll receive <strong>web</strong> and <strong>e-mail</strong> notifications about {about}.</p>;
+      return <p className="info">You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.</p>;
     }
     return null;
   }

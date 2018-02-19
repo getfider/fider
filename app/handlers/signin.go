@@ -131,7 +131,7 @@ func SignIn(provider string) web.HandlerFunc {
 	}
 }
 
-// SignInByEmail sends a new e-mail with verification key
+// SignInByEmail sends a new email with verification key
 func SignInByEmail() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.SignInByEmail)

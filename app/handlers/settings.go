@@ -11,7 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// ChangeUserEmail register the intent of changing user e-mail
+// ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.ChangeUserEmail)

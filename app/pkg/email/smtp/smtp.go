@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
-//Sender is used to send e-mails
+//Sender is used to send emails
 type Sender struct {
 	logger   log.Logger
 	host     string
@@ -17,19 +17,19 @@ type Sender struct {
 	password string
 }
 
-//NewSender creates a new mailgun e-mail sender
+//NewSender creates a new mailgun email sender
 func NewSender(logger log.Logger, host, port, username, password string) *Sender {
 	return &Sender{logger, host, port, username, password}
 }
 
-//Send an e-mail
+//Send an email
 func (s *Sender) Send(templateName string, params email.Params, from string, to email.Recipient) error {
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping e-mail to %s <%s> due to whitelist.", to.Name, to.Address)
+		s.logger.Warnf("Skipping email to %s <%s> due to whitelist.", to.Name, to.Address)
 		return nil
 	}
 
-	s.logger.Debugf("Sending e-mail to %s with template %s and params %s.", to.Address, templateName, to.Params)
+	s.logger.Debugf("Sending email to %s with template %s and params %s.", to.Address, templateName, to.Params)
 
 	message := email.RenderMessage(templateName, params.Merge(to.Params))
 	headers := make(map[string]string)
@@ -49,14 +49,14 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err != nil {
-		s.logger.Errorf("Failed to send e-mail")
+		s.logger.Errorf("Failed to send email")
 		return err
 	}
 	s.logger.Debugf("E-mail sent.")
 	return nil
 }
 
-// BatchSend an e-mail to multiple recipients
+// BatchSend an email to multiple recipients
 func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
 		if err := s.Send(templateName, params, from, r); err != nil {

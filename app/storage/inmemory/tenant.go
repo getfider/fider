@@ -101,7 +101,7 @@ func (s *TenantStorage) Activate(id int) error {
 	return app.ErrNotFound
 }
 
-// SaveVerificationKey used by e-mail verification
+// SaveVerificationKey used by email verification
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
 	userID := 0
 	if request.GetUser() != nil {

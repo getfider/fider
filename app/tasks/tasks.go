@@ -25,7 +25,7 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 
 //SendSignUpEmail is used to send the sign up email to requestor
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
-	return describe("Send sign up e-mail", func(c *worker.Context) error {
+	return describe("Send sign up email", func(c *worker.Context) error {
 		to := email.NewRecipient(model.Name, model.Email, email.Params{
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
@@ -35,7 +35,7 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail) worker.Task {
-	return describe("Send sign in e-mail", func(c *worker.Context) error {
+	return describe("Send sign in email", func(c *worker.Context) error {
 		to := email.NewRecipient("", model.Email, email.Params{
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
@@ -44,9 +44,9 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	})
 }
 
-//SendChangeEmailConfirmation is used to send the change e-mail confirmation e-mail to requestor
+//SendChangeEmailConfirmation is used to send the change email confirmation email to requestor
 func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
-	return describe("Send change e-mail confirmation", func(c *worker.Context) error {
+	return describe("Send change email confirmation", func(c *worker.Context) error {
 		previous := c.User().Email
 		if previous == "" {
 			previous = "(empty)"
@@ -62,7 +62,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 	})
 }
 
-//NotifyAboutNewIdea sends a notification (web and e-mail) to subscribers
+//NotifyAboutNewIdea sends a notification (web and email) to subscribers
 func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 	return describe("Notify about new idea", func(c *worker.Context) error {
 		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
@@ -93,7 +93,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 	})
 }
 
-//NotifyAboutNewComment sends a notification (web and e-mail) to subscribers
+//NotifyAboutNewComment sends a notification (web and email) to subscribers
 func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
@@ -125,7 +125,7 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 	})
 }
 
-//NotifyAboutStatusChange sends a notification (web and e-mail) to subscribers
+//NotifyAboutStatusChange sends a notification (web and email) to subscribers
 func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) worker.Task {
 	return describe("Notify about idea status change", func(c *worker.Context) error {
 		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {

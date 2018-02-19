@@ -1,7 +1,7 @@
 import { ensure, elementIsVisible, mailgun, Browser } from '../lib';
 import { AllPages } from '../pages';
 
-describe('Sign up by e-mail', () => {
+describe('Sign up by email', () => {
   let browser: Browser;
   let pages: AllPages;
 
@@ -14,7 +14,7 @@ describe('Sign up by e-mail', () => {
     await pages.dispose();
   });
 
-  it('User can sign up using e-mail', async () => {
+  it('User can sign up using email', async () => {
     const now = new Date().getTime();
 
     // Action

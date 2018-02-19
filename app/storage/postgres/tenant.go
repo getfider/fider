@@ -153,7 +153,7 @@ func (s *TenantStorage) Activate(id int) error {
 	return s.trx.Execute(query, models.TenantActive, id)
 }
 
-// SaveVerificationKey used by e-mail verification process
+// SaveVerificationKey used by email verification process
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
 	var userID interface{}
 	if request.GetUser() != nil {

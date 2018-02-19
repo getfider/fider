@@ -14,7 +14,7 @@ it('Can sign in with Google and support an idea', async () => {
   await ensure(await pages.home.IdeaList.at(0)).textIs('2');
 });
 
-it('User can sign in using e-mail on existing tenant', async () => {
+it('User can sign in using email on existing tenant', async () => {
   const now = new Date().getTime();
 
   // Action

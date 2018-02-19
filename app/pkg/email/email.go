@@ -11,7 +11,7 @@ import (
 
 var cache = make(map[string]*template.Template, 0)
 
-// Params used to replace variables on e-mails
+// Params used to replace variables on emails
 type Params map[string]interface{}
 
 // Merge given params into current params
@@ -22,13 +22,13 @@ func (p Params) Merge(p2 Params) Params {
 	return p
 }
 
-// Message represents what is sent by e-mail
+// Message represents what is sent by email
 type Message struct {
 	Subject string
 	Body    string
 }
 
-// RenderMessage returns the HTML of an e-mail based on template and params
+// RenderMessage returns the HTML of an email based on template and params
 func RenderMessage(templateName string, params Params) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
@@ -53,7 +53,7 @@ func RenderMessage(templateName string, params Params) *Message {
 // NoReply is the default 'from' address
 var NoReply = env.MustGet("NOREPLY_EMAIL")
 
-// Recipient contains details of who is receiving the e-mail
+// Recipient contains details of who is receiving the email
 type Recipient struct {
 	Name    string
 	Address string
@@ -72,13 +72,13 @@ func NewRecipient(name, address string, params Params) Recipient {
 var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
 var whitelistRegex = regexp.MustCompile(whitelist)
 
-// SetWhitelist can be used to change e-mail whitelist during rutime
+// SetWhitelist can be used to change email whitelist during rutime
 func SetWhitelist(s string) {
 	whitelist = s
 	whitelistRegex = regexp.MustCompile(whitelist)
 }
 
-// CanSendTo returns true if Fider is allowed to send e-mail to given address
+// CanSendTo returns true if Fider is allowed to send email to given address
 func CanSendTo(address string) bool {
 	if strings.TrimSpace(address) == "" {
 		return false
@@ -89,13 +89,13 @@ func CanSendTo(address string) bool {
 	return whitelistRegex.MatchString(address)
 }
 
-// Sender is used to send e-mails
+// Sender is used to send emails
 type Sender interface {
 	Send(templateName string, params Params, from string, to Recipient) error
 	BatchSend(templateName string, params Params, from string, to []Recipient) error
 }
 
-// NoopSender does not send e-mails
+// NoopSender does not send emails
 type NoopSender struct {
 }
 
@@ -104,13 +104,13 @@ func NewNoopSender() *NoopSender {
 	return &NoopSender{}
 }
 
-// Send an e-mail
+// Send an email
 func (s *NoopSender) Send(templateName string, params Params, from string, to Recipient) error {
 	return nil
 
 }
 
-// BatchSend an e-mail to multiple recipients
+// BatchSend an email to multiple recipients
 func (s *NoopSender) BatchSend(templateName string, params Params, from string, to []Recipient) error {
 	return nil
 }
