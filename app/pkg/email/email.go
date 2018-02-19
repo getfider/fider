@@ -51,7 +51,7 @@ func RenderMessage(templateName string, params Params) *Message {
 }
 
 // NoReply is the default 'from' address
-var NoReply = env.MustGet("NOREPLY_EMAIL")
+var NoReply = env.MustGet("EMAIL_NOREPLY")
 
 // Recipient contains details of who is receiving the email
 type Recipient struct {

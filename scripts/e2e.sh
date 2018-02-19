@@ -30,6 +30,7 @@ run_e2e () {
     }
   } && {
       echo "Stopping Fider ..."
+      docker logs $FIDER_CONTAINER >> ./logs/e2e.log
       docker rm -f $FIDER_CONTAINER
   }
 }

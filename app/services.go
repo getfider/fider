@@ -42,14 +42,14 @@ func NewEmailer(logger log.Logger) email.Sender {
 	if env.IsTest() {
 		return email.NewNoopSender()
 	}
-	if env.IsDefined("MAILGUN_API") {
-		return mailgun.NewSender(logger, env.MustGet("MAILGUN_DOMAIN"), env.MustGet("MAILGUN_API"))
+	if env.IsDefined("EMAIL_MAILGUN_API") {
+		return mailgun.NewSender(logger, env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
 	}
 	return smtp.NewSender(
 		logger,
-		env.MustGet("SMTP_HOST"),
-		env.MustGet("SMTP_PORT"),
-		env.MustGet("SMTP_USERNAME"),
-		env.MustGet("SMTP_PASSWORD"),
+		env.MustGet("EMAIL_SMTP_HOST"),
+		env.MustGet("EMAIL_SMTP_PORT"),
+		env.MustGet("EMAIL_SMTP_USERNAME"),
+		env.MustGet("EMAIL_SMTP_PASSWORD"),
 	)
 }
