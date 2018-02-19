@@ -13,24 +13,24 @@ import (
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
 
-//Sender is used to send e-mails
+//Sender is used to send emails
 type Sender struct {
 	logger log.Logger
 	domain string
 	apiKey string
 }
 
-//NewSender creates a new mailgun e-mail sender
+//NewSender creates a new mailgun email sender
 func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 	return &Sender{logger, domain, apiKey}
 }
 
-//Send an e-mail
+//Send an email
 func (s *Sender) Send(templateName string, params email.Params, from string, to email.Recipient) error {
 	return s.BatchSend(templateName, params, from, []email.Recipient{to})
 }
 
-// BatchSend an e-mail to multiple recipients
+// BatchSend an email to multiple recipients
 func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	if len(to) == 0 {
 		return nil
@@ -61,7 +61,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 			form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
 			recipientVariables[r.Address] = r.Params
 		} else {
-			s.logger.Warnf("Skipping e-mail to '%s <%s>' due to whitelist.", r.Name, r.Address)
+			s.logger.Warnf("Skipping email to '%s <%s>' due to whitelist.", r.Name, r.Address)
 		}
 	}
 
@@ -80,9 +80,9 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 	}
 
 	if isBatch {
-		s.logger.Debugf("Sending e-mail to %d recipients with template %s.", len(recipientVariables), templateName)
+		s.logger.Debugf("Sending email to %d recipients with template %s.", len(recipientVariables), templateName)
 	} else {
-		s.logger.Debugf("Sending e-mail to %s with template %s.", to[0].Address, templateName)
+		s.logger.Debugf("Sending email to %s with template %s.", to[0].Address, templateName)
 	}
 
 	url := fmt.Sprintf(baseURL, s.domain)
@@ -96,7 +96,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		s.logger.Errorf("Failed to send e-mail")
+		s.logger.Errorf("Failed to send email")
 		return err
 	}
 	s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)

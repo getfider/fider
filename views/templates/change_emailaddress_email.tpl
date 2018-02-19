@@ -1,8 +1,8 @@
-subject: Confirm your new e-mail
+subject: Confirm your new email
 body:
 Hi {{ .name }},
 <br /><br />
-Looks like you have requested to change your e-mail from {{ .oldEmail }} to {{ .newEmail }}.
+Looks like you have requested to change your email from {{ .oldEmail }} to {{ .newEmail }}.
 <br />
 Click the link below to confirm this operation.
 <br /><br />

@@ -57,10 +57,10 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
     return (
       <div className="page ui container">
         <div id="confirmation-modal" className="ui mini modal">
-          <div className="header">Confirm your new e-mail</div>
+          <div className="header">Confirm your new email</div>
           <div className="content">
             <div>
-              <p>We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your e-mail.</p>
+              <p>We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.</p>
               <p><a href="#" onClick={() => $('#confirmation-modal').modal('hide')}>OK</a></p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
               </div>
               <DisplayError fields={['email']} error={this.state.error} />
               <div className="field">
-                  <label htmlFor="email">E-mail <span className="info">Your e-mail is private and will never be displayed to anyone.</span></label>
+                  <label htmlFor="email">E-mail <span className="info">Your email is private and will never be displayed to anyone.</span></label>
                   {
                     this.state.changingEmail ?
                     <>
@@ -112,7 +112,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
                       {
                         this.props.user.email
                         ? <b>{this.props.user.email}</b>
-                        : <span className="info">Your account doesn't have an e-mail.</span>
+                        : <span className="info">Your account doesn't have an email.</span>
                       }
                       <span className="ui info clickable" onClick={() => this.setState({ changingEmail: true })}>change</span>
                     </p>

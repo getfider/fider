@@ -47,7 +47,7 @@ func (input *ChangeUserRole) Validate(user *models.User, services *app.Services)
 	return result
 }
 
-//ChangeUserEmail is the action used to change current user's e-mail
+//ChangeUserEmail is the action used to change current user's email
 type ChangeUserEmail struct {
 	Model *models.ChangeUserEmail
 }
@@ -79,7 +79,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 	}
 
 	if user.Email == input.Model.Email {
-		result.AddFieldFailure("email", "Choose a different e-mail.")
+		result.AddFieldFailure("email", "Choose a different email.")
 		return result
 	}
 
@@ -94,7 +94,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 		return validate.Error(err)
 	}
 	if err == nil && existing.ID != user.ID {
-		result.AddFieldFailure("email", "This e-mail is already in use by someone else")
+		result.AddFieldFailure("email", "This email is already in use by someone else")
 		return result
 	}
 	input.Model.Requestor = user

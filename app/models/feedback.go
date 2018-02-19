@@ -165,7 +165,7 @@ type NotificationChannel int
 var (
 	//NotificationChannelWeb is a in-app notification
 	NotificationChannelWeb NotificationChannel = 1
-	//NotificationChannelEmail is an e-mail notification
+	//NotificationChannelEmail is an email notification
 	NotificationChannelEmail NotificationChannel = 2
 )
 

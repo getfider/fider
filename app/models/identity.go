@@ -20,7 +20,7 @@ type Tenant struct {
 var (
 	//TenantActive is the default status for most tenants
 	TenantActive = 1
-	//TenantInactive is used for signup via e-mail that requires user confirmation
+	//TenantInactive is used for signup via email that requires user confirmation
 	TenantInactive = 2
 )
 
@@ -46,15 +46,15 @@ const (
 	RoleAdministrator Role = 3
 )
 
-//EmailVerificationKind specifies which kind of process is being verified by e-mail
+//EmailVerificationKind specifies which kind of process is being verified by email
 type EmailVerificationKind int16
 
 const (
-	//EmailVerificationKindSignIn is the sign in by e-mail process
+	//EmailVerificationKindSignIn is the sign in by email process
 	EmailVerificationKindSignIn EmailVerificationKind = 1
-	//EmailVerificationKindSignUp is the sign up (create tenant) by name and e-mail process
+	//EmailVerificationKindSignUp is the sign up (create tenant) by name and email process
 	EmailVerificationKindSignUp EmailVerificationKind = 2
-	//EmailVerificationKindChangeEmail is the change user e-mail process
+	//EmailVerificationKindChangeEmail is the change user email process
 	EmailVerificationKindChangeEmail EmailVerificationKind = 3
 )
 
@@ -167,7 +167,7 @@ func (e *SignInByEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindSignIn
 }
 
-//ChangeUserEmail is the input model used to change current user's e-mail
+//ChangeUserEmail is the input model used to change current user's email
 type ChangeUserEmail struct {
 	Email           string `json:"email" format:"lower"`
 	VerificationKey string
@@ -194,7 +194,7 @@ func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindChangeEmail
 }
 
-//NewEmailVerification is used to register a new e-mail verification process
+//NewEmailVerification is used to register a new email verification process
 type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string
@@ -202,7 +202,7 @@ type NewEmailVerification interface {
 	GetKind() EmailVerificationKind
 }
 
-//EmailVerification is the model used by e-mail verification process
+//EmailVerification is the model used by email verification process
 type EmailVerification struct {
 	Email      string
 	Name       string
@@ -214,7 +214,7 @@ type EmailVerification struct {
 	VerifiedOn *time.Time
 }
 
-// CompleteProfile is the model used to complete user profile during e-mail sign in
+// CompleteProfile is the model used to complete user profile during email sign in
 type CompleteProfile struct {
 	Key   string `json:"key"`
 	Name  string `json:"name"`

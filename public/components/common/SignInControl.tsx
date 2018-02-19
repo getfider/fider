@@ -91,7 +91,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
           }
 
           { this.props.signInByEmail && <div>
-            <p>Enter your e-mail address to sign in</p>
+            <p>Enter your email address to sign in</p>
             <Form ref={(f) => { this.form = f!; }}>
               <div id="email-signin" className="ui small action fluid input">
                   <input onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
