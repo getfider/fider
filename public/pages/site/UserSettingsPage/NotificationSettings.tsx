@@ -46,7 +46,7 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
       : <i className="large toggle off icon" />;
     const text = channel === WebChannel
       ? 'Web *'
-      : 'E-mail';
+      : 'Email';
     return (
       <span className="option" onClick={this.toggle.bind(this, settingsKey, channel)}>
         {i} {text}

@@ -99,6 +99,6 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 		s.logger.Errorf("Failed to send email")
 		return err
 	}
-	s.logger.Debugf("E-mail sent with response code %d.", resp.StatusCode)
+	s.logger.Debugf("Email sent with response code %d.", resp.StatusCode)
 	return nil
 }
