@@ -43,7 +43,7 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		}
 	} else {
 		if input.Model.Email == "" {
-			result.AddFieldFailure("email", "E-mail is required.")
+			result.AddFieldFailure("email", "Email is required.")
 		} else {
 			if emailResult := validate.Email(input.Model.Email); !emailResult.Ok {
 				result.AddFieldFailure("email", emailResult.Messages...)

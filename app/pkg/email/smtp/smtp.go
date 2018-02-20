@@ -52,7 +52,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 		s.logger.Errorf("Failed to send email")
 		return err
 	}
-	s.logger.Debugf("E-mail sent.")
+	s.logger.Debugf("Email sent.")
 	return nil
 }
 

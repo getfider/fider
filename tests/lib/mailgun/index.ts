@@ -11,7 +11,7 @@ const httpGet = (endpoint: string): Promise<any> => {
       host: url.host,
       port: 443,
       method: 'GET',
-      auth: `api:${process.env.MAILGUN_API}`,
+      auth: `api:${process.env.EMAIL_MAILGUN_API}`,
       path: url.path,
     };
     https.get(opts, (res: http.IncomingMessage) => {
@@ -29,16 +29,16 @@ export const mailgun = {
 
     do {
       count++;
-      const url = `https://api.mailgun.net/v3/${process.env.MAILGUN_DOMAIN}/events?to=${to}&event=delivered&limit=1&ascending=no`;
+      const url = `https://api.mailgun.net/v3/${process.env.EMAIL_MAILGUN_DOMAIN}/events?to=${to}&event=accepted&limit=1&ascending=no`;
       const events = await httpGet(url);
-      if (events.items.length > 0 && events.items[0].message.headers.to === to) {
+      if (events.items.length > 0 && events.items[0].recipient === to) {
         messageUrl = events.items[0].storage.url;
       } else {
         await delay(500);
       }
-    } while (!messageUrl && count < 60);
+    } while (!messageUrl && count < 30);
 
-    if (count === 60) {
+    if (count === 30) {
       throw new Error(`Message not found for ${to}.`);
     }
 

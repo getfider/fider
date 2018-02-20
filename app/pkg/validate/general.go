@@ -17,11 +17,11 @@ func Email(email string) *Result {
 	email = strings.ToLower(email)
 
 	if len(email) > 200 {
-		return Failed([]string{"E-mail address must be less than 200 characters."})
+		return Failed([]string{"Email address must be less than 200 characters."})
 	}
 
 	if !emailRegex.MatchString(email) {
-		return Failed([]string{"E-mail address is invalid."})
+		return Failed([]string{"Email address is invalid."})
 	}
 
 	return Success()

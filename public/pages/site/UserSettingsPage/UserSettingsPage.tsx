@@ -89,7 +89,7 @@ export class UserSettingsPage extends React.Component<UserSettingsPageProps, Use
               </div>
               <DisplayError fields={['email']} error={this.state.error} />
               <div className="field">
-                  <label htmlFor="email">E-mail <span className="info">Your email is private and will never be displayed to anyone.</span></label>
+                  <label htmlFor="email">Email <span className="info">Your email is private and will never be displayed to anyone.</span></label>
                   {
                     this.state.changingEmail ?
                     <>
