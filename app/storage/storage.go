@@ -19,6 +19,7 @@ type Idea interface {
 	GetBySlug(slug string) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(number int) ([]*models.Comment, error)
+	Search(query string) ([]*models.Idea, error)
 	GetAll() ([]*models.Idea, error)
 	GetAllBasic() ([]*models.BasicIdea, error)
 	Add(title, description string, userID int) (*models.Idea, error)

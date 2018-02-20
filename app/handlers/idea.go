@@ -39,6 +39,19 @@ func GetIdeas() web.HandlerFunc {
 	}
 }
 
+// SearchIdeas return existing ideas based on search criteria
+func SearchIdeas() web.HandlerFunc {
+	return func(c web.Context) error {
+		query := c.QueryParam("q")
+		c.Logger().Infof(query)
+		ideas, err := c.Services().Ideas.Search(query)
+		if err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(ideas)
+	}
+}
+
 // PostIdea creates a new idea on current tenant
 func PostIdea() web.HandlerFunc {
 	return func(c web.Context) error {

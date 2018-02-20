@@ -63,6 +63,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
+			public.Get("/api/ideas/search", handlers.SearchIdeas())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())

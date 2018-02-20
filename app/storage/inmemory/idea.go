@@ -85,6 +85,11 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 
+// Search existing ideas based on input
+func (s *IdeaStorage) Search(query string) ([]*models.Idea, error) {
+	return s.ideas, nil
+}
+
 // GetAllBasic returns all tenant ideas in a Basic model
 func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
 	var result = make([]*models.BasicIdea, len(s.ideas))

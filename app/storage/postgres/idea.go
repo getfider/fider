@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"database/sql"
@@ -264,6 +265,30 @@ func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
 	var result = make([]*models.BasicIdea, len(ideas))
 	for i, idea := range ideas {
 		result[i] = idea.toBasic()
+	}
+	return result, nil
+}
+
+// Search existing ideas based on input
+func (s *IdeaStorage) Search(query string) ([]*models.Idea, error) {
+	if query == "" {
+		return s.GetAll()
+	}
+
+	tsQuery := strings.Join(strings.Fields(query), "|")
+	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2")
+	scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
+	sql := fmt.Sprintf("SELECT * FROM (%s) AS q WHERE %s > 0.3 ORDER BY %s DESC", innerQuery, scoreField, scoreField)
+
+	var ideas []*dbIdea
+	err := s.trx.Select(&ideas, sql, s.tenant.ID, models.IdeaDuplicate, tsQuery, query)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = make([]*models.Idea, len(ideas))
+	for i, idea := range ideas {
+		result[i] = idea.toModel()
 	}
 	return result, nil
 }
