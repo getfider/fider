@@ -52,3 +52,36 @@ export const getQueryStringArray = (name: string): string[] => {
 
   return [];
 };
+
+export interface QueryString {
+  [key: string]: string | string[];
+}
+
+export const toQueryString = (object: QueryString): string => {
+  if (!object) {
+    return '';
+  }
+
+  let qs = '';
+
+  for (const key of Object.keys(object)) {
+    const symbol = qs ? '&' : '?';
+    const value = object[key];
+    if (value instanceof Array) {
+      if (value.length > 0) {
+        qs += `${symbol}${key}=${value.join(',')}`;
+      }
+    } else if (value) {
+      qs += `${symbol}${key}=${encodeURIComponent(value).replace(/%20/g, '+')}`;
+    }
+  }
+
+  return qs;
+};
+
+export const replaceState = (path: string): void => {
+  if (history.replaceState) {
+    const newUrl = getBaseUrl() + path;
+    window.history.replaceState({ path: newUrl }, '', newUrl);
+  }
+};

@@ -3,7 +3,7 @@ package postgres
 import (
 	"errors"
 	"fmt"
-	"math"
+	"strings"
 	"time"
 
 	"database/sql"
@@ -35,15 +35,10 @@ type dbIdea struct {
 	OriginalTitle    sql.NullString `db:"original_title"`
 	OriginalSlug     sql.NullString `db:"original_slug"`
 	OriginalStatus   sql.NullInt64  `db:"original_status"`
-	Tags             []int64        `db:"tags"`
+	Tags             []string       `db:"tags"`
 }
 
 func (i *dbIdea) toModel() *models.Idea {
-	ranking := float64((i.RecentSupporters*5)+(i.RecentComments*3)-1) / math.Pow((time.Since(i.CreatedOn).Hours()+2), 1.4)
-	if math.IsNaN(ranking) {
-		ranking = 0
-	}
-
 	idea := &models.Idea{
 		ID:              i.ID,
 		Number:          i.Number,
@@ -57,7 +52,6 @@ func (i *dbIdea) toModel() *models.Idea {
 		Status:          i.Status,
 		User:            i.User.toModel(),
 		Tags:            i.Tags,
-		Ranking:         ranking,
 	}
 
 	if i.Response.Valid {
@@ -78,17 +72,6 @@ func (i *dbIdea) toModel() *models.Idea {
 	return idea
 }
 
-func (i *dbIdea) toBasic() *models.BasicIdea {
-	return &models.BasicIdea{
-		ID:              i.ID,
-		Number:          i.Number,
-		Title:           i.Title,
-		Slug:            i.Slug,
-		TotalSupporters: i.TotalSupporters,
-		Status:          i.Status,
-	}
-}
-
 type dbComment struct {
 	ID        int       `db:"id"`
 	Content   string    `db:"content"`
@@ -103,6 +86,11 @@ func (c *dbComment) toModel() *models.Comment {
 		CreatedOn: c.CreatedOn,
 		User:      c.User.toModel(),
 	}
+}
+
+type dbStatusCount struct {
+	Status int `db:"status"`
+	Count  int `db:"count"`
 }
 
 // IdeaStorage contains read and write operations for ideas
@@ -130,7 +118,8 @@ func (s *IdeaStorage) SetCurrentUser(user *models.User) {
 }
 
 var (
-	sqlSelectIdeasWhere = `	WITH agg_comments AS (
+	sqlSelectIdeasWhere = `	WITH 
+													agg_comments AS (
 															SELECT 
 																	idea_id, 
 																	COUNT(CASE WHEN comments.created_on > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
@@ -161,7 +150,7 @@ var (
 																i.supporters,
 																COALESCE(agg_c.all, 0) as comments,
 																COALESCE(agg_s.recent, 0) AS recent_supporters,
-																COALESCE(agg_c.recent, 0) AS recent_comments,
+																COALESCE(agg_c.recent, 0) AS recent_comments,																
 																i.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -177,7 +166,7 @@ var (
 																d.title AS original_title,
 																d.slug AS original_slug,
 																d.status AS original_status,
-																array_remove(array_agg(t.id), NULL) AS tags,
+																array_remove(array_agg(t.slug), NULL) AS tags,
 																COALESCE(%s, false) AS viewer_supported
 													FROM ideas i
 													INNER JOIN users u
@@ -238,8 +227,100 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
-	var ideas []*dbIdea
-	err := s.trx.Select(&ideas, s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2"), s.tenant.ID, models.IdeaDuplicate)
+	return s.Search("", "all", []string{})
+}
+
+// CountPerStatus returns total number of ideas per status
+func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
+	stats := []*dbStatusCount{}
+	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM ideas WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[int]int, len(stats))
+	for _, v := range stats {
+		result[v.Status] = v.Count
+	}
+	return result, nil
+}
+
+func getFilterData(filter string) ([]int, string) {
+	var sort string
+	statuses := []int{
+		models.IdeaOpen,
+		models.IdeaStarted,
+		models.IdeaPlanned,
+	}
+	switch filter {
+	case "recent":
+		sort = "id"
+	case "most-wanted":
+		sort = "supporters"
+	case "most-discussed":
+		sort = "comments"
+	case "planned":
+		sort = "response_date"
+		statuses = []int{models.IdeaPlanned}
+	case "started":
+		sort = "response_date"
+		statuses = []int{models.IdeaStarted}
+	case "completed":
+		sort = "response_date"
+		statuses = []int{models.IdeaCompleted}
+	case "declined":
+		sort = "response_date"
+		statuses = []int{models.IdeaDeclined}
+	case "all":
+		sort = "id"
+		statuses = []int{
+			models.IdeaOpen,
+			models.IdeaStarted,
+			models.IdeaPlanned,
+			models.IdeaCompleted,
+			models.IdeaDeclined,
+		}
+	case "trending":
+		fallthrough
+	default:
+		sort = "((COALESCE(recent_supporters, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_on)/3600) + 2, 1.4)"
+	}
+	return statuses, sort
+}
+
+// Search existing ideas based on input
+func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Idea, error) {
+	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status = ANY($2)")
+
+	var (
+		ideas []*dbIdea
+		err   error
+	)
+	if query != "" {
+		scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $4)) + similarity(title, $5) + similarity(description, $5)"
+		sql := fmt.Sprintf(`
+			SELECT * FROM (%s) AS q 
+			WHERE %s > 0.3 
+			AND tags @> $3
+			ORDER BY %s DESC
+		`, innerQuery, scoreField, scoreField)
+		tsQuery := strings.Join(strings.Fields(query), "|")
+		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array([]int{
+			models.IdeaOpen,
+			models.IdeaStarted,
+			models.IdeaPlanned,
+			models.IdeaCompleted,
+			models.IdeaDeclined,
+		}), pq.Array(tags), tsQuery, query)
+	} else {
+		statuses, sort := getFilterData(filter)
+		sql := fmt.Sprintf(`
+			SELECT * FROM (%s) AS q 
+			WHERE tags @> $3
+			ORDER BY %s DESC
+		`, innerQuery, sort)
+		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array(statuses), pq.Array(tags))
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -247,23 +328,6 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	var result = make([]*models.Idea, len(ideas))
 	for i, idea := range ideas {
 		result[i] = idea.toModel()
-	}
-	return result, nil
-}
-
-// GetAllBasic returns all tenant ideas in a Basic model
-func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
-	var ideas []*dbIdea
-	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status != $2")
-	query := fmt.Sprintf("SELECT id, number, title, slug, supporters, status FROM (%s) AS q", innerQuery)
-	err := s.trx.Select(&ideas, query, s.tenant.ID, models.IdeaDuplicate)
-	if err != nil {
-		return nil, err
-	}
-
-	var result = make([]*models.BasicIdea, len(ideas))
-	for i, idea := range ideas {
-		result[i] = idea.toBasic()
 	}
 	return result, nil
 }

@@ -15,8 +15,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #1', 'idea-1', 1, 'Description #1', $1, 1, 1, 0, 1)", now)
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('Idea #2', 'idea-2', 2, 'Description #2', $1, 1, 2, 5, 2)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 0, 1)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('this is my idea', 'this-is-my-idea', 2, 'no description', $1, 1, 2, 5, 2)", now)
 
 	ideas.SetCurrentTenant(demoTenant)
 
@@ -24,37 +24,26 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(dbIdeas).To(HaveLen(2))
 
-	Expect(dbIdeas[0].Title).To(Equal("Idea #1"))
-	Expect(dbIdeas[0].Slug).To(Equal("idea-1"))
-	Expect(dbIdeas[0].Number).To(Equal(1))
-	Expect(dbIdeas[0].Description).To(Equal("Description #1"))
-	Expect(dbIdeas[0].User.Name).To(Equal("Jon Snow"))
-	Expect(dbIdeas[0].TotalSupporters).To(Equal(0))
-	Expect(dbIdeas[0].Status).To(Equal(models.IdeaStarted))
+	Expect(dbIdeas[0].Title).To(Equal("this is my idea"))
+	Expect(dbIdeas[0].Slug).To(Equal("this-is-my-idea"))
+	Expect(dbIdeas[0].Number).To(Equal(2))
+	Expect(dbIdeas[0].Description).To(Equal("no description"))
+	Expect(dbIdeas[0].User.Name).To(Equal("Arya Stark"))
+	Expect(dbIdeas[0].TotalSupporters).To(Equal(5))
+	Expect(dbIdeas[0].Status).To(Equal(models.IdeaCompleted))
 
-	Expect(dbIdeas[1].Title).To(Equal("Idea #2"))
-	Expect(dbIdeas[1].Slug).To(Equal("idea-2"))
-	Expect(dbIdeas[1].Number).To(Equal(2))
-	Expect(dbIdeas[1].Description).To(Equal("Description #2"))
-	Expect(dbIdeas[1].User.Name).To(Equal("Arya Stark"))
-	Expect(dbIdeas[1].TotalSupporters).To(Equal(5))
-	Expect(dbIdeas[1].Status).To(Equal(models.IdeaCompleted))
+	Expect(dbIdeas[1].Title).To(Equal("add twitter integration"))
+	Expect(dbIdeas[1].Slug).To(Equal("add-twitter-integration"))
+	Expect(dbIdeas[1].Number).To(Equal(1))
+	Expect(dbIdeas[1].Description).To(Equal("Would be great to see it integrated with twitter"))
+	Expect(dbIdeas[1].User.Name).To(Equal("Jon Snow"))
+	Expect(dbIdeas[1].TotalSupporters).To(Equal(0))
+	Expect(dbIdeas[1].Status).To(Equal(models.IdeaStarted))
 
-	dbBasicIdeas, err := ideas.GetAllBasic()
+	dbIdeas, err = ideas.Search("twitter", "trending", []string{})
 	Expect(err).To(BeNil())
-	Expect(dbBasicIdeas).To(HaveLen(2))
-
-	Expect(dbBasicIdeas[0].Title).To(Equal("Idea #1"))
-	Expect(dbBasicIdeas[0].Slug).To(Equal("idea-1"))
-	Expect(dbBasicIdeas[0].Number).To(Equal(1))
-	Expect(dbBasicIdeas[0].TotalSupporters).To(Equal(0))
-	Expect(dbBasicIdeas[0].Status).To(Equal(models.IdeaStarted))
-
-	Expect(dbBasicIdeas[1].Title).To(Equal("Idea #2"))
-	Expect(dbBasicIdeas[1].Slug).To(Equal("idea-2"))
-	Expect(dbBasicIdeas[1].Number).To(Equal(2))
-	Expect(dbBasicIdeas[1].TotalSupporters).To(Equal(5))
-	Expect(dbBasicIdeas[1].Status).To(Equal(models.IdeaCompleted))
+	Expect(dbIdeas).To(HaveLen(1))
+	Expect(dbIdeas[0].Slug).To(Equal("add-twitter-integration"))
 }
 
 func TestIdeaStorage_AddAndGet(t *testing.T) {
@@ -387,11 +376,11 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(1))
-	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))
+	Expect(idea.Tags[0]).To(Equal(bug.Slug))
 
 	ideas.SetCurrentUser(jonSnow)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(2))
-	Expect(idea.Tags[0]).To(Equal(int64(bug.ID)))
-	Expect(idea.Tags[1]).To(Equal(int64(featureRequest.ID)))
+	Expect(idea.Tags[0]).To(Equal(bug.Slug))
+	Expect(idea.Tags[1]).To(Equal(featureRequest.Slug))
 }

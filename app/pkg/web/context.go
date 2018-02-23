@@ -333,6 +333,15 @@ func (ctx *Context) QueryParam(key string) string {
 	return ctx.Request.URL.Query().Get(key)
 }
 
+//QueryParamAsArray returns querystring parameter for given key as an array
+func (ctx *Context) QueryParamAsArray(key string) []string {
+	param := ctx.QueryParam(key)
+	if param != "" {
+		return strings.Split(param, ",")
+	}
+	return []string{}
+}
+
 //Param returns parameter as string
 func (ctx *Context) Param(name string) string {
 	if ctx.params == nil {
