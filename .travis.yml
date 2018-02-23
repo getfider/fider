@@ -13,8 +13,8 @@ install:
   - go get github.com/dave/courtney &
   - nvm use 8.9
   - psql -U postgres -c 'CREATE DATABASE fider_ci;'
+  - psql -U postgres -c "CREATE EXTENSION pg_trgm;"
   - psql -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
-  - psql -U postgres -c "ALTER ROLE fider_ci SUPERUSER;"
 
 script:
   - npm install
