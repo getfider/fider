@@ -6,6 +6,7 @@ import { CurrentUser } from '@fider/models';
 interface IdeaInputProps {
   user?: CurrentUser;
   placeholder: string;
+  onTitleChanged: (title: string) => void;
 }
 
 interface IdeaInputState {
@@ -18,8 +19,8 @@ const CACHE_TITLE_KEY = 'IdeaInput-Title';
 const CACHE_DESCRIPTION_KEY = 'IdeaInput-Description';
 
 export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
-    private title: HTMLInputElement;
-    private form: Form;
+    private title?: HTMLInputElement;
+    private form?: Form;
 
     constructor(props: IdeaInputProps) {
       super(props);
@@ -28,16 +29,19 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
         description: cache.get(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
+      if (this.state) {
+        this.props.onTitleChanged(this.state.title);
+      }
     }
 
     public componentDidMount() {
-      if (this.props.user) {
+      if (this.props.user && this.title) {
         this.title.focus();
       }
     }
 
     private onTitleFocused() {
-      if (!this.props.user) {
+      if (!this.props.user && this.title) {
         this.title.blur();
         page.showSignIn();
       }
@@ -46,6 +50,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     private onTitleChanged(title: string) {
       cache.set(CACHE_TITLE_KEY, title);
       this.setState({ title });
+      this.props.onTitleChanged(title);
     }
 
     private onDescriptionChanged(description: string) {
@@ -57,11 +62,13 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       if (this.state.title) {
         const result = await actions.createIdea(this.state.title, this.state.description);
         if (result.ok) {
+          if (this.form) {
+            this.form.clearFailure();
+          }
           cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
-          this.form.clearFailure();
           location.href = `/ideas/${result.data.number}/${result.data.slug}`;
           event.preventEnable();
-        } else if (result.error) {
+        } else if (result.error && this.form) {
           this.form.setFailure(result.error);
         }
       }

@@ -22,7 +22,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     this.state = {
       canEdit: !!this.props.user && this.props.user.isCollaborator && this.props.tags.length > 0,
       isEditing: false,
-      assignedTags: this.props.tags.filter((t) => this.props.idea.tags.indexOf(t.id) >= 0),
+      assignedTags: this.props.tags.filter((t) => this.props.idea.tags.indexOf(t.slug) >= 0),
     };
   }
 

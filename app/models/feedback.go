@@ -19,23 +19,12 @@ type Idea struct {
 	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
 	Response        *IdeaResponse `json:"response"`
-	Tags            []int64       `json:"tags"`
-	Ranking         float64       `json:"ranking"`
+	Tags            []string      `json:"tags"`
 }
 
 // CanBeSupported returns true if this idea can be Supported/UnSupported
 func (i *Idea) CanBeSupported() bool {
 	return i.Status != IdeaCompleted && i.Status != IdeaDeclined && i.Status != IdeaDuplicate
-}
-
-//BasicIdea is a subset of Idea with few fields
-type BasicIdea struct {
-	ID              int    `json:"id"`
-	Number          int    `json:"number"`
-	Title           string `json:"title"`
-	Slug            string `json:"slug"`
-	TotalSupporters int    `json:"totalSupporters"`
-	Status          int    `json:"status"`
 }
 
 // NewIdea represents a new idea

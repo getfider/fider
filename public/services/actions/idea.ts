@@ -1,8 +1,12 @@
 import { http, Result } from '@fider/services';
-import { Idea, BasicIdea } from '@fider/models';
+import { Idea } from '@fider/models';
 
-export const getIdeas = async (): Promise<Result<BasicIdea[]>> => {
-  return await http.get<BasicIdea[]>('/api/ideas');
+export const getAllIdeas = async (): Promise<Result<Idea[]>> => {
+  return await http.get<Idea[]>('/api/ideas/search');
+};
+
+export const searchIdeas = async (query: string, filter: string, tags: string[]): Promise<Result<Idea[]>> => {
+  return await http.get<Idea[]>(`/api/ideas/search?q=${query}&f=${filter}&t=${tags.join(',')}`);
 };
 
 export const addSupport = async (ideaNumber: number): Promise<Result> => {

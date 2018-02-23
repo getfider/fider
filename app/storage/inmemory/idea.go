@@ -85,25 +85,14 @@ func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 
-// Search existing ideas based on input
-func (s *IdeaStorage) Search(query string) ([]*models.Idea, error) {
-	return s.ideas, nil
+// CountPerStatus returns total number of ideas per status
+func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
+	return make(map[int]int, 0), nil
 }
 
-// GetAllBasic returns all tenant ideas in a Basic model
-func (s *IdeaStorage) GetAllBasic() ([]*models.BasicIdea, error) {
-	var result = make([]*models.BasicIdea, len(s.ideas))
-	for i, idea := range s.ideas {
-		result[i] = &models.BasicIdea{
-			ID:              idea.ID,
-			Number:          idea.Number,
-			Title:           idea.Title,
-			Slug:            idea.Slug,
-			TotalSupporters: idea.TotalSupporters,
-			Status:          idea.Status,
-		}
-	}
-	return result, nil
+// Search existing ideas based on input
+func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Idea, error) {
+	return s.ideas, nil
 }
 
 // GetCommentsByIdea returns all coments from given idea

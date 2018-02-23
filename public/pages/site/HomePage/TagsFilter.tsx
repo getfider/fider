@@ -13,7 +13,7 @@ interface TagsFilterState {
 }
 
 export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
-  private element: HTMLDivElement;
+  private element?: HTMLDivElement;
 
   constructor(props: TagsFilterProps) {
     super(props);

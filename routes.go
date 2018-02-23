@@ -63,7 +63,6 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
-			public.Get("/api/ideas/search", handlers.SearchIdeas())
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
@@ -79,7 +78,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Get("/settings", handlers.UserSettings())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
-			private.Get("/api/ideas", handlers.GetIdeas())
+			private.Get("/api/ideas/search", handlers.SearchIdeas())
 			private.Post("/api/ideas", handlers.PostIdea())
 			private.Post("/api/ideas/:number", handlers.UpdateIdea())
 			private.Post("/api/ideas/:number/comments", handlers.PostComment())

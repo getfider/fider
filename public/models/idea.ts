@@ -13,17 +13,7 @@ export interface Idea {
   response: IdeaResponse;
   totalSupporters: number;
   totalComments: number;
-  tags: number[];
-  ranking: number;
-}
-
-export interface BasicIdea {
-  id: number;
-  number: number;
-  slug: string;
-  title: string;
-  status: number;
-  totalSupporters: number;
+  tags: string[];
 }
 
 export class IdeaStatus {

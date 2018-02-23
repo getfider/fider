@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BasicIdea, IdeaStatus } from '@fider/models';
+import { Idea, IdeaStatus } from '@fider/models';
 import { actions } from '@fider/services';
 
 interface IdeaSearchProps {
@@ -8,7 +8,7 @@ interface IdeaSearchProps {
 }
 
 interface IdeaSearchState {
-  ideas?: BasicIdea[];
+  ideas?: Idea[];
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
@@ -17,7 +17,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   constructor(props: IdeaSearchProps) {
     super(props);
     this.state = { };
-    actions.getIdeas().then((res) => {
+    actions.getAllIdeas().then((res) => {
       const ideas = this.props.exclude && this.props.exclude.length > 0
         ? res.data.filter((i) => this.props.exclude!.indexOf(i.number) === -1)
         : res.data;

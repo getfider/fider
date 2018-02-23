@@ -11,7 +11,11 @@ import (
 // Index is the default home page
 func Index() web.HandlerFunc {
 	return func(c web.Context) error {
-		ideas, err := c.Services().Ideas.GetAll()
+		ideas, err := c.Services().Ideas.Search(
+			c.QueryParam("q"),
+			c.QueryParam("f"),
+			c.QueryParamAsArray("t"),
+		)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -21,30 +25,27 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Map{
-			"ideas": ideas,
-			"tags":  tags,
-		})
-	}
-}
-
-// GetIdeas return basic model of all tenant ideas
-func GetIdeas() web.HandlerFunc {
-	return func(c web.Context) error {
-		ideas, err := c.Services().Ideas.GetAllBasic()
+		stats, err := c.Services().Ideas.CountPerStatus()
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(ideas)
+
+		return c.Page(web.Map{
+			"ideas":          ideas,
+			"tags":           tags,
+			"countPerStatus": stats,
+		})
 	}
 }
 
 // SearchIdeas return existing ideas based on search criteria
 func SearchIdeas() web.HandlerFunc {
 	return func(c web.Context) error {
-		query := c.QueryParam("q")
-		c.Logger().Infof(query)
-		ideas, err := c.Services().Ideas.Search(query)
+		ideas, err := c.Services().Ideas.Search(
+			c.QueryParam("q"),
+			c.QueryParam("f"),
+			c.QueryParamAsArray("t"),
+		)
 		if err != nil {
 			return c.Failure(err)
 		}
