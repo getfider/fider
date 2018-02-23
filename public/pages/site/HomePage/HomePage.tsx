@@ -54,7 +54,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
           </div>
           <div className="ten wide column">
             {
-              this.props.ideas.length === 0
+              Object.keys(this.props.countPerStatus).length === 0
               ? <Lonely />
               : <IdeasView
                 user={this.props.user}
