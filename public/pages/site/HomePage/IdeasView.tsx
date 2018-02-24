@@ -44,7 +44,7 @@ export class IdeasView extends React.Component<IdeasViewProps, IdeasViewState> {
       } else if (this.state.query || this.state.filter || this.state.tags.length > 0) {
         this.searchIdeas(this.state.query, this.state.filter, this.state.tags);
       } else {
-        this.setState({ ideas: nextProps.ideas });
+        this.setState({ loading: false, ideas: nextProps.ideas });
       }
     }
 
@@ -66,7 +66,9 @@ export class IdeasView extends React.Component<IdeasViewProps, IdeasViewState> {
       this.setState({ loading: true });
       this.timer = setTimeout(() => {
         actions.searchIdeas(query, filter, tags).then((response) => {
-          this.setState({ loading: false, ideas: response.data });
+          if (this.state.loading) {
+            this.setState({ loading: false, ideas: response.data });
+          }
         });
       }, delay);
     }
