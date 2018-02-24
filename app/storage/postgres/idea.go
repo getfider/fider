@@ -3,7 +3,6 @@ package postgres
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"database/sql"
@@ -244,49 +243,6 @@ func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
 	return result, nil
 }
 
-func getFilterData(filter string) ([]int, string) {
-	var sort string
-	statuses := []int{
-		models.IdeaOpen,
-		models.IdeaStarted,
-		models.IdeaPlanned,
-	}
-	switch filter {
-	case "recent":
-		sort = "id"
-	case "most-wanted":
-		sort = "supporters"
-	case "most-discussed":
-		sort = "comments"
-	case "planned":
-		sort = "response_date"
-		statuses = []int{models.IdeaPlanned}
-	case "started":
-		sort = "response_date"
-		statuses = []int{models.IdeaStarted}
-	case "completed":
-		sort = "response_date"
-		statuses = []int{models.IdeaCompleted}
-	case "declined":
-		sort = "response_date"
-		statuses = []int{models.IdeaDeclined}
-	case "all":
-		sort = "id"
-		statuses = []int{
-			models.IdeaOpen,
-			models.IdeaStarted,
-			models.IdeaPlanned,
-			models.IdeaCompleted,
-			models.IdeaDeclined,
-		}
-	case "trending":
-		fallthrough
-	default:
-		sort = "((COALESCE(recent_supporters, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_on)/3600) + 2, 1.4)"
-	}
-	return statuses, sort
-}
-
 // Search existing ideas based on input
 func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Idea, error) {
 	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status = ANY($2)")
@@ -303,14 +259,13 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 			AND tags @> $3
 			ORDER BY %s DESC
 		`, innerQuery, scoreField, scoreField)
-		tsQuery := strings.Join(strings.Fields(query), "|")
 		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array([]int{
 			models.IdeaOpen,
 			models.IdeaStarted,
 			models.IdeaPlanned,
 			models.IdeaCompleted,
 			models.IdeaDeclined,
-		}), pq.Array(tags), tsQuery, query)
+		}), pq.Array(tags), ToTSQuery(query), query)
 	} else {
 		statuses, sort := getFilterData(filter)
 		sql := fmt.Sprintf(`
