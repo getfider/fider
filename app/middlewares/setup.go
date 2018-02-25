@@ -36,11 +36,12 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 			}
 
 			c.SetServices(&app.Services{
-				Tenants: postgres.NewTenantStorage(trx),
-				Users:   postgres.NewUserStorage(trx),
-				Ideas:   postgres.NewIdeaStorage(trx),
-				Tags:    postgres.NewTagStorage(trx),
-				Emailer: emailer,
+				Tenants:       postgres.NewTenantStorage(trx),
+				Users:         postgres.NewUserStorage(trx),
+				Ideas:         postgres.NewIdeaStorage(trx),
+				Tags:          postgres.NewTagStorage(trx),
+				Notifications: postgres.NewNotificationStorage(trx),
+				Emailer:       emailer,
 			})
 
 			defer func() {
@@ -85,12 +86,13 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 			c.SetActiveTransaction(trx)
 
 			c.SetServices(&app.Services{
-				Tenants: postgres.NewTenantStorage(trx),
-				OAuth:   &oauth.HTTPService{},
-				Users:   postgres.NewUserStorage(trx),
-				Ideas:   postgres.NewIdeaStorage(trx),
-				Tags:    postgres.NewTagStorage(trx),
-				Emailer: emailer,
+				Tenants:       postgres.NewTenantStorage(trx),
+				OAuth:         &oauth.HTTPService{},
+				Users:         postgres.NewUserStorage(trx),
+				Ideas:         postgres.NewIdeaStorage(trx),
+				Tags:          postgres.NewTagStorage(trx),
+				Notifications: postgres.NewNotificationStorage(trx),
+				Emailer:       emailer,
 			})
 
 			defer func() {
