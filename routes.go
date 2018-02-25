@@ -91,6 +91,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Delete("/api/ideas/:number/tags/:slug", handlers.UnassignTag())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 			private.Post("/api/user/change-email", handlers.ChangeUserEmail())
+			private.Get("/api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 

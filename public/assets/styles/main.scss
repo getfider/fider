@@ -36,6 +36,17 @@ body {
   height: 40px;
   border-radius: 0px;
   
+  .unread-dot {
+    min-width: 10px;
+    min-height: 10px;
+    margin-left: -10px;
+    margin-top: -25px;
+  }
+
+  .name.header {
+    min-width: 150px;
+  }
+
   div, a {
     color: textColorFor($menu-color);
   }
