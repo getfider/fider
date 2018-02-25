@@ -80,7 +80,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if err = c.Services().Notifications.Insert(user, title, link); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link); err != nil {
 					return err
 				}
 			}
@@ -128,7 +128,7 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if err = c.Services().Notifications.Insert(user, title, link); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link); err != nil {
 					return err
 				}
 			}
@@ -182,7 +182,7 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if err = c.Services().Notifications.Insert(user, title, link); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link); err != nil {
 					return err
 				}
 			}

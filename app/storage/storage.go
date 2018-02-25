@@ -83,6 +83,9 @@ type Tag interface {
 // Notification contains read and write operations for notifications
 type Notification interface {
 	Base
-	Insert(user *models.User, title, link string) error
+	Insert(user *models.User, title, link string) (*models.Notification, error)
+	MarkAsRead(id int) error
 	TotalUnread() (int, error)
+	GetActiveNotifications() ([]*models.Notification, error)
+	GetNotification(id int) (*models.Notification, error)
 }

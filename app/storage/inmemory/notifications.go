@@ -26,11 +26,26 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string) error {
-	return nil
+func (s *NotificationStorage) Insert(user *models.User, title, link string) (*models.Notification, error) {
+	return nil, nil
 }
 
 // TotalUnread returns the number of unread notifications for current user
 func (s *NotificationStorage) TotalUnread() (int, error) {
 	return 0, nil
+}
+
+// MarkAsRead given id of current user
+func (s *NotificationStorage) MarkAsRead(id int) error {
+	return nil
+}
+
+// GetActiveNotifications returns all unread notifications and last 30 days of read notifications
+func (s *NotificationStorage) GetActiveNotifications() ([]*models.Notification, error) {
+	return make([]*models.Notification, 0), nil
+}
+
+// GetNotification returns notification by id
+func (s *NotificationStorage) GetNotification(id int) (*models.Notification, error) {
+	return nil, nil
 }
