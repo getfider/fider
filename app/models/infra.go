@@ -21,5 +21,5 @@ type Notification struct {
 	Title     string    `json:"title" db:"title"`
 	Link      string    `json:"link" db:"link"`
 	Read      bool      `json:"read" db:"read"`
-	CreatedOn time.Time `json:"created_on" db:"created_on"`
+	CreatedOn time.Time `json:"createdOn" db:"created_on"`
 }

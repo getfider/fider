@@ -32,7 +32,11 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string) (*models.Notification, error) {
+func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error) {
+	if user.ID == authorID {
+		return nil, nil
+	}
+
 	now := time.Now()
 	notification := &models.Notification{
 		Title:     title,
@@ -41,10 +45,10 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string) (*mo
 		Read:      false,
 	}
 	err := s.trx.Get(&notification.ID, `
-		INSERT INTO notifications (tenant_id, user_id, title, link, read, created_on, updated_on) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO notifications (tenant_id, user_id, title, link, read, idea_id, author_id, created_on, updated_on) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
 		RETURNING id
-	`, s.tenant.ID, user.ID, title, link, false, now, now)
+	`, s.tenant.ID, user.ID, title, link, false, ideaID, authorID, now)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +74,19 @@ func (s *NotificationStorage) MarkAsRead(id int) error {
 	}
 	return s.trx.Execute(`
 		UPDATE notifications SET read = true, updated_on = $1
-		WHERE id = $2 AND tenant_id = $3 AND user_id = $4
+		WHERE id = $2 AND tenant_id = $3 AND user_id = $4 AND read = false
 	`, time.Now(), id, s.tenant.ID, s.user.ID)
+}
+
+// MarkAllAsRead of current user
+func (s *NotificationStorage) MarkAllAsRead() error {
+	if s.user == nil {
+		return nil
+	}
+	return s.trx.Execute(`
+		UPDATE notifications SET read = true, updated_on = $1
+		WHERE tenant_id = $2 AND user_id = $3 AND read = false
+	`, time.Now(), s.tenant.ID, s.user.ID)
 }
 
 // GetActiveNotifications returns all unread notifications and last 30 days of read notifications

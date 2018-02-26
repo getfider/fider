@@ -9,3 +9,7 @@ export const getTotalUnreadNotifications = async (): Promise<Result<number>> => 
     };
   });
 };
+
+export const markAllAsRead = async (): Promise<Result> => {
+  return await http.post('/api/notifications/read-all');
+};

@@ -26,7 +26,7 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string) (*models.Notification, error) {
+func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error) {
 	return nil, nil
 }
 
@@ -37,6 +37,11 @@ func (s *NotificationStorage) TotalUnread() (int, error) {
 
 // MarkAsRead given id of current user
 func (s *NotificationStorage) MarkAsRead(id int) error {
+	return nil
+}
+
+// MarkAllAsRead of current user
+func (s *NotificationStorage) MarkAllAsRead() error {
 	return nil
 }
 

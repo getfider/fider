@@ -6,6 +6,7 @@ import { ManageTagsPage } from '@fider/pages/admin/ManageTagsPage';
 import { HomePage } from '@fider/pages/site/HomePage';
 import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
 import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
+import { UserNotificationsPage } from '@fider/pages/site/UserNotificationsPage';
 import { CompleteSignInProfilePage } from '@fider/pages/site/CompleteSignInProfilePage';
 import { SignUpPage } from '@fider/pages/signup/SignUpPage';
 
@@ -33,6 +34,7 @@ const pathRegex = [
   route('/admin', AdminHomePage, 'fdr-admin-page', true),
   route('/signup', SignUpPage, 'fdr-signup-page', false),
   route('/signin/verify', CompleteSignInProfilePage, 'fdr-complete-signin-profile', true),
+  route('/notifications', UserNotificationsPage, 'fdr-user-notifications', true),
   route('/settings', UserSettingsPage, 'fdr-user-settings', true),
 ];
 
