@@ -37,6 +37,17 @@ func (q *Query) String(key string) (string, error) {
 	return "", nil
 }
 
+//Int32 returns a integer value from the json object based on its key
+func (q *Query) Int32(key string) (int, error) {
+	data := q.get(key)
+	if data != nil {
+		var num int
+		err := json.Unmarshal(*data, &num)
+		return num, err
+	}
+	return 0, nil
+}
+
 //IsArray returns true if the json object is an array
 func (q *Query) IsArray() bool {
 	return q.m == nil

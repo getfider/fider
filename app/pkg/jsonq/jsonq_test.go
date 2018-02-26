@@ -7,11 +7,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestGetString(t *testing.T) {
+func TestGet(t *testing.T) {
 	RegisterTestingT(t)
 
-	query := jsonq.New(`{ "name": "Jon Snow" }`)
+	query := jsonq.New(`{ "name": "Jon Snow", "age": 23 }`)
 	Expect(query.String("name")).To(Equal("Jon Snow"))
+	Expect(query.Int32("age")).To(Equal(23))
 }
 
 func TestGetStringNested(t *testing.T) {
