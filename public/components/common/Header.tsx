@@ -77,7 +77,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             </a>
             <div onClick={() => this.showModal()} className={`ui right simple dropdown item signin ${!this.props.user && 'subtitle'}`}>
               {this.props.user && <Gravatar user={this.props.user} />}
-              <div className="ui circular red label unread-dot" />
+              {this.state.unreadNotifications > 0 && <div className="unread-dot" />}
               {!this.props.user && 'Sign in'} {this.props.user && <i className="dropdown icon" />}
               {items}
             </div>

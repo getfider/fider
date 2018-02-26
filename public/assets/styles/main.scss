@@ -37,10 +37,13 @@ body {
   border-radius: 0px;
   
   .unread-dot {
-    min-width: 10px;
-    min-height: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
     margin-left: -10px;
     margin-top: -25px;
+    background-color: #db2828;
+    border: 1px solid #fff !important;
   }
 
   .name.header {
@@ -201,7 +204,7 @@ code {
   }
 
   .fdr-avatar {
-    margin-left: 0.5em;
+    margin-left: 3px;
   }
 
   span.date {
