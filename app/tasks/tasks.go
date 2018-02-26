@@ -6,7 +6,6 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
 )
@@ -65,12 +64,22 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 //NotifyAboutNewIdea sends a notification (web and email) to subscribers
 func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 	return describe("Notify about new idea", func(c *worker.Context) error {
-		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
-			c.Logger().Warnf("Notifications is currently disabled.")
-			return nil
+		// Web notification
+		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
+		if err != nil {
+			return err
 		}
 
-		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
+		title := fmt.Sprintf("New idea: **%s**", idea.Title)
+		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		for _, user := range users {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+				return err
+			}
+		}
+
+		// Email notification
+		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
 		if err != nil {
 			return err
 		}
@@ -96,12 +105,22 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
 func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
-		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
-			c.Logger().Warnf("Notifications is currently disabled.")
-			return nil
+		// Web notification
+		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+		if err != nil {
+			return err
 		}
 
-		users, err := c.Services().Ideas.GetActiveSubscribers(comment.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, idea.Title)
+		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		for _, user := range users {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+				return err
+			}
+		}
+
+		// Email notification
+		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
 			return err
 		}
@@ -128,17 +147,27 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
 func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) worker.Task {
 	return describe("Notify about idea status change", func(c *worker.Context) error {
-		if env.GetEnvOrDefault("NOTIFICATIONS_ENABLED", "true") == "false" {
-			c.Logger().Warnf("Notifications is currently disabled.")
-			return nil
-		}
-
 		//Don't notify if status is the same
 		if idea.Status == response.Status {
 			return nil
 		}
 
-		users, err := c.Services().Ideas.GetActiveSubscribers(response.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		// Web notification
+		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		if err != nil {
+			return err
+		}
+
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(response.Status))
+		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		for _, user := range users {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+				return err
+			}
+		}
+
+		// Email notification
+		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
 			return err
 		}

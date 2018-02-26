@@ -47,12 +47,13 @@ func NewWorker() (*Worker, *app.Services) {
 
 func createServices(seed bool) *app.Services {
 	services := &app.Services{
-		Tenants: &inmemory.TenantStorage{},
-		Users:   &inmemory.UserStorage{},
-		Tags:    inmemory.NewTagStorage(),
-		Ideas:   inmemory.NewIdeaStorage(),
-		OAuth:   &OAuthService{},
-		Emailer: email.NewNoopSender(),
+		Tenants:       &inmemory.TenantStorage{},
+		Users:         &inmemory.UserStorage{},
+		Tags:          inmemory.NewTagStorage(),
+		Notifications: inmemory.NewNotificationStorage(),
+		Ideas:         inmemory.NewIdeaStorage(),
+		OAuth:         &OAuthService{},
+		Emailer:       email.NewNoopSender(),
 	}
 
 	if seed {

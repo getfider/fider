@@ -36,6 +36,20 @@ body {
   height: 40px;
   border-radius: 0px;
   
+  .unread-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    margin-left: -10px;
+    margin-top: -25px;
+    background-color: #db2828;
+    border: 1px solid #fff !important;
+  }
+
+  .name.header {
+    min-width: 150px;
+  }
+
   div, a {
     color: textColorFor($menu-color);
   }
@@ -190,7 +204,7 @@ code {
   }
 
   .fdr-avatar {
-    margin-left: 0.5em;
+    margin-left: 3px;
   }
 
   span.date {

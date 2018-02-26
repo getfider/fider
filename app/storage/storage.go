@@ -79,3 +79,14 @@ type Tag interface {
 	UnassignTag(tagID, ideaID int) error
 	GetAll() ([]*models.Tag, error)
 }
+
+// Notification contains read and write operations for notifications
+type Notification interface {
+	Base
+	Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error)
+	MarkAsRead(id int) error
+	MarkAllAsRead() error
+	TotalUnread() (int, error)
+	GetActiveNotifications() ([]*models.Notification, error)
+	GetNotification(id int) (*models.Notification, error)
+}

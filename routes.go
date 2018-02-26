@@ -77,6 +77,8 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		{
 			private.Use(middlewares.IsAuthenticated())
 			private.Get("/settings", handlers.UserSettings())
+			private.Get("/notifications", handlers.Notifications())
+			private.Get("/notifications/:id", handlers.ReadNotification())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
 			private.Post("/api/ideas", handlers.PostIdea())
@@ -91,6 +93,8 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Delete("/api/ideas/:number/tags/:slug", handlers.UnassignTag())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 			private.Post("/api/user/change-email", handlers.ChangeUserEmail())
+			private.Post("/api/notifications/read-all", handlers.ReadAllNotifications())
+			private.Get("/api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 

@@ -104,11 +104,6 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
               {this.icon('event_notification_change_status', EmailChannel)}
             </p>
           </div>
-          <div className="ui segment">
-            <p className="info">
-              * web notifications are comming soon!
-            </p>
-          </div>
         </div>
       </>
     );
