@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -28,10 +29,16 @@ func Avatar() web.HandlerFunc {
 					url := fmt.Sprintf("https://www.gravatar.com/avatar/%x?s=%d&d=404", hash, size)
 					c.Logger().Debugf("Requesting gravatar: %s", url)
 					resp, err := http.Get(url)
-					if err == nil && resp != nil && resp.StatusCode == http.StatusOK {
-						bytes, err := ioutil.ReadAll(resp.Body)
-						if err == nil {
-							return c.Blob(http.StatusOK, "image/png", bytes)
+					if err == nil {
+						defer resp.Body.Close()
+
+						if resp.StatusCode == http.StatusOK {
+							bytes, err := ioutil.ReadAll(resp.Body)
+							if err == nil {
+								return c.Blob(http.StatusOK, "image/png", bytes)
+							}
+						} else {
+							io.Copy(ioutil.Discard, resp.Body)
 						}
 					}
 				}
