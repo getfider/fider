@@ -15,55 +15,55 @@ export class HomePage extends Page {
   }
 
   @findBy('.menu a.header')
-  public MenuTitle: WebComponent;
+  public MenuTitle!: WebComponent;
 
   @findBy('.page .welcome-message')
-  public WelcomeMessage: WebComponent;
+  public WelcomeMessage!: WebComponent;
 
   @findBy('#new-idea-input')
-  public IdeaTitle: TextInput;
+  public IdeaTitle!: TextInput;
 
   @findBy('.ui.form textarea')
-  public IdeaDescription: TextInput;
+  public IdeaDescription!: TextInput;
 
   @findBy('.ui.button.primary')
-  public SubmitIdea: Button;
+  public SubmitIdea!: Button;
 
   @findBy('.signin')
-  public UserMenu: WebComponent;
+  public UserMenu!: WebComponent;
 
   @findBy('.signin .name')
-  public UserName: WebComponent;
+  public UserName!: WebComponent;
 
   @findBy('#signin-modal')
-  public SignInModal: WebComponent;
+  public SignInModal!: WebComponent;
 
   @findBy('#signin-modal .button.google')
-  public GoogleSignIn: Button;
+  public GoogleSignIn!: Button;
 
   @findBy('#signin-modal .button.facebook')
-  public FacebookSignIn: Button;
+  public FacebookSignIn!: Button;
 
   @findBy('#email-signin input')
-  private EmailSignInInput: TextInput;
+  private EmailSignInInput!: TextInput;
 
   @findBy('#email-signin button')
-  private EmailSignInButton: TextInput;
+  private EmailSignInButton!: TextInput;
 
   @findBy('.ui.form .ui.negative.message')
-  public ErrorBox: WebComponent;
+  public ErrorBox!: WebComponent;
 
   @findBy('.signout')
-  private SignOut: Button;
+  private SignOut!: Button;
 
   @findMultipleBy('.fdr-idea-list > .item')
-  public IdeaList: IdeaList;
+  public IdeaList!: IdeaList;
 
   @findBy('#signin-complete-modal input')
-  private CompleteEmailSignInInput: TextInput;
+  private CompleteEmailSignInInput!: TextInput;
 
   @findBy('#signin-complete-modal button')
-  private CompleteEmailSignInButton: Button;
+  private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.IdeaTitle);

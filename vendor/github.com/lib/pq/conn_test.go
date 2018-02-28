@@ -28,7 +28,7 @@ func forceBinaryParameters() bool {
 	}
 }
 
-func openTestConnConninfo(conninfo string) (*sql.DB, error) {
+func testConninfo(conninfo string) string {
 	defaultTo := func(envvar string, value string) {
 		if os.Getenv(envvar) == "" {
 			os.Setenv(envvar, value)
@@ -43,8 +43,11 @@ func openTestConnConninfo(conninfo string) (*sql.DB, error) {
 		!strings.HasPrefix(conninfo, "postgresql://") {
 		conninfo = conninfo + " binary_parameters=yes"
 	}
+	return conninfo
+}
 
-	return sql.Open("postgres", conninfo)
+func openTestConnConninfo(conninfo string) (*sql.DB, error) {
+	return sql.Open("postgres", testConninfo(conninfo))
 }
 
 func openTestConn(t Fatalistic) *sql.DB {
@@ -637,6 +640,57 @@ func TestErrorDuringStartup(t *testing.T) {
 	}
 }
 
+type testConn struct {
+	closed bool
+	net.Conn
+}
+
+func (c *testConn) Close() error {
+	c.closed = true
+	return c.Conn.Close()
+}
+
+type testDialer struct {
+	conns []*testConn
+}
+
+func (d *testDialer) Dial(ntw, addr string) (net.Conn, error) {
+	c, err := net.Dial(ntw, addr)
+	if err != nil {
+		return nil, err
+	}
+	tc := &testConn{Conn: c}
+	d.conns = append(d.conns, tc)
+	return tc, nil
+}
+
+func (d *testDialer) DialTimeout(ntw, addr string, timeout time.Duration) (net.Conn, error) {
+	c, err := net.DialTimeout(ntw, addr, timeout)
+	if err != nil {
+		return nil, err
+	}
+	tc := &testConn{Conn: c}
+	d.conns = append(d.conns, tc)
+	return tc, nil
+}
+
+func TestErrorDuringStartupClosesConn(t *testing.T) {
+	// Don't use the normal connection setup, this is intended to
+	// blow up in the startup packet from a non-existent user.
+	var d testDialer
+	c, err := DialOpen(&d, testConninfo("user=thisuserreallydoesntexist"))
+	if err == nil {
+		c.Close()
+		t.Fatal("expected dial error")
+	}
+	if len(d.conns) != 1 {
+		t.Fatalf("got len(d.conns) = %d, want = %d", len(d.conns), 1)
+	}
+	if !d.conns[0].closed {
+		t.Error("connection leaked")
+	}
+}
+
 func TestBadConn(t *testing.T) {
 	var err error
 
@@ -935,12 +989,14 @@ func TestParseErrorInExtendedQuery(t *testing.T) {
 	db := openTestConn(t)
 	defer db.Close()
 
-	rows, err := db.Query("PARSE_ERROR $1", 1)
-	if err == nil {
-		t.Fatal("expected error")
+	_, err := db.Query("PARSE_ERROR $1", 1)
+	pqErr, _ := err.(*Error)
+	// Expecting a syntax error.
+	if err == nil || pqErr == nil || pqErr.Code != "42601" {
+		t.Fatalf("expected syntax error, got %s", err)
 	}
 
-	rows, err = db.Query("SELECT 1")
+	rows, err := db.Query("SELECT 1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1205,16 +1261,11 @@ func TestParseComplete(t *testing.T) {
 	tpc("SELECT foo", "", 0, true) // invalid row count
 }
 
-func TestExecerInterface(t *testing.T) {
-	// Gin up a straw man private struct just for the type check
-	cn := &conn{c: nil}
-	var cni interface{} = cn
-
-	_, ok := cni.(driver.Execer)
-	if !ok {
-		t.Fatal("Driver doesn't implement Execer")
-	}
-}
+// Test interface conformance.
+var (
+	_ driver.Execer  = (*conn)(nil)
+	_ driver.Queryer = (*conn)(nil)
+)
 
 func TestNullAfterNonNull(t *testing.T) {
 	db := openTestConn(t)
@@ -1392,36 +1443,29 @@ func TestParseOpts(t *testing.T) {
 }
 
 func TestRuntimeParameters(t *testing.T) {
-	type RuntimeTestResult int
-	const (
-		ResultUnknown RuntimeTestResult = iota
-		ResultSuccess
-		ResultError // other error
-	)
-
 	tests := []struct {
-		conninfo        string
-		param           string
-		expected        string
-		expectedOutcome RuntimeTestResult
+		conninfo string
+		param    string
+		expected string
+		success  bool
 	}{
 		// invalid parameter
-		{"DOESNOTEXIST=foo", "", "", ResultError},
+		{"DOESNOTEXIST=foo", "", "", false},
 		// we can only work with a specific value for these two
-		{"client_encoding=SQL_ASCII", "", "", ResultError},
-		{"datestyle='ISO, YDM'", "", "", ResultError},
+		{"client_encoding=SQL_ASCII", "", "", false},
+		{"datestyle='ISO, YDM'", "", "", false},
 		// "options" should work exactly as it does in libpq
-		{"options='-c search_path=pqgotest'", "search_path", "pqgotest", ResultSuccess},
+		{"options='-c search_path=pqgotest'", "search_path", "pqgotest", true},
 		// pq should override client_encoding in this case
-		{"options='-c client_encoding=SQL_ASCII'", "client_encoding", "UTF8", ResultSuccess},
+		{"options='-c client_encoding=SQL_ASCII'", "client_encoding", "UTF8", true},
 		// allow client_encoding to be set explicitly
-		{"client_encoding=UTF8", "client_encoding", "UTF8", ResultSuccess},
+		{"client_encoding=UTF8", "client_encoding", "UTF8", true},
 		// test a runtime parameter not supported by libpq
-		{"work_mem='139kB'", "work_mem", "139kB", ResultSuccess},
+		{"work_mem='139kB'", "work_mem", "139kB", true},
 		// test fallback_application_name
-		{"application_name=foo fallback_application_name=bar", "application_name", "foo", ResultSuccess},
-		{"application_name='' fallback_application_name=bar", "application_name", "", ResultSuccess},
-		{"fallback_application_name=bar", "application_name", "bar", ResultSuccess},
+		{"application_name=foo fallback_application_name=bar", "application_name", "foo", true},
+		{"application_name='' fallback_application_name=bar", "application_name", "", true},
+		{"fallback_application_name=bar", "application_name", "bar", true},
 	}
 
 	for _, test := range tests {
@@ -1436,23 +1480,23 @@ func TestRuntimeParameters(t *testing.T) {
 			continue
 		}
 
-		tryGetParameterValue := func() (value string, outcome RuntimeTestResult) {
+		tryGetParameterValue := func() (value string, success bool) {
 			defer db.Close()
 			row := db.QueryRow("SELECT current_setting($1)", test.param)
 			err = row.Scan(&value)
 			if err != nil {
-				return "", ResultError
+				return "", false
 			}
-			return value, ResultSuccess
+			return value, true
 		}
 
-		value, outcome := tryGetParameterValue()
-		if outcome != test.expectedOutcome && outcome == ResultError {
+		value, success := tryGetParameterValue()
+		if success != test.success && !test.success {
 			t.Fatalf("%v: unexpected error: %v", test.conninfo, err)
 		}
-		if outcome != test.expectedOutcome {
+		if success != test.success {
 			t.Fatalf("unexpected outcome %v (was expecting %v) for conninfo \"%s\"",
-				outcome, test.expectedOutcome, test.conninfo)
+				success, test.success, test.conninfo)
 		}
 		if value != test.expected {
 			t.Fatalf("bad value for %s: got %s, want %s with conninfo \"%s\"",

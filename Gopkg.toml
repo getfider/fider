@@ -52,3 +52,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/goenning/letteravatar"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/julienschmidt/httprouter"

@@ -11,34 +11,34 @@ export class SignUpPage extends Page {
   }
 
   @findBy('#fdr-signup-page')
-  private Container: WebComponent;
+  private Container!: WebComponent;
 
   @findBy('#fdr-signup-page .button.google')
-  public GoogleSignIn: Button;
+  public GoogleSignIn!: Button;
 
   @findBy('#fdr-signup-page .button.facebook')
-  public FacebookSignIn: Button;
+  public FacebookSignIn!: Button;
 
   @findBy('#fdr-signup-page .form #name')
-  public UserName: TextInput;
+  public UserName!: TextInput;
 
   @findBy('#fdr-signup-page .form #email')
-  public UserEmail: TextInput;
+  public UserEmail!: TextInput;
 
   @findBy('#fdr-signup-page .form #tenantName')
-  public TenantName: TextInput;
+  public TenantName!: TextInput;
 
   @findBy('#fdr-signup-page .form #subdomain')
-  public Subdomain: TextInput;
+  public Subdomain!: TextInput;
 
   @findBy('#fdr-signup-page .button.positive')
-  public Confirm: Button;
+  public Confirm!: Button;
 
   @findBy('#fdr-signup-page .page .green.basic.label')
-  private SubdomainOk: WebComponent;
+  private SubdomainOk!: WebComponent;
 
   @findBy('#submitted-modal')
-  private SubmitConfirmation: WebComponent;
+  private SubmitConfirmation!: WebComponent;
 
   public loadCondition() {
     return elementIsVisible(() => this.Container);

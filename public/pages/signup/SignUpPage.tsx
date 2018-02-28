@@ -33,7 +33,7 @@ interface SignUpPageState {
 }
 
 export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState> {
-    private user: OAuthUser;
+    private user?: OAuthUser;
 
     constructor(props: SignUpPageProps) {
       super(props);

@@ -7,43 +7,43 @@ export class ShowIdeaPage extends Page {
   }
 
   @findBy('.idea-header .header')
-  public Title: WebComponent;
+  public Title!: WebComponent;
 
   @findBy('.description')
-  public Description: WebComponent;
+  public Description!: WebComponent;
 
   @findBy('.fdr-response .ui.label')
-  public Status: WebComponent;
+  public Status!: WebComponent;
 
   @findBy('.fdr-response .content')
-  public ResponseText: WebComponent;
+  public ResponseText!: WebComponent;
 
   @findBy('.support-counter .button')
-  public SupportCounter: WebComponent;
+  public SupportCounter!: WebComponent;
 
   @findBy('.comment-input textarea')
-  public CommentInput: TextInput;
+  public CommentInput!: TextInput;
 
   @findBy('.comment-input button')
-  public SubmitCommentButton: Button;
+  public SubmitCommentButton!: Button;
 
   @findMultipleBy('.ui.comments > .comment')
-  public CommentList: CommentList;
+  public CommentList!: CommentList;
 
   @findBy('.action-col button.respond')
-  public RespondButton: Button;
+  public RespondButton!: Button;
 
   @findBy('.ui.modal.active.fdr-response-form')
-  public ResponseModal: WebComponent;
+  public ResponseModal!: WebComponent;
 
   @findBy('.ui.modal.active.fdr-response-form select')
-  private ResponseModalStatus: DropDownList;
+  private ResponseModalStatus!: DropDownList;
 
   @findBy('.ui.modal.active.fdr-response-form textarea')
-  private ResponseModalText: TextInput;
+  private ResponseModalText!: TextInput;
 
   @findBy('.ui.modal.active.fdr-response-form .actions button.primary')
-  private ResponseModalSubmitButton: Button;
+  private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.Title);

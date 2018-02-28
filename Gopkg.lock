@@ -42,10 +42,10 @@
   version = "v1.1.1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
-  revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
-  version = "v1.1"
+  revision = "d1898390779332322e6b5ca5011da4bf249bb056"
 
 [[projects]]
   branch = "master"
@@ -54,7 +54,7 @@
     ".",
     "oid"
   ]
-  revision = "23da1db4f16d9658a86ae9b717c245fc078f10f1"
+  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
 
 [[projects]]
   name = "github.com/mattes/migrate"
@@ -166,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d0c83951eaaa140852324af4098edb7c9f4255d608ae7d3d5d35cbf5075d6470"
+  inputs-digest = "0417bf0aaacf11facc05a78cfc1c2607ce5aa876290f69bacd2fe7a7802bddf4"
   solver-name = "gps-cdcl"
   solver-version = 1

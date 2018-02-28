@@ -9,7 +9,7 @@ interface CompleteSignInProfilePageState {
 }
 
 export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
-  private form: Form;
+  private form!: Form;
   private key: string;
 
   constructor(props: HomePageProps) {

@@ -18,7 +18,7 @@ interface ResponseFormState {
 }
 
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
-  private modal: HTMLDivElement;
+  private modal!: HTMLDivElement;
 
   constructor(props: ResponseFormProps) {
     super(props);
