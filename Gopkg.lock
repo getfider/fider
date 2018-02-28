@@ -138,7 +138,7 @@
     "jws",
     "jwt"
   ]
-  revision = "13449ad91cb26cb47661c1b080790392170385fd"
+  revision = "2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0"
 
 [[projects]]
   name = "google.golang.org/appengine"
