@@ -138,7 +138,7 @@
     "jws",
     "jwt"
   ]
-  revision = "13449ad91cb26cb47661c1b080790392170385fd"
+  revision = "2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -166,6 +166,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0417bf0aaacf11facc05a78cfc1c2607ce5aa876290f69bacd2fe7a7802bddf4"
+  inputs-digest = "3661aaca7b7d96c470d0a172f6d6bd67d7bc3ee3bca7d00eb4a5f90abf352247"
   solver-name = "gps-cdcl"
   solver-version = 1
