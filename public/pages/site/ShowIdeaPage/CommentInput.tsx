@@ -17,7 +17,7 @@ interface CommentInputState {
 }
 
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
-  private input: HTMLTextAreaElement;
+  private input!: HTMLTextAreaElement;
 
   constructor(props: CommentInputProps) {
     super(props);

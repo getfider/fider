@@ -25,7 +25,7 @@ export class ButtonClickEvent {
 }
 
 export class Button extends React.Component<ButtonProps, ButtonState> {
-  private unmounted: boolean;
+  private unmounted: boolean = false;
 
   public static defaultProps: Partial<ButtonProps> = {
     size: 'tiny',

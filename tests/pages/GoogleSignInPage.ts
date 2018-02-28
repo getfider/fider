@@ -8,19 +8,19 @@ export class GoogleSignInPage extends Page {
   }
 
   @findBy('base[href="https://accounts.google.com/"]')
-  private Head: WebComponent;
+  private Head!: WebComponent;
 
   @findBy('#identifierId')
-  public Email: TextInput;
+  public Email!: TextInput;
 
   @findBy('#identifierNext')
-  public ConfirmEmail: Button;
+  public ConfirmEmail!: Button;
 
   @findBy('input[type="password"]')
-  public Password: TextInput;
+  public Password!: TextInput;
 
   @findBy('#passwordNext')
-  public ConfirmPassword: Button;
+  public ConfirmPassword!: Button;
 
   public loadCondition() {
     return elementIsPresent(() => this.Head);

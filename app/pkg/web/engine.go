@@ -16,6 +16,15 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type notFoundHandler struct {
+	router *Engine
+}
+
+func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	ctx := h.router.NewContext(res, req, nil)
+	ctx.NotFound()
+}
+
 //HandlerFunc represents an HTTP handler
 type HandlerFunc func(Context) error
 
@@ -44,10 +53,7 @@ func New(settings *models.SystemSettings) *Engine {
 		worker:      worker.New(),
 	}
 
-	router.mux.NotFound = func(res http.ResponseWriter, req *http.Request) {
-		ctx := router.NewContext(res, req, nil)
-		ctx.NotFound()
-	}
+	router.mux.NotFound = &notFoundHandler{router}
 	return router
 }
 

@@ -14,7 +14,7 @@ interface SignInControlProps {
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
-  private form: Form;
+  private form!: Form;
 
   constructor(props: SignInControlProps) {
     super(props);

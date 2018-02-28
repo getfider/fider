@@ -11,16 +11,16 @@ export class AdminSettingsPage extends Page {
   }
 
   @findBy('#title')
-  public TitleInput: TextInput;
+  public TitleInput!: TextInput;
 
   @findBy('#welcome-message')
-  public WelcomeMessageInput: TextInput;
+  public WelcomeMessageInput!: TextInput;
 
   @findBy('#invitation')
-  public InvitationInput: TextInput;
+  public InvitationInput!: TextInput;
 
   @findBy('button.positive')
-  public ConfirmButton: Button;
+  public ConfirmButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.TitleInput);
