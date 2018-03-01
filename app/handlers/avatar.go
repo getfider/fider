@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"image/png"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -37,8 +36,6 @@ func Avatar() web.HandlerFunc {
 							if err == nil {
 								return c.Blob(http.StatusOK, "image/png", bytes)
 							}
-						} else {
-							io.Copy(ioutil.Discard, resp.Body)
 						}
 					}
 				}
