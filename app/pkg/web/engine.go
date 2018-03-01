@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -64,9 +65,12 @@ func (e *Engine) Start(address string) {
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
 	server := &http.Server{
-		Addr:     address,
-		Handler:  e.mux,
-		ErrorLog: stdLog.New(e.logger, "", 0),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+		Addr:         address,
+		Handler:      e.mux,
+		ErrorLog:     stdLog.New(e.logger, "", 0),
 	}
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {
