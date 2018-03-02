@@ -39,11 +39,11 @@ type Idea interface {
 type User interface {
 	Base
 	GetByID(userID int) (*models.User, error)
-	GetByEmail(tenantID int, email string) (*models.User, error)
-	GetByProvider(tenantID int, provider string, uid string) (*models.User, error)
+	GetByEmail(email string) (*models.User, error)
+	GetByProvider(provider string, uid string) (*models.User, error)
 	Register(user *models.User) error
 	RegisterProvider(userID int, provider *models.UserProvider) error
-	Update(userID int, settings *models.UpdateUserSettings) error
+	Update(settings *models.UpdateUserSettings) error
 	ChangeEmail(userID int, email string) error
 	ChangeRole(userID int, role models.Role) error
 	GetAll() ([]*models.User, error)

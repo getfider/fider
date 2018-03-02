@@ -105,7 +105,8 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	Expect(tenant.Subdomain).To(Equal("mycompany"))
 	Expect(tenant.Status).To(Equal(models.TenantActive))
 
-	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
+	services.SetCurrentTenant(tenant)
+	user, err := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Jon Snow"))
 	Expect(user.Email).To(Equal("jon.snow@got.com"))
@@ -133,7 +134,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(tenant.Subdomain).To(Equal("mycompany"))
 	Expect(tenant.Status).To(Equal(models.TenantInactive))
 
-	user, err := services.Users.GetByEmail(tenant.ID, "jon.snow@got.com")
+	user, err := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(user).To(BeNil())
 }

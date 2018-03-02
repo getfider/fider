@@ -119,10 +119,12 @@ func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	demoIdea, _ := ideas.Add("My new idea", "with this description", 1)
+	demoIdea, err := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	Expect(err).To(BeNil())
 
 	ideas.SetCurrentTenant(avengersTenant)
-	avengersIdea, _ := ideas.Add("My other idea", "with other description", 3)
+	avengersIdea, err := ideas.Add("My other idea", "with other description", tonyStark.ID)
+	Expect(err).To(BeNil())
 
 	ideas.SetCurrentTenant(demoTenant)
 	dbIdea, err := ideas.GetByNumber(1)
@@ -149,7 +151,7 @@ func TestIdeaStorage_Update(t *testing.T) {
 
 	ideas.SetCurrentTenant(demoTenant)
 
-	idea, err := ideas.Add("My new idea", "with this description", 1)
+	idea, err := ideas.Add("My new idea", "with this description", jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	idea, err = ideas.Update(idea.Number, "The new comment", "With the new description")
@@ -167,7 +169,7 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
 
-	idea, err := ideas.Add("My new idea", "with this description", 1)
+	idea, err := ideas.Add("My new idea", "with this description", jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	err = ideas.AddSupporter(idea.Number, aryaStark.ID)
@@ -191,7 +193,7 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
 
 	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
@@ -209,7 +211,7 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
 
 	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
@@ -227,7 +229,7 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
 
 	err := ideas.AddSupporter(idea.Number, 1)
 	Expect(err).To(BeNil())
@@ -248,8 +250,8 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
-	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	err := ideas.SetResponse(idea.Number, "We liked this idea", jonSnow.ID, models.IdeaStarted)
 
 	Expect(err).To(BeNil())
 
@@ -264,8 +266,8 @@ func TestIdeaStorage_SetResponse_KeepOpen(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
-	err := ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaOpen)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	err := ideas.SetResponse(idea.Number, "We liked this idea", jonSnow.ID, models.IdeaOpen)
 	Expect(err).To(BeNil())
 }
 
@@ -274,16 +276,16 @@ func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
-	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaStarted)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	ideas.SetResponse(idea.Number, "We liked this idea", jonSnow.ID, models.IdeaStarted)
 	idea, _ = ideas.GetByID(idea.ID)
 	respondedOn := idea.Response.RespondedOn
 
-	ideas.SetResponse(idea.Number, "We liked this idea and we'll work on it", 1, models.IdeaStarted)
+	ideas.SetResponse(idea.Number, "We liked this idea and we'll work on it", jonSnow.ID, models.IdeaStarted)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.RespondedOn).To(Equal(respondedOn))
 
-	ideas.SetResponse(idea.Number, "We finished it", 1, models.IdeaCompleted)
+	ideas.SetResponse(idea.Number, "We finished it", jonSnow.ID, models.IdeaCompleted)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.RespondedOn).Should(BeTemporally(">", respondedOn))
 }
@@ -293,12 +295,12 @@ func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea1, _ := ideas.Add("My new idea", "with this description", 1)
-	ideas.AddSupporter(idea1.Number, 1)
-	idea2, _ := ideas.Add("My other idea", "with similar description", 2)
-	ideas.AddSupporter(idea2.Number, 2)
+	idea1, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	ideas.AddSupporter(idea1.Number, jonSnow.ID)
+	idea2, _ := ideas.Add("My other idea", "with similar description", aryaStark.ID)
+	ideas.AddSupporter(idea2.Number, aryaStark.ID)
 
-	ideas.MarkAsDuplicate(idea2.Number, idea1.Number, 1)
+	ideas.MarkAsDuplicate(idea2.Number, idea1.Number, jonSnow.ID)
 	idea1, _ = ideas.GetByID(idea1.ID)
 
 	Expect(idea1.TotalSupporters).To(Equal(2))
@@ -322,8 +324,8 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
-	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	ideas.SetResponse(idea.Number, "We liked this idea", jonSnow.ID, models.IdeaCompleted)
 	ideas.AddSupporter(idea.Number, 1)
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -336,10 +338,10 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
-	ideas.AddSupporter(idea.Number, 1)
-	ideas.SetResponse(idea.Number, "We liked this idea", 1, models.IdeaCompleted)
-	ideas.RemoveSupporter(idea.Number, 1)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	ideas.AddSupporter(idea.Number, jonSnow.ID)
+	ideas.SetResponse(idea.Number, "We liked this idea", jonSnow.ID, models.IdeaCompleted)
+	ideas.RemoveSupporter(idea.Number, jonSnow.ID)
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(err).To(BeNil())
@@ -351,10 +353,10 @@ func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea1, _ := ideas.Add("My new idea", "with this description", 1)
-	idea2, _ := ideas.Add("My other idea", "with better description", 1)
-	ideas.AddSupporter(idea1.Number, 2)
-	ideas.AddSupporter(idea2.Number, 2)
+	idea1, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	idea2, _ := ideas.Add("My other idea", "with better description", jonSnow.ID)
+	ideas.AddSupporter(idea1.Number, aryaStark.ID)
+	ideas.AddSupporter(idea2.Number, aryaStark.ID)
 
 	Expect(ideas.SupportedBy(1)).To(Equal([]int{}))
 	Expect(ideas.SupportedBy(2)).To(Equal([]int{idea1.ID, idea2.ID}))
@@ -367,12 +369,12 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	tags.SetCurrentTenant(demoTenant)
 
-	idea, _ := ideas.Add("My new idea", "with this description", 1)
+	idea, _ := ideas.Add("My new idea", "with this description", jonSnow.ID)
 	bug, _ := tags.Add("Bug", "FF0000", true)
 	featureRequest, _ := tags.Add("Feature Request", "00FF00", false)
 
-	tags.AssignTag(bug.ID, idea.ID, 1)
-	tags.AssignTag(featureRequest.ID, idea.ID, 1)
+	tags.AssignTag(bug.ID, idea.ID, jonSnow.ID)
+	tags.AssignTag(featureRequest.ID, idea.ID, jonSnow.ID)
 
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(1))

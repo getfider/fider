@@ -76,7 +76,7 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Users.Update(c.User().ID, input.Model)
+		err := c.Services().Users.Update(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}

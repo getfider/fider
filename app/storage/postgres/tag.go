@@ -94,16 +94,16 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 
 // Delete a tag by its id
 func (s *TagStorage) Delete(tagID int) error {
-	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1`, tagID)
+	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
-	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2;`, tagID, s.tenant.ID)
+	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
 }
 
 // AssignTag adds a tag to an idea
 func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
-	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2", ideaID, tagID)
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2 AND tenant_id = $3", ideaID, tagID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
@@ -113,16 +113,16 @@ func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
 	}
 
 	return s.trx.Execute(
-		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id) VALUES ($1, $2, $3, $4)`,
-		tagID, ideaID, time.Now(), userID,
+		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
+		tagID, ideaID, time.Now(), userID, s.tenant.ID,
 	)
 }
 
 // UnassignTag removes a tag from an idea
 func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
 	return s.trx.Execute(
-		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2`,
-		tagID, ideaID,
+		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2 AND tenant_id = $3`,
+		tagID, ideaID, s.tenant.ID,
 	)
 }
 
@@ -133,6 +133,7 @@ func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
 		FROM tags t
 		INNER JOIN idea_tags it
 		ON it.tag_id = t.id
+		AND it.tenant_id = t.tenant_id
 		WHERE it.idea_id = $1 AND t.tenant_id = $2
 	`, ideaID, s.tenant.ID)
 }

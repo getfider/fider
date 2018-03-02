@@ -59,11 +59,12 @@ func OAuthCallback(provider string) web.HandlerFunc {
 				return c.Failure(err)
 			}
 
+			c.Services().SetCurrentTenant(tenant)
 			users := c.Services().Users
 
-			user, err := users.GetByProvider(tenant.ID, provider, oauthUser.ID.String())
+			user, err := users.GetByProvider(provider, oauthUser.ID.String())
 			if err == app.ErrNotFound && oauthUser.Email != "" {
-				user, err = users.GetByEmail(tenant.ID, oauthUser.Email)
+				user, err = users.GetByEmail(oauthUser.Email)
 			}
 			if err != nil {
 				if err == app.ErrNotFound {
@@ -175,7 +176,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if kind == models.EmailVerificationKindSignIn {
-			user, err = c.Services().Users.GetByEmail(c.Tenant().ID, result.Email)
+			user, err = c.Services().Users.GetByEmail(result.Email)
 			if err != nil {
 				if err == app.ErrNotFound {
 					// This will render a page for /signin/verify URL using same variables as home page
@@ -209,7 +210,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Users.GetByEmail(c.Tenant().ID, input.Model.Email)
+		_, err := c.Services().Users.GetByEmail(input.Model.Email)
 		if err != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}

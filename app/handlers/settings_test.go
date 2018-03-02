@@ -45,7 +45,7 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecutePost(handlers.UpdateUserSettings(), `{ "name": "Jon Stark" }`)
 
-	user, _ := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
+	user, _ := services.Users.GetByEmail("jon.snow@got.com")
 
 	Expect(code).To(Equal(http.StatusOK))
 	Expect(user.Name).To(Equal("Jon Stark"))
@@ -67,7 +67,7 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 			}
 		}`)
 
-	user, _ := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
+	user, _ := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(code).To(Equal(http.StatusOK))
 	Expect(user.Name).To(Equal("Jon Stark"))
 
@@ -148,7 +148,7 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.stark@got.com")
+	user, err := services.Users.GetByEmail("jon.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(mock.JonSnow.ID))
 	Expect(user.Name).To(Equal(mock.JonSnow.Name))
@@ -176,11 +176,11 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 
-	_, err := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
+	_, err := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
-	_, err = services.Users.GetByEmail(mock.DemoTenant.ID, "arya.stark@got.com")
+	_, err = services.Users.GetByEmail("arya.stark@got.com")
 	Expect(err).To(BeNil())
 
-	_, err = services.Users.GetByEmail(mock.DemoTenant.ID, "jon.stark@got.com")
+	_, err = services.Users.GetByEmail("jon.stark@got.com")
 	Expect(err).To(Equal(app.ErrNotFound))
 }
