@@ -126,6 +126,7 @@ var (
 															FROM comments 
 															INNER JOIN ideas
 															ON ideas.id = comments.idea_id
+															AND ideas.tenant_id = comments.tenant_id
 															WHERE ideas.tenant_id = $1
 															GROUP BY idea_id
 													),
@@ -136,6 +137,7 @@ var (
 															FROM idea_supporters 
 															INNER JOIN ideas
 															ON ideas.id = idea_supporters.idea_id
+															AND ideas.tenant_id = idea_supporters.tenant_id
 															WHERE ideas.tenant_id = $1
 															AND idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days' 
 															GROUP BY idea_id
@@ -287,7 +289,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 	return result, nil
 }
 
-// GetCommentsByIdea returns all coments from given idea
+// GetCommentsByIdea returns all comments from given idea
 func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.trx.Select(&comments,
@@ -301,8 +303,10 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		FROM comments c
 		INNER JOIN ideas i
 		ON i.id = c.idea_id
+		AND i.tenant_id = c.tenant_id
 		INNER JOIN users u
 		ON u.id = c.user_id
+		AND u.tenant_id = c.tenant_id
 		WHERE i.number = $1
 		AND i.tenant_id = $2
 		ORDER BY c.created_on ASC`, number, s.tenant.ID)
@@ -360,8 +364,8 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 
 	var id int
 	if err := s.trx.Get(&id,
-		"INSERT INTO comments (idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4) RETURNING id",
-		idea.ID, content, userID, time.Now()); err != nil {
+		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+		s.tenant.ID, idea.ID, content, userID, time.Now()); err != nil {
 		return 0, err
 	}
 
@@ -383,7 +387,7 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	alreadySupported, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
+	alreadySupported, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3", userID, idea.ID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
@@ -392,13 +396,13 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1`, idea.ID); err != nil {
+	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
 		return err
 	}
 
 	if err := s.trx.Execute(
-		`INSERT INTO idea_supporters (user_id, idea_id, created_on) VALUES ($1, $2, $3)  ON CONFLICT DO NOTHING`,
-		userID, idea.ID, time.Now()); err != nil {
+		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4)  ON CONFLICT DO NOTHING`,
+		s.tenant.ID, userID, idea.ID, time.Now()); err != nil {
 		return err
 	}
 
@@ -416,7 +420,7 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	didSupport, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2", userID, idea.ID)
+	didSupport, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3", userID, idea.ID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
@@ -425,11 +429,11 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1`, idea.ID); err != nil {
+	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
 		return err
 	}
 
-	return s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2`, userID, idea.ID)
+	return s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
 }
 
 // AddSubscriber adds user to the idea list of subscribers
@@ -445,13 +449,13 @@ func (s *IdeaStorage) internalAddSubscriber(number, userID int, force bool) erro
 
 	conflict := " DO NOTHING"
 	if force {
-		conflict = "(user_id, idea_id) DO UPDATE SET status = $4, updated_on = $3"
+		conflict = "(user_id, idea_id) DO UPDATE SET status = $5, updated_on = $4"
 	}
 
 	return s.trx.Execute(fmt.Sprintf(`
-	INSERT INTO idea_subscribers (user_id, idea_id, created_on, updated_on, status)
-	VALUES ($1, $2, $3, $3, $4)  ON CONFLICT %s`, conflict),
-		userID, idea.ID, time.Now(), models.SubscriberActive,
+	INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
+	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
+		s.tenant.ID, userID, idea.ID, time.Now(), models.SubscriberActive,
 	)
 }
 
@@ -463,10 +467,10 @@ func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
 	}
 
 	return s.trx.Execute(`
-		INSERT INTO idea_subscribers (user_id, idea_id, created_on, updated_on, status)
-		VALUES ($1, $2, $3, $3, 0) ON CONFLICT (user_id, idea_id)
-		DO UPDATE SET status = 0, updated_on = $3`,
-		userID, idea.ID, time.Now(),
+		INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
+		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, idea_id)
+		DO UPDATE SET status = 0, updated_on = $4`,
+		s.tenant.ID, userID, idea.ID, time.Now(),
 	)
 }
 
@@ -481,10 +485,11 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	if len(event.RequiresSubscripionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
-			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
 			FROM users u
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
+			AND set.tenant_id = u.tenant_id
 			AND set.key = $1
 			WHERE u.tenant_id = $2
 			AND (
@@ -498,14 +503,16 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 		)
 	} else {
 		err = s.trx.Select(&users, `
-			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
 			FROM users u
 			LEFT JOIN idea_subscribers sub
 			ON sub.user_id = u.id
 			AND sub.idea_id = $1
+			AND sub.tenant_id = u.tenant_id
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
 			AND set.key = $3
+			AND set.tenant_id = u.tenant_id
 			WHERE u.tenant_id = $4
 			AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
 			AND (
@@ -571,7 +578,7 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 		respondedOn = idea.Response.RespondedOn
 	}
 
-	users, err := s.trx.QueryIntArray("SELECT user_id FROM idea_supporters WHERE idea_id = $1", idea.ID)
+	users, err := s.trx.QueryIntArray("SELECT user_id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
@@ -591,5 +598,5 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
-	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1", userID)
+	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", userID, s.tenant.ID)
 }

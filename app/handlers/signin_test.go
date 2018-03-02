@@ -96,7 +96,7 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io&code=456").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
-	user, err := services.Users.GetByEmail(mock.AvengersTenant.ID, "some.guy@facebook.com")
+	user, err := services.Users.GetByEmail("some.guy@facebook.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Some Facebook Guy"))
 
@@ -167,7 +167,7 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io&code=123").
 		Execute(handlers.OAuthCallback(oauth.GoogleProvider))
 
-	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "jon.snow@got.com")
+	user, err := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(len(user.Providers)).To(Equal(2))
 
@@ -350,7 +350,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "1234567890" }`)
 	Expect(code).To(Equal(http.StatusOK))
 
-	user, err := services.Users.GetByEmail(mock.DemoTenant.ID, "hot.pie@got.com")
+	user, err := services.Users.GetByEmail("hot.pie@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Hot Pie"))
 	Expect(user.Email).To(Equal("hot.pie@got.com"))

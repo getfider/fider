@@ -28,7 +28,8 @@ func TestUserStorage_GetByEmail_Error(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByEmail(1, "unknown@got.com")
+	users.SetCurrentTenant(demoTenant)
+	user, err := users.GetByEmail("unknown@got.com")
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
 }
@@ -37,7 +38,8 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	users.SetCurrentTenant(demoTenant)
+	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Tenant.ID).To(Equal(1))
@@ -52,7 +54,8 @@ func TestUserStorage_GetByProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByProvider(1, "facebook", "FB1234")
+	users.SetCurrentTenant(demoTenant)
+	user, err := users.GetByProvider("facebook", "FB1234")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(1)))
 	Expect(user.Tenant.ID).To(Equal(1))
@@ -67,7 +70,8 @@ func TestUserStorage_GetByProvider_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByProvider(2, "facebook", "FB1234")
+	users.SetCurrentTenant(avengersTenant)
+	user, err := users.GetByProvider("facebook", "FB1234")
 	Expect(user).To(BeNil())
 	Expect(err).To(Equal(app.ErrNotFound))
 }
@@ -76,7 +80,8 @@ func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByEmail(2, "jon.snow@got.com")
+	users.SetCurrentTenant(avengersTenant)
+	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(user).To(BeNil())
 	Expect(err).NotTo(BeNil())
 }
@@ -85,13 +90,11 @@ func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	users.SetCurrentTenant(demoTenant)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
-		Tenant: &models.Tenant{
-			ID: 1,
-		},
-		Role: models.RoleCollaborator,
+		Role:  models.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
@@ -102,7 +105,7 @@ func TestUserStorage_Register(t *testing.T) {
 	err := users.Register(user)
 	Expect(err).To(BeNil())
 
-	user, err = users.GetByEmail(1, "rob.stark@got.com")
+	user, err = users.GetByEmail("rob.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.ID).To(Equal(int(6)))
 	Expect(user.Role).To(Equal(models.RoleCollaborator))
@@ -114,13 +117,11 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	users.SetCurrentTenant(demoTenant)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "   ",
-		Tenant: &models.Tenant{
-			ID: 1,
-		},
-		Role: models.RoleCollaborator,
+		Role:  models.RoleCollaborator,
 	}
 	err := users.Register(user)
 	Expect(err).To(BeNil())
@@ -142,14 +143,14 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		VALUES ('My Domain Inc.','mydomain', now(), 1)
 		RETURNING id
 	`)
+	users.SetCurrentTenant(&models.Tenant{
+		ID: tenantID,
+	})
 
 	user := &models.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
-		Tenant: &models.Tenant{
-			ID: tenantID,
-		},
-		Role: models.RoleCollaborator,
+		Role:  models.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
@@ -173,6 +174,7 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	users.SetCurrentTenant(demoTenant)
 	users.RegisterProvider(1, &models.UserProvider{
 		UID:  "GO1234",
 		Name: "google",
@@ -196,10 +198,12 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	err := users.Update(1, &models.UpdateUserSettings{Name: "Jon Stark"})
+	users.SetCurrentTenant(demoTenant)
+	users.SetCurrentUser(jonSnow)
+	err := users.Update(&models.UpdateUserSettings{Name: "Jon Stark"})
 	Expect(err).To(BeNil())
 
-	user, err := users.GetByEmail(1, "jon.snow@got.com")
+	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Name).To(Equal("Jon Stark"))
 }
@@ -212,7 +216,7 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 	err := users.ChangeRole(jonSnow.ID, models.RoleVisitor)
 	Expect(err).To(BeNil())
 
-	user, err := users.GetByEmail(jonSnow.Tenant.ID, "jon.snow@got.com")
+	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Role).To(Equal(models.RoleVisitor))
 }
@@ -225,11 +229,11 @@ func TestUserStorage_ChangeEmail(t *testing.T) {
 	err := users.ChangeEmail(jonSnow.ID, "jon.stark@got.com")
 	Expect(err).To(BeNil())
 
-	user, err := users.GetByEmail(jonSnow.Tenant.ID, "jon.stark@got.com")
+	user, err := users.GetByEmail("jon.stark@got.com")
 	Expect(err).To(BeNil())
 	Expect(user.Email).To(Equal("jon.stark@got.com"))
 
-	user, err = users.GetByEmail(jonSnow.Tenant.ID, "jon.snow@got.com")
+	user, err = users.GetByEmail("jon.snow@got.com")
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(user).To(BeNil())
 }
@@ -272,6 +276,7 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
 	disableAll := map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",

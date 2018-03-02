@@ -89,7 +89,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 		return result
 	}
 
-	existing, err := services.Users.GetByEmail(user.Tenant.ID, input.Model.Email)
+	existing, err := services.Users.GetByEmail(input.Model.Email)
 	if err != nil && err != app.ErrNotFound {
 		return validate.Error(err)
 	}

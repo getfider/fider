@@ -37,9 +37,9 @@ func (s *UserStorage) SetCurrentUser(user *models.User) {
 }
 
 // GetByEmail returns a user based on given email
-func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
+func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
 	for _, user := range s.users {
-		if user.Email == email && user.Tenant.ID == tenantID {
+		if user.Email == email && user.Tenant.ID == s.tenant.ID {
 			return user, nil
 		}
 	}
@@ -47,7 +47,7 @@ func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, erro
 }
 
 // GetByProvider returns a user based on provider details
-func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (*models.User, error) {
+func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, error) {
 	for _, user := range s.users {
 		for _, item := range user.Providers {
 			if item.Name == provider && item.UID == uid {
@@ -64,7 +64,7 @@ func (s *UserStorage) Register(user *models.User) error {
 		s.lastID = s.lastID + 1
 		user.ID = s.lastID
 	}
-	_, err := s.GetByEmail(user.Tenant.ID, user.Email)
+	_, err := s.GetByEmail(user.Email)
 	if err == app.ErrNotFound || user.Email == "" {
 		s.users = append(s.users, user)
 		return nil
@@ -82,8 +82,8 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 }
 
 // Update user settings
-func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
-	user, err := s.GetByID(userID)
+func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
+	user, err := s.GetByID(s.user.ID)
 	if err == nil {
 		user.Name = settings.Name
 	}

@@ -32,13 +32,16 @@ func TestChangeUserRole_Authorized(t *testing.T) {
 func TestChangeUserRole_InvalidRole(t *testing.T) {
 	RegisterTestingT(t)
 
+	tenant := &models.Tenant{ID: 1}
+	services.SetCurrentTenant(tenant)
+
 	targetUser := &models.User{
-		Tenant: &models.Tenant{ID: 1},
+		Tenant: tenant,
 	}
 	services.Users.Register(targetUser)
 
 	currentUser := &models.User{
-		Tenant: &models.Tenant{ID: 1},
+		Tenant: tenant,
 		Role:   models.RoleAdministrator,
 	}
 	services.Users.Register(currentUser)

@@ -143,6 +143,7 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
 	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
@@ -183,6 +184,7 @@ func TestSubscription_VisitorEnabledNewIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
 	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
@@ -209,6 +211,7 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	users.SetCurrentTenant(demoTenant)
 	disableAll := map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
 		models.NotificationEventNewComment.UserSettingsKeyName:   "0",

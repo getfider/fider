@@ -82,15 +82,23 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 }
 
 // GetByEmail returns a user based on given email
-func (s *UserStorage) GetByEmail(tenantID int, email string) (*models.User, error) {
-	return getUser(s.trx, "email = $1 AND tenant_id = $2", email, tenantID)
+func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
+	return getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
 }
 
 // GetByProvider returns a user based on provider details
-func (s *UserStorage) GetByProvider(tenantID int, provider string, uid string) (*models.User, error) {
+func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, error) {
 	var userID int
-	query := "SELECT user_id FROM user_providers up INNER JOIN users u ON u.id = up.user_id WHERE up.provider = $1 AND up.provider_uid = $2 AND u.tenant_id = $3"
-	if err := s.trx.Scalar(&userID, query, provider, uid, tenantID); err != nil {
+	query := `
+	SELECT user_id 
+	FROM user_providers up 
+	INNER JOIN users u 
+	ON u.id = up.user_id 
+	AND u.tenant_id = up.tenant_id 
+	WHERE up.provider = $1 
+	AND up.provider_uid = $2 
+	AND u.tenant_id = $3`
+	if err := s.trx.Scalar(&userID, query, provider, uid, s.tenant.ID); err != nil {
 		return nil, err
 	}
 	return s.GetByID(userID)
@@ -102,12 +110,12 @@ func (s *UserStorage) Register(user *models.User) error {
 	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.Get(&user.ID,
 		"INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		user.Name, user.Email, now, user.Tenant.ID, user.Role); err != nil {
+		user.Name, user.Email, now, s.tenant.ID, user.Role); err != nil {
 		return err
 	}
 
 	for _, provider := range user.Providers {
-		if err := s.trx.Execute("INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)", user.ID, provider.Name, provider.UID, now); err != nil {
+		if err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
 			return err
 		}
 	}
@@ -117,26 +125,26 @@ func (s *UserStorage) Register(user *models.User) error {
 
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
-	cmd := "INSERT INTO user_providers (user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4)"
-	return s.trx.Execute(cmd, userID, provider.Name, provider.UID, time.Now())
+	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)"
+	return s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
 }
 
 // Update user profile
-func (s *UserStorage) Update(userID int, settings *models.UpdateUserSettings) error {
-	cmd := "UPDATE users SET name = $2 WHERE id = $1"
-	return s.trx.Execute(cmd, userID, settings.Name)
+func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
+	cmd := "UPDATE users SET name = $2 WHERE id = $1 AND tenant_id = $3"
+	return s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
 }
 
 // UpdateSettings of given user
 func (s *UserStorage) UpdateSettings(settings map[string]string) error {
 	if s.user != nil && settings != nil && len(settings) > 0 {
 		query := `
-		INSERT INTO user_settings (user_id, key, value)
-		VALUES ($1, $2, $3) ON CONFLICT (user_id, key) DO UPDATE SET value = $3
+		INSERT INTO user_settings (tenant_id, user_id, key, value)
+		VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, key) DO UPDATE SET value = $4
 		`
 
 		for key, value := range settings {
-			err := s.trx.Execute(query, s.user.ID, key, value)
+			err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
 			if err != nil {
 				return err
 			}
@@ -153,7 +161,7 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 	}
 
 	var settings []*dbUserSetting
-	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1", s.user.ID)
+	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
