@@ -485,7 +485,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	if len(event.RequiresSubscripionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
-			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
 			FROM users u
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
@@ -503,7 +503,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 		)
 	} else {
 		err = s.trx.Select(&users, `
-			SELECT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
 			FROM users u
 			LEFT JOIN idea_subscribers sub
 			ON sub.user_id = u.id
