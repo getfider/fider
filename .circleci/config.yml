@@ -11,12 +11,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - fider-v1-npm-{{ .checksum "package-lock.json" }}
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run: npm install
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - save_cache:
-          key: fider-v1-npm-{{ .checksum "package-lock.json" }}
+          key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
   test:
