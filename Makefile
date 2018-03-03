@@ -14,7 +14,7 @@ test:
 	godotenv -f .test.env go test ./... -p=1
 
 coverage:
-	godotenv -f .test.env courtney -t="-p=1" -o cover.out $$(go list ./...)
+	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -covermode=atomic -coverpkg=all
 
 e2e-single:
 	./scripts/e2e.sh single
