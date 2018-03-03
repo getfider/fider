@@ -43,7 +43,7 @@ jobs:
           name: wait for postgres
           command: | 
             dockerize -wait tcp://localhost:5432 -timeout 1m
-            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -c \"SELECT current_timestamp\"
+            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -d postgres -c \"SELECT current_timestamp\"
       - run:
           name: setup postgres
           command: |
