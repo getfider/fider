@@ -22,11 +22,11 @@ jobs:
             - node_modules/
       - setup_remote_docker
       - run: docker build -t getfider/fider .
-      - run: docker save -o ./workspace/docker-image.tar getfider/fider
+      - run: docker save -o ./docker-image.tar getfider/fider
       - persist_to_workspace:
-          root: ./workspace
+          root: ./
           paths:
-            - docker-image
+            - docker-image.tar
   test:
     docker:
       - image: getfider/circleci:0.0.5
