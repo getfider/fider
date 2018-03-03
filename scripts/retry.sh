@@ -22,5 +22,4 @@ function retry {
   done
 }
 
-echo $*
 retry $*
