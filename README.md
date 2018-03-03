@@ -1,6 +1,6 @@
 ![](/public/assets/images/logo-small.png)
 
-# Fider &middot; [![status](https://travis-ci.org/getfider/fider.svg?branch=dev)](https://travis-ci.org/getfider/fider) [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)
+# Fider &middot; [![CircleCI](https://circleci.com/gh/getfider/fider/tree/master.svg?style=svg)](https://circleci.com/gh/getfider/fider/tree/master) [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)
 
 Fider is an open platform to collect and organize customer feedback. By using the platform, your community can share, vote and discuss on ideas they have to make your product or company even better. 
 

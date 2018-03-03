@@ -1,0 +1,81 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: getfider/circleci:0.0.6
+    working_directory: /go/src/github.com/getfider/fider
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
+      - run:
+          name: npm install
+          command: if [ ! -d "./node_modules" ]; then npm install; fi
+      - run: make lint
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+      - save_cache:
+          key: fider-v1-npm-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules/
+      - setup_remote_docker
+      - run: docker build -t getfider/fider .
+      - run: docker save -o ./docker-image.tar getfider/fider
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - docker-image.tar
+  test:
+    docker:
+      - image: getfider/circleci:0.0.6
+      - image: postgres:9.6.2
+    working_directory: /go/src/github.com/getfider/fider
+    steps:
+      - checkout
+      - run:
+          name: setup postgres
+          command: |
+            mkdir dist
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
+      - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
+      - run: bash <(curl -s https://codecov.io/bash)
+  push:
+    docker:
+      - image: getfider/circleci:0.0.6
+    working_directory: /go/src/github.com/getfider/fider
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - setup_remote_docker
+      - run: docker load -i /tmp/workspace/docker-image.tar
+      - run:
+          name: Set PR number
+          command: |
+              echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
+              source $BASH_ENV
+              echo $CIRCLE_PR_NUMBER
+      - run: 
+          name: push image to docker registry
+          command: |
+            if [ $DOCKER_USER != "" ] && [ $CIRCLE_BRANCH == "master" ] && [[ -z $CI_PULL_REQUEST ]]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag getfider/fider getfider/fider:master
+              docker push getfider/fider:master
+            fi
+            if [ $DOCKER_USER != "" ] && [[ ! -z $CI_PULL_REQUEST ]]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag getfider/fider getfider/fider:PR_$CIRCLE_PR_NUMBER
+              docker push getfider/fider:PR_$CIRCLE_PR_NUMBER
+            fi
+workflows:
+  version: 2
+  all:
+    jobs:
+      - build
+      - test
+      - push:
+          requires:
+            - build
+            - test

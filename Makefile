@@ -11,10 +11,10 @@ lint:
 
 # Testing
 test:
-	godotenv -f .test.env go test ./... -cover -p=1
+	godotenv -f .test.env go test ./... -p=1
 
 coverage:
-	godotenv -f .test.env courtney -o cover.out $$(go list ./...)
+	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -coverpkg=all
 
 e2e-single:
 	./scripts/e2e.sh single
