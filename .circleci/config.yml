@@ -41,14 +41,16 @@ jobs:
       - checkout
       - run:
           name: wait for postgres
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          command: | 
+            dockerize -wait tcp://localhost:5432 -timeout 1m
+            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -c \"SELET NOW()\"
       - run:
           name: setup postgres
           command: |
             mkdir dist
-            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -c \"CREATE DATABASE fider_ci\"
-            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -c \"CREATE EXTENSION pg_trgm\" -d fider_ci
-            ./scripts/retry.sh psql -h localhost -p 5432 -U postgres -c \"CREATE USER fider_ci WITH PASSWORD \'fider_ci_pw\'\"
+            psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci"
+            psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci
+            psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'"
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
 workflows:
   version: 2
