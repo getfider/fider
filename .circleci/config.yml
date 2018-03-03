@@ -27,9 +27,9 @@ jobs:
           name: setup postgres
           command: |
             mkdir dist
-            psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci"
-            psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci
-            psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'"
+            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
       - run: bash <(curl -s https://codecov.io/bash)
   push:
