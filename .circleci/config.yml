@@ -45,6 +45,7 @@ jobs:
       - run:
           name: setup postgres
           command: |
+            mkdir dist
             psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci;"
             psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm;" -d fider_ci
             psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
