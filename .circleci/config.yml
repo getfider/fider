@@ -6,4 +6,5 @@ jobs:
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
+      - run: npm install
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
