@@ -5,4 +5,5 @@ jobs:
       - image: circleci/golang:1.10
     working_directory: /go/src/github.com/getfider/fider
     steps:
+      - checkout
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
