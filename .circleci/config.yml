@@ -16,6 +16,7 @@ jobs:
           command: if [ ! -d "./node_modules" ]; then npm install; fi
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+      - run: docker build -t getfider/fider .
       - save_cache:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
