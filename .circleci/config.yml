@@ -20,10 +20,9 @@ jobs:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - setup_remote_docker
       - run: docker build -t getfider/fider .
-      - run: docker save -o ./workspace/docker-image getfider/fider
+      - run: docker save -o ./workspace/docker-image.tar getfider/fider
       - persist_to_workspace:
           root: ./workspace
           paths:
@@ -51,9 +50,8 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: docker load -i /tmp/workspace/docker-image
+      - setup_remote_docker
+      - run: docker load -i /tmp/workspace/docker-image.tar
       - run: 
           name: push image to docker registry
           command: |
