@@ -44,13 +44,14 @@ jobs:
       - image: getfider/circleci:0.0.5
     working_directory: /go/src/github.com/getfider/fider
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: echo "Push to docker hub"
+      - run: 
+          name: push image to docker registry
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker tag getfider/fider getfider/fider:test
+            docker push getfider/fider:test
 workflows:
   version: 2
   all:
