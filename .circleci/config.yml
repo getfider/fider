@@ -61,12 +61,15 @@ jobs:
       - run: 
           name: push image to docker registry
           command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
             if [ $DOCKER_USER != "" ] && [ $CIRCLE_BRANCH == "master" ] && [[ -z $CI_PULL_REQUEST ]]; then
-              echo "PUSH TO MASTER"
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag getfider/fider getfider/fider:master
+              docker push getfider/fider:master
             fi
             if [ $DOCKER_USER != "" ] && [[ ! -z $CI_PULL_REQUEST ]]; then
-              echo "PUSH TO PR_$CIRCLE_PR_NUMBER"
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker tag getfider/fider getfider/fider:PR_$CIRCLE_PR_NUMBER
+              docker push getfider/fider:PR_$CIRCLE_PR_NUMBER
             fi
 workflows:
   version: 2
