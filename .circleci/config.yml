@@ -42,7 +42,9 @@ jobs:
       - image: getfider/circleci:0.0.4
     steps:
       - checkout
-      - run: echo "Pushed!"
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make e2e
 workflows:
   version: 2
   all:
