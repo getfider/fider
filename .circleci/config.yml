@@ -23,6 +23,11 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: docker build -t getfider/fider .
+      - run: docker save -o ./workspace/docker-image getfider/fider
+      - persist_to_workspace:
+          root: ./workspace
+          paths:
+            - docker-image
   test:
     docker:
       - image: getfider/circleci:0.0.5
@@ -44,8 +49,11 @@ jobs:
       - image: getfider/circleci:0.0.5
     working_directory: /go/src/github.com/getfider/fider
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - setup_remote_docker:
           docker_layer_caching: true
+      - run: docker load -i /tmp/workspace/docker-image
       - run: 
           name: push image to docker registry
           command: |
