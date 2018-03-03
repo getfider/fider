@@ -2,7 +2,7 @@
 
 version: 2
 jobs:
-  setup:
+  build:
     docker:
       - image: getfider/circleci:0.0.5
     working_directory: /go/src/github.com/getfider/fider
@@ -14,21 +14,12 @@ jobs:
       - run:
           name: npm install
           command: if [ ! -d "./node_modules" ]; then npm install; fi
+      - run: make lint
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - save_cache:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
-  build:
-    docker:
-      - image: getfider/circleci:0.0.5
-    working_directory: /go/src/github.com/getfider/fider
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - run: make lint
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   test:
     docker:
       - image: getfider/circleci:0.0.5
@@ -45,18 +36,6 @@ jobs:
             for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
       - run: bash <(curl -s https://codecov.io/bash)
-  e2e:
-    docker:
-      - image: getfider/circleci:0.0.5
-    working_directory: /go/src/github.com/getfider/fider
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run: make e2e
   push:
     docker:
       - image: getfider/circleci:0.0.5
@@ -73,16 +52,8 @@ workflows:
   version: 2
   all:
     jobs:
-      - setup
-      - build:
-          requires:
-            - setup
-      - test:
-          requires:
-            - setup
-      - e2e:
-          requires:
-            - setup
+      - build
+      - test
       - push:
           requires:
             - build
