@@ -37,7 +37,7 @@ jobs:
             for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
       - run: bash <(curl -s https://codecov.io/bash)
-  push:
+  e2e:
     docker:
       - image: getfider/circleci:0.0.5
     working_directory: /go/src/github.com/getfider/fider
@@ -55,7 +55,7 @@ workflows:
     jobs:
       - build
       - test
-      - push:
+      - e2e:
           requires:
             - build
             - test
