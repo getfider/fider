@@ -6,10 +6,10 @@ PORT=3000
 
 run_e2e () {
   # Check is PORT is in use
-  if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
-      echo "Another process is already running on port $PORT."
-      exit 1;
-  fi
+  # if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
+  #     echo "Another process is already running on port $PORT."
+  #     exit 1;
+  # fi
 
   echo "Compiling tests..."
   rm -rf output
