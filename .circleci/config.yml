@@ -2,8 +2,11 @@
 
 version: 2
 jobs:
-  build:
-    init:
+  setup:
+    docker:
+      - image: getfider/circleci:0.0.5
+    working_directory: /go/src/github.com/getfider/fider
+    steps:
       - checkout
       - restore_cache:
           keys:
@@ -15,7 +18,7 @@ jobs:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
-
+  build:
     docker:
       - image: getfider/circleci:0.0.5
     working_directory: /go/src/github.com/getfider/fider
@@ -58,11 +61,11 @@ workflows:
   version: 2
   all:
     jobs:
-      - init
+      - setup
       - build:
           requires:
-            - init
+            - setup
       - test
       - e2e:
           requires:
-            - init
+            - setup
