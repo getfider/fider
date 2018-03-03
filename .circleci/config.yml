@@ -53,15 +53,21 @@ jobs:
       - setup_remote_docker
       - run: docker load -i /tmp/workspace/docker-image.tar
       - run:
-        name: Set PR number
-        command: |
-            echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
-            source $BASH_ENV
-            echo $CIRCLE_PR_NUMBER
+          name: Set PR number
+          command: |
+              echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
+              source $BASH_ENV
+              echo $CIRCLE_PR_NUMBER
       - run: 
           name: push image to docker registry
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
+            if [ $DOCKER_USER != "" ] && [ $CIRCLE_BRANCH == "master" ] && [[ -z $CI_PULL_REQUEST ]]; then
+              echo "PUSH TO MASTER"
+            fi
+            if [ $DOCKER_USER != "" ] && [[ ! -z $CI_PULL_REQUEST ]]; then
+              echo "PUSH TO PR_$CIRCLE_PR_NUMBER"
+            fi
 workflows:
   version: 2
   all:
