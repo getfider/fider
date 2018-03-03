@@ -1,25 +1,5 @@
-# version: 2
-# jobs:
-#   build:
-#     docker:
-#       - image: getfider/circleci:0.0.4
-#       - image: circleci/postgres:9.6.2
-#         environment:
-#         - POSTGRES_USER: root
-#         - POSTGRES_DB: root
-#     working_directory: /go/src/github.com/getfider/fider
-#     steps:
-#       - checkout
-#       - run: npm install
-#       - run: make lint
-#       - run:
-#           name: setup database
-#           command: |
-#             psql -h localhost -p 5432 -U root -c "CREATE DATABASE fider_ci;"
-#             psql -h localhost -p 5432 -U root -c "CREATE EXTENSION pg_trgm;" -d fider_ci
-#             psql -h localhost -p 5432 -U root -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
-#       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-#       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
+# TODO: Cache NPM install
+# TODO: Push docker images (only on master)
 
 version: 2
 jobs:
@@ -51,6 +31,7 @@ jobs:
             psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci
             psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'"
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
+      - run: bash <(curl -s https://codecov.io/bash)
   push:
     docker:
       - image: getfider/circleci:0.0.4
