@@ -43,6 +43,9 @@ jobs:
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make e2e
