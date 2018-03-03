@@ -2,7 +2,7 @@
 # jobs:
 #   build:
 #     docker:
-#       - image: getfider/circleci:0.0.3
+#       - image: getfider/circleci:0.0.4
 #       - image: circleci/postgres:9.6.2
 #         environment:
 #         - POSTGRES_USER: root
@@ -25,7 +25,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: getfider/circleci:0.0.3
+      - image: getfider/circleci:0.0.4
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
@@ -34,16 +34,11 @@ jobs:
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
   test:
     docker:
-      - image: getfider/circleci:0.0.3
+      - image: getfider/circleci:0.0.4
       - image: circleci/postgres:9.6.2
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
-      - run:
-          name: install dockerize
-          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
       - run:
           name: wait for postgres
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
