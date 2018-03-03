@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.10
+      - image: getfider/circleci:0.0.1
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
