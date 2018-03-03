@@ -14,7 +14,7 @@ jobs:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run:
           name: npm install
-          command: if [ ! -d "$DIRECTORY" ]; then npm install; fi
+          command: if [ ! -d "./node_modules" ]; then npm install; fi
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - save_cache:
