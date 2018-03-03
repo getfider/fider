@@ -56,8 +56,11 @@ jobs:
           name: push image to docker registry
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker tag getfider/fider getfider/fider:test
-            docker push getfider/fider:test
+            if [ -z "${CI_PULL_REQUEST:-}" ]; then
+              CI_PR_ID=`git log -n 1 | grep 'Merge pull request' | sed -e 's/.*#\([0-9]\+\).*/\1/'`
+            fi
+
+            echo $CI_PR_ID
 workflows:
   version: 2
   all:
