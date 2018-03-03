@@ -3,13 +3,16 @@ jobs:
   build:
     docker:
       - image: getfider/circleci:0.0.2
-      - image: postgres:9.6.2
+      - image: circleci/postgres:9.6.2
+        environment:
+        - POSTGRES_USER: root
+        - POSTGRES_DB: root
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
-      - run: psql -h localhost -p 5432 -c "CREATE DATABASE fider_ci;"
-      - run: psql -h localhost -p 5432 -c "CREATE EXTENSION pg_trgm;" -d fider_ci
-      - run: psql -h localhost -p 5432 -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
+      - run: psql -h localhost -p 5432 -U root -c "CREATE DATABASE fider_ci;"
+      - run: psql -h localhost -p 5432 -U root -c "CREATE EXTENSION pg_trgm;" -d fider_ci
+      - run: psql -h localhost -p 5432 -U root -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
       - run: npm install
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - run: make link
