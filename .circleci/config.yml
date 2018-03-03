@@ -52,15 +52,16 @@ jobs:
           at: /tmp/workspace
       - setup_remote_docker
       - run: docker load -i /tmp/workspace/docker-image.tar
+      - run:
+        name: Set PR number
+        command: |
+            echo 'export CIRCLE_PR_NUMBER="${CIRCLE_PR_NUMBER:-${CIRCLE_PULL_REQUEST##*/}}"' >> $BASH_ENV
+            source $BASH_ENV
+            echo $CIRCLE_PR_NUMBER
       - run: 
           name: push image to docker registry
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            if [ -z "${CI_PULL_REQUEST:-}" ]; then
-              CI_PR_ID=`git log -n 1 | grep 'Merge pull request' | sed -e 's/.*#\([0-9]\+\).*/\1/'`
-            fi
-
-            echo $CI_PR_ID
 workflows:
   version: 2
   all:
