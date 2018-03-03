@@ -1,3 +1,4 @@
+# TODO: Cache NPM install
 # TODO: Push docker images (only on master)
 
 version: 2
@@ -8,9 +9,16 @@ jobs:
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run: npm install
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+      - save_cache:
+          key: fider-v1-npm-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules/
   test:
     docker:
       - image: getfider/circleci:0.0.4
@@ -32,7 +40,7 @@ jobs:
       - image: getfider/circleci:0.0.4
     steps:
       - checkout
-      - run: echo "!Pushed!"
+      - run: echo "Pushed!"
 workflows:
   version: 2
   all:
