@@ -43,7 +43,7 @@ jobs:
           name: wait for postgres
           command: | 
             dockerize -wait tcp://localhost:5432 -timeout 1m
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT current_timestamp" && break || sleep 15; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT now()" && break || sleep 15; done
       - run:
           name: setup postgres
           command: |
@@ -51,6 +51,7 @@ jobs:
             psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci"
             psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci
             psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'"
+            psql -h localhost -p 5432 -U postgres -c "SELECT similarity('abc', 'abd');" -d fider_ci
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
 workflows:
   version: 2
