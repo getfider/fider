@@ -9,9 +9,16 @@ jobs:
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ .checksum "package-lock.json" }}
       - run: npm install
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+      - save_cache:
+          key: fider-v1-npm-{{ .checksum "package-lock.json" }}
+          paths:
+            - node_modules/
   test:
     docker:
       - image: getfider/circleci:0.0.4
@@ -20,16 +27,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: wait for postgres
-          command: | 
-            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -d postgres -c "SELECT now()" && break || sleep 2; done
-      - run:
           name: setup postgres
           command: |
             mkdir dist
-            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
-            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
-            for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
       - run: bash <(curl -s https://codecov.io/bash)
   push:
