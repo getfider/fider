@@ -12,7 +12,9 @@ jobs:
       - restore_cache:
           keys:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - run: npm install
+      - run:
+          name: npm install
+          command: if [ ! -d "$DIRECTORY" ]; then npm install; fi
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - save_cache:
