@@ -32,7 +32,7 @@ jobs:
       - image: getfider/circleci:0.0.4
     steps:
       - checkout
-      - run: echo "Pushed!"
+      - run: echo "!Pushed!"
 workflows:
   version: 2
   all:
