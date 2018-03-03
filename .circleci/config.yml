@@ -7,9 +7,9 @@ jobs:
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
-      - run: psql -p 5433 -c "CREATE DATABASE fider_ci;"
-      - run: psql -p 5433 -c "CREATE EXTENSION pg_trgm;" -d fider_ci
-      - run: psql -p 5433 -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
+      - run: psql -h localhost -p 5433 -c "CREATE DATABASE fider_ci;"
+      - run: psql -h localhost -p 5433 -c "CREATE EXTENSION pg_trgm;" -d fider_ci
+      - run: psql -h localhost -p 5433 -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw';"
       - run: npm install
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - run: make link
