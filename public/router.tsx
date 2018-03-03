@@ -1,14 +1,16 @@
 import * as React from 'react';
 
-import { AdminHomePage } from '@fider/pages/admin/AdminHomePage';
-import { MembersPage } from '@fider/pages/admin/MembersPage';
-import { ManageTagsPage } from '@fider/pages/admin/ManageTagsPage';
-import { HomePage } from '@fider/pages/site/HomePage';
-import { ShowIdeaPage } from '@fider/pages/site/ShowIdeaPage';
-import { UserSettingsPage } from '@fider/pages/site/UserSettingsPage';
-import { UserNotificationsPage } from '@fider/pages/site/UserNotificationsPage';
-import { CompleteSignInProfilePage } from '@fider/pages/site/CompleteSignInProfilePage';
-import { SignUpPage } from '@fider/pages/signup/SignUpPage';
+import {
+  HomePage,
+  SignUpPage,
+  ManageMembersPage,
+  CompleteSignInProfilePage,
+  AdminHomePage,
+  ManageTagsPage,
+  ShowIdeaPage,
+  MySettingsPage,
+  MyNotificationsPage,
+} from '@fider/pages';
 
 interface PageConfiguration {
   id: string;
@@ -27,15 +29,15 @@ const route = (path: string, component: any, id: string, showHeader: boolean): P
 };
 
 const pathRegex = [
-  route('', HomePage, 'fdr-home-page', true),
-  route('/ideas/:number*', ShowIdeaPage, 'fdr-show-idea-page', true),
-  route('/admin/members', MembersPage, 'fdr-admin-members-page', true),
-  route('/admin/tags', ManageTagsPage, 'fdr-admin-tags-page', true),
-  route('/admin', AdminHomePage, 'fdr-admin-page', true),
-  route('/signup', SignUpPage, 'fdr-signup-page', false),
-  route('/signin/verify', CompleteSignInProfilePage, 'fdr-complete-signin-profile', true),
-  route('/notifications', UserNotificationsPage, 'fdr-user-notifications', true),
-  route('/settings', UserSettingsPage, 'fdr-user-settings', true),
+  route('', HomePage, 'p-home', true),
+  route('/ideas/:number*', ShowIdeaPage, 'p-show-idea-page', true),
+  route('/admin/members', ManageMembersPage, 'p-manage-members', true),
+  route('/admin/tags', ManageTagsPage, 'p-manage-tags', true),
+  route('/admin', AdminHomePage, 'p-admin-home', true),
+  route('/signup', SignUpPage, 'p-signup', false),
+  route('/signin/verify', CompleteSignInProfilePage, 'p-complete-signin-profile', true),
+  route('/notifications', MyNotificationsPage, 'p-my-notifications', true),
+  route('/settings', MySettingsPage, 'p-my-settings', true),
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {
