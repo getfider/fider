@@ -60,9 +60,11 @@ func (r *Renderer) getBundle(folder string) string {
 		return files[0].Name()
 	}
 
+	//During Test run, don't panic if bundle is not available
 	if env.IsTest() {
 		return ""
 	}
+
 	panic(fmt.Sprintf("Bundle not found: %s.", folder))
 }
 
