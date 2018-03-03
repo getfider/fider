@@ -2,6 +2,7 @@ package dbx
 
 import (
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"time"
