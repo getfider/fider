@@ -92,7 +92,7 @@ func (db Database) Migrate() {
 	if err != nil && err != migrate.ErrNoChange {
 		db.logger.Errorf("Error: %s.", err)
 
-		panic("Migrations failed.")
+		panic(fmt.Sprintf("Migrations failed with %s", err))
 	} else {
 		db.logger.Infof("Migrations finished with success.")
 	}
