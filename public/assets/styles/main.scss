@@ -6,6 +6,10 @@
   text-align: center;
 }
 
+*:focus {
+  outline: 0;
+}
+
 .page::after {
   content: "";
   clear: both;
@@ -160,37 +164,6 @@ code {
   &.staff {
     font-weight: 700;
     color: $admin-color;
-  }
-}
-
-.support-counter {
-  margin-right: 10px;
-
-  .button, 
-  .button.disabled {
-    font-size: 18px;
-    min-width: 45px;
-    margin: 0 auto !important;
-    padding: 0rem 0rem 0.5rem 0rem !important;
-    background-color: #fff !important;
-
-    i.icon {
-      color: #C4C9CD;
-    }
-  }
-
-  .button.supported, 
-  .button.no-touch:hover {
-    color: $main-color;
-
-    i.icon {
-      color: lighten($main-color, 20%) !important;
-    }
-  }
-
-  i.icon {
-    margin: 0 auto !important;
-    display: block;
   }
 }
 

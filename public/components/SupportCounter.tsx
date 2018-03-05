@@ -1,3 +1,5 @@
+import './SupportCounter.scss';
+
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
 import { page, actions } from '@fider/services';
@@ -45,7 +47,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     const vote = (
       <button
-        className={`ui button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
+        className={`button ${noTouch ? 'no-touch' : ''} ${this.state.supported ? 'supported' : ''} `}
         onClick={async () => await this.supportOrUndo()}
       >
         <i className="medium caret up icon" />
@@ -54,14 +56,14 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     );
 
     const disabled = (
-      <div className="ui button disabled">
+      <div className="button disabled">
         <i className="medium caret up icon" />
         {this.state.total}
       </div>
     );
 
     return  (
-      <div className="support-counter ui">
+      <div className="c-support-counter">
         {status.closed ? disabled : vote}
       </div>
     );
