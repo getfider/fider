@@ -30,7 +30,7 @@ const route = (path: string, component: any, id: string, showHeader: boolean): P
 
 const pathRegex = [
   route('', HomePage, 'p-home', true),
-  route('/ideas/:number*', ShowIdeaPage, 'p-show-idea-page', true),
+  route('/ideas/:number*', ShowIdeaPage, 'p-show-idea', true),
   route('/admin/members', ManageMembersPage, 'p-manage-members', true),
   route('/admin/tags', ManageTagsPage, 'p-manage-tags', true),
   route('/admin', AdminHomePage, 'p-admin-home', true),

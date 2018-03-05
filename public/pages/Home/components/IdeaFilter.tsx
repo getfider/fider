@@ -49,7 +49,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
         ));
 
         return (
-          <h4 className="ui header">
+          <>
               <div className="content">
                 Showing {' '}
                 <div className="ideas-filter ui inline dropdown" ref={(e) => this.element = e!}>
@@ -65,7 +65,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
                     </div>
                 </div>
               </div>
-          </h4>
+          </>
         );
     }
 }
