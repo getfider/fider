@@ -8,7 +8,7 @@ interface ButtonProps {
   href?: string;
   color?: 'green' | 'red';
   fluid?: boolean;
-  size?: 'mini' | 'tiny' | 'small' | 'large';
+  size?: 'mini' | 'tiny' | 'small' | 'normal' | 'large';
   onClick?: (event: ButtonClickEvent) => Promise<any>;
 }
 
@@ -32,7 +32,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   private unmounted: boolean = false;
 
   public static defaultProps: Partial<ButtonProps> = {
-    size: 'small',
+    size: 'normal',
     fluid: false,
   };
 
@@ -72,6 +72,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
     const className = classSet({
       'c-button': true,
+      'fluid': this.props.fluid,
       [this.props.size!]: this.props.size,
       [this.props.color!]: this.props.color,
       'loading': this.state.clicked,

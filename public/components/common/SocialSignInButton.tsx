@@ -9,18 +9,15 @@ interface SocialSignInButtonProps {
 const providers = {
   google: {
     name: 'Google',
-    class: 'google plus',
-    icon: 'google'
+    class: 'social google',
   },
   facebook: {
     name: 'Facebook',
-    class: 'facebook',
-    icon: 'facebook f'
+    class: 'social facebook',
   },
   github: {
     name: 'GitHub',
-    class: 'github black',
-    icon: 'github'
+    class: 'social github',
   }
 };
 
@@ -29,8 +26,8 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     const href = `${this.props.oauthEndpoint}/oauth/${this.props.provider}?redirect=${location.href}`;
 
     return (
-      <Button size="small" href={href} className={`${providers[this.props.provider].class} fluid`}>
-        <i className={`icon ${providers[this.props.provider].icon}`} />
+      <Button href={href} fluid={true} className={providers[this.props.provider].class}>
+        <i className="svg" />
         <span>{providers[this.props.provider].name}</span>
       </Button>
     );

@@ -25,8 +25,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     constructor(props: IdeaInputProps) {
       super(props);
       this.state = {
-        title: cache.get(CACHE_TITLE_KEY) || '',
-        description: cache.get(CACHE_DESCRIPTION_KEY) || '',
+        title: !!this.props.user && cache.get(CACHE_TITLE_KEY) || '',
+        description: !!this.props.user && cache.get(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
       if (this.state) {

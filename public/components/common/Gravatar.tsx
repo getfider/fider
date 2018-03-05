@@ -17,7 +17,7 @@ export const Gravatar = (props: GravatarProps) => {
   return (
     <img
       ref={(e) => element = e}
-      className={`fdr-avatar image ${isCollaborator && 'staff'}`}
+      className={`ui fdr-avatar image ${isCollaborator && 'staff'}`}
       title={name}
       src={url}
     />

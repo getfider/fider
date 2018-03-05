@@ -151,6 +151,7 @@ code {
 .fdr-avatar {
   border-radius: 50%;
   width: 30px;
+  height: 30px;
   vertical-align: middle;
   padding: 1px;
   &.staff {
@@ -268,10 +269,6 @@ code {
   .ui.stackable.grid>.column:not(.row),
   .column {
     padding: 10px 5px !important;
-  }
-
-  .button.fluid {
-    padding: 10px 5px;
   }
 }
 
