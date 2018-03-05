@@ -1,0 +1,88 @@
+@import '~@fider/assets/styles/variables.scss';
+
+#p-home {
+
+  .welcome-message {
+    margin-bottom: 20px;
+  }
+
+  .fdr-idea-list {
+    > .item {
+      a.title {
+        max-width: 85%;
+        color: #000;
+        font-size: 18px;
+        &:hover {
+          color: $main-color;
+        }
+      }
+      
+      .description {
+        color:rgba(0, 0, 0, 0.5) !important;
+        min-height: 20px;
+        margin-bottom: 10px;
+      }
+    }
+    .show-more {
+      cursor: pointer;
+      margin-left: 55px;
+    }
+  }
+
+  .ideas-filter {
+    .item {
+      .label {
+        font-size: 8px;
+        margin-left: 5px;
+      }
+    }
+  }
+
+  .tags-filter.has-selection {
+    i.filter {
+      vertical-align: middle;
+    }
+    .ui.label.transition {
+      background-color: transparent;
+      box-shadow: none;
+      font-weight: 500;
+      .ui.empty.circular.label {
+        font-size: .71428571rem;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .filter-column {
+    display: flex;
+    align-items: center;
+  }
+
+  .no-ideas-found {
+    margin-top: 10px;
+  }
+
+  #new-idea-input {
+    margin-bottom: 20px;
+    border: none;
+    border-bottom: 1px dashed $main-color;
+    font-size: 18px;
+    background-color: $bg-color;
+    padding: 0px 0px 10px 0px;
+    font-weight: bold;
+    margin: 0px 0px 10px 0px;
+    border-radius: 0;
+  }
+
+  .signin-message {
+    @media only screen and (min-width: 768px) and (max-width: 991px) {
+      span {
+        display: none;
+      }
+      i {
+        margin: 0 auto !important;
+      }
+    }
+  }
+
+}

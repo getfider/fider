@@ -55,14 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (root) {
     const config = resolveRootComponent(location.pathname);
     ReactDOM.render(
-      <div>
+      <>
         {!w.props.user && React.createElement(SignInModal, w.props)}
         <div id={config.id}>
           {config.showHeader && React.createElement(Header, w.props)}
           {React.createElement(config.component, w.props)}
           {React.createElement(Footer, w.props)}
         </div>
-      </div>,
+      </>,
       root
     );
   }

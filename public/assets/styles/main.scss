@@ -24,6 +24,12 @@ body {
   background-color: $bg-color;
 }
 
+body, h1, h2, h3, h4, h5, .ui, input {
+  font-family: 'Ubuntu', sans-serif !important;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
 #environment-info {
   padding: 2px;
   border-radius: 0px;

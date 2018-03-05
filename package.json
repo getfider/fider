@@ -9,7 +9,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-textarea-autosize": "^5.2.1",
-    "semantic-ui-css": "^2.3.0"
+    "semantic-ui-css": "2.2.14"
   },
   "devDependencies": {
     "reflect-metadata": "^0.1.12",
