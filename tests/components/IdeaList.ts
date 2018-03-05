@@ -9,7 +9,7 @@ export class IdeaList {
   }
 
   public async want(index: number) {
-    await (await this.elements)[index].findElement(By.css('.support-counter .button')).click();
+    await (await this.elements)[index].findElement(By.css('.c-support-counter button')).click();
   }
 
   public async navigateAndWait(index: number, condition: WaitCondition) {
@@ -18,7 +18,7 @@ export class IdeaList {
   }
 
   public async at(index: number): Promise<WebComponent> {
-    const selector = '.support-counter .button';
+    const selector = '.c-support-counter button';
     const counter = (await this.elements)[index].findElement(By.css(selector));
     return new WebComponent(counter, selector);
   }

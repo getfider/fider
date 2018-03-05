@@ -1,10 +1,14 @@
 import * as React from 'react';
+import { classSet } from '@fider/services';
 
 interface ButtonProps {
   className?: string;
   simple?: boolean;
+  disabled?: boolean;
   href?: string;
-  size?: 'mini' | 'tiny' | 'small' | 'large';
+  color?: 'green' | 'red';
+  fluid?: boolean;
+  size?: 'mini' | 'tiny' | 'small' | 'normal' | 'large';
   onClick?: (event: ButtonClickEvent) => Promise<any>;
 }
 
@@ -28,7 +32,8 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   private unmounted: boolean = false;
 
   public static defaultProps: Partial<ButtonProps> = {
-    size: 'tiny',
+    size: 'normal',
+    fluid: false,
   };
 
   public constructor(props: ButtonProps) {
@@ -63,16 +68,27 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   }
 
   public render() {
-    const cssClasses = `ui ${this.props.size} ${this.props.simple ? 'as-link' : 'button'} ${this.props.className || ''} ${this.state.clicked ? 'loading disabled' : ''}`;
+    // TODO: as-link if simple === true
+
+    const className = classSet({
+      'c-button': true,
+      'fluid': this.props.fluid,
+      [this.props.size!]: this.props.size,
+      [this.props.color!]: this.props.color,
+      'loading': this.state.clicked,
+      'disabled': this.state.clicked || this.props.disabled,
+      [this.props.className!]: this.props.className,
+    });
+
     if (this.props.href) {
       return (
-        <a href={this.props.href} className={cssClasses} onClick={() => this.click()}>
+        <a href={this.props.href} className={className} onClick={() => this.click()}>
           {this.props.children}
         </a>
       );
     } else {
       return (
-        <button type="button" className={cssClasses} onClick={(e) => this.click(e)}>
+        <button type="button" className={className} onClick={(e) => this.click(e)}>
           {this.props.children}
         </button>
       );

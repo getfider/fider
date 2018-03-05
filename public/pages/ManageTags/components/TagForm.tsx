@@ -122,17 +122,8 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
             />
           </div>
         </div>
-        <Button
-          onClick={async () => this.props.onCancel()}
-        >
-          Cancel
-        </Button>
-        <Button
-          className="positive"
-          onClick={(e) => this.onSave(e)}
-        >
-          Save
-        </Button>
+        <Button onClick={async () => this.props.onCancel()}>Cancel</Button>
+        <Button color="green" onClick={(e) => this.onSave(e)}>Save</Button>
       </div>
     );
   }

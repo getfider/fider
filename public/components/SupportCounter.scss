@@ -1,0 +1,41 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-support-counter {
+  margin-right: 10px;
+
+  button, 
+  button.supported,
+  button.disabled {
+    font-size: 18px;
+    border: none;
+    width: 45px;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: $bg-color;
+    text-align: center;
+    margin: 0 auto;
+    padding: 0 0;
+
+    i.icon {
+      color: #C4C9CD;
+    }
+  }
+
+  button.disabled {
+    @include disabled();
+  }
+
+  button.supported, 
+  button.no-touch:hover {
+    color: $main-color;
+
+    i.icon {
+      color: lighten($main-color, 20%) !important;
+    }
+  }
+
+  i.icon {
+    margin: 0 auto;
+    display: block;
+  }
+}

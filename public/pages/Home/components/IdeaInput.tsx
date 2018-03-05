@@ -25,8 +25,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     constructor(props: IdeaInputProps) {
       super(props);
       this.state = {
-        title: cache.get(CACHE_TITLE_KEY) || '',
-        description: cache.get(CACHE_DESCRIPTION_KEY) || '',
+        title: !!this.props.user && cache.get(CACHE_TITLE_KEY) || '',
+        description: !!this.props.user && cache.get(CACHE_DESCRIPTION_KEY) || '',
         focused: false
       };
       if (this.state) {
@@ -75,7 +75,6 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     public render() {
-      const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
       const details = (
         <div>
           <div className="field">
@@ -85,7 +84,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
               placeholder="Describe your idea"
             />
           </div>
-          <Button className={buttonCss} onClick={(e) => this.submit(e)}>
+          <Button color="green" onClick={(e) => this.submit(e)}>
             Submit
           </Button>
         </div>

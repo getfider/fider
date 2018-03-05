@@ -6,6 +6,14 @@
   text-align: center;
 }
 
+*:focus {
+  outline: 0;
+}
+
+[type=reset], [type=submit], button, html [type=button] {
+  -webkit-appearance: button;
+}
+
 .page::after {
   content: "";
   clear: both;
@@ -14,10 +22,6 @@
 
 noscript {
   margin-top: 20px;
-}
-
-.ui.button.text-left {
-  text-align: left;
 }
 
 body {
@@ -143,6 +147,7 @@ code {
 .fdr-avatar {
   border-radius: 50%;
   width: 30px;
+  height: 30px;
   vertical-align: middle;
   padding: 1px;
   &.staff {
@@ -160,37 +165,6 @@ code {
   &.staff {
     font-weight: 700;
     color: $admin-color;
-  }
-}
-
-.support-counter {
-  margin-right: 10px;
-
-  .button, 
-  .button.disabled {
-    font-size: 18px;
-    min-width: 45px;
-    margin: 0 auto !important;
-    padding: 0rem 0rem 0.5rem 0rem !important;
-    background-color: #fff !important;
-
-    i.icon {
-      color: #C4C9CD;
-    }
-  }
-
-  .button.supported, 
-  .button.no-touch:hover {
-    color: $main-color;
-
-    i.icon {
-      color: lighten($main-color, 20%) !important;
-    }
-  }
-
-  i.icon {
-    margin: 0 auto !important;
-    display: block;
   }
 }
 
@@ -291,10 +265,6 @@ code {
   .ui.stackable.grid>.column:not(.row),
   .column {
     padding: 10px 5px !important;
-  }
-
-  .button.fluid {
-    padding: 10px 5px;
   }
 }
 

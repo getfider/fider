@@ -23,7 +23,6 @@ import 'semantic-ui-css/components/table.min.css';
 import 'semantic-ui-css/components/checkbox.min.css';
 import 'semantic-ui-css/components/transition.min.css';
 import 'semantic-ui-css/components/header.min.css';
-import 'semantic-ui-css/components/button.min.css';
 import 'semantic-ui-css/components/form.min.css';
 import 'semantic-ui-css/components/container.min.css';
 import 'semantic-ui-css/components/modal.min.css';

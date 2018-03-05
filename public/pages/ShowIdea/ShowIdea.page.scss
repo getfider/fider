@@ -9,6 +9,7 @@
     }
     .fdr-avatar {
       width: 24px;
+      height: 24px;
     }
   }
 
@@ -53,7 +54,7 @@
       }
       i {
         display: inline-block;
-        color: $positive-color;
+        color: $green;
       }
       .ui.circular.label {
         margin-right: 5px;

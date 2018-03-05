@@ -64,13 +64,13 @@ export class ManageMembersPage extends React.Component<ManageMembersPageProps, M
           <div className="right floated content">
             {
               removable &&
-              <Button size="mini" onClick={() => this.changeRole(user, UserRole.Visitor)} className="red showover">
+              <Button size="tiny" color="red" onClick={() => this.changeRole(user, UserRole.Visitor)} className="showover">
                 <i className="remove icon" />Remove
               </Button>
             }
             {
               addable &&
-              <Button size="mini" onClick={() => this.changeRole(user, role)} className="green showover">
+              <Button size="tiny" color="green" onClick={() => this.changeRole(user, role)} className="showover">
                 <i className="add icon" />Add
               </Button>
             }

@@ -1,3 +1,5 @@
+import './Header.scss';
+
 import * as React from 'react';
 import { SystemSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
@@ -68,7 +70,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     );
 
     return (
-      <div>
+      <div className="c-header">
         <EnvironmentInfo system={this.props.system}/>
         <div id="menu" className="ui small borderless menu">
           <div className="ui container">

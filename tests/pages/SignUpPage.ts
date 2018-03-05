@@ -10,31 +10,31 @@ export class SignUpPage extends Page {
     return `http://login.dev.fider.io:3000/signup`;
   }
 
-  @findBy('#fdr-signup-page')
+  @findBy('#p-signup')
   private Container!: WebComponent;
 
-  @findBy('#fdr-signup-page .button.google')
+  @findBy('#p-signup .c-button.google')
   public GoogleSignIn!: Button;
 
-  @findBy('#fdr-signup-page .button.facebook')
+  @findBy('#p-signup .c-button.facebook')
   public FacebookSignIn!: Button;
 
-  @findBy('#fdr-signup-page .form #name')
+  @findBy('#p-signup .form #name')
   public UserName!: TextInput;
 
-  @findBy('#fdr-signup-page .form #email')
+  @findBy('#p-signup .form #email')
   public UserEmail!: TextInput;
 
-  @findBy('#fdr-signup-page .form #tenantName')
+  @findBy('#p-signup .form #tenantName')
   public TenantName!: TextInput;
 
-  @findBy('#fdr-signup-page .form #subdomain')
+  @findBy('#p-signup .form #subdomain')
   public Subdomain!: TextInput;
 
-  @findBy('#fdr-signup-page .button.positive')
+  @findBy('#p-signup .c-button.green')
   public Confirm!: Button;
 
-  @findBy('#fdr-signup-page .page .green.basic.label')
+  @findBy('#p-signup .page .green.basic.label')
   private SubdomainOk!: WebComponent;
 
   @findBy('#submitted-modal')

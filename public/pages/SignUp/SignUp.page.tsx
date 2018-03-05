@@ -124,16 +124,14 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
           {
             this.user ?
-            <div>
-              <p>
-                Hello, &nbsp;
-                <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
-              </p>
-            </div> :
-            <div>
+            <p>
+              Hello, &nbsp;
+              <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
+            </p> :
+            <>
               <p>We need to identify you to setup your new Fider account.</p>
-                <SignInControl auth={this.props.auth} signInByEmail={false} />
-                <div className="ui form">
+              <SignInControl auth={this.props.auth} signInByEmail={false} />
+              <div className="ui form">
                 <DisplayError fields={['name', 'email']} error={this.state.error} />
                 <div className="fluid field">
                   <input id="name" onChange={(e) => this.setState({ name: e.currentTarget.value })} type="text" placeholder="your name" className="small" />
@@ -142,7 +140,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
                   <input id="email" onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
                 </div>
               </div>
-            </div>
+            </>
           }
 
           <div className="ui section divider" />
@@ -193,7 +191,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
           <p>Make sure information provided above is correct before proceeding.</p>
 
-          <Button className="positive" size="large" onClick={() => this.confirm()}>Confirm</Button>
+          <Button color="green" size="large" onClick={() => this.confirm()}>Confirm</Button>
         </div>
       );
     }

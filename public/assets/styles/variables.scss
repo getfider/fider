@@ -1,16 +1,38 @@
-$main-color: #0069ff; //#0c9
+$font-size-mini: 10px;
+$font-size-tiny: 11px;
+$font-size-small: 12px;
+$font-size: 14px;
+$font-size-large: 16px;
+
+$main-color: #0069ff;
 $admin-color: #365899;
 $bg-color: #fff;
 $menu-color: #f9f9f9;
+$text-color: #333;
 
 $link-color: #07C;
-$negative-color: #db2828;
-$positive-color: #21ba45;
+
+// Buttons
+$white: #fff;
+$gray-lighter: #eee;
+$gray-darker: #d5d5d5;
+$green: #15CD72;
+$green-darker: #0CB863;
+$red: #db2828;
 
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
-    @return #484848; // Lighter backgorund, return dark color
+    @return #484848; // Lighter background, return dark color
   } @else {
     @return #ffffff; // Darker background, return light color
   }
+}
+
+@mixin disabled() {
+  cursor: default;
+  opacity: .45!important;
+  background-image: none!important;
+  -webkit-box-shadow: none!important;
+  box-shadow: none!important;
+  pointer-events: none!important;
 }
