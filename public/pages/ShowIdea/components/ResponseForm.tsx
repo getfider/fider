@@ -53,7 +53,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   public render() {
     const button = (
-      <Button className="respond" fluid={true} onClick={async () => this.showModal()}>
+      <Button className="respond" size="small" fluid={true} onClick={async () => this.showModal()}>
         <i className="announcement icon" /> Respond
       </Button>
     );
