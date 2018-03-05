@@ -2,7 +2,7 @@ import './SupportCounter.scss';
 
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
-import { page, actions } from '@fider/services';
+import { page, actions, classSet } from '@fider/services';
 
 interface SupportCounterProps {
   user?: User;
@@ -42,17 +42,17 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   }
 
   public render() {
-    const noTouch = !('ontouchstart' in window);
     const status = IdeaStatus.Get(this.props.idea.status);
 
-    const modifier = status.closed ? 'button-disabled'
-                     : this.state.supported
-                     ? 'button-supported'
-                     : 'button';
+    const className = classSet({
+      'supported': !status.closed && this.state.supported,
+      'disabled': status.closed,
+      'no-touch': !('ontouchstart' in window),
+    });
 
     const vote = (
       <button
-        className={`${modifier} ${noTouch ? 'no-touch' : ''}`}
+        className={className}
         onClick={async () => await this.supportOrUndo()}
       >
         <i className="medium caret up icon" />
@@ -61,7 +61,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     );
 
     const disabled = (
-      <div className={modifier}>
+      <div className={className}>
         <i className="medium caret up icon" />
         {this.state.total}
       </div>

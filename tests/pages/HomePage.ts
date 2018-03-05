@@ -26,7 +26,7 @@ export class HomePage extends Page {
   @findBy('.ui.form textarea')
   public IdeaDescription!: TextInput;
 
-  @findBy('.ui.button.green')
+  @findBy('.c-button.green')
   public SubmitIdea!: Button;
 
   @findBy('.signin')
@@ -38,10 +38,10 @@ export class HomePage extends Page {
   @findBy('#signin-modal')
   public SignInModal!: WebComponent;
 
-  @findBy('#signin-modal .button.google')
+  @findBy('#signin-modal .c-button.google')
   public GoogleSignIn!: Button;
 
-  @findBy('#signin-modal .button.facebook')
+  @findBy('#signin-modal .c-button.facebook')
   public FacebookSignIn!: Button;
 
   @findBy('#email-signin input')

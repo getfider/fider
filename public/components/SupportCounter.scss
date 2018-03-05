@@ -3,9 +3,9 @@
 .c-support-counter {
   margin-right: 10px;
 
-  .button, 
-  .button-supported,
-  .button-disabled {
+  button, 
+  button.supported,
+  button.disabled {
     font-size: 18px;
     border: none;
     width: 45px;
@@ -21,12 +21,12 @@
     }
   }
 
-  .button-disabled {
+  button.disabled {
     @include disabled();
   }
 
-  .button-supported, 
-  .button.no-touch:hover {
+  button.supported, 
+  button.no-touch:hover {
     color: $main-color;
 
     i.icon {

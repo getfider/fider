@@ -37,12 +37,12 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
 
     const button = this.state.subscribed
     ? (
-      <Button className="icon fluid text-left" onClick={this.subscribeOrUnsubscribe}>
+      <Button fluid={true} onClick={this.subscribeOrUnsubscribe}>
         <i className="volume off icon" /> Unsubscribe
       </Button>
       )
     : (
-      <Button className="icon fluid text-left" onClick={this.subscribeOrUnsubscribe}>
+      <Button fluid={true} onClick={this.subscribeOrUnsubscribe}>
         <i className="volume up icon" /> Subscribe
       </Button>
     );

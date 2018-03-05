@@ -18,7 +18,7 @@ export class ShowIdeaPage extends Page {
   @findBy('.fdr-response .content')
   public ResponseText!: WebComponent;
 
-  @findBy('.support-counter .button')
+  @findBy('.c-support-counter button')
   public SupportCounter!: WebComponent;
 
   @findBy('.comment-input textarea')
