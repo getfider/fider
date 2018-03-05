@@ -14,3 +14,12 @@ $positive-color: #21ba45;
     @return #ffffff; // Darker background, return light color
   }
 }
+
+@mixin disabled() {
+  cursor: default;
+  opacity: .45!important;
+  background-image: none!important;
+  -webkit-box-shadow: none!important;
+  box-shadow: none!important;
+  pointer-events: none!important;
+}
