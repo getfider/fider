@@ -50,7 +50,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
                 placeholder="Your display name"
                 className="small"
               />
-              <Button onClick={() => this.submit()} className={`small positive ${this.state.name === '' && 'disabled'}`}>
+              <Button onClick={() => this.submit()} size="small" color="green" disabled={this.state.name === ''}>
                 Submit
               </Button>
             </div>

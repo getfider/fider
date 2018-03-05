@@ -95,7 +95,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
             <Form ref={(f) => { this.form = f!; }}>
               <div id="email-signin" className="ui small action fluid input">
                   <input onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
-                  <Button onClick={() => this.signIn()} className={`positive ${this.state.email === '' && 'disabled'}`}>
+                  <Button color="green" disabled={this.state.email === ''} onClick={() => this.signIn()}>
                     Sign in
                   </Button>
               </div>

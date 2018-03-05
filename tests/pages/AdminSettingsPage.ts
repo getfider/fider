@@ -19,7 +19,7 @@ export class AdminSettingsPage extends Page {
   @findBy('#invitation')
   public InvitationInput!: TextInput;
 
-  @findBy('button.positive')
+  @findBy('button.green')
   public ConfirmButton!: Button;
 
   public loadCondition() {

@@ -10,6 +10,10 @@
   outline: 0;
 }
 
+[type=reset], [type=submit], button, html [type=button] {
+  -webkit-appearance: button;
+}
+
 .page::after {
   content: "";
   clear: both;

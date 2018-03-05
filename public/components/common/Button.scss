@@ -1,26 +1,130 @@
 @import '~@fider/assets/styles/variables.scss';
 
-.as-link {
-  padding: 0;
-  font-size: 12px;
-  border: none;
-  outline: none;
+.c-button {
   cursor: pointer;
-  background-color: transparent;
-  
-  i {
-    margin: 0;
-  }
-  
-  &:hover {
-    text-decoration: underline;
+  font-size: $font-size;
+  color: $text-color;
+  border-radius: 3px;
+  background-color: $gray-lighter;
+  border: none;
+  margin: 0 4px 0 0;
+  padding: 10px;
+  text-align: left;
+  font-weight: 700;
+
+  &.green {
+    color: $white;
+    background-color: $green;
+
+    &:hover {
+      background-color: $green-darker;
+    }
   }
 
-  &.negative {
-    color: $negative-color;
+  &.red {
+    color: $red;
+    border: 1px solid $red;
+    background-color: transparent;
+
+    &:hover {
+      color: $white;
+      background-color: $red;
+    }
   }
-  
-  &.positive {
-    color: $positive-color;
+
+  &:hover {
+    background-color: $gray-darker;
+  }
+
+  &.mini {
+    padding: 7px;
+    font-size: $font-size-mini;
+  }
+
+  &.tiny {
+    padding: 8px;
+    font-size: $font-size-tiny;
+  }
+
+  &.small {
+    padding: 9px;
+    font-size: $font-size-small;
+  }
+
+  &.large {
+    padding: 11px;
+    font-size: $font-size-large;
+  }
+
+  &.fluid {
+    width: 100%;
+  }
+
+  &.loading {
+    position: relative;
+    cursor: default;
+    text-shadow: none!important;
+    color: transparent!important;
+    opacity: 1;
+    pointer-events: auto;
+    -webkit-transition: all 0s linear,opacity .1s ease;
+    transition: all 0s linear,opacity .1s ease;
+
+    &:before {
+      position: absolute;
+      content: '';
+      top: 50%;
+      left: 50%;
+      margin: -.64285714em 0 0 -.64285714em;
+      width: 1.28571429em;
+      height: 1.28571429em;
+      border-radius: 500rem;
+      border: .2em solid rgba(0,0,0,.15);
+    }
+    
+    &:after {
+        position: absolute;
+        content: '';
+        top: 50%;
+        left: 50%;
+        margin: -.64285714em 0 0 -.64285714em;
+        width: 1.28571429em;
+        height: 1.28571429em;
+        -webkit-animation: button-spin .6s linear;
+        animation: button-spin .6s linear;
+        -webkit-animation-iteration-count: infinite;
+        animation-iteration-count: infinite;
+        border-radius: 500rem;
+        border-color: #fff transparent transparent;
+        border-style: solid;
+        border-width: .2em;
+        -webkit-box-shadow: 0 0 0 1px transparent;
+        box-shadow: 0 0 0 1px transparent;
+    }
+  }
+
+  &.disabled {
+    @include disabled();
+  }
+}
+
+@-webkit-keyframes button-spin {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@keyframes button-spin {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
   }
 }

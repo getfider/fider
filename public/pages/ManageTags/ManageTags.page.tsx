@@ -96,7 +96,8 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
                   Cancel
                 </Button>
                 <Button
-                  className="negative right floated"
+                  color="red"
+                  className="right floated"
                   onClick={() => this.deleteTag(t)}
                 >
                   Delete tag
@@ -112,17 +113,15 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
                 this.props.user.isAdministrator && [
                   <Button
                     key={0}
-                    simple={true}
                     onClick={async () => this.setState({ isAdding: false, editing: undefined, deleting: t.id })}
-                    className="icon negative right floated"
+                    className="right floated"
                   >
                     <i className="remove icon" />Remove
                   </Button>,
                   <Button
                     key={1}
-                    simple={true}
                     onClick={async () => this.setState({ isAdding: false, editing: t.id, deleting: undefined })}
-                    className="icon right floated"
+                    className="right floated"
                   >
                     <i className="edit icon" />Edit
                   </Button>
@@ -153,7 +152,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
                 />
               </div>
               : <Button
-                className="positive"
+                color="green"
                 onClick={async (e) => this.setState({ isAdding: true, deleting: undefined, editing: undefined })}
               >
                 Add new

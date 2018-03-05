@@ -89,7 +89,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
                 <div className="info">
                   <p>Use this space to change message of your initial page.</p>
                   <p>Common use case for this area is a brief description of what is your company/product, why you created this space and how the visitors can collaborate.</p>
-                  <p>This field is powered by Commonmark. You can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
+                  <p>This field is powered by CommonMark. You can style and add links to your message. Learn more at <a target="_blank" href="http://commonmark.org/help/">http://commonmark.org/help/</a>.</p>
                 </div>
               </div>
               <DisplayError fields={['invitation']} error={this.state.error} />
@@ -137,7 +137,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
               {
                 this.props.user.isAdministrator &&
                 <div className="field">
-                  <Button className="positive" size="tiny" onClick={async (e) => await this.confirm(e)}>Confirm</Button>
+                  <Button color="green" size="large" onClick={async (e) => await this.confirm(e)}>Confirm</Button>
                 </div>
               }
             </div>

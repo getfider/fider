@@ -31,7 +31,7 @@ export class SignUpPage extends Page {
   @findBy('#fdr-signup-page .form #subdomain')
   public Subdomain!: TextInput;
 
-  @findBy('#fdr-signup-page .button.positive')
+  @findBy('#fdr-signup-page .button.green')
   public Confirm!: Button;
 
   @findBy('#fdr-signup-page .page .green.basic.label')

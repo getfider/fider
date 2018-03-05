@@ -99,10 +99,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
         </div>
 
         <div className="actions">
-          <Button className="primary" onClick={() => this.submit()}>
+          <Button color="green" onClick={() => this.submit()}>
             Submit
           </Button>
-          <Button className="basic" onClick={async () => this.closeModel()}>
+          <Button onClick={async () => this.closeModel()}>
             Cancel
           </Button>
         </div>

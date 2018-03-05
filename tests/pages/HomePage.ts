@@ -26,7 +26,7 @@ export class HomePage extends Page {
   @findBy('.ui.form textarea')
   public IdeaDescription!: TextInput;
 
-  @findBy('.ui.button.primary')
+  @findBy('.ui.button.green')
   public SubmitIdea!: Button;
 
   @findBy('.signin')

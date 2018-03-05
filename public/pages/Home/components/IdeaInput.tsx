@@ -75,7 +75,6 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
 
     public render() {
-      const buttonCss = this.state.title === '' ? 'primary disabled' : 'primary';
       const details = (
         <div>
           <div className="field">
@@ -85,7 +84,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
               placeholder="Describe your idea"
             />
           </div>
-          <Button className={buttonCss} onClick={(e) => this.submit(e)}>
+          <Button color="green" onClick={(e) => this.submit(e)}>
             Submit
           </Button>
         </div>

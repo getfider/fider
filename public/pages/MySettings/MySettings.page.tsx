@@ -103,7 +103,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                           value={this.state.newEmail}
                           onChange={(e) => this.setState({ newEmail: e.currentTarget.value })}
                         />
-                        <Button className="positive" size="mini" onClick={async () => await this.submitNewEmail()}>Confirm</Button>
+                        <Button color="green" size="mini" onClick={async () => await this.submitNewEmail()}>Confirm</Button>
                         <Button size="mini" onClick={async () => this.setState({ changingEmail: false, error: undefined })}>Cancel</Button>
                       </p>
                     </>
@@ -139,7 +139,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               />
 
               <div className="field">
-                <Button className="positive" size="tiny" onClick={async () => await this.confirm()}>Confirm</Button>
+                <Button color="green" size="large" onClick={async () => await this.confirm()}>Confirm</Button>
               </div>
             </div>
           </div>

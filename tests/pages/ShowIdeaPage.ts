@@ -42,7 +42,7 @@ export class ShowIdeaPage extends Page {
   @findBy('.ui.modal.active.fdr-response-form textarea')
   private ResponseModalText!: TextInput;
 
-  @findBy('.ui.modal.active.fdr-response-form .actions button.primary')
+  @findBy('.ui.modal.active.fdr-response-form .actions button.green')
   private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {
