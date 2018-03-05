@@ -61,10 +61,10 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     );
 
     const disabled = (
-      <div className={className}>
+      <button className={className}>
         <i className="medium caret up icon" />
         {this.state.total}
-      </div>
+      </button>
     );
 
     return  (
