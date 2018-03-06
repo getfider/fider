@@ -4,7 +4,13 @@
         "target": "es5",
         "strict": true,
         "sourceMap": true,
-        "outDir": "output/tsc",
+        "types": [
+            "jquery", 
+            "markdown-it", 
+            "react", 
+            "react-dom", 
+            "react-textarea-autosize"
+        ],
         "jsx": "react",
         "lib": ["dom", "es2015.promise", "es6"],
         "experimentalDecorators": true,
@@ -15,5 +21,8 @@
                 "*"
             ]
         }
-    }
+    },
+    "include": [
+        "./public/**/*"
+    ],
 }

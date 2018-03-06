@@ -13,7 +13,7 @@ run_e2e () {
 
   echo "Compiling tests..."
   rm -rf output
-  ./node_modules/.bin/tsc
+  ./node_modules/.bin/tsc -p ./tests/tsconfig.json
 
   echo "Starting Fider (HOST_MODE: $1)..."
   docker rm -f $PG_CONTAINER || true
@@ -24,7 +24,7 @@ run_e2e () {
   {
     {
       echo "Running e2e tests ..."
-      ./node_modules/.bin/mocha -t 60000 output/tsc/tests/e2e-$1.js
+      ./node_modules/.bin/mocha -t 60000 output/tests/e2e-$1.js
     } || { 
       echo "Tests failed..."; 
     }

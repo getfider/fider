@@ -10,7 +10,7 @@ export const classSet = (input?: any): string => {
         classes += ` ${key}`;
       }
     }
-    return classes.trimLeft();
+    return classes.trim();
   }
   return '';
 };
