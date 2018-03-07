@@ -24,6 +24,6 @@ Read how you can help the project on [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Sponsors
 
-Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for fider.
+Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
 
 ![](etc/browserstack.png)
