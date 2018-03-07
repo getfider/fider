@@ -22,7 +22,7 @@ We have a monthly [GitHub Milestone](https://github.com/getfider/fider/milestone
 
 Read how you can help the project on [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### Sponsors
+# Sponsors
 
 Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
 
