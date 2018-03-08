@@ -2,13 +2,14 @@ import './MySettings.page.scss';
 
 import * as React from 'react';
 
-import { Form, DisplayError, Button, Gravatar } from '@fider/components/common';
+import { Modal, Form, DisplayError, Button, Gravatar } from '@fider/components/common';
 import { NotificationSettings } from './';
 
 import { CurrentUser, UserSettings } from '@fider/models';
 import { Failure, actions } from '@fider/services';
 
 interface MySettingsPageState {
+  showModal: boolean;
   name: string;
   newEmail: string;
   changingEmail: boolean;
@@ -26,6 +27,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {
+      showModal: false,
       changingEmail: false,
       newEmail: '',
       name: this.props.user.name,
@@ -45,9 +47,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
   private async submitNewEmail() {
     const result = await actions.changeUserEmail(this.state.newEmail);
     if (result.ok) {
-      this.setState({ error: undefined, changingEmail: false }, () => {
-        $('#confirmation-modal').modal('show');
-      });
+      this.setState({ error: undefined, changingEmail: false, showModal: true });
     } else if (result.error) {
       this.setState({ error: result.error });
     }
@@ -56,15 +56,15 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
   public render() {
     return (
       <div className="page ui container">
-        <div id="confirmation-modal" className="ui mini modal">
-          <div className="header">Confirm your new email</div>
-          <div className="content">
+        <Modal.Window isOpen={this.state.showModal} canClose={true} center={true}>
+          <Modal.Header>Confirm your new email</Modal.Header>
+          <Modal.Content>
             <div>
               <p>We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.</p>
-              <p><a href="#" onClick={() => $('#confirmation-modal').modal('hide')}>OK</a></p>
+              <p><a href="#" onClick={() => this.setState({ showModal: false })}>OK</a></p>
             </div>
-          </div>
-        </div>
+          </Modal.Content>
+        </Modal.Window>
 
         <h2 className="ui header">
           <i className="circular id badge icon" />

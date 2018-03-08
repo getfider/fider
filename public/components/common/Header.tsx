@@ -2,7 +2,7 @@ import './Header.scss';
 
 import * as React from 'react';
 import { SystemSettings, CurrentUser, Tenant } from '@fider/models';
-import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
+import { SignInModal, SignInControl, EnvironmentInfo, Gravatar } from '@fider/components';
 import { page, actions } from '@fider/services';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
 }
 
 interface HeaderState {
+  showSignIn: boolean;
   unreadNotifications: number;
 }
 
@@ -20,6 +21,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
   constructor(props: HeaderProps) {
     super(props);
     this.state = {
+      showSignIn: false,
       unreadNotifications: 0
     };
   }
@@ -36,7 +38,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
   private showModal() {
     if (!this.props.user) {
-      page.showSignIn();
+      this.setState({ showSignIn: true });
     }
   }
 
@@ -72,6 +74,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     return (
       <div className="c-header">
         <EnvironmentInfo system={this.props.system}/>
+        <SignInModal isOpen={this.state.showSignIn} />
         <div id="menu" className="ui small borderless menu">
           <div className="ui container">
             <a href="/" className="header item">

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { HomePage, HomePageProps } from '../';
-import { Form, Button } from '@fider/components/common';
+import { Modal, Form, Button } from '@fider/components/common';
 import { page, actions } from '@fider/services';
 
 interface CompleteSignInProfilePageState {
@@ -20,10 +20,6 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
     };
   }
 
-  public componentDidMount() {
-    page.showModal('#signin-complete-modal', { closable: false });
-  }
-
   private async submit() {
     const result = await actions.completeProfile(this.key, this.state.name);
     if (result.ok) {
@@ -34,12 +30,11 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
   }
 
   public render() {
-    const modal = (
-      <div id="signin-complete-modal" className="ui modal small">
-        <div className="header">
-          Complete your profile
-        </div>
-        <div className="content">
+    return (
+      <>
+        <Modal.Window canClose={false} isOpen={true}>
+          <Modal.Header>Complete your profile</Modal.Header>
+          <Modal.Content>
           <p>Because this is your first sign in, please input your display name.</p>
           <Form ref={(f) => { this.form = f!; }}>
             <div className="ui small action fluid input">
@@ -55,15 +50,10 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
               </Button>
             </div>
           </Form>
-        </div>
-      </div>
-    );
-
-    return (
-      <div>
-        {modal}
+          </Modal.Content>
+        </Modal.Window>
         {React.createElement(HomePage, this.props)}
-      </div>
+      </>
     );
   }
 }
