@@ -16,6 +16,10 @@
           color: $main-color;
         }
       }
+
+      .content {
+        width: calc(100% - 55px);
+      }
       
       .description {
         color:rgba(0, 0, 0, 0.5) !important;

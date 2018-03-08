@@ -112,7 +112,7 @@ code {
     max-width: 100%;
   }
   pre {
-    overflow: hidden;
+    overflow-x: scroll;
     padding: 16px;
     line-height: 1.45;
     background-color: #f6f8fa;
