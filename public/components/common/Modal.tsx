@@ -25,10 +25,6 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     this.state = {
       isOpen: this.props.isOpen,
     };
-
-    this.keyDown = this.keyDown.bind(this);
-    this.close = this.close.bind(this);
-    this.swallow = this.swallow.bind(this);
   }
 
   public static defaultProps: Partial<ModalWindowProps> = {
@@ -51,7 +47,7 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     });
   }
 
-  private keyDown(event: KeyboardEvent) {
+  private keyDown = (event: KeyboardEvent) => {
     if (event.keyCode === 27) { // ESC
       this.close();
     } else if (event.keyCode === 9) { // TAB
@@ -59,17 +55,17 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     }
   }
 
-  private close() {
+  private close = () => {
     if (this.props.canClose) {
       this.setState({ isOpen: false });
     }
   }
 
-  private swallow(evt: React.MouseEvent<HTMLDivElement>) {
+  private swallow = (evt: React.MouseEvent<HTMLDivElement>) => {
     evt.stopPropagation();
   }
 
-  private getContainer(): HTMLElement {
+  private getContainer = (): HTMLElement => {
     if (!this.root) {
       this.root = document.getElementById('root-modal')!;
     }
