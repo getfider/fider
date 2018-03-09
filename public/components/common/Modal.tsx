@@ -1,6 +1,7 @@
 import './Modal.scss';
 
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { SystemSettings, CurrentUser, Tenant } from '@fider/models';
 import { SignInControl, EnvironmentInfo, Gravatar } from '@fider/components/common';
 import { page, actions, classSet } from '@fider/services';
@@ -17,6 +18,8 @@ interface ModalWindowState {
 }
 
 class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
+  private root?: HTMLElement;
+
   constructor(props: ModalWindowProps) {
     super(props);
     this.state = {
@@ -66,6 +69,13 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     evt.stopPropagation();
   }
 
+  private getContainer(): HTMLElement {
+    if (!this.root) {
+      this.root = document.getElementById('root-modal')!;
+    }
+    return this.root;
+  }
+
   public render() {
     if (!this.state.isOpen) {
       return null;
@@ -77,7 +87,7 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
       [this.props.size!]: true,
     });
 
-    return (
+    return ReactDOM.createPortal((
       <div
         aria-disabled={true}
         className="c-modal__dimmer"
@@ -90,7 +100,7 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
           {this.props.children}
         </div>
       </div>
-    );
+    ), this.getContainer());
   }
 }
 
