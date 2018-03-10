@@ -74,8 +74,11 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
 
   public render() {
     if (!this.state.isOpen) {
+      document.body.style.overflow = '';
       return null;
     }
+
+    document.body.style.overflow = 'hidden';
 
     const className = classSet({
       'c-modal__window': true,

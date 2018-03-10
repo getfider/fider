@@ -9,6 +9,7 @@ const w = window as any;
 w.$ = w.jQuery = $;
 
 import 'semantic-ui-css/components/site.min.js';
+import 'semantic-ui-css/components/transition.min.js';
 import 'semantic-ui-css/components/dropdown.min.js';
 
 import 'semantic-ui-css/components/reset.min.css';
@@ -17,6 +18,7 @@ import 'semantic-ui-css/components/segment.min.css';
 import 'semantic-ui-css/components/loader.min.css';
 import 'semantic-ui-css/components/table.min.css';
 import 'semantic-ui-css/components/checkbox.min.css';
+import 'semantic-ui-css/components/transition.min.css';
 import 'semantic-ui-css/components/header.min.css';
 import 'semantic-ui-css/components/form.min.css';
 import 'semantic-ui-css/components/container.min.css';

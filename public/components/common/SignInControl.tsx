@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
-import { page, actions } from '@fider/services';
+import { page, device, actions } from '@fider/services';
 
 interface SignInControlState {
   email: string;
@@ -23,6 +23,13 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     this.state = {
       email: '',
     };
+  }
+
+  private onEmailKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.keyCode === 13) { // ENTER
+      this.signIn();
+      event.preventDefault();
+    }
   }
 
   private async signIn() {
@@ -84,8 +91,19 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
             <p>Enter your email address to sign in</p>
             <Form ref={(f) => { this.form = f!; }}>
               <div id="email-signin" className="ui small action fluid input">
-                  <input autoFocus={true} onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
-                  <Button color="green" disabled={this.state.email === ''} onClick={() => this.signIn()}>
+                  <input
+                    autoFocus={!device.isTouch()}
+                    onChange={(e) => this.setState({ email: e.currentTarget.value })}
+                    onKeyDown={this.onEmailKeyDown}
+                    type="text"
+                    placeholder="yourname@example.com"
+                    className="small"
+                  />
+                  <Button
+                    color="green"
+                    disabled={this.state.email === ''}
+                    onClick={() => this.signIn()}
+                  >
                     Sign in
                   </Button>
               </div>

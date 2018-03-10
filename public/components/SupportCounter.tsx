@@ -2,7 +2,7 @@ import './SupportCounter.scss';
 
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
-import { page, actions, classSet } from '@fider/services';
+import { page, actions, device, classSet } from '@fider/services';
 import { SignInModal } from '@fider/components';
 
 interface SupportCounterProps {
@@ -50,7 +50,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     const className = classSet({
       'supported': !status.closed && this.state.supported,
       'disabled': status.closed,
-      'no-touch': !('ontouchstart' in window),
+      'no-touch': !device.isTouch(),
     });
 
     const vote = (
