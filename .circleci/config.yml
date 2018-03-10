@@ -28,7 +28,7 @@ jobs:
   test:
     docker:
       - image: getfider/circleci:0.0.6
-      - image: postgres:9.6.2
+      - image: postgres:9.6.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
