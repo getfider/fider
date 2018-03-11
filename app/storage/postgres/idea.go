@@ -303,10 +303,15 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		`SELECT c.id, 
 				c.content, 
 				c.created_on, 
+				c.edited_on, 
 				u.id AS user_id, 
 				u.name AS user_name,
 				u.email AS user_email,
-				u.role AS user_role
+				u.role AS user_role, 
+				e.id AS edited_by_id, 
+				e.name AS edited_by_name,
+				e.email AS edited_by_email,
+				e.role AS edited_by_role
 		FROM comments c
 		INNER JOIN ideas i
 		ON i.id = c.idea_id
@@ -314,6 +319,9 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		INNER JOIN users u
 		ON u.id = c.user_id
 		AND u.tenant_id = c.tenant_id
+		LEFT JOIN users e
+		ON e.id = c.edited_by_id
+		AND e.tenant_id = c.tenant_id
 		WHERE i.number = $1
 		AND i.tenant_id = $2
 		ORDER BY c.created_on ASC`, number, s.tenant.ID)

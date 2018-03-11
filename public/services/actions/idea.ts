@@ -29,6 +29,10 @@ export const createComment = async (ideaNumber: number, content: string): Promis
   return http.post(`/api/ideas/${ideaNumber}/comments`, { content }).then(http.event('comment', 'create'));
 };
 
+export const updateComment = async (ideaNumber: number, commentId: number, content: string): Promise<Result> => {
+  return http.post(`/api/ideas/${ideaNumber}/comments/${commentId}`, { content }).then(http.event('comment', 'update'));
+};
+
 interface SetResponseInput {
   status: number;
   text: string;
