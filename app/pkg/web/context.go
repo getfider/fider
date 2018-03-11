@@ -109,7 +109,7 @@ func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	if err != nil {
 		return validate.Error(err)
 	}
-	if !i.IsAuthorized(ctx.User()) {
+	if !i.IsAuthorized(ctx.User(), ctx.Services()) {
 		return validate.Unauthorized()
 	}
 	return i.Validate(ctx.User(), ctx.Services())
