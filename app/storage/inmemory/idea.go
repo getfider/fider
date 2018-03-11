@@ -13,9 +13,11 @@ import (
 // IdeaStorage contains read and write operations for ideas
 type IdeaStorage struct {
 	lastID           int
+	lastCommentID    int
 	ideas            []*models.Idea
 	ideasSupportedBy map[int][]int
 	ideaSubscribers  map[int][]int
+	ideaComments     map[int][]*models.Comment
 	tenant           *models.Tenant
 	user             *models.User
 }
@@ -26,6 +28,7 @@ func NewIdeaStorage() *IdeaStorage {
 		ideas:            make([]*models.Idea, 0),
 		ideasSupportedBy: make(map[int][]int, 0),
 		ideaSubscribers:  make(map[int][]int, 0),
+		ideaComments:     make(map[int][]*models.Comment, 0),
 	}
 }
 
@@ -120,16 +123,46 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 
 // AddComment places a new comment on an idea
 func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, error) {
-	return 0, nil
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return 0, err
+	}
+	s.lastCommentID++
+	s.ideaComments[idea.ID] = append(s.ideaComments[idea.ID], &models.Comment{
+		ID:        s.lastCommentID,
+		Content:   content,
+		CreatedOn: time.Now(),
+		User: &models.User{
+			ID:     userID,
+			Tenant: s.tenant,
+		},
+	})
+
+	return s.lastCommentID, nil
 }
 
 // GetCommentByID returns a comment by given ID
 func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
-	return nil, nil
+	for _, comments := range s.ideaComments {
+		for _, comment := range comments {
+			if comment.ID == id && comment.User.Tenant == s.tenant {
+				return comment, nil
+			}
+		}
+	}
+	return nil, app.ErrNotFound
 }
 
 // UpdateComment with given ID and content
 func (s *IdeaStorage) UpdateComment(id int, content string) error {
+	now := time.Now()
+	comment, err := s.GetCommentByID(id)
+	if err != nil {
+		return err
+	}
+	comment.Content = content
+	comment.EditedOn = &now
+	comment.EditedBy = s.user
 	return nil
 }
 
