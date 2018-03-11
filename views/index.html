@@ -5,4 +5,4 @@
 
 {{define "javascript"}} {{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}set({{ $key }}, {{ $value }});{{ end }}{{ end }} {{end}}
         
-{{define "content"}}<div id="root"></div>{{end}}
+{{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}

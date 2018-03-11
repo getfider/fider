@@ -37,8 +37,8 @@ export class SignUpPage extends Page {
   @findBy('#p-signup .page .green.basic.label')
   private SubdomainOk!: WebComponent;
 
-  @findBy('#submitted-modal')
-  private SubmitConfirmation!: WebComponent;
+  @findBy('.c-modal__window')
+  private ConfirmationModal!: WebComponent;
 
   public loadCondition() {
     return elementIsVisible(() => this.Container);
@@ -68,7 +68,7 @@ export class SignUpPage extends Page {
     await this.Confirm.click();
     await this.browser.waitAny([
       pageHasLoaded(HomePage),
-      elementIsVisible(() => this.SubmitConfirmation)
+      elementIsVisible(() => this.ConfirmationModal)
     ]);
   }
 }

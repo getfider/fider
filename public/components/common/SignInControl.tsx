@@ -1,73 +1,70 @@
 import * as React from 'react';
 import { SocialSignInButton, Form, Button } from '@fider/components/common';
 import { AuthSettings } from '@fider/models';
-import { page, actions } from '@fider/services';
+import { page, device, actions } from '@fider/services';
 
 interface SignInControlState {
   email: string;
-  sent: boolean;
 }
 
 interface SignInControlProps {
-  signInByEmail: boolean;
-  auth: AuthSettings;
+  useEmail: boolean;
+  onEmailSent?: (email: string) => void;
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
   private form!: Form;
+  private settings: AuthSettings;
 
   constructor(props: SignInControlProps) {
     super(props);
+    this.settings = page.authSettings();
 
     this.state = {
       email: '',
-      sent: false
     };
+  }
+
+  private onEmailKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.keyCode === 13) { // ENTER
+      this.signIn();
+      event.preventDefault();
+    }
   }
 
   private async signIn() {
     const result = await actions.signIn(this.state.email);
     if (result.ok) {
       this.form.clearFailure();
-      this.setState({ sent: true });
-      setTimeout(() => {
-        this.setState({ sent: false });
-      }, 5000);
+      if (this.props.onEmailSent) {
+        this.props.onEmailSent(this.state.email);
+      }
     } else if (result.error) {
       this.form.setFailure(result.error);
     }
   }
 
   public render() {
-    if (this.state.sent) {
-      return (
-        <div>
-          <p>We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link and you’ll be signed in.</p>
-          <p><a href="#" onClick={() => page.hideSignIn()}>OK</a></p>
-        </div>
-      );
-    }
-
-    const google = this.props.auth.providers.google && (
+    const google = this.settings.providers.google && (
                     <div className="column">
                       <SocialSignInButton
-                        oauthEndpoint={this.props.auth.endpoint}
+                        oauthEndpoint={this.settings.endpoint}
                         provider="google"
                       />
                     </div>
                   );
-    const facebook = this.props.auth.providers.facebook && (
+    const facebook = this.settings.providers.facebook && (
                       <div className="column">
                         <SocialSignInButton
-                          oauthEndpoint={this.props.auth.endpoint}
+                          oauthEndpoint={this.settings.endpoint}
                           provider="facebook"
                         />
                       </div>
                     );
-    const github = this.props.auth.providers.github && (
+    const github = this.settings.providers.github && (
                       <div className="column">
                         <SocialSignInButton
-                          oauthEndpoint={this.props.auth.endpoint}
+                          oauthEndpoint={this.settings.endpoint}
                           provider="github"
                         />
                       </div>
@@ -90,12 +87,23 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
             )
           }
 
-          { this.props.signInByEmail && <div>
+          { this.props.useEmail && <div>
             <p>Enter your email address to sign in</p>
             <Form ref={(f) => { this.form = f!; }}>
               <div id="email-signin" className="ui small action fluid input">
-                  <input onChange={(e) => this.setState({ email: e.currentTarget.value })} type="text" placeholder="yourname@example.com" className="small" />
-                  <Button color="green" disabled={this.state.email === ''} onClick={() => this.signIn()}>
+                  <input
+                    autoFocus={!device.isTouch()}
+                    onChange={(e) => this.setState({ email: e.currentTarget.value })}
+                    onKeyDown={this.onEmailKeyDown}
+                    type="text"
+                    placeholder="yourname@example.com"
+                    className="small"
+                  />
+                  <Button
+                    color="green"
+                    disabled={this.state.email === ''}
+                    onClick={() => this.signIn()}
+                  >
                     Sign in
                   </Button>
               </div>

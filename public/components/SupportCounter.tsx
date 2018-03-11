@@ -2,7 +2,8 @@ import './SupportCounter.scss';
 
 import * as React from 'react';
 import { Idea, User, IdeaStatus } from '@fider/models';
-import { page, actions, classSet } from '@fider/services';
+import { page, actions, device, classSet } from '@fider/services';
+import { SignInModal } from '@fider/components';
 
 interface SupportCounterProps {
   user?: User;
@@ -12,6 +13,7 @@ interface SupportCounterProps {
 interface SupportCounterState {
   supported: boolean;
   total: number;
+  showSignIn: boolean;
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
@@ -20,13 +22,14 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     super(props);
     this.state = {
       supported: props.idea.viewerSupported,
-      total: props.idea.totalSupporters
+      total: props.idea.totalSupporters,
+      showSignIn: false,
     };
   }
 
   public async supportOrUndo() {
     if (!this.props.user) {
-      page.showSignIn();
+      this.setState({ showSignIn: true });
       return;
     }
 
@@ -47,7 +50,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     const className = classSet({
       'supported': !status.closed && this.state.supported,
       'disabled': status.closed,
-      'no-touch': !('ontouchstart' in window),
+      'no-touch': !device.isTouch(),
     });
 
     const vote = (
@@ -68,9 +71,12 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     );
 
     return  (
-      <div className="c-support-counter">
-        {status.closed ? disabled : vote}
-      </div>
+      <>
+        <SignInModal isOpen={this.state.showSignIn} />
+        <div className="c-support-counter">
+          {status.closed ? disabled : vote}
+        </div>
+      </>
     );
   }
 }

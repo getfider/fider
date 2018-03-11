@@ -35,13 +35,13 @@ export class HomePage extends Page {
   @findBy('.signin .name')
   public UserName!: WebComponent;
 
-  @findBy('#signin-modal')
+  @findBy('.c-modal__window')
   public SignInModal!: WebComponent;
 
-  @findBy('#signin-modal .c-button.google')
+  @findBy('.c-modal__window .c-button.google')
   public GoogleSignIn!: Button;
 
-  @findBy('#signin-modal .c-button.facebook')
+  @findBy('.c-modal__window .c-button.facebook')
   public FacebookSignIn!: Button;
 
   @findBy('#email-signin input')
@@ -59,10 +59,10 @@ export class HomePage extends Page {
   @findMultipleBy('.fdr-idea-list > .item')
   public IdeaList!: IdeaList;
 
-  @findBy('#signin-complete-modal input')
+  @findBy('.c-modal__window input')
   private CompleteEmailSignInInput!: TextInput;
 
-  @findBy('#signin-complete-modal button')
+  @findBy('.c-modal__window button')
   private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {

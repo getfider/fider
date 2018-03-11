@@ -268,20 +268,6 @@ code {
   }
 }
 
-#signin-modal,
-#signin-complete-modal {
-  text-align: center;
-
-  @media only screen and (max-width: 767px) {
-    width: 95%;
-    margin: 0em 0em 0em -47.5%;
-  }
-
-  @media only screen and (min-width: 768px) {
-    width: 440px;
-    margin: 0 0 0 -220px;
-  }
-}
 
 .ui.main-color {
   background-color: $main-color;

@@ -1,8 +1,8 @@
 import './SignUp.page.scss';
 
 import * as React from 'react';
-import { SignInControl, Button, DisplayError } from '@fider/components/common';
-import { AuthSettings, SystemSettings } from '@fider/models';
+import { SignInControl, Modal, Button, DisplayError } from '@fider/components/common';
+import { SystemSettings } from '@fider/models';
 import { jwt, page, actions, Failure } from '@fider/services';
 
 const logo = require('@fider/assets/images/logo-small.png');
@@ -15,7 +15,6 @@ interface OAuthUser {
 
 interface SignUpPageProps {
   system: SystemSettings;
-  auth: AuthSettings;
 }
 
 interface SignUpPageState {
@@ -54,12 +53,6 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
             email: data['oauth/email']
           };
         }
-      }
-    }
-
-    public componentDidUpdate() {
-      if (this.state.submitted) {
-        page.showModal('#submitted-modal', { closable: false });
       }
     }
 
@@ -105,13 +98,13 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     }
 
     public render() {
-      const modal = this.state.submitted && (
-        <div id="submitted-modal" className="ui modal small">
-          <div className="header">Thank you for registering!</div>
-          <div className="content">
+      const modal = (
+        <Modal.Window canClose={false} isOpen={this.state.submitted}>
+          <Modal.Header>Thank you for registering!</Modal.Header>
+          <Modal.Content>
             <p>We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.</p>
-          </div>
-        </div>
+          </Modal.Content>
+        </Modal.Window>
       );
 
       return (
@@ -130,7 +123,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
             </p> :
             <>
               <p>We need to identify you to setup your new Fider account.</p>
-              <SignInControl auth={this.props.auth} signInByEmail={false} />
+              <SignInControl useEmail={false} />
               <div className="ui form">
                 <DisplayError fields={['name', 'email']} error={this.state.error} />
                 <div className="fluid field">

@@ -33,16 +33,16 @@ export class ShowIdeaPage extends Page {
   @findBy('.action-col button.respond')
   public RespondButton!: Button;
 
-  @findBy('.ui.modal.active.fdr-response-form')
+  @findBy('.c-modal__window .fdr-response-form')
   public ResponseModal!: WebComponent;
 
-  @findBy('.ui.modal.active.fdr-response-form select')
+  @findBy('.c-modal__window .fdr-response-form select')
   private ResponseModalStatus!: DropDownList;
 
-  @findBy('.ui.modal.active.fdr-response-form textarea')
+  @findBy('.c-modal__window .fdr-response-form textarea')
   private ResponseModalText!: TextInput;
 
-  @findBy('.ui.modal.active.fdr-response-form .actions button.green')
+  @findBy('.c-modal__window .c-modal__footer button.green')
   private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {
