@@ -25,6 +25,8 @@ type Idea interface {
 	Add(title, description string, userID int) (*models.Idea, error)
 	Update(number int, title, description string) (*models.Idea, error)
 	AddComment(number int, content string, userID int) (int, error)
+	GetCommentByID(id int) (*models.Comment, error)
+	UpdateComment(id int, content string) error
 	AddSupporter(number, userID int) error
 	RemoveSupporter(number, userID int) error
 	AddSubscriber(number, userID int) error

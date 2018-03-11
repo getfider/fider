@@ -123,6 +123,16 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	return 0, nil
 }
 
+// GetCommentByID returns a comment by given ID
+func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
+	return nil, nil
+}
+
+// UpdateComment with given ID and content
+func (s *IdeaStorage) UpdateComment(id int, content string) error {
+	return nil
+}
+
 // AddSupporter adds user to idea list of supporters
 func (s *IdeaStorage) AddSupporter(number, userID int) error {
 	idea, err := s.GetByNumber(number)

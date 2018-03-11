@@ -72,19 +72,26 @@ func (i *dbIdea) toModel() *models.Idea {
 }
 
 type dbComment struct {
-	ID        int       `db:"id"`
-	Content   string    `db:"content"`
-	CreatedOn time.Time `db:"created_on"`
-	User      *dbUser   `db:"user"`
+	ID        int          `db:"id"`
+	Content   string       `db:"content"`
+	CreatedOn time.Time    `db:"created_on"`
+	User      *dbUser      `db:"user"`
+	EditedOn  dbx.NullTime `db:"edited_on"`
+	EditedBy  *dbUser      `db:"edited_by"`
 }
 
 func (c *dbComment) toModel() *models.Comment {
-	return &models.Comment{
+	comment := &models.Comment{
 		ID:        c.ID,
 		Content:   c.Content,
 		CreatedOn: c.CreatedOn,
 		User:      c.User.toModel(),
 	}
+	if c.EditedOn.Valid {
+		comment.EditedBy = c.EditedBy.toModel()
+		comment.EditedOn = &c.EditedOn.Time
+	}
+	return comment
 }
 
 type dbStatusCount struct {
@@ -374,6 +381,45 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	}
 
 	return id, nil
+}
+
+// GetCommentByID returns a comment by given ID
+func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
+	comment := dbComment{}
+	err := s.trx.Get(&comment,
+		`SELECT c.id, 
+						c.content, 
+						c.created_on, 
+						c.edited_on, 
+						u.id AS user_id, 
+						u.name AS user_name,
+						u.email AS user_email,
+						u.role AS user_role, 
+						e.id AS edited_by_id, 
+						e.name AS edited_by_name,
+						e.email AS edited_by_email,
+						e.role AS edited_by_role
+		FROM comments c
+		INNER JOIN users u
+		ON u.id = c.user_id
+		AND u.tenant_id = c.tenant_id
+		LEFT JOIN users e
+		ON e.id = c.edited_by_id
+		AND e.tenant_id = c.tenant_id
+		WHERE c.id = $1
+		AND c.tenant_id = $2`, id, s.tenant.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return comment.toModel(), nil
+}
+
+// UpdateComment with given ID and content
+func (s *IdeaStorage) UpdateComment(id int, content string) error {
+	return s.trx.Execute(`UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
+												WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
 }
 
 // AddSupporter adds user to idea list of supporters
