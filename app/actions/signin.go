@@ -22,7 +22,7 @@ func (input *SignInByEmail) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SignInByEmail) IsAuthorized(user *models.User) bool {
+func (input *SignInByEmail) IsAuthorized(user *models.User, services *app.Services) bool {
 	return true
 }
 
@@ -59,7 +59,7 @@ func (input *CompleteProfile) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CompleteProfile) IsAuthorized(user *models.User) bool {
+func (input *CompleteProfile) IsAuthorized(user *models.User, services *app.Services) bool {
 	return true
 }
 

@@ -24,7 +24,7 @@ func (input *CreateTenant) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateTenant) IsAuthorized(user *models.User) bool {
+func (input *CreateTenant) IsAuthorized(user *models.User, services *app.Services) bool {
 	return true
 }
 
@@ -86,7 +86,7 @@ func (input *UpdateTenantSettings) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantSettings) IsAuthorized(user *models.User) bool {
+func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.Role == models.RoleAdministrator
 }
 

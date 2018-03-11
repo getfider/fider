@@ -24,7 +24,7 @@ func (input *CreateEditTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditTag) IsAuthorized(user *models.User) bool {
+func (input *CreateEditTag) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsAdministrator()
 }
 
@@ -76,7 +76,7 @@ func (input *DeleteTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteTag) IsAuthorized(user *models.User) bool {
+func (input *DeleteTag) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsAdministrator()
 }
 
@@ -105,7 +105,7 @@ func (input *AssignUnassignTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AssignUnassignTag) IsAuthorized(user *models.User) bool {
+func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsCollaborator()
 }
 

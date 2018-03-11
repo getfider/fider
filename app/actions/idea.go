@@ -22,7 +22,7 @@ func (input *CreateNewIdea) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewIdea) IsAuthorized(user *models.User) bool {
+func (input *CreateNewIdea) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil
 }
 
@@ -64,7 +64,7 @@ func (input *UpdateIdea) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateIdea) IsAuthorized(user *models.User) bool {
+func (input *UpdateIdea) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsCollaborator()
 }
 
@@ -111,7 +111,7 @@ func (input *AddNewComment) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AddNewComment) IsAuthorized(user *models.User) bool {
+func (input *AddNewComment) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil
 }
 
@@ -139,7 +139,7 @@ func (input *SetResponse) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SetResponse) IsAuthorized(user *models.User) bool {
+func (input *SetResponse) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsCollaborator()
 }
 
@@ -169,6 +169,38 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 		}
 	} else if input.Model.Status != models.IdeaOpen && input.Model.Text == "" {
 		result.AddFieldFailure("text", "Description is required.")
+	}
+
+	return result
+}
+
+// EditComment represents the action to update an existing comment
+type EditComment struct {
+	Model *models.EditComment
+}
+
+// Initialize the model
+func (input *EditComment) Initialize() interface{} {
+	input.Model = new(models.EditComment)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *EditComment) IsAuthorized(user *models.User, services *app.Services) bool {
+	comment, err := services.Ideas.GetCommentByID(input.Model.ID)
+	if err != nil {
+		return false
+	}
+
+	return user.ID == comment.User.ID || user.IsCollaborator()
+}
+
+// Validate if current model is valid
+func (input *EditComment) Validate(user *models.User, services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	if input.Model.Content == "" {
+		result.AddFieldFailure("content", "Comment is required.")
 	}
 
 	return result

@@ -156,6 +156,23 @@ func PostComment() web.HandlerFunc {
 	}
 }
 
+// UpdateComment changes an existing comment with new content
+func UpdateComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.EditComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Ideas.UpdateComment(input.Model.ID, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // SetResponse changes current idea staff response
 func SetResponse() web.HandlerFunc {
 	return func(c web.Context) error {
