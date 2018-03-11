@@ -77,7 +77,7 @@ func PostIdea() web.HandlerFunc {
 	}
 }
 
-// UpdateIdea updates an existing ideaof current tenant
+// UpdateIdea updates an existing idea of current tenant
 func UpdateIdea() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.UpdateIdea)

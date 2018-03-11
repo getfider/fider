@@ -98,9 +98,13 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 	return s.ideas, nil
 }
 
-// GetCommentsByIdea returns all coments from given idea
+// GetCommentsByIdea returns all comments from given idea
 func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
-	return make([]*models.Comment, 0), nil
+	idea, err := s.GetByNumber(number)
+	if err != nil {
+		return nil, err
+	}
+	return s.ideaComments[idea.ID], nil
 }
 
 // Add a new idea in the database

@@ -334,3 +334,62 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 
 	Expect(code).To(Equal(http.StatusBadRequest))
 }
+
+func TestAddCommentHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.Number).
+		ExecutePost(handlers.PostComment(), `{ "content": "My first comment" }`)
+
+	Expect(code).To(Equal(http.StatusOK))
+	comments, _ := services.Ideas.GetCommentsByIdea(idea.Number)
+	Expect(comments).To(HaveLen(1))
+}
+
+func TestUpdateCommentHandler_Authorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment", mock.AryaStark.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", idea.Number).
+		AddParam("id", commentId).
+		ExecutePost(handlers.UpdateComment(), `{ "content": "My first comment has been edited" }`)
+
+	Expect(code).To(Equal(http.StatusOK))
+	comment, _ := services.Ideas.GetCommentByID(commentId)
+	Expect(comment.Content).To(Equal("My first comment has been edited"))
+}
+
+func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
+	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment", mock.JonSnow.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", idea.Number).
+		AddParam("id", commentId).
+		ExecutePost(handlers.UpdateComment(), `{ "content": "My first comment has been edited" }`)
+
+	Expect(code).To(Equal(http.StatusForbidden))
+	comment, _ := services.Ideas.GetCommentByID(commentId)
+	Expect(comment.Content).To(Equal("My first comment"))
+}
