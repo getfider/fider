@@ -74,9 +74,9 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	action := actions.UpdateTenantSettings{}
 	action.Initialize()
 
-	Expect(action.IsAuthorized(admin)).To(BeTrue())
-	Expect(action.IsAuthorized(collaborator)).To(BeFalse())
-	Expect(action.IsAuthorized(nil)).To(BeFalse())
+	Expect(action.IsAuthorized(admin, nil)).To(BeTrue())
+	Expect(action.IsAuthorized(collaborator, nil)).To(BeFalse())
+	Expect(action.IsAuthorized(nil, nil)).To(BeFalse())
 }
 
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 // Validatable defines which models can be validated against context
 type Validatable interface {
 	Validate(user *models.User, services *app.Services) *Result
-	IsAuthorized(user *models.User) bool
+	IsAuthorized(user *models.User, services *app.Services) bool
 }
 
 // Result is returned after each validation

@@ -56,6 +56,18 @@
     font-size: $font-size-large;
   }
 
+  &.as-link {
+    background-color: transparent;
+    padding: 0;
+    font-weight: 400;
+    color: rgba($text-color, 0.6);
+
+    &:hover {
+      color: $text-color;
+      text-decoration: underline;
+    }
+  }
+
   &.fluid {
     display: block;
     width: 100%;

@@ -68,6 +68,8 @@ export interface Comment {
   content: string;
   createdOn: string;
   user: User;
+  editedOn?: string;
+  editedBy?: User;
 }
 
 export interface Tag {

@@ -21,7 +21,7 @@ func (input *ChangeUserRole) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserRole) IsAuthorized(user *models.User) bool {
+func (input *ChangeUserRole) IsAuthorized(user *models.User, services *app.Services) bool {
 	if user == nil {
 		return false
 	}
@@ -60,7 +60,7 @@ func (input *ChangeUserEmail) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserEmail) IsAuthorized(user *models.User) bool {
+func (input *ChangeUserEmail) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil
 }
 

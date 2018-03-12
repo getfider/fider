@@ -5,7 +5,7 @@ import * as React from 'react';
 import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
 import { page, actions, Failure } from '@fider/services';
 
-import { TagsPanel, CommentInput, CommentList, ResponseForm, NotificationsPanel } from './';
+import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel } from './';
 import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, MultiLineText } from '@fider/components';
 
 interface ShowIdeaPageProps {
@@ -134,13 +134,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
           <NotificationsPanel user={this.props.user} idea={this.props.idea} subscribed={this.props.subscribed} />
         </div>
 
-        <div className="comments-col">
-            <div className="ui comments">
-              <span className="subtitle">Discussion</span>
-              <CommentList comments={this.props.comments} />
-              <CommentInput user={this.props.user} idea={this.props.idea} />
-            </div>
-        </div>
+        <DiscussionPanel user={this.props.user} idea={this.props.idea} comments={this.props.comments} />
       </div>
     );
   }

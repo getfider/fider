@@ -114,6 +114,38 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	Expect(comments[1].User.Name).To(Equal("Arya Stark"))
 }
 
+func TestIdeaStorage_AddGetUpdateComment(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+	idea, err := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	Expect(err).To(BeNil())
+
+	commentId, err := ideas.AddComment(idea.Number, "Comment #1", jonSnow.ID)
+	Expect(err).To(BeNil())
+
+	comment, err := ideas.GetCommentByID(commentId)
+	Expect(err).To(BeNil())
+	Expect(comment.ID).To(Equal(commentId))
+	Expect(comment.Content).To(Equal("Comment #1"))
+	Expect(comment.User.ID).To(Equal(jonSnow.ID))
+	Expect(comment.EditedOn).To(BeNil())
+	Expect(comment.EditedBy).To(BeNil())
+
+	ideas.SetCurrentUser(aryaStark)
+	err = ideas.UpdateComment(commentId, "Comment #1 with edit")
+	Expect(err).To(BeNil())
+
+	comment, err = ideas.GetCommentByID(commentId)
+	Expect(err).To(BeNil())
+	Expect(comment.ID).To(Equal(commentId))
+	Expect(comment.Content).To(Equal("Comment #1 with edit"))
+	Expect(comment.User.ID).To(Equal(jonSnow.ID))
+	Expect(comment.EditedOn).NotTo(BeNil())
+	Expect(comment.EditedBy.ID).To(Equal(aryaStark.ID))
+}
+
 func TestIdeaStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

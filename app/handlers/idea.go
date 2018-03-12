@@ -77,7 +77,7 @@ func PostIdea() web.HandlerFunc {
 	}
 }
 
-// UpdateIdea updates an existing ideaof current tenant
+// UpdateIdea updates an existing idea of current tenant
 func UpdateIdea() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.UpdateIdea)
@@ -151,6 +151,23 @@ func PostComment() web.HandlerFunc {
 		}
 
 		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model))
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateComment changes an existing comment with new content
+func UpdateComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.EditComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Ideas.UpdateComment(input.Model.ID, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
 
 		return c.Ok(web.Map{})
 	}

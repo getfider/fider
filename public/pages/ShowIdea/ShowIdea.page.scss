@@ -12,6 +12,12 @@
       height: 24px;
     }
   }
+  
+  .page {
+    .subtitle {
+      margin-top: 1em;
+    }
+  }
 
   @media only screen and (min-width: 768px) {
     .header-col, 
@@ -31,9 +37,6 @@
   .action-col {
     @media only screen and (min-width: 768px) {
       width: 200px;
-    }
-    .subtitle {
-      margin-top: 1em;
     }
     .ui.list {
       margin: 0.5em 0em;
@@ -72,13 +75,12 @@
 
     .comment > .content {
       display: inline-block;
-      max-width: 85%;
+      width: 85%;
     }
   }
 
   .comment-input  {
-    margin-top: 0.3em;
-
+    margin-top: 15px;
     textarea {
       margin-top: 5px;
     }

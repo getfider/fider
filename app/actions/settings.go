@@ -20,7 +20,7 @@ func (input *UpdateUserSettings) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateUserSettings) IsAuthorized(user *models.User) bool {
+func (input *UpdateUserSettings) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil
 }
 

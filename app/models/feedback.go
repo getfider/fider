@@ -46,6 +46,13 @@ type NewComment struct {
 	Content string `json:"content"`
 }
 
+// EditComment represents a request to edit existing comment
+type EditComment struct {
+	IdeaNumber int    `route:"number"`
+	ID         int    `route:"id"`
+	Content    string `json:"content"`
+}
+
 // SetResponse represents the action to update an idea response
 type SetResponse struct {
 	Number         int    `route:"number"`
@@ -72,10 +79,12 @@ type OriginalIdea struct {
 
 //Comment represents an user comment on an idea
 type Comment struct {
-	ID        int       `json:"id"`
-	Content   string    `json:"content"`
-	CreatedOn time.Time `json:"createdOn"`
-	User      *User     `json:"user"`
+	ID        int        `json:"id"`
+	Content   string     `json:"content"`
+	CreatedOn time.Time  `json:"createdOn"`
+	User      *User      `json:"user"`
+	EditedOn  *time.Time `json:"editedOn"`
+	EditedBy  *User      `json:"editedBy"`
 }
 
 //Tag represents a simple tag

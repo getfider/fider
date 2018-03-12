@@ -17,7 +17,7 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 		&models.User{ID: 2, Role: models.RoleAdministrator},
 	} {
 		action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 2}}
-		Expect(action.IsAuthorized(user)).To(BeFalse())
+		Expect(action.IsAuthorized(user, nil)).To(BeFalse())
 	}
 }
 
@@ -26,7 +26,7 @@ func TestChangeUserRole_Authorized(t *testing.T) {
 
 	user := &models.User{ID: 2, Role: models.RoleAdministrator}
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 1}}
-	Expect(action.IsAuthorized(user)).To(BeTrue())
+	Expect(action.IsAuthorized(user, nil)).To(BeTrue())
 }
 
 func TestChangeUserRole_InvalidRole(t *testing.T) {
@@ -47,7 +47,7 @@ func TestChangeUserRole_InvalidRole(t *testing.T) {
 	services.Users.Register(currentUser)
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: 4}}
-	action.IsAuthorized(currentUser)
+	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "role")
 }
@@ -61,7 +61,7 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 	}
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: models.RoleAdministrator}}
-	action.IsAuthorized(currentUser)
+	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "user_id")
 }
@@ -81,7 +81,7 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 	services.Users.Register(currentUser)
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: models.RoleAdministrator}}
-	action.IsAuthorized(currentUser)
+	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "user_id")
 }

@@ -68,10 +68,9 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   }
 
   public render() {
-    // TODO: as-link if simple === true
-
     const className = classSet({
       'c-button': true,
+      'as-link': this.props.simple,
       'fluid': this.props.fluid,
       [this.props.size!]: this.props.size,
       [this.props.color!]: this.props.color,
