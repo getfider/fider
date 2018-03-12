@@ -1,8 +1,8 @@
 ![](/public/assets/images/logo-small.png)
 
-# Fider &middot; [![CircleCI](https://circleci.com/gh/getfider/fider/tree/master.svg?style=svg)](https://circleci.com/gh/getfider/fider/tree/master) [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)
+# Fider &middot; [![CircleCI](https://circleci.com/gh/getfider/fider/tree/master.svg?style=svg)](https://circleci.com/gh/getfider/fider/tree/master) [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-Fider is an open platform to collect and organize customer feedback. By using the platform, your community can share, vote and discuss on ideas they have to make your product or company even better. 
+Fider is an open platform to collect and organize customer feedback. By using the platform, your community can share, vote and discuss on ideas they have to make your product or company even better.
 
 You can [see it in action](https://feedback.fider.io/) or visit http://getfider.com to learn more about all features and how to get started.
 
@@ -16,15 +16,14 @@ You can [see it in action](https://feedback.fider.io/) or visit http://getfider.
 
 We have a monthly [GitHub Milestone](https://github.com/getfider/fider/milestones) that lists everything that is due to be released on that month.
 
-- **Found a bug?** Create an issue on [GitHub](https://github.com/getfider/fider/issues).
-- **Want to request a feature?** Suggest it on [Feedback for Fider](https://feedback.fider.io/).
-- **Got a question?** Send a Tweet to [@getfider](twitter.com/getfider) or email admin@fider.io.
+* **Found a bug?** Create an issue on [GitHub](https://github.com/getfider/fider/issues).
+* **Want to request a feature?** Suggest it on [Feedback for Fider](https://feedback.fider.io/).
+* **Got a question?** Send a Tweet to [@getfider](twitter.com/getfider) or email admin@fider.io.
 
 Read how you can help the project on [CONTRIBUTING.md](CONTRIBUTING.md).
 
 # Sponsors
 
 Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
-
 
 [![](etc/browserstack.png)](https://browserstack.com/)
