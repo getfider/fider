@@ -52,7 +52,7 @@ func NewEmailer(logger log.Logger) email.Sender {
 		logger,
 		env.MustGet("EMAIL_SMTP_HOST"),
 		env.MustGet("EMAIL_SMTP_PORT"),
-		env.MustGet("EMAIL_SMTP_USERNAME"),
-		env.MustGet("EMAIL_SMTP_PASSWORD"),
+		env.Get("EMAIL_SMTP_USERNAME"),
+		env.Get("EMAIL_SMTP_PASSWORD"),
 	)
 }
