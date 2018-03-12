@@ -1,9 +1,9 @@
-import './SupportCounter.scss';
+import "./SupportCounter.scss";
 
-import * as React from 'react';
-import { Idea, User, IdeaStatus } from '@fider/models';
-import { page, actions, device, classSet } from '@fider/services';
-import { SignInModal } from '@fider/components';
+import * as React from "react";
+import { Idea, User, IdeaStatus } from "@fider/models";
+import { page, actions, device, classSet } from "@fider/services";
+import { SignInModal } from "@fider/components";
 
 interface SupportCounterProps {
   user?: User;
@@ -17,13 +17,12 @@ interface SupportCounterState {
 }
 
 export class SupportCounter extends React.Component<SupportCounterProps, SupportCounterState> {
-
   constructor(props: SupportCounterProps) {
     super(props);
     this.state = {
       supported: props.idea.viewerSupported,
       total: props.idea.totalSupporters,
-      showSignIn: false,
+      showSignIn: false
     };
   }
 
@@ -37,7 +36,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     const response = await action(this.props.idea.number);
     if (response.ok) {
-      this.setState((state) => ({
+      this.setState(state => ({
         supported: !state.supported,
         total: state.total + (state.supported ? -1 : 1)
       }));
@@ -48,16 +47,13 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     const status = IdeaStatus.Get(this.props.idea.status);
 
     const className = classSet({
-      'supported': !status.closed && this.state.supported,
-      'disabled': status.closed,
-      'no-touch': !device.isTouch(),
+      supported: !status.closed && this.state.supported,
+      disabled: status.closed,
+      "no-touch": !device.isTouch()
     });
 
     const vote = (
-      <button
-        className={className}
-        onClick={async () => await this.supportOrUndo()}
-      >
+      <button className={className} onClick={async () => await this.supportOrUndo()}>
         <i className="medium caret up icon" />
         {this.state.total}
       </button>
@@ -70,12 +66,10 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
       </button>
     );
 
-    return  (
+    return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className="c-support-counter">
-          {status.closed ? disabled : vote}
-        </div>
+        <div className="c-support-counter">{status.closed ? disabled : vote}</div>
       </>
     );
   }

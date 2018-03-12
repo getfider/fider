@@ -1,7 +1,7 @@
 export const analytics = {
   event: (eventCategory: string, eventAction: string): void => {
     if (window.ga) {
-      window.ga('send', 'event', {
+      window.ga("send", "event", {
         eventCategory,
         eventAction
       });
@@ -9,7 +9,7 @@ export const analytics = {
   },
   error: (err: Error): void => {
     if (window.ga) {
-      window.ga('send', 'exception', {
+      window.ga("send", "exception", {
         exDescription: err.stack,
         exFatal: false
       });

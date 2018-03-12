@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { CurrentUser, Comment, Idea } from '@fider/models';
-import { CommentList, CommentInput } from '../';
-import { actions } from '@fider/services';
+import * as React from "react";
+import { CurrentUser, Comment, Idea } from "@fider/models";
+import { CommentList, CommentInput } from "../";
+import { actions } from "@fider/services";
 
 interface DiscussionPanelProps {
   user?: CurrentUser;
@@ -14,11 +14,10 @@ interface DiscussionPanelState {
 }
 
 export class DiscussionPanel extends React.Component<DiscussionPanelProps, DiscussionPanelState> {
-
   constructor(props: DiscussionPanelProps) {
     super(props);
     this.state = {
-      isEditing: false,
+      isEditing: false
     };
   }
 
@@ -34,10 +33,7 @@ export class DiscussionPanel extends React.Component<DiscussionPanelProps, Discu
             onStartEdit={() => this.setState({ isEditing: true })}
             onStopEdit={() => this.setState({ isEditing: false })}
           />
-          { !this.state.isEditing && <CommentInput
-            user={this.props.user}
-            idea={this.props.idea}
-          /> }
+          {!this.state.isEditing && <CommentInput user={this.props.user} idea={this.props.idea} />}
         </div>
       </div>
     );

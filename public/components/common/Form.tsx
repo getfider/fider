@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Failure } from '@fider/services';
-import { DisplayError } from './';
+import * as React from "react";
+import { Failure } from "@fider/services";
+import { DisplayError } from "./";
 
 interface FormProps {
   onSubmit?: () => Promise<any>;
@@ -34,7 +34,7 @@ export class Form extends React.Component<FormProps, FormState> {
 
   public render() {
     return (
-      <form autoComplete="off" className="ui form" onSubmit={(e) => this.submit(e)}>
+      <form autoComplete="off" className="ui form" onSubmit={e => this.submit(e)}>
         <DisplayError error={this.state && this.state.failure} />
         {this.props.children}
       </form>

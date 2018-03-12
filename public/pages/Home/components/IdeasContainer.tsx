@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from '../';
+import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from "../";
 
-import { Idea, Tag, IdeaStatus, CurrentUser } from '@fider/models';
-import { Loader, MultiLineText } from '@fider/components';
-import { page, actions } from '@fider/services';
+import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
+import { Loader, MultiLineText } from "@fider/components";
+import { page, actions } from "@fider/services";
 
 interface IdeasContainerProps {
   user?: CurrentUser;
@@ -23,129 +23,134 @@ interface IdeasContainerState {
 }
 
 export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasContainerState> {
-    private timer: any;
+  private timer: any;
 
-    constructor(props: IdeasContainerProps) {
-      super(props);
-      const query = page.getQueryString('q');
-      const tags = page.getQueryStringArray('t');
-      const filter = page.getQueryString('f');
+  constructor(props: IdeasContainerProps) {
+    super(props);
+    const query = page.getQueryString("q");
+    const tags = page.getQueryStringArray("t");
+    const filter = page.getQueryString("f");
 
-      this.state = {
-        ideas: [],
-        loading: false,
-        filter,
-        query,
-        tags
-      };
+    this.state = {
+      ideas: [],
+      loading: false,
+      filter,
+      query,
+      tags
+    };
+  }
+
+  public componentWillReceiveProps(nextProps: IdeasContainerProps) {
+    if (nextProps.newIdeaTitle) {
+      this.searchIdeas(nextProps.newIdeaTitle, "", [], 200);
+    } else if (this.state.query || this.state.filter || this.state.tags.length > 0) {
+      this.searchIdeas(this.state.query, this.state.filter, this.state.tags);
+    } else {
+      this.setState({ loading: false, ideas: nextProps.ideas });
     }
+  }
 
-    public componentWillReceiveProps(nextProps: IdeasContainerProps) {
-      if (nextProps.newIdeaTitle) {
-        this.searchIdeas(nextProps.newIdeaTitle, '', [], 200);
-      } else if (this.state.query || this.state.filter || this.state.tags.length > 0) {
-        this.searchIdeas(this.state.query, this.state.filter, this.state.tags);
-      } else {
-        this.setState({ loading: false, ideas: nextProps.ideas });
-      }
-    }
-
-    private changeFilterCriteria<K extends keyof IdeasContainerState>(obj: Pick<IdeasContainerState, K>, delay: number = 0): void {
-      this.setState(obj, () => {
-        const query = this.state.query.trim().toLowerCase();
-        page.replaceState(page.toQueryString({
+  private changeFilterCriteria<K extends keyof IdeasContainerState>(
+    obj: Pick<IdeasContainerState, K>,
+    delay: number = 0
+  ): void {
+    this.setState(obj, () => {
+      const query = this.state.query.trim().toLowerCase();
+      page.replaceState(
+        page.toQueryString({
           t: this.state.tags,
           q: query,
-          f: this.state.filter,
-        }));
+          f: this.state.filter
+        })
+      );
 
-        this.searchIdeas(query, this.state.filter, this.state.tags, delay);
+      this.searchIdeas(query, this.state.filter, this.state.tags, delay);
+    });
+  }
+
+  private async searchIdeas(query: string, filter: string, tags: string[], delay: number = 0) {
+    clearTimeout(this.timer);
+    this.setState({ loading: true });
+    this.timer = setTimeout(() => {
+      actions.searchIdeas(query, filter, tags).then(response => {
+        if (this.state.loading) {
+          this.setState({ loading: false, ideas: response.data });
+        }
       });
-    }
+    }, delay);
+  }
 
-    private async searchIdeas(query: string, filter: string, tags: string[], delay: number = 0) {
-      clearTimeout(this.timer);
-      this.setState({ loading: true });
-      this.timer = setTimeout(() => {
-        actions.searchIdeas(query, filter, tags).then((response) => {
-          if (this.state.loading) {
-            this.setState({ loading: false, ideas: response.data });
-          }
-        });
-      }, delay);
-    }
-
-    public render() {
-      if (this.props.newIdeaTitle) {
-        return (
-          <>
-            <h3 className="ui dividing header">
-              <i className="lightbulb icon blue" />
-              <div className="content">
-                Similar ideas
-                <div className="sub header">Consider voting on existing ideas before posting a new one.</div>
-              </div>
-            </h3>
-            {
-              this.state.loading
-              ? <Loader />
-              : <ListIdeas
-                ideas={this.state.ideas}
-                tags={this.props.tags}
-                user={this.props.user}
-                emptyText={`No similar ideas matched '${this.props.newIdeaTitle}'.`}
-              />
-            }
-          </>
-        );
-      }
-
+  public render() {
+    if (this.props.newIdeaTitle) {
       return (
         <>
-          <div className="ui grid">
-            {
-              !this.state.query && <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
-                <IdeaFilter
-                  activeFilter={this.state.filter}
-                  filterChanged={(filter) => this.changeFilterCriteria({ filter })}
-                  countPerStatus={this.props.countPerStatus}
-                />
-              </div>
-            }
-            <div className={!this.state.query ? `six wide mobile six wide tablet four wide computer column` : 'column'}>
-              <div className="ui search">
-                <div className="ui icon fluid input">
-                  <input
-                    onChange={(x) => this.changeFilterCriteria({ query: x.currentTarget.value }, 200)}
-                    value={this.state.query}
-                    type="text"
-                    placeholder="Search..."
-                  />
-                  {
-                    this.state.query
-                    ? <i onClick={() => this.changeFilterCriteria({ query: '' })} className="cancel link icon" />
-                    : <i className="search icon" />
-                  }
-                </div>
-              </div>
+          <h3 className="ui dividing header">
+            <i className="lightbulb icon blue" />
+            <div className="content">
+              Similar ideas
+              <div className="sub header">Consider voting on existing ideas before posting a new one.</div>
             </div>
-          </div>
-          <TagsFilter
-            tags={this.props.tags}
-            selectionChanged={(tags) => this.changeFilterCriteria({ tags })}
-            defaultSelection={this.state.tags}
-          />
-          {
-            this.state.loading
-            ? <Loader />
-            : <ListIdeas
+          </h3>
+          {this.state.loading ? (
+            <Loader />
+          ) : (
+            <ListIdeas
               ideas={this.state.ideas}
               tags={this.props.tags}
               user={this.props.user}
-              emptyText={'No results matched your search, try something different.'}
+              emptyText={`No similar ideas matched '${this.props.newIdeaTitle}'.`}
             />
-          }
+          )}
         </>
       );
     }
+
+    return (
+      <>
+        <div className="ui grid">
+          {!this.state.query && (
+            <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
+              <IdeaFilter
+                activeFilter={this.state.filter}
+                filterChanged={filter => this.changeFilterCriteria({ filter })}
+                countPerStatus={this.props.countPerStatus}
+              />
+            </div>
+          )}
+          <div className={!this.state.query ? `six wide mobile six wide tablet four wide computer column` : "column"}>
+            <div className="ui search">
+              <div className="ui icon fluid input">
+                <input
+                  onChange={x => this.changeFilterCriteria({ query: x.currentTarget.value }, 200)}
+                  value={this.state.query}
+                  type="text"
+                  placeholder="Search..."
+                />
+                {this.state.query ? (
+                  <i onClick={() => this.changeFilterCriteria({ query: "" })} className="cancel link icon" />
+                ) : (
+                  <i className="search icon" />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <TagsFilter
+          tags={this.props.tags}
+          selectionChanged={tags => this.changeFilterCriteria({ tags })}
+          defaultSelection={this.state.tags}
+        />
+        {this.state.loading ? (
+          <Loader />
+        ) : (
+          <ListIdeas
+            ideas={this.state.ideas}
+            tags={this.props.tags}
+            user={this.props.user}
+            emptyText={"No results matched your search, try something different."}
+          />
+        )}
+      </>
+    );
+  }
 }

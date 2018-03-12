@@ -1,10 +1,10 @@
-import './TagForm.scss';
+import "./TagForm.scss";
 
-import * as React from 'react';
-import { Button, ButtonClickEvent, DisplayError } from '@fider/components/common';
-import { ShowTag } from '@fider/components/ShowTag';
-import { Tag } from '@fider/models';
-import { Failure } from '@fider/services';
+import * as React from "react";
+import { Button, ButtonClickEvent, DisplayError } from "@fider/components/common";
+import { ShowTag } from "@fider/components/ShowTag";
+import { Tag } from "@fider/models";
+import { Failure } from "@fider/services";
 
 interface TagFormProps {
   name?: string;
@@ -26,14 +26,14 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
     super(props);
     this.state = {
       color: props.color || this.randomizeColor(),
-      name: props.name || '',
+      name: props.name || "",
       isPublic: props.isPublic || false
     };
   }
 
   private randomizeColor(): string {
-    const letters = '0123456789ABCDEF';
-    let color = '';
+    const letters = "0123456789ABCDEF";
+    let color = "";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
@@ -55,30 +55,27 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
             <label>Name</label>
             <input
               className="name"
-              onChange={(e) => this.setState({ name: e.currentTarget.value })}
+              onChange={e => this.setState({ name: e.currentTarget.value })}
               type="text"
               placeholder="New tag name"
               value={this.state.name}
             />
-            <DisplayError fields={['name']} error={this.state.error} pointing="above" />
+            <DisplayError fields={["name"]} error={this.state.error} pointing="above" />
           </div>
           <div className="three wide field">
             <label>
               Color
-              <span
-                className="info clickable"
-                onClick={() => this.setState({ color: this.randomizeColor() })}
-              >
+              <span className="info clickable" onClick={() => this.setState({ color: this.randomizeColor() })}>
                 randomize
               </span>
             </label>
             <input
               className="color"
-              onChange={(e) => this.setState({ color: e.currentTarget.value })}
+              onChange={e => this.setState({ color: e.currentTarget.value })}
               type="text"
               value={this.state.color}
             />
-            <DisplayError fields={['color']} error={this.state.error} pointing="above" />
+            <DisplayError fields={["color"]} error={this.state.error} pointing="above" />
           </div>
           <div className="two wide field">
             <div className="grouped fields">
@@ -90,7 +87,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
                     type="radio"
                     name="visibility"
                     checked={this.state.isPublic}
-                    onChange={(e) => this.setState({ isPublic: true })}
+                    onChange={e => this.setState({ isPublic: true })}
                   />
                   <label htmlFor="visibility-public">Public</label>
                 </div>
@@ -102,7 +99,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
                     type="radio"
                     name="visibility"
                     checked={!this.state.isPublic}
-                    onChange={(e) => this.setState({ isPublic: false })}
+                    onChange={e => this.setState({ isPublic: false })}
                   />
                   <label htmlFor="visibility-private">Private</label>
                 </div>
@@ -114,7 +111,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
             <ShowTag
               tag={{
                 id: 0,
-                slug: '',
+                slug: "",
                 name: this.state.name,
                 color: this.state.color,
                 isPublic: this.state.isPublic
@@ -123,7 +120,9 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
           </div>
         </div>
         <Button onClick={async () => this.props.onCancel()}>Cancel</Button>
-        <Button color="green" onClick={(e) => this.onSave(e)}>Save</Button>
+        <Button color="green" onClick={e => this.onSave(e)}>
+          Save
+        </Button>
       </div>
     );
   }

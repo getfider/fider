@@ -1,10 +1,10 @@
-import './MyNotifications.page.scss';
+import "./MyNotifications.page.scss";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { CurrentUser, Notification } from '@fider/models';
-import { MultiLineText, Moment } from '@fider/components';
-import { page, actions } from '@fider/services';
+import { CurrentUser, Notification } from "@fider/models";
+import { MultiLineText, Moment } from "@fider/components";
+import { page, actions } from "@fider/services";
 
 interface MyNotificationsPageProps {
   notifications: Notification[];
@@ -16,29 +16,31 @@ interface MyNotificationsPageState {
 }
 
 export class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
-
   constructor(props: MyNotificationsPageProps) {
     super(props);
 
-    const [ unread, recent ] = (this.props.notifications || []).reduce((result, item) => {
-      result[item.read ? 1 : 0].push(item);
-      return result;
-    }, [ [] as Notification[], [] as Notification[] ]);
+    const [unread, recent] = (this.props.notifications || []).reduce(
+      (result, item) => {
+        result[item.read ? 1 : 0].push(item);
+        return result;
+      },
+      [[] as Notification[], [] as Notification[]]
+    );
 
     this.state = {
       unread,
-      recent,
+      recent
     };
   }
 
   private items(notifications: Notification[]): JSX.Element[] {
-    return notifications.map((n) => {
+    return notifications.map(n => {
       return (
         <span key={n.id} className="item">
           <a href={`/notifications/${n.id}`}>
             <MultiLineText text={n.title} style="simple" />
             <span className="info">
-                <Moment date={n.createdOn} />
+              <Moment date={n.createdOn} />
             </span>
           </a>
         </span>
@@ -68,32 +70,24 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
           <div className="ten wide computer sixteen wide mobile column">
             <h4>
               Unread
-              {
-                this.state.unread.length > 0 &&
-                <span
-                  className="mark-as-read"
-                  onClick={() => this.markAllAsRead()}
-                >
+              {this.state.unread.length > 0 && (
+                <span className="mark-as-read" onClick={() => this.markAllAsRead()}>
                   Mark All as Read
                 </span>
-              }
+              )}
             </h4>
             <div className="ui list">
               {this.state.unread.length > 0 && this.items(this.state.unread)}
               {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
             </div>
-            {
-              this.state.recent.length > 0 &&
+            {this.state.recent.length > 0 && (
               <>
                 <h4>Read on last 30 days</h4>
-                <div className="ui list">
-                  {this.items(this.state.recent)}
-                </div>
+                <div className="ui list">{this.items(this.state.recent)}</div>
               </>
-            }
+            )}
           </div>
         </div>
-
       </div>
     );
   }

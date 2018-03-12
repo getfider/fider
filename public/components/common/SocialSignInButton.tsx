@@ -1,23 +1,23 @@
-import * as React from 'react';
-import { Button } from '@fider/components/common';
+import * as React from "react";
+import { Button } from "@fider/components/common";
 
 interface SocialSignInButtonProps {
   oauthEndpoint: string;
-  provider: 'google' | 'facebook' | 'github';
+  provider: "google" | "facebook" | "github";
 }
 
 const providers = {
   google: {
-    name: 'Google',
-    class: 'social google',
+    name: "Google",
+    class: "social google"
   },
   facebook: {
-    name: 'Facebook',
-    class: 'social facebook',
+    name: "Facebook",
+    class: "social facebook"
   },
   github: {
-    name: 'GitHub',
-    class: 'social github',
+    name: "GitHub",
+    class: "social github"
   }
 };
 

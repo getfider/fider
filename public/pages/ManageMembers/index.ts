@@ -1,1 +1,1 @@
-export * from './ManageMembers.page';
+export * from "./ManageMembers.page";

@@ -1,14 +1,14 @@
-import * as React from 'react';
-import { classSet } from '@fider/services';
+import * as React from "react";
+import { classSet } from "@fider/services";
 
 interface ButtonProps {
   className?: string;
   simple?: boolean;
   disabled?: boolean;
   href?: string;
-  color?: 'green' | 'red';
+  color?: "green" | "red";
   fluid?: boolean;
-  size?: 'mini' | 'tiny' | 'small' | 'normal' | 'large';
+  size?: "mini" | "tiny" | "small" | "normal" | "large";
   onClick?: (event: ButtonClickEvent) => Promise<any>;
 }
 
@@ -16,7 +16,7 @@ interface ButtonState {
   clicked: boolean;
 }
 
-import './Button.scss';
+import "./Button.scss";
 
 export class ButtonClickEvent {
   private shouldEnable = true;
@@ -32,8 +32,8 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   private unmounted: boolean = false;
 
   public static defaultProps: Partial<ButtonProps> = {
-    size: 'normal',
-    fluid: false,
+    size: "normal",
+    fluid: false
   };
 
   public constructor(props: ButtonProps) {
@@ -69,14 +69,14 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
   public render() {
     const className = classSet({
-      'c-button': true,
-      'as-link': this.props.simple,
-      'fluid': this.props.fluid,
+      "c-button": true,
+      "as-link": this.props.simple,
+      fluid: this.props.fluid,
       [this.props.size!]: this.props.size,
       [this.props.color!]: this.props.color,
-      'loading': this.state.clicked,
-      'disabled': this.state.clicked || this.props.disabled,
-      [this.props.className!]: this.props.className,
+      loading: this.state.clicked,
+      disabled: this.state.clicked || this.props.disabled,
+      [this.props.className!]: this.props.className
     });
 
     if (this.props.href) {
@@ -87,7 +87,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       );
     } else {
       return (
-        <button type="button" className={className} onClick={(e) => this.click(e)}>
+        <button type="button" className={className} onClick={e => this.click(e)}>
           {this.props.children}
         </button>
       );
