@@ -100,9 +100,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
 					c.Failure(err)
 					c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
-					if trx != nil {
-						trx.Rollback()
-					}
+					c.Rollback()
 				}
 			}()
 
@@ -110,7 +108,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 				return err
 			}
 
-			if err = trx.Commit(); err != nil {
+			if err = c.Commit(); err != nil {
 				return err
 			}
 

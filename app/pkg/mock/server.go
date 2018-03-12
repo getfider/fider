@@ -40,6 +40,11 @@ func createServer(services *app.Services) *Server {
 	}
 }
 
+// Engine returns current engine from mocked server
+func (s *Server) Engine() *web.Engine {
+	return s.engine
+}
+
 // Use adds a new middleware to pipeline
 func (s *Server) Use(middleware web.MiddlewareFunc) {
 	s.middleware = middleware

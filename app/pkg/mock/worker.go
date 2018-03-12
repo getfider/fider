@@ -40,3 +40,13 @@ func (w *Worker) Execute(task worker.Task) error {
 	context.SetTenant(w.tenant)
 	return task.Job(context)
 }
+
+// NewNoopTask returns a worker task that does nothing
+func NewNoopTask() worker.Task {
+	return worker.Task{
+		Name: "Noop Task",
+		Job: func(c *worker.Context) error {
+			return nil
+		},
+	}
+}

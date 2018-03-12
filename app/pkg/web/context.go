@@ -48,6 +48,7 @@ var (
 	authEndpointContextKey = preffixKey + "AUTH_ENDPOINT"
 	transactionContextKey  = preffixKey + "TRANSACTION"
 	servicesContextKey     = preffixKey + "SERVICES"
+	tasksContextKey        = preffixKey + "TASKS"
 )
 
 //Context shared between http pipeline
@@ -66,6 +67,33 @@ func (ctx *Context) Engine() *Engine {
 	return ctx.engine
 }
 
+//Commit everything that is pending on current context
+func (ctx *Context) Commit() error {
+	if trx := ctx.ActiveTransaction(); trx != nil {
+		if err := trx.Commit(); err != nil {
+			return err
+		}
+	}
+
+	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
+	if ok {
+		for _, task := range tasks {
+			ctx.worker.Enqueue(task)
+		}
+	}
+
+	return nil
+}
+
+//Rollback everything that is pending on current context
+func (ctx *Context) Rollback() error {
+	if trx := ctx.ActiveTransaction(); trx != nil {
+		return trx.Rollback()
+	}
+
+	return nil
+}
+
 //Enqueue given task to be processed in background
 func (ctx *Context) Enqueue(task worker.Task) {
 	wrap := func(c *Context) worker.Job {
@@ -77,10 +105,15 @@ func (ctx *Context) Enqueue(task worker.Task) {
 		}
 	}
 
-	ctx.worker.Enqueue(worker.Task{
+	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
+	if !ok {
+		tasks = make([]worker.Task, 0)
+	}
+
+	ctx.Set(tasksContextKey, append(tasks, worker.Task{
 		Name: task.Name,
 		Job:  wrap(ctx),
-	})
+	}))
 }
 
 //Tenant returns current tenant
