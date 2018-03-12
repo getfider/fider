@@ -50,6 +50,34 @@ func TestWebSetup_Panic(t *testing.T) {
 	Expect(status).To(Equal(http.StatusInternalServerError))
 }
 
+func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	status, _ := server.Execute(func(c web.Context) error {
+		c.Enqueue(mock.NewNoopTask())
+		return c.Failure(errors.New("Something went wrong..."))
+	})
+
+	Expect(status).To(Equal(http.StatusInternalServerError))
+	Expect(server.Engine().Worker().Length()).To(Equal(0))
+}
+
+func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	status, _ := server.Execute(func(c web.Context) error {
+		c.Enqueue(mock.NewNoopTask())
+		return c.Ok(web.Map{})
+	})
+
+	Expect(status).To(Equal(http.StatusOK))
+	Expect(server.Engine().Worker().Length()).To(Equal(1))
+}
+
 func TestWorkerSetup(t *testing.T) {
 	RegisterTestingT(t)
 
