@@ -200,13 +200,17 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
-	for _, idea := range s.ideas {
+	for i, idea := range s.ideas {
 		if idea.Number == number {
-			idea.Status = status
-			idea.Response = &models.IdeaResponse{
-				Text:        text,
-				User:        &models.User{ID: userID},
-				RespondedOn: time.Now(),
+			if status == models.IdeaDeleted {
+				s.ideas = append(s.ideas[:i], s.ideas[i+1:]...)
+			} else {
+				idea.Status = status
+				idea.Response = &models.IdeaResponse{
+					Text:        text,
+					User:        &models.User{ID: userID},
+					RespondedOn: time.Now(),
+				}
 			}
 		}
 	}

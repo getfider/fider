@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
@@ -392,4 +393,24 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	Expect(code).To(Equal(http.StatusForbidden))
 	comment, _ := services.Ideas.GetCommentByID(commentId)
 	Expect(comment.Content).To(Equal("My first comment"))
+}
+
+func TestDeleteIdeaHandler_Authorized(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", idea.Number).
+		ExecutePost(handlers.DeleteIdea(), `{ }`)
+
+	Expect(code).To(Equal(http.StatusOK))
+	idea, err := services.Ideas.GetByNumber(idea.Number)
+	Expect(idea).To(BeNil())
+	Expect(err).To(Equal(app.ErrNotFound))
 }
