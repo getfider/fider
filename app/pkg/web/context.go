@@ -210,7 +210,7 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 	}
 
 	return ctx.BadRequest(Map{
-		"message":  result.Messages,
+		"messages": result.Messages,
 		"failures": result.Failures,
 	})
 }

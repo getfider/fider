@@ -9,6 +9,12 @@ export const searchIdeas = async (query: string, filter: string, tags: string[])
   return await http.get<Idea[]>(`/api/ideas/search?q=${query}&f=${filter}&t=${tags.join(',')}`);
 };
 
+export const deleteIdea = async (ideaNumber: number, text: string): Promise<Result> => {
+  return http.delete(`/api/ideas/${ideaNumber}`, {
+    text
+  }).then(http.event('idea', 'delete'));
+};
+
 export const addSupport = async (ideaNumber: number): Promise<Result> => {
   return http.post(`/api/ideas/${ideaNumber}/support`).then(http.event('idea', 'support'));
 };

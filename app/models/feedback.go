@@ -40,6 +40,12 @@ type UpdateIdea struct {
 	Description string `json:"description"`
 }
 
+// DeleteIdea represents a request to delete an existing idea
+type DeleteIdea struct {
+	Number int    `route:"number"`
+	Text   string `json:"text"`
+}
+
 // NewComment represents a new comment
 type NewComment struct {
 	Number  int    `route:"number"`
@@ -128,23 +134,27 @@ var (
 	IdeaPlanned = 4
 	//IdeaDuplicate is used when the idea has already been posted before
 	IdeaDuplicate = 5
+	//IdeaDeleted is used when the idea is completely removed from the site and should never be shown again
+	IdeaDeleted = 6
 )
 
 // GetIdeaStatusName returns the name of an idea status
 func GetIdeaStatusName(status int) string {
 	switch status {
-	case 0:
+	case IdeaOpen:
 		return "Open"
-	case 1:
+	case IdeaStarted:
 		return "Started"
-	case 2:
+	case IdeaCompleted:
 		return "Completed"
-	case 3:
+	case IdeaDeclined:
 		return "Declined"
-	case 4:
+	case IdeaPlanned:
 		return "Planned"
-	case 5:
+	case IdeaDuplicate:
 		return "Duplicate"
+	case IdeaDeleted:
+		return "Deleted"
 	default:
 		return "Unknown"
 	}

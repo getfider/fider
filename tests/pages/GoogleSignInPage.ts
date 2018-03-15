@@ -7,8 +7,8 @@ export class GoogleSignInPage extends Page {
     super(browser);
   }
 
-  @findBy('base[href="https://accounts.google.com/"]')
-  private Head!: WebComponent;
+  @findBy('#view_container')
+  private Container!: WebComponent;
 
   @findBy('#identifierId')
   public Email!: TextInput;
@@ -23,7 +23,7 @@ export class GoogleSignInPage extends Page {
   public ConfirmPassword!: Button;
 
   public loadCondition() {
-    return elementIsPresent(() => this.Head);
+    return elementIsPresent(() => this.Container);
   }
 
   public async signInAsDarthVader() {
@@ -36,6 +36,7 @@ export class GoogleSignInPage extends Page {
       const element = await this.browser.findElement(`p[data-email='${email}']`);
       await element.click();
     } catch (ex) {
+      await this.browser.wait(elementIsVisible(() => this.Email));
       await this.Email.type(email);
       await this.ConfirmEmail.click();
     }
