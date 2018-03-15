@@ -20,7 +20,7 @@ func TestDefaultBinder_FromParams(t *testing.T) {
 	params := make(web.StringMap, 0)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
-	ctx := newPostContext(params, `{ "name": "Jon Snow" }`, "application/json")
+	ctx := newBodyContext("POST", params, `{ "name": "Jon Snow" }`, "application/json")
 	u := new(updateUser)
 	err := binder.Bind(u, ctx)
 	Expect(err).To(BeNil())
@@ -41,13 +41,31 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 
 	params := make(web.StringMap, 0)
 	body := `{ "name": " Jon Snow ", "email": " JON.SNOW@got.com ", "color": "ff00ad" }`
-	ctx := newPostContext(params, body, "application/json")
+	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
 	err := binder.Bind(u, ctx)
 	Expect(err).To(BeNil())
 	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.Email).To(Equal("jon.snow@got.com"))
 	Expect(u.Color).To(Equal("FF00AD"))
+	Expect(u.Other).To(Equal(""))
+}
+
+func TestDefaultBinder_DELETE(t *testing.T) {
+	RegisterTestingT(t)
+
+	type user struct {
+		Name  string `json:"name"`
+		Other string
+	}
+
+	params := make(web.StringMap, 0)
+	body := `{ "name": " Jon Snow " }`
+	ctx := newBodyContext("DELETE", params, body, "application/json")
+	u := new(user)
+	err := binder.Bind(u, ctx)
+	Expect(err).To(BeNil())
+	Expect(u.Name).To(Equal("Jon Snow"))
 	Expect(u.Other).To(Equal(""))
 }
 
@@ -62,7 +80,7 @@ func TestDefaultBinder_POST_WithoutBody(t *testing.T) {
 	params := make(web.StringMap, 0)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
-	ctx := newPostContext(params, "", web.UTF8JSONContentType)
+	ctx := newBodyContext("POST", params, "", web.UTF8JSONContentType)
 	a := new(action)
 	err := binder.Bind(a, ctx)
 	Expect(err).To(BeNil())
@@ -78,7 +96,7 @@ func TestDefaultBinder_POST_NonJSON(t *testing.T) {
 	}
 
 	params := make(web.StringMap, 0)
-	ctx := newPostContext(params, `name=JonSnow`, web.UTF8HTMLContentType)
+	ctx := newBodyContext("POST", params, `name=JonSnow`, web.UTF8HTMLContentType)
 
 	u := new(user)
 	err := binder.Bind(u, ctx)

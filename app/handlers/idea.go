@@ -94,6 +94,23 @@ func UpdateIdea() web.HandlerFunc {
 	}
 }
 
+// DeleteIdea deletes an existing idea of current tenant
+func DeleteIdea() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.DeleteIdea)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, models.IdeaDeleted)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // IdeaDetails shows details of given Idea by id
 func IdeaDetails() web.HandlerFunc {
 	return func(c web.Context) error {

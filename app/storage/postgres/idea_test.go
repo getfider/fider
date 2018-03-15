@@ -351,6 +351,25 @@ func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
 	Expect(idea2.Response.Original.Status).To(Equal(idea1.Status))
 }
 
+func TestIdeaStorage_SetResponse_AsDeleted(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+	idea, err := ideas.Add("My new idea", "with this description", jonSnow.ID)
+	Expect(err).To(BeNil())
+
+	ideas.SetResponse(idea.Number, "Spam!", jonSnow.ID, models.IdeaDeleted)
+
+	idea1, err := ideas.GetByNumber(idea.Number)
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(idea1).To(BeNil())
+
+	idea2, err := ideas.GetByID(idea.ID)
+	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(idea2).To(BeNil())
+}
+
 func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
@@ -417,4 +436,21 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	Expect(len(idea.Tags)).To(Equal(2))
 	Expect(idea.Tags[0]).To(Equal(bug.Slug))
 	Expect(idea.Tags[1]).To(Equal(featureRequest.Slug))
+}
+
+func TestIdeaStorage_IsReferenced(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	ideas.SetCurrentTenant(demoTenant)
+	idea1, _ := ideas.Add("My first idea", "with this description", jonSnow.ID)
+	idea2, _ := ideas.Add("My second idea", "with this description", jonSnow.ID)
+	idea3, _ := ideas.Add("My third idea", "with this description", jonSnow.ID)
+
+	ideas.MarkAsDuplicate(idea2.Number, idea3.Number, jonSnow.ID)
+	ideas.MarkAsDuplicate(idea3.Number, idea1.Number, jonSnow.ID)
+
+	Expect(ideas.IsReferenced(idea1.Number)).To(BeTrue())
+	Expect(ideas.IsReferenced(idea2.Number)).To(BeFalse())
+	Expect(ideas.IsReferenced(idea3.Number)).To(BeTrue())
 }

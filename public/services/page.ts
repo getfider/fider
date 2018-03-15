@@ -1,5 +1,9 @@
 import { AuthSettings} from '@fider/models';
 
+export const goHome = (): void => {
+  document.location.href = '/';
+};
+
 export const refresh = (): void => {
   document.location.reload();
 };

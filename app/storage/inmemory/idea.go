@@ -239,6 +239,16 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 	return nil
 }
 
+// IsReferenced returns true if another idea is referencing given idea
+func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+	for _, i := range s.ideas {
+		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == number {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
 	return s.ideasSupportedBy[userID], nil
