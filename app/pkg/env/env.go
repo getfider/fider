@@ -33,11 +33,6 @@ func MustGet(name string) string {
 	return value
 }
 
-// Get returns environment variable or empty string with a warning that the variable does not exist
-func Get(name string) string {
-	return os.Getenv(name)
-}
-
 // Mode returns HOST_MODE or its default value
 func Mode() string {
 	return GetEnvOrDefault("HOST_MODE", "single")

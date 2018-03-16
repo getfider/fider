@@ -46,7 +46,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 	body += "\r\n" + message.Body
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
-	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
+	auth := email.Auth(s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err != nil {
 		s.logger.Errorf("Failed to send email")
