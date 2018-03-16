@@ -25,9 +25,14 @@ func NewDefaultBinder() *DefaultBinder {
 	return &DefaultBinder{}
 }
 
+func methodHasBody(method string) bool {
+	return method == http.MethodPost ||
+		method == http.MethodDelete
+}
+
 //Bind request data to object i
 func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
-	if c.Request.Method == http.MethodPost && c.Request.ContentLength > 0 {
+	if methodHasBody(c.Request.Method) && c.Request.ContentLength > 0 {
 		contentType := strings.Split(c.Request.Header.Get("Content-Type"), ";")
 		if len(contentType) == 0 || contentType[0] != JSONContentType {
 			return ErrContentTypeNotAllowed

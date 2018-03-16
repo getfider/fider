@@ -200,13 +200,17 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 
 // SetResponse changes current idea response
 func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
-	for _, idea := range s.ideas {
+	for i, idea := range s.ideas {
 		if idea.Number == number {
-			idea.Status = status
-			idea.Response = &models.IdeaResponse{
-				Text:        text,
-				User:        &models.User{ID: userID},
-				RespondedOn: time.Now(),
+			if status == models.IdeaDeleted {
+				s.ideas = append(s.ideas[:i], s.ideas[i+1:]...)
+			} else {
+				idea.Status = status
+				idea.Response = &models.IdeaResponse{
+					Text:        text,
+					User:        &models.User{ID: userID},
+					RespondedOn: time.Now(),
+				}
 			}
 		}
 	}
@@ -237,6 +241,16 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 		RespondedOn: time.Now(),
 	}
 	return nil
+}
+
+// IsReferenced returns true if another idea is referencing given idea
+func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+	for _, i := range s.ideas {
+		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == number {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // SupportedBy returns a list of Idea ID supported by given user
