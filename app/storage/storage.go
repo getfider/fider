@@ -34,6 +34,7 @@ type Idea interface {
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(number int, text string, userID, status int) error
 	MarkAsDuplicate(number, originalNumber, userID int) error
+	IsReferenced(number int) (bool, error)
 	SupportedBy(userID int) ([]int, error)
 }
 

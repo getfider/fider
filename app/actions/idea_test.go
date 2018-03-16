@@ -45,3 +45,32 @@ func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
 		ExpectSuccess(result)
 	}
 }
+
+func TestSetResponse_InvalidStatus(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := &actions.SetResponse{Model: &models.SetResponse{
+		Status: models.IdeaDeleted,
+		Text:   "Spam!",
+	}}
+	result := action.Validate(nil, services)
+	ExpectFailed(result, "status")
+}
+
+func TestDeleteIdea_WhenIsBeingReferenced(t *testing.T) {
+	RegisterTestingT(t)
+
+	idea1, _ := services.Ideas.Add("Idea #1", "", 1)
+	idea2, _ := services.Ideas.Add("Idea #2", "", 1)
+	services.Ideas.MarkAsDuplicate(idea2.Number, idea1.Number, 1)
+
+	model := &models.DeleteIdea{
+		Number: idea2.Number,
+		Text:   "Spam!",
+	}
+	action := &actions.DeleteIdea{Model: model}
+	ExpectSuccess(action.Validate(nil, services))
+
+	model.Number = idea1.Number
+	ExpectFailed(action.Validate(nil, services))
+}

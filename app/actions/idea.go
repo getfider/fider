@@ -174,6 +174,46 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 	return result
 }
 
+// DeleteIdea represents the action of an administrator deleting an existing Idea
+type DeleteIdea struct {
+	Model *models.DeleteIdea
+	Idea  *models.Idea
+}
+
+// Initialize the model
+func (input *DeleteIdea) Initialize() interface{} {
+	input.Model = new(models.DeleteIdea)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *DeleteIdea) IsAuthorized(user *models.User, services *app.Services) bool {
+	return user != nil && user.IsAdministrator()
+}
+
+// Validate if current model is valid
+func (input *DeleteIdea) Validate(user *models.User, services *app.Services) *validate.Result {
+	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	isReferenced, err := services.Ideas.IsReferenced(input.Model.Number)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	if isReferenced {
+		return validate.Failed([]string{
+			"This idea cannot be deleted because it's being referenced by a duplicated idea.",
+		})
+	}
+
+	input.Idea = idea
+
+	return validate.Success()
+}
+
 // EditComment represents the action to update an existing comment
 type EditComment struct {
 	Model *models.EditComment

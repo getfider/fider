@@ -3,6 +3,7 @@ package postgres
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"database/sql"
@@ -192,7 +193,7 @@ var (
 													ON agg_c.idea_id = i.id
 													LEFT JOIN agg_supporters agg_s
 													ON agg_s.idea_id = i.id
-													WHERE %s
+													WHERE i.status != ` + strconv.Itoa(models.IdeaDeleted) + ` AND %s
 													GROUP BY i.id, u.id, r.id, d.id, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
@@ -264,7 +265,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 		scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $4)) + similarity(title, $5) + similarity(description, $5)"
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
-			WHERE %s > 0.3 
+			WHERE %s > 0.1 
 			AND tags @> $3
 			ORDER BY %s DESC
 		`, innerQuery, scoreField, scoreField)
@@ -648,6 +649,17 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, original.ID, respondedOn, userID, models.IdeaDuplicate)
+}
+
+// IsReferenced returns true if another idea is referencing given idea
+func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+	return s.trx.Exists(`
+		SELECT 1 FROM ideas i 
+		INNER JOIN ideas o
+		ON o.tenant_id = i.tenant_id
+		AND o.id = i.original_id
+		WHERE i.tenant_id = $1
+		AND o.number = $2`, s.tenant.ID, number)
 }
 
 // SupportedBy returns a list of Idea ID supported by given user
