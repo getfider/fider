@@ -1,9 +1,9 @@
 export const delay = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 export const classSet = (input?: any): string => {
-  let classes = '';
+  let classes = "";
   if (input) {
     for (const key in input) {
       if (key && !!input[key]) {
@@ -12,14 +12,22 @@ export const classSet = (input?: any): string => {
     }
     return classes.trim();
   }
-  return '';
+  return "";
 };
 
 const monthNames = [
-  'January', 'February', 'March',
-  'April', 'May', 'June', 'July',
-  'August', 'September', 'October',
-  'November', 'December'
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
 ];
 
 const twoDigits = (value: number): string => {
@@ -39,17 +47,17 @@ export const formatDate = (input: Date | string): string => {
 };
 
 const templates: { [key: string]: string } = {
-  seconds: 'less than a minute',
-  minute: 'about a minute',
-  minutes: '%d minutes',
-  hour: 'about an hour',
-  hours: 'about %d hours',
-  day: 'a day',
-  days: '%d days',
-  month: 'about a month',
-  months: '%d months',
-  year: 'about a year',
-  years: '%d years'
+  seconds: "less than a minute",
+  minute: "about a minute",
+  minutes: "%d minutes",
+  hour: "about an hour",
+  hours: "about %d hours",
+  day: "a day",
+  days: "%d days",
+  month: "about a month",
+  months: "%d months",
+  year: "about a year",
+  years: "%d years"
 };
 
 const template = (t: string, n: number): string => {
@@ -57,7 +65,6 @@ const template = (t: string, n: number): string => {
 };
 
 export const timeSince = (now: Date, date: Date): string => {
-
   const seconds = (now.getTime() - date.getTime()) / 1000;
   const minutes = seconds / 60;
   const hours = minutes / 60;
@@ -65,16 +72,16 @@ export const timeSince = (now: Date, date: Date): string => {
   const years = days / 365;
 
   return (
-    seconds < 45 && template('seconds', seconds) ||
-    seconds < 90 && template('minute', 1) ||
-    minutes < 45 && template('minutes', minutes) ||
-    minutes < 90 && template('hour', 1) ||
-    hours < 24 && template('hours', hours) ||
-    hours < 42 && template('day', 1) ||
-    days < 30 && template('days', days) ||
-    days < 45 && template('month', 1) ||
-    days < 365 && template('months', days / 30) ||
-    years < 1.5 && template('year', 1) ||
-    template('years', years)
-  ) + ' ago';
+    ((seconds < 45 && template("seconds", seconds)) ||
+      (seconds < 90 && template("minute", 1)) ||
+      (minutes < 45 && template("minutes", minutes)) ||
+      (minutes < 90 && template("hour", 1)) ||
+      (hours < 24 && template("hours", hours)) ||
+      (hours < 42 && template("day", 1)) ||
+      (days < 30 && template("days", days)) ||
+      (days < 45 && template("month", 1)) ||
+      (days < 365 && template("months", days / 30)) ||
+      (years < 1.5 && template("year", 1)) ||
+      template("years", years)) + " ago"
+  );
 };

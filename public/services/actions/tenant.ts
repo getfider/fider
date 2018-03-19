@@ -1,5 +1,5 @@
-import { http, Result } from '@fider/services/http';
-import { Tenant, UserRole } from '@fider/models';
+import { http, Result } from "@fider/services/http";
+import { Tenant, UserRole } from "@fider/models";
 
 export interface CheckAvailabilityResponse {
   message: string;
@@ -18,12 +18,20 @@ export interface CreateTenantResponse {
 }
 
 export const createTenant = async (request: CreateTenantRequest): Promise<Result<CreateTenantResponse>> => {
-  return await http.post<CreateTenantResponse>('/api/tenants', request);
+  return await http.post<CreateTenantResponse>("/api/tenants", request);
 };
 
-export const updateTenantSettings = async (title: string, invitation: string, welcomeMessage: string, cname: string): Promise<Result> => {
-  return await http.post('/api/admin/settings', {
-    title, invitation, welcomeMessage, cname
+export const updateTenantSettings = async (
+  title: string,
+  invitation: string,
+  welcomeMessage: string,
+  cname: string
+): Promise<Result> => {
+  return await http.post("/api/admin/settings", {
+    title,
+    invitation,
+    welcomeMessage,
+    cname
   });
 };
 
@@ -32,20 +40,20 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
 };
 
 export const signIn = async (email: string): Promise<Result> => {
-  return await http.post('/api/signin', {
-    email,
+  return await http.post("/api/signin", {
+    email
   });
 };
 
 export const completeProfile = async (key: string, name: string): Promise<Result> => {
-  return await http.post('/api/signin/complete', {
+  return await http.post("/api/signin/complete", {
     key,
-    name,
+    name
   });
 };
 
 export const changeUserRole = async (userId: number, role: UserRole): Promise<Result> => {
   return await http.post(`/api/admin/users/${userId}/role`, {
-    role,
+    role
   });
 };

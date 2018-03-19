@@ -1,10 +1,10 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { Modal, Button, DisplayError, Textarea } from '@fider/components/common';
-import { Comment, Idea, IdeaStatus, User } from '@fider/models';
-import { IdeaSearch } from '../';
+import { Modal, Button, DisplayError, Textarea } from "@fider/components/common";
+import { Comment, Idea, IdeaStatus, User } from "@fider/models";
+import { IdeaSearch } from "../";
 
-import { actions, Failure } from '@fider/services';
+import { actions, Failure } from "@fider/services";
 
 interface ResponseFormProps {
   idea: Idea;
@@ -54,41 +54,48 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       <Modal.Window isOpen={this.state.showModal} center={false} size="large">
         <Modal.Content>
           <div className="ui form fdr-response-form">
-            <DisplayError fields={['status']} error={this.state.error} />
+            <DisplayError fields={["status"]} error={this.state.error} />
             <div className="two fields">
               <div className="field">
                 <label>Status</label>
                 <select
                   className="ui dropdown"
                   defaultValue={this.props.idea.status.toString()}
-                  onChange={(e) => this.setState({ status: parseInt(e.currentTarget.value, 10) })}
+                  onChange={e =>
+                    this.setState({
+                      status: parseInt(e.currentTarget.value, 10)
+                    })
+                  }
                 >
-                  {IdeaStatus.All.map((s) => <option key={s.value} value={s.value.toString()}>{s.title}</option>)}
+                  {IdeaStatus.All.map(s => (
+                    <option key={s.value} value={s.value.toString()}>
+                      {s.title}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
-            {
-              this.state.status === IdeaStatus.Duplicate.value
-              ?
+            {this.state.status === IdeaStatus.Duplicate.value ? (
               <>
-                <DisplayError fields={['originalNumber']} error={this.state.error} />
+                <DisplayError fields={["originalNumber"]} error={this.state.error} />
                 <IdeaSearch
                   exclude={[this.props.idea.number]}
-                  onChanged={(originalNumber) => this.setState({ originalNumber })}
+                  onChanged={originalNumber => this.setState({ originalNumber })}
                 />
                 <span className="info">Votes from this idea will be merged into original idea.</span>
               </>
-              : <>
-                  <DisplayError fields={['text']} error={this.state.error} />
-                  <div className="field">
-                    <Textarea
-                      onChange={(e) => this.setState({ text: e.currentTarget.value })}
-                      defaultValue={this.state.text}
-                      placeholder="What's going on with this idea? Let your users know what are your plans..."
-                    />
-                  </div>
-                </>
-            }
+            ) : (
+              <>
+                <DisplayError fields={["text"]} error={this.state.error} />
+                <div className="field">
+                  <Textarea
+                    onChange={e => this.setState({ text: e.currentTarget.value })}
+                    defaultValue={this.state.text}
+                    placeholder="What's going on with this idea? Let your users know what are your plans..."
+                  />
+                </div>
+              </>
+            )}
           </div>
         </Modal.Content>
 
@@ -96,12 +103,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
           <Button color="green" onClick={() => this.submit()}>
             Submit
           </Button>
-          <Button onClick={async () => this.setState({ showModal: false })}>
-            Cancel
-          </Button>
+          <Button onClick={async () => this.setState({ showModal: false })}>Cancel</Button>
         </Modal.Footer>
       </Modal.Window>
-      );
+    );
 
     return (
       <>

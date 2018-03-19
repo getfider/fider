@@ -1,12 +1,22 @@
-import './ShowIdea.page.scss';
+import "./ShowIdea.page.scss";
 
-import * as React from 'react';
+import * as React from "react";
 
-import { CurrentUser, Comment, Idea, Tag } from '@fider/models';
-import { page, actions, Failure } from '@fider/services';
+import { CurrentUser, Comment, Idea, Tag } from "@fider/models";
+import { page, actions, Failure } from "@fider/services";
 
-import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from './';
-import { SupportCounter, ShowIdeaResponse, DisplayError, Button, Textarea, UserName, Gravatar, Moment, MultiLineText } from '@fider/components';
+import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
+import {
+  SupportCounter,
+  ShowIdeaResponse,
+  DisplayError,
+  Button,
+  Textarea,
+  UserName,
+  Gravatar,
+  Moment,
+  MultiLineText
+} from "@fider/components";
 
 interface ShowIdeaPageProps {
   user?: CurrentUser;
@@ -24,14 +34,13 @@ interface ShowIdeaPageState {
 }
 
 export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPageState> {
-
   constructor(props: ShowIdeaPageProps) {
     super(props);
 
     this.state = {
       editMode: false,
       newTitle: this.props.idea.title,
-      newDescription: this.props.idea.description,
+      newDescription: this.props.idea.description
     };
 
     page.setTitle(`${this.props.idea.title} · ${document.title}`);
@@ -63,47 +72,57 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               <SupportCounter user={this.props.user} idea={this.props.idea} />
 
               <div className="idea-header">
-                { this.state.editMode
-                  ? [
+                {this.state.editMode ? (
+                  [
                     <div key={1} className="ui input huge fluid">
-                      <input type="text" maxLength={100} onChange={(e) => this.setState({ newTitle: e.currentTarget.value })} defaultValue={this.state.newTitle} />
+                      <input
+                        type="text"
+                        maxLength={100}
+                        onChange={e => this.setState({ newTitle: e.currentTarget.value })}
+                        defaultValue={this.state.newTitle}
+                      />
                     </div>,
-                    <DisplayError key={0} fields={['title']} pointing="above" error={this.state.error} />
+                    <DisplayError key={0} fields={["title"]} pointing="above" error={this.state.error} />
                   ]
-                  : <h1 className="ui header">{this.props.idea.title}</h1>
-                }
+                ) : (
+                  <h1 className="ui header">{this.props.idea.title}</h1>
+                )}
 
                 <span className="info">
-                  Shared <Moment date={this.props.idea.createdOn} /> by <Gravatar user={this.props.idea.user} /> <UserName user={this.props.idea.user} />
+                  Shared <Moment date={this.props.idea.createdOn} /> by <Gravatar user={this.props.idea.user} />{" "}
+                  <UserName user={this.props.idea.user} />
                 </span>
               </div>
             </div>
           </div>
 
           <span className="subtitle">Description</span>
-          {
-            this.state.editMode
-            ? <div className="ui form">
-                <div className="field">
-                  <DisplayError fields={['description']} error={this.state.error} />
-                  <Textarea onChange={(e) => this.setState({ newDescription: e.currentTarget.value })} defaultValue={this.state.newDescription} />
-                </div>
+          {this.state.editMode ? (
+            <div className="ui form">
+              <div className="field">
+                <DisplayError fields={["description"]} error={this.state.error} />
+                <Textarea
+                  onChange={e => this.setState({ newDescription: e.currentTarget.value })}
+                  defaultValue={this.state.newDescription}
+                />
               </div>
-            : this.props.idea.description
-            ? <MultiLineText className="description" text={this.props.idea.description} style="simple" />
-            : <p className="description">This idea doesn't have a description.</p>
-          }
+            </div>
+          ) : this.props.idea.description ? (
+            <MultiLineText className="description" text={this.props.idea.description} style="simple" />
+          ) : (
+            <p className="description">This idea doesn't have a description.</p>
+          )}
 
           <ShowIdeaResponse status={this.props.idea.status} response={this.props.idea.response} />
-
         </div>
 
         <div className="action-col">
-          {
-            this.props.user && this.props.user.isCollaborator && [
-              <span key={0} className="subtitle">Actions</span>,
-              this.state.editMode
-                ?
+          {this.props.user &&
+            this.props.user.isCollaborator && [
+              <span key={0} className="subtitle">
+                Actions
+              </span>,
+              this.state.editMode ? (
                 <div key={1} className="ui list">
                   <div className="item">
                     <Button color="green" size="small" fluid={true} onClick={async () => this.saveChanges()}>
@@ -111,24 +130,28 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                     </Button>
                   </div>
                   <div className="item">
-                    <Button fluid={true} size="small" onClick={async () => this.setState({ error: undefined, editMode: false })}>
+                    <Button
+                      fluid={true}
+                      size="small"
+                      onClick={async () => this.setState({ error: undefined, editMode: false })}
+                    >
                       <i className="cancel icon" /> Cancel
                     </Button>
                   </div>
                 </div>
-                :
+              ) : (
                 <div key={1} className="ui list">
                   <div className="item">
-                      <Button fluid={true} size="small" onClick={async () => this.setState({ editMode: true })}>
-                        <i className="edit icon" /> Edit
-                      </Button>
+                    <Button fluid={true} size="small" onClick={async () => this.setState({ editMode: true })}>
+                      <i className="edit icon" /> Edit
+                    </Button>
                   </div>
                   <div className="item">
                     <ResponseForm idea={this.props.idea} />
                   </div>
                 </div>
-            ]
-          }
+              )
+            ]}
 
           <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
           <NotificationsPanel user={this.props.user} idea={this.props.idea} subscribed={this.props.subscribed} />

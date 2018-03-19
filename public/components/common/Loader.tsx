@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 
 interface LoaderState {
   show: boolean;
@@ -10,7 +10,7 @@ export class Loader extends React.Component<{}, LoaderState> {
     super(props);
     this.unmounted = false;
     this.state = {
-      show: false,
+      show: false
     };
   }
 
@@ -28,6 +28,6 @@ export class Loader extends React.Component<{}, LoaderState> {
   }
 
   public render() {
-    return this.state.show && <div className="ui active centered inline loader"/>;
+    return this.state.show && <div className="ui active centered inline loader" />;
   }
 }

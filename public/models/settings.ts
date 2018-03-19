@@ -12,9 +12,9 @@ export interface SystemSettings {
 export interface AuthSettings {
   endpoint: string;
   providers: {
-    google: boolean,
-    facebook: boolean,
-    github: boolean
+    google: boolean;
+    facebook: boolean;
+    github: boolean;
   };
 }
 
