@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
-import { Dropdown, DropdownProps } from "semantic-ui-react";
+import { Dropdown, DropdownProps } from "@fider/components";
 
 interface TagsFilterProps {
   tags: Tag[];

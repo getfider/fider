@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Idea, IdeaStatus } from "@fider/models";
-import { Dropdown, DropdownItemProps } from "semantic-ui-react";
-export type IdeaFilterFunction = (ideas: Idea[]) => Idea[];
+import { Dropdown, DropdownItemProps } from "@fider/components";
 
 interface IdeaFilterProps {
   activeFilter: string;

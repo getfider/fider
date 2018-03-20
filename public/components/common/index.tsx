@@ -14,3 +14,7 @@ export * from "./Modal";
 export * from "./Loader";
 import Textarea from "react-textarea-autosize";
 export { Textarea };
+
+import Dropdown from "semantic-ui-react/dist/commonjs/modules/Dropdown";
+import { DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react/index.d";
+export { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData };
