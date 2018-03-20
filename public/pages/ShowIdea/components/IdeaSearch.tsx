@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Idea, IdeaStatus } from "@fider/models";
 import { actions } from "@fider/services";
+import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react";
 
 interface IdeaSearchProps {
   exclude?: number[];
@@ -8,62 +9,74 @@ interface IdeaSearchProps {
 }
 
 interface IdeaSearchState {
-  ideas?: Idea[];
+  ideas: Idea[];
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
-  private element?: HTMLDivElement;
+  private timer: number = 0;
 
   constructor(props: IdeaSearchProps) {
     super(props);
-    this.state = {};
-    actions.getAllIdeas().then(res => {
-      const ideas =
-        this.props.exclude && this.props.exclude.length > 0
-          ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
-          : res.data;
-      this.setState({ ideas });
-    });
+    this.state = {
+      ideas: []
+    };
+    this.search("");
   }
 
-  public componentDidUpdate() {
-    $(this.element).dropdown({
-      fullTextSearch: true,
-      onChange: (ideaNumber: string) => {
-        if (ideaNumber) {
-          this.props.onChanged(parseInt(ideaNumber, 10));
-        }
-      }
-    });
-  }
+  private onSearchChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownOnSearchChangeData) => {
+    this.search(data.searchQuery);
+  };
+
+  private onChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+    this.props.onChanged(parseInt(data.value as string, 10));
+  };
+
+  private search = (searchQuery: string) => {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      actions.searchIdeas(searchQuery, "", []).then(res => {
+        const ideas =
+          this.props.exclude && this.props.exclude.length > 0
+            ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
+            : res.data;
+        this.setState({ ideas });
+      });
+    }, 200);
+  };
+
+  private returnAll = (options: DropdownItemProps[], value: string) => options;
 
   public render() {
-    const items = this.state.ideas && (
-      <div className="menu">
-        {this.state.ideas.map(i => {
-          const status = IdeaStatus.Get(i.status);
-          return (
-            <div key={i.id} className="item" data-value={i.number} data-text={i.title}>
-              <span className="support">
-                <i className="medium caret up icon" />
-                {i.totalSupporters}
-              </span>
-              <span className={`ui mini label ${status.color}`}>{status.title}</span>
-              {i.title}
-            </div>
-          );
-        })}
-      </div>
-    );
-
-    const className = `ui selection ${items ? "search" : "loading"} fluid dropdown fdr-idea-search`;
+    const options = this.state.ideas.map(i => {
+      const status = IdeaStatus.Get(i.status);
+      return {
+        key: i.number,
+        text: i.title,
+        value: i.number,
+        content: (
+          <>
+            <span className="support">
+              <i className="medium caret up icon" />
+              {i.totalSupporters}
+            </span>
+            <span className={`ui mini label ${status.color}`}>{status.title}</span>
+            {i.title}
+          </>
+        )
+      };
+    });
 
     return (
-      <div className={className} ref={e => (this.element = e!)}>
-        <i className="dropdown icon" />
-        <div className="default text">Search original idea</div>
-        {items}
-      </div>
+      <Dropdown
+        className="fdr-idea-search"
+        fluid={true}
+        selection={true}
+        search={this.returnAll}
+        options={options}
+        placeholder="Search original idea"
+        onChange={this.onChange}
+        onSearchChange={this.onSearchChange}
+      />
     );
   }
 }
