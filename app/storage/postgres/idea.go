@@ -262,11 +262,10 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 		err   error
 	)
 	if query != "" {
-		scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $4)) + similarity(title, $5) + similarity(description, $5)"
+		scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
 			WHERE %s > 0.1 
-			AND tags @> $3
 			ORDER BY %s DESC
 		`, innerQuery, scoreField, scoreField)
 		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array([]int{
@@ -275,7 +274,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 			models.IdeaPlanned,
 			models.IdeaCompleted,
 			models.IdeaDeclined,
-		}), pq.Array(tags), ToTSQuery(query), query)
+		}), ToTSQuery(query), query)
 	} else {
 		statuses, sort := getFilterData(filter)
 		sql := fmt.Sprintf(`

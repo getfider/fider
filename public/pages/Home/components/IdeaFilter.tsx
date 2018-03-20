@@ -21,6 +21,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       { text: "most wanter", value: "most-wanted", content: "Most Wanter" },
       { text: "most discussed", value: "most discussed", content: "Most Discussed" }
     ];
+
     IdeaStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
         text: s.title.toLowerCase(),
@@ -36,7 +37,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
     const activeFilter = options.find(x => x.value === this.props.activeFilter) ? this.props.activeFilter : "trending";
 
     return (
-      <div className="content">
+      <>
         Showing{" "}
         <Dropdown
           className="ideas-filter"
@@ -46,7 +47,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
           defaultValue={activeFilter}
           onChange={(item, data) => this.props.filterChanged(data.value as string)}
         />
-      </div>
+      </>
     );
   }
 }

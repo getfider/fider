@@ -110,11 +110,18 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
         <div className="ui grid">
           {!this.state.query && (
             <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
-              <IdeaFilter
-                activeFilter={this.state.filter}
-                filterChanged={filter => this.changeFilterCriteria({ filter })}
-                countPerStatus={this.props.countPerStatus}
-              />
+              <div className="content">
+                <IdeaFilter
+                  activeFilter={this.state.filter}
+                  filterChanged={filter => this.changeFilterCriteria({ filter })}
+                  countPerStatus={this.props.countPerStatus}
+                />
+                <TagsFilter
+                  tags={this.props.tags}
+                  selectionChanged={tags => this.changeFilterCriteria({ tags })}
+                  defaultSelection={this.state.tags}
+                />
+              </div>
             </div>
           )}
           <div className={!this.state.query ? `six wide mobile six wide tablet four wide computer column` : "column"}>
@@ -135,11 +142,6 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             </div>
           </div>
         </div>
-        <TagsFilter
-          tags={this.props.tags}
-          selectionChanged={tags => this.changeFilterCriteria({ tags })}
-          defaultSelection={this.state.tags}
-        />
         {this.state.loading ? (
           <Loader />
         ) : (

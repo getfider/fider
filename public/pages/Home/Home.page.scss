@@ -43,17 +43,21 @@
     }
   }
 
-  .tags-filter.has-selection {
-    i.filter {
-      vertical-align: middle;
+  .tags-filter {
+    .ui.empty.circular.label {
+      font-size: .71428571rem;
+      margin-right: 5px;
     }
-    .ui.label.transition {
+    .selected.item {
       background-color: transparent;
-      box-shadow: none;
-      font-weight: 500;
-      .ui.empty.circular.label {
-        font-size: .71428571rem;
-        margin-right: 5px;
+      font-weight: normal;
+    }
+    i.check {
+      color: transparent;
+    }
+    .selected-tag {
+      i.check {
+        color: $green;
       }
     }
   }
