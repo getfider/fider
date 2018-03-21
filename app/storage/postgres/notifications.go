@@ -72,10 +72,11 @@ func (s *NotificationStorage) MarkAsRead(id int) error {
 	if s.user == nil {
 		return nil
 	}
-	return s.trx.Execute(`
+	_, err := s.trx.Execute(`
 		UPDATE notifications SET read = true, updated_on = $1
 		WHERE id = $2 AND tenant_id = $3 AND user_id = $4 AND read = false
 	`, time.Now(), id, s.tenant.ID, s.user.ID)
+	return err
 }
 
 // MarkAllAsRead of current user
@@ -83,10 +84,11 @@ func (s *NotificationStorage) MarkAllAsRead() error {
 	if s.user == nil {
 		return nil
 	}
-	return s.trx.Execute(`
+	_, err := s.trx.Execute(`
 		UPDATE notifications SET read = true, updated_on = $1
 		WHERE tenant_id = $2 AND user_id = $3 AND read = false
 	`, time.Now(), s.tenant.ID, s.user.ID)
+	return err
 }
 
 // GetActiveNotifications returns all unread notifications and last 30 days of read notifications

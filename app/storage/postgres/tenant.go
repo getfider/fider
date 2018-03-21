@@ -132,7 +132,8 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 // UpdateSettings of given tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
-	return s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
+	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
+	return err
 }
 
 // IsSubdomainAvailable returns true if subdomain is available to use
@@ -150,7 +151,8 @@ func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"
-	return s.trx.Execute(query, models.TenantActive, id)
+	_, err := s.trx.Execute(query, models.TenantActive, id)
+	return err
 }
 
 // SaveVerificationKey used by email verification process
@@ -160,7 +162,8 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 		userID = request.GetUser().ID
 	}
 	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
-	return s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
+	_, err := s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
+	return err
 }
 
 // FindVerificationByKey based on current tenant
@@ -179,7 +182,8 @@ func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind,
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
-	return s.trx.Execute(query, time.Now(), s.current.ID, key)
+	_, err := s.trx.Execute(query, time.Now(), s.current.ID, key)
+	return err
 }
 
 func extractSubdomain(hostname string) string {

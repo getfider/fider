@@ -338,8 +338,8 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 
 // Update given idea
 func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
-	err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
-												WHERE number = $4 AND tenant_id = $5`, title, slug.Make(title), description, number, s.tenant.ID)
+	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
+													 WHERE number = $4 AND tenant_id = $5`, title, slug.Make(title), description, number, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -426,8 +426,10 @@ func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
 
 // UpdateComment with given ID and content
 func (s *IdeaStorage) UpdateComment(id int, content string) error {
-	return s.trx.Execute(`UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
-												WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
+	_, err := s.trx.Execute(`
+		UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
+		WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
+	return err
 }
 
 // AddSupporter adds user to idea list of supporters
@@ -450,11 +452,11 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
+	if _, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
 		return err
 	}
 
-	if err := s.trx.Execute(
+	if _, err := s.trx.Execute(
 		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4)  ON CONFLICT DO NOTHING`,
 		s.tenant.ID, userID, idea.ID, time.Now()); err != nil {
 		return err
@@ -483,11 +485,12 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	if err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
+	if _, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
 		return err
 	}
 
-	return s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
+	_, err = s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
+	return err
 }
 
 // AddSubscriber adds user to the idea list of subscribers
@@ -506,11 +509,12 @@ func (s *IdeaStorage) internalAddSubscriber(number, userID int, force bool) erro
 		conflict = "(user_id, idea_id) DO UPDATE SET status = $5, updated_on = $4"
 	}
 
-	return s.trx.Execute(fmt.Sprintf(`
+	_, err = s.trx.Execute(fmt.Sprintf(`
 	INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
 		s.tenant.ID, userID, idea.ID, time.Now(), models.SubscriberActive,
 	)
+	return err
 }
 
 // RemoveSubscriber removes user from idea list of subscribers
@@ -520,12 +524,13 @@ func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
 		return err
 	}
 
-	return s.trx.Execute(`
+	_, err = s.trx.Execute(`
 		INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, idea_id)
 		DO UPDATE SET status = 0, updated_on = $4`,
 		s.tenant.ID, userID, idea.ID, time.Now(),
 	)
+	return err
 }
 
 // GetActiveSubscribers based on input and settings
@@ -609,11 +614,13 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	if idea.Status == status && idea.Response != nil {
 		respondedOn = idea.Response.RespondedOn
 	}
-	return s.trx.Execute(`
+
+	_, err = s.trx.Execute(`
 	UPDATE ideas 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, text, respondedOn, userID, status)
+	return err
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
@@ -643,11 +650,12 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 		}
 	}
 
-	return s.trx.Execute(`
+	_, err = s.trx.Execute(`
 	UPDATE ideas 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, original.ID, respondedOn, userID, models.IdeaDuplicate)
+	return err
 }
 
 // IsReferenced returns true if another idea is referencing given idea

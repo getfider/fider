@@ -107,7 +107,7 @@ type Trx struct {
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
 // Execute given SQL command
-func (trx Trx) Execute(command string, args ...interface{}) error {
+func (trx Trx) Execute(command string, args ...interface{}) (int64, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -116,8 +116,11 @@ func (trx Trx) Execute(command string, args ...interface{}) error {
 		}()
 	}
 
-	_, err := trx.tx.Exec(command, args...)
-	return err
+	result, err := trx.tx.Exec(command, args...)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 // Scalar returns first row and first column
