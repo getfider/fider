@@ -109,7 +109,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
       <>
         <div className="ui grid">
           {!this.state.query && (
-            <div className="ten wide mobile ten wide tablet twelve wide computer column filter-column">
+            <div className="eleven wide mobile eleven wide tablet twelve wide computer column filter-column">
               <div className="content">
                 <IdeaFilter
                   activeFilter={this.state.filter}
@@ -124,7 +124,11 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
               </div>
             </div>
           )}
-          <div className={!this.state.query ? `six wide mobile six wide tablet four wide computer column` : "column"}>
+          <div
+            className={
+              !this.state.query ? `five wide mobile five wide tablet four wide computer column search-column` : "column"
+            }
+          >
             <div className="ui search">
               <div className="ui icon fluid input">
                 <input

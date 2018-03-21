@@ -254,13 +254,6 @@ code {
   }
 }
 
-.signin-message {
-  background-color: $menu-color;
-  .ui.basic.red.label {
-    background-color: $menu-color !important;
-  }
-}
-
 .signin-options{
   .ui.stackable.grid>.column:not(.row),
   .column {

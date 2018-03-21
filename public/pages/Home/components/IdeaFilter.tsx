@@ -17,7 +17,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
     const options: DropdownItemProps[] = [
       { text: "trending", value: "trending", content: "Trending" },
       { text: "recent", value: "recent", content: "Recent" },
-      { text: "most wanter", value: "most-wanted", content: "Most Wanter" },
+      { text: "most wanted", value: "most-wanted", content: "Most Wanted" },
       { text: "most discussed", value: "most discussed", content: "Most Discussed" }
     ];
 
@@ -37,7 +37,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
 
     return (
       <>
-        Showing{" "}
+        Show{" "}
         <Dropdown
           className="ideas-filter"
           header="What do you want to see?"
