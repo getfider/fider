@@ -443,23 +443,19 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		return nil
 	}
 
-	alreadySupported, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3", userID, idea.ID, s.tenant.ID)
+	rows, err := s.trx.Execute(
+		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
+		s.tenant.ID, userID, idea.ID, time.Now())
+
 	if err != nil {
 		return err
 	}
 
-	if alreadySupported {
-		return nil
-	}
-
-	if _, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
-		return err
-	}
-
-	if _, err := s.trx.Execute(
-		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4)  ON CONFLICT DO NOTHING`,
-		s.tenant.ID, userID, idea.ID, time.Now()); err != nil {
-		return err
+	if rows == 1 {
+		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return s.internalAddSubscriber(number, userID, false)
@@ -476,20 +472,14 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 		return nil
 	}
 
-	didSupport, err := s.trx.Exists("SELECT 1 FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3", userID, idea.ID, s.tenant.ID)
-	if err != nil {
-		return err
-	}
+	rows, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
 
-	if !didSupport {
-		return nil
+	if rows == 1 {
+		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
+		if err != nil {
+			return err
+		}
 	}
-
-	if _, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID); err != nil {
-		return err
-	}
-
-	_, err = s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
 	return err
 }
 
