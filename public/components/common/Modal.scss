@@ -33,13 +33,13 @@
   width: 100%;
 
   &.small {
-    @media only screen and (min-width: 768px) {
+    @include tablet {
       width: 500px;
     }
   }
 
   &.large {
-    @media only screen and (min-width: 768px) {
+    @include tablet {
       width: 750px;
     }
   }

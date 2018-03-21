@@ -4,15 +4,14 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "jquery": "^3.3.1",
     "markdown-it": "^8.4.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-textarea-autosize": "^5.2.1",
-    "semantic-ui-css": "2.2.14"
+    "semantic-ui-css": "2.2.14",
+    "semantic-ui-react": "^0.79.0"
   },
   "devDependencies": {
-    "@types/jquery": "^3.3.0",
     "@types/markdown-it": "0.0.4",
     "@types/mocha": "^2.2.48",
     "@types/react": "^16.0.38",

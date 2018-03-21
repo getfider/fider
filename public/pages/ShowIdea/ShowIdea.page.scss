@@ -19,7 +19,7 @@
     }
   }
 
-  @media only screen and (min-width: 768px) {
+  @include tablet {
     .header-col, 
     .comments-col {
       float: left;
@@ -35,7 +35,7 @@
   }
 
   .action-col {
-    @media only screen and (min-width: 768px) {
+    @include tablet {
       width: 200px;
     }
     .ui.list {

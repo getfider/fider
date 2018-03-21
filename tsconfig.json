@@ -5,7 +5,6 @@
         "strict": true,
         "sourceMap": true,
         "types": [
-            "jquery", 
             "markdown-it", 
             "react", 
             "react-dom", 

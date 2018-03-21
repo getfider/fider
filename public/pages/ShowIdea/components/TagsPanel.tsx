@@ -61,7 +61,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
         <div className="ui list tag-list">
           {this.state.assignedTags.map(tag => (
             <div key={tag.id} className="item">
-              <ShowTag tag={tag} />
+              <ShowTag tag={tag} size="mini" />
             </div>
           ))}
         </div>
