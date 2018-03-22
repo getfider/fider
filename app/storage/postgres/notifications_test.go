@@ -29,11 +29,12 @@ func TestNotificationStorage_Insert_Read_Count(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
+	notifications.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("Title", "Description")
 
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID, jonSnow.ID)
+	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
 	Expect(err).To(BeNil())
-	not2, err := notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID, jonSnow.ID)
+	not2, err := notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
 	Expect(err).To(BeNil())
 
 	notifications.SetCurrentUser(aryaStark)
@@ -51,13 +52,14 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
+	notifications.SetCurrentTenant(demoTenant)
+	notifications.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("Title", "Description")
 
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(aryaStark)
+	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
+	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID, jonSnow.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID, jonSnow.ID)
+	notifications.SetCurrentUser(aryaStark)
 
 	allNotifications, err := notifications.GetActiveNotifications()
 	Expect(err).To(BeNil())
@@ -79,13 +81,15 @@ func TestNotificationStorage_ReadAll(t *testing.T) {
 
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
+	notifications.SetCurrentTenant(demoTenant)
+	notifications.SetCurrentUser(jonSnow)
+
 	idea, _ := ideas.Add("Title", "Description")
 
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(aryaStark)
+	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
+	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID, jonSnow.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID, jonSnow.ID)
+	notifications.SetCurrentUser(aryaStark)
 
 	allNotifications, err := notifications.GetActiveNotifications()
 	Expect(err).To(BeNil())
@@ -106,13 +110,14 @@ func TestNotificationStorage_GetNotificationById(t *testing.T) {
 
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
+	notifications.SetCurrentTenant(demoTenant)
+	notifications.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("Title", "Description")
 
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(aryaStark)
-
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID, jonSnow.ID)
+	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
 	Expect(err).To(BeNil())
+
+	notifications.SetCurrentUser(aryaStark)
 	not1, err = notifications.GetNotification(not1.ID)
 	Expect(err).To(BeNil())
 	Expect(not1.Title).To(Equal("Hello World"))
@@ -129,10 +134,10 @@ func TestNotificationStorage_GetNotificationById_OtherUser(t *testing.T) {
 	idea, _ := ideas.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
-	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", idea.ID, aryaStark.ID)
+	notifications.SetCurrentUser(aryaStark)
+	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", idea.ID)
 	Expect(err).To(BeNil())
 
-	notifications.SetCurrentUser(aryaStark)
 	not1, err = notifications.GetNotification(not1.ID)
 	Expect(err).To(Equal(app.ErrNotFound))
 	Expect(not1).To(BeNil())

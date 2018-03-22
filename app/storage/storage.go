@@ -78,7 +78,7 @@ type Tag interface {
 	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
 	Delete(tagID int) error
 	GetAssigned(ideaID int) ([]*models.Tag, error)
-	AssignTag(tagID, ideaID, userID int) error
+	AssignTag(tagID, ideaID int) error
 	UnassignTag(tagID, ideaID int) error
 	GetAll() ([]*models.Tag, error)
 }
@@ -86,7 +86,7 @@ type Tag interface {
 // Notification contains read and write operations for notifications
 type Notification interface {
 	Base
-	Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error)
+	Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error)
 	MarkAsRead(id int) error
 	MarkAllAsRead() error
 	TotalUnread() (int, error)

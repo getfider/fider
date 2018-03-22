@@ -83,7 +83,7 @@ func (s *TagStorage) Delete(tagID int) error {
 }
 
 // AssignTag adds a tag to an idea
-func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
+func (s *TagStorage) AssignTag(tagID, ideaID int) error {
 	var tagToAssign *models.Tag
 	for _, tag := range s.tags {
 		if tag.ID == tagID {

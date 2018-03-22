@@ -103,7 +103,7 @@ func (s *TagStorage) Delete(tagID int) error {
 }
 
 // AssignTag adds a tag to an idea
-func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
+func (s *TagStorage) AssignTag(tagID, ideaID int) error {
 	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2 AND tenant_id = $3", ideaID, tagID, s.tenant.ID)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
 
 	_, err = s.trx.Execute(
 		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
-		tagID, ideaID, time.Now(), userID, s.tenant.ID,
+		tagID, ideaID, time.Now(), s.user.ID, s.tenant.ID,
 	)
 	return err
 }

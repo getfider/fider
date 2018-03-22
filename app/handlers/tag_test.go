@@ -246,7 +246,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
 	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
-	services.Tags.AssignTag(tag.ID, idea.ID, mock.JonSnow.ID)
+	services.Tags.AssignTag(tag.ID, idea.ID)
 
 	status, _ := server.
 		AsUser(mock.JonSnow).

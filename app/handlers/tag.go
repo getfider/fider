@@ -72,7 +72,7 @@ func AssignTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.AssignTag(input.Tag.ID, input.Idea.ID, c.User().ID)
+		err := c.Services().Tags.AssignTag(input.Tag.ID, input.Idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}

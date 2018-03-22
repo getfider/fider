@@ -73,7 +73,7 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		title := fmt.Sprintf("New idea: **%s**", idea.Title)
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
-			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
 				return err
 			}
 		}
@@ -114,7 +114,7 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, idea.Title)
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
-			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
 				return err
 			}
 		}
@@ -161,7 +161,7 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(response.Status))
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
-			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID, c.User().ID); err != nil {
+			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
 				return err
 			}
 		}

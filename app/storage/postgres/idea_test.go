@@ -452,13 +452,14 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
+	tags.SetCurrentUser(jonSnow)
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 	bug, _ := tags.Add("Bug", "FF0000", true)
 	featureRequest, _ := tags.Add("Feature Request", "00FF00", false)
 
-	tags.AssignTag(bug.ID, idea.ID, jonSnow.ID)
-	tags.AssignTag(featureRequest.ID, idea.ID, jonSnow.ID)
+	tags.AssignTag(bug.ID, idea.ID)
+	tags.AssignTag(featureRequest.ID, idea.ID)
 
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(1))

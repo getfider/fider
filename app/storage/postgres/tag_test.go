@@ -67,11 +67,12 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
+	tags.SetCurrentUser(aryaStark)
 
 	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag.ID, idea.ID, 2)
+	err := tags.AssignTag(tag.ID, idea.ID)
 	Expect(err).To(BeNil())
 
 	assigned, err := tags.GetAssigned(idea.ID)
@@ -98,11 +99,12 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
+	tags.SetCurrentUser(aryaStark)
 
 	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag.ID, idea.ID, 2)
+	err := tags.AssignTag(tag.ID, idea.ID)
 	Expect(err).To(BeNil())
 
 	err = tags.Delete(tag.ID)
