@@ -18,7 +18,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       { text: "trending", value: "trending", content: "Trending" },
       { text: "recent", value: "recent", content: "Recent" },
       { text: "most wanted", value: "most-wanted", content: "Most Wanted" },
-      { text: "most discussed", value: "most discussed", content: "Most Discussed" }
+      { text: "most discussed", value: "most-discussed", content: "Most Discussed" }
     ];
 
     IdeaStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
