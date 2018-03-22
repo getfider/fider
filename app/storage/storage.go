@@ -75,11 +75,11 @@ type Tag interface {
 	Base
 	Add(name, color string, isPublic bool) (*models.Tag, error)
 	GetBySlug(slug string) (*models.Tag, error)
-	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
-	Delete(tagID int) error
-	GetAssigned(ideaID int) ([]*models.Tag, error)
-	AssignTag(tagID, ideaID int) error
-	UnassignTag(tagID, ideaID int) error
+	Update(tag *models.Tag, name, color string, isPublic bool) (*models.Tag, error)
+	Delete(tag *models.Tag) error
+	GetAssigned(idea *models.Idea) ([]*models.Tag, error)
+	AssignTag(tag *models.Tag, idea *models.Idea) error
+	UnassignTag(tag *models.Tag, idea *models.Idea) error
 	GetAll() ([]*models.Tag, error)
 }
 

@@ -193,7 +193,7 @@ func TestAssignTagHandler_Success(t *testing.T) {
 		AddParam("number", idea.Number).
 		Execute(handlers.AssignTag())
 
-	tags, err := services.Tags.GetAssigned(idea.ID)
+	tags, err := services.Tags.GetAssigned(idea)
 	Expect(status).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(tags[0]).To(Equal(tag))
@@ -246,7 +246,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
 	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
-	services.Tags.AssignTag(tag.ID, idea.ID)
+	services.Tags.AssignTag(tag, idea)
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
@@ -254,7 +254,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 		AddParam("number", idea.Number).
 		Execute(handlers.UnassignTag())
 
-	tags, err := services.Tags.GetAssigned(idea.ID)
+	tags, err := services.Tags.GetAssigned(idea)
 	Expect(status).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(len(tags)).To(Equal(0))

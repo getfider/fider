@@ -34,7 +34,7 @@ func CreateEditTag() web.HandlerFunc {
 		)
 
 		if input.Model.Slug != "" {
-			tag, err = c.Services().Tags.Update(input.Tag.ID, input.Model.Name, input.Model.Color, input.Model.IsPublic)
+			tag, err = c.Services().Tags.Update(input.Tag, input.Model.Name, input.Model.Color, input.Model.IsPublic)
 		} else {
 			tag, err = c.Services().Tags.Add(input.Model.Name, input.Model.Color, input.Model.IsPublic)
 		}
@@ -55,7 +55,7 @@ func DeleteTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.Delete(input.Tag.ID)
+		err := c.Services().Tags.Delete(input.Tag)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -72,7 +72,7 @@ func AssignTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.AssignTag(input.Tag.ID, input.Idea.ID)
+		err := c.Services().Tags.AssignTag(input.Tag, input.Idea)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -89,7 +89,7 @@ func UnassignTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.UnassignTag(input.Tag.ID, input.Idea.ID)
+		err := c.Services().Tags.UnassignTag(input.Tag, input.Idea)
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -458,8 +458,8 @@ func TestIdeaStorage_WithTags(t *testing.T) {
 	bug, _ := tags.Add("Bug", "FF0000", true)
 	featureRequest, _ := tags.Add("Feature Request", "00FF00", false)
 
-	tags.AssignTag(bug.ID, idea.ID)
-	tags.AssignTag(featureRequest.ID, idea.ID)
+	tags.AssignTag(bug, idea)
+	tags.AssignTag(featureRequest, idea)
 
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(len(idea.Tags)).To(Equal(1))

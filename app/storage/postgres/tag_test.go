@@ -32,7 +32,7 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 
 	tags.SetCurrentTenant(demoTenant)
 	tag, err := tags.Add("Feature Request", "FF0000", true)
-	tag, err = tags.Update(tag.ID, "Bug", "000000", false)
+	tag, err = tags.Update(tag, "Bug", "000000", false)
 
 	dbTag, err := tags.GetBySlug("bug")
 
@@ -51,7 +51,7 @@ func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 	tags.SetCurrentTenant(demoTenant)
 	tag, err := tags.Add("Bug", "FFFFFF", true)
 
-	err = tags.Delete(tag.ID)
+	err = tags.Delete(tag)
 	Expect(err).To(BeNil())
 
 	dbTag, err := tags.GetBySlug("bug")
@@ -72,10 +72,10 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag.ID, idea.ID)
+	err := tags.AssignTag(tag, idea)
 	Expect(err).To(BeNil())
 
-	assigned, err := tags.GetAssigned(idea.ID)
+	assigned, err := tags.GetAssigned(idea)
 	Expect(err).To(BeNil())
 	Expect(len(assigned)).To(Equal(1))
 	Expect(assigned[0].ID).To(Equal(tag.ID))
@@ -84,10 +84,10 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	Expect(assigned[0].Color).To(Equal("FFFFFF"))
 	Expect(assigned[0].IsPublic).To(BeTrue())
 
-	err = tags.UnassignTag(tag.ID, idea.ID)
+	err = tags.UnassignTag(tag, idea)
 	Expect(err).To(BeNil())
 
-	assigned, err = tags.GetAssigned(idea.ID)
+	assigned, err = tags.GetAssigned(idea)
 	Expect(err).To(BeNil())
 	Expect(len(assigned)).To(Equal(0))
 }
@@ -104,13 +104,13 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag.ID, idea.ID)
+	err := tags.AssignTag(tag, idea)
 	Expect(err).To(BeNil())
 
-	err = tags.Delete(tag.ID)
+	err = tags.Delete(tag)
 	Expect(err).To(BeNil())
 
-	assigned, err := tags.GetAssigned(idea.ID)
+	assigned, err := tags.GetAssigned(idea)
 	Expect(err).To(BeNil())
 	Expect(len(assigned)).To(Equal(0))
 }
