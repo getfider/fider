@@ -55,7 +55,7 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(aryaStark)
 	idea1, _ := ideas.Add("Idea #1", "Description #1")
-	err := ideas.RemoveSubscriber(idea1.Number, aryaStark.ID)
+	err := ideas.RemoveSubscriber(idea1, aryaStark)
 	Expect(err).To(BeNil())
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
@@ -125,8 +125,8 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	ideas.SetCurrentUser(aryaStark)
 
 	idea1, _ := ideas.Add("Idea #1", "Description #1")
-	ideas.RemoveSubscriber(idea1.Number, aryaStark.ID)
-	ideas.RemoveSubscriber(idea1.Number, jonSnow.ID)
+	ideas.RemoveSubscriber(idea1, aryaStark)
+	ideas.RemoveSubscriber(idea1, jonSnow)
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).To(BeNil())

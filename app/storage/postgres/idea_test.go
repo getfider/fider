@@ -212,14 +212,14 @@ func TestIdeaStorage_AddSupporter(t *testing.T) {
 	idea, err := ideas.Add("My new idea", "with this description")
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, aryaStark.ID)
+	err = ideas.AddSupporter(idea, aryaStark)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(dbIdea.ViewerSupported).To(BeFalse())
 	Expect(dbIdea.TotalSupporters).To(Equal(1))
 
-	err = ideas.AddSupporter(idea.Number, jonSnow.ID)
+	err = ideas.AddSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
 	dbIdea, err = ideas.GetByNumber(1)
@@ -237,10 +237,10 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
+	err := ideas.AddSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, jonSnow.ID)
+	err = ideas.AddSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -257,10 +257,10 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
+	err := ideas.AddSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
+	err = ideas.RemoveSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -277,13 +277,13 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
+	err := ideas.AddSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
+	err = ideas.RemoveSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
+	err = ideas.RemoveSupporter(idea, jonSnow)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -299,7 +299,7 @@ func TestIdeaStorage_SetResponse(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 
 	idea, _ := ideas.Add("My new idea", "with this description")
-	err := ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaStarted)
+	err := ideas.SetResponse(idea, "We liked this idea", models.IdeaStarted)
 
 	Expect(err).To(BeNil())
 
@@ -317,7 +317,7 @@ func TestIdeaStorage_SetResponse_KeepOpen(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 
 	idea, _ := ideas.Add("My new idea", "with this description")
-	err := ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaOpen)
+	err := ideas.SetResponse(idea, "We liked this idea", models.IdeaOpen)
 	Expect(err).To(BeNil())
 }
 
@@ -329,15 +329,15 @@ func TestIdeaStorage_SetResponse_ChangeText(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 
 	idea, _ := ideas.Add("My new idea", "with this description")
-	ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaStarted)
+	ideas.SetResponse(idea, "We liked this idea", models.IdeaStarted)
 	idea, _ = ideas.GetByID(idea.ID)
 	respondedOn := idea.Response.RespondedOn
 
-	ideas.SetResponse(idea.Number, "We liked this idea and we'll work on it", models.IdeaStarted)
+	ideas.SetResponse(idea, "We liked this idea and we'll work on it", models.IdeaStarted)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.RespondedOn).To(Equal(respondedOn))
 
-	ideas.SetResponse(idea.Number, "We finished it", models.IdeaCompleted)
+	ideas.SetResponse(idea, "We finished it", models.IdeaCompleted)
 	idea, _ = ideas.GetByID(idea.ID)
 	Expect(idea.Response.RespondedOn).Should(BeTemporally(">", respondedOn))
 }
@@ -350,11 +350,11 @@ func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 
 	idea1, _ := ideas.Add("My new idea", "with this description")
-	ideas.AddSupporter(idea1.Number, jonSnow.ID)
+	ideas.AddSupporter(idea1, jonSnow)
 
 	ideas.SetCurrentUser(aryaStark)
 	idea2, _ := ideas.Add("My other idea", "with similar description")
-	ideas.AddSupporter(idea2.Number, aryaStark.ID)
+	ideas.AddSupporter(idea2, aryaStark)
 
 	ideas.SetCurrentUser(jonSnow)
 	ideas.MarkAsDuplicate(idea2.Number, idea1.Number)
@@ -385,7 +385,7 @@ func TestIdeaStorage_SetResponse_AsDeleted(t *testing.T) {
 	idea, err := ideas.Add("My new idea", "with this description")
 	Expect(err).To(BeNil())
 
-	ideas.SetResponse(idea.Number, "Spam!", models.IdeaDeleted)
+	ideas.SetResponse(idea, "Spam!", models.IdeaDeleted)
 
 	idea1, err := ideas.GetByNumber(idea.Number)
 	Expect(err).To(Equal(app.ErrNotFound))
@@ -403,10 +403,10 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("My new idea", "with this description")
-	ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaCompleted)
-	ideas.AddSupporter(idea.Number, jonSnow.ID)
+	ideas.SetResponse(idea, "We liked this idea", models.IdeaCompleted)
+	ideas.AddSupporter(idea, jonSnow)
 
-	dbIdea, err := ideas.GetByNumber(1)
+	dbIdea, err := ideas.GetByNumber(idea.Number)
 	Expect(err).To(BeNil())
 	Expect(dbIdea.TotalSupporters).To(Equal(0))
 }
@@ -418,11 +418,11 @@ func TestIdeaStorage_RemoveSupporter_ClosedIdea(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 	ideas.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("My new idea", "with this description")
-	ideas.AddSupporter(idea.Number, jonSnow.ID)
-	ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaCompleted)
-	ideas.RemoveSupporter(idea.Number, jonSnow.ID)
+	ideas.AddSupporter(idea, jonSnow)
+	ideas.SetResponse(idea, "We liked this idea", models.IdeaCompleted)
+	ideas.RemoveSupporter(idea, jonSnow)
 
-	dbIdea, err := ideas.GetByNumber(1)
+	dbIdea, err := ideas.GetByNumber(idea.Number)
 	Expect(err).To(BeNil())
 	Expect(dbIdea.TotalSupporters).To(Equal(1))
 }
@@ -435,8 +435,8 @@ func TestIdeaStorage_ListSupportedIdeas(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 	idea1, _ := ideas.Add("My new idea", "with this description")
 	idea2, _ := ideas.Add("My other idea", "with better description")
-	ideas.AddSupporter(idea1.Number, aryaStark.ID)
-	ideas.AddSupporter(idea2.Number, aryaStark.ID)
+	ideas.AddSupporter(idea1, aryaStark)
+	ideas.AddSupporter(idea2, aryaStark)
 
 	ideas.SetCurrentUser(jonSnow)
 	Expect(ideas.SupportedBy()).To(Equal([]int{}))

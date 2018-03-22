@@ -27,12 +27,12 @@ type Idea interface {
 	AddComment(number int, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
-	AddSupporter(number, userID int) error
-	RemoveSupporter(number, userID int) error
-	AddSubscriber(number, userID int) error
-	RemoveSubscriber(number, userID int) error
+	AddSupporter(idea *models.Idea, user *models.User) error
+	RemoveSupporter(idea *models.Idea, user *models.User) error
+	AddSubscriber(idea *models.Idea, user *models.User) error
+	RemoveSubscriber(idea *models.Idea, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	SetResponse(number int, text string, status int) error
+	SetResponse(idea *models.Idea, text string, status int) error
 	MarkAsDuplicate(number, originalNumber int) error
 	IsReferenced(number int) (bool, error)
 	SupportedBy() ([]int, error)

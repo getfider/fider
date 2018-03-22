@@ -363,7 +363,7 @@ func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 		return nil, err
 	}
 
-	if err := s.internalAddSubscriber(idea.Number, s.user.ID, false); err != nil {
+	if err := s.internalAddSubscriber(idea, s.user, false); err != nil {
 		return nil, err
 	}
 
@@ -384,7 +384,7 @@ func (s *IdeaStorage) AddComment(number int, content string) (int, error) {
 		return 0, err
 	}
 
-	if err := s.internalAddSubscriber(number, s.user.ID, false); err != nil {
+	if err := s.internalAddSubscriber(idea, s.user, false); err != nil {
 		return 0, err
 	}
 
@@ -433,19 +433,14 @@ func (s *IdeaStorage) UpdateComment(id int, content string) error {
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) AddSupporter(idea *models.Idea, user *models.User) error {
 	if !idea.CanBeSupported() {
 		return nil
 	}
 
 	rows, err := s.trx.Execute(
 		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
-		s.tenant.ID, userID, idea.ID, time.Now())
+		s.tenant.ID, user.ID, idea.ID, time.Now())
 
 	if err != nil {
 		return err
@@ -458,21 +453,16 @@ func (s *IdeaStorage) AddSupporter(number, userID int) error {
 		}
 	}
 
-	return s.internalAddSubscriber(number, userID, false)
+	return s.internalAddSubscriber(idea, user, false)
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) RemoveSupporter(idea *models.Idea, user *models.User) error {
 	if !idea.CanBeSupported() {
 		return nil
 	}
 
-	rows, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, userID, idea.ID, s.tenant.ID)
+	rows, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, idea.ID, s.tenant.ID)
 
 	if rows == 1 {
 		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
@@ -484,41 +474,31 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 }
 
 // AddSubscriber adds user to the idea list of subscribers
-func (s *IdeaStorage) AddSubscriber(number, userID int) error {
-	return s.internalAddSubscriber(number, userID, true)
+func (s *IdeaStorage) AddSubscriber(idea *models.Idea, user *models.User) error {
+	return s.internalAddSubscriber(idea, user, true)
 }
 
-func (s *IdeaStorage) internalAddSubscriber(number, userID int, force bool) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) internalAddSubscriber(idea *models.Idea, user *models.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
 		conflict = "(user_id, idea_id) DO UPDATE SET status = $5, updated_on = $4"
 	}
 
-	_, err = s.trx.Execute(fmt.Sprintf(`
+	_, err := s.trx.Execute(fmt.Sprintf(`
 	INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
-		s.tenant.ID, userID, idea.ID, time.Now(), models.SubscriberActive,
+		s.tenant.ID, user.ID, idea.ID, time.Now(), models.SubscriberActive,
 	)
 	return err
 }
 
 // RemoveSubscriber removes user from idea list of subscribers
-func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.trx.Execute(`
+func (s *IdeaStorage) RemoveSubscriber(idea *models.Idea, user *models.User) error {
+	_, err := s.trx.Execute(`
 		INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, idea_id)
 		DO UPDATE SET status = 0, updated_on = $4`,
-		s.tenant.ID, userID, idea.ID, time.Now(),
+		s.tenant.ID, user.ID, idea.ID, time.Now(),
 	)
 	return err
 }
@@ -590,14 +570,9 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 }
 
 // SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(number int, text string, status int) error {
+func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) error {
 	if status == models.IdeaDuplicate {
 		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
-	}
-
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
 	}
 
 	respondedOn := time.Now()
@@ -605,12 +580,21 @@ func (s *IdeaStorage) SetResponse(number int, text string, status int) error {
 		respondedOn = idea.Response.RespondedOn
 	}
 
-	_, err = s.trx.Execute(`
+	_, err := s.trx.Execute(`
 	UPDATE ideas 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
-	return err
+	if err != nil {
+		return err
+	}
+	idea.Status = status
+	idea.Response = &models.IdeaResponse{
+		Text:        text,
+		RespondedOn: respondedOn,
+		User:        s.user,
+	}
+	return nil
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
@@ -629,13 +613,14 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber int) error {
 		respondedOn = idea.Response.RespondedOn
 	}
 
-	users, err := s.trx.QueryIntArray("SELECT user_id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
+	var users []*dbUser
+	err = s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
 
 	for _, u := range users {
-		if err := s.AddSupporter(original.Number, u); err != nil {
+		if err := s.AddSupporter(original, u.toModel()); err != nil {
 			return err
 		}
 	}

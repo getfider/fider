@@ -245,8 +245,8 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
-	services.Ideas.AddSupporter(idea.Number, mock.JonSnow.ID)
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.Ideas.AddSupporter(idea, mock.JonSnow)
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -267,7 +267,7 @@ func TestSetResponseHandler(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -290,7 +290,7 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
