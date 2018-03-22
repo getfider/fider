@@ -84,7 +84,7 @@ func UpdateIdea() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.Update(input.Idea.ID, input.Model.Title, input.Model.Description)
+		_, err := c.Services().Ideas.Update(input.Idea, input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -124,7 +124,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdea(idea.ID)
+		comments, err := ideas.GetCommentsByIdea(idea)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -161,7 +161,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content)
+		_, err = c.Services().Ideas.AddComment(idea, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}

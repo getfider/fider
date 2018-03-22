@@ -201,7 +201,7 @@ func (input *DeleteIdea) Validate(user *models.User, services *app.Services) *va
 		return validate.Error(err)
 	}
 
-	isReferenced, err := services.Ideas.IsReferenced(input.Model.Number)
+	isReferenced, err := services.Ideas.IsReferenced(idea)
 	if err != nil {
 		return validate.Error(err)
 	}

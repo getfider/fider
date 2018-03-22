@@ -53,14 +53,10 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 }
 
 // Update given idea
-func (s *IdeaStorage) Update(ideaID int, title, description string) (*models.Idea, error) {
-	idea, err := s.GetByID(ideaID)
-	if err != nil {
-		return nil, err
-	}
+func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*models.Idea, error) {
 	idea.Title = title
 	idea.Description = description
-	return idea, err
+	return idea, nil
 }
 
 // GetByNumber returns idea by tenant and number
@@ -99,8 +95,8 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 }
 
 // GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
-	return s.ideaComments[ideaID], nil
+func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error) {
+	return s.ideaComments[idea.ID], nil
 }
 
 // Add a new idea in the database
@@ -120,11 +116,7 @@ func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(number int, content string) (int, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return 0, err
-	}
+func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error) {
 	s.lastCommentID++
 	s.ideaComments[idea.ID] = append(s.ideaComments[idea.ID], &models.Comment{
 		ID:        s.lastCommentID,
@@ -217,9 +209,9 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 }
 
 // IsReferenced returns true if another idea is referencing given idea
-func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+func (s *IdeaStorage) IsReferenced(idea *models.Idea) (bool, error) {
 	for _, i := range s.ideas {
-		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == number {
+		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == idea.Number {
 			return true, nil
 		}
 	}

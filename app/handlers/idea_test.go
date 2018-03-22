@@ -379,7 +379,7 @@ func TestAddCommentHandler(t *testing.T) {
 		ExecutePost(handlers.PostComment(), `{ "content": "My first comment" }`)
 
 	Expect(code).To(Equal(http.StatusOK))
-	comments, _ := services.Ideas.GetCommentsByIdea(idea.ID)
+	comments, _ := services.Ideas.GetCommentsByIdea(idea)
 	Expect(comments).To(HaveLen(1))
 }
 
@@ -390,7 +390,7 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
-	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment")
+	commentId, _ := services.Ideas.AddComment(idea, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -411,7 +411,7 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
-	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment")
+	commentId, _ := services.Ideas.AddComment(idea, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).

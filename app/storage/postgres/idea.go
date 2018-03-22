@@ -297,7 +297,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 }
 
 // GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
+func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.trx.Select(&comments,
 		`SELECT c.id, 
@@ -324,7 +324,7 @@ func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
 		AND e.tenant_id = c.tenant_id
 		WHERE i.id = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on ASC`, ideaID, s.tenant.ID)
+		ORDER BY c.created_on ASC`, idea.ID, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -337,14 +337,18 @@ func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
 }
 
 // Update given idea
-func (s *IdeaStorage) Update(ideaID int, title, description string) (*models.Idea, error) {
+func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*models.Idea, error) {
 	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, ideaID, s.tenant.ID)
+													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, idea.ID, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.GetByID(ideaID)
+	idea.Slug = slug.Make(title)
+	idea.Title = title
+	idea.Description = description
+
+	return idea, nil
 }
 
 // Add a new idea in the database
@@ -371,12 +375,7 @@ func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(number int, content string) (int, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return 0, err
-	}
-
+func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error) {
 	var id int
 	if err := s.trx.Get(&id,
 		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
@@ -641,14 +640,14 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 }
 
 // IsReferenced returns true if another idea is referencing given idea
-func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+func (s *IdeaStorage) IsReferenced(idea *models.Idea) (bool, error) {
 	return s.trx.Exists(`
 		SELECT 1 FROM ideas i 
 		INNER JOIN ideas o
 		ON o.tenant_id = i.tenant_id
 		AND o.id = i.original_id
 		WHERE i.tenant_id = $1
-		AND o.number = $2`, s.tenant.ID, number)
+		AND o.id = $2`, s.tenant.ID, idea.ID)
 }
 
 // SupportedBy returns a list of Idea ID supported by given user

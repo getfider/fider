@@ -18,13 +18,13 @@ type Idea interface {
 	GetByID(ideaID int) (*models.Idea, error)
 	GetBySlug(slug string) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
-	GetCommentsByIdea(ideaID int) ([]*models.Comment, error)
+	GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error)
 	Search(query, filter string, tags []string) ([]*models.Idea, error)
 	GetAll() ([]*models.Idea, error)
 	CountPerStatus() (map[int]int, error)
 	Add(title, description string) (*models.Idea, error)
-	Update(ideaID int, title, description string) (*models.Idea, error)
-	AddComment(number int, content string) (int, error)
+	Update(idea *models.Idea, title, description string) (*models.Idea, error)
+	AddComment(idea *models.Idea, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
 	AddSupporter(idea *models.Idea, user *models.User) error
@@ -34,7 +34,7 @@ type Idea interface {
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(idea *models.Idea, text string, status int) error
 	MarkAsDuplicate(idea *models.Idea, original *models.Idea) error
-	IsReferenced(number int) (bool, error)
+	IsReferenced(idea *models.Idea) (bool, error)
 	SupportedBy() ([]int, error)
 }
 
