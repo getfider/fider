@@ -115,7 +115,7 @@ func (s *UserStorage) Register(user *models.User) error {
 	}
 
 	for _, provider := range user.Providers {
-		if err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
+		if _, err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
 			return err
 		}
 	}
@@ -126,13 +126,15 @@ func (s *UserStorage) Register(user *models.User) error {
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
 	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)"
-	return s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
+	_, err := s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
+	return err
 }
 
 // Update user profile
 func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
 	cmd := "UPDATE users SET name = $2 WHERE id = $1 AND tenant_id = $3"
-	return s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	_, err := s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	return err
 }
 
 // UpdateSettings of given user
@@ -144,7 +146,7 @@ func (s *UserStorage) UpdateSettings(settings map[string]string) error {
 		`
 
 		for key, value := range settings {
-			err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
+			_, err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
 			if err != nil {
 				return err
 			}
@@ -185,13 +187,15 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 // ChangeRole of given user
 func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 	cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
-	return s.trx.Execute(cmd, userID, s.tenant.ID, role)
+	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, role)
+	return err
 }
 
 // ChangeEmail of given user
 func (s *UserStorage) ChangeEmail(userID int, email string) error {
 	cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
-	return s.trx.Execute(cmd, userID, s.tenant.ID, email)
+	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, email)
+	return err
 }
 
 // GetByID returns a user based on given id
