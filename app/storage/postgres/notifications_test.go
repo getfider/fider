@@ -27,8 +27,9 @@ func TestNotificationStorage_Insert_Read_Count(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("Title", "Description", jonSnow.ID)
+	idea, _ := ideas.Add("Title", "Description")
 
 	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID, jonSnow.ID)
 	Expect(err).To(BeNil())
@@ -49,7 +50,8 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("Title", "Description", jonSnow.ID)
+	ideas.SetCurrentUser(jonSnow)
+	idea, _ := ideas.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(aryaStark)
@@ -76,7 +78,8 @@ func TestNotificationStorage_ReadAll(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("Title", "Description", jonSnow.ID)
+	ideas.SetCurrentUser(jonSnow)
+	idea, _ := ideas.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(aryaStark)
@@ -102,7 +105,8 @@ func TestNotificationStorage_GetNotificationById(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("Title", "Description", jonSnow.ID)
+	ideas.SetCurrentUser(jonSnow)
+	idea, _ := ideas.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(aryaStark)
@@ -121,7 +125,8 @@ func TestNotificationStorage_GetNotificationById_OtherUser(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea, _ := ideas.Add("Title", "Description", jonSnow.ID)
+	ideas.SetCurrentUser(jonSnow)
+	idea, _ := ideas.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
 	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", idea.ID, aryaStark.ID)

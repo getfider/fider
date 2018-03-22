@@ -348,12 +348,12 @@ func (s *IdeaStorage) Update(number int, title, description string) (*models.Ide
 }
 
 // Add a new idea in the database
-func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
+func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 	var id int
 	err := s.trx.Get(&id,
 		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
 		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
-		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, userID, time.Now())
+		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +363,7 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		return nil, err
 	}
 
-	if err := s.internalAddSubscriber(idea.Number, userID, false); err != nil {
+	if err := s.internalAddSubscriber(idea.Number, s.user.ID, false); err != nil {
 		return nil, err
 	}
 
@@ -371,7 +371,7 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, error) {
+func (s *IdeaStorage) AddComment(number int, content string) (int, error) {
 	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return 0, err
@@ -380,11 +380,11 @@ func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, e
 	var id int
 	if err := s.trx.Get(&id,
 		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		s.tenant.ID, idea.ID, content, userID, time.Now()); err != nil {
+		s.tenant.ID, idea.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, err
 	}
 
-	if err := s.internalAddSubscriber(number, userID, false); err != nil {
+	if err := s.internalAddSubscriber(number, s.user.ID, false); err != nil {
 		return 0, err
 	}
 
@@ -590,7 +590,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 }
 
 // SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
+func (s *IdeaStorage) SetResponse(number int, text string, status int) error {
 	if status == models.IdeaDuplicate {
 		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
 	}
@@ -609,12 +609,12 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 	UPDATE ideas 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, text, respondedOn, userID, status)
+	`, idea.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
 	return err
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
-func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error {
+func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber int) error {
 	idea, err := s.GetByNumber(number)
 	if err != nil {
 		return err
@@ -644,7 +644,7 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 	UPDATE ideas 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, original.ID, respondedOn, userID, models.IdeaDuplicate)
+	`, idea.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.IdeaDuplicate)
 	return err
 }
 
@@ -660,6 +660,6 @@ func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
 }
 
 // SupportedBy returns a list of Idea ID supported by given user
-func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
-	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", userID, s.tenant.ID)
+func (s *IdeaStorage) SupportedBy() ([]int, error) {
+	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 }

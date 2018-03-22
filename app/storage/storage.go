@@ -22,9 +22,9 @@ type Idea interface {
 	Search(query, filter string, tags []string) ([]*models.Idea, error)
 	GetAll() ([]*models.Idea, error)
 	CountPerStatus() (map[int]int, error)
-	Add(title, description string, userID int) (*models.Idea, error)
+	Add(title, description string) (*models.Idea, error)
 	Update(number int, title, description string) (*models.Idea, error)
-	AddComment(number int, content string, userID int) (int, error)
+	AddComment(number int, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
 	AddSupporter(number, userID int) error
@@ -32,10 +32,10 @@ type Idea interface {
 	AddSubscriber(number, userID int) error
 	RemoveSubscriber(number, userID int) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	SetResponse(number int, text string, userID, status int) error
-	MarkAsDuplicate(number, originalNumber, userID int) error
+	SetResponse(number int, text string, status int) error
+	MarkAsDuplicate(number, originalNumber int) error
 	IsReferenced(number int) (bool, error)
-	SupportedBy(userID int) ([]int, error)
+	SupportedBy() ([]int, error)
 }
 
 // User is used for user operations

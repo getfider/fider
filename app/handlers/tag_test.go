@@ -182,8 +182,10 @@ func TestAssignTagHandler_Success(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
@@ -221,8 +223,10 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 
 	for _, handler := range testCases {
 		server, services := mock.NewServer()
+		services.SetCurrentTenant(mock.DemoTenant)
+		services.SetCurrentUser(mock.JonSnow)
 		tag, _ := services.Tags.Add("Bug", "0000FF", true)
-		idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
+		idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
 
 		status, _ := server.
 			AsUser(mock.AryaStark).
@@ -238,8 +242,10 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
 	services.Tags.AssignTag(tag.ID, idea.ID, mock.JonSnow.ID)
 
 	status, _ := server.

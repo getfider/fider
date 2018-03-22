@@ -62,7 +62,7 @@ func PostIdea() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.Add(input.Model.Title, input.Model.Description, c.User().ID)
+		idea, err := ideas.Add(input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -102,7 +102,7 @@ func DeleteIdea() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, models.IdeaDeleted)
+		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, models.IdeaDeleted)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -162,7 +162,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -204,9 +204,9 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		if input.Model.Status == models.IdeaDuplicate {
-			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
+			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number)
 		} else {
-			err = c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
+			err = c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, input.Model.Status)
 		}
 		if err != nil {
 			return c.Failure(err)

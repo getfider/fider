@@ -65,9 +65,10 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
 
-	idea, _ := ideas.Add("My great idea", "with a great description", 2)
+	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
 	err := tags.AssignTag(tag.ID, idea.ID, 2)
@@ -95,9 +96,10 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
 
-	idea, _ := ideas.Add("My great idea", "with a great description", 2)
+	idea, _ := ideas.Add("My great idea", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
 	err := tags.AssignTag(tag.ID, idea.ID, 2)
