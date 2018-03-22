@@ -203,7 +203,7 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		if input.Model.Status == models.IdeaDuplicate {
-			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number)
+			err = c.Services().Ideas.MarkAsDuplicate(idea, input.Original)
 		} else {
 			err = c.Services().Ideas.SetResponse(idea, input.Model.Text, input.Model.Status)
 		}

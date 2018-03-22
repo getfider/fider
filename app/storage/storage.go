@@ -33,7 +33,7 @@ type Idea interface {
 	RemoveSubscriber(idea *models.Idea, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(idea *models.Idea, text string, status int) error
-	MarkAsDuplicate(number, originalNumber int) error
+	MarkAsDuplicate(idea *models.Idea, original *models.Idea) error
 	IsReferenced(number int) (bool, error)
 	SupportedBy() ([]int, error)
 }

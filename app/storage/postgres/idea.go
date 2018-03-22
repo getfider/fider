@@ -588,6 +588,7 @@ func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) er
 	if err != nil {
 		return err
 	}
+
 	idea.Status = status
 	idea.Response = &models.IdeaResponse{
 		Text:        text,
@@ -598,23 +599,14 @@ func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) er
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
-func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-	original, err := s.GetByNumber(originalNumber)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) error {
 	respondedOn := time.Now()
 	if idea.Status == models.IdeaDuplicate && idea.Response != nil {
 		respondedOn = idea.Response.RespondedOn
 	}
 
 	var users []*dbUser
-	err = s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
+	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
@@ -630,7 +622,22 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber int) error {
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.IdeaDuplicate)
-	return err
+	if err != nil {
+		return err
+	}
+
+	idea.Status = models.IdeaDuplicate
+	idea.Response = &models.IdeaResponse{
+		RespondedOn: respondedOn,
+		User:        s.user,
+		Original: &models.OriginalIdea{
+			Number: original.Number,
+			Title:  original.Title,
+			Slug:   original.Slug,
+			Status: original.Status,
+		},
+	}
+	return nil
 }
 
 // IsReferenced returns true if another idea is referencing given idea

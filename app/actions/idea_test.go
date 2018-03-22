@@ -64,7 +64,7 @@ func TestDeleteIdea_WhenIsBeingReferenced(t *testing.T) {
 	services.SetCurrentUser(&models.User{ID: 1})
 	idea1, _ := services.Ideas.Add("Idea #1", "")
 	idea2, _ := services.Ideas.Add("Idea #2", "")
-	services.Ideas.MarkAsDuplicate(idea2.Number, idea1.Number)
+	services.Ideas.MarkAsDuplicate(idea2, idea1)
 
 	model := &models.DeleteIdea{
 		Number: idea2.Number,

@@ -357,7 +357,7 @@ func TestIdeaStorage_SetResponse_AsDuplicate(t *testing.T) {
 	ideas.AddSupporter(idea2, aryaStark)
 
 	ideas.SetCurrentUser(jonSnow)
-	ideas.MarkAsDuplicate(idea2.Number, idea1.Number)
+	ideas.MarkAsDuplicate(idea2, idea1)
 	idea1, _ = ideas.GetByID(idea1.ID)
 
 	Expect(idea1.TotalSupporters).To(Equal(2))
@@ -482,8 +482,8 @@ func TestIdeaStorage_IsReferenced(t *testing.T) {
 	idea2, _ := ideas.Add("My second idea", "with this description")
 	idea3, _ := ideas.Add("My third idea", "with this description")
 
-	ideas.MarkAsDuplicate(idea2.Number, idea3.Number)
-	ideas.MarkAsDuplicate(idea3.Number, idea1.Number)
+	ideas.MarkAsDuplicate(idea2, idea3)
+	ideas.MarkAsDuplicate(idea3, idea1)
 
 	Expect(ideas.IsReferenced(idea1.Number)).To(BeTrue())
 	Expect(ideas.IsReferenced(idea2.Number)).To(BeFalse())

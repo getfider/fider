@@ -200,16 +200,7 @@ func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) er
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
-func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-	original, err := s.GetByNumber(originalNumber)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) error {
 	idea.Status = models.IdeaDuplicate
 	idea.Response = &models.IdeaResponse{
 		Original: &models.OriginalIdea{
