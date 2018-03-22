@@ -237,10 +237,10 @@ func TestIdeaStorage_AddSupporter_Twice(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, 1)
+	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.AddSupporter(idea.Number, 1)
+	err = ideas.AddSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -257,10 +257,10 @@ func TestIdeaStorage_RemoveSupporter(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, 1)
+	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 1)
+	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -277,13 +277,13 @@ func TestIdeaStorage_RemoveSupporter_Twice(t *testing.T) {
 
 	idea, _ := ideas.Add("My new idea", "with this description")
 
-	err := ideas.AddSupporter(idea.Number, 1)
+	err := ideas.AddSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 1)
+	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
-	err = ideas.RemoveSupporter(idea.Number, 1)
+	err = ideas.RemoveSupporter(idea.Number, jonSnow.ID)
 	Expect(err).To(BeNil())
 
 	dbIdea, err := ideas.GetByNumber(1)
@@ -404,7 +404,7 @@ func TestIdeaStorage_AddSupporter_ClosedIdea(t *testing.T) {
 	ideas.SetCurrentUser(jonSnow)
 	idea, _ := ideas.Add("My new idea", "with this description")
 	ideas.SetResponse(idea.Number, "We liked this idea", models.IdeaCompleted)
-	ideas.AddSupporter(idea.Number, 1)
+	ideas.AddSupporter(idea.Number, jonSnow.ID)
 
 	dbIdea, err := ideas.GetByNumber(1)
 	Expect(err).To(BeNil())
