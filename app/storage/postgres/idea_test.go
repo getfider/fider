@@ -108,7 +108,7 @@ func TestIdeaStorage_AddAndReturnComments(t *testing.T) {
 	ideas.SetCurrentUser(aryaStark)
 	ideas.AddComment(idea.Number, "Comment #2")
 
-	comments, err := ideas.GetCommentsByIdea(idea.Number)
+	comments, err := ideas.GetCommentsByIdea(idea.ID)
 	Expect(err).To(BeNil())
 	Expect(len(comments)).To(Equal(2))
 
@@ -194,7 +194,7 @@ func TestIdeaStorage_Update(t *testing.T) {
 	idea, err := ideas.Add("My new idea", "with this description")
 	Expect(err).To(BeNil())
 
-	idea, err = ideas.Update(idea.Number, "The new comment", "With the new description")
+	idea, err = ideas.Update(idea.ID, "The new comment", "With the new description")
 	Expect(err).To(BeNil())
 	Expect(idea.Title).To(Equal("The new comment"))
 	Expect(idea.Description).To(Equal("With the new description"))

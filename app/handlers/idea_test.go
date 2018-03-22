@@ -379,7 +379,7 @@ func TestAddCommentHandler(t *testing.T) {
 		ExecutePost(handlers.PostComment(), `{ "content": "My first comment" }`)
 
 	Expect(code).To(Equal(http.StatusOK))
-	comments, _ := services.Ideas.GetCommentsByIdea(idea.Number)
+	comments, _ := services.Ideas.GetCommentsByIdea(idea.ID)
 	Expect(comments).To(HaveLen(1))
 }
 

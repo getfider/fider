@@ -297,7 +297,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 }
 
 // GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
+func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.trx.Select(&comments,
 		`SELECT c.id, 
@@ -322,9 +322,9 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 		LEFT JOIN users e
 		ON e.id = c.edited_by_id
 		AND e.tenant_id = c.tenant_id
-		WHERE i.number = $1
+		WHERE i.id = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on ASC`, number, s.tenant.ID)
+		ORDER BY c.created_on ASC`, ideaID, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -337,14 +337,14 @@ func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
 }
 
 // Update given idea
-func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
+func (s *IdeaStorage) Update(ideaID int, title, description string) (*models.Idea, error) {
 	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
-													 WHERE number = $4 AND tenant_id = $5`, title, slug.Make(title), description, number, s.tenant.ID)
+													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, ideaID, s.tenant.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.GetByNumber(number)
+	return s.GetByID(ideaID)
 }
 
 // Add a new idea in the database

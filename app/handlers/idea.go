@@ -85,7 +85,7 @@ func UpdateIdea() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.Update(input.Model.Number, input.Model.Title, input.Model.Description)
+		_, err := c.Services().Ideas.Update(input.Idea.ID, input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -125,7 +125,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdea(number)
+		comments, err := ideas.GetCommentsByIdea(idea.ID)
 		if err != nil {
 			return c.Failure(err)
 		}

@@ -53,8 +53,8 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 }
 
 // Update given idea
-func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
-	idea, err := s.GetByNumber(number)
+func (s *IdeaStorage) Update(ideaID int, title, description string) (*models.Idea, error) {
+	idea, err := s.GetByID(ideaID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +99,8 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 }
 
 // GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return nil, err
-	}
-	return s.ideaComments[idea.ID], nil
+func (s *IdeaStorage) GetCommentsByIdea(ideaID int) ([]*models.Comment, error) {
+	return s.ideaComments[ideaID], nil
 }
 
 // Add a new idea in the database

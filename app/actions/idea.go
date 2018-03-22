@@ -55,6 +55,7 @@ func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) 
 // UpdateIdea is used to edit an existing new idea
 type UpdateIdea struct {
 	Model *models.UpdateIdea
+	Idea  *models.Idea
 }
 
 // Initialize the model
@@ -95,6 +96,8 @@ func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *va
 	} else if another != nil && another.ID != idea.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
+
+	input.Idea = idea
 
 	return result
 }
