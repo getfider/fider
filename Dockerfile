@@ -8,6 +8,7 @@ COPY favicon.ico /app
 COPY migrations /app/migrations
 COPY views /app/views
 COPY dist /app/dist
+COPY LICENSE /app
 COPY fider /app
 
 EXPOSE 3000

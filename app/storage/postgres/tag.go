@@ -83,7 +83,7 @@ func (s *TagStorage) GetBySlug(slug string) (*models.Tag, error) {
 func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*models.Tag, error) {
 	tagSlug := slug.Make(name)
 
-	err := s.trx.Execute(`UPDATE tags SET name = $1, slug = $2, color = $3, is_public = $4
+	_, err := s.trx.Execute(`UPDATE tags SET name = $1, slug = $2, color = $3, is_public = $4
 												WHERE id = $5 AND tenant_id = $6`, name, tagSlug, color, isPublic, tagID, s.tenant.ID)
 	if err != nil {
 		return nil, err
@@ -94,11 +94,12 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 
 // Delete a tag by its id
 func (s *TagStorage) Delete(tagID int) error {
-	err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
 	if err != nil {
 		return err
 	}
-	return s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
+	_, err = s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tagID, s.tenant.ID)
+	return err
 }
 
 // AssignTag adds a tag to an idea
@@ -112,18 +113,20 @@ func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
 		return nil
 	}
 
-	return s.trx.Execute(
+	_, err = s.trx.Execute(
 		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
 		tagID, ideaID, time.Now(), userID, s.tenant.ID,
 	)
+	return err
 }
 
 // UnassignTag removes a tag from an idea
 func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
-	return s.trx.Execute(
+	_, err := s.trx.Execute(
 		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2 AND tenant_id = $3`,
 		tagID, ideaID, s.tenant.ID,
 	)
+	return err
 }
 
 // GetAssigned returns all tags assigned to given idea
