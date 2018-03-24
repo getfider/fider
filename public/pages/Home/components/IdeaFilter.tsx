@@ -33,7 +33,8 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       });
     });
 
-    const activeFilter = options.find(x => x.value === this.props.activeFilter) ? this.props.activeFilter : "trending";
+    const filterExists = options.filter(x => x.value === this.props.activeFilter).length > 0;
+    const activeFilter = filterExists ? this.props.activeFilter : "trending";
 
     return (
       <>
