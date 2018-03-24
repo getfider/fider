@@ -47,7 +47,7 @@ func MultiTenant() web.MiddlewareFunc {
 			// This is only vadid for fider.io hosting
 			if (env.IsProduction() && hostname == "fider.io") ||
 				(env.IsDevelopment() && hostname == "dev.fider.io") {
-				return c.Redirect(http.StatusTemporaryRedirect, "http://getfider.com")
+				return c.Redirect(http.StatusTemporaryRedirect, "https://getfider.com")
 			}
 
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)

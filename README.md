@@ -4,7 +4,7 @@
 
 Fider is an open platform to collect and organize customer feedback. By using the platform, your community can share, vote and discuss on ideas they have to make your product or company even better.
 
-You can [see it in action](https://feedback.fider.io/) or visit http://getfider.com to learn more about all features and how to get started.
+You can [see it in action](https://feedback.fider.io/) or visit https://getfider.com to learn more about all features and how to get started.
 
 ![](etc/homepage.png)
 

@@ -11,7 +11,7 @@
             "react-textarea-autosize"
         ],
         "jsx": "react",
-        "lib": ["dom", "es2015.promise", "es6"],
+        "lib": ["dom", "es2015.promise", "es5"],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "baseUrl": "./public",
