@@ -33,12 +33,12 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     center: true
   };
 
-  public componentDidMount() {
-    document.addEventListener("keydown", this.keyDown, false);
-  }
-
-  public componentWillUnmount() {
-    document.removeEventListener("keydown", this.keyDown, false);
+  public componentWillUpdate(nextProps: ModalWindowProps, nextState: ModalWindowState) {
+    if (nextState.isOpen) {
+      document.addEventListener("keydown", this.keyDown, false);
+    } else {
+      document.removeEventListener("keydown", this.keyDown, false);
+    }
   }
 
   public componentWillReceiveProps(nextProps: ModalWindowProps) {
