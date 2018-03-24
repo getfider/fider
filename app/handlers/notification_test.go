@@ -13,8 +13,8 @@ func TestTotalUnreadNotificationsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	services.SetCurrentUser(mock.JonSnow)
-	services.Notifications.Insert(mock.JonSnow, "Title", "http://example.com", 1, mock.AryaStark.ID)
+	services.SetCurrentUser(mock.AryaStark)
+	services.Notifications.Insert(mock.JonSnow, "Title", "http://example.com", 1)
 
 	code, query := server.
 		OnTenant(mock.DemoTenant).
@@ -29,9 +29,9 @@ func TestNotificationsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	services.SetCurrentUser(mock.JonSnow)
-	services.Notifications.Insert(mock.JonSnow, "Title", "http://example.com", 1, mock.AryaStark.ID)
-	services.Notifications.Insert(mock.JonSnow, "Title 2", "http://example.com", 1, mock.AryaStark.ID)
+	services.SetCurrentUser(mock.AryaStark)
+	services.Notifications.Insert(mock.JonSnow, "Title", "http://example.com", 1)
+	services.Notifications.Insert(mock.JonSnow, "Title 2", "http://example.com", 1)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -46,8 +46,9 @@ func TestReadNotificationHandler(t *testing.T) {
 
 	server, services := mock.NewServer()
 	services.SetCurrentUser(mock.JonSnow)
-	not1, _ := services.Notifications.Insert(mock.JonSnow, "Title", "/abc", 1, mock.AryaStark.ID)
-	not2, _ := services.Notifications.Insert(mock.JonSnow, "Title 2", "/def", 1, mock.AryaStark.ID)
+	services.SetCurrentUser(mock.AryaStark)
+	not1, _ := services.Notifications.Insert(mock.JonSnow, "Title", "/abc", 1)
+	not2, _ := services.Notifications.Insert(mock.JonSnow, "Title 2", "/def", 1)
 
 	code, resp := server.
 		OnTenant(mock.DemoTenant).
@@ -66,9 +67,9 @@ func TestReadAllNotificationsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	services.SetCurrentUser(mock.JonSnow)
-	not1, _ := services.Notifications.Insert(mock.JonSnow, "Title", "/abc", 1, mock.AryaStark.ID)
-	not2, _ := services.Notifications.Insert(mock.JonSnow, "Title 2", "/def", 1, mock.AryaStark.ID)
+	services.SetCurrentUser(mock.AryaStark)
+	not1, _ := services.Notifications.Insert(mock.JonSnow, "Title", "/abc", 1)
+	not2, _ := services.Notifications.Insert(mock.JonSnow, "Title 2", "/def", 1)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).

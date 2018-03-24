@@ -12,7 +12,8 @@ import (
 func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
 	RegisterTestingT(t)
 
-	services.Ideas.Add("My great idea", "With a great description", 1)
+	services.SetCurrentUser(&models.User{ID: 1})
+	services.Ideas.Add("My great idea", "With a great description")
 
 	for _, title := range []string{
 		"me",
@@ -60,9 +61,10 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 func TestDeleteIdea_WhenIsBeingReferenced(t *testing.T) {
 	RegisterTestingT(t)
 
-	idea1, _ := services.Ideas.Add("Idea #1", "", 1)
-	idea2, _ := services.Ideas.Add("Idea #2", "", 1)
-	services.Ideas.MarkAsDuplicate(idea2.Number, idea1.Number, 1)
+	services.SetCurrentUser(&models.User{ID: 1})
+	idea1, _ := services.Ideas.Add("Idea #1", "")
+	idea2, _ := services.Ideas.Add("Idea #2", "")
+	services.Ideas.MarkAsDuplicate(idea2, idea1)
 
 	model := &models.DeleteIdea{
 		Number: idea2.Number,

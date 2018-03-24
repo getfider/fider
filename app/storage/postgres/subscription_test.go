@@ -14,7 +14,8 @@ func TestSubscription_NoSettings(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea1, _ := ideas.Add("Idea #1", "Description #1", aryaStark.ID)
+	ideas.SetCurrentUser(aryaStark)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
 	Expect(err).To(BeNil())
@@ -52,8 +53,9 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
-	idea1, _ := ideas.Add("Idea #1", "Description #1", aryaStark.ID)
-	err := ideas.RemoveSubscriber(idea1.Number, aryaStark.ID)
+	ideas.SetCurrentUser(aryaStark)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
+	err := ideas.RemoveSubscriber(idea1, aryaStark)
 	Expect(err).To(BeNil())
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
@@ -86,8 +88,9 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(jonSnow)
 
-	idea1, _ := ideas.Add("Idea #1", "Description #1", jonSnow.ID)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
 	Expect(err).To(BeNil())
@@ -119,10 +122,11 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(aryaStark)
 
-	idea1, _ := ideas.Add("Idea #1", "Description #1", aryaStark.ID)
-	ideas.RemoveSubscriber(idea1.Number, aryaStark.ID)
-	ideas.RemoveSubscriber(idea1.Number, jonSnow.ID)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
+	ideas.RemoveSubscriber(idea1, aryaStark)
+	ideas.RemoveSubscriber(idea1, jonSnow)
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).To(BeNil())
@@ -143,14 +147,16 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(aryaStark)
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
+
 	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
 	})
 	Expect(err).To(BeNil())
 
-	idea1, _ := ideas.Add("Idea #1", "Description #1", aryaStark.ID)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).To(BeNil())
@@ -184,14 +190,16 @@ func TestSubscription_VisitorEnabledNewIdea(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(jonSnow)
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
+
 	err := users.UpdateSettings(map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
 	})
 	Expect(err).To(BeNil())
 
-	idea1, _ := ideas.Add("Idea #1", "Description #1", jonSnow.ID)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
 	Expect(err).To(BeNil())
@@ -211,6 +219,7 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	ideas.SetCurrentTenant(demoTenant)
+	ideas.SetCurrentUser(jonSnow)
 	users.SetCurrentTenant(demoTenant)
 	disableAll := map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
@@ -222,7 +231,7 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	users.SetCurrentUser(aryaStark)
 	Expect(users.UpdateSettings(disableAll)).To(BeNil())
 
-	idea1, _ := ideas.Add("Idea #1", "Description #1", jonSnow.ID)
+	idea1, _ := ideas.Add("Idea #1", "Description #1")
 
 	subscribers, err := ideas.GetActiveSubscribers(idea1.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
 	Expect(err).To(BeNil())

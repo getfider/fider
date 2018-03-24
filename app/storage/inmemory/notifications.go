@@ -34,7 +34,7 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error) {
+func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error) {
 	s.lastID = s.lastID + 1
 	newNotification := &models.Notification{
 		ID:        s.lastID,
@@ -43,11 +43,11 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, idea
 		Read:      false,
 		CreatedOn: time.Now(),
 	}
-	all, ok := s.notifications[s.user]
+	all, ok := s.notifications[user]
 	if !ok {
 		all = make([]*models.Notification, 0)
 	}
-	s.notifications[s.user] = append(all, newNotification)
+	s.notifications[user] = append(all, newNotification)
 	return newNotification, nil
 }
 

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
@@ -62,12 +61,12 @@ func PostIdea() web.HandlerFunc {
 		}
 
 		ideas := c.Services().Ideas
-		idea, err := ideas.Add(input.Model.Title, input.Model.Description, c.User().ID)
+		idea, err := ideas.Add(input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := ideas.AddSupporter(idea.Number, c.User().ID); err != nil {
+		if err := ideas.AddSupporter(idea, c.User()); err != nil {
 			return c.Failure(err)
 		}
 
@@ -85,7 +84,7 @@ func UpdateIdea() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.Update(input.Model.Number, input.Model.Title, input.Model.Description)
+		_, err := c.Services().Ideas.Update(input.Idea, input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -102,7 +101,7 @@ func DeleteIdea() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, models.IdeaDeleted)
+		err := c.Services().Ideas.SetResponse(input.Idea, input.Model.Text, models.IdeaDeleted)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -125,7 +124,7 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdea(number)
+		comments, err := ideas.GetCommentsByIdea(idea)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -162,7 +161,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Ideas.AddComment(input.Model.Number, input.Model.Content, c.User().ID)
+		_, err = c.Services().Ideas.AddComment(idea, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -204,9 +203,9 @@ func SetResponse() web.HandlerFunc {
 		}
 
 		if input.Model.Status == models.IdeaDuplicate {
-			err = c.Services().Ideas.MarkAsDuplicate(input.Model.Number, input.Original.Number, c.User().ID)
+			err = c.Services().Ideas.MarkAsDuplicate(idea, input.Original)
 		} else {
-			err = c.Services().Ideas.SetResponse(input.Model.Number, input.Model.Text, c.User().ID, input.Model.Status)
+			err = c.Services().Ideas.SetResponse(idea, input.Model.Text, input.Model.Status)
 		}
 		if err != nil {
 			return c.Failure(err)
@@ -246,17 +245,19 @@ func Unsubscribe() web.HandlerFunc {
 	}
 }
 
-func addOrRemove(c web.Context, addOrRemove func(number, userID int) error) error {
-	ideaNumber, err := c.ParamAsInt("number")
+func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models.User) error) error {
+	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	err = addOrRemove(ideaNumber, c.User().ID)
+	idea, err := c.Services().Ideas.GetByNumber(number)
 	if err != nil {
-		if err == app.ErrNotFound {
-			return c.NotFound()
-		}
+		return c.Failure(err)
+	}
+
+	err = addOrRemove(idea, c.User())
+	if err != nil {
 		return c.Failure(err)
 	}
 
