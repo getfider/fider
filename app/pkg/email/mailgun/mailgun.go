@@ -97,7 +97,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return errors.Wrap(err, "failed to send email")
+		return errors.Wrapf(err, "failed to send email with template %s", templateName)
 	}
 
 	defer resp.Body.Close()
