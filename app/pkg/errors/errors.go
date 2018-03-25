@@ -11,29 +11,43 @@ type theError struct {
 	cause error
 }
 
-func caller() (string, int) {
-	_, file, line, _ := runtime.Caller(2)
+func caller(skip int) (string, int) {
+	_, file, line, _ := runtime.Caller(skip)
 	file = trimBasePath(file)
 	return file, line
 }
 
 //New creates a new error
 func New(text string) error {
-	file, line := caller()
+	file, line := caller(2)
 	return stdError.New(fmt.Sprintf("%s (%s:%d)", text, file, line))
 }
 
 //Wrap existing error with additional text
 func Wrap(err error, format string, a ...interface{}) error {
-	text := fmt.Sprintf(format, a...)
-	file, line := caller()
+	return wrap(err, format, a)
+}
+
+//Stack add current code location without adding more info
+func Stack(err error) error {
+	return wrap(err, "")
+}
+
+func wrap(err error, format string, a ...interface{}) error {
+	file, line := caller(3)
+
+	text := ""
+	if format != "" {
+		text = fmt.Sprintf("%s (%s:%d)", fmt.Sprintf(format, a...), file, line)
+	} else {
+		text = fmt.Sprintf("%s:%d", file, line)
+	}
 
 	casted, ok := err.(*theError)
 	if ok {
-		text = fmt.Sprintf("%s (%s:%d)\n- %s", text, file, line, casted.text)
-	} else {
-		text = fmt.Sprintf("%s (%s:%d)", text, file, line)
+		text = fmt.Sprintf("%s\n- %s", text, casted.text)
 	}
+
 	return &theError{
 		text:  text,
 		cause: Cause(err),

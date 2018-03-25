@@ -36,6 +36,24 @@ func TestWrappedError(t *testing.T) {
 	Expect(errors.Cause(wrappedAgain)).To(Equal(first))
 }
 
+func TestWrapAndStack(t *testing.T) {
+	RegisterTestingT(t)
+
+	first := errors.New("document not found")
+	wrapped := errors.Wrap(first, "could not create user")
+	stacked := errors.Stack(wrapped)
+	stackedTwice := errors.Stack(stacked)
+
+	Expect(stackedTwice.Error()).To(Equal(`Error Trace: 
+- app/pkg/errors/errors_test.go:45
+- app/pkg/errors/errors_test.go:44
+- could not create user%!(EXTRA []interface {}=[]) (app/pkg/errors/errors_test.go:43)
+- document not found (app/pkg/errors/errors_test.go:42)`))
+
+	Expect(errors.Cause(stacked)).To(Equal(first))
+	Expect(errors.Cause(stackedTwice)).To(Equal(first))
+}
+
 func TestNilErrors(t *testing.T) {
 	RegisterTestingT(t)
 
