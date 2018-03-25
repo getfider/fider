@@ -34,6 +34,10 @@ func Stack(err error) error {
 }
 
 func wrap(err error, format string, a ...interface{}) error {
+	if err == nil {
+		return err
+	}
+
 	file, line := caller(3)
 
 	text := ""
