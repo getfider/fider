@@ -29,7 +29,7 @@ func NewCertificateManager(certFile, keyFile, cacheDir string) (*CertificateMana
 		var err error
 		manager.cert, err = tls.LoadX509KeyPair(certFile, keyFile)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to load X509KeyPair for %s and %s", certFile, keyFile)
+			return nil, errors.Wrap(err, "failed to load X509KeyPair for %s and %s", certFile, keyFile)
 		}
 
 		manager.leaf, err = x509.ParseCertificate(manager.cert.Certificate[0])

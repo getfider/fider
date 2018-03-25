@@ -48,7 +48,7 @@ func (r *Renderer) add(name string) *template.Template {
 	file := env.Path("/views", name)
 	tpl, err := template.ParseFiles(base, file)
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to parse template %s", file))
+		panic(errors.Wrap(err, "failed to parse template %s", file))
 	}
 
 	r.templates[name] = tpl
@@ -118,7 +118,7 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 
 	err := tmpl.Execute(w, m)
 	if err != nil {
-		return errors.Wrapf(err, "failed to execute template %s", name)
+		return errors.Wrap(err, "failed to execute template %s", name)
 	}
 	return nil
 }

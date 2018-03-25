@@ -389,7 +389,7 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 	value := ctx.Param(name)
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, errors.Wrapf(err, "failed to parse %s to integer", value)
+		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
 	return intValue, nil
 }

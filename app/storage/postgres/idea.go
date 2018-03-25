@@ -223,7 +223,7 @@ func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea
 func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, ideaID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get idea with id '%d'", ideaID)
+		return nil, errors.Wrap(err, "failed to get idea with id '%d'", ideaID)
 	}
 	return idea, nil
 }
@@ -232,7 +232,7 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
 	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get idea with slug '%s'", slug)
+		return nil, errors.Wrap(err, "failed to get idea with slug '%s'", slug)
 	}
 	return idea, nil
 }
@@ -241,7 +241,7 @@ func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get idea with number '%d'", number)
+		return nil, errors.Wrap(err, "failed to get idea with number '%d'", number)
 	}
 	return idea, nil
 }
@@ -342,7 +342,7 @@ func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, e
 		AND i.tenant_id = $2
 		ORDER BY c.created_on ASC`, idea.ID, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed get comments of idea with id '%d'", idea.ID)
+		return nil, errors.Wrap(err, "failed get comments of idea with id '%d'", idea.ID)
 	}
 
 	var result = make([]*models.Comment, len(comments))
@@ -586,7 +586,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	}
 
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get idea number '%d' subscribers", number)
+		return nil, errors.Wrap(err, "failed to get idea number '%d' subscribers", number)
 	}
 
 	var result = make([]*models.User, len(users))
@@ -635,7 +635,7 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 	var users []*dbUser
 	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrapf(err, "failed to get supporters of idea with id '%d'", idea.ID)
+		return errors.Wrap(err, "failed to get supporters of idea with id '%d'", idea.ID)
 	}
 
 	for _, u := range users {

@@ -50,7 +50,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err != nil {
-		return errors.Wrapf(err, "failed to send email with template %s", templateName)
+		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
 	s.logger.Debugf("Email sent.")
 	return nil
@@ -60,7 +60,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
 		if err := s.Send(templateName, params, from, r); err != nil {
-			return errors.Wrapf(err, "failed to batch send email to %d recipients", len(to))
+			return errors.Wrap(err, "failed to batch send email to %d recipients", len(to))
 		}
 	}
 	return nil

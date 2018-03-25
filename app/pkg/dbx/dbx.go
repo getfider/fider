@@ -65,12 +65,12 @@ func (db Database) Close() error {
 func (db Database) load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to read file %s", path))
+		panic(errors.Wrap(err, "failed to read file %s", path))
 	}
 
 	_, err = db.conn.Exec(string(content))
 	if err != nil {
-		panic(errors.Wrapf(err, "failed to execute %s", path))
+		panic(errors.Wrap(err, "failed to execute %s", path))
 	}
 }
 

@@ -82,7 +82,7 @@ func doGet(url string, v interface{}) error {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return errors.Wrapf(err, "failed to request GET %s", url)
+		return errors.Wrap(err, "failed to request GET %s", url)
 	}
 
 	err = json.Unmarshal(bytes, v)
@@ -116,7 +116,7 @@ func (p *HTTPService) GetProfile(authEndpoint string, provider string, code stri
 	settings := oauthSettings[provider]
 	oauthToken, err := settings.config(authEndpoint).Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to exchange OAuth2 code with %s", provider)
+		return nil, errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
 	}
 
 	profile := &UserProfile{}

@@ -81,7 +81,7 @@ func (s *UserStorage) SetCurrentUser(user *models.User) {
 func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 	user, err := getUser(s.trx, "id = $1", userID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get user with id '%d'", userID)
+		return nil, errors.Wrap(err, "failed to get user with id '%d'", userID)
 	}
 	return user, nil
 }
@@ -90,7 +90,7 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
 	user, err := getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get user with email '%s'", email)
+		return nil, errors.Wrap(err, "failed to get user with email '%s'", email)
 	}
 	return user, nil
 }
@@ -108,7 +108,7 @@ func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, 
 	AND up.provider_uid = $2 
 	AND u.tenant_id = $3`
 	if err := s.trx.Scalar(&userID, query, provider, uid, s.tenant.ID); err != nil {
-		return nil, errors.Wrapf(err, "failed to get user by provider '%s' and uid '%s'", provider, uid)
+		return nil, errors.Wrap(err, "failed to get user by provider '%s' and uid '%s'", provider, uid)
 	}
 	return s.GetByID(userID)
 }
@@ -137,7 +137,7 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)"
 	_, err := s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
 	if err != nil {
-		return errors.Wrapf(err, "failed to add provider '%s' to user with id '%d'", provider.Name, userID)
+		return errors.Wrap(err, "failed to add provider '%s' to user with id '%d'", provider.Name, userID)
 	}
 	return nil
 }

@@ -124,7 +124,7 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get tenant with domain '%s'", domain)
+		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
 
 	return tenant.toModel(), nil
@@ -144,7 +144,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
 	if err != nil {
-		return false, errors.Wrapf(err, "failed to check if tenant exists with subdomain '%s'", subdomain)
+		return false, errors.Wrap(err, "failed to check if tenant exists with subdomain '%s'", subdomain)
 	}
 	return !exists, nil
 }
@@ -153,7 +153,7 @@ func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", cname, s.current.ID)
 	if err != nil {
-		return false, errors.Wrapf(err, "failed to check if tenant exists with CNAME '%s'", cname)
+		return false, errors.Wrap(err, "failed to check if tenant exists with CNAME '%s'", cname)
 	}
 	return !exists, nil
 }
@@ -163,7 +163,7 @@ func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"
 	_, err := s.trx.Execute(query, models.TenantActive, id)
 	if err != nil {
-		return errors.Wrapf(err, "failed to activate tenant with id '%d'", id)
+		return errors.Wrap(err, "failed to activate tenant with id '%d'", id)
 	}
 	return nil
 }
@@ -178,7 +178,7 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
 	_, err := s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
 	if err != nil {
-		return errors.Wrapf(err, "failed to save verification key for kind '%d'", request.GetKind())
+		return errors.Wrap(err, "failed to save verification key for kind '%d'", request.GetKind())
 	}
 	return nil
 }

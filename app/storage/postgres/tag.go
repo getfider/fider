@@ -74,7 +74,7 @@ func (s *TagStorage) GetBySlug(slug string) (*models.Tag, error) {
 
 	err := s.trx.Get(&tag, "SELECT id, name, slug, color, is_public FROM tags WHERE tenant_id = $1 AND slug = $2", s.tenant.ID, slug)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get tag with slug '%s'", slug)
+		return nil, errors.Wrap(err, "failed to get tag with slug '%s'", slug)
 	}
 
 	return tag.toModel(), nil
@@ -97,12 +97,12 @@ func (s *TagStorage) Update(tag *models.Tag, name, color string, isPublic bool) 
 func (s *TagStorage) Delete(tag *models.Tag) error {
 	_, err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrapf(err, "failed to remove tag with id '%d' from all ideas", tag.ID)
+		return errors.Wrap(err, "failed to remove tag with id '%d' from all ideas", tag.ID)
 	}
 
 	_, err = s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete tag with id '%d'", tag.ID)
+		return errors.Wrap(err, "failed to delete tag with id '%d'", tag.ID)
 	}
 	return nil
 }

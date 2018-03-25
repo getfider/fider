@@ -122,7 +122,7 @@ func (s *NotificationStorage) GetNotification(id int) (*models.Notification, err
 		WHERE id = $1 AND tenant_id = $2 AND user_id = $3
 	`, id, s.tenant.ID, s.user.ID)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get notifications with id '%d'", id)
+		return nil, errors.Wrap(err, "failed to get notifications with id '%d'", id)
 	}
 	return notification, nil
 }
