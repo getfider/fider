@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbUser struct {
@@ -237,11 +238,11 @@ func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
 
 	var status int
 	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, ideaID)
-	if err != nil && err != app.ErrNotFound {
+	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return false, err
 	}
 
-	if err == app.ErrNotFound {
+	if errors.Cause(err) == app.ErrNotFound {
 		for _, e := range models.AllNotificationEvents {
 			for _, r := range e.RequiresSubscripionUserRoles {
 				if r == s.user.Role {

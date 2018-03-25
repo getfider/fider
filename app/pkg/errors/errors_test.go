@@ -19,8 +19,8 @@ func TestWrappedError(t *testing.T) {
 	RegisterTestingT(t)
 
 	first := errors.New("document not found")
-	wrapped := errors.Wrap("could not create user", first)
-	wrappedAgain := errors.Wrap("failed to register new user", wrapped)
+	wrapped := errors.Wrap(first, "could not create user")
+	wrappedAgain := errors.Wrap(wrapped, "failed to register new user")
 
 	Expect(first.Error()).To(Equal(`document not found (app/pkg/errors/errors_test.go:21)`))
 	Expect(wrapped.Error()).To(Equal(`Error Trace: 
@@ -34,4 +34,10 @@ func TestWrappedError(t *testing.T) {
 	Expect(errors.Cause(wrapped)).To(Equal(first))
 	Expect(errors.Cause(first)).To(Equal(first))
 	Expect(errors.Cause(wrappedAgain)).To(Equal(first))
+}
+
+func TestNilErrors(t *testing.T) {
+	RegisterTestingT(t)
+
+	Expect(errors.Cause(nil)).To(BeNil())
 }

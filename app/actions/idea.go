@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -43,7 +44,7 @@ func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) 
 	}
 
 	idea, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
-	if err != nil && err != app.ErrNotFound {
+	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	} else if idea != nil {
 		result.AddFieldFailure("title", "This has already been posted before.")
@@ -91,7 +92,7 @@ func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *va
 	}
 
 	another, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
-	if err != nil && err != app.ErrNotFound {
+	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	} else if another != nil && another.ID != idea.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
@@ -161,7 +162,7 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 
 		original, err := services.Ideas.GetByNumber(input.Model.OriginalNumber)
 		if err != nil {
-			if err == app.ErrNotFound {
+			if errors.Cause(err) == app.ErrNotFound {
 				result.AddFieldFailure("originalNumber", "Original idea not found")
 			} else {
 				return validate.Error(err)

@@ -24,7 +24,7 @@ func New(text string) error {
 }
 
 //Wrap existing error with additional text
-func Wrap(text string, err error) error {
+func Wrap(err error, text string) error {
 	file, line := caller()
 
 	casted, ok := err.(*theError)
@@ -37,6 +37,11 @@ func Wrap(text string, err error) error {
 		text:  text,
 		cause: Cause(err),
 	}
+}
+
+//Wrapf existing error with additional text
+func Wrapf(err error, format string, a ...interface{}) error {
+	return Wrap(err, fmt.Sprintf(format, a...))
 }
 
 //Cause returns the original cause of the error stack

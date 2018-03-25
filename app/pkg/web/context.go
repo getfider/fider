@@ -16,6 +16,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -178,7 +179,7 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	if err == app.ErrNotFound {
+	if errors.Cause(err) == app.ErrNotFound {
 		return ctx.NotFound()
 	}
 

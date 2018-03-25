@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/gosimple/slug"
 )
@@ -45,7 +46,7 @@ func (input *CreateEditTag) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("name", "Name must be less than 30 characters.")
 	} else {
 		duplicateTag, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
-		if err != nil && err != app.ErrNotFound {
+		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
 		} else if err == nil && (input.Tag == nil || input.Tag.ID != duplicateTag.ID) {
 			result.AddFieldFailure("name", "This tag name is already in use.")
