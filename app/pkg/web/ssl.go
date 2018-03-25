@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"net/http"
 
+	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -28,12 +29,12 @@ func NewCertificateManager(certFile, keyFile, cacheDir string) (*CertificateMana
 		var err error
 		manager.cert, err = tls.LoadX509KeyPair(certFile, keyFile)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "failed to load X509KeyPair for %s and %s", certFile, keyFile)
 		}
 
 		manager.leaf, err = x509.ParseCertificate(manager.cert.Certificate[0])
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to parse x509 certificate")
 		}
 	}
 

@@ -141,7 +141,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := ctx.engine.binder.Bind(i.Initialize(), ctx)
 	if err != nil {
-		return validate.Error(err)
+		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
 	if !i.IsAuthorized(ctx.User(), ctx.Services()) {
 		return validate.Unauthorized()
@@ -279,7 +279,7 @@ func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 	})
 
 	if err != nil {
-		return token, err
+		return token, errors.Wrap(err, "failed to add auth cookie")
 	}
 
 	ctx.AddCookie(CookieAuthName, token, time.Now().Add(365*24*time.Hour))
@@ -386,11 +386,12 @@ func (ctx *Context) Param(name string) string {
 
 //ParamAsInt returns parameter as int
 func (ctx *Context) ParamAsInt(name string) (int, error) {
-	val, err := strconv.Atoi(ctx.Param(name))
+	value := ctx.Param(name)
+	intValue, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrapf(err, "failed to parse %s to integer", value)
 	}
-	return int(val), nil
+	return intValue, nil
 }
 
 //RenderVars returns all registered RenderVar
@@ -436,7 +437,7 @@ func (ctx *Context) String(code int, text string) error {
 func (ctx *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to marshal response to JSON")
 	}
 	return ctx.Blob(code, JSONContentType, b)
 }

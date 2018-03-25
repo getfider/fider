@@ -12,6 +12,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -84,7 +85,7 @@ func (e *Engine) Start(address string) {
 	if autoSSL == "true" {
 		certManager, err = NewCertificateManager(certFile, keyFile, "certs")
 		if err != nil {
-			panic(err)
+			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
 		server.TLSConfig = &tls.Config{
@@ -103,7 +104,7 @@ func (e *Engine) Start(address string) {
 	}
 
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err, "failed to start server"))
 	}
 }
 

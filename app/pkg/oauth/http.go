@@ -2,13 +2,13 @@ package oauth
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
@@ -82,10 +82,15 @@ func doGet(url string, v interface{}) error {
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to request GET %s", url)
 	}
 
-	return json.Unmarshal(bytes, v)
+	err = json.Unmarshal(bytes, v)
+	if err != nil {
+		return errors.Wrap(err, "failed unmarshal response")
+	}
+
+	return nil
 }
 
 //HTTPService implements real OAuth operations using Golang's oauth2 package
@@ -111,12 +116,12 @@ func (p *HTTPService) GetProfile(authEndpoint string, provider string, code stri
 	settings := oauthSettings[provider]
 	oauthToken, err := settings.config(authEndpoint).Exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, fmt.Errorf("OAuth code Exchange for %s failed with %s", provider, err)
+		return nil, errors.Wrapf(err, "failed to exchange OAuth2 code with %s", provider)
 	}
 
 	profile := &UserProfile{}
 	if err = doGet(settings.profileURL(oauthToken), profile); err != nil {
-		return nil, fmt.Errorf("HTTP Get profile for %s failed with %s", provider, err)
+		return nil, err
 	}
 
 	//GitHub allows users to omit name, so we use their login name
