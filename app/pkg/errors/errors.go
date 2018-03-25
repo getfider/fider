@@ -25,20 +25,25 @@ func New(text string) error {
 
 //Wrap existing error with additional text
 func Wrap(err error, format string, a ...interface{}) error {
-	return wrap(err, format, a...)
+	return wrap(err, 0, format, a...)
 }
 
 //Stack add current code location without adding more info
 func Stack(err error) error {
-	return wrap(err, "")
+	return wrap(err, 0, "")
 }
 
-func wrap(err error, format string, a ...interface{}) error {
+//StackN add code location of N steps before without adding more info
+func StackN(err error, skip int) error {
+	return wrap(err, skip, "")
+}
+
+func wrap(err error, skip int, format string, a ...interface{}) error {
 	if err == nil {
 		return err
 	}
 
-	file, line := caller(3)
+	file, line := caller(3 + skip)
 
 	text := ""
 	if format != "" {

@@ -54,6 +54,22 @@ func TestWrapAndStack(t *testing.T) {
 	Expect(errors.Cause(stackedTwice)).To(Equal(first))
 }
 
+func doSomething(err error) error {
+	return errors.StackN(err, 1)
+}
+
+func TestStackN(t *testing.T) {
+	RegisterTestingT(t)
+
+	first := errors.New("document not found")
+	err := doSomething(first)
+	Expect(err.Error()).To(Equal(`Error Trace: 
+- app/pkg/errors/errors_test.go:65
+- document not found (app/pkg/errors/errors_test.go:64)`))
+
+	Expect(errors.Cause(err)).To(Equal(first))
+}
+
 func TestNilErrors(t *testing.T) {
 	RegisterTestingT(t)
 
