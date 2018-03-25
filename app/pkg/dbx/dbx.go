@@ -81,7 +81,7 @@ func (db Database) Seed() {
 	}
 }
 
-// Migrate the database to latest verion
+// Migrate the database to latest version
 func (db Database) Migrate() {
 
 	db.logger.Infof("Running migrations...")
