@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 )
@@ -221,22 +221,38 @@ func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea
 
 // GetByID returns idea by given id
 func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, ideaID)
+	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, ideaID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get idea with id '%d'", ideaID)
+	}
+	return idea, nil
 }
 
 // GetBySlug returns idea by tenant and slug
 func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
+	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get idea with slug '%s'", slug)
+	}
+	return idea, nil
 }
 
 // GetByNumber returns idea by tenant and number
 func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
-	return s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
+	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get idea with number '%d'", number)
+	}
+	return idea, nil
 }
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
-	return s.Search("", "all", []string{})
+	ideas, err := s.Search("", "all", []string{})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get all ideas")
+	}
+	return ideas, nil
 }
 
 // CountPerStatus returns total number of ideas per status
@@ -244,7 +260,7 @@ func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
 	stats := []*dbStatusCount{}
 	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM ideas WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to count ideas per status")
 	}
 	result := make(map[int]int, len(stats))
 	for _, v := range stats {
@@ -286,7 +302,7 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to search ideas")
 	}
 
 	var result = make([]*models.Idea, len(ideas))
@@ -326,7 +342,7 @@ func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, e
 		AND i.tenant_id = $2
 		ORDER BY c.created_on ASC`, idea.ID, s.tenant.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed get comments of idea with id '%d'", idea.ID)
 	}
 
 	var result = make([]*models.Comment, len(comments))
@@ -341,7 +357,7 @@ func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*mod
 	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
 													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, idea.ID, s.tenant.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed update idea")
 	}
 
 	idea.Slug = slug.Make(title)
@@ -359,7 +375,7 @@ func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
 		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed add new idea")
 	}
 
 	idea, err := s.GetByID(id)
@@ -380,7 +396,7 @@ func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error)
 	if err := s.trx.Get(&id,
 		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		s.tenant.ID, idea.ID, content, s.user.ID, time.Now()); err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "failed add new comment")
 	}
 
 	if err := s.internalAddSubscriber(idea, s.user, false); err != nil {
@@ -428,7 +444,10 @@ func (s *IdeaStorage) UpdateComment(id int, content string) error {
 	_, err := s.trx.Execute(`
 		UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
 		WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed update comment")
+	}
+	return nil
 }
 
 // AddSupporter adds user to idea list of supporters
@@ -442,13 +461,13 @@ func (s *IdeaStorage) AddSupporter(idea *models.Idea, user *models.User) error {
 		s.tenant.ID, user.ID, idea.ID, time.Now())
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed add supporter to idea")
 	}
 
 	if rows == 1 {
 		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to increment idea's supporters count")
 		}
 	}
 
@@ -462,11 +481,14 @@ func (s *IdeaStorage) RemoveSupporter(idea *models.Idea, user *models.User) erro
 	}
 
 	rows, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, idea.ID, s.tenant.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed to delete idea supporter")
+	}
 
 	if rows == 1 {
 		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to decrement idea's supporters count")
 		}
 	}
 	return err
@@ -488,7 +510,10 @@ func (s *IdeaStorage) internalAddSubscriber(idea *models.Idea, user *models.User
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
 		s.tenant.ID, user.ID, idea.ID, time.Now(), models.SubscriberActive,
 	)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed insert idea subscriber")
+	}
+	return nil
 }
 
 // RemoveSubscriber removes user from idea list of subscribers
@@ -499,7 +524,10 @@ func (s *IdeaStorage) RemoveSubscriber(idea *models.Idea, user *models.User) err
 		DO UPDATE SET status = 0, updated_on = $4`,
 		s.tenant.ID, user.ID, idea.ID, time.Now(),
 	)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed remove idea subscriber")
+	}
+	return nil
 }
 
 // GetActiveSubscribers based on input and settings
@@ -558,7 +586,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to get idea number '%d' subscribers", number)
 	}
 
 	var result = make([]*models.User, len(users))
@@ -585,7 +613,7 @@ func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) er
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to update idea's response")
 	}
 
 	idea.Status = status
@@ -607,7 +635,7 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 	var users []*dbUser
 	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to get supporters of idea with id '%d'", idea.ID)
 	}
 
 	for _, u := range users {
@@ -622,7 +650,7 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 	WHERE id = $1 and tenant_id = $2
 	`, idea.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.IdeaDuplicate)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to update idea's response")
 	}
 
 	idea.Status = models.IdeaDuplicate
@@ -641,16 +669,24 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 
 // IsReferenced returns true if another idea is referencing given idea
 func (s *IdeaStorage) IsReferenced(idea *models.Idea) (bool, error) {
-	return s.trx.Exists(`
+	exists, err := s.trx.Exists(`
 		SELECT 1 FROM ideas i 
 		INNER JOIN ideas o
 		ON o.tenant_id = i.tenant_id
 		AND o.id = i.original_id
 		WHERE i.tenant_id = $1
 		AND o.id = $2`, s.tenant.ID, idea.ID)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check if idea is referenced")
+	}
+	return exists, nil
 }
 
 // SupportedBy returns a list of Idea ID supported by given user
 func (s *IdeaStorage) SupportedBy() ([]int, error) {
-	return s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
+	ideas, err := s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user's supported ideas")
+	}
+	return ideas, nil
 }

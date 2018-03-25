@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	. "github.com/onsi/gomega"
 )
 
@@ -90,7 +91,7 @@ func TestIdeaStorage_GetInvalid(t *testing.T) {
 	ideas.SetCurrentTenant(demoTenant)
 
 	dbIdea, err := ideas.GetByID(1)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(dbIdea).To(BeNil())
 }
 
@@ -388,11 +389,11 @@ func TestIdeaStorage_SetResponse_AsDeleted(t *testing.T) {
 	ideas.SetResponse(idea, "Spam!", models.IdeaDeleted)
 
 	idea1, err := ideas.GetByNumber(idea.Number)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(idea1).To(BeNil())
 
 	idea2, err := ideas.GetByID(idea.ID)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(idea2).To(BeNil())
 }
 

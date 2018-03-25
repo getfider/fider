@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
 )
@@ -182,5 +183,5 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	_, err = services.Users.GetByEmail("jon.stark@got.com")
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 }

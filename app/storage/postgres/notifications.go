@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 // NotificationStorage contains read and write operations for notifications
@@ -50,7 +51,7 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, idea
 		RETURNING id
 	`, s.tenant.ID, user.ID, title, link, false, ideaID, s.user.ID, now)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to insert notification")
 	}
 	return notification, nil
 }
@@ -61,7 +62,7 @@ func (s *NotificationStorage) TotalUnread() (int, error) {
 	if s.user != nil {
 		err := s.trx.Scalar(&total, "SELECT COUNT(*) FROM notifications WHERE tenant_id = $1 AND user_id = $2 AND read = false", s.tenant.ID, s.user.ID)
 		if err != nil {
-			return 0, err
+			return 0, errors.Wrap(err, "failed count total unread notifications")
 		}
 	}
 	return total, nil
@@ -76,7 +77,10 @@ func (s *NotificationStorage) MarkAsRead(id int) error {
 		UPDATE notifications SET read = true, updated_on = $1
 		WHERE id = $2 AND tenant_id = $3 AND user_id = $4 AND read = false
 	`, time.Now(), id, s.tenant.ID, s.user.ID)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to mark notification as read")
+	}
+	return nil
 }
 
 // MarkAllAsRead of current user
@@ -88,7 +92,10 @@ func (s *NotificationStorage) MarkAllAsRead() error {
 		UPDATE notifications SET read = true, updated_on = $1
 		WHERE tenant_id = $2 AND user_id = $3 AND read = false
 	`, time.Now(), s.tenant.ID, s.user.ID)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to mark all notifications as read")
+	}
+	return nil
 }
 
 // GetActiveNotifications returns all unread notifications and last 30 days of read notifications
@@ -101,7 +108,7 @@ func (s *NotificationStorage) GetActiveNotifications() ([]*models.Notification, 
 		AND (read = false OR updated_on > CURRENT_DATE - INTERVAL '30 days')
 	`, s.tenant.ID, s.user.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get active notifications")
 	}
 	return notifications, nil
 }
@@ -115,7 +122,7 @@ func (s *NotificationStorage) GetNotification(id int) (*models.Notification, err
 		WHERE id = $1 AND tenant_id = $2 AND user_id = $3
 	`, id, s.tenant.ID, s.user.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "failed to get notifications with id '%d'", id)
 	}
 	return notification, nil
 }
