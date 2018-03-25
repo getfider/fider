@@ -25,7 +25,7 @@ func New(text string) error {
 
 //Wrap existing error with additional text
 func Wrap(err error, format string, a ...interface{}) error {
-	return wrap(err, format, a)
+	return wrap(err, format, a...)
 }
 
 //Stack add current code location without adding more info
