@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/log"
@@ -50,9 +51,11 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					if err, ok := r.(error); ok {
-						c.Failure(err)
+					err, ok := r.(error)
+					if !ok {
+						err = fmt.Errorf("%v", r)
 					}
+					c.Failure(err)
 					trx.Rollback()
 					c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
 				}
@@ -99,7 +102,6 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 			}
 
 			c.SetActiveTransaction(trx)
-
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
 				OAuth:         &oauth.HTTPService{},
@@ -113,9 +115,11 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					if err, ok := r.(error); ok {
-						c.Failure(err)
+					err, ok := r.(error)
+					if !ok {
+						err = fmt.Errorf("%v", r)
 					}
+					c.Failure(err)
 					c.Rollback()
 					c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
 				}
