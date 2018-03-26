@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
-	"runtime/debug"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/log"
@@ -30,8 +28,13 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 	emailer := app.NewEmailer(logger)
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
+			start := time.Now()
+			c.Logger().Debugf("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
+
 			trx, err := db.Begin()
 			if err != nil {
+				err = c.Failure(err)
+				c.Logger().Debugf("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
 				return err
 			}
 
@@ -44,24 +47,34 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 				Emailer:       emailer,
 			})
 
+			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					err = fmt.Errorf("%v\n%v", r, string(debug.Stack()))
-
-					if trx != nil {
-						trx.Rollback()
+					if err, ok := r.(error); ok {
+						c.Failure(err)
 					}
+					trx.Rollback()
+					c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
 				}
 			}()
 
-			start := time.Now()
-			c.Logger().Debugf("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
+			//Execute the chain
 			if err = next(c); err != nil {
-				panic(err)
+				trx.Rollback()
+				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				return err
 			}
-			trx.Commit()
-			c.Logger().Debugf("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
-			return err
+
+			//No errors, so try to commit it
+			if err = trx.Commit(); err != nil {
+				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
+				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				return err
+			}
+
+			//Still no errors, everything is fine!
+			c.Logger().Debugf("Task '%s' finished in %s (committed)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+			return nil
 		}
 	}
 }
@@ -80,6 +93,8 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 
 			trx, err := db.Begin()
 			if err != nil {
+				err = c.Failure(err)
+				c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
 				return err
 			}
 
@@ -95,25 +110,34 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 				Emailer:       emailer,
 			})
 
+			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					err := fmt.Errorf("%v\n%v", r, string(debug.Stack()))
-					c.Failure(err)
-					c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
+					if err, ok := r.(error); ok {
+						c.Failure(err)
+					}
 					c.Rollback()
+					c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
 				}
 			}()
 
-			if err = next(c); err != nil {
+			//Execute the chain
+			if err := next(c); err != nil {
+				c.Rollback()
+				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
 				return err
 			}
 
-			if err = c.Commit(); err != nil {
+			//No errors, so try to commit it
+			if err := c.Commit(); err != nil {
+				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
+				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
 				return err
 			}
 
-			c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
-			return err
+			//Still no errors, everything is fine!
+			c.Logger().Debugf("%s finished in %s (committed)", path, log.Magenta(time.Since(start).String()))
+			return nil
 		}
 	}
 }

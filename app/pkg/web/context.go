@@ -179,11 +179,11 @@ func (ctx *Context) NotFound() error {
 
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
+	err = errors.StackN(err, 1)
 	if errors.Cause(err) == app.ErrNotFound {
 		return ctx.NotFound()
 	}
 
-	url := ctx.BaseURL() + ctx.Request.RequestURI
 	tenant := "undefined"
 	if ctx.Tenant() != nil {
 		tenant = fmt.Sprintf("%s (%d)", ctx.Tenant().Name, ctx.Tenant().ID)
@@ -194,6 +194,7 @@ func (ctx *Context) Failure(err error) error {
 		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
 	}
 
+	url := ctx.BaseURL() + ctx.Request.RequestURI
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
