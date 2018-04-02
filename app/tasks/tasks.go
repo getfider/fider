@@ -67,21 +67,21 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		// Web notification
 		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		title := fmt.Sprintf("New idea: **%s**", idea.Title)
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
-				return err
+				return c.Failure(err)
 			}
 		}
 
 		// Email notification
 		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		to := make([]email.Recipient, 0)
@@ -108,21 +108,21 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 		// Web notification
 		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, idea.Title)
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
-				return err
+				return c.Failure(err)
 			}
 		}
 
 		// Email notification
 		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		to := make([]email.Recipient, 0)
@@ -155,28 +155,28 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		// Web notification
 		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(response.Status))
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
-				return err
+				return c.Failure(err)
 			}
 		}
 
 		// Email notification
 		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
-			return err
+			return c.Failure(err)
 		}
 
 		var duplicate template.HTML
 		if response.Status == models.IdeaDuplicate {
 			originalIdea, err := c.Services().Ideas.GetByNumber(response.OriginalNumber)
 			if err != nil {
-				return err
+				return c.Failure(err)
 			}
 			duplicate = linkWithText(originalIdea.Title, c.BaseURL(), "/ideas/%d/%s", originalIdea.Number, originalIdea.Slug)
 		}

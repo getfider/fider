@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/oauth"
 	. "github.com/onsi/gomega"
 )
@@ -73,7 +74,7 @@ func TestUserStorage_GetByProvider_WrongTenant(t *testing.T) {
 	users.SetCurrentTenant(avengersTenant)
 	user, err := users.GetByProvider("facebook", "FB1234")
 	Expect(user).To(BeNil())
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 }
 
 func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
@@ -234,7 +235,7 @@ func TestUserStorage_ChangeEmail(t *testing.T) {
 	Expect(user.Email).To(Equal("jon.stark@got.com"))
 
 	user, err = users.GetByEmail("jon.snow@got.com")
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(user).To(BeNil())
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	. "github.com/onsi/gomega"
@@ -124,7 +125,7 @@ func TestEditExistingTagHandler(t *testing.T) {
 	Expect(status).To(Equal(http.StatusOK))
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(tag).To(BeNil())
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 
 	tag, err = services.Tags.GetBySlug("feature-request")
 	Expect(tag).ToNot(BeNil())
@@ -156,7 +157,7 @@ func TestDeleteExistingTagHandler(t *testing.T) {
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(tag).To(BeNil())
 }
 

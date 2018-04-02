@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
@@ -63,11 +64,11 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			users := c.Services().Users
 
 			user, err := users.GetByProvider(provider, oauthUser.ID.String())
-			if err == app.ErrNotFound && oauthUser.Email != "" {
+			if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
 				user, err = users.GetByEmail(oauthUser.Email)
 			}
 			if err != nil {
-				if err == app.ErrNotFound {
+				if errors.Cause(err) == app.ErrNotFound {
 					user = &models.User{
 						Name:   oauthUser.Name,
 						Tenant: tenant,
@@ -178,7 +179,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 		} else if kind == models.EmailVerificationKindSignIn {
 			user, err = c.Services().Users.GetByEmail(result.Email)
 			if err != nil {
-				if err == app.ErrNotFound {
+				if errors.Cause(err) == app.ErrNotFound {
 					// This will render a page for /signin/verify URL using same variables as home page
 					return Index()(c)
 				}
@@ -211,7 +212,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 		}
 
 		_, err := c.Services().Users.GetByEmail(input.Model.Email)
-		if err != app.ErrNotFound {
+		if errors.Cause(err) != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}
 

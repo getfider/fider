@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -42,7 +43,7 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 
 	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
 	if err != nil {
-		if err == app.ErrNotFound {
+		if errors.Cause(err) == app.ErrNotFound {
 			return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 		return nil, c.Failure(err)

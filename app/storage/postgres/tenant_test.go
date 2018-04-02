@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 
 	"github.com/getfider/fider/app"
 	. "github.com/onsi/gomega"
@@ -63,7 +64,7 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 	trx.Execute("TRUNCATE tenants CASCADE")
 
 	tenant, err := tenants.First()
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(tenant).To(BeNil())
 }
 
@@ -180,7 +181,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 
 	//Wrong kind should not find it
 	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "s3cr3tk3y")
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(result).To(BeNil())
 }
 
@@ -221,6 +222,6 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 
 	//Find and check values
 	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "blahblahblah")
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(result).To(BeNil())
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/errors"
 
 	. "github.com/onsi/gomega"
 )
@@ -139,6 +140,6 @@ func TestNotificationStorage_GetNotificationById_OtherUser(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	not1, err = notifications.GetNotification(not1.ID)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(not1).To(BeNil())
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -17,7 +18,7 @@ func JwtGetter() web.MiddlewareFunc {
 
 			cookie, err := c.Cookie(web.CookieAuthName)
 			if err != nil {
-				if err == http.ErrNoCookie {
+				if errors.Cause(err) == http.ErrNoCookie {
 					return next(c)
 				}
 				return err
@@ -31,7 +32,7 @@ func JwtGetter() web.MiddlewareFunc {
 
 			user, err := c.Services().Users.GetByID(claims.UserID)
 			if err != nil {
-				if err == app.ErrNotFound {
+				if errors.Cause(err) == app.ErrNotFound {
 					c.RemoveCookie(web.CookieAuthName)
 					return next(c)
 				}

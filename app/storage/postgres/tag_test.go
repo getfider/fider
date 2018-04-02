@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/errors"
 	. "github.com/onsi/gomega"
 )
 
@@ -56,7 +57,7 @@ func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 
 	dbTag, err := tags.GetBySlug("bug")
 
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(dbTag).To(BeNil())
 }
 

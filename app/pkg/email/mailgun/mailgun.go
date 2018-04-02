@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -73,7 +74,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 	if isBatch {
 		json, err := json.Marshal(recipientVariables)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to marshal recipient variables")
 		}
 
 		form.Add("recipient-variables", string(json))
@@ -88,7 +89,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 	url := fmt.Sprintf(baseURL, s.domain)
 	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create POST request")
 	}
 
 	request.SetBasicAuth("api", s.apiKey)
@@ -96,8 +97,7 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		s.logger.Errorf("Failed to send email")
-		return err
+		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
 
 	defer resp.Body.Close()

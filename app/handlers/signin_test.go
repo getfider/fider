@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/oauth"
@@ -153,7 +154,7 @@ func TestCallbackHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	_, err := services.Users.GetByID(4)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiIifQ.DBcMmKSrGxiXGVCq9QT716xfw3M4kzP-Njazsk6vaFI"))

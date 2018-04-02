@@ -1,8 +1,11 @@
 package worker
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -81,4 +84,23 @@ func (c *Context) Services() *app.Services {
 //Logger from current context
 func (c *Context) Logger() log.Logger {
 	return c.logger
+}
+
+//Failure logs details of error
+func (c *Context) Failure(err error) error {
+	err = errors.StackN(err, 1)
+
+	tenant := "undefined"
+	if c.Tenant() != nil {
+		tenant = fmt.Sprintf("%s (%d)", c.Tenant().Name, c.Tenant().ID)
+	}
+
+	user := "not signed in"
+	if c.User() != nil {
+		user = fmt.Sprintf("%s (%d)", c.User().Name, c.User().ID)
+	}
+
+	message := fmt.Sprintf("Task: %s\nTenant: %s\nUser: %s\n%s", c.taskName, tenant, user, err.Error())
+	c.logger.Errorf(log.Red(message))
+	return err
 }

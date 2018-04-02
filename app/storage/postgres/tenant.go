@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbTenant struct {
@@ -111,7 +112,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 
 	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants ORDER BY id LIMIT 1")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
 
 	return tenant.toModel(), nil
@@ -123,7 +124,7 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
 
 	return tenant.toModel(), nil
@@ -133,26 +134,38 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
 	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed update tenant settings")
+	}
+	return nil
 }
 
 // IsSubdomainAvailable returns true if subdomain is available to use
 func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
-	return !exists, err
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check if tenant exists with subdomain '%s'", subdomain)
+	}
+	return !exists, nil
 }
 
 // IsCNAMEAvailable returns true if cname is available to use
 func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", cname, s.current.ID)
-	return !exists, err
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check if tenant exists with CNAME '%s'", cname)
+	}
+	return !exists, nil
 }
 
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"
 	_, err := s.trx.Execute(query, models.TenantActive, id)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to activate tenant with id '%d'", id)
+	}
+	return nil
 }
 
 // SaveVerificationKey used by email verification process
@@ -161,9 +174,13 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 	if request.GetUser() != nil {
 		userID = request.GetUser().ID
 	}
+
 	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
 	_, err := s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to save verification key for kind '%d'", request.GetKind())
+	}
+	return nil
 }
 
 // FindVerificationByKey based on current tenant
@@ -173,7 +190,7 @@ func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind,
 	query := "SELECT id, email, name, key, created_on, verified_on, expires_on, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
 	err := s.trx.Get(&verification, query, key, kind)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get email verification by its key")
 	}
 
 	return verification.toModel(), nil
@@ -183,7 +200,10 @@ func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind,
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
 	_, err := s.trx.Execute(query, time.Now(), s.current.ID, key)
-	return err
+	if err != nil {
+		return errors.Wrap(err, "failed to update verified date of email verification request")
+	}
+	return nil
 }
 
 func extractSubdomain(hostname string) string {
