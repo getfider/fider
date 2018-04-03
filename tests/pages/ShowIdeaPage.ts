@@ -1,49 +1,34 @@
-import { WebComponent, TextInput, Button, DropDownList, Browser, Page, findBy, findMultipleBy, elementIsVisible } from '../lib';
-import { CommentList } from '../components/CommentList';
+import {
+  WebComponent,
+  TextInput,
+  Button,
+  DropDownList,
+  Browser,
+  Page,
+  findBy,
+  findMultipleBy,
+  elementIsVisible
+} from "../lib";
+import { CommentList } from "../components/CommentList";
 
 export class ShowIdeaPage extends Page {
   constructor(browser: Browser) {
     super(browser);
   }
 
-  @findBy('.idea-header .header')
-  public Title!: WebComponent;
-
-  @findBy('.description')
-  public Description!: WebComponent;
-
-  @findBy('.fdr-response .ui.label')
-  public Status!: WebComponent;
-
-  @findBy('.fdr-response .content')
-  public ResponseText!: WebComponent;
-
-  @findBy('.c-support-counter button')
-  public SupportCounter!: WebComponent;
-
-  @findBy('.comment-input textarea')
-  public CommentInput!: TextInput;
-
-  @findBy('.comment-input button')
-  public SubmitCommentButton!: Button;
-
-  @findMultipleBy('.ui.comments > .comment')
-  public CommentList!: CommentList;
-
-  @findBy('.action-col button.respond')
-  public RespondButton!: Button;
-
-  @findBy('.c-modal__window .fdr-response-form')
-  public ResponseModal!: WebComponent;
-
-  @findBy('.c-modal__window .fdr-response-form select')
-  private ResponseModalStatus!: DropDownList;
-
-  @findBy('.c-modal__window .fdr-response-form textarea')
-  private ResponseModalText!: TextInput;
-
-  @findBy('.c-modal__window .c-modal__footer button.green')
-  private ResponseModalSubmitButton!: Button;
+  @findBy(".idea-header .header") public Title!: WebComponent;
+  @findBy(".description") public Description!: WebComponent;
+  @findBy(".fdr-response .ui.label") public Status!: WebComponent;
+  @findBy(".fdr-response .content") public ResponseText!: WebComponent;
+  @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
+  @findBy(".comment-input textarea") public CommentInput!: TextInput;
+  @findBy(".comment-input button") public SubmitCommentButton!: Button;
+  @findMultipleBy(".ui.comments > .comment") public CommentList!: CommentList;
+  @findBy(".action-col button.respond") public RespondButton!: Button;
+  @findBy(".c-modal__window .fdr-response-form") public ResponseModal!: WebComponent;
+  @findBy(".c-modal__window .fdr-response-form select") private ResponseModalStatus!: DropDownList;
+  @findBy(".c-modal__window .fdr-response-form textarea") private ResponseModalText!: TextInput;
+  @findBy(".c-modal__window .c-modal__footer button.green") private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.Title);

@@ -1,11 +1,15 @@
-import 'chromedriver';
-import { Builder, ThenableWebDriver, WebElement, Capabilities, By, WebElementPromise } from 'selenium-webdriver';
-import { Page, NewablePage, WebComponent, WaitCondition, timeout } from './';
+import "chromedriver";
+import { Builder, ThenableWebDriver, WebElement, Capabilities, By, WebElementPromise } from "selenium-webdriver";
+import { Page, NewablePage, WebComponent, WaitCondition, timeout } from "./";
 
 export class Browser {
   private driver: ThenableWebDriver;
   public constructor(private browserName: string) {
-    this.driver = new Builder().forBrowser('chrome').build();
+    this.driver = new Builder().forBrowser("chrome").build();
+    this.driver
+      .manage()
+      .timeouts()
+      .implicitlyWait(2000);
   }
 
   public async navigate(url: string): Promise<void> {
@@ -31,7 +35,7 @@ export class Browser {
   }
 
   public async switchTo(element: string | WebElement): Promise<void> {
-    if (typeof element === 'string') {
+    if (typeof element === "string") {
       await this.driver.switchTo().frame(this.findElement(element));
     } else {
       return await this.driver.switchTo().frame(element);
@@ -43,12 +47,12 @@ export class Browser {
   }
 
   public async waitAny(conditions: WaitCondition | WaitCondition[]): Promise<void> {
-    const all = (!(conditions instanceof Array)) ? [ conditions ] : conditions;
+    const all = !(conditions instanceof Array) ? [conditions] : conditions;
 
     await this.driver.wait(async () => {
       for (const condition of all) {
         try {
-          if (await condition(this) === true) {
+          if ((await condition(this)) === true) {
             return true;
           }
           continue;
