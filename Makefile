@@ -7,10 +7,10 @@ build:
 	npx webpack -p
 
 lint: 
-	npx tslint -c tslint.json 'public/**/*.{ts,tsx}'
+	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
 
 lint-fix: 
-	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' --fix
+	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}' --fix
 
 # Testing
 test:

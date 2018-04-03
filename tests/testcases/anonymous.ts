@@ -1,7 +1,7 @@
-import { ensure, elementIsVisible } from '../lib';
-import { pages, browser } from '../context';
+import { ensure, elementIsVisible } from "../lib";
+import { pages, browser } from "../context";
 
-it('Cannot submit ideas', async () => {
+it("Cannot submit ideas", async () => {
   // Action
   await pages.home.navigate();
   await pages.home.IdeaTitle.click();
@@ -10,7 +10,7 @@ it('Cannot submit ideas', async () => {
   await browser.wait(elementIsVisible(() => pages.home.SignInModal));
 });
 
-it('Cannot see actions or comment on an idea', async () => {
+it("Cannot see actions or comment on an idea", async () => {
   // Action & Assert
   await pages.home.navigate();
   await pages.home.IdeaList.navigateAndWait(0, pages.showIdea.loadCondition());

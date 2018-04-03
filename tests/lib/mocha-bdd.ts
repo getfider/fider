@@ -1,4 +1,4 @@
-import { ISuiteCallbackContext } from 'mocha';
+import { ISuiteCallbackContext } from "mocha";
 
 export const specification = (name: string, callback: (this: ISuiteCallbackContext) => void) => {
   return describe(`Specification: ${name}`, callback);

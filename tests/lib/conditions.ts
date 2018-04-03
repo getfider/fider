@@ -1,4 +1,4 @@
-import { Browser, WebComponent, NewablePage, Page } from './';
+import { Browser, WebComponent, NewablePage, Page } from "./";
 
 export type WaitCondition = (browser: Browser) => Promise<boolean>;
 
@@ -7,11 +7,11 @@ export function elementIsVisible(locator: () => WebComponent): WaitCondition {
 }
 
 export function elementIsNotVisible(locator: () => WebComponent): WaitCondition {
-  return async () => await locator().isDisplayed() === false;
+  return async () => (await locator().isDisplayed()) === false;
 }
 
 export function elementIsPresent(locator: () => WebComponent): WaitCondition {
-  return async () => await locator() !== undefined;
+  return async () => (await locator()) !== undefined;
 }
 
 export function pageHasLoaded<T extends Page>(page: NewablePage<T>): WaitCondition {

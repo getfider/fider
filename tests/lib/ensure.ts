@@ -1,5 +1,5 @@
-import { WebElementPromise } from 'selenium-webdriver';
-import { WebComponent, Button, TextInput, delay } from './';
+import { WebElementPromise } from "selenium-webdriver";
+import { WebComponent, Button, TextInput, delay } from "./";
 
 class WebComponentEnsurer {
   public async retry(fn: () => Promise<void>) {
@@ -17,8 +17,7 @@ class WebComponentEnsurer {
     throw lastErr;
   }
 
-  constructor(private component: WebComponent) {
-  }
+  constructor(private component: WebComponent) {}
 
   public async textIs(expected: string) {
     await this.retry(async () => {
@@ -35,7 +34,9 @@ class WebComponentEnsurer {
       const value = await this.component.getAttribute(attrName);
 
       if (value.trim() !== expected.trim()) {
-        throw new Error(`Element ${this.component.selector} attribute '${attrName}' is '${value}'. Expected value is '${expected}'`);
+        throw new Error(
+          `Element ${this.component.selector} attribute '${attrName}' is '${value}'. Expected value is '${expected}'`
+        );
       }
     });
   }
@@ -83,9 +84,9 @@ export function ensure(component: Button): ButtonEnsurer;
 export function ensure(component: TextInput): TextInputEnsurer;
 export function ensure(component: WebComponent): WebComponentEnsurer;
 export function ensure(component: WebComponent | Button): any {
-    if (component instanceof Button) {
-        return new ButtonEnsurer(component);
-    } else if (component instanceof WebComponent) {
-        return new WebComponentEnsurer(component);
-    }
+  if (component instanceof Button) {
+    return new ButtonEnsurer(component);
+  } else if (component instanceof WebComponent) {
+    return new WebComponentEnsurer(component);
+  }
 }

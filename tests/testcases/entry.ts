@@ -1,8 +1,8 @@
-import { Browser } from '../lib';
-import { setPages, setBrowser, setTenant } from '../context';
-import { AllPages } from '../pages';
+import { Browser } from "../lib";
+import { setPages, setBrowser, setTenant } from "../context";
+import { AllPages } from "../pages";
 
-describe('Using Fider', () => {
+describe("Using Fider", () => {
   let browser: Browser;
   let pages: AllPages;
 
@@ -12,7 +12,7 @@ describe('Using Fider', () => {
     const tenantSubdomain = `selenium${now}`;
     setTenant(tenantSubdomain);
 
-    browser = new Browser('chrome');
+    browser = new Browser("chrome");
     pages = new AllPages(browser);
 
     setBrowser(browser);
@@ -29,20 +29,19 @@ describe('Using Fider', () => {
     await pages.dispose();
   });
 
-  describe('As an Admin', () => {
-    require('./admin');
+  describe("As an Admin", () => {
+    require("./admin");
   });
 
-  describe('As an anonymous user', () => {
+  describe("As an anonymous user", () => {
     before(async () => {
       await pages.home.navigate();
       await pages.home.signOut();
     });
-    require('./anonymous');
+    require("./anonymous");
   });
 
-  describe('Alternative sign in', () => {
-    require('./signin');
+  describe("Alternative sign in", () => {
+    require("./signin");
   });
-
 });
