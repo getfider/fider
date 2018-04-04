@@ -16,6 +16,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
 
+	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
 	assets := r.Group()
