@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"runtime"
 	"time"
 
@@ -44,23 +43,23 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
-			return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+			return nil, c.NotFound()
 		}
 		return nil, c.Failure(err)
 	}
 
-	//If key has been used, just go back to home page
+	//If key has been used, return Gone
 	if result.VerifiedOn != nil {
-		return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		return nil, c.Gone()
 	}
 
-	//If key expired, go back to home page
+	//If key expired, render the expired page
 	if time.Now().After(result.ExpiresOn) {
 		err = c.Services().Tenants.SetKeyAsVerified(key)
 		if err != nil {
 			return nil, c.Failure(err)
 		}
-		return nil, c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		return nil, c.Gone()
 	}
 
 	return result, nil

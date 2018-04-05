@@ -1,0 +1,19 @@
+{{define "title"}}
+  Expired &middot; Fider
+{{end}}
+        
+{{define "javascript"}}{{end}}
+
+{{define "content"}}
+  <div class="ui middle aligned center aligned grid failure-page">
+    <div class="column">
+      <img src="https://getfider.com/images/logo-100x100.png"/>
+      <h1>EXPIRED</h1>
+      <p>The link you clicked has expired.</p>
+
+      {{ if .tenant }}
+        <span>Take me back to <a href="{{ .baseURL }}">{{ .tenant.Subdomain }}.fider.io</a> home page.</span>
+      {{ end }}
+    </div>
+  </div>
+{{end}}
