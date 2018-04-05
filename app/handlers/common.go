@@ -40,6 +40,7 @@ func Page() web.HandlerFunc {
 func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.EmailVerification, error) {
 	key := c.QueryParam("k")
 
+	//If key has been used, return NotFound
 	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
@@ -53,7 +54,7 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 		return nil, c.Gone()
 	}
 
-	//If key expired, render the expired page
+	//If key expired, return Gone
 	if time.Now().After(result.ExpiresOn) {
 		err = c.Services().Tenants.SetKeyAsVerified(key)
 		if err != nil {
