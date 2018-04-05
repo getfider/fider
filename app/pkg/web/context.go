@@ -177,6 +177,11 @@ func (ctx *Context) NotFound() error {
 	return ctx.Render(http.StatusNotFound, "404.html", Map{})
 }
 
+//Gone returns a 410 page
+func (ctx *Context) Gone() error {
+	return ctx.Render(http.StatusGone, "410.html", Map{})
+}
+
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)

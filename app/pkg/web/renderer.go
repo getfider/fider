@@ -34,6 +34,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 	r.add("index.html")
 	r.add("403.html")
 	r.add("404.html")
+	r.add("410.html")
 	r.add("500.html")
 
 	r.jsBundle = r.getBundle("/dist/js")
