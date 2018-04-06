@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { Idea, Comment, CurrentUser } from '@fider/models';
-import { Failure, actions, formatDate } from '@fider/services';
-import { DisplayError, Textarea, Button, UserName, Gravatar, Moment, MultiLineText } from '@fider/components/common';
+import * as React from "react";
+import { Idea, Comment, CurrentUser } from "@fider/models";
+import { Failure, actions, formatDate } from "@fider/services";
+import { DisplayError, Textarea, Button, UserName, Gravatar, Moment, MultiLineText } from "@fider/components/common";
 
 interface CommentListProps {
   idea: Idea;
@@ -21,7 +21,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
   constructor(props: CommentListProps) {
     super(props);
     this.state = {
-      editCommentNewContent: '',
+      editCommentNewContent: ""
     };
   }
 
@@ -29,7 +29,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
     this.setState({
       editingComment: comment,
       editCommentNewContent: comment.content,
-      error: undefined,
+      error: undefined
     });
 
     if (this.props.onStartEdit) {
@@ -40,8 +40,8 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
   private async cancelEdit(): Promise<void> {
     this.setState({
       editingComment: undefined,
-      editCommentNewContent: '',
-      error: undefined,
+      editCommentNewContent: "",
+      error: undefined
     });
 
     if (this.props.onStopEdit) {
@@ -51,7 +51,11 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
 
   private async confirmEdit(): Promise<void> {
     if (this.state.editingComment) {
-      const response = await actions.updateComment(this.props.idea.number, this.state.editingComment.id, this.state.editCommentNewContent);
+      const response = await actions.updateComment(
+        this.props.idea.number,
+        this.state.editingComment.id,
+        this.state.editCommentNewContent
+      );
       if (response.ok) {
         this.state.editingComment.content = this.state.editCommentNewContent;
         this.state.editingComment.editedOn = new Date().toISOString();
@@ -71,7 +75,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
   }
 
   public render() {
-    return this.props.comments.map((c) => {
+    return this.props.comments.map(c => {
       return (
         <div key={c.id} className="comment">
           <Gravatar user={c.user} />
@@ -80,30 +84,49 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
             <div className="metadata">
               · <Moment date={c.createdOn} />
             </div>
-            { !!c.editedOn && !!c.editedBy && <div className="metadata">
-              · <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedOn)}`}>edited</span>
-            </div> }
-            { this.canEditComment(c) && <div className="metadata">
-              · <Button simple={true} size="small" onClick={() => this.startEdit(c)}>edit</Button>
-            </div> }
+            {!!c.editedOn &&
+              !!c.editedBy && (
+                <div className="metadata">
+                  ·{" "}
+                  <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedOn)}`}>
+                    edited
+                  </span>
+                </div>
+              )}
+            {this.canEditComment(c) && (
+              <div className="metadata">
+                ·{" "}
+                <Button simple={true} size="small" onClick={() => this.startEdit(c)}>
+                  edit
+                </Button>
+              </div>
+            )}
             <div className="text">
-              {
-                c === this.state.editingComment
-                ? <div className="ui form">
-                    <DisplayError error={this.state.error} />
-                    <div className="field">
-                      <Textarea
-                        rows={1}
-                        defaultValue={c.content}
-                        placeholder={c.content}
-                        onChange={(e) => this.setState({ editCommentNewContent: e.currentTarget.value })}
-                      />
-                    </div>
-                    <Button size="tiny" onClick={() => this.confirmEdit()} color="green">Save</Button>
-                    <Button size="tiny" onClick={() => this.cancelEdit()}>Cancel</Button>
+              {c === this.state.editingComment ? (
+                <div className="ui form">
+                  <DisplayError error={this.state.error} />
+                  <div className="field">
+                    <Textarea
+                      rows={1}
+                      defaultValue={c.content}
+                      placeholder={c.content}
+                      onChange={e =>
+                        this.setState({
+                          editCommentNewContent: e.currentTarget.value
+                        })
+                      }
+                    />
                   </div>
-                : <MultiLineText text={c.content} style="simple" />
-              }
+                  <Button size="tiny" onClick={() => this.confirmEdit()} color="green">
+                    Save
+                  </Button>
+                  <Button size="tiny" onClick={() => this.cancelEdit()}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
+                <MultiLineText text={c.content} style="simple" />
+              )}
             </div>
           </div>
         </div>

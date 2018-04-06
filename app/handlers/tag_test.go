@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	. "github.com/onsi/gomega"
@@ -124,7 +125,7 @@ func TestEditExistingTagHandler(t *testing.T) {
 	Expect(status).To(Equal(http.StatusOK))
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(tag).To(BeNil())
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 
 	tag, err = services.Tags.GetBySlug("feature-request")
 	Expect(tag).ToNot(BeNil())
@@ -156,7 +157,7 @@ func TestDeleteExistingTagHandler(t *testing.T) {
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(tag).To(BeNil())
 }
 
@@ -182,8 +183,10 @@ func TestAssignTagHandler_Success(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
@@ -191,7 +194,7 @@ func TestAssignTagHandler_Success(t *testing.T) {
 		AddParam("number", idea.Number).
 		Execute(handlers.AssignTag())
 
-	tags, err := services.Tags.GetAssigned(idea.ID)
+	tags, err := services.Tags.GetAssigned(idea)
 	Expect(status).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(tags[0]).To(Equal(tag))
@@ -221,8 +224,10 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 
 	for _, handler := range testCases {
 		server, services := mock.NewServer()
+		services.SetCurrentTenant(mock.DemoTenant)
+		services.SetCurrentUser(mock.JonSnow)
 		tag, _ := services.Tags.Add("Bug", "0000FF", true)
-		idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
+		idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
 
 		status, _ := server.
 			AsUser(mock.AryaStark).
@@ -238,9 +243,11 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description", mock.JonSnow.ID)
-	services.Tags.AssignTag(tag.ID, idea.ID, mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
+	services.Tags.AssignTag(tag, idea)
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
@@ -248,7 +255,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 		AddParam("number", idea.Number).
 		Execute(handlers.UnassignTag())
 
-	tags, err := services.Tags.GetAssigned(idea.ID)
+	tags, err := services.Tags.GetAssigned(idea)
 	Expect(status).To(Equal(http.StatusOK))
 	Expect(err).To(BeNil())
 	Expect(len(tags)).To(Equal(0))

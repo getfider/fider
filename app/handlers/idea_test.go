@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
 )
@@ -26,7 +27,9 @@ func TestDetailsHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My Idea", "My Idea Description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("My Idea", "My Idea Description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -84,7 +87,9 @@ func TestUpdateIdeaHandler_TenantStaff(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("My First Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -102,7 +107,9 @@ func TestUpdateIdeaHandler_NonAuthorized(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("My First Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -117,7 +124,9 @@ func TestUpdateIdeaHandler_InvalidTitle(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("My First Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -146,8 +155,10 @@ func TestUpdateIdeaHandler_DuplicateTitle(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea1, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
-	services.Ideas.Add("My Second Idea", "With a description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea1, _ := services.Ideas.Add("My First Idea", "With a description")
+	services.Ideas.Add("My Second Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -162,7 +173,9 @@ func TestPostCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("My First Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -177,7 +190,9 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("My First Idea", "With a description", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("My First Idea", "With a description")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -192,8 +207,10 @@ func TestAddSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	first, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
-	second, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.JonSnow.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	first, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	second, _ := services.Ideas.Add("The Idea #2", "The Description #2")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -226,9 +243,11 @@ func TestRemoveSupporterHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
-	services.Ideas.AddSupporter(idea.Number, mock.JonSnow.ID)
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	services.Ideas.AddSupporter(idea, mock.JonSnow)
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -246,8 +265,10 @@ func TestSetResponseHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -267,8 +288,10 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
-	services.Ideas.AddSupporter(idea.Number, mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	services.Ideas.AddSupporter(idea, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -286,8 +309,10 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
-	idea2, _ := services.Ideas.Add("The Idea #2", "The Description #2", mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	idea2, _ := services.Ideas.Add("The Idea #2", "The Description #2")
 
 	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.IdeaDuplicate, idea2.Number)
 	code, _ := server.
@@ -308,7 +333,9 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea1, _ := services.Ideas.Add("The Idea #1", "The Description #1")
 
 	body := fmt.Sprintf(`{ "status": %d, "originalNumber": 9999 }`, models.IdeaDuplicate)
 	code, _ := server.
@@ -324,7 +351,9 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
 
 	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.IdeaDuplicate, idea.Number)
 	code, _ := server.
@@ -340,7 +369,9 @@ func TestAddCommentHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, services := mock.NewServer()
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -349,7 +380,7 @@ func TestAddCommentHandler(t *testing.T) {
 		ExecutePost(handlers.PostComment(), `{ "content": "My first comment" }`)
 
 	Expect(code).To(Equal(http.StatusOK))
-	comments, _ := services.Ideas.GetCommentsByIdea(idea.Number)
+	comments, _ := services.Ideas.GetCommentsByIdea(idea)
 	Expect(comments).To(HaveLen(1))
 }
 
@@ -359,8 +390,8 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.AryaStark.ID)
-	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment", mock.AryaStark.ID)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	commentId, _ := services.Ideas.AddComment(idea, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -380,8 +411,8 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
-	commentId, _ := services.Ideas.AddComment(idea.Number, "My first comment", mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
+	commentId, _ := services.Ideas.AddComment(idea, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -401,7 +432,7 @@ func TestDeleteIdeaHandler_Authorized(t *testing.T) {
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
-	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1", mock.JonSnow.ID)
+	idea, _ := services.Ideas.Add("The Idea #1", "The Description #1")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -412,5 +443,5 @@ func TestDeleteIdeaHandler_Authorized(t *testing.T) {
 	Expect(code).To(Equal(http.StatusOK))
 	idea, err := services.Ideas.GetByNumber(idea.Number)
 	Expect(idea).To(BeNil())
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 }

@@ -1,12 +1,12 @@
-import { ensure, elementIsVisible, mailgun, Browser } from '../lib';
-import { AllPages } from '../pages';
+import { ensure, elementIsVisible, mailgun, Browser } from "../lib";
+import { AllPages } from "../pages";
 
-describe('Sign up by email', () => {
+describe("Sign up by email", () => {
   let browser: Browser;
   let pages: AllPages;
 
   before(async () => {
-    browser = new Browser('chrome');
+    browser = new Browser("chrome");
     pages = new AllPages(browser);
   });
 
@@ -14,7 +14,7 @@ describe('Sign up by email', () => {
     await pages.dispose();
   });
 
-  it('User can sign up using email', async () => {
+  it("User can sign up using email", async () => {
     const now = new Date().getTime();
 
     // Action

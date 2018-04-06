@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	. "github.com/onsi/gomega"
@@ -135,6 +136,6 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(tenant.Status).To(Equal(models.TenantInactive))
 
 	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(user).To(BeNil())
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -98,7 +99,7 @@ func SignUp() web.HandlerFunc {
 	return func(c web.Context) error {
 		if env.IsSingleHostMode() {
 			tenant, err := c.Services().Tenants.First()
-			if err != nil && err != app.ErrNotFound {
+			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 

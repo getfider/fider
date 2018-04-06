@@ -58,13 +58,13 @@ func (s *TagStorage) GetBySlug(slug string) (*models.Tag, error) {
 }
 
 // Update a tag with given input
-func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*models.Tag, error) {
-	for _, tag := range s.tags {
-		if tag.ID == tagID {
-			tag.Name = name
-			tag.Slug = slug.Make(name)
-			tag.Color = color
-			tag.IsPublic = isPublic
+func (s *TagStorage) Update(tag *models.Tag, name, color string, isPublic bool) (*models.Tag, error) {
+	for _, storedTag := range s.tags {
+		if storedTag.ID == tag.ID {
+			storedTag.Name = name
+			storedTag.Slug = slug.Make(name)
+			storedTag.Color = color
+			storedTag.IsPublic = isPublic
 			return tag, nil
 		}
 	}
@@ -72,9 +72,9 @@ func (s *TagStorage) Update(tagID int, name, color string, isPublic bool) (*mode
 }
 
 // Delete a tag by its id
-func (s *TagStorage) Delete(tagID int) error {
-	for i, tag := range s.tags {
-		if tag.ID == tagID {
+func (s *TagStorage) Delete(tag *models.Tag) error {
+	for i, storedTag := range s.tags {
+		if storedTag.ID == tag.ID {
 			s.tags = append(s.tags[:i], s.tags[i+1:]...)
 			break
 		}
@@ -83,39 +83,27 @@ func (s *TagStorage) Delete(tagID int) error {
 }
 
 // AssignTag adds a tag to an idea
-func (s *TagStorage) AssignTag(tagID, ideaID, userID int) error {
-	var tagToAssign *models.Tag
-	for _, tag := range s.tags {
-		if tag.ID == tagID {
-			tagToAssign = tag
-			break
-		}
-	}
-
-	if tagToAssign == nil {
-		return app.ErrNotFound
-	}
-
-	assigned := s.assigned[ideaID]
+func (s *TagStorage) AssignTag(tag *models.Tag, idea *models.Idea) error {
+	assigned := s.assigned[idea.ID]
 	if assigned != nil {
-		for _, tag := range assigned {
-			if tag.ID == tagID {
+		for _, assignedTag := range assigned {
+			if assignedTag.ID == tag.ID {
 				return nil
 			}
 		}
 	}
 
-	s.assigned[ideaID] = append(s.assigned[ideaID], tagToAssign)
+	s.assigned[idea.ID] = append(s.assigned[idea.ID], tag)
 	return nil
 }
 
 // UnassignTag removes a tag from an idea
-func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
-	assigned := s.assigned[ideaID]
+func (s *TagStorage) UnassignTag(tag *models.Tag, idea *models.Idea) error {
+	assigned := s.assigned[idea.ID]
 	if assigned != nil {
-		for i, tag := range assigned {
-			if tag.ID == tagID {
-				s.assigned[ideaID] = append(s.assigned[ideaID][:i], s.assigned[ideaID][i+1:]...)
+		for i, assignedTag := range assigned {
+			if assignedTag.ID == tag.ID {
+				s.assigned[idea.ID] = append(s.assigned[idea.ID][:i], s.assigned[idea.ID][i+1:]...)
 				return nil
 			}
 		}
@@ -124,8 +112,8 @@ func (s *TagStorage) UnassignTag(tagID, ideaID int) error {
 }
 
 // GetAssigned returns all tags assigned to given idea
-func (s *TagStorage) GetAssigned(ideaID int) ([]*models.Tag, error) {
-	assigned := s.assigned[ideaID]
+func (s *TagStorage) GetAssigned(idea *models.Idea) ([]*models.Tag, error) {
+	assigned := s.assigned[idea.ID]
 	if assigned != nil {
 		return assigned, nil
 	}

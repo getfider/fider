@@ -8,6 +8,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -25,7 +26,7 @@ func SingleTenant() web.MiddlewareFunc {
 		return func(c web.Context) error {
 			tenant, err := c.Services().Tenants.First()
 			if err != nil {
-				if err == app.ErrNotFound {
+				if errors.Cause(err) == app.ErrNotFound {
 					return c.Redirect(http.StatusTemporaryRedirect, "/signup")
 				}
 				return c.Failure(err)
@@ -47,7 +48,7 @@ func MultiTenant() web.MiddlewareFunc {
 			// This is only vadid for fider.io hosting
 			if (env.IsProduction() && hostname == "fider.io") ||
 				(env.IsDevelopment() && hostname == "dev.fider.io") {
-				return c.Redirect(http.StatusTemporaryRedirect, "http://getfider.com")
+				return c.Redirect(http.StatusTemporaryRedirect, "https://getfider.com")
 			}
 
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)
@@ -56,7 +57,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return next(c)
 			}
 
-			if err == app.ErrNotFound {
+			if errors.Cause(err) == app.ErrNotFound {
 				c.Logger().Debugf("Tenant not found for '%s'.", hostname)
 				return c.NotFound()
 			}

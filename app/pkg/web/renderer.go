@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/oauth"
 )
@@ -33,6 +34,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 	r.add("index.html")
 	r.add("403.html")
 	r.add("404.html")
+	r.add("410.html")
 	r.add("500.html")
 
 	r.jsBundle = r.getBundle("/dist/js")
@@ -47,7 +49,7 @@ func (r *Renderer) add(name string) *template.Template {
 	file := env.Path("/views", name)
 	tpl, err := template.ParseFiles(base, file)
 	if err != nil {
-		panic(err)
+		panic(errors.Wrap(err, "failed to parse template %s", file))
 	}
 
 	r.templates[name] = tpl
@@ -115,5 +117,9 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 		}
 	}
 
-	return tmpl.Execute(w, m)
+	err := tmpl.Execute(w, m)
+	if err != nil {
+		return errors.Wrap(err, "failed to execute template %s", name)
+	}
+	return nil
 }

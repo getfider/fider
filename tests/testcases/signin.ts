@@ -1,20 +1,20 @@
-import { ensure, elementIsVisible, mailgun } from '../lib';
-import { pages, browser } from '../context';
+import { ensure, elementIsVisible, mailgun } from "../lib";
+import { pages, browser } from "../context";
 
-it('Can sign in with Google and support an idea', async () => {
+it("Can sign in with Google and support an idea", async () => {
   // Action & Assert
   await pages.home.navigate();
   await pages.home.signInWithGoogle();
   await pages.google.signInAsDarthVader();
   await pages.home.UserMenu.click();
-  await ensure(pages.home.UserName).textIs('DARTH VADER');
+  await ensure(pages.home.UserName).textIs("DARTH VADER");
 
   // Action & Assert
   await pages.home.IdeaList.want(0);
-  await ensure(await pages.home.IdeaList.at(0)).textIs('2');
+  await ensure(await pages.home.IdeaList.at(0)).textIs("2");
 });
 
-it('User can sign in using email on existing tenant', async () => {
+it("User can sign in using email on existing tenant", async () => {
   const now = new Date().getTime();
 
   // Action

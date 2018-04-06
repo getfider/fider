@@ -1,5 +1,5 @@
-import { Browser } from './lib';
-import { AllPages } from './pages';
+import { Browser } from "./lib";
+import { AllPages } from "./pages";
 
 export let pages: AllPages;
 export let browser: Browser;
@@ -14,8 +14,8 @@ export const setBrowser = (value: Browser) => {
 };
 
 export const setTenant = (value: string) => {
-  if (process.env.HOST_MODE === 'single') {
-    tenant = 'login';
+  if (process.env.HOST_MODE === "single") {
+    tenant = "login";
   } else {
     tenant = value;
   }

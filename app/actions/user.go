@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -36,7 +37,7 @@ func (input *ChangeUserRole) Validate(user *models.User, services *app.Services)
 	}
 	target, err := services.Users.GetByID(input.Model.UserID)
 	if err != nil {
-		if err == app.ErrNotFound {
+		if errors.Cause(err) == app.ErrNotFound {
 			result.AddFieldFailure("user_id", "User not found")
 		} else {
 			return validate.Error(err)
@@ -90,7 +91,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 	}
 
 	existing, err := services.Users.GetByEmail(input.Model.Email)
-	if err != nil && err != app.ErrNotFound {
+	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	}
 	if err == nil && existing.ID != user.ID {

@@ -1,9 +1,9 @@
-import { analytics } from '@fider/services';
+import { analytics } from "@fider/services";
 
 export interface Failure {
   messages: string[];
   failures: {
-    [key: string]: string[]
+    [key: string]: string[];
   };
 }
 
@@ -18,7 +18,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   if (response.status < 400) {
     return {
       ok: true,
-      data: body as T,
+      data: body as T
     };
   } else {
     return {
@@ -26,29 +26,31 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
       data: body as T,
       error: {
         messages: body.messages,
-        failures: body.failures,
+        failures: body.failures
       }
     };
   }
 }
-async function request<T>(url: string, method: 'GET' | 'POST' | 'DELETE', body?: any): Promise<Result<T>> {
-  const headers = [
-    [ 'Accept', 'application/json' ],
-    [ 'Content-Type', 'application/json' ]
-  ];
-  const response = await fetch(url, { method, headers, body: JSON.stringify(body), credentials: 'same-origin' });
+async function request<T>(url: string, method: "GET" | "POST" | "DELETE", body?: any): Promise<Result<T>> {
+  const headers = [["Accept", "application/json"], ["Content-Type", "application/json"]];
+  const response = await fetch(url, {
+    method,
+    headers,
+    body: JSON.stringify(body),
+    credentials: "same-origin"
+  });
   return await toResult<T>(response);
 }
 
 export const http = {
   get: async <T = void>(url: string): Promise<Result<T>> => {
-    return await request<T>(url, 'GET');
+    return await request<T>(url, "GET");
   },
   post: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
-    return await request<T>(url, 'POST', body);
+    return await request<T>(url, "POST", body);
   },
   delete: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
-    return await request<T>(url, 'DELETE', body);
+    return await request<T>(url, "DELETE", body);
   },
   event: (category: string, action: string) => <T>(result: Result<T>): Result<T> => {
     if (result && result.ok) {

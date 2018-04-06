@@ -18,24 +18,24 @@ type Idea interface {
 	GetByID(ideaID int) (*models.Idea, error)
 	GetBySlug(slug string) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
-	GetCommentsByIdea(number int) ([]*models.Comment, error)
+	GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error)
 	Search(query, filter string, tags []string) ([]*models.Idea, error)
 	GetAll() ([]*models.Idea, error)
 	CountPerStatus() (map[int]int, error)
-	Add(title, description string, userID int) (*models.Idea, error)
-	Update(number int, title, description string) (*models.Idea, error)
-	AddComment(number int, content string, userID int) (int, error)
+	Add(title, description string) (*models.Idea, error)
+	Update(idea *models.Idea, title, description string) (*models.Idea, error)
+	AddComment(idea *models.Idea, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
-	AddSupporter(number, userID int) error
-	RemoveSupporter(number, userID int) error
-	AddSubscriber(number, userID int) error
-	RemoveSubscriber(number, userID int) error
+	AddSupporter(idea *models.Idea, user *models.User) error
+	RemoveSupporter(idea *models.Idea, user *models.User) error
+	AddSubscriber(idea *models.Idea, user *models.User) error
+	RemoveSubscriber(idea *models.Idea, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	SetResponse(number int, text string, userID, status int) error
-	MarkAsDuplicate(number, originalNumber, userID int) error
-	IsReferenced(number int) (bool, error)
-	SupportedBy(userID int) ([]int, error)
+	SetResponse(idea *models.Idea, text string, status int) error
+	MarkAsDuplicate(idea *models.Idea, original *models.Idea) error
+	IsReferenced(idea *models.Idea) (bool, error)
+	SupportedBy() ([]int, error)
 }
 
 // User is used for user operations
@@ -75,18 +75,18 @@ type Tag interface {
 	Base
 	Add(name, color string, isPublic bool) (*models.Tag, error)
 	GetBySlug(slug string) (*models.Tag, error)
-	Update(tagID int, name, color string, isPublic bool) (*models.Tag, error)
-	Delete(tagID int) error
-	GetAssigned(ideaID int) ([]*models.Tag, error)
-	AssignTag(tagID, ideaID, userID int) error
-	UnassignTag(tagID, ideaID int) error
+	Update(tag *models.Tag, name, color string, isPublic bool) (*models.Tag, error)
+	Delete(tag *models.Tag) error
+	GetAssigned(idea *models.Idea) ([]*models.Tag, error)
+	AssignTag(tag *models.Tag, idea *models.Idea) error
+	UnassignTag(tag *models.Tag, idea *models.Idea) error
 	GetAll() ([]*models.Tag, error)
 }
 
 // Notification contains read and write operations for notifications
 type Notification interface {
 	Base
-	Insert(user *models.User, title, link string, ideaID, authorID int) (*models.Notification, error)
+	Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error)
 	MarkAsRead(id int) error
 	MarkAllAsRead() error
 	TotalUnread() (int, error)

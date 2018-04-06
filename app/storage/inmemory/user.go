@@ -1,10 +1,9 @@
 package inmemory
 
 import (
-	"errors"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 // UserStorage is used for user operations
@@ -65,7 +64,7 @@ func (s *UserStorage) Register(user *models.User) error {
 		user.ID = s.lastID
 	}
 	_, err := s.GetByEmail(user.Email)
-	if err == app.ErrNotFound || user.Email == "" {
+	if errors.Cause(err) == app.ErrNotFound || user.Email == "" {
 		s.users = append(s.users, user)
 		return nil
 	}

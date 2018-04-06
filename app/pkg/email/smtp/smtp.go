@@ -5,6 +5,7 @@ import (
 	gosmtp "net/smtp"
 
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -49,8 +50,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 	auth := email.Auth(s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err != nil {
-		s.logger.Errorf("Failed to send email")
-		return err
+		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
 	s.logger.Debugf("Email sent.")
 	return nil
@@ -60,7 +60,7 @@ func (s *Sender) Send(templateName string, params email.Params, from string, to 
 func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
 		if err := s.Send(templateName, params, from, r); err != nil {
-			return err
+			return errors.Wrap(err, "failed to batch send email to %d recipients", len(to))
 		}
 	}
 	return nil

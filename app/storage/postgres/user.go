@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbUser struct {
@@ -78,12 +79,20 @@ func (s *UserStorage) SetCurrentUser(user *models.User) {
 
 // GetByID returns a user based on given id
 func (s *UserStorage) GetByID(userID int) (*models.User, error) {
-	return getUser(s.trx, "id = $1", userID)
+	user, err := getUser(s.trx, "id = $1", userID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user with id '%d'", userID)
+	}
+	return user, nil
 }
 
 // GetByEmail returns a user based on given email
 func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
-	return getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
+	user, err := getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user with email '%s'", email)
+	}
+	return user, nil
 }
 
 // GetByProvider returns a user based on provider details
@@ -99,7 +108,7 @@ func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, 
 	AND up.provider_uid = $2 
 	AND u.tenant_id = $3`
 	if err := s.trx.Scalar(&userID, query, provider, uid, s.tenant.ID); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get user by provider '%s' and uid '%s'", provider, uid)
 	}
 	return s.GetByID(userID)
 }
@@ -111,12 +120,12 @@ func (s *UserStorage) Register(user *models.User) error {
 	if err := s.trx.Get(&user.ID,
 		"INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		user.Name, user.Email, now, s.tenant.ID, user.Role); err != nil {
-		return err
+		return errors.Wrap(err, "failed to register new user")
 	}
 
 	for _, provider := range user.Providers {
-		if err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
-			return err
+		if _, err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
+			return errors.Wrap(err, "failed to add provider to new user")
 		}
 	}
 
@@ -126,13 +135,21 @@ func (s *UserStorage) Register(user *models.User) error {
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
 	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)"
-	return s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
+	_, err := s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
+	if err != nil {
+		return errors.Wrap(err, "failed to add provider '%s' to user with id '%d'", provider.Name, userID)
+	}
+	return nil
 }
 
 // Update user profile
 func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
 	cmd := "UPDATE users SET name = $2 WHERE id = $1 AND tenant_id = $3"
-	return s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	_, err := s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed to update user")
+	}
+	return nil
 }
 
 // UpdateSettings of given user
@@ -144,9 +161,9 @@ func (s *UserStorage) UpdateSettings(settings map[string]string) error {
 		`
 
 		for key, value := range settings {
-			err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
+			_, err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to update user settings")
 			}
 		}
 	}
@@ -163,7 +180,7 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 	var settings []*dbUserSetting
 	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get user settings")
 	}
 
 	var result = make(map[string]string, len(settings))
@@ -185,13 +202,21 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 // ChangeRole of given user
 func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 	cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
-	return s.trx.Execute(cmd, userID, s.tenant.ID, role)
+	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, role)
+	if err != nil {
+		return errors.Wrap(err, "failed to change user's role")
+	}
+	return nil
 }
 
 // ChangeEmail of given user
 func (s *UserStorage) ChangeEmail(userID int, email string) error {
 	cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
-	return s.trx.Execute(cmd, userID, s.tenant.ID, email)
+	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, email)
+	if err != nil {
+		return errors.Wrap(err, "failed to update user's email")
+	}
+	return nil
 }
 
 // GetByID returns a user based on given id
@@ -215,7 +240,7 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 	var users []*dbUser
 	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get all users")
 	}
 
 	var result = make([]*models.User, len(users))
@@ -233,11 +258,11 @@ func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
 
 	var status int
 	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, ideaID)
-	if err != nil && err != app.ErrNotFound {
-		return false, err
+	if err != nil && errors.Cause(err) != app.ErrNotFound {
+		return false, errors.Wrap(err, "failed to get subscription status")
 	}
 
-	if err == app.ErrNotFound {
+	if errors.Cause(err) == app.ErrNotFound {
 		for _, e := range models.AllNotificationEvents {
 			for _, r := range e.RequiresSubscripionUserRoles {
 				if r == s.user.Role {

@@ -36,34 +36,40 @@
   .ideas-filter {
     .item {
       .label {
+        position: absolute;
         font-size: 8px;
         margin-left: 5px;
       }
     }
   }
 
-  .tags-filter.has-selection {
-    i.filter {
-      vertical-align: middle;
+  .tags-filter {
+    .ui.empty.circular.label {
+      font-size: .71428571rem;
+      margin-right: 5px;
     }
-    .ui.label.transition {
+    .selected.item {
       background-color: transparent;
-      box-shadow: none;
-      font-weight: 500;
-      .ui.empty.circular.label {
-        font-size: .71428571rem;
-        margin-right: 5px;
+      font-weight: normal;
+    }
+    i.check {
+      color: transparent;
+    }
+    .selected-tag {
+      i.check {
+        color: $green;
       }
     }
   }
 
-  .filter-column {
-    display: flex;
-    align-items: center;
-  }
-
-  .no-ideas-found {
-    margin-top: 10px;
+  @include mobile {
+    .filter-column {
+      padding-right: 0;
+    }
+  
+    .search-column {
+      padding-left: 0;
+    }
   }
 
   #new-idea-input {
@@ -76,17 +82,6 @@
     font-weight: bold;
     margin: 0px 0px 10px 0px;
     border-radius: 0;
-  }
-
-  .signin-message {
-    @media only screen and (min-width: 768px) and (max-width: 991px) {
-      span {
-        display: none;
-      }
-      i {
-        margin: 0 auto !important;
-      }
-    }
   }
 
 }

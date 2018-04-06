@@ -1,14 +1,14 @@
-import { WebElementPromise, Key, By } from 'selenium-webdriver';
+import { WebElementPromise, Key, By } from "selenium-webdriver";
 
 export class WebComponent {
-  constructor(protected element: WebElementPromise, public selector: string) { }
+  constructor(protected element: WebElementPromise, public selector: string) {}
 
   public async click() {
     try {
       return await this.element.click();
     } catch (clickErr) {
       try {
-        await this.element.getDriver().executeScript('arguments[0].click();', this.element);
+        await this.element.getDriver().executeScript("arguments[0].click();", this.element);
       } catch (jsErr) {
         throw clickErr;
       }
@@ -28,8 +28,8 @@ export class WebComponent {
   }
 
   public async getText() {
-    if (await this.element.getTagName() === 'input') {
-      return await this.element.getAttribute('value');
+    if ((await this.element.getTagName()) === "input") {
+      return await this.element.getAttribute("value");
     }
     return await this.element.getText();
   }
@@ -42,7 +42,7 @@ export class Button extends WebComponent {
 
   public async isDisabled() {
     try {
-      return await this.element.getAttribute('disabled') === 'disabled';
+      return (await this.element.getAttribute("disabled")) === "disabled";
     } catch (ex) {
       return false;
     }
@@ -55,9 +55,9 @@ export class DropDownList extends WebComponent {
   }
 
   public async selectByText(text: string) {
-    const options = await this.element.findElements(By.tagName('option'));
+    const options = await this.element.findElements(By.tagName("option"));
     for (const option of options) {
-      if (await option.getText() === text) {
+      if ((await option.getText()) === text) {
         return await option.click();
       }
     }

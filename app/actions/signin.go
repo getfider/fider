@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -80,7 +81,7 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 	} else {
 		request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
 		if err != nil {
-			if err == app.ErrNotFound {
+			if errors.Cause(err) == app.ErrNotFound {
 				result.AddFieldFailure("key", "Key is invalid.")
 			} else {
 				return validate.Error(err)

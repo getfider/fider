@@ -139,7 +139,7 @@ code {
 }
 
 .ui.inline.dropdown {
-  .text {
+  > .text {
     border-bottom: 1px dashed #9e9e9e
   }
 }
@@ -251,13 +251,6 @@ code {
     border-left: none;
     border-right: none;
     border-bottom: none;
-  }
-}
-
-.signin-message {
-  background-color: $menu-color;
-  .ui.basic.red.label {
-    background-color: $menu-color !important;
   }
 }
 

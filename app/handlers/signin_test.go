@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/oauth"
@@ -153,7 +154,7 @@ func TestCallbackHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	_, err := services.Users.GetByID(4)
-	Expect(err).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiIifQ.DBcMmKSrGxiXGVCq9QT716xfw3M4kzP-Njazsk6vaFI"))
@@ -200,13 +201,12 @@ func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.
+	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/verify?k=unknown").
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	Expect(code).To(Equal(http.StatusNotFound))
 }
 
 func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
@@ -218,13 +218,12 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
 	services.Tenants.SetKeyAsVerified("1234567890")
 
-	code, response := server.
+	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	Expect(code).To(Equal(http.StatusGone))
 }
 
 func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
@@ -237,13 +236,12 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 	request, _ := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
 	request.ExpiresOn = request.CreatedOn.Add(-6 * time.Minute) //reduce 1 minute
 
-	code, response := server.
+	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+	Expect(code).To(Equal(http.StatusGone))
 }
 
 func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {

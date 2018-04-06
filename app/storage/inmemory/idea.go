@@ -53,14 +53,10 @@ func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
 }
 
 // Update given idea
-func (s *IdeaStorage) Update(number int, title, description string) (*models.Idea, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return nil, err
-	}
+func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*models.Idea, error) {
 	idea.Title = title
 	idea.Description = description
-	return idea, err
+	return idea, nil
 }
 
 // GetByNumber returns idea by tenant and number
@@ -99,16 +95,12 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 }
 
 // GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(number int) ([]*models.Comment, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return nil, err
-	}
+func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error) {
 	return s.ideaComments[idea.ID], nil
 }
 
 // Add a new idea in the database
-func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, error) {
+func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 	s.lastID = s.lastID + 1
 	idea := &models.Idea{
 		ID:          s.lastID,
@@ -116,30 +108,21 @@ func (s *IdeaStorage) Add(title, description string, userID int) (*models.Idea, 
 		Title:       title,
 		Slug:        slug.Make(title),
 		Description: description,
-		User: &models.User{
-			ID: userID,
-		},
+		User:        s.user,
 	}
 	s.ideas = append(s.ideas, idea)
-	s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID], idea.ID)
+	s.ideasSupportedBy[s.user.ID] = append(s.ideasSupportedBy[s.user.ID], idea.ID)
 	return idea, nil
 }
 
 // AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(number int, content string, userID int) (int, error) {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return 0, err
-	}
+func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error) {
 	s.lastCommentID++
 	s.ideaComments[idea.ID] = append(s.ideaComments[idea.ID], &models.Comment{
 		ID:        s.lastCommentID,
 		Content:   content,
 		CreatedOn: time.Now(),
-		User: &models.User{
-			ID:     userID,
-			Tenant: s.tenant,
-		},
+		User:      s.user,
 	})
 
 	return s.lastCommentID, nil
@@ -171,26 +154,17 @@ func (s *IdeaStorage) UpdateComment(id int, content string) error {
 }
 
 // AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-	s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID], idea.ID)
+func (s *IdeaStorage) AddSupporter(idea *models.Idea, user *models.User) error {
+	s.ideasSupportedBy[user.ID] = append(s.ideasSupportedBy[user.ID], idea.ID)
 	idea.TotalSupporters = idea.TotalSupporters + 1
 	return nil
 }
 
 // RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
-	for i, id := range s.ideasSupportedBy[userID] {
+func (s *IdeaStorage) RemoveSupporter(idea *models.Idea, user *models.User) error {
+	for i, id := range s.ideasSupportedBy[user.ID] {
 		if id == idea.ID {
-			s.ideasSupportedBy[userID] = append(s.ideasSupportedBy[userID][:i], s.ideasSupportedBy[userID][i+1:]...)
+			s.ideasSupportedBy[user.ID] = append(s.ideasSupportedBy[user.ID][:i], s.ideasSupportedBy[user.ID][i+1:]...)
 			break
 		}
 	}
@@ -199,16 +173,16 @@ func (s *IdeaStorage) RemoveSupporter(number, userID int) error {
 }
 
 // SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) error {
-	for i, idea := range s.ideas {
-		if idea.Number == number {
+func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) error {
+	for i, storedIdea := range s.ideas {
+		if storedIdea.Number == idea.Number {
 			if status == models.IdeaDeleted {
 				s.ideas = append(s.ideas[:i], s.ideas[i+1:]...)
 			} else {
-				idea.Status = status
-				idea.Response = &models.IdeaResponse{
+				storedIdea.Status = status
+				storedIdea.Response = &models.IdeaResponse{
 					Text:        text,
-					User:        &models.User{ID: userID},
+					User:        s.user,
 					RespondedOn: time.Now(),
 				}
 			}
@@ -218,16 +192,7 @@ func (s *IdeaStorage) SetResponse(number int, text string, userID, status int) e
 }
 
 // MarkAsDuplicate set idea as a duplicate of another idea
-func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-	original, err := s.GetByNumber(originalNumber)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) error {
 	idea.Status = models.IdeaDuplicate
 	idea.Response = &models.IdeaResponse{
 		Original: &models.OriginalIdea{
@@ -237,16 +202,16 @@ func (s *IdeaStorage) MarkAsDuplicate(number, originalNumber, userID int) error 
 			Status: original.Status,
 		},
 		Text:        "",
-		User:        &models.User{ID: userID},
+		User:        s.user,
 		RespondedOn: time.Now(),
 	}
 	return nil
 }
 
 // IsReferenced returns true if another idea is referencing given idea
-func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
+func (s *IdeaStorage) IsReferenced(idea *models.Idea) (bool, error) {
 	for _, i := range s.ideas {
-		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == number {
+		if i.Status == models.IdeaDuplicate && i.Response.Original.Number == idea.Number {
 			return true, nil
 		}
 	}
@@ -254,29 +219,20 @@ func (s *IdeaStorage) IsReferenced(number int) (bool, error) {
 }
 
 // SupportedBy returns a list of Idea ID supported by given user
-func (s *IdeaStorage) SupportedBy(userID int) ([]int, error) {
-	return s.ideasSupportedBy[userID], nil
+func (s *IdeaStorage) SupportedBy() ([]int, error) {
+	return s.ideasSupportedBy[s.user.ID], nil
 }
 
 // AddSubscriber adds user to the idea list of subscribers
-func (s *IdeaStorage) AddSubscriber(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-	s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID], userID)
+func (s *IdeaStorage) AddSubscriber(idea *models.Idea, user *models.User) error {
+	s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID], user.ID)
 	return nil
 }
 
 // RemoveSubscriber removes user from idea list of subscribers
-func (s *IdeaStorage) RemoveSubscriber(number, userID int) error {
-	idea, err := s.GetByNumber(number)
-	if err != nil {
-		return err
-	}
-
+func (s *IdeaStorage) RemoveSubscriber(idea *models.Idea, user *models.User) error {
 	for i, id := range s.ideaSubscribers[idea.ID] {
-		if id == userID {
+		if id == user.ID {
 			s.ideaSubscribers[idea.ID] = append(s.ideasSupportedBy[idea.ID][:i], s.ideasSupportedBy[idea.ID][i+1:]...)
 			break
 		}

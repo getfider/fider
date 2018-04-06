@@ -16,6 +16,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -140,7 +141,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := ctx.engine.binder.Bind(i.Initialize(), ctx)
 	if err != nil {
-		return validate.Error(err)
+		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
 	if !i.IsAuthorized(ctx.User(), ctx.Services()) {
 		return validate.Unauthorized()
@@ -176,13 +177,18 @@ func (ctx *Context) NotFound() error {
 	return ctx.Render(http.StatusNotFound, "404.html", Map{})
 }
 
+//Gone returns a 410 page
+func (ctx *Context) Gone() error {
+	return ctx.Render(http.StatusGone, "410.html", Map{})
+}
+
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
-	if err == app.ErrNotFound {
+	err = errors.StackN(err, 1)
+	if errors.Cause(err) == app.ErrNotFound {
 		return ctx.NotFound()
 	}
 
-	url := ctx.BaseURL() + ctx.Request.RequestURI
 	tenant := "undefined"
 	if ctx.Tenant() != nil {
 		tenant = fmt.Sprintf("%s (%d)", ctx.Tenant().Name, ctx.Tenant().ID)
@@ -193,6 +199,7 @@ func (ctx *Context) Failure(err error) error {
 		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
 	}
 
+	url := ctx.BaseURL() + ctx.Request.RequestURI
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
@@ -278,7 +285,7 @@ func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 	})
 
 	if err != nil {
-		return token, err
+		return token, errors.Wrap(err, "failed to add auth cookie")
 	}
 
 	ctx.AddCookie(CookieAuthName, token, time.Now().Add(365*24*time.Hour))
@@ -385,11 +392,12 @@ func (ctx *Context) Param(name string) string {
 
 //ParamAsInt returns parameter as int
 func (ctx *Context) ParamAsInt(name string) (int, error) {
-	val, err := strconv.Atoi(ctx.Param(name))
+	value := ctx.Param(name)
+	intValue, err := strconv.Atoi(value)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
-	return int(val), nil
+	return intValue, nil
 }
 
 //RenderVars returns all registered RenderVar
@@ -435,7 +443,7 @@ func (ctx *Context) String(code int, text string) error {
 func (ctx *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to marshal response to JSON")
 	}
 	return ctx.Blob(code, JSONContentType, b)
 }

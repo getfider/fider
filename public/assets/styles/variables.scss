@@ -21,6 +21,28 @@ $green: #15CD72;
 $green-darker: #0CB863;
 $red: #db2828;
 
+// Queries
+$tablet-width: 768px;
+$desktop-width: 1024px;
+
+@mixin mobile {
+  @media (max-width: #{$tablet-width - 0.1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$tablet-width}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
+
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
     @return #484848; // Lighter background, return dark color

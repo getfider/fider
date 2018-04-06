@@ -1,7 +1,7 @@
-import { AuthSettings} from '@fider/models';
+import { AuthSettings } from "@fider/models";
 
 export const goHome = (): void => {
-  document.location.href = '/';
+  document.location.href = "/";
 };
 
 export const refresh = (): void => {
@@ -17,7 +17,7 @@ export const getBaseUrl = (): string => {
 };
 
 export const isSingleHostMode = (): boolean => {
-  return (window as any).props.system.mode === 'single';
+  return (window as any).props.system.mode === "single";
 };
 
 export const authSettings = (): AuthSettings => {
@@ -30,21 +30,21 @@ export interface ModalOptions {
 
 export const getQueryString = (name: string): string => {
   const url = window.location.href;
-  name = name.replace(/[\[\]]/g, '\\$&');
-  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  name = name.replace(/[\[\]]/g, "\\$&");
+  const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
   const results = regex.exec(url);
 
   if (!results || !results[2]) {
-    return '';
+    return "";
   }
 
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
 };
 
 export const getQueryStringArray = (name: string): string[] => {
   const qs = getQueryString(name);
   if (qs) {
-    return qs.split(',').filter((i) => i);
+    return qs.split(",").filter(i => i);
   }
 
   return [];
@@ -56,20 +56,20 @@ export interface QueryString {
 
 export const toQueryString = (object: QueryString): string => {
   if (!object) {
-    return '';
+    return "";
   }
 
-  let qs = '';
+  let qs = "";
 
   for (const key of Object.keys(object)) {
-    const symbol = qs ? '&' : '?';
+    const symbol = qs ? "&" : "?";
     const value = object[key];
     if (value instanceof Array) {
       if (value.length > 0) {
-        qs += `${symbol}${key}=${value.join(',')}`;
+        qs += `${symbol}${key}=${value.join(",")}`;
       }
     } else if (value) {
-      qs += `${symbol}${key}=${encodeURIComponent(value).replace(/%20/g, '+')}`;
+      qs += `${symbol}${key}=${encodeURIComponent(value).replace(/%20/g, "+")}`;
     }
   }
 
@@ -79,6 +79,6 @@ export const toQueryString = (object: QueryString): string => {
 export const replaceState = (path: string): void => {
   if (history.replaceState) {
     const newUrl = getBaseUrl() + path;
-    window.history.replaceState({ path: newUrl }, '', newUrl);
+    window.history.replaceState({ path: newUrl }, "", newUrl);
   }
 };
