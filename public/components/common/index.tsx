@@ -12,6 +12,7 @@ export * from "./Moment";
 export * from "./UserName";
 export * from "./Modal";
 export * from "./Loader";
+export * from "./Toggle";
 import Textarea from "react-textarea-autosize";
 export { Textarea };
 
