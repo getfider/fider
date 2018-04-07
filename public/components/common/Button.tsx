@@ -32,7 +32,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   private unmounted: boolean = false;
 
   public static defaultProps: Partial<ButtonProps> = {
-    size: "normal",
+    size: "small",
     fluid: false
   };
 

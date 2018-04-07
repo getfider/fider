@@ -125,16 +125,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               this.state.editMode ? (
                 <div key={1} className="ui list">
                   <div className="item">
-                    <Button color="green" size="small" fluid={true} onClick={async () => this.saveChanges()}>
+                    <Button color="green" fluid={true} onClick={async () => this.saveChanges()}>
                       <i className="save icon" /> Save
                     </Button>
                   </div>
                   <div className="item">
-                    <Button
-                      fluid={true}
-                      size="small"
-                      onClick={async () => this.setState({ error: undefined, editMode: false })}
-                    >
+                    <Button fluid={true} onClick={async () => this.setState({ error: undefined, editMode: false })}>
                       <i className="cancel icon" /> Cancel
                     </Button>
                   </div>
@@ -142,7 +138,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               ) : (
                 <div key={1} className="ui list">
                   <div className="item">
-                    <Button fluid={true} size="small" onClick={async () => this.setState({ editMode: true })}>
+                    <Button fluid={true} onClick={async () => this.setState({ editMode: true })}>
                       <i className="edit icon" /> Edit
                     </Button>
                   </div>

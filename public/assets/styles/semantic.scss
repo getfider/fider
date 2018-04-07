@@ -1,3 +1,17 @@
+@import 'variables.scss';
+
+.ui.vertical.menu {
+  .active.item {
+    color: $admin-color;
+    border-left: 2px solid $admin-color;
+    font-weight: 700;
+    background-color: $menu-color;
+    &:hover {
+      color: $admin-color;
+    }
+  }
+}
+
 .ui.list {
   .item {
     .showover {
