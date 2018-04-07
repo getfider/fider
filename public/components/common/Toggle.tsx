@@ -2,6 +2,7 @@ import * as React from "react";
 import { classSet } from "@fider/services";
 
 interface ToggleProps {
+  label?: string;
   active: boolean;
   onToggle: (active: boolean) => Promise<any>;
 }
@@ -33,12 +34,13 @@ export class Toggle extends React.Component<ToggleProps, ToggleState> {
 
   public render() {
     return (
-      <div className="c-toggle" onClick={this.toggle}>
+      <span className="c-toggle" onClick={this.toggle}>
         <input type="checkbox" checked={this.state.active} readOnly={true} />
         <label>
-          <div className="switch" />
+          <span className="switch" />
         </label>
-      </div>
+        <span className="text">{!!this.props.label && this.props.label}</span>
+      </span>
     );
   }
 }

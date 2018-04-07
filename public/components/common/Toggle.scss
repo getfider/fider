@@ -1,12 +1,20 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-toggle {
+  cursor: pointer;
+
   input { 
     display: none;
   }
 
+  .text {
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
   label {
     display: inline-block;
+    vertical-align: middle;
     width: 2em;
     height: 1em;
     border-radius: 0.5em;

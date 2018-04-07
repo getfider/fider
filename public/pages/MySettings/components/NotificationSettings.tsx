@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
+import { Toggle } from "@fider/components";
 
 interface NotificationSettingsProps {
   user: CurrentUser;
@@ -41,16 +42,15 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
   }
 
   private icon(settingsKey: string, channel: Channel) {
-    const i = this.isEnabled(settingsKey, channel) ? (
-      <i className="green large toggle on icon" />
-    ) : (
-      <i className="large toggle off icon" />
-    );
-    const text = channel === WebChannel ? "Web *" : "Email";
+    const active = this.isEnabled(settingsKey, channel);
+    const label = channel === WebChannel ? "Web" : "Email"; 
     return (
-      <span className="option" onClick={this.toggle.bind(this, settingsKey, channel)}>
-        {i} {text}
-      </span>
+      <Toggle
+        key={`${settingsKey}_${channel}`}
+        active={active}
+        label={label}
+        onToggle={this.toggle.bind(this, settingsKey, channel)}
+      />
     );
   }
 
