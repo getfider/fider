@@ -66,12 +66,6 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
           <a key={2} href="/admin" className="item">
             Site Settings
           </a>,
-          <a key={3} href="/admin/members" className="item">
-            Members
-          </a>,
-          <a key={4} href="/admin/tags" className="item">
-            Tags
-          </a>,
           <div key={5} className="divider" />
         ]}
         <a href="/signout?redirect=/" className="item signout">

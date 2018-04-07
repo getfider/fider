@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Button, Gravatar, UserName } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
-import { actions } from "@fider/services";
+import { page, actions } from "@fider/services";
+import { SideMenu } from "../components";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -22,6 +23,8 @@ export class ManageMembersPage extends React.Component<ManageMembersPageProps, M
   constructor(props: ManageMembersPageProps) {
     super(props);
     this.state = this.groupUsers();
+
+    page.setTitle(`Manage Members · Site Settings · ${document.title}`);
   }
 
   private async changeRole(user: User, role: UserRole): Promise<any> {
@@ -112,63 +115,70 @@ export class ManageMembersPage extends React.Component<ManageMembersPageProps, M
         </h2>
 
         <div className="ui grid">
-          <div className="eight wide computer sixteen wide mobile column">
-            <div className="ui segment">
-              <h4 className="ui header">Administrators</h4>
-              <p className="info">
-                Administrators have full access to edit and manage content, permissions and settings.
-              </p>
-              <div className="ui middle aligned very relaxed selection list">
-                {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
-              </div>
-              {this.props.user.role === UserRole.Administrator && (
-                <div className="ui mini form">
-                  <p>Add new administrator</p>
-                  <div className="mini field">
-                    <input
-                      type="text"
-                      value={this.state.newAdministratorFilter}
-                      onChange={x => this.filterVisitors("administrator", x.currentTarget.value)}
-                      placeholder="Search users by name"
-                    />
-                  </div>
-                  <div className="ui middle aligned very relaxed selection list">
-                    {this.state.filteredNewAdministrators.map(x =>
-                      this.showUser(x, UserRole.Administrator, true, false)
-                    )}
-                  </div>
-                  {this.state.newAdministratorFilter &&
-                    this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
-                </div>
-              )}
-            </div>
+          <div className="three wide computer sixteen wide mobile column">
+            <SideMenu activeItem="members" />
           </div>
-
-          <div className="eight wide computer sixteen wide mobile column">
-            <div className="ui segment">
-              <h4 className="ui header">Collaborators</h4>
-              <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
-              <div className="ui middle aligned very relaxed selection list">
-                {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
-              </div>
-              {this.props.user.role === UserRole.Administrator && (
-                <div className="ui mini form">
-                  <p>Add new collaborator</p>
-                  <div className="mini field">
-                    <input
-                      type="text"
-                      value={this.state.newCollaboratorFilter}
-                      onChange={x => this.filterVisitors("collaborator", x.currentTarget.value)}
-                      placeholder="Search users by name"
-                    />
-                  </div>
+          <div className="thirteen wide computer sixteen wide mobile column">
+            <div className="ui grid">
+              <div className="eight wide computer sixteen wide mobile column">
+                <div className="ui segment">
+                  <h4 className="ui header">Administrators</h4>
+                  <p className="info">
+                    Administrators have full access to edit and manage content, permissions and settings.
+                  </p>
                   <div className="ui middle aligned very relaxed selection list">
-                    {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
+                    {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
                   </div>
-                  {this.state.newCollaboratorFilter &&
-                    this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
+                  {this.props.user.role === UserRole.Administrator && (
+                    <div className="ui mini form">
+                      <p>Add new administrator</p>
+                      <div className="mini field">
+                        <input
+                          type="text"
+                          value={this.state.newAdministratorFilter}
+                          onChange={x => this.filterVisitors("administrator", x.currentTarget.value)}
+                          placeholder="Search users by name"
+                        />
+                      </div>
+                      <div className="ui middle aligned very relaxed selection list">
+                        {this.state.filteredNewAdministrators.map(x =>
+                          this.showUser(x, UserRole.Administrator, true, false)
+                        )}
+                      </div>
+                      {this.state.newAdministratorFilter &&
+                        this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+
+              <div className="eight wide computer sixteen wide mobile column">
+                <div className="ui segment">
+                  <h4 className="ui header">Collaborators</h4>
+                  <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
+                  <div className="ui middle aligned very relaxed selection list">
+                    {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
+                  </div>
+                  {this.props.user.role === UserRole.Administrator && (
+                    <div className="ui mini form">
+                      <p>Add new collaborator</p>
+                      <div className="mini field">
+                        <input
+                          type="text"
+                          value={this.state.newCollaboratorFilter}
+                          onChange={x => this.filterVisitors("collaborator", x.currentTarget.value)}
+                          placeholder="Search users by name"
+                        />
+                      </div>
+                      <div className="ui middle aligned very relaxed selection list">
+                        {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
+                      </div>
+                      {this.state.newCollaboratorFilter &&
+                        this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

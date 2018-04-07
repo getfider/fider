@@ -1,10 +1,9 @@
 import * as React from "react";
-import { Button, Gravatar, UserName } from "@fider/components/common";
-import { ShowTag } from "@fider/components/ShowTag";
-import { Tag, CurrentUser, UserRole } from "@fider/models";
+import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
+import { SideMenu, TagForm, TagFormState } from "../components";
 
-import { TagForm, TagFormState } from "./";
-import { actions, Failure } from "@fider/services";
+import { Tag, CurrentUser, UserRole } from "@fider/models";
+import { page, actions, Failure } from "@fider/services";
 
 interface ManageTagsPageProps {
   user: CurrentUser;
@@ -25,6 +24,8 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
       isAdding: false,
       allTags: this.props.tags
     };
+
+    page.setTitle(`Manage Tags · Site Settings · ${document.title}`);
   }
 
   private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
@@ -106,6 +107,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
           {this.props.user.isAdministrator && [
             <Button
               key={0}
+              size="small"
               onClick={async () =>
                 this.setState({
                   isAdding: false,
@@ -119,6 +121,7 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
             </Button>,
             <Button
               key={1}
+              size="small"
               onClick={async () =>
                 this.setState({
                   isAdding: false,
@@ -145,32 +148,39 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
           </div>
         </h2>
 
-        {this.props.user.isAdministrator &&
-          (this.state.isAdding ? (
-            <div className="ui segment">
-              <TagForm
-                onSave={async data => this.saveNewTag(data)}
-                onCancel={() => this.setState({ isAdding: false })}
-              />
-            </div>
-          ) : (
-            <Button
-              color="green"
-              onClick={async e =>
-                this.setState({
-                  isAdding: true,
-                  deleting: undefined,
-                  editing: undefined
-                })
-              }
-            >
-              Add new
-            </Button>
-          ))}
+        <div className="ui grid">
+          <div className="three wide computer sixteen wide mobile column">
+            <SideMenu activeItem="tags" />
+          </div>
+          <div className="thirteen wide computer sixteen wide mobile column">
+            {this.props.user.isAdministrator &&
+              (this.state.isAdding ? (
+                <div className="ui segment">
+                  <TagForm
+                    onSave={async data => this.saveNewTag(data)}
+                    onCancel={() => this.setState({ isAdding: false })}
+                  />
+                </div>
+              ) : (
+                <Button
+                  color="green"
+                  onClick={async e =>
+                    this.setState({
+                      isAdding: true,
+                      deleting: undefined,
+                      editing: undefined
+                    })
+                  }
+                >
+                  Add new
+                </Button>
+              ))}
 
-        <div className="ui segment">
-          <div className="ui middle aligned very relaxed divided list">
-            {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
+            <div className="ui segment">
+              <div className="ui middle aligned very relaxed divided list">
+                {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
+              </div>
+            </div>
           </div>
         </div>
       </div>

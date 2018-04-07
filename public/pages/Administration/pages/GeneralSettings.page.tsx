@@ -3,15 +3,15 @@ import * as React from "react";
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
 import { actions, page, Failure } from "@fider/services";
-import { SideMenu } from "./components/SideMenu";
+import { SideMenu } from "../components";
 
-interface SiteSettingsPageProps {
+interface GeneralSettingsPageProps {
   user: CurrentUser;
   tenant: Tenant;
   system: SystemSettings;
 }
 
-interface SiteSettingsPageState {
+interface GeneralSettingsPageState {
   title: string;
   welcomeMessage: string;
   invitation: string;
@@ -19,8 +19,8 @@ interface SiteSettingsPageState {
   error?: Failure;
 }
 
-export class SiteSettingsPage extends React.Component<SiteSettingsPageProps, SiteSettingsPageState> {
-  constructor(props: SiteSettingsPageProps) {
+export class GeneralSettingsPage extends React.Component<GeneralSettingsPageProps, GeneralSettingsPageState> {
+  constructor(props: GeneralSettingsPageProps) {
     super(props);
 
     this.state = {
@@ -30,7 +30,7 @@ export class SiteSettingsPage extends React.Component<SiteSettingsPageProps, Sit
       invitation: this.props.tenant.invitation
     };
 
-    page.setTitle(`Administration · ${document.title}`);
+    page.setTitle(`General · Site Settings · ${document.title}`);
   }
 
   private async confirm(e: ButtonClickEvent) {
@@ -54,14 +54,14 @@ export class SiteSettingsPage extends React.Component<SiteSettingsPageProps, Sit
         <h2 className="ui header">
           <i className="circular settings icon" />
           <div className="content">
-            Site Settings
+            General Settings
             <div className="sub header">Manage your site settings</div>
           </div>
         </h2>
 
         <div className="ui grid">
           <div className="three wide computer sixteen wide mobile column">
-            <SideMenu active="general" />
+            <SideMenu activeItem="general" />
           </div>
           <div className="eight wide computer sixteen wide mobile column">
             <div className="ui form">
