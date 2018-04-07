@@ -34,7 +34,7 @@ func Avatar() web.HandlerFunc {
 						if resp.StatusCode == http.StatusOK {
 							bytes, err := ioutil.ReadAll(resp.Body)
 							if err == nil {
-								return c.Blob(http.StatusOK, "image/png", bytes)
+								return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
 							}
 						}
 					}
