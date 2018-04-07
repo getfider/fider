@@ -43,7 +43,7 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
 
   private icon(settingsKey: string, channel: Channel) {
     const active = this.isEnabled(settingsKey, channel);
-    const label = channel === WebChannel ? "Web" : "Email"; 
+    const label = channel === WebChannel ? "Web" : "Email";
     return (
       <Toggle
         key={`${settingsKey}_${channel}`}
