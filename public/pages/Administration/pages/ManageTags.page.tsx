@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
-import { SideMenu, TagForm, TagFormState } from "../components";
+import { AdminBasePage, TagForm, TagFormState } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
 import { page, actions, Failure } from "@fider/services";
@@ -17,7 +17,12 @@ interface ManageTagsPageState {
   editing?: number;
 }
 
-export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
+export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
+  public name = "tags";
+  public icon = "tags";
+  public title = "Tags";
+  public subtitle = "Manage your site tags";
+
   constructor(props: ManageTagsPageProps) {
     super(props);
     this.state = {
@@ -66,8 +71,8 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
   }
 
-  public render() {
-    const items = this.state.allTags.map(t => {
+  private getTagList() {
+    return this.state.allTags.map(t => {
       if (this.state.editing === t.id) {
         return (
           <div key={t.id} className="item">
@@ -91,10 +96,10 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
                 The tag <ShowTag tag={t} /> will be removed from all ideas.
               </span>
             </div>
-            <Button className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
+            <Button size="small" className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
               Cancel
             </Button>
-            <Button color="red" className="right floated" onClick={() => this.deleteTag(t)}>
+            <Button color="red" size="small" className="right floated" onClick={() => this.deleteTag(t)}>
               Delete tag
             </Button>
           </div>
@@ -137,53 +142,42 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
         </div>
       );
     });
+  }
+
+  public content() {
+    const list = this.getTagList();
+
+    const form =
+      this.props.user.isAdministrator &&
+      (this.state.isAdding ? (
+        <div className="ui segment">
+          <TagForm onSave={async data => this.saveNewTag(data)} onCancel={() => this.setState({ isAdding: false })} />
+        </div>
+      ) : (
+        <Button
+          color="green"
+          size="small"
+          onClick={async e =>
+            this.setState({
+              isAdding: true,
+              deleting: undefined,
+              editing: undefined
+            })
+          }
+        >
+          Add new
+        </Button>
+      ));
 
     return (
-      <div className="page ui container">
-        <h2 className="ui header">
-          <i className="circular tags icon" />
-          <div className="content">
-            Tags
-            <div className="sub header">Manage your account tags.</div>
-          </div>
-        </h2>
-
-        <div className="ui grid">
-          <div className="three wide computer sixteen wide mobile column">
-            <SideMenu activeItem="tags" />
-          </div>
-          <div className="thirteen wide computer sixteen wide mobile column">
-            {this.props.user.isAdministrator &&
-              (this.state.isAdding ? (
-                <div className="ui segment">
-                  <TagForm
-                    onSave={async data => this.saveNewTag(data)}
-                    onCancel={() => this.setState({ isAdding: false })}
-                  />
-                </div>
-              ) : (
-                <Button
-                  color="green"
-                  onClick={async e =>
-                    this.setState({
-                      isAdding: true,
-                      deleting: undefined,
-                      editing: undefined
-                    })
-                  }
-                >
-                  Add new
-                </Button>
-              ))}
-
-            <div className="ui segment">
-              <div className="ui middle aligned very relaxed divided list">
-                {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
-              </div>
-            </div>
+      <>
+        {form}
+        <div className="ui segment">
+          <div className="ui middle aligned very relaxed divided list">
+            {list.length ? list : <div className="content">There aren’t any tags yet.</div>}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 }
