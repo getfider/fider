@@ -64,7 +64,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             Administration
           </div>,
           <a key={2} href="/admin" className="item">
-            General Settings
+            Site Settings
           </a>,
           <a key={3} href="/admin/members" className="item">
             Members

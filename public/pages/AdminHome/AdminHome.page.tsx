@@ -53,7 +53,7 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
         <h2 className="ui header">
           <i className="circular settings icon" />
           <div className="content">
-            General Settings
+            Site Settings
             <div className="sub header">Manage your site settings</div>
           </div>
         </h2>
