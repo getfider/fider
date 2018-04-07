@@ -2,9 +2,13 @@
 
 .ui.vertical.menu {
   .active.item {
-    color: $text-color;
+    color: $admin-color;
+    border-left: 2px solid $admin-color;
     font-weight: 700;
     background-color: $menu-color;
+    &:hover {
+      color: $admin-color;
+    }
   }
 }
 

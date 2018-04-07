@@ -36,7 +36,7 @@ const SideMenuItem = (props: SideMenuItemProps) => {
 export const SideMenu = (props: SiteMenuProps) => {
   const activeItem = props.activeItem || "general";
   return (
-    <div className="ui vertical pointing menu fluid">
+    <div className="ui vertical menu fluid">
       <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
       <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
       <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
