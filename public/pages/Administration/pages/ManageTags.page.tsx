@@ -96,10 +96,10 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
                 The tag <ShowTag tag={t} /> will be removed from all ideas.
               </span>
             </div>
-            <Button size="small" className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
+            <Button className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
               Cancel
             </Button>
-            <Button color="red" size="small" className="right floated" onClick={() => this.deleteTag(t)}>
+            <Button color="red" className="right floated" onClick={() => this.deleteTag(t)}>
               Delete tag
             </Button>
           </div>
@@ -112,7 +112,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
           {this.props.user.isAdministrator && [
             <Button
               key={0}
-              size="small"
               onClick={async () =>
                 this.setState({
                   isAdding: false,
@@ -126,7 +125,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
             </Button>,
             <Button
               key={1}
-              size="small"
               onClick={async () =>
                 this.setState({
                   isAdding: false,
@@ -156,7 +154,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
       ) : (
         <Button
           color="green"
-          size="small"
           onClick={async e =>
             this.setState({
               isAdding: true,
