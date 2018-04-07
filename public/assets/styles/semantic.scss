@@ -1,3 +1,13 @@
+@import 'variables.scss';
+
+.ui.vertical.menu {
+  .active.item {
+    color: $text-color;
+    font-weight: 700;
+    background-color: $menu-color;
+  }
+}
+
 .ui.list {
   .item {
     .showover {

@@ -3,14 +3,15 @@ import * as React from "react";
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
 import { actions, page, Failure } from "@fider/services";
+import { SideMenu } from "./components/SideMenu";
 
-interface AdminHomePageProps {
+interface SiteSettingsPageProps {
   user: CurrentUser;
   tenant: Tenant;
   system: SystemSettings;
 }
 
-interface AdminHomePageState {
+interface SiteSettingsPageState {
   title: string;
   welcomeMessage: string;
   invitation: string;
@@ -18,8 +19,8 @@ interface AdminHomePageState {
   error?: Failure;
 }
 
-export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHomePageState> {
-  constructor(props: AdminHomePageProps) {
+export class SiteSettingsPage extends React.Component<SiteSettingsPageProps, SiteSettingsPageState> {
+  constructor(props: SiteSettingsPageProps) {
     super(props);
 
     this.state = {
@@ -59,6 +60,9 @@ export class AdminHomePage extends React.Component<AdminHomePageProps, AdminHome
         </h2>
 
         <div className="ui grid">
+          <div className="three wide computer sixteen wide mobile column">
+            <SideMenu active="general" />
+          </div>
           <div className="eight wide computer sixteen wide mobile column">
             <div className="ui form">
               <DisplayError fields={["title"]} error={this.state.error} />
