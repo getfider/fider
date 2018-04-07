@@ -1,0 +1,49 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-toggle {
+  cursor: pointer;
+
+  input { 
+    display: none;
+  }
+
+  .text {
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  label {
+    display: inline-block;
+    vertical-align: middle;
+    width: 2em;
+    height: 1em;
+    border-radius: 0.5em;
+    position: relative;
+    cursor: pointer;
+    background: $gray-darker;
+  }
+
+  .switch {
+    position: absolute;
+    width: 0.9em;
+    height: 0.9em;
+    margin-top: 0.05em;
+    margin-left: 0.05em;
+    border-radius: 1em;
+    background: $white;
+    box-shadow: 5px 0px 28px -9px rgba(0, 0, 0, 0.75);
+    transition: transform .2s ease-in;
+  }
+
+  input:checked ~ label {
+    background: $green;
+  }
+  
+  input:checked ~ label .switch {
+    background: $white;
+    transform: translatex(1em);
+    transition: transform .2s ease-in;
+  }
+}
+
+
