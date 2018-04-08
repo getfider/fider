@@ -4,7 +4,7 @@ BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 build:
 	rm -rf dist
 	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME}' -o fider .
-	NODE_ENV=production npx webpack -p 
+	NODE_ENV=production npx webpack -p
 
 lint: 
 	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
