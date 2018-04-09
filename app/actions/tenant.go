@@ -114,3 +114,24 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 
 	return result
 }
+
+//UpdateTenantPrivacy is the input model used to update tenant privacy settings
+type UpdateTenantPrivacy struct {
+	Model *models.UpdateTenantPrivacy
+}
+
+// Initialize the model
+func (input *UpdateTenantPrivacy) Initialize() interface{} {
+	input.Model = new(models.UpdateTenantPrivacy)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *UpdateTenantPrivacy) IsAuthorized(user *models.User, services *app.Services) bool {
+	return user != nil && user.Role == models.RoleAdministrator
+}
+
+// Validate is current model is valid
+func (input *UpdateTenantPrivacy) Validate(user *models.User, services *app.Services) *validate.Result {
+	return validate.Success()
+}

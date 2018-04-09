@@ -27,7 +27,7 @@ export const updateTenantSettings = async (
   welcomeMessage: string,
   cname: string
 ): Promise<Result> => {
-  return await http.post("/api/admin/settings", {
+  return await http.post("/api/admin/settings/general", {
     title,
     invitation,
     welcomeMessage,

@@ -101,7 +101,8 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
-			private.Post("/api/admin/settings", handlers.UpdateSettings())
+			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
+			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())
 			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
 			private.Post("/api/admin/tags", handlers.CreateEditTag())
