@@ -35,6 +35,12 @@ export const updateTenantSettings = async (
   });
 };
 
+export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {
+  return await http.post("/api/admin/settings/privacy", {
+    isPrivate
+  });
+};
+
 export const checkAvailability = async (subdomain: string): Promise<Result<CheckAvailabilityResponse>> => {
   return await http.get<CheckAvailabilityResponse>(`/api/tenants/${subdomain}/availability`);
 };

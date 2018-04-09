@@ -143,7 +143,7 @@ type UpdateTenantSettings struct {
 
 //UpdateTenantPrivacy is the input model used to update tenant privacy settings
 type UpdateTenantPrivacy struct {
-	IsPrivate bool `json:"is_private"`
+	IsPrivate bool `json:"isPrivate"`
 }
 
 //SignInByEmail is the input model when user request to sign in by email

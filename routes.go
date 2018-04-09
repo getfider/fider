@@ -115,6 +115,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			admin.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 			admin.Get("/admin", handlers.Page())
+			admin.Get("/admin/privacy", handlers.Page())
 			admin.Get("/admin/members", handlers.ManageMembers())
 			admin.Get("/admin/tags", handlers.ManageTags())
 		}
