@@ -133,13 +133,17 @@ func (e *CreateTenant) GetKind() EmailVerificationKind {
 	return EmailVerificationKindSignUp
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
+//UpdateTenantSettings is the input model used to update tenant general settings
 type UpdateTenantSettings struct {
 	Title          string `json:"title"`
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname" format:"lower"`
-	UserClaims     *OAuthClaims
+}
+
+//UpdateTenantPrivacy is the input model used to update tenant privacy settings
+type UpdateTenantPrivacy struct {
+	IsPrivate bool `json:"is_private"`
 }
 
 //SignInByEmail is the input model when user request to sign in by email

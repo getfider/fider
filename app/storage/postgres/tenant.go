@@ -132,12 +132,22 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// UpdateSettings of given tenant
+// UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
 	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
+	}
+	return nil
+}
+
+// UpdatePrivacy settings of current tenant
+func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
+	query := "UPDATE tenants SET is_private = $1 WHERE id = $2"
+	_, err := s.trx.Execute(query, settings.IsPrivate, s.current.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed update tenant privacy settings")
 	}
 	return nil
 }

@@ -70,6 +70,19 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 	Expect(tenant).To(BeNil())
 }
 
+func TestTenantStorage_UpdatePrivacy(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+	Expect(tenant.IsPrivate).To(BeFalse())
+
+	tenants.UpdatePrivacy(&models.UpdateTenantPrivacy{IsPrivate: true})
+	tenant, _ = tenants.GetByDomain("demo")
+	Expect(tenant.IsPrivate).To(BeTrue())
+}
+
 func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
