@@ -1,4 +1,4 @@
-ALTER TABLE tenants ADD is_private BOOLEAN NOT NULL;
+ALTER TABLE tenants ADD is_private BOOLEAN NULL;
 
 UPDATE tenants SET is_private = false;
 

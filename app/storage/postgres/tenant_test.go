@@ -26,6 +26,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.Status).To(Equal(models.TenantInactive))
+	Expect(tenant.IsPrivate).To(BeFalse())
 
 	err = tenants.Activate(tenant.ID)
 	Expect(err).To(BeNil())
@@ -35,6 +36,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.Status).To(Equal(models.TenantActive))
+	Expect(tenant.IsPrivate).To(BeFalse())
 }
 
 func TestTenantStorage_SingleTenant_Add(t *testing.T) {

@@ -15,6 +15,7 @@ type Tenant struct {
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
+	IsPrivate      bool   `json:"isPrivate"`
 }
 
 var (
