@@ -38,7 +38,7 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecutePost(
 			handlers.UpdatePrivacy(),
-			`{ "is_private": true }`,
+			`{ "isPrivate": true }`,
 		)
 
 	tenant, _ := services.Tenants.GetByDomain("demo")
