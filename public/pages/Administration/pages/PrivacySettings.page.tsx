@@ -49,7 +49,7 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
         <div className="field">
           <label htmlFor="private">
             Private site
-            <Toggle active={this.state.isPrivate} onToggle={this.toggle} />
+            <Toggle disabled={!this.props.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
           </label>
           <p className="info">
             A private site prevents unauthenticated users from viewing or interacting with its content. <br /> If
