@@ -125,6 +125,16 @@ func OAuthCallback(provider string) web.HandlerFunc {
 	}
 }
 
+// SignInPage renders the sign in page
+func SignInPage() web.HandlerFunc {
+	return func(c web.Context) error {
+		if c.IsAuthenticated() || !c.Tenant().IsPrivate {
+			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		}
+		return c.Page(web.Map{})
+	}
+}
+
 // SignInByOAuth handles OAuth sign in
 func SignInByOAuth(provider string) web.HandlerFunc {
 	return func(c web.Context) error {

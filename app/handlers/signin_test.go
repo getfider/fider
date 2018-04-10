@@ -364,3 +364,44 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	Expect(err).To(BeNil())
 	Expect(request.VerifiedOn).NotTo(BeNil())
 }
+
+func TestSignInPageHandler_AuthenticatedUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestSignInPageHandler_NonPrivateTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusOK))
+}
