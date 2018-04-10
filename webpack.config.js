@@ -1,10 +1,9 @@
-const path = require('path');
+const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CleanObsoleteChunks = require('webpack-clean-obsolete-chunks');
 
 const publicFolder = path.resolve(__dirname, "public");
-
 const isProduction = process.env.NODE_ENV === "production";
+
 const plugins = [
     new MiniCssExtractPlugin({ 
         filename: "css/[name].[hash].css",
@@ -13,20 +12,21 @@ const plugins = [
 ];
 
 if (!isProduction) {
+    const CleanObsoleteChunks = require("webpack-clean-obsolete-chunks");
     plugins.push(new CleanObsoleteChunks());
 }
 
 module.exports = {
-    mode: 'development',
+    mode: process.env.NODE_ENV || "development",
     entry: "./public/index.tsx",
     output: {
-        path: __dirname + '/dist',
+        path: __dirname + "/dist",
         filename: "js/bundle.[chunkhash].js",
-        publicPath: "/assets/"
+        publicPath: "/assets/",
     },
     devtool: "source-map",
     resolve: {
-        extensions: ['.ts', '.tsx', '.js'],
+        extensions: [".ts", ".tsx", ".js"],
         alias: {
             "@fider": publicFolder
         }
@@ -44,17 +44,15 @@ module.exports = {
             { 
                 test: /\.(ts|tsx)$/,
                 include: publicFolder,
-                use: [
-                    "ts-loader"
-                ] 
+                use: "ts-loader",
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2)$/,
-                loader: 'file-loader?name=fonts/[name].[hash].[ext]'
+                use: "file-loader?name=fonts/[name].[hash].[ext]"
             },
             {
                 test: /\.(png|gif|jpg|jpeg)$/,
-                loader: 'file-loader?name=images/[name].[hash].[ext]'
+                use: "file-loader?name=images/[name].[hash].[ext]"
             }
         ]
     },
