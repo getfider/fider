@@ -125,8 +125,8 @@ func OAuthCallback(provider string) web.HandlerFunc {
 	}
 }
 
-// SignIn handles OAuth sign in
-func SignIn(provider string) web.HandlerFunc {
+// SignInByOAuth handles OAuth sign in
+func SignInByOAuth(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)

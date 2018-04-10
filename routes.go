@@ -34,11 +34,11 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())
 
-		noTenant.Get("/oauth/facebook", handlers.SignIn(oauth.FacebookProvider))
+		noTenant.Get("/oauth/facebook", handlers.SignInByOAuth(oauth.FacebookProvider))
 		noTenant.Get("/oauth/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		noTenant.Get("/oauth/google", handlers.SignIn(oauth.GoogleProvider))
+		noTenant.Get("/oauth/google", handlers.SignInByOAuth(oauth.GoogleProvider))
 		noTenant.Get("/oauth/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		noTenant.Get("/oauth/github", handlers.SignIn(oauth.GitHubProvider))
+		noTenant.Get("/oauth/github", handlers.SignInByOAuth(oauth.GitHubProvider))
 		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 

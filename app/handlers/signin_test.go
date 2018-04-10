@@ -32,11 +32,11 @@ func TestSignOutHandler(t *testing.T) {
 	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(web.CookieAuthName + "=;"))
 }
 
-func TestSignInHandler(t *testing.T) {
+func TestSignInByOAuthHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.Execute(handlers.SignIn(oauth.FacebookProvider))
+	code, response := server.Execute(handlers.SignInByOAuth(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect="))
