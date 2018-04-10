@@ -60,6 +60,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		page.Use(middlewares.JwtGetter())
 		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
+		page.Use(middlewares.CheckTenantPrivacy())
 
 		public := page.Group()
 		{
