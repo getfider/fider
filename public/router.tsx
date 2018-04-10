@@ -2,6 +2,7 @@ import * as React from "react";
 
 import {
   HomePage,
+  SignInPage,
   SignUpPage,
   ManageMembersPage,
   CompleteSignInProfilePage,
@@ -37,6 +38,7 @@ const pathRegex = [
   route("/admin/tags", ManageTagsPage, "p-admin-tags", true),
   route("/admin/privacy", PrivacySettingsPage, "p-admin-privacy", true),
   route("/admin", GeneralSettingsPage, "p-admin-general", true),
+  route("/signin", SignInPage, "p-signin", false),
   route("/signup", SignUpPage, "p-signup", false),
   route("/signin/verify", CompleteSignInProfilePage, "p-complete-signin-profile", true),
   route("/notifications", MyNotificationsPage, "p-my-notifications", true),

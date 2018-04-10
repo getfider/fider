@@ -50,9 +50,14 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
 	}
 
-	verify := r.Group()
+	open := r.Group()
 	{
-		verify.Get("/signup/verify", handlers.VerifySignUpKey())
+		open.Get("/signup/verify", handlers.VerifySignUpKey())
+		open.Use(middlewares.OnlyActiveTenants())
+		open.Get("/signin", handlers.Page())
+		open.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
+		open.Post("/api/signin/complete", handlers.CompleteSignInProfile())
+		open.Post("/api/signin", handlers.SignInByEmail())
 	}
 
 	page := r.Group()
@@ -69,10 +74,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 			public.Get("/api/status", handlers.Status(settings))
-			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())
-			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
 		private := page.Group()
