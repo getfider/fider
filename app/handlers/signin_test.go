@@ -176,6 +176,24 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
 }
 
+func TestCallbackHandler_NewUser_PrivateTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.AvengersTenant.IsPrivate = true
+
+	code, response := server.
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io&code=456").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+
+	user, err := services.Users.GetByEmail("some.guy@facebook.com")
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
+	Expect(user).To(BeNil())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/not-invited"))
+}
+
 func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
 	RegisterTestingT(t)
 

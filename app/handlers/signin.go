@@ -69,6 +69,10 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			}
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
+					if tenant.IsPrivate {
+						return c.Redirect(http.StatusTemporaryRedirect, c.TenantBaseURL(tenant)+"/not-invited")
+					}
+
 					user = &models.User{
 						Name:   oauthUser.Name,
 						Tenant: tenant,
@@ -132,6 +136,13 @@ func SignInPage() web.HandlerFunc {
 			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
 		}
 		return c.Page(web.Map{})
+	}
+}
+
+// NotInvitedPage renders the not invited page
+func NotInvitedPage() web.HandlerFunc {
+	return func(c web.Context) error {
+		return c.Render(http.StatusForbidden, "not-invited.html", web.Map{})
 	}
 }
 

@@ -58,6 +58,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())
+		open.Get("/not-invited", handlers.NotInvitedPage())
 		open.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 		open.Post("/api/signin/complete", handlers.CompleteSignInProfile())
 		open.Post("/api/signin", handlers.SignInByEmail())
