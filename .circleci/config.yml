@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: getfider/circleci:0.0.6
+      - image: getfider/circleci:0.0.7
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
@@ -27,7 +27,7 @@ jobs:
             - docker-image.tar
   test:
     docker:
-      - image: getfider/circleci:0.0.6
+      - image: getfider/circleci:0.0.7
       - image: postgres:9.6.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
@@ -43,7 +43,7 @@ jobs:
       - run: bash <(curl -s https://codecov.io/bash)
   push:
     docker:
-      - image: getfider/circleci:0.0.6
+      - image: getfider/circleci:0.0.7
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - attach_workspace:

@@ -1,10 +1,9 @@
 import * as React from "react";
-import { Button, Gravatar, UserName } from "@fider/components/common";
-import { ShowTag } from "@fider/components/ShowTag";
-import { Tag, CurrentUser, UserRole } from "@fider/models";
+import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
+import { AdminBasePage, TagForm, TagFormState } from "../components";
 
-import { TagForm, TagFormState } from "./";
-import { actions, Failure } from "@fider/services";
+import { Tag, CurrentUser, UserRole } from "@fider/models";
+import { page, actions, Failure } from "@fider/services";
 
 interface ManageTagsPageProps {
   user: CurrentUser;
@@ -18,13 +17,20 @@ interface ManageTagsPageState {
   editing?: number;
 }
 
-export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageTagsPageState> {
+export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
+  public name = "tags";
+  public icon = "tags";
+  public title = "Tags";
+  public subtitle = "Manage your site tags";
+
   constructor(props: ManageTagsPageProps) {
     super(props);
     this.state = {
       isAdding: false,
       allTags: this.props.tags
     };
+
+    page.setTitle(`Manage Tags · Site Settings · ${document.title}`);
   }
 
   private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
@@ -65,8 +71,8 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
     }
   }
 
-  public render() {
-    const items = this.state.allTags.map(t => {
+  private getTagList() {
+    return this.state.allTags.map(t => {
       if (this.state.editing === t.id) {
         return (
           <div key={t.id} className="item">
@@ -134,46 +140,41 @@ export class ManageTagsPage extends React.Component<ManageTagsPageProps, ManageT
         </div>
       );
     });
+  }
+
+  public content() {
+    const list = this.getTagList();
+
+    const form =
+      this.props.user.isAdministrator &&
+      (this.state.isAdding ? (
+        <div className="ui segment">
+          <TagForm onSave={async data => this.saveNewTag(data)} onCancel={() => this.setState({ isAdding: false })} />
+        </div>
+      ) : (
+        <Button
+          color="green"
+          onClick={async e =>
+            this.setState({
+              isAdding: true,
+              deleting: undefined,
+              editing: undefined
+            })
+          }
+        >
+          Add new
+        </Button>
+      ));
 
     return (
-      <div className="page ui container">
-        <h2 className="ui header">
-          <i className="circular tags icon" />
-          <div className="content">
-            Tags
-            <div className="sub header">Manage your account tags.</div>
-          </div>
-        </h2>
-
-        {this.props.user.isAdministrator &&
-          (this.state.isAdding ? (
-            <div className="ui segment">
-              <TagForm
-                onSave={async data => this.saveNewTag(data)}
-                onCancel={() => this.setState({ isAdding: false })}
-              />
-            </div>
-          ) : (
-            <Button
-              color="green"
-              onClick={async e =>
-                this.setState({
-                  isAdding: true,
-                  deleting: undefined,
-                  editing: undefined
-                })
-              }
-            >
-              Add new
-            </Button>
-          ))}
-
+      <>
+        {form}
         <div className="ui segment">
           <div className="ui middle aligned very relaxed divided list">
-            {items.length ? items : <div className="content">There aren’t any tags yet.</div>}
+            {list.length ? list : <div className="content">There aren’t any tags yet.</div>}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 }

@@ -4,7 +4,7 @@ BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 build:
 	rm -rf dist
 	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME}' -o fider .
-	npx webpack -p
+	NODE_ENV=production npx webpack -p
 
 lint: 
 	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
@@ -35,7 +35,7 @@ e2e:
 watch:
 	rm -rf dist
 	gin --buildArgs "-ldflags='-s -w -X main.buildtime=${BUILD_TIME}'" & 
-	npx webpack --watch
+	npx webpack -w
 
 run:
 	godotenv -f .env ./fider
