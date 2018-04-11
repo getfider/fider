@@ -237,3 +237,10 @@ type ChangeUserRole struct {
 	UserID int  `route:"user_id"`
 	Role   Role `json:"role"`
 }
+
+// InviteUsers is used to invite new users into Fider
+type InviteUsers struct {
+	Subject    string   `json:"subject"`
+	Message    string   `json:"messages"`
+	Recipients []string `json:"recipients"`
+}
