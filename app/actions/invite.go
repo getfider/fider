@@ -6,7 +6,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -65,7 +64,7 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 			if email != "" {
 				input.Invitations = append(input.Invitations, &models.UserInvitation{
 					Email:           email,
-					VerificationKey: strings.Replace(uuid.NewV4().String(), "-", "", 4),
+					VerificationKey: models.GenerateVerificationKey(),
 				})
 			}
 		}

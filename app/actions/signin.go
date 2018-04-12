@@ -1,12 +1,9 @@
 package actions
 
 import (
-	"strings"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -18,7 +15,7 @@ type SignInByEmail struct {
 // Initialize the model
 func (input *SignInByEmail) Initialize() interface{} {
 	input.Model = new(models.SignInByEmail)
-	input.Model.VerificationKey = strings.Replace(uuid.NewV4().String(), "-", "", 4)
+	input.Model.VerificationKey = models.GenerateVerificationKey()
 	return input.Model
 }
 

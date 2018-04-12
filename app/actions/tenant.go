@@ -1,13 +1,10 @@
 package actions
 
 import (
-	"strings"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -19,7 +16,7 @@ type CreateTenant struct {
 // Initialize the model
 func (input *CreateTenant) Initialize() interface{} {
 	input.Model = new(models.CreateTenant)
-	input.Model.VerificationKey = strings.Replace(uuid.NewV4().String(), "-", "", 4)
+	input.Model.VerificationKey = models.GenerateVerificationKey()
 	return input.Model
 }
 

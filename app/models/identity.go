@@ -1,9 +1,11 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/getfider/fider/app/pkg/uuid"
 )
 
 //Tenant represents a tenant
@@ -271,4 +273,9 @@ type InviteUsers struct {
 	Subject    string   `json:"subject"`
 	Message    string   `json:"messages"`
 	Recipients []string `json:"recipients" format:"lower"`
+}
+
+// GenerateVerificationKey used on email verifications
+func GenerateVerificationKey() string {
+	return strings.Replace(uuid.NewV4().String(), "-", "", 4)
 }
