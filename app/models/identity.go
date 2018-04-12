@@ -57,6 +57,8 @@ const (
 	EmailVerificationKindSignUp EmailVerificationKind = 2
 	//EmailVerificationKindChangeEmail is the change user email process
 	EmailVerificationKindChangeEmail EmailVerificationKind = 3
+	//EmailVerificationKindUserInvitation is the sign in invitation sent to an user
+	EmailVerificationKindUserInvitation EmailVerificationKind = 4
 )
 
 //HasProvider returns true if current user has registered with given provider
@@ -199,6 +201,32 @@ func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindChangeEmail
 }
 
+//UserInvitation is the model used to register an invite sent to an user
+type UserInvitation struct {
+	Email           string
+	VerificationKey string
+}
+
+//GetEmail returns the invited user's email
+func (e *UserInvitation) GetEmail() string {
+	return e.Email
+}
+
+//GetName returns empty for this kind of process
+func (e *UserInvitation) GetName() string {
+	return ""
+}
+
+//GetUser returns the current user performing this action
+func (e *UserInvitation) GetUser() *User {
+	return nil
+}
+
+//GetKind returns EmailVerificationKindUserInvitation
+func (e *UserInvitation) GetKind() EmailVerificationKind {
+	return EmailVerificationKindUserInvitation
+}
+
 //NewEmailVerification is used to register a new email verification process
 type NewEmailVerification interface {
 	GetEmail() string
@@ -242,5 +270,5 @@ type ChangeUserRole struct {
 type InviteUsers struct {
 	Subject    string   `json:"subject"`
 	Message    string   `json:"messages"`
-	Recipients []string `json:"recipients"`
+	Recipients []string `json:"recipients" format:"lower"`
 }

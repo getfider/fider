@@ -16,6 +16,7 @@ func TestInviteUsers_Empty(t *testing.T) {
 	action := &actions.InviteUsers{Model: &models.InviteUsers{}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "subject", "message", "recipients")
+	Expect(action.Invitations).To(BeNil())
 }
 
 func TestInviteUsers_Oversized(t *testing.T) {
@@ -28,6 +29,7 @@ func TestInviteUsers_Oversized(t *testing.T) {
 	}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "subject")
+	Expect(action.Invitations).To(BeNil())
 }
 
 func TestInviteUsers_MissingInvite(t *testing.T) {
@@ -40,6 +42,7 @@ func TestInviteUsers_MissingInvite(t *testing.T) {
 	}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "message")
+	Expect(action.Invitations).To(BeNil())
 }
 
 func TestInviteUsers_TooManyRecipients(t *testing.T) {
@@ -57,23 +60,45 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 	}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "recipients")
+	Expect(action.Invitations).To(BeNil())
 }
 
-func TestInviteUsers_Valid(t *testing.T) {
+func TestInviteUsers_InvalidRecipient(t *testing.T) {
 	RegisterTestingT(t)
-
-	recipients := make([]string, 31)
-	for i := 0; i < len(recipients); i++ {
-		recipients[i] = fmt.Sprintf("jon.snow%d@got.com", i)
-	}
 
 	action := &actions.InviteUsers{Model: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
+			"jon.snow",
+			"@got.com",
+		},
+	}}
+	result := action.Validate(nil, services)
+	ExpectFailed(result, "recipients")
+	Expect(action.Invitations).To(BeNil())
+}
+
+func TestInviteUsers_Valid(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := &actions.InviteUsers{Model: &models.InviteUsers{
+		Subject: "Share your feedback.",
+		Message: "Use this link to join our community: %invite%",
+		Recipients: []string{
+			"",
 			"jon.snow@got.com",
 			"arya.stark@got.com",
 		},
 	}}
+
 	ExpectSuccess(action.Validate(nil, services))
+
+	Expect(action.Invitations).To(HaveLen(2))
+
+	Expect(action.Invitations[0].Email).To(Equal("jon.snow@got.com"))
+	Expect(action.Invitations[0].VerificationKey).NotTo(BeEmpty())
+
+	Expect(action.Invitations[1].Email).To(Equal("arya.stark@got.com"))
+	Expect(action.Invitations[1].VerificationKey).NotTo(BeEmpty())
 }

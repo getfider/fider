@@ -6,12 +6,14 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
 // InviteUsers is used to invite new users into Fider
 type InviteUsers struct {
-	Model *models.InviteUsers
+	Model       *models.InviteUsers
+	Invitations []*models.UserInvitation
 }
 
 // Initialize the model
@@ -46,6 +48,27 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 		result.AddFieldFailure("recipients", "At least one recipient is required.")
 	} else if len(input.Model.Recipients) > 30 {
 		result.AddFieldFailure("recipients", "Too many recipients. We limit at 30 recipients per invite.")
+	}
+
+	for _, email := range input.Model.Recipients {
+		if email != "" {
+			emailResult := validate.Email(email)
+			if !emailResult.Ok {
+				result.AddFieldFailure("recipients", emailResult.Messages...)
+			}
+		}
+	}
+
+	if result.Ok {
+		input.Invitations = make([]*models.UserInvitation, 0)
+		for _, email := range input.Model.Recipients {
+			if email != "" {
+				input.Invitations = append(input.Invitations, &models.UserInvitation{
+					Email:           email,
+					VerificationKey: strings.Replace(uuid.NewV4().String(), "-", "", 4),
+				})
+			}
+		}
 	}
 
 	return result
