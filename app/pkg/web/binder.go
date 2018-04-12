@@ -70,18 +70,28 @@ func (b *DefaultBinder) bindRoute(idx int, target reflect.Value, targetType refl
 
 func (b *DefaultBinder) format(idx int, target reflect.Value, targetType reflect.Type) {
 	field := target.Field(idx)
-
-	if field.Type() != stringType {
-		return
-	}
-
+	fieldType := field.Type()
+	fieldTypeKind := fieldType.Kind()
 	format := targetType.Field(idx).Tag.Get("format")
-	str := field.Interface().(string)
-	str = strings.TrimSpace(str)
-	if format == "lower" {
-		str = strings.ToLower(str)
-	} else if format == "upper" {
-		str = strings.ToUpper(str)
+
+	if fieldType == stringType {
+		value := field.Interface().(string)
+		field.SetString(applyFormat(format, value))
+	} else if fieldTypeKind == reflect.Slice && fieldType.Elem() == stringType {
+		values := field.Interface().([]string)
+		for i, value := range values {
+			field.Index(i).SetString(applyFormat(format, value))
+		}
 	}
-	field.SetString(str)
+
+}
+
+func applyFormat(format string, value string) string {
+	value = strings.TrimSpace(value)
+	if format == "lower" {
+		value = strings.ToLower(value)
+	} else if format == "upper" {
+		value = strings.ToUpper(value)
+	}
+	return value
 }

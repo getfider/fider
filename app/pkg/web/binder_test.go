@@ -44,11 +44,31 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
 	err := binder.Bind(u, ctx)
-	Expect(err).To(BeNil())
 	Expect(u.Name).To(Equal("Jon Snow"))
+	Expect(err).To(BeNil())
 	Expect(u.Email).To(Equal("jon.snow@got.com"))
 	Expect(u.Color).To(Equal("FF00AD"))
 	Expect(u.Other).To(Equal(""))
+}
+
+func TestDefaultBinder_Array_TrimSpaces(t *testing.T) {
+	RegisterTestingT(t)
+
+	type user struct {
+		Providers []string `json:"providers" format:"lower"`
+	}
+
+	params := make(web.StringMap, 0)
+	body := `{ "providers": [ " Google", " FACEBOOK ", "   MicroSoft    " ] }`
+	ctx := newBodyContext("POST", params, body, "application/json")
+	u := new(user)
+	err := binder.Bind(u, ctx)
+	Expect(err).To(BeNil())
+	Expect(u.Providers).To(Equal([]string{
+		"google",
+		"facebook",
+		"microsoft",
+	}))
 }
 
 func TestDefaultBinder_DELETE(t *testing.T) {
