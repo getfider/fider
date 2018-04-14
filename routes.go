@@ -121,6 +121,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 			admin.Get("/admin", handlers.Page())
 			admin.Get("/admin/privacy", handlers.Page())
+			admin.Get("/admin/invitations", handlers.Page())
 			admin.Get("/admin/members", handlers.ManageMembers())
 			admin.Get("/admin/tags", handlers.ManageTags())
 		}
