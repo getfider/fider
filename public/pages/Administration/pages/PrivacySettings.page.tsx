@@ -53,7 +53,7 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
           </label>
           <p className="info">
             A private site prevents unauthenticated users from viewing or interacting with its content. <br /> If
-            enabled, only registered and invited users will be able to sign in to this site.
+            enabled, only already registered and invited users will be able to sign in to this site.
           </p>
         </div>
       </div>
