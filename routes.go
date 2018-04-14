@@ -103,6 +103,15 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Post("/api/notifications/read-all", handlers.ReadAllNotifications())
 			private.Get("/api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
+			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+
+			private.Get("/admin", handlers.Page())
+			private.Get("/admin/privacy", handlers.Page())
+			private.Get("/admin/invitations", handlers.Page())
+			private.Get("/admin/members", handlers.ManageMembers())
+			private.Get("/admin/tags", handlers.ManageTags())
+			private.Post("/api/admin/invitations/sample", handlers.SendSampleInvite())
+
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
@@ -112,18 +121,6 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
 			private.Post("/api/admin/tags", handlers.CreateEditTag())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
-		}
-
-		admin := page.Group()
-		{
-			admin.Use(middlewares.IsAuthenticated())
-			admin.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
-
-			admin.Get("/admin", handlers.Page())
-			admin.Get("/admin/privacy", handlers.Page())
-			admin.Get("/admin/invitations", handlers.Page())
-			admin.Get("/admin/members", handlers.ManageMembers())
-			admin.Get("/admin/tags", handlers.ManageTags())
 		}
 	}
 

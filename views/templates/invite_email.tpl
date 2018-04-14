@@ -1,0 +1,3 @@
+subject: {{ .subject }}
+body:
+{{ .message }}

@@ -29,8 +29,21 @@ export class InvitationsPage extends AdminBasePage<InvitationsPageProps, Invitat
     super(props);
 
     this.state = {
-      subject: "",
-      message: "",
+      subject: `Share your ideas and thoughts about ${this.props.tenant.name}`,
+      message: `Hi,
+
+At ${
+        this.props.tenant.name
+      } we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
+
+We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
+
+To join, click on the link below.
+
+%invite%
+
+Regards,
+${this.props.user.name} (${this.props.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
       rawRecipients: ""
@@ -46,7 +59,11 @@ export class InvitationsPage extends AdminBasePage<InvitationsPageProps, Invitat
   };
 
   private sendSample = async (e: ButtonClickEvent) => {
-    return;
+    const result = await actions.sendSampleInvite(this.state.subject, this.state.message);
+    if (result.ok) {
+      alert("Sent!");
+    }
+    this.setState({ error: result.error });
   };
 
   private sendInvites = async (e: ButtonClickEvent) => {
@@ -80,7 +97,7 @@ export class InvitationsPage extends AdminBasePage<InvitationsPageProps, Invitat
           <label htmlFor="subject">Subject</label>
           <input
             id="subject"
-            defaultValue={`Share your ideas and thoughts about ${this.props.tenant.name}`}
+            value={this.state.subject}
             type="text"
             maxLength={70}
             onChange={e => this.setState({ subject: e.currentTarget.value })}
@@ -94,20 +111,7 @@ export class InvitationsPage extends AdminBasePage<InvitationsPageProps, Invitat
           <label htmlFor="message">Message</label>
           <Textarea
             id="message"
-            defaultValue={`Hi,
-
-At ${
-              this.props.tenant.name
-            } we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
-
-We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
-
-To join, click on the link below.
-
-%invite%
-
-Regards,
-${this.props.user.name} (${this.props.tenant.name})`}
+            value={this.state.message}
             rows={8}
             minRows={8}
             onChange={e => this.setState({ message: e.currentTarget.value })}

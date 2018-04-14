@@ -133,3 +133,17 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 	Expect(action.Invitations[1].Email).To(Equal("arya.stark@got.com"))
 	Expect(action.Invitations[1].VerificationKey).NotTo(BeEmpty())
 }
+
+func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
+	RegisterTestingT(t)
+
+	action := &actions.InviteUsers{
+		IsSampleInvite: true,
+		Model: &models.InviteUsers{
+			Subject: "Share your feedback.",
+			Message: "Use this link to join our community: %invite%",
+		},
+	}
+
+	ExpectSuccess(action.Validate(nil, services))
+}
