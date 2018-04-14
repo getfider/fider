@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -62,10 +63,13 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 		input.Invitations = make([]*models.UserInvitation, 0)
 		for _, email := range input.Model.Recipients {
 			if email != "" {
-				input.Invitations = append(input.Invitations, &models.UserInvitation{
-					Email:           email,
-					VerificationKey: models.GenerateVerificationKey(),
-				})
+				_, err := services.Users.GetByEmail(email)
+				if errors.Cause(err) == app.ErrNotFound {
+					input.Invitations = append(input.Invitations, &models.UserInvitation{
+						Email:           email,
+						VerificationKey: models.GenerateVerificationKey(),
+					})
+				}
 			}
 		}
 	}

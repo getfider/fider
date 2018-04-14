@@ -102,3 +102,34 @@ func TestInviteUsers_Valid(t *testing.T) {
 	Expect(action.Invitations[1].Email).To(Equal("arya.stark@got.com"))
 	Expect(action.Invitations[1].VerificationKey).NotTo(BeEmpty())
 }
+
+func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
+	RegisterTestingT(t)
+
+	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
+	services.Users.SetCurrentTenant(theTenant)
+	services.Users.Register(&models.User{
+		Name:   "Tony",
+		Email:  "tony.start@avengers.com",
+		Tenant: theTenant,
+	})
+	action := &actions.InviteUsers{Model: &models.InviteUsers{
+		Subject: "Share your feedback.",
+		Message: "Use this link to join our community: %invite%",
+		Recipients: []string{
+			"tony.start@avengers.com",
+			"jon.snow@got.com",
+			"arya.stark@got.com",
+		},
+	}}
+
+	ExpectSuccess(action.Validate(nil, services))
+
+	Expect(action.Invitations).To(HaveLen(2))
+
+	Expect(action.Invitations[0].Email).To(Equal("jon.snow@got.com"))
+	Expect(action.Invitations[0].VerificationKey).NotTo(BeEmpty())
+
+	Expect(action.Invitations[1].Email).To(Equal("arya.stark@got.com"))
+	Expect(action.Invitations[1].VerificationKey).NotTo(BeEmpty())
+}
