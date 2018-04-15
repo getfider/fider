@@ -110,14 +110,14 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 	services.Users.SetCurrentTenant(theTenant)
 	services.Users.Register(&models.User{
 		Name:   "Tony",
-		Email:  "tony.start@avengers.com",
+		Email:  "tony.stark@avengers.com",
 		Tenant: theTenant,
 	})
 	action := &actions.InviteUsers{Model: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
 		Recipients: []string{
-			"tony.start@avengers.com",
+			"tony.stark@avengers.com",
 			"jon.snow@got.com",
 			"arya.stark@got.com",
 		},
@@ -132,6 +132,27 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 
 	Expect(action.Invitations[1].Email).To(Equal("arya.stark@got.com"))
 	Expect(action.Invitations[1].VerificationKey).NotTo(BeEmpty())
+}
+
+func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
+	RegisterTestingT(t)
+
+	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
+	services.Users.SetCurrentTenant(theTenant)
+	services.Users.Register(&models.User{
+		Name:   "Tony",
+		Email:  "tony.stark@avengers.com",
+		Tenant: theTenant,
+	})
+	action := &actions.InviteUsers{Model: &models.InviteUsers{
+		Subject: "Share your feedback.",
+		Message: "Use this link to join our community: %invite%",
+		Recipients: []string{
+			"tony.stark@avengers.com",
+		},
+	}}
+
+	ExpectFailed(action.Validate(nil, services), "recipients")
 }
 
 func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {

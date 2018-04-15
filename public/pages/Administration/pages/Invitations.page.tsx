@@ -74,7 +74,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
     const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients);
     if (result.ok) {
       notify.success("The invites have been sent.");
-      this.setState({ rawRecipients: "", recipients: [], error: undefined });
+      this.setState({ rawRecipients: "", numOfRecipients: 0, recipients: [], error: undefined });
     } else {
       this.setState({ error: result.error });
     }

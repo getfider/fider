@@ -76,6 +76,10 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 					}
 				}
 			}
+
+			if len(input.Invitations) == 0 {
+				result.AddFieldFailure("recipients", "All these addresses have already been registered on this site.")
+			}
 		}
 
 	}
