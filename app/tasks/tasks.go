@@ -3,7 +3,10 @@ package tasks
 import (
 	"fmt"
 	"html/template"
+	"strings"
+	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/markdown"
@@ -199,5 +202,27 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		}
 
 		return c.Services().Emailer.BatchSend("change_status", params, c.User().Name, to)
+	})
+}
+
+//SendInvites sends one email to each invited recipient
+func SendInvites(subject, message string, invitations []*models.UserInvitation) worker.Task {
+	return describe("Send invites", func(c *worker.Context) error {
+		to := make([]email.Recipient, len(invitations))
+		for i, invite := range invitations {
+			err := c.Services().Tenants.SaveVerificationKey(invite.VerificationKey, 15*24*time.Hour, invite)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			url := link(c.BaseURL(), "/invite/verify?k=%s", invite.VerificationKey)
+			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
+			to[i] = email.NewRecipient("", invite.Email, email.Params{
+				"message": markdown.Parse(toMessage),
+			})
+		}
+		return c.Services().Emailer.BatchSend("invite_email", email.Params{
+			"subject": subject,
+		}, c.User().Name, to)
 	})
 }

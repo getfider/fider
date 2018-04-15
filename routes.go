@@ -110,6 +110,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Get("/admin/invitations", handlers.Page())
 			private.Get("/admin/members", handlers.ManageMembers())
 			private.Get("/admin/tags", handlers.ManageTags())
+			private.Post("/api/admin/invitations/send", handlers.SendInvites())
 			private.Post("/api/admin/invitations/sample", handlers.SendSampleInvite())
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))

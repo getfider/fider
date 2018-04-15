@@ -32,9 +32,9 @@ export class InvitationsPage extends AdminBasePage<InvitationsPageProps, Invitat
       subject: `Share your ideas and thoughts about ${this.props.tenant.name}`,
       message: `Hi,
 
-At ${
+At **${
         this.props.tenant.name
-      } we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
+      }** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
 
 We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
 
@@ -66,14 +66,18 @@ ${this.props.user.name} (${this.props.tenant.name})`,
           An email message was sent to <strong>{this.props.user.email}</strong>
         </span>
       );
-    } else {
-      notify.error("Failed to send email. Please try again.");
     }
     this.setState({ error: result.error });
   };
 
   private sendInvites = async (e: ButtonClickEvent) => {
-    return;
+    const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients);
+    if (result.ok) {
+      notify.success("The invites have been sent.");
+      this.setState({ rawRecipients: "", recipients: [], error: undefined });
+    } else {
+      this.setState({ error: result.error });
+    }
   };
 
   public content() {
@@ -86,6 +90,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
             id="recipients"
             placeholder="william@example.com; michael@company.com"
             rows={1}
+            value={this.state.rawRecipients}
             minRows={1}
             onChange={this.setRecipients}
           />

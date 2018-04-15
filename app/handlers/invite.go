@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/tasks"
 )
 
 // SendSampleInvite to current user's email
@@ -29,6 +30,20 @@ func SendSampleInvite() web.HandlerFunc {
 				return c.Failure(err)
 			}
 		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// SendInvites sends an email to each recipient
+func SendInvites() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.InviteUsers)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		c.Enqueue(tasks.SendInvites(input.Model.Subject, input.Model.Message, input.Invitations))
 
 		return c.Ok(web.Map{})
 	}
