@@ -302,6 +302,36 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	Expect(code).To(Equal(http.StatusOK))
 }
 
+func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_InvitedNewUser(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_TwoInviteRequests(t *testing.T) {
+	RegisterTestingT(t)
+	panic("TODO")
+}
+
 func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 	RegisterTestingT(t)
 
