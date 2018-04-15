@@ -2,7 +2,7 @@ import "./SignIn.page.scss";
 
 import * as React from "react";
 import { SignInControl } from "@fider/components/common";
-import { page } from "@fider/services";
+import { page, notify } from "@fider/services";
 import { Tenant } from "@fider/models";
 
 interface SignInPageProps {
@@ -17,6 +17,14 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
     page.setTitle(`Sign in · ${document.title}`);
   }
 
+  private onEmailSent = (email: string) => {
+    notify.success(
+      <span>
+        We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
+      </span>
+    );
+  };
+
   public render() {
     return (
       <div className="page ui container">
@@ -26,7 +34,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
           </p>
           <p>If you have an account or an invitation, you may use following options to sign in.</p>
         </div>
-        <SignInControl useEmail={true} redirectTo={page.getBaseUrl()} />
+        <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={page.getBaseUrl()} />
       </div>
     );
   }

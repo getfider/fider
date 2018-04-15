@@ -3,7 +3,6 @@ package actions
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -76,15 +75,14 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 	if input.Model.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
-		if err != nil {
-			if errors.Cause(err) == app.ErrNotFound {
-				result.AddFieldFailure("key", "Key is invalid.")
-			} else {
-				return validate.Error(err)
-			}
+		request1, err1 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
+		request2, err2 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindUserInvitation, input.Model.Key)
+		if err1 == nil {
+			input.Model.Email = request1.Email
+		} else if err2 == nil {
+			input.Model.Email = request2.Email
 		} else {
-			input.Model.Email = request.Email
+			result.AddFieldFailure("key", "Key is invalid.")
 		}
 	}
 

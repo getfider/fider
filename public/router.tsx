@@ -42,7 +42,8 @@ const pathRegex = [
   route("/admin", GeneralSettingsPage, "p-admin-general", true),
   route("/signin", SignInPage, "p-signin", false),
   route("/signup", SignUpPage, "p-signup", false),
-  route("/signin/verify", CompleteSignInProfilePage, "p-complete-signin-profile", true),
+  route("/signin/verify", CompleteSignInProfilePage, "p-home", true),
+  route("/invite/verify", CompleteSignInProfilePage, "p-signin", false),
   route("/notifications", MyNotificationsPage, "p-my-notifications", true),
   route("/settings", MySettingsPage, "p-my-settings", true)
 ];

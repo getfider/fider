@@ -133,7 +133,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
               change people will simply ignore your message.
             </p>
             <p>
-              You're allowed to write whatever you want as long as you include the accept link placeholder named{" "}
+              You're allowed to write whatever you want as long as you include the invitation link placeholder named{" "}
               <strong>%invite%</strong>.
             </p>
           </div>

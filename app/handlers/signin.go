@@ -201,8 +201,21 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			user, err = c.Services().Users.GetByEmail(result.Email)
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
+					if c.Tenant().IsPrivate {
+						return NotInvitedPage()(c)
+					}
+
 					// This will render a page for /signin/verify URL using same variables as home page
 					return Index()(c)
+				}
+				return c.Failure(err)
+			}
+		} else if kind == models.EmailVerificationKindUserInvitation {
+			user, err = c.Services().Users.GetByEmail(result.Email)
+			if err != nil {
+				if errors.Cause(err) == app.ErrNotFound {
+					// This will render a page for /invite/verify URL using same variables as sign in page
+					return SignInPage()(c)
 				}
 				return c.Failure(err)
 			}
