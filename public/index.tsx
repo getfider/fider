@@ -26,6 +26,7 @@ import "semantic-ui-css/components/icon.min.css";
 import "semantic-ui-css/components/message.min.css";
 import "semantic-ui-css/components/menu.min.css";
 import "semantic-ui-css/components/comment.min.css";
+import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";
 
 const w = window as any;
