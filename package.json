@@ -8,6 +8,7 @@
     "react": "^16.3.1",
     "react-dom": "^16.3.1",
     "react-textarea-autosize": "^6.1.0",
+    "react-toastify": "^3.4.3",
     "semantic-ui-css": "2.2.14",
     "semantic-ui-react": "^0.79.0"
   },

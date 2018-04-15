@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
-import { actions, page, Failure } from "@fider/services";
+import { actions, page, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface InvitationsPageProps {
@@ -61,7 +61,13 @@ ${this.props.user.name} (${this.props.tenant.name})`,
   private sendSample = async (e: ButtonClickEvent) => {
     const result = await actions.sendSampleInvite(this.state.subject, this.state.message);
     if (result.ok) {
-      alert("Sent!");
+      notify.success(
+        <span>
+          An email message was sent to <strong>{this.props.user.email}</strong>
+        </span>
+      );
+    } else {
+      notify.error("Failed to send email. Please try again.");
     }
     this.setState({ error: result.error });
   };

@@ -3,6 +3,7 @@ import * as ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { analytics } from "@fider/services";
+import { ToastContainer } from "react-toastify";
 
 import "semantic-ui-css/components/reset.min.css";
 import "semantic-ui-css/components/site.min.css";
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const config = resolveRootComponent(location.pathname);
     ReactDOM.render(
       <div id={config.id}>
+        <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && React.createElement(Header, w.props)}
         {React.createElement(config.component, w.props)}
         {React.createElement(Footer, w.props)}

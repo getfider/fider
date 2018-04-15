@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError, Toggle } from "@fider/components/common";
-import { actions, page, Failure } from "@fider/services";
+import { actions, page, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface PrivacySettingsPageProps {
@@ -38,7 +38,10 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
         isPrivate: active
       }),
       async () => {
-        await actions.updateTenantPrivacy(this.state.isPrivate);
+        const response = await actions.updateTenantPrivacy(this.state.isPrivate);
+        if (response.ok) {
+          notify.success("Your privacy settings have been saved.");
+        }
       }
     );
   };
