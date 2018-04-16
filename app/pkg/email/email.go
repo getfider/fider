@@ -3,7 +3,6 @@ package email
 import (
 	"bytes"
 	"html/template"
-	"net/smtp"
 	"regexp"
 	"strings"
 
@@ -11,14 +10,6 @@ import (
 )
 
 var cache = make(map[string]*template.Template, 0)
-
-//Auth creates an auth object for sending mail
-func Auth(username string, password string, host string) smtp.Auth {
-	if username == "" && password == "" {
-		return nil
-	}
-	return smtp.PlainAuth("", username, password, host)
-}
 
 // Params used to replace variables on emails
 type Params map[string]interface{}
