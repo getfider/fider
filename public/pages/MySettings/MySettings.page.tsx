@@ -169,7 +169,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               />
 
               <div className="field">
-                <Button color="green" size="large" onClick={async () => await this.confirm()}>
+                <Button color="green" onClick={async () => await this.confirm()}>
                   Confirm
                 </Button>
               </div>

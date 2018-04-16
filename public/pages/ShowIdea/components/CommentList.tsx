@@ -96,7 +96,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
             {this.canEditComment(c) && (
               <div className="metadata">
                 ·{" "}
-                <Button simple={true} size="small" onClick={() => this.startEdit(c)}>
+                <Button simple={true} onClick={() => this.startEdit(c)}>
                   edit
                 </Button>
               </div>
