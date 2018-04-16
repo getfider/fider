@@ -25,7 +25,7 @@ func SendSampleInvite() web.HandlerFunc {
 				"subject": input.Model.Subject,
 				"message": markdown.Parse(input.Model.Message),
 			})
-			err := c.Services().Emailer.Send("invite_email", email.Params{}, c.Tenant().Name, to)
+			err := c.Services().Emailer.Send(c.Tenant(), "invite_email", email.Params{}, c.Tenant().Name, to)
 			if err != nil {
 				return c.Failure(err)
 			}
