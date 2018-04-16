@@ -1,5 +1,5 @@
 {{define "title"}}
-Not Authorized &middot; Fider
+Not Invited &middot; Fider
 {{end}}
       
 {{define "javascript"}}{{end}}
@@ -8,13 +8,13 @@ Not Authorized &middot; Fider
 <div class="ui middle aligned center aligned grid failure-page">
   <div class="column">
     <img src="https://getfider.com/images/logo-100x100.png"/>
-    <h1>NOT AUTHORIZED</h1>
+    <h1>NOT INVITED</h1>
     <p>
-      You are not authorized to view this page.
+      We couldn't find your account for your email address.
     </p>
 
     {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+      <span>Take me back to <a href="{{ .baseURL }}/signin">{{ .baseURL }}/signin</a>.</span>
     {{ end }}
   </div>
 </div>

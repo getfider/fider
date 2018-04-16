@@ -12,7 +12,25 @@ func UpdateSettings() web.HandlerFunc {
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
+
 		err := c.Services().Tenants.UpdateSettings(input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdatePrivacy update current tenant's privacy settings
+func UpdatePrivacy() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.UpdateTenantPrivacy)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tenants.UpdatePrivacy(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}

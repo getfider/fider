@@ -3,6 +3,13 @@
 .c-toggle {
   cursor: pointer;
 
+  &.disabled {
+    cursor: not-allowed;
+    label {
+      cursor: not-allowed;
+    }
+  }
+
   input { 
     display: none;
   }

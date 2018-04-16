@@ -69,6 +69,10 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			}
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
+					if tenant.IsPrivate {
+						return c.Redirect(http.StatusTemporaryRedirect, c.TenantBaseURL(tenant)+"/not-invited")
+					}
+
 					user = &models.User{
 						Name:   oauthUser.Name,
 						Tenant: tenant,
@@ -125,8 +129,25 @@ func OAuthCallback(provider string) web.HandlerFunc {
 	}
 }
 
-// SignIn handles OAuth sign in
-func SignIn(provider string) web.HandlerFunc {
+// SignInPage renders the sign in page
+func SignInPage() web.HandlerFunc {
+	return func(c web.Context) error {
+		if c.IsAuthenticated() || !c.Tenant().IsPrivate {
+			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		}
+		return c.Page(web.Map{})
+	}
+}
+
+// NotInvitedPage renders the not invited page
+func NotInvitedPage() web.HandlerFunc {
+	return func(c web.Context) error {
+		return c.Render(http.StatusForbidden, "not-invited.html", web.Map{})
+	}
+}
+
+// SignInByOAuth handles OAuth sign in
+func SignInByOAuth(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(http.StatusTemporaryRedirect, authURL)
@@ -180,7 +201,20 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			user, err = c.Services().Users.GetByEmail(result.Email)
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
-					// This will render a page for /signin/verify URL using same variables as home page
+					if c.Tenant().IsPrivate {
+						return NotInvitedPage()(c)
+					}
+					return Index()(c)
+				}
+				return c.Failure(err)
+			}
+		} else if kind == models.EmailVerificationKindUserInvitation {
+			user, err = c.Services().Users.GetByEmail(result.Email)
+			if err != nil {
+				if errors.Cause(err) == app.ErrNotFound {
+					if c.Tenant().IsPrivate {
+						return SignInPage()(c)
+					}
 					return Index()(c)
 				}
 				return c.Failure(err)

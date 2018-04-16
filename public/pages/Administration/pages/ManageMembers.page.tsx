@@ -20,6 +20,7 @@ interface ManageMembersPageProps {
 }
 
 export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
+  public id = "p-admin-members";
   public name = "members";
   public icon = "users";
   public title = "Members";

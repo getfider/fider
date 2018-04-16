@@ -34,11 +34,11 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())
 
-		noTenant.Get("/oauth/facebook", handlers.SignIn(oauth.FacebookProvider))
+		noTenant.Get("/oauth/facebook", handlers.SignInByOAuth(oauth.FacebookProvider))
 		noTenant.Get("/oauth/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		noTenant.Get("/oauth/google", handlers.SignIn(oauth.GoogleProvider))
+		noTenant.Get("/oauth/google", handlers.SignInByOAuth(oauth.GoogleProvider))
 		noTenant.Get("/oauth/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		noTenant.Get("/oauth/github", handlers.SignIn(oauth.GitHubProvider))
+		noTenant.Get("/oauth/github", handlers.SignInByOAuth(oauth.GitHubProvider))
 		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
 	}
 
@@ -50,16 +50,25 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
 	}
 
-	verify := r.Group()
+	open := r.Group()
 	{
-		verify.Get("/signup/verify", handlers.VerifySignUpKey())
+		open.Get("/signup/verify", handlers.VerifySignUpKey())
+		open.Use(middlewares.OnlyActiveTenants())
+		open.Get("/signin", handlers.SignInPage())
+		open.Get("/not-invited", handlers.NotInvitedPage())
+		open.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
+		open.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
+		open.Post("/api/signin/complete", handlers.CompleteSignInProfile())
+		open.Post("/api/signin", handlers.SignInByEmail())
 	}
+
+	r.Use(middlewares.JwtGetter())
+	r.Use(middlewares.JwtSetter())
 
 	page := r.Group()
 	{
-		page.Use(middlewares.JwtGetter())
-		page.Use(middlewares.JwtSetter())
 		page.Use(middlewares.OnlyActiveTenants())
+		page.Use(middlewares.CheckTenantPrivacy())
 
 		public := page.Group()
 		{
@@ -68,10 +77,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 			public.Get("/api/status", handlers.Status(settings))
-			public.Post("/api/signin/complete", handlers.CompleteSignInProfile())
-			public.Post("/api/signin", handlers.SignInByEmail())
 		}
 
 		private := page.Group()
@@ -98,24 +104,25 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Post("/api/notifications/read-all", handlers.ReadAllNotifications())
 			private.Get("/api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
+			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+
+			private.Get("/admin", handlers.Page())
+			private.Get("/admin/privacy", handlers.Page())
+			private.Get("/admin/invitations", handlers.Page())
+			private.Get("/admin/members", handlers.ManageMembers())
+			private.Get("/admin/tags", handlers.ManageTags())
+			private.Post("/api/admin/invitations/send", handlers.SendInvites())
+			private.Post("/api/admin/invitations/sample", handlers.SendSampleInvite())
+
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
-			private.Post("/api/admin/settings", handlers.UpdateSettings())
+			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
+			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())
 			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
 			private.Post("/api/admin/tags", handlers.CreateEditTag())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
-		}
-
-		admin := page.Group()
-		{
-			admin.Use(middlewares.IsAuthenticated())
-			admin.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
-
-			admin.Get("/admin", handlers.Page())
-			admin.Get("/admin/members", handlers.ManageMembers())
-			admin.Get("/admin/tags", handlers.ManageTags())
 		}
 	}
 

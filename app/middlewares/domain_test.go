@@ -157,3 +157,51 @@ func TestOnlyActiveTenants_Inactive(t *testing.T) {
 
 	Expect(status).To(Equal(http.StatusNotFound))
 }
+
+func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	server.Use(middlewares.CheckTenantPrivacy())
+	status, response := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.HeaderMap.Get("Location")).To(Equal("/signin"))
+}
+
+func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	server.Use(middlewares.CheckTenantPrivacy())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		Execute(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).To(Equal(http.StatusOK))
+}
+
+func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.IsPrivate = false
+
+	server.Use(middlewares.CheckTenantPrivacy())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		Execute(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).To(Equal(http.StatusOK))
+}

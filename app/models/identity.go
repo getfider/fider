@@ -1,9 +1,11 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/getfider/fider/app/pkg/uuid"
 )
 
 //Tenant represents a tenant
@@ -15,6 +17,7 @@ type Tenant struct {
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
+	IsPrivate      bool   `json:"isPrivate"`
 }
 
 var (
@@ -56,6 +59,8 @@ const (
 	EmailVerificationKindSignUp EmailVerificationKind = 2
 	//EmailVerificationKindChangeEmail is the change user email process
 	EmailVerificationKindChangeEmail EmailVerificationKind = 3
+	//EmailVerificationKindUserInvitation is the sign in invitation sent to an user
+	EmailVerificationKindUserInvitation EmailVerificationKind = 4
 )
 
 //HasProvider returns true if current user has registered with given provider
@@ -132,13 +137,17 @@ func (e *CreateTenant) GetKind() EmailVerificationKind {
 	return EmailVerificationKindSignUp
 }
 
-//UpdateTenantSettings is the input model used to update tenant settings
+//UpdateTenantSettings is the input model used to update tenant general settings
 type UpdateTenantSettings struct {
 	Title          string `json:"title"`
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`
 	CNAME          string `json:"cname" format:"lower"`
-	UserClaims     *OAuthClaims
+}
+
+//UpdateTenantPrivacy is the input model used to update tenant privacy settings
+type UpdateTenantPrivacy struct {
+	IsPrivate bool `json:"isPrivate"`
 }
 
 //SignInByEmail is the input model when user request to sign in by email
@@ -194,6 +203,32 @@ func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
 	return EmailVerificationKindChangeEmail
 }
 
+//UserInvitation is the model used to register an invite sent to an user
+type UserInvitation struct {
+	Email           string
+	VerificationKey string
+}
+
+//GetEmail returns the invited user's email
+func (e *UserInvitation) GetEmail() string {
+	return e.Email
+}
+
+//GetName returns empty for this kind of process
+func (e *UserInvitation) GetName() string {
+	return ""
+}
+
+//GetUser returns the current user performing this action
+func (e *UserInvitation) GetUser() *User {
+	return nil
+}
+
+//GetKind returns EmailVerificationKindUserInvitation
+func (e *UserInvitation) GetKind() EmailVerificationKind {
+	return EmailVerificationKindUserInvitation
+}
+
 //NewEmailVerification is used to register a new email verification process
 type NewEmailVerification interface {
 	GetEmail() string
@@ -231,4 +266,16 @@ type UpdateUserSettings struct {
 type ChangeUserRole struct {
 	UserID int  `route:"user_id"`
 	Role   Role `json:"role"`
+}
+
+// InviteUsers is used to invite new users into Fider
+type InviteUsers struct {
+	Subject    string   `json:"subject"`
+	Message    string   `json:"message"`
+	Recipients []string `json:"recipients" format:"lower"`
+}
+
+// GenerateVerificationKey used on email verifications
+func GenerateVerificationKey() string {
+	return strings.Replace(uuid.NewV4().String(), "-", "", 4)
 }

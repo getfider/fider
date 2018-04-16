@@ -21,7 +21,7 @@ func Email(email string) *Result {
 	}
 
 	if !emailRegex.MatchString(email) {
-		return Failed([]string{"Email address is invalid."})
+		return Failed([]string{fmt.Sprintf("'%s' is not a valid email address.", email)})
 	}
 
 	return Success()

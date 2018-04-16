@@ -1,0 +1,16 @@
+@import '~@fider/assets/styles/variables.scss';
+
+#p-signin {
+  margin-top: 50px;
+  max-width: 500px !important;
+
+  .message {
+    max-width: 300px;
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    .welcome {
+      font-size: $font-size-big;
+    }
+  }
+}

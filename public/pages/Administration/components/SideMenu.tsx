@@ -38,8 +38,15 @@ export const SideMenu = (props: SiteMenuProps) => {
   return (
     <div className="ui vertical menu fluid">
       <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
+      <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
       <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
       <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
+      <SideMenuItem
+        name="invitations"
+        title="Invitations"
+        href="/admin/invitations"
+        isActive={activeItem === "invitations"}
+      />
     </div>
   );
 };

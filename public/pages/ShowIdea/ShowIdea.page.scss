@@ -1,6 +1,11 @@
 @import '~@fider/assets/styles/variables.scss';
 
 #p-show-idea {
+  
+  .subtitle {
+    margin-top: 1em;
+  }
+
   .idea-header {
     width: 100%;
     h1 {
@@ -10,12 +15,6 @@
     .fdr-avatar {
       width: 24px;
       height: 24px;
-    }
-  }
-  
-  .page {
-    .subtitle {
-      margin-top: 1em;
     }
   }
 

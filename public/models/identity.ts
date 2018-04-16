@@ -5,6 +5,7 @@ export interface Tenant {
   subdomain: string;
   invitation: string;
   welcomeMessage: string;
+  isPrivate: boolean;
 }
 
 export interface User {

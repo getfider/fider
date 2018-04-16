@@ -76,7 +76,7 @@ func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 	return true, nil
 }
 
-// UpdateSettings of given tenant
+// UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
 		if tenant.ID == s.current.ID {
@@ -84,6 +84,17 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title
 			tenant.CNAME = settings.CNAME
+			return nil
+		}
+	}
+	return nil
+}
+
+// UpdatePrivacy settings of current tenant
+func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
+	for _, tenant := range s.tenants {
+		if tenant.ID == s.current.ID {
+			tenant.IsPrivate = settings.IsPrivate
 			return nil
 		}
 	}

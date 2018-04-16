@@ -20,6 +20,7 @@ interface GeneralSettingsPageState {
 }
 
 export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
+  public id = "p-admin-general";
   public name = "general";
   public icon = "settings";
   public title = "General";

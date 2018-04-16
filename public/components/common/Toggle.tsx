@@ -4,6 +4,7 @@ import { classSet } from "@fider/services";
 interface ToggleProps {
   label?: string;
   active: boolean;
+  disabled?: boolean;
   onToggle: (active: boolean) => Promise<any>;
 }
 
@@ -22,6 +23,10 @@ export class Toggle extends React.Component<ToggleProps, ToggleState> {
   }
 
   public toggle = async () => {
+    if (!!this.props.disabled) {
+      return;
+    }
+
     this.setState(
       state => ({
         active: !state.active
@@ -33,8 +38,13 @@ export class Toggle extends React.Component<ToggleProps, ToggleState> {
   };
 
   public render() {
+    const className = classSet({
+      "c-toggle": true,
+      disabled: !!this.props.disabled
+    });
+
     return (
-      <span className="c-toggle" onClick={this.toggle}>
+      <span className={className} onClick={this.toggle}>
         <input type="checkbox" checked={this.state.active} readOnly={true} />
         <label>
           <span className="switch" />
