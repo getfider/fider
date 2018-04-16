@@ -27,7 +27,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
 
   public render() {
     return (
-      <div className="page ui container">
+      <div id="p-signin" className="page ui container">
         <div className="message">
           <p className="welcome">
             <strong>{this.props.tenant.name}</strong> is a private space and requires an invitation to join it.

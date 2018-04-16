@@ -44,12 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (root) {
     const config = resolveRootComponent(location.pathname);
     ReactDOM.render(
-      <div id={config.id}>
+      <>
         <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && React.createElement(Header, w.props)}
         {React.createElement(config.component, w.props)}
         {React.createElement(Footer, w.props)}
-      </div>,
+      </>,
       root
     );
   }

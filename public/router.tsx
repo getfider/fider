@@ -16,36 +16,35 @@ import {
 } from "@fider/pages";
 
 interface PageConfiguration {
-  id: string;
   regex: RegExp;
   component: any;
   showHeader: boolean;
 }
 
-const route = (path: string, component: any, id: string, showHeader: boolean): PageConfiguration => {
+const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
   path = path
     .replace("/", "/")
     .replace(":number", "\\d+")
     .replace("*", "/?.*");
 
   const regex = new RegExp(`^${path}$`);
-  return { regex, component, id, showHeader };
+  return { regex, component, showHeader };
 };
 
 const pathRegex = [
-  route("", HomePage, "p-home", true),
-  route("/ideas/:number*", ShowIdeaPage, "p-show-idea", true),
-  route("/admin/members", ManageMembersPage, "p-admin-members", true),
-  route("/admin/tags", ManageTagsPage, "p-admin-tags", true),
-  route("/admin/privacy", PrivacySettingsPage, "p-admin-privacy", true),
-  route("/admin/invitations", InvitationsPage, "p-admin-invitations", true),
-  route("/admin", GeneralSettingsPage, "p-admin-general", true),
-  route("/signin", SignInPage, "p-signin", false),
-  route("/signup", SignUpPage, "p-signup", false),
-  route("/signin/verify", CompleteSignInProfilePage, "p-home", true),
-  route("/invite/verify", CompleteSignInProfilePage, "p-signin", false),
-  route("/notifications", MyNotificationsPage, "p-my-notifications", true),
-  route("/settings", MySettingsPage, "p-my-settings", true)
+  route("", HomePage),
+  route("/ideas/:number*", ShowIdeaPage),
+  route("/admin/members", ManageMembersPage),
+  route("/admin/tags", ManageTagsPage),
+  route("/admin/privacy", PrivacySettingsPage),
+  route("/admin/invitations", InvitationsPage),
+  route("/admin", GeneralSettingsPage),
+  route("/signin", SignInPage),
+  route("/signup", SignUpPage, false),
+  route("/signin/verify", CompleteSignInProfilePage),
+  route("/invite/verify", CompleteSignInProfilePage),
+  route("/notifications", MyNotificationsPage),
+  route("/settings", MySettingsPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {

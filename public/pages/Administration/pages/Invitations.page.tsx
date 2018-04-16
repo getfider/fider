@@ -20,6 +20,7 @@ interface InvitationsPageState {
 }
 
 export class InvitationsPage extends AdminBasePage<InvitationsPageProps, InvitationsPageState> {
+  public id = "p-admin-invitations";
   public name = "invitations";
   public icon = "envelope";
   public title = "Invitations";

@@ -58,7 +58,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
   public render() {
     return (
-      <div className="page ui container">
+      <div id="p-my-settings" className="page ui container">
         <Modal.Window isOpen={this.state.showModal} canClose={true} center={true}>
           <Modal.Header>Confirm your new email</Modal.Header>
           <Modal.Content>

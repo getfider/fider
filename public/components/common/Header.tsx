@@ -74,6 +74,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
       </div>
     );
 
+    const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
+
     return (
       <div className="c-header">
         <EnvironmentInfo system={this.props.system} />
@@ -83,15 +85,17 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             <a href="/" className="header item">
               {this.props.tenant.name}
             </a>
-            <div
-              onClick={() => this.showModal()}
-              className={`ui right simple dropdown item signin ${!this.props.user && "subtitle"}`}
-            >
-              {this.props.user && <Gravatar user={this.props.user} />}
-              {this.state.unreadNotifications > 0 && <div className="unread-dot" />}
-              {!this.props.user && "Sign in"} {this.props.user && <i className="dropdown icon" />}
-              {items}
-            </div>
+            {showRightMenu && (
+              <div
+                onClick={() => this.showModal()}
+                className={`ui right simple dropdown item signin ${!this.props.user && "subtitle"}`}
+              >
+                {this.props.user && <Gravatar user={this.props.user} />}
+                {this.state.unreadNotifications > 0 && <div className="unread-dot" />}
+                {!this.props.user && "Sign in"} {this.props.user && <i className="dropdown icon" />}
+                {items}
+              </div>
+            )}
           </div>
         </div>
       </div>

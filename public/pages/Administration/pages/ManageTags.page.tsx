@@ -18,6 +18,7 @@ interface ManageTagsPageState {
 }
 
 export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
+  public id = "p-admin-tags";
   public name = "tags";
   public icon = "tags";
   public title = "Tags";

@@ -50,9 +50,6 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
 	}
 
-	r.Use(middlewares.JwtGetter())
-	r.Use(middlewares.JwtSetter())
-
 	open := r.Group()
 	{
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
@@ -64,6 +61,9 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 		open.Post("/api/signin/complete", handlers.CompleteSignInProfile())
 		open.Post("/api/signin", handlers.SignInByEmail())
 	}
+
+	r.Use(middlewares.JwtGetter())
+	r.Use(middlewares.JwtSetter())
 
 	page := r.Group()
 	{

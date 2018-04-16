@@ -17,6 +17,7 @@ interface PrivacySettingsPageState {
 }
 
 export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps, PrivacySettingsPageState> {
+  public id = "p-admin-privacy";
   public name = "privacy";
   public icon = "key";
   public title = "Privacy";
