@@ -9,11 +9,11 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
-func authenticate(username string, password string, host string) smtp.Auth {
+func authenticate(username string, password string, host string) gosmtp.Auth {
 	if username == "" && password == "" {
 		return nil
 	}
-	return smtp.PlainAuth("", username, password, host)
+	return gosmtp.PlainAuth("", username, password, host)
 }
 
 //Sender is used to send emails
