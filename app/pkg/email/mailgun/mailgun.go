@@ -7,7 +7,9 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 )
@@ -27,12 +29,12 @@ func NewSender(logger log.Logger, domain, apiKey string) *Sender {
 }
 
 //Send an email
-func (s *Sender) Send(templateName string, params email.Params, from string, to email.Recipient) error {
-	return s.BatchSend(templateName, params, from, []email.Recipient{to})
+func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
+	return s.BatchSend(tenant, templateName, params, from, []email.Recipient{to})
 }
 
 // BatchSend an email to multiple recipients
-func (s *Sender) BatchSend(templateName string, params email.Params, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
 	if len(to) == 0 {
 		return nil
 	}
@@ -54,6 +56,10 @@ func (s *Sender) BatchSend(templateName string, params email.Params, from string
 	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
+	form.Add("o:tag", fmt.Sprintf("template:%s", templateName))
+	if tenant != nil && !env.IsSingleHostMode() {
+		form.Add("o:tag", fmt.Sprintf("tenant:%s", tenant.Subdomain))
+	}
 
 	// Set Mailgun's var based on each recipient's variables
 	recipientVariables := make(map[string]email.Params, 0)

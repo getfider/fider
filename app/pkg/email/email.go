@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 )
 
@@ -91,8 +92,8 @@ func CanSendTo(address string) bool {
 
 // Sender is used to send emails
 type Sender interface {
-	Send(templateName string, params Params, from string, to Recipient) error
-	BatchSend(templateName string, params Params, from string, to []Recipient) error
+	Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error
+	BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error
 }
 
 // NoopSender does not send emails
@@ -105,12 +106,12 @@ func NewNoopSender() *NoopSender {
 }
 
 // Send an email
-func (s *NoopSender) Send(templateName string, params Params, from string, to Recipient) error {
+func (s *NoopSender) Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error {
 	return nil
 
 }
 
 // BatchSend an email to multiple recipients
-func (s *NoopSender) BatchSend(templateName string, params Params, from string, to []Recipient) error {
+func (s *NoopSender) BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error {
 	return nil
 }
