@@ -9,6 +9,7 @@ interface SignInControlState {
 
 interface SignInControlProps {
   useEmail: boolean;
+  redirectTo?: string;
   onEmailSent?: (email: string) => void;
 }
 
@@ -40,6 +41,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       if (this.props.onEmailSent) {
         this.props.onEmailSent(this.state.email);
       }
+      this.setState({ email: "" });
     } else if (result.error) {
       this.form.setFailure(result.error);
     }
@@ -48,17 +50,29 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   public render() {
     const google = this.settings.providers.google && (
       <div className="column">
-        <SocialSignInButton oauthEndpoint={this.settings.endpoint} provider="google" />
+        <SocialSignInButton
+          oauthEndpoint={this.settings.endpoint}
+          provider="google"
+          redirectTo={this.props.redirectTo}
+        />
       </div>
     );
     const facebook = this.settings.providers.facebook && (
       <div className="column">
-        <SocialSignInButton oauthEndpoint={this.settings.endpoint} provider="facebook" />
+        <SocialSignInButton
+          oauthEndpoint={this.settings.endpoint}
+          provider="facebook"
+          redirectTo={this.props.redirectTo}
+        />
       </div>
     );
     const github = this.settings.providers.github && (
       <div className="column">
-        <SocialSignInButton oauthEndpoint={this.settings.endpoint} provider="github" />
+        <SocialSignInButton
+          oauthEndpoint={this.settings.endpoint}
+          provider="github"
+          redirectTo={this.props.redirectTo}
+        />
       </div>
     );
     const hasOAuth = !!(google || facebook || github);
@@ -87,6 +101,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
             >
               <div id="email-signin" className="ui small action fluid input">
                 <input
+                  value={this.state.email}
                   autoFocus={!device.isTouch()}
                   onChange={e => this.setState({ email: e.currentTarget.value })}
                   onKeyDown={this.onEmailKeyDown}

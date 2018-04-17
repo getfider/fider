@@ -18,6 +18,7 @@ type dbTenant struct {
 	Invitation     string `db:"invitation"`
 	WelcomeMessage string `db:"welcome_message"`
 	Status         int    `db:"status"`
+	IsPrivate      bool   `db:"is_private"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -33,6 +34,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		Invitation:     t.Invitation,
 		WelcomeMessage: t.WelcomeMessage,
 		Status:         t.Status,
+		IsPrivate:      t.IsPrivate,
 	}
 }
 
@@ -96,8 +98,8 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status) 
-		 VALUES ($1, $2, $3, '', '', '', $4) 
+		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status, is_private) 
+		 VALUES ($1, $2, $3, '', '', '', $4, false) 
 		 RETURNING id`, name, subdomain, time.Now(), status)
 	if err != nil {
 		return nil, err
@@ -110,7 +112,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants ORDER BY id LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private FROM tenants ORDER BY id LIMIT 1")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
@@ -122,7 +124,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
@@ -130,12 +132,22 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// UpdateSettings of given tenant
+// UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
 	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
+	}
+	return nil
+}
+
+// UpdatePrivacy settings of current tenant
+func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
+	query := "UPDATE tenants SET is_private = $1 WHERE id = $2"
+	_, err := s.trx.Execute(query, settings.IsPrivate, s.current.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed update tenant privacy settings")
 	}
 	return nil
 }

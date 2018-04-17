@@ -32,11 +32,11 @@ func TestSignOutHandler(t *testing.T) {
 	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(web.CookieAuthName + "=;"))
 }
 
-func TestSignInHandler(t *testing.T) {
+func TestSignInByOAuthHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()
-	code, response := server.Execute(handlers.SignIn(oauth.FacebookProvider))
+	code, response := server.Execute(handlers.SignInByOAuth(oauth.FacebookProvider))
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
 	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect="))
@@ -176,6 +176,24 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw"))
 }
 
+func TestCallbackHandler_NewUser_PrivateTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.AvengersTenant.IsPrivate = true
+
+	code, response := server.
+		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io&code=456").
+		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
+
+	user, err := services.Users.GetByEmail("some.guy@facebook.com")
+	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
+	Expect(user).To(BeNil())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/not-invited"))
+}
+
 func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
 	RegisterTestingT(t)
 
@@ -284,6 +302,88 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	Expect(code).To(Equal(http.StatusOK))
 }
 
+func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
+
+	Expect(code).To(Equal(http.StatusForbidden))
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	services.Users.Register(&models.User{
+		Name:   "Hot Pie",
+		Email:  "hot.pie@got.com",
+		Tenant: mock.DemoTenant,
+	})
+
+	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	services.Users.Register(&models.User{
+		Name:   "Hot Pie",
+		Email:  "hot.pie@got.com",
+		Tenant: mock.DemoTenant,
+	})
+
+	e := &models.UserInvitation{Email: "hot.pie@got.com"}
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/invite/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	e := &models.UserInvitation{Email: "hot.pie@got.com"}
+	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/invite/verify?k=1234567890").
+		Execute(handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
+
+	Expect(code).To(Equal(http.StatusOK))
+}
+
 func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 	RegisterTestingT(t)
 
@@ -363,4 +463,45 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
 	Expect(err).To(BeNil())
 	Expect(request.VerifiedOn).NotTo(BeNil())
+}
+
+func TestSignInPageHandler_AuthenticatedUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestSignInPageHandler_NonPrivateTenant(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(response.Header().Get("Location")).To(Equal("http://demo.test.fider.io"))
+}
+
+func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.IsPrivate = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io/signin").
+		Execute(handlers.SignInPage())
+
+	Expect(code).To(Equal(http.StatusOK))
 }

@@ -29,7 +29,24 @@ func TestUpdateSettingsHandler(t *testing.T) {
 	Expect(tenant.WelcomeMessage).To(Equal("Welcome to GoT Feedback Forum"))
 }
 
-func TestUManageMembersHandler(t *testing.T) {
+func TestUpdatePrivacyHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, services := mock.NewServer()
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		ExecutePost(
+			handlers.UpdatePrivacy(),
+			`{ "isPrivate": true }`,
+		)
+
+	tenant, _ := services.Tenants.GetByDomain("demo")
+	Expect(code).To(Equal(http.StatusOK))
+	Expect(tenant.IsPrivate).To(BeTrue())
+}
+
+func TestManageMembersHandler(t *testing.T) {
 	RegisterTestingT(t)
 
 	server, _ := mock.NewServer()

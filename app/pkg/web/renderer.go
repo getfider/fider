@@ -32,6 +32,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 	}
 
 	r.add("index.html")
+	r.add("not-invited.html")
 	r.add("403.html")
 	r.add("404.html")
 	r.add("410.html")

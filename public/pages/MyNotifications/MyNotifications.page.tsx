@@ -57,7 +57,7 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
 
   public render() {
     return (
-      <div className="page ui container">
+      <div id="p-my-notifications" className="page ui container">
         <h2 className="ui header">
           <i className="circular id bell icon" />
           <div className="content">

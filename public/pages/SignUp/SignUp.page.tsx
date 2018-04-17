@@ -111,7 +111,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     );
 
     return (
-      <div className="page ui container">
+      <div id="p-signup" className="page ui container">
         {modal}
         <img className="logo" src={logo} />
 

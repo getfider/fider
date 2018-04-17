@@ -43,7 +43,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
 
   public render() {
     return (
-      <div className="page ui container">
+      <div id="p-home" className="page ui container">
         <div className="ui grid stackable">
           <div className="six wide column">
             <MultiLineText

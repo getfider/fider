@@ -2,6 +2,7 @@ import * as React from "react";
 import { SideMenu } from "./";
 
 export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
+  public abstract id: string;
   public abstract name: string;
   public abstract icon: string;
   public abstract title: string;
@@ -10,7 +11,7 @@ export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
 
   public render() {
     return (
-      <div className="page ui container">
+      <div id={this.id} className="page ui container">
         <h2 className="ui header">
           <i className={`circular ${this.icon} icon`} />
           <div className="content">

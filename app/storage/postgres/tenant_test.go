@@ -26,6 +26,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.Status).To(Equal(models.TenantInactive))
+	Expect(tenant.IsPrivate).To(BeFalse())
 
 	err = tenants.Activate(tenant.ID)
 	Expect(err).To(BeNil())
@@ -35,6 +36,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Name).To(Equal("My Domain Inc."))
 	Expect(tenant.Subdomain).To(Equal("mydomain"))
 	Expect(tenant.Status).To(Equal(models.TenantActive))
+	Expect(tenant.IsPrivate).To(BeFalse())
 }
 
 func TestTenantStorage_SingleTenant_Add(t *testing.T) {
@@ -66,6 +68,19 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 	tenant, err := tenants.First()
 	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
 	Expect(tenant).To(BeNil())
+}
+
+func TestTenantStorage_UpdatePrivacy(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+	Expect(tenant.IsPrivate).To(BeFalse())
+
+	tenants.UpdatePrivacy(&models.UpdateTenantPrivacy{IsPrivate: true})
+	tenant, _ = tenants.GetByDomain("demo")
+	Expect(tenant.IsPrivate).To(BeTrue())
 }
 
 func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { HomePage, HomePageProps } from "../";
+import { HomePage, HomePageProps, SignInPage } from "../";
 import { Modal, Form, Button } from "@fider/components/common";
 import { page, actions } from "@fider/services";
 
@@ -56,7 +56,9 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
             </Form>
           </Modal.Content>
         </Modal.Window>
-        {React.createElement(HomePage, this.props)}
+        {this.props.tenant.isPrivate
+          ? React.createElement(SignInPage, this.props)
+          : React.createElement(HomePage, this.props)}
       </>
     );
   }

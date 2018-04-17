@@ -79,6 +79,18 @@ func OnlyActiveTenants() web.MiddlewareFunc {
 	}
 }
 
+// CheckTenantPrivacy blocks requests of unauthenticated users for private tenants
+func CheckTenantPrivacy() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
+				return c.Redirect(http.StatusTemporaryRedirect, "/signin")
+			}
+			return next(c)
+		}
+	}
+}
+
 // HostChecker checks for a specific host
 func HostChecker(baseURL string) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
