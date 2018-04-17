@@ -10,6 +10,13 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
+func authenticate(username string, password string, host string) gosmtp.Auth {
+	if username == "" && password == "" {
+		return nil
+	}
+	return gosmtp.PlainAuth("", username, password, host)
+}
+
 //Sender is used to send emails
 type Sender struct {
 	logger   log.Logger
@@ -48,7 +55,7 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 	body += "\r\n" + message.Body
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
-	auth := gosmtp.PlainAuth("", s.username, s.password, s.host)
+	auth := authenticate(s.username, s.password, s.host)
 	err := gosmtp.SendMail(servername, auth, email.NoReply, []string{to.Address}, []byte(body))
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
