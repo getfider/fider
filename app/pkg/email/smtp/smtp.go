@@ -33,6 +33,10 @@ func NewSender(logger log.Logger, host, port, username, password string) *Sender
 
 //Send an email
 func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
+	if to.Address == "" {
+		return nil
+	}
+
 	if !email.CanSendTo(to.Address) {
 		s.logger.Warnf("Skipping email to %s <%s> due to whitelist.", to.Name, to.Address)
 		return nil

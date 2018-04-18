@@ -64,11 +64,13 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 	// Set Mailgun's var based on each recipient's variables
 	recipientVariables := make(map[string]email.Params, 0)
 	for _, r := range to {
-		if email.CanSendTo(r.Address) {
-			form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
-			recipientVariables[r.Address] = r.Params
-		} else {
-			s.logger.Warnf("Skipping email to '%s <%s>' due to whitelist.", r.Name, r.Address)
+		if r.Address != "" {
+			if email.CanSendTo(r.Address) {
+				form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
+				recipientVariables[r.Address] = r.Params
+			} else {
+				s.logger.Warnf("Skipping email to '%s <%s>' due to whitelist.", r.Name, r.Address)
+			}
 		}
 	}
 
