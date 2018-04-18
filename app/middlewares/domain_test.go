@@ -77,6 +77,47 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	Expect(status).To(Equal(http.StatusNotFound))
 }
 
+func TestMultiTenant_CanonicalHeader(t *testing.T) {
+	RegisterTestingT(t)
+
+	var testCases = []struct {
+		input  string
+		output string
+	}{
+		{
+			"http://avengers.test.fider.io/",
+			"<http://ideas.theavengers.com/>; rel=\"canonical\"",
+		},
+		{
+			"http://avengers.test.fider.io/ideas",
+			"<http://ideas.theavengers.com/ideas>; rel=\"canonical\"",
+		},
+		{
+			"http://avengers.test.fider.io/ideas?q=1",
+			"<http://ideas.theavengers.com/ideas?q=1>; rel=\"canonical\"",
+		},
+		{
+			"http://demo.test.fider.io",
+			"",
+		},
+	}
+
+	for _, testCase := range testCases {
+		server, _ := mock.NewServer()
+		server.Use(middlewares.MultiTenant())
+
+		status, response := server.
+			WithURL(testCase.input).
+			Execute(func(c web.Context) error {
+				return c.Ok(web.Map{})
+			})
+
+		Expect(status).To(Equal(http.StatusOK))
+		Expect(response.HeaderMap.Get("Link")).To(Equal(testCase.output))
+	}
+
+}
+
 func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterTestingT(t)
 
