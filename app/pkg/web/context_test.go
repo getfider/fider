@@ -42,9 +42,21 @@ func TestTenantURL(t *testing.T) {
 	ctx := newGetContext(nil)
 	tenant := &models.Tenant{
 		ID:        1,
-		Subdomain: "lotr",
+		Subdomain: "theavengers",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://lotr.test.fider.io:3000"))
+	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://theavengers.test.fider.io:3000"))
+}
+
+func TestTenantURL_WithCNAME(t *testing.T) {
+	RegisterTestingT(t)
+
+	ctx := newGetContext(nil)
+	tenant := &models.Tenant{
+		ID:        1,
+		Subdomain: "theavengers",
+		CNAME:     "ideas.theavengers.com",
+	}
+	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://ideas.theavengers.com:3000"))
 }
 
 func TestTenantURL_SingleTenantMode(t *testing.T) {
@@ -54,7 +66,7 @@ func TestTenantURL_SingleTenantMode(t *testing.T) {
 	ctx := newGetContext(nil)
 	tenant := &models.Tenant{
 		ID:        1,
-		Subdomain: "lotr",
+		Subdomain: "theavengers",
 	}
 	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://demo.test.fider.io:3000"))
 }
