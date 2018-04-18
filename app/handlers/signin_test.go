@@ -191,7 +191,7 @@ func TestCallbackHandler_NewUser_PrivateTenant(t *testing.T) {
 	Expect(user).To(BeNil())
 
 	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/not-invited"))
+	Expect(response.Header().Get("Location")).To(Equal("http://ideas.theavengers.com/not-invited"))
 }
 
 func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
