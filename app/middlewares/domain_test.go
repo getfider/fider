@@ -96,6 +96,11 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 			true,
 		},
 		{
+			"http://ideas.theavengers.com/",
+			"",
+			false,
+		},
+		{
 			"http://avengers.test.fider.io/ideas",
 			"<http://ideas.theavengers.com/ideas>; rel=\"canonical\"",
 			false,
