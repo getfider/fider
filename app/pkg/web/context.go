@@ -347,10 +347,18 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
-	address := protocol + "://" + tenant.Subdomain + env.MultiTenantDomain()
+
+	address := protocol + "://"
+	if tenant.CNAME != "" {
+		address += tenant.CNAME
+	} else {
+		address += tenant.Subdomain + env.MultiTenantDomain()
+	}
+
 	if port != "" {
 		address += ":" + port
 	}
+
 	return address
 }
 

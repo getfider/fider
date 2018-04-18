@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -45,7 +46,7 @@ func MultiTenant() web.MiddlewareFunc {
 			hostname := stripPort(c.Request.Host)
 
 			// If no tenant is specified, redirect user to getfider.com
-			// This is only vadid for fider.io hosting
+			// This is only valid for fider.io hosting
 			if (env.IsProduction() && hostname == "fider.io") ||
 				(env.IsDevelopment() && hostname == "dev.fider.io") {
 				return c.Redirect(http.StatusTemporaryRedirect, "https://getfider.com")
@@ -54,6 +55,10 @@ func MultiTenant() web.MiddlewareFunc {
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)
 			if err == nil {
 				c.SetTenant(tenant)
+				if tenant.CNAME != "" && !c.IsAjax() {
+					link := c.TenantBaseURL(tenant) + c.Request.URL.RequestURI()
+					c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
+				}
 				return next(c)
 			}
 
