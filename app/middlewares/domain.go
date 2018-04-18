@@ -55,7 +55,7 @@ func MultiTenant() web.MiddlewareFunc {
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)
 			if err == nil {
 				c.SetTenant(tenant)
-				if tenant.CNAME != "" {
+				if tenant.CNAME != "" && !c.IsAjax() {
 					link := c.TenantBaseURL(tenant) + c.Request.URL.RequestURI()
 					c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
 				}
