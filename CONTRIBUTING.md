@@ -6,6 +6,7 @@
 - **Reporting issues** and bug reports on (https://github.com/getfider/fider).
 - **Giving feedback** and voting on features you'd like to see at https://feedback.fider.io.
 - **Spread the word!** Star us on GitHub, tweet about us, show it to your friends. The more people are aware of Fider, the bigger the community and the contributions will be.
+- **Support us financially** Donate any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities.
 
 ## Getting started with Fider codebase
 

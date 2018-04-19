@@ -19,6 +19,7 @@ We have a monthly [GitHub Milestone](https://github.com/getfider/fider/milestone
 * **Found a bug?** Create an issue on [GitHub](https://github.com/getfider/fider/issues).
 * **Want to request a feature?** Suggest it on [Feedback for Fider](https://feedback.fider.io/).
 * **Got a question?** Send a Tweet to [@getfider](twitter.com/getfider) or email admin@fider.io.
+* **Want to donate?** Become a backer on [OpenCollective](https://opencollective.com/fider) and help us continue our activities. 
 
 Read how you can help the project on [CONTRIBUTING.md](CONTRIBUTING.md).
 
