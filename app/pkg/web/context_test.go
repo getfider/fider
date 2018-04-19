@@ -28,6 +28,15 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 	return &ctx
 }
 
+func TestContextID(t *testing.T) {
+	RegisterTestingT(t)
+
+	ctx := newGetContext(nil)
+
+	Expect(ctx.ContextID()).NotTo(BeEmpty())
+	Expect(ctx.ContextID()).To(HaveLen(32))
+}
+
 func TestBaseURL(t *testing.T) {
 	RegisterTestingT(t)
 

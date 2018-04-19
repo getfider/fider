@@ -30,6 +30,8 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 	noTenant := r.Group()
 	{
+		noTenant.Post("/csp-report", handlers.CSPReport())
+
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())

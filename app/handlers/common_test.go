@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/getfider/fider/app/handlers"
@@ -20,5 +21,17 @@ func TestStatusHandler(t *testing.T) {
 	status, query := server.ExecuteAsJSON(handlers.Status(settings))
 
 	Expect(query.String("build")).To(Equal("today"))
-	Expect(status).To(Equal(200))
+	Expect(status).To(Equal(http.StatusOK))
+}
+
+func TestCSPReportHandler(t *testing.T) {
+	RegisterTestingT(t)
+
+	server, _ := mock.NewServer()
+	status, _ := server.ExecutePost(
+		handlers.CSPReport(),
+		"This is the message body.",
+	)
+
+	Expect(status).To(Equal(http.StatusOK))
 }

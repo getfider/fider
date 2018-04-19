@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io/ioutil"
 	"runtime"
 	"time"
 
@@ -34,6 +35,18 @@ func Status(settings *models.SystemSettings) web.HandlerFunc {
 func Page() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Map{})
+	}
+}
+
+//CSPReport logs every CSP policy issue reported by clients
+func CSPReport() web.HandlerFunc {
+	return func(c web.Context) error {
+		bytes, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			return c.Failure(err)
+		}
+		c.Logger().Warnf("CSP Policy Failure: %s", string(bytes))
+		return c.Ok(web.Map{})
 	}
 }
 

@@ -54,6 +54,7 @@ var (
 
 //Context shared between http pipeline
 type Context struct {
+	id       string
 	Response http.ResponseWriter
 	Request  *http.Request
 	engine   *Engine
@@ -66,6 +67,11 @@ type Context struct {
 //Engine returns main HTTP engine
 func (ctx *Context) Engine() *Engine {
 	return ctx.engine
+}
+
+//ContextID returns the unique id for this context
+func (ctx *Context) ContextID() string {
+	return ctx.id
 }
 
 //Commit everything that is pending on current context

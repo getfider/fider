@@ -8,14 +8,31 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
+)
+
+var (
+	cspBase    = "base-uri 'self'"
+	cspDefault = "default-src 'self'"
+	cspStyle   = "style-src 'self' https://fonts.googleapis.com"
+	cspScript  = "script-src 'self' 'nonce-%s' https://cdn.polyfill.io https://www.google-analytics.com"
+	cspFont    = "font-src 'self' https://fonts.gstatic.com data:"
+	cspImage   = "img-src 'self' https: data:"
+	cspObject  = "object-src 'none'"
+	cspMedia   = "media-src 'none'"
+	cspReport  = "report-uri /csp-report"
+
+	//CspPolicyTemplate is the template used to generate the policy
+	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspReport)
 )
 
 type notFoundHandler struct {
@@ -111,6 +128,7 @@ func (e *Engine) Start(address string) {
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
 	return Context{
+		id:       strings.Replace(uuid.NewV4().String(), "-", "", 4),
 		Response: res,
 		Request:  req,
 		engine:   e,
