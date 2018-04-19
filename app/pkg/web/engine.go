@@ -29,10 +29,11 @@ var (
 	cspImage   = "img-src 'self' https: data:"
 	cspObject  = "object-src 'none'"
 	cspMedia   = "media-src 'none'"
+	cspConnect = "connect-src 'self' https://www.google-analytics.com"
 	cspReport  = "report-uri /csp-report"
 
 	//CspPolicyTemplate is the template used to generate the policy
-	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspReport)
+	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspReport)
 )
 
 type notFoundHandler struct {
