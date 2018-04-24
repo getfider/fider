@@ -1,4 +1,4 @@
-mapackage validate
+package validate
 
 import (
 	"fmt"
@@ -29,8 +29,8 @@ func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 
 	switch subdomain {
 	case
-		"signup", "fider", "login", "customers", "admin", "setup", "about", 
-		"wecanhearyou", "dev", "mail", "billing", "www", "web", "translate", 
+		"signup", "fider", "login", "customers", "admin", "setup", "about",
+		"wecanhearyou", "dev", "mail", "billing", "www", "web", "translate",
 		"help", "support", "status", "staging":
 		return Failed([]string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)})
 	}
