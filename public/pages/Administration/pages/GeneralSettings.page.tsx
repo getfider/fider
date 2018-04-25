@@ -39,7 +39,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     page.setTitle(`General · Site Settings · ${document.title}`);
   }
 
-  private async confirm(e: ButtonClickEvent) {
+  private async save(e: ButtonClickEvent) {
     const result = await actions.updateTenantSettings(
       this.state.title,
       this.state.invitation,
@@ -150,8 +150,8 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         ]}
         {this.props.user.isAdministrator && (
           <div className="field">
-            <Button color="green" onClick={async e => await this.confirm(e)}>
-              Confirm
+            <Button color="green" onClick={async e => await this.save(e)}>
+              Save
             </Button>
           </div>
         )}
