@@ -81,7 +81,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
     if (this.props.href) {
       return (
-        <a href={this.props.href} className={className} onClick={() => this.click()}>
+        <a href={this.props.href} className={className}>
           {this.props.children}
         </a>
       );

@@ -228,6 +228,13 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 	})
 }
 
+//Attachment returns an attached file
+func (ctx *Context) Attachment(fileName, contentType string, file []byte) error {
+	ctx.Response.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+
+	return ctx.Blob(http.StatusOK, contentType, file)
+}
+
 //Ok returns 200 OK with JSON result
 func (ctx *Context) Ok(data interface{}) error {
 	return ctx.JSON(http.StatusOK, data)

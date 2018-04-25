@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -262,4 +263,22 @@ func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models
 	}
 
 	return c.Ok(web.Map{})
+}
+
+// ExportIdeasToCSV returns a CSV with all ideas
+func ExportIdeasToCSV() web.HandlerFunc {
+	return func(c web.Context) error {
+
+		ideas, err := c.Services().Ideas.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		bytes, err := csv.FromIdeas(ideas)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Attachment("ideas.csv", "text/csv", bytes)
+	}
 }

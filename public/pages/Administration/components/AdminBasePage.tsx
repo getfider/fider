@@ -1,7 +1,12 @@
 import * as React from "react";
+import { CurrentUser } from "@fider/models";
 import { SideMenu } from "./";
 
-export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
+interface AdminBasePageProps {
+  user: CurrentUser;
+}
+
+export abstract class AdminBasePage<P extends AdminBasePageProps, S> extends React.Component<P, S> {
   public abstract id: string;
   public abstract name: string;
   public abstract icon: string;
@@ -22,7 +27,7 @@ export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
 
         <div className="ui grid">
           <div className="three wide computer sixteen wide mobile column">
-            <SideMenu activeItem={this.name} />
+            <SideMenu user={this.props.user} activeItem={this.name} />
           </div>
           <div className="thirteen wide computer sixteen wide mobile column">{this.content()}</div>
         </div>
