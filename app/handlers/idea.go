@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"bytes"
-	"encoding/csv"
-
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -270,32 +268,17 @@ func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models
 // ExportIdeasToCSV returns a CSV with all ideas
 func ExportIdeasToCSV() web.HandlerFunc {
 	return func(c web.Context) error {
-		b := &bytes.Buffer{}
-		w := csv.NewWriter(b)
 
 		ideas, err := c.Services().Ideas.GetAll()
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := w.Write([]string{"title", "description"}); err != nil {
+		bytes, err := csv.FromIdeas(ideas)
+		if err != nil {
 			return c.Failure(err)
 		}
 
-		for _, idea := range ideas {
-			var record []string
-			record = append(record, idea.Title)
-			record = append(record, idea.Description)
-			if err := w.Write(record); err != nil {
-				return c.Failure(err)
-			}
-		}
-		w.Flush()
-
-		if err := w.Error(); err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Attachment("fider_ideas.csv", "text/csv", b.Bytes())
+		return c.Attachment("ideas.csv", "text/csv", bytes)
 	}
 }

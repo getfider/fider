@@ -27,6 +27,14 @@ func (i *Idea) CanBeSupported() bool {
 	return i.Status != IdeaCompleted && i.Status != IdeaDeclined && i.Status != IdeaDuplicate
 }
 
+// ToCSVRecord returns array of values to be exported to CSV
+func (i *Idea) ToCSVRecord() []string {
+	return []string{
+		i.Title,
+		i.Description,
+	}
+}
+
 // NewIdea represents a new idea
 type NewIdea struct {
 	Title       string `json:"title"`
