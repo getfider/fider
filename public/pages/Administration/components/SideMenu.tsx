@@ -1,8 +1,10 @@
 import * as React from "react";
+import { CurrentUser } from "@fider/models";
 import { classSet } from "@fider/services";
 
 interface SiteMenuProps {
   activeItem: string;
+  user: CurrentUser;
 }
 
 interface SideMenuItemProps {
@@ -47,6 +49,9 @@ export const SideMenu = (props: SiteMenuProps) => {
         href="/admin/invitations"
         isActive={activeItem === "invitations"}
       />
+      {props.user.isAdministrator && (
+        <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
+      )}
     </div>
   );
 };

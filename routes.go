@@ -118,6 +118,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
+			private.Get("/admin/export", handlers.Page())
 			private.Get("/admin/export/ideas.csv", handlers.ExportIdeasToCSV())
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
