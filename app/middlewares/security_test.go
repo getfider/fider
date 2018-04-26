@@ -24,7 +24,7 @@ func TestSecure(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Content-Security-Policy-Report-Only")).To(Equal(fmt.Sprintf(web.CspPolicyTemplate, id)))
+	Expect(response.Header().Get("Content-Security-Policy")).To(Equal(fmt.Sprintf(web.CspPolicyTemplate, id)))
 	Expect(response.Header().Get("X-XSS-Protection")).To(Equal("1; mode=block"))
 	Expect(response.Header().Get("X-Content-Type-Options")).To(Equal("nosniff"))
 	Expect(response.Header().Get("Referrer-Policy")).To(Equal("no-referrer-when-downgrade"))
