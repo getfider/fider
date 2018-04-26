@@ -5,17 +5,12 @@ PG_CONTAINER="fider_pge2e"
 PORT=3000
 
 run_e2e () {
-  # Check is PORT is in use
-  if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; then
-      echo "Another process is already running on port $PORT."
-      exit 1;
-  fi
-
   echo "Compiling tests..."
   rm -rf ./output/tests
   npx tsc -p ./tests/tsconfig.json
 
   echo "Starting Fider (HOST_MODE: $1)..."
+  docker rm -f $FIDER_CONTAINER || true
   docker rm -f $PG_CONTAINER || true
   docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw --name $PG_CONTAINER postgres:9.6.8
   docker run --link $PG_CONTAINER:pg waisbrot/wait
@@ -24,13 +19,12 @@ run_e2e () {
   {
     {
       echo "Running e2e tests ..."
-      npx mocha -t 60000 ./output/tests/e2e-$1.js
+      npx jest ./output/tests/e2e-$1.spec.js
     } || { 
       echo "Tests failed..."; 
     }
   } && {
       echo "Stopping Fider ..."
-      docker logs $FIDER_CONTAINER >> ./logs/e2e.log
       docker rm -f $FIDER_CONTAINER
   }
 }
