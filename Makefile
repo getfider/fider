@@ -17,7 +17,7 @@ test:
 	godotenv -f .test.env go test ./... -p=1
 	rm -rf ./output/public
 	npx tsc -p ./tsconfig.json
-	npx jest
+	npx jest ./output/public
 
 coverage:
 	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -coverpkg=all
