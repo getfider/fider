@@ -1,3 +1,3 @@
 process.env.HOST_MODE = "single";
-jest.setTimeout(60000);
+jest.setTimeout(30000);
 require("./testcases/entry");
