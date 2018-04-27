@@ -43,7 +43,7 @@ class WebComponentEnsurer {
 
   public async isVisible() {
     await this.retry(async () => {
-      if (!await this.component.isDisplayed()) {
+      if (!(await this.component.isDisplayed())) {
         throw new Error(`Element ${this.component.selector} is not visible`);
       }
     });

@@ -55,7 +55,9 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     const text =
       this.state.selected.length === 0
         ? "any tag"
-        : this.state.selected.length === 1 ? "1 tag" : `${this.state.selected.length} tags`;
+        : this.state.selected.length === 1
+          ? "1 tag"
+          : `${this.state.selected.length} tags`;
 
     return (
       <>

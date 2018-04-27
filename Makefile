@@ -13,8 +13,15 @@ lint-fix:
 	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}' --fix
 
 # Testing
-test:
+test-ui:
+	rm -rf ./output/public
+	npx tsc -p ./tsconfig.json
+	npx jest ./output/public
+
+test-server:
 	godotenv -f .test.env go test ./... -p=1
+
+test : test-server test-ui
 
 coverage:
 	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -coverpkg=all
