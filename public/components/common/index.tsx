@@ -16,6 +16,5 @@ export * from "./Toggle";
 import Textarea from "react-textarea-autosize";
 export { Textarea };
 
-import Dropdown from "semantic-ui-react/dist/commonjs/modules/Dropdown";
-import { DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react/index.d";
+import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react";
 export { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData };

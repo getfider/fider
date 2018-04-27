@@ -15,8 +15,8 @@
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "@types/markdown-it": "0.0.4",
-    "@types/react": "^16.3.5",
     "@types/node": "9.6.7",
+    "@types/react": "^16.3.5",
     "@types/react-dom": "^16.0.4",
     "@types/react-textarea-autosize": "^4.3.2",
     "@types/selenium-webdriver": "^3.0.8",
@@ -31,6 +31,7 @@
     "reflect-metadata": "^0.1.12",
     "sass-loader": "^6.0.7",
     "selenium-webdriver": "^3.6.0",
+    "ts-jest": "^22.4.4",
     "ts-loader": "^4.1.0",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",
@@ -42,9 +43,21 @@
     "webpack-cli": "^2.0.14"
   },
   "jest": {
+    "transform": {
+      "^.+\\.(tsx|ts)?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
     "moduleNameMapper": {
-      "^.*\\.(png|scss)$": "<rootDir>/output/public/assets/jest-sass-stub.js",
-      "@fider/(.*)": "<rootDir>/output/public/$1"
+      "^.*\\.(png|scss)$": "<rootDir>/public/assets/jest-sass-stub.ts",
+      "@fider/(.*)": "<rootDir>/public/$1"
     }
   }
 }
