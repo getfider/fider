@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/tasks"
@@ -104,7 +103,7 @@ func SignUp() web.HandlerFunc {
 			}
 
 			if tenant != nil {
-				return c.Redirect(http.StatusTemporaryRedirect, "/")
+				return c.Redirect("/")
 			}
 		}
 		return c.Page(web.Map{})

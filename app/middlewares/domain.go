@@ -28,7 +28,7 @@ func SingleTenant() web.MiddlewareFunc {
 			tenant, err := c.Services().Tenants.First()
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
-					return c.Redirect(http.StatusTemporaryRedirect, "/signup")
+					return c.Redirect("/signup")
 				}
 				return c.Failure(err)
 			}
@@ -49,7 +49,7 @@ func MultiTenant() web.MiddlewareFunc {
 			// This is only valid for fider.io hosting
 			if (env.IsProduction() && hostname == "fider.io") ||
 				(env.IsDevelopment() && hostname == "dev.fider.io") {
-				return c.Redirect(http.StatusTemporaryRedirect, "https://getfider.com")
+				return c.Redirect("https://getfider.com")
 			}
 
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)
@@ -93,7 +93,7 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
-				return c.Redirect(http.StatusTemporaryRedirect, "/signin")
+				return c.Redirect("/signin")
 			}
 			return next(c)
 		}
