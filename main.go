@@ -12,8 +12,17 @@ import (
 	_ "github.com/mattes/migrate/source/file"
 )
 
-var buildtime string
-var version = "0.13.0-beta"
+// replaced during CI build
+var buildtime = ""
+var buildnumber = "local"
+
+// Use this for non-stable releases
+// var version = "x.y.z-" + buildnumber
+
+// Use this for stable releases
+// var version = "x.y.z"
+
+var version = "0.13.0-" + buildnumber
 
 func main() {
 	fmt.Printf("Application is starting...\n")
