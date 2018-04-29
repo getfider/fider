@@ -1,30 +1,65 @@
-![](/public/assets/images/logo-small.png)
+<p align="center">
+  <a href="https://github.com/getfider/fider">
+    <img src="public/assets/images/logo-small.png" />
+  </a>
+  <h1 align="center">Fider</h1>
+  <div align="center">
+    <strong>A platform to collect and organize customer feedback.</strong>
+  </div>
+  <div align="center">Let your customers share, vote and discuss on suggestions they have to make your product even better.</div>
+</p>
 
-# Fider &middot; [![CircleCI](https://circleci.com/gh/getfider/fider/tree/master.svg?style=svg)](https://circleci.com/gh/getfider/fider/tree/master) [![codecov](https://codecov.io/gh/getfider/fider/branch/master/graph/badge.svg)](https://codecov.io/gh/getfider/fider)
+<div align="center">
+  <h3>
+    <a href="https://getfider.com">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://feedback.fider.io/">
+      See it in action
+    </a>
+  </h3>
+</div>
 
-Fider is an open platform to collect and organize customer feedback. By using the platform, your community can share, vote and discuss on ideas they have to make your product or company even better.
+<div align="center">
+  <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="graphs/contributors">contributors</a></sub>
+</div>
 
-You can [see it in action](https://feedback.fider.io/) or visit https://getfider.com to learn more about all features and how to get started.
+<br />
 
-![](etc/homepage.png)
+<img src="etc/homepage.png">
 
-# Want to contribute?
+## Contributors
 
-[Feedback for Fider](https://feedback.fider.io/) is the entry point for any new feature request. We use our own platform for users to share and vote on what they would like to see implemented on Fider.
+This project exists thanks to all the people who contribute.
 
-[GitHub Issues](https://github.com/getfider/fider/issues) is created for every **accepted feature request**, **technical request** or **bugs**. Every issue should briefly describes what's the work involved and it'll be used to track progress on its development.
+<a href="graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
-We have a monthly [GitHub Milestone](https://github.com/getfider/fider/milestones) that lists everything that is due to be released on that month.
+Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
 
-* **Found a bug?** Create an issue on [GitHub](https://github.com/getfider/fider/issues).
-* **Want to request a feature?** Suggest it on [Feedback for Fider](https://feedback.fider.io/).
-* **Got a question?** Send a Tweet to [@getfider](twitter.com/getfider) or email admin@fider.io.
-* **Want to donate?** Become a backer on [OpenCollective](https://opencollective.com/fider) and help us continue our activities. 
-
-Read how you can help the project on [CONTRIBUTING.md](CONTRIBUTING.md).
-
-# Sponsors
+## Sponsors
 
 Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
 
-[![](etc/browserstack.png)](https://browserstack.com/)
+<a href="https://browserstack.com" target="_blank">
+  <img src="etc/browserstack.png">
+</a>
+
+Does your organization use Fider? [Become a sponsor](https://opencollective.com/fider) and your logo will show up here with a link to your website.
+
+<a href="https://opencollective.com/fider/sponsors/0/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/0/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/1/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/1/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/2/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/2/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/3/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/3/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/4/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/4/avatar"></a>
+
+## Backers
+
+Thank you to all our backers! 🙏
+
+<a href="https://opencollective.com/fider" target="_blank">
+  <img src="https://opencollective.com/fider/backers.svg?width=890">
+</a>
+
+
+
