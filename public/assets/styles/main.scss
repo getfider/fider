@@ -70,6 +70,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
   color: rgba(0,0,0,.6);
 }
 
+.center {
+  text-align: center;
+}
+
 .info.right {
   float: right;
 }
@@ -298,4 +302,10 @@ code {
 
 .c-toast {
   border-radius: 5px !important;
+}
+
+.desktop-only {
+  @include media("<desktop") {
+    display: none;
+  }
 }

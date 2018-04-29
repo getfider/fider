@@ -23,23 +23,33 @@ $red: #db2828;
 
 // Queries
 $tablet-width: 768px;
-$desktop-width: 1024px;
+$desktop-width: 992px;
 
-@mixin mobile {
-  @media (max-width: #{$tablet-width - 0.1px}) {
-    @content;
+@mixin media($media) {
+  @if $media == "phone" {
+    @media only screen and (max-width: #{$tablet-width - 0.1px}) { 
+      @content; 
+    }
   }
-}
-
-@mixin tablet {
-  @media (min-width: #{$tablet-width}) {
-    @content;
+  @else if $media == "tablet" {
+    @media only screen and (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 0.1px}) { 
+      @content; 
+    }
   }
-}
-
-@mixin desktop {
-  @media (min-width: #{$desktop-width}) {
-    @content;
+  @else if $media == ">tablet" {
+    @media only screen and (min-width: #{$tablet-width}) { 
+      @content; 
+    }
+  }
+  @else if $media == "<desktop" {
+    @media only screen and (max-width: #{$desktop-width - 0.1px}) { 
+      @content; 
+    }
+  }
+  @else if $media == "desktop" {
+    @media only screen and (min-width: #{$desktop-width}) { 
+      @content; 
+    }
   }
 }
 
