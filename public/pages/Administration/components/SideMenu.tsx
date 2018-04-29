@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CurrentUser } from "@fider/models";
 import { classSet, page } from "@fider/services";
+import { FiderVersion } from "@fider/components";
 
 interface SiteMenuProps {
   activeItem: string;
@@ -54,14 +55,7 @@ export const SideMenu = (props: SiteMenuProps) => {
           <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
         )}
       </div>
-      <p className="info center desktop-only">
-        Support our{" "}
-        <a target="_blank" href="http://opencollective.com/fider">
-          OpenCollective
-        </a>
-        <br />
-        Fider v{page.systemSettings().version}
-      </p>
+      <FiderVersion />
     </>
   );
 };
