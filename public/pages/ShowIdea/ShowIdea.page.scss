@@ -18,7 +18,7 @@
     }
   }
 
-  @include tablet {
+  @include media(">tablet") {
     .header-col, 
     .comments-col {
       float: left;
@@ -34,7 +34,7 @@
   }
 
   .action-col {
-    @include tablet {
+    @include media(">tablet") {
       width: 200px;
     }
     .ui.list {

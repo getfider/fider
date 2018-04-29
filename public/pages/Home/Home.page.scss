@@ -62,7 +62,7 @@
     }
   }
 
-  @include mobile {
+  @include media("phone") {
     .filter-column {
       padding-right: 0;
     }

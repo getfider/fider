@@ -87,9 +87,9 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	m := data.(Map)
 	m["__JavaScriptBundle"] = r.jsBundle
 	m["__StyleBundle"] = r.cssBundle
+	m["__ContextID"] = ctx.ContextID()
+	
 	m["system"] = r.settings
-
-	m["contextID"] = ctx.ContextID()
 	m["baseURL"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
