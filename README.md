@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="public/assets/images/logo-small.png" />
+  <a href="https://github.com/getfider/fider">
+    <img src="public/assets/images/logo-small.png" />
+  </a>
   <h1 align="center">Fider</h1>
   <div align="center">
     <strong>A platform to collect and organize customer feedback.</strong>
@@ -23,17 +25,19 @@
   <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="graphs/contributors">contributors</a></sub>
 </div>
 
-<img style="box-shadow: 0 10px 10px 0 #cfcfcf;" src="etc/homepage.png">
+<br />
 
-# Contributors
+<img src="etc/homepage.png">
+
+## Contributors
 
 This project exists thanks to all the people who contribute.
 
 <a href="graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
-Want to contribute? Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
+Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
 
-# Sponsors
+## Sponsors
 
 Thanks to [BrowserStack](https://browserstack.com/) for providing us with free cross-browser testing for Fider.
 
@@ -41,29 +45,13 @@ Thanks to [BrowserStack](https://browserstack.com/) for providing us with free c
   <img src="etc/browserstack.png">
 </a>
 
-Support this project by [becoming a sponsor](https://opencollective.com/fider). Your logo will show up here with a link to your website.
+Does your organization use Fider? [Become a sponsor](https://opencollective.com/fider) and your logo will show up here with a link to your website.
 
-<a href="https://opencollective.com/fider/sponsor/0/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/0/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/1/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/1/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/2/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/2/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/3/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/3/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/4/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/4/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/5/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/5/avatar.svg">
-</a>
-<a href="https://opencollective.com/fider/sponsor/6/website" target="_blank">
-  <img src="https://opencollective.com/fider/sponsor/6/avatar.svg">
-</a>
+<a href="https://opencollective.com/fider/sponsors/0/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/0/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/1/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/1/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/2/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/2/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/3/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/3/avatar"></a>
+<a href="https://opencollective.com/fider/sponsors/4/website" target="_blank"><img src="https://opencollective.com/fider/sponsors/4/avatar"></a>
 
 ## Backers
 
