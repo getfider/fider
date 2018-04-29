@@ -1,24 +1,24 @@
-# Contributing to Fider
+# Contributing
 
-## Ways to contribute
+There are many ways to contribute to Fider.
 
-- **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide.
-- **Reporting issues** and bug reports on (https://github.com/getfider/fider).
-- **Giving feedback** and voting on features you'd like to see at https://feedback.fider.io.
-- **Spread the word!** Star us on GitHub, tweet about us, show it to your friends. The more people are aware of Fider, the bigger the community and the contributions will be.
-- **Support us financially** Donate any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities.
+- **Send us a Pull Request** on GitHub. Make sure you read our [Getting Started](#getting-started-with-fider-codebase) guide to learn how to setup the development environment;
+- **Report issues** and bug reports on https://github.com/getfider/fider/issues;
+- **Give feedback** and voting on features you'd like to see at https://feedback.fider.io;
+- **Spread the word** by starring us on GitHub. Tweet about us and show it to your friends. The more people are aware of Fider, the bigger the community will be and more contributions will be made;
+- **Support us financially** by donating any amount to our [OpenCollective](https://opencollective.com/fider) and help us continue our activities;
 
 ## Getting started with Fider codebase
 
-Before youstart working on something that you intend to send a Pull Request back to Fider, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that. If you're working on something not tracked yet, please open a new Issue before the Pull Request.
+Before you start working on something that you intend to send a Pull Request to Fider, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that. If you're working on something not tracked yet, please open a new Issue before the Pull Request.
 
-Fider is mainly written in Go and TypeScript, but we're also using things like Node.js, React and PostgreSQL. 
+Fider is mainly written in Go and TypeScript, but we're also using things like Node.js, React and PostgreSQL.
 If you know these technologies or would like to learn them, lucky you! This is the right place!
 
 Install the following tools:
 
-- Go 1.10 (https://golang.org/)
-- Node.js 8.x (https://nodejs.org/)
+- Go 1.10+ (https://golang.org/)
+- Node.js 8+ (https://nodejs.org/)
 - Docker (https://www.docker.com/)
 - github.com/codegangsta/gin (https://github.com/codegangsta/gin/)
 
