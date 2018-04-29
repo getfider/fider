@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: getfider/circleci:0.0.7
+      - image: getfider/circleci:0.0.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
@@ -11,7 +11,7 @@ jobs:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run:
           name: npm install
-          command: if [ ! -d "./node_modules" ]; then npm install; fi
+          command: if [ ! -d "./node_modules" ]; then npm ci; fi
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - save_cache:
@@ -27,7 +27,7 @@ jobs:
             - docker-image.tar
   test:
     docker:
-      - image: getfider/circleci:0.0.7
+      - image: getfider/circleci:0.0.8
       - image: postgres:9.6.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
@@ -43,7 +43,7 @@ jobs:
       - run: bash <(curl -s https://codecov.io/bash)
   push:
     docker:
-      - image: getfider/circleci:0.0.7
+      - image: getfider/circleci:0.0.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - attach_workspace:
