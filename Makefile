@@ -1,9 +1,10 @@
 BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
+BUILD_NUMBER = $(shell echo $$CIRCLE_BUILD_NUM)
 
 # Building
 build:
 	rm -rf dist
-	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME}' -o fider .
+	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME} -X main.buildnumber=${BUILD_NUMBER}' -o fider .
 	NODE_ENV=production npx webpack -p
 
 lint: 
@@ -13,8 +14,15 @@ lint-fix:
 	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}' --fix
 
 # Testing
-test:
+test-ui:
+	rm -rf ./output/public
+	npx tsc -p ./tsconfig.json
+	npx jest ./output/public
+
+test-server:
 	godotenv -f .test.env go test ./... -p=1
+
+test : test-server test-ui
 
 coverage:
 	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -coverpkg=all

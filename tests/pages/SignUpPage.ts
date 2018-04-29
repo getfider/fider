@@ -18,7 +18,7 @@ export class SignUpPage extends Page {
   @findBy("#p-signup .form #tenantName") public TenantName!: TextInput;
   @findBy("#p-signup .form #subdomain") public Subdomain!: TextInput;
   @findBy("#p-signup .c-button.green") public Confirm!: Button;
-  @findBy("#p-signup .page .green.basic.label") private SubdomainOk!: WebComponent;
+  @findBy("#p-signup .green.basic.label") private SubdomainOk!: WebComponent;
   @findBy(".c-modal__window") private ConfirmationModal!: WebComponent;
 
   public loadCondition() {

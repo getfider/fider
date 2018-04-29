@@ -1,4 +1,4 @@
-import { AuthSettings } from "@fider/models";
+import { AuthSettings, SystemSettings } from "@fider/models";
 
 export const goHome = (): void => {
   document.location.href = "/";
@@ -22,6 +22,10 @@ export const isSingleHostMode = (): boolean => {
 
 export const authSettings = (): AuthSettings => {
   return (window as any).props.auth;
+};
+
+export const systemSettings = (): SystemSettings => {
+  return (window as any).props.system;
 };
 
 export interface ModalOptions {

@@ -5,12 +5,12 @@ describe("Sign up by email", () => {
   let browser: Browser;
   let pages: AllPages;
 
-  before(async () => {
+  beforeAll(async () => {
     browser = new Browser("chrome");
     pages = new AllPages(browser);
   });
 
-  after(async () => {
+  afterAll(async () => {
     await pages.dispose();
   });
 

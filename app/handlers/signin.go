@@ -36,7 +36,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 
 		code := c.QueryParam("code")
 		if code == "" {
-			return c.Redirect(http.StatusTemporaryRedirect, redirect)
+			return c.Redirect(redirect)
 		}
 
 		oauthUser, err := c.Services().OAuth.GetProfile(c.AuthEndpoint(), provider, code)
@@ -70,7 +70,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
 					if tenant.IsPrivate {
-						return c.Redirect(http.StatusTemporaryRedirect, c.TenantBaseURL(tenant)+"/not-invited")
+						return c.Redirect(c.TenantBaseURL(tenant) + "/not-invited")
 					}
 
 					user = &models.User{
@@ -125,7 +125,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 		var query = redirectURL.Query()
 		query.Set("token", token)
 		redirectURL.RawQuery = query.Encode()
-		return c.Redirect(http.StatusTemporaryRedirect, redirectURL.String())
+		return c.Redirect(redirectURL.String())
 	}
 }
 
@@ -133,7 +133,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 func SignInPage() web.HandlerFunc {
 	return func(c web.Context) error {
 		if c.IsAuthenticated() || !c.Tenant().IsPrivate {
-			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+			return c.Redirect(c.BaseURL())
 		}
 		return c.Page(web.Map{})
 	}
@@ -150,7 +150,7 @@ func NotInvitedPage() web.HandlerFunc {
 func SignInByOAuth(provider string) web.HandlerFunc {
 	return func(c web.Context) error {
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
-		return c.Redirect(http.StatusTemporaryRedirect, authURL)
+		return c.Redirect(authURL)
 	}
 }
 
@@ -233,7 +233,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+		return c.Redirect(c.BaseURL())
 	}
 }
 
@@ -279,7 +279,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 func SignOut() web.HandlerFunc {
 	return func(c web.Context) error {
 		c.RemoveCookie(web.CookieAuthName)
-		return c.Redirect(http.StatusTemporaryRedirect, c.QueryParam("redirect"))
+		return c.Redirect(c.QueryParam("redirect"))
 	}
 }
 

@@ -6,7 +6,7 @@ describe("Using Fider", () => {
   let browser: Browser;
   let pages: AllPages;
 
-  before(async () => {
+  beforeAll(async () => {
     const now = new Date().getTime();
     const tenantName = `Selenium ${now}`;
     const tenantSubdomain = `selenium${now}`;
@@ -25,7 +25,7 @@ describe("Using Fider", () => {
     await pages.signup.signUpAs(tenantName, tenantSubdomain);
   });
 
-  after(async () => {
+  afterAll(async () => {
     await pages.dispose();
   });
 
@@ -34,7 +34,7 @@ describe("Using Fider", () => {
   });
 
   describe("As an anonymous user", () => {
-    before(async () => {
+    beforeAll(async () => {
       await pages.home.navigate();
       await pages.home.signOut();
     });

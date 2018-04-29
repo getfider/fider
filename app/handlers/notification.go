@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -51,7 +49,7 @@ func ReadNotification() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL()+notification.Link)
+		return c.Redirect(c.BaseURL() + notification.Link)
 	}
 }
 

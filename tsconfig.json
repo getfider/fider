@@ -1,27 +1,29 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
-        "strict": true,
-        "sourceMap": true,
-        "types": [
-            "markdown-it", 
-            "react", 
-            "react-dom", 
-            "react-textarea-autosize"
-        ],
-        "jsx": "react",
-        "lib": ["dom", "es2015.promise", "es5"],
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "baseUrl": "./public",
-        "paths": {
-            "@fider/*": [
-                "*"
-            ]
-        }
-    },
-    "include": [
-        "./public/**/*"
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "strict": true,
+    "sourceMap": true,
+    "types": [
+        "markdown-it", 
+        "react", 
+        "react-dom", 
+        "react-textarea-autosize",
+        "jest"
     ],
+    "outDir": "./output/public",
+    "jsx": "react",
+    "lib": ["dom", "es2015.promise", "es5"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./public",
+    "paths": {
+      "@fider/*": [
+        "*"
+      ]
+    }
+  },
+  "include": [
+    "./public/**/*"
+  ],
 }

@@ -13,9 +13,9 @@ export * from "./UserName";
 export * from "./Modal";
 export * from "./Loader";
 export * from "./Toggle";
+export * from "./FiderVersion";
 import Textarea from "react-textarea-autosize";
 export { Textarea };
 
-import Dropdown from "semantic-ui-react/dist/commonjs/modules/Dropdown";
-import { DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react/index.d";
+import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react";
 export { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData };
