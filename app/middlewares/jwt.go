@@ -67,7 +67,7 @@ func JwtSetter() web.MiddlewareFunc {
 					url += "?" + querystring
 				}
 
-				return c.Redirect(http.StatusTemporaryRedirect, url)
+				return c.Redirect(url)
 			}
 
 			return next(c)

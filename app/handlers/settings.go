@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/models"
@@ -39,7 +38,7 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 		}
 
 		if result.UserID != c.User().ID {
-			return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL())
+			return c.Redirect(c.BaseURL())
 		}
 
 		err = c.Services().Users.ChangeEmail(result.UserID, result.Email)
@@ -51,7 +50,7 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Redirect(http.StatusTemporaryRedirect, c.BaseURL()+"/settings")
+		return c.Redirect(c.BaseURL() + "/settings")
 	}
 }
 
