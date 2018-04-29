@@ -1,9 +1,10 @@
 BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
+BUILD_NUMBER = $(shell echo $$CIRCLE_BUILD_NUM)
 
 # Building
 build:
 	rm -rf dist
-	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME}' -o fider .
+	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME} -X main.buildnumber=${BUILD_NUMBER}' -o fider .
 	NODE_ENV=production npx webpack -p
 
 lint: 

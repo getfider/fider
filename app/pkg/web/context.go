@@ -493,9 +493,9 @@ func (ctx *Context) NoContent(code int) error {
 	return nil
 }
 
-// Redirect redirects the request to a provided URL with status code.
-func (ctx *Context) Redirect(code int, url string) error {
+// Redirect the request to a provided URL
+func (ctx *Context) Redirect(url string) error {
 	ctx.Response.Header().Set("Location", url)
-	ctx.Response.WriteHeader(code)
+	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
 }
