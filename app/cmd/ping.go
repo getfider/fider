@@ -13,7 +13,9 @@ import (
 func RunPing() int {
 	protocol := "http://"
 	if env.IsDefined("SSL_CERT") || env.IsDefined("SSL_AUTO") {
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: true
+		}
 		protocol = "https://"
 	}
 
