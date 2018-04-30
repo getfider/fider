@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"time"
@@ -10,8 +10,7 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// GetMainEngine returns main HTTP engine
-func GetMainEngine(settings *models.SystemSettings) *web.Engine {
+func getMainEngine(settings *models.SystemSettings) *web.Engine {
 	r := web.New(settings)
 
 	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))

@@ -4,8 +4,6 @@ import (
 	"os"
 	"runtime"
 
-	"fmt"
-
 	"github.com/getfider/fider/app/cmd"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -27,15 +25,6 @@ var buildnumber = "local"
 var version = "0.13.0-" + buildnumber
 
 func main() {
-	args := os.Args[1:]
-	if len(args) > 0 && args[0] == "ping" {
-		os.Exit(cmd.RunPing())
-		return
-	}
-
-	fmt.Printf("Application is starting...\n")
-	fmt.Printf("GO_ENV: %s\n", env.Current())
-
 	settings := &models.SystemSettings{
 		BuildTime:       buildtime,
 		Version:         version,
@@ -46,6 +35,10 @@ func main() {
 		Domain:          env.MultiTenantDomain(),
 	}
 
-	e := GetMainEngine(settings)
-	e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
+	args := os.Args[1:]
+	if len(args) > 0 && args[0] == "ping" {
+		os.Exit(cmd.RunPing())
+	} else {
+		os.Exit(cmd.RunServer(settings))
+	}
 }

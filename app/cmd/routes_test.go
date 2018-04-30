@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"testing"
@@ -9,6 +9,6 @@ import (
 func TestGetMainEngine(t *testing.T) {
 	RegisterTestingT(t)
 
-	r := GetMainEngine(nil)
+	r := getMainEngine(nil)
 	Expect(r).ToNot(BeNil())
 }
