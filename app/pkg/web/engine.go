@@ -215,7 +215,7 @@ func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
 
 // Static return files from given folder
 func (g *Group) Static(prefix, root string) {
-	fi, err := os.Stat(root)
+	fi, err := os.Stat(env.Path(root))
 	if err != nil {
 		panic(fmt.Sprintf("Path '%s' not found", root))
 	}

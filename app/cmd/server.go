@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 //RunServer starts the Fider Server
@@ -14,7 +15,7 @@ func RunServer(settings *models.SystemSettings) int {
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 
-	e := getMainEngine(settings)
+	e := routes(web.New(settings))
 	e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
 
 	return 0
