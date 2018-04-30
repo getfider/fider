@@ -30,6 +30,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 	noTenant := r.Group()
 	{
+		noTenant.Get("/-/health", handlers.Health())
 		noTenant.Post("/csp-report", handlers.CSPReport())
 
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
@@ -79,7 +80,6 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/api/status", handlers.Status(settings))
 		}
 
 		private := page.Group()
