@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"time"
@@ -10,10 +10,7 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-// GetMainEngine returns main HTTP engine
-func GetMainEngine(settings *models.SystemSettings) *web.Engine {
-	r := web.New(settings)
-
+func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
 
 	r.Use(middlewares.Secure())
@@ -30,7 +27,7 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 
 	noTenant := r.Group()
 	{
-		noTenant.Post("/csp-report", handlers.CSPReport())
+		noTenant.Get("/-/health", handlers.Health())
 
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
@@ -79,7 +76,6 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			public.Get("/ideas/:number", handlers.IdeaDetails())
 			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
 			public.Get("/signout", handlers.SignOut())
-			public.Get("/api/status", handlers.Status(settings))
 		}
 
 		private := page.Group()
@@ -129,6 +125,5 @@ func GetMainEngine(settings *models.SystemSettings) *web.Engine {
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 	}
-
 	return r
 }

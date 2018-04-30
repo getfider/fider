@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"io/ioutil"
-	"runtime"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -11,23 +9,10 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-//Status returns some useful information
-func Status(settings *models.SystemSettings) web.HandlerFunc {
+//Health always returns OK
+func Health() web.HandlerFunc {
 	return func(c web.Context) error {
-		memStats := &runtime.MemStats{}
-		runtime.ReadMemStats(memStats)
-
-		return c.Ok(web.Map{
-			"build":       settings.BuildTime,
-			"version":     settings.Version,
-			"env":         settings.Environment,
-			"compiler":    settings.Compiler,
-			"now":         time.Now().Format("2006.01.02.150405"),
-			"goroutines":  runtime.NumGoroutine(),
-			"workerQueue": c.Engine().Worker().Length(),
-			"heapInMB":    memStats.HeapAlloc / 1048576,
-			"stackInMB":   memStats.StackInuse / 1048576,
-		})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -35,18 +20,6 @@ func Status(settings *models.SystemSettings) web.HandlerFunc {
 func Page() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Map{})
-	}
-}
-
-//CSPReport logs every CSP policy issue reported by clients
-func CSPReport() web.HandlerFunc {
-	return func(c web.Context) error {
-		bytes, err := ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			return c.Failure(err)
-		}
-		c.Logger().Warnf("CSP Policy Failure: %s", string(bytes))
-		return c.Ok(web.Map{})
 	}
 }
 

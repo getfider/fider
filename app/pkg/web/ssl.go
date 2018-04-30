@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
+	"strings"
 
 	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
@@ -46,7 +47,9 @@ func NewCertificateManager(certFile, keyFile, cacheDir string) (*CertificateMana
 //Otherwise fallsback to a automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	if m.leaf != nil {
-		if hello.ServerName == "" || m.leaf.VerifyHostname(hello.ServerName) == nil {
+		//skip autoSSL is ServerName is empty or does't contain a dot
+		skipAutoCert := hello.ServerName == "" || !strings.Contains(strings.Trim(hello.ServerName, "."), ".")
+		if skipAutoCert || m.leaf.VerifyHostname(hello.ServerName) == nil {
 			return &m.cert, nil
 		}
 	}
