@@ -18,7 +18,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 Install the following tools:
 
 - Go 1.10+ (https://golang.org/)
-- Node.js 8+ (https://nodejs.org/)
+- Node.js 10+ (https://nodejs.org/)
 - Docker (https://www.docker.com/)
 - github.com/codegangsta/gin (https://github.com/codegangsta/gin/)
 

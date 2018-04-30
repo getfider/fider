@@ -2,7 +2,8 @@ version: 2
 jobs:
   build:
     docker:
-      - image: getfider/circleci:0.0.7
+      - image: getfider/circleci:0.0.8
+      - image: postgres:9.6.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - checkout
@@ -11,13 +12,27 @@ jobs:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run:
           name: npm install
-          command: if [ ! -d "./node_modules" ]; then npm install; fi
-      - run: make lint
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+          command: if [ ! -d "./node_modules" ]; then npm ci; fi
       - save_cache:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
+      - run:
+          name: setup postgres
+          command: |
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
+      - run: make lint
+      - run:
+          name: test
+          command: |
+            mkdir ./dist
+            make test-ui
+            DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
+            bash <(curl -s https://codecov.io/bash)
+
+      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - setup_remote_docker
       - run: docker build -t getfider/fider .
       - run: docker save -o ./docker-image.tar getfider/fider
@@ -25,25 +40,9 @@ jobs:
           root: ./
           paths:
             - docker-image.tar
-  test:
-    docker:
-      - image: getfider/circleci:0.0.7
-      - image: postgres:9.6.8
-    working_directory: /go/src/github.com/getfider/fider
-    steps:
-      - checkout
-      - run:
-          name: setup postgres
-          command: |
-            mkdir dist
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
-      - run: DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
-      - run: bash <(curl -s https://codecov.io/bash)
   push:
     docker:
-      - image: getfider/circleci:0.0.7
+      - image: getfider/circleci:0.0.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - attach_workspace:
@@ -74,8 +73,6 @@ workflows:
   all:
     jobs:
       - build
-      - test
       - push:
           requires:
             - build
-            - test
