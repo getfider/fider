@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 
@@ -10,12 +11,17 @@ import (
 //RunPing checks if Fider Server is running and is healthy
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunPing() int {
+	var client = &http.Client{}
+
 	protocol := "http://"
 	if env.IsDefined("SSL_CERT") || env.IsDefined("SSL_AUTO") {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
 		protocol = "https://"
 	}
 
-	resp, err := http.Get(protocol + "localhost:3000/-/health")
+	resp, err := client.Get(protocol + "localhost:3000/-/health")
 	if err != nil {
 		fmt.Printf("Request failed with: %s\n", err)
 		return 1
