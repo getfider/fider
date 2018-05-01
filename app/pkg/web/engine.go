@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	stdLog "log"
@@ -58,6 +59,7 @@ type Engine struct {
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
+	server      *http.Server
 }
 
 //New creates a new Engine
@@ -76,13 +78,13 @@ func New(settings *models.SystemSettings) *Engine {
 	return router
 }
 
-//Start an HTTP server.
+//Start the HTTP server.
 func (e *Engine) Start(address string) {
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
-	server := &http.Server{
+	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
@@ -105,24 +107,54 @@ func (e *Engine) Start(address string) {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
-		server.TLSConfig = &tls.Config{
+		e.server.TLSConfig = &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		}
 
 		e.logger.Infof("https (auto ssl) server started on %s", address)
-		go certManager.StartHTTPServer()
-		err = server.ListenAndServeTLS("", "")
+		go certManager.StartHTTPServer() //TODO: stop this server as well
+		err = e.server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
 		e.logger.Infof("http server started on %s", address)
-		err = server.ListenAndServe()
+		err = e.server.ListenAndServe()
 	} else {
 		e.logger.Infof("https server started on %s", address)
-		err = server.ListenAndServeTLS(certFile, keyFile)
+		err = e.server.ListenAndServeTLS(certFile, keyFile)
 	}
 
-	if err != nil {
+	if err != nil && err != http.ErrServerClosed {
 		panic(errors.Wrap(err, "failed to start server"))
 	}
+}
+
+//Stop the HTTP server.
+func (e *Engine) Stop() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	e.logger.Infof("server is shutting down")
+	if err := e.server.Shutdown(ctx); err != nil {
+		return errors.Wrap(err, "failed to shutdown server")
+	}
+
+	if e.worker.Length() == 0 {
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+		for {
+			count := e.worker.Length()
+			if count == 1 {
+				return nil
+			}
+			e.logger.Infof("waiting for work queue: %d", count)
+			select {
+			case <-ctx.Done():
+				return errors.New("timeout waiting for worker queue")
+			case <-ticker.C:
+			}
+		}
+	}
+
+	return nil
 }
 
 //NewContext creates and return a new context
