@@ -3,6 +3,7 @@ package web_test
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 
@@ -22,6 +23,7 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	}
 
 	go w.Start(":8080")
+	time.Sleep(time.Second)
 	resp, err := http.Get("http://127.0.0.1:8080/hello")
 	Expect(err).To(BeNil())
 	resp.Body.Close()
