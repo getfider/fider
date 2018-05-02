@@ -45,7 +45,7 @@
   branch = "master"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
-  revision = "d1898390779332322e6b5ca5011da4bf249bb056"
+  revision = "adbc77eec0d91467376ca515bc3a14b8434d0f18"
 
 [[projects]]
   branch = "master"
