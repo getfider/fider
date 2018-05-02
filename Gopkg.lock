@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  revision = "d2709f9f1f31ebcda9651b03077758c1f3a0018c"
-  version = "v3.0.0"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "master"
@@ -45,7 +45,7 @@
   branch = "master"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
-  revision = "d1898390779332322e6b5ca5011da4bf249bb056"
+  revision = "adbc77eec0d91467376ca515bc3a14b8434d0f18"
 
 [[projects]]
   branch = "master"
@@ -54,7 +54,7 @@
     ".",
     "oid"
   ]
-  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
+  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
   name = "github.com/mattes/migrate"
@@ -84,8 +84,8 @@
     "matchers/support/goraph/util",
     "types"
   ]
-  revision = "334b8f472b3af5d541c5642701c1e29e2126f486"
-  version = "v1.1.0"
+  revision = "003f63b7f4cff3fc95357005358af2de0f5fe152"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -96,8 +96,8 @@
 [[projects]]
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  revision = "4048872b16cc0fc2c5fd9eacf0ed2c2fedaa0c8c"
-  version = "v1.5"
+  revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
+  version = "v1.5.1"
 
 [[projects]]
   branch = "master"
@@ -106,7 +106,7 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "13931e22f9e72ea58bb73048bc752b48c6d4d4ac"
+  revision = "2c241ca3045ddc354463c376a9515d9f1f1390a4"
 
 [[projects]]
   branch = "master"
@@ -122,7 +122,10 @@
   name = "golang.org/x/net"
   packages = [
     "context",
-    "context/ctxhttp"
+    "context/ctxhttp",
+    "html",
+    "html/atom",
+    "html/charset"
   ]
   revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
 
@@ -138,7 +141,31 @@
     "jws",
     "jwt"
   ]
-  revision = "2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0"
+  revision = "6881fee410a5daf86371371f9ad451b95e168b71"
+
+[[projects]]
+  name = "golang.org/x/text"
+  packages = [
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
+    "internal/gen",
+    "internal/tag",
+    "internal/utf8internal",
+    "language",
+    "runes",
+    "transform",
+    "unicode/cldr"
+  ]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -166,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3661aaca7b7d96c470d0a172f6d6bd67d7bc3ee3bca7d00eb4a5f90abf352247"
+  inputs-digest = "4652c714a25974ad0be4d69995d2c1d31ac4e7bdbc0683f0838f523a3adabff5"
   solver-name = "gps-cdcl"
   solver-version = 1

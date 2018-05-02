@@ -31,6 +31,8 @@ var _ = Describe("Equal", func() {
 			Ω("5").Should(Equal("5"))
 			Ω([]int{1, 2}).Should(Equal([]int{1, 2}))
 			Ω([]int{1, 2}).ShouldNot(Equal([]int{2, 1}))
+			Ω([]byte{'f', 'o', 'o'}).Should(Equal([]byte{'f', 'o', 'o'}))
+			Ω([]byte{'f', 'o', 'o'}).ShouldNot(Equal([]byte{'b', 'a', 'r'}))
 			Ω(map[string]string{"a": "b", "c": "d"}).Should(Equal(map[string]string{"a": "b", "c": "d"}))
 			Ω(map[string]string{"a": "b", "c": "d"}).ShouldNot(Equal(map[string]string{"a": "b", "c": "e"}))
 			Ω(errors.New("foo")).Should(Equal(errors.New("foo")))

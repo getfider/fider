@@ -2,6 +2,7 @@ package matchers_test
 
 import (
 	"errors"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/matchers"

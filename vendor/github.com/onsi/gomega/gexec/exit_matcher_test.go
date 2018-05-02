@@ -1,9 +1,10 @@
 package gexec_test
 
 import (
-	. "github.com/onsi/gomega/gexec"
 	"os/exec"
 	"time"
+
+	. "github.com/onsi/gomega/gexec"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

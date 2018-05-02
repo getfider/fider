@@ -159,6 +159,13 @@ var _ = Describe("Format", func() {
 
 			Ω(MessageWithDiff(stringWithB, "to equal", stringWithZ)).Should(Equal(expectedTruncatedEndStringFailureMessage))
 		})
+
+		It("handles multi-byte sequences correctly", func() {
+			stringA := "• abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz1"
+			stringB := "• abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz"
+
+			Ω(MessageWithDiff(stringA, "to equal", stringB)).Should(Equal(expectedTruncatedMultiByteFailureMessage))
+		})
 	})
 
 	Describe("IndentString", func() {
@@ -587,4 +594,10 @@ Expected
     <string>: "...aaaa"
 to equal              |
     <string>: "...aaaaa"
+`)
+var expectedTruncatedMultiByteFailureMessage = strings.TrimSpace(`
+Expected
+    <string>: "...tuvwxyz1"
+to equal                 |
+    <string>: "...tuvwxyz"
 `)
