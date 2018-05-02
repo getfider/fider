@@ -35,10 +35,9 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 		case syscall.SIGINT, syscall.SIGTERM:
 			err := e.Stop()
 			if err != nil {
-				e.Logger().Error(errors.Wrap(err, "failed to stop server"))
+				e.Logger().Error(errors.Wrap(err, "failed to stop fider"))
 				return 1
 			}
-			e.Logger().Infof("server has shutdown")
 			return 0
 		case syscall.SIGUSR1:
 			e.Logger().Infof("SIGUSR1 received")

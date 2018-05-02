@@ -78,7 +78,7 @@ func New(settings *models.SystemSettings) *Engine {
 	return router
 }
 
-//Start the HTTP server.
+//Start the server.
 func (e *Engine) Start(address string) {
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
@@ -112,7 +112,7 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.logger.Infof("https (auto ssl) server started on %s", address)
-		go certManager.StartHTTPServer() //TODO: stop this server as well
+		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
 		e.logger.Infof("http server started on %s", address)
@@ -127,7 +127,7 @@ func (e *Engine) Start(address string) {
 	}
 }
 
-//Stop the HTTP server.
+//Stop the server.
 func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -136,23 +136,13 @@ func (e *Engine) Stop() error {
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
+	e.logger.Infof("server has shutdown")
 
-	if e.worker.Length() == 0 {
-		ticker := time.NewTicker(1 * time.Second)
-		defer ticker.Stop()
-		for {
-			count := e.worker.Length()
-			if count == 1 {
-				return nil
-			}
-			e.logger.Infof("waiting for work queue: %d", count)
-			select {
-			case <-ctx.Done():
-				return errors.New("timeout waiting for worker queue")
-			case <-ticker.C:
-			}
-		}
+	e.logger.Infof("worker is shutting down")
+	if err := e.worker.Shutdown(ctx); err != nil {
+		return errors.Wrap(err, "failed to shutdown worker")
 	}
+	e.logger.Infof("worker has shutdown")
 
 	return nil
 }

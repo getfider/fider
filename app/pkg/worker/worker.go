@@ -1,6 +1,10 @@
 package worker
 
 import (
+	"context"
+	"errors"
+	"time"
+
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -23,6 +27,7 @@ type Worker interface {
 	Logger() log.Logger
 	Use(middleware MiddlewareFunc)
 	Length() int
+	Shutdown(ctx context.Context) error
 }
 
 //BackgroundWorker is a worker that runs tasks on background
@@ -58,6 +63,27 @@ func (w *BackgroundWorker) Run(id string) {
 
 		w.middleware(task.Job)(c)
 	}
+}
+
+//Shutdown current worker
+func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
+	if w.Length() > 0 {
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			count := w.Length()
+			if count == 0 {
+				return nil
+			}
+			w.logger.Infof("waiting for work queue: %d", count)
+			select {
+			case <-ctx.Done():
+				return errors.New("timeout waiting for worker queue")
+			case <-ticker.C:
+			}
+		}
+	}
+	return nil
 }
 
 //Enqueue a task on current worker
