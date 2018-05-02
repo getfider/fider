@@ -106,7 +106,7 @@
     "acme",
     "acme/autocert"
   ]
-  revision = "13931e22f9e72ea58bb73048bc752b48c6d4d4ac"
+  revision = "2c241ca3045ddc354463c376a9515d9f1f1390a4"
 
 [[projects]]
   branch = "master"
@@ -193,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "595ffa8a42a69e67aed150e34d7ec0d9cd5c2f3e627409ef3ef6f3fbf517b74c"
+  inputs-digest = "4652c714a25974ad0be4d69995d2c1d31ac4e7bdbc0683f0838f523a3adabff5"
   solver-name = "gps-cdcl"
   solver-version = 1

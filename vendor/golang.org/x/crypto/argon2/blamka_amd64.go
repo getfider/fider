@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build amd64,!gccgo,!appengine
+
 package argon2
 
-func init() {
-	useSSE4 = supportsSSE4()
-}
+import "golang.org/x/sys/cpu"
 
-//go:noescape
-func supportsSSE4() bool
+func init() {
+	useSSE4 = cpu.X86.HasSSE41
+}
 
 //go:noescape
 func mixBlocksSSE2(out, a, b, c *block)
