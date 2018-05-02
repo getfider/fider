@@ -22,12 +22,12 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	}
 
 	go w.Start(":8080")
-	resp, err := http.Get("http://localhost:8080/hello")
+	resp, err := http.Get("http://127.0.0.1:8080/hello")
 	Expect(err).To(BeNil())
 	resp.Body.Close()
 	Expect(resp.StatusCode).To(Equal(http.StatusOK))
 
-	resp, err = http.Get("http://localhost:8080/world")
+	resp, err = http.Get("http://127.0.0.1:8080/world")
 	Expect(err).To(BeNil())
 	resp.Body.Close()
 	Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
@@ -35,7 +35,7 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	err = w.Stop()
 	Expect(err).To(BeNil())
 
-	resp, err = http.Get("http://localhost:8080/hello")
+	resp, err = http.Get("http://127.0.0.1:8080/hello")
 	Expect(err).NotTo(BeNil())
 	Expect(resp).To(BeNil())
 }
