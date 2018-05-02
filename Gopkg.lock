@@ -84,8 +84,8 @@
     "matchers/support/goraph/util",
     "types"
   ]
-  revision = "334b8f472b3af5d541c5642701c1e29e2126f486"
-  version = "v1.1.0"
+  revision = "003f63b7f4cff3fc95357005358af2de0f5fe152"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -122,7 +122,10 @@
   name = "golang.org/x/net"
   packages = [
     "context",
-    "context/ctxhttp"
+    "context/ctxhttp",
+    "html",
+    "html/atom",
+    "html/charset"
   ]
   revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
 
@@ -139,6 +142,30 @@
     "jwt"
   ]
   revision = "6881fee410a5daf86371371f9ad451b95e168b71"
+
+[[projects]]
+  name = "golang.org/x/text"
+  packages = [
+    "encoding",
+    "encoding/charmap",
+    "encoding/htmlindex",
+    "encoding/internal",
+    "encoding/internal/identifier",
+    "encoding/japanese",
+    "encoding/korean",
+    "encoding/simplifiedchinese",
+    "encoding/traditionalchinese",
+    "encoding/unicode",
+    "internal/gen",
+    "internal/tag",
+    "internal/utf8internal",
+    "language",
+    "runes",
+    "transform",
+    "unicode/cldr"
+  ]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -166,6 +193,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a87353bf17d9601f733321581b45e5a2841ea7be4cfff05cf11e81d20d12983a"
+  inputs-digest = "595ffa8a42a69e67aed150e34d7ec0d9cd5c2f3e627409ef3ef6f3fbf517b74c"
   solver-name = "gps-cdcl"
   solver-version = 1

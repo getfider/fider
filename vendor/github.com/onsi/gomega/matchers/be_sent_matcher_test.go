@@ -1,8 +1,9 @@
 package matchers_test
 
 import (
-	. "github.com/onsi/gomega/matchers"
 	"time"
+
+	. "github.com/onsi/gomega/matchers"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
