@@ -38,7 +38,6 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
-		time.Sleep(5 * time.Second)
 		to := email.NewRecipient("", model.Email, email.Params{
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
