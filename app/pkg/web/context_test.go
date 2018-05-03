@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func newGetContext(params web.StringMap) *web.Context {
@@ -29,35 +29,35 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 }
 
 func TestContextID(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ctx := newGetContext(nil)
 
-	Expect(ctx.ContextID()).NotTo(BeEmpty())
-	Expect(ctx.ContextID()).To(HaveLen(32))
+	Expect(ctx.ContextID()).IsNotEmpty()
+	Expect(ctx.ContextID()).HasLen(32)
 }
 
 func TestBaseURL(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ctx := newGetContext(nil)
 
-	Expect(ctx.BaseURL()).To(Equal("http://demo.test.fider.io:3000"))
+	Expect(ctx.BaseURL()).Equals("http://demo.test.fider.io:3000")
 }
 
 func TestTenantURL(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ctx := newGetContext(nil)
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://theavengers.test.fider.io:3000"))
+	Expect(ctx.TenantBaseURL(tenant)).Equals("http://theavengers.test.fider.io:3000")
 }
 
 func TestTenantURL_WithCNAME(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ctx := newGetContext(nil)
 	tenant := &models.Tenant{
@@ -65,11 +65,11 @@ func TestTenantURL_WithCNAME(t *testing.T) {
 		Subdomain: "theavengers",
 		CNAME:     "ideas.theavengers.com",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://ideas.theavengers.com:3000"))
+	Expect(ctx.TenantBaseURL(tenant)).Equals("http://ideas.theavengers.com:3000")
 }
 
 func TestTenantURL_SingleTenantMode(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	os.Setenv("HOST_MODE", "single")
 
 	ctx := newGetContext(nil)
@@ -77,5 +77,5 @@ func TestTenantURL_SingleTenantMode(t *testing.T) {
 		ID:        1,
 		Subdomain: "theavengers",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).To(Equal("http://demo.test.fider.io:3000"))
+	Expect(ctx.TenantBaseURL(tenant)).Equals("http://demo.test.fider.io:3000")
 }

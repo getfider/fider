@@ -6,37 +6,37 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/csv"
-	. "github.com/onsi/gomega"
 )
 
 func TestExportIdeasToCSV_Empty(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ideas := []*models.Idea{}
 	expected, err := ioutil.ReadFile("./testdata/empty.csv")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	actual, err := csv.FromIdeas(ideas)
-	Expect(err).To(BeNil())
-	Expect(actual).To(Equal(expected))
+	Expect(err).IsNil()
+	Expect(actual).Equals(expected)
 }
 
 func TestExportIdeasToCSV_OneIdea(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ideas := []*models.Idea{
 		declinedIdea,
 	}
 
 	expected, err := ioutil.ReadFile("./testdata/one-idea.csv")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	actual, err := csv.FromIdeas(ideas)
-	Expect(err).To(BeNil())
-	Expect(actual).To(Equal(expected))
+	Expect(err).IsNil()
+	Expect(actual).Equals(expected)
 }
 
 func TestExportIdeasToCSV_MoreIdeas(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	ideas := []*models.Idea{
 		declinedIdea,
@@ -45,10 +45,10 @@ func TestExportIdeasToCSV_MoreIdeas(t *testing.T) {
 	}
 
 	expected, err := ioutil.ReadFile("./testdata/more-ideas.csv")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	actual, err := csv.FromIdeas(ideas)
-	Expect(err).To(BeNil())
-	Expect(actual).To(Equal(expected))
+	Expect(err).IsNil()
+	Expect(actual).Equals(expected)
 }
 
 var declinedIdea = &models.Idea{

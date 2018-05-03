@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
-	. "github.com/onsi/gomega"
 )
 
 type user struct {
@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestBind_SimpleStruct(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -50,14 +50,14 @@ func TestBind_SimpleStruct(t *testing.T) {
 	u := user{}
 
 	err := trx.Get(&u, "SELECT id, name FROM users LIMIT 1")
-	Expect(err).To(BeNil())
-	Expect(u.ID).To(Equal(1))
-	Expect(u.Name).To(Equal("Jon Snow"))
-	Expect(u.IgnoreThis).To(Equal(""))
+	Expect(err).IsNil()
+	Expect(u.ID).Equals(1)
+	Expect(u.Name).Equals("Jon Snow")
+	Expect(u.IgnoreThis).Equals("")
 }
 
 func TestBind_DeepNestedStruct(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -72,14 +72,14 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 										 INNER JOIN users u
 										 ON up.user_id = u.id
 										 WHERE provider_uid = 'FB2222'`)
-	Expect(err).To(BeNil())
-	Expect(u.Provider).To(Equal("facebook"))
-	Expect(u.User.ID).To(Equal(4))
-	Expect(u.User.Tenant.ID).To(Equal(2))
+	Expect(err).IsNil()
+	Expect(u.Provider).Equals("facebook")
+	Expect(u.User.ID).Equals(4)
+	Expect(u.User.Tenant.ID).Equals(2)
 }
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -88,13 +88,13 @@ func TestBind_SimpleStruct_SingleField(t *testing.T) {
 	u := user{}
 
 	err := trx.Get(&u, "SELECT name FROM users LIMIT 1")
-	Expect(err).To(BeNil())
-	Expect(u.ID).To(Equal(0))
-	Expect(u.Name).To(Equal("Jon Snow"))
+	Expect(err).IsNil()
+	Expect(u.ID).Equals(0)
+	Expect(u.Name).Equals("Jon Snow")
 }
 
 func TestBind_SimpleStruct_Multiple(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -103,16 +103,16 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	u := []*user{}
 
 	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
-	Expect(len(u)).To(Equal(3))
-	Expect(u[0].Name).To(Equal("Jon Snow"))
-	Expect(u[1].Name).To(Equal("Arya Stark"))
-	Expect(u[2].Name).To(Equal("Sansa Stark"))
+	Expect(u).HasLen(3)
+	Expect(u[0].Name).Equals("Jon Snow")
+	Expect(u[1].Name).Equals("Arya Stark")
+	Expect(u[2].Name).Equals("Sansa Stark")
 }
 
 func TestBind_NestedStruct(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -129,16 +129,16 @@ func TestBind_NestedStruct(t *testing.T) {
 		WHERE u.id = 1
 		LIMIT 1
 	`)
-	Expect(err).To(BeNil())
-	Expect(u.ID).To(Equal(1))
-	Expect(u.Name).To(Equal("Jon Snow"))
-	Expect(u.Tenant).NotTo(BeNil())
-	Expect(u.Tenant.ID).To(Equal(1))
-	Expect(u.Tenant.Name).To(Equal("Demonstration"))
+	Expect(err).IsNil()
+	Expect(u.ID).Equals(1)
+	Expect(u.Name).Equals("Jon Snow")
+	Expect(u.Tenant).IsNotNil()
+	Expect(u.Tenant.ID).Equals(1)
+	Expect(u.Tenant.Name).Equals("Demonstration")
 }
 
 func TestBind_NestedStruct_Multiple(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -154,18 +154,18 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 		ON t.id = u.tenant_id
 		WHERE u.tenant_id = 1
 	`)
-	Expect(err).To(BeNil())
-	Expect(len(u)).To(Equal(3))
-	Expect(u[0].Name).To(Equal("Jon Snow"))
-	Expect(u[0].Tenant.Name).To(Equal("Demonstration"))
-	Expect(u[1].Name).To(Equal("Arya Stark"))
-	Expect(u[1].Tenant.Name).To(Equal("Demonstration"))
-	Expect(u[2].Name).To(Equal("Sansa Stark"))
-	Expect(u[2].Tenant.Name).To(Equal("Demonstration"))
+	Expect(err).IsNil()
+	Expect(u).HasLen(3)
+	Expect(u[0].Name).Equals("Jon Snow")
+	Expect(u[0].Tenant.Name).Equals("Demonstration")
+	Expect(u[1].Name).Equals("Arya Stark")
+	Expect(u[1].Tenant.Name).Equals("Demonstration")
+	Expect(u[2].Name).Equals("Sansa Stark")
+	Expect(u[2].Tenant.Name).Equals("Demonstration")
 }
 
 func TestExists_True(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -173,12 +173,12 @@ func TestExists_True(t *testing.T) {
 	defer trx.Rollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 1")
-	Expect(err).To(BeNil())
-	Expect(exists).To(BeTrue())
+	Expect(err).IsNil()
+	Expect(exists).IsTrue()
 }
 
 func TestExists_False(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -186,12 +186,12 @@ func TestExists_False(t *testing.T) {
 	defer trx.Rollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 0")
-	Expect(err).To(BeNil())
-	Expect(exists).To(BeFalse())
+	Expect(err).IsNil()
+	Expect(exists).IsFalse()
 }
 
 func TestCount(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -199,12 +199,12 @@ func TestCount(t *testing.T) {
 	defer trx.Rollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 1")
-	Expect(err).To(BeNil())
-	Expect(count).To(Equal(1))
+	Expect(err).IsNil()
+	Expect(count).Equals(1)
 }
 
 func TestCount_Empty(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -212,12 +212,12 @@ func TestCount_Empty(t *testing.T) {
 	defer trx.Rollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 0")
-	Expect(err).To(BeNil())
-	Expect(count).To(Equal(0))
+	Expect(err).IsNil()
+	Expect(count).Equals(0)
 }
 
 func TestScalar(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -226,12 +226,12 @@ func TestScalar(t *testing.T) {
 
 	var value int
 	err := trx.Scalar(&value, "SELECT id FROM users WHERE id = 1")
-	Expect(err).To(BeNil())
-	Expect(value).To(Equal(1))
+	Expect(err).IsNil()
+	Expect(value).Equals(1)
 }
 
 func TestArray(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
 
@@ -245,9 +245,9 @@ func TestArray(t *testing.T) {
 
 	result := ideaTags{}
 	err := trx.Get(&result, "SELECT 1 as id, array[5,10] as tags")
-	Expect(err).To(BeNil())
-	Expect(result.ID).To(Equal(1))
-	Expect(len(result.Tags)).To(Equal(2))
-	Expect(result.Tags[0]).To(Equal(int64(5)))
-	Expect(result.Tags[1]).To(Equal(int64(10)))
+	Expect(err).IsNil()
+	Expect(result.ID).Equals(1)
+	Expect(result.Tags).HasLen(2)
+	Expect(result.Tags[0]).Equals(int64(5))
+	Expect(result.Tags[1]).Equals(int64(10))
 }

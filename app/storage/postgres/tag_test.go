@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
-	. "github.com/onsi/gomega"
 )
 
 func TestTagStorage_AddAndGet(t *testing.T) {
@@ -14,17 +14,17 @@ func TestTagStorage_AddAndGet(t *testing.T) {
 
 	tags.SetCurrentTenant(demoTenant)
 	tag, err := tags.Add("Feature Request", "FF0000", true)
-	Expect(err).To(BeNil())
-	Expect(tag.ID).ToNot(BeZero())
+	Expect(err).IsNil()
+	Expect(tag.ID).NotEquals(0)
 
 	dbTag, err := tags.GetBySlug("feature-request")
 
-	Expect(err).To(BeNil())
-	Expect(dbTag.ID).ToNot(BeZero())
-	Expect(dbTag.Name).To(Equal("Feature Request"))
-	Expect(dbTag.Slug).To(Equal("feature-request"))
-	Expect(dbTag.Color).To(Equal("FF0000"))
-	Expect(dbTag.IsPublic).To(BeTrue())
+	Expect(err).IsNil()
+	Expect(dbTag.ID).NotEquals(0)
+	Expect(dbTag.Name).Equals("Feature Request")
+	Expect(dbTag.Slug).Equals("feature-request")
+	Expect(dbTag.Color).Equals("FF0000")
+	Expect(dbTag.IsPublic).IsTrue()
 }
 
 func TestTagStorage_AddUpdateAndGet(t *testing.T) {
@@ -37,12 +37,12 @@ func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 
 	dbTag, err := tags.GetBySlug("bug")
 
-	Expect(err).To(BeNil())
-	Expect(dbTag.ID).To(Equal(tag.ID))
-	Expect(dbTag.Name).To(Equal("Bug"))
-	Expect(dbTag.Slug).To(Equal("bug"))
-	Expect(dbTag.Color).To(Equal("000000"))
-	Expect(dbTag.IsPublic).To(BeFalse())
+	Expect(err).IsNil()
+	Expect(dbTag.ID).Equals(tag.ID)
+	Expect(dbTag.Name).Equals("Bug")
+	Expect(dbTag.Slug).Equals("bug")
+	Expect(dbTag.Color).Equals("000000")
+	Expect(dbTag.IsPublic).IsFalse()
 }
 
 func TestTagStorage_AddDeleteAndGet(t *testing.T) {
@@ -53,12 +53,12 @@ func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 	tag, err := tags.Add("Bug", "FFFFFF", true)
 
 	err = tags.Delete(tag)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	dbTag, err := tags.GetBySlug("bug")
 
-	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
-	Expect(dbTag).To(BeNil())
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(dbTag).IsNil()
 }
 
 func TestTagStorage_Assign_Unassign(t *testing.T) {
@@ -74,23 +74,23 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
 	err := tags.AssignTag(tag, idea)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	assigned, err := tags.GetAssigned(idea)
-	Expect(err).To(BeNil())
-	Expect(len(assigned)).To(Equal(1))
-	Expect(assigned[0].ID).To(Equal(tag.ID))
-	Expect(assigned[0].Name).To(Equal("Bug"))
-	Expect(assigned[0].Slug).To(Equal("bug"))
-	Expect(assigned[0].Color).To(Equal("FFFFFF"))
-	Expect(assigned[0].IsPublic).To(BeTrue())
+	Expect(err).IsNil()
+	Expect(assigned).HasLen(1)
+	Expect(assigned[0].ID).Equals(tag.ID)
+	Expect(assigned[0].Name).Equals("Bug")
+	Expect(assigned[0].Slug).Equals("bug")
+	Expect(assigned[0].Color).Equals("FFFFFF")
+	Expect(assigned[0].IsPublic).IsTrue()
 
 	err = tags.UnassignTag(tag, idea)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	assigned, err = tags.GetAssigned(idea)
-	Expect(err).To(BeNil())
-	Expect(len(assigned)).To(Equal(0))
+	Expect(err).IsNil()
+	Expect(assigned).HasLen(0)
 }
 
 func TestTagStorage_Assign_DeleteTag(t *testing.T) {
@@ -106,14 +106,14 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
 	err := tags.AssignTag(tag, idea)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	err = tags.Delete(tag)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	assigned, err := tags.GetAssigned(idea)
-	Expect(err).To(BeNil())
-	Expect(len(assigned)).To(Equal(0))
+	Expect(err).IsNil()
+	Expect(assigned).HasLen(0)
 }
 
 func TestTagStorage_GetAll(t *testing.T) {
@@ -129,25 +129,25 @@ func TestTagStorage_GetAll(t *testing.T) {
 
 	allTags, err := tags.GetAll()
 
-	Expect(err).To(BeNil())
-	Expect(len(allTags)).To(Equal(2))
+	Expect(err).IsNil()
+	Expect(allTags).HasLen(2)
 
-	Expect(allTags[0].ID).NotTo(BeZero())
-	Expect(allTags[0].Name).To(Equal("Feature Request"))
-	Expect(allTags[0].Slug).To(Equal("feature-request"))
-	Expect(allTags[0].Color).To(Equal("FF0000"))
-	Expect(allTags[0].IsPublic).To(BeTrue())
+	Expect(allTags[0].ID).NotEquals(0)
+	Expect(allTags[0].Name).Equals("Feature Request")
+	Expect(allTags[0].Slug).Equals("feature-request")
+	Expect(allTags[0].Color).Equals("FF0000")
+	Expect(allTags[0].IsPublic).IsTrue()
 
-	Expect(allTags[1].ID).NotTo(BeZero())
-	Expect(allTags[1].Name).To(Equal("Bug"))
-	Expect(allTags[1].Slug).To(Equal("bug"))
-	Expect(allTags[1].Color).To(Equal("0F0F0F"))
-	Expect(allTags[1].IsPublic).To(BeFalse())
+	Expect(allTags[1].ID).NotEquals(0)
+	Expect(allTags[1].Name).Equals("Bug")
+	Expect(allTags[1].Slug).Equals("bug")
+	Expect(allTags[1].Color).Equals("0F0F0F")
+	Expect(allTags[1].IsPublic).IsFalse()
 
 	tags.SetCurrentUser(aryaStark)
 
 	visitorTags, err := tags.GetAll()
-	Expect(err).To(BeNil())
-	Expect(len(visitorTags)).To(Equal(1))
-	Expect(visitorTags[0].Name).To(Equal("Feature Request"))
+	Expect(err).IsNil()
+	Expect(visitorTags).HasLen(1)
+	Expect(visitorTags[0].Name).Equals("Feature Request")
 }

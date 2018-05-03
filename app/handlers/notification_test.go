@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/handlers"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
-	. "github.com/onsi/gomega"
 )
 
 func TestTotalUnreadNotificationsHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentUser(mock.AryaStark)
@@ -21,12 +21,12 @@ func TestTotalUnreadNotificationsHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecuteAsJSON(handlers.TotalUnreadNotifications())
 
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(query.Int32("total")).To(Equal(1))
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.Int32("total")).Equals(1)
 }
 
 func TestNotificationsHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentUser(mock.AryaStark)
@@ -38,11 +38,11 @@ func TestNotificationsHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecuteAsJSON(handlers.Notifications())
 
-	Expect(code).To(Equal(http.StatusOK))
+	Expect(code).Equals(http.StatusOK)
 }
 
 func TestReadNotificationHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentUser(mock.JonSnow)
@@ -57,14 +57,14 @@ func TestReadNotificationHandler(t *testing.T) {
 		AddParam("id", not2.ID).
 		Execute(handlers.ReadNotification())
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
-	Expect(resp.Header().Get("Location")).To(Equal("http://example.com/def"))
-	Expect(not1.Read).To(BeFalse())
-	Expect(not2.Read).To(BeTrue())
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(resp.Header().Get("Location")).Equals("http://example.com/def")
+	Expect(not1.Read).IsFalse()
+	Expect(not2.Read).IsTrue()
 }
 
 func TestReadAllNotificationsHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentUser(mock.AryaStark)
@@ -76,7 +76,7 @@ func TestReadAllNotificationsHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		Execute(handlers.ReadAllNotifications())
 
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(not1.Read).To(BeTrue())
-	Expect(not2.Read).To(BeTrue())
+	Expect(code).Equals(http.StatusOK)
+	Expect(not1.Read).IsTrue()
+	Expect(not2.Read).IsTrue()
 }

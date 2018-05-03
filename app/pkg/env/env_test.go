@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
-	. "github.com/onsi/gomega"
 )
 
 var envs = []struct {
@@ -20,51 +20,49 @@ var envs = []struct {
 }
 
 func TestGetEnvOrDefault(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	key := env.GetEnvOrDefault("UNKNOWN_KEY", "some value")
-	Expect(key).To(Equal("some value"))
+	Expect(key).Equals("some value")
 
 	path := env.GetEnvOrDefault("PATH", "default path")
-	Expect(path).NotTo(Equal("default path"))
+	Expect(path).NotEquals("default path")
 }
 
 func TestCurrent(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, testCase := range envs {
 		os.Setenv("GO_ENV", testCase.go_env)
-		actual := env.Current()
-		Expect(actual).To(Equal(testCase.env))
+		Expect(env.Current()).Equals(testCase.env)
 	}
 }
 
 func TestIsEnvironment(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, testCase := range envs {
 		os.Setenv("GO_ENV", testCase.go_env)
 		actual := testCase.isEnv()
-		Expect(actual).To(BeTrue())
+		Expect(actual).IsTrue()
 	}
 }
 
 func TestMustGet(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
+
 	Expect(func() {
 		env.MustGet("THIS_DOES_NOT_EXIST")
-	}).To(Panic())
+	}).Panics()
 }
 
 func TestMultiTenantDomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	os.Setenv("AUTH_ENDPOINT", "https://login.test.fider.io:3000")
-	Expect(env.MultiTenantDomain()).To(Equal(".test.fider.io"))
-
+	Expect(env.MultiTenantDomain()).Equals(".test.fider.io")
 	os.Setenv("AUTH_ENDPOINT", "https://login.test.fider.io")
-	Expect(env.MultiTenantDomain()).To(Equal(".test.fider.io"))
-
+	Expect(env.MultiTenantDomain()).Equals(".test.fider.io")
 	os.Setenv("HOST_MODE", "single")
-	Expect(env.MultiTenantDomain()).To(Equal(""))
+	Expect(env.MultiTenantDomain()).IsEmpty()
 }

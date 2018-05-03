@@ -6,13 +6,13 @@ import (
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestIsAuthorized_WithAllowedRole(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
@@ -20,11 +20,11 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
@@ -32,11 +32,11 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusForbidden))
+	Expect(status).Equals(http.StatusForbidden)
 }
 
 func TestIsAuthenticated_WithUser(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthenticated())
@@ -44,11 +44,11 @@ func TestIsAuthenticated_WithUser(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestIsAuthenticated_WithoutUser(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.IsAuthenticated())
@@ -57,5 +57,5 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusForbidden))
+	Expect(status).Equals(http.StatusForbidden)
 }
