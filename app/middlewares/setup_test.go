@@ -61,7 +61,7 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusInternalServerError))
-	Expect(server.Engine().Worker().Length()).To(Equal(0))
+	Expect(server.Engine().Worker().Length()).To(Equal(int64(0)))
 }
 
 func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
@@ -75,7 +75,7 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 	})
 
 	Expect(status).To(Equal(http.StatusOK))
-	Expect(server.Engine().Worker().Length()).To(Equal(1))
+	Expect(server.Engine().Worker().Length()).To(Equal(int64(1)))
 }
 
 func TestWorkerSetup(t *testing.T) {

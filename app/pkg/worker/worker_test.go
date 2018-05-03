@@ -30,7 +30,7 @@ func TestBackgroundWorker(t *testing.T) {
 			return nil
 		},
 	})
-	Expect(w.Length()).To(Equal(1))
+	Expect(w.Length()).To(Equal(int64(1)))
 	go w.Run("worker-1")
 	Eventually(func() bool {
 		return finished
