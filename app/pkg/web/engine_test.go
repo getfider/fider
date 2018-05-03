@@ -9,11 +9,11 @@ import (
 
 	"github.com/getfider/fider/app/pkg/web"
 
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func TestEngine_StartRequestStop(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	w := web.New(&models.SystemSettings{})
 	group := w.Group()
 	{
@@ -25,19 +25,19 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	go w.Start(":8080")
 	time.Sleep(time.Second)
 	resp, err := http.Get("http://127.0.0.1:8080/hello")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	resp.Body.Close()
-	Expect(resp.StatusCode).To(Equal(http.StatusOK))
+	Expect(resp.StatusCode).Equals(http.StatusOK)
 
 	resp, err = http.Get("http://127.0.0.1:8080/world")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	resp.Body.Close()
-	Expect(resp.StatusCode).To(Equal(http.StatusNotFound))
+	Expect(resp.StatusCode).Equals(http.StatusNotFound)
 
 	err = w.Stop()
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	resp, err = http.Get("http://127.0.0.1:8080/hello")
-	Expect(err).NotTo(BeNil())
-	Expect(resp).To(BeNil())
+	Expect(err).IsNotNil()
+	Expect(resp).IsNil()
 }
