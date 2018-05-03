@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestCompress(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	data := "Hello World\n"
 	for i := 0; i <= 500; i++ {
@@ -31,14 +31,15 @@ func TestCompress(t *testing.T) {
 		Execute(handler)
 
 	reader, _ := gzip.NewReader(response.Body)
-	Expect(ioutil.ReadAll(reader)).To(Equal([]byte(data)))
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Vary")).To(Equal("Accept-Encoding"))
-	Expect(response.Header().Get("Content-Encoding")).To(Equal("gzip"))
+	bytes, _ := ioutil.ReadAll(reader)
+	Expect(bytes).Equals([]byte(data))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")
+	Expect(response.Header().Get("Content-Encoding")).Equals("gzip")
 }
 
 func TestCompress_SmallResponse(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Compress())
@@ -50,8 +51,9 @@ func TestCompress_SmallResponse(t *testing.T) {
 		AddHeader("Accept-Encoding", "gzip").
 		Execute(handler)
 
-	Expect(ioutil.ReadAll(response.Body)).To(Equal([]byte("Hello World")))
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Vary")).To(Equal("Accept-Encoding"))
-	Expect(response.Header().Get("Content-Encoding")).To(Equal(""))
+	bytes, _ := ioutil.ReadAll(response.Body)
+	Expect(bytes).Equals([]byte("Hello World"))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")
+	Expect(response.Header().Get("Content-Encoding")).Equals("")
 }

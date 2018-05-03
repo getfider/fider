@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"testing"
 
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 
 	"github.com/getfider/fider/app/handlers"
-	. "github.com/onsi/gomega"
 )
 
 func TestUpdateSettingsHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -23,14 +23,14 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		)
 
 	tenant, _ := services.Tenants.GetByDomain("demo")
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(tenant.Name).To(Equal("GoT"))
-	Expect(tenant.Invitation).To(Equal("Join us!"))
-	Expect(tenant.WelcomeMessage).To(Equal("Welcome to GoT Feedback Forum"))
+	Expect(code).Equals(http.StatusOK)
+	Expect(tenant.Name).Equals("GoT")
+	Expect(tenant.Invitation).Equals("Join us!")
+	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -42,12 +42,12 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		)
 
 	tenant, _ := services.Tenants.GetByDomain("demo")
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(tenant.IsPrivate).To(BeTrue())
+	Expect(code).Equals(http.StatusOK)
+	Expect(tenant.IsPrivate).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, _ := server.
@@ -56,5 +56,5 @@ func TestManageMembersHandler(t *testing.T) {
 			handlers.ManageMembers(),
 		)
 
-	Expect(code).To(Equal(http.StatusOK))
+	Expect(code).Equals(http.StatusOK)
 }

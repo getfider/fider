@@ -6,14 +6,14 @@ import (
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestJwtGetter_NoCookie(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.JwtGetter())
@@ -25,11 +25,11 @@ func TestJwtGetter_NoCookie(t *testing.T) {
 		}
 	})
 
-	Expect(status).To(Equal(http.StatusNoContent))
+	Expect(status).Equals(http.StatusNoContent)
 }
 
 func TestJwtGetter_WithCookie(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(&models.FiderClaims{
@@ -46,12 +46,12 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Body.String()).To(Equal("Jon Snow"))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
 }
 
 func TestJwtGetter_WithCookie_InvalidUser(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(&models.FiderClaims{
@@ -70,12 +70,12 @@ func TestJwtGetter_WithCookie_InvalidUser(t *testing.T) {
 			return c.NoContent(http.StatusOK)
 		})
 
-	Expect(status).To(Equal(http.StatusNoContent))
-	Expect(response.Header().Get("Set-Cookie")).To(ContainSubstring(web.CookieAuthName + "=;"))
+	Expect(status).Equals(http.StatusNoContent)
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=;")
 }
 
 func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(&models.FiderClaims{
@@ -94,11 +94,11 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 			return c.NoContent(http.StatusOK)
 		})
 
-	Expect(status).To(Equal(http.StatusNoContent))
+	Expect(status).Equals(http.StatusNoContent)
 }
 
 func TestJwtSetter_WithoutJwt(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 
@@ -107,11 +107,11 @@ func TestJwtSetter_WithoutJwt(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(&models.FiderClaims{
@@ -123,12 +123,12 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/abc"))
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io/abc")
 }
 
 func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(&models.FiderClaims{
@@ -140,6 +140,6 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.Header().Get("Location")).To(Equal("http://avengers.test.fider.io/abc?foo=bar"))
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io/abc?foo=bar")
 }

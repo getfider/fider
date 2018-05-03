@@ -5,11 +5,11 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func TestChangeUserRole_Unauthorized(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, user := range []*models.User{
 		&models.User{ID: 1, Role: models.RoleVisitor},
@@ -17,20 +17,20 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 		&models.User{ID: 2, Role: models.RoleAdministrator},
 	} {
 		action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 2}}
-		Expect(action.IsAuthorized(user, nil)).To(BeFalse())
+		Expect(action.IsAuthorized(user, nil)).IsFalse()
 	}
 }
 
 func TestChangeUserRole_Authorized(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	user := &models.User{ID: 2, Role: models.RoleAdministrator}
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 1}}
-	Expect(action.IsAuthorized(user, nil)).To(BeTrue())
+	Expect(action.IsAuthorized(user, nil)).IsTrue()
 }
 
 func TestChangeUserRole_InvalidRole(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	tenant := &models.Tenant{ID: 1}
 	services.SetCurrentTenant(tenant)
@@ -53,7 +53,7 @@ func TestChangeUserRole_InvalidRole(t *testing.T) {
 }
 
 func TestChangeUserRole_InvalidUser(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	currentUser := &models.User{
 		Tenant: &models.Tenant{ID: 1},
@@ -67,7 +67,7 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 }
 
 func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	targetUser := &models.User{
 		Tenant: &models.Tenant{ID: 1},

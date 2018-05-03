@@ -5,12 +5,11 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func TestInvalidUserNames(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, name := range []string{
 		"",
@@ -23,7 +22,7 @@ func TestInvalidUserNames(t *testing.T) {
 }
 
 func TestValidUserNames(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, name := range []string{
 		"Jon Snow",
@@ -36,7 +35,7 @@ func TestValidUserNames(t *testing.T) {
 }
 
 func TestInvalidSettings(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, settings := range []map[string]string{
 		map[string]string{
@@ -58,7 +57,7 @@ func TestInvalidSettings(t *testing.T) {
 }
 
 func TestValidSettings(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, settings := range []map[string]string{
 		nil,

@@ -3,10 +3,10 @@ package actions_test
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
-	. "github.com/onsi/gomega"
 )
 
 var jonSnowToken, _ = jwt.Encode(&models.OAuthClaims{
@@ -25,24 +25,38 @@ var services = &app.Services{
 }
 
 func ExpectFailed(result *validate.Result, fields ...string) {
-	Expect(result.Ok).To(BeFalse())
-	Expect(result.Error).To(BeNil())
+	Expect(result.Ok).IsFalse()
+	Expect(result.Error).IsNil()
 	for _, field := range fields {
 		if field == "" {
-			Expect(len(result.Messages) > 0).To(BeTrue())
+			Expect(len(result.Messages) > 0).IsTrue()
 		} else {
-			Expect(len(result.Failures[field]) > 0).To(BeTrue(), "Failures should contain field: "+field)
+			if len(result.Failures[field]) == 0 {
+				Fail("Failures should contain field: %s", field)
+			}
 		}
 	}
 
 	for field, _ := range result.Failures {
-		Expect(fields).To(ContainElement(field), "Failures should not contain field: "+field)
+		if !contains(fields, field) {
+			Fail("Failures should not contain field: %s", field)
+		}
 	}
 }
 
 func ExpectSuccess(result *validate.Result) {
-	Expect(result.Ok).To(BeTrue())
-	Expect(len(result.Messages)).To(Equal(0))
-	Expect(len(result.Failures)).To(Equal(0))
-	Expect(result.Error).To(BeNil())
+	Expect(result.Ok).IsTrue()
+	Expect(result.Messages).HasLen(0)
+	Expect(result.Failures).HasLen(0)
+	Expect(result.Error).IsNil()
+}
+
+func contains(slice []string, item string) bool {
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	_, ok := set[item]
+	return ok
 }
