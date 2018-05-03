@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
-	. "github.com/onsi/gomega"
 )
 
 func TestJWT_Encode(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	claims := &models.FiderClaims{
 		UserID:    424,
@@ -18,12 +18,12 @@ func TestJWT_Encode(t *testing.T) {
 	}
 
 	token, err := jwt.Encode(claims)
-	Expect(token).NotTo(BeNil())
-	Expect(err).To(BeNil())
+	Expect(token).IsNotEmpty()
+	Expect(err).IsNil()
 }
 
 func TestJWT_Decode(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	claims := &models.FiderClaims{
 		UserID:    424,
@@ -34,14 +34,14 @@ func TestJWT_Decode(t *testing.T) {
 	token, _ := jwt.Encode(claims)
 
 	decoded, err := jwt.DecodeFiderClaims(token)
-	Expect(err).To(BeNil())
-	Expect(decoded.UserID).To(Equal(claims.UserID))
-	Expect(decoded.UserName).To(Equal(claims.UserName))
-	Expect(decoded.UserEmail).To(Equal(claims.UserEmail))
+	Expect(err).IsNil()
+	Expect(decoded.UserID).Equals(claims.UserID)
+	Expect(decoded.UserName).Equals(claims.UserName)
+	Expect(decoded.UserEmail).Equals(claims.UserEmail)
 }
 
 func TestJWT_DecodeOAuthClaims(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	claims := &models.OAuthClaims{
 		OAuthID:       "2",
@@ -53,15 +53,15 @@ func TestJWT_DecodeOAuthClaims(t *testing.T) {
 	token, _ := jwt.Encode(claims)
 
 	decoded, err := jwt.DecodeOAuthClaims(token)
-	Expect(err).To(BeNil())
-	Expect(decoded.OAuthID).To(Equal(claims.OAuthID))
-	Expect(decoded.OAuthEmail).To(Equal(claims.OAuthEmail))
-	Expect(decoded.OAuthName).To(Equal(claims.OAuthName))
-	Expect(decoded.OAuthProvider).To(Equal(claims.OAuthProvider))
+	Expect(err).IsNil()
+	Expect(decoded.OAuthID).Equals(claims.OAuthID)
+	Expect(decoded.OAuthEmail).Equals(claims.OAuthEmail)
+	Expect(decoded.OAuthName).Equals(claims.OAuthName)
+	Expect(decoded.OAuthProvider).Equals(claims.OAuthProvider)
 }
 
 func TestJWT_DecodeChangedToken(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	claims := &models.FiderClaims{
 		UserID:    424,
@@ -72,6 +72,6 @@ func TestJWT_DecodeChangedToken(t *testing.T) {
 	token, _ := jwt.Encode(claims)
 
 	decoded, err := jwt.DecodeFiderClaims(token + "foo")
-	Expect(err).ToNot(BeNil())
-	Expect(decoded).To(BeNil())
+	Expect(err).IsNotNil()
+	Expect(decoded).IsNil()
 }

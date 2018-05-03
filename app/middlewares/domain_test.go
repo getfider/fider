@@ -6,9 +6,9 @@ import (
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 var testCases = []struct {
@@ -33,7 +33,7 @@ var testCases = []struct {
 }
 
 func TestMultiTenant(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, testCase := range testCases {
 		for _, url := range testCase.urls {
@@ -45,14 +45,14 @@ func TestMultiTenant(t *testing.T) {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})
 
-			Expect(status).To(Equal(http.StatusOK))
-			Expect(response.Body.String()).To(Equal(testCase.expected))
+			Expect(status).Equals(http.StatusOK)
+			Expect(response.Body.String()).Equals(testCase.expected)
 		}
 	}
 }
 
 func TestMultiTenant_SubSubDomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
@@ -61,11 +61,11 @@ func TestMultiTenant_SubSubDomain(t *testing.T) {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestMultiTenant_UnknownDomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
@@ -74,11 +74,11 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestMultiTenant_CanonicalHeader(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	var testCases = []struct {
 		input  string
@@ -130,14 +130,14 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 				return c.Ok(web.Map{})
 			})
 
-		Expect(status).To(Equal(http.StatusOK))
-		Expect(response.HeaderMap.Get("Link")).To(Equal(testCase.output))
+		Expect(status).Equals(http.StatusOK)
+		Expect(response.HeaderMap.Get("Link")).Equals(testCase.output)
 	}
 
 }
 
 func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
@@ -146,12 +146,12 @@ func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.HeaderMap.Get("Location")).To(Equal("/signup"))
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.HeaderMap.Get("Location")).Equals("/signup")
 }
 
 func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
@@ -161,12 +161,12 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Body.String()).Should(Equal("MyCompany"))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("MyCompany")
 }
 
 func TestHostChecker(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 
@@ -175,11 +175,11 @@ func TestHostChecker(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestHostChecker_DifferentHost(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.HostChecker("login.test.fider.io"))
@@ -187,11 +187,11 @@ func TestHostChecker_DifferentHost(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusBadRequest))
+	Expect(status).Equals(http.StatusBadRequest)
 }
 
 func TestOnlyActiveTenants_Active(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 
@@ -200,11 +200,11 @@ func TestOnlyActiveTenants_Active(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestOnlyActiveTenants_Inactive(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantInactive
@@ -214,11 +214,11 @@ func TestOnlyActiveTenants_Inactive(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
@@ -228,12 +228,12 @@ func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusTemporaryRedirect))
-	Expect(response.HeaderMap.Get("Location")).To(Equal("/signin"))
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.HeaderMap.Get("Location")).Equals("/signin")
 }
 
 func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
@@ -246,11 +246,11 @@ func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
 			return c.NoContent(http.StatusOK)
 		})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = false
@@ -262,5 +262,5 @@ func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 			return c.NoContent(http.StatusOK)
 		})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }

@@ -5,12 +5,11 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	services.SetCurrentUser(&models.User{ID: 1})
 	services.Ideas.Add("My great idea", "With a great description")
@@ -35,7 +34,7 @@ func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
 }
 
 func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, title := range []string{
 		"this is my new idea",
@@ -48,7 +47,7 @@ func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
 }
 
 func TestSetResponse_InvalidStatus(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := &actions.SetResponse{Model: &models.SetResponse{
 		Status: models.IdeaDeleted,
@@ -59,7 +58,7 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 }
 
 func TestDeleteIdea_WhenIsBeingReferenced(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	services.SetCurrentUser(&models.User{ID: 1})
 	idea1, _ := services.Ideas.Add("Idea #1", "")

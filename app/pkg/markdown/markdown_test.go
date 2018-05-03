@@ -4,12 +4,12 @@ import (
 	"html/template"
 	"testing"
 
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/markdown"
-	. "github.com/onsi/gomega"
 )
 
 func TestParseMarkdown(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for input, expected := range map[string]string{
 		"# Hello World": `<h1>Hello World</h1>
@@ -43,6 +43,6 @@ This will allow to send and receive SMS and get the IMEI No. in our app.</p>
 `,
 	} {
 		output := markdown.Parse(input)
-		Expect(output).To(Equal(template.HTML(expected)))
+		Expect(output).Equals(template.HTML(expected))
 	}
 }

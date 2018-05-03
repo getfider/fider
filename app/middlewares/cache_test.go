@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/middlewares"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestCache(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.ClientCache(5 * time.Minute))
@@ -22,6 +22,6 @@ func TestCache(t *testing.T) {
 
 	status, response := server.Execute(handler)
 
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Cache-Control")).To(Equal("public, max-age=300"))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Cache-Control")).Equals("public, max-age=300")
 }

@@ -6,12 +6,11 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func TestSignInByEmail_EmptyEmail(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: " "}}
 	result := action.Validate(nil, services)
@@ -19,7 +18,7 @@ func TestSignInByEmail_EmptyEmail(t *testing.T) {
 }
 
 func TestSignInByEmail_InvalidEmail(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := actions.SignInByEmail{Model: &models.SignInByEmail{Email: "Hi :)"}}
 	result := action.Validate(nil, services)
@@ -27,7 +26,7 @@ func TestSignInByEmail_InvalidEmail(t *testing.T) {
 }
 
 func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := actions.SignInByEmail{}
 	action.Initialize()
@@ -35,11 +34,11 @@ func TestSignInByEmail_ShouldHaveVerificationKey(t *testing.T) {
 
 	result := action.Validate(nil, services)
 	ExpectSuccess(result)
-	Expect(action.Model.VerificationKey).NotTo(Equal(""))
+	Expect(action.Model.VerificationKey).IsNotEmpty()
 }
 
 func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{}}
 	result := action.Validate(nil, services)
@@ -47,7 +46,7 @@ func TestCompleteProfile_EmptyNameAndKey(t *testing.T) {
 }
 
 func TestCompleteProfile_LongName(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{
 		Name: "123456789012345678901234567890123456789012345678901", // 51 chars
@@ -57,14 +56,14 @@ func TestCompleteProfile_LongName(t *testing.T) {
 }
 
 func TestCompleteProfile_UnknownKey(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "key")
 }
 
 func TestCompleteProfile_ValidKey(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	e := &models.SignInByEmail{Email: "jon.snow@got.com"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
@@ -72,11 +71,11 @@ func TestCompleteProfile_ValidKey(t *testing.T) {
 	result := action.Validate(nil, services)
 
 	ExpectSuccess(result)
-	Expect(action.Model.Email).To(Equal("jon.snow@got.com"))
+	Expect(action.Model.Email).Equals("jon.snow@got.com")
 }
 
 func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	e := &models.UserInvitation{Email: "jon.snow@got.com"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
@@ -84,5 +83,5 @@ func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
 	result := action.Validate(nil, services)
 
 	ExpectSuccess(result)
-	Expect(action.Model.Email).To(Equal("jon.snow@got.com"))
+	Expect(action.Model.Email).Equals("jon.snow@got.com")
 }

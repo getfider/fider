@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestSecure(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Secure())
@@ -23,9 +23,9 @@ func TestSecure(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(response.Header().Get("Content-Security-Policy")).To(Equal(fmt.Sprintf(web.CspPolicyTemplate, id)))
-	Expect(response.Header().Get("X-XSS-Protection")).To(Equal("1; mode=block"))
-	Expect(response.Header().Get("X-Content-Type-Options")).To(Equal("nosniff"))
-	Expect(response.Header().Get("Referrer-Policy")).To(Equal("no-referrer-when-downgrade"))
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Content-Security-Policy")).Equals(fmt.Sprintf(web.CspPolicyTemplate, id))
+	Expect(response.Header().Get("X-XSS-Protection")).Equals("1; mode=block")
+	Expect(response.Header().Get("X-Content-Type-Options")).Equals("nosniff")
+	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
 }

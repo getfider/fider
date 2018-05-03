@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"net/http"
 	"testing"
 
 	"fmt"
@@ -8,81 +9,81 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
-	. "github.com/onsi/gomega"
 )
 
 func TestSignUpHandler_MultiTenant(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, _ := server.Execute(handlers.SignUp())
 
-	Expect(code).To(Equal(200))
+	Expect(code).Equals(http.StatusOK)
 }
 
 func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
-	Expect(code).To(Equal(200))
+	Expect(code).Equals(http.StatusOK)
 }
 
 func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewSingleTenantServer()
 	services.Tenants.Add("Game of Thrones", "got", models.TenantActive)
 	code, _ := server.Execute(handlers.SignUp())
 
-	Expect(code).To(Equal(307))
+	Expect(code).Equals(http.StatusTemporaryRedirect)
 }
 
 func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, response := server.AddParam("subdomain", "").ExecuteAsJSON(handlers.CheckAvailability())
 
-	Expect(code).To(Equal(200))
-	Expect(response.String("message")).NotTo(BeNil())
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.String("message")).IsNotEmpty()
 }
 
 func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, response := server.AddParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
 
-	Expect(code).To(Equal(200))
-	Expect(response.String("message")).NotTo(BeNil())
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.String("message")).IsNotEmpty()
 }
 
 func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, response := server.AddParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
 
-	Expect(code).To(Equal(200))
-	Expect(response.Contains("message")).To(BeFalse())
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Contains("message")).IsFalse()
 }
 
 func TestCreateTenantHandler_EmptyInput(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, _ := server.ExecutePost(handlers.CreateTenant(), `{ }`)
 
-	Expect(code).To(Equal(400))
+	Expect(code).Equals(http.StatusBadRequest)
 }
 
 func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	token, _ := jwt.Encode(&models.OAuthClaims{
@@ -98,24 +99,24 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 
 	tenant, err := services.Tenants.GetByDomain("mycompany")
 
-	Expect(code).To(Equal(200))
-	Expect(response.String("token")).NotTo(BeNil())
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.String("token")).IsNotEmpty()
 
-	Expect(err).To(BeNil())
-	Expect(tenant.Name).To(Equal("My Company"))
-	Expect(tenant.Subdomain).To(Equal("mycompany"))
-	Expect(tenant.Status).To(Equal(models.TenantActive))
+	Expect(err).IsNil()
+	Expect(tenant.Name).Equals("My Company")
+	Expect(tenant.Subdomain).Equals("mycompany")
+	Expect(tenant.Status).Equals(models.TenantActive)
 
 	services.SetCurrentTenant(tenant)
 	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).To(BeNil())
-	Expect(user.Name).To(Equal("Jon Snow"))
-	Expect(user.Email).To(Equal("jon.snow@got.com"))
-	Expect(user.Role).To(Equal(models.RoleAdministrator))
+	Expect(err).IsNil()
+	Expect(user.Name).Equals("Jon Snow")
+	Expect(user.Email).Equals("jon.snow@got.com")
+	Expect(user.Role).Equals(models.RoleAdministrator)
 }
 
 func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, response := server.ExecutePostAsJSON(
@@ -123,19 +124,19 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 		`{ "name": "Jon Snow", "email": "jon.snow@got.com", "tenantName": "My Company", "subdomain": "mycompany" }`,
 	)
 
-	Expect(code).To(Equal(200))
-	Expect(response.Contains("token")).To(BeFalse())
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Contains("token")).IsFalse()
 
 	tenant, err := services.Tenants.GetByDomain("mycompany")
 
-	Expect(code).To(Equal(200))
+	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).To(BeNil())
-	Expect(tenant.Name).To(Equal("My Company"))
-	Expect(tenant.Subdomain).To(Equal("mycompany"))
-	Expect(tenant.Status).To(Equal(models.TenantInactive))
+	Expect(err).IsNil()
+	Expect(tenant.Name).Equals("My Company")
+	Expect(tenant.Subdomain).Equals("mycompany")
+	Expect(tenant.Status).Equals(models.TenantInactive)
 
 	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
-	Expect(user).To(BeNil())
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(user).IsNil()
 }

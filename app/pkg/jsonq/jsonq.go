@@ -27,25 +27,31 @@ func New(content string) *Query {
 }
 
 //String returns a string value from the json object based on its key
-func (q *Query) String(key string) (string, error) {
+func (q *Query) String(key string) string {
 	data := q.get(key)
 	if data != nil {
 		var str string
 		err := json.Unmarshal(*data, &str)
-		return str, err
+		if err != nil {
+			panic(err)
+		}
+		return str
 	}
-	return "", nil
+	return ""
 }
 
 //Int32 returns a integer value from the json object based on its key
-func (q *Query) Int32(key string) (int, error) {
+func (q *Query) Int32(key string) int {
 	data := q.get(key)
 	if data != nil {
 		var num int
 		err := json.Unmarshal(*data, &num)
-		return num, err
+		if err != nil {
+			panic(err)
+		}
+		return num
 	}
-	return 0, nil
+	return 0
 }
 
 //IsArray returns true if the json object is an array

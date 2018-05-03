@@ -20,10 +20,6 @@
   version = "^1.5.1"
 
 [[constraint]]
-  name = "github.com/onsi/gomega"
-  version = "^1.1.0"
-
-[[constraint]]
   branch = "master"
   name = "golang.org/x/oauth2"
 

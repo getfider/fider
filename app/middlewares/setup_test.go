@@ -6,28 +6,28 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
-	. "github.com/onsi/gomega"
 )
 
 func TestWebSetup(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
 	status, _ := server.Execute(func(c web.Context) error {
-		Expect(c.ActiveTransaction()).NotTo(BeNil())
+		Expect(c.ActiveTransaction()).IsNotNil()
 		return c.NoContent(http.StatusOK)
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestWebSetup_Failure(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
@@ -35,11 +35,11 @@ func TestWebSetup_Failure(t *testing.T) {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
 
-	Expect(status).To(Equal(http.StatusInternalServerError))
+	Expect(status).Equals(http.StatusInternalServerError)
 }
 
 func TestWebSetup_Panic(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
@@ -47,11 +47,11 @@ func TestWebSetup_Panic(t *testing.T) {
 		panic("Boom!")
 	})
 
-	Expect(status).To(Equal(http.StatusInternalServerError))
+	Expect(status).Equals(http.StatusInternalServerError)
 }
 
 func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
@@ -60,12 +60,12 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
 
-	Expect(status).To(Equal(http.StatusInternalServerError))
-	Expect(server.Engine().Worker().Length()).To(Equal(0))
+	Expect(status).Equals(http.StatusInternalServerError)
+	Expect(server.Engine().Worker().Length()).Equals(0)
 }
 
 func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
@@ -74,30 +74,30 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 		return c.Ok(web.Map{})
 	})
 
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(server.Engine().Worker().Length()).To(Equal(1))
+	Expect(status).Equals(http.StatusOK)
+	Expect(server.Engine().Worker().Length()).Equals(1)
 }
 
 func TestWorkerSetup(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
 	mw := middlewares.WorkerSetup(log.NewNoopLogger())
 	err := mw(func(c *worker.Context) error {
-		Expect(c.Services()).NotTo(BeNil())
+		Expect(c.Services()).IsNotNil()
 		return nil
 	})(c)
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 }
 
 func TestWorkerSetup_Failure(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
 	mw := middlewares.WorkerSetup(log.NewNoopLogger())
 	err := mw(func(c *worker.Context) error {
-		Expect(c.Services()).NotTo(BeNil())
+		Expect(c.Services()).IsNotNil()
 		return errors.New("Not Found")
 	})(c)
-	Expect(err).NotTo(BeNil())
+	Expect(err).IsNotNil()
 }
