@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
-	. "github.com/onsi/gomega"
 )
 
 func TestInvalidSubdomains(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, subdomain := range []string{
 		"me",
@@ -24,14 +24,14 @@ func TestInvalidSubdomains(t *testing.T) {
 		"1234567890123456789012345678901234567890ABC",
 	} {
 		result := validate.Subdomain(nil, subdomain)
-		Expect(result.Ok).To(BeFalse())
-		Expect(len(result.Messages) > 0).To(BeTrue())
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
 	}
 }
 
 func TestValidSubdomains_Availability(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	tenants := &inmemory.TenantStorage{}
 	tenants.Add("Footbook", "footbook", models.TenantActive)
@@ -45,9 +45,9 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		"NewYork",
 	} {
 		result := validate.Subdomain(tenants, subdomain)
-		Expect(result.Ok).To(BeFalse())
-		Expect(len(result.Messages) > 0).To(BeTrue())
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
 	}
 
 	for _, subdomain := range []string{
@@ -55,8 +55,8 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		"123-company",
 	} {
 		result := validate.Subdomain(tenants, subdomain)
-		Expect(result.Ok).To(BeTrue())
-		Expect(len(result.Messages)).To(Equal(0))
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
 	}
 }

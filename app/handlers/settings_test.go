@@ -10,35 +10,35 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
-	. "github.com/onsi/gomega"
 )
 
 func TestSettingsHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, _ := server.
 		AsUser(mock.JonSnow).
 		Execute(handlers.UserSettings())
 
-	Expect(code).To(Equal(http.StatusOK))
+	Expect(code).Equals(http.StatusOK)
 }
 
 func TestUpdateUserSettingsHandler_EmptyInput(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	code, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePost(handlers.UpdateUserSettings(), `{ }`)
 
-	Expect(code).To(Equal(http.StatusBadRequest))
+	Expect(code).Equals(http.StatusBadRequest)
 }
 
 func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -48,12 +48,12 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 
 	user, _ := services.Users.GetByEmail("jon.snow@got.com")
 
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(user.Name).To(Equal("Jon Stark"))
+	Expect(code).Equals(http.StatusOK)
+	Expect(user.Name).Equals("Jon Stark")
 }
 
 func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -69,19 +69,19 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 		}`)
 
 	user, _ := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(user.Name).To(Equal("Jon Stark"))
+	Expect(code).Equals(http.StatusOK)
+	Expect(user.Name).Equals("Jon Stark")
 
 	settings, _ := services.Users.GetUserSettings()
-	Expect(settings).To(Equal(map[string]string{
+	Expect(settings).Equals(map[string]string{
 		models.NotificationEventNewIdea.UserSettingsKeyName:      "1",
 		models.NotificationEventNewComment.UserSettingsKeyName:   "2",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "3",
-	}))
+	})
 }
 
 func TestChangeRoleHandler_Valid(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -92,12 +92,12 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 
 	user, _ := services.Users.GetByID(mock.AryaStark.ID)
 
-	Expect(code).To(Equal(http.StatusOK))
-	Expect(user.Role).To(Equal(models.RoleAdministrator))
+	Expect(code).Equals(http.StatusOK)
+	Expect(user.Role).Equals(models.RoleAdministrator)
 }
 
 func TestChangeUserEmailHandler_Valid(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, email := range []string{
 		"jon.another@got.com",
@@ -109,12 +109,12 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 			AsUser(mock.JonSnow).
 			ExecutePost(handlers.ChangeUserEmail(), fmt.Sprintf(`{ "email": "%s" }`, email))
 
-		Expect(code).To(Equal(http.StatusOK))
+		Expect(code).Equals(http.StatusOK)
 	}
 }
 
 func TestChangeUserEmailHandler_Invalid(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, email := range []string{
 		"",
@@ -128,12 +128,12 @@ func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 			AsUser(mock.JonSnow).
 			ExecutePost(handlers.ChangeUserEmail(), fmt.Sprintf(`{ "email": "%s" }`, email))
 
-		Expect(code).To(Equal(http.StatusBadRequest))
+		Expect(code).Equals(http.StatusBadRequest)
 	}
 }
 
 func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	request := &models.ChangeUserEmail{
@@ -148,20 +148,20 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 		WithURL("/change-email/verify?k=th3-s3cr3t").
 		Execute(handlers.VerifyChangeEmailKey())
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(code).Equals(http.StatusTemporaryRedirect)
 	user, err := services.Users.GetByEmail("jon.stark@got.com")
-	Expect(err).To(BeNil())
-	Expect(user.ID).To(Equal(mock.JonSnow.ID))
-	Expect(user.Name).To(Equal(mock.JonSnow.Name))
-	Expect(user.Email).To(Equal(mock.JonSnow.Email))
+	Expect(err).IsNil()
+	Expect(user.ID).Equals(mock.JonSnow.ID)
+	Expect(user.Name).Equals(mock.JonSnow.Name)
+	Expect(user.Email).Equals(mock.JonSnow.Email)
 
 	result, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
-	Expect(err).To(BeNil())
-	Expect(result.VerifiedOn).NotTo(BeNil())
+	Expect(err).IsNil()
+	Expect(result.VerifiedOn).IsNotNil()
 }
 
 func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	request := &models.ChangeUserEmail{
@@ -175,13 +175,13 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 		WithURL("/change-email/verify?k=th3-s3cr3t").
 		Execute(handlers.VerifyChangeEmailKey())
 
-	Expect(code).To(Equal(http.StatusTemporaryRedirect))
+	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	_, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 	_, err = services.Users.GetByEmail("arya.stark@got.com")
-	Expect(err).To(BeNil())
+	Expect(err).IsNil()
 
 	_, err = services.Users.GetByEmail("jon.stark@got.com")
-	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }

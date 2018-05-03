@@ -4,13 +4,13 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
-	. "github.com/onsi/gomega"
 )
 
 func TestInvalidEmail(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, email := range []string{
 		"hello",
@@ -25,14 +25,14 @@ func TestInvalidEmail(t *testing.T) {
 		"abc12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@gmail.com",
 	} {
 		result := validate.Email(email)
-		Expect(result.Ok).To(BeFalse())
-		Expect(len(result.Messages) > 0).To(BeTrue())
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
 	}
 }
 
 func TestValidEmail(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, email := range []string{
 		"hello@company.com",
@@ -40,14 +40,14 @@ func TestValidEmail(t *testing.T) {
 		"abc@gmail.com",
 	} {
 		result := validate.Email(email)
-		Expect(result.Ok).To(BeTrue())
-		Expect(len(result.Messages)).To(Equal(0))
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
 	}
 }
 
 func TestInvalidCNAME(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	for _, cname := range []string{
 		"hello",
@@ -60,14 +60,14 @@ func TestInvalidCNAME(t *testing.T) {
 		"@google.com",
 	} {
 		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
-		Expect(result.Ok).To(BeFalse())
-		Expect(len(result.Messages) > 0).To(BeTrue())
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
 	}
 }
 
 func TestValidHostname(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	for _, cname := range []string{
 		"google.com",
 		"feedback.fider.io",
@@ -77,14 +77,14 @@ func TestValidHostname(t *testing.T) {
 		"hi.m",
 	} {
 		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
-		Expect(result.Ok).To(BeTrue())
-		Expect(len(result.Messages)).To(Equal(0))
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
 	}
 }
 
 func TestValidCNAME_Availability(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	tenants := &inmemory.TenantStorage{}
 	tenant, _ := tenants.Add("Footbook", "footbook", models.TenantActive)
 	tenant.CNAME = "footbook.com"
@@ -98,9 +98,9 @@ func TestValidCNAME_Availability(t *testing.T) {
 		"feedback.newyork.com",
 	} {
 		result := validate.CNAME(tenants, cname)
-		Expect(result.Ok).To(BeFalse())
-		Expect(len(result.Messages) > 0).To(BeTrue())
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
 	}
 	for _, cname := range []string{
 		"fider.footbook.com",
@@ -108,8 +108,8 @@ func TestValidCNAME_Availability(t *testing.T) {
 		"anything.com",
 	} {
 		result := validate.CNAME(tenants, cname)
-		Expect(result.Ok).To(BeTrue())
-		Expect(len(result.Messages)).To(Equal(0))
-		Expect(result.Error).To(BeNil())
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
 	}
 }

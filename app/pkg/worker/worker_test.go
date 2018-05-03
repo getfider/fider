@@ -7,7 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/pkg/worker"
 
-	. "github.com/onsi/gomega"
+	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 var dummyTask = worker.Task{
@@ -18,7 +18,7 @@ var dummyTask = worker.Task{
 }
 
 func TestBackgroundWorker(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	var finished bool
 
@@ -30,11 +30,11 @@ func TestBackgroundWorker(t *testing.T) {
 			return nil
 		},
 	})
-	Expect(w.Length()).To(Equal(1))
+	Expect(w.Length()).Equals(1)
 	go w.Run("worker-1")
-	Eventually(func() bool {
+	Expect(func() bool {
 		return finished
-	}).Should(BeTrue())
+	}).EventuallyEquals(true)
 }
 
 func TestBackgroundWorker_ShutdownWhenEmpty(t *testing.T) {

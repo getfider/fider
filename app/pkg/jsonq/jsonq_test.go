@@ -3,52 +3,52 @@ package jsonq_test
 import (
 	"testing"
 
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jsonq"
-	. "github.com/onsi/gomega"
 )
 
 func TestGet(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	query := jsonq.New(`{ "name": "Jon Snow", "age": 23 }`)
-	Expect(query.String("name")).To(Equal("Jon Snow"))
-	Expect(query.Int32("age")).To(Equal(23))
+	Expect(query.String("name")).Equals("Jon Snow")
+	Expect(query.Int32("age")).Equals(23)
 }
 
 func TestGetStringNested(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	query := jsonq.New(`{ "failures": { "name": "Jon Snow" } }`)
-	Expect(query.String("failures.name")).To(Equal("Jon Snow"))
+	Expect(query.String("failures.name")).Equals("Jon Snow")
 }
 
 func TestContains(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	query := jsonq.New(`{ "name": "Jon Snow" }`)
-	Expect(query.IsArray()).To(BeFalse())
-	Expect(query.Contains("name")).To(BeTrue())
-	Expect(query.Contains("what")).To(BeFalse())
-	Expect(query.Contains("feature.name")).To(BeFalse())
+	Expect(query.IsArray()).IsFalse()
+	Expect(query.Contains("name")).IsTrue()
+	Expect(query.Contains("what")).IsFalse()
+	Expect(query.Contains("feature.name")).IsFalse()
 }
 
 func TestIsArray(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	query := jsonq.New(`[0,1,2,3]`)
-	Expect(query.IsArray()).To(BeTrue())
-	Expect(query.ArrayLength()).To(Equal(4))
+	Expect(query.IsArray()).IsTrue()
+	Expect(query.ArrayLength()).Equals(4)
 }
 
 func TestContainsNested(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	query := jsonq.New(`{ "failures": { "name": "Name is required" } }`)
-	Expect(query.IsArray()).To(BeFalse())
+	Expect(query.IsArray()).IsFalse()
 
-	Expect(query.Contains("failures")).To(BeTrue())
-	Expect(query.Contains("failures.name")).To(BeTrue())
+	Expect(query.Contains("failures")).IsTrue()
+	Expect(query.Contains("failures.name")).IsTrue()
 
-	Expect(query.Contains("name")).To(BeFalse())
-	Expect(query.Contains("failures.what")).To(BeFalse())
+	Expect(query.Contains("name")).IsFalse()
+	Expect(query.Contains("failures.what")).IsFalse()
 }

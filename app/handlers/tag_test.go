@@ -6,14 +6,14 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
-	. "github.com/onsi/gomega"
 )
 
 func TestCreateTagHandler_ValidRequests(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	status, _ := server.
@@ -23,18 +23,18 @@ func TestCreateTagHandler_ValidRequests(t *testing.T) {
 			`{ "name": "Feature Request", "color": "00FF00", "isPublic": true }`,
 		)
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 
 	tag, err := services.Tags.GetBySlug("feature-request")
-	Expect(err).To(BeNil())
-	Expect(tag.Name).To(Equal("Feature Request"))
-	Expect(tag.Slug).To(Equal("feature-request"))
-	Expect(tag.Color).To(Equal("00FF00"))
-	Expect(tag.IsPublic).To(BeTrue())
+	Expect(err).IsNil()
+	Expect(tag.Name).Equals("Feature Request")
+	Expect(tag.Slug).Equals("feature-request")
+	Expect(tag.Color).Equals("00FF00")
+	Expect(tag.IsPublic).IsTrue()
 }
 
 func TestCreateTagHandler_InvalidRequests(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	var testCases = []struct {
 		input    string
@@ -54,16 +54,16 @@ func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 			AsUser(mock.JonSnow).
 			ExecutePostAsJSON(handlers.CreateEditTag(), testCase.input)
 
-		Expect(status).To(Equal(http.StatusBadRequest))
+		Expect(status).Equals(http.StatusBadRequest)
 		for _, failure := range testCase.failures {
-			Expect(query.Contains(failure)).To(BeTrue())
+			Expect(query.Contains(failure)).IsTrue()
 		}
 	}
 
 }
 
 func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.Tags.Add("Bug", "0000FF", true)
@@ -75,12 +75,12 @@ func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 			`{ "name": "Bug", "color": "0000FF", "isPublic": true }`,
 		)
 
-	Expect(status).To(Equal(http.StatusBadRequest))
-	Expect(query.Contains("failures.name")).To(BeTrue())
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.Contains("failures.name")).IsTrue()
 }
 
 func TestCreateTagHandler_Collaborator(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	status, _ := server.
@@ -90,11 +90,11 @@ func TestCreateTagHandler_Collaborator(t *testing.T) {
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
-	Expect(status).To(Equal(http.StatusForbidden))
+	Expect(status).Equals(http.StatusForbidden)
 }
 
 func TestEditInvalidTagHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	status, _ := server.
@@ -105,11 +105,11 @@ func TestEditInvalidTagHandler(t *testing.T) {
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestEditExistingTagHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.Tags.Add("Bug", "0000FF", true)
@@ -122,18 +122,18 @@ func TestEditExistingTagHandler(t *testing.T) {
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
-	Expect(status).To(Equal(http.StatusOK))
+	Expect(status).Equals(http.StatusOK)
 	tag, err := services.Tags.GetBySlug("bug")
-	Expect(tag).To(BeNil())
-	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
+	Expect(tag).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
 	tag, err = services.Tags.GetBySlug("feature-request")
-	Expect(tag).ToNot(BeNil())
-	Expect(err).To(BeNil())
+	Expect(tag).IsNotNil()
+	Expect(err).IsNil()
 }
 
 func TestDeleteInvalidTagHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	status, _ := server.
@@ -141,11 +141,11 @@ func TestDeleteInvalidTagHandler(t *testing.T) {
 		AddParam("slug", "bug").
 		Execute(handlers.DeleteTag())
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestDeleteExistingTagHandler(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.Tags.Add("Bug", "0000FF", true)
@@ -156,13 +156,13 @@ func TestDeleteExistingTagHandler(t *testing.T) {
 		Execute(handlers.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(errors.Cause(err)).To(Equal(app.ErrNotFound))
-	Expect(tag).To(BeNil())
+	Expect(status).Equals(http.StatusOK)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(tag).IsNil()
 }
 
 func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.Tags.Add("Bug", "0000FF", true)
@@ -173,14 +173,14 @@ func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
 		Execute(handlers.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
-	Expect(status).To(Equal(http.StatusForbidden))
-	Expect(tag).ToNot(BeNil())
-	Expect(err).To(BeNil())
+	Expect(status).Equals(http.StatusForbidden)
+	Expect(tag).IsNotNil()
+	Expect(err).IsNil()
 
 }
 
 func TestAssignTagHandler_Success(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
@@ -195,13 +195,13 @@ func TestAssignTagHandler_Success(t *testing.T) {
 		Execute(handlers.AssignTag())
 
 	tags, err := services.Tags.GetAssigned(idea)
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(err).To(BeNil())
-	Expect(tags[0]).To(Equal(tag))
+	Expect(status).Equals(http.StatusOK)
+	Expect(err).IsNil()
+	Expect(tags[0]).Equals(tag)
 }
 
 func TestAssignTagHandler_UnknownTag(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, _ := mock.NewServer()
 
@@ -211,11 +211,11 @@ func TestAssignTagHandler_UnknownTag(t *testing.T) {
 		AddParam("number", 1).
 		Execute(handlers.AssignTag())
 
-	Expect(status).To(Equal(http.StatusNotFound))
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	var testCases = []web.HandlerFunc{
 		handlers.AssignTag(),
@@ -235,12 +235,12 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 			AddParam("number", idea.Number).
 			Execute(handler)
 
-		Expect(status).To(Equal(http.StatusForbidden))
+		Expect(status).Equals(http.StatusForbidden)
 	}
 }
 
 func TestUnassignTagHandler_Success(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
@@ -256,7 +256,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 		Execute(handlers.UnassignTag())
 
 	tags, err := services.Tags.GetAssigned(idea)
-	Expect(status).To(Equal(http.StatusOK))
-	Expect(err).To(BeNil())
-	Expect(len(tags)).To(Equal(0))
+	Expect(status).Equals(http.StatusOK)
+	Expect(err).IsNil()
+	Expect(tags).HasLen(0)
 }

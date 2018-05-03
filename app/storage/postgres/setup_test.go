@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models"
+	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/storage/postgres"
-	. "github.com/onsi/gomega"
 )
 
 var db *dbx.Database
@@ -28,7 +28,7 @@ var sansaStark *models.User
 var tonyStark *models.User
 
 func SetupDatabaseTest(t *testing.T) {
-	RegisterTestingT(t)
+	RegisterT(t)
 	trx, _ = db.Begin()
 
 	tenants = postgres.NewTenantStorage(trx)

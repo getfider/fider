@@ -69,25 +69,6 @@
   version = "v3.0.1"
 
 [[projects]]
-  name = "github.com/onsi/gomega"
-  packages = [
-    ".",
-    "format",
-    "internal/assertion",
-    "internal/asyncassertion",
-    "internal/oraclematcher",
-    "internal/testingtsupport",
-    "matchers",
-    "matchers/support/goraph/bipartitegraph",
-    "matchers/support/goraph/edge",
-    "matchers/support/goraph/node",
-    "matchers/support/goraph/util",
-    "types"
-  ]
-  revision = "003f63b7f4cff3fc95357005358af2de0f5fe152"
-  version = "v1.3.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/rainycape/unidecode"
   packages = ["."]
@@ -122,10 +103,7 @@
   name = "golang.org/x/net"
   packages = [
     "context",
-    "context/ctxhttp",
-    "html",
-    "html/atom",
-    "html/charset"
+    "context/ctxhttp"
   ]
   revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
 
@@ -144,30 +122,6 @@
   revision = "6881fee410a5daf86371371f9ad451b95e168b71"
 
 [[projects]]
-  name = "golang.org/x/text"
-  packages = [
-    "encoding",
-    "encoding/charmap",
-    "encoding/htmlindex",
-    "encoding/internal",
-    "encoding/internal/identifier",
-    "encoding/japanese",
-    "encoding/korean",
-    "encoding/simplifiedchinese",
-    "encoding/traditionalchinese",
-    "encoding/unicode",
-    "internal/gen",
-    "internal/tag",
-    "internal/utf8internal",
-    "language",
-    "runes",
-    "transform",
-    "unicode/cldr"
-  ]
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
-
-[[projects]]
   name = "google.golang.org/appengine"
   packages = [
     ".",
@@ -184,15 +138,9 @@
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
-[[projects]]
-  branch = "v2"
-  name = "gopkg.in/yaml.v2"
-  packages = ["."]
-  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4652c714a25974ad0be4d69995d2c1d31ac4e7bdbc0683f0838f523a3adabff5"
+  inputs-digest = "be567a190b4ce44785a0c4d0c9603f516899871239d10f33e55d1e11213ce46b"
   solver-name = "gps-cdcl"
   solver-version = 1
