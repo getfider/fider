@@ -24,6 +24,7 @@ jobs:
     docker:
       - image: *builder
     working_directory: *workdir
+    steps:
       - checkout
       - restore_cache:
           keys:
