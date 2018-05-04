@@ -91,7 +91,7 @@ func (db Database) Migrate() {
 	)
 
 	if err == nil {
-		err = m.Up()
+		err = retry(5, m.Up)
 	}
 
 	if err != nil && err != migrate.ErrNoChange {
@@ -302,4 +302,15 @@ func (trx Trx) Rollback() error {
 		return errors.Wrap(err, "failed to rollback transaction")
 	}
 	return nil
+}
+
+func retry(attempts int, callback func() error) error {
+	var err error
+	for i := 0; i < attempts; i++ {
+		if err = callback(); err == nil || err == migrate.ErrNoChange {
+			return nil
+		}
+		time.Sleep(time.Second)
+	}
+	return errors.Wrap(err, "retried for %d times", attempts)
 }
