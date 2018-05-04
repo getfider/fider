@@ -20,12 +20,12 @@ test-ui:
 	TZ='GMT' npx jest ./output/public
 
 test-server:
-	godotenv -f .test.env go test ./...
+	godotenv -f .test.env go test ./..
 
 test : test-server test-ui
 
 coverage:
-	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all
+	godotenv -f .test.env go test ./... -p=1 -coverprofile=cover.out -coverpkg=all
 
 e2e-single:
 	./scripts/e2e.sh single
