@@ -83,18 +83,19 @@ func (db Database) Seed() {
 
 // Migrate the database to latest version
 func (db Database) Migrate() {
-
 	db.logger.Infof("Running migrations...")
-	m, err := migrate.New(
-		"file://"+env.Path("migrations"),
-		env.MustGet("DATABASE_URL"),
-	)
+	err := retry(10, func() error {
+		m, err := migrate.New(
+			"file://"+env.Path("migrations"),
+			env.MustGet("DATABASE_URL"),
+		)
+		if err == nil {
+			return m.Up()
+		}
+		return err
+	})
 
-	if err == nil {
-		err = retry(10, m.Up)
-	}
-
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil {
 		panic(fmt.Sprintf("Migrations failed with: %s:", err))
 	} else {
 		db.logger.Infof("Migrations finished with success.")
@@ -310,7 +311,7 @@ func retry(attempts int, callback func() error) error {
 		if err = callback(); err == nil || err == migrate.ErrNoChange {
 			return nil
 		}
-		time.Sleep(time.Second)
+		time.Sleep(200 * time.Millisecond)
 	}
 	return errors.Wrap(err, "retried for %d times", attempts)
 }
