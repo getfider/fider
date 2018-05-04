@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: getfider/circleci:0.0.8
+      - image: getfider/circleci:0.0.9
       - image: postgres:9.6.8
     working_directory: /go/src/github.com/getfider/fider
     steps:
@@ -42,7 +42,7 @@ jobs:
             - docker-image.tar
   push:
     docker:
-      - image: getfider/circleci:0.0.8
+      - image: getfider/circleci:0.0.9
     working_directory: /go/src/github.com/getfider/fider
     steps:
       - attach_workspace:
