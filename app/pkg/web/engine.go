@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	stdLog "log"
@@ -58,6 +59,7 @@ type Engine struct {
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
+	server      *http.Server
 }
 
 //New creates a new Engine
@@ -76,13 +78,13 @@ func New(settings *models.SystemSettings) *Engine {
 	return router
 }
 
-//Start an HTTP server.
+//Start the server.
 func (e *Engine) Start(address string) {
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
-	server := &http.Server{
+	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
@@ -105,24 +107,44 @@ func (e *Engine) Start(address string) {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
-		server.TLSConfig = &tls.Config{
+		e.server.TLSConfig = &tls.Config{
 			GetCertificate: certManager.GetCertificate,
 		}
 
 		e.logger.Infof("https (auto ssl) server started on %s", address)
 		go certManager.StartHTTPServer()
-		err = server.ListenAndServeTLS("", "")
+		err = e.server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
 		e.logger.Infof("http server started on %s", address)
-		err = server.ListenAndServe()
+		err = e.server.ListenAndServe()
 	} else {
 		e.logger.Infof("https server started on %s", address)
-		err = server.ListenAndServeTLS(certFile, keyFile)
+		err = e.server.ListenAndServeTLS(certFile, keyFile)
 	}
 
-	if err != nil {
+	if err != nil && err != http.ErrServerClosed {
 		panic(errors.Wrap(err, "failed to start server"))
 	}
+}
+
+//Stop the server.
+func (e *Engine) Stop() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	e.logger.Infof("server is shutting down")
+	if err := e.server.Shutdown(ctx); err != nil {
+		return errors.Wrap(err, "failed to shutdown server")
+	}
+	e.logger.Infof("server has shutdown")
+
+	e.logger.Infof("worker is shutting down")
+	if err := e.worker.Shutdown(ctx); err != nil {
+		return errors.Wrap(err, "failed to shutdown worker")
+	}
+	e.logger.Infof("worker has shutdown")
+
+	return nil
 }
 
 //NewContext creates and return a new context

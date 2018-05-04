@@ -17,14 +17,14 @@ func mustBeFunction(v interface{}) {
 	}
 }
 
-//Assertions is the entry point for the assersions
-type Assertions struct {
-	t *testing.T
-}
+func describe(v interface{}) string {
+	value := reflect.ValueOf(v)
 
-//New creates a new Assertions entry point for further reuse
-func New(t *testing.T) *Assertions {
-	return &Assertions{t}
+	if v == nil {
+		return "[nil] nil"
+	}
+
+	return fmt.Sprintf("[%s] %v", value.Type(), v)
 }
 
 //Fail the current test case with given message
@@ -37,14 +37,17 @@ func Fail(msg string, args ...interface{}) {
 
 var currentT *testing.T
 
+//RegisterT saves current testing.T for further usage by Expect
 func RegisterT(t *testing.T) {
 	currentT = t
 }
 
+//AnyAssertions is used to assert any kind of value
 type AnyAssertions struct {
 	actual interface{}
 }
 
+//Expect starts new assertions on given value
 func Expect(actual interface{}) *AnyAssertions {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
@@ -54,29 +57,32 @@ func Expect(actual interface{}) *AnyAssertions {
 	}
 }
 
+//Equals asserts that actual value equals expected value
 func (a *AnyAssertions) Equals(expected interface{}) bool {
 	if reflect.DeepEqual(expected, a.actual) {
 		return true
 	}
-	err := fmt.Errorf("Equals assertion failed. \n Expected: \n\t\t %v \n Actual: \n\t\t %v", expected, a.actual)
+	err := fmt.Errorf("Equals assertion failed. \n Expected: \n\t\t %s \n Actual: \n\t\t %s", describe(expected), describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
 
+//ContainsSubstring asserts that actual value contains given substring
 func (a *AnyAssertions) ContainsSubstring(substr string) bool {
 	if strings.Contains(a.actual.(string), substr) {
 		return true
 	}
-	err := fmt.Errorf("ContainsSubstring assertion failed. \n Substring: \n\t\t %s \n Actual: \n\t\t %v", substr, a.actual)
+	err := fmt.Errorf("ContainsSubstring assertion failed. \n Substring: \n\t\t %s \n Actual: \n\t\t %s", substr, describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
 
-func (a *AnyAssertions) NotEquals(expected interface{}) bool {
-	if !reflect.DeepEqual(expected, a.actual) {
+//NotEquals asserts that actual value is different than given value
+func (a *AnyAssertions) NotEquals(other interface{}) bool {
+	if !reflect.DeepEqual(other, a.actual) {
 		return true
 	}
-	err := fmt.Errorf("NotEquals assertion failed. \n Expected: \n\t\t %v \n Actual: \n\t\t %v", expected, a.actual)
+	err := fmt.Errorf("NotEquals assertion failed. \n Other: \n\t\t %s \n Actual: \n\t\t %s", describe(other), describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
@@ -164,7 +170,7 @@ func (a *AnyAssertions) EventuallyEquals(expected interface{}) bool {
 		}
 		select {
 		case <-ctx.Done():
-			err := fmt.Errorf("func.EventuallyEquals assertion failed. \n Expected: \n\t\t %s \n Actual: \n\t\t %s", expected, a.actual)
+			err := fmt.Errorf("func.EventuallyEquals assertion failed. \n Expected: \n\t\t %s \n Actual: \n\t\t %s", describe(expected), describe(a.actual))
 			currentT.Error(errors.StackN(err, 1))
 			return false
 		case <-ticker.C:

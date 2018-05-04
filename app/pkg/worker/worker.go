@@ -1,6 +1,11 @@
 package worker
 
 import (
+	"context"
+	"errors"
+	"sync/atomic"
+	"time"
+
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -22,13 +27,15 @@ type Worker interface {
 	Enqueue(task Task)
 	Logger() log.Logger
 	Use(middleware MiddlewareFunc)
-	Length() int
+	Length() int64
+	Shutdown(ctx context.Context) error
 }
 
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
 	logger     log.Logger
 	queue      chan Task
+	len        int64
 	middleware MiddlewareFunc
 }
 
@@ -57,11 +64,34 @@ func (w *BackgroundWorker) Run(id string) {
 		}
 
 		w.middleware(task.Job)(c)
+		atomic.AddInt64(&w.len, -1)
 	}
+}
+
+//Shutdown current worker
+func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
+	if w.Length() > 0 {
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			count := w.Length()
+			if count == 0 {
+				return nil
+			}
+			w.logger.Infof("waiting for work queue: %d", count)
+			select {
+			case <-ctx.Done():
+				return errors.New("timeout waiting for worker queue")
+			case <-ticker.C:
+			}
+		}
+	}
+	return nil
 }
 
 //Enqueue a task on current worker
 func (w *BackgroundWorker) Enqueue(task Task) {
+	atomic.AddInt64(&w.len, 1)
 	w.queue <- task
 }
 
@@ -71,8 +101,8 @@ func (w *BackgroundWorker) Logger() log.Logger {
 }
 
 //Length from current queue length
-func (w *BackgroundWorker) Length() int {
-	return len(w.queue)
+func (w *BackgroundWorker) Length() int64 {
+	return w.len
 }
 
 //Use this to inject worker dependencies
