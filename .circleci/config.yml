@@ -5,19 +5,10 @@ references:
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
-  workspace_root: &workspace_root
-    /tmp/workspace
-    
-  attach_workspace: &attach_workspace
-    attach_workspace:
-      at: *workspace_root
-
   restore_repo: &restore_repo
     restore_cache:
       keys:
         - v1-repo-{{ .Branch }}-{{ .Revision }}
-        - v1-repo-{{ .Branch }}
-        - v1-repo
 
 jobs:
   setup:
