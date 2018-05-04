@@ -311,7 +311,7 @@ func retry(attempts int, callback func() error) error {
 		if err = callback(); err == nil || err == migrate.ErrNoChange {
 			return nil
 		}
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 	}
 	return errors.Wrap(err, "retried for %d times", attempts)
 }
