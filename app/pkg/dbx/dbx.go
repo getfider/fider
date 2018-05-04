@@ -91,7 +91,7 @@ func (db Database) Migrate() {
 	)
 
 	if err == nil {
-		err = retry(5, m.Up)
+		err = retry(10, m.Up)
 	}
 
 	if err != nil && err != migrate.ErrNoChange {
@@ -310,7 +310,7 @@ func retry(attempts int, callback func() error) error {
 		if err = callback(); err == nil || err == migrate.ErrNoChange {
 			return nil
 		}
-		time.Sleep(time.Second)
+		time.Sleep(200 * time.Millisecond)
 	}
 	return errors.Wrap(err, "retried for %d times", attempts)
 }
