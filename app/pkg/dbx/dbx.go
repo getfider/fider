@@ -89,10 +89,10 @@ func (db Database) Migrate() {
 			"file://"+env.Path("migrations"),
 			env.MustGet("DATABASE_URL"),
 		)
-		if err == nil {
-			return m.Up()
+		if err != nil {
+			return err
 		}
-		return err
+		return m.Up()
 	})
 
 	if err != nil {
