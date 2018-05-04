@@ -5,11 +5,6 @@ references:
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
-  restore_repo: &restore_repo
-    restore_cache:
-      keys:
-        - v1-repo-{{ .Branch }}-{{ .Revision }}
-
 jobs:
   setup:
     docker:
@@ -28,18 +23,16 @@ jobs:
           key: fider-v1-npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules/
-      - save_cache:
-          name: save repo cache
-          key: v1-repo-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - .
 
   build:
     docker:
       - image: *builder
     working_directory: *workdir
     steps:
-      - *restore_repo
+      - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run: make lint
       - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
       - setup_remote_docker
@@ -56,7 +49,7 @@ jobs:
       - image: postgres:9.6.8
     working_directory: *workdir
     steps:
-      - *restore_repo
+      - checkout
       - run:
           name: setup postgres
           command: |
@@ -75,7 +68,10 @@ jobs:
       - image: *builder
     working_directory: *workdir
     steps:
-      - *restore_repo
+      - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run:
           name: test
           command: make test-ui
