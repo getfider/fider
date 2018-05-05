@@ -83,18 +83,19 @@ func (db Database) Seed() {
 
 // Migrate the database to latest version
 func (db Database) Migrate() {
-
 	db.logger.Infof("Running migrations...")
-	m, err := migrate.New(
-		"file://"+env.Path("migrations"),
-		env.MustGet("DATABASE_URL"),
-	)
+	err := retry(10, func() error {
+		m, err := migrate.New(
+			"file://"+env.Path("migrations"),
+			env.MustGet("DATABASE_URL"),
+		)
+		if err != nil {
+			return err
+		}
+		return m.Up()
+	})
 
-	if err == nil {
-		err = m.Up()
-	}
-
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil {
 		panic(fmt.Sprintf("Migrations failed with: %s:", err))
 	} else {
 		db.logger.Infof("Migrations finished with success.")
@@ -302,4 +303,15 @@ func (trx Trx) Rollback() error {
 		return errors.Wrap(err, "failed to rollback transaction")
 	}
 	return nil
+}
+
+func retry(attempts int, callback func() error) error {
+	var err error
+	for i := 0; i < attempts; i++ {
+		if err = callback(); err == nil || err == migrate.ErrNoChange {
+			return nil
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	return errors.Wrap(err, "retried for %d times", attempts)
 }
