@@ -23,7 +23,7 @@ interface IdeasContainerState {
 }
 
 export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasContainerState> {
-  private timer: any;
+  private timer?: number;
 
   constructor(props: IdeasContainerProps) {
     super(props);
@@ -69,9 +69,9 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
   }
 
   private async searchIdeas(query: string, filter: string, tags: string[], delay: number = 0) {
-    clearTimeout(this.timer);
+    window.clearTimeout(this.timer);
     this.setState({ loading: true });
-    this.timer = setTimeout(() => {
+    this.timer = window.setTimeout(() => {
       actions.searchIdeas(query, filter, tags).then(response => {
         if (this.state.loading) {
           this.setState({ loading: false, ideas: response.data });

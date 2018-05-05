@@ -13,7 +13,7 @@ interface IdeaSearchState {
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
-  private timer: number = 0;
+  private timer?: number;
 
   constructor(props: IdeaSearchProps) {
     super(props);
@@ -32,8 +32,8 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   };
 
   private search = (searchQuery: string) => {
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
+    window.clearTimeout(this.timer);
+    this.timer = window.setTimeout(() => {
       actions.searchIdeas(searchQuery, "", []).then(res => {
         const ideas =
           this.props.exclude && this.props.exclude.length > 0

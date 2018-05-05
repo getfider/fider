@@ -14,6 +14,7 @@
   },
   "devDependencies": {
     "@types/jest": "22.2.3",
+    "@types/jsdom": "^11.0.4",
     "@types/markdown-it": "0.0.4",
     "@types/node": "9.6.7",
     "@types/react": "16.3.13",
@@ -46,6 +47,7 @@
     "transform": {
       "^.+\\.(tsx|ts)?$": "ts-jest"
     },
+    "setupTestFrameworkScriptFile": "<rootDir>/public/jest.setup.ts",
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts|tsx|js|jsx)$",
     "moduleFileExtensions": [
       "ts",
@@ -56,7 +58,7 @@
       "node"
     ],
     "moduleNameMapper": {
-      "^.*\\.(png|scss)$": "<rootDir>/public/assets/jest-sass-stub.ts",
+      "^.*\\.(png|scss)$": "<rootDir>/public/jest.assets.ts",
       "@fider/(.*)": "<rootDir>/public/$1"
     }
   }

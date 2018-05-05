@@ -5,7 +5,7 @@ import { Idea, CurrentUser } from "@fider/models";
 import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
-import { page, actions, Failure } from "@fider/services";
+import { cache, page, actions, Failure } from "@fider/services";
 
 interface CommentInputProps {
   user?: CurrentUser;
@@ -18,6 +18,8 @@ interface CommentInputState {
   showSignIn: boolean;
 }
 
+const CACHE_TITLE_KEY = "CommentInput-Comment-";
+
 export class CommentInput extends React.Component<CommentInputProps, CommentInputState> {
   private input!: HTMLTextAreaElement;
 
@@ -25,10 +27,19 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     super(props);
 
     this.state = {
-      content: "",
+      content: (!!this.props.user && cache.get(this.getCacheKey())) || "",
       showSignIn: false
     };
   }
+
+  private getCacheKey(): string {
+    return `${CACHE_TITLE_KEY}${this.props.idea.id}`;
+  }
+
+  private commentChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    cache.set(this.getCacheKey(), e.currentTarget.value);
+    this.setState({ content: e.currentTarget.value });
+  };
 
   private onTextFocused() {
     if (!this.props.user) {
@@ -44,6 +55,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     const result = await actions.createComment(this.props.idea.number, this.state.content);
     if (result.ok) {
+      cache.remove(this.getCacheKey());
       location.reload();
     } else {
       this.setState({
@@ -63,9 +75,8 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
             <DisplayError error={this.state.error} />
             <div className="field">
               <Textarea
-                onChange={e => {
-                  this.setState({ content: e.currentTarget.value });
-                }}
+                onChange={this.commentChanged}
+                defaultValue={this.state.content}
                 onFocus={() => this.onTextFocused()}
                 inputRef={e => (this.input = e!)}
                 rows={1}
