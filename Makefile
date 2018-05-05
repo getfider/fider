@@ -15,9 +15,7 @@ lint-fix:
 
 # Testing
 test-ui:
-	rm -rf ./output/public
-	npx tsc -p ./tsconfig.json
-	TZ='GMT' npx jest ./output/public
+	TZ='GMT' npx jest ./public
 
 test-server:
 	godotenv -f .test.env go test ./..
