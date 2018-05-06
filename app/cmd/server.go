@@ -17,10 +17,10 @@ import (
 //RunServer starts the Fider Server
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunServer(settings *models.SystemSettings) int {
-
-	e := routes(web.New(settings))
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
+
+	e := routes(web.New(settings))
 
 	go e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
 	return listenSignals(e, settings)

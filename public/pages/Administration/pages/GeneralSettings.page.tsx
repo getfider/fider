@@ -9,6 +9,7 @@ interface GeneralSettingsPageProps {
   user: CurrentUser;
   tenant: Tenant;
   system: SystemSettings;
+  publicIP: string;
 }
 
 interface GeneralSettingsPageState {
@@ -52,6 +53,18 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     } else if (result.error) {
       this.setState({ error: result.error });
     }
+  }
+
+  public dnsInstructions(): JSX.Element {
+    const isApex = this.state.cname.split(".").length === 2;
+    const recordType = isApex ? "A" : "CNAME";
+    const publicIP = this.props.publicIP || "<error>";
+    const targetRecord = isApex ? publicIP : `${this.props.tenant.subdomain}${this.props.system.domain}`;
+    return (
+      <>
+        <strong>{this.state.cname}</strong> {recordType} <strong>{targetRecord}</strong>
+      </>
+    );
   }
 
   public content() {
@@ -127,13 +140,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
               {this.state.cname ? (
                 [
                   <p key={0}>Enter the following record into your DNS zone records:</p>,
-                  <p key={1}>
-                    <strong>{this.state.cname}</strong> CNAME{" "}
-                    <strong>
-                      {this.props.tenant.subdomain}
-                      {this.props.system.domain}
-                    </strong>
-                  </p>,
+                  <p key={1}>{this.dnsInstructions()}</p>,
                   <p key={2}>
                     Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS
                     propagation.

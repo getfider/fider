@@ -2,10 +2,13 @@ package env
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"strings"
 
 	"path"
+
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 // GetEnvOrDefault retrieves the value of the environment variable named by the key.
@@ -58,6 +61,26 @@ func MultiTenantDomain() string {
 		panic(fmt.Sprintf("Could not extract domain from %s", endpoint))
 	}
 	return ""
+}
+
+var publicIP = make(map[string]string, 0)
+
+// GetPublicIP returns the public IP of current hosting server
+func GetPublicIP() (string, error) {
+	if IsSingleHostMode() {
+		return "", nil
+	}
+
+	domain := MultiTenantDomain()[1:]
+	if _, ok := publicIP[domain]; !ok {
+		addr, err := net.LookupIP(domain)
+		if err == nil {
+			publicIP[domain] = addr[0].String()
+		} else {
+			return "", errors.Wrap(err, "failed to lookup IP of %s", domain)
+		}
+	}
+	return publicIP[domain], nil
 }
 
 // Current returns current Fider environment

@@ -66,3 +66,28 @@ func TestMultiTenantDomain(t *testing.T) {
 	os.Setenv("HOST_MODE", "single")
 	Expect(env.MultiTenantDomain()).IsEmpty()
 }
+
+func TestGetPublicIP(t *testing.T) {
+	RegisterT(t)
+
+	os.Setenv("HOST_MODE", "multi")
+	os.Setenv("AUTH_ENDPOINT", "https://login.dev.fider.io")
+	ip, err := env.GetPublicIP()
+	Expect(err).IsNil()
+	Expect(ip).Equals("127.0.0.1")
+
+	os.Setenv("AUTH_ENDPOINT", "https://login.fider.io")
+	ip, err = env.GetPublicIP()
+	Expect(err).IsNil()
+	Expect(ip).Equals("174.138.111.44")
+
+	os.Setenv("AUTH_ENDPOINT", "invalidinvalidinvalid.io")
+	ip, err = env.GetPublicIP()
+	Expect(err).IsNotNil()
+	Expect(ip).IsEmpty()
+
+	os.Setenv("HOST_MODE", "single")
+	ip, err = env.GetPublicIP()
+	Expect(err).IsNil()
+	Expect(ip).Equals("")
+}
