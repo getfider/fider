@@ -104,7 +104,7 @@ func routes(r *web.Engine) *web.Engine {
 
 			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
-			private.Get("/admin", handlers.Page())
+			private.Get("/admin", handlers.GeneralSettingsPage())
 			private.Get("/admin/privacy", handlers.Page())
 			private.Get("/admin/invitations", handlers.Page())
 			private.Get("/admin/members", handlers.ManageMembers())
