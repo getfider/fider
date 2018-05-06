@@ -18,7 +18,7 @@ test-ui:
 	TZ='GMT' npx jest ./public
 
 test-server:
-	godotenv -f .test.env go test ./..
+	godotenv -f .test.env go test ./...
 
 test : test-server test-ui
 

@@ -29,7 +29,7 @@ body {
 }
 
 body, h1, h2, h3, h4, h5, .ui, input {
-  font-family: 'Ubuntu', sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -43,8 +43,9 @@ body, h1, h2, h3, h4, h5, .ui, input {
   margin-top: 0px;
   background-color: $menu-color;
   margin-bottom: 30px;
-  height: 40px;
+  height: 50px;
   border-radius: 0px;
+  border: none;
   
   .unread-dot {
     width: 10px;
@@ -60,8 +61,16 @@ body, h1, h2, h3, h4, h5, .ui, input {
     min-width: 150px;
   }
 
+  .title {
+    font-size: 18px;
+    margin: 0 0 0 0;
+  }
+
   div, a {
     color: textColorFor($menu-color);
+    &:hover {
+      background: $menu-color;
+    }
   }
 }
 
