@@ -1,11 +1,13 @@
 package dbx_test
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 type user struct {
@@ -250,4 +252,36 @@ func TestArray(t *testing.T) {
 	Expect(result.Tags).HasLen(2)
 	Expect(result.Tags[0]).Equals(int64(5))
 	Expect(result.Tags[1]).Equals(int64(10))
+}
+
+func TestByteArray(t *testing.T) {
+	RegisterT(t)
+	db := dbx.New()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	type file struct {
+		ContentType string `db:"content_type"`
+		Size        int    `db:"size"`
+		Content     []byte `db:"file"`
+	}
+
+	fileContent, err := ioutil.ReadFile(env.Path("/favicon.ico"))
+	Expect(err).IsNil()
+
+	_, err = trx.Execute(`
+		INSERT INTO uploads (tenant_id, size, content_type, file)
+		VALUES (1, $1, 'text/plain', $2)
+	`, len(fileContent), fileContent)
+
+	Expect(err).IsNil()
+
+	theFile := file{}
+	err = trx.Get(&theFile, "SELECT content_type, size, file FROM uploads WHERE id = 1")
+	Expect(err).IsNil()
+	Expect(theFile.ContentType).Equals("text/plain")
+	Expect(theFile.Content).Equals(fileContent)
+	Expect(theFile.Size).Equals(len(theFile.Content))
 }

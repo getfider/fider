@@ -55,7 +55,7 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 			panic(fmt.Sprintf("Field not found for column %s", c))
 		}
 
-		if field.Kind() == reflect.Slice {
+		if field.Kind() == reflect.Slice && field.Type().Elem().Kind() != reflect.Uint8 {
 			obj := reflect.New(reflect.MakeSlice(field.Type(), 0, 0).Type()).Elem()
 			field.Set(obj)
 			pointers[i] = pq.Array(field.Addr().Interface())
