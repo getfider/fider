@@ -22,12 +22,14 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
 };
 
 export const updateTenantSettings = async (
+  logo: string,
   title: string,
   invitation: string,
   welcomeMessage: string,
   cname: string
 ): Promise<Result> => {
   return await http.post("/api/admin/settings/general", {
+    logo,
     title,
     invitation,
     welcomeMessage,

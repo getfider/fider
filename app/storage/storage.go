@@ -69,6 +69,7 @@ type Tenant interface {
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
+	GetLogo(id int) (*models.Upload, error)
 }
 
 // Tag contains read and write operations for tags

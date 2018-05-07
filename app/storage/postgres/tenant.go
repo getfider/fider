@@ -1,9 +1,11 @@
 package postgres
 
 import (
+	"net/http"
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -11,14 +13,15 @@ import (
 )
 
 type dbTenant struct {
-	ID             int    `db:"id"`
-	Name           string `db:"name"`
-	Subdomain      string `db:"subdomain"`
-	CNAME          string `db:"cname"`
-	Invitation     string `db:"invitation"`
-	WelcomeMessage string `db:"welcome_message"`
-	Status         int    `db:"status"`
-	IsPrivate      bool   `db:"is_private"`
+	ID             int         `db:"id"`
+	Name           string      `db:"name"`
+	Subdomain      string      `db:"subdomain"`
+	CNAME          string      `db:"cname"`
+	Invitation     string      `db:"invitation"`
+	WelcomeMessage string      `db:"welcome_message"`
+	Status         int         `db:"status"`
+	IsPrivate      bool        `db:"is_private"`
+	LogoID         dbx.NullInt `db:"logo_id"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -26,7 +29,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		return nil
 	}
 
-	return &models.Tenant{
+	tenant := &models.Tenant{
 		ID:             t.ID,
 		Name:           t.Name,
 		Subdomain:      t.Subdomain,
@@ -36,6 +39,12 @@ func (t *dbTenant) toModel() *models.Tenant {
 		Status:         t.Status,
 		IsPrivate:      t.IsPrivate,
 	}
+
+	if t.LogoID.Valid {
+		tenant.LogoID = int(t.LogoID.Int64)
+	}
+
+	return tenant
 }
 
 type dbEmailVerification struct {
@@ -112,7 +121,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private FROM tenants ORDER BY id LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id FROM tenants ORDER BY id LIMIT 1")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
@@ -124,7 +133,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
@@ -139,6 +148,25 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
 	}
+
+	if len(settings.Logo) > 0 {
+		var newLogoID int
+		err := s.trx.Get(&newLogoID, `
+			INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
+			VALUES ($1, $2, $3, $4, $5) RETURNING id
+			`, s.current.ID, len(settings.Logo), http.DetectContentType(settings.Logo), settings.Logo, time.Now(),
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to upload new tenant logo")
+		}
+
+		query := "UPDATE tenants SET logo_id = $1 WHERE id = $2"
+		_, err = s.trx.Execute(query, newLogoID, s.current.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant logo")
+		}
+	}
+
 	return nil
 }
 
@@ -216,6 +244,25 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 		return errors.Wrap(err, "failed to update verified date of email verification request")
 	}
 	return nil
+}
+
+// GetLogo returns tenant logo by id
+func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
+	upload := &models.Upload{}
+	err := s.trx.Get(upload, `
+		SELECT content_type, size, file FROM tenants
+		INNER JOIN uploads
+		ON uploads.tenant_id = tenants.id
+		AND uploads.id = tenants.logo_id
+		WHERE tenants.id = $1 AND uploads.id = $2
+	`, s.current.ID, id)
+	if err == app.ErrNotFound {
+		return nil, app.ErrNotFound
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get logo from tenant")
+	}
+	return upload, nil
 }
 
 func extractSubdomain(hostname string) string {

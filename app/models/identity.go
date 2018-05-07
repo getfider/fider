@@ -18,6 +18,7 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
+	LogoID         int    `json:"logoId"`
 }
 
 var (
@@ -26,6 +27,13 @@ var (
 	//TenantInactive is used for signup via email that requires user confirmation
 	TenantInactive = 2
 )
+
+//Upload represents a file that has been uploaded to Fider
+type Upload struct {
+	ContentType string `db:"content_type"`
+	Size        int    `db:"size"`
+	Content     []byte `db:"file"`
+}
 
 //User represents an user inside our application
 type User struct {
@@ -139,6 +147,7 @@ func (e *CreateTenant) GetKind() EmailVerificationKind {
 
 //UpdateTenantSettings is the input model used to update tenant general settings
 type UpdateTenantSettings struct {
+	Logo           []byte `json:"logo"`
 	Title          string `json:"title"`
 	Invitation     string `json:"invitation"`
 	WelcomeMessage string `json:"welcomeMessage"`

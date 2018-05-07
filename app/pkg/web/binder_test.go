@@ -1,9 +1,13 @@
 package web_test
 
 import (
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -49,6 +53,27 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 	Expect(u.Email).Equals("jon.snow@got.com")
 	Expect(u.Color).Equals("FF00AD")
 	Expect(u.Other).Equals("")
+}
+
+func TestDefaultBinder_Base64ToBytes(t *testing.T) {
+	RegisterT(t)
+
+	resume, _ := ioutil.ReadFile(env.Path("./README.md"))
+	resumeBase64 := base64.StdEncoding.EncodeToString(resume)
+
+	type user struct {
+		Name   string `json:"name"`
+		Resume []byte `json:"resume"`
+	}
+
+	params := make(web.StringMap, 0)
+	body := fmt.Sprintf(`{ "name": "Jon Snow", "resume": "%s" }`, resumeBase64)
+	ctx := newBodyContext("POST", params, body, "application/json")
+	u := new(user)
+	err := binder.Bind(u, ctx)
+	Expect(err).IsNil()
+	Expect(u.Name).Equals("Jon Snow")
+	Expect(u.Resume).Equals(resume)
 }
 
 func TestDefaultBinder_Array_TrimSpaces(t *testing.T) {

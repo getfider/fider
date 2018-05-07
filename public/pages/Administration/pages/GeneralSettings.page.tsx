@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
-import { actions, page, Failure } from "@fider/services";
+import { actions, page, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface GeneralSettingsPageProps {
@@ -13,6 +13,7 @@ interface GeneralSettingsPageProps {
 }
 
 interface GeneralSettingsPageState {
+  logo: string;
   title: string;
   welcomeMessage: string;
   invitation: string;
@@ -31,6 +32,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     super(props);
 
     this.state = {
+      logo: "",
       title: this.props.tenant.name,
       cname: this.props.tenant.cname,
       welcomeMessage: this.props.tenant.welcomeMessage,
@@ -42,6 +44,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
 
   private async save(e: ButtonClickEvent) {
     const result = await actions.updateTenantSettings(
+      this.state.logo,
       this.state.title,
       this.state.invitation,
       this.state.welcomeMessage,
@@ -54,6 +57,15 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
       this.setState({ error: result.error });
     }
   }
+
+  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const base64 = await fileToBase64(e.target.files[0]);
+      this.setState({
+        logo: base64
+      });
+    }
+  };
 
   public dnsInstructions(): JSX.Element {
     const isApex = this.state.cname.split(".").length === 2;
@@ -70,6 +82,9 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   public content() {
     return (
       <div className="ui form">
+
+        <input type="file" onChange={this.fileChanged} />
+
         <DisplayError fields={["title"]} error={this.state.error} />
         <div className="field">
           <label htmlFor="title">Title</label>

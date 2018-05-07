@@ -2,7 +2,7 @@ import "./Header.scss";
 
 import * as React from "react";
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { SignInModal, SignInControl, EnvironmentInfo, Gravatar } from "@fider/components";
+import { SignInModal, SignInControl, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
 import { page, actions } from "@fider/services";
 
 interface HeaderProps {
@@ -83,6 +83,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         <div id="menu" className="ui small borderless menu">
           <div className="ui container">
             <a href="/" className="header item">
+              <Logo tenant={this.props.tenant} />
               <span className="title">{this.props.tenant.name}</span>
             </a>
             {showRightMenu && (

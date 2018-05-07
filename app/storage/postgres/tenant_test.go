@@ -1,12 +1,14 @@
 package postgres_test
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 
 	"github.com/getfider/fider/app"
@@ -150,6 +152,36 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	Expect(tenant.Invitation).Equals("Leave us your suggestion")
 	Expect(tenant.WelcomeMessage).Equals("Welcome!")
 	Expect(tenant.CNAME).Equals("demo.company.com")
+	Expect(tenant.LogoID).Equals(0)
+}
+
+func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+
+	settings := &models.UpdateTenantSettings{
+		Logo:           logo,
+		Title:          "New Demonstration",
+		Invitation:     "Leave us your suggestion",
+		WelcomeMessage: "Welcome!",
+		CNAME:          "demo.company.com",
+	}
+	err := tenants.UpdateSettings(settings)
+	Expect(err).IsNil()
+
+	tenant, err = tenants.GetByDomain("demo")
+	Expect(err).IsNil()
+
+	upload, err := tenants.GetLogo(tenant.LogoID)
+	Expect(err).IsNil()
+	Expect(upload.Content).Equals(logo)
+	Expect(upload.Size).Equals(len(logo))
+	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
 }
 
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
