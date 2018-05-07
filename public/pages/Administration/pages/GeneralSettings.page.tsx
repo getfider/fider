@@ -15,12 +15,11 @@ interface GeneralSettingsPageProps {
 }
 
 interface GeneralSettingsPageState {
-  logo: {
+  logo?: {
     upload?: {
       content?: string;
       contentType?: string;
     };
-    ignore: boolean;
     remove: boolean;
   };
   title: string;
@@ -43,10 +42,6 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     super(props);
 
     this.state = {
-      logo: {
-        ignore: true,
-        remove: false
-      },
       title: this.props.tenant.name,
       cname: this.props.tenant.cname,
       welcomeMessage: this.props.tenant.welcomeMessage,
@@ -112,7 +107,13 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   }
 
   public content() {
-    const hasFile = (this.props.tenant.logoId > 0 && !this.state.logo.remove) || !!this.state.logo.upload;
+    const isRemoving = this.state.logo ? this.state.logo.remove : false;
+    const isUploading = this.state.logo ? !!this.state.logo.upload : false;
+    const hasFile = (this.props.tenant.logoId > 0 && !isRemoving) || isUploading;
+    const previewUrl =
+      isUploading && this.state.logo && this.state.logo.upload
+        ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
+        : undefined;
 
     return (
       <div className="ui form">
@@ -165,17 +166,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         <DisplayError fields={["logo"]} error={this.state.error} />
         <div className="field logo">
           <label htmlFor="logo">Logo</label>
-          {this.state.logo &&
-            !this.state.logo.remove && (
-              <Logo
-                tenant={this.props.tenant}
-                url={
-                  !!this.state.logo.upload
-                    ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
-                    : undefined
-                }
-              />
-            )}
+          {hasFile && <Logo tenant={this.props.tenant} url={previewUrl} />}
           <input ref={e => (this.fileSelector = e)} type="file" name="logo" onChange={this.fileChanged} />
           <div>
             <Button size="mini" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>

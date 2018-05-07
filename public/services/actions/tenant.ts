@@ -22,12 +22,11 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
 };
 
 export interface UpdateTenantSettingsRequest {
-  logo: {
+  logo?: {
     upload?: {
       content?: string;
       contentType?: string;
     };
-    ignore: boolean;
     remove: boolean;
   };
   title: string;

@@ -157,7 +157,6 @@ type UpdateTenantSettings struct {
 //UpdateTenantSettingsLogo is the input model used to update logo
 type UpdateTenantSettingsLogo struct {
 	Upload *UpdateTenantSettingsLogoUpload `json:"upload"`
-	Ignore bool                            `json:"ignore"`
 	Remove bool                            `json:"remove"`
 }
 

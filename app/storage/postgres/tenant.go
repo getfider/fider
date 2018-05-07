@@ -150,7 +150,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 		return errors.Wrap(err, "failed update tenant settings")
 	}
 
-	if settings.Logo != nil && !settings.Logo.Ignore {
+	if settings.Logo != nil {
 		var newLogoID sql.NullInt64
 
 		if !settings.Logo.Remove && len(settings.Logo.Upload.Content) > 0 {
