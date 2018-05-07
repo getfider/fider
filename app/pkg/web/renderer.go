@@ -88,7 +88,12 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	m["__JavaScriptBundle"] = r.jsBundle
 	m["__StyleBundle"] = r.cssBundle
 	m["__ContextID"] = ctx.ContextID()
-	
+	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
+		m["__logo"] = fmt.Sprintf("/logo/%d", ctx.Tenant().LogoID)
+	} else {
+		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
+	}
+
 	m["system"] = r.settings
 	m["baseURL"] = ctx.BaseURL()
 	m["tenant"] = ctx.Tenant()

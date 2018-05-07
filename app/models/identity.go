@@ -147,11 +147,24 @@ func (e *CreateTenant) GetKind() EmailVerificationKind {
 
 //UpdateTenantSettings is the input model used to update tenant general settings
 type UpdateTenantSettings struct {
-	Logo           []byte `json:"logo"`
-	Title          string `json:"title"`
-	Invitation     string `json:"invitation"`
-	WelcomeMessage string `json:"welcomeMessage"`
-	CNAME          string `json:"cname" format:"lower"`
+	Logo           *UpdateTenantSettingsLogo `json:"logo"`
+	Title          string                    `json:"title"`
+	Invitation     string                    `json:"invitation"`
+	WelcomeMessage string                    `json:"welcomeMessage"`
+	CNAME          string                    `json:"cname" format:"lower"`
+}
+
+//UpdateTenantSettingsLogo is the input model used to update logo
+type UpdateTenantSettingsLogo struct {
+	Upload *UpdateTenantSettingsLogoUpload `json:"upload"`
+	Ignore bool                            `json:"ignore"`
+	Remove bool                            `json:"remove"`
+}
+
+//UpdateTenantSettingsLogoUpload is the input model used to uploade a new logo
+type UpdateTenantSettingsLogoUpload struct {
+	ContentType string `json:"contentType"`
+	Content     []byte `json:"content"`
 }
 
 //UpdateTenantPrivacy is the input model used to update tenant privacy settings

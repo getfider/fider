@@ -47,7 +47,6 @@ body, h1, h2, h3, h4, h5, .ui, input {
   height: 50px;
   border-radius: 0px;
   border: none;
-  border-top: 2px solid $main-color;
   
   .unread-dot {
     width: 10px;
@@ -64,8 +63,13 @@ body, h1, h2, h3, h4, h5, .ui, input {
   }
 
   .title {
-    font-size: 18px;
-    margin: 0 0 0 10px;
+    img {
+      margin-right: 10px;
+    }
+    span {
+      font-size: 18px;
+      margin: 0 0 0 0;
+    }
   }
 
   div, a {

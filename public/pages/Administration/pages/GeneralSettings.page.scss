@@ -1,0 +1,17 @@
+@import '~@fider/assets/styles/variables.scss';
+
+input[type='file'] {
+  display: none;
+}
+
+.field.logo {
+  img {
+    background-color: $white;
+    padding: 10px;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+    border-radius: 3px;
+    max-width: 200px;
+    min-width: 200px;
+    margin-right: 10px;
+  }
+}

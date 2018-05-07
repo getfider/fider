@@ -126,5 +126,6 @@ func routes(r *web.Engine) *web.Engine {
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 	}
+
 	return r
 }

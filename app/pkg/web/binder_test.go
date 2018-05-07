@@ -76,6 +76,31 @@ func TestDefaultBinder_Base64ToBytes(t *testing.T) {
 	Expect(u.Resume).Equals(resume)
 }
 
+func TestDefaultBinder_NestedJson(t *testing.T) {
+	RegisterT(t)
+
+	resume, _ := ioutil.ReadFile(env.Path("./README.md"))
+	resumeBase64 := base64.StdEncoding.EncodeToString(resume)
+
+	type user struct {
+		Name   string `json:"name"`
+		Resume struct {
+			FileName string `json:"fileName"`
+			File     []byte `json:"file"`
+		}
+	}
+
+	params := make(web.StringMap, 0)
+	body := fmt.Sprintf(`{ "name": "Jon Snow", "resume": { "fileName": "README.md", "file": "%s" } }`, resumeBase64)
+	ctx := newBodyContext("POST", params, body, "application/json")
+	u := new(user)
+	err := binder.Bind(u, ctx)
+	Expect(err).IsNil()
+	Expect(u.Name).Equals("Jon Snow")
+	Expect(u.Resume.FileName).Equals("README.md")
+	Expect(u.Resume.File).Equals(resume)
+}
+
 func TestDefaultBinder_Array_TrimSpaces(t *testing.T) {
 	RegisterT(t)
 

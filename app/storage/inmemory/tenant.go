@@ -84,16 +84,16 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	for _, tenant := range s.tenants {
 		if tenant.ID == s.current.ID {
 
-			if len(settings.Logo) > 0 {
+			if settings.Logo.Upload != nil && len(settings.Logo.Upload.Content) > 0 {
 				s.lastLogoID = s.lastLogoID + 1
 				if s.tenantLogos == nil {
 					s.tenantLogos = make(map[int]*models.Upload, 0)
 				}
 				tenant.LogoID = s.lastLogoID
 				s.tenantLogos[s.lastLogoID] = &models.Upload{
-					Content:     settings.Logo,
-					Size:        len(settings.Logo),
-					ContentType: http.DetectContentType(settings.Logo),
+					Content:     settings.Logo.Upload.Content,
+					Size:        len(settings.Logo.Upload.Content),
+					ContentType: http.DetectContentType(settings.Logo.Upload.Content),
 				}
 			}
 

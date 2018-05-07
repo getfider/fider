@@ -21,20 +21,23 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
   return await http.post<CreateTenantResponse>("/api/tenants", request);
 };
 
-export const updateTenantSettings = async (
-  logo: string,
-  title: string,
-  invitation: string,
-  welcomeMessage: string,
-  cname: string
-): Promise<Result> => {
-  return await http.post("/api/admin/settings/general", {
-    logo,
-    title,
-    invitation,
-    welcomeMessage,
-    cname
-  });
+export interface UpdateTenantSettingsRequest {
+  logo: {
+    upload?: {
+      content?: string;
+      contentType?: string;
+    };
+    ignore: boolean;
+    remove: boolean;
+  };
+  title: string;
+  invitation: string;
+  welcomeMessage: string;
+  cname: string;
+}
+
+export const updateTenantSettings = async (request: UpdateTenantSettingsRequest): Promise<Result> => {
+  return await http.post("/api/admin/settings/general", request);
 };
 
 export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {

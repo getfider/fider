@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"database/sql"
 	"net/http"
 	"strings"
 	"time"
@@ -149,21 +150,32 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 		return errors.Wrap(err, "failed update tenant settings")
 	}
 
-	if len(settings.Logo) > 0 {
-		var newLogoID int
-		err := s.trx.Get(&newLogoID, `
-			INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
-			VALUES ($1, $2, $3, $4, $5) RETURNING id
-			`, s.current.ID, len(settings.Logo), http.DetectContentType(settings.Logo), settings.Logo, time.Now(),
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed to upload new tenant logo")
+	if !settings.Logo.Ignore {
+		var newLogoID sql.NullInt64
+
+		if !settings.Logo.Remove && len(settings.Logo.Upload.Content) > 0 {
+			err := s.trx.Get(&newLogoID, `
+				INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
+				VALUES ($1, $2, $3, $4, $5) RETURNING id
+				`, s.current.ID, len(settings.Logo.Upload.Content), http.DetectContentType(settings.Logo.Upload.Content), settings.Logo.Upload.Content, time.Now(),
+			)
+			if err != nil {
+				return errors.Wrap(err, "failed to upload new tenant logo")
+			}
 		}
 
 		query := "UPDATE tenants SET logo_id = $1 WHERE id = $2"
 		_, err = s.trx.Execute(query, newLogoID, s.current.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant logo")
+		}
+
+		if s.current.LogoID > 0 {
+			query := "DELETE FROM uploads WHERE id = $1 AND tenant_id = $2"
+			_, err = s.trx.Execute(query, s.current.LogoID, s.current.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed delete old tenant logo")
+			}
 		}
 	}
 

@@ -41,7 +41,7 @@ const pathRegex = [
   route("/admin/export", ExportPage),
   route("/admin/invitations", InvitationsPage),
   route("/admin", GeneralSettingsPage),
-  route("/signin", SignInPage),
+  route("/signin", SignInPage, false),
   route("/signup", SignUpPage, false),
   route("/signin/verify", CompleteSignInProfilePage),
   route("/invite/verify", CompleteSignInProfilePage),
