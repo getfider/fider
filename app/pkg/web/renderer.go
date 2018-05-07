@@ -90,8 +90,10 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		m["__logo"] = fmt.Sprintf("/logo/%d", ctx.Tenant().LogoID)
+		m["__favicon"] = m["__logo"]
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
+		m["__favicon"] = "/favicon.ico"
 	}
 
 	m["system"] = r.settings
