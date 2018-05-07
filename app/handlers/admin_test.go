@@ -19,7 +19,7 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		ExecutePost(
 			handlers.UpdateSettings(),
-			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
+			`{ "logo": { "ignore": true}, "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
 		)
 
 	tenant, _ := services.Tenants.GetByDomain("demo")

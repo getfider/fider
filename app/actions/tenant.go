@@ -92,7 +92,7 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Logo.Upload != nil && len(input.Model.Logo.Upload.Content) > 0 {
+	if input.Model.Logo != nil && input.Model.Logo.Upload != nil && len(input.Model.Logo.Upload.Content) > 0 {
 		logo, err := img.Parse(input.Model.Logo.Upload.Content)
 		if err != nil {
 			if err == img.ErrNotSupported {
