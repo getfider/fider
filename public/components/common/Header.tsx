@@ -3,7 +3,7 @@ import "./Header.scss";
 import * as React from "react";
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { SignInModal, SignInControl, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
-import { page, actions } from "@fider/services";
+import { page, actions, classSet } from "@fider/services";
 
 interface HeaderProps {
   user?: CurrentUser;
@@ -35,11 +35,11 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     }
   }
 
-  private showModal() {
+  private showModal = () => {
     if (!this.props.user) {
       this.setState({ showSignIn: true });
     }
-  }
+  };
 
   public render() {
     const items = this.props.user && (
@@ -75,6 +75,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     );
 
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
+    const profileMenuClassName = classSet({
+      "ui right simple dropdown item signin": true,
+      subtitle: !this.props.user
+    });
 
     return (
       <div id="c-header">
@@ -87,10 +91,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
               <span>{this.props.tenant.name}</span>
             </a>
             {showRightMenu && (
-              <div
-                onClick={() => this.showModal()}
-                className={`ui right simple dropdown item signin ${!this.props.user && "subtitle"}`}
-              >
+              <div onClick={this.showModal} className={profileMenuClassName}>
                 {this.props.user && <Gravatar user={this.props.user} />}
                 {this.state.unreadNotifications > 0 && <div className="unread-dot" />}
                 {!this.props.user && "Sign in"} {this.props.user && <i className="dropdown icon" />}
