@@ -53,7 +53,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     const modal = (
       <Modal.Window isOpen={this.state.showModal} center={false} size="large">
         <Modal.Content>
-          <div className="ui form fdr-response-form">
+          <div className="ui form c-response-form">
             <DisplayError fields={["status"]} error={this.state.error} />
             <div className="two fields">
               <div className="field">

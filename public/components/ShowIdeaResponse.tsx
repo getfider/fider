@@ -36,7 +36,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
 
   if (props.response && status.show) {
     return (
-      <div className="fdr-response item ui segment">
+      <div className="c-response item ui segment">
         <span className={`ui mini label ${status.color}`}>{status.title}</span>
         <Gravatar user={props.response.user} /> <UserName user={props.response.user} />
         <span className="info">

@@ -18,16 +18,16 @@ export class ShowIdeaPage extends Page {
 
   @findBy(".idea-header .header") public Title!: WebComponent;
   @findBy(".description") public Description!: WebComponent;
-  @findBy(".fdr-response .ui.label") public Status!: WebComponent;
-  @findBy(".fdr-response .content") public ResponseText!: WebComponent;
+  @findBy(".c-response .ui.label") public Status!: WebComponent;
+  @findBy(".c-response .content") public ResponseText!: WebComponent;
   @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
   @findBy(".comment-input textarea") public CommentInput!: TextInput;
   @findBy(".comment-input button") public SubmitCommentButton!: Button;
   @findMultipleBy(".ui.comments > .comment") public CommentList!: CommentList;
   @findBy(".action-col button.respond") public RespondButton!: Button;
-  @findBy(".c-modal__window .fdr-response-form") public ResponseModal!: WebComponent;
-  @findBy(".c-modal__window .fdr-response-form select") private ResponseModalStatus!: DropDownList;
-  @findBy(".c-modal__window .fdr-response-form textarea") private ResponseModalText!: TextInput;
+  @findBy(".c-modal__window .c-response-form") public ResponseModal!: WebComponent;
+  @findBy(".c-modal__window .c-response-form select") private ResponseModalStatus!: DropDownList;
+  @findBy(".c-modal__window .c-response-form textarea") private ResponseModalText!: TextInput;
   @findBy(".c-modal__window .c-modal__footer button.green") private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {

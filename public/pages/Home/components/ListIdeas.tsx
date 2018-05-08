@@ -58,7 +58,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
 
     const ideasToList = this.props.ideas.slice(0, this.state.showCount);
     return (
-      <div className="ui divided unstackable items fdr-idea-list">
+      <div className="ui divided unstackable items c-idea-list">
         {ideasToList.map(idea => (
           <ListIdeaItem
             key={idea.id}

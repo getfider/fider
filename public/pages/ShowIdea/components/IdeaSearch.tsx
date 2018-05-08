@@ -68,7 +68,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
 
     return (
       <Dropdown
-        className="fdr-idea-search"
+        className="c-idea-search"
         fluid={true}
         selectOnBlur={false}
         selection={true}

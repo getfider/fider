@@ -6,8 +6,13 @@
     margin-bottom: 20px;
   }
 
-  .fdr-idea-list {
+  .c-idea-list {
     > .item {
+      border-top: 0.1px solid $gray-lighter;
+      &:first-child {
+        border-top: none;
+      }
+
       a.title {
         max-width: 85%;
         color: #000;
