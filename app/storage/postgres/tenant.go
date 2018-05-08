@@ -150,6 +150,11 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 		return errors.Wrap(err, "failed update tenant settings")
 	}
 
+	s.current.Name = settings.Title
+	s.current.Invitation = settings.Invitation
+	s.current.CNAME = settings.CNAME
+	s.current.WelcomeMessage = settings.WelcomeMessage
+
 	if settings.Logo != nil {
 		var newLogoID sql.NullInt64
 
@@ -177,6 +182,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 				return errors.Wrap(err, "failed delete old tenant logo")
 			}
 		}
+		s.current.LogoID = int(newLogoID.Int64)
 	}
 
 	return nil

@@ -65,6 +65,9 @@ body, h1, h2, h3, h4, h5, .ui, input {
   .title {
     img {
       margin-right: 10px;
+      width: auto;
+      height: auto;
+      max-height: 36px;
     }
     span {
       font-size: 18px;

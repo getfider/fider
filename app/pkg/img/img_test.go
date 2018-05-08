@@ -15,30 +15,11 @@ var testCases = []struct {
 	height    int
 	supported bool
 }{
-	{
-		"/app/pkg/img/testdata/logo1.png",
-		300,
-		300,
-		true,
-	},
-	{
-		"/app/pkg/img/testdata/logo2.jpg",
-		2624,
-		2184,
-		true,
-	},
-	{
-		"/app/pkg/img/testdata/logo3.gif",
-		1165,
-		822,
-		true,
-	},
-	{
-		"/favicon.ico",
-		0,
-		0,
-		false,
-	},
+	{"/app/pkg/img/testdata/logo1.png", 300, 300, true},
+	{"/app/pkg/img/testdata/logo2.jpg", 2624, 2184, true},
+	{"/app/pkg/img/testdata/logo3.gif", 1165, 822, true},
+	{"/app/pkg/img/testdata/logo4.png", 150, 150, true},
+	{"/favicon.ico", 0, 0, false},
 }
 
 func TestImageParse(t *testing.T) {

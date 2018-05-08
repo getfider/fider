@@ -23,13 +23,6 @@ func Page() web.HandlerFunc {
 	}
 }
 
-//NotFound returns a not found page
-func NotFound() web.HandlerFunc {
-	return func(c web.Context) error {
-		return c.NotFound()
-	}
-}
-
 func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.EmailVerification, error) {
 	key := c.QueryParam("k")
 

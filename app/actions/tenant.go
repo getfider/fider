@@ -100,14 +100,14 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 			} else {
 				return validate.Error(err)
 			}
-		}
+		} else {
+			if logo.Width > 200 || logo.Height > 200 {
+				result.AddFieldFailure("logo", "The image must be smaller than 200x200 pixels in dimension.")
+			}
 
-		if logo.Width < 100 || logo.Width > 200 || logo.Height < 100 || logo.Height > 200 {
-			result.AddFieldFailure("logo", "The image must be between 100x100 and 200x200 pixels in dimension.")
-		}
-
-		if logo.Size > 102400 {
-			result.AddFieldFailure("logo", "The image size must have smaller than 100KB.")
+			if logo.Size > 51200 {
+				result.AddFieldFailure("logo", "The image size must be smaller than 50KB.")
+			}
 		}
 	}
 

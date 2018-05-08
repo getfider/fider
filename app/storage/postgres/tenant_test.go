@@ -178,14 +178,70 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	err := tenants.UpdateSettings(settings)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("demo")
-	Expect(err).IsNil()
-
 	upload, err := tenants.GetLogo(tenant.LogoID)
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
 	Expect(upload.Size).Equals(len(logo))
 	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+
+	//Remove Logo
+	settings.Logo.Upload = nil
+	settings.Logo.Remove = true
+	err = tenants.UpdateSettings(settings)
+	Expect(err).IsNil()
+
+	tenant, err = tenants.GetByDomain("demo")
+	Expect(err).IsNil()
+	Expect(tenant.LogoID).Equals(0)
+}
+
+func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+
+	settings := &models.UpdateTenantSettings{
+		Logo: &models.UpdateTenantSettingsLogo{
+			Upload: &models.UpdateTenantSettingsLogoUpload{
+				Content: logo,
+			},
+		},
+		Title:          "New Demonstration",
+		Invitation:     "Leave us your suggestion",
+		WelcomeMessage: "Welcome!",
+		CNAME:          "demo.company.com",
+	}
+	err := tenants.UpdateSettings(settings)
+	Expect(err).IsNil()
+
+	firstLogoID := tenant.LogoID
+	upload, err := tenants.GetLogo(firstLogoID)
+	Expect(err).IsNil()
+	Expect(upload.Content).Equals(logo)
+	Expect(upload.Size).Equals(len(logo))
+	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+
+	//Replace logo with a new one
+	newLogo, _ := ioutil.ReadFile(env.Path("./README.md"))
+	settings.Logo.Upload.Content = newLogo
+	err = tenants.UpdateSettings(settings)
+	Expect(err).IsNil()
+
+	Expect(tenant.LogoID).NotEquals(firstLogoID)
+
+	upload, err = tenants.GetLogo(tenant.LogoID)
+	Expect(err).IsNil()
+	Expect(upload.Content).Equals(newLogo)
+	Expect(upload.Size).Equals(len(newLogo))
+	Expect(upload.ContentType).Equals("text/html; charset=utf-8")
+
+	upload, err = tenants.GetLogo(firstLogoID)
+	Expect(err).Equals(app.ErrNotFound)
+	Expect(upload).IsNil()
 }
 
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {

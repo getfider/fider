@@ -178,9 +178,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
               </Button>
             )}
           </div>
-          <p className="info">
-            We accept JPG, GIF and PNG images, smaller than 100KB and between 100x100 and 200x200 pixels in dimension.
-          </p>
+          <p className="info">We accept JPG, GIF and PNG images, smaller than 50KB and 200x200 pixels in dimension.</p>
         </div>
 
         {!page.isSingleHostMode() && [
