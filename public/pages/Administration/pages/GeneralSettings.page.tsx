@@ -1,8 +1,10 @@
+import "./GeneralSettings.page.scss";
+
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
-import { actions, page, Failure } from "@fider/services";
+import { Button, ButtonClickEvent, Textarea, DisplayError, Logo } from "@fider/components/common";
+import { actions, page, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface GeneralSettingsPageProps {
@@ -13,14 +15,23 @@ interface GeneralSettingsPageProps {
 }
 
 interface GeneralSettingsPageState {
+  logo?: {
+    upload?: {
+      content?: string;
+      contentType?: string;
+    };
+    remove: boolean;
+  };
   title: string;
-  welcomeMessage: string;
   invitation: string;
+  welcomeMessage: string;
   cname: string;
   error?: Failure;
 }
 
 export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
+  private fileSelector?: HTMLInputElement | null;
+
   public id = "p-admin-general";
   public name = "general";
   public icon = "settings";
@@ -41,12 +52,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   }
 
   private async save(e: ButtonClickEvent) {
-    const result = await actions.updateTenantSettings(
-      this.state.title,
-      this.state.invitation,
-      this.state.welcomeMessage,
-      this.state.cname
-    );
+    const result = await actions.updateTenantSettings(this.state);
     if (result.ok) {
       e.preventEnable();
       location.href = `/`;
@@ -54,6 +60,39 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
       this.setState({ error: result.error });
     }
   }
+
+  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const base64 = await fileToBase64(file);
+      this.setState({
+        logo: {
+          upload: {
+            content: base64,
+            contentType: file.type,
+            action: "upload"
+          },
+          ignore: false,
+          remove: false
+        }
+      });
+    }
+  };
+
+  public removeFile = async (e: ButtonClickEvent) => {
+    this.setState({
+      logo: {
+        ignore: false,
+        remove: true
+      }
+    });
+  };
+
+  public selectFile = async (e: ButtonClickEvent) => {
+    if (this.fileSelector) {
+      this.fileSelector.click();
+    }
+  };
 
   public dnsInstructions(): JSX.Element {
     const isApex = this.state.cname.split(".").length === 2;
@@ -68,6 +107,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   }
 
   public content() {
+    const isRemoving = this.state.logo ? this.state.logo.remove : false;
+    const isUploading = this.state.logo ? !!this.state.logo.upload : false;
+    const hasFile = (this.props.tenant.logoId > 0 && !isRemoving) || isUploading;
+    const previewUrl =
+      isUploading && this.state.logo && this.state.logo.upload
+        ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
+        : undefined;
+
     return (
       <div className="ui form">
         <DisplayError fields={["title"]} error={this.state.error} />
@@ -81,10 +128,8 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             value={this.state.title}
             onChange={e => this.setState({ title: e.currentTarget.value })}
           />
-          <div className="info">
-            <p>Use this field to change the title that is shown on the top of your page.</p>
-          </div>
         </div>
+
         <DisplayError fields={["welcomeMessage"]} error={this.state.error} />
         <div className="field">
           <label htmlFor="welcome-message">Welcome Message</label>
@@ -94,20 +139,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             onChange={e => this.setState({ welcomeMessage: e.currentTarget.value })}
             value={this.state.welcomeMessage}
           />
-          <div className="info">
-            <p>Use this space to change message of your initial page.</p>
-            <p>
-              Common use case for this area is a brief description of what is your company/product, why you created this
-              space and how the visitors can collaborate.
-            </p>
-            <p>
-              This field is powered by CommonMark. You can style and add links to your message. Learn more at{" "}
-              <a target="_blank" href="http://commonmark.org/help/">
-                {"http://commonmark.org/help/"}
-              </a>.
-            </p>
-          </div>
+          <p className="info">
+            You can style and add links to your message, learn more at{" "}
+            <a target="_blank" href="http://commonmark.org/help/">
+              {"http://commonmark.org/help/"}
+            </a>.
+          </p>
         </div>
+
         <DisplayError fields={["invitation"]} error={this.state.error} />
         <div className="field">
           <label htmlFor="invitation">Invitation</label>
@@ -119,10 +158,29 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             value={this.state.invitation}
             onChange={e => this.setState({ invitation: e.currentTarget.value })}
           />
-          <div className="info">
-            <p>This is your customized message to invite visitors to share their ideas and suggestions.</p>
-          </div>
+          <p className="info">
+            This is your customized message to invite visitors to share their ideas and suggestions.
+          </p>
         </div>
+
+        <DisplayError fields={["logo"]} error={this.state.error} />
+        <div className="field logo">
+          <label htmlFor="logo">Logo</label>
+          {hasFile && <Logo tenant={this.props.tenant} url={previewUrl} />}
+          <input ref={e => (this.fileSelector = e)} type="file" name="logo" onChange={this.fileChanged} />
+          <div>
+            <Button size="mini" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
+              {hasFile ? "Change" : "Upload"}
+            </Button>
+            {hasFile && (
+              <Button onClick={this.removeFile} size="mini" disabled={!this.props.user.isAdministrator}>
+                Remove
+              </Button>
+            )}
+          </div>
+          <p className="info">We accept JPG, GIF and PNG images, smaller than 50KB and 200x200 pixels in dimension.</p>
+        </div>
+
         {!page.isSingleHostMode() && [
           <DisplayError key={1} fields={["cname"]} error={this.state.error} />,
           <div key={2} className="field">

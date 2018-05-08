@@ -11,6 +11,7 @@
 }
 
 [type=reset], [type=submit], button, html [type=button] {
+  appearance: button;
   -webkit-appearance: button;
 }
 
@@ -62,8 +63,16 @@ body, h1, h2, h3, h4, h5, .ui, input {
   }
 
   .title {
-    font-size: 18px;
-    margin: 0 0 0 0;
+    img {
+      margin-right: 10px;
+      width: auto;
+      height: auto;
+      max-height: 36px;
+    }
+    span {
+      font-size: 18px;
+      margin: 0 0 0 0;
+    }
   }
 
   div, a {

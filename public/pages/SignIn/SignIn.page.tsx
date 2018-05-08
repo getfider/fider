@@ -1,7 +1,7 @@
 import "./SignIn.page.scss";
 
 import * as React from "react";
-import { SignInControl } from "@fider/components/common";
+import { SignInControl, Logo } from "@fider/components/common";
 import { page, notify } from "@fider/services";
 import { Tenant } from "@fider/models";
 
@@ -29,6 +29,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
     return (
       <div id="p-signin" className="page ui container">
         <div className="message">
+          <Logo tenant={this.props.tenant} />
           <p className="welcome">
             <strong>{this.props.tenant.name}</strong> is a private space and requires an invitation to join it.
           </p>

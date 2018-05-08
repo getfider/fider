@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && React.createElement(Header, w.props)}
         {React.createElement(config.component, w.props)}
-        {React.createElement(Footer, w.props)}
+        {config.showHeader && React.createElement(Footer, w.props)}
       </>,
       root
     );

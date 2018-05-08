@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
     <link rel="stylesheet" href="/assets/css/{{ .__StyleBundle }}" />
     <title>{{ template "title" .}}</title>
     <meta property="og:title" content="{{template "title" .}}" />
     <meta property="og:description" content="We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ .baseURL }}" />
-    <meta property="og:image" content="https://getfider.com/images/logo-small.png">
+    <meta property="og:image" content="{{ .__logo }}">
 </head>
 <body>
   <noscript class="ui container">

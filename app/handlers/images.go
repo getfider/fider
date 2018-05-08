@@ -56,3 +56,20 @@ func Avatar() web.HandlerFunc {
 		return c.Blob(http.StatusOK, "image/png", buf.Bytes())
 	}
 }
+
+//Logo returns current tenant logo
+func Logo() web.HandlerFunc {
+	return func(c web.Context) error {
+		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		logo, err := c.Services().Tenants.GetLogo(id)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Blob(http.StatusOK, logo.ContentType, logo.Content)
+	}
+}

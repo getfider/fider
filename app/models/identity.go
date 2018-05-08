@@ -18,6 +18,7 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
+	LogoID         int    `json:"logoId"`
 }
 
 var (
@@ -26,6 +27,13 @@ var (
 	//TenantInactive is used for signup via email that requires user confirmation
 	TenantInactive = 2
 )
+
+//Upload represents a file that has been uploaded to Fider
+type Upload struct {
+	ContentType string `db:"content_type"`
+	Size        int    `db:"size"`
+	Content     []byte `db:"file"`
+}
 
 //User represents an user inside our application
 type User struct {
@@ -139,10 +147,23 @@ func (e *CreateTenant) GetKind() EmailVerificationKind {
 
 //UpdateTenantSettings is the input model used to update tenant general settings
 type UpdateTenantSettings struct {
-	Title          string `json:"title"`
-	Invitation     string `json:"invitation"`
-	WelcomeMessage string `json:"welcomeMessage"`
-	CNAME          string `json:"cname" format:"lower"`
+	Logo           *UpdateTenantSettingsLogo `json:"logo"`
+	Title          string                    `json:"title"`
+	Invitation     string                    `json:"invitation"`
+	WelcomeMessage string                    `json:"welcomeMessage"`
+	CNAME          string                    `json:"cname" format:"lower"`
+}
+
+//UpdateTenantSettingsLogo is the input model used to update logo
+type UpdateTenantSettingsLogo struct {
+	Upload *UpdateTenantSettingsLogoUpload `json:"upload"`
+	Remove bool                            `json:"remove"`
+}
+
+//UpdateTenantSettingsLogoUpload is the input model used to uploade a new logo
+type UpdateTenantSettingsLogoUpload struct {
+	ContentType string `json:"contentType"`
+	Content     []byte `json:"content"`
 }
 
 //UpdateTenantPrivacy is the input model used to update tenant privacy settings

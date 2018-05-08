@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"net/http"
 	"strings"
 	"time"
 
@@ -12,10 +13,12 @@ import (
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
 	lastID        int
+	lastLogoID    int
 	tenants       []*models.Tenant
 	current       *models.Tenant
 	user          *models.User
 	verifications []*models.EmailVerification
+	tenantLogos   map[int]*models.Upload
 }
 
 // SetCurrentTenant tenant
@@ -80,6 +83,20 @@ func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
 		if tenant.ID == s.current.ID {
+
+			if settings.Logo != nil && settings.Logo.Upload != nil && len(settings.Logo.Upload.Content) > 0 {
+				s.lastLogoID = s.lastLogoID + 1
+				if s.tenantLogos == nil {
+					s.tenantLogos = make(map[int]*models.Upload, 0)
+				}
+				tenant.LogoID = s.lastLogoID
+				s.tenantLogos[s.lastLogoID] = &models.Upload{
+					Content:     settings.Logo.Upload.Content,
+					Size:        len(settings.Logo.Upload.Content),
+					ContentType: http.DetectContentType(settings.Logo.Upload.Content),
+				}
+			}
+
 			tenant.Invitation = settings.Invitation
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title
@@ -150,6 +167,18 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 		}
 	}
 	return nil
+}
+
+// GetLogo returns tenant logo by id
+func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
+	if s.tenantLogos != nil {
+		logo, ok := s.tenantLogos[id]
+		if !ok {
+			return nil, app.ErrNotFound
+		}
+		return logo, nil
+	}
+	return nil, app.ErrNotFound
 }
 
 func extractSubdomain(hostname string) string {

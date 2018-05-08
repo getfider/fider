@@ -24,8 +24,8 @@ import (
 var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
-	cspStyle   = "style-src 'self' https://fonts.googleapis.com"
-	cspScript  = "script-src 'self' 'nonce-%s' https://cdn.polyfill.io https://www.google-analytics.com"
+	cspStyle   = "style-src 'self' 'nonce-%[1]s' https://fonts.googleapis.com"
+	cspScript  = "script-src 'self' 'nonce-%[1]s' https://cdn.polyfill.io https://www.google-analytics.com"
 	cspFont    = "font-src 'self' https://fonts.gstatic.com data:"
 	cspImage   = "img-src 'self' https: data:"
 	cspObject  = "object-src 'none'"

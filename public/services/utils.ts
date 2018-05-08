@@ -85,3 +85,27 @@ export const timeSince = (now: Date, date: Date): string => {
       template("years", years)) + " ago"
   );
 };
+
+export const fileToBase64 = async (file: File): Promise<string> => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener(
+      "load",
+      () => {
+        const parts = (reader.result as string).split("base64,");
+        resolve(parts[1]);
+      },
+      false
+    );
+
+    reader.addEventListener(
+      "error",
+      () => {
+        reject(reader.error);
+      },
+      false
+    );
+
+    reader.readAsDataURL(file);
+  });
+};

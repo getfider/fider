@@ -9,6 +9,10 @@
     text-align: center;
     margin: 0 auto;
     margin-bottom: 20px;
+    img {
+      max-height: 100px;
+      margin-bottom: 10px; 
+    }
     .welcome {
       font-size: $font-size-big;
     }
