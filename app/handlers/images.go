@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
@@ -67,10 +66,6 @@ func Logo() web.HandlerFunc {
 		}
 
 		logo, err := c.Services().Tenants.GetLogo(id)
-		if err == app.ErrNotFound {
-			return c.NotFound()
-		}
-
 		if err != nil {
 			return c.Failure(err)
 		}
