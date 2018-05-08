@@ -12,7 +12,7 @@ export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
     }
 
     return (
-      <div id="environment-info" className=" ui mini negative message no-border no-margin">
+      <div className="c-env-info">
         Env: {this.props.system.environment} | Compiler: {this.props.system.compiler} | Version:{" "}
         {this.props.system.version} | BuildTime: {this.props.system.buildTime}
       </div>

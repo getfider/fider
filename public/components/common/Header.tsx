@@ -77,10 +77,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
 
     return (
-      <div className="c-header">
+      <div id="c-header">
         <EnvironmentInfo system={this.props.system} />
         <SignInModal isOpen={this.state.showSignIn} />
-        <div id="menu" className="ui small borderless menu">
+        <div className="ui small borderless menu">
           <div className="ui container">
             <a href="/" className="header item title">
               <Logo tenant={this.props.tenant} />

@@ -1,7 +1,64 @@
-.c-header {
+@import '~@fider/assets/styles/variables.scss';
+
+#c-header {
   .ui.vertical.menu .item > .label {
     float: none;
     position: absolute;
     right: 5px;
+  }
+
+  .c-env-info {
+    padding: 2px;
+    border-radius: 0px;
+    font-size: 10px;
+    color: $red;
+    border-bottom: 1px solid $red;
+    background-color: rgba($red, 0.05);
+  }
+
+  .ui.borderless.menu {
+    margin-top: 0px;
+    background-color: $menu-color;
+    height: 50px;
+    border-radius: 0px;
+    border: none;
+
+    &:last-child {
+      margin-bottom: 30px;
+    }
+    
+    .unread-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      margin-left: -10px;
+      margin-top: -25px;
+      background-color: #db2828;
+      border: 1px solid #fff !important;
+    }
+  
+    .name.header {
+      min-width: 150px;
+    }
+  
+    .title {
+      img {
+        margin-right: 10px;
+        width: auto;
+        height: auto;
+        max-height: 36px;
+      }
+      span {
+        font-size: 18px;
+        margin: 0 0 0 0;
+      }
+    }
+  
+    div, a {
+      color: textColorFor($menu-color);
+      &:hover {
+        background: $menu-color;
+      }
+    }
   }
 }

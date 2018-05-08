@@ -35,54 +35,6 @@ body, h1, h2, h3, h4, h5, .ui, input {
   -webkit-font-smoothing: antialiased;
 }
 
-#environment-info {
-  padding: 2px;
-  border-radius: 0px;
-}
-
-#menu {
-  margin-top: 0px;
-  background-color: $menu-color;
-  margin-bottom: 30px;
-  height: 50px;
-  border-radius: 0px;
-  border: none;
-  
-  .unread-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    margin-left: -10px;
-    margin-top: -25px;
-    background-color: #db2828;
-    border: 1px solid #fff !important;
-  }
-
-  .name.header {
-    min-width: 150px;
-  }
-
-  .title {
-    img {
-      margin-right: 10px;
-      width: auto;
-      height: auto;
-      max-height: 36px;
-    }
-    span {
-      font-size: 18px;
-      margin: 0 0 0 0;
-    }
-  }
-
-  div, a {
-    color: textColorFor($menu-color);
-    &:hover {
-      background: $menu-color;
-    }
-  }
-}
-
 .info {
   font-size: 80%;
   color: rgba(0,0,0,.6);
@@ -96,7 +48,7 @@ body, h1, h2, h3, h4, h5, .ui, input {
   float: right;
 }
 
-#menu div.subtitle,
+.ui.menu .subtitle,
 .subtitle {
   font-size: 11px;
   font-weight: 600;
@@ -210,8 +162,8 @@ code {
   }
 }
 
-#footer {
-  #powered-by {
+#c-footer {
+  div {
     text-align: center;
     font-size: 11px;
     border-top: 1px solid $gray-lighter;

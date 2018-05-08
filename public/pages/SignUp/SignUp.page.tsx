@@ -118,8 +118,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
         {this.user ? (
           <p>
-            Hello, &nbsp;
-            <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
+            Hello, <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
           </p>
         ) : (
           <>
