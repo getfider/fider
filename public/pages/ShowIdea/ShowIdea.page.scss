@@ -12,6 +12,9 @@
       font-weight: 400;
       margin: 0px;
       font-size: $font-size-xlarge;
+      @include media("phone") {
+        font-size: $font-size-big;
+      }
     }
     .c-avatar {
       width: 24px;

@@ -83,7 +83,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                     <DisplayError key={0} fields={["title"]} pointing="above" error={this.state.error} />
                   ]
                 ) : (
-                  <h1 className="ui header">{this.props.idea.title}</h1>
+                  <h1>{this.props.idea.title}</h1>
                 )}
 
                 <span className="info">

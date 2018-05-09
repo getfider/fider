@@ -13,7 +13,7 @@ export const UserName = (props: UserNameProps) => {
 
   const className = classSet({
     "c-username": true,
-    staff: isCollaborator
+    "gc-staff": isCollaborator
   });
 
   return <span className={className}>{props.user.name}</span>;
