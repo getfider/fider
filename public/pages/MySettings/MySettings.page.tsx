@@ -120,7 +120,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                         value={this.state.newEmail}
                         onChange={e => this.setState({ newEmail: e.currentTarget.value })}
                       />
-                      <Button color="green" size="mini" onClick={async () => await this.submitNewEmail()}>
+                      <Button color="positive" size="mini" onClick={async () => await this.submitNewEmail()}>
                         Confirm
                       </Button>
                       <Button
@@ -169,7 +169,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               />
 
               <div className="field">
-                <Button color="green" onClick={async () => await this.confirm()}>
+                <Button color="positive" onClick={async () => await this.confirm()}>
                   Confirm
                 </Button>
               </div>

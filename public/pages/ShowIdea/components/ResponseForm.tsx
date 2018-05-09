@@ -100,7 +100,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="green" onClick={() => this.submit()}>
+          <Button color="positive" onClick={() => this.submit()}>
             Submit
           </Button>
           <Button onClick={async () => this.setState({ showModal: false })}>Cancel</Button>

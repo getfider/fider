@@ -123,7 +123,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               this.state.editMode ? (
                 <div key={1} className="ui list">
                   <div className="item">
-                    <Button color="green" fluid={true} onClick={async () => this.saveChanges()}>
+                    <Button color="positive" fluid={true} onClick={async () => this.saveChanges()}>
                       <i className="save icon" /> Save
                     </Button>
                   </div>

@@ -109,7 +109,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
                   placeholder="yourname@example.com"
                   className="small"
                 />
-                <Button color="green" disabled={this.state.email === ""} onClick={() => this.signIn()}>
+                <Button color="positive" disabled={this.state.email === ""} onClick={() => this.signIn()}>
                   Sign in
                 </Button>
               </div>

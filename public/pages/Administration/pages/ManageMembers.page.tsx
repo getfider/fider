@@ -71,7 +71,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
           {removable && (
             <Button
               size="tiny"
-              color="red"
+              color="danger"
               onClick={() => this.changeRole(user, UserRole.Visitor)}
               className="showover"
             >
@@ -79,7 +79,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
             </Button>
           )}
           {addable && (
-            <Button size="tiny" color="green" onClick={() => this.changeRole(user, role)} className="showover">
+            <Button size="tiny" color="positive" onClick={() => this.changeRole(user, role)} className="showover">
               <i className="add icon" />Add
             </Button>
           )}

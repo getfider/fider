@@ -87,7 +87,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
             placeholder="Describe your idea"
           />
         </div>
-        <Button color="green" onClick={e => this.submit(e)}>
+        <Button color="positive" onClick={e => this.submit(e)}>
           Submit
         </Button>
       </div>

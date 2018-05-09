@@ -188,7 +188,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
         <p>Make sure information provided above is correct before proceeding.</p>
 
-        <Button color="green" size="large" onClick={() => this.confirm()}>
+        <Button color="positive" size="large" onClick={() => this.confirm()}>
           Confirm
         </Button>
       </div>

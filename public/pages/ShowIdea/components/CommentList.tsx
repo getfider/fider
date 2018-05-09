@@ -117,7 +117,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
                       }
                     />
                   </div>
-                  <Button size="tiny" onClick={() => this.confirmEdit()} color="green">
+                  <Button size="tiny" onClick={() => this.confirmEdit()} color="positive">
                     Save
                   </Button>
                   <Button size="tiny" onClick={() => this.cancelEdit()}>

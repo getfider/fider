@@ -156,7 +156,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
 
         <div className="field">
           <p className="info">Whenever you're ready, click the following button to send out these invites.</p>
-          <Button onClick={this.sendInvites} color="green" disabled={this.state.numOfRecipients === 0}>
+          <Button onClick={this.sendInvites} color="positive" disabled={this.state.numOfRecipients === 0}>
             Send {this.state.numOfRecipients} {this.state.numOfRecipients === 1 ? "invite" : "invites"}
           </Button>
         </div>

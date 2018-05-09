@@ -98,7 +98,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
             <Button className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
               Cancel
             </Button>
-            <Button color="red" className="right floated" onClick={() => this.deleteTag(t)}>
+            <Button color="danger" className="right floated" onClick={() => this.deleteTag(t)}>
               Delete tag
             </Button>
           </div>
@@ -152,7 +152,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
         </div>
       ) : (
         <Button
-          color="green"
+          color="positive"
           onClick={async e =>
             this.setState({
               isAdding: true,
