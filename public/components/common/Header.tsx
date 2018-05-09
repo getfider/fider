@@ -84,9 +84,9 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
       <div id="c-header">
         <EnvironmentInfo system={this.props.system} />
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className="ui small borderless menu">
+        <div className="ui borderless menu">
           <div className="ui container">
-            <a href="/" className="header item title">
+            <a href="/" className="item title">
               <Logo tenant={this.props.tenant} />
               <span>{this.props.tenant.name}</span>
             </a>

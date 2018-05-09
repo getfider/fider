@@ -13,13 +13,9 @@
         border-top: none;
       }
 
-      a.title {
+      .title {
         max-width: 85%;
-        color: #000;
         font-size: 18px;
-        &:hover {
-          color: $main-color;
-        }
       }
 
       .content {
@@ -80,13 +76,12 @@
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
-    border-bottom: 1px dashed $main-color;
+    border-bottom: 1px  dashed $gray-darker;
+    background-color: transparent;
     font-size: 18px;
-    background-color: $bg-color;
     padding: 0px 0px 10px 0px;
     font-weight: 700;
     margin: 0px 0px 10px 0px;
     border-radius: 0;
   }
-
 }

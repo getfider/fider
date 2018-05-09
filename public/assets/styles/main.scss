@@ -1,4 +1,5 @@
 @import 'variables.scss';
+@import 'global.scss';
 @import 'form.scss';
 @import 'semantic.scss';
 
@@ -27,6 +28,11 @@ noscript {
 
 body {
   background-color: $bg-color;
+  color: $text-color;
+}
+
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 body, h1, h2, h3, h4, h5, .ui, input {
@@ -61,17 +67,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
   display: block;
   &.active {
     cursor: pointer;
-    &:hover {
-      color: $main-color;
-    }
     i {
       float: right;
     }
   }
-}
-
-code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 .markdown-body {
@@ -240,30 +239,6 @@ code {
   .ui.stackable.grid>.column:not(.row),
   .column {
     padding: 10px 5px !important;
-  }
-}
-
-
-.ui.main-color {
-  background-color: $main-color;
-  color: #fff;
-
-  &.not-animated:hover {
-    background-color: $main-color;
-    color: #fff;
-  }
-
-  &.inverted, &.not-animated.inverted:hover {
-    box-shadow: 0 0 0 2px  lighten( $main-color, 10% ) inset !important;
-    background-color: #fff;
-    color: lighten( $main-color, 10% );
-  }
-
-
-  &.animated:hover, &.animated.inverted:hover {
-    box-shadow: 0 0 0 2px darken( $main-color, 10% ) inset !important;
-    background-color: darken( $main-color, 10% );
-    color: #fff;
   }
 }
 

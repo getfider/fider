@@ -1,0 +1,17 @@
+@import 'variables.scss';
+
+.gc-text {
+  color: $text-color;
+}
+
+.gc-text-lighter {
+  color: $gray-darker;
+}
+
+.gc-primary {
+  color: $main-color;
+}
+
+.gc-primary-hover:hover {
+  color: $main-color;
+}
