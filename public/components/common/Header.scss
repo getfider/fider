@@ -22,6 +22,9 @@
     height: 50px;
     border-radius: 0px;
     border: none;
+    @include media("phone") {
+      height: 30px;
+    }
 
     &:last-child {
       margin-bottom: 30px;
@@ -47,10 +50,17 @@
         width: auto;
         height: auto;
         max-height: 36px;
+        @include media("phone") {
+          max-height: 26px;
+          margin-right: 5px;
+        }
       }
       span {
-        font-size: 18px;
+        font-size: $font-size-big;
         margin: 0 0 0 0;
+        @include media("phone") {
+          font-size: $font-size;
+        }
       }
     }
   
