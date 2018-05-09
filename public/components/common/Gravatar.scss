@@ -1,0 +1,12 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-avatar {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  padding: 1px;
+  &.staff {
+    border: 1px solid $admin-color;
+  }
+}

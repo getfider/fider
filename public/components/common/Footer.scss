@@ -1,0 +1,37 @@
+@import '~@fider/assets/styles/variables.scss';
+
+#c-footer {
+  div {
+    text-align: center;
+    font-size: 11px;
+    border-top: 1px solid $gray-lighter;
+    padding: 20px;
+    margin: 20px;
+
+    a {
+      color: rgba($text-color, 0.5);
+      display: inline-block;
+      span {
+        display: none;
+      }
+
+      &:hover {
+        span {
+          display: block;
+        }
+      }
+  
+      img {
+        width: 20px;
+        margin-top: 10px;
+        filter: grayscale(100%);
+      }
+  
+      &:hover {
+        img {
+          filter: grayscale(0%);
+        }
+      }
+    }
+  }
+}

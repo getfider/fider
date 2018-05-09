@@ -1,3 +1,5 @@
+import "./Footer.scss";
+
 import * as React from "react";
 const logo = require("@fider/assets/images/logo-small.png");
 
