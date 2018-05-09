@@ -50,9 +50,9 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
       supported: !status.closed && this.state.supported,
       disabled: status.closed,
       "no-touch": !device.isTouch(),
-      "gc-text": !this.state.supported,
-      "gc-primary": this.state.supported,
-      "gc-primary-hover": true
+      "gm-text": !this.state.supported,
+      "gm-primary": this.state.supported,
+      "gm-primary-hover": true
     });
 
     const vote = (
@@ -60,8 +60,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         <i
           className={classSet({
             "medium caret up icon": true,
-            "gc-text-lighter": !this.state.supported,
-            "gc-primary": this.state.supported
+            "gm-text-lighter": !this.state.supported,
+            "gm-primary": this.state.supported
           })}
         />
         {this.state.total}

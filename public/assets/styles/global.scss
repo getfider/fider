@@ -1,28 +1,28 @@
 @import 'variables.scss';
 
-.gc-text {
+.gm-text {
   color: $text-color;
 }
 
-.gc-text-lighter {
+.gm-text-lighter {
   color: $gray-darker;
 }
 
-.gc-primary {
+.gm-primary {
   color: $main-color;
 }
 
-.gc-primary-hover:hover {
+.gm-primary-hover:hover {
   color: $main-color;
 }
 
-.gc-staff {
+.gm-staff {
   font-weight: 700;
   color: $admin-color;
   border-color: $admin-color;
 }
 
-.gs-label {
+.gm-status-label {
   text-transform: uppercase;
   color: #fff;
   display: inline-block;
@@ -34,27 +34,27 @@
   font-size: $font-size-micro;
 }
 
-.gs-open {
+.gm-status-open {
   color: $text-color;
   background-color: #e8e8e8;
 }
 
-.gs-planned {
+.gm-status-planned {
   background-color: #6435c9;
 }
 
-.gs-started {
+.gsgm-status-started {
   background-color: #2185d0;
 }
 
-.gs-completed {
+.gm-status-completed {
   background-color: #21ba45;
 }
 
-.gs-declined {
+.gm-status-declined {
   background-color: #db2828
 }
 
-.gs-duplicate {
+.gm-status-duplicate {
   background-color: #fbbd08;
 }

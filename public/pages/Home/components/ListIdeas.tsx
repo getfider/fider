@@ -25,7 +25,7 @@ const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) =>
             {props.idea.totalComments} <i className="comments outline icon" />
           </div>
         )}
-        <a className="title gc-text gc-primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
+        <a className="title gm-text gm-primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
           {props.idea.title}
         </a>
         <MultiLineText className="description" text={props.idea.description} style="simple" />

@@ -85,7 +85,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
       return (
         <>
           <h3 className="ui dividing header">
-            <i className="lightbulb icon gc-primary" />
+            <i className="lightbulb icon gm-primary" />
             <div className="content">
               Similar ideas
               <div className="sub header">Consider voting on existing ideas before posting a new one.</div>
