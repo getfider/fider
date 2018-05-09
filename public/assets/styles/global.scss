@@ -15,3 +15,40 @@
 .gc-primary-hover:hover {
   color: $main-color;
 }
+
+.gs-label {
+  text-transform: uppercase;
+  color: #fff;
+  display: inline-block;
+  line-height: 1;
+  padding: 5px 4px;
+  font-weight: 700;
+  border: none;
+  border-radius: 3px;
+  font-size: $font-size-micro;
+}
+
+.gs-open {
+  color: $text-color;
+  background-color: #e8e8e8;
+}
+
+.gs-planned {
+  background-color: #6435c9;
+}
+
+.gs-started {
+  background-color: #2185d0;
+}
+
+.gs-completed {
+  background-color: #21ba45;
+}
+
+.gs-declined {
+  background-color: #db2828
+}
+
+.gs-duplicate {
+  background-color: #fbbd08;
+}

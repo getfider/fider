@@ -59,7 +59,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
               <i className="medium caret up icon" />
               {i.totalSupporters}
             </span>
-            <span className={`ui mini label ${status.color}`}>{status.title}</span>
+            <span className={`gs-label gs-${status.slug}`}>{status.title}</span>
             {i.title}
           </>
         )
