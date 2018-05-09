@@ -120,10 +120,11 @@ func TestUpdateTenantSettings_LargeLogo(t *testing.T) {
 		fileName string
 		valid    bool
 	}{
-		{"/app/pkg/img/testdata/logo1.png", false},
+		{"/app/pkg/img/testdata/logo1.png", true},
 		{"/app/pkg/img/testdata/logo2.jpg", false},
 		{"/app/pkg/img/testdata/logo3.gif", false},
-		{"/app/pkg/img/testdata/logo4.png", true},
+		{"/app/pkg/img/testdata/logo4.png", false},
+		{"/app/pkg/img/testdata/logo5.png", true},
 		{"/README.md", false},
 		{"/favicon.ico", false},
 	}
