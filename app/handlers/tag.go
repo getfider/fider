@@ -14,8 +14,11 @@ func ManageTags() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Map{
-			"tags": tags,
+		return c.Page(web.Props{
+			Title: "Manage Tags · Site Settings",
+			Data: web.Map{
+				"tags": tags,
+			},
 		})
 	}
 }

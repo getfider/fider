@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError, Toggle } from "@fider/components/common";
-import { actions, page, notify, Failure } from "@fider/services";
+import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface PrivacySettingsPageProps {
@@ -29,8 +29,6 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
     this.state = {
       isPrivate: this.props.tenant.isPrivate
     };
-
-    page.setTitle(`Privacy · Site Settings · ${document.title}`);
   }
 
   private toggle = async (active: boolean) => {

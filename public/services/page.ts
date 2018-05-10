@@ -8,10 +8,6 @@ export const refresh = (): void => {
   document.location.reload();
 };
 
-export const setTitle = (title: string): void => {
-  document.title = title;
-};
-
 export const getBaseUrl = (): string => {
   return (window as any).props.baseURL;
 };

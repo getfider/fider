@@ -13,8 +13,12 @@ func GeneralSettingsPage() web.HandlerFunc {
 		if err != nil {
 			c.Logger().Error(err)
 		}
-		return c.Page(web.Map{
-			"publicIP": publicIP,
+
+		return c.Page(web.Props{
+			Title: "General · Site Settings",
+			Data: web.Map{
+				"publicIP": publicIP,
+			},
 		})
 	}
 }
@@ -60,8 +64,12 @@ func ManageMembers() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Page(web.Map{
-			"users": users,
+
+		return c.Page(web.Props{
+			Title: "Manage Members · Site Settings",
+			Data: web.Map{
+				"users": users,
+			},
 		})
 	}
 }

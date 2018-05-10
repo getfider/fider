@@ -4,6 +4,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/csv"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
 )
@@ -30,10 +31,20 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Map{
-			"ideas":          ideas,
-			"tags":           tags,
-			"countPerStatus": stats,
+		description := ""
+		if c.Tenant().WelcomeMessage != "" {
+			description = markdown.PlainText(c.Tenant().WelcomeMessage)
+		} else {
+			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas."
+		}
+
+		return c.Page(web.Props{
+			Description: description,
+			Data: web.Map{
+				"ideas":          ideas,
+				"tags":           tags,
+				"countPerStatus": stats,
+			},
 		})
 	}
 }
@@ -140,11 +151,15 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Map{
-			"comments":   comments,
-			"subscribed": subscribed,
-			"idea":       idea,
-			"tags":       tags,
+		return c.Page(web.Props{
+			Title:       idea.Title,
+			Description: markdown.PlainText(idea.Description),
+			Data: web.Map{
+				"comments":   comments,
+				"subscribed": subscribed,
+				"idea":       idea,
+				"tags":       tags,
+			},
 		})
 	}
 }

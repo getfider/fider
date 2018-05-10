@@ -3,7 +3,7 @@ import "./ShowIdea.page.scss";
 import * as React from "react";
 
 import { CurrentUser, Comment, Idea, Tag } from "@fider/models";
-import { page, actions, Failure } from "@fider/services";
+import { actions, Failure } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
@@ -42,8 +42,6 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
       newTitle: this.props.idea.title,
       newDescription: this.props.idea.description
     };
-
-    page.setTitle(`${this.props.idea.title} · ${document.title}`);
   }
 
   private async saveChanges() {

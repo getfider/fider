@@ -46,3 +46,27 @@ This will allow to send and receive SMS and get the IMEI No. in our app.</p>
 		Expect(output).Equals(template.HTML(expected))
 	}
 }
+
+func TestPlainTextMarkdown(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		"**Hello World**":                          `Hello World`,
+		"[My Image](http://example.com/hello.jpg)": `My Image`,
+		"Go to http://example.com/hello.jpg":       `Go to http://example.com/hello.jpg`,
+		"~~Option 3~~":                             `Option 3`,
+		"# Hello World":                            `Hello World`,
+		`# Hello World
+How are you?`: `Hello World
+How are you?`,
+		`Hello World
+
+How are you?`: `Hello World
+How are you?`,
+		"### Hello World":         `Hello World`,
+		"Check this out: `HEEEY`": "Check this out: `HEEEY`",
+	} {
+		output := markdown.PlainText(input)
+		Expect(output).Equals(expected)
+	}
+}

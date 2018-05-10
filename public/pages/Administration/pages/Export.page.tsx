@@ -5,7 +5,6 @@ import * as React from "react";
 import { CurrentUser } from "@fider/models";
 import { Button } from "@fider/components/common";
 import { AdminBasePage } from "../components";
-import { page } from "@fider/services";
 
 interface ExportPageProps {
   user: CurrentUser;
@@ -17,12 +16,6 @@ export class ExportPage extends AdminBasePage<ExportPageProps, {}> {
   public icon = "file excel outline";
   public title = "Export";
   public subtitle = "Download your data";
-
-  constructor(props: ExportPageProps) {
-    super(props);
-
-    page.setTitle(`Export · Site Settings · ${document.title}`);
-  }
 
   public content() {
     return (
