@@ -106,8 +106,8 @@ func routes(r *web.Engine) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 			private.Get("/admin", handlers.GeneralSettingsPage())
-			private.Get("/admin/privacy", handlers.Page())
-			private.Get("/admin/invitations", handlers.Page())
+			private.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
+			private.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
 			private.Get("/admin/members", handlers.ManageMembers())
 			private.Get("/admin/tags", handlers.ManageTags())
 			private.Post("/api/admin/invitations/send", handlers.SendInvites())
@@ -115,7 +115,7 @@ func routes(r *web.Engine) *web.Engine {
 
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
-			private.Get("/admin/export", handlers.Page())
+			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
 			private.Get("/admin/export/ideas.csv", handlers.ExportIdeasToCSV())
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())

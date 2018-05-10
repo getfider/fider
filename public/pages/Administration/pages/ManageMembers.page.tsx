@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Gravatar, UserName } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
-import { page, actions } from "@fider/services";
+import { actions } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface ManageMembersPageState {
@@ -29,8 +29,6 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
   constructor(props: ManageMembersPageProps) {
     super(props);
     this.state = this.groupUsers();
-
-    page.setTitle(`Manage Members · Site Settings · ${document.title}`);
   }
 
   private async changeRole(user: User, role: UserRole): Promise<any> {

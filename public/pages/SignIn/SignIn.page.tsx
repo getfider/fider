@@ -13,8 +13,6 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
   constructor(props: SignInPageProps) {
     super(props);
     this.state = {};
-
-    page.setTitle(`Sign in · ${document.title}`);
   }
 
   private onEmailSent = (email: string) => {

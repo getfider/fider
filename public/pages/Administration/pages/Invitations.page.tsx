@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
-import { actions, page, notify, Failure } from "@fider/services";
+import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface InvitationsPageProps {
@@ -49,8 +49,6 @@ ${this.props.user.name} (${this.props.tenant.name})`,
       numOfRecipients: 0,
       rawRecipients: ""
     };
-
-    page.setTitle(`Invitations · Site Settings · ${document.title}`);
   }
 
   private setRecipients = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"strings"
 
 	"io/ioutil"
 
@@ -72,7 +73,7 @@ func (r *Renderer) getBundle(folder string) string {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Context) error {
+func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) error {
 	tmpl, ok := r.templates[name]
 	if !ok {
 		panic(fmt.Errorf("The template '%s' does not exist", name))
@@ -84,7 +85,28 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 		r.cssBundle = r.getBundle("/dist/css")
 	}
 
-	m := data.(Map)
+	m := props.Data
+	if m == nil {
+		m = make(Map, 0)
+	}
+
+	tenantName := "Fider"
+	if ctx.Tenant() != nil {
+		tenantName = ctx.Tenant().Name
+	}
+
+	title := tenantName
+	if props.Title != "" {
+		title = fmt.Sprintf("%s · %s", props.Title, tenantName)
+	}
+
+	m["__Title"] = title
+
+	if props.Description != "" {
+		description := strings.Replace(props.Description, "\n", " ", -1)
+		m["__Description"] = fmt.Sprintf("%.150s", description)
+	}
+
 	m["__JavaScriptBundle"] = r.jsBundle
 	m["__StyleBundle"] = r.cssBundle
 	m["__ContextID"] = ctx.ContextID()
@@ -106,12 +128,6 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, ctx *Conte
 			oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
 			oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
 		},
-	}
-
-	if renderVars := ctx.RenderVars(); renderVars != nil {
-		for key, value := range renderVars {
-			m[key] = value
-		}
 	}
 
 	if ctx.IsAuthenticated() {

@@ -23,11 +23,18 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
-// Map defines a generic map of type `map[string]interface{}`.
+// Map defines a generic map of type `map[string]interface{}`
 type Map map[string]interface{}
 
-// StringMap defines a map of type `map[string]string`.
+// StringMap defines a map of type `map[string]string`
 type StringMap map[string]string
+
+// Props defines the data required to rende rages
+type Props struct {
+	Title       string
+	Description string
+	Data        Map
+}
 
 // HTMLMimeType is the mimetype for HTML responses
 var (
@@ -175,17 +182,26 @@ func (ctx *Context) Unauthorized() error {
 	if ctx.IsAjax() {
 		return ctx.JSON(http.StatusForbidden, Map{})
 	}
-	return ctx.Render(http.StatusForbidden, "403.html", Map{})
+	return ctx.Render(http.StatusForbidden, "403.html", Props{
+		Title:       "Not Authorized",
+		Description: "You are not authorized to view this page.",
+	})
 }
 
 //NotFound returns a 404 page
 func (ctx *Context) NotFound() error {
-	return ctx.Render(http.StatusNotFound, "404.html", Map{})
+	return ctx.Render(http.StatusNotFound, "404.html", Props{
+		Title:       "Page not found",
+		Description: "The link you clicked may be broken or the page may have been removed.",
+	})
 }
 
 //Gone returns a 410 page
 func (ctx *Context) Gone() error {
-	return ctx.Render(http.StatusGone, "410.html", Map{})
+	return ctx.Render(http.StatusGone, "410.html", Props{
+		Title:       "Expired",
+		Description: "The link you clicked has expired.",
+	})
 }
 
 //Failure returns a 500 page
@@ -208,7 +224,10 @@ func (ctx *Context) Failure(err error) error {
 	url := ctx.BaseURL() + ctx.Request.RequestURI
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
-	ctx.Render(http.StatusInternalServerError, "500.html", Map{})
+	ctx.Render(http.StatusInternalServerError, "500.html", Props{
+		Title:       "Shoot! Well, this is unexpected…",
+		Description: "An error has occurred and we're working to fix the problem!",
+	})
 	return err
 }
 
@@ -246,14 +265,14 @@ func (ctx *Context) BadRequest(dict Map) error {
 }
 
 //Page returns a page with given variables
-func (ctx *Context) Page(dict Map) error {
-	return ctx.Render(http.StatusOK, "index.html", dict)
+func (ctx *Context) Page(props Props) error {
+	return ctx.Render(http.StatusOK, "index.html", props)
 }
 
 // Render renders a template with data and sends a text/html response with status
-func (ctx *Context) Render(code int, template string, data Map) error {
+func (ctx *Context) Render(code int, template string, props Props) error {
 	buf := new(bytes.Buffer)
-	if err := ctx.engine.renderer.Render(buf, template, data, ctx); err != nil {
+	if err := ctx.engine.renderer.Render(buf, template, props, ctx); err != nil {
 		return err
 	}
 	return ctx.Blob(code, HTMLContentType, buf.Bytes())
@@ -419,27 +438,6 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
 	}
 	return intValue, nil
-}
-
-//RenderVars returns all registered RenderVar
-func (ctx *Context) RenderVars() Map {
-	vars := ctx.Get("__renderVars")
-	if vars != nil {
-		return vars.(Map)
-	}
-	return nil
-}
-
-//AddRenderVar register given key/value to RenderVar map
-func (ctx *Context) AddRenderVar(name string, value interface{}) {
-	var renderVars = ctx.Get("__renderVars")
-	if renderVars == nil {
-		renderVars = make(Map)
-		ctx.Set("__renderVars", renderVars)
-	}
-
-	ctx.Logger().Debugf("storage.%v: %v", name, value)
-	renderVars.(Map)[name] = value
 }
 
 // Get retrieves data from the context.

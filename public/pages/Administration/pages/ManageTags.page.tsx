@@ -3,7 +3,7 @@ import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
 import { AdminBasePage, TagForm, TagFormState } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
-import { page, actions, Failure } from "@fider/services";
+import { actions, Failure } from "@fider/services";
 
 interface ManageTagsPageProps {
   user: CurrentUser;
@@ -30,8 +30,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
       isAdding: false,
       allTags: this.props.tags
     };
-
-    page.setTitle(`Manage Tags · Site Settings · ${document.title}`);
   }
 
   private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {

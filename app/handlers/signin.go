@@ -135,14 +135,20 @@ func SignInPage() web.HandlerFunc {
 		if c.IsAuthenticated() || !c.Tenant().IsPrivate {
 			return c.Redirect(c.BaseURL())
 		}
-		return c.Page(web.Map{})
+
+		return c.Page(web.Props{
+			Title: "Sign in",
+		})
 	}
 }
 
 // NotInvitedPage renders the not invited page
 func NotInvitedPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		return c.Render(http.StatusForbidden, "not-invited.html", web.Map{})
+		return c.Render(http.StatusForbidden, "not-invited.html", web.Props{
+			Title:       "Not Invited",
+			Description: "We couldn't find your account for your email address.",
+		})
 	}
 }
 

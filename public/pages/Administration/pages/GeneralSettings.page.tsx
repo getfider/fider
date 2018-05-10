@@ -47,8 +47,6 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
       welcomeMessage: this.props.tenant.welcomeMessage,
       invitation: this.props.tenant.invitation
     };
-
-    page.setTitle(`General · Site Settings · ${document.title}`);
   }
 
   private async save(e: ButtonClickEvent) {

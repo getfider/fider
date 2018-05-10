@@ -26,8 +26,11 @@ func Notifications() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Page(web.Map{
-			"notifications": notifications,
+		return c.Page(web.Props{
+			Title: "Notifications",
+			Data: web.Map{
+				"notifications": notifications,
+			},
 		})
 	}
 }

@@ -41,8 +41,6 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
       subdomain: { available: false }
     };
 
-    page.setTitle(page.isSingleHostMode() ? "Installation · Fider" : "Sign up · Fider");
-
     const token = page.getQueryString("token");
     if (token) {
       const data = jwt.decode(token);

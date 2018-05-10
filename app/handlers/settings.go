@@ -61,8 +61,12 @@ func UserSettings() web.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		return c.Page(web.Map{
-			"settings": settings,
+
+		return c.Page(web.Props{
+			Title: "Settings",
+			Data: web.Map{
+				"settings": settings,
+			},
 		})
 	}
 }
