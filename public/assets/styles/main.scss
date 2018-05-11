@@ -187,6 +187,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
     font-size: 200%;
     color: #3b4450;
   }
+  img {
+    max-height: 100px;
+    max-width: 100px;
+  }
 }
 
 .c-toast {

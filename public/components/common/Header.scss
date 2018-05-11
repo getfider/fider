@@ -57,6 +57,7 @@
         font-weight: 700;
         @include media("phone") {
           font-size: $font-size;
+          max-width: 240px;
         }
       }
     }
