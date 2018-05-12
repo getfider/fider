@@ -221,7 +221,7 @@ func (ctx *Context) Failure(err error) error {
 		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
 	}
 
-	url := ctx.BaseURL() + ctx.Request.RequestURI
+	url := ctx.CurrentURL()
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
@@ -359,13 +359,18 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 	return ctx.Get(transactionContextKey).(*dbx.Trx)
 }
 
-//BaseURL returns base URL as string
+//BaseURL returns base URL
 func (ctx *Context) BaseURL() string {
 	protocol := "http"
 	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
 	}
 	return protocol + "://" + ctx.Request.Host
+}
+
+//CurrentURL returns complete current URL
+func (ctx *Context) CurrentURL() string {
+	return ctx.BaseURL() + ctx.Request.RequestURI
 }
 
 //TenantBaseURL returns base URL for a given tenant

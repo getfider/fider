@@ -45,6 +45,15 @@ func TestBaseURL(t *testing.T) {
 	Expect(ctx.BaseURL()).Equals("http://demo.test.fider.io:3000")
 }
 
+func TestCurrentURL(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext(nil)
+	ctx.Request.RequestURI = "/resource?id=23"
+
+	Expect(ctx.CurrentURL()).Equals("http://demo.test.fider.io:3000/resource?id=23")
+}
+
 func TestTenantURL(t *testing.T) {
 	RegisterT(t)
 
