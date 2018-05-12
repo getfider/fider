@@ -46,12 +46,16 @@ body, h1, h2, h3, h4, h5, .ui, input {
   color: rgba($text-color, .7);
 }
 
+.info.right {
+  float: right;
+}
+
 .center {
   text-align: center;
 }
 
-.info.right {
-  float: right;
+.clickable {
+  cursor: pointer;
 }
 
 .ui.menu .subtitle,

@@ -68,7 +68,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
           />
         ))}
         {this.props.ideas.length > this.state.showCount && (
-          <h5 className="ui blue header show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
+          <h5 className="gm-primary show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
             View {this.props.ideas.length - this.state.showCount} more ideas
           </h5>
         )}

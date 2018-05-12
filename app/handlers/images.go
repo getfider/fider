@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/img"
+
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
@@ -57,10 +59,15 @@ func Avatar() web.HandlerFunc {
 	}
 }
 
-//Logo returns current tenant logo
+//Logo returns tenant logo by its ID on a given size
 func Logo() web.HandlerFunc {
 	return func(c web.Context) error {
 		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		size, err := c.ParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -70,6 +77,11 @@ func Logo() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Blob(http.StatusOK, logo.ContentType, logo.Content)
+		bytes, err := img.Resize(logo.Content, size)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Blob(http.StatusOK, logo.ContentType, bytes)
 	}
 }

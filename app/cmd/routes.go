@@ -47,7 +47,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		avatar.Use(middlewares.ClientCache(72 * time.Hour))
 		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
-		avatar.Get("/logo/:id", handlers.Logo())
+		avatar.Get("/logo/:size/:id", handlers.Logo())
 	}
 
 	open := r.Group()
