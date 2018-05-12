@@ -1,4 +1,5 @@
 @import 'variables.scss';
+@import 'global.scss';
 @import 'form.scss';
 @import 'semantic.scss';
 
@@ -27,6 +28,11 @@ noscript {
 
 body {
   background-color: $bg-color;
+  color: $text-color;
+}
+
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 body, h1, h2, h3, h4, h5, .ui, input {
@@ -35,68 +41,24 @@ body, h1, h2, h3, h4, h5, .ui, input {
   -webkit-font-smoothing: antialiased;
 }
 
-#environment-info {
-  padding: 2px;
-  border-radius: 0px;
-}
-
-#menu {
-  margin-top: 0px;
-  background-color: $menu-color;
-  margin-bottom: 30px;
-  height: 50px;
-  border-radius: 0px;
-  border: none;
-  
-  .unread-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    margin-left: -10px;
-    margin-top: -25px;
-    background-color: #db2828;
-    border: 1px solid #fff !important;
-  }
-
-  .name.header {
-    min-width: 150px;
-  }
-
-  .title {
-    img {
-      margin-right: 10px;
-      width: auto;
-      height: auto;
-      max-height: 36px;
-    }
-    span {
-      font-size: 18px;
-      margin: 0 0 0 0;
-    }
-  }
-
-  div, a {
-    color: textColorFor($menu-color);
-    &:hover {
-      background: $menu-color;
-    }
-  }
-}
-
 .info {
   font-size: 80%;
-  color: rgba(0,0,0,.6);
-}
-
-.center {
-  text-align: center;
+  color: rgba($text-color, .7);
 }
 
 .info.right {
   float: right;
 }
 
-#menu div.subtitle,
+.center {
+  text-align: center;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.ui.menu .subtitle,
 .subtitle {
   font-size: 11px;
   font-weight: 600;
@@ -109,17 +71,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
   display: block;
   &.active {
     cursor: pointer;
-    &:hover {
-      color: $main-color;
-    }
     i {
       float: right;
     }
   }
-}
-
-code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 .markdown-body {
@@ -166,75 +121,19 @@ code {
   }
 }
 
-.fdr-avatar {
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  vertical-align: middle;
-  padding: 1px;
-  &.staff {
-    border: 1px solid $admin-color;
-  }
-}
-
-.no-margin {
-  margin: 0px !important;
-}
-
-.name {
-  color: #4f5e6b;
-  font-weight: 500;
-  &.staff {
-    font-weight: 700;
-    color: $admin-color;
-  }
-}
-
-.fdr-profile-popup div.item {
-  padding: 5px 0px !important;
-}
-
-.ui.segment.fdr-response {
+.ui.segment.c-response {
   padding: 0.5em;
 
   .content {
     margin-top: 10px;
   }
 
-  .label {
-    text-transform: uppercase;
-  }
-
-  .fdr-avatar {
+  .c-avatar {
     margin-left: 3px;
   }
 
   span.date {
     margin-left: 6px;
-  }
-}
-
-#footer {
-  #powered-by {
-    text-align: center;
-    font-size: 11px;
-    a {
-      display: block;
-      span {
-        display: block;
-      }
-  
-      img {
-        width: 15px;
-        filter: grayscale(100%);
-      }
-  
-      &:hover {
-        img {
-          filter: grayscale(0%);
-        }
-      }
-    }
   }
 }
 
@@ -283,30 +182,6 @@ code {
   }
 }
 
-
-.ui.main-color {
-  background-color: $main-color;
-  color: #fff;
-
-  &.not-animated:hover {
-    background-color: $main-color;
-    color: #fff;
-  }
-
-  &.inverted, &.not-animated.inverted:hover {
-    box-shadow: 0 0 0 2px  lighten( $main-color, 10% ) inset !important;
-    background-color: #fff;
-    color: lighten( $main-color, 10% );
-  }
-
-
-  &.animated:hover, &.animated.inverted:hover {
-    box-shadow: 0 0 0 2px darken( $main-color, 10% ) inset !important;
-    background-color: darken( $main-color, 10% );
-    color: #fff;
-  }
-}
-
 .failure-page {
   height: 60%;
   p {
@@ -315,6 +190,10 @@ code {
   h1 {
     font-size: 200%;
     color: #3b4450;
+  }
+  img {
+    max-height: 100px;
+    max-width: 100px;
   }
 }
 

@@ -17,7 +17,7 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
   return (
     <div className="content">
       <span>&#8618;</span>
-      <span title={status.title} className={`ui mini empty circular ${status.color} label`} />
+      <span title={status.title} className={`status-${status.slug}`} />
       <a href={`/ideas/${original.number}/${original.slug}`}>{original.title}</a>
     </div>
   );
@@ -36,8 +36,8 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
 
   if (props.response && status.show) {
     return (
-      <div className="fdr-response item ui segment">
-        <span className={`ui mini label ${status.color}`}>{status.title}</span>
+      <div className="c-response item ui segment">
+        <span className={`gm-status-label gm-status-${status.slug}`}>{status.title}</span>
         <Gravatar user={props.response.user} /> <UserName user={props.response.user} />
         <span className="info">
           <Moment date={props.response.respondedOn} />

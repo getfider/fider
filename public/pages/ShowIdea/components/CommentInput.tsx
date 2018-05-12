@@ -84,7 +84,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               />
             </div>
             {this.state.content && (
-              <Button color="green" onClick={() => this.submit()}>
+              <Button color="positive" onClick={() => this.submit()}>
                 Submit
               </Button>
             )}

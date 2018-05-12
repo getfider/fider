@@ -49,12 +49,21 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     const className = classSet({
       supported: !status.closed && this.state.supported,
       disabled: status.closed,
-      "no-touch": !device.isTouch()
+      "no-touch": !device.isTouch(),
+      "gm-text": !this.state.supported,
+      "gm-primary": this.state.supported,
+      "gm-primary-hover": true
     });
 
     const vote = (
       <button className={className} onClick={async () => await this.supportOrUndo()}>
-        <i className="medium caret up icon" />
+        <i
+          className={classSet({
+            "medium caret up icon": true,
+            "gm-text-lighter": !this.state.supported,
+            "gm-primary": this.state.supported
+          })}
+        />
         {this.state.total}
       </button>
     );

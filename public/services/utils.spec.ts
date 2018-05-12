@@ -7,7 +7,9 @@ import { readFileSync } from "fs";
   { input: {}, expected: "" },
   { input: { green: true }, expected: "green" },
   { input: { disabled: false, green: false }, expected: "" },
-  { input: { disabled: true, green: true }, expected: "disabled green" }
+  { input: { disabled: true, green: true }, expected: "disabled green" },
+  { input: { "ui button": true, green: true }, expected: "ui button green" },
+  { input: { "ui button": true }, expected: "ui button" }
 ].forEach(x => {
   test(`classSet of ${JSON.stringify(x.input)} should be ${x.expected}`, () => {
     const className = classSet(x.input);

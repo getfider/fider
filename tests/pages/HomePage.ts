@@ -39,7 +39,7 @@ export class HomePage extends Page {
   @findBy("#email-signin button") private EmailSignInButton!: TextInput;
   @findBy(".ui.form .ui.negative.message") public ErrorBox!: WebComponent;
   @findBy(".signout") private SignOut!: Button;
-  @findMultipleBy(".fdr-idea-list > .item") public IdeaList!: IdeaList;
+  @findMultipleBy(".c-idea-list > .item") public IdeaList!: IdeaList;
   @findBy(".c-modal__window input") private CompleteEmailSignInInput!: TextInput;
   @findBy(".c-modal__window button") private CompleteEmailSignInButton!: Button;
 

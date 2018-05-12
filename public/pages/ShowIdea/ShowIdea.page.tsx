@@ -83,7 +83,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                     <DisplayError key={0} fields={["title"]} pointing="above" error={this.state.error} />
                   ]
                 ) : (
-                  <h1 className="ui header">{this.props.idea.title}</h1>
+                  <h1>{this.props.idea.title}</h1>
                 )}
 
                 <span className="info">
@@ -123,7 +123,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               this.state.editMode ? (
                 <div key={1} className="ui list">
                   <div className="item">
-                    <Button color="green" fluid={true} onClick={async () => this.saveChanges()}>
+                    <Button color="positive" fluid={true} onClick={async () => this.saveChanges()}>
                       <i className="save icon" /> Save
                     </Button>
                   </div>

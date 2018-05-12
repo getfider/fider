@@ -216,7 +216,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         ]}
         {this.props.user.isAdministrator && (
           <div className="field">
-            <Button color="green" onClick={async e => await this.save(e)}>
+            <Button color="positive" onClick={async e => await this.save(e)}>
               Save
             </Button>
           </div>

@@ -3,16 +3,23 @@
 .c-button {
   cursor: pointer;
   font-size: $font-size;
-  color: $text-color;
   border-radius: 3px;
-  background-color: $gray-lighter;
   border: none;
   margin: 0 4px 0 0;
   padding: 10px;
   text-align: left;
   font-weight: 700;
 
-  &.green {
+  &.default {
+    color: $text-color;
+    background-color: $gray-lighter;
+
+    &:hover {
+      background-color: $gray-darker;
+    }
+  }
+
+  &.positive {
     color: $white;
     background-color: $green;
 
@@ -21,7 +28,7 @@
     }
   }
 
-  &.red {
+  &.danger {
     color: $red;
     border: 1px solid $red;
     background-color: transparent;
@@ -30,10 +37,6 @@
       color: $white;
       background-color: $red;
     }
-  }
-
-  &:hover {
-    background-color: $gray-darker;
   }
 
   &.mini {
@@ -76,8 +79,8 @@
   &.loading {
     position: relative;
     cursor: default;
-    text-shadow: none!important;
-    color: transparent!important;
+    text-shadow: none !important;
+    color: transparent !important;
     opacity: 1;
     pointer-events: auto;
     -webkit-transition: all 0s linear,opacity .1s ease;

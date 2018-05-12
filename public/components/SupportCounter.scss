@@ -11,27 +11,20 @@
     width: 45px;
     font-weight: 700;
     cursor: pointer;
-    background-color: $bg-color;
+    background-color: transparent;
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
 
-    i.icon {
-      color: #C4C9CD;
+    &:hover {
+      .icon {
+        color: inherit;
+      }
     }
   }
 
   button.disabled {
     @include disabled();
-  }
-
-  button.supported, 
-  button.no-touch:hover {
-    color: $main-color;
-
-    i.icon {
-      color: lighten($main-color, 20%) !important;
-    }
   }
 
   i.icon {

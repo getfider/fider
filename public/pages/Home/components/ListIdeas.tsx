@@ -25,7 +25,7 @@ const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) =>
             {props.idea.totalComments} <i className="comments outline icon" />
           </div>
         )}
-        <a className="title" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
+        <a className="title gm-text gm-primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
           {props.idea.title}
         </a>
         <MultiLineText className="description" text={props.idea.description} style="simple" />
@@ -58,7 +58,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
 
     const ideasToList = this.props.ideas.slice(0, this.state.showCount);
     return (
-      <div className="ui divided unstackable items fdr-idea-list">
+      <div className="ui divided unstackable items c-idea-list">
         {ideasToList.map(idea => (
           <ListIdeaItem
             key={idea.id}
@@ -68,7 +68,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
           />
         ))}
         {this.props.ideas.length > this.state.showCount && (
-          <h5 className="ui blue header show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
+          <h5 className="gm-primary show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
             View {this.props.ideas.length - this.state.showCount} more ideas
           </h5>
         )}

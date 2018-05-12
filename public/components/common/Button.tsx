@@ -6,7 +6,7 @@ interface ButtonProps {
   simple?: boolean;
   disabled?: boolean;
   href?: string;
-  color?: "green" | "red";
+  color?: "positive" | "danger" | "default";
   fluid?: boolean;
   size?: "mini" | "tiny" | "small" | "normal" | "large";
   onClick?: (event: ButtonClickEvent) => Promise<any>;
@@ -33,7 +33,8 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
   public static defaultProps: Partial<ButtonProps> = {
     size: "small",
-    fluid: false
+    fluid: false,
+    color: "default"
   };
 
   public constructor(props: ButtonProps) {

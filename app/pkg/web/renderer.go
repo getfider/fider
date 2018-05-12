@@ -111,8 +111,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) e
 	m["__StyleBundle"] = r.cssBundle
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = fmt.Sprintf("%s/logo/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
-		m["__favicon"] = m["__logo"]
+		m["__logo"] = fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
+		m["__favicon"] = fmt.Sprintf("%s/logo/50/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
 		m["__favicon"] = "/favicon.ico"

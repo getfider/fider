@@ -66,7 +66,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="red" onClick={async () => this.delete()}>
+          <Button color="danger" onClick={async () => this.delete()}>
             Delete
           </Button>
           <Button onClick={async () => this.close()}>Cancel</Button>
@@ -81,7 +81,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         <div className="ui list">
           <div className="item">
             <Button
-              color="red"
+              color="danger"
               size="tiny"
               fluid={true}
               onClick={async () => this.setState({ showConfirmation: true })}

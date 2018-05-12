@@ -59,7 +59,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
               <i className="medium caret up icon" />
               {i.totalSupporters}
             </span>
-            <span className={`ui mini label ${status.color}`}>{status.title}</span>
+            <span className={`gm-status-label gm-status-${status.slug}`}>{status.title}</span>
             {i.title}
           </>
         )
@@ -68,7 +68,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
 
     return (
       <Dropdown
-        className="fdr-idea-search"
+        className="c-idea-search"
         fluid={true}
         selectOnBlur={false}
         selection={true}
