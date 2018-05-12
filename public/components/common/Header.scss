@@ -13,12 +13,6 @@
 }
 
 #c-header {
-  .ui.vertical.menu .item > .label {
-    float: none;
-    position: absolute;
-    right: 5px;
-  }
-
   .c-env-info {
     padding: 2px;
     border-radius: 0px;
@@ -35,13 +29,19 @@
     border: none;
     display: flex;
     box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
-    
+    margin-bottom: 10px;
+
     .container {
       display: flex;
     }
 
     @include media("sm") {
       height: 40px;
+      .container {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
     }
 
     .c-menu-item-title {
@@ -143,11 +143,6 @@
         font-size: $font-size-mini;
         text-align: center;
       }
-    }
-
-    &:last-child {
-      margin-bottom: 30px;
-    }
-    
+    }    
   }
 }
