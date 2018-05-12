@@ -63,7 +63,7 @@
     }
   }
 
-  @include media("phone") {
+  @include media("sm") {
     .filter-column {
       padding-right: 0;
     }

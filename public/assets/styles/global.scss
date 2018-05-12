@@ -64,7 +64,7 @@
   max-width: 100% !important; 
 }
 
-@include media("phone") {
+@include media("sm") {
   .container {
     width: 100% !important;
     margin-left: 0 !important;
@@ -72,7 +72,7 @@
   }
 }
 
-@include media("tablet") {
+@include media("md") {
   .container {
     width: 723px;
     margin-left: auto !important;
@@ -80,7 +80,7 @@
   }
 }
 
-@include media("desktop") {
+@include media("lg") {
   .container {
     width: 933px;
     margin-left: auto !important;
@@ -88,7 +88,7 @@
   }
 }
 
-@include media("wide") {
+@include media("xl") {
   .container {
     width: 1127px;
     margin-left: auto !important;

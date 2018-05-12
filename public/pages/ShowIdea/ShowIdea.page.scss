@@ -12,7 +12,7 @@
       font-weight: 400;
       margin: 0px;
       font-size: $font-size-xlarge;
-      @include media("phone") {
+      @include media("sm") {
         font-size: $font-size-big;
       }
     }
@@ -22,7 +22,7 @@
     }
   }
 
-  @include media(">tablet") {
+  @include media(">md") {
     .header-col, 
     .comments-col {
       float: left;
@@ -38,7 +38,7 @@
   }
 
   .action-col {
-    @include media(">tablet") {
+    @include media(">md") {
       width: 200px;
     }
     .ui.list {

@@ -197,8 +197,14 @@ body, h1, h2, h3, h4, h5, .ui, input {
   border-radius: 5px !important;
 }
 
-.desktop-only {
-  @include media("<desktop") {
+@include media("sm") {
+  .hidden-sm {
+    display: none;
+  }
+}
+
+@include media("md") {
+  .hidden-md {
     display: none;
   }
 }

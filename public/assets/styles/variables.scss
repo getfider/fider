@@ -23,38 +23,43 @@ $green-darker: #0CB863;
 $red: #db2828;
 
 // Queries
-$tablet-width: 768px;
-$desktop-width: 992px;
-$wide-width: 1200px;
+$md-width: 768px;
+$lg-width: 992px;
+$xl-width: 1200px;
 
 @mixin media($media) {
-  @if $media == "phone" {
-    @media only screen and (max-width: #{$tablet-width - 0.1px}) { 
+  @if $media == "sm" {
+    @media only screen and (max-width: #{$md-width - 0.1px}) { 
       @content; 
     }
   }
-  @else if $media == "tablet" {
-    @media only screen and (min-width: #{$tablet-width}) and (max-width: #{$desktop-width - 0.1px}) { 
+  @else if $media == "md" {
+    @media only screen and (min-width: #{$md-width}) and (max-width: #{$lg-width - 0.1px}) { 
       @content; 
     }
   }
-  @else if $media == ">tablet" {
-    @media only screen and (min-width: #{$tablet-width}) { 
+  @else if $media == ">=md" {
+    @media only screen and (min-width: #{$md-width}) { 
       @content; 
     }
   }
-  @else if $media == "<desktop" {
-    @media only screen and (max-width: #{$desktop-width - 0.1px}) { 
+  @else if $media == "<lg" {
+    @media only screen and (max-width: #{$xl-width - 0.1px}) { 
       @content; 
     }
   }
-  @else if $media == "desktop" {
-    @media only screen and (min-width: #{$desktop-width}) and (max-width: #{$wide-width - 0.1px}) { 
+  @else if $media == "lg" {
+    @media only screen and (min-width: #{$lg-width}) and (max-width: #{$xl-width - 0.1px}) { 
       @content; 
     }
   }
-  @else if $media == "wide" {
-    @media only screen and (min-width: #{$wide-width}) { 
+  @else if $media == ">=lg" {
+    @media only screen and (min-width: #{$lg-width}) { 
+      @content; 
+    }
+  }
+  @else if $media == "xl" {
+    @media only screen and (min-width: #{$xl-width}) { 
       @content; 
     }
   }

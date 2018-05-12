@@ -33,13 +33,13 @@
   width: 100%;
 
   &.small {
-    @include media(">tablet") {
+    @include media(">md") {
       width: 500px;
     }
   }
 
   &.large {
-    @include media(">tablet") {
+    @include media(">md") {
       width: 750px;
     }
   }
