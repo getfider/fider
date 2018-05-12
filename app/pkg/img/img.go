@@ -54,7 +54,7 @@ func Resize(file []byte, size int) ([]byte, error) {
 	}
 
 	dst := image.NewRGBA(image.Rect(0, 0, size, size))
-	draw.BiLinear.Scale(dst, dst.Bounds(), src, srcBounds, draw.Src, nil)
+	draw.CatmullRom.Scale(dst, dst.Bounds(), src, srcBounds, draw.Src, nil)
 
 	writer := new(bytes.Buffer)
 	if format == "png" {

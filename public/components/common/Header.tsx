@@ -87,7 +87,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         <div className="ui borderless menu">
           <div className="ui container">
             <a href="/" className="item title">
-              <Logo tenant={this.props.tenant} />
+              <Logo size={100} tenant={this.props.tenant} />
               <span>{this.props.tenant.name}</span>
             </a>
             {showRightMenu && (

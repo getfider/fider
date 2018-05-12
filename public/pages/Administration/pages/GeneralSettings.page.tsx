@@ -164,7 +164,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         <DisplayError fields={["logo"]} error={this.state.error} />
         <div className="field logo">
           <label htmlFor="logo">Logo</label>
-          {hasFile && <Logo tenant={this.props.tenant} url={previewUrl} />}
+          {hasFile && <Logo size={200} tenant={this.props.tenant} url={previewUrl} />}
           <input ref={e => (this.fileSelector = e)} type="file" name="logo" onChange={this.fileChanged} />
           <div>
             <Button size="mini" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
