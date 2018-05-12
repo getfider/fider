@@ -1,5 +1,17 @@
 @import '~@fider/assets/styles/variables.scss';
 
+@mixin menu-item {
+  position: relative;
+  vertical-align: middle;
+  line-height: 1;
+  text-decoration: none;
+  flex: 0 0 auto;
+  user-select: none;
+  padding: 15px 10px;
+  display: flex;
+  align-items: center;
+}
+
 #c-header {
   .ui.vertical.menu .item > .label {
     float: none;
@@ -16,30 +28,24 @@
     background-color: rgba($red, 0.05);
   }
 
-  .ui.borderless.menu {
+  .c-menu {
     margin-top: 0px;
     height: 50px;
     border-radius: 0px;
     border: none;
-    @include media("phone") {
-      height: 30px;
+    display: flex;
+    box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
+    
+    .container {
+     display: flex;
     }
 
-    &:last-child {
-      margin-bottom: 30px;
+    @include media("phone") {
+      height: 40px;
     }
-    
-    .unread-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 5px;
-      margin-left: -10px;
-      margin-top: -25px;
-      background-color: #db2828;
-      border: 1px solid #fff !important;
-    }
-  
-    .title {
+
+    .c-menu-item-title {
+      @include menu-item;
       img {
         margin-right: 10px;
         width: auto;
@@ -62,15 +68,90 @@
       }
     }
 
-    .signin {
+    .c-menu-item-signin {
+      @include menu-item;
+      cursor: pointer;
       font-size: 90%;
+      margin-left: auto !important;
+
       i.dropdown {
         margin: 0 0 0 0.5em;
       }
+
+      .c-menu-user {
+        display: none;
+        position: absolute;
+        overflow: visible;
+        width: auto;
+        height: auto;
+        top: 100%!important;
+        opacity: 1;
+        z-index: 11;
+        background-color: $menu-color;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
+        border: 1px solid rgba(34,36,38,.15);
+        width: 160px;
+        border-radius: 0px 0px 5px 5px;
+
+        .header {
+          font-size: $font-size-mini;
+          padding: 10px;
+          display: block;
+          color: $text-color;
+          text-transform: uppercase;
+          font-weight: 700;
+          cursor: default;
+        }
+        .item {
+          font-size: $font-size-small;
+          padding: 10px;
+          display: block;
+          color: $text-color;
+          &:hover {
+            background-color: $gray-lighter;
+          }
+        }
+        .divider {
+          border-top: 1px solid rgba(34,36,38,.1);
+          display: block;
+          cursor: default;
+        }
+      }
+
+      &:hover {
+        .c-menu-user {
+          display: block;
+          left: auto;
+          right: 0;
+        }
+      }
+
+      .unread-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        margin-left: -10px;
+        margin-top: -25px;
+        background-color: $red;
+        border: 1px solid $white !important;
+      }
+
+      .unread-count {
+        display: inline-block;
+        background-color: $red;
+        position: absolute;
+        right: 5px;
+        padding: 2px 8px;
+        color: $white;
+        border-radius: 100px;
+        font-size: $font-size-mini;
+        text-align: center;
+      }
     }
-  
-    .item:hover {
-      background: transparent;
+
+    &:last-child {
+      margin-bottom: 30px;
     }
+    
   }
 }

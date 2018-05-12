@@ -1,6 +1,7 @@
 @import 'variables.scss';
 
-.gm-text {
+.gm-text,
+.gm-text-hover:hover {
   color: $text-color;
 }
 
@@ -54,4 +55,43 @@
 
 .gm-status-duplicate {
   background-color: #fbbd08;
+}
+
+// Container Size
+
+.container {
+  display: block;
+  max-width: 100% !important; 
+}
+
+@include media("phone") {
+  .container {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
+@include media("tablet") {
+  .container {
+    width: 723px;
+    margin-left: auto !important;
+    margin-right: auto !important; 
+  }
+}
+
+@include media("desktop") {
+  .container {
+    width: 933px;
+    margin-left: auto !important;
+    margin-right: auto !important; 
+  }
+}
+
+@include media("wide") {
+  .container {
+    width: 1127px;
+    margin-left: auto !important;
+    margin-right: auto !important; 
+  }
 }

@@ -25,6 +25,7 @@ $red: #db2828;
 // Queries
 $tablet-width: 768px;
 $desktop-width: 992px;
+$wide-width: 1200px;
 
 @mixin media($media) {
   @if $media == "phone" {
@@ -48,7 +49,12 @@ $desktop-width: 992px;
     }
   }
   @else if $media == "desktop" {
-    @media only screen and (min-width: #{$desktop-width}) { 
+    @media only screen and (min-width: #{$desktop-width}) and (max-width: #{$wide-width - 0.1px}) { 
+      @content; 
+    }
+  }
+  @else if $media == "wide" {
+    @media only screen and (min-width: #{$wide-width}) { 
       @content; 
     }
   }

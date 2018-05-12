@@ -43,8 +43,8 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
   public render() {
     const items = this.props.user && (
-      <div className="ui vertical menu">
-        <div className="name header">
+      <div className="c-menu-user">
+        <div className="header">
           <i className="user icon" />
           {this.props.user.name}
         </div>
@@ -53,9 +53,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
         </a>
         <a href="/notifications" className="item">
           Notifications
-          {this.state.unreadNotifications > 0 && (
-            <div className="ui mini circular red label">{this.state.unreadNotifications}</div>
-          )}
+          {this.state.unreadNotifications > 0 && <div className="unread-count">{this.state.unreadNotifications}</div>}
         </a>
         <div className="divider" />
         {this.props.user.isCollaborator && [
@@ -76,7 +74,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
     const profileMenuClassName = classSet({
-      "ui right simple dropdown item signin": true,
+      "c-menu-item-signin gm-text-hover": true,
       subtitle: !this.props.user
     });
 
@@ -84,9 +82,9 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
       <div id="c-header">
         <EnvironmentInfo system={this.props.system} />
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className="ui borderless menu">
-          <div className="ui container">
-            <a href="/" className="item title">
+        <div className="c-menu">
+          <div className="container">
+            <a href="/" className="c-menu-item-title">
               <Logo size={100} tenant={this.props.tenant} />
               <span>{this.props.tenant.name}</span>
             </a>
