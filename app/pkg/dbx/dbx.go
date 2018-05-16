@@ -13,12 +13,9 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/mattes/migrate"
 
 	//required
 	_ "github.com/lib/pq"
-	_ "github.com/mattes/migrate/database/postgres"
-	_ "github.com/mattes/migrate/source/file"
 )
 
 // New creates a new Database instance without logging
@@ -84,18 +81,9 @@ func (db *Database) Seed() {
 // Migrate the database to latest version
 func (db *Database) Migrate() {
 	db.logger.Infof("Running migrations...")
-	err := retry(10, func() error {
-		m, err := migrate.New(
-			"file://"+env.Path("migrations"),
-			env.MustGet("DATABASE_URL"),
-		)
-		if err != nil {
-			return err
-		}
-		return m.Up()
-	})
+	err := db.runMigrations("/migrations")
 
-	if err != nil {
+	if err != nil && err != ErrNoChanges {
 		panic(fmt.Sprintf("Migrations failed with: %s:", err))
 	} else {
 		db.logger.Infof("Migrations finished with success.")
@@ -303,15 +291,4 @@ func (trx *Trx) Rollback() error {
 		return errors.Wrap(err, "failed to rollback transaction")
 	}
 	return nil
-}
-
-func retry(attempts int, callback func() error) error {
-	var err error
-	for i := 0; i < attempts; i++ {
-		if err = callback(); err == nil || err == migrate.ErrNoChange {
-			return nil
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-	return errors.Wrap(err, "retried for %d times", attempts)
 }
