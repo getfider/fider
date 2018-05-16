@@ -3,7 +3,7 @@ import * as React from "react";
 import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from "../";
 
 import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
-import { Loader, MultiLineText } from "@fider/components";
+import { Loader, MultiLineText, Heading } from "@fider/components";
 import { page, actions } from "@fider/services";
 
 interface IdeasContainerProps {
@@ -84,13 +84,14 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     if (this.props.newIdeaTitle) {
       return (
         <>
-          <h3 className="ui dividing header">
-            <i className="lightbulb icon gm-primary" />
-            <div className="content">
-              Similar ideas
-              <div className="sub header">Consider voting on existing ideas before posting a new one.</div>
-            </div>
-          </h3>
+          <Heading
+            title="Similar ideas"
+            subtitle="Consider voting on existing ideas before posting a new one."
+            icon="lightbulb"
+            iconClassName="primary"
+            level={3}
+            dividing={true}
+          />
           {this.state.loading ? (
             <Loader />
           ) : (
@@ -107,9 +108,9 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
 
     return (
       <>
-        <div className="ui grid">
+        <div className="row">
           {!this.state.query && (
-            <div className="eleven wide mobile eleven wide tablet twelve wide computer column filter-column">
+            <div className="col-sm-7 col-md-8 col-lg-9 filter-column">
               <div className="content">
                 <IdeaFilter
                   activeFilter={this.state.filter}
@@ -124,11 +125,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
               </div>
             </div>
           )}
-          <div
-            className={
-              !this.state.query ? `five wide mobile five wide tablet four wide computer column search-column` : "column"
-            }
-          >
+          <div className={!this.state.query ? `col-sm-5 col-md-4 col-lg-3` : ""}>
             <div className="ui search">
               <div className="ui icon fluid input">
                 <input

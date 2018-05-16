@@ -22,7 +22,7 @@
     }
   }
 
-  @include media(">md") {
+  @include media(">=md") {
     .header-col, 
     .comments-col {
       float: left;
@@ -38,7 +38,7 @@
   }
 
   .action-col {
-    @include media(">md") {
+    @include media(">=md") {
       width: 200px;
     }
     .ui.list {
@@ -111,7 +111,7 @@
         margin: 0;
       }
     }
-    .gm-status-label {
+    .status-label {
       width: 60px;
       margin-right: 5px;
       text-align: center;

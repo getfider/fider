@@ -111,10 +111,10 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
 
   public content() {
     return (
-      <div className="ui grid">
-        <div className="eight wide computer sixteen wide mobile column">
+      <div className="row">
+        <div className="col-lg-6">
           <div className="ui segment">
-            <h4 className="ui header">Administrators</h4>
+            <h4>Administrators</h4>
             <p className="info">
               Administrators have full access to edit and manage content, permissions and settings.
             </p>
@@ -142,9 +142,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
           </div>
         </div>
 
-        <div className="eight wide computer sixteen wide mobile column">
+        <div className="col-lg-6">
           <div className="ui segment">
-            <h4 className="ui header">Collaborators</h4>
+            <h4>Collaborators</h4>
             <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
             <div className="ui middle aligned very relaxed selection list">
               {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}

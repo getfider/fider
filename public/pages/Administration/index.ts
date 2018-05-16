@@ -1,4 +1,5 @@
 export * from "./pages/GeneralSettings.page";
+export * from "./pages/AdvancedSettings.page";
 export * from "./pages/PrivacySettings.page";
 export * from "./pages/ManageTags.page";
 export * from "./pages/Export.page";

@@ -6,6 +6,7 @@ export * from "./EnvironmentInfo";
 export * from "./Gravatar";
 export * from "./Footer";
 export * from "./Header";
+export * from "./Heading";
 export * from "./SocialSignInButton";
 export * from "./SignInControl";
 export * from "./Moment";

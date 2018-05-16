@@ -1,6 +1,6 @@
 @import '~@fider/assets/styles/variables.scss';
 
-.c-modal__dimmer {
+.c-modal-dimmer {
   position: fixed;
   top: 0;
   left: 0;
@@ -22,7 +22,7 @@
   }
 }
 
-.c-modal__window {
+.c-modal-window {
   z-index: 101;
   text-align: left;
   background: #fff;
@@ -32,34 +32,34 @@
   box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   width: 100%;
 
-  &.small {
-    @include media(">md") {
+  &.m-small {
+    @include media(">=md") {
       width: 500px;
     }
   }
 
-  &.large {
-    @include media(">md") {
+  &.m-large {
+    @include media(">=md") {
       width: 750px;
     }
   }
 
-  &.center {
+  &.m-center {
     text-align: center;
   }
 
-  .c-modal__header {
+  .c-modal-header {
     font-size: $font-size-large;
-    font-weight: 700;
+    font-weight: 600;
     padding: 15px 20px;
     border-bottom: 1px solid $gray-lighter;
   }
 
-  .c-modal__content {
+  .c-modal-content {
     padding: 15px 20px;
   }
 
-  .c-modal__footer {
+  .c-modal-footer {
     background: #f9fafb;
     padding: 10px;
     border-top: 1px solid rgba(34,36,38,.15);

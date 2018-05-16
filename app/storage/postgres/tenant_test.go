@@ -244,6 +244,24 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	Expect(upload).IsNil()
 }
 
+func TestTenantStorage_AdvancedSettings(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	settings := &models.UpdateTenantAdvancedSettings{
+		CustomCSS: ".primary { color: red; }",
+	}
+	err := tenants.UpdateAdvancedSettings(settings)
+	Expect(err).IsNil()
+
+	tenant, err = tenants.GetByDomain("demo")
+	Expect(err).IsNil()
+	Expect(tenant.CustomCSS).Equals(".primary { color: red; }")
+}
+
 func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

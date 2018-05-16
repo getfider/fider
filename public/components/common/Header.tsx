@@ -44,29 +44,29 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
   public render() {
     const items = this.props.user && (
       <div className="c-menu-user">
-        <div className="header">
+        <div className="c-menu-user-heading">
           <i className="user icon" />
           {this.props.user.name}
         </div>
-        <a href="/settings" className="item">
+        <a href="/settings" className="c-menu-user-item">
           Settings
         </a>
-        <a href="/notifications" className="item">
+        <a href="/notifications" className="c-menu-user-item">
           Notifications
-          {this.state.unreadNotifications > 0 && <div className="unread-count">{this.state.unreadNotifications}</div>}
+          {this.state.unreadNotifications > 0 && <div className="c-unread-count">{this.state.unreadNotifications}</div>}
         </a>
-        <div className="divider" />
+        <div className="c-menu-user-divider" />
         {this.props.user.isCollaborator && [
-          <div key={1} className="header">
+          <div key={1} className="c-menu-user-heading">
             <i className="setting icon" />
             Administration
           </div>,
-          <a key={2} href="/admin" className="item">
+          <a key={2} href="/admin" className="c-menu-user-item">
             Site Settings
           </a>,
-          <div key={5} className="divider" />
+          <div key={5} className="c-menu-user-divider" />
         ]}
-        <a href="/signout?redirect=/" className="item signout">
+        <a href="/signout?redirect=/" className="c-menu-user-item">
           Sign out
         </a>
       </div>
@@ -74,7 +74,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
     const profileMenuClassName = classSet({
-      "c-menu-item-signin gm-text-hover": true,
+      "c-menu-item-signin text-hover": true,
       subtitle: !this.props.user
     });
 
@@ -91,7 +91,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
             {showRightMenu && (
               <div onClick={this.showModal} className={profileMenuClassName}>
                 {this.props.user && <Gravatar user={this.props.user} />}
-                {this.state.unreadNotifications > 0 && <div className="unread-dot" />}
+                {this.state.unreadNotifications > 0 && <div className="c-unread-dot" />}
                 {!this.props.user && "Sign in"} {this.props.user && <i className="dropdown icon" />}
                 {items}
               </div>

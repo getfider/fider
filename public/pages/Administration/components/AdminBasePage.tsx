@@ -1,5 +1,6 @@
 import * as React from "react";
 import { CurrentUser } from "@fider/models";
+import { Heading } from "@fider/components";
 import { SideMenu } from "./";
 
 interface AdminBasePageProps {
@@ -16,20 +17,14 @@ export abstract class AdminBasePage<P extends AdminBasePageProps, S> extends Rea
 
   public render() {
     return (
-      <div id={this.id} className="page ui container">
-        <h2 className="ui header">
-          <i className={`circular ${this.icon} icon`} />
-          <div className="content">
-            {this.title}
-            <div className="sub header">{this.subtitle}</div>
-          </div>
-        </h2>
+      <div id={this.id} className="page container">
+        <Heading title={this.title} icon={this.icon} subtitle={this.subtitle} />
 
-        <div className="ui grid">
-          <div className="three wide computer sixteen wide mobile column">
+        <div className="row">
+          <div className="col-lg-2">
             <SideMenu user={this.props.user} activeItem={this.name} />
           </div>
-          <div className="thirteen wide computer sixteen wide mobile column">{this.content()}</div>
+          <div className="col-lg-10">{this.content()}</div>
         </div>
       </div>
     );

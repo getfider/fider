@@ -10,15 +10,15 @@ interface SocialSignInButtonProps {
 const providers = {
   google: {
     name: "Google",
-    class: "social google"
+    class: "m-social m-google"
   },
   facebook: {
     name: "Facebook",
-    class: "social facebook"
+    class: "m-social m-facebook"
   },
   github: {
     name: "GitHub",
-    class: "social github"
+    class: "m-social m-github"
   }
 };
 

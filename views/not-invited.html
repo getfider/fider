@@ -5,17 +5,15 @@ Not Invited &middot; Fider
 {{define "javascript"}}{{end}}
 
 {{define "content"}}
-<div class="ui middle aligned center aligned grid failure-page">
-  <div class="column">
-    <img src="{{.__logo}}"/>
-    <h1>NOT INVITED</h1>
-    <p>
-      We couldn't find your account for your email address.
-    </p>
+<div class="container failure-page">
+  <img src="{{.__logo}}"/>
+  <h1>NOT INVITED</h1>
+  <p>
+    We couldn't find your account for your email address.
+  </p>
 
-    {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}/signin">{{ .baseURL }}/signin</a>.</span>
-    {{ end }}
-  </div>
+  {{ if .tenant }}
+    <span>Take me back to <a href="{{ .baseURL }}/signin">{{ .baseURL }}/signin</a>.</span>
+  {{ end }}
 </div>
 {{end}}

@@ -7,6 +7,9 @@ $font-size-large: 16px;
 $font-size-big: 18px;
 $font-size-xlarge: 22px;
 
+$font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
+$font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+
 $main-color: #0069ff;
 $admin-color: #365899;
 $bg-color: #fdfdfd;
@@ -16,8 +19,9 @@ $link-color: #07C;
 
 // Buttons
 $white: #fff;
-$gray-lighter: #eee;
-$gray-darker: #d5d5d5;
+$gray-lighter: rgba(0, 0, 0, .03);
+$gray: rgba(0, 0, 0, 0.15);
+$gray-darker: rgba(0, 0, 0, 0.6);
 $green: #15CD72;
 $green-darker: #0CB863;
 $red: #db2828;

@@ -43,7 +43,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
 
   public render() {
     return (
-      <div id="p-home" className="container">
+      <div id="p-home" className="page container">
         <div className="row">
           <div className="col-md-5">
             <MultiLineText

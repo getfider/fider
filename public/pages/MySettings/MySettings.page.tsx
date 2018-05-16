@@ -2,7 +2,7 @@ import "./MySettings.page.scss";
 
 import * as React from "react";
 
-import { Modal, Form, DisplayError, Button, Gravatar } from "@fider/components/common";
+import { Modal, Form, DisplayError, Button, Gravatar, Heading } from "@fider/components";
 import { NotificationSettings } from "./";
 
 import { CurrentUser, UserSettings } from "@fider/models";
@@ -58,7 +58,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
   public render() {
     return (
-      <div id="p-my-settings" className="page ui container">
+      <div id="p-my-settings" className="page container">
         <Modal.Window isOpen={this.state.showModal} canClose={true} center={true}>
           <Modal.Header>Confirm your new email</Modal.Header>
           <Modal.Content>
@@ -76,16 +76,10 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <h2 className="ui header">
-          <i className="circular id badge icon" />
-          <div className="content">
-            Settings
-            <div className="sub header">Manage your profile settings</div>
-          </div>
-        </h2>
+        <Heading title="Settings" subtitle="Manage your profile settings" icon="user badge" />
 
-        <div className="ui grid">
-          <div className="ten wide computer sixteen wide mobile column">
+        <div className="row">
+          <div className="col-lg-7">
             <div className="ui form">
               <div className="field">
                 <label htmlFor="email">Avatar</label>

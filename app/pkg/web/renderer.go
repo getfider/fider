@@ -12,8 +12,15 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/md5"
 	"github.com/getfider/fider/app/pkg/oauth"
 )
+
+var templateFunctions = template.FuncMap{
+	"md5": func(input string) string {
+		return md5.Hash(input)
+	},
+}
 
 //Renderer is the default HTML Render
 type Renderer struct {
@@ -49,7 +56,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 func (r *Renderer) add(name string) *template.Template {
 	base := env.Path("/views/base.html")
 	file := env.Path("/views", name)
-	tpl, err := template.ParseFiles(base, file)
+	tpl, err := template.New("base.html").Funcs(templateFunctions).ParseFiles(base, file)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse template %s", file))
 	}

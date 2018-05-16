@@ -1,3 +1,5 @@
+import "./SideMenu.scss";
+
 import * as React from "react";
 import { CurrentUser } from "@fider/models";
 import { classSet, page } from "@fider/services";
@@ -17,8 +19,8 @@ interface SideMenuItemProps {
 
 const SideMenuItem = (props: SideMenuItemProps) => {
   const className = classSet({
-    item: true,
-    active: props.isActive
+    "c-side-menu-item": true,
+    "m-active": props.isActive
   });
 
   if (props.isActive) {
@@ -40,7 +42,7 @@ export const SideMenu = (props: SiteMenuProps) => {
   const activeItem = props.activeItem || "general";
   return (
     <>
-      <div className="ui vertical menu fluid">
+      <div className="c-side-menu">
         <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
@@ -51,6 +53,7 @@ export const SideMenu = (props: SiteMenuProps) => {
           href="/admin/invitations"
           isActive={activeItem === "invitations"}
         />
+        <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
         {props.user.isAdministrator && (
           <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
         )}

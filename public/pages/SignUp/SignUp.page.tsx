@@ -109,11 +109,11 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     );
 
     return (
-      <div id="p-signup" className="page ui container">
+      <div id="p-signup" className="page container">
         {modal}
         <img className="logo" src={logo} />
 
-        <h3 className="ui header">1. Who are you?</h3>
+        <h3>1. Who are you?</h3>
         <DisplayError fields={["token"]} error={this.state.error} />
 
         {this.user ? (
@@ -150,7 +150,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
 
         <div className="ui section divider" />
 
-        <h3 className="ui header">2. What is this Feedback Forum for?</h3>
+        <h3>2. What is this Feedback Forum for?</h3>
 
         <DisplayError fields={["tenantName", "subdomain"]} error={this.state.error} />
         <div className="ui form">
@@ -184,7 +184,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         </div>
         <div className="ui section divider" />
 
-        <h3 className="ui header">3. Review and continue</h3>
+        <h3>3. Review and continue</h3>
 
         <p>Make sure information provided above is correct before proceeding.</p>
 

@@ -12,11 +12,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ .currentURL }}" />
     <meta property="og:image" content="{{ .__logo }}">
+    {{ if .tenant.CustomCSS }} 
+    <link rel="stylesheet" href="/custom/{{ .tenant.CustomCSS | md5 }}.css" />
+    {{ end }}
 </head>
 <body>
-  <noscript class="ui container">
+  <noscript class="container">
     <div class="ui yellow segment">
-      <h2 class="ui header">Please enable JavaScript</h2>
+      <h2>Please enable JavaScript</h2>
       <p>This website relies on JavaScript-based technologies and services.</p>
       <p>Please enable JavaScript and then reload the page.</p>
     </div>

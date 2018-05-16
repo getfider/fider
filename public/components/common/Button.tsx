@@ -71,12 +71,12 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   public render() {
     const className = classSet({
       "c-button": true,
-      "as-link": this.props.simple,
-      fluid: this.props.fluid,
-      [this.props.size!]: this.props.size,
-      [this.props.color!]: this.props.color,
-      loading: this.state.clicked,
-      disabled: this.state.clicked || this.props.disabled,
+      "m-link": this.props.simple,
+      "m-fluid": this.props.fluid,
+      [`m-${this.props.size}`]: this.props.size,
+      [`m-${this.props.color}`]: this.props.color,
+      "m-loading": this.state.clicked,
+      "m-disabled": this.state.clicked || this.props.disabled,
       [this.props.className!]: this.props.className
     });
 

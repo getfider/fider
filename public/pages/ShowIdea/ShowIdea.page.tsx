@@ -63,7 +63,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
   public render() {
     return (
-      <div id="p-show-idea" className="page ui container">
+      <div id="p-show-idea" className="page container">
         <div className="header-col">
           <div className="ui items unstackable">
             <div className="item">

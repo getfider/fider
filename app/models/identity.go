@@ -19,6 +19,7 @@ type Tenant struct {
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
 	LogoID         int    `json:"logoId"`
+	CustomCSS      string `json:"-"`
 }
 
 var (
@@ -152,6 +153,11 @@ type UpdateTenantSettings struct {
 	Invitation     string                    `json:"invitation"`
 	WelcomeMessage string                    `json:"welcomeMessage"`
 	CNAME          string                    `json:"cname" format:"lower"`
+}
+
+//UpdateTenantAdvancedSettings is the input model used to update tenant advanced settings
+type UpdateTenantAdvancedSettings struct {
+	CustomCSS string `json:"customCSS"`
 }
 
 //UpdateTenantSettingsLogo is the input model used to update logo

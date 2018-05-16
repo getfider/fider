@@ -25,7 +25,7 @@ const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) =>
             {props.idea.totalComments} <i className="comments outline icon" />
           </div>
         )}
-        <a className="title gm-text gm-primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
+        <a className="title text primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
           {props.idea.title}
         </a>
         <MultiLineText className="description" text={props.idea.description} style="simple" />
@@ -68,7 +68,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
           />
         ))}
         {this.props.ideas.length > this.state.showCount && (
-          <h5 className="gm-primary show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
+          <h5 className="primary show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
             View {this.props.ideas.length - this.state.showCount} more ideas
           </h5>
         )}

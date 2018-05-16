@@ -46,6 +46,7 @@
 
     .c-menu-item-title {
       @include menu-item;
+      color: #484848;
       img {
         margin-right: 10px;
         width: auto;
@@ -59,8 +60,7 @@
       span {
         font-size: $font-size-big;
         margin: 0 0 0 0;
-        color: #484848;
-        font-weight: 700;
+        font-weight: 600;
         @include media("sm") {
           font-size: $font-size;
           max-width: 240px;
@@ -89,16 +89,16 @@
         width: 160px;
         border-radius: 0px 0px 5px 5px;
 
-        .header {
+        .c-menu-user-heading {
           font-size: $font-size-mini;
           padding: 10px;
           display: block;
           color: $text-color;
           text-transform: uppercase;
-          font-weight: 700;
+          font-weight: 600;
           cursor: default;
         }
-        .item {
+        .c-menu-user-item {
           font-size: $font-size-small;
           padding: 10px;
           display: block;
@@ -107,7 +107,7 @@
             background-color: $gray-lighter;
           }
         }
-        .divider {
+        .c-menu-user-divider {
           border-top: 1px solid rgba(34,36,38,.1);
           display: block;
           cursor: default;
@@ -122,7 +122,7 @@
         }
       }
 
-      .unread-dot {
+      .c-unread-dot {
         width: 10px;
         height: 10px;
         border-radius: 5px;
@@ -132,7 +132,7 @@
         border: 1px solid $white !important;
       }
 
-      .unread-count {
+      .c-unread-count {
         display: inline-block;
         background-color: $red;
         position: absolute;

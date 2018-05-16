@@ -3,7 +3,7 @@
 .c-toggle {
   cursor: pointer;
 
-  &.disabled {
+  &.m-disabled {
     cursor: not-allowed;
     label {
       cursor: not-allowed;
@@ -27,7 +27,7 @@
     border-radius: 0.5em;
     position: relative;
     cursor: pointer;
-    background: $gray-darker;
+    background: $gray;
   }
 
   .switch {

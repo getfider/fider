@@ -1,3 +1,5 @@
+import "./SignInControl.scss";
+
 import * as React from "react";
 import { SocialSignInButton, Form, Button } from "@fider/components/common";
 import { AuthSettings } from "@fider/models";
@@ -49,7 +51,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
 
   public render() {
     const google = this.settings.providers.google && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="google"
@@ -58,7 +60,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const facebook = this.settings.providers.facebook && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="facebook"
@@ -67,7 +69,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const github = this.settings.providers.github && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="github"
@@ -78,10 +80,10 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     const hasOAuth = !!(google || facebook || github);
 
     return (
-      <div className="signin-options">
+      <div className="c-signin-control">
         {hasOAuth && (
           <div>
-            <div className="ui stackable three column centered grid">
+            <div className="row">
               {facebook}
               {google}
               {github}

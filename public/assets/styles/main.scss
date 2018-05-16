@@ -18,6 +18,10 @@
   -webkit-appearance: button;
 }
 
+.page {
+  margin-top: 30px;
+}
+
 .page::after {
   content: "";
   clear: both;
@@ -29,23 +33,28 @@ noscript {
 }
 
 body {
+  font-family: $font-site;
   background-color: $bg-color;
   color: $text-color;
+  font-size: $font-size;
 }
 
 code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-family: $font-code;
 }
 
 body, h1, h2, h3, h4, h5, .ui, input {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5 {
+  font-weight: 600;
+}
+
 .info {
-  font-size: 80%;
-  color: rgba($text-color, .7);
+  font-size: 85%;
+  color: rgba($text-color, .8);
 }
 
 .info.right {
@@ -173,15 +182,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
   }
 }
 
-.signin-options{
-  .ui.stackable.grid>.column:not(.row),
-  .column {
-    padding: 10px 5px !important;
-  }
-}
-
 .failure-page {
   height: 60%;
+  text-align: center;
+  margin-top: 100px;
   p {
     font-size: 150%;
   }
