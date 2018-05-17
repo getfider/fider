@@ -9,7 +9,7 @@ export class Browser {
     this.driver
       .manage()
       .timeouts()
-      .implicitlyWait(2000);
+      .implicitlyWait(1000);
   }
 
   public async navigate(url: string): Promise<void> {

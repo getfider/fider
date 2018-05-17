@@ -11,15 +11,15 @@ export class SignUpPage extends Page {
   }
 
   @findBy("#p-signup") private Container!: WebComponent;
-  @findBy("#p-signup .c-button.google") public GoogleSignIn!: Button;
-  @findBy("#p-signup .c-button.facebook") public FacebookSignIn!: Button;
+  @findBy("#p-signup .c-button.m-google") public GoogleSignIn!: Button;
+  @findBy("#p-signup .c-button.m-facebook") public FacebookSignIn!: Button;
   @findBy("#p-signup .form #name") public UserName!: TextInput;
   @findBy("#p-signup .form #email") public UserEmail!: TextInput;
   @findBy("#p-signup .form #tenantName") public TenantName!: TextInput;
   @findBy("#p-signup .form #subdomain") public Subdomain!: TextInput;
-  @findBy("#p-signup .c-button.green") public Confirm!: Button;
+  @findBy("#p-signup .c-button.m-positive") public Confirm!: Button;
   @findBy("#p-signup .green.basic.label") private SubdomainOk!: WebComponent;
-  @findBy(".c-modal__window") private ConfirmationModal!: WebComponent;
+  @findBy(".c-modal-window") private ConfirmationModal!: WebComponent;
 
   public loadCondition() {
     return elementIsVisible(() => this.Container);

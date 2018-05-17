@@ -66,7 +66,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
           </a>,
           <div key={5} className="c-menu-user-divider" />
         ]}
-        <a href="/signout?redirect=/" className="c-menu-user-item">
+        <a href="/signout?redirect=/" className="c-menu-user-item signout">
           Sign out
         </a>
       </div>

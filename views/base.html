@@ -12,7 +12,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ .currentURL }}" />
     <meta property="og:image" content="{{ .__logo }}">
-    {{ if .tenant.CustomCSS }} 
+    {{ if .tenant }} 
     <link rel="stylesheet" href="/custom/{{ .tenant.CustomCSS | md5 }}.css" />
     {{ end }}
 </head>

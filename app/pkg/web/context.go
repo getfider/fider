@@ -272,9 +272,7 @@ func (ctx *Context) Page(props Props) error {
 // Render renders a template with data and sends a text/html response with status
 func (ctx *Context) Render(code int, template string, props Props) error {
 	buf := new(bytes.Buffer)
-	if err := ctx.engine.renderer.Render(buf, template, props, ctx); err != nil {
-		return err
-	}
+	ctx.engine.renderer.Render(buf, template, props, ctx)
 	return ctx.Blob(code, HTMLContentType, buf.Bytes())
 }
 

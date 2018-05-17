@@ -24,7 +24,7 @@ export class AdminSettingsPage extends Page {
   @findBy("#title") public TitleInput!: TextInput;
   @findBy("#welcome-message") public WelcomeMessageInput!: TextInput;
   @findBy("#invitation") public InvitationInput!: TextInput;
-  @findBy("button.green") public ConfirmButton!: Button;
+  @findBy(".c-button.m-positive") public ConfirmButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.TitleInput);

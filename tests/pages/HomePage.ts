@@ -25,23 +25,23 @@ export class HomePage extends Page {
     return `http://${tenant}.dev.fider.io:3000/`;
   }
 
-  @findBy(".menu a.header") public MenuTitle!: WebComponent;
+  @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
   @findBy(".page .welcome-message") public WelcomeMessage!: WebComponent;
   @findBy("#new-idea-input") public IdeaTitle!: TextInput;
   @findBy(".ui.form textarea") public IdeaDescription!: TextInput;
-  @findBy(".c-button.green") public SubmitIdea!: Button;
-  @findBy(".signin") public UserMenu!: WebComponent;
-  @findBy(".signin .name") public UserName!: WebComponent;
-  @findBy(".c-modal__window") public SignInModal!: WebComponent;
-  @findBy(".c-modal__window .c-button.google") public GoogleSignIn!: Button;
-  @findBy(".c-modal__window .c-button.facebook") public FacebookSignIn!: Button;
+  @findBy(".c-button.m-positive") public SubmitIdea!: Button;
+  @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
+  @findBy(".c-menu-user-heading") public UserName!: WebComponent;
+  @findBy(".c-modal-window") public SignInModal!: WebComponent;
+  @findBy(".c-modal-window .c-button.m-google") public GoogleSignIn!: Button;
+  @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
   @findBy("#email-signin input") private EmailSignInInput!: TextInput;
   @findBy("#email-signin button") private EmailSignInButton!: TextInput;
   @findBy(".ui.form .ui.negative.message") public ErrorBox!: WebComponent;
   @findBy(".signout") private SignOut!: Button;
   @findMultipleBy(".c-idea-list > .item") public IdeaList!: IdeaList;
-  @findBy(".c-modal__window input") private CompleteEmailSignInInput!: TextInput;
-  @findBy(".c-modal__window button") private CompleteEmailSignInButton!: Button;
+  @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
+  @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.IdeaTitle);

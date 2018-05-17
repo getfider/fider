@@ -3,7 +3,7 @@ import "./Segment.scss";
 import * as React from "react";
 
 interface SegmentProps {
-  className: string;
+  className?: string;
 }
 
 export const Segments: React.StatelessComponent<SegmentProps> = props => {

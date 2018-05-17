@@ -80,7 +80,7 @@ func (r *Renderer) getBundle(folder string) string {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) error {
+func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	tmpl, ok := r.templates[name]
 	if !ok {
 		panic(fmt.Errorf("The template '%s' does not exist", name))
@@ -152,7 +152,6 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) e
 
 	err := tmpl.Execute(w, m)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute template %s", name)
+		panic(errors.Wrap(err, "failed to execute template %s", name))
 	}
-	return nil
 }
