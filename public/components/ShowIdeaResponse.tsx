@@ -1,6 +1,6 @@
 import * as React from "react";
 import { User, IdeaResponse, IdeaStatus } from "@fider/models";
-import { Gravatar, MultiLineText, Moment, UserName } from "@fider/components/common";
+import { Gravatar, MultiLineText, Moment, UserName, Segment } from "@fider/components/common";
 
 interface IdeaResponseProps {
   status: number;
@@ -36,14 +36,14 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
 
   if (props.response && status.show) {
     return (
-      <div className="c-response item ui segment">
+      <Segment className="response">
         <span className={`status-label status-${status.slug}`}>{status.title}</span>
         <Gravatar user={props.response.user} /> <UserName user={props.response.user} />
         <span className="info">
           <Moment date={props.response.respondedOn} />
         </span>
         {status === IdeaStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
-      </div>
+      </Segment>
     );
   }
 

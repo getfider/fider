@@ -76,7 +76,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon="user badge" />
+        <Heading title="Settings" subtitle="Manage your profile settings" icon="id badge" />
 
         <div className="row">
           <div className="col-lg-7">

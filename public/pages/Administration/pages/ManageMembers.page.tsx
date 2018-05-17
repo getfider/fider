@@ -1,7 +1,7 @@
 import "./ManageMembers.page.scss";
 
 import * as React from "react";
-import { Button, Gravatar, UserName } from "@fider/components/common";
+import { Button, Gravatar, UserName, Segment } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
 import { actions } from "@fider/services";
 import { AdminBasePage } from "../components";
@@ -113,7 +113,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     return (
       <div className="row">
         <div className="col-lg-6">
-          <div className="ui segment">
+          <Segment>
             <h4>Administrators</h4>
             <p className="info">
               Administrators have full access to edit and manage content, permissions and settings.
@@ -139,11 +139,11 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                   this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
               </div>
             )}
-          </div>
+          </Segment>
         </div>
 
         <div className="col-lg-6">
-          <div className="ui segment">
+          <Segment>
             <h4>Collaborators</h4>
             <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
             <div className="ui middle aligned very relaxed selection list">
@@ -167,7 +167,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                   this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
               </div>
             )}
-          </div>
+          </Segment>
         </div>
       </div>
     );

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
+import { ShowTag, Button, Gravatar, UserName, Segment } from "@fider/components";
 import { AdminBasePage, TagForm, TagFormState } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
@@ -147,9 +147,9 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     const form =
       this.props.user.isAdministrator &&
       (this.state.isAdding ? (
-        <div className="ui segment">
+        <Segment>
           <TagForm onSave={async data => this.saveNewTag(data)} onCancel={() => this.setState({ isAdding: false })} />
-        </div>
+        </Segment>
       ) : (
         <Button
           color="positive"
@@ -167,12 +167,12 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
 
     return (
       <>
-        {form}
-        <div className="ui segment">
+        <p>{form}</p>
+        <Segment>
           <div className="ui middle aligned very relaxed divided list">
             {list.length ? list : <div className="content">There aren’t any tags yet.</div>}
           </div>
-        </div>
+        </Segment>
       </>
     );
   }

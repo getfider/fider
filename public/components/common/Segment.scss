@@ -1,0 +1,25 @@
+.c-segment {
+  position: relative;
+  padding: 10px;
+  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
+  border-radius: 5px;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+}
+
+.c-segments {
+  position: relative;
+  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
+  border-radius: 5px;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+
+  .c-segment {
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0px;
+    border: none;
+    border-bottom: 1px solid rgba(34, 36, 38, 0.15);
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

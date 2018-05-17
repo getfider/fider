@@ -56,3 +56,19 @@
 .status-duplicate {
   background-color: #fbbd08;
 }
+
+.response {
+  padding: 0.5em;
+
+  .content {
+    margin-top: 10px;
+  }
+
+  .c-avatar {
+    margin-left: 3px;
+  }
+
+  span.date {
+    margin-left: 6px;
+  }
+}

@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
 
 import "semantic-ui-css/components/reset.min.css";
 import "semantic-ui-css/components/site.min.css";
-import "semantic-ui-css/components/segment.min.css";
 import "semantic-ui-css/components/transition.min.css";
 import "semantic-ui-css/components/form.min.css";
 import "semantic-ui-css/components/dropdown.min.css";

@@ -53,7 +53,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .info {
-  font-size: 85%;
+  font-size: 80%;
   color: rgba($text-color, .8);
 }
 
@@ -125,22 +125,6 @@ h1, h2, h3, h4, h5 {
 .ui.inline.dropdown {
   > .text {
     border-bottom: 1px dashed #9e9e9e
-  }
-}
-
-.ui.segment.c-response {
-  padding: 0.5em;
-
-  .content {
-    margin-top: 10px;
-  }
-
-  .c-avatar {
-    margin-left: 3px;
-  }
-
-  span.date {
-    margin-left: 6px;
   }
 }
 
