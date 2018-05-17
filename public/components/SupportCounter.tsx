@@ -60,7 +60,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         <i
           className={classSet({
             "medium caret up icon": true,
-            "text-lighter": !this.state.supported,
+            "text-light": !this.state.supported,
             primary: this.state.supported
           })}
         />
