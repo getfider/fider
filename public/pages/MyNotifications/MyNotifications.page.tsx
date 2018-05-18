@@ -3,7 +3,7 @@ import "./MyNotifications.page.scss";
 import * as React from "react";
 
 import { CurrentUser, Notification } from "@fider/models";
-import { MultiLineText, Moment, Heading } from "@fider/components";
+import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { page, actions } from "@fider/services";
 
 interface MyNotificationsPageProps {
@@ -36,14 +36,14 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
   private items(notifications: Notification[]): JSX.Element[] {
     return notifications.map(n => {
       return (
-        <span key={n.id} className="item">
+        <ListItem key={n.id}>
           <a href={`/notifications/${n.id}`}>
             <MultiLineText text={n.title} style="simple" />
             <span className="info">
               <Moment date={n.createdOn} />
             </span>
           </a>
-        </span>
+        </ListItem>
       );
     });
   }
@@ -68,14 +68,16 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
             </span>
           )}
         </h4>
-        <div className="ui list">
+        <List>
           {this.state.unread.length > 0 && this.items(this.state.unread)}
           {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
-        </div>
+        </List>
         {this.state.recent.length > 0 && (
           <>
             <h4>Read on last 30 days</h4>
-            <div className="ui list">{this.items(this.state.recent)}</div>
+            <List>
+              <ListItem>{this.items(this.state.recent)}</ListItem>
+            </List>
           </>
         )}
       </div>

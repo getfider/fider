@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IdeaStatus, CurrentUser, Idea } from "@fider/models";
 import { page, actions, Failure } from "@fider/services";
-import { Form, DisplayError, Textarea, Modal, Button } from "@fider/components";
+import { Form, DisplayError, Textarea, Modal, Button, List, ListItem } from "@fider/components";
 
 interface ModerationPanelProps {
   user?: CurrentUser;
@@ -78,8 +78,8 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
       <div>
         {modal}
         <span className="subtitle">Moderation</span>
-        <div className="ui list">
-          <div className="item">
+        <List>
+          <ListItem>
             <Button
               color="danger"
               size="tiny"
@@ -88,8 +88,8 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
             >
               <i className="delete icon" /> Delete
             </Button>
-          </div>
-        </div>
+          </ListItem>
+        </List>
       </div>
     );
   }

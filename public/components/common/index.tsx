@@ -10,6 +10,7 @@ export * from "./Heading";
 export * from "./SocialSignInButton";
 export * from "./SignInControl";
 export * from "./Segment";
+export * from "./List";
 export * from "./Moment";
 export * from "./UserName";
 export * from "./Modal";

@@ -1,0 +1,13 @@
+.c-list {
+  .c-list-item {
+    display: list-item;
+    table-layout: fixed;
+    list-style-type: none;
+    list-style-position: outside;
+    margin: 5px 0;
+
+    &.m-selectable {
+      cursor: pointer;
+    }
+  }
+}

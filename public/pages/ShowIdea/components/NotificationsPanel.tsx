@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CurrentUser, Idea } from "@fider/models";
-import { Button } from "@fider/components/common";
+import { Button, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 
 interface NotificationsPanelProps {
@@ -54,12 +54,12 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
     return (
       <>
         <span className="subtitle">Notifications</span>
-        <div className="ui list">
-          <div className="item">
+        <List>
+          <ListItem>
             {button}
             {text}
-          </div>
-        </div>
+          </ListItem>
+        </List>
       </>
     );
   }
