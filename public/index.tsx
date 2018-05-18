@@ -15,7 +15,6 @@ import "semantic-ui-css/components/form.min.css";
 import "semantic-ui-css/components/input.min.css";
 import "semantic-ui-css/components/label.min.css";
 import "semantic-ui-css/components/list.min.css";
-import "semantic-ui-css/components/divider.min.css";
 import "semantic-ui-css/components/item.min.css";
 import "semantic-ui-css/components/message.min.css";
 import "semantic-ui-css/components/checkbox.min.css";

@@ -148,8 +148,6 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
           </>
         )}
 
-        <div className="ui section divider" />
-
         <h3>2. What is this Feedback Forum for?</h3>
 
         <DisplayError fields={["tenantName", "subdomain"]} error={this.state.error} />
@@ -182,7 +180,6 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
             </div>
           )}
         </div>
-        <div className="ui section divider" />
 
         <h3>3. Review and continue</h3>
 

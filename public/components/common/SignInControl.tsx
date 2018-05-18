@@ -89,7 +89,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
               {github}
             </div>
             <p className="info">We'll never post to any of your accounts</p>
-            <div className="ui horizontal divider">OR</div>
+            <div className="c-divider">OR</div>
           </div>
         )}
 
