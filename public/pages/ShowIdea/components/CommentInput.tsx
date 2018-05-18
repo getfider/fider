@@ -68,7 +68,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className={`comment-input ${this.props.user && "authenticated"}`}>
+        <div className={`c-comment-input ${this.props.user && "m-authenticated"}`}>
           {this.props.user && <Gravatar user={this.props.user} />}
           <div className="ui form">
             {this.props.user && <UserName user={this.props.user} />}

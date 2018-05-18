@@ -19,7 +19,6 @@ import "semantic-ui-css/components/divider.min.css";
 import "semantic-ui-css/components/item.min.css";
 import "semantic-ui-css/components/message.min.css";
 import "semantic-ui-css/components/checkbox.min.css";
-import "semantic-ui-css/components/comment.min.css";
 
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";

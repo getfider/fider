@@ -1,0 +1,50 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-comment-list {
+  max-width: 650px;
+
+  .c-avatar {
+    margin-right: 5px;
+    vertical-align: top;
+    margin-top: 2px;
+  }
+
+  .c-comment {
+
+    .c-comment-content {
+      display: inline-block;
+      width: 85%;
+    }
+
+    .c-comment-metadata {
+      display: inline-block;
+      margin-left: .5em;
+      font-size: 80%;
+      color: $gray;
+    }
+
+    position: relative;
+    margin: 15px 0 0;
+    border: none;
+    border-top: none;
+    line-height: 1.2;
+  }
+}
+
+.c-comment-input  {
+  margin-top: 15px;
+  .ui.form textarea {
+    margin-top: 5px;
+  }
+
+  .form {
+    display: inline-block;
+    width: 100%;
+  }
+
+  &.m-authenticated{
+    .form {
+      width: 85%;
+    }
+  }
+}

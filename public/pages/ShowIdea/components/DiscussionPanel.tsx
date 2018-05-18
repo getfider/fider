@@ -1,3 +1,5 @@
+import "./Comments.scss";
+
 import * as React from "react";
 import { CurrentUser, Comment, Idea } from "@fider/models";
 import { CommentList, CommentInput } from "../";
@@ -24,7 +26,7 @@ export class DiscussionPanel extends React.Component<DiscussionPanelProps, Discu
   public render() {
     return (
       <div className="comments-col">
-        <div className="ui comments">
+        <div className="c-comment-list">
           <span className="subtitle">Discussion</span>
           <CommentList
             idea={this.props.idea}

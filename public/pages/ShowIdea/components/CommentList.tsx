@@ -77,16 +77,16 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
   public render() {
     return this.props.comments.map(c => {
       return (
-        <div key={c.id} className="comment">
+        <div key={c.id} className="c-comment">
           <Gravatar user={c.user} />
-          <div className="content">
+          <div className="c-comment-content">
             <UserName user={c.user} />
-            <div className="metadata">
+            <div className="c-comment-metadata">
               · <Moment date={c.createdOn} />
             </div>
             {!!c.editedOn &&
               !!c.editedBy && (
-                <div className="metadata">
+                <div className="c-comment-metadata">
                   ·{" "}
                   <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedOn)}`}>
                     edited
@@ -94,7 +94,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
                 </div>
               )}
             {this.canEditComment(c) && (
-              <div className="metadata">
+              <div className="c-comment-metadata">
                 ·{" "}
                 <span className="clickable" onClick={() => this.startEdit(c)}>
                   edit

@@ -23,7 +23,7 @@ export class ShowIdeaPage extends Page {
   @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
   @findBy(".comment-input textarea") public CommentInput!: TextInput;
   @findBy(".comment-input button") public SubmitCommentButton!: Button;
-  @findMultipleBy(".ui.comments > .comment") public CommentList!: CommentList;
+  @findMultipleBy(".c-comment-list .c-comment") public CommentList!: CommentList;
   @findBy(".action-col .c-button.respond") public RespondButton!: Button;
   @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
   @findBy(".c-modal-window .c-response-form select") private ResponseModalStatus!: DropDownList;
