@@ -69,7 +69,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
 
     const ideasToList = this.props.ideas.slice(0, this.state.showCount);
     return (
-      <List className="c-idea-list">
+      <List className="c-idea-list" divided={true}>
         {ideasToList.map(idea => (
           <ListIdeaItem
             key={idea.id}

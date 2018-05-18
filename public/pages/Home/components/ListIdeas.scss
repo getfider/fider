@@ -3,12 +3,7 @@
 .c-idea-list {
   .c-list-item {
     display: flex;
-    padding: 10px 0px;
-    border-top: 0.1px solid $gray-lighter;
-
-    &:first-child {
-      border-top: none;
-    }
+    border-top-width: 0.1px !important;
 
     .c-list-item-title {
       max-width: 85%;

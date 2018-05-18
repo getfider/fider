@@ -5,6 +5,7 @@ import { classSet } from "@fider/services";
 
 interface ListProps {
   className?: string;
+  divided?: boolean;
 }
 
 interface ListItemProps {
@@ -13,7 +14,13 @@ interface ListItemProps {
 }
 
 export const List: React.StatelessComponent<ListProps> = props => {
-  return <div className={`c-list ${props.className || ""}`}>{props.children}</div>;
+  const className = classSet({
+    "c-list": true,
+    [props.className || ""]: true,
+    "m-divided": props.divided
+  });
+
+  return <div className={className}>{props.children}</div>;
 };
 
 export const ListItem: React.StatelessComponent<ListItemProps> = props => {

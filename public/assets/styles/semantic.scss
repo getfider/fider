@@ -4,20 +4,6 @@
   max-height: initial;
 }
 
-.ui.list {
-  .item {
-    .showover {
-      visibility: hidden;
-    }
-    &:hover {
-      .showover {
-        visibility: visible;
-      }
-    }
-  }
-}
-
-
 .ui.label {
   .icon {
     margin-right: 0.25em;

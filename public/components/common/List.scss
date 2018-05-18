@@ -1,15 +1,42 @@
+@import '~@fider/assets/styles/variables.scss';
+
 .c-list {
+
+  &.m-divided {
+    margin: 0;
+    .c-list-item {
+      padding: 20px 0;
+      border-top: 1px solid $gray-lighter;
+      &:first-child {
+        border-top: none;
+        padding-top: 0;
+      }
+      &:last-child {
+        padding-bottom: 0;
+      }
+    }
+  }
+
   .c-list-item {
     display: list-item;
     table-layout: fixed;
     list-style-type: none;
     list-style-position: outside;
-    margin: 10px 0;
-    padding: 0;
+    padding: 10px 0;
     border: none;
 
     &.m-selectable {
       cursor: pointer;
+    }
+
+    .showover {
+      visibility: hidden;
+    }
+
+    &:hover {
+      .showover {
+        visibility: visible;
+      }
     }
   }
 }

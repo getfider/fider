@@ -57,8 +57,9 @@ h1, h2, h3, h4, h5 {
   color: rgba($text-color, .8);
 }
 
-.info.right {
+.right {
   float: right;
+  vertical-align: middle;
 }
 
 .center {
