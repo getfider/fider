@@ -6,34 +6,6 @@
     margin-bottom: 20px;
   }
 
-  .c-idea-list {
-    > .item {
-      border-top: 0.1px solid $gray-lighter;
-      &:first-child {
-        border-top: none;
-      }
-
-      .title {
-        max-width: 85%;
-        font-size: 18px;
-      }
-
-      .content {
-        width: calc(100% - 55px);
-      }
-      
-      .description {
-        color:rgba(0, 0, 0, 0.5) !important;
-        min-height: 20px;
-        margin-bottom: 10px;
-      }
-    }
-    .show-more {
-      cursor: pointer;
-      margin-left: 55px;
-    }
-  }
-
   .ideas-filter {
     .item {
       .label {

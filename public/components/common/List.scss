@@ -1,10 +1,9 @@
 .c-list {
   .c-list-item {
-    display: list-item;
-    table-layout: fixed;
-    list-style-type: none;
-    list-style-position: outside;
-    margin: 5px 0;
+    display: flex;
+    margin: 10px 0;
+    padding: 0;
+    border: none;
 
     &.m-selectable {
       cursor: pointer;

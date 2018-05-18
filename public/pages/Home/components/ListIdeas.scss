@@ -1,0 +1,33 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-idea-list {
+  .c-list-item {
+    padding: 10px 0px;
+    border-top: 0.1px solid $gray-lighter;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    .c-list-item-title {
+      max-width: 85%;
+      font-size: $font-size-big;
+    }
+
+    .c-list-item-content {
+      width: calc(100% - 55px);
+      display: block;
+    }
+    
+    .c-list-item-description {
+      color: $gray-darkest;
+      min-height: 20px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .c-idea-list-show-more {
+    cursor: pointer;
+    margin-left: 55px;
+  }
+}
