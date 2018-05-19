@@ -169,7 +169,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
 
     return (
       <>
-        <div className="mb-m">{form}</div>
+        {form}
         <Segment>
           <List divided={true}>{list.length ? list : <div className="content">There aren’t any tags yet.</div>}</List>
         </Segment>

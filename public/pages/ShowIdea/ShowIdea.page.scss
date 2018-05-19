@@ -35,14 +35,14 @@
 
   .header-col {
     margin-bottom: 5px;
+    .c-list-item {
+      display: flex;
+    }
   }
 
   .action-col {
     @include media(">=md") {
       width: 200px;
-    }
-    .ui.list {
-      margin: 0.5em 0em;
     }
   }
 

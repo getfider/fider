@@ -6,6 +6,7 @@ import { classSet } from "@fider/services";
 interface ListProps {
   className?: string;
   divided?: boolean;
+  hover?: boolean;
 }
 
 interface ListItemProps {
@@ -17,7 +18,8 @@ export const List: React.StatelessComponent<ListProps> = props => {
   const className = classSet({
     "c-list": true,
     [props.className || ""]: true,
-    "m-divided": props.divided
+    "m-divided": props.divided,
+    "m-hover": props.hover
   });
 
   return <div className={className}>{props.children}</div>;

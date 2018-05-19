@@ -2,8 +2,17 @@
 
 .c-list {
 
+  &.m-hover {
+    .c-list-item {
+      padding: 5px;
+    }
+    .c-list-item:hover {
+      background-color: $gray-lighter;
+      border-radius: 2px;
+    }
+  }
+
   &.m-divided {
-    margin: 0;
     .c-list-item {
       padding: 20px 0;
       border-top: 1px solid $gray-lighter;
@@ -22,7 +31,7 @@
     table-layout: fixed;
     list-style-type: none;
     list-style-position: outside;
-    padding: 10px 0;
+    padding: 3px 0;
     border: none;
 
     &.m-selectable {

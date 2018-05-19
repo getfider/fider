@@ -59,18 +59,6 @@
     font-size: $font-size-large;
   }
 
-  &.m-link {
-    background-color: transparent;
-    padding: 0;
-    font-weight: 400;
-    color: rgba($text-color, 0.6);
-
-    &:hover {
-      color: $text-color;
-      text-decoration: underline;
-    }
-  }
-
   &.m-fluid {
     display: block;
     width: 100%;

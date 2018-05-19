@@ -14,7 +14,8 @@ import {
   ManageTagsPage,
   ShowIdeaPage,
   MySettingsPage,
-  MyNotificationsPage
+  MyNotificationsPage,
+  UIToolkitPage
 } from "@fider/pages";
 
 interface PageConfiguration {
@@ -48,7 +49,8 @@ const pathRegex = [
   route("/signin/verify", CompleteSignInProfilePage),
   route("/invite/verify", CompleteSignInProfilePage),
   route("/notifications", MyNotificationsPage),
-  route("/settings", MySettingsPage)
+  route("/settings", MySettingsPage),
+  route("/-/ui", UIToolkitPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {

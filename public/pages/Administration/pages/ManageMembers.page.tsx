@@ -116,7 +116,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
             <p className="info">
               Administrators have full access to edit and manage content, permissions and settings.
             </p>
-            <List>{this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}</List>
+            <List hover={true}>
+              {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
+            </List>
             {this.props.user.role === UserRole.Administrator && (
               <div className="ui mini form">
                 <p>Add new administrator</p>
@@ -128,7 +130,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                     placeholder="Search users by name"
                   />
                 </div>
-                <List>
+                <List hover={true}>
                   {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
                 </List>
                 {this.state.newAdministratorFilter &&
@@ -142,7 +144,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
           <Segment>
             <h4>Collaborators</h4>
             <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
-            <List>{this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}</List>
+            <List hover={true}>
+              {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
+            </List>
             {this.props.user.role === UserRole.Administrator && (
               <div className="ui mini form">
                 <p>Add new collaborator</p>
@@ -154,7 +158,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                     placeholder="Search users by name"
                   />
                 </div>
-                <List>
+                <List hover={true}>
                   {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
                 </List>
                 {this.state.newCollaboratorFilter &&

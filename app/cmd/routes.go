@@ -56,6 +56,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	open := r.Group()
 	{
+		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())

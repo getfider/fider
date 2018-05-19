@@ -1,16 +1,26 @@
 .c-segment {
   position: relative;
   padding: 15px;
+  margin: 15px 0;
   box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
   border-radius: 5px;
   border: 1px solid rgba(34, 36, 38, 0.15);
+
+  &:first-child {
+    margin-top: 0em;
+  }
 }
 
 .c-segments {
   position: relative;
   box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
   border-radius: 5px;
+  margin: 15px 0;
   border: 1px solid rgba(34, 36, 38, 0.15);
+
+  &:first-child {
+    margin-top: 0em;
+  }
 
   .c-segment {
     margin: 0;

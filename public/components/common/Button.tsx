@@ -3,7 +3,6 @@ import { classSet } from "@fider/services";
 
 interface ButtonProps {
   className?: string;
-  simple?: boolean;
   disabled?: boolean;
   href?: string;
   color?: "positive" | "danger" | "default";
@@ -71,7 +70,6 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   public render() {
     const className = classSet({
       "c-button": true,
-      "m-link": this.props.simple,
       "m-fluid": this.props.fluid,
       [`m-${this.props.size}`]: this.props.size,
       [`m-${this.props.color}`]: this.props.color,

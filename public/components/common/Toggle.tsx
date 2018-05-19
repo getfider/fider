@@ -7,7 +7,7 @@ interface ToggleProps {
   label?: string;
   active: boolean;
   disabled?: boolean;
-  onToggle: (active: boolean) => Promise<any>;
+  onToggle?: (active: boolean) => Promise<any>;
 }
 
 interface ToggleState {
@@ -32,7 +32,9 @@ export class Toggle extends React.Component<ToggleProps, ToggleState> {
         active: !state.active
       }),
       () => {
-        this.props.onToggle(this.state.active);
+        if (this.props.onToggle) {
+          this.props.onToggle(this.state.active);
+        }
       }
     );
   };

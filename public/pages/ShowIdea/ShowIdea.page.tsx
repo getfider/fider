@@ -67,8 +67,8 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
     return (
       <div id="p-show-idea" className="page container">
         <div className="header-col">
-          <div className="ui items unstackable">
-            <div className="item">
+          <List>
+            <ListItem>
               <SupportCounter user={this.props.user} idea={this.props.idea} />
 
               <div className="idea-header">
@@ -93,8 +93,8 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                   <UserName user={this.props.idea.user} />
                 </span>
               </div>
-            </div>
-          </div>
+            </ListItem>
+          </List>
 
           <span className="subtitle">Description</span>
           {this.state.editMode ? (
