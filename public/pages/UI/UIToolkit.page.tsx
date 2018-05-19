@@ -201,6 +201,14 @@ export class UIToolkitPage extends React.Component<{}, {}> {
             <ShowTag tag={hardTag} circular={true} size="mini" />
           </ListItem>
         </List>
+
+        <h1>Notification</h1>
+        <List>
+          <ListItem>
+            <Button onClick={async () => notify.success("Congratulations! It worked!")}>Success</Button>
+            <Button onClick={async () => notify.error("Something went wrong...")}>Error</Button>
+          </ListItem>
+        </List>
       </div>
     );
   }
