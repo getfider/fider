@@ -1,6 +1,20 @@
 import * as React from "react";
 import { CurrentUser, IdeaStatus } from "@fider/models";
-import { Heading, Button, List, UserName, ListItem, Toggle, Gravatar, ShowTag, Segment, Segments, ShowIdeaStatus } from "@fider/components";
+import {
+  Heading,
+  Button,
+  List,
+  UserName,
+  ListItem,
+  Toggle,
+  Gravatar,
+  ShowTag,
+  Segment,
+  Segments,
+  ShowIdeaStatus,
+  Moment,
+  Loader
+} from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify } from "@fider/services";
 
@@ -209,6 +223,22 @@ export class UIToolkitPage extends React.Component<{}, {}> {
             <Button onClick={async () => notify.error("Something went wrong...")}>Error</Button>
           </ListItem>
         </List>
+
+        <h1>Moment</h1>
+        <List>
+          <ListItem>
+            <Moment date="2017-06-03T16:55:06.815042Z" />
+          </ListItem>
+          <ListItem>
+            <Moment date={new Date(2014, 10, 3, 12, 53, 12, 0)} />
+          </ListItem>
+          <ListItem>
+            <Moment date={new Date()} />
+          </ListItem>
+        </List>
+
+        <h1>Loader</h1>
+        <Loader />
       </div>
     );
   }
