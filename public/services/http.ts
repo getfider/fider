@@ -1,8 +1,8 @@
 import { analytics } from "@fider/services";
 
 export interface Failure {
-  messages: string[];
-  failures: {
+  messages?: string[];
+  failures?: {
     [key: string]: string[];
   };
 }

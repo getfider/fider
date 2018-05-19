@@ -1,0 +1,127 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-form {
+  position: relative;
+  max-width: 100%;
+}
+
+.c-form-field {
+  clear: both;
+  margin: 0 0 15px;
+
+  label {
+    display: block;
+    margin: 0 0 5px;
+    font-weight: 600;
+  }
+
+  .c-form-field-wrapper {
+    position: relative;
+    margin: 0 0 5px;
+
+    input[type=text],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      outline: 0;
+      margin: 0;
+      border: 1px solid $gray-light;
+      border-radius: 3px;
+    
+      &:focus {
+        border: 1px solid $focus-color;
+      }
+    
+      &:disabled {
+        opacity: .45;
+        cursor: not-allowed;
+      }
+      & + .icon {
+        pointer-events: none;
+        cursor: default;
+        position: absolute;
+        line-height: 1;
+        top: 10px;
+        right: 5px;
+        opacity: .5;
+      }
+    }
+
+    select {
+      height: 38px;
+      background-color: $white;
+    }
+  }
+
+  &.m-error {
+    input[type=text],
+    textarea,
+    select {
+      background-color: rgba($error, .05);
+      border-color: $error;
+    }
+  }
+
+  &.m-icon {
+    input[type=text] {
+      padding-right: 25px;
+    }
+  }
+
+  &.m-suffix {
+    .c-form-field-wrapper {
+      display: inline-flex;
+      width: 100%;
+    }
+    input[type=text] {
+      max-width: 100%;
+      width: auto;
+      flex: 1 0 auto;
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+    }   
+    .c-form-input-suffix {
+      flex: 0 0 auto;
+      padding: 8px 10px 9px 10px;;
+      font-weight: 600;
+      background-color: $gray-lighter;
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+
+  .c-form-radio-option {
+    label {
+      display: inline-block;
+      margin-left: 5px;
+      font-size: $font-size-small;
+      cursor: pointer;
+    }
+  }
+}
+
+.c-form-field-error {
+  color: $error;
+  font-weight: bold;
+  font-size: $font-size-small;
+  margin: 0 0 10px 0;
+  ul {
+    list-style: none;
+    padding-left: 5px;
+    margin: 0;
+  }
+}
+
+::placeholder {
+  color: $gray;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: $gray;
+}
+
+::-ms-input-placeholder {
+  color: $gray;
+}

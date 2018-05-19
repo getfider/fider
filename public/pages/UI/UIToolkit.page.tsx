@@ -13,10 +13,17 @@ import {
   Segments,
   ShowIdeaStatus,
   Moment,
-  Loader
+  Loader,
+  Form2,
+  Input,
+  TextArea,
+  RadioButton,
+  Select,
+  SocialSignInButton
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
-import { notify } from "@fider/services";
+import { notify, Failure } from "@fider/services";
+import { DisplayError } from "@fider/components/common/form/DisplayError";
 
 const jonSnow: User = {
   id: 0,
@@ -33,7 +40,19 @@ const aryaStark: User = {
 const easyTag: Tag = { id: 2, slug: "easy", name: "Easy", color: "00a3a5", isPublic: true };
 const hardTag: Tag = { id: 3, slug: "hard", name: "Hard", color: "ad43ec", isPublic: false };
 
-export class UIToolkitPage extends React.Component<{}, {}> {
+const visibilityPublic = { label: "Public", value: "public" };
+const visibilityPrivate = { label: "Private", value: "private" };
+
+interface UIToolkitPageState {
+  error?: Failure;
+}
+
+export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
+  constructor(props: {}) {
+    super(props);
+    this.state = {};
+  }
+
   public render() {
     return (
       <div id="p-ui-toolkit" className="page container">
@@ -147,6 +166,19 @@ export class UIToolkitPage extends React.Component<{}, {}> {
           </ListItem>
         </List>
 
+        <h1>Social Buttons</h1>
+        <div className="row">
+          <div className="col-md-3">
+            <SocialSignInButton provider="google" />
+          </div>
+          <div className="col-md-3">
+            <SocialSignInButton provider="facebook" />
+          </div>
+          <div className="col-md-3">
+            <SocialSignInButton provider="github" />
+          </div>
+        </div>
+
         <h1>Toggle</h1>
         <List>
           <ListItem>
@@ -239,6 +271,73 @@ export class UIToolkitPage extends React.Component<{}, {}> {
 
         <h1>Loader</h1>
         <Loader />
+
+        <h1>Form</h1>
+        <Form2 error={this.state.error}>
+          <Input label="Title" field="title">
+            <p className="info">This is the explanation for the field above.</p>
+          </Input>
+          <Input label="Disabled!" field="unamed" disabled={true} defaultValue={"you can't change this!"} />
+          <Input label="Name" field="name" placeholder={"Your name goes here..."} />
+          <Input label="Subdomain" field="subdomain" suffix="fider.io" />
+          <TextArea label="Description" field="description" minRows={5}>
+            <p className="info">This textarea resizes as you type.</p>
+          </TextArea>
+          <Input field="age" placeholder="This field doesn't have a label" />
+
+          <div className="row">
+            <div className="col-md-3">
+              <Input label="Title1" field="title1" />
+            </div>
+            <div className="col-md-3">
+              <Input label="Title2" field="title2" />
+            </div>
+            <div className="col-md-3">
+              <Input label="Title3" field="title3" />
+            </div>
+            <div className="col-md-3">
+              <RadioButton
+                label="Visibility"
+                field="visibility"
+                defaultOption={visibilityPublic}
+                options={[visibilityPrivate, visibilityPublic]}
+              />
+            </div>
+          </div>
+
+          <Select
+            label="Status"
+            field="status"
+            options={[
+              { value: "open", label: "Open" },
+              { value: "started", label: "Started" },
+              { value: "planned", label: "Planned" }
+            ]}
+            onChange={opt => opt && notify.success(opt.value)}
+          />
+
+          <Button
+            onClick={async e =>
+              this.setState({
+                error: {
+                  messages: [],
+                  failures: {
+                    title: ["Title is mandatory"],
+                    description: ["Error #1", "Error #2"],
+                    status: ["Status is mandatory"]
+                  }
+                }
+              })
+            }
+          >
+            Save
+          </Button>
+        </Form2>
+
+        <Segment>
+          <h1>Search</h1>
+          <Input field="search" placeholder="Search..." icon="search" />
+        </Segment>
       </div>
     );
   }
