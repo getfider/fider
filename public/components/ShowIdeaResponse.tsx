@@ -1,3 +1,5 @@
+import "./ShowIdeaResponse.scss";
+
 import * as React from "react";
 import { User, IdeaResponse, IdeaStatus } from "@fider/models";
 import { Gravatar, MultiLineText, Moment, UserName, Segment } from "@fider/components/common";
@@ -42,7 +44,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
 
   if (props.response && status.show) {
     return (
-      <Segment className="response">
+      <Segment className="l-response">
         <ShowIdeaStatus status={status} />
         <Gravatar user={props.response.user} /> <UserName user={props.response.user} />
         <span className="info">

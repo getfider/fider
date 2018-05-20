@@ -3,4 +3,10 @@
 .c-username {
   color: #4f5e6b;
   font-weight: 500;
+
+  &.m-staff {
+    font-weight: 600;
+    color: $admin-color;
+    border-color: $admin-color;
+  }
 }

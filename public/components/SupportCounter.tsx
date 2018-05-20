@@ -47,23 +47,14 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     const status = IdeaStatus.Get(this.props.idea.status);
 
     const className = classSet({
-      supported: !status.closed && this.state.supported,
-      disabled: status.closed,
-      "no-touch": !device.isTouch(),
-      text: !this.state.supported,
-      primary: this.state.supported,
-      "primary-hover": true
+      "m-supported": !status.closed && this.state.supported,
+      "m-disabled": status.closed,
+      "no-touch": !device.isTouch()
     });
 
     const vote = (
       <button className={className} onClick={async () => await this.supportOrUndo()}>
-        <i
-          className={classSet({
-            "medium caret up icon": true,
-            "text-light": !this.state.supported,
-            primary: this.state.supported
-          })}
-        />
+        <i className="medium caret up icon" />
         {this.state.total}
       </button>
     );

@@ -82,9 +82,9 @@ p:last-child {
   margin-bottom: 0;
 }
 
-/*-------------------
-        Links
---------------------*/
+/*******************************
+             Links
+*******************************/
 
 a {
   color: $link-color;
@@ -93,6 +93,47 @@ a {
 a:hover {
   color: darken($link-color, 10%);
   text-decoration: none;
+}
+
+/*******************************
+             Stauses
+*******************************/
+
+.status-label {
+  text-transform: uppercase;
+  color: $white;
+  display: inline-block;
+  line-height: 1;
+  padding: 5px 4px;
+  font-weight: 600;
+  border: none;
+  border-radius: 3px;
+  font-size: $font-size-micro;
+}
+
+.status-open {
+  color: $text-color;
+  background-color: #e8e8e8;
+}
+
+.status-planned {
+  background-color: #6435c9;
+}
+
+.status-started {
+  background-color: #2185d0;
+}
+
+.status-completed {
+  background-color: #21ba45;
+}
+
+.status-declined {
+  background-color: #db2828
+}
+
+.status-duplicate {
+  background-color: #fbbd08;
 }
 
 /*******************************
