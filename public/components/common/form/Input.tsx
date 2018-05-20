@@ -17,6 +17,8 @@ interface InputProps {
   placeholder?: string;
   onIconClick?: () => void;
   onSubmit?: () => void;
+  onFocus?: () => void;
+  inputRef?: (node: HTMLInputElement) => void;
   onChange?: (value: string) => void;
 }
 
@@ -68,7 +70,9 @@ export class Input extends React.Component<InputProps, {}> {
                 <input
                   id={`input-${this.props.field}`}
                   type="text"
+                  ref={this.props.inputRef}
                   autoFocus={this.props.autoFocus}
+                  onFocus={this.props.onFocus}
                   maxLength={this.props.maxLength}
                   disabled={this.props.disabled}
                   value={this.props.value}
