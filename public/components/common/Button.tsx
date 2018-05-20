@@ -48,6 +48,11 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   }
 
   public click = async (e?: React.SyntheticEvent<HTMLElement>) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (this.state.clicked) {
       return;
     }
@@ -75,7 +80,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
     if (this.props.href) {
       return (
-        <a href={this.props.href} className={className} onClick={this.click}>
+        <a href={this.props.href} className={className}>
           {this.props.children}
         </a>
       );
