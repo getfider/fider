@@ -24,7 +24,7 @@
     }
 
     position: relative;
-    margin: 15px 0 0;
+    margin: 0 0 15px 0;
     border: none;
     border-top: none;
     line-height: 1.2;
@@ -32,18 +32,18 @@
 }
 
 .c-comment-input  {
-  margin-top: 15px;
-  .ui.form textarea {
-    margin-top: 5px;
-  }
+  margin: 0 0 15px 0;
 
-  .form {
+  .c-form {
     display: inline-block;
     width: 100%;
+    textarea {
+      margin-top: 5px;
+    }
   }
 
   &.m-authenticated{
-    .form {
+    .c-form {
       width: 85%;
     }
   }

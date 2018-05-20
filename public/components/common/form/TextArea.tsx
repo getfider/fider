@@ -4,13 +4,15 @@ import { Textarea, ValidationContext } from "../";
 import { DisplayError, hasError } from "./DisplayError";
 
 interface TextAreaProps {
-  label: string;
+  label?: string;
   field: string;
   value?: string;
   disabled?: boolean;
   minRows?: number;
   placeholder?: string;
   onChange?: (value: string) => void;
+  inputRef?: (node: HTMLTextAreaElement) => void;
+  onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }
 
 export class TextArea extends React.Component<TextAreaProps, {}> {
@@ -35,7 +37,7 @@ export class TextArea extends React.Component<TextAreaProps, {}> {
                 "m-error": hasError(this.props.field, ctx.error)
               })}
             >
-              <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
+              {!!this.props.label && <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>}
               <div className="c-form-field-wrapper">
                 <Textarea
                   id={`input-${this.props.field}`}
@@ -44,6 +46,8 @@ export class TextArea extends React.Component<TextAreaProps, {}> {
                   value={this.props.value}
                   minRows={this.props.minRows}
                   placeholder={this.props.placeholder}
+                  inputRef={this.props.inputRef}
+                  onFocus={this.props.onFocus}
                 />
               </div>
               <DisplayError fields={[this.props.field]} error={ctx.error} />
