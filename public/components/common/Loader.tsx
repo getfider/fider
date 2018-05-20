@@ -1,3 +1,5 @@
+import "./Loader.scss";
+
 import * as React from "react";
 
 interface LoaderState {
@@ -28,6 +30,6 @@ export class Loader extends React.Component<{}, LoaderState> {
   }
 
   public render() {
-    return this.state.show && <div className="ui active centered inline loader" />;
+    return this.state.show && <div className="c-loader" />;
   }
 }

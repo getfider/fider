@@ -10,7 +10,6 @@ import "semantic-ui-css/components/icon.min.css";
 import "semantic-ui-css/components/dropdown.min.css";
 import "semantic-ui-css/components/transition.min.css";
 
-import "semantic-ui-css/components/loader.min.css";
 import "semantic-ui-css/components/site.min.css";
 import "semantic-ui-css/components/form.min.css";
 import "semantic-ui-css/components/input.min.css";
