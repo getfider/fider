@@ -11,11 +11,6 @@ import "semantic-ui-css/components/dropdown.min.css";
 import "semantic-ui-css/components/transition.min.css";
 
 import "semantic-ui-css/components/site.min.css";
-import "semantic-ui-css/components/form.min.css";
-import "semantic-ui-css/components/input.min.css";
-import "semantic-ui-css/components/label.min.css";
-import "semantic-ui-css/components/message.min.css";
-import "semantic-ui-css/components/checkbox.min.css";
 
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";

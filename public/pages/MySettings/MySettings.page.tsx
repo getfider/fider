@@ -2,7 +2,7 @@ import "./MySettings.page.scss";
 
 import * as React from "react";
 
-import { Modal, Form, DisplayError, Button, Gravatar, Heading } from "@fider/components";
+import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
 import { NotificationSettings } from "./";
 
 import { CurrentUser, UserSettings } from "@fider/models";
@@ -25,6 +25,7 @@ interface MySettingsPageProps {
 export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
+    props.user.email = "";
     this.state = {
       showModal: false,
       changingEmail: false,
@@ -34,16 +35,16 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
     };
   }
 
-  private async confirm() {
+  private confirm = async () => {
     const result = await actions.updateUserSettings(this.state.name, this.state.settings);
     if (result.ok) {
       location.reload();
     } else if (result.error) {
       this.setState({ error: result.error });
     }
-  }
+  };
 
-  private async submitNewEmail() {
+  private submitNewEmail = async () => {
     const result = await actions.changeUserEmail(this.state.newEmail);
     if (result.ok) {
       this.setState({
@@ -54,9 +55,15 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
     } else if (result.error) {
       this.setState({ error: result.error });
     }
-  }
+  };
 
   public render() {
+    const changeEmail = (
+      <span className="ui info clickable" onClick={() => this.setState({ changingEmail: true })}>
+        change
+      </span>
+    );
+
     return (
       <div id="p-my-settings" className="page container">
         <Modal.Window isOpen={this.state.showModal} canClose={true} center={true}>
@@ -80,9 +87,8 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
         <div className="row">
           <div className="col-lg-7">
-            <div className="ui form">
-              <div className="field">
-                <label htmlFor="email">Avatar</label>
+            <Form error={this.state.error}>
+              <Field label="Avatar">
                 <p>
                   <Gravatar user={this.props.user} />
                 </p>
@@ -96,65 +102,50 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                     A letter avatar based on your name is generated for profiles without a Gravatar.
                   </p>
                 </div>
-              </div>
-              <DisplayError fields={["email"]} error={this.state.error} />
-              <div className="field">
-                <label htmlFor="email">
-                  Email <span className="info">Your email is private and will never be displayed to anyone.</span>
-                </label>
-                {this.state.changingEmail ? (
-                  <>
-                    <p>
-                      <input
-                        id="new-email"
-                        type="text"
-                        style={{ maxWidth: "200px", marginRight: "10px" }}
-                        maxLength={200}
-                        placeholder={this.props.user.email}
-                        value={this.state.newEmail}
-                        onChange={e => this.setState({ newEmail: e.currentTarget.value })}
-                      />
-                      <Button color="positive" size="mini" onClick={async () => await this.submitNewEmail()}>
-                        Confirm
-                      </Button>
-                      <Button
-                        size="mini"
-                        onClick={async () =>
-                          this.setState({
-                            changingEmail: false,
-                            error: undefined
-                          })
-                        }
-                      >
-                        Cancel
-                      </Button>
-                    </p>
-                  </>
-                ) : (
-                  <p>
-                    {this.props.user.email ? (
-                      <b>{this.props.user.email}</b>
-                    ) : (
-                      <span className="info">Your account doesn't have an email.</span>
-                    )}
-                    <span className="ui info clickable" onClick={() => this.setState({ changingEmail: true })}>
-                      change
-                    </span>
-                  </p>
-                )}
-              </div>
+              </Field>
 
-              <DisplayError fields={["name"]} error={this.state.error} />
-              <div className="field">
-                <label htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  type="text"
-                  maxLength={100}
-                  value={this.state.name}
-                  onChange={e => this.setState({ name: e.currentTarget.value })}
-                />
-              </div>
+              <Input
+                label="Email"
+                field="email"
+                value={this.state.changingEmail ? this.state.newEmail : this.props.user.email}
+                maxLength={200}
+                disabled={!this.state.changingEmail}
+                afterLabel={this.state.changingEmail ? undefined : changeEmail}
+                onChange={newEmail => this.setState({ newEmail })}
+              >
+                <p className="info">
+                  {this.props.user.email || this.state.changingEmail
+                    ? "Your email is private and will never be displayed to anyone"
+                    : "Your account doesn't have an email."}
+                </p>
+                {this.state.changingEmail && (
+                  <>
+                    <Button color="positive" size="mini" onClick={this.submitNewEmail}>
+                      Confirm
+                    </Button>
+                    <Button
+                      size="mini"
+                      onClick={async () =>
+                        this.setState({
+                          changingEmail: false,
+                          newEmail: "",
+                          error: undefined
+                        })
+                      }
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </Input>
+
+              <Input
+                label="Name"
+                field="name"
+                value={this.state.name}
+                maxLength={100}
+                onChange={name => this.setState({ name })}
+              />
 
               <NotificationSettings
                 user={this.props.user}
@@ -162,12 +153,12 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                 settingsChanged={settings => this.setState({ settings })}
               />
 
-              <div className="field">
-                <Button color="positive" onClick={async () => await this.confirm()}>
-                  Confirm
-                </Button>
-              </div>
-            </div>
+              <Button color="positive" onClick={this.confirm}>
+                Confirm
+              </Button>
+            </Form>
+
+            <h1>OLD: Try with account without e-mail</h1>
           </div>
         </div>
       </div>

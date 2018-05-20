@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
-import { Toggle, Segment, Segments } from "@fider/components";
+import { Toggle, Segment, Segments, Field } from "@fider/components";
 
 interface NotificationSettingsProps {
   user: CurrentUser;
@@ -90,10 +90,9 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
   public render() {
     return (
       <>
-        <div className="field">
-          <label htmlFor="notifications">Notifications</label>
+        <Field label="Notifications">
           <p className="info">Use following panel to choose which events you'd like to receive notification</p>
-        </div>
+        </Field>
 
         <div className="notifications-settings">
           <Segments>
