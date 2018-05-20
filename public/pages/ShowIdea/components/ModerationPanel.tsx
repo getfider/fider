@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IdeaStatus, CurrentUser, Idea } from "@fider/models";
 import { page, actions, Failure } from "@fider/services";
-import { Form, DisplayError, Textarea, Modal, Button, List, ListItem } from "@fider/components";
+import { Form, DisplayError, Textarea, Modal, Button, List, ListItem, Form2, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
   user?: CurrentUser;
@@ -11,6 +11,7 @@ interface ModerationPanelProps {
 interface ModerationPanelState {
   showConfirmation: boolean;
   text: string;
+  error?: Failure;
 }
 
 export class ModerationPanel extends React.Component<ModerationPanelProps, ModerationPanelState> {
@@ -30,7 +31,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
       this.close();
       page.goHome();
     } else if (response.error) {
-      this.form.setFailure(response.error);
+      this.setState({ error: this.state.error });
     }
   }
 
@@ -47,22 +48,18 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     const modal = (
       <Modal.Window isOpen={this.state.showConfirmation} center={false} size="large">
         <Modal.Content>
-          <Form
-            ref={f => {
-              this.form = f!;
-            }}
-          >
-            <div className="field">
-              <Textarea
-                onChange={e => this.setState({ text: e.currentTarget.value })}
-                defaultValue={this.state.text}
-                placeholder="Why are you deleting this idea? (optional)"
-              />
-            </div>
-            <span className="info">
-              This operation <strong>cannot</strong> be undone.
-            </span>
-          </Form>
+          <Form2 error={this.state.error}>
+            <TextArea
+              field="text"
+              onChange={text => this.setState({ text })}
+              value={this.state.text}
+              placeholder="Why are you deleting this idea? (optional)"
+            >
+              <span className="info">
+                This operation <strong>cannot</strong> be undone.
+              </span>
+            </TextArea>
+          </Form2>
         </Modal.Content>
 
         <Modal.Footer>

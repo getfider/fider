@@ -44,7 +44,7 @@ export class TextArea extends React.Component<TextAreaProps, {}> {
                   disabled={this.props.disabled}
                   onChange={this.onChange}
                   value={this.props.value}
-                  minRows={this.props.minRows}
+                  minRows={this.props.minRows || 3}
                   placeholder={this.props.placeholder}
                   inputRef={this.props.inputRef}
                   onFocus={this.props.onFocus}
