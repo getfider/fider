@@ -13,6 +13,7 @@ interface InputProps {
   disabled?: boolean;
   suffix?: string;
   placeholder?: string;
+  onIconClick?: () => void;
   onChange?: (value: string) => void;
 }
 
@@ -57,7 +58,16 @@ export class Input extends React.Component<InputProps, {}> {
                   placeholder={this.props.placeholder}
                   onChange={this.onChange}
                 />
-                {!!this.props.icon && <i className={`${this.props.icon} icon`} />}
+                {!!this.props.icon && (
+                  <i
+                    onClick={this.props.onIconClick}
+                    className={classSet({
+                      icon: true,
+                      [this.props.icon]: true,
+                      link: this.props.onIconClick
+                    })}
+                  />
+                )}
                 {suffix}
               </div>
               <DisplayError fields={[this.props.field]} error={ctx.error} />

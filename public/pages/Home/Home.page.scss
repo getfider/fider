@@ -35,16 +35,6 @@
     }
   }
 
-  @include media("sm") {
-    .filter-column {
-      padding-right: 0;
-    }
-  
-    .search-column {
-      padding-left: 0;
-    }
-  }
-
   #new-idea-input {
     margin-bottom: 20px;
     border: none;
