@@ -2,18 +2,21 @@ import * as React from "react";
 import { Failure, classSet } from "@fider/services";
 import { ValidationContext } from "./Form2";
 import { DisplayError, hasError } from "./DisplayError";
+import { Button } from "@fider/components";
 
 interface InputProps {
   field: string;
   label?: string;
+  autoFocus?: boolean;
   afterLabel?: JSX.Element;
   icon?: string;
   maxLength?: number;
   value?: string;
   disabled?: boolean;
-  suffix?: string;
+  suffix?: string | JSX.Element;
   placeholder?: string;
   onIconClick?: () => void;
+  onSubmit?: () => void;
   onChange?: (value: string) => void;
 }
 
@@ -28,8 +31,21 @@ export class Input extends React.Component<InputProps, {}> {
     }
   };
 
+  private onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.keyCode === 13 && this.props.onSubmit) {
+      this.props.onSubmit();
+      event.preventDefault();
+    }
+  };
+
   public render() {
-    const suffix = this.props.suffix ? <span className="c-form-input-suffix">{this.props.suffix}</span> : undefined;
+    const suffix =
+      typeof this.props.suffix === "string" ? (
+        <span className="c-form-input-suffix">{this.props.suffix}</span>
+      ) : (
+        this.props.suffix
+      );
+
     return (
       <ValidationContext.Consumer>
         {ctx => (
@@ -52,10 +68,12 @@ export class Input extends React.Component<InputProps, {}> {
                 <input
                   id={`input-${this.props.field}`}
                   type="text"
+                  autoFocus={this.props.autoFocus}
                   maxLength={this.props.maxLength}
                   disabled={this.props.disabled}
                   value={this.props.value}
                   placeholder={this.props.placeholder}
+                  onKeyDown={this.props.onSubmit ? this.onKeyDown : undefined}
                   onChange={this.onChange}
                 />
                 {!!this.props.icon && (

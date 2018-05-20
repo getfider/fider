@@ -103,6 +103,10 @@
       display: inline-flex;
       width: 100%;
     }
+    .c-button {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
     input[type=text] {
       max-width: 100%;
       width: auto;

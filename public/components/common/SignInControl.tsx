@@ -1,12 +1,13 @@
 import "./SignInControl.scss";
 
 import * as React from "react";
-import { SocialSignInButton, Form, Button } from "@fider/components/common";
+import { SocialSignInButton, Form, Button, Form2, Input } from "@fider/components";
 import { AuthSettings } from "@fider/models";
-import { page, device, actions } from "@fider/services";
+import { page, device, actions, Failure } from "@fider/services";
 
 interface SignInControlState {
   email: string;
+  error?: Failure;
 }
 
 interface SignInControlProps {
@@ -16,7 +17,6 @@ interface SignInControlProps {
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
-  private form!: Form;
   private settings: AuthSettings;
 
   constructor(props: SignInControlProps) {
@@ -36,18 +36,17 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     }
   };
 
-  private async signIn() {
+  private signIn = async () => {
     const result = await actions.signIn(this.state.email);
     if (result.ok) {
-      this.form.clearFailure();
       if (this.props.onEmailSent) {
         this.props.onEmailSent(this.state.email);
       }
-      this.setState({ email: "" });
+      this.setState({ email: "", error: undefined });
     } else if (result.error) {
-      this.form.setFailure(result.error);
+      this.setState({ error: result.error });
     }
-  }
+  };
 
   public render() {
     const google = this.settings.providers.google && (
@@ -96,26 +95,21 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
         {this.props.useEmail && (
           <div>
             <p>Enter your email address to sign in</p>
-            <Form
-              ref={f => {
-                this.form = f!;
-              }}
-            >
-              <div id="email-signin" className="ui small action fluid input">
-                <input
-                  value={this.state.email}
-                  autoFocus={!device.isTouch()}
-                  onChange={e => this.setState({ email: e.currentTarget.value })}
-                  onKeyDown={this.onEmailKeyDown}
-                  type="text"
-                  placeholder="yourname@example.com"
-                  className="small"
-                />
-                <Button color="positive" disabled={this.state.email === ""} onClick={() => this.signIn()}>
-                  Sign in
-                </Button>
-              </div>
-            </Form>
+            <Form2 error={this.state.error}>
+              <Input
+                field="email"
+                value={this.state.email}
+                autoFocus={!device.isTouch()}
+                onChange={email => this.setState({ email })}
+                onSubmit={this.signIn}
+                placeholder="yourname@example.com"
+                suffix={
+                  <Button color="positive" disabled={this.state.email === ""} onClick={this.signIn}>
+                    Sign in
+                  </Button>
+                }
+              />
+            </Form2>
           </div>
         )}
       </div>
