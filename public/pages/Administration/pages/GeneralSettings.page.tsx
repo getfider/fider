@@ -3,7 +3,16 @@ import "./GeneralSettings.page.scss";
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, DisplayError, Logo } from "@fider/components/common";
+import {
+  Button,
+  ButtonClickEvent,
+  Textarea,
+  TextArea,
+  DisplayError,
+  Logo,
+  Form2,
+  Input
+} from "@fider/components/common";
 import { actions, page, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -114,58 +123,36 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         : undefined;
 
     return (
-      <div className="ui form">
-        <DisplayError fields={["title"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="title">Title</label>
-          <input
-            id="title"
-            type="text"
-            maxLength={60}
-            disabled={!this.props.user.isAdministrator}
-            value={this.state.title}
-            onChange={e => this.setState({ title: e.currentTarget.value })}
-          />
-        </div>
-
-        <DisplayError fields={["welcomeMessage"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="welcome-message">Welcome Message</label>
-          <Textarea
-            id="welcome-message"
-            disabled={!this.props.user.isAdministrator}
-            onChange={e => this.setState({ welcomeMessage: e.currentTarget.value })}
-            value={this.state.welcomeMessage}
-          />
-          <p className="info">
-            You can style and add links to your message, learn more at{" "}
-            <a target="_blank" href="http://commonmark.org/help/">
-              {"http://commonmark.org/help/"}
-            </a>.
-          </p>
-        </div>
-
-        <DisplayError fields={["invitation"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="invitation">Invitation</label>
-          <input
-            id="invitation"
-            type="text"
-            maxLength={60}
-            disabled={!this.props.user.isAdministrator}
-            value={this.state.invitation}
-            onChange={e => this.setState({ invitation: e.currentTarget.value })}
-          />
-          <p className="info">
-            This is your customized message to invite visitors to share their ideas and suggestions.
-          </p>
-        </div>
+      <Form2 error={this.state.error}>
+        <Input
+          field="title"
+          label="Title"
+          maxLength={60}
+          value={this.state.title}
+          disabled={!this.props.user.isAdministrator}
+          onChange={title => this.setState({ title })}
+        />
+        <TextArea
+          field="welcomeMessage"
+          label="Welcome Message"
+          value={this.state.welcomeMessage}
+          disabled={!this.props.user.isAdministrator}
+          onChange={welcomeMessage => this.setState({ welcomeMessage })}
+        />
+        <Input
+          field="invitation"
+          label="Invitation"
+          maxLength={60}
+          value={this.state.invitation}
+          disabled={!this.props.user.isAdministrator}
+          onChange={invitation => this.setState({ invitation })}
+        />
 
         <DisplayError fields={["logo"]} error={this.state.error} />
-        <div className="field logo">
+        <div className="c-form-field c-logo-upload">
           <label htmlFor="logo">Logo</label>
           {hasFile && <Logo size={200} tenant={this.props.tenant} url={previewUrl} />}
-          <input ref={e => (this.fileSelector = e)} type="file" name="logo" onChange={this.fileChanged} />
+          <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
           <div>
             <Button size="mini" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
               {hasFile ? "Change" : "Upload"}
@@ -182,19 +169,16 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           </p>
         </div>
 
-        {!page.isSingleHostMode() && [
-          <DisplayError key={1} fields={["cname"]} error={this.state.error} />,
-          <div key={2} className="field">
-            <label htmlFor="cname">Custom Domain</label>
-            <input
-              id="cname"
-              type="text"
-              placeholder="feedback.yourcompany.com"
-              maxLength={100}
-              disabled={!this.props.user.isAdministrator}
-              value={this.state.cname}
-              onChange={e => this.setState({ cname: e.currentTarget.value })}
-            />
+        {!page.isSingleHostMode() && (
+          <Input
+            field="cname"
+            label="Custom Domain"
+            maxLength={100}
+            placeholder="feedback.yourcompany.com"
+            value={this.state.cname}
+            disabled={!this.props.user.isAdministrator}
+            onChange={cname => this.setState({ cname })}
+          >
             <div className="info">
               {this.state.cname ? (
                 [
@@ -212,16 +196,15 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
                 </p>
               )}
             </div>
-          </div>
-        ]}
-        {this.props.user.isAdministrator && (
-          <div className="field">
-            <Button color="positive" onClick={async e => await this.save(e)}>
-              Save
-            </Button>
-          </div>
+          </Input>
         )}
-      </div>
+
+        <div className="field">
+          <Button disabled={!this.props.user.isAdministrator} color="positive" onClick={async e => await this.save(e)}>
+            Save
+          </Button>
+        </div>
+      </Form2>
     );
   }
 }

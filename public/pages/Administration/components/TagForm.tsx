@@ -60,7 +60,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
               placeholder="New tag name"
               value={this.state.name}
             />
-            <DisplayError fields={["name"]} error={this.state.error} pointing="above" />
+            <DisplayError fields={["name"]} error={this.state.error} />
           </div>
           <div className="three wide field">
             <label>
@@ -75,7 +75,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
               type="text"
               value={this.state.color}
             />
-            <DisplayError fields={["color"]} error={this.state.error} pointing="above" />
+            <DisplayError fields={["color"]} error={this.state.error} />
           </div>
           <div className="two wide field">
             <div className="grouped fields">

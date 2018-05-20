@@ -8,31 +8,22 @@ interface InputProps {
   label?: string;
   icon?: string;
   maxLength?: number;
-  defaultValue?: string;
+  value?: string;
   disabled?: boolean;
   suffix?: string;
   placeholder?: string;
   onChange?: (value: string) => void;
 }
 
-interface InputState {
-  value: string;
-}
-
-export class Input extends React.Component<InputProps, InputState> {
+export class Input extends React.Component<InputProps, {}> {
   constructor(props: InputProps) {
     super(props);
-    this.state = {
-      value: props.defaultValue || ""
-    };
   }
 
   private onChange = (e: React.FormEvent<HTMLInputElement>) => {
-    this.setState({ value: e.currentTarget.value }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.value);
-      }
-    });
+    if (this.props.onChange) {
+      this.props.onChange(e.currentTarget.value);
+    }
   };
 
   public render() {
@@ -56,7 +47,7 @@ export class Input extends React.Component<InputProps, InputState> {
                   type="text"
                   maxLength={this.props.maxLength}
                   disabled={this.props.disabled}
-                  value={this.state.value}
+                  value={this.props.value}
                   placeholder={this.props.placeholder}
                   onChange={this.onChange}
                 />

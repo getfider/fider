@@ -6,32 +6,22 @@ import { DisplayError, hasError } from "./DisplayError";
 interface TextAreaProps {
   label: string;
   field: string;
-  defaultValue?: string;
+  value?: string;
   disabled?: boolean;
   minRows?: number;
   placeholder?: string;
   onChange?: (value: string) => void;
 }
 
-interface TextAreaState {
-  value: string;
-  error?: Failure;
-}
-
-export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
+export class TextArea extends React.Component<TextAreaProps, {}> {
   constructor(props: TextAreaProps) {
     super(props);
-    this.state = {
-      value: props.defaultValue || ""
-    };
   }
 
   private onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    this.setState({ value: e.currentTarget.value }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.value);
-      }
-    });
+    if (this.props.onChange) {
+      this.props.onChange(e.currentTarget.value);
+    }
   };
 
   public render() {
@@ -51,7 +41,7 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
                   id={`input-${this.props.field}`}
                   disabled={this.props.disabled}
                   onChange={this.onChange}
-                  value={this.state.value}
+                  value={this.props.value}
                   minRows={this.props.minRows}
                   placeholder={this.props.placeholder}
                 />
