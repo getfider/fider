@@ -12,15 +12,23 @@ interface HeadingLogo {
 }
 
 export const Heading = (props: HeadingLogo) => {
-  const Tag = `h${props.level || 2}`;
+  const level = props.level || 2;
+  const Tag = `h${level}`;
   const className = classSet({
     "c-heading": true,
     "m-dividing": props.dividing || false
   });
 
+  const iconClassName = classSet({
+    "c-heading-icon": true,
+    circular: level <= 2,
+    [props.icon!]: true,
+    icon: true
+  });
+
   return (
     <Tag className={className}>
-      <i className={`c-heading-icon circular ${props.icon} icon`} />
+      <i className={iconClassName} />
       <div className="c-heading-content">
         {props.title}
         <div className="c-heading-subtitle">{props.subtitle}</div>
