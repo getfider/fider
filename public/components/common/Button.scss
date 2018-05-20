@@ -1,12 +1,14 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-button {
+  line-height: 1.15;
+  display: inline-block;
   cursor: pointer;
   font-size: $font-size;
   border-radius: 3px;
   border: none;
   margin: 0 4px 0 0;
-  padding: 10px;
+  padding: 8px;
   text-align: left;
   font-weight: 600;
 
@@ -40,22 +42,27 @@
   }
 
   &.m-mini {
-    padding: 7px;
+    padding: 6px;
     font-size: $font-size-mini;
   }
 
   &.m-tiny {
-    padding: 8px;
+    padding: 7px;
     font-size: $font-size-tiny;
   }
 
   &.m-small {
-    padding: 9px;
+    padding: 8px;
     font-size: $font-size-small;
   }
 
+  &.m-normal {
+    padding: 9px;
+    font-size: $font-size;
+  }
+
   &.m-large {
-    padding: 11px;
+    padding: 10px;
     font-size: $font-size-large;
   }
 

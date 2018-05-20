@@ -155,6 +155,16 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button href="#">Link</Button>
+            <Button href="#" color="positive">
+              Link
+            </Button>
+            <Button href="#" color="danger">
+              Link
+            </Button>
+          </ListItem>
+
+          <ListItem>
             <Button disabled={true}>Default</Button>
             <Button disabled={true} color="positive">
               Positive
