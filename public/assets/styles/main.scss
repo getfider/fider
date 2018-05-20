@@ -2,7 +2,102 @@
 @import 'reset.scss';
 @import 'grid.scss';
 @import 'global.scss';
-@import 'semantic.scss';
+
+/*******************************
+             Site
+*******************************/
+
+html,
+body {
+  height: 100%;
+}
+html {
+  font-size: 14px;
+}
+body {
+  margin: 0px;
+  padding: 0px;
+  overflow-x: hidden;
+  min-width: 320px;
+  font-size: 14px;
+  font-family: $font-site;
+  background-color: $bg-color;
+  color: $text-color;
+  font-size: $font-size;
+}
+
+/*******************************
+             Headers
+*******************************/
+
+h1, h2, h3, h4, h5 {
+  line-height: 18px;
+  margin: 25px 0em 14px;
+  font-weight: 600;
+  padding: 0;
+}
+h1 {
+  line-height: 28px;
+  font-size: 28px;
+}
+h2 {
+  font-size: 24px;
+}
+h3 {
+  font-size: 20px;
+}
+h4 {
+  font-size: 16px;
+}
+h5 {
+  font-size: 14px;
+}
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child {
+  margin-top: 0;
+}
+h1:last-child,
+h2:last-child,
+h3:last-child,
+h4:last-child,
+h5:last-child {
+  margin-bottom: 0;
+}
+
+/*******************************
+             Text
+*******************************/
+
+p {
+  margin: 0 0 14px;
+  line-height: 18px;
+}
+p:first-child {
+  margin-top: 0;
+}
+p:last-child {
+  margin-bottom: 0;
+}
+
+/*-------------------
+        Links
+--------------------*/
+
+a {
+  color: $link-color;
+  text-decoration: none;
+}
+a:hover {
+  color: darken($link-color, 10%);
+  text-decoration: none;
+}
+
+/*******************************
+             Others
+*******************************/
 
 .center {
   text-align: center;
@@ -29,13 +124,6 @@
 
 noscript {
   margin-top: 20px;
-}
-
-body {
-  font-family: $font-site;
-  background-color: $bg-color;
-  color: $text-color;
-  font-size: $font-size;
 }
 
 code {

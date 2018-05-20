@@ -74,7 +74,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
         {this.props.tags.map(tag => (
           <ListItem key={tag.id} onClick={async () => this.assignOrUnassignTag(tag)}>
             <i className={`icon ${this.state.assignedTags.indexOf(tag) >= 0 && "check"}`} />
-            <ShowTag tag={tag} circular={true} />
+            <ShowTag tag={tag} size="mini" circular={true} />
             <span>{tag.name}</span>
           </ListItem>
         ))}

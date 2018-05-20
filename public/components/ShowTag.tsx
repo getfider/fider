@@ -1,5 +1,8 @@
+import "./ShowTag.scss";
+
 import * as React from "react";
 import { Tag } from "@fider/models";
+import { classSet } from "@fider/services";
 
 interface TagProps {
   tag: Tag;
@@ -26,13 +29,16 @@ const idealTextColor = (color: string) => {
 };
 
 export const ShowTag = (props: TagProps) => {
-  const formatClass = props.circular === true ? "empty circular" : "";
-  const sizeClass = props.size || "normal";
+  const className = classSet({
+    "c-tag": true,
+    [`m-${props.size || "normal"}`]: true,
+    "m-circular": props.circular === true
+  });
 
   return (
     <div
       title={`${props.tag.name}${!props.tag.isPublic ? " (Private)" : ""}`}
-      className={`ui label ${sizeClass} ${formatClass}`}
+      className={className}
       style={{
         backgroundColor: `#${props.tag.color}`,
         color: idealTextColor(props.tag.color)

@@ -10,8 +10,6 @@ import "semantic-ui-css/components/icon.min.css";
 import "semantic-ui-css/components/dropdown.min.css";
 import "semantic-ui-css/components/transition.min.css";
 
-import "semantic-ui-css/components/site.min.css";
-
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";
 
