@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { CurrentUser } from "@fider/models";
 import { AdminBasePage } from "../components";
-import { DisplayError, Textarea, Button, ButtonClickEvent } from "@fider/components";
+import { DisplayError, Textarea, TextArea, Form2, Button, ButtonClickEvent } from "@fider/components";
 import { Failure, actions, page } from "@fider/services";
 
 interface AdvancedSettingsPageProps {
@@ -43,17 +43,15 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
 
   public content() {
     return (
-      <div className="ui form">
-        <DisplayError fields={["customCSS"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="custom-css">Custom CSS</label>
-          <Textarea
-            id="custom-css"
-            disabled={!this.props.user.isAdministrator}
-            onChange={e => this.setState({ customCSS: e.currentTarget.value })}
-            value={this.state.customCSS}
-            minRows={10}
-          />
+      <Form2 error={this.state.error}>
+        <TextArea
+          field="customCSS"
+          label="Custom CSS"
+          disabled={!this.props.user.isAdministrator}
+          minRows={10}
+          value={this.state.customCSS}
+          onChange={customCSS => this.setState({ customCSS })}
+        >
           <p className="info">
             Custom CSS allows you to change the look and feel of Fider so that you can apply your own branding.
             <br />
@@ -73,7 +71,8 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
               </li>
             </ul>
           </div>
-        </div>
+        </TextArea>
+
         {this.props.user.isAdministrator && (
           <div className="field">
             <Button color="positive" onClick={this.save}>
@@ -81,7 +80,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
             </Button>
           </div>
         )}
-      </div>
+      </Form2>
     );
   }
 }
