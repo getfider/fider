@@ -47,12 +47,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     this.unmounted = true;
   }
 
-  public async click(e?: React.MouseEvent<HTMLButtonElement>) {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
+  public click = async (e?: React.SyntheticEvent<HTMLElement>) => {
     if (this.state.clicked) {
       return;
     }
@@ -65,7 +60,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
         this.setState({ clicked: false });
       }
     }
-  }
+  };
 
   public render() {
     const className = classSet({
@@ -80,13 +75,13 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
     if (this.props.href) {
       return (
-        <a href={this.props.href} className={className}>
+        <a href={this.props.href} className={className} onClick={this.click}>
           {this.props.children}
         </a>
       );
     } else {
       return (
-        <button type="button" className={className} onClick={e => this.click(e)}>
+        <button type="button" className={className} onClick={this.click}>
           {this.props.children}
         </button>
       );
