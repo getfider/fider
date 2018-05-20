@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, DisplayError } from "@fider/components/common";
+import { Button, ButtonClickEvent, Textarea, TextArea, DisplayError, Form2, Input, Field } from "@fider/components";
 import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -51,8 +51,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
     };
   }
 
-  private setRecipients = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const rawRecipients = e.currentTarget.value;
+  private setRecipients = (rawRecipients: string) => {
     const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter(x => !!x);
     this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length });
   };
@@ -81,18 +80,15 @@ ${this.props.user.name} (${this.props.tenant.name})`,
 
   public content() {
     return (
-      <div className="ui form">
-        <DisplayError fields={["recipients"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="recipients">Send invitations to</label>
-          <Textarea
-            id="recipients"
-            placeholder="william@example.com; michael@company.com"
-            rows={1}
-            value={this.state.rawRecipients}
-            minRows={1}
-            onChange={this.setRecipients}
-          />
+      <Form2 error={this.state.error}>
+        <TextArea
+          field="recipients"
+          label="Send invitations to"
+          placeholder="william@example.com; michael@company.com"
+          minRows={1}
+          value={this.state.rawRecipients}
+          onChange={this.setRecipients}
+        >
           <div className="info">
             <p>
               Input the list of all email addresses you wish to invite. Separate each address with either{" "}
@@ -101,46 +97,41 @@ ${this.props.user.name} (${this.props.tenant.name})`,
             </p>
             <p>You can send this invite to a maximum of 30 recipients each time.</p>
           </div>
-        </div>
-        <DisplayError fields={["subject"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="subject">Subject</label>
-          <input
-            id="subject"
-            value={this.state.subject}
-            type="text"
-            maxLength={70}
-            onChange={e => this.setState({ subject: e.currentTarget.value })}
-          />
+        </TextArea>
+
+        <Input
+          field="subject"
+          label="Subject"
+          value={this.state.subject}
+          maxLength={70}
+          onChange={subject => this.setState({ subject })}
+        >
           <p className="info">
             This is the subject that will be used on the invitation email. Keep it short and sweet.
           </p>
-        </div>
-        <DisplayError fields={["message"]} error={this.state.error} />
-        <div className="field">
-          <label htmlFor="message">Message</label>
-          <Textarea
-            id="message"
-            value={this.state.message}
-            rows={8}
-            minRows={8}
-            onChange={e => this.setState({ message: e.currentTarget.value })}
-          />
+        </Input>
+
+        <TextArea
+          field="message"
+          label="Message"
+          placeholder="william@example.com; michael@company.com"
+          minRows={8}
+          value={this.state.message}
+          onChange={message => this.setState({ message })}
+        >
           <div className="info">
             <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high
-              change people will simply ignore your message.
+              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a
+              high change people will simply ignore your message.
             </p>
             <p>
               You're allowed to write whatever you want as long as you include the invitation link placeholder named{" "}
               <strong>%invite%</strong>.
             </p>
           </div>
-        </div>
+        </TextArea>
 
-        <div className="ui tiny header">Sample Invite</div>
-
-        <div className="field">
+        <Field label="Sample Invite">
           <p className="info">
             We highly recommend to send yourself a sample email for you to verify if everything is correct before
             inviting your list of contacts.
@@ -150,17 +141,15 @@ ${this.props.user.name} (${this.props.tenant.name})`,
           ) : (
             <Button disabled={true}>Your profile doesn't have an email</Button>
           )}
-        </div>
+        </Field>
 
-        <div className="ui tiny header">Confirmation</div>
-
-        <div className="field">
+        <Field label="Confirmation">
           <p className="info">Whenever you're ready, click the following button to send out these invites.</p>
           <Button onClick={this.sendInvites} color="positive" disabled={this.state.numOfRecipients === 0}>
             Send {this.state.numOfRecipients} {this.state.numOfRecipients === 1 ? "invite" : "invites"}
           </Button>
-        </div>
-      </div>
+        </Field>
+      </Form2>
     );
   }
 }

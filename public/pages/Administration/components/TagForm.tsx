@@ -1,7 +1,7 @@
 import "./TagForm.scss";
 
 import * as React from "react";
-import { Button, Input, ButtonClickEvent, ShowTag, DisplayError, Form2, RadioButton, Label } from "@fider/components";
+import { Button, Input, ButtonClickEvent, ShowTag, DisplayError, Form2, RadioButton, Field } from "@fider/components";
 import { Tag } from "@fider/models";
 import { Failure } from "@fider/services";
 
@@ -82,16 +82,17 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
               />
             </div>
             <div className="col-lg-5">
-              <Label>Preview</Label>
-              <ShowTag
-                tag={{
-                  id: 0,
-                  slug: "",
-                  name: this.state.name,
-                  color: this.state.color,
-                  isPublic: this.state.isPublic
-                }}
-              />
+              <Field label="Preview">
+                <ShowTag
+                  tag={{
+                    id: 0,
+                    slug: "",
+                    name: this.state.name,
+                    color: this.state.color,
+                    isPublic: this.state.isPublic
+                  }}
+                />
+              </Field>
             </div>
           </div>
           <Button color="positive" onClick={e => this.onSave(e)}>

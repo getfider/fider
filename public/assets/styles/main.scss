@@ -129,26 +129,6 @@ h1, h2, h3, h4, h5 {
   }
 }
 
-.ui[class*="top pointing"].label:before, 
-.ui[class*="pointing above"].label:before ,
-.ui[class*="bottom pointing"].label:before, 
-.ui[class*="pointing below"].label:before {
-  left: 20px;
-}
-
-.display-error {
-  padding: 0;
-  ul {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
-    text-align: left;
-    li {
-      padding-top: 5px;
-    }
-  }
-}
-
 .ui.basic.red.label {
   width: 100%;
   color: #ef7878 !important;

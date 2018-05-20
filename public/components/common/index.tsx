@@ -6,7 +6,7 @@ export * from "./form/TextArea";
 export * from "./form/RadioButton";
 export * from "./form/DisplayError";
 export * from "./form/Select";
-export * from "./form/Label";
+export * from "./form/Field";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
 export * from "./Gravatar";
