@@ -183,7 +183,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
               ) : (
                 <p>
                   Custom domains allow you to access your app via your own domain name (for example,{" "}
-                  <code>feedback.yourcomany.com</code>).
+                  <code>feedback.yourcompany.com</code>).
                 </p>
               )}
             </div>

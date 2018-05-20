@@ -51,51 +51,49 @@ export class Input extends React.Component<InputProps, {}> {
     return (
       <ValidationContext.Consumer>
         {ctx => (
-          <>
-            <div
-              className={classSet({
-                "c-form-field": true,
-                "m-suffix": this.props.suffix,
-                "m-error": hasError(this.props.field, ctx.error),
-                "m-icon": this.props.icon
-              })}
-            >
-              {!!this.props.label && (
-                <label htmlFor={`input-${this.props.field}`}>
-                  {this.props.label}
-                  {this.props.afterLabel}
-                </label>
-              )}
-              <div className="c-form-field-wrapper">
-                <input
-                  id={`input-${this.props.field}`}
-                  type="text"
-                  ref={this.props.inputRef}
-                  autoFocus={this.props.autoFocus}
-                  onFocus={this.props.onFocus}
-                  maxLength={this.props.maxLength}
-                  disabled={this.props.disabled}
-                  value={this.props.value}
-                  placeholder={this.props.placeholder}
-                  onKeyDown={this.props.onSubmit ? this.onKeyDown : undefined}
-                  onChange={this.onChange}
+          <div
+            className={classSet({
+              "c-form-field": true,
+              "m-suffix": this.props.suffix,
+              "m-error": hasError(this.props.field, ctx.error),
+              "m-icon": this.props.icon
+            })}
+          >
+            {!!this.props.label && (
+              <label htmlFor={`input-${this.props.field}`}>
+                {this.props.label}
+                {this.props.afterLabel}
+              </label>
+            )}
+            <div className="c-form-field-wrapper">
+              <input
+                id={`input-${this.props.field}`}
+                type="text"
+                ref={this.props.inputRef}
+                autoFocus={this.props.autoFocus}
+                onFocus={this.props.onFocus}
+                maxLength={this.props.maxLength}
+                disabled={this.props.disabled}
+                value={this.props.value}
+                placeholder={this.props.placeholder}
+                onKeyDown={this.props.onSubmit ? this.onKeyDown : undefined}
+                onChange={this.onChange}
+              />
+              {!!this.props.icon && (
+                <i
+                  onClick={this.props.onIconClick}
+                  className={classSet({
+                    icon: true,
+                    [this.props.icon]: true,
+                    link: this.props.onIconClick
+                  })}
                 />
-                {!!this.props.icon && (
-                  <i
-                    onClick={this.props.onIconClick}
-                    className={classSet({
-                      icon: true,
-                      [this.props.icon]: true,
-                      link: this.props.onIconClick
-                    })}
-                  />
-                )}
-                {suffix}
-              </div>
-              <DisplayError fields={[this.props.field]} error={ctx.error} />
-              {this.props.children}
+              )}
+              {suffix}
             </div>
-          </>
+            <DisplayError fields={[this.props.field]} error={ctx.error} />
+            {this.props.children}
+          </div>
         )}
       </ValidationContext.Consumer>
     );

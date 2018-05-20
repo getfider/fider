@@ -9,6 +9,7 @@ export * from "./form/Field";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
 export * from "./Gravatar";
+export * from "./Message";
 export * from "./Footer";
 export * from "./Header";
 export * from "./Heading";
