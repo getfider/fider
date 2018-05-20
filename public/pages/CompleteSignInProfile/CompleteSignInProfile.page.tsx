@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
-import { Modal, Button, Form2, Input } from "@fider/components";
+import { Modal, Button, Form, Input } from "@fider/components";
 import { page, actions, Failure } from "@fider/services";
 
 interface CompleteSignInProfilePageState {
@@ -36,7 +36,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
           <Modal.Header>Complete your profile</Modal.Header>
           <Modal.Content>
             <p>Because this is your first sign in, please input your display name.</p>
-            <Form2 error={this.state.error}>
+            <Form error={this.state.error}>
               <Input
                 field="name"
                 onChange={name => this.setState({ name })}
@@ -48,7 +48,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
                   </Button>
                 }
               />
-            </Form2>
+            </Form>
           </Modal.Content>
         </Modal.Window>
         {this.props.tenant.isPrivate

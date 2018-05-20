@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, TextArea, DisplayError, Form2, Input, Field } from "@fider/components";
+import { Button, ButtonClickEvent, TextArea, DisplayError, Form, Input, Field } from "@fider/components";
 import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -80,7 +80,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
 
   public content() {
     return (
-      <Form2 error={this.state.error}>
+      <Form error={this.state.error}>
         <TextArea
           field="recipients"
           label="Send invitations to"
@@ -121,8 +121,8 @@ ${this.props.user.name} (${this.props.tenant.name})`,
         >
           <div className="info">
             <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a
-              high change people will simply ignore your message.
+              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high
+              change people will ignore your message.
             </p>
             <p>
               You're allowed to write whatever you want as long as you include the invitation link placeholder named{" "}
@@ -149,7 +149,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
             Send {this.state.numOfRecipients} {this.state.numOfRecipients === 1 ? "invite" : "invites"}
           </Button>
         </Field>
-      </Form2>
+      </Form>
     );
   }
 }

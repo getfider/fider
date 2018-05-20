@@ -3,16 +3,7 @@ import "./GeneralSettings.page.scss";
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import {
-  Button,
-  ButtonClickEvent,
-  Textarea,
-  TextArea,
-  DisplayError,
-  Logo,
-  Form2,
-  Input
-} from "@fider/components/common";
+import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input } from "@fider/components/common";
 import { actions, page, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -123,7 +114,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         : undefined;
 
     return (
-      <Form2 error={this.state.error}>
+      <Form error={this.state.error}>
         <Input
           field="title"
           label="Title"
@@ -204,7 +195,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             Save
           </Button>
         </div>
-      </Form2>
+      </Form>
     );
   }
 }

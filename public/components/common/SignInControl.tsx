@@ -1,7 +1,7 @@
 import "./SignInControl.scss";
 
 import * as React from "react";
-import { SocialSignInButton, Form, Button, Form2, Input } from "@fider/components";
+import { SocialSignInButton, Form, Button, Input } from "@fider/components";
 import { AuthSettings } from "@fider/models";
 import { page, device, actions, Failure } from "@fider/services";
 
@@ -95,7 +95,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
         {this.props.useEmail && (
           <div>
             <p>Enter your email address to sign in</p>
-            <Form2 error={this.state.error}>
+            <Form error={this.state.error}>
               <Input
                 field="email"
                 value={this.state.email}
@@ -109,7 +109,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
                   </Button>
                 }
               />
-            </Form2>
+            </Form>
           </div>
         )}
       </div>

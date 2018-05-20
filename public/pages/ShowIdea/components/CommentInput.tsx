@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Idea, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl, TextArea, Form2 } from "@fider/components/common";
+import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, page, actions, Failure } from "@fider/services";
@@ -70,7 +70,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         <SignInModal isOpen={this.state.showSignIn} />
         <div className={`c-comment-input ${this.props.user && "m-authenticated"}`}>
           {this.props.user && <Gravatar user={this.props.user} />}
-          <Form2 error={this.state.error}>
+          <Form error={this.state.error}>
             {this.props.user && <UserName user={this.props.user} />}
             <TextArea
               placeholder="Write a comment..."
@@ -86,7 +86,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
                 Submit
               </Button>
             )}
-          </Form2>
+          </Form>
         </div>
       </>
     );

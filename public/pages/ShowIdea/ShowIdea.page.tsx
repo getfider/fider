@@ -11,13 +11,15 @@ import {
   ShowIdeaResponse,
   DisplayError,
   Button,
-  Textarea,
   UserName,
   Gravatar,
   Moment,
   MultiLineText,
   List,
-  ListItem
+  ListItem,
+  Input,
+  Form,
+  TextArea
 } from "@fider/components";
 
 interface ShowIdeaPageProps {
@@ -73,17 +75,14 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
               <div className="idea-header">
                 {this.state.editMode ? (
-                  [
-                    <div key={1} className="ui input huge fluid">
-                      <input
-                        type="text"
-                        maxLength={100}
-                        onChange={e => this.setState({ newTitle: e.currentTarget.value })}
-                        defaultValue={this.state.newTitle}
-                      />
-                    </div>,
-                    <DisplayError key={0} fields={["title"]} error={this.state.error} />
-                  ]
+                  <Form error={this.state.error}>
+                    <Input
+                      field="title"
+                      maxLength={100}
+                      value={this.state.newTitle}
+                      onChange={newTitle => this.setState({ newTitle })}
+                    />
+                  </Form>
                 ) : (
                   <h1>{this.props.idea.title}</h1>
                 )}
@@ -98,15 +97,13 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
           <span className="subtitle">Description</span>
           {this.state.editMode ? (
-            <div className="ui form">
-              <div className="field">
-                <DisplayError fields={["description"]} error={this.state.error} />
-                <Textarea
-                  onChange={e => this.setState({ newDescription: e.currentTarget.value })}
-                  defaultValue={this.state.newDescription}
-                />
-              </div>
-            </div>
+            <Form error={this.state.error}>
+              <TextArea
+                field="description"
+                value={this.state.newDescription}
+                onChange={newDescription => this.setState({ newDescription })}
+              />
+            </Form>
           ) : this.props.idea.description ? (
             <MultiLineText className="description" text={this.props.idea.description} style="simple" />
           ) : (

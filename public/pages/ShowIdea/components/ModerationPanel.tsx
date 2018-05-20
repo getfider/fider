@@ -1,7 +1,7 @@
 import * as React from "react";
 import { IdeaStatus, CurrentUser, Idea } from "@fider/models";
 import { page, actions, Failure } from "@fider/services";
-import { Form, DisplayError, Textarea, Modal, Button, List, ListItem, Form2, TextArea } from "@fider/components";
+import { Form, DisplayError, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
   user?: CurrentUser;
@@ -48,7 +48,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     const modal = (
       <Modal.Window isOpen={this.state.showConfirmation} center={false} size="large">
         <Modal.Content>
-          <Form2 error={this.state.error}>
+          <Form error={this.state.error}>
             <TextArea
               field="text"
               onChange={text => this.setState({ text })}
@@ -59,7 +59,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
                 This operation <strong>cannot</strong> be undone.
               </span>
             </TextArea>
-          </Form2>
+          </Form>
         </Modal.Content>
 
         <Modal.Footer>

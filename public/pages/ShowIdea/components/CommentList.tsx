@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Idea, Comment, CurrentUser } from "@fider/models";
 import { Failure, actions, formatDate } from "@fider/services";
-import { DisplayError, Textarea, Button, UserName, Gravatar, Moment, MultiLineText } from "@fider/components/common";
+import { DisplayError, Button, UserName, Gravatar, Moment, MultiLineText, TextArea, Form } from "@fider/components";
 
 interface CommentListProps {
   idea: Idea;
@@ -103,27 +103,25 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
             )}
             <div className="text">
               {c === this.state.editingComment ? (
-                <div className="ui form">
-                  <DisplayError error={this.state.error} />
-                  <div className="field">
-                    <Textarea
-                      rows={1}
-                      defaultValue={c.content}
-                      placeholder={c.content}
-                      onChange={e =>
-                        this.setState({
-                          editCommentNewContent: e.currentTarget.value
-                        })
-                      }
-                    />
-                  </div>
+                <Form error={this.state.error}>
+                  <TextArea
+                    field="content"
+                    minRows={1}
+                    value={this.state.editCommentNewContent}
+                    placeholder={c.content}
+                    onChange={editCommentNewContent =>
+                      this.setState({
+                        editCommentNewContent
+                      })
+                    }
+                  />
                   <Button size="tiny" onClick={() => this.confirmEdit()} color="positive">
                     Save
                   </Button>
                   <Button size="tiny" onClick={() => this.cancelEdit()}>
                     Cancel
                   </Button>
-                </div>
+                </Form>
               ) : (
                 <MultiLineText text={c.content} style="simple" />
               )}

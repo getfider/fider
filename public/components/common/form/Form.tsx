@@ -1,4 +1,4 @@
-import "./Form2.scss";
+import "./Form.scss";
 
 import * as React from "react";
 import { Failure, classSet } from "@fider/services";
@@ -15,7 +15,7 @@ interface FormProps {
 
 export const ValidationContext = React.createContext<ValidationContext>({});
 
-export class Form2 extends React.Component<FormProps, {}> {
+export class Form extends React.Component<FormProps, {}> {
   constructor(props: FormProps) {
     super(props);
     this.state = {

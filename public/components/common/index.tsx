@@ -1,6 +1,5 @@
 export * from "./Button";
-export * from "./Form";
-export * from "./form/Form2";
+export * from "./form/Form";
 export * from "./form/Input";
 export * from "./form/TextArea";
 export * from "./form/RadioButton";
@@ -18,8 +17,8 @@ export * from "./SignInControl";
 export * from "./Segment";
 export * from "./List";
 export * from "./Moment";
-export * from "./UserName";
 export * from "./Modal";
+export * from "./UserName";
 export * from "./Loader";
 export * from "./Logo";
 export * from "./Toggle";

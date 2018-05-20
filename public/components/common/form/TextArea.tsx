@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Failure, classSet } from "@fider/services";
-import { Textarea, ValidationContext } from "../";
+import { ValidationContext } from "../";
 import { DisplayError, hasError } from "./DisplayError";
+import Textarea from "react-textarea-autosize";
 
 interface TextAreaProps {
   label?: string;

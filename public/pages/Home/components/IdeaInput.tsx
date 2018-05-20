@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DisplayError, Button, ButtonClickEvent, Form, Textarea, Input, Form2, TextArea } from "@fider/components";
+import { DisplayError, Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
 import { page, cache, actions, Failure } from "@fider/services";
 import { CurrentUser } from "@fider/models";
@@ -94,7 +94,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <Form2 error={this.state.error}>
+        <Form error={this.state.error}>
           <Input
             field="title"
             inputRef={e => (this.title = e!)}
@@ -105,7 +105,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
             placeholder={this.props.placeholder}
           />
           {this.state.title && details}
-        </Form2>
+        </Form>
       </>
     );
   }

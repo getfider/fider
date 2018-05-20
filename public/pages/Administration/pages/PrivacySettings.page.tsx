@@ -3,7 +3,7 @@ import "./PrivacySettings.page.scss";
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, DisplayError, Toggle, Form2 } from "@fider/components/common";
+import { Button, ButtonClickEvent, DisplayError, Toggle, Form } from "@fider/components/common";
 import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -47,7 +47,7 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
 
   public content() {
     return (
-      <Form2>
+      <Form>
         <div className="c-form-field">
           <label htmlFor="private">Private site</label>
           <Toggle disabled={!this.props.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
@@ -56,7 +56,7 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
             enabled, only already registered and invited users will be able to sign in to this site.
           </p>
         </div>
-      </Form2>
+      </Form>
     );
   }
 }

@@ -3,7 +3,7 @@ import "./PrivacySettings.page.scss";
 import * as React from "react";
 
 import { CurrentUser } from "@fider/models";
-import { Button, Form2, Field } from "@fider/components";
+import { Button, Form, Field } from "@fider/components";
 import { AdminBasePage } from "../components";
 
 interface ExportPageProps {
@@ -19,7 +19,7 @@ export class ExportPage extends AdminBasePage<ExportPageProps, {}> {
 
   public content() {
     return (
-      <Form2>
+      <Form>
         <Field label="Export Ideas">
           <p className="info">
             Use this button to download a CSV file with all ideas in this site. This can be useful to analyse the data
@@ -29,7 +29,7 @@ export class ExportPage extends AdminBasePage<ExportPageProps, {}> {
         <Field>
           <Button href="/admin/export/ideas.csv">Download</Button>
         </Field>
-      </Form2>
+      </Form>
     );
   }
 }

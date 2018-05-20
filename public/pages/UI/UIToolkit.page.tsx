@@ -14,7 +14,7 @@ import {
   ShowIdeaStatus,
   Moment,
   Loader,
-  Form2,
+  Form,
   Input,
   TextArea,
   RadioButton,
@@ -282,7 +282,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <Loader />
 
         <h1>Form</h1>
-        <Form2 error={this.state.error}>
+        <Form error={this.state.error}>
           <Input label="Title" field="title">
             <p className="info">This is the explanation for the field above.</p>
           </Input>
@@ -342,7 +342,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           >
             Save
           </Button>
-        </Form2>
+        </Form>
 
         <Segment>
           <h1>Search</h1>

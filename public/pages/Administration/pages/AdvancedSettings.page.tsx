@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { CurrentUser } from "@fider/models";
 import { AdminBasePage } from "../components";
-import { DisplayError, Textarea, TextArea, Form2, Button, ButtonClickEvent } from "@fider/components";
+import { DisplayError, TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
 import { Failure, actions, page } from "@fider/services";
 
 interface AdvancedSettingsPageProps {
@@ -43,7 +43,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
 
   public content() {
     return (
-      <Form2 error={this.state.error}>
+      <Form error={this.state.error}>
         <TextArea
           field="customCSS"
           label="Custom CSS"
@@ -80,7 +80,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
             </Button>
           </div>
         )}
-      </Form2>
+      </Form>
     );
   }
 }

@@ -1,7 +1,7 @@
 import "./ManageMembers.page.scss";
 
 import * as React from "react";
-import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form2 } from "@fider/components/common";
+import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
 import { actions } from "@fider/services";
 import { AdminBasePage } from "../components";
@@ -121,7 +121,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
               {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
             </List>
             {this.props.user.role === UserRole.Administrator && (
-              <Form2 size="mini">
+              <Form size="mini">
                 <Input
                   label="Add new administrator"
                   field="new-administrator"
@@ -134,7 +134,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 </List>
                 {this.state.newAdministratorFilter &&
                   this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
-              </Form2>
+              </Form>
             )}
           </Segment>
         </div>
@@ -147,7 +147,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
               {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
             </List>
             {this.props.user.role === UserRole.Administrator && (
-              <Form2 size="mini">
+              <Form size="mini">
                 <Input
                   label="Add new collaborator"
                   field="new-collaborator"
@@ -160,7 +160,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 </List>
                 {this.state.newCollaboratorFilter &&
                   this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
-              </Form2>
+              </Form>
             )}
           </Segment>
         </div>
