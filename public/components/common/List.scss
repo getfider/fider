@@ -3,6 +3,10 @@
 .c-list {
   margin-bottom: 15px;
 
+  &:last-child {
+    margin-bottom: 0;
+  }
+
   &.m-hover {
     .c-list-item {
       padding: 5px;
@@ -15,14 +19,15 @@
 
   &.m-divided {
     .c-list-item {
-      padding: 20px 0;
+      padding: 15px 0 0 0;
+      margin: 0 0 15px 0;
       border-top: 1px solid $gray-lighter;
       &:first-child {
         border-top: none;
         padding-top: 0;
       }
       &:last-child {
-        padding-bottom: 0;
+        margin-bottom: 0;
       }
     }
   }

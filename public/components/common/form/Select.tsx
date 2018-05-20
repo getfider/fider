@@ -12,7 +12,7 @@ interface SelectProps {
   field: string;
   label?: string;
   maxLength?: number;
-  defaultOption?: SelectOption;
+  defaultValue?: string;
   options: SelectOption[];
   onChange?: (option?: SelectOption) => void;
 }
@@ -25,8 +25,17 @@ export class Select extends React.Component<SelectProps, SelectState> {
   constructor(props: SelectProps) {
     super(props);
     this.state = {
-      selected: props.defaultOption
+      selected: this.getOption(props.defaultValue)
     };
+  }
+
+  private getOption(value?: string): SelectOption | undefined {
+    if (value && this.props.options) {
+      const filtered = this.props.options.filter(x => x.value === value);
+      if (filtered && filtered.length > 0) {
+        return filtered[0];
+      }
+    }
   }
 
   private onChange = (e: React.FormEvent<HTMLSelectElement>) => {
@@ -68,7 +77,7 @@ export class Select extends React.Component<SelectProps, SelectState> {
               <div className="c-form-field-wrapper">
                 <select
                   id={`input-${this.props.field}`}
-                  defaultValue={this.props.defaultOption && this.props.defaultOption.value}
+                  defaultValue={this.props.defaultValue}
                   onChange={this.onChange}
                 >
                   {options}

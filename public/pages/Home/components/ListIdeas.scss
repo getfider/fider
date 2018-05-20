@@ -8,7 +8,9 @@
     border-top-width: 0.1px !important;
 
     .c-list-item-title {
+      display: block;
       max-width: 85%;
+      margin-bottom: 10px;
       font-size: $font-size-big;
     }
 

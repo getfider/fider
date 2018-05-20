@@ -9,6 +9,7 @@ interface ValidationContext {
 }
 
 interface FormProps {
+  className?: string;
   size?: "mini" | "normal";
   error?: Failure;
 }
@@ -26,6 +27,7 @@ export class Form extends React.Component<FormProps, {}> {
   public render() {
     const className = classSet({
       "c-form": true,
+      [this.props.className!]: true,
       [`m-${this.props.size}`]: this.props.size
     });
     return (
