@@ -208,6 +208,11 @@ h1, h2, h3, h4, h5 {
   display: block;
   &.active {
     cursor: pointer;
+    &:hover {
+      i {
+        color: $main-color;
+      }
+    }
     i {
       float: right;
     }

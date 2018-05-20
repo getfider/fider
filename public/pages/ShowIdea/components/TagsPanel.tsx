@@ -81,7 +81,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
       </List>
     );
 
-    const subtitleClasses = `subtitle ${this.state.canEdit && "active primary-hover"}`;
+    const subtitleClasses = `subtitle ${this.state.canEdit && "active"}`;
     const icon =
       this.state.canEdit &&
       (this.state.isEditing ? <i className="check circle icon" /> : <i className="setting icon" />);

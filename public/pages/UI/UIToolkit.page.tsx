@@ -60,10 +60,8 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h3>Heading 3</h3>
         <h4>Heading 4</h4>
         <h5>Heading 5</h5>
-        <p className="primary">Primary Text</p>
-        <p className="text">General Text</p>
+        <p>General Text Paragraph</p>
         <p className="info">Info Text</p>
-        <p className="primary-hover clickable">Primary Text (on hover) and clickable</p>
 
         <Segment>
           <h2>The title</h2>
@@ -93,14 +91,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <Heading title="Page Heading" icon="settings" subtitle="This is a page heading" />
 
-        <Heading
-          title="Section Heading"
-          icon="lightbulb"
-          subtitle="This is a page heading"
-          level={3}
-          dividing={true}
-          iconClassName="primary"
-        />
+        <Heading title="Section Heading" icon="lightbulb" subtitle="This is a page heading" level={3} dividing={true} />
 
         <h1>Buttons</h1>
         <List>

@@ -88,7 +88,6 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             title="Similar ideas"
             subtitle="Consider voting on existing ideas before posting a new one."
             icon="lightbulb"
-            iconClassName="primary"
             level={3}
             dividing={true}
           />

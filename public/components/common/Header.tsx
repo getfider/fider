@@ -74,7 +74,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
 
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
     const profileMenuClassName = classSet({
-      "c-menu-item-signin text-hover": true,
+      "c-menu-item-signin": true,
       subtitle: !this.props.user
     });
 

@@ -75,6 +75,10 @@
       margin-left: auto !important;
       margin-bottom: 0;
 
+      &:hover {
+        color: $text-color;
+      }
+
       .c-menu-user {
         display: none;
         position: absolute;

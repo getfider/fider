@@ -1,15 +1,9 @@
 @import 'variables.scss';
 
-.text,
-.text-hover:hover {
+.text {
   color: $text-color;
 }
 
-.text-light {
-  color: $gray-light;
-}
-
-.primary,
-.primary-hover:hover {
+.primary {
   color: $main-color;
 }

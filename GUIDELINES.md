@@ -31,7 +31,7 @@ public/pages/Home // Home page component folder
 
 * `l-<name>` is used to general layout styling. It's does not need to be related to any component or page.
 
-* `is-<state>`, `has-<state>` or simply `<state>` are global style modifiers that have a broader impact. E.g: `primary` changes the text color or any element to its primary color. `text-align` aligns its text to the middle.
+* `is-<state>`, `has-<state>` or simply `<state>` are global style modifiers that have a broader impact.
 
 * `js-<name>` is used to JavaScript hooks, should be avoided as much as possible;
 ```
