@@ -1,14 +1,15 @@
 import "./Form2.scss";
 
 import * as React from "react";
-import { Failure } from "@fider/services";
-import { Button } from "@fider/components";
+import { Failure, classSet } from "@fider/services";
+import { Button, DisplayError } from "@fider/components";
 
 interface ValidationContext {
   error?: Failure;
 }
 
 interface FormProps {
+  size?: "mini" | "normal";
   error?: Failure;
 }
 
@@ -23,8 +24,13 @@ export class Form2 extends React.Component<FormProps, {}> {
   }
 
   public render() {
+    const className = classSet({
+      "c-form": true,
+      [`m-${this.props.size}`]: this.props.size
+    });
     return (
-      <form autoComplete="off" className="c-form">
+      <form autoComplete="off" className={className}>
+        <DisplayError error={this.props.error} />
         <ValidationContext.Provider value={{ error: this.props.error }}>
           {this.props.children}
         </ValidationContext.Provider>

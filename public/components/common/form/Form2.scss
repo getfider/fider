@@ -3,6 +3,15 @@
 .c-form {
   position: relative;
   max-width: 100%;
+
+  &.m-mini {
+    font-size: 80%;
+    input[type=text],
+    textarea,
+    select {
+      padding: 8px;
+    }
+  }
 }
 
 .c-form-field {
@@ -13,6 +22,13 @@
     display: block;
     margin: 0 0 5px;
     font-weight: 600;
+
+    .info {
+      padding: 5px 0px 0px 5px;
+    }
+    .info.clickable {
+      color: $link-color;
+    }
   }
 
   .c-form-field-wrapper {
@@ -26,6 +42,7 @@
       padding: 10px;
       outline: 0;
       margin: 0;
+      resize: none !important;
       border: 1px solid $gray-light;
       border-radius: 3px;
     
@@ -96,6 +113,7 @@
       display: inline-block;
       margin-left: 5px;
       font-size: $font-size-small;
+      font-weight: 500;
       cursor: pointer;
     }
   }

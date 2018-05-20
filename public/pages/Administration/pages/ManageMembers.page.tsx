@@ -1,10 +1,11 @@
 import "./ManageMembers.page.scss";
 
 import * as React from "react";
-import { Button, Gravatar, UserName, Segment, ListItem, List } from "@fider/components/common";
+import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form2 } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
 import { actions } from "@fider/services";
 import { AdminBasePage } from "../components";
+import { Divider } from "semantic-ui-react";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -120,22 +121,20 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
               {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
             </List>
             {this.props.user.role === UserRole.Administrator && (
-              <div className="ui mini form">
-                <p>Add new administrator</p>
-                <div className="mini field">
-                  <input
-                    type="text"
-                    value={this.state.newAdministratorFilter}
-                    onChange={x => this.filterVisitors("administrator", x.currentTarget.value)}
-                    placeholder="Search users by name"
-                  />
-                </div>
+              <Form2 size="mini">
+                <Input
+                  label="Add new administrator"
+                  field="new-administrator"
+                  value={this.state.newAdministratorFilter}
+                  onChange={x => this.filterVisitors("administrator", x)}
+                  placeholder="Search users by name"
+                />
                 <List hover={true}>
                   {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
                 </List>
                 {this.state.newAdministratorFilter &&
                   this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
-              </div>
+              </Form2>
             )}
           </Segment>
         </div>
@@ -148,22 +147,20 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
               {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
             </List>
             {this.props.user.role === UserRole.Administrator && (
-              <div className="ui mini form">
-                <p>Add new collaborator</p>
-                <div className="mini field">
-                  <input
-                    type="text"
-                    value={this.state.newCollaboratorFilter}
-                    onChange={x => this.filterVisitors("collaborator", x.currentTarget.value)}
-                    placeholder="Search users by name"
-                  />
-                </div>
+              <Form2 size="mini">
+                <Input
+                  label="Add new collaborator"
+                  field="new-collaborator"
+                  value={this.state.newCollaboratorFilter}
+                  onChange={x => this.filterVisitors("collaborator", x)}
+                  placeholder="Search users by name"
+                />
                 <List hover={true}>
                   {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
                 </List>
                 {this.state.newCollaboratorFilter &&
                   this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
-              </div>
+              </Form2>
             )}
           </Segment>
         </div>

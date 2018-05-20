@@ -26,7 +26,7 @@ export const DisplayError = (props: DisplayErrorProps) => {
 
   if (props.error.messages && !props.fields) {
     items = arrayToTag(props.error.messages);
-  } else if (props.error.failures) {
+  } else if (props.error.failures && props.fields) {
     for (const field of props.fields || Object.keys(props.error.failures)) {
       if (props.error.failures.hasOwnProperty(field)) {
         const tags = arrayToTag(props.error.failures[field]);

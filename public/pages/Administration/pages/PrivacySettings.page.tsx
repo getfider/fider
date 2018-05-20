@@ -3,7 +3,7 @@ import "./PrivacySettings.page.scss";
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, Textarea, DisplayError, Toggle } from "@fider/components/common";
+import { Button, ButtonClickEvent, Textarea, DisplayError, Toggle, Form2 } from "@fider/components/common";
 import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -47,18 +47,16 @@ export class PrivacySettingsPage extends AdminBasePage<PrivacySettingsPageProps,
 
   public content() {
     return (
-      <div className="ui form">
-        <div className="field">
-          <label htmlFor="private">
-            Private site
-            <Toggle disabled={!this.props.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
-          </label>
+      <Form2>
+        <div className="c-form-field">
+          <label htmlFor="private">Private site</label>
+          <Toggle disabled={!this.props.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
           <p className="info">
             A private site prevents unauthenticated users from viewing or interacting with its content. <br /> If
             enabled, only already registered and invited users will be able to sign in to this site.
           </p>
         </div>
-      </div>
+      </Form2>
     );
   }
 }

@@ -6,6 +6,7 @@ import { DisplayError, hasError } from "./DisplayError";
 interface InputProps {
   field: string;
   label?: string;
+  afterLabel?: JSX.Element;
   icon?: string;
   maxLength?: number;
   value?: string;
@@ -40,7 +41,12 @@ export class Input extends React.Component<InputProps, {}> {
                 "m-icon": this.props.icon
               })}
             >
-              {!!this.props.label && <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>}
+              {!!this.props.label && (
+                <label htmlFor={`input-${this.props.field}`}>
+                  {this.props.label}
+                  {this.props.afterLabel}
+                </label>
+              )}
               <div className="c-form-field-wrapper">
                 <input
                   id={`input-${this.props.field}`}

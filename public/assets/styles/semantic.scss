@@ -1,9 +1,5 @@
 @import 'variables.scss';
 
-.ui.form textarea:not([rows]) {
-  max-height: initial;
-}
-
 .ui.label {
   .icon {
     margin-right: 0.25em;
