@@ -58,19 +58,21 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
             This is a powerful and flexibe feature, but requires basic understanding of{" "}
             <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
           </p>
-          <div className="info">
-            You can avoid some issues by following these recommendations:
-            <ul>
-              <li>
-                <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time, and
-                it's likely that such changes would invalidate some rules.
-              </li>
-              <li>
-                <strong>Keep it short</strong>: Customize only the essential. Avoid changing the style or structure of
-                the entire site.
-              </li>
-            </ul>
-          </div>
+          <p className="info">
+            Custom CSS might break the design of your site as Fider evolves. By doing this, you're taking this risk, and
+            you will need to fix issues if they arise. <br /> You can minimize some issues by following these
+            recommendations:
+          </p>
+          <ul className="info">
+            <li>
+              <strong>Avoid nested selectors</strong>: Fider might change the structure of the HTML at any time, and
+              it's likely that such changes would invalidate some rules.
+            </li>
+            <li>
+              <strong>Keep it short</strong>: Customize only the essential. Avoid changing the style or structure of the
+              entire site.
+            </li>
+          </ul>
         </TextArea>
 
         {this.props.user.isAdministrator && (
