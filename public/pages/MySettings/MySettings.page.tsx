@@ -25,7 +25,6 @@ interface MySettingsPageProps {
 export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
-    props.user.email = "";
     this.state = {
       showModal: false,
       changingEmail: false,
@@ -157,8 +156,6 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                 Confirm
               </Button>
             </Form>
-
-            <h1>OLD: Try with account without e-mail</h1>
           </div>
         </div>
       </div>

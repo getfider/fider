@@ -6,21 +6,23 @@
     margin-bottom: 20px;
   }
 
-  .ideas-filter {
-    .item {
-      .label {
-        position: absolute;
-        font-size: 8px;
-        margin-left: 5px;
-      }
+  .l-ideas-filter {
+    .counter {
+      font-size: 8px;
+      background-color: $gray-lighter;
+      color: $text-color;
+      display: inline-block;
+      min-width: 15px;
+      padding: 0px 5px;
+      margin-left: 5px;
+      text-align: center;
+      border-radius: 10px;
+      vertical-align: top;
+      font-weight: 600;
     }
   }
 
-  .tags-filter {
-    .ui.empty.circular.label {
-      font-size: .71428571rem;
-      margin-right: 5px;
-    }
+  .l-tags-filter {
     .selected.item {
       background-color: transparent;
       font-weight: normal;

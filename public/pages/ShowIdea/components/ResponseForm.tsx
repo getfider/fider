@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea } from "@fider/components";
+import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field } from "@fider/components";
 import { Comment, Idea, IdeaStatus, User } from "@fider/models";
 import { IdeaSearch } from "../";
 
@@ -66,11 +66,13 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             />
             {this.state.status === IdeaStatus.Duplicate.value ? (
               <>
+                <Field>
+                  <IdeaSearch
+                    exclude={[this.props.idea.number]}
+                    onChanged={originalNumber => this.setState({ originalNumber })}
+                  />
+                </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
-                <IdeaSearch
-                  exclude={[this.props.idea.number]}
-                  onChanged={originalNumber => this.setState({ originalNumber })}
-                />
                 <span className="info">Votes from this idea will be merged into original idea.</span>
               </>
             ) : (

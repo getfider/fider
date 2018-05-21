@@ -63,7 +63,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
       <>
         with{" "}
         <Dropdown
-          className="tags-filter"
+          className="l-tags-filter"
           selectOnBlur={false}
           text={text}
           defaultValue="0"
