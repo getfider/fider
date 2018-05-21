@@ -101,7 +101,7 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
                 </span>
               </div>
             )}
-            <div className="text">
+            <div className="c-comment-text">
               {c === this.state.editingComment ? (
                 <Form error={this.state.error}>
                   <TextArea

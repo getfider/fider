@@ -10,24 +10,27 @@
   }
 
   .c-comment {
-
-    .c-comment-content {
-      display: inline-block;
-      width: 85%;
-    }
-
-    .c-comment-metadata {
-      display: inline-block;
-      margin-left: .5em;
-      font-size: 80%;
-      color: $gray-darker;
-    }
-
     position: relative;
     margin: 0 0 15px 0;
     border: none;
     border-top: none;
     line-height: 1.2;
+
+    .c-comment-content {
+      display: inline-block;
+      width: 85%;
+
+      .c-comment-text {
+        margin-top: 2px;
+      }
+  
+      .c-comment-metadata {
+        display: inline-block;
+        margin-left: .5em;
+        font-size: 80%;
+        color: $gray-darker;
+      }
+    }
   }
 }
 
@@ -35,6 +38,7 @@
   margin: 0 0 15px 0;
 
   .c-form {
+    margin-top: 5px;
     display: inline-block;
     width: 100%;
     textarea {
