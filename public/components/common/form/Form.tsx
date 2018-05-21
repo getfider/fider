@@ -27,7 +27,7 @@ export class Form extends React.Component<FormProps, {}> {
   public render() {
     const className = classSet({
       "c-form": true,
-      [this.props.className!]: true,
+      [this.props.className!]: this.props.className,
       [`m-${this.props.size}`]: this.props.size
     });
     return (

@@ -11,7 +11,7 @@ export const Field: React.StatelessComponent<FieldProps> = props => {
     <div
       className={classSet({
         "c-form-field": true,
-        [props.className!]: true
+        [props.className!]: props.className
       })}
     >
       {!!props.label && <label>{props.label}</label>}

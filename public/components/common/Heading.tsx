@@ -22,7 +22,7 @@ export const Heading = (props: HeadingLogo) => {
   const iconClassName = classSet({
     "c-heading-icon": true,
     circular: level <= 2,
-    [props.icon!]: true,
+    [props.icon!]: props.icon,
     icon: true
   });
 

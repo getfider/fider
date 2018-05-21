@@ -26,20 +26,19 @@ export class HomePage extends Page {
   }
 
   @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
-  @findBy(".page .welcome-message") public WelcomeMessage!: WebComponent;
-  @findBy("#new-idea-input") public IdeaTitle!: TextInput;
-  @findBy(".ui.form textarea") public IdeaDescription!: TextInput;
+  @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
+  @findBy("#input-title") public IdeaTitle!: TextInput;
+  @findBy("#input-description") public IdeaDescription!: TextInput;
   @findBy(".c-button.m-positive") public SubmitIdea!: Button;
   @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
   @findBy(".c-menu-user-heading") public UserName!: WebComponent;
   @findBy(".c-modal-window") public SignInModal!: WebComponent;
   @findBy(".c-modal-window .c-button.m-google") public GoogleSignIn!: Button;
   @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
-  @findBy("#email-signin input") private EmailSignInInput!: TextInput;
-  @findBy("#email-signin button") private EmailSignInButton!: TextInput;
-  @findBy(".ui.form .ui.negative.message") public ErrorBox!: WebComponent;
+  @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
+  @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
   @findBy(".signout") private SignOut!: Button;
-  @findMultipleBy(".c-idea-list > .item") public IdeaList!: IdeaList;
+  @findMultipleBy(".c-idea-list > .c-list-item") public IdeaList!: IdeaList;
   @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
   @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
