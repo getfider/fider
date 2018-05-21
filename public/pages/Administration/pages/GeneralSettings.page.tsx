@@ -3,7 +3,7 @@ import "./GeneralSettings.page.scss";
 import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input } from "@fider/components/common";
+import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input, Field } from "@fider/components/common";
 import { actions, page, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -139,17 +139,16 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           onChange={invitation => this.setState({ invitation })}
         />
 
-        <DisplayError fields={["logo"]} error={this.state.error} />
-        <div className="c-form-field c-logo-upload">
-          <label htmlFor="logo">Logo</label>
+        <Field label="Logo" className="c-logo-upload">
           {hasFile && <Logo size={200} tenant={this.props.tenant} url={previewUrl} />}
           <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
+          <DisplayError fields={["logo"]} error={this.state.error} />
           <div>
-            <Button size="mini" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
+            <Button size="tiny" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
               {hasFile ? "Change" : "Upload"}
             </Button>
             {hasFile && (
-              <Button onClick={this.removeFile} size="mini" disabled={!this.props.user.isAdministrator}>
+              <Button onClick={this.removeFile} size="tiny" disabled={!this.props.user.isAdministrator}>
                 Remove
               </Button>
             )}
@@ -158,7 +157,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
             dimensions of 200x200 pixels.
           </p>
-        </div>
+        </Field>
 
         {!page.isSingleHostMode() && (
           <Input
