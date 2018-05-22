@@ -43,9 +43,9 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
 
   public render() {
     return (
-      <div id="p-home" className="page ui container">
-        <div className="ui grid stackable">
-          <div className="six wide column">
+      <div id="p-home" className="page container">
+        <div className="row">
+          <div className="col-md-5">
             <MultiLineText
               className="welcome-message"
               text={this.props.tenant.welcomeMessage || defaultWelcomeMessage}
@@ -57,7 +57,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
               onTitleChanged={title => this.setState({ title })}
             />
           </div>
-          <div className="ten wide column">
+          <div className="col-md-7">
             {Object.keys(this.props.countPerStatus).length === 0 ? (
               <Lonely />
             ) : (

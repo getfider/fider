@@ -1,18 +1,16 @@
 {{define "javascript"}}{{end}}
 
 {{define "content"}}
-  <div class="ui middle aligned center aligned grid failure-page">
-    <div class="column">
-      <img src="{{.__logo}}"/>
-      <h1>PAGE NOT FOUND</h1>
-      <p>
-        The link you clicked may be broken or <br />
-        the page may have been removed.
-      </p>
+  <div class="container failure-page">
+    <img src="{{.__logo}}"/>
+    <h1>PAGE NOT FOUND</h1>
+    <p>
+      The link you clicked may be broken or <br />
+      the page may have been removed.
+    </p>
 
-      {{ if .tenant }}
-        <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
-      {{ end }}
-    </div>
+    {{ if .tenant }}
+      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+    {{ end }}
   </div>
 {{end}}

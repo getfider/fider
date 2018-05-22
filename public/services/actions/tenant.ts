@@ -39,6 +39,10 @@ export const updateTenantSettings = async (request: UpdateTenantSettingsRequest)
   return await http.post("/api/admin/settings/general", request);
 };
 
+export const updateTenantAdvancedSettings = async (customCSS: string): Promise<Result> => {
+  return await http.post("/api/admin/settings/advanced", { customCSS });
+};
+
 export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {
   return await http.post("/api/admin/settings/privacy", {
     isPrivate

@@ -1,8 +1,7 @@
 import "./TagForm.scss";
 
 import * as React from "react";
-import { Button, ButtonClickEvent, DisplayError } from "@fider/components/common";
-import { ShowTag } from "@fider/components/ShowTag";
+import { Button, Input, ButtonClickEvent, ShowTag, DisplayError, Form, RadioButton, Field } from "@fider/components";
 import { Tag } from "@fider/models";
 import { Failure } from "@fider/services";
 
@@ -22,6 +21,9 @@ export interface TagFormState {
 }
 
 export class TagForm extends React.Component<TagFormProps, TagFormState> {
+  private visibilityPublic = { label: "Public", value: "public" };
+  private visibilityPrivate = { label: "Private", value: "private" };
+
   constructor(props: TagFormProps) {
     super(props);
     this.state = {
@@ -48,82 +50,55 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
   }
 
   public render() {
+    const randomizer = (
+      <span className="info clickable" onClick={() => this.setState({ color: this.randomizeColor() })}>
+        randomize
+      </span>
+    );
+
     return (
-      <div id="tag-form" className="ui form">
-        <div className="four fields">
-          <div className="four wide field">
-            <label>Name</label>
-            <input
-              className="name"
-              onChange={e => this.setState({ name: e.currentTarget.value })}
-              type="text"
-              placeholder="New tag name"
-              value={this.state.name}
-            />
-            <DisplayError fields={["name"]} error={this.state.error} pointing="above" />
+      <Form error={this.state.error}>
+        <div className="row">
+          <div className="col-lg-3">
+            <Input field="name" label="Name" value={this.state.name} onChange={name => this.setState({ name })} />
           </div>
-          <div className="three wide field">
-            <label>
-              Color
-              <span className="info clickable" onClick={() => this.setState({ color: this.randomizeColor() })}>
-                randomize
-              </span>
-            </label>
-            <input
-              className="color"
-              onChange={e => this.setState({ color: e.currentTarget.value })}
-              type="text"
+          <div className="col-lg-2">
+            <Input
+              field="color"
+              label="Color"
+              afterLabel={randomizer}
               value={this.state.color}
+              onChange={color => this.setState({ color })}
             />
-            <DisplayError fields={["color"]} error={this.state.error} pointing="above" />
           </div>
-          <div className="two wide field">
-            <div className="grouped fields">
-              <label>Visibility</label>
-              <div className="field">
-                <div className="ui radio checkbox">
-                  <input
-                    id="visibility-public"
-                    type="radio"
-                    name="visibility"
-                    checked={this.state.isPublic}
-                    onChange={e => this.setState({ isPublic: true })}
-                  />
-                  <label htmlFor="visibility-public">Public</label>
-                </div>
-              </div>
-              <div className="field">
-                <div className="ui radio checkbox">
-                  <input
-                    id="visibility-private"
-                    type="radio"
-                    name="visibility"
-                    checked={!this.state.isPublic}
-                    onChange={e => this.setState({ isPublic: false })}
-                  />
-                  <label htmlFor="visibility-private">Private</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="field">
-            <label>Preview</label>
-            <ShowTag
-              tag={{
-                id: 0,
-                slug: "",
-                name: this.state.name,
-                color: this.state.color,
-                isPublic: this.state.isPublic
-              }}
+          <div className="col-lg-2">
+            <RadioButton
+              label="Visibility"
+              field="visibility"
+              defaultOption={this.state.isPublic ? this.visibilityPublic : this.visibilityPrivate}
+              options={[this.visibilityPublic, this.visibilityPrivate]}
+              onSelect={opt => this.setState({ isPublic: opt === this.visibilityPublic })}
             />
+          </div>
+          <div className="col-lg-5">
+            <Field label="Preview">
+              <ShowTag
+                tag={{
+                  id: 0,
+                  slug: "",
+                  name: this.state.name,
+                  color: this.state.color,
+                  isPublic: this.state.isPublic
+                }}
+              />
+            </Field>
           </div>
         </div>
-        <Button onClick={async () => this.props.onCancel()}>Cancel</Button>
         <Button color="positive" onClick={e => this.onSave(e)}>
           Save
         </Button>
-      </div>
+        <Button onClick={async () => this.props.onCancel()}>Cancel</Button>
+      </Form>
     );
   }
 }

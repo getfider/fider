@@ -3,7 +3,7 @@ import * as React from "react";
 import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from "../";
 
 import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
-import { Loader, MultiLineText } from "@fider/components";
+import { Loader, MultiLineText, Heading, Field, Input } from "@fider/components";
 import { page, actions } from "@fider/services";
 
 interface IdeasContainerProps {
@@ -84,13 +84,13 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     if (this.props.newIdeaTitle) {
       return (
         <>
-          <h3 className="ui dividing header">
-            <i className="lightbulb icon gm-primary" />
-            <div className="content">
-              Similar ideas
-              <div className="sub header">Consider voting on existing ideas before posting a new one.</div>
-            </div>
-          </h3>
+          <Heading
+            title="Similar ideas"
+            subtitle="Consider voting on existing ideas before posting a new one."
+            icon="lightbulb"
+            level={3}
+            dividing={true}
+          />
           {this.state.loading ? (
             <Loader />
           ) : (
@@ -107,10 +107,10 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
 
     return (
       <>
-        <div className="ui grid">
+        <div className="row">
           {!this.state.query && (
-            <div className="eleven wide mobile eleven wide tablet twelve wide computer column filter-column">
-              <div className="content">
+            <div className="col-sm-7 col-md-8 col-lg-9">
+              <Field>
                 <IdeaFilter
                   activeFilter={this.state.filter}
                   filterChanged={filter => this.changeFilterCriteria({ filter })}
@@ -121,29 +121,18 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
                   selectionChanged={tags => this.changeFilterCriteria({ tags })}
                   defaultSelection={this.state.tags}
                 />
-              </div>
+              </Field>
             </div>
           )}
-          <div
-            className={
-              !this.state.query ? `five wide mobile five wide tablet four wide computer column search-column` : "column"
-            }
-          >
-            <div className="ui search">
-              <div className="ui icon fluid input">
-                <input
-                  onChange={x => this.changeFilterCriteria({ query: x.currentTarget.value }, 200)}
-                  value={this.state.query}
-                  type="text"
-                  placeholder="Search..."
-                />
-                {this.state.query ? (
-                  <i onClick={() => this.changeFilterCriteria({ query: "" })} className="cancel link icon" />
-                ) : (
-                  <i className="search icon" />
-                )}
-              </div>
-            </div>
+          <div className={!this.state.query ? `col-sm-5 col-md-4 col-lg-3` : "col-sm-12"}>
+            <Input
+              field="query"
+              icon={this.state.query ? "cancel" : "search"}
+              onIconClick={this.state.query ? () => this.changeFilterCriteria({ query: "" }) : undefined}
+              placeholder="Search..."
+              value={this.state.query}
+              onChange={query => this.changeFilterCriteria({ query }, 200)}
+            />
           </div>
         </div>
         {this.state.loading ? (

@@ -25,7 +25,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
 
   public render() {
     return (
-      <div id="p-signin" className="page ui container">
+      <div id="p-signin" className="page container">
         <div className="message">
           <Logo size={100} tenant={this.props.tenant} />
           <p className="welcome">

@@ -6,8 +6,9 @@
   height: 30px;
   vertical-align: middle;
   padding: 1px;
-  &.gm-staff {
-    border-width: 1px;
-    border-style: solid;
+  display: inline-block;
+
+  &.m-staff {
+    border: 1px solid $admin-color;
   }
 }

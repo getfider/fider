@@ -10,10 +10,12 @@ import {
   InvitationsPage,
   ExportPage,
   GeneralSettingsPage,
+  AdvancedSettingsPage,
   ManageTagsPage,
   ShowIdeaPage,
   MySettingsPage,
-  MyNotificationsPage
+  MyNotificationsPage,
+  UIToolkitPage
 } from "@fider/pages";
 
 interface PageConfiguration {
@@ -40,13 +42,15 @@ const pathRegex = [
   route("/admin/privacy", PrivacySettingsPage),
   route("/admin/export", ExportPage),
   route("/admin/invitations", InvitationsPage),
+  route("/admin/advanced", AdvancedSettingsPage),
   route("/admin", GeneralSettingsPage),
   route("/signin", SignInPage, false),
   route("/signup", SignUpPage, false),
   route("/signin/verify", CompleteSignInProfilePage),
   route("/invite/verify", CompleteSignInProfilePage),
   route("/notifications", MyNotificationsPage),
-  route("/settings", MySettingsPage)
+  route("/settings", MySettingsPage),
+  route("/-/ui", UIToolkitPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {

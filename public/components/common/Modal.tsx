@@ -83,13 +83,13 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     document.body.style.overflow = "hidden";
 
     const className = classSet({
-      "c-modal__window": true,
-      center: this.props.center,
-      [this.props.size!]: true
+      "c-modal-window": true,
+      "m-center": this.props.center,
+      [`m-${this.props.size}`]: true
     });
 
     return ReactDOM.createPortal(
-      <div aria-disabled={true} className="c-modal__dimmer" onClick={this.close}>
+      <div aria-disabled={true} className="c-modal-dimmer" onClick={this.close}>
         <div className={className} onClick={this.swallow}>
           {this.props.children}
         </div>
@@ -102,12 +102,12 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
 export const Modal = {
   Window: ModalWindow,
   Header: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal__header">{props.children}</div>;
+    return <div className="c-modal-header">{props.children}</div>;
   },
   Content: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal__content">{props.children}</div>;
+    return <div className="c-modal-content">{props.children}</div>;
   },
   Footer: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal__footer">{props.children}</div>;
+    return <div className="c-modal-footer">{props.children}</div>;
   }
 };

@@ -57,7 +57,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 					}
 					c.Failure(err)
 					trx.Rollback()
-					c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("Task '%s' panicked in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
 				}
 			}()
 
@@ -121,7 +121,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 					}
 					c.Failure(err)
 					c.Rollback()
-					c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("%s panicked in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
 				}
 			}()
 

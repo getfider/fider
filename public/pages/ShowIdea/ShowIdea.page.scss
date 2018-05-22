@@ -12,7 +12,7 @@
       font-weight: 400;
       margin: 0px;
       font-size: $font-size-xlarge;
-      @include media("phone") {
+      @include media("sm") {
         font-size: $font-size-big;
       }
     }
@@ -22,7 +22,7 @@
     }
   }
 
-  @include media(">tablet") {
+  @include media(">=md") {
     .header-col, 
     .comments-col {
       float: left;
@@ -35,68 +35,23 @@
 
   .header-col {
     margin-bottom: 5px;
+    .c-list-item {
+      display: flex;
+    }
   }
 
   .action-col {
-    @include media(">tablet") {
+    @include media(">=md") {
       width: 200px;
     }
-    .ui.list {
-      margin: 0.5em 0em;
-    }
   }
 
-  .tag-list {
-    .tag-icon {
-      width: 10px;
-      height: 10px;
-      display: inline-block;
-      margin-right: 5px;
-      border-radius: 50%;
+  .c-tag-list {
+    .icon.check {
+      color: $green;
     }
-    .selectable {
-      &.item {
-        margin: 5px 0px;
-      }
-      i {
-        display: inline-block;
-        color: $green;
-      }
-      .ui.circular.label {
-        margin-right: 5px;
-      }
-      cursor: pointer;
-    }
-  }
-
-  .ui.comments {
-    .c-avatar {
-      margin-right: 5px;
-      vertical-align: top;
-      margin-top: 2px;
-    }
-
-    .comment > .content {
-      display: inline-block;
-      width: 85%;
-    }
-  }
-
-  .comment-input  {
-    margin-top: 15px;
-    textarea {
-      margin-top: 5px;
-    }
-
-    .form {
-      display: inline-block;
-      width: 100%;
-    }
-
-    &.authenticated{
-      .form {
-        width: 85%;
-      }
+    span {
+      margin-left: 5px;
     }
   }
 }
@@ -111,7 +66,7 @@
         margin: 0;
       }
     }
-    .gm-status-label {
+    .status-label {
       width: 60px;
       margin-right: 5px;
       text-align: center;

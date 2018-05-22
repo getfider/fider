@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CurrentUser, Tag, Idea } from "@fider/models";
 import { actions } from "@fider/services";
-import { ShowTag } from "@fider/components";
+import { ShowTag, List, ListItem } from "@fider/components";
 
 interface TagsPanelProps {
   user?: CurrentUser;
@@ -58,30 +58,30 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
 
     const tagsList =
       this.state.assignedTags.length > 0 ? (
-        <div className="ui list tag-list">
+        <List className="c-tag-list">
           {this.state.assignedTags.map(tag => (
-            <div key={tag.id} className="item">
+            <ListItem key={tag.id}>
               <ShowTag tag={tag} size="mini" />
-            </div>
+            </ListItem>
           ))}
-        </div>
+        </List>
       ) : (
         <span className="info">None yet</span>
       );
 
     const editTagsList = this.props.tags.length > 0 && (
-      <div className="ui list tag-list">
+      <List className="c-tag-list">
         {this.props.tags.map(tag => (
-          <div key={tag.id} className="item selectable" onClick={async () => this.assignOrUnassignTag(tag)}>
+          <ListItem key={tag.id} onClick={async () => this.assignOrUnassignTag(tag)}>
             <i className={`icon ${this.state.assignedTags.indexOf(tag) >= 0 && "check"}`} />
-            <ShowTag tag={tag} circular={true} />
+            <ShowTag tag={tag} size="mini" circular={true} />
             <span>{tag.name}</span>
-          </div>
+          </ListItem>
         ))}
-      </div>
+      </List>
     );
 
-    const subtitleClasses = `subtitle ${this.state.canEdit && "active gm-primary-hover"}`;
+    const subtitleClasses = `subtitle ${this.state.canEdit && "active"}`;
     const icon =
       this.state.canEdit &&
       (this.state.isEditing ? <i className="check circle icon" /> : <i className="setting icon" />);

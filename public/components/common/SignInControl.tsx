@@ -1,10 +1,13 @@
+import "./SignInControl.scss";
+
 import * as React from "react";
-import { SocialSignInButton, Form, Button } from "@fider/components/common";
+import { SocialSignInButton, Form, Button, Input } from "@fider/components";
 import { AuthSettings } from "@fider/models";
-import { page, device, actions } from "@fider/services";
+import { page, device, actions, Failure } from "@fider/services";
 
 interface SignInControlState {
   email: string;
+  error?: Failure;
 }
 
 interface SignInControlProps {
@@ -14,7 +17,6 @@ interface SignInControlProps {
 }
 
 export class SignInControl extends React.Component<SignInControlProps, SignInControlState> {
-  private form!: Form;
   private settings: AuthSettings;
 
   constructor(props: SignInControlProps) {
@@ -34,22 +36,21 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     }
   };
 
-  private async signIn() {
+  private signIn = async () => {
     const result = await actions.signIn(this.state.email);
     if (result.ok) {
-      this.form.clearFailure();
       if (this.props.onEmailSent) {
         this.props.onEmailSent(this.state.email);
       }
-      this.setState({ email: "" });
+      this.setState({ email: "", error: undefined });
     } else if (result.error) {
-      this.form.setFailure(result.error);
+      this.setState({ error: result.error });
     }
-  }
+  };
 
   public render() {
     const google = this.settings.providers.google && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="google"
@@ -58,7 +59,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const facebook = this.settings.providers.facebook && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="facebook"
@@ -67,7 +68,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const github = this.settings.providers.github && (
-      <div className="column">
+      <div className="col-md-4 l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="github"
@@ -78,41 +79,36 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     const hasOAuth = !!(google || facebook || github);
 
     return (
-      <div className="signin-options">
+      <div className="c-signin-control">
         {hasOAuth && (
           <div>
-            <div className="ui stackable three column centered grid">
+            <div className="row">
               {facebook}
               {google}
               {github}
             </div>
             <p className="info">We'll never post to any of your accounts</p>
-            <div className="ui horizontal divider">OR</div>
+            <div className="c-divider">OR</div>
           </div>
         )}
 
         {this.props.useEmail && (
           <div>
             <p>Enter your email address to sign in</p>
-            <Form
-              ref={f => {
-                this.form = f!;
-              }}
-            >
-              <div id="email-signin" className="ui small action fluid input">
-                <input
-                  value={this.state.email}
-                  autoFocus={!device.isTouch()}
-                  onChange={e => this.setState({ email: e.currentTarget.value })}
-                  onKeyDown={this.onEmailKeyDown}
-                  type="text"
-                  placeholder="yourname@example.com"
-                  className="small"
-                />
-                <Button color="positive" disabled={this.state.email === ""} onClick={() => this.signIn()}>
-                  Sign in
-                </Button>
-              </div>
+            <Form error={this.state.error}>
+              <Input
+                field="email"
+                value={this.state.email}
+                autoFocus={!device.isTouch()}
+                onChange={email => this.setState({ email })}
+                onSubmit={this.signIn}
+                placeholder="yourname@example.com"
+                suffix={
+                  <Button color="positive" disabled={this.state.email === ""} onClick={this.signIn}>
+                    Sign in
+                  </Button>
+                }
+              />
             </Form>
           </div>
         )}

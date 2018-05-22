@@ -23,6 +23,18 @@ func GeneralSettingsPage() web.HandlerFunc {
 	}
 }
 
+// AdvancedSettingsPage is the advanced settings page
+func AdvancedSettingsPage() web.HandlerFunc {
+	return func(c web.Context) error {
+		return c.Page(web.Props{
+			Title: "Advanced · Site Settings",
+			Data: web.Map{
+				"customCSS": c.Tenant().CustomCSS,
+			},
+		})
+	}
+}
+
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -32,6 +44,23 @@ func UpdateSettings() web.HandlerFunc {
 		}
 
 		err := c.Services().Tenants.UpdateSettings(input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateAdvancedSettings update current tenant' advanced settings
+func UpdateAdvancedSettings() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.UpdateTenantAdvancedSettings)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tenants.UpdateAdvancedSettings(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}

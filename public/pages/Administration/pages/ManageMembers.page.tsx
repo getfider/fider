@@ -1,8 +1,11 @@
+import "./ManageMembers.page.scss";
+
 import * as React from "react";
-import { Button, Gravatar, UserName } from "@fider/components/common";
+import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
 import { actions } from "@fider/services";
 import { AdminBasePage } from "../components";
+import { Divider } from "semantic-ui-react";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -62,29 +65,27 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     }
 
     return (
-      <div key={user.id} className="item">
+      <ListItem>
         <Gravatar user={user} />
         <div className="content">
           <UserName user={user} />
         </div>
-        <div className="right floated content">
-          {removable && (
-            <Button
-              size="tiny"
-              color="danger"
-              onClick={() => this.changeRole(user, UserRole.Visitor)}
-              className="showover"
-            >
-              <i className="remove icon" />Remove
-            </Button>
-          )}
-          {addable && (
-            <Button size="tiny" color="positive" onClick={() => this.changeRole(user, role)} className="showover">
-              <i className="add icon" />Add
-            </Button>
-          )}
-        </div>
-      </div>
+        {removable && (
+          <Button
+            size="tiny"
+            color="danger"
+            onClick={() => this.changeRole(user, UserRole.Visitor)}
+            className="right showover"
+          >
+            <i className="remove icon" />Remove
+          </Button>
+        )}
+        {addable && (
+          <Button size="tiny" color="positive" onClick={() => this.changeRole(user, role)} className="right showover">
+            <i className="add icon" />Add
+          </Button>
+        )}
+      </ListItem>
     );
   }
 
@@ -109,63 +110,59 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
 
   public content() {
     return (
-      <div className="ui grid">
-        <div className="eight wide computer sixteen wide mobile column">
-          <div className="ui segment">
-            <h4 className="ui header">Administrators</h4>
+      <div className="row">
+        <div className="col-lg-6">
+          <Segment>
+            <h4>Administrators</h4>
             <p className="info">
               Administrators have full access to edit and manage content, permissions and settings.
             </p>
-            <div className="ui middle aligned very relaxed selection list">
+            <List hover={true}>
               {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
-            </div>
+            </List>
             {this.props.user.role === UserRole.Administrator && (
-              <div className="ui mini form">
-                <p>Add new administrator</p>
-                <div className="mini field">
-                  <input
-                    type="text"
-                    value={this.state.newAdministratorFilter}
-                    onChange={x => this.filterVisitors("administrator", x.currentTarget.value)}
-                    placeholder="Search users by name"
-                  />
-                </div>
-                <div className="ui middle aligned very relaxed selection list">
+              <Form size="mini">
+                <Input
+                  label="Add new administrator"
+                  field="new-administrator"
+                  value={this.state.newAdministratorFilter}
+                  onChange={x => this.filterVisitors("administrator", x)}
+                  placeholder="Search users by name"
+                />
+                <List hover={true}>
                   {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
-                </div>
+                </List>
                 {this.state.newAdministratorFilter &&
                   this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
-              </div>
+              </Form>
             )}
-          </div>
+          </Segment>
         </div>
 
-        <div className="eight wide computer sixteen wide mobile column">
-          <div className="ui segment">
-            <h4 className="ui header">Collaborators</h4>
+        <div className="col-lg-6">
+          <Segment>
+            <h4>Collaborators</h4>
             <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
-            <div className="ui middle aligned very relaxed selection list">
+            <List hover={true}>
               {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
-            </div>
+            </List>
             {this.props.user.role === UserRole.Administrator && (
-              <div className="ui mini form">
-                <p>Add new collaborator</p>
-                <div className="mini field">
-                  <input
-                    type="text"
-                    value={this.state.newCollaboratorFilter}
-                    onChange={x => this.filterVisitors("collaborator", x.currentTarget.value)}
-                    placeholder="Search users by name"
-                  />
-                </div>
-                <div className="ui middle aligned very relaxed selection list">
+              <Form size="mini">
+                <Input
+                  label="Add new collaborator"
+                  field="new-collaborator"
+                  value={this.state.newCollaboratorFilter}
+                  onChange={x => this.filterVisitors("collaborator", x)}
+                  placeholder="Search users by name"
+                />
+                <List hover={true}>
                   {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
-                </div>
+                </List>
                 {this.state.newCollaboratorFilter &&
                   this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
-              </div>
+              </Form>
             )}
-          </div>
+          </Segment>
         </div>
       </div>
     );

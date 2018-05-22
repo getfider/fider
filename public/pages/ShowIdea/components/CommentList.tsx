@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Idea, Comment, CurrentUser } from "@fider/models";
 import { Failure, actions, formatDate } from "@fider/services";
-import { DisplayError, Textarea, Button, UserName, Gravatar, Moment, MultiLineText } from "@fider/components/common";
+import { DisplayError, Button, UserName, Gravatar, Moment, MultiLineText, TextArea, Form } from "@fider/components";
 
 interface CommentListProps {
   idea: Idea;
@@ -77,16 +77,16 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
   public render() {
     return this.props.comments.map(c => {
       return (
-        <div key={c.id} className="comment">
+        <div key={c.id} className="c-comment">
           <Gravatar user={c.user} />
-          <div className="content">
+          <div className="c-comment-content">
             <UserName user={c.user} />
-            <div className="metadata">
+            <div className="c-comment-metadata">
               · <Moment date={c.createdOn} />
             </div>
             {!!c.editedOn &&
               !!c.editedBy && (
-                <div className="metadata">
+                <div className="c-comment-metadata">
                   ·{" "}
                   <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedOn)}`}>
                     edited
@@ -94,36 +94,34 @@ export class CommentList extends React.Component<CommentListProps, CommentListSt
                 </div>
               )}
             {this.canEditComment(c) && (
-              <div className="metadata">
+              <div className="c-comment-metadata">
                 ·{" "}
                 <span className="clickable" onClick={() => this.startEdit(c)}>
                   edit
                 </span>
               </div>
             )}
-            <div className="text">
+            <div className="c-comment-text">
               {c === this.state.editingComment ? (
-                <div className="ui form">
-                  <DisplayError error={this.state.error} />
-                  <div className="field">
-                    <Textarea
-                      rows={1}
-                      defaultValue={c.content}
-                      placeholder={c.content}
-                      onChange={e =>
-                        this.setState({
-                          editCommentNewContent: e.currentTarget.value
-                        })
-                      }
-                    />
-                  </div>
+                <Form error={this.state.error}>
+                  <TextArea
+                    field="content"
+                    minRows={1}
+                    value={this.state.editCommentNewContent}
+                    placeholder={c.content}
+                    onChange={editCommentNewContent =>
+                      this.setState({
+                        editCommentNewContent
+                      })
+                    }
+                  />
                   <Button size="tiny" onClick={() => this.confirmEdit()} color="positive">
                     Save
                   </Button>
                   <Button size="tiny" onClick={() => this.cancelEdit()}>
                     Cancel
                   </Button>
-                </div>
+                </Form>
               ) : (
                 <MultiLineText text={c.content} style="simple" />
               )}

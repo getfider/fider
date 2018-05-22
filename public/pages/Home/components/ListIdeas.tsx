@@ -1,6 +1,17 @@
+import "./ListIdeas.scss";
+
 import * as React from "react";
 import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
-import { ShowTag, ShowIdeaResponse, SupportCounter, Gravatar, MultiLineText, Moment } from "@fider/components";
+import {
+  ShowTag,
+  ShowIdeaResponse,
+  SupportCounter,
+  Gravatar,
+  MultiLineText,
+  Moment,
+  ListItem,
+  List
+} from "@fider/components";
 
 const defaultShowCount = 20;
 
@@ -17,22 +28,22 @@ interface ListIdeasState {
 
 const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) => {
   return (
-    <div className="item">
+    <ListItem>
       <SupportCounter user={props.user} idea={props.idea} />
-      <div className="content">
+      <div className="c-list-item-content">
         {props.idea.totalComments > 0 && (
           <div className="info right">
             {props.idea.totalComments} <i className="comments outline icon" />
           </div>
         )}
-        <a className="title gm-text gm-primary-hover" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
+        <a className="c-list-item-title" href={`/ideas/${props.idea.number}/${props.idea.slug}`}>
           {props.idea.title}
         </a>
-        <MultiLineText className="description" text={props.idea.description} style="simple" />
+        <MultiLineText className="c-list-item-description" text={props.idea.description} style="simple" />
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
         {props.tags.map(tag => <ShowTag key={tag.id} size="mini" tag={tag} />)}
       </div>
-    </div>
+    </ListItem>
   );
 };
 
@@ -58,7 +69,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
 
     const ideasToList = this.props.ideas.slice(0, this.state.showCount);
     return (
-      <div className="ui divided unstackable items c-idea-list">
+      <List className="c-idea-list" divided={true}>
         {ideasToList.map(idea => (
           <ListIdeaItem
             key={idea.id}
@@ -68,11 +79,11 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
           />
         ))}
         {this.props.ideas.length > this.state.showCount && (
-          <h5 className="gm-primary show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
+          <h5 className="c-idea-list-show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
             View {this.props.ideas.length - this.state.showCount} more ideas
           </h5>
         )}
-      </div>
+      </List>
     );
   }
 }

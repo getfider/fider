@@ -3,7 +3,7 @@ import "./MyNotifications.page.scss";
 import * as React from "react";
 
 import { CurrentUser, Notification } from "@fider/models";
-import { MultiLineText, Moment } from "@fider/components";
+import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { page, actions } from "@fider/services";
 
 interface MyNotificationsPageProps {
@@ -36,14 +36,14 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
   private items(notifications: Notification[]): JSX.Element[] {
     return notifications.map(n => {
       return (
-        <span key={n.id} className="item">
+        <ListItem key={n.id}>
           <a href={`/notifications/${n.id}`}>
             <MultiLineText text={n.title} style="simple" />
             <span className="info">
               <Moment date={n.createdOn} />
             </span>
           </a>
-        </span>
+        </ListItem>
       );
     });
   }
@@ -57,37 +57,29 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
 
   public render() {
     return (
-      <div id="p-my-notifications" className="page ui container">
-        <h2 className="ui header">
-          <i className="circular id bell icon" />
-          <div className="content">
-            Notifications
-            <div className="sub header">Stay up to date with what's happening</div>
-          </div>
-        </h2>
+      <div id="p-my-notifications" className="page container">
+        <Heading title="Notifications" subtitle="Stay up to date with what's happening" icon="bell" />
 
-        <div className="ui grid">
-          <div className="ten wide computer sixteen wide mobile column">
-            <h4>
-              Unread
-              {this.state.unread.length > 0 && (
-                <span className="mark-as-read" onClick={() => this.markAllAsRead()}>
-                  Mark All as Read
-                </span>
-              )}
-            </h4>
-            <div className="ui list">
-              {this.state.unread.length > 0 && this.items(this.state.unread)}
-              {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
-            </div>
-            {this.state.recent.length > 0 && (
-              <>
-                <h4>Read on last 30 days</h4>
-                <div className="ui list">{this.items(this.state.recent)}</div>
-              </>
-            )}
-          </div>
-        </div>
+        <h4>
+          Unread
+          {this.state.unread.length > 0 && (
+            <span className="mark-as-read" onClick={() => this.markAllAsRead()}>
+              Mark All as Read
+            </span>
+          )}
+        </h4>
+        <List>
+          {this.state.unread.length > 0 && this.items(this.state.unread)}
+          {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
+        </List>
+        {this.state.recent.length > 0 && (
+          <>
+            <h4>Read on last 30 days</h4>
+            <List>
+              <ListItem>{this.items(this.state.recent)}</ListItem>
+            </List>
+          </>
+        )}
       </div>
     );
   }

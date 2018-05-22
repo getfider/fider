@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Idea, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, Textarea, DisplayError, SignInControl } from "@fider/components/common";
+import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, page, actions, Failure } from "@fider/services";
@@ -36,9 +36,9 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     return `${CACHE_TITLE_KEY}${this.props.idea.id}`;
   }
 
-  private commentChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    cache.set(this.getCacheKey(), e.currentTarget.value);
-    this.setState({ content: e.currentTarget.value });
+  private commentChanged = (content: string) => {
+    cache.set(this.getCacheKey(), content);
+    this.setState({ content });
   };
 
   private onTextFocused() {
@@ -68,27 +68,25 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className={`comment-input ${this.props.user && "authenticated"}`}>
+        <div className={`c-comment-input ${this.props.user && "m-authenticated"}`}>
           {this.props.user && <Gravatar user={this.props.user} />}
-          <div className="ui form">
+          <Form error={this.state.error}>
             {this.props.user && <UserName user={this.props.user} />}
-            <DisplayError error={this.state.error} />
-            <div className="field">
-              <Textarea
-                onChange={this.commentChanged}
-                defaultValue={this.state.content}
-                onFocus={() => this.onTextFocused()}
-                inputRef={e => (this.input = e!)}
-                rows={1}
-                placeholder="Write a comment..."
-              />
-            </div>
+            <TextArea
+              placeholder="Write a comment..."
+              field="content"
+              value={this.state.content}
+              minRows={1}
+              onChange={this.commentChanged}
+              onFocus={() => this.onTextFocused()}
+              inputRef={e => (this.input = e!)}
+            />
             {this.state.content && (
               <Button color="positive" onClick={() => this.submit()}>
                 Submit
               </Button>
             )}
-          </div>
+          </Form>
         </div>
       </>
     );

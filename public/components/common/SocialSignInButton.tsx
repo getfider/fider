@@ -2,30 +2,32 @@ import * as React from "react";
 import { Button } from "@fider/components/common";
 
 interface SocialSignInButtonProps {
-  oauthEndpoint: string;
   provider: "google" | "facebook" | "github";
+  oauthEndpoint?: string;
   redirectTo?: string;
 }
 
 const providers = {
   google: {
     name: "Google",
-    class: "social google"
+    class: "m-social m-google"
   },
   facebook: {
     name: "Facebook",
-    class: "social facebook"
+    class: "m-social m-facebook"
   },
   github: {
     name: "GitHub",
-    class: "social github"
+    class: "m-social m-github"
   }
 };
 
 export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
   public render() {
     const redirectTo = this.props.redirectTo || location.href;
-    const href = `${this.props.oauthEndpoint}/oauth/${this.props.provider}?redirect=${redirectTo}`;
+    const href = this.props.oauthEndpoint
+      ? `${this.props.oauthEndpoint}/oauth/${this.props.provider}?redirect=${redirectTo}`
+      : undefined;
 
     return (
       <Button href={href} fluid={true} className={providers[this.props.provider].class}>

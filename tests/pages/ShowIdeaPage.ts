@@ -16,19 +16,19 @@ export class ShowIdeaPage extends Page {
     super(browser);
   }
 
-  @findBy(".idea-header .header") public Title!: WebComponent;
+  @findBy(".idea-header h1") public Title!: WebComponent;
   @findBy(".description") public Description!: WebComponent;
-  @findBy(".c-response .ui.label") public Status!: WebComponent;
-  @findBy(".c-response .content") public ResponseText!: WebComponent;
+  @findBy(".c-segment.l-response .status-label") public Status!: WebComponent;
+  @findBy(".c-segment.l-response .content") public ResponseText!: WebComponent;
   @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
-  @findBy(".comment-input textarea") public CommentInput!: TextInput;
-  @findBy(".comment-input button") public SubmitCommentButton!: Button;
-  @findMultipleBy(".ui.comments > .comment") public CommentList!: CommentList;
-  @findBy(".action-col button.respond") public RespondButton!: Button;
-  @findBy(".c-modal__window .c-response-form") public ResponseModal!: WebComponent;
-  @findBy(".c-modal__window .c-response-form select") private ResponseModalStatus!: DropDownList;
-  @findBy(".c-modal__window .c-response-form textarea") private ResponseModalText!: TextInput;
-  @findBy(".c-modal__window .c-modal__footer button.green") private ResponseModalSubmitButton!: Button;
+  @findBy(".c-comment-input #input-content") public CommentInput!: TextInput;
+  @findBy(".c-comment-input .c-button.m-positive") public SubmitCommentButton!: Button;
+  @findMultipleBy(".c-comment-list .c-comment") public CommentList!: CommentList;
+  @findBy(".action-col .c-button.respond") public RespondButton!: Button;
+  @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
+  @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
+  @findBy(".c-modal-window .c-response-form #input-text") private ResponseModalText!: TextInput;
+  @findBy(".c-modal-window .c-modal-footer .c-button.m-positive") private ResponseModalSubmitButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.Title);

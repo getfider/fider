@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
-import { Toggle } from "@fider/components";
+import { Toggle, Segment, Segments, Field } from "@fider/components";
 
 interface NotificationSettingsProps {
   user: CurrentUser;
@@ -90,44 +90,49 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
   public render() {
     return (
       <>
-        <div className="field">
-          <label htmlFor="notifications">Notifications</label>
+        <Field label="Notifications">
           <p className="info">Use following panel to choose which events you'd like to receive notification</p>
-        </div>
+        </Field>
 
-        <div className="ui segments notifications-settings">
-          <div className="ui segment">
-            <span className="event-title">New Idea</span>
-            {this.info("event_notification_new_idea", "new ideas posted on this site", "new ideas posted on this site")}
-            <p>
-              {this.icon("event_notification_new_idea", WebChannel)}
-              {this.icon("event_notification_new_idea", EmailChannel)}
-            </p>
-          </div>
-          <div className="ui segment">
-            <span className="event-title">Discussion</span>
-            {this.info(
-              "event_notification_new_comment",
-              "comments on ideas you've subscribed to",
-              "comments on all ideas unless individually unsubscribed"
-            )}
-            <p>
-              {this.icon("event_notification_new_comment", WebChannel)}
-              {this.icon("event_notification_new_comment", EmailChannel)}
-            </p>
-          </div>
-          <div className="ui segment">
-            <span className="event-title">Status Changed</span>
-            {this.info(
-              "event_notification_change_status",
-              "status change on ideas you've subscribed to",
-              "status change on all ideas unless individually unsubscribed"
-            )}
-            <p>
-              {this.icon("event_notification_change_status", WebChannel)}
-              {this.icon("event_notification_change_status", EmailChannel)}
-            </p>
-          </div>
+        <div className="notifications-settings">
+          <Segments>
+            <Segment>
+              <span className="event-title">New Idea</span>
+              {this.info(
+                "event_notification_new_idea",
+                "new ideas posted on this site",
+                "new ideas posted on this site"
+              )}
+              <p>
+                {this.icon("event_notification_new_idea", WebChannel)}
+                {this.icon("event_notification_new_idea", EmailChannel)}
+              </p>
+            </Segment>
+            <Segment>
+              <span className="event-title">Discussion</span>
+              {this.info(
+                "event_notification_new_comment",
+                "comments on ideas you've subscribed to",
+                "comments on all ideas unless individually unsubscribed"
+              )}
+              <p>
+                {this.icon("event_notification_new_comment", WebChannel)}
+                {this.icon("event_notification_new_comment", EmailChannel)}
+              </p>
+            </Segment>
+            <Segment>
+              <span className="event-title">Status Changed</span>
+              {this.info(
+                "event_notification_change_status",
+                "status change on ideas you've subscribed to",
+                "status change on all ideas unless individually unsubscribed"
+              )}
+              <p>
+                {this.icon("event_notification_change_status", WebChannel)}
+                {this.icon("event_notification_change_status", EmailChannel)}
+              </p>
+            </Segment>
+          </Segments>
         </div>
       </>
     );

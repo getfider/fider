@@ -11,11 +11,15 @@ import {
   ShowIdeaResponse,
   DisplayError,
   Button,
-  Textarea,
   UserName,
   Gravatar,
   Moment,
-  MultiLineText
+  MultiLineText,
+  List,
+  ListItem,
+  Input,
+  Form,
+  TextArea
 } from "@fider/components";
 
 interface ShowIdeaPageProps {
@@ -63,25 +67,22 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
   public render() {
     return (
-      <div id="p-show-idea" className="page ui container">
+      <div id="p-show-idea" className="page container">
         <div className="header-col">
-          <div className="ui items unstackable">
-            <div className="item">
+          <List>
+            <ListItem>
               <SupportCounter user={this.props.user} idea={this.props.idea} />
 
               <div className="idea-header">
                 {this.state.editMode ? (
-                  [
-                    <div key={1} className="ui input huge fluid">
-                      <input
-                        type="text"
-                        maxLength={100}
-                        onChange={e => this.setState({ newTitle: e.currentTarget.value })}
-                        defaultValue={this.state.newTitle}
-                      />
-                    </div>,
-                    <DisplayError key={0} fields={["title"]} pointing="above" error={this.state.error} />
-                  ]
+                  <Form error={this.state.error}>
+                    <Input
+                      field="title"
+                      maxLength={100}
+                      value={this.state.newTitle}
+                      onChange={newTitle => this.setState({ newTitle })}
+                    />
+                  </Form>
                 ) : (
                   <h1>{this.props.idea.title}</h1>
                 )}
@@ -91,20 +92,18 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                   <UserName user={this.props.idea.user} />
                 </span>
               </div>
-            </div>
-          </div>
+            </ListItem>
+          </List>
 
           <span className="subtitle">Description</span>
           {this.state.editMode ? (
-            <div className="ui form">
-              <div className="field">
-                <DisplayError fields={["description"]} error={this.state.error} />
-                <Textarea
-                  onChange={e => this.setState({ newDescription: e.currentTarget.value })}
-                  defaultValue={this.state.newDescription}
-                />
-              </div>
-            </div>
+            <Form error={this.state.error}>
+              <TextArea
+                field="description"
+                value={this.state.newDescription}
+                onChange={newDescription => this.setState({ newDescription })}
+              />
+            </Form>
           ) : this.props.idea.description ? (
             <MultiLineText className="description" text={this.props.idea.description} style="simple" />
           ) : (
@@ -121,29 +120,29 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                 Actions
               </span>,
               this.state.editMode ? (
-                <div key={1} className="ui list">
-                  <div className="item">
+                <List key={1}>
+                  <ListItem>
                     <Button color="positive" fluid={true} onClick={async () => this.saveChanges()}>
                       <i className="save icon" /> Save
                     </Button>
-                  </div>
-                  <div className="item">
+                  </ListItem>
+                  <ListItem>
                     <Button fluid={true} onClick={async () => this.setState({ error: undefined, editMode: false })}>
                       <i className="cancel icon" /> Cancel
                     </Button>
-                  </div>
-                </div>
+                  </ListItem>
+                </List>
               ) : (
-                <div key={1} className="ui list">
-                  <div className="item">
+                <List key={1}>
+                  <ListItem>
                     <Button fluid={true} onClick={async () => this.setState({ editMode: true })}>
                       <i className="edit icon" /> Edit
                     </Button>
-                  </div>
-                  <div className="item">
+                  </ListItem>
+                  <ListItem>
                     <ResponseForm idea={this.props.idea} />
-                  </div>
-                </div>
+                  </ListItem>
+                </List>
               )
             ]}
 

@@ -9,7 +9,7 @@ export class IdeaList {
   }
 
   public async navigateAndWait(index: number, condition: WaitCondition) {
-    await (await this.elements)[index].findElement(By.css("a.title")).click();
+    await (await this.elements)[index].findElement(By.css(".c-list-item-title")).click();
     await this.browser.wait(condition);
   }
 

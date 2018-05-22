@@ -107,6 +107,17 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	return nil
 }
 
+// UpdateAdvancedSettings of current tenant
+func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error {
+	for _, tenant := range s.tenants {
+		if tenant.ID == s.current.ID {
+			tenant.CustomCSS = settings.CustomCSS
+			return nil
+		}
+	}
+	return nil
+}
+
 // UpdatePrivacy settings of current tenant
 func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
 	for _, tenant := range s.tenants {

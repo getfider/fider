@@ -1,12 +1,18 @@
 @import '~@fider/assets/styles/variables.scss';
 
-#c-header {
-  .ui.vertical.menu .item > .label {
-    float: none;
-    position: absolute;
-    right: 5px;
-  }
+@mixin menu-item {
+  position: relative;
+  vertical-align: middle;
+  line-height: 1;
+  text-decoration: none;
+  flex: 0 0 auto;
+  user-select: none;
+  padding: 15px 10px;
+  display: flex;
+  align-items: center;
+}
 
+#c-header {
   .c-env-info {
     padding: 2px;
     border-radius: 0px;
@@ -16,36 +22,37 @@
     background-color: rgba($red, 0.05);
   }
 
-  .ui.borderless.menu {
+  .c-menu {
     margin-top: 0px;
     height: 50px;
     border-radius: 0px;
     border: none;
-    @include media("phone") {
-      height: 30px;
+    display: flex;
+    box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
+    margin-bottom: 10px;
+
+    .container {
+      display: flex;
     }
 
-    &:last-child {
-      margin-bottom: 30px;
+    @include media("sm") {
+      height: 40px;
+      .container {
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
     }
-    
-    .unread-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 5px;
-      margin-left: -10px;
-      margin-top: -25px;
-      background-color: #db2828;
-      border: 1px solid #fff !important;
-    }
-  
-    .title {
+
+    .c-menu-item-title {
+      @include menu-item;
+      color: #484848;
       img {
         margin-right: 10px;
         width: auto;
         height: auto;
         max-height: 36px;
-        @include media("phone") {
+        @include media("sm") {
           max-height: 26px;
           margin-right: 5px;
         }
@@ -53,24 +60,94 @@
       span {
         font-size: $font-size-big;
         margin: 0 0 0 0;
-        color: #484848;
-        font-weight: 700;
-        @include media("phone") {
+        font-weight: 600;
+        @include media("sm") {
           font-size: $font-size;
           max-width: 240px;
         }
       }
     }
 
-    .signin {
+    .c-menu-item-signin {
+      @include menu-item;
+      cursor: pointer;
       font-size: 90%;
-      i.dropdown {
-        margin: 0 0 0 0.5em;
+      margin-left: auto !important;
+      margin-bottom: 0;
+
+      &:hover {
+        color: $text-color;
       }
-    }
-  
-    .item:hover {
-      background: transparent;
-    }
+
+      .c-menu-user {
+        display: none;
+        position: absolute;
+        overflow: visible;
+        width: auto;
+        height: auto;
+        top: 100%!important;
+        opacity: 1;
+        z-index: 11;
+        background-color: $menu-color;
+        box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
+        border: 1px solid rgba(34,36,38,.15);
+        width: 160px;
+        border-radius: 0px 0px 5px 5px;
+
+        .c-menu-user-heading {
+          font-size: $font-size-mini;
+          padding: 10px;
+          display: block;
+          color: $text-color;
+          text-transform: uppercase;
+          font-weight: 600;
+          cursor: default;
+        }
+        .c-menu-user-item {
+          font-size: $font-size-small;
+          padding: 10px;
+          display: block;
+          color: $text-color;
+          &:hover {
+            background-color: $gray-lightest;
+          }
+        }
+        .c-menu-user-divider {
+          border-top: 1px solid rgba(34,36,38,.1);
+          display: block;
+          cursor: default;
+        }
+      }
+
+      &:hover {
+        .c-menu-user {
+          display: block;
+          left: auto;
+          right: 0;
+        }
+      }
+
+      .c-unread-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        margin-left: -10px;
+        margin-top: -25px;
+        background-color: $red;
+        border: 1px solid $white !important;
+      }
+
+      .c-unread-count {
+        display: inline-block;
+        background-color: $red;
+        position: absolute;
+        right: 5px;
+        padding: 2px 8px;
+        color: $white;
+        border-radius: 100px;
+        font-size: $font-size-mini;
+        text-align: center;
+      }
+    }    
   }
 }

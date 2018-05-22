@@ -4,27 +4,34 @@
   margin-right: 10px;
 
   button, 
-  button.supported,
-  button.disabled {
+  button.m-supported,
+  button.m-disabled {
     font-size: 18px;
     border: none;
     width: 45px;
     font-weight: 700;
     cursor: pointer;
-    background-color: transparent;
+    background-color: $bg-color;
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
 
-    &:hover {
-      .icon {
-        color: inherit;
-      }
+    i.icon {
+      color: #C4C9CD;
     }
   }
 
-  button.disabled {
+  button.m-disabled {
     @include disabled();
+  }
+
+  button.m-supported, 
+  button.no-touch:hover {
+    color: $main-color;
+
+    i.icon {
+      color: lighten($main-color, 20%) !important;
+    }
   }
 
   i.icon {

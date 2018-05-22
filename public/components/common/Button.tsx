@@ -3,7 +3,6 @@ import { classSet } from "@fider/services";
 
 interface ButtonProps {
   className?: string;
-  simple?: boolean;
   disabled?: boolean;
   href?: string;
   color?: "positive" | "danger" | "default";
@@ -48,7 +47,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     this.unmounted = true;
   }
 
-  public async click(e?: React.MouseEvent<HTMLButtonElement>) {
+  public click = async (e?: React.SyntheticEvent<HTMLElement>) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -66,17 +65,16 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
         this.setState({ clicked: false });
       }
     }
-  }
+  };
 
   public render() {
     const className = classSet({
       "c-button": true,
-      "as-link": this.props.simple,
-      fluid: this.props.fluid,
-      [this.props.size!]: this.props.size,
-      [this.props.color!]: this.props.color,
-      loading: this.state.clicked,
-      disabled: this.state.clicked || this.props.disabled,
+      "m-fluid": this.props.fluid,
+      [`m-${this.props.size}`]: this.props.size,
+      [`m-${this.props.color}`]: this.props.color,
+      "m-loading": this.state.clicked,
+      "m-disabled": this.state.clicked || this.props.disabled,
       [this.props.className!]: this.props.className
     });
 
@@ -88,7 +86,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       );
     } else {
       return (
-        <button type="button" className={className} onClick={e => this.click(e)}>
+        <button type="button" className={className} onClick={this.click}>
           {this.props.children}
         </button>
       );

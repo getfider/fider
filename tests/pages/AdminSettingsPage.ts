@@ -21,10 +21,10 @@ export class AdminSettingsPage extends Page {
     return `http://${tenant}.dev.fider.io:3000/admin`;
   }
 
-  @findBy("#title") public TitleInput!: TextInput;
-  @findBy("#welcome-message") public WelcomeMessageInput!: TextInput;
-  @findBy("#invitation") public InvitationInput!: TextInput;
-  @findBy("button.green") public ConfirmButton!: Button;
+  @findBy("#p-admin-general #input-title") public TitleInput!: TextInput;
+  @findBy("#p-admin-general #input-welcomeMessage") public WelcomeMessageInput!: TextInput;
+  @findBy("#p-admin-general #input-invitation") public InvitationInput!: TextInput;
+  @findBy("#p-admin-general .c-button.m-positive") public ConfirmButton!: Button;
 
   public loadCondition() {
     return elementIsVisible(() => this.TitleInput);

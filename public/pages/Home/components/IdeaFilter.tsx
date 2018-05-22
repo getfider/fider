@@ -27,7 +27,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
         value: s.slug,
         content: (
           <span>
-            {s.title} <a className="ui mini circular label">{this.props.countPerStatus[s.value]}</a>
+            {s.title} <a className="counter">{this.props.countPerStatus[s.value]}</a>
           </span>
         )
       });
@@ -40,7 +40,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       <>
         Show{" "}
         <Dropdown
-          className="ideas-filter"
+          className="l-ideas-filter"
           header="What do you want to see?"
           inline={true}
           options={options}

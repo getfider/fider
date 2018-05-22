@@ -17,7 +17,7 @@ export const Gravatar = (props: GravatarProps) => {
 
   const className = classSet({
     "c-avatar": true,
-    "gm-staff": isCollaborator
+    "m-staff": isCollaborator
   });
 
   return <img className={className} title={name} src={url} />;

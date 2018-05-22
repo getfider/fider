@@ -1,7 +1,7 @@
 import "./SignUp.page.scss";
 
 import * as React from "react";
-import { SignInControl, Modal, Button, DisplayError } from "@fider/components/common";
+import { SignInControl, Modal, Button, DisplayError, Form, Input, Message } from "@fider/components";
 import { SystemSettings } from "@fider/models";
 import { jwt, page, actions, Failure } from "@fider/services";
 
@@ -109,11 +109,11 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     );
 
     return (
-      <div id="p-signup" className="page ui container">
+      <div id="p-signup" className="page container">
         {modal}
         <img className="logo" src={logo} />
 
-        <h3 className="ui header">1. Who are you?</h3>
+        <h3>1. Who are you?</h3>
         <DisplayError fields={["token"]} error={this.state.error} />
 
         {this.user ? (
@@ -124,67 +124,42 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
           <>
             <p>We need to identify you to setup your new Fider account.</p>
             <SignInControl useEmail={false} />
-            <div className="ui form">
-              <DisplayError fields={["name", "email"]} error={this.state.error} />
-              <div className="fluid field">
-                <input
-                  id="name"
-                  onChange={e => this.setState({ name: e.currentTarget.value })}
-                  type="text"
-                  placeholder="your name"
-                  className="small"
-                />
-              </div>
-              <div className="fluid field">
-                <input
-                  id="email"
-                  onChange={e => this.setState({ email: e.currentTarget.value })}
-                  type="text"
-                  placeholder="yourname@example.com"
-                  className="small"
-                />
-              </div>
-            </div>
+            <Form error={this.state.error}>
+              <Input field="name" maxLength={100} onChange={name => this.setState({ name })} placeholder="your name" />
+              <Input
+                field="email"
+                maxLength={200}
+                onChange={email => this.setState({ email })}
+                placeholder="your.name@yourcompany.com"
+              />
+            </Form>
           </>
         )}
 
-        <div className="ui section divider" />
+        <h3>2. What is this Feedback Forum for?</h3>
 
-        <h3 className="ui header">2. What is this Feedback Forum for?</h3>
-
-        <DisplayError fields={["tenantName", "subdomain"]} error={this.state.error} />
-        <div className="ui form">
-          <div className="fluid field">
-            <input
-              id="tenantName"
-              type="text"
-              placeholder="your company or product name"
-              maxLength={60}
-              onChange={e => this.setState({ tenantName: e.currentTarget.value })}
-            />
-          </div>
+        <Form error={this.state.error}>
+          <Input
+            field="tenantName"
+            maxLength={60}
+            onChange={tenantName => this.setState({ tenantName })}
+            placeholder="your company or product name"
+          />
           {!page.isSingleHostMode() && (
-            <div className="fluid field">
-              <div className="ui right labeled input">
-                <input
-                  id="subdomain"
-                  type="text"
-                  maxLength={40}
-                  placeholder="subdomain"
-                  onChange={e => this.checkAvailability(e.currentTarget.value)}
-                />
-                <div className="ui label">{this.props.system.domain}</div>
-                {this.state.subdomain.available && <div className="ui left pointing green basic label">Great!</div>}
-                {this.state.subdomain.message && (
-                  <div className="ui left pointing red basic label">{this.state.subdomain.message}</div>
-                )}
-              </div>
-            </div>
+            <Input
+              field="subdomain"
+              maxLength={40}
+              onChange={subdomain => this.checkAvailability(subdomain)}
+              placeholder="subdomain"
+              suffix={this.props.system.domain}
+            >
+              {this.state.subdomain.available && <Message type="success">This subdomain is available!</Message>}
+              {this.state.subdomain.message && <Message type="error">{this.state.subdomain.message}</Message>}
+            </Input>
           )}
-        </div>
-        <div className="ui section divider" />
+        </Form>
 
-        <h3 className="ui header">3. Review and continue</h3>
+        <h3>3. Review and continue</h3>
 
         <p>Make sure information provided above is correct before proceeding.</p>
 

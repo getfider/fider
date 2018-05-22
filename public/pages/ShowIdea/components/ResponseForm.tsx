@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Modal, Button, DisplayError, Textarea } from "@fider/components/common";
+import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field } from "@fider/components";
 import { Comment, Idea, IdeaStatus, User } from "@fider/models";
 import { IdeaSearch } from "../";
 
@@ -19,8 +19,6 @@ interface ResponseFormState {
 }
 
 export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
-  private modal!: HTMLDivElement;
-
   constructor(props: ResponseFormProps) {
     super(props);
 
@@ -28,7 +26,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       showModal: false,
       status: this.props.idea.status,
       originalNumber: 0,
-      text: this.props.idea.response && this.props.idea.response.text
+      text: this.props.idea.response ? this.props.idea.response.text : ""
     };
   }
 
@@ -50,53 +48,43 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       </Button>
     );
 
+    const options = IdeaStatus.All.map(s => ({
+      value: s.value.toString(),
+      label: s.title
+    }));
+
     const modal = (
       <Modal.Window isOpen={this.state.showModal} center={false} size="large">
         <Modal.Content>
-          <div className="ui form c-response-form">
-            <DisplayError fields={["status"]} error={this.state.error} />
-            <div className="two fields">
-              <div className="field">
-                <label>Status</label>
-                <select
-                  className="ui dropdown"
-                  defaultValue={this.props.idea.status.toString()}
-                  onChange={e =>
-                    this.setState({
-                      status: parseInt(e.currentTarget.value, 10)
-                    })
-                  }
-                >
-                  {IdeaStatus.All.map(s => (
-                    <option key={s.value} value={s.value.toString()}>
-                      {s.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          <Form error={this.state.error} className="c-response-form">
+            <Select
+              field="status"
+              label="Status"
+              defaultValue={this.props.idea.status.toString()}
+              options={options}
+              onChange={opt => opt && this.setState({ status: parseInt(opt.value, 10) })}
+            />
             {this.state.status === IdeaStatus.Duplicate.value ? (
               <>
+                <Field>
+                  <IdeaSearch
+                    exclude={[this.props.idea.number]}
+                    onChanged={originalNumber => this.setState({ originalNumber })}
+                  />
+                </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
-                <IdeaSearch
-                  exclude={[this.props.idea.number]}
-                  onChanged={originalNumber => this.setState({ originalNumber })}
-                />
                 <span className="info">Votes from this idea will be merged into original idea.</span>
               </>
             ) : (
-              <>
-                <DisplayError fields={["text"]} error={this.state.error} />
-                <div className="field">
-                  <Textarea
-                    onChange={e => this.setState({ text: e.currentTarget.value })}
-                    defaultValue={this.state.text}
-                    placeholder="What's going on with this idea? Let your users know what are your plans..."
-                  />
-                </div>
-              </>
+              <TextArea
+                field="text"
+                onChange={text => this.setState({ text })}
+                value={this.state.text}
+                minRows={5}
+                placeholder="What's going on with this idea? Let your users know what are your plans..."
+              />
             )}
-          </div>
+          </Form>
         </Modal.Content>
 
         <Modal.Footer>

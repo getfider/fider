@@ -23,6 +23,7 @@ type dbTenant struct {
 	Status         int         `db:"status"`
 	IsPrivate      bool        `db:"is_private"`
 	LogoID         dbx.NullInt `db:"logo_id"`
+	CustomCSS      string      `db:"custom_css"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -39,6 +40,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		WelcomeMessage: t.WelcomeMessage,
 		Status:         t.Status,
 		IsPrivate:      t.IsPrivate,
+		CustomCSS:      t.CustomCSS,
 	}
 
 	if t.LogoID.Valid {
@@ -108,8 +110,8 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status, is_private) 
-		 VALUES ($1, $2, $3, '', '', '', $4, false) 
+		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status, is_private, custom_css) 
+		 VALUES ($1, $2, $3, '', '', '', $4, false, '') 
 		 RETURNING id`, name, subdomain, time.Now(), status)
 	if err != nil {
 		return nil, err
@@ -122,7 +124,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id FROM tenants ORDER BY id LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants ORDER BY id LIMIT 1")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
@@ -134,7 +136,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
@@ -185,6 +187,17 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 		s.current.LogoID = int(newLogoID.Int64)
 	}
 
+	return nil
+}
+
+// UpdateAdvancedSettings of current tenant
+func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error {
+	query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
+	_, err := s.trx.Execute(query, settings.CustomCSS, s.current.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed update tenant advanced settings")
+	}
+	s.current.CustomCSS = settings.CustomCSS
 	return nil
 }
 

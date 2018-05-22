@@ -1,15 +1,13 @@
 {{define "javascript"}}{{end}}
         
 {{define "content"}}
-  <div class="ui middle aligned center aligned grid failure-page">
-    <div class="column">
-      <img src="{{.__logo}}"/>
-      <h1>Shoot! Well, this is unexpected…</h1>
-      <p>An error has occurred and we're working to fix the problem! </br> We’ll be up and running shortly.</p>
+  <div class="container failure-page">
+    <img src="{{.__logo}}"/>
+    <h1>Shoot! Well, this is unexpected…</h1>
+    <p>An error has occurred and we're working to fix the problem! </br> We’ll be up and running shortly.</p>
 
-      {{ if .tenant }}
-        <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
-      {{ end }}
-    </div>
+    {{ if .tenant }}
+      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+    {{ end }}
   </div>
 {{end}}

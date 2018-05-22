@@ -1,5 +1,7 @@
+import "./ManageTags.page.scss";
+
 import * as React from "react";
-import { ShowTag, Button, Gravatar, UserName } from "@fider/components";
+import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem } from "@fider/components";
 import { AdminBasePage, TagForm, TagFormState } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
@@ -74,7 +76,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     return this.state.allTags.map(t => {
       if (this.state.editing === t.id) {
         return (
-          <div key={t.id} className="item">
+          <ListItem key={t.id}>
             <TagForm
               name={t.name}
               color={t.color}
@@ -82,31 +84,31 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
               onSave={async data => this.updateTag(t, data)}
               onCancel={() => this.setState({ editing: undefined })}
             />
-          </div>
+          </ListItem>
         );
       }
 
       if (this.state.deleting === t.id) {
         return (
-          <div key={t.id} className="item">
+          <ListItem key={t.id}>
             <div className="content">
               <b>Are you sure?</b>{" "}
               <span>
                 The tag <ShowTag tag={t} /> will be removed from all ideas.
               </span>
             </div>
-            <Button className="right floated" onClick={async () => this.setState({ deleting: undefined })}>
+            <Button className="right" onClick={async () => this.setState({ deleting: undefined })}>
               Cancel
             </Button>
-            <Button color="danger" className="right floated" onClick={() => this.deleteTag(t)}>
+            <Button color="danger" className="right" onClick={() => this.deleteTag(t)}>
               Delete tag
             </Button>
-          </div>
+          </ListItem>
         );
       }
 
       return (
-        <div key={t.id} className="item">
+        <ListItem key={t.id}>
           <ShowTag tag={t} />
           {this.props.user.isAdministrator && [
             <Button
@@ -118,7 +120,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
                   deleting: t.id
                 })
               }
-              className="right floated"
+              className="right"
             >
               <i className="remove icon" />Remove
             </Button>,
@@ -131,12 +133,12 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
                   deleting: undefined
                 })
               }
-              className="right floated"
+              className="right"
             >
               <i className="edit icon" />Edit
             </Button>
           ]}
-        </div>
+        </ListItem>
       );
     });
   }
@@ -147,9 +149,9 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     const form =
       this.props.user.isAdministrator &&
       (this.state.isAdding ? (
-        <div className="ui segment">
+        <Segment>
           <TagForm onSave={async data => this.saveNewTag(data)} onCancel={() => this.setState({ isAdding: false })} />
-        </div>
+        </Segment>
       ) : (
         <Button
           color="positive"
@@ -168,11 +170,9 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     return (
       <>
         {form}
-        <div className="ui segment">
-          <div className="ui middle aligned very relaxed divided list">
-            {list.length ? list : <div className="content">There aren’t any tags yet.</div>}
-          </div>
-        </div>
+        <Segment>
+          <List divided={true}>{list.length ? list : <div className="content">There aren’t any tags yet.</div>}</List>
+        </Segment>
       </>
     );
   }

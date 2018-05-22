@@ -1,0 +1,69 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-tag {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: baseline;
+  margin: 0 3px;
+  padding: 9px 12px;
+  color: $text-color;
+  font-weight: 700;
+  border: 0;
+  border-radius: 5px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &.m-circular {
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 50px;
+
+    &.m-mini {
+      padding: 5px;
+    }
+  
+    &.m-tiny {
+      padding: 6px;
+    }
+  
+    &.m-small {
+      padding: 7px;
+    }
+  
+    &.m-normal {
+      padding: 7.5px;
+    }
+  
+    &.m-large {
+      padding: 8px;
+    }
+  }
+
+  &.m-mini {
+    font-size: 70%;
+    padding: 5px 8px;
+  }
+
+  &.m-tiny {
+    font-size: 80%;
+    padding: 6px 9px;
+  }
+
+  &.m-small {
+    font-size: 85%;
+    padding: 7px 10px;
+  }
+
+  &.m-normal {
+    font-size: 90%;
+    padding: 8px 11px;
+  }
+
+  &.m-large {
+    font-size: 100%;
+    padding: 9px 12px;
+  }
+}

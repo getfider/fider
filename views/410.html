@@ -1,15 +1,13 @@
 {{define "javascript"}}{{end}}
 
 {{define "content"}}
-  <div class="ui middle aligned center aligned grid failure-page">
-    <div class="column">
-      <img src="{{.__logo}}"/>
-      <h1>EXPIRED</h1>
-      <p>The link you clicked has expired.</p>
+  <div class="container failure-page">
+    <img src="{{.__logo}}"/>
+    <h1>EXPIRED</h1>
+    <p>The link you clicked has expired.</p>
 
-      {{ if .tenant }}
-        <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
-      {{ end }}
-    </div>
+    {{ if .tenant }}
+      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+    {{ end }}
   </div>
 {{end}}

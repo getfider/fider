@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/handlers"
@@ -48,10 +49,14 @@ func routes(r *web.Engine) *web.Engine {
 		avatar.Use(middlewares.ClientCache(72 * time.Hour))
 		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		avatar.Get("/logo/:size/:id", handlers.Logo())
+		avatar.Get("/custom/:md5.css", func(c web.Context) error {
+			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
+		})
 	}
 
 	open := r.Group()
 	{
+		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())
@@ -106,6 +111,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 			private.Get("/admin", handlers.GeneralSettingsPage())
+			private.Get("/admin/advanced", handlers.AdvancedSettingsPage())
 			private.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
 			private.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
 			private.Get("/admin/members", handlers.ManageMembers())
@@ -119,6 +125,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/export/ideas.csv", handlers.ExportIdeasToCSV())
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
+			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())
 			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())

@@ -1,15 +1,15 @@
 import * as React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
-import { Modal, Form, Button } from "@fider/components/common";
-import { page, actions } from "@fider/services";
+import { Modal, Button, Form, Input } from "@fider/components";
+import { page, actions, Failure } from "@fider/services";
 
 interface CompleteSignInProfilePageState {
   name: string;
+  error?: Failure;
 }
 
 export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
-  private form!: Form;
   private key: string;
 
   constructor(props: HomePageProps) {
@@ -25,7 +25,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
     if (result.ok) {
       location.href = "/";
     } else if (result.error) {
-      this.form.setFailure(result.error);
+      this.setState({ error: result.error });
     }
   }
 
@@ -36,23 +36,18 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
           <Modal.Header>Complete your profile</Modal.Header>
           <Modal.Content>
             <p>Because this is your first sign in, please input your display name.</p>
-            <Form
-              ref={f => {
-                this.form = f!;
-              }}
-            >
-              <div className="ui small action fluid input">
-                <input
-                  onChange={e => this.setState({ name: e.currentTarget.value })}
-                  type="text"
-                  maxLength={100}
-                  placeholder="Your display name"
-                  className="small"
-                />
-                <Button onClick={() => this.submit()} color="positive" disabled={this.state.name === ""}>
-                  Submit
-                </Button>
-              </div>
+            <Form error={this.state.error}>
+              <Input
+                field="name"
+                onChange={name => this.setState({ name })}
+                maxLength={100}
+                placeholder="Your display name"
+                suffix={
+                  <Button onClick={() => this.submit()} color="positive" disabled={this.state.name === ""}>
+                    Submit
+                  </Button>
+                }
+              />
             </Form>
           </Modal.Content>
         </Modal.Window>

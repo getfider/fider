@@ -1,0 +1,38 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-idea-list {
+  margin-top: 10px;
+
+  .c-list-item {
+    display: flex;
+    border-top-width: 0.1px !important;
+
+    .c-list-item-title {
+      color: $text-color;
+      display: block;
+      max-width: 85%;
+      margin-bottom: 10px;
+      font-size: $font-size-big;
+      &:hover {
+        color: $main-color;
+      }
+    }
+
+    .c-list-item-content {
+      width: calc(100% - 55px);
+      display: block;
+    }
+    
+    .c-list-item-description {
+      color: $gray-darkest;
+      min-height: 20px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .c-idea-list-show-more {
+    cursor: pointer;
+    color: $main-color;
+    margin-left: 55px;
+  }
+}

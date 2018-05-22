@@ -45,7 +45,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         content: (
           <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
             <i className="icon check" />
-            <ShowTag tag={t} circular={true} />
+            <ShowTag tag={t} size="mini" circular={true} />
             {t.name}
           </div>
         )
@@ -63,7 +63,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
       <>
         with{" "}
         <Dropdown
-          className="tags-filter"
+          className="l-tags-filter"
           selectOnBlur={false}
           text={text}
           defaultValue="0"
