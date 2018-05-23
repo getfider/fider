@@ -1,6 +1,8 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-button {
+  -webkit-appearance: none;
+  appearance: none;
   line-height: 1.15;
   display: inline-block;
   cursor: pointer;

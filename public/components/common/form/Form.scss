@@ -38,6 +38,8 @@
     input[type=text],
     textarea,
     select {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
       padding: 10px;
       outline: 0;
