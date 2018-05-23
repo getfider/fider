@@ -71,12 +71,12 @@ func (r *Renderer) getBundle(folder string) string {
 		return files[0].Name()
 	}
 
-	//During Test run, don't panic if bundle is not available
-	if env.IsTest() {
-		return ""
+	// Panic if bundle is not available in production mode
+	if env.IsProduction() {
+		panic(fmt.Sprintf("Bundle not found: %s.", folder))
 	}
 
-	panic(fmt.Sprintf("Bundle not found: %s.", folder))
+	return ""
 }
 
 //Render a template based on parameters
