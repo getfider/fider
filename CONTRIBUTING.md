@@ -20,7 +20,7 @@ Install the following tools:
 - Go 1.10+ (https://golang.org/)
 - Node.js 10+ (https://nodejs.org/)
 - Docker (https://www.docker.com/)
-- github.com/codegangsta/gin (https://github.com/codegangsta/gin/)
+- cosmtrek/air (https://github.com/cosmtrek/air/)
 
 To setup your development workspace:
 
