@@ -151,14 +151,14 @@
 }
 
 ::placeholder {
-  color: $gray;
+  color: $gray-dark;
   opacity: 1;
 }
 
 :-ms-input-placeholder {
-  color: $gray;
+  color: $gray-dark;
 }
 
 ::-ms-input-placeholder {
-  color: $gray;
+  color: $gray-dark;
 }

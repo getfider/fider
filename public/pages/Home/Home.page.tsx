@@ -53,7 +53,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
             />
             <IdeaInput
               user={this.props.user}
-              placeholder={this.props.tenant.invitation || "I suggest you..."}
+              placeholder={this.props.tenant.invitation || "Enter your idea here..."}
               onTitleChanged={title => this.setState({ title })}
             />
           </div>
