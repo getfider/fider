@@ -13,7 +13,9 @@
     <meta property="og:url" content="{{ .currentURL }}" />
     <meta property="og:image" content="{{ .__logo }}">
     {{ if .tenant }} 
-    <link rel="stylesheet" href="/custom/{{ .tenant.CustomCSS | md5 }}.css" />
+      {{ if .tenant.CustomCSS }} 
+      <link rel="stylesheet" href="/custom/{{ .tenant.CustomCSS | md5 }}.css" />
+      {{ end }}
     {{ end }}
 </head>
 <body>
