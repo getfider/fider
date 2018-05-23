@@ -204,7 +204,7 @@ h1, h2, h3, h4, h5 {
 
 .subtitle {
   font-size: $font-size-mini;
-  margin-bottom: 5px;
+  margin: 10px 0 5px 0;
   font-weight: 600;
   letter-spacing: .3px;
   text-transform: uppercase;
@@ -218,6 +218,14 @@ h1, h2, h3, h4, h5 {
     i {
       float: right;
     }
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 

@@ -73,11 +73,6 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     );
 
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
-    const profileMenuClassName = classSet({
-      "c-menu-item-signin": true,
-      subtitle: !this.props.user
-    });
-
     return (
       <div id="c-header">
         <EnvironmentInfo system={this.props.system} />
@@ -89,10 +84,10 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
               <span>{this.props.tenant.name}</span>
             </a>
             {showRightMenu && (
-              <div onClick={this.showModal} className={profileMenuClassName}>
+              <div onClick={this.showModal} className="c-menu-item-signin">
                 {this.props.user && <Gravatar user={this.props.user} />}
                 {this.state.unreadNotifications > 0 && <div className="c-unread-dot" />}
-                {!this.props.user && "Sign in"} {this.props.user && <i className="dropdown icon" />}
+                {!this.props.user && <span>Sign in</span>} {this.props.user && <i className="dropdown icon" />}
                 {items}
               </div>
             )}

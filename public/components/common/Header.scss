@@ -75,9 +75,18 @@
       margin-left: auto !important;
       margin-bottom: 0;
 
-      &:hover {
-        color: $text-color;
+      > span {
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #999;
       }
+
+      &:hover {
+        > span {
+          color: $text-color;
+        }
+      }
+
 
       .c-menu-user {
         display: none;

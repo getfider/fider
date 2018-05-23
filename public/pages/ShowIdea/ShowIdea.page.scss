@@ -1,10 +1,6 @@
 @import '~@fider/assets/styles/variables.scss';
 
 #p-show-idea {
-  
-  .subtitle {
-    margin-top: 1em;
-  }
 
   .idea-header {
     width: 100%;
@@ -34,13 +30,14 @@
   }
 
   .header-col {
-    margin-bottom: 5px;
+    margin-bottom: 20px;
     .c-list-item {
       display: flex;
     }
   }
 
   .action-col {
+    margin-bottom: 20px;
     @include media(">=md") {
       width: 200px;
     }
