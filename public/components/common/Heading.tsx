@@ -6,17 +6,19 @@ import { classSet } from "@fider/services";
 interface HeadingLogo {
   title: string;
   dividing?: boolean;
-  level?: 1 | 2 | 3 | 4 | 5;
+  size?: "normal" | "small";
   icon?: string;
   subtitle?: string;
 }
 
 export const Heading = (props: HeadingLogo) => {
-  const level = props.level || 2;
+  const size = props.size || "normal";
+  const level = size === "normal" ? 2 : 3;
   const Tag = `h${level}`;
   const className = classSet({
     "c-heading": true,
-    "m-dividing": props.dividing || false
+    "m-dividing": props.dividing || false,
+    [`m-${size}`]: true
   });
 
   const iconClassName = classSet({
@@ -28,7 +30,7 @@ export const Heading = (props: HeadingLogo) => {
 
   return (
     <Tag className={className}>
-      <i className={iconClassName} />
+      {props.icon && <i className={iconClassName} />}
       <div className="c-heading-content">
         {props.title}
         <div className="c-heading-subtitle">{props.subtitle}</div>

@@ -91,7 +91,13 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <Heading title="Page Heading" icon="settings" subtitle="This is a page heading" />
 
-        <Heading title="Section Heading" icon="lightbulb" subtitle="This is a page heading" level={3} dividing={true} />
+        <Heading
+          title="Section Heading"
+          icon="lightbulb"
+          subtitle="This is a page heading"
+          size="small"
+          dividing={true}
+        />
 
         <h1>Buttons</h1>
         <List>

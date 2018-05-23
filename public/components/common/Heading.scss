@@ -4,15 +4,19 @@
   margin-bottom: 10px;
 
   .c-heading-content {
-    padding-left: 10px;
     display: table-cell;
     vertical-align: middle;
+
     .c-heading-subtitle {
       font-weight: 400;
       margin-top: 5px;
       color: $gray-darker;
       font-size: $font-size;
     }
+  }
+
+  .c-heading-icon + .c-heading-content {
+    padding-left: 10px;
   }
   
   .c-heading-icon {
@@ -25,5 +29,11 @@
     box-shadow: 0px 1px 0px 0px rgba(34, 36, 38, 0.10);
     padding-bottom: 5px;
     margin-bottom: 10px;
+  }
+
+  &.m-small {
+    .c-heading-subtitle {
+      font-size: $font-size-small;
+    }
   }
 }

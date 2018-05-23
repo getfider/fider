@@ -91,10 +91,11 @@
         background-color: $menu-color;
         box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
         border: 1px solid rgba(34,36,38,.15);
-        width: 160px;
+        min-width: 160px;
         border-radius: 0px 0px 5px 5px;
 
         .c-menu-user-heading {
+          white-space: nowrap;
           font-size: $font-size-mini;
           padding: 10px;
           display: block;
