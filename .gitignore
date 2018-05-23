@@ -8,9 +8,6 @@ logs/
 
 fider
 fider.exe
-gin-bin
-gin-bin.exe
-gin-bin.exe~
 .env
 npm-debug.log
 
