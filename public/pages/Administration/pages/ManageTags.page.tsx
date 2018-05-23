@@ -190,20 +190,18 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
           </List>
         </Segment>
 
-        {privateTagList.length > 0 && (
-          <Segment>
-            <List divided={true}>
-              <ListItem>
-                <Heading
-                  size="small"
-                  title="Private Tags"
-                  subtitle="These tags are only visible for members of this site."
-                />
-              </ListItem>
-              {privateTagList.length === 0 ? <ListItem>There aren’t any private tags yet.</ListItem> : privateTagList}
-            </List>
-          </Segment>
-        )}
+        <Segment>
+          <List divided={true}>
+            <ListItem>
+              <Heading
+                size="small"
+                title="Private Tags"
+                subtitle="These tags are only visible for members of this site."
+              />
+            </ListItem>
+            {privateTagList.length === 0 ? <ListItem>There aren’t any private tags yet.</ListItem> : privateTagList}
+          </List>
+        </Segment>
       </>
     );
   }
