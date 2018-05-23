@@ -137,6 +137,12 @@ a:hover {
              Others
 *******************************/
 
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .center {
   text-align: center;
 }
@@ -151,6 +157,7 @@ a:hover {
 }
 
 .page {
+  flex: 1 0 auto;
   margin-top: 30px;
 }
 
