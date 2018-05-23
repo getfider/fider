@@ -133,16 +133,16 @@ func TestTagStorage_GetAll(t *testing.T) {
 	Expect(allTags).HasLen(2)
 
 	Expect(allTags[0].ID).NotEquals(0)
-	Expect(allTags[0].Name).Equals("Feature Request")
-	Expect(allTags[0].Slug).Equals("feature-request")
-	Expect(allTags[0].Color).Equals("FF0000")
-	Expect(allTags[0].IsPublic).IsTrue()
+	Expect(allTags[0].Name).Equals("Bug")
+	Expect(allTags[0].Slug).Equals("bug")
+	Expect(allTags[0].Color).Equals("0F0F0F")
+	Expect(allTags[0].IsPublic).IsFalse()
 
 	Expect(allTags[1].ID).NotEquals(0)
-	Expect(allTags[1].Name).Equals("Bug")
-	Expect(allTags[1].Slug).Equals("bug")
-	Expect(allTags[1].Color).Equals("0F0F0F")
-	Expect(allTags[1].IsPublic).IsFalse()
+	Expect(allTags[1].Name).Equals("Feature Request")
+	Expect(allTags[1].Slug).Equals("feature-request")
+	Expect(allTags[1].Color).Equals("FF0000")
+	Expect(allTags[1].IsPublic).IsTrue()
 
 	tags.SetCurrentUser(aryaStark)
 
