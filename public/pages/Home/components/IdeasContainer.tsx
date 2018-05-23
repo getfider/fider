@@ -88,7 +88,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             title="Similar ideas"
             subtitle="Consider voting on existing ideas before posting a new one."
             icon="lightbulb"
-            level={3}
+            size="small"
             dividing={true}
           />
           {this.state.loading ? (

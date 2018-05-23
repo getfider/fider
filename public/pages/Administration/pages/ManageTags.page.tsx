@@ -1,7 +1,7 @@
 import "./ManageTags.page.scss";
 
 import * as React from "react";
-import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem } from "@fider/components";
+import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem, Heading } from "@fider/components";
 import { AdminBasePage, TagForm, TagFormState } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
@@ -18,6 +18,15 @@ interface ManageTagsPageState {
   deleting?: number;
   editing?: number;
 }
+
+const tagSorter = (t1: Tag, t2: Tag) => {
+  if (t1.name < t2.name) {
+    return -1;
+  } else if (t1.name > t2.name) {
+    return 1;
+  }
+  return 0;
+};
 
 export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
   public id = "p-admin-tags";
@@ -39,7 +48,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     if (result.ok) {
       this.setState({
         isAdding: false,
-        allTags: this.state.allTags.concat(result.data)
+        allTags: this.state.allTags.concat(result.data).sort(tagSorter)
       });
     } else {
       return result.error;
@@ -54,7 +63,8 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
       tag.color = result.data.color;
       tag.isPublic = result.data.isPublic;
       this.setState({
-        editing: undefined
+        editing: undefined,
+        allTags: this.state.allTags.sort(tagSorter)
       });
     } else {
       return result.error;
@@ -72,8 +82,8 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     }
   }
 
-  private getTagList() {
-    return this.state.allTags.map(t => {
+  private getTagList(filter: (tag: Tag) => boolean) {
+    return this.state.allTags.filter(filter).map(t => {
       if (this.state.editing === t.id) {
         return (
           <ListItem key={t.id}>
@@ -144,7 +154,8 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
   }
 
   public content() {
-    const list = this.getTagList();
+    const publicTaglist = this.getTagList(t => t.isPublic);
+    const privateTagList = this.getTagList(t => !t.isPublic);
 
     const form =
       this.props.user.isAdministrator &&
@@ -171,7 +182,25 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
       <>
         {form}
         <Segment>
-          <List divided={true}>{list.length ? list : <div className="content">There aren’t any tags yet.</div>}</List>
+          <List divided={true}>
+            <ListItem>
+              <Heading size="small" title="Public Tags" subtitle="These tags are visible to all visitors." />
+            </ListItem>
+            {publicTaglist.length === 0 ? <ListItem>There aren’t any public tags yet.</ListItem> : publicTaglist}
+          </List>
+        </Segment>
+
+        <Segment>
+          <List divided={true}>
+            <ListItem>
+              <Heading
+                size="small"
+                title="Private Tags"
+                subtitle="These tags are only visible for members of this site."
+              />
+            </ListItem>
+            {privateTagList.length === 0 ? <ListItem>There aren’t any private tags yet.</ListItem> : privateTagList}
+          </List>
         </Segment>
       </>
     );

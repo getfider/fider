@@ -151,6 +151,7 @@ func (s *TagStorage) GetAssigned(idea *models.Idea) ([]*models.Tag, error) {
 		ON it.tag_id = t.id
 		AND it.tenant_id = t.tenant_id
 		WHERE it.idea_id = $1 AND t.tenant_id = $2
+		ORDER BY t.name
 	`, idea.ID, s.tenant.ID)
 
 	if err != nil {
@@ -170,6 +171,7 @@ func (s *TagStorage) GetAll() ([]*models.Tag, error) {
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
 		WHERE t.tenant_id = $1 %s
+		ORDER BY t.name
 	`, condition)
 	tags, err := s.getTags(query, s.tenant.ID)
 	if err != nil {
