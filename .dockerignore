@@ -5,6 +5,5 @@ public
 tests
 data
 output
-gin-bin
 .git
 cover.out

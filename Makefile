@@ -39,8 +39,7 @@ e2e:
 
 # Development
 watch:
-	rm -rf dist
-	gin --buildArgs "-ldflags='-s -w -X main.buildtime=${BUILD_TIME}'" & 
+	air -c air.conf & 
 	npx webpack -w
 
 run:
