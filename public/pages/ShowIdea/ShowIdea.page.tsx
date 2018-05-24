@@ -104,10 +104,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                 onChange={newDescription => this.setState({ newDescription })}
               />
             </Form>
-          ) : this.props.idea.description ? (
-            <MultiLineText className="description" text={this.props.idea.description} style="simple" />
           ) : (
-            <p className="description">This idea doesn't have a description.</p>
+            <MultiLineText
+              className="description"
+              text={this.props.idea.description || "No description provided."}
+              style="simple"
+            />
           )}
 
           <ShowIdeaResponse status={this.props.idea.status} response={this.props.idea.response} />

@@ -10,9 +10,7 @@ html,
 body {
   height: 100%;
 }
-html {
-  font-size: 14px;
-}
+
 body {
   margin: 0px;
   padding: 0px;
@@ -72,7 +70,7 @@ h5:last-child {
 
 p {
   margin: 0 0 14px;
-  line-height: 18px;
+  line-height: 130%;
 }
 p:first-child {
   margin-top: 0;
@@ -139,6 +137,12 @@ a:hover {
              Others
 *******************************/
 
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .center {
   text-align: center;
 }
@@ -153,6 +157,7 @@ a:hover {
 }
 
 .page {
+  flex: 1 0 auto;
   margin-top: 30px;
 }
 
@@ -199,7 +204,7 @@ h1, h2, h3, h4, h5 {
 
 .subtitle {
   font-size: $font-size-mini;
-  margin-bottom: 5px;
+  margin: 10px 0 5px 0;
   font-weight: 600;
   letter-spacing: .3px;
   text-transform: uppercase;
@@ -208,13 +213,19 @@ h1, h2, h3, h4, h5 {
   &.active {
     cursor: pointer;
     &:hover {
-      i {
-        color: $main-color;
-      }
+      color: $main-color;
     }
     i {
       float: right;
     }
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 

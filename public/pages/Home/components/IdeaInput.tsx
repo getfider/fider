@@ -83,7 +83,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
           onChange={description => this.onDescriptionChanged(description)}
           value={this.state.description}
           minRows={5}
-          placeholder="Describe your idea"
+          placeholder="Describe your idea (optional)"
         />
         <Button color="positive" onClick={e => this.submit(e)}>
           Submit

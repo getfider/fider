@@ -38,6 +38,8 @@
     input[type=text],
     textarea,
     select {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
       padding: 10px;
       outline: 0;
@@ -149,14 +151,14 @@
 }
 
 ::placeholder {
-  color: $gray;
+  color: $gray-dark;
   opacity: 1;
 }
 
 :-ms-input-placeholder {
-  color: $gray;
+  color: $gray-dark;
 }
 
 ::-ms-input-placeholder {
-  color: $gray;
+  color: $gray-dark;
 }

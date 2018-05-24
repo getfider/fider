@@ -33,14 +33,12 @@ func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) 
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
+	} else if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
 	if len(input.Model.Title) > 100 {
 		result.AddFieldFailure("title", "Title must be less than 100 characters.")
-	}
-
-	if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
-		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
 	idea, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
@@ -81,9 +79,7 @@ func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *va
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	}
-
-	if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+	} else if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
