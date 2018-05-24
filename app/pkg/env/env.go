@@ -108,8 +108,6 @@ func Path(p ...string) string {
 	root := "./"
 	if IsTest() {
 		root = os.Getenv("GOPATH") + "/src/github.com/getfider/fider/"
-	} else {
-		panic(Current())
 	}
 
 	elems := append([]string{root}, p...)
