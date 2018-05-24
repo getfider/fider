@@ -41,7 +41,6 @@ func TestCurrent(t *testing.T) {
 		os.Setenv("GO_ENV", testCase.go_env)
 		Expect(env.Current()).Equals(testCase.env)
 	}
-
 }
 
 func TestPath(t *testing.T) {
