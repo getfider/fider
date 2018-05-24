@@ -6,7 +6,7 @@ export const getAllIdeas = async (): Promise<Result<Idea[]>> => {
 };
 
 export const searchIdeas = async (query: string, filter: string, tags: string[]): Promise<Result<Idea[]>> => {
-  return await http.get<Idea[]>(`/api/ideas/search?q=${query}&f=${filter}&t=${tags.join(",")}`);
+  return await http.get<Idea[]>(`/api/ideas/search?q=${encodeURIComponent(query)}&f=${filter}&t=${tags.join(",")}`);
 };
 
 export const deleteIdea = async (ideaNumber: number, text: string): Promise<Result> => {
