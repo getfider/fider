@@ -116,6 +116,12 @@ func Path(p ...string) string {
 	return path.Join(elems...)
 }
 
+// Etc returns a path to a folder or file inside the /etc/ folder
+func Etc(p ...string) string {
+	paths := append([]string{"etc"}, p...)
+	return Path(paths...)
+}
+
 // IsDevelopment returns true on Fider production environment
 func IsDevelopment() bool {
 	return Current() == "development"

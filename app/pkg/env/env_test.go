@@ -38,6 +38,22 @@ func TestCurrent(t *testing.T) {
 	}
 }
 
+func TestPath(t *testing.T) {
+	RegisterT(t)
+
+	Expect(env.Path("etc/deep/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/deep/file.txt")
+	Expect(env.Path("etc/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/file.txt")
+	Expect(env.Path("///etc/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/file.txt")
+	Expect(env.Path("/etc/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/file.txt")
+	Expect(env.Path("./etc/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/file.txt")
+	Expect(env.Path("file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/file.txt")
+	Expect(env.Path("/file.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/file.txt")
+	Expect(env.Path("")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider")
+
+	Expect(env.Etc("a.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/a.txt")
+	Expect(env.Etc("b.txt")).Equals(os.Getenv("GOPATH") + "/src/github.com/getfider/fider/etc/b.txt")
+}
+
 func TestIsEnvironment(t *testing.T) {
 	RegisterT(t)
 
