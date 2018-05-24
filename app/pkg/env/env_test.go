@@ -32,10 +32,16 @@ func TestGetEnvOrDefault(t *testing.T) {
 func TestCurrent(t *testing.T) {
 	RegisterT(t)
 
+	current := env.Current()
+	defer func() {
+		os.Setenv("GO_ENV", current)
+	}()
+
 	for _, testCase := range envs {
 		os.Setenv("GO_ENV", testCase.go_env)
 		Expect(env.Current()).Equals(testCase.env)
 	}
+
 }
 
 func TestPath(t *testing.T) {
@@ -56,6 +62,11 @@ func TestPath(t *testing.T) {
 
 func TestIsEnvironment(t *testing.T) {
 	RegisterT(t)
+
+	current := env.Current()
+	defer func() {
+		os.Setenv("GO_ENV", current)
+	}()
 
 	for _, testCase := range envs {
 		os.Setenv("GO_ENV", testCase.go_env)

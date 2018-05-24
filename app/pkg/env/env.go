@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"path"
-
-	"github.com/getfider/fider/app/pkg/errors"
 )
 
 // GetEnvOrDefault retrieves the value of the environment variable named by the key.
@@ -77,7 +75,7 @@ func GetPublicIP() (string, error) {
 		if err == nil {
 			publicIP[domain] = addr[0].String()
 		} else {
-			return "", errors.Wrap(err, "failed to lookup IP of %s", domain)
+			return "", err
 		}
 	}
 	return publicIP[domain], nil
@@ -110,6 +108,8 @@ func Path(p ...string) string {
 	root := "./"
 	if IsTest() {
 		root = os.Getenv("GOPATH") + "/src/github.com/getfider/fider/"
+	} else {
+		panic(Current())
 	}
 
 	elems := append([]string{root}, p...)
