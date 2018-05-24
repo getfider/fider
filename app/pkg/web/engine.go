@@ -84,6 +84,9 @@ func (e *Engine) Start(address string) {
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
 
+	certFilePath := env.Etc(certFile)
+	keyFilePath := env.Etc(keyFile)
+
 	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -102,7 +105,7 @@ func (e *Engine) Start(address string) {
 		certManager *CertificateManager
 	)
 	if autoSSL == "true" {
-		certManager, err = NewCertificateManager(certFile, keyFile, "certs")
+		certManager, err = NewCertificateManager(certFilePath, keyFilePath, env.Etc("certs"))
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
@@ -119,7 +122,7 @@ func (e *Engine) Start(address string) {
 		err = e.server.ListenAndServe()
 	} else {
 		e.logger.Infof("https server started on %s", address)
-		err = e.server.ListenAndServeTLS(certFile, keyFile)
+		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
 	if err != nil && err != http.ErrServerClosed {
