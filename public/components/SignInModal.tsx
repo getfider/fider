@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Modal, SignInControl } from "@fider/components/common";
+import { Modal, SignInControl, LegalFooter } from "@fider/components/common";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -59,6 +59,8 @@ export class SignInModal extends React.Component<SignInModalProps, SignInModalSt
         <Modal.Header>Sign in to raise your voice</Modal.Header>
 
         <Modal.Content>{content}</Modal.Content>
+
+        <LegalFooter />
       </Modal.Window>
     );
   }

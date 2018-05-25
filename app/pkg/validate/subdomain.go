@@ -16,11 +16,11 @@ func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 	subdomain = strings.ToLower(subdomain)
 
 	if len(subdomain) <= 2 {
-		return Failed([]string{"Subdomain must be more than 2 characters."})
+		return Failed([]string{"Subdomain must have more than 2 characters."})
 	}
 
 	if len(subdomain) > 40 {
-		return Failed([]string{"Subdomain must be less than 40 characters."})
+		return Failed([]string{"Subdomain must have less than 40 characters."})
 	}
 
 	if !domainRegex.MatchString(subdomain) {

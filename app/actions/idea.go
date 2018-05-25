@@ -38,7 +38,7 @@ func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) 
 	}
 
 	if len(input.Model.Title) > 100 {
-		result.AddFieldFailure("title", "Title must be less than 100 characters.")
+		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
 	idea, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
@@ -84,7 +84,7 @@ func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *va
 	}
 
 	if len(input.Model.Title) > 100 {
-		result.AddFieldFailure("title", "Title must be less than 100 characters.")
+		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
 	another, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))

@@ -39,6 +39,8 @@ e2e:
 
 # Development
 watch:
+	rm -rf ./dist
+	mkdir ./dist
 	air -c air.conf & 
 	npx webpack -w
 

@@ -51,8 +51,8 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		if input.Model.Name == "" {
 			result.AddFieldFailure("name", "Name is required.")
 		}
-		if len(input.Model.Name) > 50 {
-			result.AddFieldFailure("name", "Name must be less than 50 characters.")
+		if len(input.Model.Name) > 60 {
+			result.AddFieldFailure("name", "Name must have less than 60 characters.")
 		}
 	}
 
@@ -67,6 +67,10 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
 	if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
+	}
+
+	if env.HasLegal() && !input.Model.LegalAgreement {
+		result.AddFieldFailure("legalAgreement", "You must agree before proceeding.")
 	}
 
 	return result

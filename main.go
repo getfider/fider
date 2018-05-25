@@ -33,6 +33,7 @@ func main() {
 		GoogleAnalytics: env.GetEnvOrDefault("GOOGLE_ANALYTICS", ""),
 		Mode:            env.Mode(),
 		Domain:          env.MultiTenantDomain(),
+		HasLegal:        env.HasLegal(),
 	}
 
 	args := os.Args[1:]

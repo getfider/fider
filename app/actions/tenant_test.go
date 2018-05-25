@@ -23,7 +23,12 @@ func TestCreateTenant_ShouldHaveVerificationKey(t *testing.T) {
 func TestCreateTenant_EmptyToken(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: ""}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Token:          "",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "token", "tenantName", "subdomain")
 }
@@ -31,7 +36,13 @@ func TestCreateTenant_EmptyToken(t *testing.T) {
 func TestCreateTenant_EmptyTenantName(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, TenantName: ""}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Token:          jonSnowToken,
+			TenantName:     "",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "tenantName", "subdomain")
 }
@@ -39,7 +50,13 @@ func TestCreateTenant_EmptyTenantName(t *testing.T) {
 func TestCreateTenant_EmptyEmail(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "Jon Snow", Email: ""}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Name:           "Jon Snow",
+			Email:          "",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
 }
@@ -47,15 +64,43 @@ func TestCreateTenant_EmptyEmail(t *testing.T) {
 func TestCreateTenant_InvalidEmail(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "Jon Snow", Email: "jonsnow"}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Name:           "Jon Snow",
+			Email:          "jonsnow",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
+}
+
+func TestCreateTenant_NoAgreement(t *testing.T) {
+	RegisterT(t)
+
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Name:           "Jon",
+			Email:          "jon.snow@got.com",
+			TenantName:     "My Company",
+			Subdomain:      "company",
+			LegalAgreement: false,
+		},
+	}
+	result := action.Validate(nil, services)
+	ExpectFailed(result, "legalAgreement")
 }
 
 func TestCreateTenant_EmptyName(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Name: "", Email: "jon.snow@got.com"}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Name:           "",
+			Email:          "jon.snow@got.com",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "name", "tenantName", "subdomain")
 }
@@ -63,7 +108,13 @@ func TestCreateTenant_EmptyName(t *testing.T) {
 func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.CreateTenant{Model: &models.CreateTenant{Token: jonSnowToken, TenantName: "My Company"}}
+	action := actions.CreateTenant{
+		Model: &models.CreateTenant{
+			Token:          jonSnowToken,
+			TenantName:     "My Company",
+			LegalAgreement: true,
+		},
+	}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "subdomain")
 }

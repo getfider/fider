@@ -6,6 +6,7 @@ export interface CheckAvailabilityResponse {
 }
 
 export interface CreateTenantRequest {
+  legalAgreement: boolean;
   tenantName: string;
   subdomain?: string;
   name?: string;

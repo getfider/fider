@@ -35,7 +35,7 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 	if input.Model.Subject == "" {
 		result.AddFieldFailure("subject", "Subject is required.")
 	} else if len(input.Model.Subject) > 70 {
-		result.AddFieldFailure("subject", "Subject must be less than 70 characters.")
+		result.AddFieldFailure("subject", "Subject must have less than 70 characters.")
 	}
 
 	if input.Model.Message == "" {

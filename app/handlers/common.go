@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"io/ioutil"
+	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -13,6 +16,23 @@ import (
 func Health() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Ok(web.Map{})
+	}
+}
+
+//LegalPage returns a legal page with content from a file
+func LegalPage(title, file string) web.HandlerFunc {
+	return func(c web.Context) error {
+		bytes, err := ioutil.ReadFile(env.Etc(file))
+		if err != nil {
+			return c.NotFound()
+		}
+
+		return c.Render(http.StatusOK, "legal.html", web.Props{
+			Title: title,
+			Data: web.Map{
+				"Content": string(bytes),
+			},
+		})
 	}
 }
 

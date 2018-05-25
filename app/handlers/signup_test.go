@@ -94,7 +94,12 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	})
 	code, response := server.ExecutePostAsJSON(
 		handlers.CreateTenant(),
-		fmt.Sprintf(`{ "token": "%s", "tenantName": "My Company", "subdomain": "mycompany" }`, token),
+		fmt.Sprintf(`{ 
+			"token": "%s", 
+			"tenantName": "My Company", 
+			"subdomain": "mycompany", 
+			"legalAgreement": true
+		}`, token),
 	)
 
 	tenant, err := services.Tenants.GetByDomain("mycompany")
@@ -121,7 +126,13 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	server, services := mock.NewServer()
 	code, response := server.ExecutePostAsJSON(
 		handlers.CreateTenant(),
-		`{ "name": "Jon Snow", "email": "jon.snow@got.com", "tenantName": "My Company", "subdomain": "mycompany" }`,
+		`{ 
+			"name": "Jon Snow", 
+			"email": "jon.snow@got.com", 
+			"tenantName": "My Company", 
+			"subdomain": "mycompany", 
+			"legalAgreement": true 
+		}`,
 	)
 
 	Expect(code).Equals(http.StatusOK)

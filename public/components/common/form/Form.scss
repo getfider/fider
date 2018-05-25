@@ -18,6 +18,20 @@
   clear: both;
   margin: 0 0 10px;
 
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &.m-checkbox {
+    label {
+      font-weight: initial;
+    }
+    input[type=checkbox] {
+      vertical-align: middle;
+      margin: 0 5px 3px 0;
+    }
+  }
+
   label {
     display: block;
     margin: 0 0 5px;
@@ -56,6 +70,7 @@
         opacity: .45;
         cursor: not-allowed;
       }
+
       & + .icon {
         pointer-events: none;
         cursor: default;

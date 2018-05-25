@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/md5"
 	"github.com/getfider/fider/app/pkg/oauth"
 )
@@ -19,6 +20,9 @@ import (
 var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return md5.Hash(input)
+	},
+	"markdown": func(input string) template.HTML {
+		return markdown.Parse(input)
 	},
 }
 
@@ -41,6 +45,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 
 	r.add("index.html")
 	r.add("not-invited.html")
+	r.add("legal.html")
 	r.add("403.html")
 	r.add("404.html")
 	r.add("410.html")
