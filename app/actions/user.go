@@ -72,7 +72,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 	}
 
 	if len(input.Model.Email) > 200 {
-		result.AddFieldFailure("email", "Email must be less than 200 characters.")
+		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 		return result
 	}
 

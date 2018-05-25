@@ -17,6 +17,11 @@ interface ModalWindowState {
   isOpen: boolean;
 }
 
+interface ModalFooterProps {
+  align?: "left" | "center" | "right";
+  children?: React.ReactNode;
+}
+
 class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
   private root?: HTMLElement;
 
@@ -107,7 +112,12 @@ export const Modal = {
   Content: (props: { children: React.ReactNode }) => {
     return <div className="c-modal-content">{props.children}</div>;
   },
-  Footer: (props: { children: React.ReactNode }) => {
-    return <div className="c-modal-footer">{props.children}</div>;
+  Footer: (props: ModalFooterProps) => {
+    const align = props.align || "right";
+    const className = classSet({
+      "c-modal-footer": true,
+      [`m-${align}`]: true
+    });
+    return <div className={className}>{props.children}</div>;
   }
 };

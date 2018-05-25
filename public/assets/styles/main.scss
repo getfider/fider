@@ -1,6 +1,7 @@
 @import 'variables.scss';
 @import 'reset.scss';
 @import 'grid.scss';
+@import 'semantic.scss';
 
 /*******************************
              Site
@@ -77,6 +78,12 @@ p:first-child {
 }
 p:last-child {
   margin-bottom: 0;
+}
+
+ul {
+  li {
+    line-height: 130%;
+  }
 }
 
 /*******************************
@@ -158,7 +165,7 @@ a:hover {
 
 .page {
   flex: 1 0 auto;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 .page::after {
@@ -306,6 +313,31 @@ h1, h2, h3, h4, h5 {
   img {
     max-height: 100px;
     max-width: 100px;
+  }
+}
+
+.legal-page {
+  max-width: 800px !important;
+  padding: 50px 0;
+  h1 {
+    margin-bottom: 30px;
+  }
+  p {
+    line-height: 150%;
+  }
+
+  table {
+    tr {
+      th {
+        padding: 5px;
+        border-bottom: 1px solid $gray;
+        background-color: $gray-lighter;
+      }
+      td {
+        border-bottom: 1px solid $gray;
+        padding: 5px;
+      }
+    }
   }
 }
 

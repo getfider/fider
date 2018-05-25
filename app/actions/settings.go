@@ -33,7 +33,7 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 	}
 
 	if len(input.Model.Name) > 50 {
-		result.AddFieldFailure("name", "Name must be less than 50 characters.")
+		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
 	if input.Model.Settings != nil {

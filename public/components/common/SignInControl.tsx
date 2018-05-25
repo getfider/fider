@@ -50,7 +50,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
 
   public render() {
     const google = this.settings.providers.google && (
-      <div className="col-md-4 l-social-col">
+      <div className="col-sm l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="google"
@@ -59,7 +59,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const facebook = this.settings.providers.facebook && (
-      <div className="col-md-4 l-social-col">
+      <div className="col-sm l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="facebook"
@@ -68,7 +68,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       </div>
     );
     const github = this.settings.providers.github && (
-      <div className="col-md-4 l-social-col">
+      <div className="col-sm l-social-col">
         <SocialSignInButton
           oauthEndpoint={this.settings.endpoint}
           provider="github"
@@ -87,7 +87,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
               {google}
               {github}
             </div>
-            <p className="info">We'll never post to any of your accounts</p>
+            <p className="info">We will never post to these accounts on your behalf.</p>
             <div className="c-divider">OR</div>
           </div>
         )}

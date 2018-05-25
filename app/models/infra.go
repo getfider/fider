@@ -13,6 +13,7 @@ type SystemSettings struct {
 	GoogleAnalytics string `json:"googleAnalytics"`
 	Compiler        string `json:"compiler"`
 	Domain          string `json:"domain"`
+	HasLegal        bool   `json:"hasLegal"`
 }
 
 // Notification is the system generated notification entity

@@ -43,7 +43,7 @@ func (input *CreateEditTag) Validate(user *models.User, services *app.Services) 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
 	} else if len(input.Model.Name) > 30 {
-		result.AddFieldFailure("name", "Name must be less than 30 characters.")
+		result.AddFieldFailure("name", "Name must have less than 30 characters.")
 	} else {
 		duplicateTag, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
 		if err != nil && errors.Cause(err) != app.ErrNotFound {

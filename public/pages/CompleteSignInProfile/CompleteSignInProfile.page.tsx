@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
-import { Modal, Button, Form, Input } from "@fider/components";
+import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
 import { page, actions, Failure } from "@fider/services";
 
 interface CompleteSignInProfilePageState {
@@ -35,13 +35,13 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
         <Modal.Window canClose={false} isOpen={true}>
           <Modal.Header>Complete your profile</Modal.Header>
           <Modal.Content>
-            <p>Because this is your first sign in, please input your display name.</p>
+            <p>Because this is your first sign in, please enter your name.</p>
             <Form error={this.state.error}>
               <Input
                 field="name"
                 onChange={name => this.setState({ name })}
                 maxLength={100}
-                placeholder="Your display name"
+                placeholder="Name"
                 suffix={
                   <Button onClick={() => this.submit()} color="positive" disabled={this.state.name === ""}>
                     Submit
@@ -50,6 +50,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
               />
             </Form>
           </Modal.Content>
+          <LegalFooter />
         </Modal.Window>
         {this.props.tenant.isPrivate
           ? React.createElement(SignInPage, this.props)

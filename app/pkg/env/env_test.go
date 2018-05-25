@@ -82,6 +82,12 @@ func TestMustGet(t *testing.T) {
 	}).Panics()
 }
 
+func TestHasLegal(t *testing.T) {
+	RegisterT(t)
+
+	Expect(env.HasLegal()).IsTrue()
+}
+
 func TestMultiTenantDomain(t *testing.T) {
 	RegisterT(t)
 

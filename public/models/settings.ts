@@ -7,6 +7,7 @@ export interface SystemSettings {
   googleAnalytics: string;
   compiler: string;
   domain: string;
+  hasLegal: boolean;
 }
 
 export interface AuthSettings {

@@ -122,6 +122,7 @@ type CreateTenant struct {
 	Email           string `json:"email" format:"lower"`
 	VerificationKey string
 	TenantName      string `json:"tenantName"`
+	LegalAgreement  bool   `json:"legalAgreement"`
 	Subdomain       string `json:"subdomain" format:"lower"`
 	UserClaims      *OAuthClaims
 }

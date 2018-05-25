@@ -44,6 +44,19 @@ func IsSingleHostMode() bool {
 	return Mode() == "single"
 }
 
+var hasLegal *bool
+
+// HasLegal returns true if current instance contains legal documents: privacy.md and terms.md
+func HasLegal() bool {
+	if hasLegal == nil {
+		_, err1 := os.Stat(Etc("privacy.md"))
+		_, err2 := os.Stat(Etc("terms.md"))
+		exists := err1 == nil && err2 == nil
+		hasLegal = &exists
+	}
+	return *hasLegal
+}
+
 // MultiTenantDomain returns domain name of current instance for multi tenant hosts
 func MultiTenantDomain() string {
 	if !IsSingleHostMode() {

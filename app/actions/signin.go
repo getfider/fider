@@ -33,7 +33,7 @@ func (input *SignInByEmail) Validate(user *models.User, services *app.Services) 
 	}
 
 	if len(input.Model.Email) > 200 {
-		result.AddFieldFailure("email", "Email must be less than 200 characters.")
+		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 	}
 
 	emailResult := validate.Email(input.Model.Email)
@@ -69,7 +69,7 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 	}
 
 	if len(input.Model.Name) > 50 {
-		result.AddFieldFailure("name", "Name must be less than 50 characters.")
+		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
 	if input.Model.Key == "" {

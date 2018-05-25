@@ -63,6 +63,14 @@
     background: #f9fafb;
     padding: 10px;
     border-top: 1px solid rgba(34,36,38,.15);
-    text-align: right;
+    &.m-right {
+      text-align: right;
+    }
+    &.m-center {
+      text-align: center;
+    }
+    &.m-left {
+      text-align: left;
+    }
   }
 }

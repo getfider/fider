@@ -28,6 +28,8 @@ func routes(r *web.Engine) *web.Engine {
 
 	noTenant := r.Group()
 	{
+		noTenant.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
+		noTenant.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 		noTenant.Get("/-/health", handlers.Health())
 
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
