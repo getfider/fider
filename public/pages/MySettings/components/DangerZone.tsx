@@ -35,7 +35,7 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
           <Modal.Content>
             <p>
               When you choose to delete your account, we will erase all your personal information forever. The content
-              you have published, votes and comments will remain, but they will be anonymised.
+              you have published will remain, but they will be anonymised.
             </p>
             <p>
               This process is irreversible. <strong>Are you sure?</strong>
@@ -53,7 +53,7 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
         <h4>Delete account</h4>
         <p className="info">
           When you choose to delete your account, we will erase all your personal information forever. The content you
-          have published, votes and comments will remain, but they will be anonymised.
+          have published will remain, but they will be anonymised.
         </p>
         <p className="info">This process is irreversible. Please be certain.</p>
         <Button color="danger" size="tiny" onClick={this.onClickDelete}>
