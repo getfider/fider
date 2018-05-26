@@ -1,0 +1,5 @@
+ALTER TABLE users ADD status INT NULL;
+
+UPDATE users SET status = 1;
+
+ALTER TABLE users ALTER COLUMN status SET NOT NULL;

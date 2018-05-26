@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,6 +19,7 @@ type dbUser struct {
 	Email     sql.NullString `db:"email"`
 	Tenant    *dbTenant      `db:"tenant"`
 	Role      sql.NullInt64  `db:"role"`
+	Status    int            `db:"status"`
 	Providers []*dbUserProvider
 }
 
@@ -38,6 +40,7 @@ func (u *dbUser) toModel() *models.User {
 		Tenant:    u.Tenant.toModel(),
 		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
+		Status:    u.Status,
 	}
 
 	for i, p := range u.Providers {
@@ -116,10 +119,11 @@ func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, 
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
+	user.Status = models.UserActive
 	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.Get(&user.ID,
-		"INSERT INTO users (name, email, created_on, tenant_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		user.Name, user.Email, now, s.tenant.ID, user.Role); err != nil {
+		"INSERT INTO users (name, email, created_on, tenant_id, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive); err != nil {
 		return errors.Wrap(err, "failed to register new user")
 	}
 
@@ -222,7 +226,7 @@ func (s *UserStorage) ChangeEmail(userID int, email string) error {
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
-	err := trx.Get(&user, "SELECT id, name, email, tenant_id, role FROM users WHERE "+filter, args...)
+	err := trx.Get(&user, "SELECT id, name, email, tenant_id, role, status FROM users WHERE "+filter, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +242,7 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 // GetAll return all users of current tenant
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
+	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role, status FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all users")
 	}
@@ -278,4 +282,34 @@ func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// Delete removes current user personal data and mark it as deleted
+func (s *UserStorage) Delete() error {
+	if _, err := s.trx.Execute(
+		"UPDATE users SET role = $3, status = $4, name = '', email = '' WHERE id = $1 AND tenant_id = $2",
+		s.user.ID, s.tenant.ID, models.RoleVisitor, models.UserDeleted,
+	); err != nil {
+		return errors.Wrap(err, "failed to delete current user")
+	}
+
+	tables := []string{
+		"user_providers",
+		"user_settings",
+		"notifications",
+		"idea_supporters",
+		"idea_subscribers",
+		"email_verifications",
+	}
+
+	for _, table := range tables {
+		if _, err := s.trx.Execute(
+			fmt.Sprintf("DELETE FROM %s WHERE user_id = $1 AND tenant_id = $2", table),
+			s.user.ID, s.tenant.ID,
+		); err != nil {
+			return errors.Wrap(err, "failed to delete current user's %s records", table)
+		}
+	}
+
+	return nil
 }
