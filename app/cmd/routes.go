@@ -105,6 +105,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Post("/api/ideas/:number/unsubscribe", handlers.Unsubscribe())
 			private.Post("/api/ideas/:number/tags/:slug", handlers.AssignTag())
 			private.Delete("/api/ideas/:number/tags/:slug", handlers.UnassignTag())
+			private.Delete("/api/user", handlers.DeleteUser())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 			private.Post("/api/user/change-email", handlers.ChangeUserEmail())
 			private.Post("/api/notifications/read-all", handlers.ReadAllNotifications())

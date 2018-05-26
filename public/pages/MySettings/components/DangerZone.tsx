@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field, Button, Modal } from "@fider/components";
+import { actions, page, notify } from "@fider/services";
 
 interface DangerZoneProps {
   user: CurrentUser;
@@ -27,6 +28,15 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
     this.setState({ clicked: false });
   };
 
+  public onConfirm = async () => {
+    const response = await actions.deleteCurrentAccount();
+    if (response.ok) {
+      page.goHome();
+    } else {
+      notify.error("Failed to delete your account. Try again later");
+    }
+  };
+
   public render() {
     return (
       <div className="l-danger-zone">
@@ -42,7 +52,7 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
             </p>
           </Modal.Content>
           <Modal.Footer>
-            <Button color="danger" size="tiny">
+            <Button color="danger" size="tiny" onClick={this.onConfirm}>
               Confirm
             </Button>
             <Button size="tiny" onClick={this.onCancel}>
@@ -57,7 +67,7 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
         </p>
         <p className="info">This process is irreversible. Please be certain.</p>
         <Button color="danger" size="tiny" onClick={this.onClickDelete}>
-          Delete My Account
+          Delete my account
         </Button>
       </div>
     );

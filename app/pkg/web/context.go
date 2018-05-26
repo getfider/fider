@@ -336,9 +336,11 @@ func (ctx *Context) AddCookie(name, value string, expires time.Time) {
 //RemoveCookie removes a cookie
 func (ctx *Context) RemoveCookie(name string) {
 	ctx.SetCookie(&http.Cookie{
-		Name:    name,
-		MaxAge:  -1,
-		Expires: time.Now().Add(-100 * time.Hour),
+		Name:     name,
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+		Expires:  time.Now().Add(-100 * time.Hour),
 	})
 }
 
