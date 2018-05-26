@@ -3,7 +3,7 @@ import "./MySettings.page.scss";
 import * as React from "react";
 
 import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
-import { NotificationSettings } from "./";
+import { DangerZone, NotificationSettings } from "./";
 
 import { CurrentUser, UserSettings } from "@fider/models";
 import { Failure, actions } from "@fider/services";
@@ -153,9 +153,15 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               />
 
               <Button color="positive" onClick={this.confirm}>
-                Confirm
+                Save changes
               </Button>
             </Form>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-lg-7">
+            <DangerZone user={this.props.user} />
           </div>
         </div>
       </div>

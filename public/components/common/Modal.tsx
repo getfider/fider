@@ -11,6 +11,7 @@ interface ModalWindowProps {
   size?: "small" | "large";
   canClose?: boolean;
   center?: boolean;
+  onClose?: () => void;
 }
 
 interface ModalWindowState {
@@ -65,6 +66,9 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
   private close = () => {
     if (this.props.canClose) {
       this.setState({ isOpen: false });
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
     }
   };
 
