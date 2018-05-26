@@ -196,7 +196,8 @@ func TestDeleteUserHandler(t *testing.T) {
 		Execute(handlers.DeleteUser())
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=;")
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=; Path=/; Expires=")
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring("Max-Age=0; HttpOnly")
 
 	user, err := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
