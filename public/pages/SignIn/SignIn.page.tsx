@@ -1,7 +1,7 @@
 import "./SignIn.page.scss";
 
 import * as React from "react";
-import { SignInControl, Logo } from "@fider/components/common";
+import { SignInControl, Logo, LegalNotice } from "@fider/components";
 import { page, notify } from "@fider/services";
 import { Tenant } from "@fider/models";
 
@@ -34,6 +34,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
           <p>If you have an account or an invitation, you may use following options to sign in.</p>
         </div>
         <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={page.getBaseUrl()} />
+        <LegalNotice />
       </div>
     );
   }

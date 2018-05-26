@@ -18,13 +18,22 @@ interface LegalAgreementProps {
   onChange: (agrred: boolean) => void;
 }
 
+export const LegalNotice: React.StatelessComponent<{}> = () => {
+  if (page.systemSettings().hasLegal) {
+    return (
+      <p className="info">
+        By signing in, you agree to the {privacy} and {terms}.
+      </p>
+    );
+  }
+  return null;
+};
+
 export const LegalFooter: React.StatelessComponent<{}> = () => {
   if (page.systemSettings().hasLegal) {
     return (
       <Modal.Footer align="center">
-        <p className="info">
-          By signing in, you agree to the {privacy} and {terms}.
-        </p>
+        <LegalNotice />
       </Modal.Footer>
     );
   }
