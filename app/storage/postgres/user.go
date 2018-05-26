@@ -293,18 +293,22 @@ func (s *UserStorage) Delete() error {
 		return errors.Wrap(err, "failed to delete current user")
 	}
 
-	tables := []string{
-		"user_providers",
-		"user_settings",
-		"notifications",
-		"idea_supporters",
-		"idea_subscribers",
-		"email_verifications",
+	var tables = []struct {
+		name       string
+		userColumn string
+	}{
+		{"user_providers", "user_id"},
+		{"user_settings", "user_id"},
+		{"notifications", "user_id"},
+		{"notifications", "author_id"},
+		{"idea_supporters", "user_id"},
+		{"idea_subscribers", "user_id"},
+		{"email_verifications", "user_id"},
 	}
 
 	for _, table := range tables {
 		if _, err := s.trx.Execute(
-			fmt.Sprintf("DELETE FROM %s WHERE user_id = $1 AND tenant_id = $2", table),
+			fmt.Sprintf("DELETE FROM %s WHERE %s = $1 AND tenant_id = $2", table.name, table.userColumn),
 			s.user.ID, s.tenant.ID,
 		); err != nil {
 			return errors.Wrap(err, "failed to delete current user's %s records", table)
