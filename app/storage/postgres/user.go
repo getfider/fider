@@ -19,7 +19,7 @@ type dbUser struct {
 	Email     sql.NullString `db:"email"`
 	Tenant    *dbTenant      `db:"tenant"`
 	Role      sql.NullInt64  `db:"role"`
-	Status    int            `db:"status"`
+	Status    sql.NullInt64  `db:"status"`
 	Providers []*dbUserProvider
 }
 
@@ -40,7 +40,7 @@ func (u *dbUser) toModel() *models.User {
 		Tenant:    u.Tenant.toModel(),
 		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
-		Status:    u.Status,
+		Status:    int(u.Status.Int64),
 	}
 
 	for i, p := range u.Providers {
