@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
-import { Toggle, Segment, Segments, Field, Button, Modal } from "@fider/components";
+import { Toggle, Segment, Segments, Field, Button, Modal, ButtonClickEvent } from "@fider/components";
 import { actions, page, notify } from "@fider/services";
 
 interface DangerZoneProps {
@@ -28,9 +28,10 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
     this.setState({ clicked: false });
   };
 
-  public onConfirm = async () => {
+  public onConfirm = async (e: ButtonClickEvent) => {
     const response = await actions.deleteCurrentAccount();
     if (response.ok) {
+      e.preventEnable();
       page.goHome();
     } else {
       notify.error("Failed to delete your account. Try again later");
