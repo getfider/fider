@@ -165,12 +165,14 @@ var (
 																u.name AS user_name, 
 																u.email AS user_email,
 																u.role AS user_role,
+																u.status AS user_status,
 																i.response,
 																i.response_date,
 																r.id AS response_user_id, 
 																r.name AS response_user_name, 
 																r.email AS response_user_email, 
 																r.role AS response_user_role,
+																r.status AS response_user_status,
 																d.number AS original_number,
 																d.title AS original_title,
 																d.slug AS original_slug,
@@ -324,10 +326,12 @@ func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, e
 				u.name AS user_name,
 				u.email AS user_email,
 				u.role AS user_role, 
+				u.status AS user_status, 
 				e.id AS edited_by_id, 
 				e.name AS edited_by_name,
 				e.email AS edited_by_email,
-				e.role AS edited_by_role
+				e.role AS edited_by_role,
+				e.status AS edited_by_status
 		FROM comments c
 		INNER JOIN ideas i
 		ON i.id = c.idea_id
@@ -418,10 +422,12 @@ func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
 						u.name AS user_name,
 						u.email AS user_email,
 						u.role AS user_role, 
+						u.status AS user_status, 
 						e.id AS edited_by_id, 
 						e.name AS edited_by_name,
 						e.email AS edited_by_email,
-						e.role AS edited_by_role
+						e.role AS edited_by_role,
+						e.status AS edited_by_status
 		FROM comments c
 		INNER JOIN users u
 		ON u.id = c.user_id
@@ -528,13 +534,14 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	if len(event.RequiresSubscripionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
-			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 			FROM users u
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
 			AND set.tenant_id = u.tenant_id
 			AND set.key = $1
 			WHERE u.tenant_id = $2
+			AND u.status = $5
 			AND (
 				(set.value IS NULL AND u.role = ANY($3))
 				OR CAST(set.value AS integer) & $4 > 0
@@ -543,10 +550,11 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 			s.tenant.ID,
 			pq.Array(event.DefaultEnabledUserRoles),
 			channel,
+			models.UserActive,
 		)
 	} else {
 		err = s.trx.Select(&users, `
-			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role
+			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 			FROM users u
 			LEFT JOIN idea_subscribers sub
 			ON sub.user_id = u.id
@@ -557,6 +565,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 			AND set.key = $3
 			AND set.tenant_id = u.tenant_id
 			WHERE u.tenant_id = $4
+			AND u.status = $8
 			AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
 			AND (
 				(set.value IS NULL AND u.role = ANY($5))
@@ -569,6 +578,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 			pq.Array(event.DefaultEnabledUserRoles),
 			channel,
 			pq.Array(event.RequiresSubscripionUserRoles),
+			models.UserActive,
 		)
 	}
 

@@ -43,7 +43,9 @@ func Avatar() web.HandlerFunc {
 			}
 		}
 
-		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{PaletteKey: name})
+		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
+			PaletteKey: fmt.Sprintf("%d:%s", id, name),
+		})
 		if err != nil {
 			return c.Failure(err)
 		}

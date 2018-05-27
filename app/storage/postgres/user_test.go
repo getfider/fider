@@ -112,6 +112,7 @@ func TestUserStorage_Register(t *testing.T) {
 	Expect(user.Role).Equals(models.RoleCollaborator)
 	Expect(user.Name).Equals("Rob Stark")
 	Expect(user.Email).Equals("rob.stark@got.com")
+	Expect(user.Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
@@ -132,6 +133,7 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	Expect(user.Role).Equals(models.RoleCollaborator)
 	Expect(user.Name).Equals("Rob Stark")
 	Expect(user.Email).Equals("")
+	Expect(user.Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_Register_MultipleProviders(t *testing.T) {
@@ -169,6 +171,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	Expect(user.ID).NotEquals(0)
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
+	Expect(user.Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_RegisterProvider(t *testing.T) {
@@ -187,6 +190,7 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
 	Expect(user.Tenant.ID).Equals(1)
+	Expect(user.Status).Equals(models.UserActive)
 
 	Expect(user.Providers).HasLen(2)
 	Expect(user.Providers[0].UID).Equals("FB1234")
@@ -249,8 +253,11 @@ func TestUserStorage_GetAll(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(all).HasLen(3)
 	Expect(all[0].Name).Equals("Jon Snow")
+	Expect(all[0].Status).Equals(models.UserActive)
 	Expect(all[1].Name).Equals("Arya Stark")
+	Expect(all[1].Status).Equals(models.UserActive)
 	Expect(all[2].Name).Equals("Sansa Stark")
+	Expect(all[2].Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_DefaultUserSettings(t *testing.T) {
@@ -295,4 +302,27 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	users.UpdateSettings(nil)
 	newSettings, _ := users.GetUserSettings()
 	Expect(newSettings).Equals(settings)
+}
+
+func TestUserStorage_Delete(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	users.SetCurrentUser(jonSnow)
+
+	err := users.Delete()
+	Expect(err).IsNil()
+
+	user, err := users.GetByEmail("jon.snow@got.com")
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(user).IsNil()
+
+	user, err = users.GetByID(jonSnow.ID)
+	Expect(err).IsNil()
+	Expect(user.Name).Equals("")
+	Expect(user.Email).Equals("")
+	Expect(user.Role).Equals(models.RoleVisitor)
+	Expect(user.Status).Equals(models.UserDeleted)
+	Expect(user.Providers).HasLen(0)
 }

@@ -13,3 +13,7 @@ export const changeUserEmail = async (email: string): Promise<Result> => {
     email
   });
 };
+
+export const deleteCurrentAccount = async (): Promise<Result> => {
+  return await http.delete("/api/user");
+};

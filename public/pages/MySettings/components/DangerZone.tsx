@@ -1,7 +1,8 @@
 import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
-import { Toggle, Segment, Segments, Field, Button, Modal } from "@fider/components";
+import { Toggle, Segment, Segments, Field, Button, Modal, ButtonClickEvent } from "@fider/components";
+import { actions, page, notify } from "@fider/services";
 
 interface DangerZoneProps {
   user: CurrentUser;
@@ -27,6 +28,16 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
     this.setState({ clicked: false });
   };
 
+  public onConfirm = async (e: ButtonClickEvent) => {
+    const response = await actions.deleteCurrentAccount();
+    if (response.ok) {
+      e.preventEnable();
+      page.goHome();
+    } else {
+      notify.error("Failed to delete your account. Try again later");
+    }
+  };
+
   public render() {
     return (
       <div className="l-danger-zone">
@@ -35,14 +46,14 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
           <Modal.Content>
             <p>
               When you choose to delete your account, we will erase all your personal information forever. The content
-              you have published, votes and comments will remain, but they will be anonymised.
+              you have published will remain, but it will be anonymised.
             </p>
             <p>
               This process is irreversible. <strong>Are you sure?</strong>
             </p>
           </Modal.Content>
           <Modal.Footer>
-            <Button color="danger" size="tiny">
+            <Button color="danger" size="tiny" onClick={this.onConfirm}>
               Confirm
             </Button>
             <Button size="tiny" onClick={this.onCancel}>
@@ -50,10 +61,11 @@ export class DangerZone extends React.Component<DangerZoneProps, DangerZoneState
             </Button>
           </Modal.Footer>
         </Modal.Window>
+
         <h4>Delete account</h4>
         <p className="info">
           When you choose to delete your account, we will erase all your personal information forever. The content you
-          have published, votes and comments will remain, but they will be anonymised.
+          have published will remain, but it will be anonymised.
         </p>
         <p className="info">This process is irreversible. Please be certain.</p>
         <Button color="danger" size="tiny" onClick={this.onClickDelete}>
