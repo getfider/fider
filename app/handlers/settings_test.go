@@ -13,6 +13,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 func TestSettingsHandler(t *testing.T) {
@@ -184,4 +185,21 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 
 	_, err = services.Users.GetByEmail("jon.stark@got.com")
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+}
+
+func TestDeleteUserHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	code, response := server.
+		AsUser(mock.JonSnow).
+		Execute(handlers.DeleteUser())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=; Path=/; Expires=")
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring("Max-Age=0; HttpOnly")
+
+	user, err := services.Users.GetByEmail("jon.snow@got.com")
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(user).IsNil()
 }

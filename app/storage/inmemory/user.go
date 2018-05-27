@@ -59,6 +59,7 @@ func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, 
 
 // Register creates a new user based on given information
 func (s *UserStorage) Register(user *models.User) error {
+	user.Status = models.UserActive
 	if user.ID == 0 {
 		s.lastID = s.lastID + 1
 		user.ID = s.lastID
@@ -139,4 +140,14 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 // HasSubscribedTo returns true if current user is receiving notification from specific idea
 func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
 	return false, nil
+}
+
+// Delete removes current user personal data and mark it as deleted
+func (s *UserStorage) Delete() error {
+	s.user.Name = ""
+	s.user.Email = ""
+	s.user.Role = models.RoleVisitor
+	s.user.Status = models.UserDeleted
+	s.user.Providers = make([]*models.UserProvider, 0)
+	return nil
 }

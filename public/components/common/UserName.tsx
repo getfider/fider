@@ -1,7 +1,7 @@
 import "./UserName.scss";
 
 import * as React from "react";
-import { User, UserRole } from "@fider/models";
+import { User, UserRole, CurrentUser } from "@fider/models";
 import { classSet } from "@fider/services";
 
 interface UserNameProps {
@@ -9,12 +9,10 @@ interface UserNameProps {
 }
 
 export const UserName = (props: UserNameProps) => {
-  const isCollaborator = props.user.role >= UserRole.Collaborator;
-
   const className = classSet({
     "c-username": true,
-    "m-staff": isCollaborator
+    "m-staff": props.user.role >= UserRole.Collaborator
   });
 
-  return <span className={className}>{props.user.name}</span>;
+  return <span className={className}>{props.user.name || "Anonymous"}</span>;
 };

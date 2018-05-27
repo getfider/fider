@@ -44,7 +44,15 @@ type User struct {
 	Tenant    *Tenant         `json:"-"`
 	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"-"`
+	Status    int             `json:"status"`
 }
+
+var (
+	//UserActive is the default status for users
+	UserActive = 1
+	//UserDeleted is used for users that chose to delete their accounts
+	UserDeleted = 2
+)
 
 //Role is the role of a user inside a tenant
 type Role int

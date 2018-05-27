@@ -109,3 +109,16 @@ func ChangeUserRole() web.HandlerFunc {
 		return c.Ok(web.Map{})
 	}
 }
+
+// DeleteUser erases current user personal data and sign them out
+func DeleteUser() web.HandlerFunc {
+	return func(c web.Context) error {
+		err := c.Services().Users.Delete()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.RemoveCookie(web.CookieAuthName)
+		return c.Ok(web.Map{})
+	}
+}

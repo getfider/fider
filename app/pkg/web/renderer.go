@@ -150,6 +150,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 			"name":            u.Name,
 			"email":           u.Email,
 			"role":            u.Role,
+			"status":          u.Status,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
 		}
