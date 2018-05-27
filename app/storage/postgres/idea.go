@@ -141,13 +141,13 @@ var (
 													agg_supporters AS (
 															SELECT 
 																	idea_id, 
-																	COUNT(*) as recent
+																	COUNT(CASE WHEN idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
+																	COUNT(*) as all
 															FROM idea_supporters 
 															INNER JOIN ideas
 															ON ideas.id = idea_supporters.idea_id
 															AND ideas.tenant_id = idea_supporters.tenant_id
 															WHERE ideas.tenant_id = $1
-															AND idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days' 
 															GROUP BY idea_id
 													)
 													SELECT i.id, 
@@ -156,7 +156,7 @@ var (
 																i.slug, 
 																i.description, 
 																i.created_on,
-																i.supporters,
+																COALESCE(agg_s.all, 0) as supporters,
 																COALESCE(agg_c.all, 0) as comments,
 																COALESCE(agg_s.recent, 0) AS recent_supporters,
 																COALESCE(agg_c.recent, 0) AS recent_comments,																
@@ -194,7 +194,7 @@ var (
 													LEFT JOIN agg_supporters agg_s
 													ON agg_s.idea_id = i.id
 													WHERE i.status != ` + strconv.Itoa(models.IdeaDeleted) + ` AND %s
-													GROUP BY i.id, u.id, r.id, d.id, agg_c.all, agg_c.recent, agg_s.recent`
+													GROUP BY i.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
 func (s *IdeaStorage) getIdeaQuery(filter string) string {
@@ -371,8 +371,8 @@ func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*mod
 func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, supporters, status) 
-		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0, 0) 
+		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, status) 
+		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0) 
 		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed add new idea")
@@ -456,19 +456,12 @@ func (s *IdeaStorage) AddSupporter(idea *models.Idea, user *models.User) error {
 		return nil
 	}
 
-	rows, err := s.trx.Execute(
+	_, err := s.trx.Execute(
 		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
 		s.tenant.ID, user.ID, idea.ID, time.Now())
 
 	if err != nil {
 		return errors.Wrap(err, "failed add supporter to idea")
-	}
-
-	if rows == 1 {
-		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters + 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed to increment idea's supporters count")
-		}
 	}
 
 	return s.internalAddSubscriber(idea, user, false)
@@ -480,17 +473,11 @@ func (s *IdeaStorage) RemoveSupporter(idea *models.Idea, user *models.User) erro
 		return nil
 	}
 
-	rows, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, idea.ID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, idea.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete idea supporter")
 	}
 
-	if rows == 1 {
-		_, err := s.trx.Execute(`UPDATE ideas SET supporters = supporters - 1 WHERE id = $1 AND tenant_id = $2`, idea.ID, s.tenant.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed to decrement idea's supporters count")
-		}
-	}
 	return err
 }
 

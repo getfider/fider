@@ -16,8 +16,8 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 0, 1)", now)
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, supporters, status) VALUES ('this is my idea', 'this-is-my-idea', 2, 'no description', $1, 1, 2, 5, 2)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('this is my idea', 'this-is-my-idea', 2, 'no description', $1, 1, 2, 2)", now)
 
 	ideas.SetCurrentTenant(demoTenant)
 
@@ -30,7 +30,7 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[0].Number).Equals(2)
 	Expect(dbIdeas[0].Description).Equals("no description")
 	Expect(dbIdeas[0].User.Name).Equals("Arya Stark")
-	Expect(dbIdeas[0].TotalSupporters).Equals(5)
+	Expect(dbIdeas[0].TotalSupporters).Equals(0)
 	Expect(dbIdeas[0].Status).Equals(models.IdeaCompleted)
 
 	Expect(dbIdeas[1].Title).Equals("add twitter integration")
