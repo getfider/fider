@@ -11,12 +11,11 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func newGetContext(params web.StringMap) *web.Context {
+func newGetContext(rawurl string) *web.Context {
 	e := web.New(nil)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/some/resource", nil)
-	req.Host = "demo.test.fider.io:3000"
-	ctx := e.NewContext(res, req, params)
+	req := httptest.NewRequest("GET", rawurl, nil)
+	ctx := e.NewContext(res, req, nil)
 	return &ctx
 }
 
@@ -33,7 +32,7 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 func TestContextID(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext(nil)
+	ctx := newGetContext("http://demo.test.fider.io:3000")
 
 	Expect(ctx.ContextID()).IsNotEmpty()
 	Expect(ctx.ContextID()).HasLen(32)
@@ -42,15 +41,41 @@ func TestContextID(t *testing.T) {
 func TestBaseURL(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext(nil)
+	ctx := newGetContext("http://demo.test.fider.io:3000")
 
 	Expect(ctx.BaseURL()).Equals("http://demo.test.fider.io:3000")
+}
+
+func TestBaseURL_HTTPS(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("https://demo.test.fider.io:3000")
+
+	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
+}
+
+func TestBaseURL_HTTPS_Proxy(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx.Request.Header.Add("X-Forwarded-Proto", "https")
+
+	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
+}
+
+func TestCurrentURL(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx.Request.RequestURI = "/resource?id=23"
+
+	Expect(ctx.CurrentURL()).Equals("http://demo.test.fider.io:3000/resource?id=23")
 }
 
 func TestTenantURL(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext(nil)
+	ctx := newGetContext("http://login.test.fider.io:3000")
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
@@ -61,7 +86,7 @@ func TestTenantURL(t *testing.T) {
 func TestTenantURL_WithCNAME(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext(nil)
+	ctx := newGetContext("http://demo.test.fider.io:3000")
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
@@ -70,14 +95,49 @@ func TestTenantURL_WithCNAME(t *testing.T) {
 	Expect(ctx.TenantBaseURL(tenant)).Equals("http://ideas.theavengers.com:3000")
 }
 
-func TestTenantURL_SingleTenantMode(t *testing.T) {
+func TestTenantURL_SingleHostMode(t *testing.T) {
 	RegisterT(t)
 	os.Setenv("HOST_MODE", "single")
 
-	ctx := newGetContext(nil)
+	ctx := newGetContext("http://demo.test.fider.io:3000")
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	}
 	Expect(ctx.TenantBaseURL(tenant)).Equals("http://demo.test.fider.io:3000")
+}
+
+func TestTenantURL_AssetsURL_SingleHostMode(t *testing.T) {
+	RegisterT(t)
+	defer func() {
+		os.Unsetenv("HOST_MODE")
+		os.Unsetenv("CDN_HOST")
+	}()
+
+	os.Setenv("HOST_MODE", "single")
+	ctx := newGetContext("http://demo.test.fider.io:3000")
+	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://demo.test.fider.io:3000/assets/main.js")
+	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://demo.test.fider.io:3000/assets/main.css")
+
+	os.Setenv("CDN_HOST", "assets-fider.io")
+	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
+	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
+}
+
+func TestTenantURL_AssetsURL_MultiHostMode(t *testing.T) {
+	RegisterT(t)
+	defer func() {
+		os.Unsetenv("HOST_MODE")
+		os.Unsetenv("CDN_HOST")
+	}()
+
+	os.Setenv("HOST_MODE", "multi")
+	ctx := newGetContext("http://theavengers.test.fider.io:3000")
+
+	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
+	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
+
+	os.Setenv("CDN_HOST", "assets-fider.io")
+	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://cdn.assets-fider.io/assets/main.js")
+	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://cdn.assets-fider.io/assets/main.css")
 }

@@ -3,6 +3,7 @@ package middlewares
 import (
 	"fmt"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -10,7 +11,13 @@ import (
 func Secure() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			c.Response.Header().Add("Content-Security-Policy", fmt.Sprintf(web.CspPolicyTemplate, c.ContextID()))
+			cdnHost := env.GetEnvOrDefault("CDN_HOST", "")
+			if cdnHost != "" {
+				cdnHost = "*." + cdnHost
+			}
+			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost)
+
+			c.Response.Header().Add("Content-Security-Policy", csp)
 			c.Response.Header().Add("X-XSS-Protection", "1; mode=block")
 			c.Response.Header().Add("X-Content-Type-Options", "nosniff")
 			c.Response.Header().Add("Referrer-Policy", "no-referrer-when-downgrade")
