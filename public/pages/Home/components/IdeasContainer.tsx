@@ -109,7 +109,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
       <>
         <div className="row">
           {!this.state.query && (
-            <div className="col-sm-7 col-md-8 col-lg-9 mb-2">
+            <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <IdeaFilter
                   activeFilter={this.state.filter}
@@ -124,7 +124,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
               </Field>
             </div>
           )}
-          <div className={!this.state.query ? `col-sm-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
+          <div className={!this.state.query ? `l-search-col col-sm-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
             <Input
               field="query"
               icon={this.state.query ? "cancel" : "search"}
