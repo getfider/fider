@@ -78,6 +78,14 @@ ${this.props.user.name} (${this.props.tenant.name})`,
     }
   };
 
+  private setSubject = (subject: string): void => {
+    this.setState({ subject });
+  };
+
+  private setMessage = (message: string): void => {
+    this.setState({ message });
+  };
+
   public content() {
     return (
       <Form error={this.state.error}>
@@ -99,13 +107,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
           </div>
         </TextArea>
 
-        <Input
-          field="subject"
-          label="Subject"
-          value={this.state.subject}
-          maxLength={70}
-          onChange={subject => this.setState({ subject })}
-        >
+        <Input field="subject" label="Subject" value={this.state.subject} maxLength={70} onChange={this.setSubject}>
           <p className="info">
             This is the subject that will be used on the invitation email. Keep it short and sweet.
           </p>
@@ -117,7 +119,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
           placeholder="william@example.com; michael@company.com"
           minRows={8}
           value={this.state.message}
-          onChange={message => this.setState({ message })}
+          onChange={this.setMessage}
         >
           <div className="info">
             <p>

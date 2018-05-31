@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field } from "@fider/components";
+import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
 import { Comment, Idea, IdeaStatus, User } from "@fider/models";
 import { IdeaSearch } from "../";
 
@@ -30,7 +30,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     };
   }
 
-  private async submit() {
+  private submit = async () => {
     const result = await actions.respond(this.props.idea.number, this.state);
     if (result.ok) {
       location.reload();
@@ -39,11 +39,33 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
         error: result.error
       });
     }
-  }
+  };
+
+  private showModal = async () => {
+    this.setState({ showModal: true });
+  };
+
+  private closeModal = async () => {
+    this.setState({ showModal: false });
+  };
+
+  private setStatus = (opt?: SelectOption) => {
+    if (opt) {
+      this.setState({ status: parseInt(opt.value, 10) });
+    }
+  };
+
+  private setOriginalNumber = (originalNumber: number) => {
+    this.setState({ originalNumber });
+  };
+
+  private setText = (text: string) => {
+    this.setState({ text });
+  };
 
   public render() {
     const button = (
-      <Button className="respond" fluid={true} onClick={async () => this.setState({ showModal: true })}>
+      <Button className="respond" fluid={true} onClick={this.showModal}>
         <i className="announcement icon" /> Respond
       </Button>
     );
@@ -62,15 +84,12 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
               label="Status"
               defaultValue={this.props.idea.status.toString()}
               options={options}
-              onChange={opt => opt && this.setState({ status: parseInt(opt.value, 10) })}
+              onChange={this.setStatus}
             />
             {this.state.status === IdeaStatus.Duplicate.value ? (
               <>
                 <Field>
-                  <IdeaSearch
-                    exclude={[this.props.idea.number]}
-                    onChanged={originalNumber => this.setState({ originalNumber })}
-                  />
+                  <IdeaSearch exclude={[this.props.idea.number]} onChanged={this.setOriginalNumber} />
                 </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
                 <span className="info">Votes from this idea will be merged into original idea.</span>
@@ -78,7 +97,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             ) : (
               <TextArea
                 field="text"
-                onChange={text => this.setState({ text })}
+                onChange={this.setText}
                 value={this.state.text}
                 minRows={5}
                 placeholder="What's going on with this idea? Let your users know what are your plans..."
@@ -88,10 +107,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="positive" onClick={() => this.submit()}>
+          <Button color="positive" onClick={this.submit}>
             Submit
           </Button>
-          <Button onClick={async () => this.setState({ showModal: false })}>Cancel</Button>
+          <Button onClick={this.closeModal}>Cancel</Button>
         </Modal.Footer>
       </Modal.Window>
     );

@@ -43,25 +43,25 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
     }
   }
 
-  private onTitleFocused() {
+  private handleTitleFocus = () => {
     if (!this.props.user && this.title) {
       this.title.blur();
       this.setState({ showSignIn: true });
     }
-  }
+  };
 
-  private onTitleChanged(title: string) {
+  private setTitle = (title: string) => {
     cache.set(CACHE_TITLE_KEY, title);
     this.setState({ title });
     this.props.onTitleChanged(title);
-  }
+  };
 
-  private onDescriptionChanged(description: string) {
+  private setDescription = (description: string) => {
     cache.set(CACHE_DESCRIPTION_KEY, description);
     this.setState({ description });
-  }
+  };
 
-  private async submit(event: ButtonClickEvent) {
+  private submit = async (event: ButtonClickEvent) => {
     if (this.state.title) {
       const result = await actions.createIdea(this.state.title, this.state.description);
       if (result.ok) {
@@ -73,19 +73,23 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
         this.setState({ error: result.error });
       }
     }
-  }
+  };
+
+  private setInputRef = (e: HTMLInputElement) => {
+    this.title = e;
+  };
 
   public render() {
     const details = (
       <>
         <TextArea
           field="description"
-          onChange={description => this.onDescriptionChanged(description)}
+          onChange={this.setDescription}
           value={this.state.description}
           minRows={5}
           placeholder="Describe your idea (optional)"
         />
-        <Button color="positive" onClick={e => this.submit(e)}>
+        <Button color="positive" onClick={this.submit}>
           Submit
         </Button>
       </>
@@ -97,11 +101,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
         <Form error={this.state.error}>
           <Input
             field="title"
-            inputRef={e => (this.title = e!)}
-            onFocus={() => this.onTitleFocused()}
+            inputRef={this.setInputRef}
+            onFocus={this.handleTitleFocus}
             maxLength={100}
             value={this.state.title}
-            onChange={title => this.onTitleChanged(title)}
+            onChange={this.setTitle}
             placeholder={this.props.placeholder}
           />
           {this.state.title && details}

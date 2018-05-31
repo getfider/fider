@@ -2,6 +2,7 @@ import * as React from "react";
 import { CurrentUser, Tag, Idea } from "@fider/models";
 import { actions } from "@fider/services";
 import { ShowTag, List, ListItem } from "@fider/components";
+import { TagListItem } from "./TagListItem";
 
 interface TagsPanelProps {
   user?: CurrentUser;
@@ -25,7 +26,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     };
   }
 
-  private async assignOrUnassignTag(tag: Tag) {
+  private assignOrUnassignTag = async (tag: Tag) => {
     const idx = this.state.assignedTags.indexOf(tag);
     let assignedTags: Tag[] = [];
     if (idx >= 0) {
@@ -43,7 +44,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     this.setState({
       assignedTags
     });
-  }
+  };
 
   private onSubtitleClick = () => {
     if (this.state.canEdit) {
@@ -72,11 +73,12 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     const editTagsList = this.props.tags.length > 0 && (
       <List className="c-tag-list">
         {this.props.tags.map(tag => (
-          <ListItem key={tag.id} onClick={async () => this.assignOrUnassignTag(tag)}>
-            <i className={`icon ${this.state.assignedTags.indexOf(tag) >= 0 && "check"}`} />
-            <ShowTag tag={tag} size="mini" circular={true} />
-            <span>{tag.name}</span>
-          </ListItem>
+          <TagListItem
+            key={tag.id}
+            tag={tag}
+            assigned={this.state.assignedTags.indexOf(tag) >= 0}
+            onClick={this.assignOrUnassignTag}
+          />
         ))}
       </List>
     );

@@ -37,6 +37,10 @@ export class SignInModal extends React.Component<SignInModalProps, SignInModalSt
     });
   }
 
+  private closeModal = () => {
+    this.setState({ isOpen: false, emailSent: false });
+  };
+
   public render() {
     const content = this.state.emailSent ? (
       <>
@@ -45,7 +49,7 @@ export class SignInModal extends React.Component<SignInModalProps, SignInModalSt
           in.
         </p>
         <p>
-          <a href="#" onClick={() => this.setState({ isOpen: false, emailSent: false })}>
+          <a href="#" onClick={this.closeModal}>
             OK
           </a>
         </p>
@@ -57,9 +61,7 @@ export class SignInModal extends React.Component<SignInModalProps, SignInModalSt
     return (
       <Modal.Window isOpen={this.state.isOpen}>
         <Modal.Header>Sign in to raise your voice</Modal.Header>
-
         <Modal.Content>{content}</Modal.Content>
-
         <LegalFooter />
       </Modal.Window>
     );

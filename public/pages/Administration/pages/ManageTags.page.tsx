@@ -2,7 +2,7 @@ import "./ManageTags.page.scss";
 
 import * as React from "react";
 import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem, Heading } from "@fider/components";
-import { AdminBasePage, TagForm, TagFormState } from "../components";
+import { AdminBasePage, TagForm, TagFormState, TagListItem } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
 import { actions, Failure } from "@fider/services";
@@ -43,7 +43,19 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     };
   }
 
-  private async saveNewTag(data: TagFormState): Promise<Failure | undefined> {
+  private addNew = async () => {
+    this.setState({
+      isAdding: true,
+      deleting: undefined,
+      editing: undefined
+    });
+  };
+
+  private cancelAdd = () => {
+    this.setState({ isAdding: false });
+  };
+
+  private saveNewTag = async (data: TagFormState): Promise<Failure | undefined> => {
     const result = await actions.createTag(data.name, data.color, data.isPublic);
     if (result.ok) {
       this.setState({
@@ -53,102 +65,31 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     } else {
       return result.error;
     }
-  }
+  };
 
-  private async updateTag(tag: Tag, data: TagFormState): Promise<Failure | undefined> {
-    const result = await actions.updateTag(tag.slug, data.name, data.color, data.isPublic);
-    if (result.ok) {
-      tag.name = result.data.name;
-      tag.slug = result.data.slug;
-      tag.color = result.data.color;
-      tag.isPublic = result.data.isPublic;
-      this.setState({
-        editing: undefined,
-        allTags: this.state.allTags.sort(tagSorter)
-      });
-    } else {
-      return result.error;
-    }
-  }
-
-  private async deleteTag(tag: Tag) {
-    const result = await actions.deleteTag(tag.slug);
+  private handleTagDeleted = (tag: Tag) => {
     const idx = this.state.allTags.indexOf(tag);
-    if (result.ok) {
-      this.setState({
-        deleting: undefined,
-        allTags: this.state.allTags.splice(idx, 1) && this.state.allTags
-      });
-    }
-  }
+    this.setState({
+      allTags: this.state.allTags.splice(idx, 1) && this.state.allTags
+    });
+  };
+
+  private handleTagEditted = (tag: Tag) => {
+    this.setState({
+      allTags: this.state.allTags.sort(tagSorter)
+    });
+  };
 
   private getTagList(filter: (tag: Tag) => boolean) {
     return this.state.allTags.filter(filter).map(t => {
-      if (this.state.editing === t.id) {
-        return (
-          <ListItem key={t.id}>
-            <TagForm
-              name={t.name}
-              color={t.color}
-              isPublic={t.isPublic}
-              onSave={async data => this.updateTag(t, data)}
-              onCancel={() => this.setState({ editing: undefined })}
-            />
-          </ListItem>
-        );
-      }
-
-      if (this.state.deleting === t.id) {
-        return (
-          <ListItem key={t.id}>
-            <div className="content">
-              <b>Are you sure?</b>{" "}
-              <span>
-                The tag <ShowTag tag={t} /> will be removed from all ideas.
-              </span>
-            </div>
-            <Button className="right" onClick={async () => this.setState({ deleting: undefined })}>
-              Cancel
-            </Button>
-            <Button color="danger" className="right" onClick={() => this.deleteTag(t)}>
-              Delete tag
-            </Button>
-          </ListItem>
-        );
-      }
-
       return (
-        <ListItem key={t.id}>
-          <ShowTag tag={t} />
-          {this.props.user.isAdministrator && [
-            <Button
-              key={0}
-              onClick={async () =>
-                this.setState({
-                  isAdding: false,
-                  editing: undefined,
-                  deleting: t.id
-                })
-              }
-              className="right"
-            >
-              <i className="remove icon" />Remove
-            </Button>,
-            <Button
-              key={1}
-              onClick={async () =>
-                this.setState({
-                  isAdding: false,
-                  editing: t.id,
-                  deleting: undefined
-                })
-              }
-              className="right"
-            >
-              <i className="edit icon" />Edit
-            </Button>
-          ]}
-        </ListItem>
+        <TagListItem
+          key={t.id}
+          tag={t}
+          user={this.props.user}
+          onTagDeleted={this.handleTagDeleted}
+          onTagEditted={this.handleTagEditted}
+        />
       );
     });
   }
@@ -161,19 +102,10 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
       this.props.user.isAdministrator &&
       (this.state.isAdding ? (
         <Segment>
-          <TagForm onSave={async data => this.saveNewTag(data)} onCancel={() => this.setState({ isAdding: false })} />
+          <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />
         </Segment>
       ) : (
-        <Button
-          color="positive"
-          onClick={async e =>
-            this.setState({
-              isAdding: true,
-              deleting: undefined,
-              editing: undefined
-            })
-          }
-        >
+        <Button color="positive" onClick={this.addNew}>
           Add new
         </Button>
       ));

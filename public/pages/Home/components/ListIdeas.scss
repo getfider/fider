@@ -19,6 +19,10 @@
     .c-list-item-content {
       width: calc(100% - 55px);
       display: block;
+
+      .c-tag {
+        margin: 0 3px 3px 0;
+      }
     }
     
     .c-list-item-description {
