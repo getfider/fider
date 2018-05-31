@@ -145,7 +145,9 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	} else {
 		ctx.Logger().Debugf("Current tenant: nil")
 	}
-	ctx.Services().SetCurrentTenant(tenant)
+	if ctx.Services() != nil {
+		ctx.Services().SetCurrentTenant(tenant)
+	}
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -296,13 +298,19 @@ func (ctx *Context) SetUser(user *models.User) {
 	} else {
 		ctx.Logger().Debugf("Logged as: nil")
 	}
+	if ctx.Services() != nil {
+		ctx.Services().SetCurrentUser(user)
+	}
 	ctx.Set(userContextKey, user)
-	ctx.Services().SetCurrentUser(user)
 }
 
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
-	return ctx.Get(servicesContextKey).(*app.Services)
+	svc, ok := ctx.Get(servicesContextKey).(*app.Services)
+	if ok {
+		return svc
+	}
+	return nil
 }
 
 //AddAuthCookie generates and adds a cookie
@@ -481,4 +489,23 @@ func (ctx *Context) Redirect(url string) error {
 	ctx.Response.Header().Set("Location", url)
 	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
+}
+
+// AssetsURL return the full URL to the static asset by given path
+func (ctx *Context) AssetsURL(path string) string {
+	if env.IsDefined("CDN_HOST") {
+		if env.IsSingleHostMode() {
+			return ctx.protocol() + env.MustGet("CDN_HOST") + path
+		}
+		return ctx.protocol() + "cdn." + env.MustGet("CDN_HOST") + path
+	}
+	return ctx.BaseURL() + path
+}
+
+func (ctx *Context) protocol() string {
+	protocol := "http://"
+	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
+		protocol = "https://"
+	}
+	return protocol
 }
