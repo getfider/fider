@@ -6,6 +6,14 @@
     margin-bottom: 20px;
   }
 
+  .l-filter-col {
+    display: flex;
+    align-items: center;
+    @include media(">=md") {
+      padding-left: 65px;
+    }
+  }
+
   .l-ideas-filter {
     .counter {
       font-size: 8px;
@@ -41,14 +49,12 @@
   }
 
   #input-title {
-    margin-bottom: 20px;
     border: none;
     border-bottom: 1px  dashed $gray-darker;
     background-color: transparent;
-    font-size: 18px;
-    padding: 0px 0px 10px 0px;
+    font-size: $font-size-big;
+    padding: 0px 0px 5px 0px;
     font-weight: 600;
-    margin: 0px 0px 10px 0px;
     border-radius: 0;
   }
 }

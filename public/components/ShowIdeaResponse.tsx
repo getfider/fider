@@ -46,10 +46,7 @@ export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
     return (
       <Segment className="l-response">
         <ShowIdeaStatus status={status} />
-        <Gravatar user={props.response.user} /> <UserName user={props.response.user} />
-        <span className="info">
-          <Moment date={props.response.respondedOn} />
-        </span>
+        <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
         {status === IdeaStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </Segment>
     );
