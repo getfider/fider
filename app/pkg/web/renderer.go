@@ -28,11 +28,12 @@ var templateFunctions = template.FuncMap{
 
 //Renderer is the default HTML Render
 type Renderer struct {
-	templates map[string]*template.Template
-	logger    log.Logger
-	settings  *models.SystemSettings
-	jsBundle  string
-	cssBundle string
+	templates    map[string]*template.Template
+	logger       log.Logger
+	settings     *models.SystemSettings
+	jsBundle     string
+	vendorBundle string
+	cssBundle    string
 }
 
 // NewRenderer creates a new Renderer
@@ -51,8 +52,9 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 	r.add("410.html")
 	r.add("500.html")
 
-	r.jsBundle = r.getBundle("/dist/js")
-	r.cssBundle = r.getBundle("/dist/css")
+	r.jsBundle = r.getBundle("/dist/js", "main")
+	r.vendorBundle = r.getBundle("/dist/js", "vendor")
+	r.cssBundle = r.getBundle("/dist/css", "main")
 
 	return r
 }
@@ -70,15 +72,20 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) getBundle(folder string) string {
+func (r *Renderer) getBundle(folder, prefix string) string {
 	files, _ := ioutil.ReadDir(env.Path(folder))
 	if len(files) > 0 {
-		return files[0].Name()
+		for _, file := range files {
+			fileName := file.Name()
+			if strings.HasPrefix(fileName, prefix) {
+				return fileName
+			}
+		}
 	}
 
 	// Panic if bundle is not available in production mode
 	if env.IsProduction() {
-		panic(fmt.Sprintf("Bundle not found: %s.", folder))
+		panic(fmt.Sprintf("Bundle not found: %s/%s.", folder, prefix))
 	}
 
 	return ""
@@ -93,8 +100,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	if env.IsDevelopment() {
 		tmpl = r.add(name)
-		r.jsBundle = r.getBundle("/dist/js")
-		r.cssBundle = r.getBundle("/dist/css")
+		r.jsBundle = r.getBundle("/dist/js", "main")
+		r.vendorBundle = r.getBundle("/dist/js", "vendor")
+		r.cssBundle = r.getBundle("/dist/css", "main")
 	}
 
 	m := props.Data
@@ -119,8 +127,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__Description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	m["__JavaScriptBundle"] = r.jsBundle
-	m["__StyleBundle"] = r.cssBundle
+	m["__VendorBundle"] = "/assets/js/" + r.vendorBundle
+	m["__JavaScriptBundle"] = "/assets/js/" + r.jsBundle
+	m["__StyleBundle"] = "/assets/css/" + r.cssBundle
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		m["__logo"] = fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)

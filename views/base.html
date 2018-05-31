@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
-    <link rel="stylesheet" href="/assets/css/{{ .__StyleBundle }}" />
+    <link rel="stylesheet" href="{{ .__StyleBundle }}" />
     <title>{{ .__Title }}</title>
     <meta name="description" content="{{ .__Description }}" />
     <meta property="og:title" content="{{ .__Title }}" />
@@ -43,7 +43,8 @@
   {{template "content" .}}
 
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch"></script>
-  <script src="/assets/js/{{ .__JavaScriptBundle }}"></script>
+  <script src="{{ .__VendorBundle }}"></script>
+  <script src="{{ .__JavaScriptBundle }}"></script>
   <script type="text/javascript" nonce="{{ .__ContextID }}">
     {{template "javascript" .}}
   </script>
