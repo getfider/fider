@@ -64,7 +64,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
 
   public render() {
     if (this.props.ideas.length === 0) {
-      return <p>{this.props.emptyText}</p>;
+      return <p className="center">{this.props.emptyText}</p>;
     }
 
     const ideasToList = this.props.ideas.slice(0, this.state.showCount);
