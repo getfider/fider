@@ -324,7 +324,7 @@ func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 
 //AddCookie adds a cookie
 func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	ctx.SetCookie(&http.Cookie{
+	http.SetCookie(ctx.Response, &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
@@ -335,7 +335,7 @@ func (ctx *Context) AddCookie(name, value string, expires time.Time) {
 
 //RemoveCookie removes a cookie
 func (ctx *Context) RemoveCookie(name string) {
-	ctx.SetCookie(&http.Cookie{
+	http.SetCookie(ctx.Response, &http.Cookie{
 		Name:     name,
 		Path:     "/",
 		HttpOnly: true,
@@ -483,11 +483,6 @@ func (ctx *Context) Blob(code int, contentType string, b []byte) error {
 // Cookie returns the named cookie provided in the request.
 func (ctx *Context) Cookie(name string) (*http.Cookie, error) {
 	return ctx.Request.Cookie(name)
-}
-
-// SetCookie adds a `Set-Cookie` header in HTTP response.
-func (ctx *Context) SetCookie(cookie *http.Cookie) {
-	http.SetCookie(ctx.Response, cookie)
 }
 
 // NoContent sends a response with no body and a status code.
