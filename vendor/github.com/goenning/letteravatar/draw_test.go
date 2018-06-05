@@ -55,6 +55,14 @@ func TestExtract(t *testing.T) {
 			input:    "AryaStark",
 			expected: "AS",
 		},
+		{
+			input:    "Jon (Snow)",
+			expected: "J",
+		},
+		{
+			input:    "Jon Wallet (JS)",
+			expected: "JW",
+		},
 	}
 
 	for _, testCase := range testCases {
