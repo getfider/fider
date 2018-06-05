@@ -41,10 +41,6 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     };
   }
 
-  private setTitle = (title: string) => {
-    this.setState({ title });
-  };
-
   private isLonely(): boolean {
     const len = Object.keys(this.props.countPerStatus).length;
     if (len === 0) {
