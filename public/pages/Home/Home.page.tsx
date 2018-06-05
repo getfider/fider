@@ -41,6 +41,23 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     };
   }
 
+  private setTitle = (title: string) => {
+    this.setState({ title });
+  };
+
+  private isLonely(): boolean {
+    const len = Object.keys(this.props.countPerStatus).length;
+    if (len === 0) {
+      return true;
+    }
+
+    if (len === 1 && IdeaStatus.Deleted.value in this.props.countPerStatus) {
+      return true;
+    }
+
+    return false;
+  }
+
   public render() {
     return (
       <div id="p-home" className="page container">
@@ -58,7 +75,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
             />
           </div>
           <div className="col-md-8">
-            {Object.keys(this.props.countPerStatus).length === 0 ? (
+            {this.isLonely() ? (
               <Lonely />
             ) : (
               <IdeasContainer

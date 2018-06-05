@@ -32,6 +32,7 @@ export class IdeaStatus {
   public static Completed = new IdeaStatus(2, "Completed", "completed", true, true, true);
   public static Declined = new IdeaStatus(3, "Declined", "declined", true, true, true);
   public static Duplicate = new IdeaStatus(5, "Duplicate", "duplicate", true, true, false);
+  public static Deleted = new IdeaStatus(6, "Deleted", "deleted", false, true, false);
 
   public static Get(value: number): IdeaStatus {
     for (const status of IdeaStatus.All) {
