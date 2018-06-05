@@ -44,15 +44,26 @@ func Extract(name string) string {
 	}
 
 	if len(slices) >= 2 {
-		return strings.ToUpper(first(slices[0]) + first(slices[len(slices)-1]))
+		firstletter := first(slices[0])
+		secondLetter := ""
+		for i := len(slices) - 1; i > 0; i-- {
+			secondLetter = first(slices[i])
+			if secondLetter != "" {
+				break
+			}
+		}
+		return strings.ToUpper(firstletter + secondLetter)
 	}
 
 	return strings.ToUpper(first(name))
 }
 
 func first(s string) string {
-	firstLetter, _ := utf8.DecodeRuneInString(s)
-	return string(firstLetter)
+	firstRune, _ := utf8.DecodeRuneInString(s)
+	if unicode.IsLetter(firstRune) || unicode.IsNumber(firstRune) {
+		return string(firstRune)
+	}
+	return ""
 }
 
 func splitBySpace(src string) (entries []string) {

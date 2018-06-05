@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/goenning/letteravatar"
   packages = ["."]
-  revision = "2e66c7ba1cecb2fa416c0e9ba5f653865ec32efd"
+  revision = "553181ed4055278e356ce21812adb34ae487f88e"
 
 [[projects]]
   branch = "master"
@@ -93,7 +93,9 @@
   branch = "master"
   name = "golang.org/x/image"
   packages = [
+    "draw",
     "font",
+    "math/f64",
     "math/fixed"
   ]
   revision = "e20db36d77bd0cb36cea8fe49d5c37d82d21591f"
@@ -141,6 +143,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "be567a190b4ce44785a0c4d0c9603f516899871239d10f33e55d1e11213ce46b"
+  inputs-digest = "fe191ecdac4785a24586c7888998a42fc460ba4753eba2480190042d6cf3014d"
   solver-name = "gps-cdcl"
   solver-version = 1
