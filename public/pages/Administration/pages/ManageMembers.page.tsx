@@ -4,8 +4,7 @@ import * as React from "react";
 import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
 import { actions } from "@fider/services";
-import { AdminBasePage } from "../components";
-import { Divider } from "semantic-ui-react";
+import { AdminBasePage, UserListItem } from "../components";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -34,14 +33,6 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     this.state = this.groupUsers();
   }
 
-  private async changeRole(user: User, role: UserRole): Promise<any> {
-    const response = await actions.changeUserRole(user.id, role);
-    if (response.ok) {
-      user.role = role;
-      this.setState(this.groupUsers());
-    }
-  }
-
   private groupUsers(): ManageMembersPageState {
     const usersByRole = this.props.users.reduce<{ [key: number]: User[] }>((groups, x) => {
       groups[x.role] = [x].concat(groups[x.role] || []);
@@ -59,33 +50,24 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     };
   }
 
+  private onRoleChanged = () => {
+    this.setState(this.groupUsers());
+  };
+
   private showUser(user: User, role: UserRole, addable: boolean, removable: boolean) {
     if (user.id === this.props.user.id || this.props.user.role !== UserRole.Administrator) {
       removable = false;
     }
 
     return (
-      <ListItem>
-        <Gravatar user={user} />
-        <div className="content">
-          <UserName user={user} />
-        </div>
-        {removable && (
-          <Button
-            size="tiny"
-            color="danger"
-            onClick={() => this.changeRole(user, UserRole.Visitor)}
-            className="right showover"
-          >
-            <i className="remove icon" />Remove
-          </Button>
-        )}
-        {addable && (
-          <Button size="tiny" color="positive" onClick={() => this.changeRole(user, role)} className="right showover">
-            <i className="add icon" />Add
-          </Button>
-        )}
-      </ListItem>
+      <UserListItem
+        key={user.id}
+        role={role}
+        user={user}
+        addable={addable}
+        removable={removable}
+        onChange={this.onRoleChanged}
+      />
     );
   }
 
@@ -108,6 +90,15 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     }
   }
 
+  private handleSearch = {
+    administrator: (query: string) => {
+      this.filterVisitors("administrator", query);
+    },
+    collaborator: (query: string) => {
+      this.filterVisitors("collaborator", query);
+    }
+  };
+
   public content() {
     return (
       <div className="row">
@@ -126,7 +117,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                   label="Add new administrator"
                   field="new-administrator"
                   value={this.state.newAdministratorFilter}
-                  onChange={x => this.filterVisitors("administrator", x)}
+                  onChange={this.handleSearch.administrator}
                   placeholder="Search users by name"
                 />
                 <List hover={true}>
@@ -152,7 +143,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                   label="Add new collaborator"
                   field="new-collaborator"
                   value={this.state.newCollaboratorFilter}
-                  onChange={x => this.filterVisitors("collaborator", x)}
+                  onChange={this.handleSearch.collaborator}
                   placeholder="Search users by name"
                 />
                 <List hover={true}>

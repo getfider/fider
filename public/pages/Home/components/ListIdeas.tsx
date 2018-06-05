@@ -55,12 +55,12 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
     };
   }
 
-  private showMore(event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void {
+  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
     event.preventDefault();
     this.setState({
       showCount: this.state.showCount + defaultShowCount
     });
-  }
+  };
 
   public render() {
     if (this.props.ideas.length === 0) {
@@ -79,7 +79,7 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
           />
         ))}
         {this.props.ideas.length > this.state.showCount && (
-          <h5 className="c-idea-list-show-more" onTouchEnd={e => this.showMore(e)} onClick={e => this.showMore(e)}>
+          <h5 className="c-idea-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
             View {this.props.ideas.length - this.state.showCount} more ideas
           </h5>
         )}

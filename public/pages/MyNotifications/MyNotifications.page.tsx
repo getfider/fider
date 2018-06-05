@@ -48,12 +48,12 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
     });
   }
 
-  private async markAllAsRead(): Promise<void> {
+  private markAllAsRead = async () => {
     const response = await actions.markAllAsRead();
     if (response.ok) {
       page.refresh();
     }
-  }
+  };
 
   public render() {
     return (
@@ -63,7 +63,7 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
         <h4>
           Unread
           {this.state.unread.length > 0 && (
-            <span className="mark-as-read" onClick={() => this.markAllAsRead()}>
+            <span className="mark-as-read" onClick={this.markAllAsRead}>
               Mark All as Read
             </span>
           )}

@@ -1,7 +1,17 @@
 import "./TagForm.scss";
 
 import * as React from "react";
-import { Button, Input, ButtonClickEvent, ShowTag, DisplayError, Form, RadioButton, Field } from "@fider/components";
+import {
+  Button,
+  Input,
+  ButtonClickEvent,
+  ShowTag,
+  DisplayError,
+  Form,
+  RadioButton,
+  Field,
+  SelectOption
+} from "@fider/components";
 import { Tag } from "@fider/models";
 import { Failure } from "@fider/services";
 
@@ -27,13 +37,13 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
   constructor(props: TagFormProps) {
     super(props);
     this.state = {
-      color: props.color || this.randomizeColor(),
+      color: props.color || this.getRandomColor(),
       name: props.name || "",
       isPublic: props.isPublic || false
     };
   }
 
-  private randomizeColor(): string {
+  private getRandomColor(): string {
     const letters = "0123456789ABCDEF";
     let color = "";
     for (let i = 0; i < 6; i++) {
@@ -42,16 +52,36 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
     return color;
   }
 
-  private async onSave(e: ButtonClickEvent) {
+  private handleSave = async () => {
     const error = await this.props.onSave(this.state);
     if (error) {
       this.setState({ error });
     }
-  }
+  };
+
+  private handleCancel = async () => {
+    this.props.onCancel();
+  };
+
+  private setName = (name: string) => {
+    this.setState({ name });
+  };
+
+  private setColor = (color: string) => {
+    this.setState({ color });
+  };
+
+  private setVisibility = (option: SelectOption) => {
+    this.setState({ isPublic: option === this.visibilityPublic });
+  };
+
+  private randomize = () => {
+    this.setColor(this.getRandomColor());
+  };
 
   public render() {
     const randomizer = (
-      <span className="info clickable" onClick={() => this.setState({ color: this.randomizeColor() })}>
+      <span className="info clickable" onClick={this.randomize}>
         randomize
       </span>
     );
@@ -60,7 +90,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
       <Form error={this.state.error}>
         <div className="row">
           <div className="col-lg-3">
-            <Input field="name" label="Name" value={this.state.name} onChange={name => this.setState({ name })} />
+            <Input field="name" label="Name" value={this.state.name} onChange={this.setName} />
           </div>
           <div className="col-lg-2">
             <Input
@@ -68,7 +98,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
               label="Color"
               afterLabel={randomizer}
               value={this.state.color}
-              onChange={color => this.setState({ color })}
+              onChange={this.setColor}
             />
           </div>
           <div className="col-lg-2">
@@ -77,7 +107,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
               field="visibility"
               defaultOption={this.state.isPublic ? this.visibilityPublic : this.visibilityPrivate}
               options={[this.visibilityPublic, this.visibilityPrivate]}
-              onSelect={opt => this.setState({ isPublic: opt === this.visibilityPublic })}
+              onSelect={this.setVisibility}
             />
           </div>
           <div className="col-lg-5">
@@ -94,10 +124,10 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
             </Field>
           </div>
         </div>
-        <Button color="positive" onClick={e => this.onSave(e)}>
+        <Button color="positive" onClick={this.handleSave}>
           Save
         </Button>
-        <Button onClick={async () => this.props.onCancel()}>Cancel</Button>
+        <Button onClick={this.handleCancel}>Cancel</Button>
       </Form>
     );
   }

@@ -26,7 +26,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     };
   }
 
-  public async supportOrUndo() {
+  private supportOrUndo = async () => {
     if (!this.props.user) {
       this.setState({ showSignIn: true });
       return;
@@ -41,7 +41,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
         total: state.total + (state.supported ? -1 : 1)
       }));
     }
-  }
+  };
 
   public render() {
     const status = IdeaStatus.Get(this.props.idea.status);
@@ -53,7 +53,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
     });
 
     const vote = (
-      <button className={className} onClick={async () => await this.supportOrUndo()}>
+      <button className={className} onClick={this.supportOrUndo}>
         <i className="medium caret up icon" />
         {this.state.total}
       </button>

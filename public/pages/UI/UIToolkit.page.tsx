@@ -19,7 +19,8 @@ import {
   TextArea,
   RadioButton,
   Select,
-  SocialSignInButton
+  SocialSignInButton,
+  SelectOption
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
@@ -53,6 +54,33 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     super(props);
     this.state = {};
   }
+
+  private notifyError = async () => {
+    notify.error("Something went wrong...");
+  };
+
+  private notifySuccess = async () => {
+    notify.success("Congratulations! It worked!");
+  };
+
+  private notifyStatusChange = (opt?: SelectOption) => {
+    if (opt) {
+      notify.success(opt.value);
+    }
+  };
+
+  private forceError = async () => {
+    this.setState({
+      error: {
+        messages: [],
+        failures: {
+          title: ["Title is mandatory"],
+          description: ["Error #1", "Error #2"],
+          status: ["Status is mandatory"]
+        }
+      }
+    });
+  };
 
   public render() {
     return (
@@ -259,8 +287,8 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Notification</h1>
         <List>
           <ListItem>
-            <Button onClick={async () => notify.success("Congratulations! It worked!")}>Success</Button>
-            <Button onClick={async () => notify.error("Something went wrong...")}>Error</Button>
+            <Button onClick={this.notifySuccess}>Success</Button>
+            <Button onClick={this.notifyError}>Error</Button>
           </ListItem>
         </List>
 
@@ -322,25 +350,10 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
               { value: "started", label: "Started" },
               { value: "planned", label: "Planned" }
             ]}
-            onChange={opt => opt && notify.success(opt.value)}
+            onChange={this.notifyStatusChange}
           />
 
-          <Button
-            onClick={async e =>
-              this.setState({
-                error: {
-                  messages: [],
-                  failures: {
-                    title: ["Title is mandatory"],
-                    description: ["Error #1", "Error #2"],
-                    status: ["Status is mandatory"]
-                  }
-                }
-              })
-            }
-          >
-            Save
-          </Button>
+          <Button onClick={this.forceError}>Save</Button>
         </Form>
 
         <Segment>

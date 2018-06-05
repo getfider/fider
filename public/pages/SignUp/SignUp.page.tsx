@@ -56,7 +56,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     }
   }
 
-  private async confirm() {
+  private confirm = async () => {
     const result = await actions.createTenant({
       token: this.user && this.user.token,
       legalAgreement: this.state.legalAgreement,
@@ -84,9 +84,9 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
     } else if (result.error) {
       this.setState({ error: result.error, submitted: false });
     }
-  }
+  };
 
-  private async checkAvailability(subdomain: string) {
+  private checkAvailability = async (subdomain: string) => {
     const result = await actions.checkAvailability(subdomain);
 
     this.setState({
@@ -96,10 +96,22 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         message: result.data.message
       }
     });
-  }
+  };
 
   private onAgree = (agreed: boolean): void => {
     this.setState({ legalAgreement: agreed });
+  };
+
+  private setName = (name: string): void => {
+    this.setState({ name });
+  };
+
+  private setEmail = (email: string): void => {
+    this.setState({ email });
+  };
+
+  private setTenantName = (tenantName: string): void => {
+    this.setState({ tenantName });
   };
 
   public render() {
@@ -132,8 +144,8 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
             <p>We need to identify you to setup your new Fider account.</p>
             <SignInControl useEmail={false} />
             <Form error={this.state.error}>
-              <Input field="name" maxLength={100} onChange={name => this.setState({ name })} placeholder="Name" />
-              <Input field="email" maxLength={200} onChange={email => this.setState({ email })} placeholder="Email" />
+              <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
+              <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
             </Form>
           </>
         )}
@@ -144,14 +156,14 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
           <Input
             field="tenantName"
             maxLength={60}
-            onChange={tenantName => this.setState({ tenantName })}
+            onChange={this.setTenantName}
             placeholder="your company or product name"
           />
           {!page.isSingleHostMode() && (
             <Input
               field="subdomain"
               maxLength={40}
-              onChange={subdomain => this.checkAvailability(subdomain)}
+              onChange={this.checkAvailability}
               placeholder="subdomain"
               suffix={this.props.system.domain}
             >
@@ -169,7 +181,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
           <LegalAgreement onChange={this.onAgree} />
         </Form>
 
-        <Button color="positive" size="large" onClick={() => this.confirm()}>
+        <Button color="positive" size="large" onClick={this.confirm}>
           Confirm
         </Button>
       </div>

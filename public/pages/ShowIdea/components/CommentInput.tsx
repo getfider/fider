@@ -41,14 +41,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     this.setState({ content });
   };
 
-  private onTextFocused() {
-    if (!this.props.user) {
-      this.input.blur();
-      this.setState({ showSignIn: true });
-    }
-  }
-
-  public async submit() {
+  public submit = async () => {
     this.setState({
       error: undefined
     });
@@ -62,7 +55,18 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         error: result.error
       });
     }
-  }
+  };
+
+  private handleOnFocus = () => {
+    if (!this.props.user) {
+      this.input.blur();
+      this.setState({ showSignIn: true });
+    }
+  };
+
+  private setInputRef = (e: HTMLTextAreaElement) => {
+    this.input = e;
+  };
 
   public render() {
     return (
@@ -78,11 +82,11 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               value={this.state.content}
               minRows={1}
               onChange={this.commentChanged}
-              onFocus={() => this.onTextFocused()}
-              inputRef={e => (this.input = e!)}
+              onFocus={this.handleOnFocus}
+              inputRef={this.setInputRef}
             />
             {this.state.content && (
-              <Button color="positive" onClick={() => this.submit()}>
+              <Button color="positive" onClick={this.submit}>
                 Submit
               </Button>
             )}

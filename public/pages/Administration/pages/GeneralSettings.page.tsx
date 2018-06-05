@@ -49,7 +49,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     };
   }
 
-  private async save(e: ButtonClickEvent) {
+  private handleSave = async (e: ButtonClickEvent) => {
     const result = await actions.updateTenantSettings(this.state);
     if (result.ok) {
       e.preventEnable();
@@ -57,7 +57,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     } else if (result.error) {
       this.setState({ error: result.error });
     }
-  }
+  };
 
   public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -104,6 +104,22 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     );
   }
 
+  private setTitle = (title: string): void => {
+    this.setState({ title });
+  };
+
+  private setWelcomeMessage = (welcomeMessage: string): void => {
+    this.setState({ welcomeMessage });
+  };
+
+  private setInvitation = (invitation: string): void => {
+    this.setState({ invitation });
+  };
+
+  private setCNAME = (cname: string): void => {
+    this.setState({ cname });
+  };
+
   public content() {
     const isRemoving = this.state.logo ? this.state.logo.remove : false;
     const isUploading = this.state.logo ? !!this.state.logo.upload : false;
@@ -121,14 +137,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           maxLength={60}
           value={this.state.title}
           disabled={!this.props.user.isAdministrator}
-          onChange={title => this.setState({ title })}
+          onChange={this.setTitle}
         />
         <TextArea
           field="welcomeMessage"
           label="Welcome Message"
           value={this.state.welcomeMessage}
           disabled={!this.props.user.isAdministrator}
-          onChange={welcomeMessage => this.setState({ welcomeMessage })}
+          onChange={this.setWelcomeMessage}
         />
         <Input
           field="invitation"
@@ -136,7 +152,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           maxLength={60}
           value={this.state.invitation}
           disabled={!this.props.user.isAdministrator}
-          onChange={invitation => this.setState({ invitation })}
+          onChange={this.setInvitation}
         />
 
         <Field label="Logo" className="c-logo-upload">
@@ -167,7 +183,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             placeholder="feedback.yourcompany.com"
             value={this.state.cname}
             disabled={!this.props.user.isAdministrator}
-            onChange={cname => this.setState({ cname })}
+            onChange={this.setCNAME}
           >
             <div className="info">
               {this.state.cname ? (
@@ -190,8 +206,8 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         )}
 
         <div className="field">
-          <Button disabled={!this.props.user.isAdministrator} color="positive" onClick={async e => await this.save(e)}>
-            Save
+          <Button disabled={!this.props.user.isAdministrator} color="positive" onClick={this.handleSave}>
+            Save changes
           </Button>
         </div>
       </Form>

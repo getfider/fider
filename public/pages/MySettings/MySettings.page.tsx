@@ -56,9 +56,37 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
     }
   };
 
+  private startChangeEmail = () => {
+    this.setState({ changingEmail: true });
+  };
+
+  private cancelChangeEmail = async () => {
+    this.setState({
+      changingEmail: false,
+      newEmail: "",
+      error: undefined
+    });
+  };
+
+  private setName = (name: string) => {
+    this.setState({ name });
+  };
+
+  private setNotificationSettings = (settings: UserSettings) => {
+    this.setState({ settings });
+  };
+
+  private closeModal = () => {
+    this.setState({ showModal: false });
+  };
+
+  private setNewEmail = (newEmail: string) => {
+    this.setState({ newEmail });
+  };
+
   public render() {
     const changeEmail = (
-      <span className="ui info clickable" onClick={() => this.setState({ changingEmail: true })}>
+      <span className="ui info clickable" onClick={this.startChangeEmail}>
         change
       </span>
     );
@@ -74,7 +102,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                 your email.
               </p>
               <p>
-                <a href="#" onClick={() => this.setState({ showModal: false })}>
+                <a href="#" onClick={this.closeModal}>
                   OK
                 </a>
               </p>
@@ -110,7 +138,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                 maxLength={200}
                 disabled={!this.state.changingEmail}
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
-                onChange={newEmail => this.setState({ newEmail })}
+                onChange={this.setNewEmail}
               >
                 <p className="info">
                   {this.props.user.email || this.state.changingEmail
@@ -122,34 +150,19 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
                       Confirm
                     </Button>
-                    <Button
-                      size="mini"
-                      onClick={async () =>
-                        this.setState({
-                          changingEmail: false,
-                          newEmail: "",
-                          error: undefined
-                        })
-                      }
-                    >
+                    <Button size="mini" onClick={this.cancelChangeEmail}>
                       Cancel
                     </Button>
                   </>
                 )}
               </Input>
 
-              <Input
-                label="Name"
-                field="name"
-                value={this.state.name}
-                maxLength={100}
-                onChange={name => this.setState({ name })}
-              />
+              <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <NotificationSettings
                 user={this.props.user}
                 settings={this.props.settings}
-                settingsChanged={settings => this.setState({ settings })}
+                settingsChanged={this.setNotificationSettings}
               />
 
               <Button color="positive" onClick={this.confirm}>
