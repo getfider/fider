@@ -23,5 +23,5 @@ func TestCORS(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Access-Control-Allow-Origin")).Equals("*")
-	Expect(response.Header().Get("Access-Control-Allow-Methods")).Equals("GET, OPTIONS")
+	Expect(response.Header().Get("Access-Control-Allow-Methods")).Equals("GET")
 }
