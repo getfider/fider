@@ -25,19 +25,27 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     };
   }
 
-  private async delete(): Promise<void> {
+  private delete = async () => {
     const response = await actions.deleteIdea(this.props.idea.number, this.state.text);
     if (response.ok) {
-      this.close();
+      await this.closeModal();
       page.goHome();
     } else if (response.error) {
       this.setState({ error: this.state.error });
     }
-  }
+  };
 
-  private async close(): Promise<void> {
+  private closeModal = async () => {
     this.setState({ showConfirmation: false });
-  }
+  };
+
+  private showModal = async () => {
+    this.setState({ showConfirmation: true });
+  };
+
+  private setText = (text: string) => {
+    this.setState({ text });
+  };
 
   public render() {
     const status = IdeaStatus.Get(this.props.idea.status);
@@ -51,7 +59,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
           <Form error={this.state.error}>
             <TextArea
               field="text"
-              onChange={text => this.setState({ text })}
+              onChange={this.setText}
               value={this.state.text}
               placeholder="Why are you deleting this idea? (optional)"
             >
@@ -63,10 +71,10 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="danger" onClick={async () => this.delete()}>
+          <Button color="danger" onClick={this.delete}>
             Delete
           </Button>
-          <Button onClick={async () => this.close()}>Cancel</Button>
+          <Button onClick={this.closeModal}>Cancel</Button>
         </Modal.Footer>
       </Modal.Window>
     );
@@ -77,12 +85,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         <span className="subtitle">Moderation</span>
         <List>
           <ListItem>
-            <Button
-              color="danger"
-              size="tiny"
-              fluid={true}
-              onClick={async () => this.setState({ showConfirmation: true })}
-            >
+            <Button color="danger" size="tiny" fluid={true} onClick={this.showModal}>
               <i className="delete icon" /> Delete
             </Button>
           </ListItem>

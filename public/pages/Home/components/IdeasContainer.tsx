@@ -80,6 +80,26 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     }, delay);
   }
 
+  private handleFilterChanged = (filter: string) => {
+    this.changeFilterCriteria({ filter });
+  };
+
+  private handleTagsFilterChanged = (tags: string[]) => {
+    this.changeFilterCriteria({ tags });
+  };
+
+  private handleSearchFilterChanged = (query: string) => {
+    this.changeFilterCriteria({ query }, 200);
+  };
+
+  private handleSearchClick = (query: string) => {
+    this.changeFilterCriteria({ query }, 200);
+  };
+
+  private clearSearch = () => {
+    this.changeFilterCriteria({ query: "" });
+  };
+
   public render() {
     if (this.props.newIdeaTitle) {
       return (
@@ -113,12 +133,12 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
               <Field>
                 <IdeaFilter
                   activeFilter={this.state.filter}
-                  filterChanged={filter => this.changeFilterCriteria({ filter })}
+                  filterChanged={this.handleFilterChanged}
                   countPerStatus={this.props.countPerStatus}
                 />
                 <TagsFilter
                   tags={this.props.tags}
-                  selectionChanged={tags => this.changeFilterCriteria({ tags })}
+                  selectionChanged={this.handleTagsFilterChanged}
                   defaultSelection={this.state.tags}
                 />
               </Field>
@@ -128,10 +148,10 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             <Input
               field="query"
               icon={this.state.query ? "cancel" : "search"}
-              onIconClick={this.state.query ? () => this.changeFilterCriteria({ query: "" }) : undefined}
+              onIconClick={this.state.query ? this.clearSearch : undefined}
               placeholder="Search..."
               value={this.state.query}
-              onChange={query => this.changeFilterCriteria({ query }, 200)}
+              onChange={this.handleSearchFilterChanged}
             />
           </div>
         </div>

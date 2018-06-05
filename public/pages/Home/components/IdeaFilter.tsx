@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Idea, IdeaStatus } from "@fider/models";
-import { Dropdown, DropdownItemProps } from "@fider/components";
+import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 
 interface IdeaFilterProps {
   activeFilter: string;
@@ -12,6 +12,10 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
   constructor(props: IdeaFilterProps) {
     super(props);
   }
+
+  private handleChangeFilter = (item: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+    this.props.filterChanged(data.value as string);
+  };
 
   public render() {
     const options: DropdownItemProps[] = [
@@ -45,7 +49,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
           inline={true}
           options={options}
           defaultValue={activeFilter}
-          onChange={(item, data) => this.props.filterChanged(data.value as string)}
+          onChange={this.handleChangeFilter}
         />
       </>
     );

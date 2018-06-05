@@ -2,7 +2,6 @@
   "extends": ["tslint:recommended", "tslint-react", "tslint-plugin-prettier", "tslint-config-prettier"],
   "rules": {
     "interface-name": [false],
-    "jsx-no-lambda": false,
     "jsx-no-multiline-js": false,
     "max-classes-per-file": [false],
     "member-ordering": [false],

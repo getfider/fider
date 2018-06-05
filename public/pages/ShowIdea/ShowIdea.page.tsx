@@ -48,7 +48,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
     };
   }
 
-  private async saveChanges() {
+  private saveChanges = async () => {
     const result = await actions.updateIdea(this.props.idea.number, this.state.newTitle, this.state.newDescription);
     if (result.ok) {
       this.setState({
@@ -63,7 +63,23 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
         error: result.error
       });
     }
-  }
+  };
+
+  private setNewTitle = (newTitle: string) => {
+    this.setState({ newTitle });
+  };
+
+  private setNewDescription = (newDescription: string) => {
+    this.setState({ newDescription });
+  };
+
+  private cancelEdit = async () => {
+    this.setState({ error: undefined, editMode: false });
+  };
+
+  private startEdit = async () => {
+    this.setState({ editMode: true });
+  };
 
   public render() {
     return (
@@ -76,12 +92,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               <div className="idea-header">
                 {this.state.editMode ? (
                   <Form error={this.state.error}>
-                    <Input
-                      field="title"
-                      maxLength={100}
-                      value={this.state.newTitle}
-                      onChange={newTitle => this.setState({ newTitle })}
-                    />
+                    <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                   </Form>
                 ) : (
                   <h1>{this.props.idea.title}</h1>
@@ -98,11 +109,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
           <span className="subtitle">Description</span>
           {this.state.editMode ? (
             <Form error={this.state.error}>
-              <TextArea
-                field="description"
-                value={this.state.newDescription}
-                onChange={newDescription => this.setState({ newDescription })}
-              />
+              <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
             </Form>
           ) : (
             <MultiLineText
@@ -124,12 +131,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               this.state.editMode ? (
                 <List key={1}>
                   <ListItem>
-                    <Button color="positive" fluid={true} onClick={async () => this.saveChanges()}>
+                    <Button color="positive" fluid={true} onClick={this.saveChanges}>
                       <i className="save icon" /> Save
                     </Button>
                   </ListItem>
                   <ListItem>
-                    <Button fluid={true} onClick={async () => this.setState({ error: undefined, editMode: false })}>
+                    <Button fluid={true} onClick={this.cancelEdit}>
                       <i className="cancel icon" /> Cancel
                     </Button>
                   </ListItem>
@@ -137,7 +144,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               ) : (
                 <List key={1}>
                   <ListItem>
-                    <Button fluid={true} onClick={async () => this.setState({ editMode: true })}>
+                    <Button fluid={true} onClick={this.startEdit}>
                       <i className="edit icon" /> Edit
                     </Button>
                   </ListItem>

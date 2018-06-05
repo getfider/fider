@@ -32,7 +32,11 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
     };
   }
 
-  private save = async (e: ButtonClickEvent): Promise<void> => {
+  private setCustomCSS = (customCSS: string): void => {
+    this.setState({ customCSS });
+  };
+
+  private handleSave = async (e: ButtonClickEvent): Promise<void> => {
     const result = await actions.updateTenantAdvancedSettings(this.state.customCSS);
     if (result.ok) {
       page.refresh();
@@ -50,7 +54,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
           disabled={!this.props.user.isAdministrator}
           minRows={10}
           value={this.state.customCSS}
-          onChange={customCSS => this.setState({ customCSS })}
+          onChange={this.setCustomCSS}
         >
           <p className="info">
             Custom CSS allows you to change the look and feel of Fider so that you can apply your own branding.
@@ -77,8 +81,8 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
 
         {this.props.user.isAdministrator && (
           <div className="field">
-            <Button color="positive" onClick={this.save}>
-              Save
+            <Button color="positive" onClick={this.handleSave}>
+              Save changes
             </Button>
           </div>
         )}

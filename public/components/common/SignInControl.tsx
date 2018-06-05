@@ -48,6 +48,10 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     }
   };
 
+  private setEmail = (email: string) => {
+    this.setState({ email });
+  };
+
   public render() {
     const google = this.settings.providers.google && (
       <div className="col-sm l-social-col">
@@ -100,7 +104,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
                 field="email"
                 value={this.state.email}
                 autoFocus={!device.isTouch()}
-                onChange={email => this.setState({ email })}
+                onChange={this.setEmail}
                 onSubmit={this.signIn}
                 placeholder="yourname@example.com"
                 suffix={

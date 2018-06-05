@@ -20,14 +20,18 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
     };
   }
 
-  private async submit() {
+  private submit = async () => {
     const result = await actions.completeProfile(this.key, this.state.name);
     if (result.ok) {
       location.href = "/";
     } else if (result.error) {
       this.setState({ error: result.error });
     }
-  }
+  };
+
+  private setName = (name: string) => {
+    this.setState({ name });
+  };
 
   public render() {
     return (
@@ -39,11 +43,11 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
             <Form error={this.state.error}>
               <Input
                 field="name"
-                onChange={name => this.setState({ name })}
+                onChange={this.setName}
                 maxLength={100}
                 placeholder="Name"
                 suffix={
-                  <Button onClick={() => this.submit()} color="positive" disabled={this.state.name === ""}>
+                  <Button onClick={this.submit} color="positive" disabled={this.state.name === ""}>
                     Submit
                   </Button>
                 }
