@@ -54,6 +54,10 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     return false;
   }
 
+  private setTitle = (title: string) => {
+    this.setState({ title });
+  };
+
   public render() {
     return (
       <div id="p-home" className="page container">
@@ -67,7 +71,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
             <IdeaInput
               user={this.props.user}
               placeholder={this.props.tenant.invitation || "Enter your idea here..."}
-              onTitleChanged={title => this.setState({ title })}
+              onTitleChanged={this.setTitle}
             />
           </div>
           <div className="col-md-8">
