@@ -142,7 +142,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             ideas={this.state.ideas}
             tags={this.props.tags}
             user={this.props.user}
-            emptyText={"No results matched your filters, try something different."}
+            emptyText={"No results matched your search, try something different."}
           />
         )}
       </>
