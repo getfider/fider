@@ -2,8 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
 
 	"github.com/getfider/fider/app/models"
 
@@ -43,7 +41,7 @@ func SingleTenant() web.MiddlewareFunc {
 func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			hostname := stripPort(c.Request.Host)
+			hostname := c.Request.URL.Hostname()
 
 			// If no tenant is specified, redirect user to getfider.com
 			// This is only valid for fider.io hosting
@@ -95,25 +93,6 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
 				return c.Redirect("/signin")
 			}
-			return next(c)
-		}
-	}
-}
-
-// HostChecker checks for a specific host
-func HostChecker(baseURL string) web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			u, err := url.Parse("http://" + baseURL)
-			if err != nil {
-				return c.Failure(err)
-			}
-
-			if c.Request.Host != u.Host {
-				c.Logger().Errorf("%s is not valid for this operation. Only %s is allowed.", c.Request.Host, u.Host)
-				return c.NoContent(http.StatusBadRequest)
-			}
-
 			return next(c)
 		}
 	}

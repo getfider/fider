@@ -54,7 +54,7 @@ func OAuthCallback(provider string) web.HandlerFunc {
 			if env.IsSingleHostMode() {
 				tenant, err = c.Services().Tenants.First()
 			} else {
-				tenant, err = c.Services().Tenants.GetByDomain(stripPort(redirectURL.Host))
+				tenant, err = c.Services().Tenants.GetByDomain(redirectURL.Hostname())
 			}
 			if err != nil {
 				return c.Failure(err)

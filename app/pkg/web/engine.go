@@ -155,7 +155,7 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 	return Context{
 		id:       strings.Replace(uuid.NewV4().String(), "-", "", 4),
 		Response: res,
-		Request:  req,
+		Request:  WrapRequest(req),
 		engine:   e,
 		logger:   e.logger,
 		params:   params,
@@ -251,14 +251,14 @@ func (g *Group) Static(prefix, root string) {
 			path := root + c.Param("filepath")
 			fi, err := os.Stat(path)
 			if err == nil && !fi.IsDir() {
-				http.ServeFile(c.Response, c.Request, path)
+				http.ServeFile(c.Response, c.Request.instance, path)
 				return nil
 			}
 			return c.NotFound()
 		}
 	} else {
 		h = func(c Context) error {
-			http.ServeFile(c.Response, c.Request, root)
+			http.ServeFile(c.Response, c.Request.instance, root)
 			return nil
 		}
 	}

@@ -111,6 +111,27 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	Expect(tenant.Status).Equals(models.TenantActive)
 }
 
+func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
+	Expect(err).IsNil()
+	tenants.SetCurrentTenant(tenant)
+	tenants.UpdateSettings(&models.UpdateTenantSettings{
+		Title: "My Domain Inc.",
+		CNAME: "feedback.mycompany.com",
+	})
+
+	tenant, err = tenants.GetByDomain("feedback.mycompany.com")
+	Expect(err).IsNil()
+	Expect(tenant.ID).NotEquals(0)
+	Expect(tenant.Name).Equals("My Domain Inc.")
+	Expect(tenant.Subdomain).Equals("mydomain")
+	Expect(tenant.CNAME).Equals("feedback.mycompany.com")
+	Expect(tenant.Status).Equals(models.TenantActive)
+}
+
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

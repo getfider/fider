@@ -33,7 +33,7 @@ func methodHasBody(method string) bool {
 //Bind request data to object i
 func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
 	if methodHasBody(c.Request.Method) && c.Request.ContentLength > 0 {
-		contentType := strings.Split(c.Request.Header.Get("Content-Type"), ";")
+		contentType := strings.Split(c.Request.GetHeader("Content-Type"), ";")
 		if len(contentType) == 0 || contentType[0] != JSONContentType {
 			return ErrContentTypeNotAllowed
 		}

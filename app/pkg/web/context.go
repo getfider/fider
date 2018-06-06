@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"time"
@@ -63,7 +62,7 @@ var (
 type Context struct {
 	id       string
 	Response http.ResponseWriter
-	Request  *http.Request
+	Request  Request
 	engine   *Engine
 	logger   log.Logger
 	params   StringMap
@@ -174,7 +173,7 @@ func (ctx *Context) IsAuthenticated() bool {
 
 //IsAjax returns true if request is AJAX
 func (ctx *Context) IsAjax() bool {
-	return strings.Contains(ctx.Request.Header.Get("Accept"), "application/json")
+	return strings.Contains(ctx.Request.GetHeader("Accept"), "application/json")
 }
 
 //Unauthorized returns a 403 response
@@ -221,7 +220,7 @@ func (ctx *Context) Failure(err error) error {
 		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
 	}
 
-	url := ctx.CurrentURL()
+	url := ctx.Request.URL.String()
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
@@ -324,7 +323,7 @@ func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 
 //AddCookie adds a cookie
 func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	ctx.SetCookie(&http.Cookie{
+	http.SetCookie(ctx.Response, &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
@@ -335,7 +334,7 @@ func (ctx *Context) AddCookie(name, value string, expires time.Time) {
 
 //RemoveCookie removes a cookie
 func (ctx *Context) RemoveCookie(name string) {
-	ctx.SetCookie(&http.Cookie{
+	http.SetCookie(ctx.Response, &http.Cookie{
 		Name:     name,
 		Path:     "/",
 		HttpOnly: true,
@@ -361,16 +360,13 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 
 //BaseURL returns base URL
 func (ctx *Context) BaseURL() string {
-	protocol := "http"
-	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https"
-	}
-	return protocol + "://" + ctx.Request.Host
-}
+	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
-//CurrentURL returns complete current URL
-func (ctx *Context) CurrentURL() string {
-	return ctx.BaseURL() + ctx.Request.RequestURI
+	if ctx.Request.URL.Port() != "" {
+		address += ":" + ctx.Request.URL.Port()
+	}
+
+	return address
 }
 
 //TenantBaseURL returns base URL for a given tenant
@@ -379,21 +375,15 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 		return ctx.BaseURL()
 	}
 
-	protocol := "http"
-	_, port, _ := net.SplitHostPort(ctx.Request.Host)
-	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https"
-	}
-
-	address := protocol + "://"
+	address := ctx.Request.URL.Scheme + "://"
 	if tenant.CNAME != "" {
 		address += tenant.CNAME
 	} else {
 		address += tenant.Subdomain + env.MultiTenantDomain()
 	}
 
-	if port != "" {
-		address += ":" + port
+	if ctx.Request.URL.Port() != "" {
+		address += ":" + ctx.Request.URL.Port()
 	}
 
 	return address
@@ -478,16 +468,6 @@ func (ctx *Context) Blob(code int, contentType string, b []byte) error {
 	ctx.Response.WriteHeader(code)
 	_, err := ctx.Response.Write(b)
 	return err
-}
-
-// Cookie returns the named cookie provided in the request.
-func (ctx *Context) Cookie(name string) (*http.Cookie, error) {
-	return ctx.Request.Cookie(name)
-}
-
-// SetCookie adds a `Set-Cookie` header in HTTP response.
-func (ctx *Context) SetCookie(cookie *http.Cookie) {
-	http.SetCookie(ctx.Response, cookie)
 }
 
 // NoContent sends a response with no body and a status code.

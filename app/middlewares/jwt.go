@@ -16,7 +16,7 @@ func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
-			cookie, err := c.Cookie(web.CookieAuthName)
+			cookie, err := c.Request.Cookie(web.CookieAuthName)
 			if err != nil {
 				if errors.Cause(err) == http.ErrNoCookie {
 					return next(c)

@@ -2,7 +2,6 @@ package inmemory
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -51,7 +50,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 // GetByDomain returns a tenant based on its domain
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, tenant := range s.tenants {
-		if tenant.Subdomain == extractSubdomain(domain) || tenant.CNAME == domain {
+		if tenant.Subdomain == env.Subdomain(domain) || tenant.Subdomain == domain || tenant.CNAME == domain {
 			return tenant, nil
 		}
 	}
@@ -190,13 +189,4 @@ func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
 		return logo, nil
 	}
 	return nil, app.ErrNotFound
-}
-
-func extractSubdomain(hostname string) string {
-	domain := env.MultiTenantDomain()
-	if domain == "" {
-		return hostname
-	}
-
-	return strings.Replace(hostname, domain, "", -1)
 }
