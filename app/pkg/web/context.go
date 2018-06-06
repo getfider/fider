@@ -491,13 +491,26 @@ func (ctx *Context) Redirect(url string) error {
 	return nil
 }
 
-// AssetsURL return the full URL to the static asset by given path
-func (ctx *Context) AssetsURL(path string) string {
+// GlobalAssetsURL return the full URL to a globally shared static asset
+func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
+	path = fmt.Sprintf(path, a...)
 	if env.IsDefined("CDN_HOST") {
 		if env.IsSingleHostMode() {
 			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
 		}
 		return ctx.Request.URL.Scheme + "://cdn." + env.MustGet("CDN_HOST") + path
+	}
+	return ctx.BaseURL() + path
+}
+
+// TenantAssetsURL return the full URL to a tenant-specific static asset
+func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
+	path = fmt.Sprintf(path, a...)
+	if env.IsDefined("CDN_HOST") {
+		if env.IsSingleHostMode() {
+			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
+		}
+		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.MustGet("CDN_HOST") + path
 	}
 	return ctx.BaseURL() + path
 }
