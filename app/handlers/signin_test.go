@@ -399,7 +399,7 @@ func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 		WithURL("http://demo.test.fider.io/signup/verify?k=1234567890").
 		Execute(handlers.VerifySignUpKey())
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
+	tenant, _ := services.Tenants.GetByDomain("demo", "")
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(tenant.Status).Equals(models.TenantActive)

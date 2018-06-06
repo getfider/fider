@@ -2,12 +2,10 @@ package inmemory
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/env"
 )
 
 // TenantStorage contains read and write operations for tenants
@@ -49,9 +47,18 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
+func (s *TenantStorage) GetByDomain(subdomain, cname string) (*models.Tenant, error) {
+
+	if cname != "" {
+		for _, tenant := range s.tenants {
+			if tenant.CNAME == cname {
+				return tenant, nil
+			}
+		}
+	}
+
 	for _, tenant := range s.tenants {
-		if tenant.Subdomain == extractSubdomain(domain) || tenant.CNAME == domain {
+		if tenant.Subdomain == subdomain {
 			return tenant, nil
 		}
 	}
@@ -190,13 +197,4 @@ func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
 		return logo, nil
 	}
 	return nil, app.ErrNotFound
-}
-
-func extractSubdomain(hostname string) string {
-	domain := env.MultiTenantDomain()
-	if domain == "" {
-		return hostname
-	}
-
-	return strings.Replace(hostname, domain, "", -1)
 }

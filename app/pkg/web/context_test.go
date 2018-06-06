@@ -14,7 +14,8 @@ import (
 func newGetContext(params web.StringMap) *web.Context {
 	e := web.New(nil)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "http://demo.test.fider.io:3000/some/resource", nil)
+	req := httptest.NewRequest("GET", "/some/resource", nil)
+	req.Host = "demo.test.fider.io:3000"
 	ctx := e.NewContext(res, req, params)
 	return &ctx
 }
@@ -22,7 +23,8 @@ func newGetContext(params web.StringMap) *web.Context {
 func newBodyContext(method string, params web.StringMap, body, contentType string) *web.Context {
 	e := web.New(nil)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest(method, "http://demo.test.fider.io:3000/some/resource", strings.NewReader(body))
+	req := httptest.NewRequest(method, "/some/resource", strings.NewReader(body))
+	req.Host = "demo.test.fider.io:3000"
 	req.Header.Set("Content-Type", contentType)
 	ctx := e.NewContext(res, req, params)
 	return &ctx
@@ -43,15 +45,6 @@ func TestBaseURL(t *testing.T) {
 	ctx := newGetContext(nil)
 
 	Expect(ctx.BaseURL()).Equals("http://demo.test.fider.io:3000")
-}
-
-func TestCurrentURL(t *testing.T) {
-	RegisterT(t)
-
-	ctx := newGetContext(nil)
-	ctx.Request.RequestURI = "/resource?id=23"
-
-	Expect(ctx.CurrentURL()).Equals("http://demo.test.fider.io:3000/resource?id=23")
 }
 
 func TestTenantURL(t *testing.T) {

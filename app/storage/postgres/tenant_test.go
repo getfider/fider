@@ -23,7 +23,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(tenant).IsNotNil()
 
-	tenant, err = tenants.GetByDomain("mydomain")
+	tenant, err = tenants.GetByDomain("mydomain", "")
 	Expect(err).IsNil()
 	Expect(tenant.Name).Equals("My Domain Inc.")
 	Expect(tenant.Subdomain).Equals("mydomain")
@@ -33,7 +33,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	err = tenants.Activate(tenant.ID)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("mydomain")
+	tenant, err = tenants.GetByDomain("mydomain", "")
 	Expect(err).IsNil()
 	Expect(tenant.Name).Equals("My Domain Inc.")
 	Expect(tenant.Subdomain).Equals("mydomain")
@@ -76,12 +76,12 @@ func TestTenantStorage_UpdatePrivacy(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 	Expect(tenant.IsPrivate).IsFalse()
 
 	tenants.UpdatePrivacy(&models.UpdateTenantPrivacy{IsPrivate: true})
-	tenant, _ = tenants.GetByDomain("demo")
+	tenant, _ = tenants.GetByDomain("demo", "")
 	Expect(tenant.IsPrivate).IsTrue()
 }
 
@@ -89,7 +89,7 @@ func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, err := tenants.GetByDomain("mydomain")
+	tenant, err := tenants.GetByDomain("mydomain", "")
 
 	Expect(tenant).IsNil()
 	Expect(err).IsNotNil()
@@ -102,12 +102,33 @@ func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("mydomain")
+	tenant, err = tenants.GetByDomain("mydomain", "")
 	Expect(err).IsNil()
 	Expect(tenant.ID).NotEquals(0)
 	Expect(tenant.Name).Equals("My Domain Inc.")
 	Expect(tenant.Subdomain).Equals("mydomain")
 	Expect(tenant.CNAME).Equals("")
+	Expect(tenant.Status).Equals(models.TenantActive)
+}
+
+func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
+	Expect(err).IsNil()
+	tenants.SetCurrentTenant(tenant)
+	tenants.UpdateSettings(&models.UpdateTenantSettings{
+		Title: "My Domain Inc.",
+		CNAME: "feedback.mycompany.com",
+	})
+
+	tenant, err = tenants.GetByDomain("", "feedback.mycompany.com")
+	Expect(err).IsNil()
+	Expect(tenant.ID).NotEquals(0)
+	Expect(tenant.Name).Equals("My Domain Inc.")
+	Expect(tenant.Subdomain).Equals("mydomain")
+	Expect(tenant.CNAME).Equals("feedback.mycompany.com")
 	Expect(tenant.Status).Equals(models.TenantActive)
 }
 
@@ -133,7 +154,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	settings := &models.UpdateTenantSettings{
@@ -145,7 +166,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	err := tenants.UpdateSettings(settings)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("demo")
+	tenant, err = tenants.GetByDomain("demo", "")
 	Expect(err).IsNil()
 	Expect(tenant.ID).Equals(1)
 	Expect(tenant.Name).Equals("New Demonstration")
@@ -159,7 +180,7 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
@@ -190,7 +211,7 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	err = tenants.UpdateSettings(settings)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("demo")
+	tenant, err = tenants.GetByDomain("demo", "")
 	Expect(err).IsNil()
 	Expect(tenant.LogoID).Equals(0)
 }
@@ -199,7 +220,7 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
@@ -248,7 +269,7 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	settings := &models.UpdateTenantAdvancedSettings{
@@ -257,7 +278,7 @@ func TestTenantStorage_AdvancedSettings(t *testing.T) {
 	err := tenants.UpdateAdvancedSettings(settings)
 	Expect(err).IsNil()
 
-	tenant, err = tenants.GetByDomain("demo")
+	tenant, err = tenants.GetByDomain("demo", "")
 	Expect(err).IsNil()
 	Expect(tenant.CustomCSS).Equals(".primary { color: red; }")
 }
@@ -266,7 +287,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	//Save new Key
@@ -314,7 +335,7 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	//Save new Key
@@ -342,7 +363,7 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
+	tenant, _ := tenants.GetByDomain("demo", "")
 	tenants.SetCurrentTenant(tenant)
 
 	//Find and check values

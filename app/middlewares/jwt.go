@@ -16,7 +16,7 @@ func JwtGetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
-			cookie, err := c.Cookie(web.CookieAuthName)
+			cookie, err := c.Request.Cookie(web.CookieAuthName)
 			if err != nil {
 				if errors.Cause(err) == http.ErrNoCookie {
 					return next(c)
@@ -53,7 +53,7 @@ func JwtSetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
-			query := c.Request.URL.Query()
+			query := c.Request.Query
 
 			token := query.Get("token")
 			if token != "" {
@@ -61,7 +61,7 @@ func JwtSetter() web.MiddlewareFunc {
 
 				query.Del("token")
 
-				url := c.BaseURL() + c.Request.URL.Path
+				url := c.BaseURL() + c.Request.Path
 				querystring := query.Encode()
 				if querystring != "" {
 					url += "?" + querystring

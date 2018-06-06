@@ -141,7 +141,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	m["system"] = r.settings
 	m["baseURL"] = ctx.BaseURL()
-	m["currentURL"] = ctx.CurrentURL()
+	m["currentURL"] = ctx.Request.FullURL
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
 		"endpoint": ctx.AuthEndpoint(),

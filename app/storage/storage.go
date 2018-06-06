@@ -62,7 +62,7 @@ type Tenant interface {
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	Activate(id int) error
-	GetByDomain(domain string) (*models.Tenant, error)
+	GetByDomain(subdomain, cname string) (*models.Tenant, error)
 	UpdateSettings(settings *models.UpdateTenantSettings) error
 	UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error
 	UpdatePrivacy(settings *models.UpdateTenantPrivacy) error

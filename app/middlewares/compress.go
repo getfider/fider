@@ -33,7 +33,7 @@ func Compress() web.MiddlewareFunc {
 		}
 		return func(c web.Context) error {
 			res := c.Response
-			if strings.Contains(c.Request.Header.Get("Accept-Encoding"), "gzip") {
+			if strings.Contains(c.Request.GetHeader("Accept-Encoding"), "gzip") {
 				writer := pool.Get().(*gzip.Writer)
 				defer pool.Put(writer)
 				gzipResponse := &gzipResponseWriter{response: res, writer: writer, buffer: &bytes.Buffer{}}

@@ -165,31 +165,6 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	Expect(response.Body.String()).Equals("MyCompany")
 }
 
-func TestHostChecker(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-
-	server.Use(middlewares.HostChecker("login.test.fider.io"))
-	status, _ := server.WithURL("http://login.test.fider.io").Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
-	})
-
-	Expect(status).Equals(http.StatusOK)
-}
-
-func TestHostChecker_DifferentHost(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.HostChecker("login.test.fider.io"))
-	status, _ := server.WithURL("http://avengers.test.fider.io").Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
-	})
-
-	Expect(status).Equals(http.StatusBadRequest)
-}
-
 func TestOnlyActiveTenants_Active(t *testing.T) {
 	RegisterT(t)
 

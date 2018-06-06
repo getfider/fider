@@ -3,6 +3,7 @@ package assert
 import (
 	"context"
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -36,10 +37,30 @@ func Fail(msg string, args ...interface{}) {
 }
 
 var currentT *testing.T
+var envVariables map[string]string
 
 //RegisterT saves current testing.T for further usage by Expect
 func RegisterT(t *testing.T) {
+	if currentT == nil {
+		copyEnv()
+	}
+
 	currentT = t
+	restartEnv()
+}
+
+func copyEnv() {
+	envVariables = make(map[string]string, 0)
+	for _, e := range os.Environ() {
+		key := strings.Split(e, "=")[0]
+		envVariables[key] = os.Getenv(key)
+	}
+}
+
+func restartEnv() {
+	for k, v := range envVariables {
+		os.Setenv(k, v)
+	}
 }
 
 //AnyAssertions is used to assert any kind of value

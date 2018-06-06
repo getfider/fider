@@ -2,8 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
 
 	"github.com/getfider/fider/app/models"
 
@@ -43,23 +41,21 @@ func SingleTenant() web.MiddlewareFunc {
 func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			hostname := stripPort(c.Request.Host)
-
 			// If no tenant is specified, redirect user to getfider.com
 			// This is only valid for fider.io hosting
-			if (env.IsProduction() && hostname == "fider.io") ||
-				(env.IsDevelopment() && hostname == "dev.fider.io") {
+			if (env.IsProduction() && c.Request.Host == "fider.io") ||
+				(env.IsDevelopment() && c.Request.Host == "dev.fider.io") {
 				return c.Redirect("https://getfider.com")
 			}
 
-			tenant, err := c.Services().Tenants.GetByDomain(hostname)
+			tenant, err := c.Services().Tenants.GetByDomain(c.Request.Subdomain, c.Request.Host)
 			if err == nil {
 				c.SetTenant(tenant)
 
 				if tenant.CNAME != "" && !c.IsAjax() {
 					baseURL := c.TenantBaseURL(tenant)
 					if baseURL != c.BaseURL() {
-						link := baseURL + c.Request.URL.RequestURI()
+						link := baseURL + c.Request.URL
 						c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
 					}
 				}
@@ -67,7 +63,7 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			if errors.Cause(err) == app.ErrNotFound {
-				c.Logger().Debugf("Tenant not found for '%s'.", hostname)
+				c.Logger().Debugf("Tenant not found for '%s'.", c.Request.Host)
 				return c.NotFound()
 			}
 
@@ -95,25 +91,6 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
 				return c.Redirect("/signin")
 			}
-			return next(c)
-		}
-	}
-}
-
-// HostChecker checks for a specific host
-func HostChecker(baseURL string) web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			u, err := url.Parse("http://" + baseURL)
-			if err != nil {
-				return c.Failure(err)
-			}
-
-			if c.Request.Host != u.Host {
-				c.Logger().Errorf("%s is not valid for this operation. Only %s is allowed.", c.Request.Host, u.Host)
-				return c.NoContent(http.StatusBadRequest)
-			}
-
 			return next(c)
 		}
 	}

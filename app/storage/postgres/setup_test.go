@@ -37,8 +37,8 @@ func SetupDatabaseTest(t *testing.T) {
 	tags = postgres.NewTagStorage(trx)
 	notifications = postgres.NewNotificationStorage(trx)
 
-	demoTenant, _ = tenants.GetByDomain("demo")
-	avengersTenant, _ = tenants.GetByDomain("avengers")
+	demoTenant, _ = tenants.GetByDomain("demo", "")
+	avengersTenant, _ = tenants.GetByDomain("avengers", "")
 
 	users.SetCurrentTenant(demoTenant)
 	jonSnow, _ = users.GetByID(1)

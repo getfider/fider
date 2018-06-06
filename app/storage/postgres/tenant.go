@@ -3,13 +3,11 @@ package postgres
 import (
 	"database/sql"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -117,7 +115,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 		return nil, err
 	}
 
-	return s.GetByDomain(subdomain)
+	return s.GetByDomain(subdomain, "")
 }
 
 // First returns first tenant
@@ -132,13 +130,21 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// GetByDomain returns a tenant based on its domain
-func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
+// GetByDomain returns a tenant based on its cnamd or subdomain
+func (s *TenantStorage) GetByDomain(subdomain, cname string) (*models.Tenant, error) {
 	tenant := dbTenant{}
+	query := "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants"
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", extractSubdomain(domain), domain)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
+	if cname != "" {
+		err := s.trx.Get(&tenant, query+" WHERE cname = $1", cname)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get tenant with cname '%s'", cname)
+		}
+	} else {
+		err := s.trx.Get(&tenant, query+" WHERE subdomain = $1", subdomain)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get tenant with subdomain '%s'", subdomain)
+		}
 	}
 
 	return tenant.toModel(), nil
@@ -294,13 +300,4 @@ func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
 		return nil, errors.Wrap(err, "failed to get logo from tenant")
 	}
 	return upload, nil
-}
-
-func extractSubdomain(hostname string) string {
-	domain := env.MultiTenantDomain()
-	if domain == "" {
-		return hostname
-	}
-
-	return strings.Replace(hostname, domain, "", -1)
 }

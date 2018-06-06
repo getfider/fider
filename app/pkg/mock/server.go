@@ -72,7 +72,7 @@ func (s *Server) AddParam(name string, value interface{}) *Server {
 
 // AddHeader add key-value to current context headers
 func (s *Server) AddHeader(name string, value string) *Server {
-	s.context.Request.Header.Add(name, value)
+	s.context.Request.SetHeader(name, value)
 	return s
 }
 
@@ -84,8 +84,8 @@ func (s *Server) AddCookie(name string, value string) *Server {
 
 // WithURL set current context Request URL
 func (s *Server) WithURL(fullURL string) *Server {
-	s.context.Request.URL, _ = url.Parse(fullURL)
-	s.context.Request.Host = s.context.Request.URL.Host
+	u, _ := url.Parse(fullURL)
+	s.context.Request.SetURL(u)
 	return s
 }
 
@@ -107,10 +107,9 @@ func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.Query) {
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
 	s.context.Request.Method = "POST"
-	s.context.Request.URL.Path = "/"
 	s.context.Request.Body = ioutil.NopCloser(strings.NewReader(body))
 	s.context.Request.ContentLength = int64(len(body))
-	s.context.Request.Header.Set("Content-Type", web.UTF8JSONContentType)
+	s.context.Request.SetHeader("Content-Type", web.UTF8JSONContentType)
 
 	if err := s.middleware(handler)(s.context); err != nil {
 		s.context.Failure(err)

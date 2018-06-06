@@ -89,7 +89,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 	emailer := app.NewEmailer(logger)
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			path := log.Magenta(c.Request.Method + " " + c.Request.URL.String())
+			path := log.Magenta(c.Request.Method + " " + c.Request.URL)
 
 			start := time.Now()
 			c.Logger().Debugf("%s started", path)
