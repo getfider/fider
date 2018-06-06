@@ -495,17 +495,9 @@ func (ctx *Context) Redirect(url string) error {
 func (ctx *Context) AssetsURL(path string) string {
 	if env.IsDefined("CDN_HOST") {
 		if env.IsSingleHostMode() {
-			return ctx.protocol() + env.MustGet("CDN_HOST") + path
+			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
 		}
-		return ctx.protocol() + "cdn." + env.MustGet("CDN_HOST") + path
+		return ctx.Request.URL.Scheme + "://cdn." + env.MustGet("CDN_HOST") + path
 	}
 	return ctx.BaseURL() + path
-}
-
-func (ctx *Context) protocol() string {
-	protocol := "http://"
-	if ctx.Request.TLS != nil || ctx.Request.Header.Get("X-Forwarded-Proto") == "https" {
-		protocol = "https://"
-	}
-	return protocol
 }
