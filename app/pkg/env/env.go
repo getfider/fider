@@ -137,3 +137,12 @@ func Etc(p ...string) string {
 func IsDevelopment() bool {
 	return Current() == "development"
 }
+
+// Subdomain returns the Fider subdomain (if available) from given host
+func Subdomain(host string) string {
+	domain := MultiTenantDomain()
+	if domain != "" && strings.Contains(host, domain) {
+		return strings.Replace(host, domain, "", -1)
+	}
+	return ""
+}

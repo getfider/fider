@@ -5,9 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -65,18 +63,4 @@ func (r *Request) Cookie(name string) (*http.Cookie, error) {
 // AddCookie adds a cookie
 func (r *Request) AddCookie(cookie *http.Cookie) {
 	r.instance.AddCookie(cookie)
-}
-
-// Subdomain returns the Fider subdomain (if available) from given host
-func (r *Request) Subdomain() string {
-	return ExtractSubdomain(r.URL.Hostname())
-}
-
-// ExtractSubdomain returns the Fider subdomain (if available) from given host
-func ExtractSubdomain(host string) string {
-	domain := env.MultiTenantDomain()
-	if domain != "" && strings.Contains(host, domain) {
-		return strings.Replace(host, domain, "", -1)
-	}
-	return ""
 }

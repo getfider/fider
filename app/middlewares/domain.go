@@ -48,7 +48,7 @@ func MultiTenant() web.MiddlewareFunc {
 				return c.Redirect("https://getfider.com")
 			}
 
-			tenant, err := c.Services().Tenants.GetByDomain(c.Request.Subdomain(), c.Request.URL.Hostname())
+			tenant, err := c.Services().Tenants.GetByDomain(c.Request.URL.Hostname())
 			if err == nil {
 				c.SetTenant(tenant)
 

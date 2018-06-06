@@ -22,7 +22,7 @@ func TestUpdateSettingsHandler(t *testing.T) {
 			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo", "")
+	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
 	Expect(tenant.Name).Equals("GoT")
 	Expect(tenant.Invitation).Equals("Join us!")
@@ -41,7 +41,7 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 			`{ "isPrivate": true }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo", "")
+	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
 	Expect(tenant.IsPrivate).IsTrue()
 }

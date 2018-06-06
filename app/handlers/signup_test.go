@@ -102,7 +102,7 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 		}`, token),
 	)
 
-	tenant, err := services.Tenants.GetByDomain("mycompany", "")
+	tenant, err := services.Tenants.GetByDomain("mycompany")
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(response.String("token")).IsNotEmpty()
@@ -138,7 +138,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(response.Contains("token")).IsFalse()
 
-	tenant, err := services.Tenants.GetByDomain("mycompany", "")
+	tenant, err := services.Tenants.GetByDomain("mycompany")
 
 	Expect(code).Equals(http.StatusOK)
 

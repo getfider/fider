@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 // TenantStorage contains read and write operations for tenants
@@ -47,18 +48,9 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 }
 
 // GetByDomain returns a tenant based on its domain
-func (s *TenantStorage) GetByDomain(subdomain, cname string) (*models.Tenant, error) {
-
-	if cname != "" {
-		for _, tenant := range s.tenants {
-			if tenant.CNAME == cname {
-				return tenant, nil
-			}
-		}
-	}
-
+func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, tenant := range s.tenants {
-		if tenant.Subdomain == subdomain {
+		if tenant.Subdomain == env.Subdomain(domain) || tenant.CNAME == domain {
 			return tenant, nil
 		}
 	}
