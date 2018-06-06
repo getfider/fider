@@ -85,7 +85,7 @@ func (s *Server) AddCookie(name string, value string) *Server {
 // WithURL set current context Request URL
 func (s *Server) WithURL(fullURL string) *Server {
 	u, _ := url.Parse(fullURL)
-	s.context.Request.SetURL(u)
+	s.context.Request.URL = u
 	return s
 }
 

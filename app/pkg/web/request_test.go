@@ -24,10 +24,10 @@ func TestRequest_Basic(t *testing.T) {
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.GetHeader("Content-Type")).Equals("application/json")
-	Expect(req.Host).Equals("helloworld.com")
-	Expect(req.Protocol).Equals("http")
-	Expect(req.URL).Equals("/")
-	Expect(req.FullURL).Equals("http://helloworld.com")
+	Expect(req.URL.Hostname()).Equals("helloworld.com")
+	Expect(req.URL.Scheme).Equals("http")
+	Expect(req.URL.RequestURI()).Equals("/")
+	Expect(req.URL.String()).Equals("http://helloworld.com")
 }
 
 func TestRequest_WithPort(t *testing.T) {
@@ -47,11 +47,11 @@ func TestRequest_WithPort(t *testing.T) {
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.GetHeader("Content-Type")).Equals("application/json")
-	Expect(req.Host).Equals("helloworld.com")
-	Expect(req.Protocol).Equals("http")
-	Expect(req.Port).Equals("3000")
-	Expect(req.URL).Equals("/echo")
-	Expect(req.FullURL).Equals("http://helloworld.com:3000/echo")
+	Expect(req.URL.Hostname()).Equals("helloworld.com")
+	Expect(req.URL.Scheme).Equals("http")
+	Expect(req.URL.Port()).Equals("3000")
+	Expect(req.URL.RequestURI()).Equals("/echo")
+	Expect(req.URL.String()).Equals("http://helloworld.com:3000/echo")
 }
 
 func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
@@ -70,9 +70,9 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	)
 
 	Expect(req.Method).Equals("GET")
-	Expect(req.Host).Equals("feedback.mycompany.com")
-	Expect(req.Subdomain).Equals("")
-	Expect(req.Protocol).Equals("https")
+	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
+	Expect(req.Subdomain()).Equals("")
+	Expect(req.URL.Scheme).Equals("https")
 }
 
 func TestRequest_FullURL(t *testing.T) {
@@ -85,9 +85,9 @@ func TestRequest_FullURL(t *testing.T) {
 		},
 	)
 
-	Expect(req.FullURL).Equals("http://demo.test.fider.io/echo?value=Jon")
-	Expect(req.Path).Equals("/echo")
-	Expect(req.Subdomain).Equals("demo")
-	Expect(req.Query.Get("value")).Equals("Jon")
-	Expect(req.URL).Equals("/echo?value=Jon")
+	Expect(req.URL.String()).Equals("http://demo.test.fider.io/echo?value=Jon")
+	Expect(req.URL.Path).Equals("/echo")
+	Expect(req.Subdomain()).Equals("demo")
+	Expect(req.URL.Query().Get("value")).Equals("Jon")
+	Expect(req.URL.RequestURI()).Equals("/echo?value=Jon")
 }

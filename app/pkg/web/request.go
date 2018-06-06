@@ -17,25 +17,11 @@ type Request struct {
 	Method        string
 	ContentLength int64
 	Body          io.ReadCloser
-	Protocol      string
-	Host          string
-	Subdomain     string
-	Port          string
-	Query         url.Values
-	Path          string
-	URL           string
-	FullURL       string
+	URL           *url.URL
 }
 
 // WrapRequest returns Fider wrapper of HTTP Request
 func WrapRequest(request *http.Request) Request {
-	r := Request{
-		instance:      request,
-		Method:        request.Method,
-		ContentLength: request.ContentLength,
-		Body:          request.Body,
-	}
-
 	protocol := "http"
 	if request.TLS != nil || request.Header.Get("X-Forwarded-Proto") == "https" {
 		protocol = "https"
@@ -52,8 +38,13 @@ func WrapRequest(request *http.Request) Request {
 		panic(errors.New(fmt.Sprintf("Failed to parse url '%s'", fullURL)))
 	}
 
-	r.SetURL(u)
-	return r
+	return Request{
+		instance:      request,
+		Method:        request.Method,
+		ContentLength: request.ContentLength,
+		Body:          request.Body,
+		URL:           u,
+	}
 }
 
 // GetHeader returns the value of HTTP header from given key
@@ -76,16 +67,9 @@ func (r *Request) AddCookie(cookie *http.Cookie) {
 	r.instance.AddCookie(cookie)
 }
 
-// SetURL change current request URL
-func (r *Request) SetURL(u *url.URL) {
-	r.Protocol = u.Scheme
-	r.Host = u.Hostname()
-	r.Port = u.Port()
-	r.Query = u.Query()
-	r.Path = u.Path
-	r.URL = u.RequestURI()
-	r.FullURL = u.String()
-	r.Subdomain = ExtractSubdomain(r.Host)
+// Subdomain returns the Fider subdomain (if available) from given host
+func (r *Request) Subdomain() string {
+	return ExtractSubdomain(r.URL.Hostname())
 }
 
 // ExtractSubdomain returns the Fider subdomain (if available) from given host

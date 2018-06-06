@@ -360,10 +360,10 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 
 //BaseURL returns base URL
 func (ctx *Context) BaseURL() string {
-	address := ctx.Request.Protocol + "://" + ctx.Request.Host
+	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
-	if ctx.Request.Port != "" {
-		address += ":" + ctx.Request.Port
+	if ctx.Request.URL.Port() != "" {
+		address += ":" + ctx.Request.URL.Port()
 	}
 
 	return address
@@ -375,15 +375,15 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 		return ctx.BaseURL()
 	}
 
-	address := ctx.Request.Protocol + "://"
+	address := ctx.Request.URL.Scheme + "://"
 	if tenant.CNAME != "" {
 		address += tenant.CNAME
 	} else {
 		address += tenant.Subdomain + env.MultiTenantDomain()
 	}
 
-	if ctx.Request.Port != "" {
-		address += ":" + ctx.Request.Port
+	if ctx.Request.URL.Port() != "" {
+		address += ":" + ctx.Request.URL.Port()
 	}
 
 	return address
@@ -405,7 +405,7 @@ func (ctx *Context) AuthEndpoint() string {
 
 //QueryParam returns querystring parameter for given key
 func (ctx *Context) QueryParam(key string) string {
-	return ctx.Request.Query.Get(key)
+	return ctx.Request.URL.Query().Get(key)
 }
 
 //QueryParamAsArray returns querystring parameter for given key as an array

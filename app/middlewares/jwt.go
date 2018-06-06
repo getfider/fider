@@ -53,7 +53,7 @@ func JwtSetter() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 
-			query := c.Request.Query
+			query := c.Request.URL.Query()
 
 			token := query.Get("token")
 			if token != "" {
@@ -61,7 +61,7 @@ func JwtSetter() web.MiddlewareFunc {
 
 				query.Del("token")
 
-				url := c.BaseURL() + c.Request.Path
+				url := c.BaseURL() + c.Request.URL.Path
 				querystring := query.Encode()
 				if querystring != "" {
 					url += "?" + querystring

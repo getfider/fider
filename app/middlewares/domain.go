@@ -43,19 +43,19 @@ func MultiTenant() web.MiddlewareFunc {
 		return func(c web.Context) error {
 			// If no tenant is specified, redirect user to getfider.com
 			// This is only valid for fider.io hosting
-			if (env.IsProduction() && c.Request.Host == "fider.io") ||
-				(env.IsDevelopment() && c.Request.Host == "dev.fider.io") {
+			if (env.IsProduction() && c.Request.URL.Hostname() == "fider.io") ||
+				(env.IsDevelopment() && c.Request.URL.Hostname() == "dev.fider.io") {
 				return c.Redirect("https://getfider.com")
 			}
 
-			tenant, err := c.Services().Tenants.GetByDomain(c.Request.Subdomain, c.Request.Host)
+			tenant, err := c.Services().Tenants.GetByDomain(c.Request.Subdomain(), c.Request.URL.Hostname())
 			if err == nil {
 				c.SetTenant(tenant)
 
 				if tenant.CNAME != "" && !c.IsAjax() {
 					baseURL := c.TenantBaseURL(tenant)
 					if baseURL != c.BaseURL() {
-						link := baseURL + c.Request.URL
+						link := baseURL + c.Request.URL.RequestURI()
 						c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
 					}
 				}
@@ -63,7 +63,7 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			if errors.Cause(err) == app.ErrNotFound {
-				c.Logger().Debugf("Tenant not found for '%s'.", c.Request.Host)
+				c.Logger().Debugf("Tenant not found for '%s'.", c.Request.URL.Hostname())
 				return c.NotFound()
 			}
 
