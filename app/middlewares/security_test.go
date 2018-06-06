@@ -36,9 +36,6 @@ func TestSecureWithCDN(t *testing.T) {
 	RegisterT(t)
 
 	os.Setenv("CDN_HOST", "test.fider.io")
-	defer func() {
-		os.Unsetenv("CDN_HOST")
-	}()
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Secure())
