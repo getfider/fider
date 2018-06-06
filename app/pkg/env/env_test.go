@@ -123,3 +123,17 @@ func TestGetPublicIP(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(ip).Equals("")
 }
+
+func TestSubdomain(t *testing.T) {
+	RegisterT(t)
+
+	Expect(env.Subdomain("demo.test.fider.io")).Equals("demo")
+	Expect(env.Subdomain("test.fider.io")).Equals("")
+	Expect(env.Subdomain("helloworld.com")).Equals("")
+
+	os.Setenv("HOST_MODE", "single")
+
+	Expect(env.Subdomain("demo.test.fider.io")).Equals("")
+	Expect(env.Subdomain("test.fider.io")).Equals("")
+	Expect(env.Subdomain("helloworld.com")).Equals("")
+}

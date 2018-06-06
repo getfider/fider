@@ -220,7 +220,7 @@ func (ctx *Context) Failure(err error) error {
 		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
 	}
 
-	url := ctx.Request.URL
+	url := ctx.Request.URL.String()
 	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
 	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
