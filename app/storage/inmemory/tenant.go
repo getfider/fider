@@ -50,7 +50,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 // GetByDomain returns a tenant based on its domain
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	for _, tenant := range s.tenants {
-		if tenant.Subdomain == env.Subdomain(domain) || tenant.CNAME == domain {
+		if tenant.Subdomain == env.Subdomain(domain) || tenant.Subdomain == domain || tenant.CNAME == domain {
 			return tenant, nil
 		}
 	}

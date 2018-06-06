@@ -135,7 +135,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants WHERE subdomain = $1 OR cname = $2 ORDER BY cname DESC", env.Subdomain(domain), domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 ORDER BY cname DESC", env.Subdomain(domain), domain, domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}

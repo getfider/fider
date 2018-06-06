@@ -71,7 +71,6 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
-	Expect(req.Subdomain()).Equals("")
 	Expect(req.URL.Scheme).Equals("https")
 }
 
@@ -87,7 +86,6 @@ func TestRequest_FullURL(t *testing.T) {
 
 	Expect(req.URL.String()).Equals("http://demo.test.fider.io/echo?value=Jon")
 	Expect(req.URL.Path).Equals("/echo")
-	Expect(req.Subdomain()).Equals("demo")
 	Expect(req.URL.Query().Get("value")).Equals("Jon")
 	Expect(req.URL.RequestURI()).Equals("/echo?value=Jon")
 }
