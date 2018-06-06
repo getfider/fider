@@ -1,7 +1,9 @@
 package web_test
 
 import (
+	"crypto/tls"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -11,10 +13,23 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func newGetContext(rawurl string) *web.Context {
+func newGetContext(rawurl string, headers map[string]string) *web.Context {
+	u, _ := url.Parse(rawurl)
 	e := web.New(nil)
 	res := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", rawurl, nil)
+	req := httptest.NewRequest("GET", u.RequestURI(), nil)
+	req.Host = u.Host
+
+	if u.Scheme == "https" {
+		req.TLS = &tls.ConnectionState{}
+	}
+
+	if headers != nil {
+		for k, v := range headers {
+			req.Header.Set(k, v)
+		}
+	}
+
 	ctx := e.NewContext(res, req, nil)
 	return &ctx
 }
@@ -32,7 +47,7 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 func TestContextID(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 
 	Expect(ctx.ContextID()).IsNotEmpty()
 	Expect(ctx.ContextID()).HasLen(32)
@@ -41,7 +56,7 @@ func TestContextID(t *testing.T) {
 func TestBaseURL(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 
 	Expect(ctx.BaseURL()).Equals("http://demo.test.fider.io:3000")
 }
@@ -49,7 +64,7 @@ func TestBaseURL(t *testing.T) {
 func TestBaseURL_HTTPS(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("https://demo.test.fider.io:3000")
+	ctx := newGetContext("https://demo.test.fider.io:3000", nil)
 
 	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
 }
@@ -57,8 +72,9 @@ func TestBaseURL_HTTPS(t *testing.T) {
 func TestBaseURL_HTTPS_Proxy(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
-	ctx.Request.Header.Add("X-Forwarded-Proto", "https")
+	ctx := newGetContext("http://demo.test.fider.io:3000", map[string]string{
+		"X-Forwarded-Proto": "https",
+	})
 
 	Expect(ctx.BaseURL()).Equals("https://demo.test.fider.io:3000")
 }
@@ -66,16 +82,15 @@ func TestBaseURL_HTTPS_Proxy(t *testing.T) {
 func TestCurrentURL(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
-	ctx.Request.RequestURI = "/resource?id=23"
+	ctx := newGetContext("http://demo.test.fider.io:3000/resource?id=23", nil)
 
-	Expect(ctx.CurrentURL()).Equals("http://demo.test.fider.io:3000/resource?id=23")
+	Expect(ctx.Request.URL.String()).Equals("http://demo.test.fider.io:3000/resource?id=23")
 }
 
 func TestTenantURL(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://login.test.fider.io:3000")
+	ctx := newGetContext("http://login.test.fider.io:3000", nil)
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
@@ -86,7 +101,7 @@ func TestTenantURL(t *testing.T) {
 func TestTenantURL_WithCNAME(t *testing.T) {
 	RegisterT(t)
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
@@ -99,7 +114,7 @@ func TestTenantURL_SingleHostMode(t *testing.T) {
 	RegisterT(t)
 	os.Setenv("HOST_MODE", "single")
 
-	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
@@ -115,7 +130,7 @@ func TestTenantURL_AssetsURL_SingleHostMode(t *testing.T) {
 	}()
 
 	os.Setenv("HOST_MODE", "single")
-	ctx := newGetContext("http://demo.test.fider.io:3000")
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://demo.test.fider.io:3000/assets/main.js")
 	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://demo.test.fider.io:3000/assets/main.css")
 
@@ -132,7 +147,7 @@ func TestTenantURL_AssetsURL_MultiHostMode(t *testing.T) {
 	}()
 
 	os.Setenv("HOST_MODE", "multi")
-	ctx := newGetContext("http://theavengers.test.fider.io:3000")
+	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
 	Expect(ctx.AssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
 	Expect(ctx.AssetsURL("/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
