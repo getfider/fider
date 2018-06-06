@@ -127,16 +127,16 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__Description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	m["__VendorBundle"] = "/assets/js/" + r.vendorBundle //ctx.GlobalAssetsURL("/assets/js/%s", r.vendorBundle)
-	m["__JavaScriptBundle"] = "/assets/js/" + r.jsBundle //ctx.GlobalAssetsURL("/assets/js/%s", r.jsBundle)
-	m["__StyleBundle"] = "/assets/css/" + r.cssBundle    //ctx.GlobalAssetsURL("/assets/css/%s", r.cssBundle)
+	m["__VendorBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.vendorBundle) //"/assets/js/" + r.vendorBundle
+	m["__JavaScriptBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.jsBundle) //"/assets/js/" + r.jsBundle
+	m["__StyleBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.cssBundle)    //"/assets/css/" + r.cssBundle
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)   //ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
-		m["__favicon"] = fmt.Sprintf("%s/logo/50/%d", ctx.BaseURL(), ctx.Tenant().LogoID) //ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
+		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)   //fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
+		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID) //fmt.Sprintf("%s/logo/50/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
-		m["__favicon"] = "/favicon.ico" // ctx.GlobalAssetsURL("/favicon.ico")
+		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico") //"/favicon.ico"
 	}
 
 	m["system"] = r.settings
