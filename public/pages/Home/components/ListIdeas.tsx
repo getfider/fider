@@ -13,17 +13,11 @@ import {
   List
 } from "@fider/components";
 
-const defaultShowCount = 20;
-
 interface ListIdeasProps {
   user?: CurrentUser;
   ideas: Idea[];
   tags: Tag[];
   emptyText: string;
-}
-
-interface ListIdeasState {
-  showCount: number;
 }
 
 const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) => {
@@ -47,30 +41,19 @@ const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) =>
   );
 };
 
-export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
+export class ListIdeas extends React.Component<ListIdeasProps, {}> {
   constructor(props: ListIdeasProps) {
     super(props);
-    this.state = {
-      showCount: defaultShowCount
-    };
   }
-
-  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
-    event.preventDefault();
-    this.setState({
-      showCount: this.state.showCount + defaultShowCount
-    });
-  };
 
   public render() {
     if (this.props.ideas.length === 0) {
       return <p className="center">{this.props.emptyText}</p>;
     }
 
-    const ideasToList = this.props.ideas.slice(0, this.state.showCount);
     return (
       <List className="c-idea-list" divided={true}>
-        {ideasToList.map(idea => (
+        {this.props.ideas.map(idea => (
           <ListIdeaItem
             key={idea.id}
             user={this.props.user}
@@ -78,11 +61,6 @@ export class ListIdeas extends React.Component<ListIdeasProps, ListIdeasState> {
             tags={this.props.tags.filter(tag => idea.tags.indexOf(tag.slug) >= 0)}
           />
         ))}
-        {this.props.ideas.length > this.state.showCount && (
-          <h5 className="c-idea-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
-            View {this.props.ideas.length - this.state.showCount} more ideas
-          </h5>
-        )}
       </List>
     );
   }

@@ -34,7 +34,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   private search = (searchQuery: string) => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      actions.searchIdeas(searchQuery, "", []).then(res => {
+      actions.searchIdeas({ query: searchQuery }).then(res => {
         const ideas =
           this.props.exclude && this.props.exclude.length > 0
             ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)

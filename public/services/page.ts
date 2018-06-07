@@ -51,7 +51,7 @@ export const getQueryStringArray = (name: string): string[] => {
 };
 
 export interface QueryString {
-  [key: string]: string | string[];
+  [key: string]: string | string[] | number | undefined;
 }
 
 export const toQueryString = (object: QueryString): string => {
@@ -69,7 +69,7 @@ export const toQueryString = (object: QueryString): string => {
         qs += `${symbol}${key}=${value.join(",")}`;
       }
     } else if (value) {
-      qs += `${symbol}${key}=${encodeURIComponent(value).replace(/%20/g, "+")}`;
+      qs += `${symbol}${key}=${encodeURIComponent(value.toString()).replace(/%20/g, "+")}`;
     }
   }
 
