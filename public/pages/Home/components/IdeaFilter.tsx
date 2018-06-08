@@ -20,6 +20,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
   public render() {
     const options: DropdownItemProps[] = [
       { text: "trending", value: "trending", content: "Trending" },
+      { text: "my votes", value: "my-votes", content: "My Votes" },
       { text: "recent", value: "recent", content: "Recent" },
       { text: "most wanted", value: "most-wanted", content: "Most Wanted" },
       { text: "most discussed", value: "most-discussed", content: "Most Discussed" }

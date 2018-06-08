@@ -301,13 +301,13 @@ func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			models.IdeaDeclined,
 		}), ToTSQuery(query), query)
 	} else {
-		statuses, sort := getFilterData(filter)
+		condition, statuses, sort := getFilterData(filter)
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
-			WHERE tags @> $3
+			WHERE tags @> $3 %s
 			ORDER BY %s DESC
 			LIMIT %s
-		`, innerQuery, sort, limit)
+		`, innerQuery, condition, sort, limit)
 		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array(statuses), pq.Array(tags))
 	}
 
