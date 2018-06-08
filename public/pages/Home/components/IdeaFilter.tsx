@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Idea, IdeaStatus } from "@fider/models";
+import { Idea, IdeaStatus, CurrentUser } from "@fider/models";
 import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 
 interface IdeaFilterProps {
+  user?: CurrentUser;
   activeFilter: string;
   countPerStatus: { [key: string]: number };
   filterChanged: (name: string) => void;
@@ -21,10 +22,13 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
     const options: DropdownItemProps[] = [
       { text: "trending", value: "trending", content: "Trending" },
       { text: "recent", value: "recent", content: "Recent" },
-      { text: "my votes", value: "my-votes", content: "My Votes" },
       { text: "most wanted", value: "most-wanted", content: "Most Wanted" },
       { text: "most discussed", value: "most-discussed", content: "Most Discussed" }
     ];
+
+    if (this.props.user) {
+      options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
+    }
 
     IdeaStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({

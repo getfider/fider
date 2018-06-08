@@ -105,6 +105,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <IdeaFilter
+                  user={this.props.user}
                   activeFilter={this.state.filter}
                   filterChanged={this.handleFilterChanged}
                   countPerStatus={this.props.countPerStatus}
