@@ -28,6 +28,10 @@ export interface ModalOptions {
   closable: boolean;
 }
 
+export const getQueryStringAsNumber = (name: string): number | undefined => {
+  return parseInt(getQueryString(name), 10) || undefined;
+};
+
 export const getQueryString = (name: string): string => {
   const url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");

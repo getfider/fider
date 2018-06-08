@@ -15,7 +15,7 @@ interface IdeasContainerProps {
 
 interface IdeasContainerState {
   loading: boolean;
-  ideas: Idea[];
+  ideas?: Idea[];
   filter: string;
   tags: string[];
   query: string;
@@ -23,22 +23,16 @@ interface IdeasContainerState {
 }
 
 export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasContainerState> {
-  private timer?: number;
-
   constructor(props: IdeasContainerProps) {
     super(props);
-    const query = page.getQueryString("q");
-    const tags = page.getQueryStringArray("t");
-    const filter = page.getQueryString("f");
-    const limit = parseInt(page.getQueryString("l"), 10) || undefined;
 
     this.state = {
       ideas: this.props.ideas,
       loading: false,
-      filter,
-      query,
-      tags,
-      limit
+      filter: page.getQueryString("f"),
+      query: page.getQueryString("q"),
+      tags: page.getQueryStringArray("t"),
+      limit: page.getQueryStringAsNumber("l")
     };
   }
 
@@ -61,9 +55,10 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     });
   }
 
+  private timer?: number;
   private async searchIdeas(query: string, filter: string, limit: number | undefined, tags: string[], reset: boolean) {
     window.clearTimeout(this.timer);
-    this.setState({ ideas: reset ? [] : this.state.ideas, loading: true });
+    this.setState({ ideas: reset ? undefined : this.state.ideas, loading: true });
     this.timer = window.setTimeout(() => {
       actions.searchIdeas({ query, filter, limit, tags }).then(response => {
         if (this.state.loading) {
@@ -96,6 +91,10 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
   private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
     event.preventDefault();
     this.changeFilterCriteria({ limit: (this.state.limit || 30) + 10 }, false);
+  };
+
+  private canShowMore = (): boolean => {
+    return this.state.ideas ? this.state.ideas.length >= (this.state.limit || 30) : false;
   };
 
   public render() {
@@ -136,7 +135,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
           emptyText={"No results matched your search, try something different."}
         />
         {this.state.loading && <Loader />}
-        {this.state.ideas.length >= (this.state.limit || 30) && (
+        {this.canShowMore() && (
           <h5 className="c-idea-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
             View more ideas
           </h5>

@@ -15,7 +15,7 @@ import {
 
 interface ListIdeasProps {
   user?: CurrentUser;
-  ideas: Idea[];
+  ideas?: Idea[];
   tags: Tag[];
   emptyText: string;
 }
@@ -47,6 +47,10 @@ export class ListIdeas extends React.Component<ListIdeasProps, {}> {
   }
 
   public render() {
+    if (!this.props.ideas) {
+      return null;
+    }
+
     if (this.props.ideas.length === 0) {
       return <p className="center">{this.props.emptyText}</p>;
     }
