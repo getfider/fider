@@ -15,6 +15,7 @@ func Index() web.HandlerFunc {
 		ideas, err := c.Services().Ideas.Search(
 			c.QueryParam("q"),
 			c.QueryParam("f"),
+			c.QueryParam("l"),
 			c.QueryParamAsArray("t"),
 		)
 		if err != nil {
@@ -55,6 +56,7 @@ func SearchIdeas() web.HandlerFunc {
 		ideas, err := c.Services().Ideas.Search(
 			c.QueryParam("q"),
 			c.QueryParam("f"),
+			c.QueryParam("l"),
 			c.QueryParamAsArray("t"),
 		)
 		if err != nil {

@@ -90,7 +90,7 @@ func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
 }
 
 // Search existing ideas based on input
-func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Idea, error) {
+func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*models.Idea, error) {
 	return s.ideas, nil
 }
 

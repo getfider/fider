@@ -19,7 +19,7 @@ type Idea interface {
 	GetBySlug(slug string) (*models.Idea, error)
 	GetByNumber(number int) (*models.Idea, error)
 	GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error)
-	Search(query, filter string, tags []string) ([]*models.Idea, error)
+	Search(query, filter, limit string, tags []string) ([]*models.Idea, error)
 	GetAll() ([]*models.Idea, error)
 	CountPerStatus() (map[int]int, error)
 	Add(title, description string) (*models.Idea, error)
