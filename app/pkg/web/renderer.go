@@ -129,7 +129,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["system"] = r.settings
 	m["baseURL"] = ctx.BaseURL()
 	m["assetsBaseURL"] = ctx.GlobalAssetsURL("")
-	m["tenantAssetsBaseURL"] = ctx.TenantAssetsURL("")
+	if ctx.Tenant() != nil {
+		m["tenantAssetsBaseURL"] = ctx.TenantAssetsURL("")
+	}
 	m["currentURL"] = ctx.Request.URL.String()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
