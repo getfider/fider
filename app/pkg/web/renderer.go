@@ -119,15 +119,17 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)   //fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
-		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID) //fmt.Sprintf("%s/logo/50/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
+		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
+		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
-		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico") //"/favicon.ico"
+		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
 	m["system"] = r.settings
 	m["baseURL"] = ctx.BaseURL()
+	m["assetsBaseURL"] = ctx.GlobalAssetsURL("")
+	m["tenantAssetsBaseURL"] = ctx.TenantAssetsURL("")
 	m["currentURL"] = ctx.Request.URL.String()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
