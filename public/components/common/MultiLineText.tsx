@@ -1,14 +1,5 @@
 import * as React from "react";
-import * as md from "markdown-it";
-
-const full = md("commonmark", {
-  html: false,
-  breaks: true,
-  linkify: true
-}).enable(["linkify", "strikethrough"]);
-const simple = md("commonmark", { html: false, breaks: true, linkify: true })
-  .enable(["linkify", "strikethrough"])
-  .disable(["heading", "image"]);
+import { markdown } from "@fider/services";
 
 interface MultiLineText {
   className?: string;
@@ -21,11 +12,8 @@ export const MultiLineText = (props: MultiLineText) => {
     return <p />;
   }
 
-  const func = props.style === "full" ? full : simple;
+  const func = props.style === "full" ? markdown.full : markdown.simple;
   return (
-    <div
-      className={`markdown-body ${props.className || ""}`}
-      dangerouslySetInnerHTML={{ __html: func.render(props.text) }}
-    />
+    <div className={`markdown-body ${props.className || ""}`} dangerouslySetInnerHTML={{ __html: func(props.text) }} />
   );
 };

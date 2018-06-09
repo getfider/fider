@@ -10,49 +10,35 @@ interface IdeasContainerProps {
   user?: CurrentUser;
   ideas: Idea[];
   tags: Tag[];
-  newIdeaTitle: string;
   countPerStatus: { [key: string]: number };
 }
 
 interface IdeasContainerState {
   loading: boolean;
-  ideas: Idea[];
+  ideas?: Idea[];
   filter: string;
   tags: string[];
   query: string;
+  limit?: number;
 }
 
 export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasContainerState> {
-  private timer?: number;
-
   constructor(props: IdeasContainerProps) {
     super(props);
-    const query = page.getQueryString("q");
-    const tags = page.getQueryStringArray("t");
-    const filter = page.getQueryString("f");
 
     this.state = {
-      ideas: [],
+      ideas: this.props.ideas,
       loading: false,
-      filter,
-      query,
-      tags
+      filter: page.getQueryString("f"),
+      query: page.getQueryString("q"),
+      tags: page.getQueryStringArray("t"),
+      limit: page.getQueryStringAsNumber("l")
     };
-  }
-
-  public componentWillReceiveProps(nextProps: IdeasContainerProps) {
-    if (nextProps.newIdeaTitle) {
-      this.searchIdeas(nextProps.newIdeaTitle, "", [], 200);
-    } else if (this.state.query || this.state.filter || this.state.tags.length > 0) {
-      this.searchIdeas(this.state.query, this.state.filter, this.state.tags);
-    } else {
-      this.setState({ loading: false, ideas: nextProps.ideas });
-    }
   }
 
   private changeFilterCriteria<K extends keyof IdeasContainerState>(
     obj: Pick<IdeasContainerState, K>,
-    delay: number = 0
+    reset: boolean
   ): void {
     this.setState(obj, () => {
       const query = this.state.query.trim().toLowerCase();
@@ -60,71 +46,58 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
         page.toQueryString({
           t: this.state.tags,
           q: query,
-          f: this.state.filter
+          f: this.state.filter,
+          l: this.state.limit
         })
       );
 
-      this.searchIdeas(query, this.state.filter, this.state.tags, delay);
+      this.searchIdeas(query, this.state.filter, this.state.limit, this.state.tags, reset);
     });
   }
 
-  private async searchIdeas(query: string, filter: string, tags: string[], delay: number = 0) {
+  private timer?: number;
+  private async searchIdeas(query: string, filter: string, limit: number | undefined, tags: string[], reset: boolean) {
     window.clearTimeout(this.timer);
-    this.setState({ loading: true });
+    this.setState({ ideas: reset ? undefined : this.state.ideas, loading: true });
     this.timer = window.setTimeout(() => {
-      actions.searchIdeas(query, filter, tags).then(response => {
+      actions.searchIdeas({ query, filter, limit, tags }).then(response => {
         if (this.state.loading) {
           this.setState({ loading: false, ideas: response.data });
         }
       });
-    }, delay);
+    }, 200);
   }
 
   private handleFilterChanged = (filter: string) => {
-    this.changeFilterCriteria({ filter });
+    this.changeFilterCriteria({ filter }, true);
   };
 
   private handleTagsFilterChanged = (tags: string[]) => {
-    this.changeFilterCriteria({ tags });
+    this.changeFilterCriteria({ tags }, true);
   };
 
   private handleSearchFilterChanged = (query: string) => {
-    this.changeFilterCriteria({ query }, 200);
+    this.changeFilterCriteria({ query }, true);
   };
 
   private handleSearchClick = (query: string) => {
-    this.changeFilterCriteria({ query }, 200);
+    this.changeFilterCriteria({ query }, true);
   };
 
   private clearSearch = () => {
-    this.changeFilterCriteria({ query: "" });
+    this.changeFilterCriteria({ query: "" }, true);
+  };
+
+  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
+    event.preventDefault();
+    this.changeFilterCriteria({ limit: (this.state.limit || 30) + 10 }, false);
+  };
+
+  private canShowMore = (): boolean => {
+    return this.state.ideas ? this.state.ideas.length >= (this.state.limit || 30) : false;
   };
 
   public render() {
-    if (this.props.newIdeaTitle) {
-      return (
-        <>
-          <Heading
-            title="Similar ideas"
-            subtitle="Consider voting on existing ideas before posting a new one."
-            icon="lightbulb"
-            size="small"
-            dividing={true}
-          />
-          {this.state.loading ? (
-            <Loader />
-          ) : (
-            <ListIdeas
-              ideas={this.state.ideas}
-              tags={this.props.tags}
-              user={this.props.user}
-              emptyText={`No similar ideas matched '${this.props.newIdeaTitle}'.`}
-            />
-          )}
-        </>
-      );
-    }
-
     return (
       <>
         <div className="row">
@@ -132,6 +105,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <IdeaFilter
+                  user={this.props.user}
                   activeFilter={this.state.filter}
                   filterChanged={this.handleFilterChanged}
                   countPerStatus={this.props.countPerStatus}
@@ -155,15 +129,17 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             />
           </div>
         </div>
-        {this.state.loading ? (
-          <Loader />
-        ) : (
-          <ListIdeas
-            ideas={this.state.ideas}
-            tags={this.props.tags}
-            user={this.props.user}
-            emptyText={"No results matched your search, try something different."}
-          />
+        <ListIdeas
+          ideas={this.state.ideas}
+          tags={this.props.tags}
+          user={this.props.user}
+          emptyText={"No results matched your search, try something different."}
+        />
+        {this.state.loading && <Loader />}
+        {this.canShowMore() && (
+          <h5 className="c-idea-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
+            View more ideas
+          </h5>
         )}
       </>
     );

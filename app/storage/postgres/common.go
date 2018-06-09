@@ -16,8 +16,11 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getFilterData(filter string) ([]int, string) {
-	var sort string
+func getFilterData(filter string) (string, []int, string) {
+	var (
+		condition string
+		sort      string
+	)
 	statuses := []int{
 		models.IdeaOpen,
 		models.IdeaStarted,
@@ -25,6 +28,9 @@ func getFilterData(filter string) ([]int, string) {
 	}
 	switch filter {
 	case "recent":
+		sort = "id"
+	case "my-votes":
+		condition = "AND viewer_supported = true"
 		sort = "id"
 	case "most-wanted":
 		sort = "supporters"
@@ -56,5 +62,5 @@ func getFilterData(filter string) ([]int, string) {
 	default:
 		sort = "((COALESCE(recent_supporters, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_on)/3600) + 2, 1.4)"
 	}
-	return statuses, sort
+	return condition, statuses, sort
 }

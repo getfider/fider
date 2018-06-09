@@ -41,10 +41,14 @@ func TestIdeaStorage_GetAll(t *testing.T) {
 	Expect(dbIdeas[1].TotalSupporters).Equals(0)
 	Expect(dbIdeas[1].Status).Equals(models.IdeaStarted)
 
-	dbIdeas, err = ideas.Search("twitter", "trending", []string{})
+	dbIdeas, err = ideas.Search("twitter", "trending", "10", []string{})
 	Expect(err).IsNil()
 	Expect(dbIdeas).HasLen(1)
 	Expect(dbIdeas[0].Slug).Equals("add-twitter-integration")
+
+	dbIdeas, err = ideas.Search("twitter", "trending", "0", []string{})
+	Expect(err).IsNil()
+	Expect(dbIdeas).HasLen(0)
 }
 
 func TestIdeaStorage_AddAndGet(t *testing.T) {

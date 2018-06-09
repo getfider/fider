@@ -250,7 +250,7 @@ func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
 
 // GetAll returns all tenant ideas
 func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
-	ideas, err := s.Search("", "all", []string{})
+	ideas, err := s.Search("", "all", "all", []string{})
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all ideas")
 	}
@@ -272,8 +272,14 @@ func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
 }
 
 // Search existing ideas based on input
-func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Idea, error) {
+func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*models.Idea, error) {
 	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status = ANY($2)")
+
+	if limit != "all" {
+		if _, err := strconv.Atoi(limit); err != nil {
+			limit = "30"
+		}
+	}
 
 	var (
 		ideas []*dbIdea
@@ -283,9 +289,10 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 		scoreField := "ts_rank(setweight(to_tsvector(title), 'A') || setweight(to_tsvector(description), 'B'), to_tsquery('english', $3)) + similarity(title, $4) + similarity(description, $4)"
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
-			WHERE %s > 0.1 
+			WHERE %s > 0.1
 			ORDER BY %s DESC
-		`, innerQuery, scoreField, scoreField)
+			LIMIT %s
+		`, innerQuery, scoreField, scoreField, limit)
 		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array([]int{
 			models.IdeaOpen,
 			models.IdeaStarted,
@@ -294,12 +301,13 @@ func (s *IdeaStorage) Search(query, filter string, tags []string) ([]*models.Ide
 			models.IdeaDeclined,
 		}), ToTSQuery(query), query)
 	} else {
-		statuses, sort := getFilterData(filter)
+		condition, statuses, sort := getFilterData(filter)
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
-			WHERE tags @> $3
+			WHERE tags @> $3 %s
 			ORDER BY %s DESC
-		`, innerQuery, sort)
+			LIMIT %s
+		`, innerQuery, condition, sort, limit)
 		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array(statuses), pq.Array(tags))
 	}
 

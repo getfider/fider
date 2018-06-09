@@ -5,6 +5,7 @@ import { Idea, Tag, IdeaStatus, CurrentUser, Tenant } from "@fider/models";
 import { MultiLineText } from "@fider/components";
 import { IdeaInput, ListIdeas, IdeasContainer } from "./";
 import { page, actions } from "@fider/services";
+import { SimilarIdeas } from "./components/SimilarIdeas";
 
 export interface HomePageProps {
   user?: CurrentUser;
@@ -54,7 +55,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     return false;
   }
 
-  private setTitle = (title: string) => {
+  private setTitle = async (title: string) => {
     this.setState({ title });
   };
 
@@ -77,13 +78,14 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
           <div className="col-md-8">
             {this.isLonely() ? (
               <Lonely />
+            ) : this.state.title ? (
+              <SimilarIdeas title={this.state.title} user={this.props.user} tags={this.props.tags} />
             ) : (
               <IdeasContainer
                 user={this.props.user}
                 ideas={this.props.ideas}
                 tags={this.props.tags}
                 countPerStatus={this.props.countPerStatus}
-                newIdeaTitle={this.state.title}
               />
             )}
           </div>

@@ -1,12 +1,26 @@
-import { http, Result } from "@fider/services";
+import { http, Result, page } from "@fider/services";
 import { Idea } from "@fider/models";
 
 export const getAllIdeas = async (): Promise<Result<Idea[]>> => {
   return await http.get<Idea[]>("/api/ideas/search");
 };
 
-export const searchIdeas = async (query: string, filter: string, tags: string[]): Promise<Result<Idea[]>> => {
-  return await http.get<Idea[]>(`/api/ideas/search?q=${encodeURIComponent(query)}&f=${filter}&t=${tags.join(",")}`);
+export interface SearchIdeasParams {
+  query?: string;
+  filter?: string;
+  limit?: number;
+  tags?: string[];
+}
+
+export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Idea[]>> => {
+  return await http.get<Idea[]>(
+    `/api/ideas/search${page.toQueryString({
+      t: params.tags,
+      q: params.query,
+      f: params.filter,
+      l: params.limit
+    })}`
+  );
 };
 
 export const deleteIdea = async (ideaNumber: number, text: string): Promise<Result> => {

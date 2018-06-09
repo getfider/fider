@@ -32,7 +32,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
       focused: false,
       showSignIn: false
     };
-    if (this.state) {
+
+    if (this.state.title) {
       this.props.onTitleChanged(this.state.title);
     }
   }

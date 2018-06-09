@@ -28,6 +28,10 @@ export interface ModalOptions {
   closable: boolean;
 }
 
+export const getQueryStringAsNumber = (name: string): number | undefined => {
+  return parseInt(getQueryString(name), 10) || undefined;
+};
+
 export const getQueryString = (name: string): string => {
   const url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
@@ -51,7 +55,7 @@ export const getQueryStringArray = (name: string): string[] => {
 };
 
 export interface QueryString {
-  [key: string]: string | string[];
+  [key: string]: string | string[] | number | undefined;
 }
 
 export const toQueryString = (object: QueryString): string => {
@@ -69,7 +73,7 @@ export const toQueryString = (object: QueryString): string => {
         qs += `${symbol}${key}=${value.join(",")}`;
       }
     } else if (value) {
-      qs += `${symbol}${key}=${encodeURIComponent(value).replace(/%20/g, "+")}`;
+      qs += `${symbol}${key}=${encodeURIComponent(value.toString()).replace(/%20/g, "+")}`;
     }
   }
 
