@@ -140,9 +140,22 @@ func IsDevelopment() bool {
 
 // Subdomain returns the Fider subdomain (if available) from given host
 func Subdomain(host string) string {
+	if IsSingleHostMode() {
+		return ""
+	}
+
 	domain := MultiTenantDomain()
 	if domain != "" && strings.Contains(host, domain) {
 		return strings.Replace(host, domain, "", -1)
 	}
+
+	if IsDefined("CDN_HOST") {
+		domain = MustGet("CDN_HOST")
+		parts := strings.Split(domain, ":")
+		if parts[0] != "" && strings.Contains(host, "."+parts[0]) {
+			return strings.Replace(host, "."+parts[0], "", -1)
+		}
+	}
+
 	return ""
 }

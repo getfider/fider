@@ -145,7 +145,9 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	} else {
 		ctx.Logger().Debugf("Current tenant: nil")
 	}
-	ctx.Services().SetCurrentTenant(tenant)
+	if ctx.Services() != nil {
+		ctx.Services().SetCurrentTenant(tenant)
+	}
 	ctx.Set(tenantContextKey, tenant)
 }
 
@@ -296,13 +298,19 @@ func (ctx *Context) SetUser(user *models.User) {
 	} else {
 		ctx.Logger().Debugf("Logged as: nil")
 	}
+	if ctx.Services() != nil {
+		ctx.Services().SetCurrentUser(user)
+	}
 	ctx.Set(userContextKey, user)
-	ctx.Services().SetCurrentUser(user)
 }
 
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
-	return ctx.Get(servicesContextKey).(*app.Services)
+	svc, ok := ctx.Get(servicesContextKey).(*app.Services)
+	if ok {
+		return svc
+	}
+	return nil
 }
 
 //AddAuthCookie generates and adds a cookie
@@ -481,4 +489,28 @@ func (ctx *Context) Redirect(url string) error {
 	ctx.Response.Header().Set("Location", url)
 	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
+}
+
+// GlobalAssetsURL return the full URL to a globally shared static asset
+func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
+	path = fmt.Sprintf(path, a...)
+	if env.IsDefined("CDN_HOST") {
+		if env.IsSingleHostMode() {
+			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
+		}
+		return ctx.Request.URL.Scheme + "://cdn." + env.MustGet("CDN_HOST") + path
+	}
+	return ctx.BaseURL() + path
+}
+
+// TenantAssetsURL return the full URL to a tenant-specific static asset
+func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
+	path = fmt.Sprintf(path, a...)
+	if env.IsDefined("CDN_HOST") {
+		if env.IsSingleHostMode() {
+			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
+		}
+		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.MustGet("CDN_HOST") + path
+	}
+	return ctx.BaseURL() + path
 }

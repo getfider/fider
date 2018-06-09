@@ -127,13 +127,21 @@ func TestGetPublicIP(t *testing.T) {
 func TestSubdomain(t *testing.T) {
 	RegisterT(t)
 
+	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
+
+	os.Setenv("CDN_HOST", "test.assets-fider.io:3000")
+
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("demo")
+	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("demo")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
+	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 
 	os.Setenv("HOST_MODE", "single")
 
 	Expect(env.Subdomain("demo.test.fider.io")).Equals("")
+	Expect(env.Subdomain("demo.test.assets-fider.io")).Equals("")
 	Expect(env.Subdomain("test.fider.io")).Equals("")
+	Expect(env.Subdomain("test.assets-fider.io")).Equals("")
 	Expect(env.Subdomain("helloworld.com")).Equals("")
 }

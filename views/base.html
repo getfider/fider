@@ -4,6 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
+    <link rel="preload" href="{{ .__FontBundle }}" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ .__StyleBundle }}" />
     <title>{{ .__Title }}</title>
     <meta name="description" content="{{ .__Description }}" />
@@ -14,7 +15,7 @@
     <meta property="og:image" content="{{ .__logo }}">
     {{ if .tenant }} 
       {{ if .tenant.CustomCSS }} 
-      <link rel="stylesheet" href="/custom/{{ .tenant.CustomCSS | md5 }}.css" />
+      <link rel="stylesheet" href="{{ .tenantAssetsBaseURL }}/custom/{{ .tenant.CustomCSS | md5 }}.css" />
       {{ end }}
     {{ end }}
 </head>

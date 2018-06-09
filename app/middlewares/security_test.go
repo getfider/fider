@@ -1,8 +1,8 @@
 package middlewares_test
 
 import (
-	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
@@ -11,20 +11,45 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func TestSecure(t *testing.T) {
+func TestSecureWithoutCDN(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Secure())
 
-	var id string
+	var ctxID string
 	status, response := server.Execute(func(c web.Context) error {
-		id = c.ContextID()
+		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})
 
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com ; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://www.google-analytics.com ; img-src 'self' https: data: ; font-src 'self' https://fonts.gstatic.com data: ; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com"
+
 	Expect(status).Equals(http.StatusOK)
-	Expect(response.Header().Get("Content-Security-Policy")).Equals(fmt.Sprintf(web.CspPolicyTemplate, id))
+	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
+	Expect(response.Header().Get("X-XSS-Protection")).Equals("1; mode=block")
+	Expect(response.Header().Get("X-Content-Type-Options")).Equals("nosniff")
+	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")
+}
+
+func TestSecureWithCDN(t *testing.T) {
+	RegisterT(t)
+
+	os.Setenv("CDN_HOST", "test.fider.io")
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.Secure())
+
+	var ctxID string
+	status, response := server.Execute(func(c web.Context) error {
+		ctxID = c.ContextID()
+		return c.NoContent(http.StatusOK)
+	})
+
+	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com *.test.fider.io; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://www.google-analytics.com *.test.fider.io; img-src 'self' https: data: *.test.fider.io; font-src 'self' https://fonts.gstatic.com data: *.test.fider.io; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com"
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
 	Expect(response.Header().Get("X-XSS-Protection")).Equals("1; mode=block")
 	Expect(response.Header().Get("X-Content-Type-Options")).Equals("nosniff")
 	Expect(response.Header().Get("Referrer-Policy")).Equals("no-referrer-when-downgrade")

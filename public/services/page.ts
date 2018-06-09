@@ -12,6 +12,14 @@ export const getBaseUrl = (): string => {
   return (window as any).props.baseURL;
 };
 
+export const getAssetsBaseUrl = (): string => {
+  return (window as any).props.assetsBaseURL;
+};
+
+export const getTenantAssetsBaseUrl = (): string => {
+  return (window as any).props.tenantAssetsBaseURL;
+};
+
 export const isSingleHostMode = (): boolean => {
   return (window as any).props.system.mode === "single";
 };

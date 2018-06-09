@@ -28,35 +28,20 @@ var templateFunctions = template.FuncMap{
 
 //Renderer is the default HTML Render
 type Renderer struct {
-	templates    map[string]*template.Template
-	logger       log.Logger
-	settings     *models.SystemSettings
-	jsBundle     string
-	vendorBundle string
-	cssBundle    string
+	templates map[string]*template.Template
+	logger    log.Logger
+	settings  *models.SystemSettings
+	assets    map[string]string
 }
 
 // NewRenderer creates a new Renderer
 func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
-	r := &Renderer{
+	return &Renderer{
 		templates: make(map[string]*template.Template),
 		logger:    logger,
 		settings:  settings,
+		assets:    make(map[string]string, 0),
 	}
-
-	r.add("index.html")
-	r.add("not-invited.html")
-	r.add("legal.html")
-	r.add("403.html")
-	r.add("404.html")
-	r.add("410.html")
-	r.add("500.html")
-
-	r.jsBundle = r.getBundle("/dist/js", "main")
-	r.vendorBundle = r.getBundle("/dist/js", "vendor")
-	r.cssBundle = r.getBundle("/dist/css", "main")
-
-	return r
 }
 
 //Render a template based on parameters
@@ -72,12 +57,12 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) getBundle(folder, prefix string) string {
+func (r *Renderer) getBundle(folder, prefix, suffix string) string {
 	files, _ := ioutil.ReadDir(env.Path(folder))
 	if len(files) > 0 {
 		for _, file := range files {
 			fileName := file.Name()
-			if strings.HasPrefix(fileName, prefix) {
+			if strings.HasPrefix(fileName, prefix) && strings.HasSuffix(fileName, suffix) {
 				return fileName
 			}
 		}
@@ -93,16 +78,16 @@ func (r *Renderer) getBundle(folder, prefix string) string {
 
 //Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
-	tmpl, ok := r.templates[name]
-	if !ok {
-		panic(fmt.Errorf("The template '%s' does not exist", name))
+	if len(r.assets) == 0 || env.IsDevelopment() {
+		r.assets["main.js"] = r.getBundle("/dist/js", "main", "js")
+		r.assets["vendor.js"] = r.getBundle("/dist/js", "vendor", "js")
+		r.assets["main.css"] = r.getBundle("/dist/css", "main", "css")
+		r.assets["icons.woff2"] = r.getBundle("/dist/fonts", "icons", "woff2")
 	}
 
-	if env.IsDevelopment() {
+	tmpl, ok := r.templates[name]
+	if !ok || env.IsDevelopment() {
 		tmpl = r.add(name)
-		r.jsBundle = r.getBundle("/dist/js", "main")
-		r.vendorBundle = r.getBundle("/dist/js", "vendor")
-		r.cssBundle = r.getBundle("/dist/css", "main")
 	}
 
 	m := props.Data
@@ -127,20 +112,26 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__Description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	m["__VendorBundle"] = "/assets/js/" + r.vendorBundle
-	m["__JavaScriptBundle"] = "/assets/js/" + r.jsBundle
-	m["__StyleBundle"] = "/assets/css/" + r.cssBundle
+	m["__VendorBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["vendor.js"])
+	m["__JavaScriptBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["main.js"])
+	m["__StyleBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.assets["main.css"])
+	m["__FontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
+
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = fmt.Sprintf("%s/logo/200/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
-		m["__favicon"] = fmt.Sprintf("%s/logo/50/%d", ctx.BaseURL(), ctx.Tenant().LogoID)
+		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
+		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
-		m["__favicon"] = "/favicon.ico"
+		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
 	m["system"] = r.settings
 	m["baseURL"] = ctx.BaseURL()
+	m["assetsBaseURL"] = ctx.GlobalAssetsURL("")
+	if ctx.Tenant() != nil {
+		m["tenantAssetsBaseURL"] = ctx.TenantAssetsURL("")
+	}
 	m["currentURL"] = ctx.Request.URL.String()
 	m["tenant"] = ctx.Tenant()
 	m["auth"] = Map{
