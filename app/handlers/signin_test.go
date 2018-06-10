@@ -1,7 +1,7 @@
 package handlers_test
 
 import (
-	"fmt"
+	"net/url"
 	"testing"
 	"time"
 
@@ -75,7 +75,12 @@ func TestCallbackHandler_ExistingUserAndProvider(t *testing.T) {
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("")
+	ExpectFiderToken(location.Query().Get("token"), mock.JonSnow)
 }
 
 func TestCallbackHandler_SignUp(t *testing.T) {
@@ -87,7 +92,17 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io/signup?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJvYXV0aC9pZCI6IkZCMTIzIiwib2F1dGgvcHJvdmlkZXIiOiJmYWNlYm9vayIsIm9hdXRoL25hbWUiOiJKb24gU25vdyIsIm9hdXRoL2VtYWlsIjoiam9uLnNub3dAZ290LmNvbSJ9.AFMEtMLxd2nAxPzMVeGVrJomn-n56WdhLvgYSmSq008")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("/signup")
+	ExpectOAuthToken(location.Query().Get("token"), &jwt.OAuthClaims{
+		OAuthProvider: "facebook",
+		OAuthID:       "FB123",
+		OAuthName:     "Jon Snow",
+		OAuthEmail:    "jon.snow@got.com",
+	})
 }
 
 func TestCallbackHandler_NewUser(t *testing.T) {
@@ -103,7 +118,12 @@ func TestCallbackHandler_NewUser(t *testing.T) {
 	Expect(user.Name).Equals("Some Facebook Guy")
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiJzb21lLmd1eUBmYWNlYm9vay5jb20ifQ.ydyGDIZZHbJ-mgvpAsXTZnbs1rBH6cTVjHctZEACUOo")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("avengers.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("")
+	ExpectFiderToken(location.Query().Get("token"), user)
 }
 
 func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
@@ -125,16 +145,26 @@ func TestCallbackHandler_NewUserWithoutEmail(t *testing.T) {
 
 	user, err := services.Users.GetByID(3)
 	Expect(err).IsNil()
+	Expect(user.ID).Equals(3)
 	Expect(user.Name).Equals("Some Guy")
 	Expect(user.Providers).HasLen(1)
 
 	user, err = services.Users.GetByID(4)
 	Expect(err).IsNil()
+	Expect(user.ID).Equals(4)
 	Expect(user.Name).Equals("Mark")
 	Expect(user.Providers).HasLen(1)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjo0LCJ1c2VyL25hbWUiOiJNYXJrIiwidXNlci9lbWFpbCI6IiJ9.G93ZTFcDuHiIlYbDvMnjhoDebeJZMifWbv9v0rayQOI")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("")
+	ExpectFiderToken(location.Query().Get("token"), &models.User{
+		ID:   4,
+		Name: "Mark",
+	})
 }
 
 func TestCallbackHandler_ExistingUser_WithoutEmail(t *testing.T) {
@@ -158,7 +188,15 @@ func TestCallbackHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjozLCJ1c2VyL25hbWUiOiJTb21lIEZhY2Vib29rIEd1eSIsInVzZXIvZW1haWwiOiIifQ.DBcMmKSrGxiXGVCq9QT716xfw3M4kzP-Njazsk6vaFI")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("")
+	ExpectFiderToken(location.Query().Get("token"), &models.User{
+		ID:   3,
+		Name: "Some Facebook Guy",
+	})
 }
 
 func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
@@ -174,7 +212,12 @@ func TestCallbackHandler_ExistingUser_NewProvider(t *testing.T) {
 	Expect(user.Providers).HasLen(2)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyL2lkIjoxLCJ1c2VyL25hbWUiOiJKb24gU25vdyIsInVzZXIvZW1haWwiOiJqb24uc25vd0Bnb3QuY29tIn0.S7P8zTU0rVovmchNbwamBewYbO96GdJcOygn7tbsikw")
+
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("demo.test.fider.io")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("")
+	ExpectFiderToken(location.Query().Get("token"), mock.JonSnow)
 }
 
 func TestCallbackHandler_NewUser_PrivateTenant(t *testing.T) {
@@ -192,7 +235,11 @@ func TestCallbackHandler_NewUser_PrivateTenant(t *testing.T) {
 	Expect(user).IsNil()
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("http://ideas.theavengers.com/not-invited")
+	location, _ := url.Parse(response.Header().Get("Location"))
+	Expect(location.Host).Equals("ideas.theavengers.com")
+	Expect(location.Scheme).Equals("http")
+	Expect(location.Path).Equals("/not-invited")
+	Expect(location.Query().Get("token")).IsEmpty()
 }
 
 func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
@@ -276,15 +323,16 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
-	token, _ := jwt.Encode(models.FiderClaims{
-		UserID:    mock.JonSnow.ID,
-		UserName:  mock.JonSnow.Name,
-		UserEmail: mock.JonSnow.Email,
-	})
-
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
-	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token))
+
+	cookies := web.ParseCookies(response.Header().Get("Set-Cookie"))
+	Expect(cookies).HasLen(1)
+	Expect(cookies[0].Name).Equals(web.CookieAuthName)
+	ExpectFiderToken(cookies[0].Value, mock.JonSnow)
+	Expect(cookies[0].HttpOnly).IsTrue()
+	Expect(cookies[0].Path).Equals("/")
+	Expect(cookies[0].Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 }
 
 func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
@@ -454,12 +502,13 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	Expect(user.Name).Equals("Hot Pie")
 	Expect(user.Email).Equals("hot.pie@got.com")
 
-	token, _ := jwt.Encode(models.FiderClaims{
-		UserID:    user.ID,
-		UserName:  user.Name,
-		UserEmail: user.Email,
-	})
-	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(fmt.Sprintf("%s=%s;", web.CookieAuthName, token))
+	cookies := web.ParseCookies(response.Header().Get("Set-Cookie"))
+	Expect(cookies).HasLen(1)
+	Expect(cookies[0].Name).Equals(web.CookieAuthName)
+	ExpectFiderToken(cookies[0].Value, user)
+	Expect(cookies[0].HttpOnly).IsTrue()
+	Expect(cookies[0].Path).Equals("/")
+	Expect(cookies[0].Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 
 	request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
 	Expect(err).IsNil()
@@ -505,4 +554,21 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 		Execute(handlers.SignInPage())
 
 	Expect(code).Equals(http.StatusOK)
+}
+
+func ExpectFiderToken(token string, expected *models.User) {
+	user, err := jwt.DecodeFiderClaims(token)
+	Expect(err).IsNil()
+	Expect(user.UserID).Equals(expected.ID)
+	Expect(user.UserName).Equals(expected.Name)
+	Expect(user.UserEmail).Equals(expected.Email)
+}
+
+func ExpectOAuthToken(token string, expected *jwt.OAuthClaims) {
+	user, err := jwt.DecodeOAuthClaims(token)
+	Expect(err).IsNil()
+	Expect(user.OAuthID).Equals(expected.OAuthID)
+	Expect(user.OAuthName).Equals(expected.OAuthName)
+	Expect(user.OAuthEmail).Equals(expected.OAuthEmail)
+	Expect(user.OAuthProvider).Equals(expected.OAuthProvider)
 }

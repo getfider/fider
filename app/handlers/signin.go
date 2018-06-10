@@ -103,17 +103,23 @@ func OAuthCallback(provider string) web.HandlerFunc {
 				}
 			}
 
-			claims = models.FiderClaims{
+			claims = jwt.FiderClaims{
 				UserID:    user.ID,
 				UserName:  user.Name,
 				UserEmail: user.Email,
+				Metadata: jwt.Metadata{
+					ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
+				},
 			}
 		} else {
-			claims = models.OAuthClaims{
+			claims = jwt.OAuthClaims{
 				OAuthID:       oauthUser.ID.String(),
 				OAuthProvider: provider,
 				OAuthName:     oauthUser.Name,
 				OAuthEmail:    oauthUser.Email,
+				Metadata: jwt.Metadata{
+					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+				},
 			}
 		}
 

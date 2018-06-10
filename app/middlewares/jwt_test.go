@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -32,7 +31,7 @@ func TestJwtGetter_WithCookie(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	token, _ := jwt.Encode(&models.FiderClaims{
+	token, _ := jwt.Encode(&jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
 	})
@@ -54,7 +53,7 @@ func TestJwtGetter_WithCookie_InvalidUser(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	token, _ := jwt.Encode(&models.FiderClaims{
+	token, _ := jwt.Encode(&jwt.FiderClaims{
 		UserID:   999,
 		UserName: "Unknown",
 	})
@@ -78,7 +77,7 @@ func TestJwtGetter_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	token, _ := jwt.Encode(&models.FiderClaims{
+	token, _ := jwt.Encode(&jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
 	})
@@ -114,7 +113,7 @@ func TestJwtSetter_WithJwt_WithoutParameter(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	token, _ := jwt.Encode(&models.FiderClaims{
+	token, _ := jwt.Encode(&jwt.FiderClaims{
 		UserName: mock.JonSnow.Name,
 	})
 
@@ -131,7 +130,7 @@ func TestJwtSetter_WithJwt_WithParameter(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	token, _ := jwt.Encode(&models.FiderClaims{
+	token, _ := jwt.Encode(&jwt.FiderClaims{
 		UserName: mock.JonSnow.Name,
 	})
 

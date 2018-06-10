@@ -2,14 +2,13 @@ package actions_test
 
 import (
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
 
-var jonSnowToken, _ = jwt.Encode(&models.OAuthClaims{
+var jonSnowToken, _ = jwt.Encode(&jwt.OAuthClaims{
 	OAuthID:       "123",
 	OAuthName:     "Jon Snow",
 	OAuthEmail:    "jon.snow@got.com",
