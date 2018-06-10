@@ -2,14 +2,33 @@ package jwt
 
 import (
 	jwtgo "github.com/dgrijalva/jwt-go"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
 var jwtSecret = env.MustGet("JWT_SECRET")
 
-//Encode creates new JWT tokens with given claims
+// Metadata is the basic JWT information
+type Metadata = jwtgo.StandardClaims
+
+// FiderClaims represents what goes into JWT tokens
+type FiderClaims struct {
+	UserID    int    `json:"user/id"`
+	UserName  string `json:"user/name"`
+	UserEmail string `json:"user/email"`
+	Metadata
+}
+
+// OAuthClaims represents what goes into temporary OAuth JWT tokens
+type OAuthClaims struct {
+	OAuthID       string `json:"oauth/id"`
+	OAuthProvider string `json:"oauth/provider"`
+	OAuthName     string `json:"oauth/name"`
+	OAuthEmail    string `json:"oauth/email"`
+	Metadata
+}
+
+// Encode creates new JWT token with given claims
 func Encode(claims jwtgo.Claims) (string, error) {
 	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("HS256"), claims)
 	token, err := jwtToken.SignedString([]byte(jwtSecret))
@@ -19,9 +38,9 @@ func Encode(claims jwtgo.Claims) (string, error) {
 	return token, nil
 }
 
-//DecodeFiderClaims extract claims from JWT tokens
-func DecodeFiderClaims(token string) (*models.FiderClaims, error) {
-	claims := &models.FiderClaims{}
+// DecodeFiderClaims extract claims from JWT tokens
+func DecodeFiderClaims(token string) (*FiderClaims, error) {
+	claims := &FiderClaims{}
 	err := decode(token, claims)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode Fider claims")
@@ -29,9 +48,9 @@ func DecodeFiderClaims(token string) (*models.FiderClaims, error) {
 	return claims, nil
 }
 
-//DecodeOAuthClaims extract OAuthClaims from given JWT token
-func DecodeOAuthClaims(token string) (*models.OAuthClaims, error) {
-	claims := &models.OAuthClaims{}
+// DecodeOAuthClaims extract OAuthClaims from given JWT token
+func DecodeOAuthClaims(token string) (*OAuthClaims, error) {
+	claims := &OAuthClaims{}
 	err := decode(token, claims)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode OAuth claims")
@@ -44,8 +63,13 @@ func decode(token string, claims jwtgo.Claims) error {
 		return []byte(jwtSecret), nil
 	})
 
+	if err == nil {
+		err = claims.Valid()
+	}
+
 	if err == nil && jwtToken.Valid {
 		return nil
 	}
+
 	return err
 }

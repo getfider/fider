@@ -86,7 +86,7 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
-	token, _ := jwt.Encode(&models.OAuthClaims{
+	token, _ := jwt.Encode(&jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
 		OAuthEmail:    "jon.snow@got.com",

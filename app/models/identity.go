@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/uuid"
 )
 
@@ -106,23 +106,6 @@ type UserProvider struct {
 	UID  string
 }
 
-//FiderClaims represents what goes into JWT tokens
-type FiderClaims struct {
-	UserID    int    `json:"user/id"`
-	UserName  string `json:"user/name"`
-	UserEmail string `json:"user/email"`
-	jwt.StandardClaims
-}
-
-//OAuthClaims represents what goes into temporary OAuth JWT tokens
-type OAuthClaims struct {
-	OAuthID       string `json:"oauth/id"`
-	OAuthProvider string `json:"oauth/provider"`
-	OAuthName     string `json:"oauth/name"`
-	OAuthEmail    string `json:"oauth/email"`
-	jwt.StandardClaims
-}
-
 //CreateTenant is the input model used to create a tenant
 type CreateTenant struct {
 	Token           string `json:"token"`
@@ -132,7 +115,7 @@ type CreateTenant struct {
 	TenantName      string `json:"tenantName"`
 	LegalAgreement  bool   `json:"legalAgreement"`
 	Subdomain       string `json:"subdomain" format:"lower"`
-	UserClaims      *OAuthClaims
+	UserClaims      *jwt.OAuthClaims
 }
 
 //GetEmail returns the email being verified

@@ -2,8 +2,8 @@ package jwt_test
 
 import (
 	"testing"
+	"time"
 
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 )
@@ -11,7 +11,7 @@ import (
 func TestJWT_Encode(t *testing.T) {
 	RegisterT(t)
 
-	claims := &models.FiderClaims{
+	claims := &jwt.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -25,7 +25,7 @@ func TestJWT_Encode(t *testing.T) {
 func TestJWT_Decode(t *testing.T) {
 	RegisterT(t)
 
-	claims := &models.FiderClaims{
+	claims := &jwt.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -40,10 +40,31 @@ func TestJWT_Decode(t *testing.T) {
 	Expect(decoded.UserEmail).Equals(claims.UserEmail)
 }
 
+func TestJWT_DecodeExpired(t *testing.T) {
+	RegisterT(t)
+
+	claims := &jwt.FiderClaims{
+		UserID:    424,
+		UserName:  "Jon Snow",
+		UserEmail: "jon.snow@got.com",
+		Metadata: jwt.Metadata{
+			ExpiresAt: time.Now().Unix(),
+		},
+	}
+
+	token, err := jwt.Encode(claims)
+	Expect(err).IsNil()
+	time.Sleep(1 * time.Second)
+
+	decoded, err := jwt.DecodeFiderClaims(token)
+	Expect(err).IsNotNil()
+	Expect(decoded).IsNil()
+}
+
 func TestJWT_DecodeOAuthClaims(t *testing.T) {
 	RegisterT(t)
 
-	claims := &models.OAuthClaims{
+	claims := &jwt.OAuthClaims{
 		OAuthID:       "2",
 		OAuthEmail:    "jon.snow@got.com",
 		OAuthName:     "Jon Snow",
@@ -63,7 +84,7 @@ func TestJWT_DecodeOAuthClaims(t *testing.T) {
 func TestJWT_DecodeChangedToken(t *testing.T) {
 	RegisterT(t)
 
-	claims := &models.FiderClaims{
+	claims := &jwt.FiderClaims{
 		UserID:    424,
 		UserName:  "Jon Snow",
 		UserEmail: "jon.snow@got.com",
@@ -72,6 +93,28 @@ func TestJWT_DecodeChangedToken(t *testing.T) {
 	token, _ := jwt.Encode(claims)
 
 	decoded, err := jwt.DecodeFiderClaims(token + "foo")
+	Expect(err).IsNotNil()
+	Expect(decoded).IsNil()
+}
+
+func TestJWT_DecodeOAuthClaimsExpired(t *testing.T) {
+	RegisterT(t)
+
+	claims := &jwt.OAuthClaims{
+		OAuthID:       "2",
+		OAuthEmail:    "jon.snow@got.com",
+		OAuthName:     "Jon Snow",
+		OAuthProvider: "facebook",
+		Metadata: jwt.Metadata{
+			ExpiresAt: time.Now().Unix(),
+		},
+	}
+
+	token, err := jwt.Encode(claims)
+	Expect(err).IsNil()
+	time.Sleep(1 * time.Second)
+
+	decoded, err := jwt.DecodeOAuthClaims(token)
 	Expect(err).IsNotNil()
 	Expect(decoded).IsNil()
 }
