@@ -2,20 +2,20 @@ export interface SystemSettings {
   mode: string;
   buildTime: string;
   version: string;
-  authEndpoint: string;
   environment: string;
-  googleAnalytics: string;
   compiler: string;
   domain: string;
   hasLegal: boolean;
-}
-
-export interface AuthSettings {
-  endpoint: string;
-  providers: {
-    google: boolean;
-    facebook: boolean;
-    github: boolean;
+  baseURL: string;
+  assetsBaseURL: string;
+  tenantAssetsBaseURL: string;
+  auth: {
+    endpoint: string;
+    providers: {
+      google: boolean;
+      facebook: boolean;
+      github: boolean;
+    };
   };
 }
 

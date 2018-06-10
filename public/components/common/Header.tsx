@@ -7,7 +7,6 @@ import { page, actions, classSet } from "@fider/services";
 
 interface HeaderProps {
   user?: CurrentUser;
-  system: SystemSettings;
   tenant: Tenant;
 }
 
@@ -75,7 +74,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
     const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
     return (
       <div id="c-header">
-        <EnvironmentInfo system={this.props.system} />
+        <EnvironmentInfo />
         <SignInModal isOpen={this.state.showSignIn} />
         <div className="c-menu">
           <div className="container">

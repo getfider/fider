@@ -1,4 +1,4 @@
-import { AuthSettings, SystemSettings } from "@fider/models";
+import { SystemSettings } from "@fider/models";
 
 export const goHome = (): void => {
   document.location.href = "/";
@@ -8,28 +8,8 @@ export const refresh = (): void => {
   document.location.reload();
 };
 
-export const getBaseUrl = (): string => {
-  return (window as any).props.baseURL;
-};
-
-export const getAssetsBaseUrl = (): string => {
-  return (window as any).props.assetsBaseURL;
-};
-
-export const getTenantAssetsBaseUrl = (): string => {
-  return (window as any).props.tenantAssetsBaseURL;
-};
-
 export const isSingleHostMode = (): boolean => {
-  return (window as any).props.system.mode === "single";
-};
-
-export const authSettings = (): AuthSettings => {
-  return (window as any).props.auth;
-};
-
-export const systemSettings = (): SystemSettings => {
-  return (window as any).props.system;
+  return window.props.settings.mode === "single";
 };
 
 export interface ModalOptions {
@@ -90,7 +70,7 @@ export const toQueryString = (object: QueryString): string => {
 
 export const replaceState = (path: string): void => {
   if (history.replaceState) {
-    const newUrl = getBaseUrl() + path;
+    const newUrl = window.props.settings.baseURL + path;
     window.history.replaceState({ path: newUrl }, "", newUrl);
   }
 };

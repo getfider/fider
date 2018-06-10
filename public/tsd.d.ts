@@ -2,7 +2,7 @@ import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
 
 interface PageProps {
   user?: CurrentUser;
-  system: SystemSettings;
+  settings: SystemSettings;
   tenant: Tenant;
   [key: string]: any;
 }

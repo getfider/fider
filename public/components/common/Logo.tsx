@@ -15,7 +15,12 @@ export const Logo = (props: LogoProps) => {
 
   const size = props.size || 200;
   if (props.tenant && props.tenant.logoId > 0) {
-    return <img src={`${page.getTenantAssetsBaseUrl()}/logo/${size}/${props.tenant.logoId}`} alt={props.tenant.name} />;
+    return (
+      <img
+        src={`${window.props.settings.tenantAssetsBaseURL}/logo/${size}/${props.tenant.logoId}`}
+        alt={props.tenant.name}
+      />
+    );
   }
 
   return null;

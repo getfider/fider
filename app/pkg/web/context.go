@@ -510,7 +510,7 @@ func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
 // TenantAssetsURL return the full URL to a tenant-specific static asset
 func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
-	if env.IsDefined("CDN_HOST") {
+	if env.IsDefined("CDN_HOST") && ctx.Tenant() != nil {
 		if env.IsSingleHostMode() {
 			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
 		}

@@ -126,20 +126,27 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
-	m["system"] = r.settings
-	m["baseURL"] = ctx.BaseURL()
-	m["assetsBaseURL"] = ctx.GlobalAssetsURL("")
-	if ctx.Tenant() != nil {
-		m["tenantAssetsBaseURL"] = ctx.TenantAssetsURL("")
-	}
 	m["currentURL"] = ctx.Request.URL.String()
 	m["tenant"] = ctx.Tenant()
-	m["auth"] = Map{
-		"endpoint": ctx.AuthEndpoint(),
-		"providers": Map{
-			oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
-			oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
-			oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
+	m["settings"] = &Map{
+		"mode":                r.settings.Mode,
+		"buildTime":           r.settings.BuildTime,
+		"version":             r.settings.Version,
+		"environment":         r.settings.Environment,
+		"compiler":            r.settings.Compiler,
+		"googleAnalytics":     r.settings.GoogleAnalytics,
+		"domain":              r.settings.Domain,
+		"hasLegal":            r.settings.HasLegal,
+		"baseURL":             ctx.BaseURL(),
+		"assetsBaseURL":       ctx.GlobalAssetsURL(""),
+		"tenantAssetsBaseURL": ctx.TenantAssetsURL(""),
+		"auth": Map{
+			"endpoint": ctx.AuthEndpoint(),
+			"providers": Map{
+				oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
+				oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
+				oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
+			},
 		},
 	}
 

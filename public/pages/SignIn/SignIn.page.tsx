@@ -33,7 +33,7 @@ export class SignInPage extends React.Component<SignInPageProps, {}> {
           </p>
           <p>If you have an account or an invitation, you may use following options to sign in.</p>
         </div>
-        <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={page.getBaseUrl()} />
+        <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={window.props.settings.baseURL} />
         <LegalNotice />
       </div>
     );

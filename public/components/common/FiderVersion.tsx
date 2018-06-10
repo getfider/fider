@@ -9,7 +9,7 @@ export const FiderVersion = () => {
         OpenCollective
       </a>
       <br />
-      Fider v{page.systemSettings().version}
+      Fider v{window.props.settings.version}
     </p>
   );
 };

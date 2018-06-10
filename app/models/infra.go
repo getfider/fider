@@ -6,14 +6,14 @@ import (
 
 // SystemSettings is the system-wide settings
 type SystemSettings struct {
-	Mode            string `json:"mode"`
-	BuildTime       string `json:"buildTime"`
-	Version         string `json:"version"`
-	Environment     string `json:"environment"`
-	GoogleAnalytics string `json:"googleAnalytics"`
-	Compiler        string `json:"compiler"`
-	Domain          string `json:"domain"`
-	HasLegal        bool   `json:"hasLegal"`
+	Mode            string
+	BuildTime       string
+	Version         string
+	Environment     string
+	GoogleAnalytics string
+	Compiler        string
+	Domain          string
+	HasLegal        bool
 }
 
 // Notification is the system generated notification entity

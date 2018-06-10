@@ -10,7 +10,7 @@ export const Footer = () => {
     <div id="c-footer">
       <div className="container">
         <a target="_blank" href="https://getfider.com/">
-          <img src={`${page.getAssetsBaseUrl()}${logo}`} alt="Fider" />
+          <img src={`${window.props.settings.assetsBaseURL}${logo}`} alt="Fider" />
           <span>Powered by Fider</span>
         </a>
       </div>
