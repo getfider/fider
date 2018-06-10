@@ -66,8 +66,8 @@ func (w *BackgroundWorker) Run(id string) {
 
 		w.middleware(task.Job)(c)
 		w.Lock()
-		defer w.Unlock()
 		w.len = w.len - 1
+		w.Unlock()
 	}
 }
 
@@ -95,8 +95,8 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 //Enqueue a task on current worker
 func (w *BackgroundWorker) Enqueue(task Task) {
 	w.Lock()
-	defer w.Unlock()
 	w.len = w.len + 1
+	w.Unlock()
 	w.queue <- task
 }
 
