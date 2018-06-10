@@ -15,8 +15,8 @@ type RowMapper struct {
 }
 
 //NewRowMapper creates a new instance of RowMapper
-func NewRowMapper() RowMapper {
-	return RowMapper{
+func NewRowMapper() *RowMapper {
+	return &RowMapper{
 		cache: make(map[reflect.Type]TypeMapper, 0),
 	}
 }
