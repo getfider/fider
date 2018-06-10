@@ -2,6 +2,7 @@ package worker_test
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,18 +22,24 @@ func TestBackgroundWorker(t *testing.T) {
 	RegisterT(t)
 
 	var finished bool
+	mu := &sync.RWMutex{}
 
 	w := worker.New()
 	w.Enqueue(worker.Task{
 		Name: "Do Something",
 		Job: func(c *worker.Context) error {
+			mu.Lock()
+			defer mu.Unlock()
 			finished = true
 			return nil
 		},
 	})
+
 	Expect(w.Length()).Equals(int64(1))
 	go w.Run("worker-1")
 	Expect(func() bool {
+		mu.RLock()
+		defer mu.RUnlock()
 		return finished
 	}).EventuallyEquals(true)
 }

@@ -3,7 +3,7 @@ package worker
 import (
 	"context"
 	"errors"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/log"
@@ -37,6 +37,7 @@ type BackgroundWorker struct {
 	queue      chan Task
 	len        int64
 	middleware MiddlewareFunc
+	sync.RWMutex
 }
 
 var maxQueueSize = 100
@@ -64,7 +65,9 @@ func (w *BackgroundWorker) Run(id string) {
 		}
 
 		w.middleware(task.Job)(c)
-		atomic.AddInt64(&w.len, -1)
+		w.Lock()
+		w.len = w.len - 1
+		w.Unlock()
 	}
 }
 
@@ -91,7 +94,9 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 
 //Enqueue a task on current worker
 func (w *BackgroundWorker) Enqueue(task Task) {
-	atomic.AddInt64(&w.len, 1)
+	w.Lock()
+	w.len = w.len + 1
+	w.Unlock()
 	w.queue <- task
 }
 
@@ -102,6 +107,8 @@ func (w *BackgroundWorker) Logger() log.Logger {
 
 //Length from current queue length
 func (w *BackgroundWorker) Length() int64 {
+	w.RLock()
+	defer w.RUnlock()
 	return w.len
 }
 

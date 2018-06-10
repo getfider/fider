@@ -3,6 +3,7 @@ package dbx
 import (
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/lib/pq"
 )
@@ -10,6 +11,7 @@ import (
 //RowMapper is resposible for mapping a sql.Rows into a Struct (model)
 type RowMapper struct {
 	cache map[reflect.Type]TypeMapper
+	sync.RWMutex
 }
 
 //NewRowMapper creates a new instance of RowMapper
@@ -31,9 +33,15 @@ func (m *RowMapper) Map(dest interface{}, columns []string, scanner func(dest ..
 		ok         bool
 	)
 
-	if typeMapper, ok = m.cache[t]; !ok {
+	m.RLock()
+	typeMapper, ok = m.cache[t]
+	m.RUnlock()
+
+	if !ok {
 		typeMapper = NewTypeMapper(t)
+		m.Lock()
 		m.cache[t] = typeMapper
+		m.Unlock()
 	}
 
 	pointers := make([]interface{}, len(columns))

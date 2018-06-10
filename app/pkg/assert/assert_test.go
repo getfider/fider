@@ -1,6 +1,7 @@
 package assert_test
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -115,14 +116,19 @@ func TestFuncPanics(t *testing.T) {
 func TestFuncEventuallyEquals(t *testing.T) {
 	mockT := new(testing.T)
 	RegisterT(mockT)
+	mu := &sync.RWMutex{}
 
 	completed := false
 	go func() {
 		time.Sleep(500 * time.Millisecond)
+		mu.Lock()
+		defer mu.Unlock()
 		completed = true
 	}()
 
 	if !Expect(func() bool {
+		mu.RLock()
+		defer mu.RUnlock()
 		return completed
 	}).EventuallyEquals(true) {
 		t.Error("EventuallyEquals assertion failed")
