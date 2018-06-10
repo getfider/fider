@@ -148,10 +148,11 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) worker.Task {
+func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
 	return describe("Notify about idea status change", func(c *worker.Context) error {
-		//Don't notify if status is the same
-		if idea.Status == response.Status {
+		//Don't notify if previous status is the same
+		c.Logger().Infof("%d, %d", prevStatus, idea.Status)
+		if prevStatus == idea.Status {
 			return nil
 		}
 
@@ -161,7 +162,7 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(response.Status))
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(idea.Status))
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
@@ -176,8 +177,8 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 		}
 
 		var duplicate template.HTML
-		if response.Status == models.IdeaDuplicate {
-			originalIdea, err := c.Services().Ideas.GetByNumber(response.OriginalNumber)
+		if idea.Status == models.IdeaDuplicate {
+			originalIdea, err := c.Services().Ideas.GetByNumber(idea.Response.Original.Number)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -193,8 +194,8 @@ func NotifyAboutStatusChange(idea *models.Idea, response *models.SetResponse) wo
 
 		params := email.Params{
 			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-			"content":     markdown.Parse(response.Text),
-			"status":      models.GetIdeaStatusName(response.Status),
+			"content":     markdown.Parse(idea.Response.Text),
+			"status":      models.GetIdeaStatusName(idea.Status),
 			"duplicate":   duplicate,
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),

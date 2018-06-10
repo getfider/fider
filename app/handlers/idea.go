@@ -220,6 +220,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		prevStatus := idea.Status
 		if input.Model.Status == models.IdeaDuplicate {
 			err = c.Services().Ideas.MarkAsDuplicate(idea, input.Original)
 		} else {
@@ -229,7 +230,7 @@ func SetResponse() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(idea, input.Model))
+		c.Enqueue(tasks.NotifyAboutStatusChange(idea, prevStatus))
 
 		return c.Ok(web.Map{})
 	}
