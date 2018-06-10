@@ -2,6 +2,7 @@ package dbx_test
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -71,6 +72,21 @@ func TestRowMapper_NonStruct(t *testing.T) {
 	var id int
 	mapper.Map(&id, []string{"id"}, createScanner(5))
 	Expect(id).Equals(5)
+}
+
+func TestRowMapper_Concurrent(t *testing.T) {
+	RegisterT(t)
+	var wg sync.WaitGroup
+	mapper := dbx.NewRowMapper()
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			var id int
+			mapper.Map(&id, []string{"id"}, createScanner(5))
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
 
 func TestRowMapper_SimpleStruct(t *testing.T) {
