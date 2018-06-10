@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	stdLog "log"
 	"net/http"
@@ -94,6 +93,7 @@ func (e *Engine) Start(address string) {
 		Addr:         address,
 		Handler:      e.mux,
 		ErrorLog:     stdLog.New(e.logger, "", 0),
+		TLSConfig:    getDefaultTLSConfig(),
 	}
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {
@@ -110,10 +110,7 @@ func (e *Engine) Start(address string) {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
-		e.server.TLSConfig = &tls.Config{
-			GetCertificate: certManager.GetCertificate,
-		}
-
+		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
 		e.logger.Infof("https (auto ssl) server started on %s", address)
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
