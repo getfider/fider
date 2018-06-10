@@ -31,7 +31,11 @@ interface IdeaResponseProps {
   response: IdeaResponse;
 }
 
-const StatusDetails = (props: IdeaResponseProps): JSX.Element => {
+const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
+  if (!props.response.text) {
+    return null;
+  }
+
   return (
     <div className="content">
       <MultiLineText text={props.response.text} style="full" />

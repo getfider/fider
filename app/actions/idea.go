@@ -167,8 +167,6 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 		if original != nil {
 			input.Original = original
 		}
-	} else if input.Model.Status != models.IdeaOpen && input.Model.Text == "" {
-		result.AddFieldFailure("text", "Description is required.")
 	}
 
 	return result

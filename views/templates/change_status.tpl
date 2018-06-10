@@ -2,9 +2,9 @@ subject: {{ .title }}
 body:
 
 {{ if .duplicate }}
-  <p>This idea has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}. </p>
+  <i>This idea has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}.</i>
 {{ else }}
-  Status has changed to <strong>{{ .status }}</strong>. <br />
+  <i>Status has changed to <strong>{{ .status }}</strong>.</i> <br />
 
   {{ .content }}
 {{ end }}
