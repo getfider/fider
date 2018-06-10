@@ -42,11 +42,11 @@ func NewWithLogger(logger log.Logger) *Database {
 type Database struct {
 	conn   *sql.DB
 	logger log.Logger
-	mapper RowMapper
+	mapper *RowMapper
 }
 
 // Begin returns a new SQL transaction
-func (db Database) Begin() (*Trx, error) {
+func (db *Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to start new transaction")
@@ -55,14 +55,14 @@ func (db Database) Begin() (*Trx, error) {
 }
 
 // Close connection to database
-func (db Database) Close() error {
+func (db *Database) Close() error {
 	if db.conn != nil {
 		return db.conn.Close()
 	}
 	return nil
 }
 
-func (db Database) load(path string) {
+func (db *Database) load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to read file %s", path))
@@ -75,14 +75,14 @@ func (db Database) load(path string) {
 }
 
 // Seed clean and insert new seed data for testing
-func (db Database) Seed() {
+func (db *Database) Seed() {
 	if env.IsTest() {
 		db.load("/app/pkg/dbx/setup.sql")
 	}
 }
 
 // Migrate the database to latest version
-func (db Database) Migrate() {
+func (db *Database) Migrate() {
 	db.logger.Infof("Running migrations...")
 	err := retry(10, func() error {
 		m, err := migrate.New(
@@ -106,13 +106,13 @@ func (db Database) Migrate() {
 type Trx struct {
 	tx     *sql.Tx
 	logger log.Logger
-	mapper RowMapper
+	mapper *RowMapper
 }
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
 // Execute given SQL command
-func (trx Trx) Execute(command string, args ...interface{}) (int64, error) {
+func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -134,7 +134,7 @@ func (trx Trx) Execute(command string, args ...interface{}) (int64, error) {
 }
 
 // Scalar returns first row and first column
-func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) error {
+func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) error {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -155,7 +155,7 @@ func (trx Trx) Scalar(data interface{}, command string, args ...interface{}) err
 }
 
 // Get first row and bind to given data
-func (trx Trx) Get(data interface{}, command string, args ...interface{}) error {
+func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -183,7 +183,7 @@ func (trx Trx) Get(data interface{}, command string, args ...interface{}) error 
 }
 
 // QueryIntArray executes given SQL command and return first column as int
-func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
+func (trx *Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -211,7 +211,7 @@ func (trx Trx) QueryIntArray(command string, args ...interface{}) ([]int, error)
 }
 
 // Exists returns true if at least one record is found
-func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
+func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -230,7 +230,7 @@ func (trx Trx) Exists(command string, args ...interface{}) (bool, error) {
 }
 
 // Count returns number of rows
-func (trx Trx) Count(command string, args ...interface{}) (int, error) {
+func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -253,7 +253,7 @@ func (trx Trx) Count(command string, args ...interface{}) (int, error) {
 }
 
 //Select all matched rows bind to given data
-func (trx Trx) Select(data interface{}, command string, args ...interface{}) error {
+func (trx *Trx) Select(data interface{}, command string, args ...interface{}) error {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
@@ -288,7 +288,7 @@ func (trx Trx) Select(data interface{}, command string, args ...interface{}) err
 }
 
 // Commit current transaction
-func (trx Trx) Commit() error {
+func (trx *Trx) Commit() error {
 	err := trx.tx.Commit()
 	if err != nil {
 		return errors.Wrap(err, "failed to commit transaction")
@@ -297,7 +297,7 @@ func (trx Trx) Commit() error {
 }
 
 // Rollback current transaction
-func (trx Trx) Rollback() error {
+func (trx *Trx) Rollback() error {
 	err := trx.tx.Rollback()
 	if err != nil {
 		return errors.Wrap(err, "failed to rollback transaction")
