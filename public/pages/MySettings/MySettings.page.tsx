@@ -14,12 +14,11 @@ interface MySettingsPageState {
   newEmail: string;
   changingEmail: boolean;
   error?: Failure;
-  settings: UserSettings;
+  userSettings: UserSettings;
 }
 
 interface MySettingsPageProps {
-  user: CurrentUser;
-  settings: UserSettings;
+  userSettings: UserSettings;
 }
 
 export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
@@ -29,13 +28,13 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
       showModal: false,
       changingEmail: false,
       newEmail: "",
-      name: this.props.user.name,
-      settings: this.props.settings
+      name: page.user!.name,
+      userSettings: this.props.userSettings
     };
   }
 
   private confirm = async () => {
-    const result = await actions.updateUserSettings(this.state.name, this.state.settings);
+    const result = await actions.updateUserSettings(this.state.name, this.state.userSettings);
     if (result.ok) {
       location.reload();
     } else if (result.error) {
@@ -72,8 +71,8 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
     this.setState({ name });
   };
 
-  private setNotificationSettings = (settings: UserSettings) => {
-    this.setState({ settings });
+  private setNotificationSettings = (userSettings: UserSettings) => {
+    this.setState({ userSettings });
   };
 
   private closeModal = () => {
@@ -117,7 +116,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
             <Form error={this.state.error}>
               <Field label="Avatar">
                 <p>
-                  <Gravatar user={this.props.user} />
+                  <Gravatar user={page.user} />
                 </p>
                 <div className="info">
                   <p>
@@ -134,14 +133,14 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               <Input
                 label="Email"
                 field="email"
-                value={this.state.changingEmail ? this.state.newEmail : this.props.user.email}
+                value={this.state.changingEmail ? this.state.newEmail : page.user!.email}
                 maxLength={200}
                 disabled={!this.state.changingEmail}
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
                 onChange={this.setNewEmail}
               >
                 <p className="info">
-                  {this.props.user.email || this.state.changingEmail
+                  {page.user!.email || this.state.changingEmail
                     ? "Your email is private and will never be displayed to anyone"
                     : "Your account doesn't have an email."}
                 </p>
@@ -160,8 +159,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <NotificationSettings
-                user={this.props.user}
-                settings={this.props.settings}
+                userSettings={this.props.userSettings}
                 settingsChanged={this.setNotificationSettings}
               />
 
@@ -174,7 +172,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
         <div className="row">
           <div className="col-lg-7">
-            <DangerZone user={this.props.user} />
+            <DangerZone />
           </div>
         </div>
       </div>

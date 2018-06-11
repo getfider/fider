@@ -4,7 +4,7 @@ import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from "../";
 
 import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
 import { Loader, MultiLineText, Heading, Field, Input } from "@fider/components";
-import { page, actions } from "@fider/services";
+import { actions, querystring } from "@fider/services";
 
 interface IdeasContainerProps {
   user?: CurrentUser;
@@ -29,10 +29,10 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     this.state = {
       ideas: this.props.ideas,
       loading: false,
-      filter: page.getQueryString("f"),
-      query: page.getQueryString("q"),
-      tags: page.getQueryStringArray("t"),
-      limit: page.getQueryStringAsNumber("l")
+      filter: querystring.get("f"),
+      query: querystring.get("q"),
+      tags: querystring.getArray("t"),
+      limit: querystring.getNumber("l")
     };
   }
 
@@ -42,8 +42,8 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
   ): void {
     this.setState(obj, () => {
       const query = this.state.query.trim().toLowerCase();
-      page.replaceState(
-        page.toQueryString({
+      actions.replaceState(
+        querystring.stringify({
           t: this.state.tags,
           q: query,
           f: this.state.filter,
@@ -105,7 +105,6 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <IdeaFilter
-                  user={this.props.user}
                   activeFilter={this.state.filter}
                   filterChanged={this.handleFilterChanged}
                   countPerStatus={this.props.countPerStatus}
@@ -132,7 +131,6 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
         <ListIdeas
           ideas={this.state.ideas}
           tags={this.props.tags}
-          user={this.props.user}
           emptyText={"No results matched your search, try something different."}
         />
         {this.state.loading && <Loader />}

@@ -69,7 +69,6 @@ export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdea
           <ListIdeas
             ideas={this.state.ideas}
             tags={this.props.tags}
-            user={this.props.user}
             emptyText={`No similar ideas matched '${this.props.title}'.`}
           />
         )}

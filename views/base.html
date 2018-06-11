@@ -11,8 +11,8 @@
     <meta property="og:title" content="{{ .__Title }}" />
     <meta property="og:description" content="{{ .__Description }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ .currentURL }}" />
-    <meta property="og:image" content="{{ .__logo }}">
+    <meta property="og:url" content="{{ .__CurrentURL }}" />
+    <meta property="og:image" content="{{ .__Logo }}">
     {{ if .tenant }} 
       {{ if .tenant.CustomCSS }} 
       <link rel="stylesheet" href="{{ .settings.tenantAssetsBaseURL }}/custom/{{ .tenant.CustomCSS | md5 }}.css" />

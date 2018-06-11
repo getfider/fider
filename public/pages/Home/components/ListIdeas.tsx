@@ -60,7 +60,6 @@ export class ListIdeas extends React.Component<ListIdeasProps, {}> {
         {this.props.ideas.map(idea => (
           <ListIdeaItem
             key={idea.id}
-            user={this.props.user}
             idea={idea}
             tags={this.props.tags.filter(tag => idea.tags.indexOf(tag.slug) >= 0)}
           />

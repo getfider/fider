@@ -65,7 +65,7 @@ func UserSettings() web.HandlerFunc {
 		return c.Page(web.Props{
 			Title: "Settings",
 			Data: web.Map{
-				"settings": settings,
+				"userSettings": settings,
 			},
 		})
 	}

@@ -1,10 +1,7 @@
 import * as React from "react";
-import { Tenant } from "@fider/models";
-import { page } from "@fider/services";
 
 interface LogoProps {
   url?: string;
-  tenant?: Tenant;
   size?: 50 | 100 | 200;
 }
 
@@ -14,12 +11,9 @@ export const Logo = (props: LogoProps) => {
   }
 
   const size = props.size || 200;
-  if (props.tenant && props.tenant.logoId > 0) {
+  if (page.tenant && page.tenant.logoId > 0) {
     return (
-      <img
-        src={`${window.props.settings.tenantAssetsBaseURL}/logo/${size}/${props.tenant.logoId}`}
-        alt={props.tenant.name}
-      />
+      <img src={`${page.settings.tenantAssetsBaseURL}/logo/${size}/${page.tenant.logoId}`} alt={page.tenant.name} />
     );
   }
 

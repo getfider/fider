@@ -8,7 +8,6 @@ import { Tag, CurrentUser, UserRole } from "@fider/models";
 import { actions, Failure } from "@fider/services";
 
 interface ManageTagsPageProps {
-  user: CurrentUser;
   tags: Tag[];
 }
 
@@ -86,7 +85,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
         <TagListItem
           key={t.id}
           tag={t}
-          user={this.props.user}
           onTagDeleted={this.handleTagDeleted}
           onTagEditted={this.handleTagEditted}
         />
@@ -99,7 +97,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     const privateTagList = this.getTagList(t => !t.isPublic);
 
     const form =
-      this.props.user.isAdministrator &&
+      page.user!.isAdministrator &&
       (this.state.isAdding ? (
         <Segment>
           <TagForm onSave={this.saveNewTag} onCancel={this.cancelAdd} />

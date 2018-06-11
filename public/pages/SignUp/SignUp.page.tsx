@@ -3,7 +3,7 @@ import "./SignUp.page.scss";
 import * as React from "react";
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components";
 import { SystemSettings } from "@fider/models";
-import { jwt, page, actions, Failure } from "@fider/services";
+import { jwt, actions, Failure, querystring } from "@fider/services";
 
 const logo = require("@fider/assets/images/logo-small.png");
 
@@ -11,10 +11,6 @@ interface OAuthUser {
   token: string;
   name: string;
   email: string;
-}
-
-interface SignUpPageProps {
-  system: SystemSettings;
 }
 
 interface SignUpPageState {
@@ -31,10 +27,10 @@ interface SignUpPageState {
   };
 }
 
-export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState> {
+export class SignUpPage extends React.Component<{}, SignUpPageState> {
   private user?: OAuthUser;
 
-  constructor(props: SignUpPageProps) {
+  constructor(props: {}) {
     super(props);
     this.state = {
       submitted: false,
@@ -43,7 +39,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
       subdomain: { available: false }
     };
 
-    const token = page.getQueryString("token");
+    const token = querystring.get("token");
     if (token) {
       const data = jwt.decode(token);
       if (data) {
@@ -71,7 +67,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
         if (page.isSingleHostMode()) {
           location.reload();
         } else {
-          let baseUrl = `${location.protocol}//${this.state.subdomain.value}${this.props.system.domain}`;
+          let baseUrl = `${location.protocol}//${this.state.subdomain.value}${page.settings.domain}`;
           if (location.port) {
             baseUrl = `${baseUrl}:${location.port}`;
           }
@@ -165,7 +161,7 @@ export class SignUpPage extends React.Component<SignUpPageProps, SignUpPageState
               maxLength={40}
               onChange={this.checkAvailability}
               placeholder="subdomain"
-              suffix={this.props.system.domain}
+              suffix={page.settings.domain}
             >
               {this.state.subdomain.available && <Message type="success">This subdomain is available!</Message>}
               {this.state.subdomain.message && <Message type="error">{this.state.subdomain.message}</Message>}

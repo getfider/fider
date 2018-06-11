@@ -5,10 +5,9 @@ import * as React from "react";
 import { CurrentUser } from "@fider/models";
 import { AdminBasePage } from "../components";
 import { DisplayError, TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
-import { Failure, actions, page } from "@fider/services";
+import { Failure, actions } from "@fider/services";
 
 interface AdvancedSettingsPageProps {
-  user: CurrentUser;
   customCSS: string;
 }
 
@@ -39,7 +38,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
   private handleSave = async (e: ButtonClickEvent): Promise<void> => {
     const result = await actions.updateTenantAdvancedSettings(this.state.customCSS);
     if (result.ok) {
-      page.refresh();
+      location.reload();
     } else {
       this.setState({ error: result.error });
     }
@@ -51,7 +50,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
         <TextArea
           field="customCSS"
           label="Custom CSS"
-          disabled={!this.props.user.isAdministrator}
+          disabled={!page.user!.isAdministrator}
           minRows={10}
           value={this.state.customCSS}
           onChange={this.setCustomCSS}
@@ -79,7 +78,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
           </ul>
         </TextArea>
 
-        {this.props.user.isAdministrator && (
+        {page.user!.isAdministrator && (
           <div className="field">
             <Button color="positive" onClick={this.handleSave}>
               Save changes

@@ -2,15 +2,11 @@ import "./GeneralSettings.page.scss";
 
 import * as React from "react";
 
-import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input, Field } from "@fider/components/common";
-import { actions, page, Failure, fileToBase64 } from "@fider/services";
+import { actions, Failure, fileToBase64 } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface GeneralSettingsPageProps {
-  user: CurrentUser;
-  tenant: Tenant;
-  system: SystemSettings;
   publicIP: string;
 }
 
@@ -42,10 +38,10 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     super(props);
 
     this.state = {
-      title: this.props.tenant.name,
-      cname: this.props.tenant.cname,
-      welcomeMessage: this.props.tenant.welcomeMessage,
-      invitation: this.props.tenant.invitation
+      title: page.tenant.name,
+      cname: page.tenant.cname,
+      welcomeMessage: page.tenant.welcomeMessage,
+      invitation: page.tenant.invitation
     };
   }
 
@@ -96,7 +92,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     const isApex = this.state.cname.split(".").length === 2;
     const recordType = isApex ? "A" : "CNAME";
     const publicIP = this.props.publicIP || "<error>";
-    const targetRecord = isApex ? publicIP : `${this.props.tenant.subdomain}${this.props.system.domain}`;
+    const targetRecord = isApex ? publicIP : `${page.tenant.subdomain}${page.settings.domain}`;
     return (
       <>
         <strong>{this.state.cname}</strong> {recordType} <strong>{targetRecord}</strong>
@@ -123,7 +119,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   public content() {
     const isRemoving = this.state.logo ? this.state.logo.remove : false;
     const isUploading = this.state.logo ? !!this.state.logo.upload : false;
-    const hasFile = (this.props.tenant.logoId > 0 && !isRemoving) || isUploading;
+    const hasFile = (page.tenant.logoId > 0 && !isRemoving) || isUploading;
     const previewUrl =
       isUploading && this.state.logo && this.state.logo.upload
         ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
@@ -136,14 +132,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           label="Title"
           maxLength={60}
           value={this.state.title}
-          disabled={!this.props.user.isAdministrator}
+          disabled={!page.user!.isAdministrator}
           onChange={this.setTitle}
         />
         <TextArea
           field="welcomeMessage"
           label="Welcome Message"
           value={this.state.welcomeMessage}
-          disabled={!this.props.user.isAdministrator}
+          disabled={!page.user!.isAdministrator}
           onChange={this.setWelcomeMessage}
         />
         <Input
@@ -151,20 +147,20 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           label="Invitation"
           maxLength={60}
           value={this.state.invitation}
-          disabled={!this.props.user.isAdministrator}
+          disabled={!page.user!.isAdministrator}
           onChange={this.setInvitation}
         />
 
         <Field label="Logo" className="c-logo-upload">
-          {hasFile && <Logo size={200} tenant={this.props.tenant} url={previewUrl} />}
+          {hasFile && <Logo size={200} url={previewUrl} />}
           <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
           <DisplayError fields={["logo"]} error={this.state.error} />
           <div>
-            <Button size="tiny" onClick={this.selectFile} disabled={!this.props.user.isAdministrator}>
+            <Button size="tiny" onClick={this.selectFile} disabled={!page.user!.isAdministrator}>
               {hasFile ? "Change" : "Upload"}
             </Button>
             {hasFile && (
-              <Button onClick={this.removeFile} size="tiny" disabled={!this.props.user.isAdministrator}>
+              <Button onClick={this.removeFile} size="tiny" disabled={!page.user!.isAdministrator}>
                 Remove
               </Button>
             )}
@@ -182,7 +178,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
             maxLength={100}
             placeholder="feedback.yourcompany.com"
             value={this.state.cname}
-            disabled={!this.props.user.isAdministrator}
+            disabled={!page.user!.isAdministrator}
             onChange={this.setCNAME}
           >
             <div className="info">
@@ -206,7 +202,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         )}
 
         <div className="field">
-          <Button disabled={!this.props.user.isAdministrator} color="positive" onClick={this.handleSave}>
+          <Button disabled={!page.user!.isAdministrator} color="positive" onClick={this.handleSave}>
             Save changes
           </Button>
         </div>

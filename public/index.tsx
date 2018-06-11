@@ -4,6 +4,7 @@ import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { analytics, classSet } from "@fider/services";
 import { ToastContainer } from "react-toastify";
+import { FiderPage } from "@fider/models";
 
 import "semantic-ui-css/components/reset.min.css";
 import "semantic-ui-css/components/icon.min.css";
@@ -13,10 +14,8 @@ import "semantic-ui-css/components/transition.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";
 
-window.props = {} as any;
-window.set = (key: string, value: any): void => {
-  window.props[key] = value;
-};
+const page = new FiderPage();
+(global as any).page = page;
 
 window.addEventListener("error", (evt: ErrorEvent) => {
   analytics.error(evt.error);
@@ -27,15 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (root) {
     const config = resolveRootComponent(location.pathname);
     document.body.className = classSet({
-      "is-authenticated": window.props.user,
-      "is-staff": window.props.user && window.props.user.isCollaborator
+      "is-authenticated": page.user,
+      "is-staff": page.user && page.user.isCollaborator
     });
     ReactDOM.render(
       <>
         <ToastContainer position="top-right" toastClassName="c-toast" />
-        {config.showHeader && React.createElement(Header, window.props)}
-        {React.createElement(config.component, window.props)}
-        {config.showHeader && React.createElement(Footer, window.props)}
+        {config.showHeader && <Header />}
+        {React.createElement(config.component, page.props)}
+        {config.showHeader && <Footer />}
       </>,
       root
     );

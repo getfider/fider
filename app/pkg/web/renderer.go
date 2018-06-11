@@ -119,14 +119,14 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	m["__ContextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
-		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
+		m["__Logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
+		m["__Favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
 	} else {
-		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
-		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
+		m["__Logo"] = "https://getfider.com/images/logo-100x100.png"
+		m["__Favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
-	m["currentURL"] = ctx.Request.URL.String()
+	m["__CurrentURL"] = ctx.Request.URL.String()
 	m["tenant"] = ctx.Tenant()
 	m["settings"] = &Map{
 		"mode":                r.settings.Mode,

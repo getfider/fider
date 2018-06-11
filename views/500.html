@@ -2,12 +2,12 @@
         
 {{define "content"}}
   <div class="container failure-page">
-    <img src="{{.__logo}}"/>
+    <img src="{{.__Logo}}"/>
     <h1>Shoot! Well, this is unexpected…</h1>
     <p>An error has occurred and we're working to fix the problem! </br> We’ll be up and running shortly.</p>
 
     {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+      <span>Take me back to <a href="{{ .settings.baseURL }}">{{ .settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
 {{end}}

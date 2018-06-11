@@ -2,12 +2,12 @@
 
 {{define "content"}}
   <div class="container failure-page">
-    <img src="{{.__logo}}"/>
+    <img src="{{.__Logo}}"/>
     <h1>EXPIRED</h1>
     <p>The link you clicked has expired.</p>
 
     {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+      <span>Take me back to <a href="{{ .settings.baseURL }}">{{ .settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
 {{end}}

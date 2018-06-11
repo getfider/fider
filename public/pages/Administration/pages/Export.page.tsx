@@ -6,11 +6,7 @@ import { CurrentUser } from "@fider/models";
 import { Button, Form, Field } from "@fider/components";
 import { AdminBasePage } from "../components";
 
-interface ExportPageProps {
-  user: CurrentUser;
-}
-
-export class ExportPage extends AdminBasePage<ExportPageProps, {}> {
+export class ExportPage extends AdminBasePage<{}, {}> {
   public id = "p-admin-export";
   public name = "export";
   public icon = "file excel outline";

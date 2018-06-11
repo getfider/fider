@@ -2,7 +2,7 @@ import "./SignInControl.scss";
 
 import * as React from "react";
 import { SocialSignInButton, Form, Button, Input } from "@fider/components";
-import { page, device, actions, Failure } from "@fider/services";
+import { device, actions, Failure } from "@fider/services";
 
 interface SignInControlState {
   email: string;
@@ -48,28 +48,28 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   };
 
   public render() {
-    const google = window.props.settings.auth.providers.google && (
+    const google = page.settings.auth.providers.google && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={window.props.settings.auth.endpoint}
+          oauthEndpoint={page.settings.auth.endpoint}
           provider="google"
           redirectTo={this.props.redirectTo}
         />
       </div>
     );
-    const facebook = window.props.settings.auth.providers.facebook && (
+    const facebook = page.settings.auth.providers.facebook && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={window.props.settings.auth.endpoint}
+          oauthEndpoint={page.settings.auth.endpoint}
           provider="facebook"
           redirectTo={this.props.redirectTo}
         />
       </div>
     );
-    const github = window.props.settings.auth.providers.github && (
+    const github = page.settings.auth.providers.github && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={window.props.settings.auth.endpoint}
+          oauthEndpoint={page.settings.auth.endpoint}
           provider="github"
           redirectTo={this.props.redirectTo}
         />

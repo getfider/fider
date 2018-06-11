@@ -1,11 +1,10 @@
 import * as React from "react";
 import { DisplayError, Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
-import { page, cache, actions, Failure } from "@fider/services";
+import { cache, actions, Failure } from "@fider/services";
 import { CurrentUser } from "@fider/models";
 
 interface IdeaInputProps {
-  user?: CurrentUser;
   placeholder: string;
   onTitleChanged: (title: string) => void;
 }
@@ -27,8 +26,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
   constructor(props: IdeaInputProps) {
     super(props);
     this.state = {
-      title: (!!this.props.user && cache.get(CACHE_TITLE_KEY)) || "",
-      description: (!!this.props.user && cache.get(CACHE_DESCRIPTION_KEY)) || "",
+      title: (!!page.user && cache.get(CACHE_TITLE_KEY)) || "",
+      description: (!!page.user && cache.get(CACHE_DESCRIPTION_KEY)) || "",
       focused: false,
       showSignIn: false
     };
@@ -39,13 +38,13 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
   }
 
   public componentDidMount() {
-    if (this.props.user && this.title) {
+    if (page.user && this.title) {
       this.title.focus();
     }
   }
 
   private handleTitleFocus = () => {
-    if (!this.props.user && this.title) {
+    if (!page.user && this.title) {
       this.title.blur();
       this.setState({ showSignIn: true });
     }

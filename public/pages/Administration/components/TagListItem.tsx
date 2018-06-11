@@ -7,7 +7,6 @@ import { TagFormState, TagForm } from "./";
 import { actions, Failure } from "@fider/services";
 
 interface TagListItemProps {
-  user: CurrentUser;
   tag: Tag;
   onTagEditted: (tag: Tag) => void;
   onTagDeleted: (tag: Tag) => void;
@@ -95,7 +94,7 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
   }
 
   private renderViewMode() {
-    const buttons = this.props.user.isAdministrator && [
+    const buttons = page.user!.isAdministrator && [
       <Button key={0} onClick={this.startDelete} className="right">
         <i className="remove icon" />Delete
       </Button>,

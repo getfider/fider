@@ -1,12 +1,11 @@
 import "./SupportCounter.scss";
 
 import * as React from "react";
-import { Idea, User, IdeaStatus } from "@fider/models";
-import { page, actions, device, classSet } from "@fider/services";
+import { Idea, IdeaStatus } from "@fider/models";
+import { actions, device, classSet } from "@fider/services";
 import { SignInModal } from "@fider/components";
 
 interface SupportCounterProps {
-  user?: User;
   idea: Idea;
 }
 
@@ -27,7 +26,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   }
 
   private supportOrUndo = async () => {
-    if (!this.props.user) {
+    if (!page.user) {
       this.setState({ showSignIn: true });
       return;
     }
