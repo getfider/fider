@@ -22,7 +22,7 @@ export class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageSt
     super(props);
 
     this.state = {
-      isPrivate: page.tenant.isPrivate
+      isPrivate: Fider.session.tenant.isPrivate
     };
   }
 
@@ -45,7 +45,7 @@ export class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageSt
       <Form>
         <div className="c-form-field">
           <label htmlFor="private">Private site</label>
-          <Toggle disabled={!page.user!.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
+          <Toggle disabled={!Fider.session.user.isAdministrator} active={this.state.isPrivate} onToggle={this.toggle} />
           <p className="info">
             A private site prevents unauthenticated users from viewing or interacting with its content. <br /> If
             enabled, only already registered and invited users will be able to sign in to this site.

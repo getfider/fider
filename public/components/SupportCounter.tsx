@@ -26,7 +26,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   }
 
   private supportOrUndo = async () => {
-    if (!page.user) {
+    if (!Fider.session.isAuthenticated) {
       this.setState({ showSignIn: true });
       return;
     }

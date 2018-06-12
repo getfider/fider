@@ -56,7 +56,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
           </Modal.Content>
           <LegalFooter />
         </Modal.Window>
-        {page.tenant.isPrivate
+        {Fider.session.tenant.isPrivate
           ? React.createElement(SignInPage, this.props)
           : React.createElement(HomePage, this.props)}
       </>

@@ -12,7 +12,7 @@ export const goHome = () => {
 
 export const replaceState = (path: string): void => {
   if (history.replaceState) {
-    const newUrl = page.settings.baseURL + path;
+    const newUrl = Fider.settings.baseURL + path;
     window.history.replaceState({ path: newUrl }, "", newUrl);
   }
 };

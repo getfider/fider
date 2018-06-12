@@ -54,7 +54,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
   };
 
   private showUser(user: User, role: UserRole, addable: boolean, removable: boolean) {
-    if (user.id === page.user!.id || page.user!.role !== UserRole.Administrator) {
+    if (user.id === Fider.session.user.id || Fider.session.user.role !== UserRole.Administrator) {
       removable = false;
     }
 
@@ -110,7 +110,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
             <List hover={true}>
               {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
             </List>
-            {page.user!.isAdministrator && (
+            {Fider.session.user.isAdministrator && (
               <Form size="mini">
                 <Input
                   label="Add new administrator"
@@ -136,7 +136,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
             <List hover={true}>
               {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
             </List>
-            {page.user!.isAdministrator && (
+            {Fider.session.user.isAdministrator && (
               <Form size="mini">
                 <Input
                   label="Add new collaborator"

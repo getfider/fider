@@ -3,14 +3,14 @@ import { SystemSettings } from "@fider/models";
 
 export class EnvironmentInfo extends React.Component<{}, {}> {
   public render() {
-    if (page.isProduction()) {
+    if (Fider.isProduction()) {
       return null;
     }
 
     return (
       <div className="c-env-info">
-        Env: {page.settings.environment} | Compiler: {page.settings.compiler} | Version: {page.settings.version} |
-        BuildTime: {page.settings.buildTime}
+        Env: {Fider.settings.environment} | Compiler: {Fider.settings.compiler} | Version: {Fider.settings.version} |
+        BuildTime: {Fider.settings.buildTime}
       </div>
     );
   }

@@ -64,10 +64,10 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
 
     if (result.ok) {
       if (result.data.token) {
-        if (page.isSingleHostMode()) {
+        if (Fider.isSingleHostMode()) {
           location.reload();
         } else {
-          let baseUrl = `${location.protocol}//${this.state.subdomain.value}${page.settings.domain}`;
+          let baseUrl = `${location.protocol}//${this.state.subdomain.value}${Fider.settings.domain}`;
           if (location.port) {
             baseUrl = `${baseUrl}:${location.port}`;
           }
@@ -155,13 +155,13 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             onChange={this.setTenantName}
             placeholder="your company or product name"
           />
-          {!page.isSingleHostMode() && (
+          {!Fider.isSingleHostMode() && (
             <Input
               field="subdomain"
               maxLength={40}
               onChange={this.checkAvailability}
               placeholder="subdomain"
-              suffix={page.settings.domain}
+              suffix={Fider.settings.domain}
             >
               {this.state.subdomain.available && <Message type="success">This subdomain is available!</Message>}
               {this.state.subdomain.message && <Message type="error">{this.state.subdomain.message}</Message>}

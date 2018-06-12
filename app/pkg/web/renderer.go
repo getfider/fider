@@ -127,8 +127,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	}
 
 	m["__CurrentURL"] = ctx.Request.URL.String()
-	m["tenant"] = ctx.Tenant()
-	m["settings"] = &Map{
+	m["__Tenant"] = ctx.Tenant()
+	m["__Settings"] = &Map{
 		"mode":                r.settings.Mode,
 		"buildTime":           r.settings.BuildTime,
 		"version":             r.settings.Version,
@@ -152,7 +152,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	if ctx.IsAuthenticated() {
 		u := ctx.User()
-		m["user"] = &Map{
+		m["__User"] = &Map{
 			"id":              u.ID,
 			"name":            u.Name,
 			"email":           u.Email,

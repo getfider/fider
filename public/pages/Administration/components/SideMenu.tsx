@@ -53,7 +53,7 @@ export const SideMenu = (props: SiteMenuProps) => {
           isActive={activeItem === "invitations"}
         />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
-        {page.user!.isAdministrator && (
+        {Fider.session.user.isAdministrator && (
           <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
         )}
       </div>

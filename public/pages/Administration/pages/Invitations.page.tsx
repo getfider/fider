@@ -25,11 +25,11 @@ export class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
     super(props);
 
     this.state = {
-      subject: `Share your ideas and thoughts about ${page.tenant.name}`,
+      subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
       message: `Hi,
 
 At **${
-        page.tenant.name
+        Fider.session.tenant.name
       }** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
 
 We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
@@ -39,7 +39,7 @@ To join, click on the link below.
 %invite%
 
 Regards,
-${page.user!.name} (${page.tenant.name})`,
+${Fider.session.user.name} (${Fider.session.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
       rawRecipients: ""
@@ -56,7 +56,7 @@ ${page.user!.name} (${page.tenant.name})`,
     if (result.ok) {
       notify.success(
         <span>
-          An email message was sent to <strong>{page.user!.email}</strong>
+          An email message was sent to <strong>{Fider.session.user.email}</strong>
         </span>
       );
     }
@@ -133,8 +133,8 @@ ${page.user!.name} (${page.tenant.name})`,
             We highly recommend to send yourself a sample email for you to verify if everything is correct before
             inviting your list of contacts.
           </p>
-          {page.user!.email ? (
-            <Button onClick={this.sendSample}>Send a sample email to {page.user!.email}</Button>
+          {Fider.session.user.email ? (
+            <Button onClick={this.sendSample}>Send a sample email to {Fider.session.user.email}</Button>
           ) : (
             <Button disabled={true}>Your profile doesn't have an email</Button>
           )}

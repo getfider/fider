@@ -18,7 +18,7 @@ interface LegalAgreementProps {
 }
 
 export const LegalNotice: React.StatelessComponent<{}> = () => {
-  if (page.settings.hasLegal) {
+  if (Fider.settings.hasLegal) {
     return (
       <p className="info">
         By signing in, you agree to the {privacy} and {terms}.
@@ -29,7 +29,7 @@ export const LegalNotice: React.StatelessComponent<{}> = () => {
 };
 
 export const LegalFooter: React.StatelessComponent<{}> = () => {
-  if (page.settings.hasLegal) {
+  if (Fider.settings.hasLegal) {
     return (
       <Modal.Footer align="center">
         <LegalNotice />
@@ -40,7 +40,7 @@ export const LegalFooter: React.StatelessComponent<{}> = () => {
 };
 
 export const LegalAgreement: React.StatelessComponent<LegalAgreementProps> = props => {
-  if (page.settings.hasLegal) {
+  if (Fider.settings.hasLegal) {
     return (
       <Checkbox field="legalAgreement" onChange={props.onChange}>
         I have read and agree to the {privacy} and {terms}.

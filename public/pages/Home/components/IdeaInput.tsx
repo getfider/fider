@@ -26,8 +26,8 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
   constructor(props: IdeaInputProps) {
     super(props);
     this.state = {
-      title: (!!page.user && cache.get(CACHE_TITLE_KEY)) || "",
-      description: (!!page.user && cache.get(CACHE_DESCRIPTION_KEY)) || "",
+      title: (Fider.session.isAuthenticated && cache.get(CACHE_TITLE_KEY)) || "",
+      description: (Fider.session.isAuthenticated && cache.get(CACHE_DESCRIPTION_KEY)) || "",
       focused: false,
       showSignIn: false
     };
@@ -38,13 +38,13 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
   }
 
   public componentDidMount() {
-    if (page.user && this.title) {
+    if (Fider.session.isAuthenticated && this.title) {
       this.title.focus();
     }
   }
 
   private handleTitleFocus = () => {
-    if (!page.user && this.title) {
+    if (!Fider.session.isAuthenticated && this.title) {
       this.title.blur();
       this.setState({ showSignIn: true });
     }

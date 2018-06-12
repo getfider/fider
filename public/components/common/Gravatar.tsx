@@ -13,7 +13,7 @@ export const Gravatar = (props: GravatarProps) => {
   const size = props.size || "normal";
   const id = props.user ? props.user.id : 0;
   const name = props.user ? props.user.name : "";
-  const url = `${page.settings.tenantAssetsBaseURL}/avatars/50/${id}/${encodeURIComponent(name || "?")}`;
+  const url = `${Fider.settings.tenantAssetsBaseURL}/avatars/50/${id}/${encodeURIComponent(name || "?")}`;
 
   const className = classSet({
     "c-avatar": true,

@@ -19,7 +19,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
   constructor(props: TagsPanelProps) {
     super(props);
     this.state = {
-      canEdit: !!page.user && page.user.isCollaborator && this.props.tags.length > 0,
+      canEdit: Fider.session.isAuthenticated && Fider.session.user.isCollaborator && this.props.tags.length > 0,
       isEditing: false,
       assignedTags: this.props.tags.filter(t => this.props.idea.tags.indexOf(t.slug) >= 0)
     };

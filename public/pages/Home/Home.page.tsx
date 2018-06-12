@@ -64,12 +64,11 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
           <div className="col-md-4">
             <MultiLineText
               className="welcome-message"
-              text={page.tenant.welcomeMessage || defaultWelcomeMessage}
+              text={Fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
               style="full"
             />
             <IdeaInput
-              user={page.user}
-              placeholder={page.tenant.invitation || "Enter your idea here..."}
+              placeholder={Fider.session.tenant.invitation || "Enter your idea here..."}
               onTitleChanged={this.setTitle}
             />
           </div>
@@ -77,10 +76,9 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
             {this.isLonely() ? (
               <Lonely />
             ) : this.state.title ? (
-              <SimilarIdeas title={this.state.title} user={page.user} tags={this.props.tags} />
+              <SimilarIdeas title={this.state.title} tags={this.props.tags} />
             ) : (
               <IdeasContainer
-                user={page.user}
                 ideas={this.props.ideas}
                 tags={this.props.tags}
                 countPerStatus={this.props.countPerStatus}

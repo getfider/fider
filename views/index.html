@@ -1,7 +1,11 @@
 // Print all variables that does not start with _ (95)
 // Compressed to avoid whitespace being printed
-
-{{define "javascript"}} {{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}
-    page.set({{ $key }}, {{ $value }});{{ end }}{{ end }} {{end}}
+{{define "javascript"}} 
+    {{ if .__User }}window.__user = {{ .__User }};{{ end }}
+    window.__settings = {{ .__Settings }};
+    window.__tenant = {{ .__Tenant }};
+    window.__props = {};
+{{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}
+    window.__props['{{ $key }}'] = {{ $value }};{{ end }}{{ end }} {{end}}
         
 {{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}

@@ -122,8 +122,8 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
         </div>
 
         <div className="action-col">
-          {page.user &&
-            page.user.isCollaborator && [
+          {Fider.session.isAuthenticated &&
+            Fider.session.user.isCollaborator && [
               <span key={0} className="subtitle">
                 Actions
               </span>,

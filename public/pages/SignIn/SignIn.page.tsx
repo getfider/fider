@@ -20,11 +20,11 @@ export class SignInPage extends React.Component<{}, {}> {
         <div className="message">
           <Logo size={100} />
           <p className="welcome">
-            <strong>{page.tenant.name}</strong> is a private space and requires an invitation to join it.
+            <strong>{Fider.session.tenant.name}</strong> is a private space and requires an invitation to join it.
           </p>
           <p>If you have an account or an invitation, you may use following options to sign in.</p>
         </div>
-        <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={page.settings.baseURL} />
+        <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={Fider.settings.baseURL} />
         <LegalNotice />
       </div>
     );

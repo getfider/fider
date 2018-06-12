@@ -48,28 +48,28 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   };
 
   public render() {
-    const google = page.settings.auth.providers.google && (
+    const google = Fider.settings.auth.providers.google && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={page.settings.auth.endpoint}
+          oauthEndpoint={Fider.settings.auth.endpoint}
           provider="google"
           redirectTo={this.props.redirectTo}
         />
       </div>
     );
-    const facebook = page.settings.auth.providers.facebook && (
+    const facebook = Fider.settings.auth.providers.facebook && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={page.settings.auth.endpoint}
+          oauthEndpoint={Fider.settings.auth.endpoint}
           provider="facebook"
           redirectTo={this.props.redirectTo}
         />
       </div>
     );
-    const github = page.settings.auth.providers.github && (
+    const github = Fider.settings.auth.providers.github && (
       <div className="col-sm l-social-col">
         <SocialSignInButton
-          oauthEndpoint={page.settings.auth.endpoint}
+          oauthEndpoint={Fider.settings.auth.endpoint}
           provider="github"
           redirectTo={this.props.redirectTo}
         />

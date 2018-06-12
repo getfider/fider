@@ -50,7 +50,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
         <TextArea
           field="customCSS"
           label="Custom CSS"
-          disabled={!page.user!.isAdministrator}
+          disabled={!Fider.session.user.isAdministrator}
           minRows={10}
           value={this.state.customCSS}
           onChange={this.setCustomCSS}
@@ -78,7 +78,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
           </ul>
         </TextArea>
 
-        {page.user!.isAdministrator && (
+        {Fider.session.user.isAdministrator && (
           <div className="field">
             <Button color="positive" onClick={this.handleSave}>
               Save changes

@@ -28,7 +28,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
       showModal: false,
       changingEmail: false,
       newEmail: "",
-      name: page.user!.name,
+      name: Fider.session.user.name,
       userSettings: this.props.userSettings
     };
   }
@@ -116,7 +116,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
             <Form error={this.state.error}>
               <Field label="Avatar">
                 <p>
-                  <Gravatar user={page.user} />
+                  <Gravatar user={Fider.session.user} />
                 </p>
                 <div className="info">
                   <p>
@@ -133,14 +133,14 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               <Input
                 label="Email"
                 field="email"
-                value={this.state.changingEmail ? this.state.newEmail : page.user!.email}
+                value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
                 disabled={!this.state.changingEmail}
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
                 onChange={this.setNewEmail}
               >
                 <p className="info">
-                  {page.user!.email || this.state.changingEmail
+                  {Fider.session.user.email || this.state.changingEmail
                     ? "Your email is private and will never be displayed to anyone"
                     : "Your account doesn't have an email."}
                 </p>

@@ -25,7 +25,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       { text: "most discussed", value: "most-discussed", content: "Most Discussed" }
     ];
 
-    if (page.user) {
+    if (Fider.session.isAuthenticated) {
       options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
     }
 

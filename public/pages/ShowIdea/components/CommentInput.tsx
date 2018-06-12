@@ -26,7 +26,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     super(props);
 
     this.state = {
-      content: (!!page.user && cache.get(this.getCacheKey())) || "",
+      content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
       showSignIn: false
     };
   }
@@ -57,7 +57,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   };
 
   private handleOnFocus = () => {
-    if (!page.user) {
+    if (!Fider.session.isAuthenticated) {
       this.input.blur();
       this.setState({ showSignIn: true });
     }
@@ -71,10 +71,10 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className={`c-comment-input ${page.user && "m-authenticated"}`}>
-          {page.user && <Gravatar user={page.user} />}
+        <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
+          {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
           <Form error={this.state.error}>
-            {page.user && <UserName user={page.user} />}
+            {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
             <TextArea
               placeholder="Write a comment..."
               field="content"

@@ -48,7 +48,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
 
   public render() {
     const status = IdeaStatus.Get(this.props.idea.status);
-    if (!page.user || !page.user.isAdministrator || status.closed) {
+    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return null;
     }
 

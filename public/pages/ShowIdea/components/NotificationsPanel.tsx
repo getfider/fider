@@ -30,7 +30,7 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
   };
 
   public render() {
-    if (!page.user) {
+    if (!Fider.session.isAuthenticated) {
       return null;
     }
 

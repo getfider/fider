@@ -14,7 +14,6 @@ import {
 } from "@fider/components";
 
 interface ListIdeasProps {
-  user?: CurrentUser;
   ideas?: Idea[];
   tags: Tag[];
   emptyText: string;
@@ -23,7 +22,7 @@ interface ListIdeasProps {
 const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) => {
   return (
     <ListItem>
-      <SupportCounter user={props.user} idea={props.idea} />
+      <SupportCounter idea={props.idea} />
       <div className="c-list-item-content">
         {props.idea.totalComments > 0 && (
           <div className="info right">

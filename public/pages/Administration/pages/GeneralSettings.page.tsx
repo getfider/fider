@@ -38,10 +38,10 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     super(props);
 
     this.state = {
-      title: page.tenant.name,
-      cname: page.tenant.cname,
-      welcomeMessage: page.tenant.welcomeMessage,
-      invitation: page.tenant.invitation
+      title: Fider.session.tenant.name,
+      cname: Fider.session.tenant.cname,
+      welcomeMessage: Fider.session.tenant.welcomeMessage,
+      invitation: Fider.session.tenant.invitation
     };
   }
 
@@ -92,7 +92,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     const isApex = this.state.cname.split(".").length === 2;
     const recordType = isApex ? "A" : "CNAME";
     const publicIP = this.props.publicIP || "<error>";
-    const targetRecord = isApex ? publicIP : `${page.tenant.subdomain}${page.settings.domain}`;
+    const targetRecord = isApex ? publicIP : `${Fider.session.tenant.subdomain}${Fider.settings.domain}`;
     return (
       <>
         <strong>{this.state.cname}</strong> {recordType} <strong>{targetRecord}</strong>
@@ -119,7 +119,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
   public content() {
     const isRemoving = this.state.logo ? this.state.logo.remove : false;
     const isUploading = this.state.logo ? !!this.state.logo.upload : false;
-    const hasFile = (page.tenant.logoId > 0 && !isRemoving) || isUploading;
+    const hasFile = (Fider.session.tenant.logoId > 0 && !isRemoving) || isUploading;
     const previewUrl =
       isUploading && this.state.logo && this.state.logo.upload
         ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
@@ -132,14 +132,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           label="Title"
           maxLength={60}
           value={this.state.title}
-          disabled={!page.user!.isAdministrator}
+          disabled={!Fider.session.user.isAdministrator}
           onChange={this.setTitle}
         />
         <TextArea
           field="welcomeMessage"
           label="Welcome Message"
           value={this.state.welcomeMessage}
-          disabled={!page.user!.isAdministrator}
+          disabled={!Fider.session.user.isAdministrator}
           onChange={this.setWelcomeMessage}
         />
         <Input
@@ -147,7 +147,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           label="Invitation"
           maxLength={60}
           value={this.state.invitation}
-          disabled={!page.user!.isAdministrator}
+          disabled={!Fider.session.user.isAdministrator}
           onChange={this.setInvitation}
         />
 
@@ -156,11 +156,11 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
           <DisplayError fields={["logo"]} error={this.state.error} />
           <div>
-            <Button size="tiny" onClick={this.selectFile} disabled={!page.user!.isAdministrator}>
+            <Button size="tiny" onClick={this.selectFile} disabled={!Fider.session.user.isAdministrator}>
               {hasFile ? "Change" : "Upload"}
             </Button>
             {hasFile && (
-              <Button onClick={this.removeFile} size="tiny" disabled={!page.user!.isAdministrator}>
+              <Button onClick={this.removeFile} size="tiny" disabled={!Fider.session.user.isAdministrator}>
                 Remove
               </Button>
             )}
@@ -171,14 +171,14 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           </p>
         </Field>
 
-        {!page.isSingleHostMode() && (
+        {!Fider.isSingleHostMode() && (
           <Input
             field="cname"
             label="Custom Domain"
             maxLength={100}
             placeholder="feedback.yourcompany.com"
             value={this.state.cname}
-            disabled={!page.user!.isAdministrator}
+            disabled={!Fider.session.user.isAdministrator}
             onChange={this.setCNAME}
           >
             <div className="info">
@@ -202,7 +202,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         )}
 
         <div className="field">
-          <Button disabled={!page.user!.isAdministrator} color="positive" onClick={this.handleSave}>
+          <Button disabled={!Fider.session.user.isAdministrator} color="positive" onClick={this.handleSave}>
             Save changes
           </Button>
         </div>

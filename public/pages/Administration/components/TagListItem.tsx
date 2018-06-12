@@ -94,7 +94,7 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
   }
 
   private renderViewMode() {
-    const buttons = page.user!.isAdministrator && [
+    const buttons = Fider.session.user.isAdministrator && [
       <Button key={0} onClick={this.startDelete} className="right">
         <i className="remove icon" />Delete
       </Button>,

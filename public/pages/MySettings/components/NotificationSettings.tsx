@@ -54,7 +54,7 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
   }
 
   private info(settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) {
-    const about = page.user!.isCollaborator ? aboutForCollaborators : aboutForVisitors;
+    const about = Fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
     const webEnabled = this.isEnabled(settingsKey, WebChannel);
     const emailEnabled = this.isEnabled(settingsKey, EmailChannel);
 
