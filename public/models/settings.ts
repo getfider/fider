@@ -7,8 +7,7 @@ export interface SystemSettings {
   domain: string;
   hasLegal: boolean;
   baseURL: string;
-  assetsBaseURL: string;
-  tenantAssetsBaseURL: string;
+  assetsURL: string;
   auth: {
     endpoint: string;
     providers: {

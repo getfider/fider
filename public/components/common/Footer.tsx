@@ -2,14 +2,12 @@ import "./Footer.scss";
 
 import * as React from "react";
 
-const logo = require("@fider/assets/images/logo-small.png");
-
 export const Footer = () => {
   return (
     <div id="c-footer">
       <div className="container">
         <a target="_blank" href="https://getfider.com/">
-          <img src={`${Fider.settings.assetsBaseURL}${logo}`} alt="Fider" />
+          <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />
           <span>Powered by Fider</span>
         </a>
       </div>

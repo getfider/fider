@@ -117,7 +117,6 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["__cssBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.assets["main.css"])
 	m["__fontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
 
-	m["__contextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
 		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
@@ -126,20 +125,20 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
+	m["__contextID"] = ctx.ContextID()
 	m["__currentURL"] = ctx.Request.URL.String()
 	m["__tenant"] = ctx.Tenant()
 	m["__settings"] = &Map{
-		"mode":                r.settings.Mode,
-		"buildTime":           r.settings.BuildTime,
-		"version":             r.settings.Version,
-		"environment":         r.settings.Environment,
-		"compiler":            r.settings.Compiler,
-		"googleAnalytics":     r.settings.GoogleAnalytics,
-		"domain":              r.settings.Domain,
-		"hasLegal":            r.settings.HasLegal,
-		"baseURL":             ctx.BaseURL(),
-		"assetsBaseURL":       ctx.GlobalAssetsURL(""),
-		"tenantAssetsBaseURL": ctx.TenantAssetsURL(""),
+		"mode":            r.settings.Mode,
+		"buildTime":       r.settings.BuildTime,
+		"version":         r.settings.Version,
+		"environment":     r.settings.Environment,
+		"compiler":        r.settings.Compiler,
+		"googleAnalytics": r.settings.GoogleAnalytics,
+		"domain":          r.settings.Domain,
+		"hasLegal":        r.settings.HasLegal,
+		"baseURL":         ctx.BaseURL(),
+		"assetsURL":       ctx.TenantAssetsURL(""),
 		"auth": Map{
 			"endpoint": ctx.AuthEndpoint(),
 			"providers": Map{

@@ -5,8 +5,6 @@ import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, Legal
 import { SystemSettings } from "@fider/models";
 import { jwt, actions, Failure, querystring } from "@fider/services";
 
-const logo = require("@fider/assets/images/logo-small.png");
-
 interface OAuthUser {
   token: string;
   name: string;
@@ -126,7 +124,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     return (
       <div id="p-signup" className="page container">
         {modal}
-        <img className="logo" src={logo} />
+        <img className="logo" src="https://getfider.com/images/logo-100x100.png" />
 
         <h3>1. Who are you?</h3>
         <DisplayError fields={["token"]} error={this.state.error} />
