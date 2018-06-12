@@ -12,7 +12,7 @@ func Secure() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			cdnHost := env.GetEnvOrDefault("CDN_HOST", "")
-			if cdnHost != "" {
+			if cdnHost != "" && !env.IsSingleHostMode() {
 				cdnHost = "*." + cdnHost
 			}
 			csp := fmt.Sprintf(web.CspPolicyTemplate, c.ContextID(), cdnHost)
