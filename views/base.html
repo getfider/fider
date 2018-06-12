@@ -3,19 +3,19 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <link rel="icon" type="image/x-icon" href="{{ .__Favicon }}">
-    <link rel="preload" href="{{ .__FontBundle }}" as="font" type="font/woff2" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ .__StyleBundle }}" />
-    <title>{{ .__Title }}</title>
-    <meta name="description" content="{{ .__Description }}" />
-    <meta property="og:title" content="{{ .__Title }}" />
-    <meta property="og:description" content="{{ .__Description }}" />
+    <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
+    <link rel="preload" href="{{ .__fontBundle }}" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ .__cssBundle }}" />
+    <title>{{ .__title }}</title>
+    <meta name="description" content="{{ .__description }}" />
+    <meta property="og:title" content="{{ .__title }}" />
+    <meta property="og:description" content="{{ .__description }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ .__CurrentURL }}" />
-    <meta property="og:image" content="{{ .__Logo }}">
-    {{ if .__Tenant }} 
-      {{ if .__Tenant.CustomCSS }} 
-      <link rel="stylesheet" href="{{ .__Settings.tenantAssetsBaseURL }}/custom/{{ .__Tenant.CustomCSS | md5 }}.css" />
+    <meta property="og:url" content="{{ .__currentURL }}" />
+    <meta property="og:image" content="{{ .__logo }}">
+    {{ if .__tenant }} 
+      {{ if .__tenant.CustomCSS }} 
+      <link rel="stylesheet" href="{{ .__settings.tenantAssetsBaseURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
       {{ end }}
     {{ end }}
 </head>
@@ -28,15 +28,15 @@
     </div>
   </noscript>
 
-  {{ if ne .__Settings.googleAnalytics "" }}
-  <script type="text/javascript" nonce="{{ .__ContextID }}">
+  {{ if ne .__settings.googleAnalytics "" }}
+  <script type="text/javascript" nonce="{{ .__contextID }}">
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{ .__Settings.googleAnalytics }}', 'auto');
-    {{ if .__Tenant }}ga('set', 'dimension1', '{{ .__Tenant.Subdomain }}');{{ end }}
+    ga('create', '{{ .__settings.googleAnalytics }}', 'auto');
+    {{ if .__tenant }}ga('set', 'dimension1', '{{ .__tenant.Subdomain }}');{{ end }}
     ga('send', 'pageview');
   </script>
   {{ end }}
@@ -44,9 +44,9 @@
   {{template "content" .}}
 
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch"></script>
-  <script src="{{ .__VendorBundle }}"></script>
-  <script src="{{ .__JavaScriptBundle }}"></script>
-  <script type="text/javascript" nonce="{{ .__ContextID }}">
+  <script src="{{ .__vendorBundle }}"></script>
+  <script src="{{ .__jsBundle }}"></script>
+  <script type="text/javascript" nonce="{{ .__contextID }}">
     {{template "javascript" .}}
   </script>
 </body>

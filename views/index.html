@@ -1,9 +1,9 @@
 // Print all variables that does not start with _ (95)
 // Compressed to avoid whitespace being printed
 {{define "javascript"}} 
-    {{ if .__User }}window.__user = {{ .__User }};{{ end }}
-    window.__settings = {{ .__Settings }};
-    window.__tenant = {{ .__Tenant }};
+    {{ if .__user }}window.__user = {{ .__user }};{{ end }}
+    window.__settings = {{ .__settings }};
+    window.__tenant = {{ .__tenant }};
     window.__props = {};
 {{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}
     window.__props['{{ $key }}'] = {{ $value }};{{ end }}{{ end }} {{end}}

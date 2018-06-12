@@ -6,14 +6,14 @@ Not Invited &middot; Fider
 
 {{define "content"}}
 <div class="container failure-page">
-  <img src="{{.__Logo}}"/>
+  <img src="{{.__logo}}"/>
   <h1>NOT INVITED</h1>
   <p>
     We couldn't find your account for your email address.
   </p>
 
-  {{ if .tenant }}
-    <span>Take me back to <a href="{{ .settings.baseURL }}/signin">{{ .settings.baseURL }}/signin</a>.</span>
+  {{ if .__tenant }}
+    <span>Take me back to <a href="{{ .__settings.baseURL }}/signin">{{ .__settings.baseURL }}/signin</a>.</span>
   {{ end }}
 </div>
 {{end}}

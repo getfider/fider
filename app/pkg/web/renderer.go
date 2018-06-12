@@ -105,30 +105,30 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		title = fmt.Sprintf("%s · %s", props.Title, tenantName)
 	}
 
-	m["__Title"] = title
+	m["__title"] = title
 
 	if props.Description != "" {
 		description := strings.Replace(props.Description, "\n", " ", -1)
-		m["__Description"] = fmt.Sprintf("%.150s", description)
+		m["__description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	m["__VendorBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["vendor.js"])
-	m["__JavaScriptBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["main.js"])
-	m["__StyleBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.assets["main.css"])
-	m["__FontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
+	m["__vendorBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["vendor.js"])
+	m["__jsBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["main.js"])
+	m["__cssBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.assets["main.css"])
+	m["__fontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
 
-	m["__ContextID"] = ctx.ContextID()
+	m["__contextID"] = ctx.ContextID()
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__Logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
-		m["__Favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
+		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
+		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
 	} else {
-		m["__Logo"] = "https://getfider.com/images/logo-100x100.png"
-		m["__Favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
+		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
+		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")
 	}
 
-	m["__CurrentURL"] = ctx.Request.URL.String()
-	m["__Tenant"] = ctx.Tenant()
-	m["__Settings"] = &Map{
+	m["__currentURL"] = ctx.Request.URL.String()
+	m["__tenant"] = ctx.Tenant()
+	m["__settings"] = &Map{
 		"mode":                r.settings.Mode,
 		"buildTime":           r.settings.BuildTime,
 		"version":             r.settings.Version,
@@ -152,7 +152,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	if ctx.IsAuthenticated() {
 		u := ctx.User()
-		m["__User"] = &Map{
+		m["__user"] = &Map{
 			"id":              u.ID,
 			"name":            u.Name,
 			"email":           u.Email,
