@@ -10,7 +10,8 @@
     "react-textarea-autosize": "6.1.0",
     "react-toastify": "4.0.1",
     "semantic-ui-css": "2.2.14",
-    "semantic-ui-react": "0.79.1"
+    "semantic-ui-react": "0.79.1",
+    "tslib": "^1.9.2"
   },
   "devDependencies": {
     "@types/jest": "22.2.3",
