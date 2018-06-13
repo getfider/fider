@@ -2,7 +2,7 @@ import "./ShowIdea.page.scss";
 
 import * as React from "react";
 
-import { CurrentUser, Comment, Idea, Tag } from "@fider/models";
+import { Comment, Idea, Tag } from "@fider/models";
 import { actions, Failure } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
@@ -23,7 +23,6 @@ import {
 } from "@fider/components";
 
 interface ShowIdeaPageProps {
-  user?: CurrentUser;
   idea: Idea;
   subscribed: boolean;
   comments: Comment[];
@@ -87,7 +86,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
         <div className="header-col">
           <List>
             <ListItem>
-              <SupportCounter user={this.props.user} idea={this.props.idea} />
+              <SupportCounter idea={this.props.idea} />
 
               <div className="idea-header">
                 {this.state.editMode ? (
@@ -123,8 +122,8 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
         </div>
 
         <div className="action-col">
-          {this.props.user &&
-            this.props.user.isCollaborator && [
+          {Fider.session.isAuthenticated &&
+            Fider.session.user.isCollaborator && [
               <span key={0} className="subtitle">
                 Actions
               </span>,
@@ -155,12 +154,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               )
             ]}
 
-          <TagsPanel user={this.props.user} idea={this.props.idea} tags={this.props.tags} />
-          <NotificationsPanel user={this.props.user} idea={this.props.idea} subscribed={this.props.subscribed} />
-          <ModerationPanel user={this.props.user} idea={this.props.idea} />
+          <TagsPanel idea={this.props.idea} tags={this.props.tags} />
+          <NotificationsPanel idea={this.props.idea} subscribed={this.props.subscribed} />
+          <ModerationPanel idea={this.props.idea} />
         </div>
 
-        <DiscussionPanel user={this.props.user} idea={this.props.idea} comments={this.props.comments} />
+        <DiscussionPanel idea={this.props.idea} comments={this.props.comments} />
       </div>
     );
   }

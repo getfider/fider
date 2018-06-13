@@ -17,6 +17,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": "./public",
+    "importHelpers": true,
+    "noEmitHelpers": true,
     "paths": {
       "@fider/*": [
         "*"

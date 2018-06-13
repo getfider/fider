@@ -1,20 +1,16 @@
 import * as React from "react";
 import { SystemSettings } from "@fider/models";
 
-interface EnvironmentInfoProps {
-  system: SystemSettings;
-}
-
-export class EnvironmentInfo extends React.Component<EnvironmentInfoProps, {}> {
+export class EnvironmentInfo extends React.Component<{}, {}> {
   public render() {
-    if (this.props.system.environment === "production") {
+    if (Fider.isProduction()) {
       return null;
     }
 
     return (
       <div className="c-env-info">
-        Env: {this.props.system.environment} | Compiler: {this.props.system.compiler} | Version:{" "}
-        {this.props.system.version} | BuildTime: {this.props.system.buildTime}
+        Env: {Fider.settings.environment} | Compiler: {Fider.settings.compiler} | Version: {Fider.settings.version} |
+        BuildTime: {Fider.settings.buildTime}
       </div>
     );
   }

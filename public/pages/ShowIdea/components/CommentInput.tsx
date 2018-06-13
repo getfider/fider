@@ -5,10 +5,9 @@ import { Idea, CurrentUser } from "@fider/models";
 import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
-import { cache, page, actions, Failure } from "@fider/services";
+import { cache, actions, Failure } from "@fider/services";
 
 interface CommentInputProps {
-  user?: CurrentUser;
   idea: Idea;
 }
 
@@ -27,7 +26,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     super(props);
 
     this.state = {
-      content: (!!this.props.user && cache.get(this.getCacheKey())) || "",
+      content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
       showSignIn: false
     };
   }
@@ -58,7 +57,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   };
 
   private handleOnFocus = () => {
-    if (!this.props.user) {
+    if (!Fider.session.isAuthenticated) {
       this.input.blur();
       this.setState({ showSignIn: true });
     }
@@ -72,10 +71,10 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     return (
       <>
         <SignInModal isOpen={this.state.showSignIn} />
-        <div className={`c-comment-input ${this.props.user && "m-authenticated"}`}>
-          {this.props.user && <Gravatar user={this.props.user} />}
+        <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
+          {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
           <Form error={this.state.error}>
-            {this.props.user && <UserName user={this.props.user} />}
+            {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
             <TextArea
               placeholder="Write a comment..."
               field="content"

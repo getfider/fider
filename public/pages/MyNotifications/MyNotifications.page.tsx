@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { CurrentUser, Notification } from "@fider/models";
 import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
-import { page, actions } from "@fider/services";
+import { actions } from "@fider/services";
 
 interface MyNotificationsPageProps {
   notifications: Notification[];
@@ -51,7 +51,7 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
   private markAllAsRead = async () => {
     const response = await actions.markAllAsRead();
     if (response.ok) {
-      page.refresh();
+      location.reload();
     }
   };
 

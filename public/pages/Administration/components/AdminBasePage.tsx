@@ -3,11 +3,7 @@ import { CurrentUser } from "@fider/models";
 import { Heading } from "@fider/components";
 import { SideMenu } from "./";
 
-interface AdminBasePageProps {
-  user: CurrentUser;
-}
-
-export abstract class AdminBasePage<P extends AdminBasePageProps, S> extends React.Component<P, S> {
+export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
   public abstract id: string;
   public abstract name: string;
   public abstract icon: string;
@@ -22,7 +18,7 @@ export abstract class AdminBasePage<P extends AdminBasePageProps, S> extends Rea
 
         <div className="row">
           <div className="col-lg-2">
-            <SideMenu user={this.props.user} activeItem={this.name} />
+            <SideMenu activeItem={this.name} />
           </div>
           <div className="col-lg-10">{this.content()}</div>
         </div>

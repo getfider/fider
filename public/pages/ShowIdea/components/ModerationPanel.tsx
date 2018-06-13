@@ -1,10 +1,9 @@
 import * as React from "react";
 import { IdeaStatus, CurrentUser, Idea } from "@fider/models";
-import { page, actions, Failure } from "@fider/services";
+import { actions, Failure } from "@fider/services";
 import { Form, DisplayError, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
-  user?: CurrentUser;
   idea: Idea;
 }
 
@@ -29,7 +28,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     const response = await actions.deleteIdea(this.props.idea.number, this.state.text);
     if (response.ok) {
       await this.closeModal();
-      page.goHome();
+      actions.goHome();
     } else if (response.error) {
       this.setState({ error: this.state.error });
     }
@@ -49,7 +48,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
 
   public render() {
     const status = IdeaStatus.Get(this.props.idea.status);
-    if (!this.props.user || !this.props.user.isAdministrator || status.closed) {
+    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return null;
     }
 

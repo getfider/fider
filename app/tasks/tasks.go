@@ -151,7 +151,6 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
 	return describe("Notify about idea status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
-		c.Logger().Infof("%d, %d", prevStatus, idea.Status)
 		if prevStatus == idea.Status {
 			return nil
 		}

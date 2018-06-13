@@ -1,4 +1,4 @@
-import { http, Result, page } from "@fider/services";
+import { http, Result, querystring } from "@fider/services";
 import { Idea } from "@fider/models";
 
 export const getAllIdeas = async (): Promise<Result<Idea[]>> => {
@@ -14,7 +14,7 @@ export interface SearchIdeasParams {
 
 export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Idea[]>> => {
   return await http.get<Idea[]>(
-    `/api/ideas/search${page.toQueryString({
+    `/api/ideas/search${querystring.stringify({
       t: params.tags,
       q: params.query,
       f: params.filter,

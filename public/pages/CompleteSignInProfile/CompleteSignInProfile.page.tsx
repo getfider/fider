@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
-import { page, actions, Failure } from "@fider/services";
+import { actions, Failure, querystring } from "@fider/services";
 
 interface CompleteSignInProfilePageState {
   name: string;
@@ -14,7 +14,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
 
   constructor(props: HomePageProps) {
     super(props);
-    this.key = page.getQueryString("k");
+    this.key = querystring.get("k");
     this.state = {
       name: ""
     };
@@ -56,7 +56,7 @@ export class CompleteSignInProfilePage extends React.Component<HomePageProps, Co
           </Modal.Content>
           <LegalFooter />
         </Modal.Window>
-        {this.props.tenant.isPrivate
+        {Fider.session.tenant.isPrivate
           ? React.createElement(SignInPage, this.props)
           : React.createElement(HomePage, this.props)}
       </>

@@ -12,8 +12,8 @@ Not Invited &middot; Fider
     We couldn't find your account for your email address.
   </p>
 
-  {{ if .tenant }}
-    <span>Take me back to <a href="{{ .baseURL }}/signin">{{ .baseURL }}/signin</a>.</span>
+  {{ if .__tenant }}
+    <span>Take me back to <a href="{{ .__settings.baseURL }}/signin">{{ .__settings.baseURL }}/signin</a>.</span>
   {{ end }}
 </div>
 {{end}}

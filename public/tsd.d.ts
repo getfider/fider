@@ -1,18 +1,17 @@
 import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
-
-interface PageProps {
-  user?: CurrentUser;
-  system: SystemSettings;
-  tenant: Tenant;
-  [key: string]: any;
-}
+import { Fider } from "./fider";
 
 declare global {
   interface Window {
     ga?: (cmd: string, evt: string, args?: any) => void;
-    props: PageProps;
     set: (key: string, value: any) => void;
+    __props: { [key: string]: any };
+    __user: CurrentUser | undefined;
+    __tenant: Tenant;
+    __settings: SystemSettings;
   }
+
+  var Fider: Fider;
 }
 
 declare var require: (id: string) => any;

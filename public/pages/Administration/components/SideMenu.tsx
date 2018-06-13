@@ -2,12 +2,11 @@ import "./SideMenu.scss";
 
 import * as React from "react";
 import { CurrentUser } from "@fider/models";
-import { classSet, page } from "@fider/services";
+import { classSet } from "@fider/services";
 import { FiderVersion } from "@fider/components";
 
 interface SiteMenuProps {
   activeItem: string;
-  user: CurrentUser;
 }
 
 interface SideMenuItemProps {
@@ -54,7 +53,7 @@ export const SideMenu = (props: SiteMenuProps) => {
           isActive={activeItem === "invitations"}
         />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
-        {props.user.isAdministrator && (
+        {Fider.session.user.isAdministrator && (
           <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
         )}
       </div>

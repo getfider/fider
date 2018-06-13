@@ -6,8 +6,8 @@
     <h1>EXPIRED</h1>
     <p>The link you clicked has expired.</p>
 
-    {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+    {{ if .__tenant }}
+      <span>Take me back to <a href="{{ .__settings.baseURL }}">{{ .__settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
 {{end}}

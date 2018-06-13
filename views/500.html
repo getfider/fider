@@ -6,8 +6,8 @@
     <h1>Shoot! Well, this is unexpected…</h1>
     <p>An error has occurred and we're working to fix the problem! </br> We’ll be up and running shortly.</p>
 
-    {{ if .tenant }}
-      <span>Take me back to <a href="{{ .baseURL }}">{{ .baseURL }}</a> home page.</span>
+    {{ if .__tenant }}
+      <span>Take me back to <a href="{{ .__settings.baseURL }}">{{ .__settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
 {{end}}

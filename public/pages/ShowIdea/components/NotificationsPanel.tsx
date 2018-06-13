@@ -4,7 +4,6 @@ import { Button, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 
 interface NotificationsPanelProps {
-  user: CurrentUser | undefined;
   idea: Idea;
   subscribed: boolean;
 }
@@ -31,7 +30,7 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
   };
 
   public render() {
-    if (!this.props.user) {
+    if (!Fider.session.isAuthenticated) {
       return null;
     }
 

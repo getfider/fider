@@ -4,13 +4,12 @@ import { CurrentUser, UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field } from "@fider/components";
 
 interface NotificationSettingsProps {
-  user: CurrentUser;
-  settings: UserSettings;
+  userSettings: UserSettings;
   settingsChanged: (settings: UserSettings) => void;
 }
 
 interface NotificationSettingsState {
-  settings: UserSettings;
+  userSettings: UserSettings;
 }
 
 type Channel = number;
@@ -22,23 +21,23 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
     super(props);
 
     this.state = {
-      settings: this.props.settings
+      userSettings: this.props.userSettings
     };
   }
 
   private isEnabled(settingsKey: string, channel: Channel): boolean {
-    if (settingsKey in this.state.settings) {
-      return (parseInt(this.state.settings[settingsKey], 10) & channel) > 0;
+    if (settingsKey in this.state.userSettings) {
+      return (parseInt(this.state.userSettings[settingsKey], 10) & channel) > 0;
     }
     return false;
   }
 
   private toggle(settingsKey: string, channel: Channel) {
-    const settings = { ...this.state.settings };
-    settings[settingsKey] = (parseInt(this.state.settings[settingsKey], 10) ^ channel).toString();
+    const userSettings = { ...this.state.userSettings };
+    userSettings[settingsKey] = (parseInt(this.state.userSettings[settingsKey], 10) ^ channel).toString();
 
-    this.setState({ settings });
-    this.props.settingsChanged(settings);
+    this.setState({ userSettings });
+    this.props.settingsChanged(userSettings);
   }
 
   private icon(settingsKey: string, channel: Channel) {
@@ -55,7 +54,7 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
   }
 
   private info(settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) {
-    const about = this.props.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
+    const about = Fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
     const webEnabled = this.isEnabled(settingsKey, WebChannel);
     const emailEnabled = this.isEnabled(settingsKey, EmailChannel);
 

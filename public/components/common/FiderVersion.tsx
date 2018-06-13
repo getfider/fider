@@ -1,5 +1,4 @@
 import * as React from "react";
-import { page } from "@fider/services";
 
 export const FiderVersion = () => {
   return (
@@ -9,7 +8,7 @@ export const FiderVersion = () => {
         OpenCollective
       </a>
       <br />
-      Fider v{page.systemSettings().version}
+      Fider v{Fider.settings.version}
     </p>
   );
 };

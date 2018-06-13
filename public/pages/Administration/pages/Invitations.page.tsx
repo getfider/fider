@@ -5,11 +5,6 @@ import { Button, ButtonClickEvent, TextArea, DisplayError, Form, Input, Field } 
 import { actions, notify, Failure } from "@fider/services";
 import { AdminBasePage } from "../components";
 
-interface InvitationsPageProps {
-  user: CurrentUser;
-  tenant: Tenant;
-}
-
 interface InvitationsPageState {
   subject: string;
   message: string;
@@ -19,22 +14,22 @@ interface InvitationsPageState {
   error?: Failure;
 }
 
-export class InvitationsPage extends AdminBasePage<InvitationsPageProps, InvitationsPageState> {
+export class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
   public id = "p-admin-invitations";
   public name = "invitations";
   public icon = "envelope";
   public title = "Invitations";
   public subtitle = "Invite people to share their feedback";
 
-  constructor(props: InvitationsPageProps) {
+  constructor(props: {}) {
     super(props);
 
     this.state = {
-      subject: `Share your ideas and thoughts about ${this.props.tenant.name}`,
+      subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
       message: `Hi,
 
 At **${
-        this.props.tenant.name
+        Fider.session.tenant.name
       }** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
 
 We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
@@ -44,7 +39,7 @@ To join, click on the link below.
 %invite%
 
 Regards,
-${this.props.user.name} (${this.props.tenant.name})`,
+${Fider.session.user.name} (${Fider.session.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
       rawRecipients: ""
@@ -61,7 +56,7 @@ ${this.props.user.name} (${this.props.tenant.name})`,
     if (result.ok) {
       notify.success(
         <span>
-          An email message was sent to <strong>{this.props.user.email}</strong>
+          An email message was sent to <strong>{Fider.session.user.email}</strong>
         </span>
       );
     }
@@ -138,8 +133,8 @@ ${this.props.user.name} (${this.props.tenant.name})`,
             We highly recommend to send yourself a sample email for you to verify if everything is correct before
             inviting your list of contacts.
           </p>
-          {this.props.user.email ? (
-            <Button onClick={this.sendSample}>Send a sample email to {this.props.user.email}</Button>
+          {Fider.session.user.email ? (
+            <Button onClick={this.sendSample}>Send a sample email to {Fider.session.user.email}</Button>
           ) : (
             <Button disabled={true}>Your profile doesn't have an email</Button>
           )}

@@ -6,7 +6,6 @@ import { formatDate, Failure, actions } from "@fider/services";
 interface ShowCommentProps {
   idea: Idea;
   comment: Comment;
-  user?: CurrentUser;
 }
 
 interface ShowCommentState {
@@ -27,8 +26,8 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   }
 
   private canEditComment(comment: Comment): boolean {
-    if (this.props.user) {
-      return this.props.user.isCollaborator || comment.user.id === this.props.user.id;
+    if (Fider.session.isAuthenticated) {
+      return Fider.session.user.isCollaborator || comment.user.id === Fider.session.user.id;
     }
     return false;
   }
@@ -50,7 +49,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     if (response.ok) {
       this.state.comment.content = this.state.newContent;
       this.state.comment.editedOn = new Date().toISOString();
-      this.state.comment.editedBy = this.props.user;
+      this.state.comment.editedBy = Fider.session.user;
       this.setState({
         comment: this.state.comment
       });

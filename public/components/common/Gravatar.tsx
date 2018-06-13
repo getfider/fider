@@ -1,7 +1,7 @@
 import "./Gravatar.scss";
 
 import * as React from "react";
-import { page, classSet } from "@fider/services";
+import { classSet } from "@fider/services";
 import { User, UserRole, UserStatus, CurrentUser } from "@fider/models";
 
 interface GravatarProps {
@@ -13,7 +13,7 @@ export const Gravatar = (props: GravatarProps) => {
   const size = props.size || "normal";
   const id = props.user ? props.user.id : 0;
   const name = props.user ? props.user.name : "";
-  const url = `${page.getTenantAssetsBaseUrl()}/avatars/50/${id}/${encodeURIComponent(name || "?")}`;
+  const url = `${Fider.settings.assetsURL}/avatars/50/${id}/${encodeURIComponent(name || "?")}`;
 
   const className = classSet({
     "c-avatar": true,

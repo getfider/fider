@@ -3,21 +3,15 @@ import "./Header.scss";
 import * as React from "react";
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { SignInModal, SignInControl, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
-import { page, actions, classSet } from "@fider/services";
-
-interface HeaderProps {
-  user?: CurrentUser;
-  system: SystemSettings;
-  tenant: Tenant;
-}
+import { actions, classSet } from "@fider/services";
 
 interface HeaderState {
   showSignIn: boolean;
   unreadNotifications: number;
 }
 
-export class Header extends React.Component<HeaderProps, HeaderState> {
-  constructor(props: HeaderProps) {
+export class Header extends React.Component<{}, HeaderState> {
+  constructor(props: {}) {
     super(props);
     this.state = {
       showSignIn: false,
@@ -26,7 +20,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
   }
 
   public componentDidMount(): void {
-    if (this.props.user) {
+    if (Fider.session.isAuthenticated) {
       actions.getTotalUnreadNotifications().then(result => {
         if (result.ok && result.data > 0) {
           this.setState({ unreadNotifications: result.data });
@@ -36,17 +30,17 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
   }
 
   private showModal = () => {
-    if (!this.props.user) {
+    if (!Fider.session.isAuthenticated) {
       this.setState({ showSignIn: true });
     }
   };
 
   public render() {
-    const items = this.props.user && (
+    const items = Fider.session.isAuthenticated && (
       <div className="c-menu-user">
         <div className="c-menu-user-heading">
           <i className="user icon" />
-          {this.props.user.name}
+          {Fider.session.user.name}
         </div>
         <a href="/settings" className="c-menu-user-item">
           Settings
@@ -56,7 +50,7 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
           {this.state.unreadNotifications > 0 && <div className="c-unread-count">{this.state.unreadNotifications}</div>}
         </a>
         <div className="c-menu-user-divider" />
-        {this.props.user.isCollaborator && [
+        {Fider.session.user.isCollaborator && [
           <div key={1} className="c-menu-user-heading">
             <i className="setting icon" />
             Administration
@@ -72,22 +66,23 @@ export class Header extends React.Component<HeaderProps, HeaderState> {
       </div>
     );
 
-    const showRightMenu = this.props.user || !this.props.tenant.isPrivate;
+    const showRightMenu = Fider.session.isAuthenticated || !Fider.session.tenant.isPrivate;
     return (
       <div id="c-header">
-        <EnvironmentInfo system={this.props.system} />
+        <EnvironmentInfo />
         <SignInModal isOpen={this.state.showSignIn} />
         <div className="c-menu">
           <div className="container">
             <a href="/" className="c-menu-item-title">
-              <Logo size={100} tenant={this.props.tenant} />
-              <span>{this.props.tenant.name}</span>
+              <Logo size={100} />
+              <span>{Fider.session.tenant.name}</span>
             </a>
             {showRightMenu && (
               <div onClick={this.showModal} className="c-menu-item-signin">
-                {this.props.user && <Gravatar user={this.props.user} />}
+                {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
                 {this.state.unreadNotifications > 0 && <div className="c-unread-dot" />}
-                {!this.props.user && <span>Sign in</span>} {this.props.user && <i className="dropdown icon" />}
+                {!Fider.session.isAuthenticated && <span>Sign in</span>}
+                {Fider.session.isAuthenticated && <i className="dropdown icon" />}
                 {items}
               </div>
             )}

@@ -3,7 +3,6 @@ import { Idea, IdeaStatus, CurrentUser } from "@fider/models";
 import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 
 interface IdeaFilterProps {
-  user?: CurrentUser;
   activeFilter: string;
   countPerStatus: { [key: string]: number };
   filterChanged: (name: string) => void;
@@ -26,7 +25,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       { text: "most discussed", value: "most-discussed", content: "Most Discussed" }
     ];
 
-    if (this.props.user) {
+    if (Fider.session.isAuthenticated) {
       options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
     }
 
