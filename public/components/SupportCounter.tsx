@@ -53,14 +53,14 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     const vote = (
       <button className={className} onClick={this.supportOrUndo}>
-        <i className="medium caret up icon" />
+        <i className="caret up icon" />
         {this.state.total}
       </button>
     );
 
     const disabled = (
       <button className={className}>
-        <i className="medium caret up icon" />
+        <i className="caret up icon" />
         {this.state.total}
       </button>
     );

@@ -59,7 +59,7 @@ export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdea
         <Heading
           title="Similar ideas"
           subtitle="Consider voting on existing ideas before posting a new one."
-          icon="lightbulb"
+          icon="lightbulb outline"
           size="small"
           dividing={true}
         />
