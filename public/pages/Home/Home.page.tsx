@@ -21,7 +21,7 @@ const Lonely = () => {
   return (
     <div className="center">
       <p>
-        <i className="icon lightbulb" aria-hidden="true" />
+        <i className="icon lightbulb outline" aria-hidden="true" />
       </p>
       <p>It's lonely out here. Start by sharing an idea!</p>
     </div>

@@ -109,7 +109,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon="id badge" />
+        <Heading title="Settings" subtitle="Manage your profile settings" icon="address card outline" />
 
         <div className="row">
           <div className="col-lg-7">

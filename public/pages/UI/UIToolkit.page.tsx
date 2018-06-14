@@ -123,7 +123,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <Heading
           title="Section Heading"
-          icon="lightbulb"
+          icon="lightbulb outline"
           subtitle="This is a page heading"
           size="small"
           dividing={true}
