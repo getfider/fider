@@ -12,7 +12,7 @@ export class Browser {
   }
 
   public static async launch(): Promise<Browser> {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     return new Browser(browser, page);
   }

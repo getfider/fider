@@ -32,7 +32,7 @@ export class SignUpPage extends Page {
   @findBy(".c-modal-window") private ConfirmationModal!: WebComponent;
 
   public loadCondition(): WaitCondition {
-    return elementIsVisible(() => this.Container);
+    return elementIsVisible(this.Container);
   }
 
   // public async signInWithGoogle(): Promise<void> {
@@ -54,9 +54,9 @@ export class SignUpPage extends Page {
     await this.TenantName.type(name);
     if (await this.Subdomain.isVisible()) {
       await this.Subdomain.type(subdomain);
-      await this.browser.wait(elementIsVisible(() => this.SubdomainOk));
+      await this.browser.wait(elementIsVisible(this.SubdomainOk));
     }
     await this.Confirm.click();
-    await this.browser.waitAny([pageHasLoaded(HomePage), elementIsVisible(() => this.ConfirmationModal)]);
+    await this.browser.waitAny([pageHasLoaded(HomePage), elementIsVisible(this.ConfirmationModal)]);
   }
 }

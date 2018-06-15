@@ -11,7 +11,7 @@ export class FacebookSignInPage extends Page {
   @findBy("#loginbutton") public Confirm!: Button;
 
   public loadCondition() {
-    return elementIsVisible(() => this.Email);
+    return elementIsVisible(this.Email);
   }
 
   public async signInAsJonSnow() {

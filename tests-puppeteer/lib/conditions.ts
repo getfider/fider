@@ -8,11 +8,9 @@ export type WaitCondition = (
   args?: any[];
 };
 
-type WebComponentGetter = () => WebComponent;
-
-export const elementIsVisible = (target: string | WebComponentGetter): WaitCondition => {
+export const elementIsVisible = (target: string | WebComponent): WaitCondition => {
   return (browser: Browser) => {
-    const selector = typeof target === "string" ? target : target().selector;
+    const selector = typeof target === "string" ? target : target.selector;
     return {
       function: (query: string) => {
         const node = document.querySelector(query);

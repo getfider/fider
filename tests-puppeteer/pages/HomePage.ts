@@ -28,7 +28,7 @@ export class HomePage extends Page {
   // @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {
-    return elementIsVisible(() => this.IdeaTitle);
+    return elementIsVisible(this.IdeaTitle);
   }
 
   // public async submitNewIdea(title: string, description: string): Promise<void> {
