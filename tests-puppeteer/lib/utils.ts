@@ -1,5 +1,4 @@
 import "reflect-metadata";
-import { Browser } from ".";
 
 export const delay = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -13,8 +12,7 @@ export function findBy(selector: string) {
       enumerable: true,
       get() {
         const browser = (this as any).browser;
-        const handle = (browser as Browser).findElement(selector);
-        return new type(handle, selector, browser);
+        return new type(browser, selector);
       }
     });
   };

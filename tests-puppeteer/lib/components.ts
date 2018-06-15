@@ -1,40 +1,37 @@
-import { ElementHandle } from "puppeteer";
-import { elementIsVisible } from ".";
+import { elementIsVisible, Browser } from ".";
 
 export class WebComponent {
-  constructor(protected getter: Promise<ElementHandle | null>, public selector: string) {}
-
-  protected async getHandle(): Promise<ElementHandle> {
-    const handle = await this.getter;
-    if (handle) {
-      return handle;
-    } else {
-      throw new Error(`Element not found for selector ${this.selector}.`);
-    }
-  }
+  constructor(protected browser: Browser, public selector: string) {}
 
   public async click() {
-    (await this.getHandle()).click();
+    await this.browser.page.click(this.selector);
+  }
+
+  public async getText(): Promise<string> {
+    return await this.browser.page.evaluate((selector: string) => {
+      return (document.querySelector(selector) as HTMLElement).innerText;
+    }, this.selector);
   }
 
   public async isVisible(): Promise<boolean> {
     const condition = elementIsVisible(this.selector);
-    return (await this.getHandle()).executionContext().evaluate(condition.function, condition.args);
+    const instance = condition(this.browser);
+    return this.browser.page.evaluate(instance.function, instance.args);
   }
 }
 
 export class Button extends WebComponent {
-  constructor(getter: Promise<ElementHandle | null>, selector: string) {
-    super(getter, selector);
+  constructor(protected browser: Browser, selector: string) {
+    super(browser, selector);
   }
 }
 
 export class TextInput extends WebComponent {
-  constructor(getter: Promise<ElementHandle | null>, selector: string) {
-    super(getter, selector);
+  constructor(protected browser: Browser, selector: string) {
+    super(browser, selector);
   }
 
   public async type(text: string) {
-    await (await this.getHandle()).type(text);
+    await this.browser.page.type(this.selector, text);
   }
 }

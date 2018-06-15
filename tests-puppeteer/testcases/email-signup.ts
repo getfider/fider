@@ -1,8 +1,5 @@
-import { Browser } from "../lib";
-import { AllPages } from "../pages";
-
-// import { ensure, elementIsVisible, mailgun, Browser } from "../lib";
-// import { AllPages } from "../pages";
+import { Browser, mailgun, pageHasLoaded, ensure } from "../lib";
+import { AllPages, HomePage } from "../pages";
 
 describe("Sign up by email", () => {
   let browser: Browser;
@@ -25,13 +22,13 @@ describe("Sign up by email", () => {
     await pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider+${now}@gmail.com`);
     await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
-    // const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+${now}@gmail.com`);
+    const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+${now}@gmail.com`);
 
-    // await pages.goTo(link);
-    // await browser.wait(pages.home.loadCondition());
+    await pages.goTo(link);
+    await browser.wait(pageHasLoaded(HomePage));
 
-    // // Assert
-    // await pages.home.UserMenu.click();
-    // await ensure(pages.home.UserName).textIs(`DARTH VADER ${now}`);
+    // Assert
+    await pages.home.UserMenu.click();
+    await ensure(pages.home.UserName).textIs(`DARTH VADER ${now}`);
   });
 });

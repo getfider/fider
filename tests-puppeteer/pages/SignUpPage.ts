@@ -1,4 +1,15 @@
-import { Browser, WaitCondition, Page, elementIsVisible, findBy, TextInput, delay, WebComponent, Button } from "../lib";
+import {
+  Browser,
+  WaitCondition,
+  Page,
+  elementIsVisible,
+  findBy,
+  TextInput,
+  WebComponent,
+  Button,
+  pageHasLoaded
+} from "../lib";
+import { HomePage, FacebookSignInPage } from ".";
 
 export class SignUpPage extends Page {
   constructor(browser: Browser) {
@@ -9,9 +20,9 @@ export class SignUpPage extends Page {
     return `http://login.dev.fider.io:3000/signup`;
   }
 
-  // @findBy("#p-signup") private Container!: WebComponent;
+  @findBy("#p-signup") private Container!: WebComponent;
   // @findBy("#p-signup .c-button.m-google") public GoogleSignIn!: Button;
-  // @findBy("#p-signup .c-button.m-facebook") public FacebookSignIn!: Button;
+  @findBy("#p-signup .c-button.m-facebook") public FacebookSignIn!: Button;
   @findBy("#p-signup #input-name") public UserName!: TextInput;
   @findBy("#p-signup #input-email") public UserEmail!: TextInput;
   @findBy("#p-signup #input-tenantName") public TenantName!: TextInput;
@@ -21,7 +32,7 @@ export class SignUpPage extends Page {
   @findBy(".c-modal-window") private ConfirmationModal!: WebComponent;
 
   public loadCondition(): WaitCondition {
-    return elementIsVisible("#p-signup");
+    return elementIsVisible(() => this.Container);
   }
 
   // public async signInWithGoogle(): Promise<void> {
@@ -29,10 +40,10 @@ export class SignUpPage extends Page {
   //   await this.browser.wait(pageHasLoaded(GoogleSignInPage));
   // }
 
-  // public async signInWithFacebook(): Promise<void> {
-  //   await this.FacebookSignIn.click();
-  //   await this.browser.wait(pageHasLoaded(FacebookSignInPage));
-  // }
+  public async signInWithFacebook(): Promise<void> {
+    await this.FacebookSignIn.click();
+    await this.browser.wait(pageHasLoaded(FacebookSignInPage));
+  }
 
   public async signInWithEmail(name: string, email: string): Promise<void> {
     await this.UserName.type(name);
@@ -43,9 +54,9 @@ export class SignUpPage extends Page {
     await this.TenantName.type(name);
     if (await this.Subdomain.isVisible()) {
       await this.Subdomain.type(subdomain);
-      await this.browser.wait(elementIsVisible(this.SubdomainOk));
+      await this.browser.wait(elementIsVisible(() => this.SubdomainOk));
     }
     await this.Confirm.click();
-    await this.browser.waitAny([pageHasLoaded(HomePage), elementIsVisible(this.ConfirmationModal)]);
+    await this.browser.waitAny([pageHasLoaded(HomePage), elementIsVisible(() => this.ConfirmationModal)]);
   }
 }
