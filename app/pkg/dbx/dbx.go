@@ -101,10 +101,7 @@ func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 		return 0, errors.Wrap(err, "failed to execute trx.Execute")
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute RowsAffected")
-	}
+	rows, _ := result.RowsAffected()
 	return rows, nil
 }
 
