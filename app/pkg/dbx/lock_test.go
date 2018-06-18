@@ -15,16 +15,16 @@ func TestLock(t *testing.T) {
 	defer db2.Close()
 
 	locked, err := db1.TryLock()
-	Expect(locked).IsTrue()
 	Expect(err).IsNil()
+	Expect(locked).IsTrue()
 
 	locked, err = db2.TryLock()
-	Expect(locked).IsFalse()
 	Expect(err).IsNil()
+	Expect(locked).IsFalse()
 
 	Expect(db1.Unlock()).IsNil()
 
 	locked, err = db2.TryLock()
-	Expect(locked).IsTrue()
 	Expect(err).IsNil()
+	Expect(locked).IsTrue()
 }

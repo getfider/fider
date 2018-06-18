@@ -34,7 +34,10 @@ type tenant struct {
 
 func TestMain(m *testing.M) {
 	db := dbx.New()
-	db.Migrate("/migrations")
+	err := db.Migrate("/migrations")
+	if err != nil {
+		panic(err)
+	}
 	db.Seed()
 	db.Close()
 
