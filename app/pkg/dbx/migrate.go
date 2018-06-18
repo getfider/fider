@@ -53,7 +53,7 @@ func (db *Database) Migrate(path string) error {
 	if lastVersion < versions[len(versions)-1] {
 
 		// Get exclusive lock
-		ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 		defer cancel()
 		ticker := time.NewTicker(500 * time.Millisecond)
 		defer ticker.Stop()
