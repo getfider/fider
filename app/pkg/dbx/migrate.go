@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -16,7 +17,29 @@ import (
 // ErrNoChanges means that the migration process didn't change execute any file
 var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
-func (db Database) runMigrations(path string) error {
+// Migrate the database to latest version
+func (db *Database) Migrate(path string) error {
+
+	for {
+		retry := 0
+		locked, err := db.TryLock()
+		if err != nil {
+			return errors.Wrap(err, "failed to obtain lock")
+		}
+
+		if locked {
+			defer db.Unlock()
+			break
+		} else {
+			retry++
+			if retry >= 60 {
+				return errors.New("failed to obtain lock after 60 retries")
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
+
+	db.logger.Infof("Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
 		return errors.Wrap(err, "failed to open dir '%s'", path)
@@ -40,27 +63,23 @@ func (db Database) runMigrations(path string) error {
 	}
 	sort.Ints(versions)
 
-	lastVersion, err := db.createSchemaHistoryTable()
+	lastVersion, err := db.getLastMigration()
 	if err != nil {
-		return errors.Wrap(err, "failed to create schema_history table")
+		return errors.Wrap(err, "failed to create migrations_history table")
 	}
 
-	currentVersion := lastVersion
 	for _, version := range versions {
 		if version > lastVersion {
 			fileName := versionFiles[version]
+			db.logger.Infof("Running Version: %d (%s)", version, fileName)
 			err := db.runMigration(version, path, fileName)
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
-			currentVersion = version
 		}
 	}
 
-	if currentVersion == lastVersion {
-		return ErrNoChanges
-	}
-
+	db.logger.Infof("Migrations finished with success.")
 	return nil
 }
 
@@ -81,7 +100,7 @@ func (db Database) runMigration(version int, path, fileName string) error {
 		return err
 	}
 
-	_, err = trx.Execute("INSERT INTO schema_history (version, filename) VALUES ($1, $2)", version, fileName)
+	_, err = trx.Execute("INSERT INTO migrations_history (version, filename) VALUES ($1, $2)", version, fileName)
 	if err != nil {
 		return err
 	}
@@ -89,37 +108,29 @@ func (db Database) runMigration(version int, path, fileName string) error {
 	return trx.Commit()
 }
 
-func (db Database) createSchemaHistoryTable() (int, error) {
-	trx, err := db.Begin()
-	if err != nil {
-		return 0, err
-	}
-
-	_, err = trx.Execute(`CREATE TABLE IF NOT EXISTS schema_history (
+func (db Database) getLastMigration() (int, error) {
+	_, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS migrations_history (
 		version     BIGINT PRIMARY KEY,
 		filename    VARCHAR(100) null,
-		date	 	TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )`)
+		date	 			TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	)`)
 	if err != nil {
-		trx.Rollback()
 		return 0, err
 	}
 
 	var lastVersion sql.NullInt64
-	err = trx.Scalar(&lastVersion, "SELECT MAX(version) FROM schema_history LIMIT 1")
+	row := db.conn.QueryRow("SELECT MAX(version) FROM migrations_history LIMIT 1")
+	err = row.Scan(&lastVersion)
 	if err != nil {
-		trx.Rollback()
 		return 0, err
 	}
 
 	if !lastVersion.Valid {
-		err = trx.Scalar(&lastVersion, "SELECT version FROM schema_migrations LIMIT 1")
-		if err != nil {
-			trx.Rollback()
-			return 0, err
-		}
+		// If it's the first run, maybe we have records on old migrations table, so try to get from it.
+		// This SHOULD be removed in the far future.
+		row := db.conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
+		row.Scan(&lastVersion)
 	}
 
-	trx.Commit()
 	return int(lastVersion.Int64), nil
 }

@@ -2,7 +2,6 @@ package dbx
 
 import (
 	"database/sql"
-	"fmt"
 	"io/ioutil"
 	"reflect"
 	"time"
@@ -75,18 +74,6 @@ func (db *Database) load(path string) {
 func (db *Database) Seed() {
 	if env.IsTest() {
 		db.load("/app/pkg/dbx/setup.sql")
-	}
-}
-
-// Migrate the database to latest version
-func (db *Database) Migrate() {
-	db.logger.Infof("Running migrations...")
-	err := db.runMigrations("/migrations")
-
-	if err != nil && err != ErrNoChanges {
-		panic(fmt.Sprintf("Migrations failed with: %s:", err))
-	} else {
-		db.logger.Infof("Migrations finished with success.")
 	}
 }
 
