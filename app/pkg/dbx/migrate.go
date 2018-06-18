@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 	stdErrors "errors"
 	"io/ioutil"
@@ -52,25 +53,29 @@ func (db *Database) Migrate(path string) error {
 	if lastVersion < versions[len(versions)-1] {
 
 		// Get exclusive lock
+		ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
+		defer cancel()
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
 		for {
-			retry := 0
 			locked, err := db.TryLock()
 			if err != nil {
 				return errors.Wrap(err, "failed to obtain lock")
 			}
 
 			if locked {
-				defer db.Unlock()
+				ticker.Stop()
 				break
-			} else {
-				retry++
-				if retry >= 60 {
-					return errors.New("failed to obtain lock after 60 retries")
-				}
-				time.Sleep(500 * time.Millisecond)
+			}
+
+			select {
+			case <-ctx.Done():
+				return errors.New("timeout trying to obtain lock")
+			case <-ticker.C:
 			}
 		}
 
+		// Now that we have a lock, get last version, it might have changed
 		lastVersion, err := db.getLastMigration()
 		if err != nil {
 			return errors.Wrap(err, "failed to get last migration record")
