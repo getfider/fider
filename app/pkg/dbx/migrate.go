@@ -19,26 +19,6 @@ var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
 // Migrate the database to latest version
 func (db *Database) Migrate(path string) error {
-
-	for {
-		retry := 0
-		locked, err := db.TryLock()
-		if err != nil {
-			return errors.Wrap(err, "failed to obtain lock")
-		}
-
-		if locked {
-			defer db.Unlock()
-			break
-		} else {
-			retry++
-			if retry >= 60 {
-				return errors.New("failed to obtain lock after 60 retries")
-			}
-			time.Sleep(500 * time.Millisecond)
-		}
-	}
-
 	db.logger.Infof("Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
@@ -65,16 +45,46 @@ func (db *Database) Migrate(path string) error {
 
 	lastVersion, err := db.getLastMigration()
 	if err != nil {
-		return errors.Wrap(err, "failed to create migrations_history table")
+		return errors.Wrap(err, "failed to get last migration record")
 	}
 
-	for _, version := range versions {
-		if version > lastVersion {
-			fileName := versionFiles[version]
-			db.logger.Infof("Running Version: %d (%s)", version, fileName)
-			err := db.runMigration(version, path, fileName)
+	// Check if it's required to apply migrations
+	if lastVersion < versions[len(versions)-1] {
+
+		// Get exclusive lock
+		for {
+			retry := 0
+			locked, err := db.TryLock()
 			if err != nil {
-				return errors.Wrap(err, "failed to run migration '%s'", fileName)
+				return errors.Wrap(err, "failed to obtain lock")
+			}
+
+			if locked {
+				defer db.Unlock()
+				break
+			} else {
+				retry++
+				if retry >= 60 {
+					return errors.New("failed to obtain lock after 60 retries")
+				}
+				time.Sleep(500 * time.Millisecond)
+			}
+		}
+
+		lastVersion, err := db.getLastMigration()
+		if err != nil {
+			return errors.Wrap(err, "failed to get last migration record")
+		}
+
+		// Apply all migrations
+		for _, version := range versions {
+			if version > lastVersion {
+				fileName := versionFiles[version]
+				db.logger.Infof("Running Version: %d (%s)", version, fileName)
+				err := db.runMigration(version, path, fileName)
+				if err != nil {
+					return errors.Wrap(err, "failed to run migration '%s'", fileName)
+				}
 			}
 		}
 	}

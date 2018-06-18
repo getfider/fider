@@ -8,8 +8,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	_ "github.com/lib/pq"
-	_ "github.com/mattes/migrate/database/postgres"
-	_ "github.com/mattes/migrate/source/file"
 )
 
 // replaced during CI build

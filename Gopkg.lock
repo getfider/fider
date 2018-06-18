@@ -57,18 +57,6 @@
   revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
-  name = "github.com/mattes/migrate"
-  packages = [
-    ".",
-    "database",
-    "database/postgres",
-    "source",
-    "source/file"
-  ]
-  revision = "035c07716cd373d88456ec4d701402df52584cb4"
-  version = "v3.0.1"
-
-[[projects]]
   branch = "master"
   name = "github.com/rainycape/unidecode"
   packages = ["."]
@@ -143,6 +131,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fe191ecdac4785a24586c7888998a42fc460ba4753eba2480190042d6cf3014d"
+  inputs-digest = "01ff2ef749623d2bc5d0d46238992ffb3385f10d53ff2345ef6898b29fbb4bfd"
   solver-name = "gps-cdcl"
   solver-version = 1
