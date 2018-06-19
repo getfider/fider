@@ -42,6 +42,11 @@ type Database struct {
 	mapper *RowMapper
 }
 
+// SetLogger replaces current database Logger
+func (db *Database) SetLogger(logger log.Logger) {
+	db.logger = logger
+}
+
 // Begin returns a new SQL transaction
 func (db *Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
@@ -86,6 +91,11 @@ type Trx struct {
 }
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
+
+// NoLogs disable logs from this transaction
+func (trx *Trx) NoLogs() {
+	trx.logger.SetLevel(log.NONE)
+}
 
 // Execute given SQL command
 func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {

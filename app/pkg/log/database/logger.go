@@ -85,4 +85,9 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		return
 	}
 	defer trx.Commit()
+	trx.NoLogs()
+
+	// var count int
+	// trx.Scalar(&count, "SELECT COUNT(*) FROM tenants")
+	// println("Message: " + string(count))
 }

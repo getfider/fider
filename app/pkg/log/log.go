@@ -24,4 +24,6 @@ const (
 	WARN
 	// ERROR for ERROR only logs
 	ERROR
+	// NONE is used to disable logs
+	NONE
 )
