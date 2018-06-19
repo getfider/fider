@@ -27,3 +27,20 @@ const (
 	// NONE is used to disable logs
 	NONE
 )
+
+func (l Level) String() string {
+	switch l {
+	case DEBUG:
+		return "DEBUG"
+	case INFO:
+		return "INFO"
+	case WARN:
+		return "WARN"
+	case ERROR:
+		return "ERROR"
+	case NONE:
+		return "NONE"
+	default:
+		return "???"
+	}
+}

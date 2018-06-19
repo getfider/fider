@@ -82,29 +82,35 @@ func (l *Logger) Write(p []byte) (int, error) {
 }
 
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {
-	if level >= l.level {
-		message := ""
-		if format == "" {
-			message = fmt.Sprint(args...)
-		} else {
-			message = fmt.Sprintf(format, args...)
-		}
-
-		l.logger.Printf("%s [%s] [%s] %s\n", levelString(level), time.Now().Format(time.RFC3339), l.tag, message)
+	if !l.IsEnabled(level) {
+		return
 	}
+
+	message := ""
+	if format == "" {
+		message = fmt.Sprint(args...)
+	} else {
+		message = fmt.Sprintf(format, args...)
+	}
+
+	l.logger.Printf("%s [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, message)
 }
 
-func levelString(level log.Level) string {
+func colorizeLevel(level log.Level) string {
+	var color func(interface{}) string
+
 	switch level {
 	case log.DEBUG:
-		return log.Bold(log.Magenta("DEBUG"))
+		color = log.Magenta
 	case log.INFO:
-		return log.Bold(log.Blue("INFO"))
+		color = log.Blue
 	case log.WARN:
-		return log.Bold(log.Yellow("WARN"))
+		color = log.Yellow
 	case log.ERROR:
-		return log.Bold(log.Red("ERROR"))
+		color = log.Red
 	default:
-		return log.Bold(log.Red("???"))
+		color = log.Red
 	}
+
+	return log.Bold(color(level.String()))
 }

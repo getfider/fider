@@ -1,7 +1,9 @@
 package database
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -79,15 +81,33 @@ func (l *Logger) Write(p []byte) (int, error) {
 }
 
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {
+	if !l.IsEnabled(level) {
+		return
+	}
+
 	trx, err := l.db.Begin()
 	if err != nil {
 		//TODO: log somewhere
 		return
 	}
-	defer trx.Commit()
 	trx.NoLogs()
 
-	// var count int
-	// trx.Scalar(&count, "SELECT COUNT(*) FROM tenants")
-	// println("Message: " + string(count))
+	message := ""
+	if format == "" {
+		message = fmt.Sprint(args...)
+	} else {
+		message = fmt.Sprintf(format, args...)
+	}
+
+	_, err = trx.Execute(
+		"INSERT INTO logs (tag, level, text, created_on) VALUES ($1, $2, $3, $4)",
+		l.tag, level.String(), message, time.Now(),
+	)
+
+	if err != nil {
+		//TODO: log somewhere
+		trx.Rollback()
+	} else {
+		trx.Commit()
+	}
 }
