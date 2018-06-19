@@ -10,6 +10,7 @@ import (
 func RunMigrate() int {
 	logger := log.NewConsoleLogger("MIGRATE")
 	db := dbx.NewWithLogger(logger)
+	defer db.Close()
 	err := db.Migrate("/migrations")
 	if err != nil {
 		logger.Error(err)

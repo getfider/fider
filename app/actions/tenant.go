@@ -43,7 +43,10 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		if input.Model.Email == "" {
 			result.AddFieldFailure("email", "Email is required.")
 		} else {
-			if emailResult := validate.Email(input.Model.Email); !emailResult.Ok {
+			emailResult := validate.Email(input.Model.Email)
+			if !emailResult.Ok && emailResult.Error != nil {
+				return emailResult
+			} else if !emailResult.Ok {
 				result.AddFieldFailure("email", emailResult.Messages...)
 			}
 		}
@@ -65,7 +68,9 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 	}
 
 	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
-	if !subdomainResult.Ok {
+	if !subdomainResult.Ok && subdomainResult.Error != nil {
+		return subdomainResult
+	} else if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
 	}
 

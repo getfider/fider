@@ -41,11 +41,13 @@ func (db *Database) Migrate(path string) error {
 		}
 	}
 	sort.Ints(versions)
+	db.logger.Infof("Found total of %d migration files.", len(versions))
 
 	lastVersion, err := db.getLastMigration()
 	if err != nil {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
+	db.logger.Infof("Current version is %d", lastVersion)
 
 	// Apply all migrations
 	for _, version := range versions {
