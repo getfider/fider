@@ -36,6 +36,8 @@ func WorkerSetup() worker.MiddlewareFunc {
 				return err
 			}
 
+			trx.SetLogger(c.Logger())
+
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
 				Users:         postgres.NewUserStorage(trx),
@@ -94,6 +96,8 @@ func WebSetup() web.MiddlewareFunc {
 				c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
 				return err
 			}
+
+			trx.SetLogger(c.Logger())
 
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{

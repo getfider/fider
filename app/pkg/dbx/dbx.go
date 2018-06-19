@@ -92,6 +92,11 @@ type Trx struct {
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
+// SetLogger replaces current transaction Logger
+func (trx *Trx) SetLogger(logger log.Logger) {
+	trx.logger = logger
+}
+
 // NoLogs disable logs from this transaction
 func (trx *Trx) NoLogs() {
 	trx.logger.SetLevel(log.NONE)
