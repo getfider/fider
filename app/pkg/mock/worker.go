@@ -34,7 +34,7 @@ func (w *Worker) AsUser(user *models.User) *Worker {
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	context := worker.NewContext("0", task.Name, noop.NewLogger())
+	context := worker.NewContext("0", task.Name, nil, noop.NewLogger())
 	context.SetServices(w.services)
 	context.SetUser(w.user)
 	context.SetTenant(w.tenant)

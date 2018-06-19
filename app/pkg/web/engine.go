@@ -12,10 +12,11 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/console"
+	"github.com/getfider/fider/app/pkg/log/database"
 	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -56,6 +57,7 @@ type Engine struct {
 	mux         *httprouter.Router
 	logger      log.Logger
 	renderer    *Renderer
+	db          *dbx.Database
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
@@ -64,14 +66,16 @@ type Engine struct {
 
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
-	logger := console.NewLogger("WEB")
+	db := dbx.New()
+	logger := database.NewLogger("WEB", db)
 	router := &Engine{
 		mux:         httprouter.New(),
+		db:          db,
 		logger:      logger,
 		renderer:    NewRenderer(settings, logger),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(),
+		worker:      worker.New(db, database.NewLogger("BGW", db)),
 	}
 
 	router.mux.NotFound = &notFoundHandler{router}
@@ -80,6 +84,9 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
+	e.logger.Infof("Application is starting...\n")
+	e.logger.Infof("GO_ENV: %s\n", env.Current())
+
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
@@ -164,6 +171,11 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 //Logger returns current logger
 func (e *Engine) Logger() log.Logger {
 	return e.logger
+}
+
+//Database returns current database
+func (e *Engine) Database() *dbx.Database {
+	return e.db
 }
 
 //Worker returns current worker referenc

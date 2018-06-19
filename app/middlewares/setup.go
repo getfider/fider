@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
@@ -24,15 +23,13 @@ func Noop() web.MiddlewareFunc {
 }
 
 //WorkerSetup current context with some services
-func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
-	db := dbx.NewWithLogger(logger)
-	emailer := app.NewEmailer(logger)
+func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
 			c.Logger().Debugf("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
 
-			trx, err := db.Begin()
+			trx, err := c.Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
 				c.Logger().Debugf("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
@@ -45,7 +42,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       emailer,
+				Emailer:       app.NewEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere
@@ -83,9 +80,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 }
 
 //WebSetup current context with some services
-func WebSetup(logger log.Logger) web.MiddlewareFunc {
-	db := dbx.NewWithLogger(logger)
-	emailer := app.NewEmailer(logger)
+func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			path := log.Magenta(c.Request.Method + " " + c.Request.URL.RequestURI())
@@ -93,7 +88,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 			start := time.Now()
 			c.Logger().Debugf("%s started", path)
 
-			trx, err := db.Begin()
+			trx, err := c.Engine().Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
 				c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
@@ -108,7 +103,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       emailer,
+				Emailer:       app.NewEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere

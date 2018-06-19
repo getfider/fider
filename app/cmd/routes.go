@@ -12,7 +12,7 @@ import (
 )
 
 func routes(r *web.Engine) *web.Engine {
-	r.Worker().Use(middlewares.WorkerSetup(r.Worker().Logger()))
+	r.Worker().Use(middlewares.WorkerSetup())
 
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
@@ -25,7 +25,7 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
-	r.Use(middlewares.WebSetup(r.Logger()))
+	r.Use(middlewares.WebSetup())
 
 	noTenant := r.Group()
 	{

@@ -22,9 +22,6 @@ func RunServer(settings *models.SystemSettings) int {
 		return exit
 	}
 
-	fmt.Printf("Application is starting...\n")
-	fmt.Printf("GO_ENV: %s\n", env.Current())
-
 	e := routes(web.New(settings))
 
 	go e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))

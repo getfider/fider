@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 )
@@ -15,16 +16,18 @@ type Context struct {
 	taskName string
 	services *app.Services
 	logger   log.Logger
+	db       *dbx.Database
 	baseURL  string
 	user     *models.User
 	tenant   *models.Tenant
 }
 
 //NewContext creates a new context
-func NewContext(workerID, taskName string, logger log.Logger) *Context {
+func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
 	return &Context{
 		workerID: workerID,
 		taskName: taskName,
+		db:       db,
 		logger:   logger,
 	}
 }
@@ -84,6 +87,11 @@ func (c *Context) Services() *app.Services {
 //Logger from current context
 func (c *Context) Logger() log.Logger {
 	return c.logger
+}
+
+//Database from current context
+func (c *Context) Database() *dbx.Database {
+	return c.db
 }
 
 //Failure logs details of error

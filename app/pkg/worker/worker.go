@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/console"
 )
 
 //MiddlewareFunc is worker middleware
@@ -34,6 +34,7 @@ type Worker interface {
 
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
+	db         *dbx.Database
 	logger     log.Logger
 	queue      chan Task
 	len        int64
@@ -44,9 +45,10 @@ type BackgroundWorker struct {
 var maxQueueSize = 100
 
 //New creates a new BackgroundWorker
-func New() *BackgroundWorker {
+func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
 	return &BackgroundWorker{
-		logger: console.NewLogger("BGW"),
+		db:     db,
+		logger: logger,
 		queue:  make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next
@@ -61,6 +63,7 @@ func (w *BackgroundWorker) Run(id string) {
 
 		c := &Context{
 			workerID: id,
+			db:       w.db,
 			taskName: task.Name,
 			logger:   w.logger,
 		}
