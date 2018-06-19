@@ -17,6 +17,11 @@ import (
 //RunServer starts the Fider Server
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunServer(settings *models.SystemSettings) int {
+	exit := RunMigrate()
+	if exit != 0 {
+		return exit
+	}
+
 	fmt.Printf("Application is starting...\n")
 	fmt.Printf("GO_ENV: %s\n", env.Current())
 

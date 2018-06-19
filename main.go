@@ -8,8 +8,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	_ "github.com/lib/pq"
-	_ "github.com/mattes/migrate/database/postgres"
-	_ "github.com/mattes/migrate/source/file"
 )
 
 // replaced during CI build
@@ -39,6 +37,8 @@ func main() {
 	args := os.Args[1:]
 	if len(args) > 0 && args[0] == "ping" {
 		os.Exit(cmd.RunPing())
+	} else if len(args) > 0 && args[0] == "migrate" {
+		os.Exit(cmd.RunMigrate())
 	} else {
 		os.Exit(cmd.RunServer(settings))
 	}

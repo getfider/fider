@@ -2,10 +2,14 @@ BUILD_TIME=$(shell date +"%Y.%m.%d.%H%M%S")
 BUILD_NUMBER = $(shell echo $$CIRCLE_BUILD_NUM)
 
 # Building
-build:
+build-ui:
 	rm -rf dist
-	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME} -X main.buildnumber=${BUILD_NUMBER}' -o fider .
 	NODE_ENV=production npx webpack -p
+
+build-server:
+	go build -ldflags='-s -w -X main.buildtime=${BUILD_TIME} -X main.buildnumber=${BUILD_NUMBER}' -o fider .
+
+build : build-server build-ui
 
 lint: 
 	npx tslint -c tslint.json 'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
@@ -17,12 +21,14 @@ lint-fix:
 test-ui:
 	TZ='GMT' npx jest ./public
 
-test-server:
+test-server: build-server
+	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -race
 
 test : test-server test-ui
 
-coverage:
+coverage: build-server
+	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -race
 
 e2e-single:

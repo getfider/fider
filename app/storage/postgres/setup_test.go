@@ -55,7 +55,6 @@ func TeardownDatabaseTest() {
 
 func TestMain(m *testing.M) {
 	db = dbx.New()
-	db.Migrate()
 	db.Seed()
 	defer db.Close()
 

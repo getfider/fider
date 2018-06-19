@@ -34,7 +34,6 @@ type tenant struct {
 
 func TestMain(m *testing.M) {
 	db := dbx.New()
-	db.Migrate()
 	db.Seed()
 	db.Close()
 
