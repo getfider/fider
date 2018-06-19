@@ -61,12 +61,7 @@ func (w *BackgroundWorker) Run(id string) {
 	w.logger.Infof("Starting worker %s.", log.Magenta(id))
 	for task := range w.queue {
 
-		c := &Context{
-			workerID: id,
-			db:       w.db,
-			taskName: task.Name,
-			logger:   w.logger,
-		}
+		c := NewContext(id, task.Name, w.db, w.logger)
 
 		w.middleware(task.Job)(c)
 		w.Lock()

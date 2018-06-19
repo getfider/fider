@@ -45,5 +45,10 @@ func (l *Logger) Write(p []byte) (int, error) {
 	return 0, nil
 }
 
+// New returns a copy of current logger with empty context
+func (l *Logger) New() log.Logger {
+	return NewLogger()
+}
+
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 }

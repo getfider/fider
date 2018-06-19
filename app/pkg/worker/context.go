@@ -28,7 +28,7 @@ func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) 
 		workerID: workerID,
 		taskName: taskName,
 		db:       db,
-		logger:   logger,
+		logger:   logger.New(),
 	}
 }
 

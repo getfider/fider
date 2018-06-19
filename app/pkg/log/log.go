@@ -13,6 +13,7 @@ type Logger interface {
 	Error(err error)
 	IsEnabled(level Level) bool
 	Write(p []byte) (int, error)
+	New() Logger
 }
 
 const (

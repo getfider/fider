@@ -162,7 +162,7 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 		Response: res,
 		Request:  WrapRequest(req),
 		engine:   e,
-		logger:   e.logger,
+		logger:   e.logger.New(),
 		params:   params,
 		worker:   e.worker,
 	}
