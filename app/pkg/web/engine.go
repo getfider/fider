@@ -84,8 +84,8 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	e.logger.Infof("Application is starting...\n")
-	e.logger.Infof("GO_ENV: %s\n", env.Current())
+	e.logger.Infof("Application is starting..")
+	e.logger.Infof("GO_ENV: %s", env.Current())
 
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
