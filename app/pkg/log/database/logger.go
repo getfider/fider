@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -118,8 +120,8 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		}
 
 		_, err = trx.Execute(
-			"INSERT INTO logs (tag, level, text, created_on) VALUES ($1, $2, $3, $4)",
-			l.tag, level.String(), message, time.Now(),
+			"INSERT INTO logs (tag, level, text, created_on, properties) VALUES ($1, $2, $3, $4, $5)",
+			l.tag, level.String(), message, time.Now(), propertyMap(l.props),
 		)
 
 		if err != nil {
@@ -135,4 +137,11 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 			}
 		}
 	}()
+}
+
+type propertyMap map[string]interface{}
+
+func (p propertyMap) Value() (driver.Value, error) {
+	j, err := json.Marshal(p)
+	return j, err
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/uuid"
 )
 
 // Logger output messages to console
@@ -98,11 +97,7 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		message = fmt.Sprintf(format, args...)
 	}
 
-	contextID, ok := l.props[log.PropertyKeyContextID]
-	if !ok {
-		contextID = uuid.NewV4().String()
-		l.SetProperty(log.PropertyKeyContextID, contextID)
-	}
+	contextID := l.props[log.PropertyKeyContextID]
 	l.logger.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, contextID, message)
 }
 

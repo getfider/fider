@@ -67,6 +67,11 @@ type Engine struct {
 func New(settings *models.SystemSettings) *Engine {
 	db := dbx.New()
 	logger := database.NewLogger("WEB", db)
+	logger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+
+	bgLogger := database.NewLogger("BGW", db)
+	bgLogger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+
 	router := &Engine{
 		mux:         httprouter.New(),
 		db:          db,
@@ -74,7 +79,7 @@ func New(settings *models.SystemSettings) *Engine {
 		renderer:    NewRenderer(settings, logger),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(db, database.NewLogger("BGW", db)),
+		worker:      worker.New(db, bgLogger),
 	}
 
 	router.mux.NotFound = &notFoundHandler{router}
@@ -83,7 +88,7 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	e.logger.Infof("Application is starting..")
+	e.logger.Infof("Application is starting")
 	e.logger.Infof("GO_ENV: %s", env.Current())
 
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
