@@ -20,6 +20,10 @@ type Logger interface {
 const (
 	// PropertyKeyContextID is the context id of current logger
 	PropertyKeyContextID = "context_id"
+	// PropertyKeyUserID is the user id of current logger
+	PropertyKeyUserID = "user_id"
+	// PropertyKeyTenantID is the tenant id of current logger
+	PropertyKeyTenantID = "tenant_id"
 )
 
 const (

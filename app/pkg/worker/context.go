@@ -40,12 +40,18 @@ func (c *Context) SetBaseURL(baseURL string) {
 //SetUser on context
 func (c *Context) SetUser(user *models.User) {
 	c.user = user
+	if user != nil {
+		c.logger.SetProperty(log.PropertyKeyUserID, user.ID)
+	}
 	c.services.SetCurrentUser(user)
 }
 
 //SetTenant on context
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	c.tenant = tenant
+	if tenant != nil {
+		c.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
+	}
 	c.services.SetCurrentTenant(tenant)
 }
 

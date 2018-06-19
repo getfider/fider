@@ -141,9 +141,7 @@ func (ctx *Context) Tenant() *models.Tenant {
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
-	} else {
-		ctx.Logger().Debugf("Current tenant: nil")
+		ctx.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentTenant(tenant)
@@ -294,9 +292,7 @@ func (ctx *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(user *models.User) {
 	if user != nil {
-		ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
-	} else {
-		ctx.Logger().Debugf("Logged as: nil")
+		ctx.logger.SetProperty(log.PropertyKeyUserID, user.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentUser(user)
