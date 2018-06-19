@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/noop"
 
 	//required
 	_ "github.com/lib/pq"
@@ -19,7 +20,7 @@ import (
 
 // New creates a new Database instance without logging
 func New() *Database {
-	return NewWithLogger(&log.NoopLogger{})
+	return NewWithLogger(noop.NewLogger())
 }
 
 // NewWithLogger creates a new Database instance with logging or panic

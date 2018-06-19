@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/console"
 )
 
 //MiddlewareFunc is worker middleware
@@ -45,7 +46,7 @@ var maxQueueSize = 100
 //New creates a new BackgroundWorker
 func New() *BackgroundWorker {
 	return &BackgroundWorker{
-		logger: log.NewConsoleLogger("BGW"),
+		logger: console.NewLogger("BGW"),
 		queue:  make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next

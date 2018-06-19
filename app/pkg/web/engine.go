@@ -15,6 +15,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/console"
 	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -63,7 +64,7 @@ type Engine struct {
 
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
-	logger := log.NewConsoleLogger("WEB")
+	logger := console.NewLogger("WEB")
 	router := &Engine{
 		mux:         httprouter.New(),
 		logger:      logger,

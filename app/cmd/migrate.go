@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/console"
 )
 
 // RunMigrate run all pending migrations on current DATABASE_URL
 // Returns an exitcode, 0 for OK and 1 for ERROR
 func RunMigrate() int {
-	logger := log.NewConsoleLogger("MIGRATE")
+	logger := console.NewLogger("MIGRATE")
 	db := dbx.NewWithLogger(logger)
 	defer db.Close()
 	err := db.Migrate("/migrations")
