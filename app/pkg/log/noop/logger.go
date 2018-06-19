@@ -50,5 +50,9 @@ func (l *Logger) New() log.Logger {
 	return NewLogger()
 }
 
+// SetProperty with given key:value into current logger context
+func (l *Logger) SetProperty(key string, value interface{}) {
+}
+
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 }

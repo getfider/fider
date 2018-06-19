@@ -8,7 +8,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models"
@@ -157,12 +156,16 @@ func (e *Engine) Stop() error {
 
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
+	contextID := uuid.NewV4().String()
+	contextLogger := e.logger.New()
+	contextLogger.SetProperty(log.PropertyKeyContextID, contextID)
+
 	return Context{
-		id:       strings.Replace(uuid.NewV4().String(), "-", "", 4),
+		id:       contextID,
 		Response: res,
 		Request:  WrapRequest(req),
 		engine:   e,
-		logger:   e.logger.New(),
+		logger:   contextLogger,
 		params:   params,
 		worker:   e.worker,
 	}

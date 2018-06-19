@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/uuid"
 )
 
 // Logger output messages to console
@@ -16,6 +17,7 @@ type Logger struct {
 	logger *stdLog.Logger
 	level  log.Level
 	tag    string
+	props  map[string]interface{}
 }
 
 // NewLogger creates a new Logger
@@ -25,6 +27,7 @@ func NewLogger(tag string) *Logger {
 		tag:    tag,
 		logger: stdLog.New(os.Stdout, "", 0),
 		level:  log.ParseLevel(level),
+		props:  make(map[string]interface{}, 0),
 	}
 }
 
@@ -78,6 +81,11 @@ func (l *Logger) New() log.Logger {
 	return NewLogger(l.tag)
 }
 
+// SetProperty with given key:value into current logger context
+func (l *Logger) SetProperty(key string, value interface{}) {
+	l.props[key] = value
+}
+
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 	if !l.IsEnabled(level) {
 		return
@@ -90,7 +98,12 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		message = fmt.Sprintf(format, args...)
 	}
 
-	l.logger.Printf("%s [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, message)
+	contextID, ok := l.props[log.PropertyKeyContextID]
+	if !ok {
+		contextID = uuid.NewV4().String()
+		l.SetProperty(log.PropertyKeyContextID, contextID)
+	}
+	l.logger.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, contextID, message)
 }
 
 func colorizeLevel(level log.Level) string {

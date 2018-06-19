@@ -19,6 +19,7 @@ type Logger struct {
 	console log.Logger
 	level   log.Level
 	tag     string
+	props   map[string]interface{}
 }
 
 // NewLogger creates a new Logger
@@ -29,6 +30,7 @@ func NewLogger(tag string, db *dbx.Database) *Logger {
 		db:      db,
 		console: console.NewLogger(tag),
 		level:   log.ParseLevel(level),
+		props:   make(map[string]interface{}, 0),
 	}
 }
 
@@ -87,6 +89,12 @@ func (l *Logger) Write(p []byte) (int, error) {
 // New returns a copy of current logger with empty context
 func (l *Logger) New() log.Logger {
 	return NewLogger(l.tag, l.db)
+}
+
+// SetProperty with given key:value into current logger context
+func (l *Logger) SetProperty(key string, value interface{}) {
+	l.props[key] = value
+	l.console.SetProperty(key, value)
 }
 
 func (l *Logger) log(level log.Level, format string, args ...interface{}) {

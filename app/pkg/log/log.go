@@ -6,6 +6,7 @@ type Level uint8
 // Logger defines the logging interface.
 type Logger interface {
 	SetLevel(level Level)
+	SetProperty(key string, value interface{})
 	Debugf(format string, args ...interface{})
 	Infof(format string, args ...interface{})
 	Warnf(format string, args ...interface{})
@@ -15,6 +16,11 @@ type Logger interface {
 	Write(p []byte) (int, error)
 	New() Logger
 }
+
+const (
+	// PropertyKeyContextID is the context id of current logger
+	PropertyKeyContextID = "context_id"
+)
 
 const (
 	// DEBUG for verbose logs
