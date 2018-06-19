@@ -24,23 +24,12 @@ type Logger struct {
 // NewLogger creates a new Logger
 func NewLogger(tag string, db *dbx.Database) *Logger {
 	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
-	logger := &Logger{
+	return &Logger{
 		tag:     tag,
 		db:      db,
 		console: console.NewLogger(tag),
+		level:   log.ParseLevel(level),
 	}
-
-	switch level {
-	case "DEBUG":
-		logger.SetLevel(log.DEBUG)
-	case "WARN":
-		logger.SetLevel(log.WARN)
-	case "ERROR":
-		logger.SetLevel(log.ERROR)
-	default:
-		logger.SetLevel(log.INFO)
-	}
-	return logger
 }
 
 // SetLevel increases/decreases current log level

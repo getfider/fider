@@ -28,6 +28,20 @@ const (
 	NONE
 )
 
+// ParseLevel returns a log.Level based on input string
+func ParseLevel(level string) Level {
+	switch level {
+	case "DEBUG":
+		return DEBUG
+	case "WARN":
+		return WARN
+	case "ERROR":
+		return ERROR
+	default:
+		return INFO
+	}
+}
+
 func (l Level) String() string {
 	switch l {
 	case DEBUG:

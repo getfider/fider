@@ -20,20 +20,12 @@ type Logger struct {
 
 // NewLogger creates a new Logger
 func NewLogger(tag string) *Logger {
-	logger := &Logger{tag: tag, logger: stdLog.New(os.Stdout, "", 0)}
 	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
-
-	switch level {
-	case "DEBUG":
-		logger.SetLevel(log.DEBUG)
-	case "WARN":
-		logger.SetLevel(log.WARN)
-	case "ERROR":
-		logger.SetLevel(log.ERROR)
-	default:
-		logger.SetLevel(log.INFO)
+	return &Logger{
+		tag:    tag,
+		logger: stdLog.New(os.Stdout, "", 0),
+		level:  log.ParseLevel(level),
 	}
-	return logger
 }
 
 // SetLevel increases/decreases current log level
