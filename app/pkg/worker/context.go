@@ -24,11 +24,14 @@ type Context struct {
 
 //NewContext creates a new context
 func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
+	ctxLogger := logger.New()
+	ctxLogger.SetProperty("task_name", taskName)
+
 	return &Context{
 		workerID: workerID,
 		taskName: taskName,
 		db:       db,
-		logger:   logger.New(),
+		logger:   ctxLogger,
 	}
 }
 

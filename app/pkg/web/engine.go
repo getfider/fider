@@ -162,15 +162,18 @@ func (e *Engine) Stop() error {
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
 	contextID := uuid.NewV4().String()
-	contextLogger := e.logger.New()
-	contextLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	request := WrapRequest(req)
+	ctxLogger := e.logger.New()
+	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	ctxLogger.SetProperty("url", request.URL.String())
+	ctxLogger.SetProperty("http_method", request.Method)
 
 	return Context{
 		id:       contextID,
 		Response: res,
-		Request:  WrapRequest(req),
+		Request:  request,
 		engine:   e,
-		logger:   contextLogger,
+		logger:   ctxLogger,
 		params:   params,
 		worker:   e.worker,
 	}
