@@ -21,12 +21,14 @@ lint-fix:
 test-ui:
 	TZ='GMT' npx jest ./public
 
-test-server:
+test-server: build-server
+	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -race
 
 test : test-server test-ui
 
-coverage:
+coverage: build-server
+	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -race
 
 e2e-single:
@@ -49,9 +51,7 @@ watch:
 	npx webpack -w
 
 migrate : build-server
-	godotenv -f .env ./fider migrate
 
-# Production
 run:
 	godotenv -f .env ./fider
 
