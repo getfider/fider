@@ -75,7 +75,7 @@ func (db Database) runMigration(version int, path, fileName string) error {
 		return err
 	}
 
-	_, err = trx.Execute(string(content))
+	_, err = trx.tx.Exec(string(content))
 	if err != nil {
 		return err
 	}

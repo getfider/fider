@@ -50,8 +50,6 @@ watch:
 	air -c air.conf & 
 	npx webpack -w
 
-migrate : build-server
-
 run:
 	godotenv -f .env ./fider
 
