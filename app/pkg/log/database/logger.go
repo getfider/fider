@@ -85,29 +85,31 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		return
 	}
 
-	trx, err := l.db.Begin()
-	if err != nil {
-		//TODO: log somewhere
-		return
-	}
-	trx.NoLogs()
+	go func() {
+		trx, err := l.db.Begin()
+		if err != nil {
+			//TODO: log somewhere
+			return
+		}
+		trx.NoLogs()
 
-	message := ""
-	if format == "" {
-		message = fmt.Sprint(args...)
-	} else {
-		message = fmt.Sprintf(format, args...)
-	}
+		message := ""
+		if format == "" {
+			message = fmt.Sprint(args...)
+		} else {
+			message = fmt.Sprintf(format, args...)
+		}
 
-	_, err = trx.Execute(
-		"INSERT INTO logs (tag, level, text, created_on) VALUES ($1, $2, $3, $4)",
-		l.tag, level.String(), message, time.Now(),
-	)
+		_, err = trx.Execute(
+			"INSERT INTO logs (tag, level, text, created_on) VALUES ($1, $2, $3, $4)",
+			l.tag, level.String(), message, time.Now(),
+		)
 
-	if err != nil {
-		//TODO: log somewhere
-		trx.Rollback()
-	} else {
-		trx.Commit()
-	}
+		if err != nil {
+			//TODO: log somewhere
+			trx.Rollback()
+		} else {
+			trx.Commit()
+		}
+	}()
 }
