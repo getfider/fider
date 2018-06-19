@@ -1,7 +1,6 @@
 package dbx
 
 import (
-	"context"
 	"database/sql"
 	stdErrors "errors"
 	"io/ioutil"
@@ -9,7 +8,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -49,47 +47,14 @@ func (db *Database) Migrate(path string) error {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
 
-	// Check if it's required to apply migrations
-	if lastVersion < versions[len(versions)-1] {
-
-		// Get exclusive lock
-		ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
-		defer cancel()
-		ticker := time.NewTicker(500 * time.Millisecond)
-		defer ticker.Stop()
-		for {
-			locked, err := db.TryLock()
+	// Apply all migrations
+	for _, version := range versions {
+		if version > lastVersion {
+			fileName := versionFiles[version]
+			db.logger.Infof("Running Version: %d (%s)", version, fileName)
+			err := db.runMigration(version, path, fileName)
 			if err != nil {
-				return errors.Wrap(err, "failed to obtain lock")
-			}
-
-			if locked {
-				ticker.Stop()
-				break
-			}
-
-			select {
-			case <-ctx.Done():
-				return errors.New("timeout trying to obtain lock")
-			case <-ticker.C:
-			}
-		}
-
-		// Now that we have a lock, get last version, it might have changed
-		lastVersion, err := db.getLastMigration()
-		if err != nil {
-			return errors.Wrap(err, "failed to get last migration record")
-		}
-
-		// Apply all migrations
-		for _, version := range versions {
-			if version > lastVersion {
-				fileName := versionFiles[version]
-				db.logger.Infof("Running Version: %d (%s)", version, fileName)
-				err := db.runMigration(version, path, fileName)
-				if err != nil {
-					return errors.Wrap(err, "failed to run migration '%s'", fileName)
-				}
+				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
 		}
 	}

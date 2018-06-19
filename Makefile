@@ -44,6 +44,11 @@ watch:
 	air -c air.conf & 
 	npx webpack -w
 
+
+# Production
+migrate:
+	godotenv -f .env ./fider migrate
+
 run:
 	godotenv -f .env ./fider
 
