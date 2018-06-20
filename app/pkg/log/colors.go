@@ -1,6 +1,9 @@
 package log
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var (
 	colorRed     = "\033[31m"
@@ -12,6 +15,28 @@ var (
 	styleReverse = "\033[7m"
 	resetAll     = "\033[0m"
 )
+
+// Color return content with given color
+func Color(colorName string, content interface{}) string {
+	switch strings.ToUpper(colorName) {
+	case "RED":
+		return Red(content)
+	case "GREEN":
+		return Green(content)
+	case "YELLOW":
+		return Yellow(content)
+	case "BLUE":
+		return Blue(content)
+	case "MAGENDA":
+		return Magenta(content)
+	case "BOLD":
+		return Bold(content)
+	case "REVERSE":
+		return Reverse(content)
+	default:
+		return fmt.Sprintf("%v", content)
+	}
+}
 
 // Red return content with red color
 func Red(content interface{}) string {
