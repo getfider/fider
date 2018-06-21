@@ -11,6 +11,7 @@ import (
 
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 )
 
 // ErrNoChanges means that the migration process didn't change execute any file
@@ -18,7 +19,7 @@ var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
 // Migrate the database to latest version
 func (db *Database) Migrate(path string) error {
-	db.logger.Infof("Running migrations...")
+	db.logger.Info("Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
 		return errors.Wrap(err, "failed to open dir '%s'", path)
@@ -41,19 +42,28 @@ func (db *Database) Migrate(path string) error {
 		}
 	}
 	sort.Ints(versions)
-	db.logger.Infof("Found total of %d migration files.", len(versions))
+
+	db.logger.Infof("Found total of @{Total} migration files.", log.Props{
+		"Total": len(versions),
+	})
 
 	lastVersion, err := db.getLastMigration()
 	if err != nil {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
-	db.logger.Infof("Current version is %d", lastVersion)
+
+	db.logger.Infof("Current version is @{Version}", log.Props{
+		"Version": lastVersion,
+	})
 
 	// Apply all migrations
 	for _, version := range versions {
 		if version > lastVersion {
 			fileName := versionFiles[version]
-			db.logger.Infof("Running Version: %d (%s)", version, fileName)
+			db.logger.Infof("Running Version: @{Version} (@{FileName})", log.Props{
+				"Version":  version,
+				"FileName": fileName,
+			})
 			err := db.runMigration(version, path, fileName)
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
@@ -61,7 +71,7 @@ func (db *Database) Migrate(path string) error {
 		}
 	}
 
-	db.logger.Infof("Migrations finished with success.")
+	db.logger.Info("Migrations finished with success.")
 	return nil
 }
 

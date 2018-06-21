@@ -16,7 +16,7 @@ type Logger struct {
 	logger *stdLog.Logger
 	level  log.Level
 	tag    string
-	props  map[string]interface{}
+	props  log.Props
 }
 
 // NewLogger creates a new Logger
@@ -26,7 +26,7 @@ func NewLogger(tag string) *Logger {
 		tag:    tag,
 		logger: stdLog.New(os.Stdout, "", 0),
 		level:  log.ParseLevel(level),
-		props:  make(map[string]interface{}, 0),
+		props:  make(log.Props, 0),
 	}
 }
 
@@ -40,38 +40,53 @@ func (l *Logger) IsEnabled(level log.Level) bool {
 	return level >= l.level
 }
 
+// Debug logs a DEBUG message
+func (l *Logger) Debug(message string) {
+	l.log(log.DEBUG, message, nil)
+}
+
 // Debugf logs a DEBUG message
-func (l *Logger) Debugf(format string, args ...interface{}) {
-	l.log(log.DEBUG, format, args...)
+func (l *Logger) Debugf(message string, props log.Props) {
+	l.log(log.DEBUG, message, props)
+}
+
+// Info logs a INFO message
+func (l *Logger) Info(message string) {
+	l.log(log.INFO, message, nil)
 }
 
 // Infof logs a INFO message
-func (l *Logger) Infof(format string, args ...interface{}) {
-	l.log(log.INFO, format, args...)
+func (l *Logger) Infof(message string, props log.Props) {
+	l.log(log.INFO, message, props)
+}
+
+// Warn logs a WARN message
+func (l *Logger) Warn(message string) {
+	l.log(log.WARN, message, nil)
 }
 
 // Warnf logs a WARN message
-func (l *Logger) Warnf(format string, args ...interface{}) {
-	l.log(log.WARN, format, args...)
+func (l *Logger) Warnf(message string, props log.Props) {
+	l.log(log.WARN, message, props)
 }
 
 // Errorf logs a ERROR message
-func (l *Logger) Errorf(format string, args ...interface{}) {
-	l.log(log.ERROR, format, args...)
+func (l *Logger) Errorf(message string, props log.Props) {
+	l.log(log.ERROR, message, props)
 }
 
 // Error logs a ERROR message
 func (l *Logger) Error(err error) {
 	if err != nil {
-		l.log(log.ERROR, err.Error())
+		l.log(log.ERROR, err.Error(), nil)
 	} else {
-		l.log(log.ERROR, "nil")
+		l.log(log.ERROR, "nil", nil)
 	}
 }
 
 // Write writes len(p) bytes from p to the underlying data stream.
 func (l *Logger) Write(p []byte) (int, error) {
-	l.Debugf("%s", p)
+	l.Debug(fmt.Sprintf("%s", p))
 	return len(p), nil
 }
 
@@ -85,18 +100,13 @@ func (l *Logger) SetProperty(key string, value interface{}) {
 	l.props[key] = value
 }
 
-func (l *Logger) log(level log.Level, format string, args ...interface{}) {
+func (l *Logger) log(level log.Level, message string, props log.Props) {
+	props = l.props.Merge(props)
 	if !l.IsEnabled(level) {
 		return
 	}
 
-	message := ""
-	if format == "" {
-		message = fmt.Sprint(args...)
-	} else {
-		message = fmt.Sprintf(format, args...)
-	}
-
+	message = log.Parse(message, props, true)
 	contextID := l.props[log.PropertyKeyContextID]
 	l.logger.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, contextID, message)
 }

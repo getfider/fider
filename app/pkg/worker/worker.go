@@ -58,7 +58,9 @@ func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(id string) {
-	w.logger.Infof("Starting worker %s.", log.Magenta(id))
+	w.logger.Infof("Starting worker @{WorkerID:magenta}.", log.Props{
+		"WorkerID": id,
+	})
 	for task := range w.queue {
 
 		c := NewContext(id, task.Name, w.db, w.logger)
@@ -80,7 +82,11 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 			if count == 0 {
 				return nil
 			}
-			w.logger.Infof("waiting for work queue: %d", count)
+
+			w.logger.Infof("Waiting for work queue: @{Count}", log.Props{
+				"Count": count,
+			})
+
 			select {
 			case <-ctx.Done():
 				return errors.New("timeout waiting for worker queue")

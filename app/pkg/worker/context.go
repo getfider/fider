@@ -1,13 +1,12 @@
 package worker
 
 import (
-	"fmt"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/uuid"
 )
 
 //Context holds references to services available for jobs
@@ -25,7 +24,8 @@ type Context struct {
 //NewContext creates a new context
 func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
 	ctxLogger := logger.New()
-	ctxLogger.SetProperty("task_name", taskName)
+	contextID := uuid.NewV4().String()
+	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
 
 	return &Context{
 		workerID: workerID,
@@ -106,18 +106,6 @@ func (c *Context) Database() *dbx.Database {
 //Failure logs details of error
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
-
-	tenant := "undefined"
-	if c.Tenant() != nil {
-		tenant = fmt.Sprintf("%s (%d)", c.Tenant().Name, c.Tenant().ID)
-	}
-
-	user := "not signed in"
-	if c.User() != nil {
-		user = fmt.Sprintf("%s (%d)", c.User().Name, c.User().ID)
-	}
-
-	message := fmt.Sprintf("Task: %s\nTenant: %s\nUser: %s\n%s", c.taskName, tenant, user, err.Error())
-	c.logger.Errorf(log.Red(message))
+	c.logger.Error(err)
 	return err
 }

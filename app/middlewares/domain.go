@@ -8,6 +8,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -65,7 +66,9 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			if errors.Cause(err) == app.ErrNotFound {
-				c.Logger().Debugf("Tenant not found for '%s'.", hostname)
+				c.Logger().Debugf("Tenant not found for '@{Hostname}'.", log.Props{
+					"Hostname": hostname,
+				})
 				return c.NotFound()
 			}
 

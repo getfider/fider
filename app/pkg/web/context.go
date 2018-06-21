@@ -210,19 +210,7 @@ func (ctx *Context) Failure(err error) error {
 		return ctx.NotFound()
 	}
 
-	tenant := "undefined"
-	if ctx.Tenant() != nil {
-		tenant = fmt.Sprintf("%s (%d)", ctx.Tenant().Name, ctx.Tenant().ID)
-	}
-
-	user := "not signed in"
-	if ctx.User() != nil {
-		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
-	}
-
-	url := ctx.Request.URL.String()
-	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
-	ctx.Logger().Errorf(log.Red(message))
+	ctx.Logger().Error(err)
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",

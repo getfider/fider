@@ -69,7 +69,10 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 				form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
 				recipientVariables[r.Address] = r.Params
 			} else {
-				s.logger.Warnf("Skipping email to '%s <%s>' due to whitelist.", r.Name, r.Address)
+				s.logger.Warnf("Skipping email to '@{Name} <@{Address}>' due to whitelist.", log.Props{
+					"Name":    r.Name,
+					"Address": r.Address,
+				})
 			}
 		}
 	}
@@ -89,9 +92,15 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 	}
 
 	if isBatch {
-		s.logger.Debugf("Sending email to %d recipients with template %s.", len(recipientVariables), templateName)
+		s.logger.Debugf("Sending email to @{CountRecipients} recipients with template @{TemplateName}.", log.Props{
+			"CountRecipients": len(recipientVariables),
+			"TemplateName":    templateName,
+		})
 	} else {
-		s.logger.Debugf("Sending email to %s with template %s.", to[0].Address, templateName)
+		s.logger.Debugf("Sending email to @{Address} with template @{TemplateName}.", log.Props{
+			"Address":      to[0].Address,
+			"TemplateName": templateName,
+		})
 	}
 
 	url := fmt.Sprintf(baseURL, s.domain)
@@ -109,6 +118,8 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 	}
 
 	defer resp.Body.Close()
-	s.logger.Debugf("Email sent with response code %d.", resp.StatusCode)
+	s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
+		"StatusCode": resp.StatusCode,
+	})
 	return nil
 }

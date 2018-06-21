@@ -1,8 +1,6 @@
 package database
 
 import (
-	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -21,7 +19,7 @@ type Logger struct {
 	console log.Logger
 	level   log.Level
 	tag     string
-	props   map[string]interface{}
+	props   log.Props
 }
 
 // NewLogger creates a new Logger
@@ -32,7 +30,7 @@ func NewLogger(tag string, db *dbx.Database) *Logger {
 		db:      db,
 		console: console.NewLogger(tag),
 		level:   log.ParseLevel(level),
-		props:   make(map[string]interface{}, 0),
+		props:   make(log.Props, 0),
 	}
 }
 
@@ -47,36 +45,54 @@ func (l *Logger) IsEnabled(level log.Level) bool {
 	return level >= l.level
 }
 
+// Debug logs a DEBUG message
+func (l *Logger) Debug(message string) {
+	l.console.Debug(message)
+	l.log(log.DEBUG, message, nil)
+}
+
 // Debugf logs a DEBUG message
-func (l *Logger) Debugf(format string, args ...interface{}) {
-	l.log(log.DEBUG, format, args...)
-	l.console.Debugf(format, args...)
+func (l *Logger) Debugf(message string, props log.Props) {
+	l.console.Debugf(message, props)
+	l.log(log.DEBUG, message, props)
+}
+
+// Info logs a INFO message
+func (l *Logger) Info(message string) {
+	l.console.Info(message)
+	l.log(log.INFO, message, nil)
 }
 
 // Infof logs a INFO message
-func (l *Logger) Infof(format string, args ...interface{}) {
-	l.log(log.INFO, format, args...)
-	l.console.Infof(format, args...)
+func (l *Logger) Infof(message string, props log.Props) {
+	l.console.Infof(message, props)
+	l.log(log.INFO, message, props)
+}
+
+// Warn logs a WARN message
+func (l *Logger) Warn(message string) {
+	l.console.Warn(message)
+	l.log(log.WARN, message, nil)
 }
 
 // Warnf logs a WARN message
-func (l *Logger) Warnf(format string, args ...interface{}) {
-	l.log(log.WARN, format, args...)
-	l.console.Warnf(format, args...)
+func (l *Logger) Warnf(message string, props log.Props) {
+	l.console.Warnf(message, props)
+	l.log(log.WARN, message, props)
 }
 
 // Errorf logs a ERROR message
-func (l *Logger) Errorf(format string, args ...interface{}) {
-	l.log(log.ERROR, format, args...)
-	l.console.Errorf(format, args...)
+func (l *Logger) Errorf(message string, props log.Props) {
+	l.console.Errorf(message, props)
+	l.log(log.ERROR, message, props)
 }
 
 // Error logs a ERROR message
 func (l *Logger) Error(err error) {
 	if err != nil {
-		l.log(log.ERROR, err.Error())
+		l.log(log.ERROR, err.Error(), nil)
 	} else {
-		l.log(log.ERROR, "nil")
+		l.log(log.ERROR, "nil", nil)
 	}
 	l.console.Error(err)
 }
@@ -84,7 +100,7 @@ func (l *Logger) Error(err error) {
 // Write writes len(p) bytes from p to the underlying data stream.
 func (l *Logger) Write(p []byte) (int, error) {
 	l.console.Write(p)
-	l.Debugf("%s", p)
+	l.Debug(fmt.Sprintf("%s", p))
 	return len(p), nil
 }
 
@@ -99,7 +115,8 @@ func (l *Logger) SetProperty(key string, value interface{}) {
 	l.console.SetProperty(key, value)
 }
 
-func (l *Logger) log(level log.Level, format string, args ...interface{}) {
+func (l *Logger) log(level log.Level, message string, props log.Props) {
+	props = l.props.Merge(props)
 	if !l.IsEnabled(level) {
 		return
 	}
@@ -112,16 +129,11 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 		}
 		trx.NoLogs()
 
-		message := ""
-		if format == "" {
-			message = fmt.Sprint(args...)
-		} else {
-			message = fmt.Sprintf(format, args...)
-		}
+		message = log.Parse(message, props, false)
 
 		_, err = trx.Execute(
 			"INSERT INTO logs (tag, level, text, created_on, properties) VALUES ($1, $2, $3, $4, $5)",
-			l.tag, level.String(), message, time.Now(), propertyMap(l.props),
+			l.tag, level.String(), message, time.Now(), props,
 		)
 
 		if err != nil {
@@ -137,11 +149,4 @@ func (l *Logger) log(level log.Level, format string, args ...interface{}) {
 			}
 		}
 	}()
-}
-
-type propertyMap map[string]interface{}
-
-func (p propertyMap) Value() (driver.Value, error) {
-	j, err := json.Marshal(p)
-	return j, err
 }

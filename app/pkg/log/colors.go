@@ -27,7 +27,7 @@ func Color(colorName string, content interface{}) string {
 		return Yellow(content)
 	case "BLUE":
 		return Blue(content)
-	case "MAGENDA":
+	case "MAGENTA":
 		return Magenta(content)
 	case "BOLD":
 		return Bold(content)

@@ -20,24 +20,36 @@ func (l *Logger) IsEnabled(level log.Level) bool {
 	return true
 }
 
+// Debug logs a DEBUG message
+func (l *Logger) Debug(message string) {
+}
+
 // Debugf logs a DEBUG message
-func (l *Logger) Debugf(format string, args ...interface{}) {
+func (l *Logger) Debugf(message string, props log.Props) {
+}
+
+// Info logs a INFO message
+func (l *Logger) Info(message string) {
 }
 
 // Infof logs a INFO message
-func (l *Logger) Infof(format string, args ...interface{}) {
+func (l *Logger) Infof(message string, props log.Props) {
+}
+
+// Warn logs a WARN message
+func (l *Logger) Warn(message string) {
 }
 
 // Warnf logs a WARN message
-func (l *Logger) Warnf(format string, args ...interface{}) {
-}
-
-// Errorf logs a ERROR message
-func (l *Logger) Errorf(format string, args ...interface{}) {
+func (l *Logger) Warnf(message string, props log.Props) {
 }
 
 // Error logs a ERROR message
 func (l *Logger) Error(err error) {
+}
+
+// Errorf logs a ERROR message
+func (l *Logger) Errorf(message string, props log.Props) {
 }
 
 // Write writes len(p) bytes from p to the underlying data stream.

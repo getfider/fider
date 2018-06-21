@@ -88,8 +88,10 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	e.logger.Infof("Application is starting")
-	e.logger.Infof("GO_ENV: %s", env.Current())
+	e.logger.Info("Application is starting")
+	e.logger.Infof("GO_ENV: @{Env}", log.Props{
+		"Env": env.Current(),
+	})
 
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
@@ -123,14 +125,14 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		e.logger.Infof("https (auto ssl) server started on %s", address)
+		e.logger.Infof("https (auto ssl) server started on @{Address}", log.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
-		e.logger.Infof("http server started on %s", address)
+		e.logger.Infof("http server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		e.logger.Infof("https server started on %s", address)
+		e.logger.Infof("https server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
@@ -144,17 +146,17 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	e.logger.Infof("server is shutting down")
+	e.logger.Info("server is shutting down")
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
-	e.logger.Infof("server has shutdown")
+	e.logger.Info("server has shutdown")
 
-	e.logger.Infof("worker is shutting down")
+	e.logger.Info("worker is shutting down")
 	if err := e.worker.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown worker")
 	}
-	e.logger.Infof("worker has shutdown")
+	e.logger.Info("worker has shutdown")
 
 	return nil
 }
@@ -165,8 +167,6 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 	request := WrapRequest(req)
 	ctxLogger := e.logger.New()
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
-	ctxLogger.SetProperty("url", request.URL.String())
-	ctxLogger.SetProperty("http_method", request.Method)
 
 	return Context{
 		id:       contextID,

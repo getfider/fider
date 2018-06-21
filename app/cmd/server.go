@@ -42,8 +42,8 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 			}
 			return 0
 		case syscall.SIGUSR1:
-			e.Logger().Infof("SIGUSR1 received")
-			e.Logger().Infof("Dumping process status")
+			e.Logger().Info("SIGUSR1 received")
+			e.Logger().Info("Dumping process status")
 			buf := new(bytes.Buffer)
 			buf.WriteString(fmt.Sprintf("Version: %s\n", settings.Version))
 			buf.WriteString(fmt.Sprintf("BuildTime: %s\n", settings.BuildTime))
@@ -52,7 +52,7 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 			buf.WriteString(fmt.Sprintf("Worker Queue: %d\n", e.Worker().Length()))
 			pprof.Lookup("goroutine").WriteTo(buf, 1)
 			pprof.Lookup("heap").WriteTo(buf, 1)
-			e.Logger().Infof("%s", buf.String())
+			e.Logger().Info(buf.String())
 		}
 	}
 }

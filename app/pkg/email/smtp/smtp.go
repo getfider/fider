@@ -38,11 +38,18 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 	}
 
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping email to %s <%s> due to whitelist.", to.Name, to.Address)
+		s.logger.Warnf("Skipping email to '@{Name} <@{Address}>' due to whitelist.", log.Props{
+			"Name":    to.Name,
+			"Address": to.Address,
+		})
 		return nil
 	}
 
-	s.logger.Debugf("Sending email to %s with template %s and params %s.", to.Address, templateName, to.Params)
+	s.logger.Debugf("Sending email to @{Address} with template @{TemplateName} and params @{Params}.", log.Props{
+		"Address":      to.Address,
+		"TemplateName": templateName,
+		"Params":       to.Params,
+	})
 
 	message := email.RenderMessage(templateName, params.Merge(to.Params))
 	headers := make(map[string]string)
@@ -64,7 +71,7 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
-	s.logger.Debugf("Email sent.")
+	s.logger.Debug("Email sent.")
 	return nil
 }
 

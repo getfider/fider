@@ -27,12 +27,18 @@ func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
-			c.Logger().Debugf("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
+			c.Logger().Debugf("Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", log.Props{
+				"TaskName": c.TaskName(),
+				"WorkerID": c.WorkerID(),
+			})
 
 			trx, err := c.Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
@@ -56,26 +62,40 @@ func WorkerSetup() worker.MiddlewareFunc {
 					}
 					c.Failure(err)
 					trx.Rollback()
-					c.Logger().Debugf("Task '%s' panicked in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+						"TaskName":  c.TaskName(),
+						"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					})
 				}
 			}()
 
 			//Execute the chain
 			if err = next(c); err != nil {
 				trx.Rollback()
-				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err = trx.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
-				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+					"Error": err.Error(),
+				})
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("Task '%s' finished in %s (committed)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+			c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+				"TaskName":  c.TaskName(),
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 			return nil
 		}
 	}
@@ -85,15 +105,20 @@ func WorkerSetup() worker.MiddlewareFunc {
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			path := log.Magenta(c.Request.Method + " " + c.Request.URL.RequestURI())
-
 			start := time.Now()
-			c.Logger().Debugf("%s started", path)
+			c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} started", log.Props{
+				"HttpMethod": c.Request.Method,
+				"RequestURI": c.Request.URL.RequestURI(),
+			})
 
 			trx, err := c.Engine().Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
@@ -119,26 +144,44 @@ func WebSetup() web.MiddlewareFunc {
 					}
 					c.Failure(err)
 					c.Rollback()
-					c.Logger().Debugf("%s panicked in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+						"HttpMethod": c.Request.Method,
+						"RequestURI": c.Request.URL.RequestURI(),
+						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					})
 				}
 			}()
 
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err := c.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
-				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+					"Error": err.Error(),
+				})
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("%s finished in %s (committed)", path, log.Magenta(time.Since(start).String()))
+			c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+				"HttpMethod": c.Request.Method,
+				"RequestURI": c.Request.URL.RequestURI(),
+				"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 			return nil
 		}
 	}

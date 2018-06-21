@@ -1,6 +1,8 @@
 package log
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -13,11 +15,14 @@ type Level uint8
 type Logger interface {
 	SetLevel(level Level)
 	SetProperty(key string, value interface{})
-	Debugf(format string, args ...interface{})
-	Infof(format string, args ...interface{})
-	Warnf(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
+	Debug(message string)
+	Debugf(message string, props Props)
+	Info(message string)
+	Infof(message string, props Props)
+	Warn(format string)
+	Warnf(message string, props Props)
 	Error(err error)
+	Errorf(message string, props Props)
 	IsEnabled(level Level) bool
 	Write(p []byte) (int, error)
 	New() Logger
@@ -25,11 +30,11 @@ type Logger interface {
 
 const (
 	// PropertyKeyContextID is the context id of current logger
-	PropertyKeyContextID = "context_id"
+	PropertyKeyContextID = "ContextID"
 	// PropertyKeyUserID is the user id of current logger
-	PropertyKeyUserID = "user_id"
+	PropertyKeyUserID = "UserID"
 	// PropertyKeyTenantID is the tenant id of current logger
-	PropertyKeyTenantID = "tenant_id"
+	PropertyKeyTenantID = "TenantID"
 )
 
 const (
@@ -79,10 +84,32 @@ func (l Level) String() string {
 // Props is a map of key:value
 type Props map[string]interface{}
 
+// Value converts props into a database value
+func (p Props) Value() (driver.Value, error) {
+	j, err := json.Marshal(p)
+	return j, err
+}
+
+// Merge current props with given props
+func (p Props) Merge(props Props) Props {
+	new := Props{}
+	if p != nil {
+		for k, v := range p {
+			new[k] = v
+		}
+	}
+	if props != nil {
+		for k, v := range props {
+			new[k] = v
+		}
+	}
+	return new
+}
+
 var placeholderFinder = regexp.MustCompile("@{.*?}")
 
 // Parse is used to merge props into format and return a text message
-func Parse(format string, props Props) string {
+func Parse(format string, props Props, colorize bool) string {
 	if props == nil || len(props) == 0 {
 		return format
 	}
@@ -100,7 +127,10 @@ func Parse(format string, props Props) string {
 		if phSeparatorIdx >= 0 {
 			phName := phContent[:phSeparatorIdx]
 			phColor := phContent[phSeparatorIdx+1:]
-			value = Color(phColor, props[phName])
+			value = props[phName]
+			if colorize {
+				value = Color(phColor, value)
+			}
 		}
 		format = fmt.Sprintf("%s%v%s", format[:indexes[0]], value, format[indexes[1]:])
 	}
