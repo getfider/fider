@@ -1,3 +1,4 @@
+TRUNCATE TABLE logs RESTART IDENTITY CASCADE;
 TRUNCATE TABLE tenants RESTART IDENTITY CASCADE;
 
 INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status, is_private, custom_css) 
