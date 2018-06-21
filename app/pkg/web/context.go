@@ -210,7 +210,10 @@ func (ctx *Context) Failure(err error) error {
 		return ctx.NotFound()
 	}
 
-	ctx.Logger().Error(err)
+	ctx.Logger().Errorf(err.Error(), log.Props{
+		"Body": ctx.Request.Body,
+	})
+
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",

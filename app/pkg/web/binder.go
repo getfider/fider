@@ -2,7 +2,7 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
+	stdErrors "errors"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 
 var (
 	//ErrContentTypeNotAllowed is used when POSTing a body that is not json
-	ErrContentTypeNotAllowed = errors.New("Only Content-Type application/json is allowed")
+	ErrContentTypeNotAllowed = stdErrors.New("Only Content-Type application/json is allowed")
 	intType                  = reflect.TypeOf(0)
 	stringType               = reflect.TypeOf("")
 )
@@ -38,7 +38,7 @@ func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
 			return ErrContentTypeNotAllowed
 		}
 
-		if err := json.NewDecoder(c.Request.Body).Decode(target); err != nil {
+		if err := json.Unmarshal([]byte(c.Request.Body), target); err != nil {
 			return err
 		}
 	}

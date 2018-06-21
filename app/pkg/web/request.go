@@ -1,8 +1,7 @@
 package web
 
 import (
-	"fmt"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -14,7 +13,7 @@ type Request struct {
 	instance      *http.Request
 	Method        string
 	ContentLength int64
-	Body          io.ReadCloser
+	Body          string
 	URL           *url.URL
 }
 
@@ -33,14 +32,22 @@ func WrapRequest(request *http.Request) Request {
 	fullURL := protocol + "://" + host + request.RequestURI
 	u, err := url.Parse(fullURL)
 	if err != nil {
-		panic(errors.New(fmt.Sprintf("Failed to parse url '%s'", fullURL)))
+		panic(errors.Wrap(err, "Failed to parse url '%s'", fullURL))
+	}
+
+	var bodyBytes []byte
+	if request.ContentLength > 0 {
+		bodyBytes, err = ioutil.ReadAll(request.Body)
+		if err != nil {
+			panic(errors.Wrap(err, "failed to read body").Error())
+		}
 	}
 
 	return Request{
 		instance:      request,
 		Method:        request.Method,
 		ContentLength: request.ContentLength,
-		Body:          request.Body,
+		Body:          string(bodyBytes),
 		URL:           u,
 	}
 }
