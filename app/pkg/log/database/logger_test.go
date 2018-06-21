@@ -18,10 +18,10 @@ type logEntry struct {
 func TestLog(t *testing.T) {
 	RegisterT(t)
 	db := dbx.New()
-	db.Seed()
 	defer db.Close()
 	trx, _ := db.Begin()
-	defer trx.Rollback()
+	trx.Execute("DELETE FROM logs WHERE properties->>'ContextID' = 'MyContextID'")
+	defer trx.Commit()
 
 	logger := database.NewLogger("TEST", db)
 	logger.SetLevel(log.INFO)
