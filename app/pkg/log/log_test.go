@@ -7,6 +7,58 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
+func TestLevel_Parse(t *testing.T) {
+	RegisterT(t)
+
+	Expect(log.ParseLevel("DEBUG")).Equals(log.DEBUG)
+	Expect(log.ParseLevel("INFO")).Equals(log.INFO)
+	Expect(log.ParseLevel("WARN")).Equals(log.WARN)
+	Expect(log.ParseLevel("ERROR")).Equals(log.ERROR)
+	Expect(log.ParseLevel("NONE")).Equals(log.INFO)
+	Expect(log.ParseLevel("")).Equals(log.INFO)
+}
+
+func TestLevel_ToString(t *testing.T) {
+	RegisterT(t)
+
+	Expect(log.DEBUG.String()).Equals("DEBUG")
+	Expect(log.INFO.String()).Equals("INFO")
+	Expect(log.WARN.String()).Equals("WARN")
+	Expect(log.ERROR.String()).Equals("ERROR")
+	Expect(log.DEBUG.String()).Equals("DEBUG")
+	Expect(log.Level(88).String()).Equals("???")
+}
+
+func TestPropsMerge(t *testing.T) {
+	RegisterT(t)
+
+	Expect(log.Props{
+		"Name": "John",
+	}.Merge(nil)).Equals(log.Props{"Name": "John"})
+
+	Expect(log.Props{
+		"Name": "John",
+	}.Merge(log.Props{
+		"Name": "Maria",
+	})).Equals(log.Props{"Name": "Maria"})
+
+	Expect(log.Props(nil).Merge(log.Props{
+		"Name": "Maria",
+	})).Equals(log.Props{"Name": "Maria"})
+
+	Expect(log.Props{
+		"Name": "John",
+		"DOB":  "05/02/1998",
+	}.Merge(log.Props{
+		"Name": "Maria",
+		"Age":  66,
+	})).Equals(log.Props{
+		"Age":  66,
+		"DOB":  "05/02/1998",
+		"Name": "Maria",
+	})
+}
+
 func TestParseText(t *testing.T) {
 	RegisterT(t)
 
