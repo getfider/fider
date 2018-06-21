@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
@@ -107,7 +106,7 @@ func (s *Server) ExecuteAsJSON(handler web.HandlerFunc) (int, *jsonq.Query) {
 // ExecutePost executes given handler as POST and return response
 func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httptest.ResponseRecorder) {
 	s.context.Request.Method = "POST"
-	s.context.Request.Body = ioutil.NopCloser(strings.NewReader(body))
+	s.context.Request.Body = body
 	s.context.Request.ContentLength = int64(len(body))
 	s.context.Request.SetHeader("Content-Type", web.UTF8JSONContentType)
 
