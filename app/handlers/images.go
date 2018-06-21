@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/img"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/md5"
 
 	"github.com/getfider/fider/app/pkg/web"
@@ -27,7 +28,9 @@ func Avatar() web.HandlerFunc {
 			if err == nil && user.Tenant.ID == c.Tenant().ID {
 				if user.Email != "" {
 					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", md5.Hash(user.Email), size)
-					c.Logger().Debugf("Requesting gravatar: %s", url)
+					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
+						"GravatarURL": url,
+					})
 					resp, err := http.Get(url)
 					if err == nil {
 						defer resp.Body.Close()

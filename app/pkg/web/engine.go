@@ -8,13 +8,14 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/database"
 	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -55,6 +56,7 @@ type Engine struct {
 	mux         *httprouter.Router
 	logger      log.Logger
 	renderer    *Renderer
+	db          *dbx.Database
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
@@ -63,14 +65,21 @@ type Engine struct {
 
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
-	logger := log.NewConsoleLogger("WEB")
+	db := dbx.New()
+	logger := database.NewLogger("WEB", db)
+	logger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+
+	bgLogger := database.NewLogger("BGW", db)
+	bgLogger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+
 	router := &Engine{
 		mux:         httprouter.New(),
+		db:          db,
 		logger:      logger,
 		renderer:    NewRenderer(settings, logger),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(),
+		worker:      worker.New(db, bgLogger),
 	}
 
 	router.mux.NotFound = &notFoundHandler{router}
@@ -79,6 +88,11 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
+	e.logger.Info("Application is starting")
+	e.logger.Infof("GO_ENV: @{Env}", log.Props{
+		"Env": env.Current(),
+	})
+
 	certFile := env.GetEnvOrDefault("SSL_CERT", "")
 	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
 	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
@@ -111,14 +125,14 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		e.logger.Infof("https (auto ssl) server started on %s", address)
+		e.logger.Infof("https (auto ssl) server started on @{Address}", log.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFile == "" && keyFile == "" {
-		e.logger.Infof("http server started on %s", address)
+		e.logger.Infof("http server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		e.logger.Infof("https server started on %s", address)
+		e.logger.Infof("https server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
@@ -132,29 +146,34 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	e.logger.Infof("server is shutting down")
+	e.logger.Info("server is shutting down")
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
-	e.logger.Infof("server has shutdown")
+	e.logger.Info("server has shutdown")
 
-	e.logger.Infof("worker is shutting down")
+	e.logger.Info("worker is shutting down")
 	if err := e.worker.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown worker")
 	}
-	e.logger.Infof("worker has shutdown")
+	e.logger.Info("worker has shutdown")
 
 	return nil
 }
 
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
+	contextID := uuid.NewV4().String()
+	request := WrapRequest(req)
+	ctxLogger := e.logger.New()
+	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+
 	return Context{
-		id:       strings.Replace(uuid.NewV4().String(), "-", "", 4),
+		id:       contextID,
 		Response: res,
-		Request:  WrapRequest(req),
+		Request:  request,
 		engine:   e,
-		logger:   e.logger,
+		logger:   ctxLogger,
 		params:   params,
 		worker:   e.worker,
 	}
@@ -163,6 +182,11 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 //Logger returns current logger
 func (e *Engine) Logger() log.Logger {
 	return e.logger
+}
+
+//Database returns current database
+func (e *Engine) Database() *dbx.Database {
+	return e.db
 }
 
 //Worker returns current worker referenc

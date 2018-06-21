@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
 )
 
@@ -33,6 +34,7 @@ type Worker interface {
 
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
+	db         *dbx.Database
 	logger     log.Logger
 	queue      chan Task
 	len        int64
@@ -43,9 +45,10 @@ type BackgroundWorker struct {
 var maxQueueSize = 100
 
 //New creates a new BackgroundWorker
-func New() *BackgroundWorker {
+func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
 	return &BackgroundWorker{
-		logger: log.NewConsoleLogger("BGW"),
+		db:     db,
+		logger: logger,
 		queue:  make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next
@@ -55,14 +58,12 @@ func New() *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(id string) {
-	w.logger.Infof("Starting worker %s.", log.Magenta(id))
+	w.logger.Infof("Starting worker @{WorkerID:magenta}.", log.Props{
+		"WorkerID": id,
+	})
 	for task := range w.queue {
 
-		c := &Context{
-			workerID: id,
-			taskName: task.Name,
-			logger:   w.logger,
-		}
+		c := NewContext(id, task.Name, w.db, w.logger)
 
 		w.middleware(task.Job)(c)
 		w.Lock()
@@ -81,7 +82,11 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 			if count == 0 {
 				return nil
 			}
-			w.logger.Infof("waiting for work queue: %d", count)
+
+			w.logger.Infof("Waiting for work queue: @{Count}", log.Props{
+				"Count": count,
+			})
+
 			select {
 			case <-ctx.Done():
 				return errors.New("timeout waiting for worker queue")

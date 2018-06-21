@@ -141,9 +141,7 @@ func (ctx *Context) Tenant() *models.Tenant {
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		ctx.Logger().Debugf("Current tenant: %v (ID: %v)", tenant.Name, tenant.ID)
-	} else {
-		ctx.Logger().Debugf("Current tenant: nil")
+		ctx.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentTenant(tenant)
@@ -212,19 +210,10 @@ func (ctx *Context) Failure(err error) error {
 		return ctx.NotFound()
 	}
 
-	tenant := "undefined"
-	if ctx.Tenant() != nil {
-		tenant = fmt.Sprintf("%s (%d)", ctx.Tenant().Name, ctx.Tenant().ID)
-	}
+	ctx.Logger().Errorf(err.Error(), log.Props{
+		"Body": ctx.Request.Body,
+	})
 
-	user := "not signed in"
-	if ctx.User() != nil {
-		user = fmt.Sprintf("%s (%d)", ctx.User().Name, ctx.User().ID)
-	}
-
-	url := ctx.Request.URL.String()
-	message := fmt.Sprintf("URL: %s\nTenant: %s\nUser: %s\n%s", url, tenant, user, err.Error())
-	ctx.Logger().Errorf(log.Red(message))
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
@@ -294,9 +283,7 @@ func (ctx *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(user *models.User) {
 	if user != nil {
-		ctx.Logger().Debugf("Logged as: %v [%v] (ID: %v)", user.Name, user.Email, user.ID)
-	} else {
-		ctx.Logger().Debugf("Logged as: nil")
+		ctx.logger.SetProperty(log.PropertyKeyUserID, user.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentUser(user)

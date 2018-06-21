@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/noop"
 
 	//required
 	_ "github.com/lib/pq"
@@ -19,7 +20,7 @@ import (
 
 // New creates a new Database instance without logging
 func New() *Database {
-	return NewWithLogger(&log.NoopLogger{})
+	return NewWithLogger(noop.NewLogger())
 }
 
 // NewWithLogger creates a new Database instance with logging or panic
@@ -39,6 +40,11 @@ type Database struct {
 	conn   *sql.DB
 	logger log.Logger
 	mapper *RowMapper
+}
+
+// SetLogger replaces current database Logger
+func (db *Database) SetLogger(logger log.Logger) {
+	db.logger = logger
 }
 
 // Begin returns a new SQL transaction
@@ -86,13 +92,27 @@ type Trx struct {
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
+// SetLogger replaces current transaction Logger
+func (trx *Trx) SetLogger(logger log.Logger) {
+	trx.logger = logger
+}
+
+// NoLogs disable logs from this transaction
+func (trx *Trx) NoLogs() {
+	trx.logger.SetLevel(log.NONE)
+}
+
 // Execute given SQL command
 func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 	if trx.logger.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -111,7 +131,11 @@ func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) er
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -132,7 +156,11 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -160,7 +188,11 @@ func (trx *Trx) QueryIntArray(command string, args ...interface{}) ([]int, error
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -188,7 +220,11 @@ func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -207,7 +243,11 @@ func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 
@@ -230,7 +270,11 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("%s %v in %s", log.Yellow(command), log.Blue(args), log.Magenta(time.Since(start).String()))
+			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 		}()
 	}
 

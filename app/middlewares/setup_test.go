@@ -7,7 +7,8 @@ import (
 
 	"github.com/getfider/fider/app/middlewares"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -17,7 +18,7 @@ func TestWebSetup(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c web.Context) error {
 		Expect(c.ActiveTransaction()).IsNotNil()
 		return c.NoContent(http.StatusOK)
@@ -30,7 +31,7 @@ func TestWebSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
@@ -42,7 +43,7 @@ func TestWebSetup_Panic(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c web.Context) error {
 		panic("Boom!")
 	})
@@ -54,7 +55,7 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Failure(errors.New("Something went wrong..."))
@@ -68,7 +69,7 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	server.Use(middlewares.WebSetup(log.NewNoopLogger()))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Ok(web.Map{})
@@ -81,8 +82,8 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 func TestWorkerSetup(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
-	mw := middlewares.WorkerSetup(log.NewNoopLogger())
+	c := worker.NewContext("0", "Any Task", dbx.New(), noop.NewLogger())
+	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
 		return nil
@@ -93,8 +94,8 @@ func TestWorkerSetup(t *testing.T) {
 func TestWorkerSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", "Any Task", log.NewNoopLogger())
-	mw := middlewares.WorkerSetup(log.NewNoopLogger())
+	c := worker.NewContext("0", "Any Task", dbx.New(), noop.NewLogger())
+	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
 		return errors.New("Not Found")

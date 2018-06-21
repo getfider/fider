@@ -3,7 +3,7 @@ package mock
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -34,7 +34,7 @@ func (w *Worker) AsUser(user *models.User) *Worker {
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	context := worker.NewContext("0", task.Name, log.NewNoopLogger())
+	context := worker.NewContext("0", task.Name, nil, noop.NewLogger())
 	context.SetServices(w.services)
 	context.SetUser(w.user)
 	context.SetTenant(w.tenant)

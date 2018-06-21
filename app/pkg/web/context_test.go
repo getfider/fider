@@ -50,7 +50,7 @@ func TestContextID(t *testing.T) {
 	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
 
 	Expect(ctx.ContextID()).IsNotEmpty()
-	Expect(ctx.ContextID()).HasLen(32)
+	Expect(ctx.ContextID()).HasLen(36)
 }
 
 func TestBaseURL(t *testing.T) {

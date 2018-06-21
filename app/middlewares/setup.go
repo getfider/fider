@@ -8,7 +8,6 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
@@ -24,20 +23,26 @@ func Noop() web.MiddlewareFunc {
 }
 
 //WorkerSetup current context with some services
-func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
-	db := dbx.NewWithLogger(logger)
-	emailer := app.NewEmailer(logger)
+func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
-			c.Logger().Debugf("Task '%s' started on worker '%s'", log.Magenta(c.TaskName()), log.Magenta(c.WorkerID()))
+			c.Logger().Debugf("Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", log.Props{
+				"TaskName": c.TaskName(),
+				"WorkerID": c.WorkerID(),
+			})
 
-			trx, err := db.Begin()
+			trx, err := c.Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("Task '%s' finished in %s", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
+
+			trx.SetLogger(c.Logger())
 
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
@@ -45,7 +50,7 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       emailer,
+				Emailer:       app.NewEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere
@@ -57,48 +62,67 @@ func WorkerSetup(logger log.Logger) worker.MiddlewareFunc {
 					}
 					c.Failure(err)
 					trx.Rollback()
-					c.Logger().Debugf("Task '%s' panicked in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+						"TaskName":  c.TaskName(),
+						"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					})
 				}
 			}()
 
 			//Execute the chain
 			if err = next(c); err != nil {
 				trx.Rollback()
-				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err = trx.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
-				c.Logger().Debugf("Task '%s' finished in %s (rolled back)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+					"Error": err.Error(),
+				})
+				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"TaskName":  c.TaskName(),
+					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("Task '%s' finished in %s (committed)", log.Magenta(c.TaskName()), log.Magenta(time.Since(start).String()))
+			c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+				"TaskName":  c.TaskName(),
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 			return nil
 		}
 	}
 }
 
 //WebSetup current context with some services
-func WebSetup(logger log.Logger) web.MiddlewareFunc {
-	db := dbx.NewWithLogger(logger)
-	emailer := app.NewEmailer(logger)
+func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			path := log.Magenta(c.Request.Method + " " + c.Request.URL.RequestURI())
-
 			start := time.Now()
-			c.Logger().Debugf("%s started", path)
+			c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} started", log.Props{
+				"HttpMethod": c.Request.Method,
+				"RequestURI": c.Request.URL.RequestURI(),
+			})
 
-			trx, err := db.Begin()
+			trx, err := c.Engine().Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("%s finished in %s", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
+
+			trx.SetLogger(c.Logger())
 
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
@@ -108,7 +132,7 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       emailer,
+				Emailer:       app.NewEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere
@@ -120,26 +144,44 @@ func WebSetup(logger log.Logger) web.MiddlewareFunc {
 					}
 					c.Failure(err)
 					c.Rollback()
-					c.Logger().Debugf("%s panicked in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+					c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+						"HttpMethod": c.Request.Method,
+						"RequestURI": c.Request.URL.RequestURI(),
+						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					})
 				}
 			}()
 
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err := c.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: %s", err.Error())
-				c.Logger().Debugf("%s finished in %s (rolled back)", path, log.Magenta(time.Since(start).String()))
+				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+					"Error": err.Error(),
+				})
+				c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					"HttpMethod": c.Request.Method,
+					"RequestURI": c.Request.URL.RequestURI(),
+					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				})
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("%s finished in %s (committed)", path, log.Magenta(time.Since(start).String()))
+			c.Logger().Debugf("@{HttpMethod:magenta} @{RequestURI:magenta} finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+				"HttpMethod": c.Request.Method,
+				"RequestURI": c.Request.URL.RequestURI(),
+				"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
 			return nil
 		}
 	}
