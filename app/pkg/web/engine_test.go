@@ -26,13 +26,13 @@ func TestEngine_StartRequestStop(t *testing.T) {
 	time.Sleep(time.Second)
 	resp, err := http.Get("http://127.0.0.1:8080/hello")
 	Expect(err).IsNil()
-	resp.Body.Close()
 	Expect(resp.StatusCode).Equals(http.StatusOK)
+	resp.Body.Close()
 
 	resp, err = http.Get("http://127.0.0.1:8080/world")
 	Expect(err).IsNil()
-	resp.Body.Close()
 	Expect(resp.StatusCode).Equals(http.StatusNotFound)
+	resp.Body.Close()
 
 	err = w.Stop()
 	Expect(err).IsNil()
