@@ -25,19 +25,17 @@ func TestLog(t *testing.T) {
 
 	logger := database.NewLogger("TEST", db)
 	logger.SetLevel(log.INFO)
+	logger.SetProperty(log.PropertyKeyContextID, "MyContextID")
 	db.SetLogger(logger)
 
 	logger.Infof("2 + 2 is @{Result}", log.Props{"Result": 4})
 	logger.Debugf("2 + 2 is @{Result}", log.Props{"Result": 4})
 
-	count, err := trx.Count("SELECT id FROM logs")
+	var entries []*logEntry
+	err := trx.Select(&entries, "SELECT tag, level, text FROM logs WHERE properties->>'ContextID' = 'MyContextID'")
 	Expect(err).IsNil()
-	Expect(count).Equals(1)
-
-	entry := logEntry{}
-	err = trx.Get(&entry, "SELECT tag, level, text FROM logs LIMIT 1")
-	Expect(err).IsNil()
-	Expect(entry.Tag).Equals("TEST")
-	Expect(entry.Level).Equals("INFO")
-	Expect(entry.Text).Equals("2 + 2 is 4")
+	Expect(entries).HasLen(1)
+	Expect(entries[0].Tag).Equals("TEST")
+	Expect(entries[0].Level).Equals("INFO")
+	Expect(entries[0].Text).Equals("2 + 2 is 4")
 }
