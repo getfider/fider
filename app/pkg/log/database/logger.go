@@ -116,12 +116,12 @@ func (l *Logger) SetProperty(key string, value interface{}) {
 }
 
 func (l *Logger) log(level log.Level, message string, props log.Props) {
-	props = l.props.Merge(props)
 	if !l.IsEnabled(level) {
 		return
 	}
 
-	go func() {
+	write := func() {
+		props = l.props.Merge(props)
 		trx, err := l.db.Begin()
 		if err != nil {
 			l.console.Error(errors.Wrap(err, "failed to open transaction"))
@@ -148,5 +148,11 @@ func (l *Logger) log(level log.Level, message string, props log.Props) {
 				l.console.Error(errors.Wrap(err, "failed to commit transaction"))
 			}
 		}
-	}()
+	}
+
+	if env.IsTest() {
+		write()
+	} else {
+		go write()
+	}
 }

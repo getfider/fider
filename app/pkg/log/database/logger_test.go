@@ -30,14 +30,12 @@ func TestLog(t *testing.T) {
 	logger.Infof("2 + 2 is @{Result}", log.Props{"Result": 4})
 	logger.Debugf("2 + 2 is @{Result}", log.Props{"Result": 4})
 
-	Expect(func() int {
-		count, err := trx.Count("SELECT id FROM logs")
-		Expect(err).IsNil()
-		return count
-	}).EventuallyEquals(1)
+	count, err := trx.Count("SELECT id FROM logs")
+	Expect(err).IsNil()
+	Expect(count).Equals(1)
 
 	entry := logEntry{}
-	err := trx.Get(&entry, "SELECT tag, level, text FROM logs LIMIT 1")
+	err = trx.Get(&entry, "SELECT tag, level, text FROM logs LIMIT 1")
 	Expect(err).IsNil()
 	Expect(entry.Tag).Equals("TEST")
 	Expect(entry.Level).Equals("INFO")
