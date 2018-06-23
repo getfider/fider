@@ -5,10 +5,6 @@ PG_CONTAINER="fider_pge2e"
 PORT=3000
 
 run_e2e () {
-  echo "Compiling tests..."
-  rm -rf ./output/tests
-  npx tsc -p ./tests/tsconfig.json
-
   echo "Starting Fider (HOST_MODE: $1)..."
   docker rm -f $FIDER_CONTAINER $PG_CONTAINER || true
   docker run -d -e POSTGRES_USER=fider_e2e -e POSTGRES_PASSWORD=fider_e2e_pw --name $PG_CONTAINER postgres:9.6.8
@@ -17,7 +13,7 @@ run_e2e () {
 
   {
     echo "Running e2e tests ..."
-    npx jest ./output/tests/e2e-$1.spec.js
+    npx jest ./tests-puppeteer/e2e-$1.spec.ts
   } && {
       echo "Stopping Fider ..."
       docker rm -f $FIDER_CONTAINER
