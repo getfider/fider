@@ -19,10 +19,10 @@ describe("E2E: Sign up with e-mail", () => {
 
     // Action
     await pages.signup.navigate();
-    await pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider+${now}@gmail.com`);
+    await pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider@gmail.com`);
     await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
-    const link = await mailgun.getLinkFromLastEmailTo(`darthvader.fider+${now}@gmail.com`);
+    const link = await mailgun.getLinkFromLastEmailTo(`selenium${now}`, `darthvader.fider@gmail.com`);
 
     await pages.goTo(link);
     await browser.wait(pageHasLoaded(HomePage));

@@ -79,4 +79,8 @@ describe("E2E: Feedback Loop", () => {
     await ensure(pages.showIdea.Description).textIs("Because the language and community is awesome! :)");
     await ensure(pages.showIdea.SupportCounter).textIs("1");
   });
+
+  it.skip("Can edit title and description", async () => {
+    return Promise.resolve(true);
+  });
 });
