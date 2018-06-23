@@ -12,7 +12,7 @@ export class Browser {
   }
 
   public static async launch(): Promise<Browser> {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     return new Browser(browser, page);
   }
@@ -45,7 +45,7 @@ export class Browser {
   public async waitAny(conditions: WaitCondition | WaitCondition[]): Promise<void> {
     const all = !(conditions instanceof Array) ? [conditions] : conditions;
 
-    let retry = 5;
+    let retry = 20;
     do {
       for (const condition of all) {
         retry--;

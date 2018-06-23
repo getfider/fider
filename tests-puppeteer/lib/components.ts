@@ -33,5 +33,22 @@ export class TextInput extends WebComponent {
 
   public async type(text: string) {
     await this.browser.page.type(this.selector, text);
+    const current = await this.getText();
+    if (current !== text) {
+      await this.clear();
+      await this.type(text);
+    }
+  }
+
+  public async getText(): Promise<string> {
+    return await (this.browser.page.evaluate(
+      selector => (document.querySelector(selector) as HTMLInputElement).value,
+      this.selector
+    ) as Promise<string>);
+  }
+
+  public async clear() {
+    await this.browser.page.click(this.selector, { clickCount: 3 });
+    await this.browser.page.keyboard.press("Backspace");
   }
 }

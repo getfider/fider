@@ -1,9 +1,9 @@
 import { Browser } from "./lib";
 import { AllPages } from "./pages";
 
-export let pages: AllPages;
-export let browser: Browser;
-export let tenant: string;
+let pages: AllPages;
+let browser: Browser;
+let tenant: string;
 
 export const setPages = (value: AllPages) => {
   pages = value;
@@ -19,4 +19,8 @@ export const setTenant = (value: string) => {
   } else {
     tenant = value;
   }
+};
+
+export const getTenant = (): string => {
+  return tenant;
 };

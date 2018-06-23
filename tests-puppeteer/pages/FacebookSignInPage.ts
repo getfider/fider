@@ -1,4 +1,4 @@
-import { findBy, Page, Browser, TextInput, elementIsVisible, Button, pageHasLoaded, delay } from "../lib";
+import { findBy, Page, Browser, TextInput, elementIsVisible, Button, pageHasLoaded } from "../lib";
 import { HomePage, SignUpPage } from ".";
 
 export class FacebookSignInPage extends Page {

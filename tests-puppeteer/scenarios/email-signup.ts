@@ -1,7 +1,7 @@
 import { Browser, mailgun, pageHasLoaded, ensure } from "../lib";
 import { AllPages, HomePage } from "../pages";
 
-describe("Sign up by email", () => {
+describe("E2E: Sign up with e-mail", () => {
   let browser: Browser;
   let pages: AllPages;
 

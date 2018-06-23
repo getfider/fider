@@ -1,5 +1,6 @@
-import { Browser, Page, findBy, TextInput, elementIsVisible, WebComponent } from "../lib";
-import { tenant } from "../context";
+import { Browser, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button } from "../lib";
+import { getTenant } from "../context";
+import { ShowIdeaPage } from ".";
 
 export class HomePage extends Page {
   constructor(browser: Browser) {
@@ -7,14 +8,14 @@ export class HomePage extends Page {
   }
 
   public getUrl(): string {
-    return `http://${tenant}.dev.fider.io:3000/`;
+    return `http://${getTenant()}.dev.fider.io:3000/`;
   }
 
   // @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
   // @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
   @findBy("#input-title") public IdeaTitle!: TextInput;
-  // @findBy("#input-description") public IdeaDescription!: TextInput;
-  // @findBy(".c-button.m-positive") public SubmitIdea!: Button;
+  @findBy("#input-description") public IdeaDescription!: TextInput;
+  @findBy(".c-button.m-positive") public SubmitIdea!: Button;
   @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
   @findBy(".c-menu-user-heading") public UserName!: WebComponent;
   // @findBy(".c-modal-window") public SignInModal!: WebComponent;
@@ -31,12 +32,12 @@ export class HomePage extends Page {
     return elementIsVisible(this.IdeaTitle);
   }
 
-  // public async submitNewIdea(title: string, description: string): Promise<void> {
-  //   await this.IdeaTitle.type(title);
-  //   await this.IdeaDescription.type(description);
-  //   await this.SubmitIdea.click();
-  //   await this.browser.wait(pageHasLoaded(ShowIdeaPage));
-  // }
+  public async submitNewIdea(title: string, description: string): Promise<void> {
+    await this.IdeaTitle.type(title);
+    await this.IdeaDescription.type(description);
+    await this.SubmitIdea.click();
+    await this.browser.wait(pageHasLoaded(ShowIdeaPage));
+  }
 
   // public async signOut(): Promise<void> {
   //   try {
