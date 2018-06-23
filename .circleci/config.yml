@@ -76,6 +76,20 @@ jobs:
           name: test
           command: make test-ui
 
+  test-e2e:
+    docker:
+      - image: *builder
+    working_directory: *workdir
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - fider-v1-npm-{{ checksum "package-lock.json" }}
+      - setup_remote_docker
+      - run:
+          name: e2e
+          command: make e2e
+
   push:
     docker:
       - image: *builder
@@ -117,6 +131,9 @@ workflows:
           requires:
             - setup
       - test-server:
+          requires:
+            - setup
+      - test-e2e:
           requires:
             - setup
       - push:
