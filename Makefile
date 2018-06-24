@@ -31,17 +31,17 @@ coverage: build-server
 	godotenv -f .test.env ./fider migrate
 	godotenv -f .test.env go test ./... -coverprofile=cover.out -coverpkg=all -race
 
-e2e-single:		
-	./scripts/e2e.sh single		
- 		
-e2e-multi:		
-	./scripts/e2e.sh multi		
+e2e-single:
+	./scripts/e2e.sh single
 
-e2e-build:		
-	./scripts/e2e.sh build		
+e2e-multi:
+	./scripts/e2e.sh multi
 
-e2e:		
-	./scripts/e2e.sh		
+e2e-build:
+	./scripts/e2e.sh build
+
+e2e:
+	./scripts/e2e.sh	
 
 # Development
 watch:
