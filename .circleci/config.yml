@@ -79,7 +79,7 @@ jobs:
   test-e2e:
     docker:
       - image: *builder
-      - user: fider
+        user: fider
     working_directory: *workdir
     steps:
       - checkout
