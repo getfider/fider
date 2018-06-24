@@ -23,10 +23,6 @@ run_e2e () {
   start_fider $1
   echo "Running e2e tests ..."
   npx jest ./tests/$1.spec.ts
-  if [[ $? == 1 ]] 
-  then
-    exit 1
-  fi
 }
 
 if [[ $1 == 'build' ]] || [ -z $1 ]
