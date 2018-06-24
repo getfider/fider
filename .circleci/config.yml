@@ -137,6 +137,10 @@ workflows:
       - test-e2e:
           requires:
             - setup
+          filters:
+            branches:
+              # Only from canonical repository 
+              only: /^(?!pull\/).*$/
       - push:
           requires:
             - setup
