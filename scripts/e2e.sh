@@ -39,4 +39,4 @@ echo "Stopping Postgres ..."
 docker rm -f $PG_CONTAINER || true
 
 echo "Killing Chromium..."
-kill $(ps -A | grep [c]hromium | awk '{print $1}') || true
+ps -A | grep '[c]hromium' | awk '{print $1}' | xargs kill || true
