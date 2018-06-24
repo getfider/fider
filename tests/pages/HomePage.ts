@@ -1,6 +1,7 @@
 import { Browser, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button } from "../lib";
 import { getTenant } from "../context";
 import { ShowIdeaPage, FacebookSignInPage } from ".";
+import { IdeaList } from "./components";
 
 export class HomePage extends Page {
   constructor(browser: Browser) {
@@ -23,7 +24,7 @@ export class HomePage extends Page {
   // @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
   // @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
   @findBy(".signout") private SignOut!: Button;
-  // @findMultipleBy(".c-idea-list > .c-list-item") public IdeaList!: IdeaList;
+  @findBy(".c-idea-list") public IdeaList!: IdeaList;
   // @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
   // @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
@@ -39,18 +40,14 @@ export class HomePage extends Page {
   }
 
   public async signOut(): Promise<void> {
-    try {
+    if (await this.SignOut.isVisible()) {
       await this.SignOut.click();
-    } catch (ex) {
-      return;
+      await this.browser.wait(pageHasLoaded(HomePage));
     }
-    await this.browser.wait(pageHasLoaded(HomePage));
   }
 
   public async signInWithFacebook(): Promise<void> {
-    await this.browser.clearCookies("https://facebook.com");
     await this.signOut();
-
     await this.signIn(this.FacebookSignIn);
     await this.browser.wait(pageHasLoaded(FacebookSignInPage));
   }

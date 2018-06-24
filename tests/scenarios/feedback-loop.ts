@@ -28,7 +28,7 @@ describe("E2E: Feedback Loop", () => {
     await browser2.close();
   });
 
-  it("User can sign up with facebook", async () => {
+  it("Browser1: User can sign up with facebook", async () => {
     await page1.signup.navigate();
     await page1.signup.signInWithFacebook();
     await page1.facebook.signInAsJonSnow();
@@ -38,7 +38,7 @@ describe("E2E: Feedback Loop", () => {
     await browser1.wait(pageHasLoaded(HomePage));
   });
 
-  it("User is authenticated after sign up", async () => {
+  it("Browser1: User is authenticated after sign up", async () => {
     // Action
     await page1.home.navigate();
     await page1.home.UserMenu.click();
@@ -47,7 +47,7 @@ describe("E2E: Feedback Loop", () => {
     await ensure(page1.home.UserName).textIs("JON SNOW");
   });
 
-  it("User doesn't lose what they typed", async () => {
+  it("Browser1: User doesn't lose what they typed", async () => {
     // Action
     await page1.home.navigate();
     await page1.home.IdeaTitle.type("My Great Idea");
@@ -76,7 +76,7 @@ describe("E2E: Feedback Loop", () => {
     await browser1.wait(elementIsNotVisible(page1.home.IdeaDescription));
   });
 
-  it("Can submit ideas", async () => {
+  it("Browser1: Can submit ideas", async () => {
     // Action
     await page1.home.navigate();
     await page1.home.submitNewIdea("Add support to TypeScript", "Because the language and community is awesome! :)");
@@ -87,7 +87,7 @@ describe("E2E: Feedback Loop", () => {
     await ensure(page1.showIdea.SupportCounter).textIs("1");
   });
 
-  it("Can edit title and description", async () => {
+  it("Browser1: Can edit title and description", async () => {
     // Action
     await page1.showIdea.edit("Support for TypeScript", "Because the language and community is awesome!");
 
@@ -97,10 +97,9 @@ describe("E2E: Feedback Loop", () => {
     await ensure(page1.showIdea.SupportCounter).textIs("1");
   });
 
-  it("Can login as another user", async () => {
+  it("Browser2: Can login as another user", async () => {
     // Action
     await page2.home.navigate();
-    await page2.home.UserMenu.click();
     await page2.home.signInWithFacebook();
     await page2.facebook.signInAsAryaStark();
     await browser2.wait(pageHasLoaded(HomePage));
@@ -108,5 +107,15 @@ describe("E2E: Feedback Loop", () => {
 
     // Assert
     await ensure(page2.home.UserName).textIs("ARYA STARK");
+  });
+
+  it("Browser2: User can vote on idea", async () => {
+    // Action
+    await page2.home.navigate();
+    const item = await page2.home.IdeaList.get("Support for TypeScript");
+    await item.Vote.click();
+
+    // Assert
+    await ensure(item.Vote).textIs("2");
   });
 });

@@ -23,20 +23,9 @@ export class Browser {
     await this.page.goto(url);
   }
 
-  public async clearCookies(url?: string): Promise<void> {
-    const removeCookies = async () => {
-      const cookies = (await this.page.cookies()).map(x => ({ name: x.name }));
-      this.page.deleteCookie(...cookies);
-    };
-
-    if (url) {
-      const currentUrl = await this.page.url();
-      await this.navigate(url);
-      await removeCookies();
-      await this.navigate(currentUrl);
-    } else {
-      await removeCookies();
-    }
+  public async clearCookies(): Promise<void> {
+    const cookies = (await this.page.cookies()).map(x => ({ name: x.name }));
+    await this.page.deleteCookie(...cookies);
   }
 
   public async wait(condition: WaitCondition, timeout = 30000): Promise<void> {
