@@ -1,7 +1,7 @@
 version: 2
 references:
   builder: &builder 
-    getfider/circleci:0.0.10
+    getfider/circleci:0.0.11
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
@@ -76,18 +76,6 @@ jobs:
           name: test
           command: make test-ui
 
-  test-e2e:
-    docker:
-      - image: *builder
-        user: fider
-    working_directory: *workdir
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - run: make test-e2e
-
   push:
     docker:
       - image: *builder
@@ -131,13 +119,6 @@ workflows:
       - test-server:
           requires:
             - setup
-      - test-e2e:
-          requires:
-            - setup
-          filters:
-            branches:
-              # Only from canonical repository 
-              only: /^(?!pull\/).*$/
       - push:
           requires:
             - setup
