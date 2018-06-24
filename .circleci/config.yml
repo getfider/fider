@@ -1,7 +1,7 @@
 version: 2
 references:
   builder: &builder 
-    getfider/circleci:0.0.9
+    getfider/circleci:0.0.10
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
