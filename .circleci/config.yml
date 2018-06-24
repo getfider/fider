@@ -86,7 +86,6 @@ jobs:
       - restore_cache:
           keys:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - setup_remote_docker
       - run: make test-e2e
 
   push:
