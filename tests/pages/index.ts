@@ -2,7 +2,7 @@ import { HomePage } from "./HomePage";
 import { SignUpPage } from "./SignUpPage";
 import { FacebookSignInPage } from "./FacebookSignInPage";
 import { ShowIdeaPage } from "./ShowIdeaPage";
-import { Browser } from "../lib";
+import { BrowserTab } from "../lib";
 
 export { SignUpPage, ShowIdeaPage, HomePage, FacebookSignInPage };
 
@@ -12,14 +12,14 @@ export class AllPages {
   public showIdea: ShowIdeaPage;
   public facebook: FacebookSignInPage;
 
-  constructor(public browser: Browser) {
-    this.home = new HomePage(browser);
-    this.signup = new SignUpPage(browser);
-    this.showIdea = new ShowIdeaPage(browser);
-    this.facebook = new FacebookSignInPage(browser);
+  constructor(public tab: BrowserTab) {
+    this.home = new HomePage(tab);
+    this.signup = new SignUpPage(tab);
+    this.showIdea = new ShowIdeaPage(tab);
+    this.facebook = new FacebookSignInPage(tab);
   }
 
   public async goTo(url: string): Promise<void> {
-    return this.browser.navigate(url);
+    return this.tab.navigate(url);
   }
 }

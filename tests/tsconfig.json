@@ -4,7 +4,7 @@
     "target": "es6",
     "strict": true,
     "sourceMap": false,
-    "outDir": "../output/tests-puppeteer",
+    "outDir": "../output/tests",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

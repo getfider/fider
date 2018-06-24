@@ -1,4 +1,4 @@
-import { WebComponent, Button, TextInput, delay } from "./";
+import { WebComponent, Button, TextInput, delay } from ".";
 
 class WebComponentEnsurer {
   public async retry(fn: () => Promise<void>) {

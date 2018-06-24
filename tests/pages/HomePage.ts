@@ -1,11 +1,11 @@
-import { Browser, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button } from "../lib";
+import { BrowserTab, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button } from "../lib";
 import { getTenant } from "../context";
 import { ShowIdeaPage, FacebookSignInPage } from ".";
 import { IdeaList } from "./components";
 
 export class HomePage extends Page {
-  constructor(browser: Browser) {
-    super(browser);
+  constructor(tab: BrowserTab) {
+    super(tab);
   }
 
   public getUrl(): string {
@@ -36,20 +36,20 @@ export class HomePage extends Page {
     await this.IdeaTitle.type(title);
     await this.IdeaDescription.type(description);
     await this.SubmitIdea.click();
-    await this.browser.wait(pageHasLoaded(ShowIdeaPage));
+    await this.tab.wait(pageHasLoaded(ShowIdeaPage));
   }
 
   public async signOut(): Promise<void> {
     if (await this.SignOut.isVisible()) {
       await this.SignOut.click();
-      await this.browser.wait(pageHasLoaded(HomePage));
+      await this.tab.wait(pageHasLoaded(HomePage));
     }
   }
 
   public async signInWithFacebook(): Promise<void> {
     await this.signOut();
     await this.signIn(this.FacebookSignIn);
-    await this.browser.wait(pageHasLoaded(FacebookSignInPage));
+    await this.tab.wait(pageHasLoaded(FacebookSignInPage));
   }
 
   // public async signInWithEmail(email: string): Promise<void> {
@@ -71,7 +71,7 @@ export class HomePage extends Page {
 
   private async signIn(locator: WebComponent): Promise<void> {
     await this.UserMenu.click();
-    await this.browser.wait(elementIsVisible(locator));
+    await this.tab.wait(elementIsVisible(locator));
     await locator.click();
   }
 }

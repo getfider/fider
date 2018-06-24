@@ -1,5 +1,5 @@
 import {
-  Browser,
+  BrowserTab,
   WaitCondition,
   Page,
   elementIsVisible,
@@ -12,8 +12,8 @@ import {
 import { HomePage, FacebookSignInPage } from ".";
 
 export class SignUpPage extends Page {
-  constructor(browser: Browser) {
-    super(browser);
+  constructor(tab: BrowserTab) {
+    super(tab);
   }
 
   public getUrl(): string {
@@ -21,7 +21,6 @@ export class SignUpPage extends Page {
   }
 
   @findBy("#p-signup") private Container!: WebComponent;
-  // @findBy("#p-signup .c-button.m-google") public GoogleSignIn!: Button;
   @findBy("#p-signup .c-button.m-facebook") public FacebookSignIn!: Button;
   @findBy("#p-signup #input-name") public UserName!: TextInput;
   @findBy("#p-signup #input-email") public UserEmail!: TextInput;
@@ -35,14 +34,9 @@ export class SignUpPage extends Page {
     return elementIsVisible(this.Container);
   }
 
-  // public async signInWithGoogle(): Promise<void> {
-  //   await this.GoogleSignIn.click();
-  //   await this.browser.wait(pageHasLoaded(GoogleSignInPage));
-  // }
-
   public async signInWithFacebook(): Promise<void> {
     await this.FacebookSignIn.click();
-    await this.browser.wait(pageHasLoaded(FacebookSignInPage));
+    await this.tab.wait(pageHasLoaded(FacebookSignInPage));
   }
 
   public async signInWithEmail(name: string, email: string): Promise<void> {
@@ -53,10 +47,10 @@ export class SignUpPage extends Page {
   public async signUpAs(name: string, subdomain: string): Promise<void> {
     await this.TenantName.type(name);
     if (await this.Subdomain.isVisible()) {
-      await this.Subdomain.type(subdomain);
-      await this.browser.wait(elementIsVisible(this.SubdomainOk));
+      await this.Subdomain.type(subdomain, 50);
+      await this.tab.wait(elementIsVisible(this.SubdomainOk));
     }
     await this.Confirm.click();
-    await this.browser.waitAny([pageHasLoaded(HomePage), elementIsVisible(this.ConfirmationModal)]);
+    await this.tab.waitAny([pageHasLoaded(HomePage), elementIsVisible(this.ConfirmationModal)]);
   }
 }

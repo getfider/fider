@@ -11,24 +11,9 @@ export function findBy(selector: string) {
       configurable: true,
       enumerable: true,
       get() {
-        const browser = (this as any).browser;
-        return new type(browser, selector);
+        const tab = (this as any).tab;
+        return new type(tab, selector);
       }
     });
   };
 }
-
-// export function findMultipleBy(selector: string, t?: new (element: WebElementPromise, selector: string) => any) {
-//   return (target: any, propertyKey: string) => {
-//     const type = Reflect.getMetadata("design:type", target, propertyKey);
-//     Object.defineProperty(target, propertyKey, {
-//       configurable: true,
-//       enumerable: true,
-//       get() {
-//         const browser = (this as any).browser;
-//         const promise = (browser as Browser).findElements(selector);
-//         return new type(promise, selector, browser);
-//       }
-//     });
-//   };
-// }

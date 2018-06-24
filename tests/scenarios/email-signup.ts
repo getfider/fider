@@ -1,13 +1,13 @@
-import { Browser, mailgun, pageHasLoaded, ensure } from "../lib";
-import { AllPages, HomePage } from "../pages";
+import { Browser, BrowserTab, mailgun, pageHasLoaded, ensure } from "../lib";
+import { HomePage } from "../pages";
 
 describe("E2E: Sign up with e-mail", () => {
   let browser: Browser;
-  let pages: AllPages;
+  let tab: BrowserTab;
 
   beforeAll(async () => {
     browser = await Browser.launch();
-    pages = new AllPages(browser);
+    tab = await browser.newTab();
   });
 
   afterAll(async () => {
@@ -18,17 +18,17 @@ describe("E2E: Sign up with e-mail", () => {
     const now = new Date().getTime();
 
     // Action
-    await pages.signup.navigate();
-    await pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider@gmail.com`);
-    await pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
+    await tab.pages.signup.navigate();
+    await tab.pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider@gmail.com`);
+    await tab.pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
     const link = await mailgun.getLinkFromLastEmailTo(`selenium${now}`, `darthvader.fider@gmail.com`);
 
-    await pages.goTo(link);
-    await browser.wait(pageHasLoaded(HomePage));
+    await tab.pages.goTo(link);
+    await tab.wait(pageHasLoaded(HomePage));
 
     // Assert
-    await pages.home.UserMenu.click();
-    await ensure(pages.home.UserName).textIs(`DARTH VADER ${now}`);
+    await tab.pages.home.UserMenu.click();
+    await ensure(tab.pages.home.UserName).textIs(`DARTH VADER ${now}`);
   });
 });

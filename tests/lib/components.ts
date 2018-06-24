@@ -1,38 +1,41 @@
-import { elementIsVisible, Browser } from ".";
+import { elementIsVisible, BrowserTab } from ".";
 
 export class WebComponent {
-  constructor(protected browser: Browser, public selector: string) {}
+  constructor(protected tab: BrowserTab, public selector: string) {}
 
   public async click() {
-    await this.browser.page.click(this.selector);
+    await this.tab.click(this.selector);
   }
 
   public async getText(): Promise<string> {
-    return await this.browser.page.evaluate((selector: string) => {
-      return (document.querySelector(selector) as HTMLElement).innerText;
-    }, this.selector);
+    return await this.tab.evaluate<string>(
+      (selector: string) => {
+        return (document.querySelector(selector) as HTMLElement).innerText;
+      },
+      [this.selector]
+    );
   }
 
   public async isVisible(): Promise<boolean> {
     const condition = elementIsVisible(this.selector);
-    const instance = condition(this.browser);
-    return this.browser.page.evaluate(instance.function, instance.args);
+    const instance = condition(this.tab);
+    return this.tab.evaluate<boolean>(instance.function, instance.args);
   }
 }
 
 export class Button extends WebComponent {
-  constructor(protected browser: Browser, selector: string) {
-    super(browser, selector);
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
   }
 }
 
 export class TextInput extends WebComponent {
-  constructor(protected browser: Browser, selector: string) {
-    super(browser, selector);
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
   }
 
-  public async type(text: string) {
-    await this.browser.page.type(this.selector, text);
+  public async type(text: string, delay?: number) {
+    await this.tab.type(this.selector, text, delay);
     const current = await this.getText();
     if (current !== text) {
       await this.clear();
@@ -41,14 +44,14 @@ export class TextInput extends WebComponent {
   }
 
   public async getText(): Promise<string> {
-    return await (this.browser.page.evaluate(
-      selector => (document.querySelector(selector) as HTMLInputElement).value,
-      this.selector
-    ) as Promise<string>);
+    return await this.tab.evaluate<string>(
+      (selector: string) => (document.querySelector(selector) as HTMLInputElement).value,
+      [this.selector]
+    );
   }
 
   public async clear() {
-    await this.browser.page.click(this.selector, { clickCount: 3 });
-    await this.browser.page.keyboard.press("Backspace");
+    await this.tab.click(this.selector, { clickCount: 3 });
+    await this.tab.press("Backspace");
   }
 }

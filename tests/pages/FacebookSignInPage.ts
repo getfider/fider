@@ -1,9 +1,9 @@
-import { findBy, Page, Browser, TextInput, elementIsVisible, Button, pageHasLoaded } from "../lib";
+import { findBy, Page, BrowserTab, TextInput, elementIsVisible, Button, pageHasLoaded } from "../lib";
 import { HomePage, SignUpPage } from ".";
 
 export class FacebookSignInPage extends Page {
-  constructor(browser: Browser) {
-    super(browser);
+  constructor(tab: BrowserTab) {
+    super(tab);
   }
 
   @findBy("#email") public Email!: TextInput;
@@ -26,6 +26,6 @@ export class FacebookSignInPage extends Page {
     await this.Email.type(email);
     await this.Password.type(password);
     await this.Confirm.click();
-    await this.browser.waitAny([pageHasLoaded(HomePage), pageHasLoaded(SignUpPage)]);
+    await this.tab.waitAny([pageHasLoaded(HomePage), pageHasLoaded(SignUpPage)]);
   }
 }

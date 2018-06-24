@@ -1,15 +1,14 @@
-import { WebComponent } from "./components";
-import { NewablePage, Page, Browser } from ".";
+import { NewablePage, Page, BrowserTab, WebComponent } from ".";
 
 export type WaitCondition = (
-  browser: Browser
+  browser: BrowserTab
 ) => {
   function: (...args: any[]) => boolean;
-  args?: any[];
+  args: any[];
 };
 
 export const elementIsVisible = (target: string | WebComponent): WaitCondition => {
-  return (browser: Browser) => {
+  return (tab: BrowserTab) => {
     const selector = typeof target === "string" ? target : target.selector;
     return {
       function: (query: string) => {
@@ -26,7 +25,7 @@ export const elementIsVisible = (target: string | WebComponent): WaitCondition =
 };
 
 export const elementIsNotVisible = (target: string | WebComponent): WaitCondition => {
-  return (browser: Browser) => {
+  return (tab: BrowserTab) => {
     const selector = typeof target === "string" ? target : target.selector;
     return {
       function: (query: string) => {
@@ -43,7 +42,7 @@ export const elementIsNotVisible = (target: string | WebComponent): WaitConditio
 };
 
 export function pageHasLoaded<T extends Page>(page: NewablePage<T>): WaitCondition {
-  return (browser: Browser) => {
-    return new page(browser).loadCondition()(browser);
+  return (tab: BrowserTab) => {
+    return new page(tab).loadCondition()(tab);
   };
 }

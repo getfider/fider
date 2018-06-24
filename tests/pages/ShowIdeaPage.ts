@@ -1,8 +1,8 @@
-import { Browser, Page, WebComponent, TextInput, Button, findBy, elementIsVisible } from "../lib";
+import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible } from "../lib";
 
 export class ShowIdeaPage extends Page {
-  constructor(browser: Browser) {
-    super(browser);
+  constructor(tab: BrowserTab) {
+    super(tab);
   }
 
   @findBy(".idea-header h1") public Title!: WebComponent;
