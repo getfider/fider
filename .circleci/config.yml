@@ -78,6 +78,7 @@ jobs:
 
   test-e2e:
     docker:
+      - user: fider
       - image: *builder
     working_directory: *workdir
     steps:
@@ -86,7 +87,6 @@ jobs:
           keys:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - setup_remote_docker
-      - run: su fider
       - run:
           name: e2e
           command: make test-e2e
