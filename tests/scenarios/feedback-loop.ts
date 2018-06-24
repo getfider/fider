@@ -3,8 +3,10 @@ import { AllPages, HomePage } from "../pages";
 import { setTenant } from "../context";
 
 describe("E2E: Feedback Loop", () => {
-  let browser: Browser;
-  let pages: AllPages;
+  let browser1: Browser;
+  let page1: AllPages;
+  let browser2: Browser;
+  let page2: AllPages;
   let tenantName: string;
   let tenantSubdomain: string;
 
@@ -13,74 +15,98 @@ describe("E2E: Feedback Loop", () => {
     tenantName = `Selenium ${now}`;
     tenantSubdomain = `selenium${now}`;
     setTenant(tenantSubdomain);
-    browser = await Browser.launch();
-    pages = new AllPages(browser);
+
+    browser1 = await Browser.launch();
+    page1 = new AllPages(browser1);
+
+    browser2 = await Browser.launch();
+    page2 = new AllPages(browser2);
   });
 
   afterAll(async () => {
-    await browser.close();
+    await browser1.close();
+    await browser2.close();
   });
 
   it("User can sign up with facebook", async () => {
-    await pages.signup.navigate();
-    await pages.signup.signInWithFacebook();
-    await pages.facebook.signInAsJonSnow();
+    await page1.signup.navigate();
+    await page1.signup.signInWithFacebook();
+    await page1.facebook.signInAsJonSnow();
 
-    await pages.signup.signUpAs(tenantName, tenantSubdomain);
+    await page1.signup.signUpAs(tenantName, tenantSubdomain);
 
-    await browser.wait(pageHasLoaded(HomePage));
+    await browser1.wait(pageHasLoaded(HomePage));
   });
 
   it("User is authenticated after sign up", async () => {
     // Action
-    await pages.home.navigate();
-    await pages.home.UserMenu.click();
+    await page1.home.navigate();
+    await page1.home.UserMenu.click();
 
     // Assert
-    await ensure(pages.home.UserName).textIs("JON SNOW");
+    await ensure(page1.home.UserName).textIs("JON SNOW");
   });
 
   it("User doesn't lose what they typed", async () => {
     // Action
-    await pages.home.navigate();
-    await pages.home.IdeaTitle.type("My Great Idea");
-    await pages.home.IdeaDescription.type("With an awesome description");
-    await pages.home.IdeaTitle.clear();
-    await pages.home.IdeaTitle.type("My Great Idea has a new title");
+    await page1.home.navigate();
+    await page1.home.IdeaTitle.type("My Great Idea");
+    await page1.home.IdeaDescription.type("With an awesome description");
+    await page1.home.IdeaTitle.clear();
+    await page1.home.IdeaTitle.type("My Great Idea has a new title");
 
     // Assert
-    await ensure(pages.home.IdeaTitle).textIs("My Great Idea has a new title");
-    await ensure(pages.home.IdeaDescription).textIs("With an awesome description");
+    await ensure(page1.home.IdeaTitle).textIs("My Great Idea has a new title");
+    await ensure(page1.home.IdeaDescription).textIs("With an awesome description");
 
     // Action
-    await pages.home.navigate();
+    await page1.home.navigate();
 
     // Assert
-    await ensure(pages.home.IdeaTitle).textIs("My Great Idea has a new title");
-    await ensure(pages.home.IdeaDescription).textIs("With an awesome description");
+    await ensure(page1.home.IdeaTitle).textIs("My Great Idea has a new title");
+    await ensure(page1.home.IdeaDescription).textIs("With an awesome description");
 
     // Action
-    await pages.home.IdeaDescription.clear();
-    await pages.home.IdeaTitle.clear();
-    await pages.home.navigate();
+    await page1.home.IdeaDescription.clear();
+    await page1.home.IdeaTitle.clear();
+    await page1.home.navigate();
 
     // Assert
-    await ensure(pages.home.IdeaTitle).textIs("");
-    await browser.wait(elementIsNotVisible(pages.home.IdeaDescription));
+    await ensure(page1.home.IdeaTitle).textIs("");
+    await browser1.wait(elementIsNotVisible(page1.home.IdeaDescription));
   });
 
   it("Can submit ideas", async () => {
     // Action
-    await pages.home.navigate();
-    await pages.home.submitNewIdea("Add support to TypeScript", "Because the language and community is awesome! :)");
+    await page1.home.navigate();
+    await page1.home.submitNewIdea("Add support to TypeScript", "Because the language and community is awesome! :)");
 
     // Assert
-    await ensure(pages.showIdea.Title).textIs("Add support to TypeScript");
-    await ensure(pages.showIdea.Description).textIs("Because the language and community is awesome! :)");
-    await ensure(pages.showIdea.SupportCounter).textIs("1");
+    await ensure(page1.showIdea.Title).textIs("Add support to TypeScript");
+    await ensure(page1.showIdea.Description).textIs("Because the language and community is awesome! :)");
+    await ensure(page1.showIdea.SupportCounter).textIs("1");
   });
 
-  it.skip("Can edit title and description", async () => {
-    return Promise.resolve(true);
+  it("Can edit title and description", async () => {
+    // Action
+    await page1.showIdea.edit("Support for TypeScript", "Because the language and community is awesome!");
+
+    // Assert
+    await ensure(page1.showIdea.Title).textIs("Support for TypeScript");
+    await ensure(page1.showIdea.Description).textIs("Because the language and community is awesome!");
+    await ensure(page1.showIdea.SupportCounter).textIs("1");
+  });
+
+  it("Can login as another user", async () => {
+    // Action
+    await page2.home.navigate();
+    await page2.home.UserMenu.click();
+    await page2.home.signInWithFacebook();
+    await page2.facebook.signInAsAryaStark();
+    await browser2.wait(pageHasLoaded(HomePage));
+    await page2.home.UserMenu.click();
+
+    // Assert
+    await ensure(page2.home.UserName).textIs("ARYA STARK");
   });
 });

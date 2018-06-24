@@ -12,12 +12,18 @@ export class ShowIdeaPage extends Page {
   @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
   @findBy(".c-comment-input #input-content") public CommentInput!: TextInput;
   @findBy(".c-comment-input .c-button.m-positive") public SubmitCommentButton!: Button;
-  // @findMultipleBy(".c-comment-list .c-comment") public CommentList!: CommentList;
   @findBy(".action-col .c-button.respond") public RespondButton!: Button;
   @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
+  // @findMultipleBy(".c-comment-list .c-comment") public CommentList!: CommentList;
   // @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
   @findBy(".c-modal-window .c-response-form #input-text") private ResponseModalText!: TextInput;
   @findBy(".c-modal-window .c-modal-footer .c-button.m-positive") private ResponseModalSubmitButton!: Button;
+
+  @findBy(".action-col .c-button.edit") private Edit!: Button;
+  @findBy("#input-title") private EditTitle!: TextInput;
+  @findBy("#input-description") private EditDescription!: TextInput;
+  @findBy(".action-col .c-button.save") private SaveEdit!: Button;
+  @findBy(".action-col .c-button.cancel") private CancelEdit!: Button;
 
   public loadCondition() {
     return elementIsVisible(this.Title);
@@ -28,5 +34,14 @@ export class ShowIdeaPage extends Page {
     await this.ResponseModalText.clear();
     await this.ResponseModalText.type(text);
     await this.ResponseModalSubmitButton.click();
+  }
+
+  public async edit(newTitle: string, newDescription: string): Promise<void> {
+    await this.Edit.click();
+    await this.EditTitle.clear();
+    await this.EditTitle.type(newTitle);
+    await this.EditDescription.clear();
+    await this.EditDescription.type(newDescription);
+    await this.SaveEdit.click();
   }
 }

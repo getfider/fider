@@ -1,6 +1,6 @@
 import { Browser, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button } from "../lib";
 import { getTenant } from "../context";
-import { ShowIdeaPage } from ".";
+import { ShowIdeaPage, FacebookSignInPage } from ".";
 
 export class HomePage extends Page {
   constructor(browser: Browser) {
@@ -18,12 +18,11 @@ export class HomePage extends Page {
   @findBy(".c-button.m-positive") public SubmitIdea!: Button;
   @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
   @findBy(".c-menu-user-heading") public UserName!: WebComponent;
-  // @findBy(".c-modal-window") public SignInModal!: WebComponent;
-  // @findBy(".c-modal-window .c-button.m-google") public GoogleSignIn!: Button;
-  // @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
+  @findBy(".c-modal-window") public SignInModal!: WebComponent;
+  @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
   // @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
   // @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
-  // @findBy(".signout") private SignOut!: Button;
+  @findBy(".signout") private SignOut!: Button;
   // @findMultipleBy(".c-idea-list > .c-list-item") public IdeaList!: IdeaList;
   // @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
   // @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
@@ -39,30 +38,22 @@ export class HomePage extends Page {
     await this.browser.wait(pageHasLoaded(ShowIdeaPage));
   }
 
-  // public async signOut(): Promise<void> {
-  //   try {
-  //     await this.SignOut.click();
-  //   } catch (ex) {
-  //     return;
-  //   }
-  //   await this.browser.wait(pageHasLoaded(HomePage));
-  // }
+  public async signOut(): Promise<void> {
+    try {
+      await this.SignOut.click();
+    } catch (ex) {
+      return;
+    }
+    await this.browser.wait(pageHasLoaded(HomePage));
+  }
 
-  // public async signInWithGoogle(): Promise<void> {
-  //   await this.browser.clearCookies("https://accounts.google.com");
-  //   await this.signOut();
+  public async signInWithFacebook(): Promise<void> {
+    await this.browser.clearCookies("https://facebook.com");
+    await this.signOut();
 
-  //   await this.signIn(() => this.GoogleSignIn);
-  //   await this.browser.waitAny([pageHasLoaded(GoogleSignInPage), pageHasLoaded(HomePage)]);
-  // }
-
-  // public async signInWithFacebook(): Promise<void> {
-  //   await this.browser.clearCookies("https://facebook.com");
-  //   await this.signOut();
-
-  //   await this.signIn(() => this.FacebookSignIn);
-  //   await this.browser.waitAny([pageHasLoaded(FacebookSignInPage), pageHasLoaded(HomePage)]);
-  // }
+    await this.signIn(this.FacebookSignIn);
+    await this.browser.wait(pageHasLoaded(FacebookSignInPage));
+  }
 
   // public async signInWithEmail(email: string): Promise<void> {
   //   await this.signOut();
@@ -81,9 +72,9 @@ export class HomePage extends Page {
   //   await this.browser.wait(this.loadCondition());
   // }
 
-  // private async signIn(locator: () => WebComponent): Promise<void> {
-  //   await this.UserMenu.click();
-  //   await this.browser.wait(elementIsVisible(locator));
-  //   await locator().click();
-  // }
+  private async signIn(locator: WebComponent): Promise<void> {
+    await this.UserMenu.click();
+    await this.browser.wait(elementIsVisible(locator));
+    await locator.click();
+  }
 }
