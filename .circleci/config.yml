@@ -88,7 +88,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: e2e
-          command: make e2e
+          command: make test-e2e
 
   push:
     docker:

@@ -11,13 +11,12 @@ run_e2e () {
   docker run --link $PG_CONTAINER:pg waisbrot/wait
   docker run -d -p 3000:3000 --link $PG_CONTAINER -e HOST_MODE=$1 -e DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@$PG_CONTAINER:5432/fider_e2e?sslmode=disable --env-file .env --name $FIDER_CONTAINER getfider/fider:e2e
 
-  {
-    echo "Running e2e tests ..."
-    npx jest ./tests-puppeteer/e2e-$1.spec.ts
-  } && {
-      echo "Stopping Fider ..."
-      docker rm -f $FIDER_CONTAINER
-  }
+  echo "Running e2e tests ..."
+  npx jest ./e2e/$1.spec.ts
+  if [[ $? == 1 ]] 
+  then
+    exit 1
+  fi
 }
 
 if [[ $1 == 'build' ]] || [ -z $1 ]
@@ -36,6 +35,8 @@ then
   run_e2e multi
 fi
 
-
 echo "Stopping Postgres ..."
 docker rm -f $PG_CONTAINER || true
+
+echo "Killing Chromium..."
+kill $(ps -A | grep [c]hromium | awk '{print $1}') || true
