@@ -87,9 +87,7 @@ jobs:
           keys:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - setup_remote_docker
-      - run:
-          name: e2e
-          command: make test-e2e
+      - run: make test-e2e
 
   push:
     docker:
