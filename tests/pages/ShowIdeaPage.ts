@@ -1,4 +1,4 @@
-import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible, pageHasLoaded } from "../lib";
+import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible, DropDownList } from "../lib";
 import { CommentList } from "./components";
 
 export class ShowIdeaPage extends Page {
@@ -15,7 +15,7 @@ export class ShowIdeaPage extends Page {
   @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
   @findBy(".c-comment-list") public Comments!: CommentList;
 
-  // @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
+  @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
   @findBy(".c-modal-window .c-response-form #input-text") private ResponseModalText!: TextInput;
   @findBy(".c-modal-window .c-modal-footer .c-button.m-positive") private ResponseModalSubmitButton!: Button;
 
@@ -32,7 +32,9 @@ export class ShowIdeaPage extends Page {
   }
 
   public async changeStatus(status: string, text: string): Promise<void> {
-    // await this.ResponseModalStatus.selectByText(status);
+    await this.RespondButton.click();
+    await this.tab.wait(elementIsVisible(this.ResponseModal));
+    await this.ResponseModalStatus.selectByText(status);
     await this.ResponseModalText.clear();
     await this.ResponseModalText.type(text);
     await this.ResponseModalSubmitButton.click();
@@ -50,6 +52,5 @@ export class ShowIdeaPage extends Page {
   public async comment(text: string): Promise<void> {
     await this.CommentInput.type(text);
     await this.SubmitCommentButton.click();
-    await this.tab.wait(pageHasLoaded(ShowIdeaPage));
   }
 }

@@ -1,6 +1,7 @@
 import * as puppeteer from "puppeteer";
 import { AllPages } from "../pages";
-import { WaitCondition } from ".";
+import { WaitCondition, Page, NewablePage } from ".";
+import { pageHasLoaded } from "./conditions";
 
 export class BrowserTab {
   private page: puppeteer.Page;
@@ -13,6 +14,11 @@ export class BrowserTab {
 
   public async navigate(url: string): Promise<void> {
     await this.page.goto(url);
+  }
+
+  public async reload<T extends Page>(page: NewablePage<T>): Promise<void> {
+    await this.page.goto(this.page.url());
+    await this.wait(pageHasLoaded(page));
   }
 
   public async clearCookies(): Promise<void> {
@@ -35,6 +41,10 @@ export class BrowserTab {
 
   public async type(selector: string, text: string): Promise<void> {
     await this.page.type(selector, text);
+  }
+
+  public async select(selector: string, value: string): Promise<void> {
+    await this.page.select(selector, value);
   }
 
   public async evaluate<T>(fn: puppeteer.EvaluateFn, args: any[]): Promise<T> {

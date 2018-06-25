@@ -1,5 +1,5 @@
 import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay } from "../lib";
-import { HomePage } from "../pages";
+import { HomePage, ShowIdeaPage } from "../pages";
 import { setTenant } from "../context";
 
 describe("E2E: Feedback Loop", () => {
@@ -121,7 +121,7 @@ describe("E2E: Feedback Loop", () => {
     await ensure(item.Vote).textIs("2");
   });
 
-  it("Tab2: Open idea an vote on it", async () => {
+  it("Tab2: Open idea and vote on it", async () => {
     // Action
     const item = await tab2.pages.home.IdeaList.get("Support for TypeScript");
     await item.navigate();
@@ -129,5 +129,27 @@ describe("E2E: Feedback Loop", () => {
 
     // Assert
     await ensure(tab2.pages.showIdea.Comments).countIs(1);
+  });
+
+  it("Tab1: Open idea and change status", async () => {
+    // Action
+    await tab1.pages.home.navigate();
+    const item = await tab1.pages.home.IdeaList.get("Support for TypeScript");
+    await item.navigate();
+    await tab1.pages.showIdea.changeStatus("Started", "This will be delivered on next release.");
+    await tab1.reload(ShowIdeaPage);
+
+    // Assert
+    await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
+    await ensure(tab1.pages.showIdea.ResponseText).textIs("This will be delivered on next release.");
+  });
+
+  it("Tab2: Refresh and see status", async () => {
+    // Action
+    await tab2.reload(ShowIdeaPage);
+
+    // Assert
+    await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
+    await ensure(tab1.pages.showIdea.ResponseText).textIs("This will be delivered on next release.");
   });
 });

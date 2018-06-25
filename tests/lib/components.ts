@@ -10,7 +10,8 @@ export class WebComponent {
   public async getText(): Promise<string> {
     return await this.tab.evaluate<string>(
       (selector: string) => {
-        return (document.querySelector(selector) as HTMLElement).innerText;
+        const el = document.querySelector(selector) as HTMLElement | undefined;
+        return el ? el.innerText : "";
       },
       [this.selector]
     );
@@ -26,6 +27,28 @@ export class WebComponent {
 export class Button extends WebComponent {
   constructor(protected tab: BrowserTab, selector: string) {
     super(tab, selector);
+  }
+}
+
+export class DropDownList extends WebComponent {
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
+  }
+
+  public async selectByText(text: string): Promise<void> {
+    const value = await this.tab.evaluate<string>(
+      (selector: string, textToSelect: string) => {
+        const options = document.querySelectorAll(`${selector} option`);
+        for (const opt of options) {
+          if (opt && opt.textContent === textToSelect) {
+            return (opt as HTMLOptionElement).value;
+          }
+        }
+        return "";
+      },
+      [this.selector, text]
+    );
+    await this.tab.select(this.selector, value);
   }
 }
 
