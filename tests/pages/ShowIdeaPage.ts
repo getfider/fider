@@ -1,4 +1,5 @@
-import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible } from "../lib";
+import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible, pageHasLoaded } from "../lib";
+import { CommentList } from "./components";
 
 export class ShowIdeaPage extends Page {
   constructor(tab: BrowserTab) {
@@ -10,20 +11,21 @@ export class ShowIdeaPage extends Page {
   @findBy(".c-segment.l-response .status-label") public Status!: WebComponent;
   @findBy(".c-segment.l-response .content") public ResponseText!: WebComponent;
   @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
-  @findBy(".c-comment-input #input-content") public CommentInput!: TextInput;
-  @findBy(".c-comment-input .c-button.m-positive") public SubmitCommentButton!: Button;
   @findBy(".action-col .c-button.respond") public RespondButton!: Button;
   @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
-  // @findMultipleBy(".c-comment-list .c-comment") public CommentList!: CommentList;
+  @findBy(".c-comment-list") public Comments!: CommentList;
+
   // @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
   @findBy(".c-modal-window .c-response-form #input-text") private ResponseModalText!: TextInput;
   @findBy(".c-modal-window .c-modal-footer .c-button.m-positive") private ResponseModalSubmitButton!: Button;
+
+  @findBy(".c-comment-input #input-content") private CommentInput!: TextInput;
+  @findBy(".c-comment-input .c-button.m-positive") private SubmitCommentButton!: Button;
 
   @findBy(".action-col .c-button.edit") private Edit!: Button;
   @findBy("#input-title") private EditTitle!: TextInput;
   @findBy("#input-description") private EditDescription!: TextInput;
   @findBy(".action-col .c-button.save") private SaveEdit!: Button;
-  @findBy(".action-col .c-button.cancel") private CancelEdit!: Button;
 
   public loadCondition() {
     return elementIsVisible(this.Title);
@@ -43,5 +45,11 @@ export class ShowIdeaPage extends Page {
     await this.EditDescription.clear();
     await this.EditDescription.type(newDescription);
     await this.SaveEdit.click();
+  }
+
+  public async comment(text: string): Promise<void> {
+    await this.CommentInput.type(text);
+    await this.SubmitCommentButton.click();
+    await this.tab.wait(pageHasLoaded(ShowIdeaPage));
   }
 }

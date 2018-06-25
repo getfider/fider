@@ -29,6 +29,11 @@ export class Button extends WebComponent {
   }
 }
 
+export abstract class List {
+  constructor(protected tab: BrowserTab, public selector: string) {}
+  public abstract count(): Promise<number>;
+}
+
 export class TextInput extends WebComponent {
   constructor(protected tab: BrowserTab, selector: string) {
     super(tab, selector);

@@ -120,4 +120,14 @@ describe("E2E: Feedback Loop", () => {
     // Assert
     await ensure(item.Vote).textIs("2");
   });
+
+  it("Tab2: Open idea an vote on it", async () => {
+    // Action
+    const item = await tab2.pages.home.IdeaList.get("Support for TypeScript");
+    await item.navigate();
+    await tab2.pages.showIdea.comment("I support this request!");
+
+    // Assert
+    await ensure(tab2.pages.showIdea.Comments).countIs(1);
+  });
 });

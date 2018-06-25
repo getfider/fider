@@ -1,25 +1,25 @@
-import { WebComponent, Button, TextInput, delay } from ".";
+import { WebComponent, Button, TextInput, delay, List } from ".";
+
+const retry = async (fn: () => Promise<void>) => {
+  let count = 0;
+  let lastErr: Error;
+  do {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      await delay(500);
+      count++;
+    }
+  } while (count !== 3);
+  throw lastErr;
+};
 
 class WebComponentEnsurer {
-  public async retry(fn: () => Promise<void>) {
-    let count = 0;
-    let lastErr: Error;
-    do {
-      try {
-        return await fn();
-      } catch (err) {
-        lastErr = err;
-        await delay(500);
-        count++;
-      }
-    } while (count !== 3);
-    throw lastErr;
-  }
-
   constructor(private component: WebComponent) {}
 
   public async textIs(expected: string) {
-    await this.retry(async () => {
+    await retry(async () => {
       const text = await this.component.getText();
 
       if (expected.trim() !== text.trim()) {
@@ -58,10 +58,8 @@ class WebComponentEnsurer {
 }
 
 class ButtonEnsurer extends WebComponentEnsurer {
-  protected button: Button;
-  constructor(button: Button) {
+  constructor(protected button: Button) {
     super(button);
-    this.button = button;
   }
 
   // public async isNotDisabled() {
@@ -73,6 +71,19 @@ class ButtonEnsurer extends WebComponentEnsurer {
   // }
 }
 
+class ListEnsurer {
+  constructor(protected list: List) {}
+
+  public async countIs(expected: number) {
+    await retry(async () => {
+      const count = await this.list.count();
+      if (count !== expected) {
+        throw new Error(`Count of ${this.list.selector} is ${count}, expected ${expected}`);
+      }
+    });
+  }
+}
+
 class TextInputEnsurer extends WebComponentEnsurer {
   constructor(element: TextInput) {
     super(element);
@@ -82,9 +93,13 @@ class TextInputEnsurer extends WebComponentEnsurer {
 export function ensure(component: Button): ButtonEnsurer;
 export function ensure(component: TextInput): TextInputEnsurer;
 export function ensure(component: WebComponent): WebComponentEnsurer;
-export function ensure(component: WebComponent | Button): any {
+export function ensure(component: List): ListEnsurer;
+export function ensure(component: WebComponent): WebComponentEnsurer;
+export function ensure(component: WebComponent | List | Button): any {
   if (component instanceof Button) {
     return new ButtonEnsurer(component);
+  } else if (component instanceof List) {
+    return new ListEnsurer(component);
   } else if (component instanceof WebComponent) {
     return new WebComponentEnsurer(component);
   }
