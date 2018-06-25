@@ -11,7 +11,7 @@ export class WebComponent {
     return await this.tab.evaluate<string>(
       (selector: string) => {
         const el = document.querySelector(selector) as HTMLElement | undefined;
-        return el ? el.innerText : "";
+        return el ? el.textContent : "";
       },
       [this.selector]
     );

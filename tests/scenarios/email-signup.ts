@@ -28,7 +28,6 @@ describe("E2E: Sign up with e-mail", () => {
     await tab.wait(pageHasLoaded(HomePage));
 
     // Assert
-    await tab.pages.home.UserMenu.click();
-    await ensure(tab.pages.home.UserName).textIs(`DARTH VADER ${now}`);
+    await ensure(tab.pages.home.UserName).textIs(`Darth Vader ${now}`);
   });
 });

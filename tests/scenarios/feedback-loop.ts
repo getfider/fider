@@ -1,4 +1,13 @@
-import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay, elementIsVisible } from "../lib";
+import {
+  Browser,
+  BrowserTab,
+  pageHasLoaded,
+  ensure,
+  elementIsNotVisible,
+  delay,
+  elementIsVisible,
+  mailgun
+} from "../lib";
 import { HomePage, ShowIdeaPage } from "../pages";
 import { setTenant } from "../context";
 
@@ -40,10 +49,9 @@ describe("E2E: Feedback Loop", () => {
   it("Tab1: User is authenticated after sign up", async () => {
     // Action
     await tab1.pages.home.navigate();
-    await tab1.pages.home.UserMenu.click();
 
     // Assert
-    await ensure(tab1.pages.home.UserName).textIs("JON SNOW");
+    await ensure(tab1.pages.home.UserName).textIs("Jon Snow");
   });
 
   it("Tab1: User doesn't lose what they typed", async () => {
@@ -105,10 +113,9 @@ describe("E2E: Feedback Loop", () => {
     await tab2.pages.home.signInWithFacebook();
     await tab2.pages.facebook.signInAsAryaStark();
     await tab2.wait(pageHasLoaded(HomePage));
-    await tab2.pages.home.UserMenu.click();
 
     // Assert
-    await ensure(tab2.pages.home.UserName).textIs("ARYA STARK");
+    await ensure(tab2.pages.home.UserName).textIs("Arya Stark");
   });
 
   it("Tab2: User can vote on idea", async () => {
@@ -140,7 +147,7 @@ describe("E2E: Feedback Loop", () => {
     await tab1.wait(elementIsVisible(tab1.pages.showIdea.Status));
 
     // Assert
-    await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
+    await ensure(tab1.pages.showIdea.Status).textIs("Started");
     await ensure(tab1.pages.showIdea.ResponseText).textIs("This will be delivered on next release.");
   });
 
@@ -149,7 +156,7 @@ describe("E2E: Feedback Loop", () => {
     await tab2.reload(ShowIdeaPage);
 
     // Assert
-    await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
+    await ensure(tab1.pages.showIdea.Status).textIs("Started");
     await ensure(tab1.pages.showIdea.ResponseText).textIs("This will be delivered on next release.");
   });
 
@@ -160,5 +167,17 @@ describe("E2E: Feedback Loop", () => {
 
     // Assert
     await ensure(tab2.pages.home.UnreadCounter).textIs("1");
+  });
+
+  it("Tab2: Logout and sign in with email", async () => {
+    // Action
+    await tab2.pages.home.navigate();
+    await tab2.pages.home.signInWithEmail("darthvader.fider@gmail.com");
+    const link = await mailgun.getLinkFromLastEmailTo(tenantSubdomain, `darthvader.fider@gmail.com`);
+    await tab2.navigate(link);
+    await tab2.pages.home.completeSignIn("Darth Vader");
+
+    // Assert
+    await ensure(tab2.pages.home.UserName).textIs("Darth Vader");
   });
 });
