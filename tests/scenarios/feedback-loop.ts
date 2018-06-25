@@ -1,4 +1,4 @@
-import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay } from "../lib";
+import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay, elementIsVisible } from "../lib";
 import { HomePage, ShowIdeaPage } from "../pages";
 import { setTenant } from "../context";
 
@@ -137,7 +137,7 @@ describe("E2E: Feedback Loop", () => {
     const item = await tab1.pages.home.IdeaList.get("Support for TypeScript");
     await item.navigate();
     await tab1.pages.showIdea.changeStatus("Started", "This will be delivered on next release.");
-    await tab1.reload(ShowIdeaPage);
+    await tab1.wait(elementIsVisible(tab1.pages.showIdea.Status));
 
     // Assert
     await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
