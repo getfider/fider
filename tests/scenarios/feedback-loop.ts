@@ -152,4 +152,13 @@ describe("E2E: Feedback Loop", () => {
     await ensure(tab1.pages.showIdea.Status).textIs("STARTED");
     await ensure(tab1.pages.showIdea.ResponseText).textIs("This will be delivered on next release.");
   });
+
+  it("Tab2: Check notifications", async () => {
+    // Action
+    await tab2.pages.home.navigate();
+    await tab2.pages.home.UserMenu.click();
+
+    // Assert
+    await ensure(tab2.pages.home.UnreadCounter).textIs("1");
+  });
 });

@@ -18,6 +18,7 @@ export class HomePage extends Page {
   @findBy("#input-description") public IdeaDescription!: TextInput;
   @findBy(".c-button.m-positive") public SubmitIdea!: Button;
   @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
+  @findBy(".c-unread-count") public UnreadCounter!: WebComponent;
   @findBy(".c-menu-user-heading") public UserName!: WebComponent;
   @findBy(".c-modal-window") public SignInModal!: WebComponent;
   @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
