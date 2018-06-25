@@ -41,8 +41,8 @@ then
   run_e2e multi
 fi
 
-echo "Stopping Postgres ..."
-docker rm -f $PG_CONTAINER || true
+echo "Stopping Containers ..."
+docker rm -f $FIDER_CONTAINER $PG_CONTAINER || true
 
 echo "Killing Chromium..."
 ps -A | grep '[c]hromium' | awk '{print $1}' | xargs kill || true

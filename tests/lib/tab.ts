@@ -33,8 +33,8 @@ export class BrowserTab {
     await this.page.click(selector, options);
   }
 
-  public async type(selector: string, text: string, delay?: number): Promise<void> {
-    await this.page.type(selector, text, delay ? { delay: delay! } : undefined);
+  public async type(selector: string, text: string): Promise<void> {
+    await this.page.type(selector, text);
   }
 
   public async evaluate<T>(fn: puppeteer.EvaluateFn, args: any[]): Promise<T> {

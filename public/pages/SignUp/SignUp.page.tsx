@@ -2,7 +2,6 @@ import "./SignUp.page.scss";
 
 import * as React from "react";
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components";
-import { SystemSettings } from "@fider/models";
 import { jwt, actions, Failure, querystring } from "@fider/services";
 
 interface OAuthUser {
@@ -80,16 +79,32 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     }
   };
 
-  private checkAvailability = async (subdomain: string) => {
-    const result = await actions.checkAvailability(subdomain);
+  private timer?: number;
+  private checkAvailability = (subdomain: string) => {
+    window.clearTimeout(this.timer);
+    this.timer = window.setTimeout(() => {
+      actions.checkAvailability(subdomain).then(result => {
+        this.setState({
+          subdomain: {
+            value: subdomain,
+            available: !result.data.message,
+            message: result.data.message
+          }
+        });
+      });
+    }, 200);
+  };
 
-    this.setState({
-      subdomain: {
-        value: subdomain,
-        available: !result.data.message,
-        message: result.data.message
-      }
-    });
+  private setSubdomain = async (subdomain: string) => {
+    this.setState(
+      {
+        subdomain: {
+          value: subdomain,
+          available: false
+        }
+      },
+      this.checkAvailability.bind(this, subdomain)
+    );
   };
 
   private onAgree = (agreed: boolean): void => {
@@ -157,7 +172,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             <Input
               field="subdomain"
               maxLength={40}
-              onChange={this.checkAvailability}
+              onChange={this.setSubdomain}
               placeholder="subdomain"
               suffix={Fider.settings.domain}
             >

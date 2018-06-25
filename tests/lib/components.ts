@@ -34,8 +34,8 @@ export class TextInput extends WebComponent {
     super(tab, selector);
   }
 
-  public async type(text: string, delay?: number) {
-    await this.tab.type(this.selector, text, delay);
+  public async type(text: string) {
+    await this.tab.type(this.selector, text);
     const current = await this.getText();
     if (current !== text) {
       await this.clear();

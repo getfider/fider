@@ -47,7 +47,7 @@ export class SignUpPage extends Page {
   public async signUpAs(name: string, subdomain: string): Promise<void> {
     await this.TenantName.type(name);
     if (await this.Subdomain.isVisible()) {
-      await this.Subdomain.type(subdomain, 50);
+      await this.Subdomain.type(subdomain);
       await this.tab.wait(elementIsVisible(this.SubdomainOk));
     }
     await this.Confirm.click();
