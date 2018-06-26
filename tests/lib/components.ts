@@ -17,6 +17,16 @@ export class WebComponent {
     );
   }
 
+  public async getAttribute(attibuteName: string): Promise<string> {
+    return await this.tab.evaluate<string>(
+      (selector: string, attrName: string) => {
+        const el = document.querySelector(selector) as HTMLElement | undefined;
+        return el ? el.getAttribute(attrName) || "" : "";
+      },
+      [this.selector, attibuteName]
+    );
+  }
+
   public async isVisible(): Promise<boolean> {
     const condition = elementIsVisible(this.selector);
     const instance = condition(this.tab);

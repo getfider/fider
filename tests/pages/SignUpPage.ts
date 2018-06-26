@@ -17,7 +17,7 @@ export class SignUpPage extends Page {
   }
 
   public getUrl(): string {
-    return `http://login.dev.fider.io:3000/signup`;
+    return `${this.tab.baseUrl}/signup`;
   }
 
   @findBy("#p-signup") private Container!: WebComponent;

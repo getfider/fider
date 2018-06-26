@@ -9,7 +9,6 @@ import {
   Button,
   elementIsNotVisible
 } from "../lib";
-import { getTenant } from "../context";
 import { ShowIdeaPage, FacebookSignInPage } from ".";
 import { IdeaList } from "./components";
 
@@ -19,11 +18,11 @@ export class HomePage extends Page {
   }
 
   public getUrl(): string {
-    return `http://${getTenant()}.dev.fider.io:3000/`;
+    return `${this.tab.baseUrl}/`;
   }
 
-  // @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
-  // @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
+  @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
+  @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
   @findBy("#input-title") public IdeaTitle!: TextInput;
   @findBy("#input-description") public IdeaDescription!: TextInput;
   @findBy(".c-button.m-positive") public SubmitIdea!: Button;
@@ -40,7 +39,7 @@ export class HomePage extends Page {
   @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {
-    return elementIsVisible(this.IdeaTitle);
+    return elementIsVisible("#p-home");
   }
 
   public async submitNewIdea(title: string, description: string): Promise<void> {

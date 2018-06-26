@@ -16,10 +16,10 @@ export class Browser {
     return new Browser(browser);
   }
 
-  public async newTab(): Promise<BrowserTab> {
+  public async newTab(baseUrl: string): Promise<BrowserTab> {
     const page = await this.browser.newPage();
     await page.bringToFront();
-    return new BrowserTab(page);
+    return new BrowserTab(page, baseUrl);
   }
 
   public async close(): Promise<void> {

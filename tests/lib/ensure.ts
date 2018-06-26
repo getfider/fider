@@ -16,7 +16,7 @@ const retry = async (fn: () => Promise<void>) => {
 };
 
 class WebComponentEnsurer {
-  constructor(private component: WebComponent) {}
+  constructor(protected component: WebComponent) {}
 
   public async textIs(expected: string) {
     await retry(async () => {
@@ -24,6 +24,18 @@ class WebComponentEnsurer {
 
       if (expected.trim() !== text.trim()) {
         throw new Error(`Element ${this.component.selector} text is '${text}'. Expected value is '${expected}'`);
+      }
+    });
+  }
+
+  public async attributeIs(attrName: string, expected: string) {
+    await retry(async () => {
+      const attrValue = await this.component.getAttribute(attrName);
+
+      if (expected.trim() !== attrValue.trim()) {
+        throw new Error(
+          `Element ${this.component.selector} ${attrName} is '${attrValue}'. Expected value is '${expected}'`
+        );
       }
     });
   }
@@ -85,8 +97,8 @@ class ListEnsurer {
 }
 
 class TextInputEnsurer extends WebComponentEnsurer {
-  constructor(element: TextInput) {
-    super(element);
+  constructor(component: TextInput) {
+    super(component);
   }
 }
 
