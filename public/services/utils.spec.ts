@@ -1,5 +1,4 @@
 import { classSet, formatDate, timeSince, fileToBase64 } from "./utils";
-import { readFileSync } from "fs";
 
 [
   { input: null, expected: "" },

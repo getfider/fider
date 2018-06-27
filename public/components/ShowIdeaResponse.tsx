@@ -13,6 +13,10 @@ export const ShowIdeaStatus = (props: ShowIdeaStatusProps) => {
 };
 
 const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
+  if (!props.response) {
+    return null;
+  }
+
   const original = props.response.original;
   if (!original) {
     return null;
@@ -28,11 +32,11 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
 
 interface IdeaResponseProps {
   status: number;
-  response: IdeaResponse;
+  response: IdeaResponse | undefined;
 }
 
 const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
-  if (!props.response.text) {
+  if (!props.response || !props.response.text) {
     return null;
   }
 
