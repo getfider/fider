@@ -1,10 +1,10 @@
 import * as React from "react";
 
-import { IdeaInput, ListIdeas, TagsFilter, IdeaFilter } from "../";
+import { ListIdeas, TagsFilter, IdeaFilter } from "../";
 
-import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
-import { Loader, MultiLineText, Heading, Field, Input } from "@fider/components";
-import { actions, querystring } from "@fider/services";
+import { Idea, Tag, CurrentUser } from "@fider/models";
+import { Loader, Field, Input } from "@fider/components";
+import { actions, navigator, querystring } from "@fider/services";
 
 interface IdeasContainerProps {
   user?: CurrentUser;
@@ -42,7 +42,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
   ): void {
     this.setState(obj, () => {
       const query = this.state.query.trim().toLowerCase();
-      actions.replaceState(
+      navigator.replaceState(
         querystring.stringify({
           t: this.state.tags,
           q: query,

@@ -3,7 +3,7 @@ import { shallow } from "enzyme";
 import { Idea, UserRole, UserStatus, IdeaStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { Fider as FiderImpl } from "../fider"; // TODO: remove this
-import { actions, http, httpMock } from "@fider/services";
+import { http, httpMock } from "@fider/services";
 
 let idea: Idea;
 

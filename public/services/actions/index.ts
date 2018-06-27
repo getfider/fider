@@ -5,15 +5,3 @@ export * from "./tenant";
 export * from "./notification";
 export * from "./invite";
 export { Failure } from "@fider/services/http";
-
-// TODO: move these two to navigator
-export const goHome = () => {
-  window.location.href = "/";
-};
-
-export const replaceState = (path: string): void => {
-  if (history.replaceState) {
-    const newUrl = Fider.settings.baseURL + path;
-    window.history.replaceState({ path: newUrl }, "", newUrl);
-  }
-};
