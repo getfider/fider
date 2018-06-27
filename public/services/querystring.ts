@@ -1,5 +1,3 @@
-import { SystemSettings } from "@fider/models";
-
 export const getNumber = (name: string): number | undefined => {
   return parseInt(get(name), 10) || undefined;
 };
