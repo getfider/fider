@@ -130,12 +130,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               this.state.editMode ? (
                 <List key={1}>
                   <ListItem>
-                    <Button color="positive" fluid={true} onClick={this.saveChanges}>
+                    <Button className="save" color="positive" fluid={true} onClick={this.saveChanges}>
                       <i className="save icon" /> Save
                     </Button>
                   </ListItem>
                   <ListItem>
-                    <Button fluid={true} onClick={this.cancelEdit}>
+                    <Button className="cancel" fluid={true} onClick={this.cancelEdit}>
                       <i className="cancel icon" /> Cancel
                     </Button>
                   </ListItem>
@@ -143,7 +143,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
               ) : (
                 <List key={1}>
                   <ListItem>
-                    <Button fluid={true} onClick={this.startEdit}>
+                    <Button className="edit" fluid={true} onClick={this.startEdit}>
                       <i className="edit icon" /> Edit
                     </Button>
                   </ListItem>

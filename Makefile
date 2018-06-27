@@ -41,7 +41,7 @@ e2e-build:
 	./scripts/e2e.sh build
 
 e2e:
-	./scripts/e2e.sh
+	./scripts/e2e.sh	
 
 # Development
 watch:

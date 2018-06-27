@@ -1,84 +1,95 @@
-import { WebElementPromise, Key, By } from "selenium-webdriver";
+import { elementIsVisible, BrowserTab } from ".";
 
 export class WebComponent {
-  constructor(protected element: WebElementPromise, public selector: string) {}
+  constructor(protected tab: BrowserTab, public selector: string) {}
 
   public async click() {
-    try {
-      return await this.element.click();
-    } catch (clickErr) {
-      try {
-        await this.element.getDriver().executeScript("arguments[0].click();", this.element);
-      } catch (jsErr) {
-        throw clickErr;
-      }
-    }
+    await this.tab.click(this.selector);
   }
 
-  public async getAttribute(attrName: string): Promise<string> {
-    return await this.element.getAttribute(attrName);
+  public async getText(): Promise<string> {
+    return await this.tab.evaluate<string>(
+      (selector: string) => {
+        const el = document.querySelector(selector) as HTMLElement | undefined;
+        return el ? el.textContent : "";
+      },
+      [this.selector]
+    );
   }
 
-  public async isDisplayed() {
-    try {
-      return await this.element.isDisplayed();
-    } catch (ex) {
-      return false;
-    }
+  public async getAttribute(attibuteName: string): Promise<string> {
+    return await this.tab.evaluate<string>(
+      (selector: string, attrName: string) => {
+        const el = document.querySelector(selector) as HTMLElement | undefined;
+        return el ? el.getAttribute(attrName) || "" : "";
+      },
+      [this.selector, attibuteName]
+    );
   }
 
-  public async getText() {
-    if ((await this.element.getTagName()) === "input") {
-      return await this.element.getAttribute("value");
-    }
-    return await this.element.getText();
+  public async isVisible(): Promise<boolean> {
+    const condition = elementIsVisible(this.selector);
+    const instance = condition(this.tab);
+    return this.tab.evaluate<boolean>(instance.function, instance.args);
   }
 }
 
 export class Button extends WebComponent {
-  constructor(element: WebElementPromise, selector: string) {
-    super(element, selector);
-  }
-
-  public async isDisabled() {
-    try {
-      return (await this.element.getAttribute("disabled")) === "disabled";
-    } catch (ex) {
-      return false;
-    }
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
   }
 }
 
 export class DropDownList extends WebComponent {
-  constructor(element: WebElementPromise, selector: string) {
-    super(element, selector);
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
   }
 
-  public async selectByText(text: string) {
-    const options = await this.element.findElements(By.tagName("option"));
-    for (const option of options) {
-      if ((await option.getText()) === text) {
-        return await option.click();
-      }
-    }
-    throw new Error(`No option found for text '${text}'.`);
+  public async selectByText(text: string): Promise<void> {
+    const value = await this.tab.evaluate<string>(
+      (selector: string, textToSelect: string) => {
+        const options = document.querySelectorAll(`${selector} option`);
+        for (const opt of options) {
+          if (opt && opt.textContent === textToSelect) {
+            return (opt as HTMLOptionElement).value;
+          }
+        }
+        return "";
+      },
+      [this.selector, text]
+    );
+    await this.tab.select(this.selector, value);
   }
 }
 
+export abstract class List {
+  constructor(protected tab: BrowserTab, public selector: string) {}
+  public abstract count(): Promise<number>;
+}
+
 export class TextInput extends WebComponent {
-  constructor(element: WebElementPromise, selector: string) {
-    super(element, selector);
+  constructor(protected tab: BrowserTab, selector: string) {
+    super(tab, selector);
   }
 
   public async type(text: string) {
-    await this.element.sendKeys(text);
+    await this.tab.type(this.selector, text);
+    const current = await this.getText();
+    if (current !== text) {
+      await this.clear();
+      await this.type(text);
+    }
+  }
+
+  public async getText(): Promise<string> {
+    return await this.tab.evaluate<string>(
+      (selector: string) => (document.querySelector(selector) as HTMLInputElement).value,
+      [this.selector]
+    );
   }
 
   public async clear() {
-    const text = await this.getText();
-    for (const char of text) {
-      await this.element.sendKeys(Key.ARROW_RIGHT);
-      await this.element.sendKeys(Key.BACK_SPACE);
-    }
+    await this.tab.click(this.selector, { clickCount: 3 });
+    await this.tab.press("Backspace");
   }
 }
