@@ -32,7 +32,7 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
 
 interface IdeaResponseProps {
   status: number;
-  response: IdeaResponse | undefined;
+  response: IdeaResponse | null;
 }
 
 const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {

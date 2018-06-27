@@ -9,7 +9,8 @@
         "react", 
         "react-dom", 
         "react-textarea-autosize",
-        "jest"
+        "jest",
+        "node"
     ],
     "outDir": "./output/public",
     "jsx": "react",
