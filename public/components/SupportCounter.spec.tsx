@@ -3,12 +3,13 @@ import { shallow } from "enzyme";
 import { Idea, UserRole, UserStatus, IdeaStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { Fider as FiderImpl } from "../fider"; // TODO: remove this
+import { actions, http, httpMock } from "@fider/services";
 
 let idea: Idea;
 
 beforeEach(() => {
   idea = {
-    id: 10,
+    id: 1,
     number: 10,
     slug: "add-typescript",
     title: "Add TypeScript",
@@ -59,27 +60,40 @@ describe("<SupportCounter />", () => {
     expect(button.hasClass("m-disabled")).toBe(true);
   });
 
-  // test("click when unauthenticated", () => {
-  //   // TODO: remove this hack
-  //   (window as any).Fider = new FiderImpl();
-  //   Object.defineProperty(Fider.session, "isAuthenticated", {
-  //     get() {
-  //       return true;
-  //     }
-  //   });
+  test.only("click when authenticated and viewerSupported === false", async () => {
+    // TODO: remove this hack
+    (window as any).Fider = new FiderImpl();
+    Object.defineProperty(Fider.session, "isAuthenticated", {
+      get() {
+        return true;
+      }
+    });
 
-  //   jest.mock("@fider/services", () => ({
-  //     actions: {
-  //       addSupport: () => {
-  //         return true;
-  //       }
-  //     }
-  //   }));
+    const mock = httpMock.alwaysOk();
+    http.post = mock;
 
-  //   // const wrapper = shallow(<SupportCounter idea={idea} />);
-  //   // wrapper.find("button").simulate("click");
-  //   // wrapper.update();
-  //   // expect(wrapper.state("showSignIn")).toBe(true);
-  //   // expect(wrapper.find("SignInModal").length).toBe(1);
-  // });
+    const wrapper = shallow(<SupportCounter idea={idea} />);
+    wrapper.find("button").simulate("click");
+    expect(mock).toHaveBeenCalledWith("/api/ideas/10/support");
+    expect(mock).toHaveBeenCalledTimes(1);
+  });
+
+  test.only("click when authenticated and viewerSupported === true", async () => {
+    // TODO: remove this hack
+    idea.viewerSupported = true;
+    (window as any).Fider = new FiderImpl();
+    Object.defineProperty(Fider.session, "isAuthenticated", {
+      get() {
+        return true;
+      }
+    });
+
+    const mock = httpMock.alwaysOk();
+    http.post = mock;
+
+    const wrapper = shallow(<SupportCounter idea={idea} />);
+    wrapper.find("button").simulate("click");
+    expect(mock).toHaveBeenCalledWith("/api/ideas/10/unsupport");
+    expect(mock).toHaveBeenCalledTimes(1);
+  });
 });
