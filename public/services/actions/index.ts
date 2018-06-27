@@ -6,6 +6,7 @@ export * from "./notification";
 export * from "./invite";
 export { Failure } from "@fider/services/http";
 
+// TODO: move these two
 export const goHome = () => {
   window.location.href = "/";
 };
