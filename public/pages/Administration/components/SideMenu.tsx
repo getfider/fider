@@ -2,7 +2,7 @@ import "./SideMenu.scss";
 
 import * as React from "react";
 import { CurrentUser } from "@fider/models";
-import { classSet } from "@fider/services";
+import { classSet, Fider } from "@fider/services";
 import { FiderVersion } from "@fider/components";
 
 interface SiteMenuProps {

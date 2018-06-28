@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CurrentUser, Tag, Idea } from "@fider/models";
-import { actions } from "@fider/services";
+import { actions, Fider } from "@fider/services";
 import { ShowTag, List, ListItem } from "@fider/components";
 import { TagListItem } from "./TagListItem";
 

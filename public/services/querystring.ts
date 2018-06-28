@@ -1,14 +1,13 @@
-import { SystemSettings } from "@fider/models";
+import navigator from "./navigator";
 
 export const getNumber = (name: string): number | undefined => {
   return parseInt(get(name), 10) || undefined;
 };
 
 export const get = (name: string): string => {
-  const url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
   const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-  const results = regex.exec(url);
+  const results = regex.exec(navigator.url());
 
   if (!results || !results[2]) {
     return "";
@@ -30,7 +29,7 @@ export interface QueryString {
   [key: string]: string | string[] | number | undefined;
 }
 
-export const stringify = (object: QueryString): string => {
+export const stringify = (object: QueryString | undefined): string => {
   if (!object) {
     return "";
   }

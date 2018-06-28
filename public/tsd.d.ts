@@ -1,5 +1,4 @@
 import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
-import { Fider } from "./fider";
 
 declare global {
   interface Window {
@@ -10,8 +9,6 @@ declare global {
     __tenant: Tenant;
     __settings: SystemSettings;
   }
-
-  var Fider: Fider;
 }
 
 declare var require: (id: string) => any;

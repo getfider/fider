@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SystemSettings } from "@fider/models";
+import { Fider } from "@fider/services";
 
 export class EnvironmentInfo extends React.Component<{}, {}> {
   public render() {

@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Failure, classSet } from "@fider/services";
+import { classSet } from "@fider/services";
 import { DisplayError, ValidationContext, hasError } from "../";
-import { ECANCELED } from "constants";
 
 interface CheckboxProps {
   field: string;

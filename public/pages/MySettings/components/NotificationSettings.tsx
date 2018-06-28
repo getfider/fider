@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { CurrentUser, UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field } from "@fider/components";
+import { Fider } from "@fider/services";
 
 interface NotificationSettingsProps {
   userSettings: UserSettings;

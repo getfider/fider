@@ -3,7 +3,7 @@ import "./GeneralSettings.page.scss";
 import * as React from "react";
 
 import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input, Field } from "@fider/components/common";
-import { actions, Failure, fileToBase64 } from "@fider/services";
+import { actions, Failure, fileToBase64, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface GeneralSettingsPageProps {

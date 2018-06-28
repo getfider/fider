@@ -46,10 +46,10 @@ export const http = {
   get: async <T = void>(url: string): Promise<Result<T>> => {
     return await request<T>(url, "GET");
   },
-  post: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
+  post: async <T = void>(url: string, body?: {}): Promise<Result<T>> => {
     return await request<T>(url, "POST", body);
   },
-  delete: async <T = void>(url: string, body?: any): Promise<Result<T>> => {
+  delete: async <T = void>(url: string, body?: {}): Promise<Result<T>> => {
     return await request<T>(url, "DELETE", body);
   },
   event: (category: string, action: string) => <T>(result: Result<T>): Result<T> => {

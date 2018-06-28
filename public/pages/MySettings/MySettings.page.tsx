@@ -6,7 +6,7 @@ import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } fr
 import { DangerZone, NotificationSettings } from "./";
 
 import { CurrentUser, UserSettings } from "@fider/models";
-import { Failure, actions } from "@fider/services";
+import { Failure, actions, Fider } from "@fider/services";
 
 interface MySettingsPageState {
   showModal: boolean;

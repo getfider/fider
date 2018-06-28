@@ -2,9 +2,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
-import { analytics, classSet } from "@fider/services";
+import { analytics, classSet, Fider } from "@fider/services";
 import { ToastContainer } from "react-toastify";
-import { Fider } from "./fider";
 
 import "semantic-ui-css/components/reset.min.css";
 import "semantic-ui-css/components/icon.min.css";
@@ -19,7 +18,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const fider = ((global as any).Fider = new Fider());
+  const fider = Fider.initialize();
 
   const root = document.getElementById("root");
   if (root) {

@@ -2,7 +2,7 @@ import "./SupportCounter.scss";
 
 import * as React from "react";
 import { Idea, IdeaStatus } from "@fider/models";
-import { actions, device, classSet } from "@fider/services";
+import { actions, device, classSet, Fider } from "@fider/services";
 import { SignInModal } from "@fider/components";
 
 interface SupportCounterProps {

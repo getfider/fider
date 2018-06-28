@@ -5,7 +5,7 @@ import * as React from "react";
 import { CurrentUser } from "@fider/models";
 import { AdminBasePage } from "../components";
 import { DisplayError, TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
-import { Failure, actions } from "@fider/services";
+import { Failure, actions, Fider } from "@fider/services";
 
 interface AdvancedSettingsPageProps {
   customCSS: string;

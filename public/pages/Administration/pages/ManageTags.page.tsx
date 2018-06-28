@@ -5,7 +5,7 @@ import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem, Heading }
 import { AdminBasePage, TagForm, TagFormState, TagListItem } from "../components";
 
 import { Tag, CurrentUser, UserRole } from "@fider/models";
-import { actions, Failure } from "@fider/services";
+import { actions, Failure, Fider } from "@fider/services";
 
 interface ManageTagsPageProps {
   tags: Tag[];

@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Modal, Field, Checkbox } from "@fider/components/common";
+import { Modal, Checkbox } from "@fider/components/common";
+import { Fider } from "@fider/services";
 
 const privacy = (
   <a href="/privacy" target="_blank">

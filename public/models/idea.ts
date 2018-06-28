@@ -10,7 +10,7 @@ export interface Idea {
   status: number;
   user: User;
   viewerSupported: boolean;
-  response: IdeaResponse;
+  response: IdeaResponse | null;
   totalSupporters: number;
   totalComments: number;
   tags: string[];

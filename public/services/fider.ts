@@ -28,14 +28,15 @@ export class FiderSession {
   }
 }
 
-export class Fider {
-  private pSettings: SystemSettings;
-  private pSession: FiderSession;
+export class FiderImpl {
+  private pSettings!: SystemSettings;
+  private pSession!: FiderSession;
 
-  constructor() {
+  public initialize = (): FiderImpl => {
     this.pSettings = window.__settings;
     this.pSession = new FiderSession();
-  }
+    return this;
+  };
 
   public get session(): FiderSession {
     return this.pSession;
@@ -53,3 +54,5 @@ export class Fider {
     return this.pSettings.mode === "single";
   }
 }
+
+export let Fider = new FiderImpl();

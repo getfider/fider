@@ -2,7 +2,7 @@ import "./SignInControl.scss";
 
 import * as React from "react";
 import { SocialSignInButton, Form, Button, Input } from "@fider/components";
-import { device, actions, Failure } from "@fider/services";
+import { device, actions, Failure, Fider } from "@fider/services";
 
 interface SignInControlState {
   email: string;

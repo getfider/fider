@@ -1,7 +1,7 @@
 import * as React from "react";
-import { IdeaStatus, CurrentUser, Idea } from "@fider/models";
-import { actions, Failure } from "@fider/services";
-import { Form, DisplayError, Modal, Button, List, ListItem, TextArea } from "@fider/components";
+import { IdeaStatus, Idea } from "@fider/models";
+import { actions, navigator, Failure, Fider } from "@fider/services";
+import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
   idea: Idea;
@@ -28,7 +28,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     const response = await actions.deleteIdea(this.props.idea.number, this.state.text);
     if (response.ok) {
       await this.closeModal();
-      actions.goHome();
+      navigator.goHome();
     } else if (response.error) {
       this.setState({ error: this.state.error });
     }
