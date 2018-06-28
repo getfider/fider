@@ -1,6 +1,12 @@
+@import '~@fider/assets/styles/variables.scss';
+
 #p-signup {
-  margin-top: 50px;
-  max-width: 500px !important;
+  margin-top: 20px;
+
+  @include media(">=md") {
+    margin-top: 60px;
+    max-width: 500px !important;
+  }
 
   .logo {
     max-height: 100px;

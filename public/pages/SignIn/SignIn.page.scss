@@ -1,9 +1,13 @@
 @import '~@fider/assets/styles/variables.scss';
 
 #p-signin {
-  margin-top: 50px;
-  max-width: 500px !important;
+  margin-top: 20px;
   text-align: center;
+
+  @include media(">=md") {
+    margin-top: 60px;
+    max-width: 500px !important;
+  }
 
   .message {
     max-width: 300px;
