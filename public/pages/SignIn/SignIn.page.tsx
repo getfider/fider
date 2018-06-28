@@ -2,7 +2,7 @@ import "./SignIn.page.scss";
 
 import * as React from "react";
 import { SignInControl, Logo, LegalNotice } from "@fider/components";
-import { notify } from "@fider/services";
+import { notify, Fider } from "@fider/services";
 import { Tenant } from "@fider/models";
 
 export class SignInPage extends React.Component<{}, {}> {

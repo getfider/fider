@@ -1,9 +1,8 @@
 import "./Header.scss";
 
 import * as React from "react";
-import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { SignInModal, SignInControl, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
-import { actions, classSet } from "@fider/services";
+import { SignInModal, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
+import { actions, Fider } from "@fider/services";
 
 interface HeaderState {
   showSignIn: boolean;

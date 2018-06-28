@@ -3,7 +3,7 @@ import "./ShowIdea.page.scss";
 import * as React from "react";
 
 import { Comment, Idea, Tag } from "@fider/models";
-import { actions, Failure } from "@fider/services";
+import { actions, Failure, Fider } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {

@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, DisplayError, Toggle, Form } from "@fider/components/common";
-import { actions, notify, Failure } from "@fider/services";
+import { actions, notify, Failure, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface PrivacySettingsPageState {

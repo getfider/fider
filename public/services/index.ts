@@ -1,6 +1,7 @@
 export * from "./http";
 export * from "./cache";
 export * from "./analytics";
+export * from "./fider";
 export * from "./jwt";
 export * from "./utils";
 import * as markdown from "./markdown";

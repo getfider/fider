@@ -59,13 +59,3 @@ export const http = {
     return result;
   }
 };
-
-export const httpMock = {
-  alwaysOk: () => {
-    return jest.fn(() => {
-      return Promise.resolve({
-        ok: true
-      });
-    });
-  }
-};

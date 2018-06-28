@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
 import { Button, ButtonClickEvent, TextArea, DisplayError, Form, Input, Field } from "@fider/components";
-import { actions, notify, Failure } from "@fider/services";
+import { actions, notify, Failure, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface InvitationsPageState {

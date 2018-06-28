@@ -3,7 +3,7 @@ import "./ManageMembers.page.scss";
 import * as React from "react";
 import { Button, Gravatar, UserName, Segment, ListItem, List, Input, Form } from "@fider/components/common";
 import { User, CurrentUser, UserRole } from "@fider/models";
-import { actions } from "@fider/services";
+import { actions, Fider } from "@fider/services";
 import { AdminBasePage, UserListItem } from "../components";
 
 interface ManageMembersPageState {

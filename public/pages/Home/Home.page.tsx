@@ -4,7 +4,7 @@ import * as React from "react";
 import { Idea, Tag, IdeaStatus } from "@fider/models";
 import { MultiLineText } from "@fider/components";
 import { IdeaInput, ListIdeas, IdeasContainer } from "./";
-import { actions } from "@fider/services";
+import { actions, Fider } from "@fider/services";
 import { SimilarIdeas } from "./components/SimilarIdeas";
 
 export interface HomePageProps {

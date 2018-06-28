@@ -5,7 +5,7 @@ import { Idea, CurrentUser } from "@fider/models";
 import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
-import { cache, actions, Failure } from "@fider/services";
+import { cache, actions, Failure, Fider } from "@fider/services";
 
 interface CommentInputProps {
   idea: Idea;

@@ -4,7 +4,7 @@ import * as React from "react";
 import { Tag, CurrentUser } from "@fider/models";
 import { ListItem, ShowTag, Button } from "@fider/components";
 import { TagFormState, TagForm } from "./";
-import { actions, Failure } from "@fider/services";
+import { actions, Failure, Fider } from "@fider/services";
 
 interface TagListItemProps {
   tag: Tag;

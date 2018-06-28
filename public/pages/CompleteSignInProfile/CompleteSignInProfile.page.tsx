@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
-import { actions, Failure, querystring } from "@fider/services";
+import { actions, Failure, querystring, Fider } from "@fider/services";
 
 interface CompleteSignInProfilePageState {
   name: string;

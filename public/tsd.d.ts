@@ -10,8 +10,6 @@ declare global {
     __tenant: Tenant;
     __settings: SystemSettings;
   }
-
-  var Fider: Fider;
 }
 
 declare var require: (id: string) => any;

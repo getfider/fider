@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IdeaStatus, Idea } from "@fider/models";
-import { actions, navigator, Failure } from "@fider/services";
+import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {

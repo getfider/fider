@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Idea, IdeaStatus, CurrentUser } from "@fider/models";
 import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
+import { Fider } from "@fider/services";
 
 interface IdeaFilterProps {
   activeFilter: string;

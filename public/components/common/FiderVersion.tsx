@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Fider } from "@fider/services";
 
 export const FiderVersion = () => {
   return (

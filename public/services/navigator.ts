@@ -1,3 +1,5 @@
+import { Fider } from "@fider/services";
+
 const navigator = {
   url: () => {
     return window.location.href;
