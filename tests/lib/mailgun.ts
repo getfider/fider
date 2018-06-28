@@ -2,7 +2,7 @@ require("dotenv").config();
 import { parse as parseURL } from "url";
 import * as http from "http";
 import * as https from "https";
-import { delay } from "../";
+import { delay } from "./";
 
 const httpGet = (endpoint: string): Promise<any> => {
   const url = parseURL(endpoint);
@@ -29,9 +29,14 @@ export const mailgun = {
 
     do {
       count++;
-      const url = `https://api.mailgun.net/v3/${
+
+      let url = `https://api.mailgun.net/v3/${
         process.env.EMAIL_MAILGUN_DOMAIN
-      }/events?to=${to}&tags=tenant:${tenant}&event=accepted&limit=1&ascending=no`;
+      }/events?to=${to}&event=accepted&limit=1&ascending=no`;
+      if (tenant) {
+        url += `&tags=tenant:${tenant}`;
+      }
+
       const events = await httpGet(url);
       if (events.items.length > 0 && events.items[0].recipient === to) {
         messageUrl = events.items[0].storage.url;
