@@ -1,5 +1,4 @@
 import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
-import { Fider } from "./fider";
 
 declare global {
   interface Window {
