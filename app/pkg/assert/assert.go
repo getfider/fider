@@ -83,7 +83,7 @@ func (a *AnyAssertions) Equals(expected interface{}) bool {
 	if reflect.DeepEqual(expected, a.actual) {
 		return true
 	}
-	err := fmt.Errorf("Equals assertion failed. \n Expected: \n\t\t %s \n Actual: \n\t\t %s", describe(expected), describe(a.actual))
+	err := fmt.Errorf("Equals assertion failed. \n Expected: \n\t\t %s\n Actual: \n\t\t %s", describe(expected), describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
