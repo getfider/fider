@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/email/mailgun"
+	"github.com/getfider/fider/app/pkg/email/smtp"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/worker"
 
@@ -50,7 +54,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       app.NewEmailer(c.Logger()),
+				Emailer:       newEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere
@@ -132,7 +136,7 @@ func WebSetup() web.MiddlewareFunc {
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       app.NewEmailer(c.Logger()),
+				Emailer:       newEmailer(c.Logger()),
 			})
 
 			//In case it panics somewhere
@@ -185,4 +189,20 @@ func WebSetup() web.MiddlewareFunc {
 			return nil
 		}
 	}
+}
+
+func newEmailer(logger log.Logger) email.Sender {
+	if env.IsTest() {
+		return email.NewNoopSender()
+	}
+	if env.IsDefined("EMAIL_MAILGUN_API") {
+		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
+	}
+	return smtp.NewSender(
+		logger,
+		env.MustGet("EMAIL_SMTP_HOST"),
+		env.MustGet("EMAIL_SMTP_PORT"),
+		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
+		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
+	)
 }

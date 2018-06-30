@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
@@ -19,13 +20,14 @@ var baseURL = "https://api.mailgun.net/v3/%s/messages"
 //Sender is used to send emails
 type Sender struct {
 	logger log.Logger
+	client web.Client
 	domain string
 	apiKey string
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, domain, apiKey string) *Sender {
-	return &Sender{logger, domain, apiKey}
+func NewSender(logger log.Logger, client web.Client, domain, apiKey string) *Sender {
+	return &Sender{logger, client, domain, apiKey}
 }
 
 //Send an email
@@ -53,6 +55,7 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 	}
 
 	form := url.Values{}
+
 	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
@@ -112,7 +115,7 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 	request.SetBasicAuth("api", s.apiKey)
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	resp, err := http.DefaultClient.Do(request)
+	resp, err := s.client.Do(request)
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}

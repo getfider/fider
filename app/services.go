@@ -3,10 +3,6 @@ package app
 import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/email/mailgun"
-	"github.com/getfider/fider/app/pkg/email/smtp"
-	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
 )
@@ -38,21 +34,4 @@ func (s *Services) SetCurrentUser(user *models.User) {
 	s.Tenants.SetCurrentUser(user)
 	s.Ideas.SetCurrentUser(user)
 	s.Notifications.SetCurrentUser(user)
-}
-
-//NewEmailer creates a new emailer based on system configuration
-func NewEmailer(logger log.Logger) email.Sender {
-	if env.IsTest() {
-		return email.NewNoopSender()
-	}
-	if env.IsDefined("EMAIL_MAILGUN_API") {
-		return mailgun.NewSender(logger, env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
-	}
-	return smtp.NewSender(
-		logger,
-		env.MustGet("EMAIL_SMTP_HOST"),
-		env.MustGet("EMAIL_SMTP_PORT"),
-		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
-		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
-	)
 }
