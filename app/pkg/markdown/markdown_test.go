@@ -12,12 +12,9 @@ func TestParseMarkdown(t *testing.T) {
 	RegisterT(t)
 
 	for input, expected := range map[string]string{
-		"# Hello World": `<h1>Hello World</h1>
-`,
-		"![](http://example.com/hello.jpg)": `<p></p>
-`,
-		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>
-`,
+		"# Hello World":                      `<h1>Hello World</h1>`,
+		"![](http://example.com/hello.jpg)":  `<p></p>`,
+		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
 		`
 - **Option 1**
 - *Option 2*
@@ -25,8 +22,7 @@ func TestParseMarkdown(t *testing.T) {
 <li><strong>Option 1</strong><br /></li>
 <li><em>Option 2</em><br /></li>
 <li><del>Option 3</del><br /></li>
-</ul>
-`,
+</ul>`,
 		`Please add:
 – SEND_SMS
 – RECEIVE_SMS
@@ -39,8 +35,7 @@ Thanks!`: `<p>Please add:<br />
 – READ_PHONE_STATE<br />
 This will allow to send and receive SMS and get the IMEI No. in our app.</p>
 
-<p>Thanks!</p>
-`,
+<p>Thanks!</p>`,
 	} {
 		output := markdown.Parse(input)
 		Expect(output).Equals(template.HTML(expected))

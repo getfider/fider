@@ -28,7 +28,8 @@ var htmlExtns = 0 |
 func Parse(input string) template.HTML {
 	renderer := blackfriday.HtmlRenderer(htmlExtns, "", "")
 	output := blackfriday.Markdown([]byte(input), renderer, mdExtns)
-	return template.HTML(output)
+
+	return template.HTML(strings.TrimSpace(string(output)))
 }
 
 // PlainText parses given markdown input and return only the text

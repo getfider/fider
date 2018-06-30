@@ -12,6 +12,7 @@ type Worker struct {
 	tenant   *models.Tenant
 	user     *models.User
 	services *app.Services
+	baseURL  string
 }
 
 func createWorker(services *app.Services) *Worker {
@@ -32,12 +33,19 @@ func (w *Worker) AsUser(user *models.User) *Worker {
 	return w
 }
 
+// WithBaseURL set current context baseURL
+func (w *Worker) WithBaseURL(baseURL string) *Worker {
+	w.baseURL = baseURL
+	return w
+}
+
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
 	context := worker.NewContext("0", task.Name, nil, noop.NewLogger())
 	context.SetServices(w.services)
 	context.SetUser(w.user)
 	context.SetTenant(w.tenant)
+	context.SetBaseURL(w.baseURL)
 	return task.Job(context)
 }
 
