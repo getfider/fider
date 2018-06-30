@@ -20,7 +20,7 @@ var buildnumber = "local"
 // Use this for stable releases
 // var version = "x.y.z"
 
-var version = "0.14.0-" + buildnumber
+var version = "0.14.0"
 
 func main() {
 	settings := &models.SystemSettings{
