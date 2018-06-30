@@ -76,8 +76,10 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		title := fmt.Sprintf("New idea: **%s**", idea.Title)
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
-			if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
-				return c.Failure(err)
+			if user.ID != c.User().ID {
+				if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
+					return c.Failure(err)
+				}
 			}
 		}
 
