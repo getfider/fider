@@ -221,7 +221,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 				return c.Failure(err)
 			}
 
-			url := link(c.BaseURL(), "/invite/verify?k=%s", invite.VerificationKey)
+			url := fmt.Sprintf("%s/invite/verify?k=%s", c.BaseURL(), invite.VerificationKey)
 			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
 			to[i] = email.NewRecipient("", invite.Email, email.Params{
 				"message": markdown.Parse(toMessage),

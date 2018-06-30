@@ -203,3 +203,141 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(notifications[0].Read).IsFalse()
 	Expect(notifications[0].Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
 }
+
+func TestNotifyAboutStatusChangeTask(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	services.SetCurrentUser(mock.AryaStark)
+	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	services.Ideas.SetResponse(idea, "Planned for next release.", models.IdeaPlanned)
+
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.NotifyAboutStatusChange(idea, models.IdeaOpen)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("change_status")
+	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"title":       "[Demonstration] Add support for TypeScript",
+		"content":     template.HTML("<p>Planned for next release.</p>"),
+		"duplicate":   template.HTML(""),
+		"status":      "Planned",
+		"view":        template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>unsubscribe from it</a>"),
+	})
+	Expect(emailer.Requests[0].From).Equals("Jon Snow")
+	Expect(emailer.Requests[0].To).HasLen(1)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Name:    "Arya Stark",
+		Address: "arya.stark@got.com",
+		Params:  email.Params{},
+	})
+
+	services.SetCurrentUser(mock.AryaStark)
+	notifications, err := services.Notifications.GetActiveNotifications()
+	Expect(err).IsNil()
+	Expect(notifications).HasLen(1)
+	Expect(notifications[0].ID).Equals(1)
+	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Read).IsFalse()
+	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **Planned**")
+}
+
+func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	services.SetCurrentUser(mock.AryaStark)
+	idea1, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	idea2, _ := services.Ideas.Add("I need TypeScript", "")
+	services.Ideas.MarkAsDuplicate(idea2, idea1)
+
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.NotifyAboutStatusChange(idea2, models.IdeaOpen)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("change_status")
+	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"title":       "[Demonstration] I need TypeScript",
+		"content":     template.HTML(""),
+		"duplicate":   template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>Add support for TypeScript</a>"),
+		"status":      "Duplicate",
+		"view":        template.HTML("<a href='http://domain.com/ideas/2/i-need-typescript'>View it on your browser</a>"),
+		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/2/i-need-typescript'>unsubscribe from it</a>"),
+	})
+	Expect(emailer.Requests[0].From).Equals("Jon Snow")
+	Expect(emailer.Requests[0].To).HasLen(1)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Name:    "Arya Stark",
+		Address: "arya.stark@got.com",
+		Params:  email.Params{},
+	})
+
+	services.SetCurrentUser(mock.AryaStark)
+	notifications, err := services.Notifications.GetActiveNotifications()
+	Expect(err).IsNil()
+	Expect(notifications).HasLen(1)
+	Expect(notifications[0].ID).Equals(1)
+	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(notifications[0].Link).Equals("/ideas/2/i-need-typescript")
+	Expect(notifications[0].Read).IsFalse()
+	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **Duplicate**")
+}
+
+func TestSendInvites(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.SendInvites("My Subject", "Click here: %invite%", []*models.UserInvitation{
+		&models.UserInvitation{Email: "user1@domain.com", VerificationKey: "1234"},
+		&models.UserInvitation{Email: "user2@domain.com", VerificationKey: "5678"},
+	})
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("invite_email")
+	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"subject": "My Subject",
+	})
+	Expect(emailer.Requests[0].From).Equals("Jon Snow")
+	Expect(emailer.Requests[0].To).HasLen(2)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Address: "user1@domain.com",
+		Params: email.Params{
+			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=1234">http://domain.com/invite/verify?k=1234</a></p>`),
+		},
+	})
+	Expect(emailer.Requests[0].To[1]).Equals(email.Recipient{
+		Address: "user2@domain.com",
+		Params: email.Params{
+			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=5678">http://domain.com/invite/verify?k=5678</a></p>`),
+		},
+	})
+}
