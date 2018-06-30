@@ -95,23 +95,3 @@ type Sender interface {
 	Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error
 	BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error
 }
-
-// NoopSender does not send emails
-type NoopSender struct {
-}
-
-// NewNoopSender creates a new NoopSender
-func NewNoopSender() *NoopSender {
-	return &NoopSender{}
-}
-
-// Send an email
-func (s *NoopSender) Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error {
-	return nil
-
-}
-
-// BatchSend an email to multiple recipients
-func (s *NoopSender) BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error {
-	return nil
-}

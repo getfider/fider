@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/mailgun"
+	"github.com/getfider/fider/app/pkg/email/noop"
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
@@ -193,7 +194,7 @@ func WebSetup() web.MiddlewareFunc {
 
 func newEmailer(logger log.Logger) email.Sender {
 	if env.IsTest() {
-		return email.NewNoopSender()
+		return noop.NewSender()
 	}
 	if env.IsDefined("EMAIL_MAILGUN_API") {
 		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
