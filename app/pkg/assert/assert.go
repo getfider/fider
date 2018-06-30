@@ -93,7 +93,7 @@ func (a *AnyAssertions) ContainsSubstring(substr string) bool {
 	if strings.Contains(a.actual.(string), substr) {
 		return true
 	}
-	err := fmt.Errorf("ContainsSubstring assertion failed. \n Substring: \n\t\t %s \n Actual: \n\t\t %s", substr, describe(a.actual))
+	err := fmt.Errorf("ContainsSubstring assertion failed. \n Substring: \n\t\t %s\n Actual: \n\t\t %s", substr, describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
@@ -103,7 +103,7 @@ func (a *AnyAssertions) NotEquals(other interface{}) bool {
 	if !reflect.DeepEqual(other, a.actual) {
 		return true
 	}
-	err := fmt.Errorf("NotEquals assertion failed. \n Other: \n\t\t %s \n Actual: \n\t\t %s", describe(other), describe(a.actual))
+	err := fmt.Errorf("NotEquals assertion failed. \n Other: \n\t\t %s\n Actual: \n\t\t %s", describe(other), describe(a.actual))
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
