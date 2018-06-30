@@ -3,6 +3,7 @@ package tasks_test
 import (
 	"html/template"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/email"
 
@@ -21,7 +22,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	emailer := services.Emailer.(*noop.Sender)
 	task := tasks.SendSignUpEmail(&models.CreateTenant{
 		VerificationKey: "1234",
-	}, "http://anywhere.com")
+	}, "http://domain.com")
 
 	err := worker.
 		AsUser(mock.JonSnow).
@@ -36,7 +37,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	Expect(emailer.Requests[0].To).HasLen(1)
 	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
 		Params: email.Params{
-			"link": template.HTML("<a href='http://anywhere.com/signup/verify?k=1234'>http://anywhere.com/signup/verify?k=1234</a>"),
+			"link": template.HTML("<a href='http://domain.com/signup/verify?k=1234'>http://domain.com/signup/verify?k=1234</a>"),
 		},
 	})
 }
@@ -53,7 +54,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	err := worker.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithBaseURL("http://anywhere.com").
+		WithBaseURL("http://domain.com").
 		Execute(task)
 
 	Expect(err).IsNil()
@@ -66,7 +67,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
 		Params: email.Params{
 			"tenantName": mock.DemoTenant.Name,
-			"link":       template.HTML("<a href='http://anywhere.com/signin/verify?k=9876'>http://anywhere.com/signin/verify?k=9876</a>"),
+			"link":       template.HTML("<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>"),
 		},
 	})
 }
@@ -85,7 +86,7 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	err := worker.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithBaseURL("http://anywhere.com").
+		WithBaseURL("http://domain.com").
 		Execute(task)
 
 	Expect(err).IsNil()
@@ -102,7 +103,53 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 			"name":     "Jon Snow",
 			"oldEmail": "jon.snow@got.com",
 			"newEmail": "newemail@domain.com",
-			"link":     template.HTML("<a href='http://anywhere.com/change-email/verify?k=13579'>http://anywhere.com/change-email/verify?k=13579</a>"),
+			"link":     template.HTML("<a href='http://domain.com/change-email/verify?k=13579'>http://domain.com/change-email/verify?k=13579</a>"),
 		},
 	})
+}
+
+func TestNotifyAboutNewIdeaTask(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+
+	services.Ideas.AddSubscriber(idea, mock.AryaStark)
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.NotifyAboutNewIdea(idea)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("new_idea")
+	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"title":   "[Demonstration] Add support for TypeScript",
+		"content": template.HTML("<p>TypeScript is great, please add support for it</p>"),
+		"view":    template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"change":  template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+	})
+	Expect(emailer.Requests[0].From).Equals("Jon Snow")
+	Expect(emailer.Requests[0].To).HasLen(1)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Name:    "Arya Stark",
+		Address: "arya.stark@got.com",
+		Params:  email.Params{},
+	})
+
+	services.SetCurrentUser(mock.AryaStark)
+	notifications, err := services.Notifications.GetActiveNotifications()
+	Expect(err).IsNil()
+	Expect(notifications).HasLen(1)
+	Expect(notifications[0].ID).Equals(1)
+	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Read).IsFalse()
+	Expect(notifications[0].Title).Equals("New idea: **Add support for TypeScript**")
 }

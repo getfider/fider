@@ -40,12 +40,15 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 
 // BatchSend an email to multiple recipients
 func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
-	s.Requests = append(s.Requests, &request{
-		Tenant:       tenant,
-		TemplateName: templateName,
-		Params:       params,
-		From:         from,
-		To:           to,
-	})
+	if len(to) > 0 {
+		s.Requests = append(s.Requests, &request{
+			Tenant:       tenant,
+			TemplateName: templateName,
+			Params:       params,
+			From:         from,
+			To:           to,
+		})
+	}
+
 	return nil
 }

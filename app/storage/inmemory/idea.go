@@ -1,7 +1,6 @@
 package inmemory
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gosimple/slug"
@@ -16,7 +15,7 @@ type IdeaStorage struct {
 	lastCommentID    int
 	ideas            []*models.Idea
 	ideasSupportedBy map[int][]int
-	ideaSubscribers  map[int][]int
+	ideaSubscribers  map[int][]*models.User
 	ideaComments     map[int][]*models.Comment
 	tenant           *models.Tenant
 	user             *models.User
@@ -27,7 +26,7 @@ func NewIdeaStorage() *IdeaStorage {
 	return &IdeaStorage{
 		ideas:            make([]*models.Idea, 0),
 		ideasSupportedBy: make(map[int][]int, 0),
-		ideaSubscribers:  make(map[int][]int, 0),
+		ideaSubscribers:  make(map[int][]*models.User, 0),
 		ideaComments:     make(map[int][]*models.Comment, 0),
 	}
 }
@@ -225,15 +224,15 @@ func (s *IdeaStorage) SupportedBy() ([]int, error) {
 
 // AddSubscriber adds user to the idea list of subscribers
 func (s *IdeaStorage) AddSubscriber(idea *models.Idea, user *models.User) error {
-	s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID], user.ID)
+	s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID], user)
 	return nil
 }
 
 // RemoveSubscriber removes user from idea list of subscribers
 func (s *IdeaStorage) RemoveSubscriber(idea *models.Idea, user *models.User) error {
-	for i, id := range s.ideaSubscribers[idea.ID] {
-		if id == user.ID {
-			s.ideaSubscribers[idea.ID] = append(s.ideasSupportedBy[idea.ID][:i], s.ideasSupportedBy[idea.ID][i+1:]...)
+	for i, u := range s.ideaSubscribers[idea.ID] {
+		if u.ID == user.ID {
+			s.ideaSubscribers[idea.ID] = append(s.ideaSubscribers[idea.ID][:i], s.ideaSubscribers[idea.ID][i+1:]...)
 			break
 		}
 	}
@@ -249,13 +248,10 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	subscribers, ok := s.ideaSubscribers[idea.ID]
 	if ok {
 		users := make([]*models.User, len(subscribers))
-		for i, id := range subscribers {
-			users[i] = &models.User{
-				ID:    id,
-				Name:  fmt.Sprintf("User %d", id),
-				Email: fmt.Sprintf("user%d@test.com", id),
-			}
+		for i, user := range subscribers {
+			users[i] = user
 		}
+		return users, nil
 	}
 	return make([]*models.User, 0), nil
 }
