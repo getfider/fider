@@ -111,6 +111,7 @@ func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
 	}
 	s.ideas = append(s.ideas, idea)
 	s.ideasSupportedBy[s.user.ID] = append(s.ideasSupportedBy[s.user.ID], idea.ID)
+	s.AddSubscriber(idea, s.user)
 	return idea, nil
 }
 

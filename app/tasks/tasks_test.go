@@ -153,3 +153,53 @@ func TestNotifyAboutNewIdeaTask(t *testing.T) {
 	Expect(notifications[0].Read).IsFalse()
 	Expect(notifications[0].Title).Equals("New idea: **Add support for TypeScript**")
 }
+
+func TestNotifyAboutNewCommentTask(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	services.SetCurrentUser(mock.JonSnow)
+	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	comment := &models.NewComment{
+		Number:  idea.Number,
+		Content: "I agree",
+	}
+
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.NotifyAboutNewComment(idea, comment)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("new_comment")
+	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"title":       "[Demonstration] Add support for TypeScript",
+		"content":     template.HTML("<p>I agree</p>"),
+		"view":        template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>unsubscribe from it</a>"),
+	})
+	Expect(emailer.Requests[0].From).Equals("Arya Stark")
+	Expect(emailer.Requests[0].To).HasLen(1)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Name:    "Jon Snow",
+		Address: "jon.snow@got.com",
+		Params:  email.Params{},
+	})
+
+	services.SetCurrentUser(mock.JonSnow)
+	notifications, err := services.Notifications.GetActiveNotifications()
+	Expect(err).IsNil()
+	Expect(notifications).HasLen(1)
+	Expect(notifications[0].ID).Equals(1)
+	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Read).IsFalse()
+	Expect(notifications[0].Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
+}
