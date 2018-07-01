@@ -555,16 +555,15 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 }
 
 func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models.User) {
-	cookies := web.ParseCookies(response.Header().Get("Set-Cookie"))
+	cookie := web.ParseCookie(response.Header().Get("Set-Cookie"))
 	if expected == nil {
-		Expect(cookies).HasLen(0)
+		Expect(cookie).IsNil()
 	} else {
-		Expect(cookies).HasLen(1)
-		Expect(cookies[0].Name).Equals(web.CookieAuthName)
-		ExpectFiderToken(cookies[0].Value, expected)
-		Expect(cookies[0].HttpOnly).IsTrue()
-		Expect(cookies[0].Path).Equals("/")
-		Expect(cookies[0].Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
+		Expect(cookie.Name).Equals(web.CookieAuthName)
+		ExpectFiderToken(cookie.Value, expected)
+		Expect(cookie.HttpOnly).IsTrue()
+		Expect(cookie.Path).Equals("/")
+		Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 	}
 }
 

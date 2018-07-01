@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -64,6 +65,29 @@ func CreateTenant() web.HandlerFunc {
 			user.Providers = []*models.UserProvider{
 				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
 			}
+
+			if err := c.Services().Users.Register(user); err != nil {
+				return c.Failure(err)
+			}
+
+			if env.IsSingleHostMode() {
+				c.AddAuthCookie(user)
+			} else {
+				token, err := jwt.Encode(jwt.FiderClaims{
+					UserID:    user.ID,
+					UserName:  user.Name,
+					UserEmail: user.Email,
+					Metadata: jwt.Metadata{
+						ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
+					},
+				})
+
+				if err != nil {
+					return c.Failure(err)
+				}
+
+				c.AddDomainCookie(web.CookieSignUpAuthName, token)
+			}
 		} else {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
@@ -74,19 +98,6 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 			c.Enqueue(tasks.SendSignUpEmail(input.Model, c.TenantBaseURL(tenant)))
-		}
-
-		if socialSignUp {
-			if err := c.Services().Users.Register(user); err != nil {
-				return c.Failure(err)
-			}
-			token, err := c.AddAuthCookie(user)
-			if err != nil {
-				return c.Failure(err)
-			}
-			return c.Ok(web.Map{
-				"token": token,
-			})
 		}
 
 		return c.Ok(web.Map{})

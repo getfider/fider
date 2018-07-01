@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"fmt"
-	"net/http"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 
@@ -83,16 +83,21 @@ func MultiTenant() web.MiddlewareFunc {
 func User() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
+			var token string
 
 			cookie, err := c.Request.Cookie(web.CookieAuthName)
-			if err != nil {
-				if errors.Cause(err) == http.ErrNoCookie {
-					return next(c)
+			if err == nil {
+				token = cookie.Value
+			} else {
+				cookie, err = c.Request.Cookie(web.CookieSignUpAuthName)
+				if err == nil {
+					token = cookie.Value
+					c.RemoveDomainCookie(web.CookieSignUpAuthName)
+					c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
 				}
-				return err
 			}
 
-			claims, err := jwt.DecodeFiderClaims(cookie.Value)
+			claims, err := jwt.DecodeFiderClaims(token)
 			if err != nil {
 				c.RemoveCookie(web.CookieAuthName)
 				return next(c)

@@ -45,8 +45,11 @@ var (
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
-// CookieAuthName is the name of the authentication cookie
+// CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
+
+// CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
+const CookieSignUpAuthName = "signup_auth"
 
 var (
 	preffixKey             = "__CTX_"
@@ -318,6 +321,30 @@ func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
 
 	ctx.AddCookie(CookieAuthName, token, expiresAt)
 	return token, nil
+}
+
+//AddDomainCookie adds temporary domain-wide cookie
+func (ctx *Context) AddDomainCookie(name, value string) {
+	http.SetCookie(ctx.Response, &http.Cookie{
+		Name:     name,
+		Domain:   env.MultiTenantDomain(),
+		Value:    value,
+		HttpOnly: true,
+		Path:     "/",
+		Expires:  time.Now().Add(5 * time.Minute),
+	})
+}
+
+//RemoveDomainCookie removes temporary domain-wide cookie
+func (ctx *Context) RemoveDomainCookie(name string) {
+	http.SetCookie(ctx.Response, &http.Cookie{
+		Name:     name,
+		Domain:   env.MultiTenantDomain(),
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+		Expires:  time.Now().Add(-100 * time.Hour),
+	})
 }
 
 //AddCookie adds a cookie

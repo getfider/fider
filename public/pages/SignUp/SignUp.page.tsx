@@ -60,7 +60,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
     });
 
     if (result.ok) {
-      if (result.data.token) {
+      if (this.user) {
         if (Fider.isSingleHostMode()) {
           location.reload();
         } else {
@@ -69,7 +69,7 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
             baseUrl = `${baseUrl}:${location.port}`;
           }
 
-          location.href = `${baseUrl}?token=${result.data.token}`;
+          location.href = baseUrl;
         }
       } else {
         this.setState({ submitted: true });
