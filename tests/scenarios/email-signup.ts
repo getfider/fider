@@ -22,7 +22,7 @@ describe("E2E: Sign up with e-mail", () => {
     await tab.pages.signup.signInWithEmail(`Darth Vader ${now}`, `darthvader.fider@gmail.com`);
     await tab.pages.signup.signUpAs(`Selenium ${now}`, `selenium${now}`);
 
-    const link = await mailgun.getLinkFromLastEmailTo(`selenium${now}`, `darthvader.fider@gmail.com`);
+    const link = await mailgun.getLinkFromLastEmailTo(`Sign in to Selenium ${now}`, `darthvader.fider@gmail.com`);
 
     await tab.pages.goTo(link);
     await tab.wait(pageHasLoaded(HomePage));
