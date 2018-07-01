@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/getfider/fider/app/models"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/util"
 )
 
 // Tenant adds either SingleTenant or MultiTenant to the pipeline
@@ -89,31 +89,31 @@ func User() web.MiddlewareFunc {
 			if err == nil {
 				token = cookie.Value
 			} else {
-				cookie, err = c.Request.Cookie(web.CookieSignUpAuthName)
-				if err == nil {
-					token = cookie.Value
-					c.RemoveDomainCookie(web.CookieSignUpAuthName)
-					c.AddCookie(web.CookieAuthName, token, time.Now().Add(365*24*time.Hour))
+				token = webutil.GetSignUpAuthCookie(c)
+				if token != "" {
+					webutil.AddAuthTokenCookie(c, token)
 				}
 			}
 
-			claims, err := jwt.DecodeFiderClaims(token)
-			if err != nil {
-				c.RemoveCookie(web.CookieAuthName)
-				return next(c)
-			}
-
-			user, err := c.Services().Users.GetByID(claims.UserID)
-			if err != nil {
-				if errors.Cause(err) == app.ErrNotFound {
+			if token != "" {
+				claims, err := jwt.DecodeFiderClaims(token)
+				if err != nil {
 					c.RemoveCookie(web.CookieAuthName)
 					return next(c)
 				}
-				return err
-			}
 
-			if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
-				c.SetUser(user)
+				user, err := c.Services().Users.GetByID(claims.UserID)
+				if err != nil {
+					if errors.Cause(err) == app.ErrNotFound {
+						c.RemoveCookie(web.CookieAuthName)
+						return next(c)
+					}
+					return err
+				}
+
+				if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
+					c.SetUser(user)
+				}
 			}
 
 			return next(c)

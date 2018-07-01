@@ -16,7 +16,6 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -301,50 +300,6 @@ func (ctx *Context) Services() *app.Services {
 		return svc
 	}
 	return nil
-}
-
-//AddAuthCookie generates and adds a cookie
-func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
-	expiresAt := time.Now().Add(365 * 24 * time.Hour)
-	token, err := jwt.Encode(jwt.FiderClaims{
-		UserID:    user.ID,
-		UserName:  user.Name,
-		UserEmail: user.Email,
-		Metadata: jwt.Metadata{
-			ExpiresAt: expiresAt.Unix(),
-		},
-	})
-
-	if err != nil {
-		return token, errors.Wrap(err, "failed to add auth cookie")
-	}
-
-	ctx.AddCookie(CookieAuthName, token, expiresAt)
-	return token, nil
-}
-
-//AddDomainCookie adds temporary domain-wide cookie
-func (ctx *Context) AddDomainCookie(name, value string) {
-	http.SetCookie(ctx.Response, &http.Cookie{
-		Name:     name,
-		Domain:   env.MultiTenantDomain(),
-		Value:    value,
-		HttpOnly: true,
-		Path:     "/",
-		Expires:  time.Now().Add(5 * time.Minute),
-	})
-}
-
-//RemoveDomainCookie removes temporary domain-wide cookie
-func (ctx *Context) RemoveDomainCookie(name string) {
-	http.SetCookie(ctx.Response, &http.Cookie{
-		Name:     name,
-		Domain:   env.MultiTenantDomain(),
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   -1,
-		Expires:  time.Now().Add(-100 * time.Hour),
-	})
 }
 
 //AddCookie adds a cookie

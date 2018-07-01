@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/pkg/web/util"
+
 	"github.com/getfider/fider/app/tasks"
 
 	"strings"
@@ -12,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -70,24 +71,10 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			expiresAt := time.Now().Add(365 * 24 * time.Hour)
-			token, err := jwt.Encode(jwt.FiderClaims{
-				UserID:    user.ID,
-				UserName:  user.Name,
-				UserEmail: user.Email,
-				Metadata: jwt.Metadata{
-					ExpiresAt: expiresAt.Unix(),
-				},
-			})
-
-			if err != nil {
-				return c.Failure(err)
-			}
-
 			if env.IsSingleHostMode() {
-				c.AddCookie(web.CookieAuthName, token, expiresAt)
+				webutil.AddAuthUserCookie(c, user)
 			} else {
-				c.AddDomainCookie(web.CookieSignUpAuthName, token)
+				webutil.SetSignUpAuthCookie(c, user)
 			}
 
 		} else {

@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
 )
 
@@ -77,7 +78,7 @@ func OAuthToken(provider string) web.HandlerFunc {
 			}
 		}
 
-		c.AddAuthCookie(user)
+		webutil.AddAuthUserCookie(c, user)
 
 		redirectURL, _ := url.Parse(c.Request.URL.String())
 		var query = redirectURL.Query()
@@ -247,10 +248,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.AddAuthCookie(user)
-		if err != nil {
-			return c.Failure(err)
-		}
+		webutil.AddAuthUserCookie(c, user)
 
 		return c.Redirect(c.BaseURL())
 	}
@@ -285,10 +283,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.AddAuthCookie(user)
-		if err != nil {
-			return c.Failure(err)
-		}
+		webutil.AddAuthUserCookie(c, user)
 
 		return c.Ok(web.Map{})
 	}
