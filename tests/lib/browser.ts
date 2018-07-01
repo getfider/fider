@@ -18,7 +18,6 @@ export class Browser {
 
   public async newTab(baseUrl: string): Promise<BrowserTab> {
     const page = await this.browser.newPage();
-    await page.bringToFront();
     return new BrowserTab(page, baseUrl);
   }
 
