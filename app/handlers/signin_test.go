@@ -46,8 +46,8 @@ func TestSignInByOAuthHandler(t *testing.T) {
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
 
+	server, _ := mock.NewServer()
 	code, _ := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=abc").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
@@ -57,6 +57,7 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 
 func TestCallbackHandler_InvalidCode(t *testing.T) {
 	RegisterT(t)
+
 	server, _ := mock.NewServer()
 
 	code, response := server.
@@ -69,8 +70,8 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 
 func TestCallbackHandler_SignIn(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
 
+	server, _ := mock.NewServer()
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io&code=123").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
@@ -93,8 +94,8 @@ func TestCallbackHandler_SignIn_WithPath(t *testing.T) {
 
 func TestCallbackHandler_SignUp(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
 
+	server, _ := mock.NewServer()
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io/signup&code=123").
 		Execute(handlers.OAuthCallback(oauth.FacebookProvider))
@@ -114,8 +115,8 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 
 func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
 
+	server, _ := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123").
 		OnTenant(mock.DemoTenant).
