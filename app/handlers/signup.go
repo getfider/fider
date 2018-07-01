@@ -70,24 +70,26 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
+			expiresAt := time.Now().Add(365 * 24 * time.Hour)
+			token, err := jwt.Encode(jwt.FiderClaims{
+				UserID:    user.ID,
+				UserName:  user.Name,
+				UserEmail: user.Email,
+				Metadata: jwt.Metadata{
+					ExpiresAt: expiresAt.Unix(),
+				},
+			})
+
+			if err != nil {
+				return c.Failure(err)
+			}
+
 			if env.IsSingleHostMode() {
-				c.AddAuthCookie(user)
+				c.AddCookie(web.CookieAuthName, token, expiresAt)
 			} else {
-				token, err := jwt.Encode(jwt.FiderClaims{
-					UserID:    user.ID,
-					UserName:  user.Name,
-					UserEmail: user.Email,
-					Metadata: jwt.Metadata{
-						ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
-					},
-				})
-
-				if err != nil {
-					return c.Failure(err)
-				}
-
 				c.AddDomainCookie(web.CookieSignUpAuthName, token)
 			}
+
 		} else {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
