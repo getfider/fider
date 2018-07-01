@@ -23,16 +23,19 @@ const httpGet = (endpoint: string): Promise<any> => {
 };
 
 export const mailgun = {
-  getLinkFromLastEmailTo: async (subject: string, to: string): Promise<string> => {
+  getLinkFromLastEmailTo: async (tenant: string, subject: string, to: string): Promise<string> => {
     let messageUrl = "";
     let count = 0;
 
     do {
       count++;
 
-      const url = `https://api.mailgun.net/v3/${
+      let url = `https://api.mailgun.net/v3/${
         process.env.EMAIL_MAILGUN_DOMAIN
       }/events?to=${to}&subject=${subject}&event=accepted&limit=1&ascending=no`;
+      if (tenant !== "login") {
+        url += `&tags=tenant:${tenant}`;
+      }
 
       const events = await httpGet(url);
       if (events.items.length > 0 && events.items[0].recipient === to) {

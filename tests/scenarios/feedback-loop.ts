@@ -140,6 +140,7 @@ it("Tab2: Logout and sign in with email", async () => {
   await ctx.tab2.pages.home.navigate();
   await ctx.tab2.pages.home.signInWithEmail("darthvader.fider@gmail.com");
   const link = await mailgun.getLinkFromLastEmailTo(
+    ctx.tenantSubdomain,
     `Sign in to ${ctx.tenantName}`,
     `darthvader.fider@gmail.com`
   );
