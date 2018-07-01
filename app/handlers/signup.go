@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/pkg/web/util"
+
 	"github.com/getfider/fider/app/tasks"
 
 	"strings"
@@ -64,6 +66,17 @@ func CreateTenant() web.HandlerFunc {
 			user.Providers = []*models.UserProvider{
 				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
 			}
+
+			if err := c.Services().Users.Register(user); err != nil {
+				return c.Failure(err)
+			}
+
+			if env.IsSingleHostMode() {
+				webutil.AddAuthUserCookie(c, user)
+			} else {
+				webutil.SetSignUpAuthCookie(c, user)
+			}
+
 		} else {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
@@ -74,19 +87,6 @@ func CreateTenant() web.HandlerFunc {
 			}
 
 			c.Enqueue(tasks.SendSignUpEmail(input.Model, c.TenantBaseURL(tenant)))
-		}
-
-		if socialSignUp {
-			if err := c.Services().Users.Register(user); err != nil {
-				return c.Failure(err)
-			}
-			token, err := c.AddAuthCookie(user)
-			if err != nil {
-				return c.Failure(err)
-			}
-			return c.Ok(web.Map{
-				"token": token,
-			})
 		}
 
 		return c.Ok(web.Map{})

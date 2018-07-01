@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/storage/inmemory"
 )
 
-var jonSnowToken, _ = jwt.Encode(&jwt.OAuthClaims{
+var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
 	OAuthID:       "123",
 	OAuthName:     "Jon Snow",
 	OAuthEmail:    "jon.snow@got.com",

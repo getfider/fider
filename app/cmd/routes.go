@@ -61,6 +61,9 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
+		open.Get("/oauth/facebook/token", handlers.OAuthToken(oauth.FacebookProvider))
+		open.Get("/oauth/google/token", handlers.OAuthToken(oauth.GoogleProvider))
+		open.Get("/oauth/github/token", handlers.OAuthToken(oauth.GitHubProvider))
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())
 		open.Get("/not-invited", handlers.NotInvitedPage())
@@ -70,8 +73,7 @@ func routes(r *web.Engine) *web.Engine {
 		open.Post("/api/signin", handlers.SignInByEmail())
 	}
 
-	r.Use(middlewares.JwtGetter())
-	r.Use(middlewares.JwtSetter())
+	r.Use(middlewares.User())
 
 	page := r.Group()
 	{

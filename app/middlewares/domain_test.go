@@ -3,10 +3,12 @@ package middlewares_test
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -238,4 +240,129 @@ func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 		})
 
 	Expect(status).Equals(http.StatusOK)
+}
+
+func TestUser_NoCookie(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.User())
+	status, _ := server.Execute(func(c web.Context) error {
+		if c.IsAuthenticated() {
+			return c.NoContent(http.StatusOK)
+		} else {
+			return c.NoContent(http.StatusNoContent)
+		}
+	})
+
+	Expect(status).Equals(http.StatusNoContent)
+}
+
+func TestUser_WithCookie(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+	Expect(response.HeaderMap["Set-Cookie"]).HasLen(0)
+}
+
+func TestUser_WithCookie_InvalidUser(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   999,
+		UserName: "Unknown",
+	})
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.AvengersTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			if c.User() == nil {
+				return c.NoContent(http.StatusNoContent)
+			}
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusNoContent)
+	Expect(response.Header().Get("Set-Cookie")).ContainsSubstring(web.CookieAuthName + "=;")
+}
+
+func TestUser_WithCookie_DifferentTenant(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.AvengersTenant).
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			if c.User() == nil {
+				return c.NoContent(http.StatusNoContent)
+			}
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusNoContent)
+}
+
+func TestUser_WithSignUpCookie(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddCookie(web.CookieSignUpAuthName, token).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+	cookies := response.HeaderMap["Set-Cookie"]
+	Expect(cookies).HasLen(2)
+
+	cookie := web.ParseCookie(cookies[0])
+	Expect(cookie.Name).Equals(web.CookieSignUpAuthName)
+	Expect(cookie.Value).Equals("")
+	Expect(cookie.Domain).Equals("test.fider.io")
+	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.Path).Equals("/")
+	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(-100*time.Hour), 5*time.Second)
+
+	cookie = web.ParseCookie(cookies[1])
+	Expect(cookie.Name).Equals(web.CookieAuthName)
+	Expect(cookie.Value).Equals(token)
+	Expect(cookie.Domain).Equals("")
+	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.Path).Equals("/")
+	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 }

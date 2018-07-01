@@ -8,8 +8,10 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/util"
 )
 
 // Tenant adds either SingleTenant or MultiTenant to the pipeline
@@ -73,6 +75,48 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			return c.Failure(err)
+		}
+	}
+}
+
+// User gets JWT Auth token from cookie and insert into context
+func User() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			var token string
+
+			cookie, err := c.Request.Cookie(web.CookieAuthName)
+			if err == nil {
+				token = cookie.Value
+			} else {
+				token = webutil.GetSignUpAuthCookie(c)
+				if token != "" {
+					webutil.AddAuthTokenCookie(c, token)
+				}
+			}
+
+			if token != "" {
+				claims, err := jwt.DecodeFiderClaims(token)
+				if err != nil {
+					c.RemoveCookie(web.CookieAuthName)
+					return next(c)
+				}
+
+				user, err := c.Services().Users.GetByID(claims.UserID)
+				if err != nil {
+					if errors.Cause(err) == app.ErrNotFound {
+						c.RemoveCookie(web.CookieAuthName)
+						return next(c)
+					}
+					return err
+				}
+
+				if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
+					c.SetUser(user)
+				}
+			}
+
+			return next(c)
 		}
 	}
 }

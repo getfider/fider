@@ -286,7 +286,10 @@ func (g *Group) Static(prefix, root string) {
 	g.engine.mux.Handle("GET", prefix, g.handler(h))
 }
 
-// ParseCookies return a list of cookie parsed from raw Set-Cookie
-func ParseCookies(s string) []*http.Cookie {
-	return (&http.Response{Header: http.Header{"Set-Cookie": {s}}}).Cookies()
+// ParseCookie return a list of cookie parsed from raw Set-Cookie
+func ParseCookie(s string) *http.Cookie {
+	if s == "" {
+		return nil
+	}
+	return (&http.Response{Header: http.Header{"Set-Cookie": {s}}}).Cookies()[0]
 }

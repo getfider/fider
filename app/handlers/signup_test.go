@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"fmt"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 func TestSignUpHandler_MultiTenant(t *testing.T) {
@@ -86,13 +88,13 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
-	token, _ := jwt.Encode(&jwt.OAuthClaims{
+	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
 		OAuthEmail:    "jon.snow@got.com",
 		OAuthProvider: "facebook",
 	})
-	code, response := server.ExecutePostAsJSON(
+	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
 		fmt.Sprintf(`{ 
 			"token": "%s", 
@@ -105,7 +107,6 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	tenant, err := services.Tenants.GetByDomain("mycompany")
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(response.String("token")).IsNotEmpty()
 
 	Expect(err).IsNil()
 	Expect(tenant.Name).Equals("My Company")
@@ -118,13 +119,63 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
 	Expect(user.Role).Equals(models.RoleAdministrator)
+
+	cookie := web.ParseCookie(response.Header().Get("Set-Cookie"))
+	Expect(cookie.Name).Equals(web.CookieSignUpAuthName)
+	ExpectFiderToken(cookie.Value, user)
+	Expect(cookie.Domain).Equals("test.fider.io")
+	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.Path).Equals("/")
+	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(5*time.Minute), 5*time.Second)
+}
+
+func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewSingleTenantServer()
+	token, _ := jwt.Encode(jwt.OAuthClaims{
+		OAuthID:       "123",
+		OAuthName:     "Jon Snow",
+		OAuthEmail:    "jon.snow@got.com",
+		OAuthProvider: "facebook",
+	})
+	code, response := server.ExecutePost(
+		handlers.CreateTenant(),
+		fmt.Sprintf(`{ 
+			"token": "%s", 
+			"tenantName": "My Company",
+			"legalAgreement": true
+		}`, token),
+	)
+
+	tenant, err := services.Tenants.First()
+
+	Expect(code).Equals(http.StatusOK)
+
+	Expect(err).IsNil()
+	Expect(tenant.Name).Equals("My Company")
+	Expect(tenant.Subdomain).Equals("default")
+	Expect(tenant.Status).Equals(models.TenantActive)
+
+	services.SetCurrentTenant(tenant)
+	user, err := services.Users.GetByEmail("jon.snow@got.com")
+	Expect(err).IsNil()
+	Expect(user.Name).Equals("Jon Snow")
+	Expect(user.Email).Equals("jon.snow@got.com")
+	Expect(user.Role).Equals(models.RoleAdministrator)
+
+	ExpectFiderAuthCookie(response, &models.User{
+		ID:    1,
+		Name:  "Jon Snow",
+		Email: "jon.snow@got.com",
+	})
 }
 
 func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
-	code, response := server.ExecutePostAsJSON(
+	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
 		`{ 
 			"name": "Jon Snow", 
@@ -136,7 +187,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(response.Contains("token")).IsFalse()
+	Expect(response.Header().Get("Set-Cookie")).IsEmpty()
 
 	tenant, err := services.Tenants.GetByDomain("mycompany")
 

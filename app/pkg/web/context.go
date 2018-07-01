@@ -16,7 +16,6 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -45,8 +44,11 @@ var (
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
-// CookieAuthName is the name of the authentication cookie
+// CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
+
+// CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
+const CookieSignUpAuthName = "signup_auth"
 
 var (
 	preffixKey             = "__CTX_"
@@ -298,26 +300,6 @@ func (ctx *Context) Services() *app.Services {
 		return svc
 	}
 	return nil
-}
-
-//AddAuthCookie generates and adds a cookie
-func (ctx *Context) AddAuthCookie(user *models.User) (string, error) {
-	expiresAt := time.Now().Add(365 * 24 * time.Hour)
-	token, err := jwt.Encode(jwt.FiderClaims{
-		UserID:    user.ID,
-		UserName:  user.Name,
-		UserEmail: user.Email,
-		Metadata: jwt.Metadata{
-			ExpiresAt: expiresAt.Unix(),
-		},
-	})
-
-	if err != nil {
-		return token, errors.Wrap(err, "failed to add auth cookie")
-	}
-
-	ctx.AddCookie(CookieAuthName, token, expiresAt)
-	return token, nil
 }
 
 //AddCookie adds a cookie
