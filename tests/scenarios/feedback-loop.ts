@@ -10,6 +10,7 @@ import {
 } from "../lib";
 import { HomePage, ShowIdeaPage } from "../pages";
 import { ctx } from ".";
+import { O_NOCTTY } from "constants";
 
 it("Tab1: User is authenticated after sign up", async () => {
   // Action
@@ -138,7 +139,11 @@ it("Tab2: Logout and sign in with email", async () => {
   // Action
   await ctx.tab2.pages.home.navigate();
   await ctx.tab2.pages.home.signInWithEmail("darthvader.fider@gmail.com");
-  const link = await mailgun.getLinkFromLastEmailTo(ctx.tenantSubdomain, `darthvader.fider@gmail.com`);
+  const link = await mailgun.getLinkFromLastEmailTo(
+    ctx.tenantSubdomain,
+    `Sign in to ${ctx.tenantName}`,
+    `darthvader.fider@gmail.com`
+  );
   await ctx.tab2.navigate(link);
   await ctx.tab2.pages.home.completeSignIn("Darth Vader");
 
