@@ -1,12 +1,13 @@
 import "./SideMenu.scss";
 
 import * as React from "react";
-import { CurrentUser } from "@fider/models";
 import { classSet, Fider } from "@fider/services";
 import { FiderVersion } from "@fider/components";
 
 interface SiteMenuProps {
   activeItem: string;
+  visible: boolean;
+  className?: string;
 }
 
 interface SideMenuItemProps {
@@ -39,9 +40,11 @@ const SideMenuItem = (props: SideMenuItemProps) => {
 
 export const SideMenu = (props: SiteMenuProps) => {
   const activeItem = props.activeItem || "general";
+  const style = { display: props.visible ? "" : "none" };
+
   return (
-    <>
-      <div className="c-side-menu">
+    <div className={props.className}>
+      <div className="c-side-menu" style={style}>
         <SideMenuItem name="general" title="General" href="/admin" isActive={activeItem === "general"} />
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
@@ -58,6 +61,45 @@ export const SideMenu = (props: SiteMenuProps) => {
         )}
       </div>
       <FiderVersion />
-    </>
+    </div>
   );
 };
+
+interface SideMenuTogglerProps {
+  onToggle: (active: boolean) => void;
+}
+
+interface SideMenuTogglerState {
+  active: boolean;
+}
+
+export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideMenuTogglerState> {
+  constructor(props: SideMenuTogglerProps) {
+    super(props);
+    this.state = {
+      active: false
+    };
+  }
+  private toggle = () => {
+    this.setState(
+      state => ({ active: !state.active }),
+      () => {
+        this.props.onToggle(this.state.active);
+      }
+    );
+  };
+
+  public render() {
+    const className = classSet({
+      "c-side-menu-toggler": true,
+      active: this.state.active
+    });
+    return (
+      <div className={className} onClick={this.toggle}>
+        <div className="bar1" />
+        <div className="bar2" />
+        <div className="bar3" />
+      </div>
+    );
+  }
+}
