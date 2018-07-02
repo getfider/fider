@@ -1,7 +1,11 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-heading {
+  display: inline-block;
   margin-bottom: 10px;
+  @include media("sm") {
+    font-size: $font-size-xlarge;
+  }
 
   .c-heading-content {
     display: table-cell;
@@ -12,6 +16,10 @@
       margin-top: 5px;
       color: $gray-darker;
       font-size: $font-size;
+
+      @include media("sm") {
+        display: none;
+      }
     }
   }
 
@@ -21,6 +29,9 @@
   
   .c-heading-icon {
     font-size: 30px;
+    @include media("sm") {
+      font-size: 20px;
+    }
     display: table-cell;
     vertical-align: middle;
   }

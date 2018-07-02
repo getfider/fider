@@ -1,5 +1,39 @@
 @import '~@fider/assets/styles/variables.scss';
 
+.c-side-menu-toggler {
+  float: right;
+  margin-top: 5px;
+  cursor: pointer;
+
+  @include media("md") {
+    margin-top: 15px;
+  }
+
+  @include media(">=lg") {
+    display: none;
+  }
+
+  > div {
+    width: 30px;
+    height: 4px;
+    background-color: $text-color;
+    margin: 4px 0;
+    transition: 0.4s;
+  }
+
+  &.active {
+    .bar1 {
+      transform: rotate(-45deg) translate(-4px, 3px);
+    }
+    .bar2 {
+      opacity: 0;
+    }
+    .bar3 {
+      transform: rotate(45deg) translate(-8px, -8px) ;
+    }
+  }
+}
+
 .c-side-menu {
   display: block;
   border: 1px solid rgba(34, 36, 38, .1);
