@@ -18,8 +18,9 @@ func caller(skip int) (string, int) {
 }
 
 //New creates a new error
-func New(text string) error {
+func New(format string, a ...interface{}) error {
 	file, line := caller(2)
+	text := fmt.Sprintf(format, a...)
 	return stdError.New(fmt.Sprintf("%s (%s:%d)", text, file, line))
 }
 

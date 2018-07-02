@@ -16,16 +16,14 @@ import (
 )
 
 type providerSettings struct {
-	profileURL func(token *oauth2.Token) string
+	profileURL string
 	config     func(authEndpoint string) *oauth2.Config
 }
 
 var (
 	oauthSettings = map[string]*providerSettings{
 		FacebookProvider: {
-			profileURL: func(token *oauth2.Token) string {
-				return "https://graph.facebook.com/me?fields=name,email&access_token=" + url.QueryEscape(token.AccessToken)
-			},
+			profileURL: "https://graph.facebook.com/me?fields=name,email",
 			config: func(authEndpoint string) *oauth2.Config {
 				return &oauth2.Config{
 					ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
@@ -37,9 +35,7 @@ var (
 			},
 		},
 		GoogleProvider: {
-			profileURL: func(token *oauth2.Token) string {
-				return "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + url.QueryEscape(token.AccessToken)
-			},
+			profileURL: "https://www.googleapis.com/oauth2/v2/userinfo",
 			config: func(authEndpoint string) *oauth2.Config {
 				return &oauth2.Config{
 					ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
@@ -54,9 +50,7 @@ var (
 			},
 		},
 		GitHubProvider: {
-			profileURL: func(token *oauth2.Token) string {
-				return "https://api.github.com/user?access_token=" + url.QueryEscape(token.AccessToken)
-			},
+			profileURL: "https://api.github.com/user",
 			config: func(authEndpoint string) *oauth2.Config {
 				return &oauth2.Config{
 					ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
@@ -72,13 +66,19 @@ var (
 	}
 )
 
-func doGet(url string, v interface{}) error {
-	r, err := http.Get(url)
+func doGet(url, accessToken string, v interface{}) error {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	r, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		return err
 	}
 
 	defer r.Body.Close()
+	if r.StatusCode != 200 {
+		return errors.New("failed to request GET %s with status code %d", url, r.StatusCode)
+	}
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -120,7 +120,7 @@ func (p *HTTPService) GetProfile(authEndpoint string, provider string, code stri
 	}
 
 	profile := &UserProfile{}
-	if err = doGet(settings.profileURL(oauthToken), profile); err != nil {
+	if err = doGet(settings.profileURL, oauthToken.AccessToken, profile); err != nil {
 		return nil, err
 	}
 
