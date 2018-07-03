@@ -190,8 +190,3 @@ func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
 	}
 	return nil, app.ErrNotFound
 }
-
-// GetOAuthConfig returns configuration for custom OAuth provider
-func (s *TenantStorage) GetOAuthConfig(provider string) (*models.OAuthConfig, error) {
-	return nil, nil
-}
