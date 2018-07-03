@@ -29,7 +29,7 @@ func OAuthToken() web.HandlerFunc {
 			return c.Redirect(c.BaseURL())
 		}
 
-		oauthUser, err := c.Services().OAuth.GetProfile(c.AuthEndpoint(), provider, code)
+		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -114,7 +114,7 @@ func OAuthCallback() web.HandlerFunc {
 		}
 
 		//Sign up process
-		oauthUser, err := c.Services().OAuth.GetProfile(c.AuthEndpoint(), provider, code)
+		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -145,7 +145,10 @@ func OAuthCallback() web.HandlerFunc {
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
-		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
+		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"))
+		if err != nil {
+			return c.Failure(err)
+		}
 		return c.Redirect(authURL)
 	}
 }

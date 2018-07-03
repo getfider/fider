@@ -6,8 +6,8 @@ import "github.com/getfider/fider/app/pkg/oauth"
 type OAuthService struct{}
 
 //GetAuthURL returns authentication url for given provider
-func (p *OAuthService) GetAuthURL(provider string, redirect string) string {
-	return "http://avengers.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect
+func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
+	return "http://avengers.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect, nil
 }
 
 //GetProfile returns user profile based on provider and code

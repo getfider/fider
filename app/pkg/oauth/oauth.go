@@ -36,6 +36,6 @@ func IsProviderEnabled(name string) bool {
 
 //Service provides OAuth operations
 type Service interface {
-	GetAuthURL(provider string, redirect string) string
+	GetAuthURL(provider string, redirect string) (string, error)
 	GetProfile(provider string, code string) (*UserProfile, error)
 }
