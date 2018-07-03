@@ -24,3 +24,20 @@ type Notification struct {
 	Read      bool      `json:"read" db:"read"`
 	CreatedOn time.Time `json:"createdOn" db:"created_on"`
 }
+
+// OAuthConfig is the configuration of a custom OAuth provider
+type OAuthConfig struct {
+	ID             int    `db:"id"`
+	Provider       string `db:"provider"`
+	DisplayName    string `db:"display_name"`
+	Status         int    `db:"status"`
+	ClientID       string `db:"client_id"`
+	ClientSecret   string `db:"client_secret"`
+	AuthorizeURL   string `db:"authorize_url"`
+	TokenURL       string `db:"token_url"`
+	ProfileURL     string `db:"profile_url"`
+	Scope          string `db:"scope"`
+	JSONUserIDPath string `db:"json_user_id_path"`
+	JSONNamePath   string `db:"json_name_path"`
+	JSONEmailPath  string `db:"json_email_path"`
+}

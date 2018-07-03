@@ -294,3 +294,22 @@ func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
 	}
 	return upload, nil
 }
+
+// GetOAuthConfig returns configuration for custom OAuth provider
+func (s *TenantStorage) GetOAuthConfig(provider string) (*models.OAuthConfig, error) {
+	config := &models.OAuthConfig{}
+	err := s.trx.Get(config, `
+		SELECT id, provider, display_name, status,
+					 client_id, client_secret, authorize_url,
+					 profile_url, token_url, scope, json_user_id_path
+					 json_name_path, json_email_path
+		FROM oauth_providers
+		WHERE tenant_id = $1 AND provider = $2
+	`, s.current.ID, provider)
+	if err == app.ErrNotFound {
+		return nil, app.ErrNotFound
+	} else if err != nil {
+		return nil, errors.Wrap(err, "failed to get OAuth config for provider '%s'", provider)
+	}
+	return config, nil
+}
