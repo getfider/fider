@@ -1,4 +1,4 @@
-package oauth
+package web
 
 import (
 	"encoding/json"
@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/oauth"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
@@ -25,7 +26,7 @@ type providerSettings struct {
 
 var (
 	systemProviders = map[string]*models.OAuthConfig{
-		FacebookProvider: &models.OAuthConfig{
+		oauth.FacebookProvider: &models.OAuthConfig{
 			ProfileURL:   "https://graph.facebook.com/me?fields=name,email",
 			ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
 			ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
@@ -33,7 +34,7 @@ var (
 			AuthorizeURL: facebook.Endpoint.AuthURL,
 			TokenURL:     facebook.Endpoint.TokenURL,
 		},
-		GoogleProvider: &models.OAuthConfig{
+		oauth.GoogleProvider: &models.OAuthConfig{
 			ProfileURL:   "https://www.googleapis.com/oauth2/v2/userinfo",
 			ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
 			ClientSecret: os.Getenv("OAUTH_GOOGLE_SECRET"),
@@ -41,7 +42,7 @@ var (
 			AuthorizeURL: google.Endpoint.AuthURL,
 			TokenURL:     google.Endpoint.TokenURL,
 		},
-		GitHubProvider: &models.OAuthConfig{
+		oauth.GitHubProvider: &models.OAuthConfig{
 			ProfileURL:   "https://api.github.com/user",
 			ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
 			ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
@@ -79,20 +80,20 @@ func doGet(url, accessToken string, v interface{}) error {
 	return nil
 }
 
-//HTTPService implements real OAuth operations using Golang's oauth2 package
-type HTTPService struct {
+//OAuthService implements real OAuth operations using Golang's oauth2 package
+type OAuthService struct {
 	authEndpoint string
 }
 
-//NewHTTPService creates a new HTTPService
-func NewHTTPService(authEndpoint string) *HTTPService {
-	return &HTTPService{
+//NewOAuthService creates a new OAuthService
+func NewOAuthService(authEndpoint string) *OAuthService {
+	return &OAuthService{
 		authEndpoint,
 	}
 }
 
 //GetAuthURL returns authentication url for given provider
-func (p *HTTPService) GetAuthURL(provider string, redirect string) (string, error) {
+func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
 	config, err := p.getConfig(provider)
 	if err != nil {
 		return "", err
@@ -110,7 +111,7 @@ func (p *HTTPService) GetAuthURL(provider string, redirect string) (string, erro
 }
 
 //GetProfile returns user profile based on provider and code
-func (p *HTTPService) GetProfile(provider string, code string) (*UserProfile, error) {
+func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
 	config, err := p.getConfig(provider)
 	if err != nil {
 		return nil, err
@@ -131,7 +132,7 @@ func (p *HTTPService) GetProfile(provider string, code string) (*UserProfile, er
 		return nil, errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
 	}
 
-	profile := &UserProfile{}
+	profile := &oauth.UserProfile{}
 	if err = doGet(config.ProfileURL, oauthToken.AccessToken, profile); err != nil {
 		return nil, err
 	}
@@ -144,6 +145,6 @@ func (p *HTTPService) GetProfile(provider string, code string) (*UserProfile, er
 	return profile, nil
 }
 
-func (p *HTTPService) getConfig(provider string) (*models.OAuthConfig, error) {
+func (p *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
 	return systemProviders[provider], nil
 }

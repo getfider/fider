@@ -1,16 +1,17 @@
-package oauth_test
+package web_test
 
 import (
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/oauth"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 func TestGetAuthURL_Facebook(t *testing.T) {
 	RegisterT(t)
 
-	svc := oauth.NewHTTPService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	authURL, err := svc.GetAuthURL(oauth.FacebookProvider, "")
 
 	Expect(err).IsNil()
@@ -20,7 +21,7 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 func TestGetAuthURL_Google(t *testing.T) {
 	RegisterT(t)
 
-	svc := oauth.NewHTTPService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	authURL, err := svc.GetAuthURL(oauth.GoogleProvider, "")
 
 	Expect(err).IsNil()
@@ -30,7 +31,7 @@ func TestGetAuthURL_Google(t *testing.T) {
 func TestGetAuthURL_GitHub(t *testing.T) {
 	RegisterT(t)
 
-	svc := oauth.NewHTTPService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	authURL, err := svc.GetAuthURL(oauth.GitHubProvider, "")
 
 	Expect(err).IsNil()
