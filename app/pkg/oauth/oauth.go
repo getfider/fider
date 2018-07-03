@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"encoding/json"
+	"errors"
 	"os"
 )
 
@@ -14,11 +14,16 @@ const (
 	GitHubProvider = "github"
 )
 
+//ErrUserIDRequired is used when OAuth integration returns an empty user ID
+var ErrUserIDRequired = errors.New("UserID is required during OAuth integration")
+
+//ErrUserNameRequired is used when OAuth integration returns an empty user name
+var ErrUserNameRequired = errors.New("User name is required during OAuth integration")
+
 //UserProfile represents an OAuth user profile
 type UserProfile struct {
-	ID    json.Number
+	ID    string
 	Name  string
-	Login string
 	Email string
 }
 

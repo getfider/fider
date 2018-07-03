@@ -36,7 +36,7 @@ func OAuthToken() web.HandlerFunc {
 
 		users := c.Services().Users
 
-		user, err := users.GetByProvider(provider, oauthUser.ID.String())
+		user, err := users.GetByProvider(provider, oauthUser.ID)
 		if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
 			user, err = users.GetByEmail(oauthUser.Email)
 		}
@@ -53,7 +53,7 @@ func OAuthToken() web.HandlerFunc {
 					Role:   models.RoleVisitor,
 					Providers: []*models.UserProvider{
 						&models.UserProvider{
-							UID:  oauthUser.ID.String(),
+							UID:  oauthUser.ID,
 							Name: provider,
 						},
 					},
@@ -68,7 +68,7 @@ func OAuthToken() web.HandlerFunc {
 			}
 		} else if !user.HasProvider(provider) {
 			err = users.RegisterProvider(user.ID, &models.UserProvider{
-				UID:  oauthUser.ID.String(),
+				UID:  oauthUser.ID,
 				Name: provider,
 			})
 			if err != nil {
@@ -120,7 +120,7 @@ func OAuthCallback() web.HandlerFunc {
 		}
 
 		claims := jwt.OAuthClaims{
-			OAuthID:       oauthUser.ID.String(),
+			OAuthID:       oauthUser.ID,
 			OAuthProvider: provider,
 			OAuthName:     oauthUser.Name,
 			OAuthEmail:    oauthUser.Email,

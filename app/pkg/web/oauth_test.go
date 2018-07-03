@@ -3,7 +3,10 @@ package web_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/models"
+
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -38,11 +41,173 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 	Expect(authURL).Equals("https://github.com/login/oauth/authorize?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=")
 }
 
-func TestGetProfile_Facebook(t *testing.T) {
+func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
-	_, err := svc.GetProfile(oauth.FacebookProvider, "1234")
+	profile, err := svc.ParseProfileResponse(
+		`{"name":"Jon Snow","email":"jon\u0040got.com","id":"789654"}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
+		},
+	)
 
 	Expect(err).IsNil()
+	Expect(profile.ID).Equals("789654")
+	Expect(profile.Name).Equals("Jon Snow")
+	Expect(profile.Email).Equals("jon@got.com")
+}
+
+func TestParseProfileResponse_WithoutEmail(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{"name":"Jon Snow","id":"1"}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
+		},
+	)
+
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("1")
+	Expect(profile.Name).Equals("Jon Snow")
+	Expect(profile.Email).Equals("")
+}
+
+func TestParseProfileResponse_NestedData(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{
+			"id": "123",
+			"profile": {
+				"name": "Jon Snow",
+				"email": "jon@got.com"
+			}
+		}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "profile.name",
+			JSONEmailPath:  "profile.email",
+		},
+	)
+
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("123")
+	Expect(profile.Name).Equals("Jon Snow")
+	Expect(profile.Email).Equals("jon@got.com")
+}
+
+func TestParseProfileResponse_WithFallback(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{
+			"id": "123",
+			"profile": {
+				"login": "jonny",
+				"email": "jon@got.com"
+			}
+		}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "profile.name, profile.login",
+			JSONEmailPath:  "profile.email",
+		},
+	)
+
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("123")
+	Expect(profile.Name).Equals("jonny")
+	Expect(profile.Email).Equals("jon@got.com")
+}
+
+func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{
+			"id": "123",
+			"profile": {
+				"email": "jon@got.com"
+			}
+		}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "profile.name",
+			JSONEmailPath:  "profile.email",
+		},
+	)
+
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("123")
+	Expect(profile.Name).Equals("jon")
+	Expect(profile.Email).Equals("jon@got.com")
+}
+
+func TestParseProfileResponse_InvalidEmail(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{
+			"id": "123",
+			"profile": {
+				"name": "Jon Snow",
+				"email": "jon"
+			}
+		}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "profile.name",
+			JSONEmailPath:  "profile.email",
+		},
+	)
+
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("123")
+	Expect(profile.Name).Equals("Jon Snow")
+	Expect(profile.Email).Equals("")
+}
+
+func TestParseProfileResponse_EmptyID(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{}`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
+		},
+	)
+
+	Expect(errors.Cause(err)).Equals(oauth.ErrUserIDRequired)
+	Expect(profile).IsNil()
+}
+
+func TestParseProfileResponse_EmptyName(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	profile, err := svc.ParseProfileResponse(
+		`{ "id": "123" }`,
+		&models.OAuthConfig{
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
+		},
+	)
+
+	Expect(errors.Cause(err)).Equals(oauth.ErrUserNameRequired)
+	Expect(profile).IsNil()
 }

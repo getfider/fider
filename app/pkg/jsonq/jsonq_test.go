@@ -22,6 +22,15 @@ func TestGetStringNested(t *testing.T) {
 	Expect(query.String("failures.name")).Equals("Jon Snow")
 }
 
+func TestGetWithFallback(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": "", "login": "jonsnow" }`)
+	Expect(query.String("login")).Equals("jonsnow")
+	Expect(query.String("name")).Equals("")
+	Expect(query.String("name, login")).Equals("jonsnow")
+}
+
 func TestContains(t *testing.T) {
 	RegisterT(t)
 

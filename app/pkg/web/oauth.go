@@ -1,13 +1,16 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/validate"
+
+	"github.com/getfider/fider/app/pkg/jsonq"
 
 	"github.com/getfider/fider/app/models"
 
@@ -27,28 +30,37 @@ type providerSettings struct {
 var (
 	systemProviders = map[string]*models.OAuthConfig{
 		oauth.FacebookProvider: &models.OAuthConfig{
-			ProfileURL:   "https://graph.facebook.com/me?fields=name,email",
-			ClientID:     os.Getenv("OAUTH_FACEBOOK_APPID"),
-			ClientSecret: os.Getenv("OAUTH_FACEBOOK_SECRET"),
-			Scope:        "public_profile email",
-			AuthorizeURL: facebook.Endpoint.AuthURL,
-			TokenURL:     facebook.Endpoint.TokenURL,
+			ProfileURL:     "https://graph.facebook.com/me?fields=name,email",
+			ClientID:       os.Getenv("OAUTH_FACEBOOK_APPID"),
+			ClientSecret:   os.Getenv("OAUTH_FACEBOOK_SECRET"),
+			Scope:          "public_profile email",
+			AuthorizeURL:   facebook.Endpoint.AuthURL,
+			TokenURL:       facebook.Endpoint.TokenURL,
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
 		},
 		oauth.GoogleProvider: &models.OAuthConfig{
-			ProfileURL:   "https://www.googleapis.com/oauth2/v2/userinfo",
-			ClientID:     os.Getenv("OAUTH_GOOGLE_CLIENTID"),
-			ClientSecret: os.Getenv("OAUTH_GOOGLE_SECRET"),
-			Scope:        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-			AuthorizeURL: google.Endpoint.AuthURL,
-			TokenURL:     google.Endpoint.TokenURL,
+			ProfileURL:     "https://www.googleapis.com/oauth2/v2/userinfo",
+			ClientID:       os.Getenv("OAUTH_GOOGLE_CLIENTID"),
+			ClientSecret:   os.Getenv("OAUTH_GOOGLE_SECRET"),
+			Scope:          "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+			AuthorizeURL:   google.Endpoint.AuthURL,
+			TokenURL:       google.Endpoint.TokenURL,
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name",
+			JSONEmailPath:  "email",
 		},
 		oauth.GitHubProvider: &models.OAuthConfig{
-			ProfileURL:   "https://api.github.com/user",
-			ClientID:     os.Getenv("OAUTH_GITHUB_CLIENTID"),
-			ClientSecret: os.Getenv("OAUTH_GITHUB_SECRET"),
-			Scope:        "user:email",
-			AuthorizeURL: github.Endpoint.AuthURL,
-			TokenURL:     github.Endpoint.TokenURL,
+			ProfileURL:     "https://api.github.com/user",
+			ClientID:       os.Getenv("OAUTH_GITHUB_CLIENTID"),
+			ClientSecret:   os.Getenv("OAUTH_GITHUB_SECRET"),
+			Scope:          "user:email",
+			AuthorizeURL:   github.Endpoint.AuthURL,
+			TokenURL:       github.Endpoint.TokenURL,
+			JSONUserIDPath: "id",
+			JSONNamePath:   "name, login",
+			JSONEmailPath:  "email",
 		},
 	}
 )
@@ -110,20 +122,33 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 		return nil, err
 	}
 
-	return s.ParseProfile(bytes)
+	return s.ParseProfileResponse(string(bytes), config)
 }
 
-//ParseProfile parses profile response into UserProfile model
-func (s *OAuthService) ParseProfile(bytes []byte) (*oauth.UserProfile, error) {
-	profile := &oauth.UserProfile{}
-	err := json.Unmarshal(bytes, profile)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed unmarshal response")
+//ParseProfileResponse parses profile response into UserProfile model
+func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthConfig) (*oauth.UserProfile, error) {
+	query := jsonq.New(body)
+	profile := &oauth.UserProfile{
+		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
+		Name:  strings.TrimSpace(query.String(config.JSONNamePath)),
+		Email: strings.TrimSpace(query.String(config.JSONEmailPath)),
 	}
 
-	//GitHub allows users to omit name, so we use their login name
-	if strings.Trim(profile.Name, " ") == "" {
-		profile.Name = profile.Login
+	if profile.ID == "" {
+		return nil, oauth.ErrUserIDRequired
+	}
+
+	if profile.Name == "" && profile.Email != "" {
+		parts := strings.Split(profile.Email, "@")
+		profile.Name = parts[0]
+	}
+
+	if profile.Name == "" {
+		return nil, oauth.ErrUserNameRequired
+	}
+
+	if !validate.Email(profile.Email).Ok {
+		profile.Email = ""
 	}
 
 	return profile, nil
