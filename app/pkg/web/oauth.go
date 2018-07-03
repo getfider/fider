@@ -53,33 +53,6 @@ var (
 	}
 )
 
-func doGet(url, accessToken string, v interface{}) error {
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-	r, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		return err
-	}
-
-	defer r.Body.Close()
-	if r.StatusCode != 200 {
-		return errors.New("failed to request GET %s with status code %d", url, r.StatusCode)
-	}
-
-	bytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return errors.Wrap(err, "failed to request GET %s", url)
-	}
-
-	err = json.Unmarshal(bytes, v)
-	if err != nil {
-		return errors.Wrap(err, "failed unmarshal response")
-	}
-
-	return nil
-}
-
 //OAuthService implements real OAuth operations using Golang's oauth2 package
 type OAuthService struct {
 	authEndpoint string
@@ -93,8 +66,8 @@ func NewOAuthService(authEndpoint string) *OAuthService {
 }
 
 //GetAuthURL returns authentication url for given provider
-func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
-	config, err := p.getConfig(provider)
+func (s *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
+	config, err := s.getConfig(provider)
 	if err != nil {
 		return "", err
 	}
@@ -103,7 +76,7 @@ func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, err
 	parameters := url.Values{}
 	parameters.Add("client_id", config.ClientID)
 	parameters.Add("scope", config.Scope)
-	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", p.authEndpoint, provider))
+	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", s.authEndpoint, provider))
 	parameters.Add("response_type", "code")
 	parameters.Add("state", redirect)
 	authURL.RawQuery = parameters.Encode()
@@ -111,8 +84,8 @@ func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, err
 }
 
 //GetProfile returns user profile based on provider and code
-func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
-	config, err := p.getConfig(provider)
+func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
+	config, err := s.getConfig(provider)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +97,7 @@ func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 			AuthURL:  config.AuthorizeURL,
 			TokenURL: config.TokenURL,
 		},
-		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", p.authEndpoint, provider),
+		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", s.authEndpoint, provider),
 	}).Exchange
 
 	oauthToken, err := exchange(oauth2.NoContext, code)
@@ -132,9 +105,20 @@ func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 		return nil, errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
 	}
 
-	profile := &oauth.UserProfile{}
-	if err = doGet(config.ProfileURL, oauthToken.AccessToken, profile); err != nil {
+	bytes, err := s.doGet(config.ProfileURL, oauthToken.AccessToken)
+	if err != nil {
 		return nil, err
+	}
+
+	return s.ParseProfile(bytes)
+}
+
+//ParseProfile parses profile response into UserProfile model
+func (s *OAuthService) ParseProfile(bytes []byte) (*oauth.UserProfile, error) {
+	profile := &oauth.UserProfile{}
+	err := json.Unmarshal(bytes, profile)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed unmarshal response")
 	}
 
 	//GitHub allows users to omit name, so we use their login name
@@ -145,6 +129,28 @@ func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 	return profile, nil
 }
 
-func (p *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
+func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	r, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer r.Body.Close()
+	if r.StatusCode != 200 {
+		return nil, errors.New("failed to request GET %s with status code %d", url, r.StatusCode)
+	}
+
+	bytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to request GET %s", url)
+	}
+
+	return bytes, nil
+}
+
+func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
 	return systemProviders[provider], nil
 }

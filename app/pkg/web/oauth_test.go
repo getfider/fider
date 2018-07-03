@@ -37,3 +37,12 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(authURL).Equals("https://github.com/login/oauth/authorize?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=")
 }
+
+func TestGetProfile_Facebook(t *testing.T) {
+	RegisterT(t)
+
+	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	_, err := svc.GetProfile(oauth.FacebookProvider, "1234")
+
+	Expect(err).IsNil()
+}
