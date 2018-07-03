@@ -32,13 +32,13 @@ func (q *Query) String(key string) string {
 	for _, k := range keys {
 		data := q.get(strings.TrimSpace(k))
 		if data != nil {
-			var str string
+			var str json.Number
 			err := json.Unmarshal(*data, &str)
 			if err != nil {
 				panic(err)
 			}
 			if str != "" {
-				return str
+				return str.String()
 			}
 		}
 	}

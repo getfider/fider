@@ -15,6 +15,13 @@ func TestGet(t *testing.T) {
 	Expect(query.Int32("age")).Equals(23)
 }
 
+func TestGet_NumberAsString(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "age": 23 }`)
+	Expect(query.String("age")).Equals("23")
+}
+
 func TestGetStringNested(t *testing.T) {
 	RegisterT(t)
 

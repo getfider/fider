@@ -110,7 +110,7 @@ func TestParseProfileResponse_WithFallback(t *testing.T) {
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	profile, err := svc.ParseProfileResponse(
 		`{
-			"id": "123",
+			"id": 123,
 			"profile": {
 				"login": "jonny",
 				"email": "jon@got.com"
@@ -159,7 +159,7 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	profile, err := svc.ParseProfileResponse(
 		`{
-			"id": "123",
+			"id": "AB123",
 			"profile": {
 				"name": "Jon Snow",
 				"email": "jon"
@@ -173,7 +173,7 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 	)
 
 	Expect(err).IsNil()
-	Expect(profile.ID).Equals("123")
+	Expect(profile.ID).Equals("AB123")
 	Expect(profile.Name).Equals("Jon Snow")
 	Expect(profile.Email).Equals("")
 }
