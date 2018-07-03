@@ -132,7 +132,7 @@ func WebSetup() web.MiddlewareFunc {
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
-				OAuth:         &oauth.HTTPService{},
+				OAuth:         oauth.NewHTTPService(c.AuthEndpoint()),
 				Users:         postgres.NewUserStorage(trx),
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
