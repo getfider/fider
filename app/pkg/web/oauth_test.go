@@ -200,7 +200,7 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
 	profile, err := svc.ParseProfileResponse(
-		`{ "id": "123" }`,
+		`{ "id": "A0" }`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
 			JSONNamePath:   "name",
@@ -208,6 +208,7 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 		},
 	)
 
-	Expect(errors.Cause(err)).Equals(oauth.ErrUserNameRequired)
-	Expect(profile).IsNil()
+	Expect(err).IsNil()
+	Expect(profile.ID).Equals("A0")
+	Expect(profile.Name).Equals("Anonymous")
 }

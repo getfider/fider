@@ -144,7 +144,7 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 	}
 
 	if profile.Name == "" {
-		return nil, oauth.ErrUserNameRequired
+		profile.Name = "Anonymous"
 	}
 
 	if !validate.Email(profile.Email).Ok {

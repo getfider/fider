@@ -17,9 +17,6 @@ const (
 //ErrUserIDRequired is used when OAuth integration returns an empty user ID
 var ErrUserIDRequired = errors.New("UserID is required during OAuth integration")
 
-//ErrUserNameRequired is used when OAuth integration returns an empty user name
-var ErrUserNameRequired = errors.New("User name is required during OAuth integration")
-
 //UserProfile represents an OAuth user profile
 type UserProfile struct {
 	ID    string
