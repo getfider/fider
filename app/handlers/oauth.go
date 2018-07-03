@@ -20,8 +20,10 @@ type oauthUserProfile struct {
 }
 
 // OAuthToken exchanges Authorization Code for Authentication Token
-func OAuthToken(provider string) web.HandlerFunc {
+func OAuthToken() web.HandlerFunc {
 	return func(c web.Context) error {
+		provider := c.Param("provider")
+
 		code := c.QueryParam("code")
 		if code == "" {
 			return c.Redirect(c.BaseURL())
@@ -87,8 +89,9 @@ func OAuthToken(provider string) web.HandlerFunc {
 }
 
 // OAuthCallback handles OAuth callbacks
-func OAuthCallback(provider string) web.HandlerFunc {
+func OAuthCallback() web.HandlerFunc {
 	return func(c web.Context) error {
+		provider := c.Param("provider")
 		redirect := c.QueryParam("state")
 		redirectURL, err := url.ParseRequestURI(redirect)
 		if err != nil {
@@ -139,8 +142,9 @@ func OAuthCallback(provider string) web.HandlerFunc {
 }
 
 // SignInByOAuth handles OAuth sign in
-func SignInByOAuth(provider string) web.HandlerFunc {
+func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
+		provider := c.Param("provider")
 		authURL := c.Services().OAuth.GetAuthURL(c.AuthEndpoint(), provider, c.QueryParam("redirect"))
 		return c.Redirect(authURL)
 	}
