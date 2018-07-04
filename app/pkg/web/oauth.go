@@ -164,14 +164,28 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	list := make([]*oauth.ProviderOption, 0)
 
-	for _, p := range systemProviders {
-		if p.ClientID != "" {
-			list = append(list, &oauth.ProviderOption{
-				Provider:    p.Provider,
-				DisplayName: p.DisplayName,
-				URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, p.Provider),
-			})
-		}
+	if facebook := systemProviders[oauth.FacebookProvider]; facebook.ClientID != "" {
+		list = append(list, &oauth.ProviderOption{
+			Provider:    facebook.Provider,
+			DisplayName: facebook.DisplayName,
+			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, facebook.Provider),
+		})
+	}
+
+	if google := systemProviders[oauth.GoogleProvider]; google.ClientID != "" {
+		list = append(list, &oauth.ProviderOption{
+			Provider:    google.Provider,
+			DisplayName: google.DisplayName,
+			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, google.Provider),
+		})
+	}
+
+	if github := systemProviders[oauth.GitHubProvider]; github.ClientID != "" {
+		list = append(list, &oauth.ProviderOption{
+			Provider:    github.Provider,
+			DisplayName: github.DisplayName,
+			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, github.Provider),
+		})
 	}
 
 	return list, nil

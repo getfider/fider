@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"errors"
-	"os"
 )
 
 const (
@@ -29,18 +28,6 @@ type ProviderOption struct {
 	Provider    string `json:"provider"`
 	DisplayName string `json:"displayName"`
 	URL         string `json:"url"`
-}
-
-//IsProviderEnabled returns true if provider is enabled
-func IsProviderEnabled(name string) bool {
-	if name == GoogleProvider {
-		return os.Getenv("OAUTH_GOOGLE_CLIENTID") != ""
-	} else if name == FacebookProvider {
-		return os.Getenv("OAUTH_FACEBOOK_APPID") != ""
-	} else if name == GitHubProvider {
-		return os.Getenv("OAUTH_GITHUB_CLIENTID") != ""
-	}
-	return false
 }
 
 //Service provides OAuth operations
