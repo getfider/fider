@@ -30,6 +30,8 @@ type providerSettings struct {
 var (
 	systemProviders = map[string]*models.OAuthConfig{
 		oauth.FacebookProvider: &models.OAuthConfig{
+			Provider:       oauth.FacebookProvider,
+			DisplayName:    "Facebook",
 			ProfileURL:     "https://graph.facebook.com/me?fields=name,email",
 			ClientID:       os.Getenv("OAUTH_FACEBOOK_APPID"),
 			ClientSecret:   os.Getenv("OAUTH_FACEBOOK_SECRET"),
@@ -41,6 +43,8 @@ var (
 			JSONEmailPath:  "email",
 		},
 		oauth.GoogleProvider: &models.OAuthConfig{
+			Provider:       oauth.GoogleProvider,
+			DisplayName:    "Google",
 			ProfileURL:     "https://www.googleapis.com/oauth2/v2/userinfo",
 			ClientID:       os.Getenv("OAUTH_GOOGLE_CLIENTID"),
 			ClientSecret:   os.Getenv("OAUTH_GOOGLE_SECRET"),
@@ -52,6 +56,8 @@ var (
 			JSONEmailPath:  "email",
 		},
 		oauth.GitHubProvider: &models.OAuthConfig{
+			Provider:       oauth.GitHubProvider,
+			DisplayName:    "GitHub",
 			ProfileURL:     "https://api.github.com/user",
 			ClientID:       os.Getenv("OAUTH_GITHUB_CLIENTID"),
 			ClientSecret:   os.Getenv("OAUTH_GITHUB_SECRET"),
@@ -152,6 +158,23 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 	}
 
 	return profile, nil
+}
+
+//ListProviders returns a list of all providers for current tenant
+func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
+	list := make([]*oauth.ProviderOption, 0)
+
+	for _, p := range systemProviders {
+		if p.ClientID != "" {
+			list = append(list, &oauth.ProviderOption{
+				Provider:    p.Provider,
+				DisplayName: p.DisplayName,
+				URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, p.Provider),
+			})
+		}
+	}
+
+	return list, nil
 }
 
 func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {

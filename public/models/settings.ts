@@ -1,3 +1,9 @@
+export interface OAuthProviderOption {
+  provider: string;
+  displayName: string;
+  url: string;
+}
+
 export interface SystemSettings {
   mode: string;
   buildTime: string;
@@ -8,14 +14,7 @@ export interface SystemSettings {
   hasLegal: boolean;
   baseURL: string;
   assetsURL: string;
-  auth: {
-    endpoint: string;
-    providers: {
-      google: boolean;
-      facebook: boolean;
-      github: boolean;
-    };
-  };
+  oauth: OAuthProviderOption[];
 }
 
 export interface UserSettings {

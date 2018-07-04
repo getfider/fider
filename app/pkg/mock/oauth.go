@@ -6,12 +6,12 @@ import "github.com/getfider/fider/app/pkg/oauth"
 type OAuthService struct{}
 
 //GetAuthURL returns authentication url for given provider
-func (p *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
+func (s *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
 	return "http://avengers.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect, nil
 }
 
 //GetProfile returns user profile based on provider and code
-func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
+func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
 	if provider == "facebook" && code == "123" {
 		return &oauth.UserProfile{
 			ID:    "FB123",
@@ -45,4 +45,9 @@ func (p *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 	}
 
 	return nil, nil
+}
+
+//ListProviders returns a list of all providers for current tenant
+func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
+	return []*oauth.ProviderOption{}, nil
 }
