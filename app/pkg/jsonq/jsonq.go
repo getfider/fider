@@ -28,14 +28,19 @@ func New(content string) *Query {
 
 //String returns a string value from the json object based on its key
 func (q *Query) String(key string) string {
-	data := q.get(key)
-	if data != nil {
-		var str string
-		err := json.Unmarshal(*data, &str)
-		if err != nil {
-			panic(err)
+	keys := strings.Split(key, ",")
+	for _, k := range keys {
+		data := q.get(strings.TrimSpace(k))
+		if data != nil {
+			var str json.Number
+			err := json.Unmarshal(*data, &str)
+			if err != nil {
+				panic(err)
+			}
+			if str != "" {
+				return str.String()
+			}
 		}
-		return str
 	}
 	return ""
 }

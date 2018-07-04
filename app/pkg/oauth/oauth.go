@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"encoding/json"
+	"errors"
 	"os"
 )
 
@@ -14,11 +14,13 @@ const (
 	GitHubProvider = "github"
 )
 
+//ErrUserIDRequired is used when OAuth integration returns an empty user ID
+var ErrUserIDRequired = errors.New("UserID is required during OAuth integration")
+
 //UserProfile represents an OAuth user profile
 type UserProfile struct {
-	ID    json.Number
+	ID    string
 	Name  string
-	Login string
 	Email string
 }
 
@@ -36,6 +38,6 @@ func IsProviderEnabled(name string) bool {
 
 //Service provides OAuth operations
 type Service interface {
-	GetAuthURL(authEndpoint string, provider string, redirect string) string
-	GetProfile(authEndpoint string, provider string, code string) (*UserProfile, error)
+	GetAuthURL(provider string, redirect string) (string, error)
+	GetProfile(provider string, code string) (*UserProfile, error)
 }

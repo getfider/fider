@@ -13,7 +13,6 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
 )
@@ -132,7 +131,7 @@ func WebSetup() web.MiddlewareFunc {
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
-				OAuth:         &oauth.HTTPService{},
+				OAuth:         web.NewOAuthService(c.AuthEndpoint()),
 				Users:         postgres.NewUserStorage(trx),
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),

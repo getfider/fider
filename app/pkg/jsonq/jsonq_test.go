@@ -15,11 +15,27 @@ func TestGet(t *testing.T) {
 	Expect(query.Int32("age")).Equals(23)
 }
 
+func TestGet_NumberAsString(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "age": 23 }`)
+	Expect(query.String("age")).Equals("23")
+}
+
 func TestGetStringNested(t *testing.T) {
 	RegisterT(t)
 
 	query := jsonq.New(`{ "failures": { "name": "Jon Snow" } }`)
 	Expect(query.String("failures.name")).Equals("Jon Snow")
+}
+
+func TestGetWithFallback(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": "", "login": "jonsnow" }`)
+	Expect(query.String("login")).Equals("jonsnow")
+	Expect(query.String("name")).Equals("")
+	Expect(query.String("name, login")).Equals("jonsnow")
 }
 
 func TestContains(t *testing.T) {

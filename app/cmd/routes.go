@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -37,12 +36,8 @@ func routes(r *web.Engine) *web.Engine {
 		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())
 
-		noTenant.Get("/oauth/facebook", handlers.SignInByOAuth(oauth.FacebookProvider))
-		noTenant.Get("/oauth/facebook/callback", handlers.OAuthCallback(oauth.FacebookProvider))
-		noTenant.Get("/oauth/google", handlers.SignInByOAuth(oauth.GoogleProvider))
-		noTenant.Get("/oauth/google/callback", handlers.OAuthCallback(oauth.GoogleProvider))
-		noTenant.Get("/oauth/github", handlers.SignInByOAuth(oauth.GitHubProvider))
-		noTenant.Get("/oauth/github/callback", handlers.OAuthCallback(oauth.GitHubProvider))
+		noTenant.Get("/oauth/:provider", handlers.SignInByOAuth())
+		noTenant.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 	}
 
 	r.Use(middlewares.Tenant())
@@ -61,9 +56,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
-		open.Get("/oauth/facebook/token", handlers.OAuthToken(oauth.FacebookProvider))
-		open.Get("/oauth/google/token", handlers.OAuthToken(oauth.GoogleProvider))
-		open.Get("/oauth/github/token", handlers.OAuthToken(oauth.GitHubProvider))
+		open.Get("/oauth/:provider/token", handlers.OAuthToken())
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())
 		open.Get("/not-invited", handlers.NotInvitedPage())
