@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
 
 	"github.com/getfider/fider/app/pkg/jsonq"
@@ -28,8 +29,8 @@ type providerSettings struct {
 }
 
 var (
-	systemProviders = map[string]*models.OAuthConfig{
-		oauth.FacebookProvider: &models.OAuthConfig{
+	systemProviders = []*models.OAuthConfig{
+		&models.OAuthConfig{
 			Provider:       oauth.FacebookProvider,
 			DisplayName:    "Facebook",
 			ProfileURL:     "https://graph.facebook.com/me?fields=name,email",
@@ -42,7 +43,7 @@ var (
 			JSONNamePath:   "name",
 			JSONEmailPath:  "email",
 		},
-		oauth.GoogleProvider: &models.OAuthConfig{
+		&models.OAuthConfig{
 			Provider:       oauth.GoogleProvider,
 			DisplayName:    "Google",
 			ProfileURL:     "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -55,7 +56,7 @@ var (
 			JSONNamePath:   "name",
 			JSONEmailPath:  "email",
 		},
-		oauth.GitHubProvider: &models.OAuthConfig{
+		&models.OAuthConfig{
 			Provider:       oauth.GitHubProvider,
 			DisplayName:    "GitHub",
 			ProfileURL:     "https://api.github.com/user",
@@ -164,28 +165,14 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	list := make([]*oauth.ProviderOption, 0)
 
-	if facebook := systemProviders[oauth.FacebookProvider]; facebook.ClientID != "" {
-		list = append(list, &oauth.ProviderOption{
-			Provider:    facebook.Provider,
-			DisplayName: facebook.DisplayName,
-			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, facebook.Provider),
-		})
-	}
-
-	if google := systemProviders[oauth.GoogleProvider]; google.ClientID != "" {
-		list = append(list, &oauth.ProviderOption{
-			Provider:    google.Provider,
-			DisplayName: google.DisplayName,
-			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, google.Provider),
-		})
-	}
-
-	if github := systemProviders[oauth.GitHubProvider]; github.ClientID != "" {
-		list = append(list, &oauth.ProviderOption{
-			Provider:    github.Provider,
-			DisplayName: github.DisplayName,
-			URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, github.Provider),
-		})
+	for _, p := range systemProviders {
+		if p.ClientID != "" {
+			list = append(list, &oauth.ProviderOption{
+				Provider:    p.Provider,
+				DisplayName: p.DisplayName,
+				URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, p.Provider),
+			})
+		}
 	}
 
 	return list, nil
@@ -215,5 +202,10 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
-	return systemProviders[provider], nil
+	for _, p := range systemProviders {
+		if p.Provider == provider {
+			return p, nil
+		}
+	}
+	return nil, app.ErrNotFound
 }
