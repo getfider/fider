@@ -187,13 +187,14 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 	}
 
 	defer r.Body.Close()
-	if r.StatusCode != 200 {
-		return nil, errors.New("failed to request GET %s with status code %d", url, r.StatusCode)
-	}
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to request GET %s", url)
+	}
+
+	if r.StatusCode != 200 {
+		return nil, errors.New("failed to request GET %s with status code %d and response %s", url, r.StatusCode, string(bytes))
 	}
 
 	return bytes, nil
