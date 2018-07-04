@@ -76,7 +76,7 @@ h5:last-child {
 
 p {
   margin: 0 0 14px;
-  line-height: 130%;
+  line-height: 1.38;
 }
 p:first-child {
   margin-top: 0;
@@ -87,7 +87,7 @@ p:last-child {
 
 ul {
   li {
-    line-height: 130%;
+    line-height: 1.38;
   }
 }
 
@@ -246,9 +246,10 @@ h1, h2, h3, h4, h5 {
   overflow-wrap: break-word;
   word-break: break-word;
   blockquote {
-      padding: 0 1em;
-      color: #6a737d;
-      border-left: 0.25em solid #dfe2e5;
+    padding: 0 8px;
+    color: $gray-darkest;
+    border-left: 4px solid $gray-light;
+    margin: 5px 0;
   }
   img {
     max-width: 100%;
