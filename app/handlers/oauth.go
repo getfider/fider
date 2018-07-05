@@ -39,6 +39,7 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
 		}
 
+		c.RemoveCookie("__oauth_identifier")
 		if identifier != cookie.Value {
 			return c.Redirect(redirectURL.String())
 		}
@@ -91,7 +92,6 @@ func OAuthToken() web.HandlerFunc {
 		}
 
 		webutil.AddAuthUserCookie(c, user)
-		c.RemoveCookie("__oauth_identifier")
 
 		return c.Redirect(redirectURL.String())
 	}
