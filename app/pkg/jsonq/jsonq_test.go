@@ -38,6 +38,15 @@ func TestGetWithFallback(t *testing.T) {
 	Expect(query.String("name, login")).Equals("jonsnow")
 }
 
+func TestGetValueFromArray(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "data": [{ "name": "Jon Snow" }, { "age": 23 }] }`)
+	Expect(query.String("data[0].name")).Equals("Jon Snow")
+	Expect(query.String("data[0].age")).Equals("")
+	Expect(query.String("data[1].age")).Equals("23")
+}
+
 func TestContains(t *testing.T) {
 	RegisterT(t)
 

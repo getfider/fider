@@ -2,6 +2,7 @@ package jsonq
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 )
 
@@ -14,7 +15,7 @@ type Query struct {
 //New creates a new Query object based on given input as a JSON
 func New(content string) *Query {
 	var m map[string]*json.RawMessage
-	if len(content) > 0 && string(content[0]) == "{" {
+	if len(content) > 0 && content[:1] == "{" {
 		err := json.Unmarshal([]byte(content), &m)
 		if err != nil {
 			panic(err)
@@ -26,11 +27,11 @@ func New(content string) *Query {
 	}
 }
 
-//String returns a string value from the json object based on its key
-func (q *Query) String(key string) string {
-	keys := strings.Split(key, ",")
-	for _, k := range keys {
-		data := q.get(strings.TrimSpace(k))
+//String returns a string value from the json object based on its selector
+func (q *Query) String(selector string) string {
+	selectors := strings.Split(selector, ",")
+	for _, s := range selectors {
+		data := q.get(strings.TrimSpace(s))
 		if data != nil {
 			var str json.Number
 			err := json.Unmarshal(*data, &str)
@@ -45,9 +46,9 @@ func (q *Query) String(key string) string {
 	return ""
 }
 
-//Int32 returns a integer value from the json object based on its key
-func (q *Query) Int32(key string) int {
-	data := q.get(key)
+//Int32 returns a integer value from the json object based on its selector
+func (q *Query) Int32(selector string) int {
+	data := q.get(selector)
 	if data != nil {
 		var num int
 		err := json.Unmarshal(*data, &num)
@@ -75,30 +76,50 @@ func (q *Query) ArrayLength() int {
 }
 
 //Contains returns true if the json object has the key
-func (q *Query) Contains(key string) bool {
-	return q.get(key) != nil
+func (q *Query) Contains(selector string) bool {
+	return q.get(selector) != nil
 }
 
-func (q *Query) get(key string) *json.RawMessage {
-	keys := strings.Split(key, ".")
+func (q *Query) get(selector string) *json.RawMessage {
+	parts := strings.Split(selector, ".")
 
-	var message *json.RawMessage
-	var m map[string]*json.RawMessage
+	var result *json.RawMessage
+	var current map[string]*json.RawMessage
 
-	for _, key := range keys {
-		if m != nil {
-			message = m[key]
+	for _, part := range parts {
+		if part[len(part)-1:] == "]" {
+			idx, _ := strconv.Atoi(part[len(part)-2 : len(part)-1])
+			part = part[:len(part)-3]
+
+			if current != nil {
+				result = current[part]
+			} else {
+				result = q.m[part]
+			}
+
+			var arr []*json.RawMessage
+			bytes, _ := result.MarshalJSON()
+			json.Unmarshal(bytes, &arr)
+			bytes, _ = arr[idx].MarshalJSON()
+			json.Unmarshal(bytes, &current)
+
 		} else {
-			message = q.m[key]
-		}
 
-		if message != nil {
-			bytes, _ := message.MarshalJSON()
-			json.Unmarshal(bytes, &m)
-		} else {
-			return nil
+			if current != nil {
+				result = current[part]
+			} else {
+				result = q.m[part]
+			}
+
+			if result != nil {
+				bytes, _ := result.MarshalJSON()
+				json.Unmarshal(bytes, &current)
+			} else {
+				return nil
+			}
+
 		}
 	}
 
-	return message
+	return result
 }
