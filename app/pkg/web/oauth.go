@@ -80,7 +80,7 @@ func NewOAuthService(oauthBaseURL string) *OAuthService {
 }
 
 //GetAuthURL returns authentication url for given provider
-func (s *OAuthService) GetAuthURL(provider string, redirect string) (string, error) {
+func (s *OAuthService) GetAuthURL(provider, redirect, identifier string) (string, error) {
 	config, err := s.getConfig(provider)
 	if err != nil {
 		return "", err
@@ -92,7 +92,7 @@ func (s *OAuthService) GetAuthURL(provider string, redirect string) (string, err
 	parameters.Add("scope", config.Scope)
 	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", s.oauthBaseURL, provider))
 	parameters.Add("response_type", "code")
-	parameters.Add("state", redirect)
+	parameters.Add("state", redirect+"|"+identifier)
 	authURL.RawQuery = parameters.Encode()
 	return authURL.String(), nil
 }

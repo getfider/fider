@@ -3,12 +3,14 @@ package handlers
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/uuid"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
 )
@@ -23,10 +25,22 @@ type oauthUserProfile struct {
 func OAuthToken() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
+		redirectURL, _ := url.ParseRequestURI(c.QueryParam("redirect"))
+		redirectURL.ResolveReference(c.Request.URL)
 
 		code := c.QueryParam("code")
 		if code == "" {
-			return c.Redirect(c.BaseURL())
+			return c.Redirect(redirectURL.String())
+		}
+
+		identifier := c.QueryParam("identifier")
+		cookie, err := c.Request.Cookie("__oauth_identifier")
+		if err != nil {
+			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
+		}
+
+		if identifier != cookie.Value {
+			return c.Redirect(redirectURL.String())
 		}
 
 		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
@@ -43,7 +57,7 @@ func OAuthToken() web.HandlerFunc {
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				if c.Tenant().IsPrivate {
-					return c.Redirect(c.BaseURL() + "/not-invited")
+					return c.Redirect("/not-invited")
 				}
 
 				user = &models.User{
@@ -77,13 +91,8 @@ func OAuthToken() web.HandlerFunc {
 		}
 
 		webutil.AddAuthUserCookie(c, user)
+		c.RemoveCookie("__oauth_identifier")
 
-		redirectURL, _ := url.Parse(c.Request.URL.String())
-		var query = redirectURL.Query()
-		query.Del("code")
-		query.Del("path")
-		redirectURL.RawQuery = query.Encode()
-		redirectURL.Path = c.QueryParam("path")
 		return c.Redirect(redirectURL.String())
 	}
 }
@@ -92,22 +101,25 @@ func OAuthToken() web.HandlerFunc {
 func OAuthCallback() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
-		redirect := c.QueryParam("state")
-		redirectURL, err := url.ParseRequestURI(redirect)
+		state := c.QueryParam("state")
+		parts := strings.Split(state, "|")
+
+		redirectURL, err := url.ParseRequestURI(parts[0])
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		code := c.QueryParam("code")
 		if code == "" {
-			return c.Redirect(redirect)
+			return c.Redirect(redirectURL.String())
 		}
 
 		//Sign in process
 		if redirectURL.Path != "/signup" {
 			var query = redirectURL.Query()
 			query.Set("code", code)
-			query.Set("path", redirectURL.Path)
+			query.Set("redirect", redirectURL.RequestURI())
+			query.Set("identifier", parts[1])
 			redirectURL.RawQuery = query.Encode()
 			redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 			return c.Redirect(redirectURL.String())
@@ -145,7 +157,9 @@ func OAuthCallback() web.HandlerFunc {
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"))
+		identifier := uuid.NewV4().String()
+		c.AddCookie("__oauth_identifier", identifier, time.Now().Add(5*time.Minute))
+		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), identifier)
 		if err != nil {
 			return c.Failure(err)
 		}

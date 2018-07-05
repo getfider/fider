@@ -32,7 +32,7 @@ type ProviderOption struct {
 
 //Service provides OAuth operations
 type Service interface {
-	GetAuthURL(provider string, redirect string) (string, error)
+	GetAuthURL(provider, redirect, identifier string) (string, error)
 	GetProfile(provider string, code string) (*UserProfile, error)
 	ListProviders() ([]*ProviderOption, error)
 }
