@@ -10,8 +10,8 @@ export class Browser {
 
   public static async launch(): Promise<Browser> {
     const browser = await puppeteer.launch({
-      headless: false,
-      devtools: true
+      headless: true,
+      devtools: false
     });
     return new Browser(browser);
   }
