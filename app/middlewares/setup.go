@@ -128,10 +128,18 @@ func WebSetup() web.MiddlewareFunc {
 
 			trx.SetLogger(c.Logger())
 
+			oauthBaseURL := c.BaseURL()
+			if !env.IsSingleHostMode() {
+				oauthBaseURL = fmt.Sprintf("%s://login%s", c.Request.URL.Scheme, env.MultiTenantDomain())
+				if c.Request.URL.Port() != "80" && c.Request.URL.Port() != "443" {
+					oauthBaseURL += ":" + c.Request.URL.Port()
+				}
+			}
+
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
-				OAuth:         web.NewOAuthService(c.AuthEndpoint()),
+				OAuth:         web.NewOAuthService(oauthBaseURL),
 				Users:         postgres.NewUserStorage(trx),
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),

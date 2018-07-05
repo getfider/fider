@@ -51,13 +51,12 @@ const CookieAuthName = "auth"
 const CookieSignUpAuthName = "signup_auth"
 
 var (
-	preffixKey             = "__CTX_"
-	tenantContextKey       = preffixKey + "TENANT"
-	userContextKey         = preffixKey + "USER"
-	authEndpointContextKey = preffixKey + "AUTH_ENDPOINT"
-	transactionContextKey  = preffixKey + "TRANSACTION"
-	servicesContextKey     = preffixKey + "SERVICES"
-	tasksContextKey        = preffixKey + "TASKS"
+	preffixKey            = "__CTX_"
+	tenantContextKey      = preffixKey + "TENANT"
+	userContextKey        = preffixKey + "USER"
+	transactionContextKey = preffixKey + "TRANSACTION"
+	servicesContextKey    = preffixKey + "SERVICES"
+	tasksContextKey       = preffixKey + "TASKS"
 )
 
 //Context shared between http pipeline
@@ -368,20 +367,6 @@ func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
 	}
 
 	return address
-}
-
-//AuthEndpoint auth endpoint
-func (ctx *Context) AuthEndpoint() string {
-	endpoint, ok := ctx.Get(authEndpointContextKey).(string)
-	if !ok {
-		if env.IsSingleHostMode() {
-			endpoint = ctx.BaseURL()
-		} else {
-			endpoint = env.MustGet("AUTH_ENDPOINT")
-		}
-		ctx.Set(authEndpointContextKey, endpoint)
-	}
-	return endpoint
 }
 
 //QueryParam returns querystring parameter for given key

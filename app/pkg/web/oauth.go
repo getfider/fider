@@ -23,11 +23,6 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-type providerSettings struct {
-	profileURL string
-	config     func(authEndpoint string) *oauth2.Config
-}
-
 var (
 	systemProviders = []*models.OAuthConfig{
 		&models.OAuthConfig{
@@ -74,13 +69,13 @@ var (
 
 //OAuthService implements real OAuth operations using Golang's oauth2 package
 type OAuthService struct {
-	authEndpoint string
+	oauthBaseURL string
 }
 
 //NewOAuthService creates a new OAuthService
-func NewOAuthService(authEndpoint string) *OAuthService {
+func NewOAuthService(oauthBaseURL string) *OAuthService {
 	return &OAuthService{
-		authEndpoint,
+		oauthBaseURL,
 	}
 }
 
@@ -95,7 +90,7 @@ func (s *OAuthService) GetAuthURL(provider string, redirect string) (string, err
 	parameters := url.Values{}
 	parameters.Add("client_id", config.ClientID)
 	parameters.Add("scope", config.Scope)
-	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", s.authEndpoint, provider))
+	parameters.Add("redirect_uri", fmt.Sprintf("%s/oauth/%s/callback", s.oauthBaseURL, provider))
 	parameters.Add("response_type", "code")
 	parameters.Add("state", redirect)
 	authURL.RawQuery = parameters.Encode()
@@ -116,7 +111,7 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 			AuthURL:  config.AuthorizeURL,
 			TokenURL: config.TokenURL,
 		},
-		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", s.authEndpoint, provider),
+		RedirectURL: fmt.Sprintf("%s/oauth/%s/callback", s.oauthBaseURL, provider),
 	}).Exchange
 
 	oauthToken, err := exchange(oauth2.NoContext, code)
@@ -170,7 +165,7 @@ func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 			list = append(list, &oauth.ProviderOption{
 				Provider:    p.Provider,
 				DisplayName: p.DisplayName,
-				URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, p.Provider),
+				URL:         fmt.Sprintf("/oauth/%s", p.Provider),
 			})
 		}
 	}
