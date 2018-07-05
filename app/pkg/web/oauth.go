@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
 
 	"github.com/getfider/fider/app/pkg/jsonq"
@@ -28,8 +29,10 @@ type providerSettings struct {
 }
 
 var (
-	systemProviders = map[string]*models.OAuthConfig{
-		oauth.FacebookProvider: &models.OAuthConfig{
+	systemProviders = []*models.OAuthConfig{
+		&models.OAuthConfig{
+			Provider:       oauth.FacebookProvider,
+			DisplayName:    "Facebook",
 			ProfileURL:     "https://graph.facebook.com/me?fields=name,email",
 			ClientID:       os.Getenv("OAUTH_FACEBOOK_APPID"),
 			ClientSecret:   os.Getenv("OAUTH_FACEBOOK_SECRET"),
@@ -40,7 +43,9 @@ var (
 			JSONNamePath:   "name",
 			JSONEmailPath:  "email",
 		},
-		oauth.GoogleProvider: &models.OAuthConfig{
+		&models.OAuthConfig{
+			Provider:       oauth.GoogleProvider,
+			DisplayName:    "Google",
 			ProfileURL:     "https://www.googleapis.com/oauth2/v2/userinfo",
 			ClientID:       os.Getenv("OAUTH_GOOGLE_CLIENTID"),
 			ClientSecret:   os.Getenv("OAUTH_GOOGLE_SECRET"),
@@ -51,7 +56,9 @@ var (
 			JSONNamePath:   "name",
 			JSONEmailPath:  "email",
 		},
-		oauth.GitHubProvider: &models.OAuthConfig{
+		&models.OAuthConfig{
+			Provider:       oauth.GitHubProvider,
+			DisplayName:    "GitHub",
 			ProfileURL:     "https://api.github.com/user",
 			ClientID:       os.Getenv("OAUTH_GITHUB_CLIENTID"),
 			ClientSecret:   os.Getenv("OAUTH_GITHUB_SECRET"),
@@ -154,6 +161,23 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 	return profile, nil
 }
 
+//ListProviders returns a list of all providers for current tenant
+func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
+	list := make([]*oauth.ProviderOption, 0)
+
+	for _, p := range systemProviders {
+		if p.ClientID != "" {
+			list = append(list, &oauth.ProviderOption{
+				Provider:    p.Provider,
+				DisplayName: p.DisplayName,
+				URL:         fmt.Sprintf("%s/oauth/%s", s.authEndpoint, p.Provider),
+			})
+		}
+	}
+
+	return list, nil
+}
+
 func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
@@ -164,18 +188,24 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 	}
 
 	defer r.Body.Close()
-	if r.StatusCode != 200 {
-		return nil, errors.New("failed to request GET %s with status code %d", url, r.StatusCode)
-	}
 
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to request GET %s", url)
 	}
 
+	if r.StatusCode != 200 {
+		return nil, errors.New("failed to request GET %s with status code %d and response %s", url, r.StatusCode, string(bytes))
+	}
+
 	return bytes, nil
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
-	return systemProviders[provider], nil
+	for _, p := range systemProviders {
+		if p.Provider == provider {
+			return p, nil
+		}
+	}
+	return nil, app.ErrNotFound
 }

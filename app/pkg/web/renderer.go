@@ -78,6 +78,8 @@ func (r *Renderer) getBundle(folder, prefix, suffix string) string {
 
 //Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
+	var err error
+
 	if len(r.assets) == 0 || env.IsDevelopment() {
 		r.assets["main.js"] = r.getBundle("/dist/js", "main", "js")
 		r.assets["vendor.js"] = r.getBundle("/dist/js", "vendor", "js")
@@ -128,6 +130,15 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["__contextID"] = ctx.ContextID()
 	m["__currentURL"] = ctx.Request.URL.String()
 	m["__tenant"] = ctx.Tenant()
+
+	oauthProviders := make([]*oauth.ProviderOption, 0)
+	if !ctx.IsAuthenticated() && ctx.Services() != nil {
+		oauthProviders, err = ctx.Services().OAuth.ListProviders()
+		if err != nil {
+			panic(errors.Wrap(err, "failed to get list of providers"))
+		}
+	}
+
 	m["__settings"] = &Map{
 		"mode":            r.settings.Mode,
 		"buildTime":       r.settings.BuildTime,
@@ -139,14 +150,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
 		"assetsURL":       ctx.TenantAssetsURL(""),
-		"auth": Map{
-			"endpoint": ctx.AuthEndpoint(),
-			"providers": Map{
-				oauth.GoogleProvider:   oauth.IsProviderEnabled(oauth.GoogleProvider),
-				oauth.FacebookProvider: oauth.IsProviderEnabled(oauth.FacebookProvider),
-				oauth.GitHubProvider:   oauth.IsProviderEnabled(oauth.GitHubProvider),
-			},
-		},
+		"oauth":           oauthProviders,
 	}
 
 	if ctx.IsAuthenticated() {
@@ -162,7 +166,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		}
 	}
 
-	err := tmpl.Execute(w, m)
+	err = tmpl.Execute(w, m)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to execute template %s", name))
 	}

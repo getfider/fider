@@ -48,44 +48,17 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   };
 
   public render() {
-    const google = Fider.settings.auth.providers.google && (
-      <div className="col-sm l-social-col">
-        <SocialSignInButton
-          oauthEndpoint={Fider.settings.auth.endpoint}
-          provider="google"
-          redirectTo={this.props.redirectTo}
-        />
+    const oauthProviders = Fider.settings.oauth.map(o => (
+      <div key={o.provider} className="col-sm l-social-col">
+        <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
       </div>
-    );
-    const facebook = Fider.settings.auth.providers.facebook && (
-      <div className="col-sm l-social-col">
-        <SocialSignInButton
-          oauthEndpoint={Fider.settings.auth.endpoint}
-          provider="facebook"
-          redirectTo={this.props.redirectTo}
-        />
-      </div>
-    );
-    const github = Fider.settings.auth.providers.github && (
-      <div className="col-sm l-social-col">
-        <SocialSignInButton
-          oauthEndpoint={Fider.settings.auth.endpoint}
-          provider="github"
-          redirectTo={this.props.redirectTo}
-        />
-      </div>
-    );
-    const hasOAuth = !!(google || facebook || github);
+    ));
 
     return (
       <div className="c-signin-control">
-        {hasOAuth && (
+        {oauthProviders.length > 0 && (
           <div>
-            <div className="row">
-              {facebook}
-              {google}
-              {github}
-            </div>
+            <div className="row">{oauthProviders}</div>
             <p className="info">We will never post to these accounts on your behalf.</p>
             <div className="c-divider">OR</div>
           </div>
