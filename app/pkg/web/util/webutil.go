@@ -51,7 +51,7 @@ func SetSignUpAuthCookie(ctx web.Context, user *models.User) {
 	})
 }
 
-//GetSignUpAuthCookie retruns the temporary temporary domain-wide Auth Token and removes it
+//GetSignUpAuthCookie returns the temporary temporary domain-wide Auth Token and removes it
 func GetSignUpAuthCookie(ctx web.Context) string {
 	cookie, err := ctx.Request.Cookie(web.CookieSignUpAuthName)
 	if err == nil {
@@ -66,4 +66,21 @@ func GetSignUpAuthCookie(ctx web.Context) string {
 		return cookie.Value
 	}
 	return ""
+}
+
+// GetOAuthBaseURL returns the OAuth base URL used for host-wide OAuth authentication
+// For Single Tenant HostMode, BaseURL is the current BaseURL
+// For Multi Tenant HostMode, BaseURL is //login.{HOST_DOMAIN}
+func GetOAuthBaseURL(ctx web.Context) string {
+	if env.IsSingleHostMode() {
+		return ctx.BaseURL()
+	}
+
+	oauthBaseURL := ctx.Request.URL.Scheme + "://login" + env.MultiTenantDomain()
+	port := ctx.Request.URL.Port()
+	if port != "" {
+		oauthBaseURL += ":" + port
+	}
+
+	return oauthBaseURL
 }

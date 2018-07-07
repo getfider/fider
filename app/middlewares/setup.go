@@ -14,6 +14,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
@@ -128,13 +129,7 @@ func WebSetup() web.MiddlewareFunc {
 
 			trx.SetLogger(c.Logger())
 
-			oauthBaseURL := c.BaseURL()
-			if !env.IsSingleHostMode() {
-				oauthBaseURL = fmt.Sprintf("%s://login%s", c.Request.URL.Scheme, env.MultiTenantDomain())
-				if c.Request.URL.Port() != "80" && c.Request.URL.Port() != "443" {
-					oauthBaseURL += ":" + c.Request.URL.Port()
-				}
-			}
+			oauthBaseURL := webutil.GetOAuthBaseURL(c)
 
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{

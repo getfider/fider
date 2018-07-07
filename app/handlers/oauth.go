@@ -21,7 +21,9 @@ type oauthUserProfile struct {
 	Email string
 }
 
-// OAuthToken exchanges Authorization Code for Authentication Token
+// OAuthToken exchanges OAuth Code for a user profile
+// The user profile is then used to either get an existing user on Fider or creating a new one
+// Once Fider user is retrieved/created, an authentication cookie is store in user's browser
 func OAuthToken() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
@@ -34,13 +36,13 @@ func OAuthToken() web.HandlerFunc {
 		}
 
 		identifier := c.QueryParam("identifier")
-		cookie, err := c.Request.Cookie("__oauth_identifier")
+		cookie, err := c.Request.Cookie(web.CookieOAuthIdentifier)
 		if err != nil {
 			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
 		}
 
-		c.RemoveCookie("__oauth_identifier")
-		if identifier != cookie.Value {
+		c.RemoveCookie(web.CookieOAuthIdentifier)
+		if identifier == "" || cookie.Value == "" || identifier != cookie.Value {
 			return c.Redirect(redirectURL.String())
 		}
 
@@ -97,7 +99,10 @@ func OAuthToken() web.HandlerFunc {
 	}
 }
 
-// OAuthCallback handles OAuth callbacks
+// OAuthCallback handles the redirect back from the OAuth provider
+// This callback can run on either Tenant or Login address
+// If the request is for a sign in, we redirect the user to the tenant address
+// If the request is for a sign up, we exchange the OAuth code and get the user profile
 func OAuthCallback() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
@@ -153,12 +158,15 @@ func OAuthCallback() web.HandlerFunc {
 	}
 }
 
-// SignInByOAuth handles OAuth sign in
+// SignInByOAuth is responsible for redirecting the user to the OAuth authorization URL for given provider
+// A cookie is stored in user's browser with a random identifier that is later used to verify the authenticity of the request
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
 		identifier := uuid.NewV4().String()
-		c.AddCookie("__oauth_identifier", identifier, time.Now().Add(5*time.Minute))
+
+		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(5*time.Minute))
+
 		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), identifier)
 		if err != nil {
 			return c.Failure(err)
