@@ -318,15 +318,25 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 }
 
 func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models.User) {
-	cookie := web.ParseCookie(response.Header().Get("Set-Cookie"))
+	cookies := response.HeaderMap["Set-Cookie"]
 	if expected == nil {
-		Expect(cookie).IsNil()
+		for _, c := range cookies {
+			cookie := web.ParseCookie(c)
+			Expect(cookie.Name).NotEquals(web.CookieAuthName)
+		}
 	} else {
-		Expect(cookie.Name).Equals(web.CookieAuthName)
-		ExpectFiderToken(cookie.Value, expected)
-		Expect(cookie.HttpOnly).IsTrue()
-		Expect(cookie.Path).Equals("/")
-		Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
+		for _, c := range cookies {
+			cookie := web.ParseCookie(c)
+			if cookie.Name == web.CookieAuthName {
+				Expect(cookie.Name).Equals(web.CookieAuthName)
+				ExpectFiderToken(cookie.Value, expected)
+				Expect(cookie.HttpOnly).IsTrue()
+				Expect(cookie.Path).Equals("/")
+				Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
+				return
+			}
+		}
+		panic("Cookie not found...")
 	}
 }
 

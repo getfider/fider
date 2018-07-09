@@ -60,16 +60,7 @@ func HasLegal() bool {
 // MultiTenantDomain returns domain name of current instance for multi tenant hosts
 func MultiTenantDomain() string {
 	if !IsSingleHostMode() {
-		endpoint := MustGet("AUTH_ENDPOINT")
-		firstIdx := strings.Index(endpoint, ".")
-		if firstIdx != -1 {
-			lastIdx := strings.LastIndex(endpoint, ":")
-			if lastIdx != -1 && lastIdx > firstIdx {
-				return endpoint[firstIdx:lastIdx]
-			}
-			return endpoint[firstIdx:]
-		}
-		panic(fmt.Sprintf("Could not extract domain from %s", endpoint))
+		return "."+MustGet("HOST_DOMAIN")
 	}
 	return ""
 }

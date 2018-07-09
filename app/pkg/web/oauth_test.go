@@ -15,30 +15,30 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 	RegisterT(t)
 
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
-	authURL, err := svc.GetAuthURL(oauth.FacebookProvider, "")
+	authURL, err := svc.GetAuthURL(oauth.FacebookProvider, "http://example.org", "456")
 
 	Expect(err).IsNil()
-	Expect(authURL).Equals("https://www.facebook.com/dialog/oauth?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=")
+	Expect(authURL).Equals("https://www.facebook.com/dialog/oauth?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Fexample.org%7C456")
 }
 
 func TestGetAuthURL_Google(t *testing.T) {
 	RegisterT(t)
 
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
-	authURL, err := svc.GetAuthURL(oauth.GoogleProvider, "")
+	authURL, err := svc.GetAuthURL(oauth.GoogleProvider, "http://example.org", "123")
 
 	Expect(err).IsNil()
-	Expect(authURL).Equals("https://accounts.google.com/o/oauth2/auth?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=")
+	Expect(authURL).Equals("https://accounts.google.com/o/oauth2/auth?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgoogle%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&state=http%3A%2F%2Fexample.org%7C123")
 }
 
 func TestGetAuthURL_GitHub(t *testing.T) {
 	RegisterT(t)
 
 	svc := web.NewOAuthService("http://login.test.fider.io:3000")
-	authURL, err := svc.GetAuthURL(oauth.GitHubProvider, "")
+	authURL, err := svc.GetAuthURL(oauth.GitHubProvider, "http://example.org", "456")
 
 	Expect(err).IsNil()
-	Expect(authURL).Equals("https://github.com/login/oauth/authorize?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=")
+	Expect(authURL).Equals("https://github.com/login/oauth/authorize?client_id=&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=http%3A%2F%2Fexample.org%7C456")
 }
 
 func TestParseProfileResponse_AllFields(t *testing.T) {
