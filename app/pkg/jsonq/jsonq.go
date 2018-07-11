@@ -96,13 +96,15 @@ func (q *Query) get(selector string) *json.RawMessage {
 			} else {
 				result = q.m[part]
 			}
-
-			var arr []*json.RawMessage
-			bytes, _ := result.MarshalJSON()
-			json.Unmarshal(bytes, &arr)
-			bytes, _ = arr[idx].MarshalJSON()
-			json.Unmarshal(bytes, &current)
-
+			if result != nil {
+				var arr []*json.RawMessage
+				bytes, _ := result.MarshalJSON()
+				json.Unmarshal(bytes, &arr)
+				if len(arr) > idx {
+					bytes, _ = arr[idx].MarshalJSON()
+					json.Unmarshal(bytes, &current)
+				}
+			}
 		} else {
 
 			if current != nil {

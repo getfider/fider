@@ -15,6 +15,13 @@ func TestGet(t *testing.T) {
 	Expect(query.Int32("age")).Equals(23)
 }
 
+func TestGetNull(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": null }`)
+	Expect(query.String("name")).Equals("")
+}
+
 func TestGet_NumberAsString(t *testing.T) {
 	RegisterT(t)
 
@@ -45,6 +52,15 @@ func TestGetValueFromArray(t *testing.T) {
 	Expect(query.String("data[0].name")).Equals("Jon Snow")
 	Expect(query.String("data[0].age")).Equals("")
 	Expect(query.String("data[1].age")).Equals("23")
+}
+
+func TestGetValueFromEmptyArray(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "data": [] }`)
+	Expect(query.String("unknown[0].name")).Equals("")
+	Expect(query.String("data[0].name")).Equals("")
+	Expect(query.String("data[0].age")).Equals("")
 }
 
 func TestContains(t *testing.T) {

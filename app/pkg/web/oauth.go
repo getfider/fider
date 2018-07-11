@@ -41,15 +41,15 @@ var (
 		&models.OAuthConfig{
 			Provider:       oauth.GoogleProvider,
 			DisplayName:    "Google",
-			ProfileURL:     "https://www.googleapis.com/oauth2/v2/userinfo",
+			ProfileURL:     "https://www.googleapis.com/plus/v1/people/me",
 			ClientID:       os.Getenv("OAUTH_GOOGLE_CLIENTID"),
 			ClientSecret:   os.Getenv("OAUTH_GOOGLE_SECRET"),
-			Scope:          "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+			Scope:          "profile email",
 			AuthorizeURL:   google.Endpoint.AuthURL,
 			TokenURL:       google.Endpoint.TokenURL,
 			JSONUserIDPath: "id",
-			JSONNamePath:   "name",
-			JSONEmailPath:  "email",
+			JSONNamePath:   "displayName",
+			JSONEmailPath:  "emails[0].value",
 		},
 		&models.OAuthConfig{
 			Provider:       oauth.GitHubProvider,
@@ -130,6 +130,7 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 //ParseProfileResponse parses profile response into UserProfile model
 func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthConfig) (*oauth.UserProfile, error) {
 	query := jsonq.New(body)
+	println(body)
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  strings.TrimSpace(query.String(config.JSONNamePath)),
