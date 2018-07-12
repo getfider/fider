@@ -130,7 +130,6 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 //ParseProfileResponse parses profile response into UserProfile model
 func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthConfig) (*oauth.UserProfile, error) {
 	query := jsonq.New(body)
-	println(body)
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  strings.TrimSpace(query.String(config.JSONNamePath)),

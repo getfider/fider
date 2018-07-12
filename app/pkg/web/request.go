@@ -14,6 +14,7 @@ type Request struct {
 	Method        string
 	ContentLength int64
 	Body          string
+	IsSecure      bool
 	URL           *url.URL
 }
 
@@ -49,6 +50,7 @@ func WrapRequest(request *http.Request) Request {
 		ContentLength: request.ContentLength,
 		Body:          string(bodyBytes),
 		URL:           u,
+		IsSecure:      protocol == "https",
 	}
 }
 
