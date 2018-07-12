@@ -1,6 +1,7 @@
 package web_test
 
 import (
+	"crypto/tls"
 	"net/http"
 	"testing"
 
@@ -28,6 +29,7 @@ func TestRequest_Basic(t *testing.T) {
 	Expect(req.URL.Scheme).Equals("http")
 	Expect(req.URL.RequestURI()).Equals("/")
 	Expect(req.URL.String()).Equals("http://helloworld.com")
+	Expect(req.IsSecure).Equals(false)
 }
 
 func TestRequest_WithPort(t *testing.T) {
@@ -72,6 +74,7 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	Expect(req.Method).Equals("GET")
 	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
 	Expect(req.URL.Scheme).Equals("https")
+	Expect(req.IsSecure).Equals(true)
 }
 
 func TestRequest_FullURL(t *testing.T) {
@@ -79,13 +82,15 @@ func TestRequest_FullURL(t *testing.T) {
 
 	req := web.WrapRequest(
 		&http.Request{
+			TLS:        &tls.ConnectionState{},
 			Host:       "demo.test.fider.io",
 			RequestURI: "/echo?value=Jon",
 		},
 	)
 
-	Expect(req.URL.String()).Equals("http://demo.test.fider.io/echo?value=Jon")
+	Expect(req.URL.String()).Equals("https://demo.test.fider.io/echo?value=Jon")
 	Expect(req.URL.Path).Equals("/echo")
 	Expect(req.URL.Query().Get("value")).Equals("Jon")
 	Expect(req.URL.RequestURI()).Equals("/echo?value=Jon")
+	Expect(req.IsSecure).Equals(true)
 }

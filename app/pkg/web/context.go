@@ -312,6 +312,7 @@ func (ctx *Context) AddCookie(name, value string, expires time.Time) {
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
+		Secure:   ctx.Request.IsSecure,
 	})
 }
 
@@ -323,6 +324,7 @@ func (ctx *Context) RemoveCookie(name string) {
 		HttpOnly: true,
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
+		Secure:   ctx.Request.IsSecure,
 	})
 }
 
