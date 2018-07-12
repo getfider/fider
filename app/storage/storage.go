@@ -72,6 +72,7 @@ type Tenant interface {
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
 	GetUpload(id int) (*models.Upload, error)
+	ListOAuthConfig() ([]*models.OAuthConfig, error)
 }
 
 // Tag contains read and write operations for tags

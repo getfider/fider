@@ -9,12 +9,13 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 func TestGetAuthURL_Facebook(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	authURL, err := svc.GetAuthURL(oauth.FacebookProvider, "http://example.org", "456")
 
 	Expect(err).IsNil()
@@ -24,7 +25,7 @@ func TestGetAuthURL_Facebook(t *testing.T) {
 func TestGetAuthURL_Google(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000"), &inmemory.TenantStorage{})
 	authURL, err := svc.GetAuthURL(oauth.GoogleProvider, "http://example.org", "123")
 
 	Expect(err).IsNil()
@@ -34,7 +35,7 @@ func TestGetAuthURL_Google(t *testing.T) {
 func TestGetAuthURL_GitHub(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	authURL, err := svc.GetAuthURL(oauth.GitHubProvider, "http://example.org", "456")
 
 	Expect(err).IsNil()
@@ -44,7 +45,7 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{"name":"Jon Snow","email":"jon\u0040got.com","id":"789654"}`,
 		&models.OAuthConfig{
@@ -63,7 +64,7 @@ func TestParseProfileResponse_AllFields(t *testing.T) {
 func TestParseProfileResponse_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{"name":"Jon Snow","id":"1"}`,
 		&models.OAuthConfig{
@@ -82,7 +83,7 @@ func TestParseProfileResponse_WithoutEmail(t *testing.T) {
 func TestParseProfileResponse_NestedData(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{
 			"id": "123",
@@ -107,7 +108,7 @@ func TestParseProfileResponse_NestedData(t *testing.T) {
 func TestParseProfileResponse_WithFallback(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{
 			"id": 123,
@@ -132,7 +133,7 @@ func TestParseProfileResponse_WithFallback(t *testing.T) {
 func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{
 			"id": "123",
@@ -156,7 +157,7 @@ func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
 func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{
 			"id": "AB123",
@@ -181,7 +182,7 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 func TestParseProfileResponse_EmptyID(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{}`,
 		&models.OAuthConfig{
@@ -198,7 +199,7 @@ func TestParseProfileResponse_EmptyID(t *testing.T) {
 func TestParseProfileResponse_EmptyName(t *testing.T) {
 	RegisterT(t)
 
-	svc := web.NewOAuthService("http://login.test.fider.io:3000")
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", &inmemory.TenantStorage{})
 	profile, err := svc.ParseProfileResponse(
 		`{ "id": "A0" }`,
 		&models.OAuthConfig{

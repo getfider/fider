@@ -190,3 +190,8 @@ func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	}
 	return nil, app.ErrNotFound
 }
+
+// ListOAuthConfig returns a list of all custom OAuth provider for current tenant
+func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
+	return []*models.OAuthConfig{}, nil
+}

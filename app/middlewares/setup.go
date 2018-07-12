@@ -130,11 +130,12 @@ func WebSetup() web.MiddlewareFunc {
 			trx.SetLogger(c.Logger())
 
 			oauthBaseURL := webutil.GetOAuthBaseURL(c)
+			tenantStorage := postgres.NewTenantStorage(trx)
 
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
-				Tenants:       postgres.NewTenantStorage(trx),
-				OAuth:         web.NewOAuthService(oauthBaseURL),
+				Tenants:       tenantStorage,
+				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
 				Users:         postgres.NewUserStorage(trx),
 				Ideas:         postgres.NewIdeaStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),

@@ -10,6 +10,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
+	"github.com/getfider/fider/app/storage"
 
 	"github.com/getfider/fider/app/pkg/jsonq"
 
@@ -64,18 +65,46 @@ var (
 			JSONNamePath:   "name, login",
 			JSONEmailPath:  "email",
 		},
+		// &models.OAuthConfig{
+		// 	Provider:       "_aad",
+		// 	DisplayName:    "Azure",
+		// 	ProfileURL:     "https://graph.microsoft.com/v1.0/me",
+		// 	ClientID:       "593a714c-25aa-4408-8b01-7e72a2bbbd62",
+		// 	ClientSecret:   "mA+9u0TU22QmuZ0lZPJ5bQZV5qSneljUfTv+OctrG3k=",
+		// 	Scope:          "User.Read",
+		// 	AuthorizeURL:   "https://login.microsoftonline.com/60fd7314-7780-4ef8-96d1-e3c152e0c4cd/oauth2/v2.0/authorize",
+		// 	TokenURL:       "https://login.microsoftonline.com/60fd7314-7780-4ef8-96d1-e3c152e0c4cd/oauth2/v2.0/token",
+		// 	JSONUserIDPath: "id",
+		// 	JSONNamePath:   "displayName",
+		// 	JSONEmailPath:  "email",
+		// },
+		// &models.OAuthConfig{
+		// 	Provider:       "_twitch",
+		// 	DisplayName:    "Twitch",
+		// 	ProfileURL:     "https://api.twitch.tv/helix/users",
+		// 	ClientID:       "gfrytdqhe8g6zm51grz4zhjqdzjdia",
+		// 	ClientSecret:   "hqocvtievgwcqb5o50m6ewhtviqn4z",
+		// 	Scope:          "user:read:email",
+		// 	AuthorizeURL:   "https://id.twitch.tv/oauth2/authorize",
+		// 	TokenURL:       "https://id.twitch.tv/oauth2/token",
+		// 	JSONUserIDPath: "data[0].id",
+		// 	JSONNamePath:   "data[0].display_name",
+		// 	JSONEmailPath:  "data[0].email",
+		// },
 	}
 )
 
 //OAuthService implements real OAuth operations using Golang's oauth2 package
 type OAuthService struct {
-	oauthBaseURL string
+	oauthBaseURL  string
+	tenantStorage storage.Tenant
 }
 
 //NewOAuthService creates a new OAuthService
-func NewOAuthService(oauthBaseURL string) *OAuthService {
+func NewOAuthService(oauthBaseURL string, tenantStorage storage.Tenant) *OAuthService {
 	return &OAuthService{
 		oauthBaseURL,
+		tenantStorage,
 	}
 }
 
@@ -156,17 +185,45 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 	return profile, nil
 }
 
-//ListProviders returns a list of all providers for current tenant
+//ListProviders returns a list of all available providers for current tenant
 func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
+	providers, err := s.ListProvidersWithConfiguration()
+	if err != nil {
+		return nil, err
+	}
 	list := make([]*oauth.ProviderOption, 0)
 
-	for _, p := range systemProviders {
+	for _, p := range providers {
 		if p.ClientID != "" {
 			list = append(list, &oauth.ProviderOption{
 				Provider:    p.Provider,
 				DisplayName: p.DisplayName,
 				URL:         fmt.Sprintf("/oauth/%s", p.Provider),
 			})
+		}
+	}
+
+	return list, nil
+}
+
+//ListProvidersWithConfiguration returns a list of all available providers for current tenant with its configurations
+func (s *OAuthService) ListProvidersWithConfiguration() ([]*models.OAuthConfig, error) {
+	list := make([]*models.OAuthConfig, 0)
+
+	for _, p := range systemProviders {
+		if p.ClientID != "" {
+			list = append(list, p)
+		}
+	}
+
+	customProviders, err := s.tenantStorage.ListOAuthConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get list of custom OAuth providers")
+	}
+
+	for _, p := range customProviders {
+		if p.ClientID != "" {
+			list = append(list, p)
 		}
 	}
 
@@ -197,10 +254,16 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
-	for _, p := range systemProviders {
+	providers, err := s.ListProvidersWithConfiguration()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range providers {
 		if p.Provider == provider {
 			return p, nil
 		}
 	}
+
 	return nil, app.ErrNotFound
 }
