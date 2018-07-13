@@ -210,52 +210,49 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             `}
           </pre>
 
-          <div className="row c-form-field">
-            <div className="col-sm-4">
-              <Input
-                field="jsonUserIdPath"
-                label="ID"
-                maxLength={100}
-                value={this.state.jsonUserIdPath}
-                disabled={!Fider.session.user.isAdministrator}
-                onChange={this.setJSONUserIdPath}
-              >
-                <p className="info">
-                  Path to extract User ID from JSON. This ID <strong>must</strong> be unique within the provider or
-                  unexpected side effects might happen. For example above, the path would be <strong>id</strong>.
-                </p>
-              </Input>
-            </div>
-            <div className="col-sm-4">
-              <Input
-                field="jsonUserNamePath"
-                label="Name"
-                maxLength={100}
-                value={this.state.jsonUserNamePath}
-                disabled={!Fider.session.user.isAdministrator}
-                onChange={this.setJSONUserNamePath}
-              >
-                <p className="info">
-                  Path to extract user Display Name from JSON. This optional but <strong>highly</strong> recommended.
-                  For example above, the path would be <strong>profile.name</strong>.
-                </p>
-              </Input>
-            </div>
-            <div className="col-sm-4">
-              <Input
-                field="jsonUserEmailPath"
-                label="Email"
-                maxLength={100}
-                value={this.state.jsonUserEmailPath}
-                disabled={!Fider.session.user.isAdministrator}
-                onChange={this.setJSONUserEmailPath}
-              >
-                <p className="info">
-                  Path to extract user Email from JSON. This optional but <strong>highly</strong> recommended. For
-                  example above, the path would be <strong>profile.emails[0]</strong>.
-                </p>
-              </Input>
-            </div>
+          <div className="row">
+            <Input
+              field="jsonUserIdPath"
+              label="ID"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserIdPath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserIdPath}
+            >
+              <p className="info">
+                Path to extract User ID from JSON. This ID <strong>must</strong> be unique within the provider or
+                unexpected side effects might happen. For example above, the path would be <strong>id</strong>.
+              </p>
+            </Input>
+            <Input
+              field="jsonUserNamePath"
+              label="Name"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserNamePath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserNamePath}
+            >
+              <p className="info">
+                Path to extract user Display Name from JSON. This optional but <strong>highly</strong> recommended. For
+                example above, the path would be <strong>profile.name</strong>.
+              </p>
+            </Input>
+            <Input
+              field="jsonUserEmailPath"
+              label="Email"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserEmailPath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserEmailPath}
+            >
+              <p className="info">
+                Path to extract user Email from JSON. This optional but <strong>highly</strong> recommended. For example
+                above, the path would be <strong>profile.emails[0]</strong>.
+              </p>
+            </Input>
           </div>
 
           <div className="c-form-field">

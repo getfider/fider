@@ -20,7 +20,7 @@ export const Heading = (props: HeadingLogo) => {
     "c-heading": true,
     "m-dividing": props.dividing || false,
     [`m-${size}`]: true,
-    [`${props.className}`]: true
+    [`${props.className}`]: props.className
   });
 
   const iconClassName = classSet({

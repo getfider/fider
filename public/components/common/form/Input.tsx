@@ -7,6 +7,7 @@ import { Button } from "@fider/components";
 interface InputProps {
   field: string;
   label?: string;
+  className?: string;
   autoFocus?: boolean;
   afterLabel?: JSX.Element;
   icon?: string;
@@ -56,7 +57,8 @@ export class Input extends React.Component<InputProps, {}> {
               "c-form-field": true,
               "m-suffix": this.props.suffix,
               "m-error": hasError(this.props.field, ctx.error),
-              "m-icon": this.props.icon
+              "m-icon": this.props.icon,
+              [`${this.props.className}`]: this.props.className
             })}
           >
             {!!this.props.label && (
