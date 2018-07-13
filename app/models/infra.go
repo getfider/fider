@@ -38,6 +38,6 @@ type OAuthConfig struct {
 	ProfileURL     string `json:"profileUrl" db:"profile_url"`
 	Scope          string `json:"scope" db:"scope"`
 	JSONUserIDPath string `json:"jsonUserIdPath" db:"json_user_id_path"`
-	JSONNamePath   string `json:"jsonUserNamePath" db:"json_name_path"`
-	JSONEmailPath  string `json:"jsonUserEmailPath" db:"json_email_path"`
+	JSONNamePath   string `json:"jsonUserNamePath" db:"json_user_name_path"`
+	JSONEmailPath  string `json:"jsonUserEmailPath" db:"json_user_email_path"`
 }
