@@ -98,11 +98,10 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   };
 
   public render() {
+    const title = this.props.config ? `OAuth Provider: ${this.props.config.displayName}` : "New OAuth Provider";
     return (
       <>
-        {!this.props.config && <Heading title="New OAuth Provider" subtitle="" />}
-        {this.props.config && <Heading title={`OAuth Provider: ${this.props.config.displayName}`} subtitle="" />}
-
+        <Heading title={title} size="small" />
         <Form error={this.state.error}>
           <Input
             field="displayName"

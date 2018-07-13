@@ -9,6 +9,7 @@ interface HeadingLogo {
   size?: "normal" | "small";
   icon?: string;
   subtitle?: string;
+  className?: string;
 }
 
 export const Heading = (props: HeadingLogo) => {
@@ -18,7 +19,8 @@ export const Heading = (props: HeadingLogo) => {
   const className = classSet({
     "c-heading": true,
     "m-dividing": props.dividing || false,
-    [`m-${size}`]: true
+    [`m-${size}`]: true,
+    [`${props.className}`]: true
   });
 
   const iconClassName = classSet({

@@ -1,9 +1,9 @@
-import "./ManageAuthentication.page";
+import "./ManageAuthentication.page.scss";
 
 import * as React from "react";
 
 import { AdminBasePage } from "../components";
-import { Segment, List, ListItem, Button } from "@fider/components";
+import { Segment, List, ListItem, Button, Heading } from "@fider/components";
 import { OAuthConfig } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
 
@@ -56,10 +56,11 @@ export class ManageAuthenticationPage extends AdminBasePage<
 
     return (
       <>
-        <h2>OAuth Providers</h2>
-        <p className="info">
-          You can use these section to add any authentication provider as long as it implements the OAuth2 protocol.
-        </p>
+        <Heading
+          title="OAuth Providers"
+          subtitle="You can use these section to add any authentication provider as long as it implements the OAuth2 protocol."
+          size="small"
+        />
         <Segment>
           <List divided={true}>
             {this.props.providers.map(o => (

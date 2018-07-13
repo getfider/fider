@@ -2,7 +2,7 @@
 
 .c-heading {
   display: inline-block;
-  margin-bottom: 10px;
+  margin: 0px 0px 10px 0px;
 
   .c-heading-content {
     display: table-cell;
@@ -11,12 +11,8 @@
     .c-heading-subtitle {
       font-weight: 400;
       margin-top: 5px;
-      color: $gray-darker;
+      color: $gray-darkest;
       font-size: $font-size;
-
-      @include media("sm") {
-        display: none;
-      }
     }
   }
 

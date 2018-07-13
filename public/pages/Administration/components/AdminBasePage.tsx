@@ -1,3 +1,5 @@
+import "./AdminBasePage.scss";
+
 import * as React from "react";
 import { Heading } from "@fider/components";
 import { SideMenu, SideMenuToggler } from "./";
@@ -20,7 +22,7 @@ export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
   public render() {
     return (
       <div id={this.id} className="page container">
-        <Heading title={this.title} icon={this.icon} subtitle={this.subtitle} />
+        <Heading title={this.title} icon={this.icon} subtitle={this.subtitle} className="l-admin-heading" />
         <SideMenuToggler onToggle={this.toggleSideMenu} />
 
         <div className="row">
