@@ -191,6 +191,7 @@ func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	list := make([]*oauth.ProviderOption, 0)
 
 	for _, p := range providers {

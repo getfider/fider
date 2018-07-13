@@ -81,6 +81,10 @@ func (q *Query) Contains(selector string) bool {
 }
 
 func (q *Query) get(selector string) *json.RawMessage {
+	if selector == "" {
+		return nil
+	}
+
 	parts := strings.Split(selector, ".")
 
 	var result *json.RawMessage

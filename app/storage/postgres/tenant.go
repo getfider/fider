@@ -326,7 +326,7 @@ func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
 		err := s.trx.Select(&entries, `
 		SELECT id, provider, display_name, status,
 					 client_id, client_secret, authorize_url,
-					 profile_url, token_url, scope, json_user_id_path
+					 profile_url, token_url, scope, json_user_id_path,
 					 json_name_path, json_email_path
 		FROM oauth_providers
 		WHERE tenant_id = $1

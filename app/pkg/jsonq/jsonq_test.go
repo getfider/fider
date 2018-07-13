@@ -22,6 +22,14 @@ func TestGetNull(t *testing.T) {
 	Expect(query.String("name")).Equals("")
 }
 
+func TestGet_EmptyKey(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "name": "Jon Snow", "age": 23 }`)
+	Expect(query.String("")).Equals("")
+	Expect(query.Int32("")).Equals(0)
+}
+
 func TestGet_NumberAsString(t *testing.T) {
 	RegisterT(t)
 
