@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -22,7 +23,7 @@ func TestInvalidEmail(t *testing.T) {
 		".my@company.com",
 		"my@company@other.com",
 		"@gmail.com",
-		"abc12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@gmail.com",
+		mock.RandomString(200) + "@gmail.com",
 	} {
 		result := validate.Email(email)
 		Expect(result.Ok).IsFalse()
@@ -40,6 +41,38 @@ func TestValidEmail(t *testing.T) {
 		"abc@gmail.com",
 	} {
 		result := validate.Email(email)
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
+	}
+}
+
+func TestInvalidURL(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"http//google.com",
+		"google.com",
+		"google",
+		mock.RandomString(301),
+		"my@company",
+	} {
+		result := validate.URL(rawurl)
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
+	}
+}
+
+func TestValidURL(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"http://example.org",
+		"https://example.org/oauth",
+		"https://example.org/oauth?test=abc",
+	} {
+		result := validate.URL(rawurl)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
 		Expect(result.Error).IsNil()

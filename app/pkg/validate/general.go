@@ -2,6 +2,7 @@ package validate
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -22,6 +23,22 @@ func Email(email string) *Result {
 
 	if !emailRegex.MatchString(email) {
 		return Failed([]string{fmt.Sprintf("'%s' is not a valid email address.", email)})
+	}
+
+	return Success()
+}
+
+//URL validates given URL
+func URL(rawurl string) *Result {
+	rawurl = strings.ToLower(rawurl)
+
+	if len(rawurl) > 300 {
+		return Failed([]string{"URL address must have less than 300 characters."})
+	}
+
+	_, err := url.ParseRequestURI(rawurl)
+	if err != nil {
+		return Failed([]string{fmt.Sprintf("'%s' is not a valid URL address.", rawurl)})
 	}
 
 	return Success()

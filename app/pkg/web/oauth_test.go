@@ -50,8 +50,8 @@ func TestParseProfileResponse_AllFields(t *testing.T) {
 		`{"name":"Jon Snow","email":"jon\u0040got.com","id":"789654"}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "name",
-			JSONEmailPath:  "email",
+			JSONUserNamePath:   "name",
+			JSONUserEmailPath:  "email",
 		},
 	)
 
@@ -69,8 +69,8 @@ func TestParseProfileResponse_WithoutEmail(t *testing.T) {
 		`{"name":"Jon Snow","id":"1"}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "name",
-			JSONEmailPath:  "email",
+			JSONUserNamePath:   "name",
+			JSONUserEmailPath:  "email",
 		},
 	)
 
@@ -94,8 +94,8 @@ func TestParseProfileResponse_NestedData(t *testing.T) {
 		}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "profile.name",
-			JSONEmailPath:  "profile.email",
+			JSONUserNamePath:   "profile.name",
+			JSONUserEmailPath:  "profile.email",
 		},
 	)
 
@@ -119,8 +119,8 @@ func TestParseProfileResponse_WithFallback(t *testing.T) {
 		}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "profile.name, profile.login",
-			JSONEmailPath:  "profile.email",
+			JSONUserNamePath:   "profile.name, profile.login",
+			JSONUserEmailPath:  "profile.email",
 		},
 	)
 
@@ -143,8 +143,8 @@ func TestParseProfileResponse_UseEmailWhenNameIsEmpty(t *testing.T) {
 		}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "profile.name",
-			JSONEmailPath:  "profile.email",
+			JSONUserNamePath:   "profile.name",
+			JSONUserEmailPath:  "profile.email",
 		},
 	)
 
@@ -168,8 +168,8 @@ func TestParseProfileResponse_InvalidEmail(t *testing.T) {
 		}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "profile.name",
-			JSONEmailPath:  "profile.email",
+			JSONUserNamePath:   "profile.name",
+			JSONUserEmailPath:  "profile.email",
 		},
 	)
 
@@ -187,8 +187,8 @@ func TestParseProfileResponse_EmptyID(t *testing.T) {
 		`{}`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "name",
-			JSONEmailPath:  "email",
+			JSONUserNamePath:   "name",
+			JSONUserEmailPath:  "email",
 		},
 	)
 
@@ -204,8 +204,8 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 		`{ "id": "A0" }`,
 		&models.OAuthConfig{
 			JSONUserIDPath: "id",
-			JSONNamePath:   "name",
-			JSONEmailPath:  "email",
+			JSONUserNamePath:   "name",
+			JSONUserEmailPath:  "email",
 		},
 	)
 
