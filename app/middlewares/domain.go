@@ -9,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
 )
@@ -27,14 +26,14 @@ func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			tenant, err := c.Services().Tenants.First()
-			if err != nil {
-				if errors.Cause(err) == app.ErrNotFound {
-					return c.Redirect("/signup")
-				}
+			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			c.SetTenant(tenant)
+			if tenant != nil {
+				c.SetTenant(tenant)
+			}
+
 			return next(c)
 		}
 	}
@@ -54,7 +53,11 @@ func MultiTenant() web.MiddlewareFunc {
 			}
 
 			tenant, err := c.Services().Tenants.GetByDomain(hostname)
-			if err == nil {
+			if err != nil && errors.Cause(err) != app.ErrNotFound {
+				return c.Failure(err)
+			}
+
+			if tenant != nil {
 				c.SetTenant(tenant)
 
 				if tenant.CNAME != "" && !c.IsAjax() {
@@ -64,17 +67,24 @@ func MultiTenant() web.MiddlewareFunc {
 						c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
 					}
 				}
-				return next(c)
 			}
 
-			if errors.Cause(err) == app.ErrNotFound {
-				c.Logger().Debugf("Tenant not found for '@{Hostname}'.", log.Props{
-					"Hostname": hostname,
-				})
+			return next(c)
+		}
+	}
+}
+
+// RequireTenant returns 404 if tenant is not available
+func RequireTenant() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			if c.Tenant() == nil {
+				if env.IsSingleHostMode() {
+					return c.Redirect("/signup")
+				}
 				return c.NotFound()
 			}
-
-			return c.Failure(err)
+			return next(c)
 		}
 	}
 }
