@@ -1,6 +1,15 @@
+@import '~@fider/assets/styles/variables.scss';
+
 .c-signin-control {
   text-align: center;
+  .col-lf {
+    width: 100%;
+  }
   .l-social-col {
     padding: 10px 5px;
+    max-width: 50%;
+  }
+  .l-social-col-100 {
+    width: 100%;
   }
 }

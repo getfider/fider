@@ -48,11 +48,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
   };
 
   public render() {
-    const oauthProviders = Fider.settings.oauth.map(o => (
-      <div key={o.provider} className="col-md-3 col-lg-3 col-sm-3 col-xs-6 col-6 l-social-col">
-        <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
-      </div>
-    ));
+    const providersLen = Fider.settings.oauth.length;
 
     if (!isCookieEnabled()) {
       return (
@@ -65,9 +61,18 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
 
     return (
       <div className="c-signin-control">
-        {oauthProviders.length > 0 && (
+        {providersLen > 0 && (
           <div>
-            <div className="row">{oauthProviders}</div>
+            <div className="row">
+              {Fider.settings.oauth.map((o, i) => (
+                <React.Fragment key={o.provider}>
+                  {i % 4 === 0 && <div className="col-lf" />}
+                  <div className={`col-sm l-social-col ${providersLen === 1 ? "l-social-col-100" : ""}`}>
+                    <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
             <p className="info">We will never post to these accounts on your behalf.</p>
             <div className="c-divider">OR</div>
           </div>
