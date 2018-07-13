@@ -49,7 +49,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
 
   public render() {
     const oauthProviders = Fider.settings.oauth.map(o => (
-      <div key={o.provider} className="col-sm l-social-col">
+      <div key={o.provider} className="col-md-3 col-lg-3 col-sm-3 col-xs-6 col-6 l-social-col">
         <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
       </div>
     ));

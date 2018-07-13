@@ -34,13 +34,14 @@ button, input, optgroup, select, textarea {
 *******************************/
 
 h1, h2, h3, h4, h5 {
-  line-height: 18px;
+  line-height: 120%;
   margin: 25px 0em 14px;
   font-weight: 600;
   padding: 0;
+  font-weight: 600;
 }
+
 h1 {
-  line-height: 28px;
   font-size: 28px;
 }
 h2 {
@@ -191,10 +192,6 @@ code {
 body, h1, h2, h3, h4, h5, .ui, input {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4, h5 {
-  font-weight: 600;
 }
 
 .info {
