@@ -1,6 +1,7 @@
 package middlewares_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 	"time"
@@ -60,10 +61,13 @@ func TestMultiTenant_SubSubDomain(t *testing.T) {
 	server.Use(middlewares.MultiTenant())
 
 	status, _ := server.WithURL("http://demo.demo.test.fider.io").Execute(func(c web.Context) error {
-		return c.String(http.StatusOK, c.Tenant().Name)
+		if c.Tenant() == nil {
+			return c.Ok(web.Map{})
+		}
+		return c.Failure(errors.New("should not have found tenant"))
 	})
 
-	Expect(status).Equals(http.StatusNotFound)
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestMultiTenant_UnknownDomain(t *testing.T) {
@@ -73,10 +77,13 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	server.Use(middlewares.MultiTenant())
 
 	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
-		return c.String(http.StatusOK, c.Tenant().Name)
+		if c.Tenant() == nil {
+			return c.Ok(web.Map{})
+		}
+		return c.Failure(errors.New("should not have found tenant"))
 	})
 
-	Expect(status).Equals(http.StatusNotFound)
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestMultiTenant_CanonicalHeader(t *testing.T) {
@@ -138,18 +145,19 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 
 }
 
-func TestSingleTenant_NoTenants_RedirectToSignUp(t *testing.T) {
+func TestSingleTenant_NoTenants(t *testing.T) {
 	RegisterT(t)
-
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
-	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+		if c.Tenant() == nil {
+			return c.Ok(web.Map{})
+		}
+		return c.Failure(errors.New("should not have found tenant"))
 	})
 
-	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.HeaderMap.Get("Location")).Equals("/signup")
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
@@ -240,6 +248,61 @@ func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 		})
 
 	Expect(status).Equals(http.StatusOK)
+}
+
+func TestRequireTenant_MultiHostMode_NoTenants_404(t *testing.T) {
+	RegisterT(t)
+	server, _ := mock.NewServer()
+	server.Use(middlewares.MultiTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).Equals(http.StatusNotFound)
+}
+
+func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
+	RegisterT(t)
+	server, _ := mock.NewServer()
+	server.Use(middlewares.MultiTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, response := server.WithURL("http://avengers.test.fider.io").Execute(func(c web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
+	})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Avengers")
+}
+
+func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
+	RegisterT(t)
+	server, _ := mock.NewSingleTenantServer()
+	server.Use(middlewares.SingleTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).Equals(http.StatusTemporaryRedirect)
+	Expect(response.HeaderMap.Get("Location")).Equals("/signup")
+}
+
+func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
+	RegisterT(t)
+	server, _ := mock.NewServer()
+	server.Use(middlewares.SingleTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, response := server.WithURL("http://demo.test.fider.io").Execute(func(c web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
+	})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Demonstration")
 }
 
 func TestUser_NoCookie(t *testing.T) {

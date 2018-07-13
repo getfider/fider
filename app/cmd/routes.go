@@ -25,6 +25,7 @@ func routes(r *web.Engine) *web.Engine {
 	}
 
 	r.Use(middlewares.WebSetup())
+	r.Use(middlewares.Tenant())
 
 	noTenant := r.Group()
 	{
@@ -40,14 +41,14 @@ func routes(r *web.Engine) *web.Engine {
 		noTenant.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 	}
 
-	r.Use(middlewares.Tenant())
+	r.Use(middlewares.RequireTenant())
 
-	avatar := r.Group()
+	tenantAssets := r.Group()
 	{
-		avatar.Use(middlewares.ClientCache(72 * time.Hour))
-		avatar.Get("/avatars/:size/:id/:name", handlers.Avatar())
-		avatar.Get("/logo/:size/:id", handlers.Logo())
-		avatar.Get("/custom/:md5.css", func(c web.Context) error {
+		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
+		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
+		tenantAssets.Get("/logo/:size/:id", handlers.Logo())
+		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
 	}

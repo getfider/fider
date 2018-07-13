@@ -8,7 +8,6 @@ import (
 	"net/url"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jsonq"
 	"github.com/getfider/fider/app/pkg/web"
@@ -19,7 +18,7 @@ type Server struct {
 	engine     *web.Engine
 	context    web.Context
 	recorder   *httptest.ResponseRecorder
-	middleware web.MiddlewareFunc
+	middleware []web.MiddlewareFunc
 }
 
 func createServer(services *app.Services) *Server {
@@ -35,7 +34,7 @@ func createServer(services *app.Services) *Server {
 		engine:     engine,
 		recorder:   recorder,
 		context:    context,
-		middleware: middlewares.Noop(),
+		middleware: []web.MiddlewareFunc{},
 	}
 }
 
@@ -46,7 +45,7 @@ func (s *Server) Engine() *web.Engine {
 
 // Use adds a new middleware to pipeline
 func (s *Server) Use(middleware web.MiddlewareFunc) {
-	s.middleware = middleware
+	s.middleware = append(s.middleware, middleware)
 }
 
 // OnTenant set current context tenant
@@ -90,7 +89,12 @@ func (s *Server) WithURL(fullURL string) *Server {
 
 // Execute given handler and return response
 func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecorder) {
-	if err := s.middleware(handler)(s.context); err != nil {
+	next := handler
+	for i := len(s.middleware) - 1; i >= 0; i-- {
+		next = s.middleware[i](next)
+	}
+
+	if err := next(s.context); err != nil {
 		s.context.Failure(err)
 	}
 
@@ -110,11 +114,7 @@ func (s *Server) ExecutePost(handler web.HandlerFunc, body string) (int, *httpte
 	s.context.Request.ContentLength = int64(len(body))
 	s.context.Request.SetHeader("Content-Type", web.UTF8JSONContentType)
 
-	if err := s.middleware(handler)(s.context); err != nil {
-		s.context.Failure(err)
-	}
-
-	return s.recorder.Code, s.recorder
+	return s.Execute(handler)
 }
 
 // ExecutePostAsJSON executes given handler as POST and return json response
