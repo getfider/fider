@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -40,4 +42,44 @@ type OAuthConfig struct {
 	JSONUserIDPath string `json:"jsonUserIdPath" db:"json_user_id_path"`
 	JSONNamePath   string `json:"jsonUserNamePath" db:"json_user_name_path"`
 	JSONEmailPath  string `json:"jsonUserEmailPath" db:"json_user_email_path"`
+}
+
+// MarshalJSON converts model into a JSON string
+func (o *OAuthConfig) MarshalJSON() ([]byte, error) {
+	secret := o.ClientSecret
+	if len(secret) >= 10 {
+		secret = fmt.Sprintf("%s...%s", secret[0:3], secret[len(secret)-3:])
+	} else {
+		secret = "..."
+	}
+
+	return json.Marshal(&struct {
+		ID             int    `json:"id"`
+		Provider       string `json:"provider"`
+		DisplayName    string `json:"displayName"`
+		Status         int    `json:"status"`
+		ClientID       string `json:"clientId"`
+		ClientSecret   string `json:"clientSecret"`
+		AuthorizeURL   string `json:"authorizeUrl"`
+		TokenURL       string `json:"tokenUrl"`
+		ProfileURL     string `json:"profileUrl"`
+		Scope          string `json:"scope"`
+		JSONUserIDPath string `json:"jsonUserIdPath"`
+		JSONNamePath   string `json:"jsonUserNamePath"`
+		JSONEmailPath  string `json:"jsonUserEmailPath"`
+	}{
+		ID:             o.ID,
+		Provider:       o.Provider,
+		DisplayName:    o.DisplayName,
+		Status:         o.Status,
+		ClientID:       o.ClientID,
+		ClientSecret:   secret,
+		AuthorizeURL:   o.AuthorizeURL,
+		TokenURL:       o.TokenURL,
+		ProfileURL:     o.ProfileURL,
+		Scope:          o.Scope,
+		JSONUserIDPath: o.JSONUserIDPath,
+		JSONNamePath:   o.JSONNamePath,
+		JSONEmailPath:  o.JSONEmailPath,
+	})
 }

@@ -14,6 +14,8 @@ export interface OAuthFormState {
   id: number;
   displayName: string;
   clientId: string;
+  clientSecret: string;
+  clientSecretEnabled: boolean;
   authorizeUrl: string;
   tokenUrl: string;
   profileUrl: string;
@@ -31,6 +33,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       id: this.props.config ? this.props.config.id : 0,
       displayName: this.props.config ? this.props.config.displayName : "",
       clientId: this.props.config ? this.props.config.clientId : "",
+      clientSecret: this.props.config ? this.props.config.clientSecret : "",
+      clientSecretEnabled: !this.props.config,
       authorizeUrl: this.props.config ? this.props.config.authorizeUrl : "",
       tokenUrl: this.props.config ? this.props.config.tokenUrl : "",
       profileUrl: this.props.config ? this.props.config.profileUrl : "",
@@ -55,6 +59,10 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
   private setClientId = (clientId: string) => {
     this.setState({ clientId });
+  };
+
+  private setClientSecret = (clientSecret: string) => {
+    this.setState({ clientSecret });
   };
 
   private setAuthorizeUrl = (authorizeUrl: string) => {
@@ -85,6 +93,10 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ jsonUserEmailPath });
   };
 
+  private enableClientSecret = () => {
+    this.setState({ clientSecretEnabled: true, clientSecret: "" });
+  };
+
   public render() {
     return (
       <>
@@ -107,6 +119,26 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             value={this.state.clientId}
             disabled={!Fider.session.user.isAdministrator}
             onChange={this.setClientId}
+          />
+          <Input
+            field="clientSecret"
+            label="Client Secret"
+            maxLength={500}
+            value={this.state.clientSecret}
+            disabled={!this.state.clientSecretEnabled}
+            onChange={this.setClientSecret}
+            afterLabel={
+              !this.state.clientSecretEnabled ? (
+                <>
+                  <span className="info">omitted for security reasons.</span>
+                  <span className="info clickable" onClick={this.enableClientSecret}>
+                    change
+                  </span>
+                </>
+              ) : (
+                undefined
+              )
+            }
           />
           <Input
             field="authorizeUrl"

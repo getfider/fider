@@ -27,6 +27,7 @@ export interface OAuthConfig {
   displayName: string;
   status: number;
   clientId: string;
+  clientSecret: string;
   authorizeUrl: string;
   tokenUrl: string;
   profileUrl: string;
