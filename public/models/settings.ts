@@ -20,3 +20,18 @@ export interface SystemSettings {
 export interface UserSettings {
   [key: string]: string;
 }
+
+export interface OAuthConfig {
+  id: number;
+  provider: string;
+  displayName: string;
+  status: number;
+  clientId: string;
+  authorizeUrl: string;
+  tokenUrl: string;
+  profileUrl: string;
+  scope: string;
+  jsonUserIdPath: string;
+  jsonUserNamePath: string;
+  jsonUserEmailPath: string;
+}

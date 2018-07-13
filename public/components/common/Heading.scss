@@ -3,9 +3,6 @@
 .c-heading {
   display: inline-block;
   margin-bottom: 10px;
-  @include media("sm") {
-    font-size: $font-size-xlarge;
-  }
 
   .c-heading-content {
     display: table-cell;

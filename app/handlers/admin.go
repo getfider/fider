@@ -102,3 +102,20 @@ func ManageMembers() web.HandlerFunc {
 		})
 	}
 }
+
+// ManageAuthentication is the page used by administrators to change site authentication settings
+func ManageAuthentication() web.HandlerFunc {
+	return func(c web.Context) error {
+		providers, err := c.Services().Tenants.ListOAuthConfig()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Page(web.Props{
+			Title: "Authentication · Site Settings",
+			Data: web.Map{
+				"providers": providers,
+			},
+		})
+	}
+}

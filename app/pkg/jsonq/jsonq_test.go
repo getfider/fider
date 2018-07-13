@@ -53,13 +53,22 @@ func TestGetWithFallback(t *testing.T) {
 	Expect(query.String("name, login")).Equals("jonsnow")
 }
 
-func TestGetValueFromArray(t *testing.T) {
+func TestGetValueFromObjectArray(t *testing.T) {
 	RegisterT(t)
 
 	query := jsonq.New(`{ "data": [{ "name": "Jon Snow" }, { "age": 23 }] }`)
 	Expect(query.String("data[0].name")).Equals("Jon Snow")
 	Expect(query.String("data[0].age")).Equals("")
 	Expect(query.String("data[1].age")).Equals("23")
+}
+
+func TestGetValueFromStringArray(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "data": ["Jon Snow", "Arya Stark"] }`)
+	Expect(query.String("data[0]")).Equals("Jon Snow")
+	Expect(query.String("data[1]")).Equals("Arya Stark")
+	Expect(query.String("data[2]")).Equals("")
 }
 
 func TestGetValueFromEmptyArray(t *testing.T) {

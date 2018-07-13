@@ -27,17 +27,17 @@ type Notification struct {
 
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
-	ID             int    `db:"id"`
-	Provider       string `db:"provider"`
-	DisplayName    string `db:"display_name"`
-	Status         int    `db:"status"`
-	ClientID       string `db:"client_id"`
-	ClientSecret   string `db:"client_secret"`
-	AuthorizeURL   string `db:"authorize_url"`
-	TokenURL       string `db:"token_url"`
-	ProfileURL     string `db:"profile_url"`
-	Scope          string `db:"scope"`
-	JSONUserIDPath string `db:"json_user_id_path"`
-	JSONNamePath   string `db:"json_name_path"`
-	JSONEmailPath  string `db:"json_email_path"`
+	ID             int    `json:"id" db:"id"`
+	Provider       string `json:"provider" db:"provider"`
+	DisplayName    string `json:"displayName" db:"display_name"`
+	Status         int    `json:"status" db:"status"`
+	ClientID       string `json:"clientId" db:"client_id"`
+	ClientSecret   string `json:"-" db:"client_secret"`
+	AuthorizeURL   string `json:"authorizeUrl" db:"authorize_url"`
+	TokenURL       string `json:"tokenUrl" db:"token_url"`
+	ProfileURL     string `json:"profileUrl" db:"profile_url"`
+	Scope          string `json:"scope" db:"scope"`
+	JSONUserIDPath string `json:"jsonUserIdPath" db:"json_user_id_path"`
+	JSONNamePath   string `json:"jsonUserNamePath" db:"json_name_path"`
+	JSONEmailPath  string `json:"jsonUserEmailPath" db:"json_email_path"`
 }

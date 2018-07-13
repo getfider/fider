@@ -116,7 +116,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
 			private.Get("/admin/members", handlers.ManageMembers())
 			private.Get("/admin/tags", handlers.ManageTags())
-			private.Get("/admin/authentication", handlers.Page("Authentication · Site Settings", ""))
+			private.Get("/admin/authentication", handlers.ManageAuthentication())
 			private.Post("/api/admin/invitations/send", handlers.SendInvites())
 			private.Post("/api/admin/invitations/sample", handlers.SendSampleInvite())
 
