@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"strings"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -32,11 +34,12 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 			return validate.Error(err)
 		}
 
+		input.Model.ID = config.ID
 		if input.Model.ClientSecret == "" {
 			input.Model.ClientSecret = config.ClientSecret
 		}
 	} else {
-		input.Model.Provider = "_" + rand.String(10)
+		input.Model.Provider = "_" + strings.ToUpper(rand.String(20))
 	}
 
 	if input.Model.DisplayName == "" {
