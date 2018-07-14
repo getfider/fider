@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage"
 
@@ -161,7 +160,7 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 
 //ListProviders returns a list of all available providers for current tenant
 func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
-	providers, err := s.ListProvidersWithConfiguration()
+	providers, err := s.listProvidersWithConfiguration()
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +180,7 @@ func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	return list, nil
 }
 
-//ListProvidersWithConfiguration returns a list of all available providers for current tenant with its configurations
-func (s *OAuthService) ListProvidersWithConfiguration() ([]*models.OAuthConfig, error) {
+func (s *OAuthService) listProvidersWithConfiguration() ([]*models.OAuthConfig, error) {
 	list := make([]*models.OAuthConfig, 0)
 
 	for _, p := range systemProviders {
@@ -229,16 +227,11 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
-	providers, err := s.ListProvidersWithConfiguration()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, p := range providers {
-		if p.Provider == provider {
-			return p, nil
+	for _, config := range systemProviders {
+		if config.ClientID != "" && config.Provider == provider {
+			return config, nil
 		}
 	}
 
-	return nil, app.ErrNotFound
+	return s.tenantStorage.GetOAuthConfigByProvider(provider)
 }

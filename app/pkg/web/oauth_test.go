@@ -42,6 +42,23 @@ func TestGetAuthURL_GitHub(t *testing.T) {
 	Expect(authURL).Equals("https://github.com/login/oauth/authorize?client_id=GH_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2Fgithub%2Fcallback&response_type=code&scope=user%3Aemail&state=http%3A%2F%2Fexample.org%7C456")
 }
 
+func TestGetAuthURL_Custom(t *testing.T) {
+	RegisterT(t)
+
+	tenants := inmemory.NewTenantStorage()
+	tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
+		Provider:     "_custom",
+		ClientID:     "CU_CL_ID",
+		Scope:        "profile email",
+		AuthorizeURL: "https://example.org/oauth/authorize",
+	})
+	svc := web.NewOAuthService("http://login.test.fider.io:3000", tenants)
+	authURL, err := svc.GetAuthURL("_custom", "http://example.org", "456")
+
+	Expect(err).IsNil()
+	Expect(authURL).Equals("https://example.org/oauth/authorize?client_id=CU_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%3A3000%2Foauth%2F_custom%2Fcallback&response_type=code&scope=profile+email&state=http%3A%2F%2Fexample.org%7C456")
+}
+
 func TestParseProfileResponse_AllFields(t *testing.T) {
 	RegisterT(t)
 
