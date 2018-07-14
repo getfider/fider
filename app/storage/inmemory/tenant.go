@@ -21,6 +21,16 @@ type TenantStorage struct {
 	oauthConfigs  []*models.OAuthConfig
 }
 
+//NewTenantStorage creates a new TenantStorage
+func NewTenantStorage() *TenantStorage {
+	return &TenantStorage{
+		tenants:       make([]*models.Tenant, 0),
+		verifications: make([]*models.EmailVerification, 0),
+		tenantLogos:   make(map[int]*models.Upload, 0),
+		oauthConfigs:  make([]*models.OAuthConfig, 0),
+	}
+}
+
 // SetCurrentTenant tenant
 func (s *TenantStorage) SetCurrentTenant(tenant *models.Tenant) {
 	s.current = tenant

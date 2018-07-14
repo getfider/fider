@@ -92,7 +92,7 @@ func TestInvalidCNAME(t *testing.T) {
 		"test.fider.io",
 		"@google.com",
 	} {
-		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
+		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
 		Expect(result.Error).IsNil()
@@ -109,7 +109,7 @@ func TestValidHostname(t *testing.T) {
 		"got.com",
 		"hi.m",
 	} {
-		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
+		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
 		Expect(result.Error).IsNil()
@@ -118,7 +118,7 @@ func TestValidHostname(t *testing.T) {
 
 func TestValidCNAME_Availability(t *testing.T) {
 	RegisterT(t)
-	tenants := &inmemory.TenantStorage{}
+	tenants := inmemory.NewTenantStorage()
 	tenant, _ := tenants.Add("Footbook", "footbook", models.TenantActive)
 	tenant.CNAME = "footbook.com"
 	tenant, _ = tenants.Add("Your Company", "yourcompany", models.TenantActive)
