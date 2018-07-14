@@ -3,6 +3,7 @@ package actions
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -25,6 +26,18 @@ func (input *CreateEditOAuthConfig) IsAuthorized(user *models.User, services *ap
 // Validate is current model is valid
 func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
+	if input.Model.Provider != "" {
+		config, err := services.Tenants.GetOAuthConfigByProvider(input.Model.Provider)
+		if err != nil {
+			return validate.Error(err)
+		}
+
+		if input.Model.ClientSecret == "" {
+			input.Model.ClientSecret = config.ClientSecret
+		}
+	} else {
+		input.Model.Provider = "_" + rand.String(10)
+	}
 
 	if input.Model.DisplayName == "" {
 		result.AddFieldFailure("displayName", "Display Name is required.")

@@ -29,7 +29,8 @@ type Notification struct {
 
 // CreateEditOAuthConfig is used to create/edit an OAuth Configuration
 type CreateEditOAuthConfig struct {
-	ID                int    `json:"id"`
+	ID                int
+	Provider          string `json:"provider"`
 	DisplayName       string `json:"displayName"`
 	ClientID          string `json:"clientId"`
 	ClientSecret      string `json:"clientSecret"`
@@ -44,19 +45,19 @@ type CreateEditOAuthConfig struct {
 
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
-	ID                int    `json:"id" db:"id"`
-	Provider          string `json:"provider" db:"provider"`
-	DisplayName       string `json:"displayName" db:"display_name"`
-	Status            int    `json:"status" db:"status"`
-	ClientID          string `json:"clientId" db:"client_id"`
-	ClientSecret      string `json:"-" db:"client_secret"`
-	AuthorizeURL      string `json:"authorizeUrl" db:"authorize_url"`
-	TokenURL          string `json:"tokenUrl" db:"token_url"`
-	Scope             string `json:"scope" db:"scope"`
-	ProfileURL        string `json:"profileUrl" db:"profile_url"`
-	JSONUserIDPath    string `json:"jsonUserIdPath" db:"json_user_id_path"`
-	JSONUserNamePath  string `json:"jsonUserNamePath" db:"json_user_name_path"`
-	JSONUserEmailPath string `json:"jsonUserEmailPath" db:"json_user_email_path"`
+	ID                int    `db:"id"`
+	Provider          string `db:"provider"`
+	DisplayName       string `db:"display_name"`
+	Status            int    `db:"status"`
+	ClientID          string `db:"client_id"`
+	ClientSecret      string `db:"client_secret"`
+	AuthorizeURL      string `db:"authorize_url"`
+	TokenURL          string `db:"token_url"`
+	Scope             string `db:"scope"`
+	ProfileURL        string `db:"profile_url"`
+	JSONUserIDPath    string `db:"json_user_id_path"`
+	JSONUserNamePath  string `db:"json_user_name_path"`
+	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
 // MarshalJSON converts model into a JSON string
@@ -69,7 +70,6 @@ func (o *OAuthConfig) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(&struct {
-		ID                int    `json:"id"`
 		Provider          string `json:"provider"`
 		DisplayName       string `json:"displayName"`
 		Status            int    `json:"status"`
@@ -83,7 +83,6 @@ func (o *OAuthConfig) MarshalJSON() ([]byte, error) {
 		JSONUserNamePath  string `json:"jsonUserNamePath"`
 		JSONUserEmailPath string `json:"jsonUserEmailPath"`
 	}{
-		ID:                o.ID,
 		Provider:          o.Provider,
 		DisplayName:       o.DisplayName,
 		Status:            o.Status,

@@ -371,3 +371,46 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 	Expect(result).IsNil()
 }
+
+func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	tenant, _ := tenants.GetByDomain("demo")
+	tenants.SetCurrentTenant(tenant)
+
+	config, err := tenants.GetOAuthConfigByProvider("_TEST")
+	Expect(config).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+
+	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
+		ID:                0,
+		Provider:          "_TEST",
+		DisplayName:       "My Provider",
+		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "http://provider/oauth/authorize",
+		TokenURL:          "http://provider/oauth/token",
+		Scope:             "profile email",
+		ProfileURL:        "http://provider/profile/me",
+		JSONUserIDPath:    "user.id",
+		JSONUserNamePath:  "user.name",
+		JSONUserEmailPath: "user.email",
+	})
+	Expect(err).IsNil()
+
+	config, err = tenants.GetOAuthConfigByProvider("_TEST")
+	Expect(err).IsNil()
+	Expect(config.Provider).Equals("_TEST")
+	Expect(config.DisplayName).Equals("My Provider")
+	Expect(config.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(config.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(config.AuthorizeURL).Equals("http://provider/oauth/authorize")
+	Expect(config.TokenURL).Equals("http://provider/oauth/token")
+	Expect(config.Scope).Equals("profile email")
+	Expect(config.Status).Equals(0)
+	Expect(config.ProfileURL).Equals("http://provider/profile/me")
+	Expect(config.JSONUserIDPath).Equals("user.id")
+	Expect(config.JSONUserNamePath).Equals("user.name")
+	Expect(config.JSONUserEmailPath).Equals("user.email")
+}

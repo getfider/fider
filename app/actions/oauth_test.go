@@ -6,7 +6,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/rand"
 )
 
 func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
@@ -23,16 +23,16 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		{
 			expected: []string{"displayName", "tokenURL", "clientId", "clientSecret", "scope", "authorizeURL", "tokenURL", "profileURL", "jsonUserIdPath", "jsonUserNamePath", "jsonUserEmailPath"},
 			input: &models.CreateEditOAuthConfig{
-				DisplayName:       mock.RandomString(51),
-				ClientID:          mock.RandomString(101),
-				ClientSecret:      mock.RandomString(501),
-				AuthorizeURL:      mock.RandomString(301),
-				TokenURL:          mock.RandomString(301),
-				Scope:             mock.RandomString(101),
-				ProfileURL:        mock.RandomString(301),
-				JSONUserIDPath:    mock.RandomString(101),
-				JSONUserNamePath:  mock.RandomString(101),
-				JSONUserEmailPath: mock.RandomString(101),
+				DisplayName:       rand.String(51),
+				ClientID:          rand.String(101),
+				ClientSecret:      rand.String(501),
+				AuthorizeURL:      rand.String(301),
+				TokenURL:          rand.String(301),
+				Scope:             rand.String(101),
+				ProfileURL:        rand.String(301),
+				JSONUserIDPath:    rand.String(101),
+				JSONUserNamePath:  rand.String(101),
+				JSONUserEmailPath: rand.String(101),
 			},
 		},
 	}

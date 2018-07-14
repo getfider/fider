@@ -18,6 +18,7 @@ type TenantStorage struct {
 	user          *models.User
 	verifications []*models.EmailVerification
 	tenantLogos   map[int]*models.Upload
+	oauthConfigs  []*models.OAuthConfig
 }
 
 // SetCurrentTenant tenant
@@ -191,7 +192,52 @@ func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	return nil, app.ErrNotFound
 }
 
+// SaveOAuthConfig saves given config into database
+func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
+	for _, c := range s.oauthConfigs {
+		if c.ID == config.ID {
+			c.Provider = config.Provider
+			c.DisplayName = config.DisplayName
+			c.ClientID = config.ClientID
+			c.ClientSecret = config.ClientSecret
+			c.AuthorizeURL = config.AuthorizeURL
+			c.TokenURL = config.TokenURL
+			c.Scope = config.Scope
+			c.ProfileURL = config.ProfileURL
+			c.JSONUserIDPath = config.JSONUserIDPath
+			c.JSONUserNamePath = config.JSONUserNamePath
+			c.JSONUserEmailPath = config.JSONUserEmailPath
+			return nil
+		}
+	}
+	s.oauthConfigs = append(s.oauthConfigs, &models.OAuthConfig{
+		ID:                config.ID,
+		Provider:          config.Provider,
+		DisplayName:       config.DisplayName,
+		ClientID:          config.ClientID,
+		ClientSecret:      config.ClientSecret,
+		AuthorizeURL:      config.AuthorizeURL,
+		TokenURL:          config.TokenURL,
+		Scope:             config.Scope,
+		ProfileURL:        config.ProfileURL,
+		JSONUserIDPath:    config.JSONUserIDPath,
+		JSONUserNamePath:  config.JSONUserNamePath,
+		JSONUserEmailPath: config.JSONUserEmailPath,
+	})
+	return nil
+}
+
+// GetOAuthConfigByProvider returns a custom OAuth configuration by provider name
+func (s *TenantStorage) GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error) {
+	for _, c := range s.oauthConfigs {
+		if c.Provider == provider {
+			return c, nil
+		}
+	}
+	return nil, app.ErrNotFound
+}
+
 // ListOAuthConfig returns a list of all custom OAuth provider for current tenant
 func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
-	return []*models.OAuthConfig{}, nil
+	return s.oauthConfigs, nil
 }

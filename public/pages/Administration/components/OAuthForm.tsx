@@ -11,7 +11,6 @@ interface OAuthFormProps {
 }
 
 export interface OAuthFormState {
-  id: number;
   displayName: string;
   clientId: string;
   clientSecret: string;
@@ -30,7 +29,6 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   constructor(props: OAuthFormProps) {
     super(props);
     this.state = {
-      id: this.props.config ? this.props.config.id : 0,
       displayName: this.props.config ? this.props.config.displayName : "",
       clientId: this.props.config ? this.props.config.clientId : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",

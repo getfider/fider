@@ -5,7 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -23,7 +23,7 @@ func TestInvalidEmail(t *testing.T) {
 		".my@company.com",
 		"my@company@other.com",
 		"@gmail.com",
-		mock.RandomString(200) + "@gmail.com",
+		rand.String(200) + "@gmail.com",
 	} {
 		result := validate.Email(email)
 		Expect(result.Ok).IsFalse()
@@ -54,7 +54,7 @@ func TestInvalidURL(t *testing.T) {
 		"http//google.com",
 		"google.com",
 		"google",
-		mock.RandomString(301),
+		rand.String(301),
 		"my@company",
 	} {
 		result := validate.URL(rawurl)

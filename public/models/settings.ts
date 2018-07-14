@@ -22,7 +22,6 @@ export interface UserSettings {
 }
 
 export interface OAuthConfig {
-  id: number;
   provider: string;
   displayName: string;
   status: number;

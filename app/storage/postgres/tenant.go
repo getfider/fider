@@ -319,6 +319,56 @@ func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	return upload, nil
 }
 
+// SaveOAuthConfig saves given config into database
+func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
+	var query string
+	if config.ID == 0 {
+		query = `INSERT INTO oauth_providers (
+			tenant_id, provider, display_name, status,
+			client_id, client_secret, authorize_url,
+			profile_url, token_url, scope, json_user_id_path,
+			json_user_name_path, json_user_email_path
+		) VALUES ($1, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
+	} else {
+		query = `
+			UPDATE oauth_providers 
+			SET display_name = $4, status = $5, client_id = $6, client_secret = $7, 
+					authorize_url = $8, profile_url = $9, token_url = $10, scope = $11, 
+					json_user_id_path = $12, json_user_name_path = $13, json_user_email_path = $14
+		WHERE tenant_id = $1 AND id = $2`
+	}
+	_, err := s.trx.Execute(query, s.current.ID, config.ID, config.Provider,
+		config.DisplayName, 0, config.ClientID, config.ClientSecret,
+		config.AuthorizeURL, config.ProfileURL, config.TokenURL,
+		config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
+		config.JSONUserEmailPath)
+	if err != nil {
+		return errors.Wrap(err, "failed to save OAuth Provider")
+	}
+	return nil
+}
+
+// GetOAuthConfigByProvider returns a custom OAuth configuration by provider name
+func (s *TenantStorage) GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error) {
+	if s.current == nil {
+		return nil, app.ErrNotFound
+	}
+
+	config := &models.OAuthConfig{}
+	err := s.trx.Get(config, `
+	SELECT id, provider, display_name, status,
+				 client_id, client_secret, authorize_url,
+				 profile_url, token_url, scope, json_user_id_path,
+				 json_user_name_path, json_user_email_path
+	FROM oauth_providers
+	WHERE tenant_id = $1 AND provider = $2
+	`, s.current.ID, provider)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
 // ListOAuthConfig returns a list of all custom OAuth provider for current tenant
 func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
 	entries := []*models.OAuthConfig{}
