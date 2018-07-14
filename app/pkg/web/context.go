@@ -219,7 +219,6 @@ func (ctx *Context) Failure(err error) error {
 		"HttpMethod": ctx.Request.Method,
 		"URL":        ctx.Request.URL.String(),
 		"UserAgent":  ctx.Request.GetHeader("User-Agent"),
-		"Cookie":     ctx.Request.GetHeader("Cookie"),
 	})
 
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{
