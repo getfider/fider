@@ -2,7 +2,7 @@ import "./TagForm.scss";
 
 import * as React from "react";
 import { OAuthConfig } from "@fider/models";
-import { Failure, Fider } from "@fider/services";
+import { Failure, Fider, actions, navigator } from "@fider/services";
 import { Form, Button, Input, Heading } from "@fider/components";
 
 interface OAuthFormProps {
@@ -11,6 +11,7 @@ interface OAuthFormProps {
 }
 
 export interface OAuthFormState {
+  provider: string;
   displayName: string;
   clientId: string;
   clientSecret: string;
@@ -29,6 +30,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   constructor(props: OAuthFormProps) {
     super(props);
     this.state = {
+      provider: this.props.config ? this.props.config.provider : "",
       displayName: this.props.config ? this.props.config.displayName : "",
       clientId: this.props.config ? this.props.config.clientId : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
@@ -44,7 +46,24 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   }
 
   private handleSave = async () => {
-    console.log(this.state);
+    const result = await actions.saveOAuthConfig({
+      provider: this.state.provider,
+      displayName: this.state.displayName,
+      clientId: this.state.clientId,
+      clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
+      authorizeUrl: this.state.authorizeUrl,
+      tokenUrl: this.state.tokenUrl,
+      profileUrl: this.state.profileUrl,
+      scope: this.state.scope,
+      jsonUserIdPath: this.state.jsonUserIdPath,
+      jsonUserNamePath: this.state.jsonUserNamePath,
+      jsonUserEmailPath: this.state.jsonUserEmailPath,
+    });
+    if (result.ok) {
+      navigator.goTo("/admin/authentication");
+    } else {
+      this.setState({ error: result.error });
+    }
   };
 
   private handleCancel = async () => {
@@ -153,19 +172,6 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             disabled={!Fider.session.user.isAdministrator}
             onChange={this.setTokenUrl}
           />
-          <Input
-            field="scope"
-            label="Scope"
-            maxLength={100}
-            value={this.state.scope}
-            disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setScope}
-          >
-            <p className="info">
-              The only required scopes are usually <code>profile</code> and <code>email</code>, but the naming might
-              differ depending on your provider. Don't ask for more information than we need.
-            </p>
-          </Input>
 
           <h3>User Profile</h3>
           <p className="info">
@@ -187,12 +193,68 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             </p>
           </Input>
 
+          <Input
+            field="scope"
+            label="Scope"
+            maxLength={100}
+            value={this.state.scope}
+            disabled={!Fider.session.user.isAdministrator}
+            onChange={this.setScope}
+          >
+            <p className="info">
+              It is recommended to only request the minimum scopes we need to fecth the user <strong>id</strong>,
+              <strong>name</strong> and <strong>email</strong>. Multiple scopes must be separated by space.
+            </p>
+          </Input>
+
           <h4>JSON Path</h4>
-          <p className="info">
-            The three following fields are used to configure how Fider will extract information from the profile API
-            response. Use JSON below as an example.
-          </p>
+
+          <div className="row">
+            <Input
+              field="jsonUserIdPath"
+              label="ID"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserIdPath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserIdPath}
+            >
+              <p className="info">
+                Path to extract User ID from JSON. This ID <strong>must</strong> be unique within the provider or
+                unexpected side effects might happen. For example below, the path would be <strong>id</strong>.
+              </p>
+            </Input>
+            <Input
+              field="jsonUserNamePath"
+              label="Name"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserNamePath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserNamePath}
+            >
+              <p className="info">
+                Path to extract user Display Name from JSON. This is optional, but <strong>highly</strong> recommended.
+                For the example below, the path would be <strong>profile.name</strong>.
+              </p>
+            </Input>
+            <Input
+              field="jsonUserEmailPath"
+              label="Email"
+              className="col-sm-4"
+              maxLength={100}
+              value={this.state.jsonUserEmailPath}
+              disabled={!Fider.session.user.isAdministrator}
+              onChange={this.setJSONUserEmailPath}
+            >
+              <p className="info">
+                Path to extract user Email from JSON. This is optional, but <strong>highly</strong> recommended. For the
+                example below, the path would be <strong>profile.emails[0]</strong>.
+              </p>
+            </Input>
+          </div>
           <pre>
+            <h5>Example Response</h5>
             {`
 { 
   id: "35235"
@@ -207,51 +269,6 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 }
             `}
           </pre>
-
-          <div className="row">
-            <Input
-              field="jsonUserIdPath"
-              label="ID"
-              className="col-sm-4"
-              maxLength={100}
-              value={this.state.jsonUserIdPath}
-              disabled={!Fider.session.user.isAdministrator}
-              onChange={this.setJSONUserIdPath}
-            >
-              <p className="info">
-                Path to extract User ID from JSON. This ID <strong>must</strong> be unique within the provider or
-                unexpected side effects might happen. For example above, the path would be <strong>id</strong>.
-              </p>
-            </Input>
-            <Input
-              field="jsonUserNamePath"
-              label="Name"
-              className="col-sm-4"
-              maxLength={100}
-              value={this.state.jsonUserNamePath}
-              disabled={!Fider.session.user.isAdministrator}
-              onChange={this.setJSONUserNamePath}
-            >
-              <p className="info">
-                Path to extract user Display Name from JSON. This optional but <strong>highly</strong> recommended. For
-                example above, the path would be <strong>profile.name</strong>.
-              </p>
-            </Input>
-            <Input
-              field="jsonUserEmailPath"
-              label="Email"
-              className="col-sm-4"
-              maxLength={100}
-              value={this.state.jsonUserEmailPath}
-              disabled={!Fider.session.user.isAdministrator}
-              onChange={this.setJSONUserEmailPath}
-            >
-              <p className="info">
-                Path to extract user Email from JSON. This optional but <strong>highly</strong> recommended. For example
-                above, the path would be <strong>profile.emails[0]</strong>.
-              </p>
-            </Input>
-          </div>
 
           <div className="c-form-field">
             <Button color="positive" onClick={this.handleSave}>

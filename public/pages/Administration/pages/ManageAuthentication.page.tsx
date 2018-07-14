@@ -64,8 +64,8 @@ export class ManageAuthenticationPage extends AdminBasePage<
         <Segment>
           <List divided={true}>
             {this.props.providers.map(o => (
-              <ListItem key={o.id}>
-                {o.displayName} <span className="info">({o.clientId})</span>
+              <ListItem key={o.provider}>
+                <strong>{o.displayName}</strong> <span className="info">({o.clientId})</span>
                 <Button key={1} onClick={this.edit.bind(this, o)} className="right">
                   <i className="edit icon" />Edit
                 </Button>

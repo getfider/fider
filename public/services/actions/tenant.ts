@@ -72,3 +72,21 @@ export const changeUserRole = async (userId: number, role: UserRole): Promise<Re
     role
   });
 };
+
+export interface CreateEditOAuthConfigRequest {
+  provider: string;
+  displayName: string;
+  clientId: string;
+  clientSecret: string;
+  authorizeUrl: string;
+  tokenUrl: string;
+  scope: string;
+  profileUrl: string;
+  jsonUserIdPath: string;
+  jsonUserNamePath: string;
+  jsonUserEmailPath: string;
+}
+
+export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
+  return await http.post("/api/admin/oauth/providers", request);
+};

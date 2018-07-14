@@ -131,6 +131,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
 			private.Post("/api/admin/tags", handlers.CreateEditTag())
+			private.Post("/api/admin/oauth/providers", handlers.SaveOAuthConfig())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 	}

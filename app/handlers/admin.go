@@ -119,3 +119,20 @@ func ManageAuthentication() web.HandlerFunc {
 		})
 	}
 }
+
+// SaveOAuthConfig is used to create/edit OAuth configurations
+func SaveOAuthConfig() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.CreateEditOAuthConfig)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tenants.SaveOAuthConfig(input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}

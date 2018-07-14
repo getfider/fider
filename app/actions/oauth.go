@@ -67,21 +67,21 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 
 	if input.Model.AuthorizeURL == "" {
-		result.AddFieldFailure("authorizeURL", "Authorize URL is required.")
+		result.AddFieldFailure("authorizeUrl", "Authorize URL is required.")
 	} else if urlResult := validate.URL(input.Model.AuthorizeURL); !urlResult.Ok {
-		result.AddFieldFailure("authorizeURL", urlResult.Messages...)
+		result.AddFieldFailure("authorizeUrl", urlResult.Messages...)
 	}
 
 	if input.Model.TokenURL == "" {
-		result.AddFieldFailure("tokenURL", "Token URL is required.")
+		result.AddFieldFailure("tokenUrl", "Token URL is required.")
 	} else if urlResult := validate.URL(input.Model.TokenURL); !urlResult.Ok {
-		result.AddFieldFailure("tokenURL", urlResult.Messages...)
+		result.AddFieldFailure("tokenUrl", urlResult.Messages...)
 	}
 
 	if input.Model.ProfileURL == "" {
-		result.AddFieldFailure("profileURL", "Profile URL is required.")
+		result.AddFieldFailure("profileUrl", "Profile URL is required.")
 	} else if urlResult := validate.URL(input.Model.ProfileURL); !urlResult.Ok {
-		result.AddFieldFailure("profileURL", urlResult.Messages...)
+		result.AddFieldFailure("profileUrl", urlResult.Messages...)
 	}
 
 	if input.Model.JSONUserIDPath == "" {
