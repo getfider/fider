@@ -321,29 +321,38 @@ func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 
 // SaveOAuthConfig saves given config into database
 func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
-	var query string
 	if config.ID == 0 {
-		query = `INSERT INTO oauth_providers (
+		query := `INSERT INTO oauth_providers (
 			tenant_id, provider, display_name, status,
 			client_id, client_secret, authorize_url,
 			profile_url, token_url, scope, json_user_id_path,
 			json_user_name_path, json_user_email_path
-		) VALUES ($1, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+
+		_, err := s.trx.Execute(query, s.current.ID, config.Provider,
+			config.DisplayName, 0, config.ClientID, config.ClientSecret,
+			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
+			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
+			config.JSONUserEmailPath)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert OAuth Provider")
+		}
 	} else {
-		query = `
+		query := `
 			UPDATE oauth_providers 
-			SET display_name = $4, status = $5, client_id = $6, client_secret = $7, 
-					authorize_url = $8, profile_url = $9, token_url = $10, scope = $11, 
-					json_user_id_path = $12, json_user_name_path = $13, json_user_email_path = $14
+			SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
+					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
+					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13
 		WHERE tenant_id = $1 AND id = $2`
-	}
-	_, err := s.trx.Execute(query, s.current.ID, config.ID, config.Provider,
-		config.DisplayName, 0, config.ClientID, config.ClientSecret,
-		config.AuthorizeURL, config.ProfileURL, config.TokenURL,
-		config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-		config.JSONUserEmailPath)
-	if err != nil {
-		return errors.Wrap(err, "failed to save OAuth Provider")
+
+		_, err := s.trx.Execute(query, s.current.ID, config.ID,
+			config.DisplayName, 0, config.ClientID, config.ClientSecret,
+			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
+			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
+			config.JSONUserEmailPath)
+		if err != nil {
+			return errors.Wrap(err, "failed to update OAuth Provider")
+		}
 	}
 	return nil
 }

@@ -401,6 +401,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 
 	config, err = tenants.GetOAuthConfigByProvider("_TEST")
 	Expect(err).IsNil()
+	Expect(config.ID).Equals(1)
 	Expect(config.Provider).Equals("_TEST")
 	Expect(config.DisplayName).Equals("My Provider")
 	Expect(config.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
@@ -413,4 +414,37 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config.JSONUserIDPath).Equals("user.id")
 	Expect(config.JSONUserNamePath).Equals("user.name")
 	Expect(config.JSONUserEmailPath).Equals("user.email")
+
+	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
+		ID:                1,
+		Provider:          "_TEST2222",
+		DisplayName:       "New My Provider",
+		ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
+		ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+		AuthorizeURL:      "New http://provider/oauth/authorize",
+		TokenURL:          "New http://provider/oauth/token",
+		Scope:             "New profile email",
+		ProfileURL:        "New http://provider/profile/me",
+		JSONUserIDPath:    "New user.id",
+		JSONUserNamePath:  "New user.name",
+		JSONUserEmailPath: "New user.email",
+	})
+	Expect(err).IsNil()
+
+	configs, err := tenants.ListOAuthConfig()
+	Expect(err).IsNil()
+	Expect(configs).HasLen(1)
+	Expect(configs[0].ID).Equals(1)
+	Expect(configs[0].Provider).Equals("_TEST")
+	Expect(configs[0].DisplayName).Equals("New My Provider")
+	Expect(configs[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(configs[0].ClientSecret).Equals("New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(configs[0].AuthorizeURL).Equals("New http://provider/oauth/authorize")
+	Expect(configs[0].TokenURL).Equals("New http://provider/oauth/token")
+	Expect(configs[0].Scope).Equals("New profile email")
+	Expect(configs[0].Status).Equals(0)
+	Expect(configs[0].ProfileURL).Equals("New http://provider/profile/me")
+	Expect(configs[0].JSONUserIDPath).Equals("New user.id")
+	Expect(configs[0].JSONUserNamePath).Equals("New user.name")
+	Expect(configs[0].JSONUserEmailPath).Equals("New user.email")
 }
