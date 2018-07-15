@@ -259,10 +259,6 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	Expect(upload.Content).Equals(newLogo)
 	Expect(upload.Size).Equals(len(newLogo))
 	Expect(upload.ContentType).Equals("text/html; charset=utf-8")
-
-	upload, err = tenants.GetUpload(firstLogoID)
-	Expect(err).Equals(app.ErrNotFound)
-	Expect(upload).IsNil()
 }
 
 func TestTenantStorage_AdvancedSettings(t *testing.T) {

@@ -5,7 +5,7 @@ import { classSet } from "@fider/services";
 
 interface OAuthProviderPreview {
   displayName: string;
-  logoUrl: string;
+  logoUrl?: string;
 }
 
 interface SocialSignInButtonProps {

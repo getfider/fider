@@ -1,7 +1,7 @@
 import "./Header.scss";
 
 import * as React from "react";
-import { SignInModal, EnvironmentInfo, Gravatar, Logo } from "@fider/components";
+import { SignInModal, EnvironmentInfo, Gravatar, TenantLogo } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 
 interface HeaderState {
@@ -73,7 +73,7 @@ export class Header extends React.Component<{}, HeaderState> {
         <div className="c-menu">
           <div className="container">
             <a href="/" className="c-menu-item-title">
-              <Logo size={100} />
+              <TenantLogo size={100} />
               <span>{Fider.session.tenant.name}</span>
             </a>
             {showRightMenu && (

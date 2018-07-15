@@ -3,7 +3,17 @@ import "./TagForm.scss";
 import * as React from "react";
 import { OAuthConfig } from "@fider/models";
 import { Failure, Fider, actions, navigator } from "@fider/services";
-import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploadState, ImageUploader } from "@fider/components";
+import {
+  Form,
+  Button,
+  Input,
+  Heading,
+  SocialSignInButton,
+  Field,
+  ImageUploadState,
+  ImageUploader,
+  UploadedImageUrl
+} from "@fider/components";
 
 interface OAuthFormProps {
   config?: OAuthConfig;
@@ -23,7 +33,7 @@ export interface OAuthFormState {
   jsonUserIdPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logoUrl: string;
+  logoUrl?: string;
   logo?: ImageUploadState;
   error?: Failure;
 }
@@ -60,7 +70,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       scope: this.state.scope,
       jsonUserIdPath: this.state.jsonUserIdPath,
       jsonUserNamePath: this.state.jsonUserNamePath,
-      jsonUserEmailPath: this.state.jsonUserEmailPath
+      jsonUserEmailPath: this.state.jsonUserEmailPath,
+      logo: this.state.logo
     });
     if (result.ok) {
       navigator.goTo("/admin/authentication");
