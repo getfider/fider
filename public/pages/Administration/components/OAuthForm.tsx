@@ -3,7 +3,7 @@ import "./TagForm.scss";
 import * as React from "react";
 import { OAuthConfig } from "@fider/models";
 import { Failure, Fider, actions, navigator } from "@fider/services";
-import { Form, Button, Input, Heading } from "@fider/components";
+import { Form, Button, Input, Heading, SocialSignInButton, Field } from "@fider/components";
 
 interface OAuthFormProps {
   config?: OAuthConfig;
@@ -57,7 +57,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       scope: this.state.scope,
       jsonUserIdPath: this.state.jsonUserIdPath,
       jsonUserNamePath: this.state.jsonUserNamePath,
-      jsonUserEmailPath: this.state.jsonUserEmailPath,
+      jsonUserEmailPath: this.state.jsonUserEmailPath
     });
     if (result.ok) {
       navigator.goTo("/admin/authentication");
@@ -120,14 +120,24 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       <>
         <Heading title={title} size="small" />
         <Form error={this.state.error}>
-          <Input
-            field="displayName"
-            label="Display Name"
-            maxLength={50}
-            value={this.state.displayName}
-            disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setDisplayName}
-          />
+          <div className="row">
+            <div className="col-sm-9">
+              <Input
+                field="displayName"
+                label="Display Name"
+                maxLength={50}
+                value={this.state.displayName}
+                disabled={!Fider.session.user.isAdministrator}
+                onChange={this.setDisplayName}
+              />
+            </div>
+            <div className="col-sm-3">
+              <Field label="Preview">
+                <SocialSignInButton option={this.state} />
+              </Field>
+            </div>
+          </div>
+
           <Input
             field="clientId"
             label="Client ID"
