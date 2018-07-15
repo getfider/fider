@@ -71,6 +71,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
           <List divided={true}>
             {this.props.providers.map(o => (
               <ListItem key={o.provider}>
+                {o.logoUrl && <img alt={o.displayName} src={o.logoUrl} />}
                 <strong>{o.displayName}</strong>
                 <p className="info">
                   <strong>Client ID:</strong> {o.clientId} <br />

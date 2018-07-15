@@ -23,6 +23,7 @@ export interface OAuthFormState {
   jsonUserIdPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
+  logoUrl: string;
   error?: Failure;
 }
 
@@ -41,7 +42,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       scope: this.props.config ? this.props.config.scope : "",
       jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
-      jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : ""
+      jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
+      logoUrl: ""
     };
   }
 

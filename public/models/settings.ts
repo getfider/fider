@@ -4,6 +4,7 @@ export interface OAuthProviderOption {
   clientId: string;
   url: string;
   callbackUrl: string;
+  logoUrl: string;
   isCustomProvider: boolean;
 }
 

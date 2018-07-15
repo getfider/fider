@@ -4,8 +4,8 @@ import { OAuthProviderOption } from "@fider/models";
 import { classSet } from "@fider/services";
 
 interface OAuthProviderPreview {
-  provider: string;
   displayName: string;
+  logoUrl: string;
 }
 
 interface SocialSignInButtonProps {
@@ -18,13 +18,12 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     const redirectTo = this.props.redirectTo || location.href;
     const href = "url" in this.props.option ? `${this.props.option.url}?redirect=${redirectTo}` : undefined;
     const className = classSet({
-      "m-social": true,
-      [`m-${this.props.option.provider}`]: true
+      "m-social": true
     });
 
     return (
       <Button href={href} fluid={true} className={className}>
-        <i className="svg" />
+        {this.props.option.logoUrl && <img alt={this.props.option.displayName} src={this.props.option.logoUrl} />}
         <span>{this.props.option.displayName}</span>
       </Button>
     );

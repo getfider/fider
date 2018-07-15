@@ -58,6 +58,7 @@ type OAuthConfig struct {
 	JSONUserIDPath    string `db:"json_user_id_path"`
 	JSONUserNamePath  string `db:"json_user_name_path"`
 	JSONUserEmailPath string `db:"json_user_email_path"`
+	LogoURL           string
 }
 
 // MarshalJSON converts model into a JSON string

@@ -202,34 +202,6 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
         </List>
 
-        <h1>Social Buttons</h1>
-        <div className="row">
-          <div className="col-md-2">
-            <SocialSignInButton
-              option={{
-                provider: "google",
-                displayName: "Google"
-              }}
-            />
-          </div>
-          <div className="col-md-2">
-            <SocialSignInButton
-              option={{
-                provider: "facebook",
-                displayName: "Facebook"
-              }}
-            />
-          </div>
-          <div className="col-md-2">
-            <SocialSignInButton
-              option={{
-                provider: "github",
-                displayName: "GitHub"
-              }}
-            />
-          </div>
-        </div>
-
         <h1>Toggle</h1>
         <List>
           <ListItem>
