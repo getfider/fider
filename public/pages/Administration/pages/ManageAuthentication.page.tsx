@@ -71,16 +71,20 @@ export class ManageAuthenticationPage extends AdminBasePage<
           <List divided={true}>
             {this.props.providers.map(o => (
               <ListItem key={o.provider}>
-                {o.logoUrl && <img alt={o.displayName} src={o.logoUrl} />}
-                <strong>{o.displayName}</strong>
-                <p className="info">
-                  <strong>Client ID:</strong> {o.clientId} <br />
-                  <strong>Callback URL:</strong> {o.callbackUrl}
-                </p>
                 {o.isCustomProvider && (
                   <Button key={1} onClick={this.edit.bind(this, o.provider)} className="right">
                     <i className="edit icon" />Edit
                   </Button>
+                )}
+                <div className="l-provider">
+                  {o.logoUrl && <img alt={o.displayName} src={o.logoUrl} />}
+                  <strong>{o.displayName}</strong>
+                </div>
+                {o.isCustomProvider && (
+                  <span className="info">
+                    <strong>Client ID:</strong> {o.clientId} <br />
+                    <strong>Callback URL:</strong> {o.callbackUrl}
+                  </span>
                 )}
               </ListItem>
             ))}
