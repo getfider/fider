@@ -6,6 +6,7 @@ import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading } from "@fider/components";
 import { OAuthConfig } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
+import { Fider } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthConfig[];
@@ -65,7 +66,11 @@ export class ManageAuthenticationPage extends AdminBasePage<
           <List divided={true}>
             {this.props.providers.map(o => (
               <ListItem key={o.provider}>
-                <strong>{o.displayName}</strong> <span className="info">({o.clientId})</span>
+                <strong>{o.displayName}</strong>
+                <p className="info">
+                  <strong>Client ID:</strong> {o.clientId} <br />
+                  <strong>Callback URL:</strong> {Fider.settings.baseURL}/oauth/{o.provider}/callback
+                </p>
                 <Button key={1} onClick={this.edit.bind(this, o)} className="right">
                   <i className="edit icon" />Edit
                 </Button>
