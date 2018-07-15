@@ -79,7 +79,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
   public render() {
     const isUploading = !!this.state.upload;
-    const hasFile = !this.state.remove || isUploading;
+    const hasFile = (!this.state.remove && this.props.defaultImageUrl) || isUploading;
 
     const imgStyles: React.CSSProperties = {
       maxWidth: `${this.props.previewMaxWidth}px`
