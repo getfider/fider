@@ -120,39 +120,31 @@ func (l *Logger) log(level log.Level, message string, props log.Props) {
 		return
 	}
 
-	write := func() {
-		props = l.props.Merge(props)
-		trx, err := l.db.Begin()
-		if err != nil {
-			l.console.Error(errors.Wrap(err, "failed to open transaction"))
-			return
-		}
-		trx.NoLogs()
-
-		message = log.Parse(message, props, false)
-
-		_, err = trx.Execute(
-			"INSERT INTO logs (tag, level, text, created_on, properties) VALUES ($1, $2, $3, $4, $5)",
-			l.tag, level.String(), message, time.Now(), props,
-		)
-
-		if err != nil {
-			l.console.Error(errors.Wrap(err, "failed to insert log"))
-			err = trx.Rollback()
-			if err != nil {
-				l.console.Error(errors.Wrap(err, "failed to rollback transaction"))
-			}
-		} else {
-			err = trx.Commit()
-			if err != nil {
-				l.console.Error(errors.Wrap(err, "failed to commit transaction"))
-			}
-		}
+	props = l.props.Merge(props)
+	trx, err := l.db.Begin()
+	if err != nil {
+		l.console.Error(errors.Wrap(err, "failed to open transaction"))
+		return
 	}
+	trx.NoLogs()
 
-	if env.IsTest() {
-		write()
+	message = log.Parse(message, props, false)
+
+	_, err = trx.Execute(
+		"INSERT INTO logs (tag, level, text, created_on, properties) VALUES ($1, $2, $3, $4, $5)",
+		l.tag, level.String(), message, time.Now(), props,
+	)
+
+	if err != nil {
+		l.console.Error(errors.Wrap(err, "failed to insert log"))
+		err = trx.Rollback()
+		if err != nil {
+			l.console.Error(errors.Wrap(err, "failed to rollback transaction"))
+		}
 	} else {
-		go write()
+		err = trx.Commit()
+		if err != nil {
+			l.console.Error(errors.Wrap(err, "failed to commit transaction"))
+		}
 	}
 }
