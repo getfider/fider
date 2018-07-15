@@ -5,6 +5,7 @@ import { classSet } from "@fider/services";
 
 interface MessageProps {
   type: "success" | "error";
+  showIcon?: boolean;
 }
 
 export const Message: React.StatelessComponent<MessageProps> = props => {
@@ -17,7 +18,7 @@ export const Message: React.StatelessComponent<MessageProps> = props => {
 
   return (
     <div className={className}>
-      <i className={`${icon} icon`} />
+      {props.showIcon === true && <i className={`${icon} icon`} />}
       {props.children}
     </div>
   );

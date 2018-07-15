@@ -1,8 +1,8 @@
 import "./SignInControl.scss";
 
 import * as React from "react";
-import { SocialSignInButton, Form, Button, Input } from "@fider/components";
-import { device, actions, Failure, Fider } from "@fider/services";
+import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components";
+import { device, actions, Failure, Fider, isCookieEnabled } from "@fider/services";
 
 interface SignInControlState {
   email: string;
@@ -53,6 +53,15 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
         <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
       </div>
     ));
+
+    if (!isCookieEnabled()) {
+      return (
+        <Message type="error">
+          <h3>Cookies Required</h3>
+          <p>Cookies are not enabled on your browser. Please enable cookies in your browser preferences to continue.</p>
+        </Message>
+      );
+    }
 
     return (
       <div className="c-signin-control">
