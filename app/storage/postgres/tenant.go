@@ -156,36 +156,62 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	s.current.CNAME = settings.CNAME
 	s.current.WelcomeMessage = settings.WelcomeMessage
 
+	// Only update tenant logo if there's a change
 	if settings.Logo != nil {
 		var newLogoID sql.NullInt64
 
+		// If there's an upload, save it
 		if !settings.Logo.Remove && len(settings.Logo.Upload.Content) > 0 {
-			err := s.trx.Get(&newLogoID, `
-				INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
-				VALUES ($1, $2, $3, $4, $5) RETURNING id
-				`, s.current.ID, len(settings.Logo.Upload.Content), http.DetectContentType(settings.Logo.Upload.Content), settings.Logo.Upload.Content, time.Now(),
-			)
+			uploadID, err := s.SaveNewUpload(settings.Logo.Upload.Content)
 			if err != nil {
 				return errors.Wrap(err, "failed to upload new tenant logo")
 			}
+			newLogoID.Scan(uploadID)
 		}
 
+		// Update current tenant logo to either new ID or null
 		query := "UPDATE tenants SET logo_id = $1 WHERE id = $2"
 		_, err = s.trx.Execute(query, newLogoID, s.current.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update tenant logo")
 		}
 
-		if s.current.LogoID > 0 {
-			query := "DELETE FROM uploads WHERE id = $1 AND tenant_id = $2"
-			_, err = s.trx.Execute(query, s.current.LogoID, s.current.ID)
-			if err != nil {
-				return errors.Wrap(err, "failed delete old tenant logo")
-			}
+		// Remove upload based on old tenant logo ID
+		err := s.RemoveUpload(s.current.LogoID)
+		if err != nil {
+			return errors.Wrap(err, "failed delete old tenant logo")
 		}
+
+		// Update reference to new logo ID
 		s.current.LogoID = int(newLogoID.Int64)
 	}
 
+	return nil
+}
+
+// SaveNewUpload saves given content and return upload id
+func (s *TenantStorage) SaveNewUpload(content []byte) (int, error) {
+	var newID int
+	err := s.trx.Get(&newID, `
+		INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
+		VALUES ($1, $2, $3, $4, $5) RETURNING id
+		`, s.current.ID, len(content), http.DetectContentType(content), content, time.Now(),
+	)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to save new upload")
+	}
+	return newID, nil
+}
+
+// RemoveUpload by given id
+func (s *TenantStorage) RemoveUpload(uploadID int) error {
+	if uploadID > 0 {
+		query := "DELETE FROM uploads WHERE id = $1 AND tenant_id = $2"
+		_, err := s.trx.Execute(query, uploadID, s.current.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed delete upload")
+		}
+	}
 	return nil
 }
 
@@ -276,21 +302,19 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	return nil
 }
 
-// GetLogo returns tenant logo by id
-func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
+// GetUpload returns upload by id
+func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	upload := &models.Upload{}
 	err := s.trx.Get(upload, `
-		SELECT content_type, size, file FROM tenants
-		INNER JOIN uploads
-		ON uploads.tenant_id = tenants.id
-		AND uploads.id = tenants.logo_id
-		WHERE tenants.id = $1 AND uploads.id = $2
+		SELECT content_type, size, file 
+		FROM uploads
+		WHERE tenant_id = $1 AND id = $2
 	`, s.current.ID, id)
 	if err == app.ErrNotFound {
 		return nil, app.ErrNotFound
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get logo from tenant")
+		return nil, errors.Wrap(err, "failed to get upload from tenant")
 	}
 	return upload, nil
 }

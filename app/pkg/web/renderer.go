@@ -120,8 +120,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["__fontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
 
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		m["__logo"] = ctx.TenantAssetsURL("/logo/200/%d", ctx.Tenant().LogoID)
-		m["__favicon"] = ctx.TenantAssetsURL("/logo/50/%d", ctx.Tenant().LogoID)
+		m["__logo"] = ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
+		m["__favicon"] = ctx.TenantAssetsURL("/images/50/%d", ctx.Tenant().LogoID)
 	} else {
 		m["__logo"] = "https://getfider.com/images/logo-100x100.png"
 		m["__favicon"] = ctx.GlobalAssetsURL("/favicon.ico")

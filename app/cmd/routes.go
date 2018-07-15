@@ -47,7 +47,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
-		tenantAssets.Get("/logo/:size/:id", handlers.Logo())
+		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
