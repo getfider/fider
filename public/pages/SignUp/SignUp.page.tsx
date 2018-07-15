@@ -176,8 +176,16 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
               placeholder="subdomain"
               suffix={Fider.settings.domain}
             >
-              {this.state.subdomain.available && <Message type="success">This subdomain is available!</Message>}
-              {this.state.subdomain.message && <Message type="error">{this.state.subdomain.message}</Message>}
+              {this.state.subdomain.available && (
+                <Message type="success" showIcon={true}>
+                  This subdomain is available!
+                </Message>
+              )}
+              {this.state.subdomain.message && (
+                <Message type="error" showIcon={true}>
+                  {this.state.subdomain.message}
+                </Message>
+              )}
             </Input>
           )}
         </Form>
