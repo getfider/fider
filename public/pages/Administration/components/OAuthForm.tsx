@@ -3,7 +3,7 @@ import "./TagForm.scss";
 import * as React from "react";
 import { OAuthConfig } from "@fider/models";
 import { Failure, Fider, actions, navigator } from "@fider/services";
-import { Form, Button, Input, Heading, SocialSignInButton, Field } from "@fider/components";
+import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploadState, ImageUploader } from "@fider/components";
 
 interface OAuthFormProps {
   config?: OAuthConfig;
@@ -24,6 +24,7 @@ export interface OAuthFormState {
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
   logoUrl: string;
+  logo?: ImageUploadState;
   error?: Failure;
 }
 
@@ -43,7 +44,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoUrl: ""
+      logoUrl: this.props.config ? this.props.config.logoUrl : ""
     };
   }
 
@@ -74,6 +75,10 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
   private setDisplayName = (displayName: string) => {
     this.setState({ displayName });
+  };
+
+  private setLogo = (logo: ImageUploadState, previewUrl: string) => {
+    this.setState({ logo, logoUrl: previewUrl });
   };
 
   private setClientId = (clientId: string) => {
@@ -132,6 +137,20 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
                 disabled={!Fider.session.user.isAdministrator}
                 onChange={this.setDisplayName}
               />
+
+              <ImageUploader
+                label="Logo"
+                field="logo"
+                defaultImageUrl={this.state.logoUrl}
+                previewMaxWidth={80}
+                disabled={!Fider.session.user.isAdministrator}
+                onChange={this.setLogo}
+              >
+                <p className="info">
+                  We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
+                  dimensions of 24x24 pixels.
+                </p>
+              </ImageUploader>
             </div>
             <div className="col-sm-3">
               <Field label="Preview">

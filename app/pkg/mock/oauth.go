@@ -51,3 +51,8 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 func (s *OAuthService) ListActiveProviders() ([]*oauth.ProviderOption, error) {
 	return []*oauth.ProviderOption{}, nil
 }
+
+//ListAllProviders returns a list of all providers for current tenant
+func (s *OAuthService) ListAllProviders() ([]*oauth.ProviderOption, error) {
+	return []*oauth.ProviderOption{}, nil
+}

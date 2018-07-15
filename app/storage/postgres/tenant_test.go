@@ -186,8 +186,8 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
 
 	settings := &models.UpdateTenantSettings{
-		Logo: &models.UpdateTenantSettingsLogo{
-			Upload: &models.UpdateTenantSettingsLogoUpload{
+		Logo: &models.ImageUpload{
+			Upload: &models.ImageUploadData{
 				Content: logo,
 			},
 		},
@@ -226,8 +226,8 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
 
 	settings := &models.UpdateTenantSettings{
-		Logo: &models.UpdateTenantSettingsLogo{
-			Upload: &models.UpdateTenantSettingsLogoUpload{
+		Logo: &models.ImageUpload{
+			Upload: &models.ImageUploadData{
 				Content: logo,
 			},
 		},

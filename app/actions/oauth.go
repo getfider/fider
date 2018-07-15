@@ -28,6 +28,7 @@ func (input *CreateEditOAuthConfig) IsAuthorized(user *models.User, services *ap
 // Validate is current model is valid
 func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
+
 	if input.Model.Provider != "" {
 		config, err := services.Tenants.GetOAuthConfigByProvider(input.Model.Provider)
 		if err != nil {
@@ -40,6 +41,14 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		}
 	} else {
 		input.Model.Provider = "_" + strings.ToLower(rand.String(20))
+	}
+
+	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24)
+	if !uploadResult.Ok {
+		if uploadResult.Error != nil {
+			return validate.Error(uploadResult.Error)
+		}
+		result.AddFieldFailure("logo", uploadResult.Messages...)
 	}
 
 	if input.Model.DisplayName == "" {

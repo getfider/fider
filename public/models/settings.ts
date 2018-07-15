@@ -34,6 +34,7 @@ export interface OAuthConfig {
   authorizeUrl: string;
   tokenUrl: string;
   profileUrl: string;
+  logoUrl: string;
   scope: string;
   jsonUserIdPath: string;
   jsonUserNamePath: string;

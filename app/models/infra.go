@@ -30,17 +30,18 @@ type Notification struct {
 // CreateEditOAuthConfig is used to create/edit an OAuth Configuration
 type CreateEditOAuthConfig struct {
 	ID                int
-	Provider          string `json:"provider"`
-	DisplayName       string `json:"displayName"`
-	ClientID          string `json:"clientId"`
-	ClientSecret      string `json:"clientSecret"`
-	AuthorizeURL      string `json:"authorizeUrl" format:"lower"`
-	TokenURL          string `json:"tokenUrl" format:"lower"`
-	Scope             string `json:"scope"`
-	ProfileURL        string `json:"profileUrl" format:"lower"`
-	JSONUserIDPath    string `json:"jsonUserIdPath"`
-	JSONUserNamePath  string `json:"jsonUserNamePath"`
-	JSONUserEmailPath string `json:"jsonUserEmailPath"`
+	Logo              *ImageUpload `json:"logo"`
+	Provider          string       `json:"provider"`
+	DisplayName       string       `json:"displayName"`
+	ClientID          string       `json:"clientId"`
+	ClientSecret      string       `json:"clientSecret"`
+	AuthorizeURL      string       `json:"authorizeUrl" format:"lower"`
+	TokenURL          string       `json:"tokenUrl" format:"lower"`
+	Scope             string       `json:"scope"`
+	ProfileURL        string       `json:"profileUrl" format:"lower"`
+	JSONUserIDPath    string       `json:"jsonUserIdPath"`
+	JSONUserNamePath  string       `json:"jsonUserNamePath"`
+	JSONUserEmailPath string       `json:"jsonUserEmailPath"`
 }
 
 // OAuthConfig is the configuration of a custom OAuth provider
