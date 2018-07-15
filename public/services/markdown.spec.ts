@@ -7,9 +7,9 @@ const testCases = [
     expectedSimple: '<p>Visit <a href="https://github.com" target="_blank">GitHub</a> to learn more.</p>'
   },
   {
-    input: "My Picture ![](http://demo.dev.fider.io:3000/logo/100/28)",
-    expectedFull: '<p>My Picture <img src="http://demo.dev.fider.io:3000/logo/100/28" alt="" /></p>',
-    expectedSimple: '<p>My Picture !<a href="http://demo.dev.fider.io:3000/logo/100/28" target="_blank"></a></p>'
+    input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
+    expectedFull: '<p>My Picture <img src="http://demo.dev.fider.io:3000/images/100/28" alt="" /></p>',
+    expectedSimple: '<p>My Picture !<a href="http://demo.dev.fider.io:3000/images/100/28" target="_blank"></a></p>'
   }
 ];
 

@@ -2,7 +2,16 @@ import "./GeneralSettings.page.scss";
 
 import * as React from "react";
 
-import { Button, ButtonClickEvent, TextArea, DisplayError, Logo, Form, Input, Field } from "@fider/components/common";
+import {
+  Button,
+  ButtonClickEvent,
+  TextArea,
+  Form,
+  Input,
+  ImageUploader,
+  ImageUploadState,
+  LogoUrl
+} from "@fider/components/common";
 import { actions, Failure, fileToBase64, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
 
@@ -11,13 +20,7 @@ interface GeneralSettingsPageProps {
 }
 
 interface GeneralSettingsPageState {
-  logo?: {
-    upload?: {
-      content?: string;
-      contentType?: string;
-    };
-    remove: boolean;
-  };
+  logo?: ImageUploadState;
   title: string;
   invitation: string;
   welcomeMessage: string;
@@ -112,19 +115,15 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     this.setState({ invitation });
   };
 
+  private setLogo = (logo: ImageUploadState): void => {
+    this.setState({ logo });
+  };
+
   private setCNAME = (cname: string): void => {
     this.setState({ cname });
   };
 
   public content() {
-    const isRemoving = this.state.logo ? this.state.logo.remove : false;
-    const isUploading = this.state.logo ? !!this.state.logo.upload : false;
-    const hasFile = (Fider.session.tenant.logoId > 0 && !isRemoving) || isUploading;
-    const previewUrl =
-      isUploading && this.state.logo && this.state.logo.upload
-        ? `data:${this.state.logo.upload.contentType};base64,${this.state.logo.upload.content}`
-        : undefined;
-
     return (
       <Form error={this.state.error}>
         <Input
@@ -151,25 +150,19 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           onChange={this.setInvitation}
         />
 
-        <Field label="Logo" className="c-logo-upload">
-          {hasFile && <Logo size={200} url={previewUrl} />}
-          <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
-          <DisplayError fields={["logo"]} error={this.state.error} />
-          <div>
-            <Button size="tiny" onClick={this.selectFile} disabled={!Fider.session.user.isAdministrator}>
-              {hasFile ? "Change" : "Upload"}
-            </Button>
-            {hasFile && (
-              <Button onClick={this.removeFile} size="tiny" disabled={!Fider.session.user.isAdministrator}>
-                Remove
-              </Button>
-            )}
-          </div>
+        <ImageUploader
+          label="Logo"
+          field="logo"
+          defaultImageUrl={LogoUrl(200)}
+          previewMaxWidth={200}
+          disabled={!Fider.session.user.isAdministrator}
+          onChange={this.setLogo}
+        >
           <p className="info">
             We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
             dimensions of 200x200 pixels.
           </p>
-        </Field>
+        </ImageUploader>
 
         {!Fider.isSingleHostMode() && (
           <Input

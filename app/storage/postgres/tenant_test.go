@@ -199,7 +199,7 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	err := tenants.UpdateSettings(settings)
 	Expect(err).IsNil()
 
-	upload, err := tenants.GetLogo(tenant.LogoID)
+	upload, err := tenants.GetUpload(tenant.LogoID)
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
 	Expect(upload.Size).Equals(len(logo))
@@ -240,7 +240,7 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	Expect(err).IsNil()
 
 	firstLogoID := tenant.LogoID
-	upload, err := tenants.GetLogo(firstLogoID)
+	upload, err := tenants.GetUpload(firstLogoID)
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
 	Expect(upload.Size).Equals(len(logo))
@@ -254,13 +254,13 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 
 	Expect(tenant.LogoID).NotEquals(firstLogoID)
 
-	upload, err = tenants.GetLogo(tenant.LogoID)
+	upload, err = tenants.GetUpload(tenant.LogoID)
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(newLogo)
 	Expect(upload.Size).Equals(len(newLogo))
 	Expect(upload.ContentType).Equals("text/html; charset=utf-8")
 
-	upload, err = tenants.GetLogo(firstLogoID)
+	upload, err = tenants.GetUpload(firstLogoID)
 	Expect(err).Equals(app.ErrNotFound)
 	Expect(upload).IsNil()
 }

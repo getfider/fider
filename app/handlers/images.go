@@ -63,8 +63,8 @@ func Avatar() web.HandlerFunc {
 	}
 }
 
-//Logo returns tenant logo by its ID on a given size
-func Logo() web.HandlerFunc {
+//ViewUploadedImage returns any uploaded image by given ID and size
+func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
 		id, err := c.ParamAsInt("id")
 		if err != nil {
@@ -76,7 +76,7 @@ func Logo() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		logo, err := c.Services().Tenants.GetLogo(id)
+		logo, err := c.Services().Tenants.GetUpload(id)
 		if err != nil {
 			return c.Failure(err)
 		}

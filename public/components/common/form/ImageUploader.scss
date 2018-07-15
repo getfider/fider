@@ -1,0 +1,15 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-image-upload {
+  input[type='file'] {
+    display: none;
+  }
+  
+  img.preview {
+    background-color: $white;
+    padding: 10px;
+    border: 1px solid rgba(34, 36, 38, 0.15);
+    border-radius: 3px;
+    margin-right: 10px;
+  }
+}

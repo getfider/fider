@@ -179,8 +179,8 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	return nil
 }
 
-// GetLogo returns tenant logo by id
-func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
+// GetUpload returns upload by id
+func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	if s.tenantLogos != nil {
 		logo, ok := s.tenantLogos[id]
 		if !ok {

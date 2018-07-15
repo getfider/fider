@@ -276,21 +276,19 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	return nil
 }
 
-// GetLogo returns tenant logo by id
-func (s *TenantStorage) GetLogo(id int) (*models.Upload, error) {
+// GetUpload returns upload by id
+func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 	upload := &models.Upload{}
 	err := s.trx.Get(upload, `
-		SELECT content_type, size, file FROM tenants
-		INNER JOIN uploads
-		ON uploads.tenant_id = tenants.id
-		AND uploads.id = tenants.logo_id
-		WHERE tenants.id = $1 AND uploads.id = $2
+		SELECT content_type, size, file 
+		FROM uploads
+		WHERE tenant_id = $1 AND id = $2
 	`, s.current.ID, id)
 	if err == app.ErrNotFound {
 		return nil, app.ErrNotFound
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get logo from tenant")
+		return nil, errors.Wrap(err, "failed to get upload from tenant")
 	}
 	return upload, nil
 }
