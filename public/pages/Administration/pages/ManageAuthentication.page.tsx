@@ -4,12 +4,12 @@ import * as React from "react";
 
 import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading } from "@fider/components";
-import { OAuthConfig } from "@fider/models";
+import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
-import { Fider } from "@fider/services";
+import { actions, notify } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
-  providers: OAuthConfig[];
+  providers: OAuthProviderOption[];
 }
 
 interface ManageAuthenticationPageState {
@@ -38,8 +38,13 @@ export class ManageAuthenticationPage extends AdminBasePage<
     this.setState({ isAdding: true, editing: undefined });
   };
 
-  private edit = async (editing: OAuthConfig) => {
-    this.setState({ editing, isAdding: false });
+  private edit = async (provider: string) => {
+    const result = await actions.getOAuthConfig(provider);
+    if (result.ok) {
+      this.setState({ editing: result.data, isAdding: false });
+    } else {
+      notify.error("Failed to retrieve OAuth configuration. Try again later");
+    }
   };
 
   private cancel = async () => {
@@ -69,11 +74,13 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 <strong>{o.displayName}</strong>
                 <p className="info">
                   <strong>Client ID:</strong> {o.clientId} <br />
-                  <strong>Callback URL:</strong> {Fider.settings.baseURL}/oauth/{o.provider}/callback
+                  <strong>Callback URL:</strong> {o.callbackUrl}
                 </p>
-                <Button key={1} onClick={this.edit.bind(this, o)} className="right">
-                  <i className="edit icon" />Edit
-                </Button>
+                {o.isCustomProvider && (
+                  <Button key={1} onClick={this.edit.bind(this, o.provider)} className="right">
+                    <i className="edit icon" />Edit
+                  </Button>
+                )}
               </ListItem>
             ))}
           </List>
@@ -83,6 +90,5 @@ export class ManageAuthenticationPage extends AdminBasePage<
         </Button>
       </>
     );
-    return <></>;
   }
 }

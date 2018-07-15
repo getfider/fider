@@ -205,13 +205,40 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Social Buttons</h1>
         <div className="row">
           <div className="col-md-3">
-            <SocialSignInButton option={{ provider: "google", displayName: "Google", url: "#" }} />
+            <SocialSignInButton
+              option={{
+                provider: "google",
+                displayName: "Google",
+                url: "#",
+                callbackUrl: "#",
+                clientId: "",
+                isCustomProvider: false
+              }}
+            />
           </div>
           <div className="col-md-3">
-            <SocialSignInButton option={{ provider: "facebook", displayName: "Facebook", url: "#" }} />
+            <SocialSignInButton
+              option={{
+                provider: "facebook",
+                displayName: "Facebook",
+                url: "#",
+                callbackUrl: "#",
+                clientId: "",
+                isCustomProvider: false
+              }}
+            />
           </div>
           <div className="col-md-3">
-            <SocialSignInButton option={{ provider: "github", displayName: "GitHub", url: "#" }} />
+            <SocialSignInButton
+              option={{
+                provider: "github",
+                displayName: "GitHub",
+                url: "#",
+                callbackUrl: "#",
+                clientId: "",
+                isCustomProvider: false
+              }}
+            />
           </div>
         </div>
 

@@ -25,14 +25,18 @@ type UserProfile struct {
 
 //ProviderOption represents an OAuth provider that can be used to authenticate
 type ProviderOption struct {
-	Provider    string `json:"provider"`
-	DisplayName string `json:"displayName"`
-	URL         string `json:"url"`
+	Provider         string `json:"provider"`
+	DisplayName      string `json:"displayName"`
+	ClientID         string `json:"clientId"`
+	URL              string `json:"url"`
+	CallbackURL      string `json:"callbackUrl"`
+	IsCustomProvider bool   `json:"isCustomProvider"`
 }
 
 //Service provides OAuth operations
 type Service interface {
 	GetAuthURL(provider, redirect, identifier string) (string, error)
 	GetProfile(provider string, code string) (*UserProfile, error)
-	ListProviders() ([]*ProviderOption, error)
+	ListActiveProviders() ([]*ProviderOption, error)
+	ListAllProviders() ([]*ProviderOption, error)
 }

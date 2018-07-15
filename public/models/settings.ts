@@ -1,7 +1,10 @@
 export interface OAuthProviderOption {
   provider: string;
   displayName: string;
+  clientId: string;
   url: string;
+  callbackUrl: string;
+  isCustomProvider: boolean;
 }
 
 export interface SystemSettings {

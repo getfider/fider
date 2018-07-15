@@ -158,9 +158,15 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 	return profile, nil
 }
 
-//ListProviders returns a list of all available providers for current tenant
-func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
-	providers, err := s.listProvidersWithConfiguration()
+//ListActiveProviders returns a list of all enabled providers for current tenant
+func (s *OAuthService) ListActiveProviders() ([]*oauth.ProviderOption, error) {
+	//TODO: Change this to filter out inactive providers
+	return s.ListAllProviders()
+}
+
+//ListAllProviders returns a list of all providers for current tenant
+func (s *OAuthService) ListAllProviders() ([]*oauth.ProviderOption, error) {
+	providers, err := s.allOAuthConfigs()
 	if err != nil {
 		return nil, err
 	}
@@ -168,11 +174,14 @@ func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	list := make([]*oauth.ProviderOption, 0)
 
 	for _, p := range providers {
-		if p.ClientID != "" {
+		if p.ClientID != "" { //TODO: Remove this, set SystemProviders Status = Disabled if ClientID == ""
 			list = append(list, &oauth.ProviderOption{
-				Provider:    p.Provider,
-				DisplayName: p.DisplayName,
-				URL:         fmt.Sprintf("/oauth/%s", p.Provider),
+				Provider:         p.Provider,
+				DisplayName:      p.DisplayName,
+				ClientID:         p.ClientID,
+				URL:              fmt.Sprintf("/oauth/%s", p.Provider),
+				CallbackURL:      fmt.Sprintf("/oauth/%s/callback", p.Provider),
+				IsCustomProvider: string(p.Provider[0]) == "_",
 			})
 		}
 	}
@@ -180,7 +189,7 @@ func (s *OAuthService) ListProviders() ([]*oauth.ProviderOption, error) {
 	return list, nil
 }
 
-func (s *OAuthService) listProvidersWithConfiguration() ([]*models.OAuthConfig, error) {
+func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 	list := make([]*models.OAuthConfig, 0)
 
 	for _, p := range systemProviders {

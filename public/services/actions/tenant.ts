@@ -1,5 +1,5 @@
 import { http, Result } from "@fider/services/http";
-import { Tenant, UserRole } from "@fider/models";
+import { Tenant, UserRole, OAuthConfig } from "@fider/models";
 
 export interface CheckAvailabilityResponse {
   message: string;
@@ -73,6 +73,10 @@ export const changeUserRole = async (userId: number, role: UserRole): Promise<Re
   });
 };
 
+export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {
+  return await http.get<OAuthConfig>(`/api/admin/oauth/${provider}`);
+};
+
 export interface CreateEditOAuthConfigRequest {
   provider: string;
   displayName: string;
@@ -88,5 +92,5 @@ export interface CreateEditOAuthConfigRequest {
 }
 
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
-  return await http.post("/api/admin/oauth/providers", request);
+  return await http.post("/api/admin/oauth", request);
 };

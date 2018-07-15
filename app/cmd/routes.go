@@ -117,6 +117,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/members", handlers.ManageMembers())
 			private.Get("/admin/tags", handlers.ManageTags())
 			private.Get("/admin/authentication", handlers.ManageAuthentication())
+			private.Get("/api/admin/oauth/:provider", handlers.GetOAuthConfig())
 			private.Post("/api/admin/invitations/send", handlers.SendInvites())
 			private.Post("/api/admin/invitations/sample", handlers.SendSampleInvite())
 
@@ -131,7 +132,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
 			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
 			private.Post("/api/admin/tags", handlers.CreateEditTag())
-			private.Post("/api/admin/oauth/providers", handlers.SaveOAuthConfig())
+			private.Post("/api/admin/oauth", handlers.SaveOAuthConfig())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
 	}
