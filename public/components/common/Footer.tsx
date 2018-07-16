@@ -2,6 +2,7 @@ import "./Footer.scss";
 
 import * as React from "react";
 import { PrivacyPolicy, TermsOfService } from "@fider/components";
+import { Fider } from "@fider/services";
 
 export const Footer = () => {
   return (
