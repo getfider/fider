@@ -84,13 +84,17 @@ var (
 type OAuthService struct {
 	oauthBaseURL  string
 	tenantStorage storage.Tenant
+	configCache   map[string]*models.OAuthConfig
 }
 
 //NewOAuthService creates a new OAuthService
 func NewOAuthService(oauthBaseURL string, tenantStorage storage.Tenant) *OAuthService {
+	configCache := make(map[string]*models.OAuthConfig, 0)
+
 	return &OAuthService{
 		oauthBaseURL,
 		tenantStorage,
+		configCache,
 	}
 }
 
@@ -112,21 +116,34 @@ func (s *OAuthService) GetAuthURL(provider, redirect, identifier string) (string
 	return authURL.String(), nil
 }
 
-//GetProfile returns user profile based on provider and code
+//GetProfile returns user profile based on provider (only if enabled) and code
 func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
-	response, err := s.GetRawProfile(provider, code)
+	config, err := s.getConfig(provider)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.ParseRawProfile(provider, response)
+	if config.Status == models.OAuthConfigDisabled {
+		return nil, errors.New("Provider %s is disabled", provider)
+	}
+
+	statusCode, body, err := s.GetRawProfile(provider, code)
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode != 200 {
+		return nil, errors.New("Failed to request GET profile. Status Code: %d. Body: %s", statusCode, body)
+	}
+
+	return s.ParseRawProfile(provider, body)
 }
 
 //GetRawProfile returns raw JSON response from Profile API
-func (s *OAuthService) GetRawProfile(provider string, code string) (string, error) {
+func (s *OAuthService) GetRawProfile(provider string, code string) (int, string, error) {
 	config, err := s.getConfig(provider)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	exchange := (&oauth2.Config{
@@ -141,15 +158,11 @@ func (s *OAuthService) GetRawProfile(provider string, code string) (string, erro
 
 	oauthToken, err := exchange(oauth2.NoContext, code)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
+		rErr := err.(*oauth2.RetrieveError)
+		return rErr.Response.StatusCode, string(rErr.Body), nil
 	}
 
-	bytes, err := s.doGet(config.ProfileURL, oauthToken.AccessToken)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
+	return s.doGet(config.ProfileURL, oauthToken.AccessToken)
 }
 
 //ParseRawProfile parses raw profile response into UserProfile model
@@ -246,27 +259,19 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 	return list, nil
 }
 
-func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
+func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 	r, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		return nil, err
+		return 0, "", err
 	}
 
 	defer r.Body.Close()
 
 	bytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to request GET %s", url)
-	}
-
-	if r.StatusCode != 200 {
-		return nil, errors.New("failed to request GET %s with status code %d and response %s", url, r.StatusCode, string(bytes))
-	}
-
-	return bytes, nil
+	return r.StatusCode, string(bytes), err
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
@@ -276,5 +281,16 @@ func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
 		}
 	}
 
-	return s.tenantStorage.GetOAuthConfigByProvider(provider)
+	var err error
+	config, ok := s.configCache[provider]
+	if !ok {
+		config, err = s.tenantStorage.GetOAuthConfigByProvider(provider)
+		if err != nil {
+			return nil, err
+		}
+
+		s.configCache[provider] = config
+	}
+
+	return config, nil
 }

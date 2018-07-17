@@ -36,7 +36,7 @@ func OAuthEcho() web.HandlerFunc {
 			return c.Redirect("/")
 		}
 
-		response, err := c.Services().OAuth.GetRawProfile(provider, code)
+		statusCode, response, err := c.Services().OAuth.GetRawProfile(provider, code)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -46,8 +46,9 @@ func OAuthEcho() web.HandlerFunc {
 		return c.Page(web.Props{
 			Title: "OAuth Test Page",
 			Data: web.Map{
-				"response": response,
-				"profile":  profile,
+				"statusCode": statusCode,
+				"response":   response,
+				"profile":    profile,
 			},
 		})
 	}

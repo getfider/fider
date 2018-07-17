@@ -5,6 +5,7 @@ import { navigator } from "@fider/services";
 import { Segments, Segment } from "@fider/components";
 
 interface OAuthEchoPageProps {
+  statusCode: number;
   response: string;
   profile: {
     id: string;
@@ -29,6 +30,7 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
 
     return (
       <div id="p-oauth-echo" className="page container">
+        <h5>Status Code: {this.props.statusCode}</h5>
         <h5>Raw Response</h5>
         <pre>{JSON.stringify(JSON.parse(this.props.response), null, "  ")}</pre>
         <h5>Parsed Profile</h5>
