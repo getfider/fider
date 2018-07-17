@@ -80,6 +80,7 @@ export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConf
 
 export interface CreateEditOAuthConfigRequest {
   provider: string;
+  status: number;
   displayName: string;
   clientId: string;
   clientSecret: string;

@@ -30,6 +30,7 @@ type CreateEditOAuthConfig struct {
 	ID                int
 	Logo              *ImageUpload `json:"logo"`
 	Provider          string       `json:"provider"`
+	Status            int          `json:"status"`
 	DisplayName       string       `json:"displayName"`
 	ClientID          string       `json:"clientId"`
 	ClientSecret      string       `json:"clientSecret"`
@@ -59,3 +60,10 @@ type OAuthConfig struct {
 	JSONUserNamePath  string `json:"jsonUserNamePath"`
 	JSONUserEmailPath string `json:"jsonUserEmailPath"`
 }
+
+var (
+	//OAuthConfigDisabled is used to disable an OAuthConfig for signin
+	OAuthConfigDisabled = 1
+	//OAuthConfigEnabled is used to enable an OAuthConfig for public use
+	OAuthConfigEnabled = 2
+)

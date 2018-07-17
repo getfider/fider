@@ -51,6 +51,11 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		result.AddFieldFailure("logo", uploadResult.Messages...)
 	}
 
+	if input.Model.Status != models.OAuthConfigEnabled &&
+		input.Model.Status != models.OAuthConfigDisabled {
+		result.AddFieldFailure("status", "Invalid status.")
+	}
+
 	if input.Model.DisplayName == "" {
 		result.AddFieldFailure("displayName", "Display Name is required.")
 	} else if len(input.Model.DisplayName) > 50 {

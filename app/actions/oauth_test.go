@@ -18,14 +18,15 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		input    *models.CreateEditOAuthConfig
 	}{
 		{
-			expected: []string{"displayName", "tokenUrl", "clientId", "clientSecret", "scope", "authorizeUrl", "tokenUrl", "profileUrl", "jsonUserIdPath"},
+			expected: []string{"displayName", "status", "tokenUrl", "clientId", "clientSecret", "scope", "authorizeUrl", "tokenUrl", "profileUrl", "jsonUserIdPath"},
 			input:    &models.CreateEditOAuthConfig{},
 		},
 		{
-			expected: []string{"displayName", "tokenUrl", "clientId", "clientSecret", "scope", "authorizeUrl", "tokenUrl", "profileUrl", "jsonUserIdPath", "jsonUserNamePath", "jsonUserEmailPath"},
+			expected: []string{"displayName", "status", "tokenUrl", "clientId", "clientSecret", "scope", "authorizeUrl", "tokenUrl", "profileUrl", "jsonUserIdPath", "jsonUserNamePath", "jsonUserEmailPath"},
 			input: &models.CreateEditOAuthConfig{
 				DisplayName:       rand.String(51),
 				ClientID:          rand.String(101),
+				Status:            0,
 				ClientSecret:      rand.String(501),
 				AuthorizeURL:      rand.String(301),
 				TokenURL:          rand.String(301),
@@ -52,6 +53,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 
 	input := &models.CreateEditOAuthConfig{
 		DisplayName:       "My Provider",
+		Status:            models.OAuthConfigEnabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
 		AuthorizeURL:      "http://provider/oauth/authorize",
@@ -85,6 +87,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	input := &models.CreateEditOAuthConfig{
 		Provider:          "_NAME",
 		DisplayName:       "My Provider",
+		Status:            models.OAuthConfigDisabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
 		AuthorizeURL:      "http://provider/oauth/authorize",
@@ -117,6 +120,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	input := &models.CreateEditOAuthConfig{
 		Provider:          "_NAME2",
 		DisplayName:       "My Provider",
+		Status:            models.OAuthConfigDisabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		AuthorizeURL:      "http://provider/oauth/authorize",
 		TokenURL:          "http://provider/oauth/token",
@@ -141,6 +145,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	input := &models.CreateEditOAuthConfig{
 		Provider:          "_MY_NEW_PROVIDER",
 		DisplayName:       "My Provider",
+		Status:            models.OAuthConfigDisabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		AuthorizeURL:      "http://provider/oauth/authorize",
 		TokenURL:          "http://provider/oauth/token",

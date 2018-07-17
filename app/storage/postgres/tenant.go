@@ -356,7 +356,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 
 		_, err = s.trx.Execute(query, s.current.ID, config.Provider,
-			config.DisplayName, 0, config.ClientID, config.ClientSecret,
+			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
 			config.JSONUserEmailPath)
@@ -369,7 +369,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 		WHERE tenant_id = $1 AND id = $2`
 
 		_, err = s.trx.Execute(query, s.current.ID, config.ID,
-			config.DisplayName, 0, config.ClientID, config.ClientSecret,
+			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
 			config.JSONUserEmailPath)

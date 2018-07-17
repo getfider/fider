@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage"
 
@@ -23,12 +24,20 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
+func getProviderStatus(envKey string) int {
+	if os.Getenv(envKey) == "" {
+		return models.OAuthConfigDisabled
+	}
+	return models.OAuthConfigEnabled
+}
+
 var (
 	systemProviders = []*models.OAuthConfig{
 		&models.OAuthConfig{
 			Provider:          oauth.FacebookProvider,
 			DisplayName:       "Facebook",
 			ProfileURL:        "https://graph.facebook.com/me?fields=name,email",
+			Status:            getProviderStatus("OAUTH_FACEBOOK_APPID"),
 			ClientID:          os.Getenv("OAUTH_FACEBOOK_APPID"),
 			ClientSecret:      os.Getenv("OAUTH_FACEBOOK_SECRET"),
 			Scope:             "public_profile email",
@@ -43,6 +52,7 @@ var (
 			Provider:          oauth.GoogleProvider,
 			DisplayName:       "Google",
 			ProfileURL:        "https://www.googleapis.com/plus/v1/people/me",
+			Status:            getProviderStatus("OAUTH_GOOGLE_CLIENTID"),
 			ClientID:          os.Getenv("OAUTH_GOOGLE_CLIENTID"),
 			ClientSecret:      os.Getenv("OAUTH_GOOGLE_SECRET"),
 			Scope:             "profile email",
@@ -57,6 +67,7 @@ var (
 			Provider:          oauth.GitHubProvider,
 			DisplayName:       "GitHub",
 			ProfileURL:        "https://api.github.com/user",
+			Status:            getProviderStatus("OAUTH_GITHUB_CLIENTID"),
 			ClientID:          os.Getenv("OAUTH_GITHUB_CLIENTID"),
 			ClientSecret:      os.Getenv("OAUTH_GITHUB_SECRET"),
 			Scope:             "user:email",
@@ -163,8 +174,18 @@ func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthCon
 
 //ListActiveProviders returns a list of all enabled providers for current tenant
 func (s *OAuthService) ListActiveProviders() ([]*oauth.ProviderOption, error) {
-	//TODO: Change this to filter out inactive providers
-	return s.ListAllProviders()
+	list := make([]*oauth.ProviderOption, 0)
+	providers, err := s.ListAllProviders()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range providers {
+		if p.IsEnabled {
+			list = append(list, p)
+		}
+	}
+	return list, nil
 }
 
 //ListAllProviders returns a list of all providers for current tenant
@@ -177,17 +198,16 @@ func (s *OAuthService) ListAllProviders() ([]*oauth.ProviderOption, error) {
 	list := make([]*oauth.ProviderOption, 0)
 
 	for _, p := range providers {
-		if p.ClientID != "" { //TODO: Remove this, set SystemProviders Status = Disabled if ClientID == ""
-			list = append(list, &oauth.ProviderOption{
-				Provider:         p.Provider,
-				DisplayName:      p.DisplayName,
-				ClientID:         p.ClientID,
-				URL:              fmt.Sprintf("/oauth/%s", p.Provider),
-				CallbackURL:      fmt.Sprintf("/oauth/%s/callback", p.Provider),
-				IsCustomProvider: string(p.Provider[0]) == "_",
-				LogoURL:          p.LogoURL,
-			})
-		}
+		list = append(list, &oauth.ProviderOption{
+			Provider:         p.Provider,
+			DisplayName:      p.DisplayName,
+			ClientID:         p.ClientID,
+			URL:              fmt.Sprintf("/oauth/%s", p.Provider),
+			CallbackURL:      fmt.Sprintf("/oauth/%s/callback", p.Provider),
+			IsCustomProvider: string(p.Provider[0]) == "_",
+			LogoURL:          p.LogoURL,
+			IsEnabled:        p.Status == models.OAuthConfigEnabled,
+		})
 	}
 
 	return list, nil
@@ -197,9 +217,7 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 	list := make([]*models.OAuthConfig, 0)
 
 	for _, p := range systemProviders {
-		if p.ClientID != "" {
-			list = append(list, p)
-		}
+		list = append(list, p)
 	}
 
 	customProviders, err := s.tenantStorage.ListOAuthConfig()
@@ -208,9 +226,7 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 	}
 
 	for _, p := range customProviders {
-		if p.ClientID != "" {
-			list = append(list, p)
-		}
+		list = append(list, p)
 	}
 
 	return list, nil
@@ -241,10 +257,19 @@ func (s *OAuthService) doGet(url, accessToken string) ([]byte, error) {
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
 	for _, config := range systemProviders {
-		if config.ClientID != "" && config.Provider == provider {
+		if config.Status == models.OAuthConfigEnabled && config.Provider == provider {
 			return config, nil
 		}
 	}
 
-	return s.tenantStorage.GetOAuthConfigByProvider(provider)
+	config, err := s.tenantStorage.GetOAuthConfigByProvider(provider)
+	if err != nil {
+		return nil, err
+	}
+
+	if config.Status == models.OAuthConfigEnabled {
+		return config, nil
+	}
+
+	return nil, app.ErrNotFound
 }

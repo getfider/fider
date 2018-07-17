@@ -6,6 +6,7 @@ export interface OAuthProviderOption {
   callbackUrl: string;
   logoUrl: string;
   isCustomProvider: boolean;
+  isEnabled: boolean;
 }
 
 export interface SystemSettings {
@@ -24,6 +25,11 @@ export interface SystemSettings {
 export interface UserSettings {
   [key: string]: string;
 }
+
+export const OAuthConfigStatus = {
+  Disabled: 1,
+  Enabled: 2
+};
 
 export interface OAuthConfig {
   provider: string;

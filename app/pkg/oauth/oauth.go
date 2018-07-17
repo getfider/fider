@@ -32,6 +32,7 @@ type ProviderOption struct {
 	CallbackURL      string `json:"callbackUrl"`
 	LogoURL          string `json:"logoUrl"`
 	IsCustomProvider bool   `json:"isCustomProvider"`
+	IsEnabled        bool   `json:"isEnabled"`
 }
 
 //Service provides OAuth operations

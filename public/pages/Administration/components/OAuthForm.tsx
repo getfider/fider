@@ -1,7 +1,7 @@
 import "./TagForm.scss";
 
 import * as React from "react";
-import { OAuthConfig } from "@fider/models";
+import { OAuthConfig, OAuthConfigStatus } from "@fider/models";
 import { Failure, Fider, actions, navigator } from "@fider/services";
 import {
   Form,
@@ -12,7 +12,8 @@ import {
   Field,
   ImageUploadState,
   ImageUploader,
-  UploadedImageUrl
+  SelectOption,
+  Select
 } from "@fider/components";
 
 interface OAuthFormProps {
@@ -23,6 +24,7 @@ interface OAuthFormProps {
 export interface OAuthFormState {
   provider: string;
   displayName: string;
+  status: number;
   clientId: string;
   clientSecret: string;
   clientSecretEnabled: boolean;
@@ -43,6 +45,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     super(props);
     this.state = {
       provider: this.props.config ? this.props.config.provider : "",
+      status: this.props.config ? this.props.config.status : OAuthConfigStatus.Disabled,
       displayName: this.props.config ? this.props.config.displayName : "",
       clientId: this.props.config ? this.props.config.clientId : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
@@ -61,6 +64,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   private handleSave = async () => {
     const result = await actions.saveOAuthConfig({
       provider: this.state.provider,
+      status: this.state.status,
       displayName: this.state.displayName,
       clientId: this.state.clientId,
       clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
@@ -90,6 +94,12 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
   private setLogo = (logo: ImageUploadState, previewUrl: string) => {
     this.setState({ logo, logoUrl: previewUrl });
+  };
+
+  private setStatus = (opt?: SelectOption) => {
+    if (opt) {
+      this.setState({ status: parseInt(opt.value, 10) });
+    }
   };
 
   private setClientId = (clientId: string) => {
@@ -178,6 +188,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             disabled={!Fider.session.user.isAdministrator}
             onChange={this.setClientId}
           />
+
           <Input
             field="clientSecret"
             label="Client Secret"
@@ -311,6 +322,26 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 }
             `}
           </pre>
+
+          <Select
+            field="status"
+            label="Status"
+            defaultValue={this.state.status.toString()}
+            options={[
+              { value: OAuthConfigStatus.Disabled.toString(), label: "Disabled" },
+              { value: OAuthConfigStatus.Enabled.toString(), label: "Enabled" }
+            ]}
+            onChange={this.setStatus}
+          >
+            <p className="info">
+              Once enabled, it'll be available for everyone to use during the signin process. We highly recommend that
+              you test this configuration before enabling it.
+            </p>
+            <p className="info">
+              When disabled, please notice that it'll prevent any existing user from re-using this provider until it's
+              re-enabled.
+            </p>
+          </Select>
 
           <div className="c-form-field">
             <Button color="positive" onClick={this.handleSave}>
