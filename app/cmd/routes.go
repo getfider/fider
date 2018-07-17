@@ -58,6 +58,7 @@ func routes(r *web.Engine) *web.Engine {
 		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 		open.Get("/signup/verify", handlers.VerifySignUpKey())
 		open.Get("/oauth/:provider/token", handlers.OAuthToken())
+		open.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 		open.Use(middlewares.OnlyActiveTenants())
 		open.Get("/signin", handlers.SignInPage())
 		open.Get("/not-invited", handlers.NotInvitedPage())

@@ -6,7 +6,7 @@ import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading } from "@fider/components";
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
-import { actions, notify } from "@fider/services";
+import { actions, notify, navigator, Fider } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[];
@@ -47,6 +47,11 @@ export class ManageAuthenticationPage extends AdminBasePage<
     }
   };
 
+  private startTest = async (provider: string) => {
+    const redirect = `${Fider.settings.baseURL}/oauth/${provider}/echo`;
+    window.open(`/oauth/${provider}?redirect=${redirect}`, "oauth-test", "width=1100,height=600,status=no,menubar=no");
+  };
+
   private cancel = async () => {
     this.setState({ isAdding: false, editing: undefined });
   };
@@ -75,9 +80,14 @@ export class ManageAuthenticationPage extends AdminBasePage<
             {this.props.providers.map(o => (
               <ListItem key={o.provider}>
                 {o.isCustomProvider && (
-                  <Button key={1} onClick={this.edit.bind(this, o.provider)} className="right">
-                    <i className="edit icon" />Edit
-                  </Button>
+                  <>
+                    <Button onClick={this.edit.bind(this, o.provider)} className="right">
+                      <i className="edit icon" />Edit
+                    </Button>
+                    <Button onClick={this.startTest.bind(this, o.provider)} className="right">
+                      <i className="play icon" />Test
+                    </Button>
+                  </>
                 )}
                 <div className="l-provider">
                   {o.logoUrl && <img alt={o.displayName} src={o.logoUrl} />}

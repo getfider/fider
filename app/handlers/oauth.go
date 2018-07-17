@@ -15,10 +15,42 @@ import (
 	"github.com/getfider/fider/app/pkg/web/util"
 )
 
-type oauthUserProfile struct {
-	Name  string
-	ID    string
-	Email string
+// OAuthEcho exchanges OAuth Code for a user profile and return directly to the UI, without storing it
+func OAuthEcho() web.HandlerFunc {
+	return func(c web.Context) error {
+		provider := c.Param("provider")
+
+		code := c.QueryParam("code")
+		if code == "" {
+			return c.Redirect("/")
+		}
+
+		identifier := c.QueryParam("identifier")
+		cookie, err := c.Request.Cookie(web.CookieOAuthIdentifier)
+		if err != nil {
+			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
+		}
+
+		c.RemoveCookie(web.CookieOAuthIdentifier)
+		if identifier == "" || cookie.Value == "" || identifier != cookie.Value {
+			return c.Redirect("/")
+		}
+
+		response, err := c.Services().OAuth.GetRawProfile(provider, code)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		profile, _ := c.Services().OAuth.ParseRawProfile(provider, response)
+
+		return c.Page(web.Props{
+			Title: "OAuth Test Page",
+			Data: web.Map{
+				"response": response,
+				"profile":  profile,
+			},
+		})
+	}
 }
 
 // OAuthToken exchanges OAuth Code for a user profile
@@ -120,41 +152,55 @@ func OAuthCallback() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
-		//Sign in process
-		if redirectURL.Path != "/signup" {
+		//IDEA! when checking for signup, check if it's echo, if yes, redirect with identifier and code and do everything there, expose method to get raw re
+
+		//TODO: check if echo, then skip user creation just redirect to /echo + send extract info plus raw GET response
+		//TODO: else check if config is enabled before looking for users
+
+		//Test OAuth
+		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
 			var query = redirectURL.Query()
 			query.Set("code", code)
-			query.Set("redirect", redirectURL.RequestURI())
 			query.Set("identifier", parts[1])
 			redirectURL.RawQuery = query.Encode()
-			redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 			return c.Redirect(redirectURL.String())
 		}
 
 		//Sign up process
-		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
-		if err != nil {
-			return c.Failure(err)
+		if redirectURL.Path == "/signup" {
+			oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			claims := jwt.OAuthClaims{
+				OAuthID:       oauthUser.ID,
+				OAuthProvider: provider,
+				OAuthName:     oauthUser.Name,
+				OAuthEmail:    oauthUser.Email,
+				Metadata: jwt.Metadata{
+					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
+				},
+			}
+
+			token, err := jwt.Encode(claims)
+			if err != nil {
+				return c.Failure(err)
+			}
+
+			var query = redirectURL.Query()
+			query.Set("token", token)
+			redirectURL.RawQuery = query.Encode()
+			return c.Redirect(redirectURL.String())
 		}
 
-		claims := jwt.OAuthClaims{
-			OAuthID:       oauthUser.ID,
-			OAuthProvider: provider,
-			OAuthName:     oauthUser.Name,
-			OAuthEmail:    oauthUser.Email,
-			Metadata: jwt.Metadata{
-				ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-			},
-		}
-
-		token, err := jwt.Encode(claims)
-		if err != nil {
-			return c.Failure(err)
-		}
-
+		//Sign in process
 		var query = redirectURL.Query()
-		query.Set("token", token)
+		query.Set("code", code)
+		query.Set("redirect", redirectURL.RequestURI())
+		query.Set("identifier", parts[1])
 		redirectURL.RawQuery = query.Encode()
+		redirectURL.Path = fmt.Sprintf("/oauth/%s/token", provider)
 		return c.Redirect(redirectURL.String())
 	}
 }

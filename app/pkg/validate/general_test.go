@@ -22,7 +22,7 @@ func TestInvalidEmail(t *testing.T) {
 		"my+company.com",
 		".my@company.com",
 		"my@company@other.com",
-		"@gmail.com",
+		"my@company@other.com",
 		rand.String(200) + "@gmail.com",
 	} {
 		result := validate.Email(email)

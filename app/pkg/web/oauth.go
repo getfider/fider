@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage"
 
@@ -115,9 +114,19 @@ func (s *OAuthService) GetAuthURL(provider, redirect, identifier string) (string
 
 //GetProfile returns user profile based on provider and code
 func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
-	config, err := s.getConfig(provider)
+	response, err := s.GetRawProfile(provider, code)
 	if err != nil {
 		return nil, err
+	}
+
+	return s.ParseRawProfile(provider, response)
+}
+
+//GetRawProfile returns raw JSON response from Profile API
+func (s *OAuthService) GetRawProfile(provider string, code string) (string, error) {
+	config, err := s.getConfig(provider)
+	if err != nil {
+		return "", err
 	}
 
 	exchange := (&oauth2.Config{
@@ -132,19 +141,24 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 
 	oauthToken, err := exchange(oauth2.NoContext, code)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
+		return "", errors.Wrap(err, "failed to exchange OAuth2 code with %s", provider)
 	}
 
 	bytes, err := s.doGet(config.ProfileURL, oauthToken.AccessToken)
 	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
+}
+
+//ParseRawProfile parses raw profile response into UserProfile model
+func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfile, error) {
+	config, err := s.getConfig(provider)
+	if err != nil {
 		return nil, err
 	}
 
-	return s.ParseProfileResponse(string(bytes), config)
-}
-
-//ParseProfileResponse parses profile response into UserProfile model
-func (s *OAuthService) ParseProfileResponse(body string, config *models.OAuthConfig) (*oauth.UserProfile, error) {
 	query := jsonq.New(body)
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
@@ -262,14 +276,5 @@ func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {
 		}
 	}
 
-	config, err := s.tenantStorage.GetOAuthConfigByProvider(provider)
-	if err != nil {
-		return nil, err
-	}
-
-	if config.Status == models.OAuthConfigEnabled {
-		return config, nil
-	}
-
-	return nil, app.ErrNotFound
+	return s.tenantStorage.GetOAuthConfigByProvider(provider)
 }

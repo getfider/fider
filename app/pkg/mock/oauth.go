@@ -10,6 +10,16 @@ func (s *OAuthService) GetAuthURL(provider, redirect, identifier string) (string
 	return "http://avengers.test.fider.io/oauth/token?provider=" + provider + "&redirect=" + redirect + "|" + identifier, nil
 }
 
+//GetRawProfile returns raw JSON response from Profile API
+func (s *OAuthService) GetRawProfile(provider string, code string) (string, error) {
+	return "", nil
+}
+
+//ParseRawProfile parses raw profile response into UserProfile model
+func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfile, error) {
+	return nil, nil
+}
+
 //GetProfile returns user profile based on provider and code
 func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProfile, error) {
 	if provider == "facebook" && code == "123" {

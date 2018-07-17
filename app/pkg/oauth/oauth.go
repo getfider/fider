@@ -18,9 +18,9 @@ var ErrUserIDRequired = errors.New("UserID is required during OAuth integration"
 
 //UserProfile represents an OAuth user profile
 type UserProfile struct {
-	ID    string
-	Name  string
-	Email string
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 //ProviderOption represents an OAuth provider that can be used to authenticate
@@ -39,6 +39,8 @@ type ProviderOption struct {
 type Service interface {
 	GetAuthURL(provider, redirect, identifier string) (string, error)
 	GetProfile(provider string, code string) (*UserProfile, error)
+	GetRawProfile(provider string, code string) (string, error)
+	ParseRawProfile(provider, body string) (*UserProfile, error)
 	ListActiveProviders() ([]*ProviderOption, error)
 	ListAllProviders() ([]*ProviderOption, error)
 }
