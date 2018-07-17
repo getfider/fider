@@ -22,9 +22,9 @@
   label {
     display: inline-block;
     vertical-align: middle;
-    width: 2em;
-    height: 1em;
-    border-radius: 0.5em;
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
     position: relative;
     cursor: pointer;
     background: $gray;
@@ -32,10 +32,10 @@
 
   .switch {
     position: absolute;
-    width: 0.9em;
-    height: 0.9em;
-    margin-top: 0.05em;
-    margin-left: 0.05em;
+    width: 19px;
+    height: 18px;
+    margin-top: 1px;
+    margin-left: 1px;
     border-radius: 1em;
     background: $white;
     box-shadow: 5px 0px 28px -9px rgba(0, 0, 0, 0.75);
@@ -48,7 +48,7 @@
   
   input:checked ~ label .switch {
     background: $white;
-    transform: translatex(1em);
+    transform: translatex(19px);
     transition: transform .2s ease-in;
   }
 }

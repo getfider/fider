@@ -12,8 +12,7 @@ import {
   Field,
   ImageUploadState,
   ImageUploader,
-  SelectOption,
-  Select
+  Toggle
 } from "@fider/components";
 
 interface OAuthFormProps {
@@ -24,7 +23,7 @@ interface OAuthFormProps {
 export interface OAuthFormState {
   provider: string;
   displayName: string;
-  status: number;
+  enabled: boolean;
   clientId: string;
   clientSecret: string;
   clientSecretEnabled: boolean;
@@ -45,7 +44,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     super(props);
     this.state = {
       provider: this.props.config ? this.props.config.provider : "",
-      status: this.props.config ? this.props.config.status : OAuthConfigStatus.Disabled,
+      enabled: this.props.config ? this.props.config.status === OAuthConfigStatus.Enabled : false,
       displayName: this.props.config ? this.props.config.displayName : "",
       clientId: this.props.config ? this.props.config.clientId : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
@@ -64,7 +63,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
   private handleSave = async () => {
     const result = await actions.saveOAuthConfig({
       provider: this.state.provider,
-      status: this.state.status,
+      status: this.state.enabled ? OAuthConfigStatus.Enabled : OAuthConfigStatus.Disabled,
       displayName: this.state.displayName,
       clientId: this.state.clientId,
       clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
@@ -96,10 +95,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ logo, logoUrl: previewUrl });
   };
 
-  private setStatus = (opt?: SelectOption) => {
-    if (opt) {
-      this.setState({ status: parseInt(opt.value, 10) });
-    }
+  private setStatus = async (enabled: boolean) => {
+    this.setState({ enabled });
   };
 
   private setClientId = (clientId: string) => {
@@ -323,25 +320,27 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             `}
           </pre>
 
-          <Select
-            field="status"
-            label="Status"
-            defaultValue={this.state.status.toString()}
-            options={[
-              { value: OAuthConfigStatus.Disabled.toString(), label: "Disabled" },
-              { value: OAuthConfigStatus.Enabled.toString(), label: "Enabled" }
-            ]}
-            onChange={this.setStatus}
-          >
-            <p className="info">
-              Once enabled, it'll be available for everyone to use during the signin process. We highly recommend that
-              you test this configuration before enabling it.
-            </p>
-            <p className="info">
-              When disabled, please notice that it'll prevent any existing user from re-using this provider until it's
-              re-enabled.
-            </p>
-          </Select>
+          <div className="row">
+            <div className="col-sm-4">
+              <Field label="Status">
+                <Toggle active={this.state.enabled} onToggle={this.setStatus} />
+                <span>{this.state.enabled ? "Enabled" : "Disabled"}</span>
+                {this.state.enabled && (
+                  <p className="info">
+                    This provider will be available for everyone to use during the sign in process. We highly recommend that
+                    you keep it disable and test it before enabling it. Test button is available after saving this
+                    configuration.
+                  </p>
+                )}
+                {!this.state.enabled && (
+                  <p className="info">
+                    Users won't be able to sign in with this Provider. Please notice that it'll also prevent any existing
+                    user from re-using this provider until it's re-enabled.
+                  </p>
+                )}
+              </Field>
+            </div>
+          </div>
 
           <div className="c-form-field">
             <Button color="positive" onClick={this.handleSave}>
