@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -45,20 +46,44 @@ type CreateEditOAuthConfig struct {
 
 // OAuthConfig is the configuration of a custom OAuth provider
 type OAuthConfig struct {
-	ID                int    `json:"id"`
-	Provider          string `json:"provider"`
-	DisplayName       string `json:"displayName"`
-	LogoURL           string `json:"logoUrl"`
-	Status            int    `json:"status"`
-	ClientID          string `json:"clientId"`
-	ClientSecret      string `json:"clientSecret"`
-	AuthorizeURL      string `json:"authorizeUrl"`
-	TokenURL          string `json:"tokenUrl"`
-	ProfileURL        string `json:"profileUrl"`
-	Scope             string `json:"scope"`
-	JSONUserIDPath    string `json:"jsonUserIdPath"`
-	JSONUserNamePath  string `json:"jsonUserNamePath"`
-	JSONUserEmailPath string `json:"jsonUserEmailPath"`
+	ID                int
+	Provider          string
+	DisplayName       string
+	LogoURL           string
+	Status            int
+	ClientID          string
+	ClientSecret      string
+	AuthorizeURL      string
+	TokenURL          string
+	ProfileURL        string
+	Scope             string
+	JSONUserIDPath    string
+	JSONUserNamePath  string
+	JSONUserEmailPath string
+}
+
+// MarshalJSON returns the JSON encoding of OAuthConfig
+func (o OAuthConfig) MarshalJSON() ([]byte, error) {
+	secret := "..."
+	if len(o.ClientSecret) >= 10 {
+		secret = o.ClientSecret[0:3] + "..." + o.ClientSecret[len(o.ClientSecret)-3:]
+	}
+	return json.Marshal(map[string]interface{}{
+		"id":                o.ID,
+		"provider":          o.Provider,
+		"displayName":       o.DisplayName,
+		"logoUrl":           o.LogoURL,
+		"status":            o.Status,
+		"clientId":          o.ClientID,
+		"clientSecret":      secret,
+		"authorizeUrl":      o.AuthorizeURL,
+		"tokenUrl":          o.TokenURL,
+		"profileUrl":        o.ProfileURL,
+		"scope":             o.Scope,
+		"jsonUserIdPath":    o.JSONUserIDPath,
+		"jsonUserNamePath":  o.JSONUserNamePath,
+		"jsonUserEmailPath": o.JSONUserEmailPath,
+	})
 }
 
 var (
