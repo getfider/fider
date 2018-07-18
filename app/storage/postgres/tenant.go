@@ -119,7 +119,7 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 	}
 
 	if m.LogoID.Valid {
-		model.LogoURL = fmt.Sprintf("/images/24/%d", m.LogoID.Int64)
+		model.LogoURL = fmt.Sprintf("/images/100/%d", m.LogoID.Int64)
 	}
 
 	return model

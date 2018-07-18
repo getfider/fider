@@ -28,12 +28,19 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
     const nameOk = this.props.profile && this.props.profile.name !== "Anonymous";
     const emailOk = this.props.profile && this.props.profile.email !== "";
 
+    let responseBody = "";
+    try {
+      responseBody = JSON.stringify(JSON.parse(this.props.body), null, "  ");
+    } catch {
+      responseBody = this.props.body;
+    }
+
     return (
       <div id="p-oauth-echo" className="page container">
         <h3>Profile API Response</h3>
         <h5>Status Code: {this.props.statusCode}</h5>
         <h5>Raw Body</h5>
-        <pre>{JSON.stringify(JSON.parse(this.props.body), null, "  ")}</pre>
+        <pre>{responseBody}</pre>
         <h5>Parsed Profile</h5>
         <Segments>
           <Segment>
