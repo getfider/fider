@@ -165,7 +165,7 @@ func SignInByOAuth() web.HandlerFunc {
 		provider := c.Param("provider")
 		identifier := uuid.NewV4().String()
 
-		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(5*time.Minute))
+		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(2*time.Hour))
 
 		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), identifier)
 		if err != nil {
