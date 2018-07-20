@@ -43,7 +43,7 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		input.Model.Provider = "_" + strings.ToLower(rand.String(20))
 	}
 
-	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24)
+	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
 	if !uploadResult.Ok {
 		if uploadResult.Error != nil {
 			return validate.Error(uploadResult.Error)

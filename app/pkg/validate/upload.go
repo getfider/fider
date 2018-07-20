@@ -8,7 +8,7 @@ import (
 )
 
 //ImageUpload validates given image upload
-func ImageUpload(upload *models.ImageUpload, minWidth, minHeight int) *Result {
+func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes int) *Result {
 	messages := []string{}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
@@ -28,8 +28,8 @@ func ImageUpload(upload *models.ImageUpload, minWidth, minHeight int) *Result {
 				messages = append(messages, "The image must have an aspect ratio of 1:1.")
 			}
 
-			if logo.Size > 51200 {
-				messages = append(messages, "The image size must be smaller than 100KB.")
+			if logo.Size > (maxKilobytes * 1024) {
+				messages = append(messages, fmt.Sprintf("The image size must be smaller than %dKB.", maxKilobytes))
 			}
 		}
 	}

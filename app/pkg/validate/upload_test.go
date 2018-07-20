@@ -34,7 +34,7 @@ func TestValidateImageUpload(t *testing.T) {
 				Content: img,
 			},
 		}
-		result := validate.ImageUpload(upload, 200, 200)
+		result := validate.ImageUpload(upload, 200, 200, 100)
 		Expect(result.Ok).Equals(testCase.valid)
 	}
 }
@@ -42,9 +42,9 @@ func TestValidateImageUpload(t *testing.T) {
 func TestValidateImageUpload_Nil(t *testing.T) {
 	RegisterT(t)
 
-	result := validate.ImageUpload(nil, 200, 200)
+	result := validate.ImageUpload(nil, 200, 200, 50)
 	Expect(result.Ok).IsTrue()
 
-	result = validate.ImageUpload(&models.ImageUpload{}, 200, 200)
+	result = validate.ImageUpload(&models.ImageUpload{}, 200, 200, 50)
 	Expect(result.Ok).IsTrue()
 }

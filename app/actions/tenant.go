@@ -100,7 +100,7 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	uploadResult := validate.ImageUpload(input.Model.Logo, 200, 200)
+	uploadResult := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
 	if !uploadResult.Ok {
 		if uploadResult.Error != nil {
 			return validate.Error(uploadResult.Error)
