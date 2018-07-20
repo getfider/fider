@@ -3,10 +3,10 @@ import "./ManageAuthentication.page.scss";
 import * as React from "react";
 
 import { AdminBasePage } from "../components";
-import { Segment, List, ListItem, Button, Heading } from "@fider/components";
+import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components";
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
-import { actions, notify, navigator, Fider } from "@fider/services";
+import { actions, notify, navigator, Fider, uploadedImageUrl } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[];
@@ -90,7 +90,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
                   </>
                 )}
                 <div className="l-provider">
-                  {o.logoUrl && <img alt={o.displayName} src={o.logoUrl} />}
+                  <OAuthProviderLogo option={o} />
                   <strong>{o.displayName}</strong>
                   <br /> {o.isEnabled ? enabled : disabled}
                 </div>

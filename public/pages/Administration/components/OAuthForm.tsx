@@ -12,7 +12,8 @@ import {
   Field,
   ImageUploadState,
   ImageUploader,
-  Toggle
+  Toggle,
+  OAuthProviderLogoUrl
 } from "@fider/components";
 
 interface OAuthFormProps {
@@ -56,7 +57,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoUrl: this.props.config ? this.props.config.logoUrl : ""
+      logoUrl: this.props.config ? OAuthProviderLogoUrl(this.props.config.logoId) : ""
     };
   }
 
@@ -327,15 +328,15 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
                 <span>{this.state.enabled ? "Enabled" : "Disabled"}</span>
                 {this.state.enabled && (
                   <p className="info">
-                    This provider will be available for everyone to use during the sign in process. We highly recommend that
-                    you keep it disable and test it before enabling it. Test button is available after saving this
+                    This provider will be available for everyone to use during the sign in process. We highly recommend
+                    that you keep it disable and test it before enabling it. Test button is available after saving this
                     configuration.
                   </p>
                 )}
                 {!this.state.enabled && (
                   <p className="info">
-                    Users won't be able to sign in with this Provider. Please notice that it'll also prevent any existing
-                    user from re-using this provider until it's re-enabled.
+                    Users won't be able to sign in with this Provider. Please notice that it'll also prevent any
+                    existing user from re-using this provider until it's re-enabled.
                   </p>
                 )}
               </Field>

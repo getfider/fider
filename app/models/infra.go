@@ -49,7 +49,7 @@ type OAuthConfig struct {
 	ID                int
 	Provider          string
 	DisplayName       string
-	LogoURL           string
+	LogoID            int
 	Status            int
 	ClientID          string
 	ClientSecret      string
@@ -72,7 +72,7 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"id":                o.ID,
 		"provider":          o.Provider,
 		"displayName":       o.DisplayName,
-		"logoUrl":           o.LogoURL,
+		"logoId":            o.LogoID,
 		"status":            o.Status,
 		"clientId":          o.ClientID,
 		"clientSecret":      secret,

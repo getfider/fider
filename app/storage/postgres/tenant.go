@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -102,11 +101,12 @@ type dbOAuthConfig struct {
 }
 
 func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
-	model := &models.OAuthConfig{
+	return &models.OAuthConfig{
 		ID:                m.ID,
 		Provider:          m.Provider,
 		DisplayName:       m.DisplayName,
 		Status:            m.Status,
+		LogoID:            int(m.LogoID.Int64),
 		ClientID:          m.ClientID,
 		ClientSecret:      m.ClientSecret,
 		AuthorizeURL:      m.AuthorizeURL,
@@ -117,12 +117,6 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 		JSONUserNamePath:  m.JSONUserNamePath,
 		JSONUserEmailPath: m.JSONUserEmailPath,
 	}
-
-	if m.LogoID.Valid {
-		model.LogoURL = fmt.Sprintf("/images/100/%d", m.LogoID.Int64)
-	}
-
-	return model
 }
 
 // TenantStorage contains read and write operations for tenants
