@@ -44,13 +44,16 @@ e2e:
 	./scripts/e2e.sh	
 
 # Development
-watch:
+kill-dev:
+	ps aux | grep ./fider  | grep -v grep | awk '{print $2}' | xargs kill
+
+watch: kill-dev
 	rm -rf ./dist
 	mkdir ./dist
 	air -c air.conf & 
 	npx webpack -w
 
-run:
+run: kill-dev
 	godotenv -f .env ./fider
 
 .DEFAULT_GOAL := build
