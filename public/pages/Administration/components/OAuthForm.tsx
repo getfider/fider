@@ -166,7 +166,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
                 onChange={this.setLogo}
               >
                 <p className="info">
-                  We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
+                  We accept JPG, GIF and PNG images, smaller than 50KB and with an aspect ratio of 1:1 with minimum
                   dimensions of 24x24 pixels.
                 </p>
               </ImageUploader>
