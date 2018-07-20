@@ -38,7 +38,8 @@ func OAuthToken() web.HandlerFunc {
 		identifier := c.QueryParam("identifier")
 		cookie, err := c.Request.Cookie(web.CookieOAuthIdentifier)
 		if err != nil {
-			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
+			c.Logger().Warn(err.Error())
+			return c.Redirect(redirectURL.String())
 		}
 
 		c.RemoveCookie(web.CookieOAuthIdentifier)

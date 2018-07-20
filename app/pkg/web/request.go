@@ -66,7 +66,11 @@ func (r *Request) SetHeader(key, value string) {
 
 // Cookie returns the named cookie provided in the request.
 func (r *Request) Cookie(name string) (*http.Cookie, error) {
-	return r.instance.Cookie(name)
+	cookie, err := r.instance.Cookie(name)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get '%s' cookie", name)
+	}
+	return cookie, nil
 }
 
 // AddCookie adds a cookie
