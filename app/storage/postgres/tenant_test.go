@@ -379,8 +379,16 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID:                0,
+		ID: 0,
+		Logo: &models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content:     logo,
+				ContentType: "image/vnd.microsoft.icon",
+			},
+		},
 		Provider:          "_TEST",
 		DisplayName:       "My Provider",
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
@@ -411,9 +419,17 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config.JSONUserNamePath).Equals("user.name")
 	Expect(config.JSONUserEmailPath).Equals("user.email")
 
+	upload, err := tenants.GetUpload(config.LogoID)
+	Expect(err).IsNil()
+	Expect(upload.Content).Equals(logo)
+	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID:                1,
-		Provider:          "_TEST2222",
+		ID: config.ID,
+		Logo: &models.ImageUpload{
+			Remove: true,
+		},
+		Provider:          "_TEST2222", //this has to be ignored
 		DisplayName:       "New My Provider",
 		ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
 		ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
@@ -431,6 +447,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(configs).HasLen(1)
 	Expect(configs[0].ID).Equals(1)
+	Expect(configs[0].LogoID).Equals(0)
 	Expect(configs[0].Provider).Equals("_TEST")
 	Expect(configs[0].DisplayName).Equals("New My Provider")
 	Expect(configs[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")

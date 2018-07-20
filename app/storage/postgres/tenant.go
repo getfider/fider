@@ -347,9 +347,10 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 			client_id, client_secret, authorize_url,
 			profile_url, token_url, scope, json_user_id_path,
 			json_user_name_path, json_user_email_path
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		RETURNING id`
 
-		_, err = s.trx.Execute(query, s.current.ID, config.Provider,
+		err = s.trx.Get(&config.ID, query, s.current.ID, config.Provider,
 			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
@@ -387,8 +388,8 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 		}
 
 		// Update current OAuth logo to either new ID or null
-		query := "UPDATE oauth_providers SET logo_id = $1 WHERE tenant_id = $2 and provider = $3"
-		_, err = s.trx.Execute(query, newLogoID, s.current.ID, config.Provider)
+		query := "UPDATE oauth_providers SET logo_id = $1 WHERE tenant_id = $2 and id = $3"
+		_, err = s.trx.Execute(query, newLogoID, s.current.ID, config.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed update OAuth logo")
 		}
