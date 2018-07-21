@@ -45,7 +45,7 @@ e2e:
 
 # Development
 kill-dev:
-	ps aux | grep ./fider  | grep -v grep | awk '{print $2}' | xargs kill
+	ps aux | grep ./fider  | grep -v grep | awk '{print $$2}' | xargs kill
 
 watch: kill-dev
 	rm -rf ./dist
