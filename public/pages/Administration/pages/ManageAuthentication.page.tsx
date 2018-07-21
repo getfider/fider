@@ -72,9 +72,15 @@ export class ManageAuthenticationPage extends AdminBasePage<
       <>
         <Heading
           title="OAuth Providers"
-          subtitle="You can use these section to add any authentication provider as long as it implements the OAuth2 protocol."
+          subtitle="You can use these section to add any authentication provider thats supports the OAuth2 protocol."
           size="small"
         />
+        <p className="info">
+          Additional information is available in our{" "}
+          <a target="_blank" href="https://getfider.com/docs/configuring-oauth/">
+            OAuth Documentation
+          </a>.
+        </p>
         <Segment>
           <List divided={true}>
             {this.props.providers.map(o => (
