@@ -5,6 +5,7 @@ import { classSet } from "@fider/services";
 interface SocialSignInButtonProps {
   option: {
     displayName: string;
+    provider?: string;
     url?: string;
     logoId?: number;
     logoUrl?: string;
@@ -16,9 +17,12 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
   public render() {
     const redirectTo = this.props.redirectTo || location.href;
     const href = this.props.option.url ? `${this.props.option.url}?redirect=${redirectTo}` : undefined;
-
+    const className = classSet({
+      "m-social": true,
+      [`m-${this.props.option.provider}`]: this.props.option.provider
+    });
     return (
-      <Button href={href} fluid={true} className="m-social">
+      <Button href={href} fluid={true} className={className}>
         {this.props.option.logoUrl ? (
           <img src={this.props.option.logoUrl} />
         ) : (

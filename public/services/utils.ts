@@ -1,4 +1,4 @@
-import { Fider } from '.';
+import { Fider } from ".";
 
 export const delay = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
