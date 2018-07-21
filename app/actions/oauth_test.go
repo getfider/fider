@@ -70,7 +70,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 	result := action.Validate(nil, services)
 	ExpectSuccess(result)
 	Expect(input.ID).Equals(0)
-	Expect(input.Provider).HasLen(21)
+	Expect(input.Provider).HasLen(11)
 	Expect(string(input.Provider[0])).Equals("_")
 }
 

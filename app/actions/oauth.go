@@ -40,7 +40,7 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 			input.Model.ClientSecret = config.ClientSecret
 		}
 	} else {
-		input.Model.Provider = "_" + strings.ToLower(rand.String(20))
+		input.Model.Provider = "_" + strings.ToLower(rand.String(10))
 	}
 
 	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
