@@ -253,7 +253,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             onChange={this.setScope}
           >
             <p className="info">
-              It is recommended to only request the minimum scopes we need to fecth the user <strong>id</strong>,
+              It is recommended to only request the minimum scopes we need to fecth the user <strong>id</strong>,{" "}
               <strong>name</strong> and <strong>email</strong>. Multiple scopes must be separated by space.
             </p>
           </Input>
