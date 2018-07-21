@@ -430,6 +430,7 @@ func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
 					 json_user_name_path, json_user_email_path
 		FROM oauth_providers
 		WHERE tenant_id = $1
+		ORDER BY id
 		`, s.current.ID)
 		if err != nil {
 			return nil, err
