@@ -5,6 +5,7 @@ interface ButtonProps {
   className?: string;
   disabled?: boolean;
   href?: string;
+  rel?: "nofollow";
   color?: "positive" | "danger" | "default";
   fluid?: boolean;
   size?: "mini" | "tiny" | "small" | "normal" | "large";
@@ -80,7 +81,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
     if (this.props.href) {
       return (
-        <a href={this.props.href} className={className}>
+        <a href={this.props.href} rel={this.props.rel} className={className}>
           {this.props.children}
         </a>
       );
