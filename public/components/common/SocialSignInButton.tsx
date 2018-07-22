@@ -22,7 +22,7 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
       [`m-${this.props.option.provider}`]: this.props.option.provider
     });
     return (
-      <Button href={href} fluid={true} className={className}>
+      <Button href={href} rel="nofollow" fluid={true} className={className}>
         {this.props.option.logoUrl ? (
           <img src={this.props.option.logoUrl} />
         ) : (
