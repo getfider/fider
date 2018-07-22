@@ -1,5 +1,5 @@
 import { resolveRootComponent } from "./router";
-import { HomePage, ShowIdeaPage, InvitationsPage, GeneralSettingsPage } from "@fider/pages";
+import { HomePage, ShowIdeaPage, InvitationsPage, GeneralSettingsPage, OAuthEchoPage } from "@fider/pages";
 
 [
   { path: "", expected: HomePage },
@@ -7,7 +7,8 @@ import { HomePage, ShowIdeaPage, InvitationsPage, GeneralSettingsPage } from "@f
   { path: "/ideas/123/the-slug", expected: ShowIdeaPage },
   { path: "/ideas" },
   { path: "/admin", expected: GeneralSettingsPage },
-  { path: "/admin/invitations", expected: InvitationsPage }
+  { path: "/admin/invitations", expected: InvitationsPage },
+  { path: "/oauth/_name/echo", expected: OAuthEchoPage }
 ].forEach(x => {
   test(`Router should resolve correct component for path '${x.path}'`, () => {
     if (x.expected) {

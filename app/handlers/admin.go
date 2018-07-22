@@ -102,3 +102,49 @@ func ManageMembers() web.HandlerFunc {
 		})
 	}
 }
+
+// ManageAuthentication is the page used by administrators to change site authentication settings
+func ManageAuthentication() web.HandlerFunc {
+	return func(c web.Context) error {
+		providers, err := c.Services().OAuth.ListAllProviders()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Page(web.Props{
+			Title: "Authentication · Site Settings",
+			Data: web.Map{
+				"providers": providers,
+			},
+		})
+	}
+}
+
+// GetOAuthConfig returns OAuth config based on given provider
+func GetOAuthConfig() web.HandlerFunc {
+	return func(c web.Context) error {
+		config, err := c.Services().Tenants.GetOAuthConfigByProvider(c.Param("provider"))
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(config)
+	}
+}
+
+// SaveOAuthConfig is used to create/edit OAuth configurations
+func SaveOAuthConfig() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.CreateEditOAuthConfig)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Tenants.SaveOAuthConfig(input.Model)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}

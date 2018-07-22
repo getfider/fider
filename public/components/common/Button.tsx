@@ -84,9 +84,15 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
           {this.props.children}
         </a>
       );
-    } else {
+    } else if (this.props.onClick) {
       return (
         <button type="button" className={className} onClick={this.click}>
+          {this.props.children}
+        </button>
+      );
+    } else {
+      return (
+        <button type="button" className={className}>
           {this.props.children}
         </button>
       );

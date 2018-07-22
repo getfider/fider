@@ -63,7 +63,8 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     this.setState(
       {
         remove: true,
-        upload: undefined
+        upload: undefined,
+        previewUrl: undefined
       },
       () => {
         this.props.onChange(this.state, this.state.previewUrl);

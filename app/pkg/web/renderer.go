@@ -133,7 +133,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	oauthProviders := make([]*oauth.ProviderOption, 0)
 	if !ctx.IsAuthenticated() && ctx.Services() != nil {
-		oauthProviders, err = ctx.Services().OAuth.ListProviders()
+		oauthProviders, err = ctx.Services().OAuth.ListActiveProviders()
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}

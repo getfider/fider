@@ -36,7 +36,7 @@ func (q *Query) String(selector string) string {
 			var str json.Number
 			err := json.Unmarshal(*data, &str)
 			if err != nil {
-				panic(err)
+				return ""
 			}
 			if str != "" {
 				return str.String()
@@ -81,6 +81,10 @@ func (q *Query) Contains(selector string) bool {
 }
 
 func (q *Query) get(selector string) *json.RawMessage {
+	if selector == "" {
+		return nil
+	}
+
 	parts := strings.Split(selector, ".")
 
 	var result *json.RawMessage
@@ -102,7 +106,10 @@ func (q *Query) get(selector string) *json.RawMessage {
 				json.Unmarshal(bytes, &arr)
 				if len(arr) > idx {
 					bytes, _ = arr[idx].MarshalJSON()
-					json.Unmarshal(bytes, &current)
+					err := json.Unmarshal(bytes, &current)
+					if err != nil {
+						return arr[idx]
+					}
 				}
 			}
 		} else {

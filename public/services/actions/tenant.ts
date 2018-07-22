@@ -1,5 +1,6 @@
 import { http, Result } from "@fider/services/http";
-import { Tenant, UserRole } from "@fider/models";
+import { Tenant, UserRole, OAuthConfig } from "@fider/models";
+import { ImageUploadState } from "@fider/components";
 
 export interface CheckAvailabilityResponse {
   message: string;
@@ -71,4 +72,28 @@ export const changeUserRole = async (userId: number, role: UserRole): Promise<Re
   return await http.post(`/api/admin/users/${userId}/role`, {
     role
   });
+};
+
+export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {
+  return await http.get<OAuthConfig>(`/api/admin/oauth/${provider}`);
+};
+
+export interface CreateEditOAuthConfigRequest {
+  provider: string;
+  status: number;
+  displayName: string;
+  clientId: string;
+  clientSecret: string;
+  authorizeUrl: string;
+  tokenUrl: string;
+  scope: string;
+  profileUrl: string;
+  jsonUserIdPath: string;
+  jsonUserNamePath: string;
+  jsonUserEmailPath: string;
+  logo?: ImageUploadState;
+}
+
+export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
+  return await http.post("/api/admin/oauth", request);
 };

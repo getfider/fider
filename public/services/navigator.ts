@@ -7,6 +7,9 @@ const navigator = {
   goHome: () => {
     window.location.href = "/";
   },
+  goTo: (url: string) => {
+    window.location.href = url;
+  },
   replaceState: (path: string): void => {
     if (history.replaceState) {
       const newUrl = Fider.settings.baseURL + path;

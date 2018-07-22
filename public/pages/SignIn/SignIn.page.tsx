@@ -1,9 +1,8 @@
 import "./SignIn.page.scss";
 
 import * as React from "react";
-import { SignInControl, Logo, LegalNotice } from "@fider/components";
+import { SignInControl, TenantLogo, LegalNotice } from "@fider/components";
 import { notify, Fider } from "@fider/services";
-import { Tenant } from "@fider/models";
 
 export class SignInPage extends React.Component<{}, {}> {
   private onEmailSent = (email: string) => {
@@ -18,7 +17,7 @@ export class SignInPage extends React.Component<{}, {}> {
     return (
       <div id="p-signin" className="page container">
         <div className="message">
-          <Logo size={100} />
+          <TenantLogo size={100} />
           <p className="welcome">
             <strong>{Fider.session.tenant.name}</strong> is a private space and requires an invitation to join it.
           </p>

@@ -5,3 +5,4 @@ export * from "./pages/ManageTags.page";
 export * from "./pages/Export.page";
 export * from "./pages/Invitations.page";
 export * from "./pages/ManageMembers.page";
+export * from "./pages/ManageAuthentication.page";

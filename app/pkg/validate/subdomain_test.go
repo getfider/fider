@@ -33,7 +33,7 @@ func TestInvalidSubdomains(t *testing.T) {
 func TestValidSubdomains_Availability(t *testing.T) {
 	RegisterT(t)
 
-	tenants := &inmemory.TenantStorage{}
+	tenants := inmemory.NewTenantStorage()
 	tenants.Add("Footbook", "footbook", models.TenantActive)
 	tenants.Add("Your Company", "yourcompany", models.TenantActive)
 	tenants.Add("New York", "newyork", models.TenantActive)

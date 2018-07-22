@@ -1,3 +1,5 @@
+import { Fider } from ".";
+
 export const delay = (ms: number) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
@@ -119,4 +121,11 @@ export const isCookieEnabled = (): boolean => {
   } catch (e) {
     return false;
   }
+};
+
+export const uploadedImageUrl = (id: number, size: number): string | undefined => {
+  if (id > 0) {
+    return `${Fider.settings.assetsURL}/images/${size}/${id}`;
+  }
+  return undefined;
 };

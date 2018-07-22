@@ -1,0 +1,13 @@
+@import '~@fider/assets/styles/variables.scss';
+
+#p-oauth-echo {
+  i.times.icon {
+    color: $red;
+  }
+  i.check.icon {
+    color: $green;
+  }
+  i.exclamation.icon {
+    color: $orange;
+  }
+}

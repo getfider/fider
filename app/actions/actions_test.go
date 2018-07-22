@@ -16,7 +16,7 @@ var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
 })
 
 var services = &app.Services{
-	Tenants:       &inmemory.TenantStorage{},
+	Tenants:       inmemory.NewTenantStorage(),
 	Users:         &inmemory.UserStorage{},
 	Ideas:         inmemory.NewIdeaStorage(),
 	Tags:          inmemory.NewTagStorage(),

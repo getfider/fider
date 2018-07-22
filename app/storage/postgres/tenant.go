@@ -83,6 +83,42 @@ func (t *dbEmailVerification) toModel() *models.EmailVerification {
 	return model
 }
 
+type dbOAuthConfig struct {
+	ID                int         `db:"id"`
+	Provider          string      `db:"provider"`
+	DisplayName       string      `db:"display_name"`
+	LogoID            dbx.NullInt `db:"logo_id"`
+	Status            int         `db:"status"`
+	ClientID          string      `db:"client_id"`
+	ClientSecret      string      `db:"client_secret"`
+	AuthorizeURL      string      `db:"authorize_url"`
+	TokenURL          string      `db:"token_url"`
+	Scope             string      `db:"scope"`
+	ProfileURL        string      `db:"profile_url"`
+	JSONUserIDPath    string      `db:"json_user_id_path"`
+	JSONUserNamePath  string      `db:"json_user_name_path"`
+	JSONUserEmailPath string      `db:"json_user_email_path"`
+}
+
+func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
+	return &models.OAuthConfig{
+		ID:                m.ID,
+		Provider:          m.Provider,
+		DisplayName:       m.DisplayName,
+		Status:            m.Status,
+		LogoID:            int(m.LogoID.Int64),
+		ClientID:          m.ClientID,
+		ClientSecret:      m.ClientSecret,
+		AuthorizeURL:      m.AuthorizeURL,
+		TokenURL:          m.TokenURL,
+		ProfileURL:        m.ProfileURL,
+		Scope:             m.Scope,
+		JSONUserIDPath:    m.JSONUserIDPath,
+		JSONUserNamePath:  m.JSONUserNamePath,
+		JSONUserEmailPath: m.JSONUserEmailPath,
+	}
+}
+
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
 	trx     *dbx.Trx
@@ -176,12 +212,6 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 			return errors.Wrap(err, "failed update tenant logo")
 		}
 
-		// Remove upload based on old tenant logo ID
-		err := s.RemoveUpload(s.current.LogoID)
-		if err != nil {
-			return errors.Wrap(err, "failed delete old tenant logo")
-		}
-
 		// Update reference to new logo ID
 		s.current.LogoID = int(newLogoID.Int64)
 	}
@@ -201,18 +231,6 @@ func (s *TenantStorage) SaveNewUpload(content []byte) (int, error) {
 		return 0, errors.Wrap(err, "failed to save new upload")
 	}
 	return newID, nil
-}
-
-// RemoveUpload by given id
-func (s *TenantStorage) RemoveUpload(uploadID int) error {
-	if uploadID > 0 {
-		query := "DELETE FROM uploads WHERE id = $1 AND tenant_id = $2"
-		_, err := s.trx.Execute(query, uploadID, s.current.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed delete upload")
-		}
-	}
-	return nil
 }
 
 // UpdateAdvancedSettings of current tenant
@@ -317,4 +335,111 @@ func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
 		return nil, errors.Wrap(err, "failed to get upload from tenant")
 	}
 	return upload, nil
+}
+
+// SaveOAuthConfig saves given config into database
+func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
+	var err error
+
+	if config.ID == 0 {
+		query := `INSERT INTO oauth_providers (
+			tenant_id, provider, display_name, status,
+			client_id, client_secret, authorize_url,
+			profile_url, token_url, scope, json_user_id_path,
+			json_user_name_path, json_user_email_path
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		RETURNING id`
+
+		err = s.trx.Get(&config.ID, query, s.current.ID, config.Provider,
+			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
+			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
+			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
+			config.JSONUserEmailPath)
+	} else {
+		query := `
+			UPDATE oauth_providers 
+			SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
+					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
+					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13
+		WHERE tenant_id = $1 AND id = $2`
+
+		_, err = s.trx.Execute(query, s.current.ID, config.ID,
+			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
+			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
+			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
+			config.JSONUserEmailPath)
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "failed to save OAuth Provider")
+	}
+
+	// Only update OAuth logo if there's a change
+	if config.Logo != nil {
+		var newLogoID sql.NullInt64
+
+		// If there's an upload, save it
+		if !config.Logo.Remove && len(config.Logo.Upload.Content) > 0 {
+			uploadID, err := s.SaveNewUpload(config.Logo.Upload.Content)
+			if err != nil {
+				return errors.Wrap(err, "failed to upload new OAuth logo")
+			}
+			newLogoID.Scan(uploadID)
+		}
+
+		// Update current OAuth logo to either new ID or null
+		query := "UPDATE oauth_providers SET logo_id = $1 WHERE tenant_id = $2 and id = $3"
+		_, err = s.trx.Execute(query, newLogoID, s.current.ID, config.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update OAuth logo")
+		}
+	}
+
+	return nil
+}
+
+// GetOAuthConfigByProvider returns a custom OAuth configuration by provider name
+func (s *TenantStorage) GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error) {
+	if s.current == nil {
+		return nil, app.ErrNotFound
+	}
+
+	config := &dbOAuthConfig{}
+	err := s.trx.Get(config, `
+	SELECT id, provider, display_name, status, logo_id,
+				 client_id, client_secret, authorize_url,
+				 profile_url, token_url, scope, json_user_id_path,
+				 json_user_name_path, json_user_email_path
+	FROM oauth_providers
+	WHERE tenant_id = $1 AND provider = $2
+	`, s.current.ID, provider)
+	if err != nil {
+		return nil, err
+	}
+	return config.toModel(), nil
+}
+
+// ListOAuthConfig returns a list of all custom OAuth provider for current tenant
+func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
+	configs := []*dbOAuthConfig{}
+	if s.current != nil {
+		err := s.trx.Select(&configs, `
+		SELECT id, provider, display_name, status, logo_id,
+					 client_id, client_secret, authorize_url,
+					 profile_url, token_url, scope, json_user_id_path,
+					 json_user_name_path, json_user_email_path
+		FROM oauth_providers
+		WHERE tenant_id = $1
+		ORDER BY id
+		`, s.current.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var result = make([]*models.OAuthConfig, len(configs))
+	for i, config := range configs {
+		result[i] = config.toModel()
+	}
+	return result, nil
 }

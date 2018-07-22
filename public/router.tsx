@@ -11,7 +11,9 @@ import {
   ExportPage,
   GeneralSettingsPage,
   AdvancedSettingsPage,
+  ManageAuthenticationPage,
   ManageTagsPage,
+  OAuthEchoPage,
   ShowIdeaPage,
   MySettingsPage,
   MyNotificationsPage,
@@ -28,6 +30,7 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
   path = path
     .replace("/", "/")
     .replace(":number", "\\d+")
+    .replace(":string", ".+")
     .replace("*", "/?.*");
 
   const regex = new RegExp(`^${path}$`);
@@ -42,6 +45,7 @@ const pathRegex = [
   route("/admin/privacy", PrivacySettingsPage),
   route("/admin/export", ExportPage),
   route("/admin/invitations", InvitationsPage),
+  route("/admin/authentication", ManageAuthenticationPage),
   route("/admin/advanced", AdvancedSettingsPage),
   route("/admin", GeneralSettingsPage),
   route("/signin", SignInPage, false),
@@ -50,6 +54,7 @@ const pathRegex = [
   route("/invite/verify", CompleteSignInProfilePage),
   route("/notifications", MyNotificationsPage),
   route("/settings", MySettingsPage),
+  route("/oauth/:string/echo", OAuthEchoPage, false),
   route("/-/ui", UIToolkitPage)
 ];
 

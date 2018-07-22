@@ -1,5 +1,3 @@
-import "./PrivacySettings.page.scss";
-
 import * as React from "react";
 
 import { CurrentUser } from "@fider/models";

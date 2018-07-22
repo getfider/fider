@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -21,8 +22,8 @@ func TestInvalidEmail(t *testing.T) {
 		"my+company.com",
 		".my@company.com",
 		"my@company@other.com",
-		"@gmail.com",
-		"abc12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890@gmail.com",
+		"my@company@other.com",
+		rand.String(200) + "@gmail.com",
 	} {
 		result := validate.Email(email)
 		Expect(result.Ok).IsFalse()
@@ -46,6 +47,38 @@ func TestValidEmail(t *testing.T) {
 	}
 }
 
+func TestInvalidURL(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"http//google.com",
+		"google.com",
+		"google",
+		rand.String(301),
+		"my@company",
+	} {
+		result := validate.URL(rawurl)
+		Expect(result.Ok).IsFalse()
+		Expect(len(result.Messages) > 0).IsTrue()
+		Expect(result.Error).IsNil()
+	}
+}
+
+func TestValidURL(t *testing.T) {
+	RegisterT(t)
+
+	for _, rawurl := range []string{
+		"http://example.org",
+		"https://example.org/oauth",
+		"https://example.org/oauth?test=abc",
+	} {
+		result := validate.URL(rawurl)
+		Expect(result.Ok).IsTrue()
+		Expect(result.Messages).HasLen(0)
+		Expect(result.Error).IsNil()
+	}
+}
+
 func TestInvalidCNAME(t *testing.T) {
 	RegisterT(t)
 
@@ -59,7 +92,7 @@ func TestInvalidCNAME(t *testing.T) {
 		"test.fider.io",
 		"@google.com",
 	} {
-		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
+		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
 		Expect(result.Error).IsNil()
@@ -76,7 +109,7 @@ func TestValidHostname(t *testing.T) {
 		"got.com",
 		"hi.m",
 	} {
-		result := validate.CNAME(&inmemory.TenantStorage{}, cname)
+		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
 		Expect(result.Error).IsNil()
@@ -85,7 +118,7 @@ func TestValidHostname(t *testing.T) {
 
 func TestValidCNAME_Availability(t *testing.T) {
 	RegisterT(t)
-	tenants := &inmemory.TenantStorage{}
+	tenants := inmemory.NewTenantStorage()
 	tenant, _ := tenants.Add("Footbook", "footbook", models.TenantActive)
 	tenant.CNAME = "footbook.com"
 	tenant, _ = tenants.Add("Your Company", "yourcompany", models.TenantActive)

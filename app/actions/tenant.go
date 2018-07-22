@@ -4,7 +4,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -101,27 +100,12 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Logo != nil && input.Model.Logo.Upload != nil && len(input.Model.Logo.Upload.Content) > 0 {
-		logo, err := img.Parse(input.Model.Logo.Upload.Content)
-		if err != nil {
-			if err == img.ErrNotSupported {
-				result.AddFieldFailure("logo", "This file format not supported.")
-			} else {
-				return validate.Error(err)
-			}
-		} else {
-			if logo.Width < 200 || logo.Height < 200 {
-				result.AddFieldFailure("logo", "The image must have minimum dimensions of 200x200 pixels.")
-			}
-
-			if logo.Width != logo.Height {
-				result.AddFieldFailure("logo", "The image must have an aspect ratio of 1:1.")
-			}
-
-			if logo.Size > 102400 {
-				result.AddFieldFailure("logo", "The image size must be smaller than 100KB.")
-			}
+	uploadResult := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
+	if !uploadResult.Ok {
+		if uploadResult.Error != nil {
+			return validate.Error(uploadResult.Error)
 		}
+		result.AddFieldFailure("logo", uploadResult.Messages...)
 	}
 
 	if input.Model.Title == "" {
