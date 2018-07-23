@@ -16,6 +16,11 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
+	robots := r.Group()
+	{
+		robots.Get("/robots.txt", handlers.RobotsTXT())
+	}
+
 	assets := r.Group()
 	{
 		assets.Use(middlewares.CORS())

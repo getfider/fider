@@ -9,6 +9,7 @@ COPY migrations /app/migrations
 COPY views /app/views
 COPY dist /app/dist
 COPY LICENSE /app
+COPY robots.txt /app
 COPY fider /app
 
 EXPOSE 3000

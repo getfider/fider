@@ -36,6 +36,17 @@ func LegalPage(title, file string) web.HandlerFunc {
 	}
 }
 
+//RobotsTXT return content of robots.txt file
+func RobotsTXT() web.HandlerFunc {
+	return func(c web.Context) error {
+		bytes, err := ioutil.ReadFile(env.Path("./robots.txt"))
+		if err != nil {
+			return c.NotFound()
+		}
+		return c.String(http.StatusOK, string(bytes))
+	}
+}
+
 //Page returns a page without properties
 func Page(title, description string) web.HandlerFunc {
 	return func(c web.Context) error {
