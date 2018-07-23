@@ -34,7 +34,7 @@ const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) =>
         </a>
         <MultiLineText className="c-list-item-description" text={props.idea.description} style="simple" />
         <ShowIdeaResponse status={props.idea.status} response={props.idea.response} />
-        {props.tags.map(tag => <ShowTag key={tag.id} size="mini" tag={tag} />)}
+        {props.tags.map(tag => <ShowTag key={tag.id} size="tiny" tag={tag} />)}
       </div>
     </ListItem>
   );
