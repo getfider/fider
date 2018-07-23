@@ -105,7 +105,6 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
 
     return (
       <>
-        {form}
         <Segment>
           <List divided={true}>
             <ListItem>
@@ -127,6 +126,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
             {privateTagList.length === 0 ? <ListItem>There aren’t any private tags yet.</ListItem> : privateTagList}
           </List>
         </Segment>
+        {form}
       </>
     );
   }

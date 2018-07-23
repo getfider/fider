@@ -51,7 +51,7 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
             <Button color="danger" size="tiny" onClick={this.onConfirm}>
               Confirm
             </Button>
-            <Button size="tiny" onClick={this.onCancel}>
+            <Button color="cancel" size="tiny" onClick={this.onCancel}>
               Cancel
             </Button>
           </Modal.Footer>

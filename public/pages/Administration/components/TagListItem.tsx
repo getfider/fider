@@ -83,7 +83,7 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
             The tag <ShowTag tag={this.state.tag} /> will be removed from all ideas.
           </span>
         </div>
-        <Button className="right" onClick={this.cancelDelete}>
+        <Button className="right" onClick={this.cancelDelete} color="cancel">
           Cancel
         </Button>
         <Button color="danger" className="right" onClick={this.deleteTag}>

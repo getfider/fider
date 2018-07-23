@@ -342,7 +342,9 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             <Button color="positive" onClick={this.handleSave}>
               Save
             </Button>
-            <Button onClick={this.handleCancel}>Cancel</Button>
+            <Button color="cancel" onClick={this.handleCancel}>
+              Cancel
+            </Button>
           </div>
         </Form>
       </>

@@ -139,6 +139,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="large">
               Large Danger
             </Button>
+            <Button color="cancel" size="large">
+              Large Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -148,6 +151,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             </Button>
             <Button color="danger" size="normal">
               Normal Danger
+            </Button>
+            <Button color="cancel" size="normal">
+              Normal Cancel
             </Button>
           </ListItem>
 
@@ -159,6 +165,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="small">
               Small Danger
             </Button>
+            <Button color="cancel" size="small">
+              Small Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -169,6 +178,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="tiny">
               Tiny Danger
             </Button>
+            <Button color="cancel" size="tiny">
+              Tiny Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -178,6 +190,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             </Button>
             <Button color="danger" size="mini">
               Mini Danger
+            </Button>
+            <Button color="cancel" size="mini">
+              Mini Cancel
             </Button>
           </ListItem>
 

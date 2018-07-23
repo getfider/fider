@@ -10,9 +10,18 @@
   border-radius: 3px;
   border: none;
   margin: 0 4px 0 0;
-  padding: 8px;
+  padding: 8px 16px;
   text-align: left;
   font-weight: 600;
+
+  &.m-cancel {
+    color: $link-color;
+    background-color: transparent;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 
   &.m-default {
     color: $text-color;
@@ -44,27 +53,27 @@
   }
 
   &.m-mini {
-    padding: 6px;
+    padding: 6px 12px;
     font-size: $font-size-mini;
   }
 
   &.m-tiny {
-    padding: 7px;
+    padding: 7px 14px;
     font-size: $font-size-tiny;
   }
 
   &.m-small {
-    padding: 8px;
+    padding: 8px 16px;
     font-size: $font-size-small;
   }
 
   &.m-normal {
-    padding: 9px;
+    padding: 9px 18px;
     font-size: $font-size;
   }
 
   &.m-large {
-    padding: 10px;
+    padding: 10px 20px;
     font-size: $font-size-large;
   }
 

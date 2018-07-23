@@ -105,7 +105,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
                 <Button size="tiny" onClick={this.saveEdit} color="positive">
                   Save
                 </Button>
-                <Button size="tiny" onClick={this.cancelEdit}>
+                <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
                   Cancel
                 </Button>
               </Form>
