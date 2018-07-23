@@ -48,3 +48,11 @@ func TestLegalPageHandler_Invalid(t *testing.T) {
 
 	Expect(code).Equals(http.StatusNotFound)
 }
+
+func TestRobotsTXT(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	code, _ := server.Execute(handlers.RobotsTXT())
+	Expect(code).Equals(http.StatusOK)
+}
