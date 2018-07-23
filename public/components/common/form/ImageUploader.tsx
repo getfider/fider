@@ -100,7 +100,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             {hasFile && <img className="preview" src={this.state.previewUrl} style={imgStyles} />}
             <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
-            <div>
+            <div className="c-form-field-wrapper">
               <Button size="tiny" onClick={this.selectFile} disabled={this.props.disabled}>
                 {hasFile ? "Change" : "Upload"}
               </Button>

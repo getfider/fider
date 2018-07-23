@@ -196,7 +196,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
 
         <div className="field">
           <Button disabled={!Fider.session.user.isAdministrator} color="positive" onClick={this.handleSave}>
-            Save changes
+            Save
           </Button>
         </div>
       </Form>

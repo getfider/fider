@@ -10,16 +10,26 @@
   border-radius: 3px;
   border: none;
   margin: 0 4px 0 0;
-  padding: 8px;
+  padding: 8px 16px;
   text-align: left;
   font-weight: 600;
 
-  &.m-default {
-    color: $text-color;
-    background-color: $gray-lighter;
+  &.m-cancel {
+    color: $link-color;
+    background-color: transparent;
 
     &:hover {
-      background-color: $gray;
+      text-decoration: underline;
+    }
+  }
+
+  &.m-default {
+    color: $text-color;
+    background-color: $gray-lightest;
+    border: 1px solid $gray;
+
+    &:hover {
+      background-color: $gray-lighter;
     }
   }
 
@@ -44,27 +54,27 @@
   }
 
   &.m-mini {
-    padding: 6px;
+    padding: 6px 12px;
     font-size: $font-size-mini;
   }
 
   &.m-tiny {
-    padding: 7px;
+    padding: 7px 14px;
     font-size: $font-size-tiny;
   }
 
   &.m-small {
-    padding: 8px;
+    padding: 8px 16px;
     font-size: $font-size-small;
   }
 
   &.m-normal {
-    padding: 9px;
+    padding: 9px 18px;
     font-size: $font-size;
   }
 
   &.m-large {
-    padding: 10px;
+    padding: 10px 20px;
     font-size: $font-size-large;
   }
 
@@ -96,23 +106,23 @@
     }
     
     &:after {
-        position: absolute;
-        content: '';
-        top: 50%;
-        left: 50%;
-        margin: -.64285714em 0 0 -.64285714em;
-        width: 1.28571429em;
-        height: 1.28571429em;
-        -webkit-animation: button-spin .6s linear;
-        animation: button-spin .6s linear;
-        -webkit-animation-iteration-count: infinite;
-        animation-iteration-count: infinite;
-        border-radius: 500rem;
-        border-color: #fff transparent transparent;
-        border-style: solid;
-        border-width: .2em;
-        -webkit-box-shadow: 0 0 0 1px transparent;
-        box-shadow: 0 0 0 1px transparent;
+      position: absolute;
+      content: '';
+      top: 50%;
+      left: 50%;
+      margin: -.64285714em 0 0 -.64285714em;
+      width: 1.28571429em;
+      height: 1.28571429em;
+      -webkit-animation: button-spin .6s linear;
+      animation: button-spin .6s linear;
+      -webkit-animation-iteration-count: infinite;
+      animation-iteration-count: infinite;
+      border-radius: 500rem;
+      border-color: #fff transparent transparent;
+      border-style: solid;
+      border-width: .2em;
+      -webkit-box-shadow: 0 0 0 1px transparent;
+      box-shadow: 0 0 0 1px transparent;
     }
   }
 
@@ -126,6 +136,8 @@
     text-align: center;
     height: 40px;
     line-height: 22px;
+    padding: 8px;
+    border: none;
     box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
 
     &.m-loading img {

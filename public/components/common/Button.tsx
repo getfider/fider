@@ -6,7 +6,7 @@ interface ButtonProps {
   disabled?: boolean;
   href?: string;
   rel?: "nofollow";
-  color?: "positive" | "danger" | "default";
+  color?: "positive" | "danger" | "default" | "cancel";
   fluid?: boolean;
   size?: "mini" | "tiny" | "small" | "normal" | "large";
   onClick?: (event: ButtonClickEvent) => Promise<any>;

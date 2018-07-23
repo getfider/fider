@@ -6,7 +6,7 @@ import { classSet } from "@fider/services";
 
 interface TagProps {
   tag: Tag;
-  size?: "mini" | "tiny" | "small" | "normal" | "large";
+  size?: "mini" | "tiny" | "small" | "normal";
   circular?: boolean;
 }
 

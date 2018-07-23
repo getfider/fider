@@ -39,8 +39,8 @@ const aryaStark: User = {
   status: UserStatus.Active
 };
 
-const easyTag: Tag = { id: 2, slug: "easy", name: "Easy", color: "00a3a5", isPublic: true };
-const hardTag: Tag = { id: 3, slug: "hard", name: "Hard", color: "ad43ec", isPublic: false };
+const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
+const hardTag: Tag = { id: 3, slug: "hard", name: "hard", color: "fbca04", isPublic: false };
 
 const visibilityPublic = { label: "Public", value: "public" };
 const visibilityPrivate = { label: "Private", value: "private" };
@@ -139,6 +139,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="large">
               Large Danger
             </Button>
+            <Button color="cancel" size="large">
+              Large Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -148,6 +151,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             </Button>
             <Button color="danger" size="normal">
               Normal Danger
+            </Button>
+            <Button color="cancel" size="normal">
+              Normal Cancel
             </Button>
           </ListItem>
 
@@ -159,6 +165,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="small">
               Small Danger
             </Button>
+            <Button color="cancel" size="small">
+              Small Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -169,6 +178,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             <Button color="danger" size="tiny">
               Tiny Danger
             </Button>
+            <Button color="cancel" size="tiny">
+              Tiny Cancel
+            </Button>
           </ListItem>
 
           <ListItem>
@@ -178,6 +190,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             </Button>
             <Button color="danger" size="mini">
               Mini Danger
+            </Button>
+            <Button color="cancel" size="mini">
+              Mini Cancel
             </Button>
           </ListItem>
 
@@ -239,12 +254,6 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <h1>Tags</h1>
         <List>
-          <ListItem>
-            <ShowTag tag={easyTag} size="large" />
-            <ShowTag tag={hardTag} size="large" />
-            <ShowTag tag={easyTag} circular={true} size="large" />
-            <ShowTag tag={hardTag} circular={true} size="large" />
-          </ListItem>
           <ListItem>
             <ShowTag tag={easyTag} size="normal" />
             <ShowTag tag={hardTag} size="normal" />

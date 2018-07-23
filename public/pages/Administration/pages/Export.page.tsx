@@ -21,7 +21,9 @@ export class ExportPage extends AdminBasePage<{}, {}> {
           </p>
         </Field>
         <Field>
-          <Button href="/admin/export/ideas.csv">Download</Button>
+          <Button color="positive" href="/admin/export/ideas.csv">
+            Download
+          </Button>
         </Field>
       </Form>
     );

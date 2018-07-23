@@ -149,7 +149,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
                       Confirm
                     </Button>
-                    <Button size="mini" onClick={this.cancelChangeEmail}>
+                    <Button color="cancel" size="mini" onClick={this.cancelChangeEmail}>
                       Cancel
                     </Button>
                   </>
@@ -164,7 +164,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               />
 
               <Button color="positive" onClick={this.confirm}>
-                Save changes
+                Save
               </Button>
             </Form>
           </div>

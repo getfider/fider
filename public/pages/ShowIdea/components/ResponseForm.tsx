@@ -110,7 +110,9 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
           <Button color="positive" onClick={this.submit}>
             Submit
           </Button>
-          <Button onClick={this.closeModal}>Cancel</Button>
+          <Button color="cancel" onClick={this.closeModal}>
+            Cancel
+          </Button>
         </Modal.Footer>
       </Modal.Window>
     );

@@ -73,7 +73,9 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
           <Button color="danger" onClick={this.delete}>
             Delete
           </Button>
-          <Button onClick={this.closeModal}>Cancel</Button>
+          <Button color="cancel" onClick={this.closeModal}>
+            Cancel
+          </Button>
         </Modal.Footer>
       </Modal.Window>
     );

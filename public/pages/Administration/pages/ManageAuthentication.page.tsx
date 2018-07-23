@@ -65,8 +65,8 @@ export class ManageAuthenticationPage extends AdminBasePage<
       return <OAuthForm config={this.state.editing} onCancel={this.cancel} />;
     }
 
-    const enabled = <span className="m-enabled">Enabled</span>;
-    const disabled = <span className="m-disabled">Disabled</span>;
+    const enabled = <p className="m-enabled">Enabled</p>;
+    const disabled = <p className="m-disabled">Disabled</p>;
 
     return (
       <>
@@ -98,7 +98,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 <div className="l-provider">
                   <OAuthProviderLogo option={o} />
                   <strong>{o.displayName}</strong>
-                  <br /> {o.isEnabled ? enabled : disabled}
+                  {o.isEnabled ? enabled : disabled}
                 </div>
                 {o.isCustomProvider && (
                   <span className="info">
