@@ -25,10 +25,11 @@
 
   &.m-default {
     color: $text-color;
-    background-color: $gray-lighter;
+    background-color: $gray-lightest;
+    border: 1px solid $gray;
 
     &:hover {
-      background-color: $gray;
+      background-color: $gray-lighter;
     }
   }
 
