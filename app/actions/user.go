@@ -81,9 +81,9 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 		return result
 	}
 
-	emailResult := validate.Email(input.Model.Email)
-	if !emailResult.Ok {
-		result.AddFieldFailure("email", emailResult.Messages...)
+	messages := validate.Email(input.Model.Email)
+	if len(messages) > 0 {
+		result.AddFieldFailure("email", messages...)
 		return result
 	}
 

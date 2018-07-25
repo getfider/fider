@@ -189,7 +189,7 @@ func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfil
 		profile.Name = "Anonymous"
 	}
 
-	if !validate.Email(profile.Email).Ok {
+	if len(validate.Email(profile.Email)) != 0 {
 		profile.Email = ""
 	}
 

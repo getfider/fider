@@ -26,14 +26,14 @@ func (r *Result) AddFieldFailure(field string, messages ...string) {
 		r.Failures = make(map[string][]string)
 	}
 
-	if r.Failures[field] == nil {
+	if r.Failures[field] == nil && len(messages) > 0 {
 		r.Failures[field] = []string{}
 	}
 
 	for _, message := range messages {
 		r.Failures[field] = append(r.Failures[field], message)
+		r.Ok = false
 	}
-	r.Ok = false
 }
 
 // Success returns a successful validation

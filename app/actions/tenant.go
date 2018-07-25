@@ -42,12 +42,8 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		if input.Model.Email == "" {
 			result.AddFieldFailure("email", "Email is required.")
 		} else {
-			emailResult := validate.Email(input.Model.Email)
-			if !emailResult.Ok && emailResult.Err != nil {
-				return emailResult
-			} else if !emailResult.Ok {
-				result.AddFieldFailure("email", emailResult.Messages...)
-			}
+			messages := validate.Email(input.Model.Email)
+			result.AddFieldFailure("email", messages...)
 		}
 
 		if input.Model.Name == "" {
@@ -66,12 +62,12 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
-	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
-	if !subdomainResult.Ok && subdomainResult.Err != nil {
-		return subdomainResult
-	} else if !subdomainResult.Ok {
-		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
+	messages, err := validate.Subdomain(services.Tenants, input.Model.Subdomain)
+	if err != nil {
+		return validate.Error(err)
 	}
+
+	result.AddFieldFailure("subdomain", messages...)
 
 	if env.HasLegal() && !input.Model.LegalAgreement {
 		result.AddFieldFailure("legalAgreement", "You must agree before proceeding.")
@@ -100,13 +96,11 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	uploadResult := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
-	if !uploadResult.Ok {
-		if uploadResult.Err != nil {
-			return validate.Error(uploadResult.Err)
-		}
-		result.AddFieldFailure("logo", uploadResult.Messages...)
+	messages, err := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
+	if err != nil {
+		return validate.Error(err)
 	}
+	result.AddFieldFailure("logo", messages...)
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
@@ -121,9 +115,8 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 	}
 
 	if input.Model.CNAME != "" {
-		if cnameResult := validate.CNAME(services.Tenants, input.Model.CNAME); !cnameResult.Ok {
-			result.AddFieldFailure("cname", cnameResult.Messages...)
-		}
+		messages := validate.CNAME(services.Tenants, input.Model.CNAME)
+		result.AddFieldFailure("cname", messages...)
 	}
 
 	return result

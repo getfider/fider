@@ -15,15 +15,15 @@ func TestValidateImageUpload(t *testing.T) {
 
 	var testCases = []struct {
 		fileName string
-		valid    bool
+		count    int
 	}{
-		{"/app/pkg/img/testdata/logo1.png", true},
-		{"/app/pkg/img/testdata/logo2.jpg", false},
-		{"/app/pkg/img/testdata/logo3.gif", false},
-		{"/app/pkg/img/testdata/logo4.png", false},
-		{"/app/pkg/img/testdata/logo5.png", true},
-		{"/README.md", false},
-		{"/favicon.ico", false},
+		{"/app/pkg/img/testdata/logo1.png", 0},
+		{"/app/pkg/img/testdata/logo2.jpg", 2},
+		{"/app/pkg/img/testdata/logo3.gif", 1},
+		{"/app/pkg/img/testdata/logo4.png", 1},
+		{"/app/pkg/img/testdata/logo5.png", 0},
+		{"/README.md", 1},
+		{"/favicon.ico", 1},
 	}
 
 	for _, testCase := range testCases {
@@ -34,17 +34,20 @@ func TestValidateImageUpload(t *testing.T) {
 				Content: img,
 			},
 		}
-		result := validate.ImageUpload(upload, 200, 200, 100)
-		Expect(result.Ok).Equals(testCase.valid)
+		messages, err := validate.ImageUpload(upload, 200, 200, 100)
+		Expect(messages).HasLen(testCase.count)
+		Expect(err).IsNil()
 	}
 }
 
 func TestValidateImageUpload_Nil(t *testing.T) {
 	RegisterT(t)
 
-	result := validate.ImageUpload(nil, 200, 200, 50)
-	Expect(result.Ok).IsTrue()
+	messages, err := validate.ImageUpload(nil, 200, 200, 50)
+	Expect(messages).HasLen(0)
+	Expect(err).IsNil()
 
-	result = validate.ImageUpload(&models.ImageUpload{}, 200, 200, 50)
-	Expect(result.Ok).IsTrue()
+	messages, err = validate.ImageUpload(&models.ImageUpload{}, 200, 200, 50)
+	Expect(messages).HasLen(0)
+	Expect(err).IsNil()
 }
