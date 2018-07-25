@@ -18,15 +18,35 @@ func TestResult_Error(t *testing.T) {
 	Expect(r.Err).Equals(err)
 }
 
+func TestResult_Unauthorized(t *testing.T) {
+	RegisterT(t)
+
+	r := validate.Unauthorized()
+	Expect(r.Ok).IsFalse()
+	Expect(r.Authorized).IsFalse()
+	Expect(r.Errors).HasLen(0)
+	Expect(r.Err).IsNil()
+}
+
+func TestResult_Failed(t *testing.T) {
+	RegisterT(t)
+
+	r := validate.Failed("Error #1", "Error #2")
+	Expect(r.Ok).IsFalse()
+	Expect(r.Authorized).IsTrue()
+	Expect(r.Errors).HasLen(2)
+	Expect(r.Err).IsNil()
+}
+
 func TestResult_AddFieldFailure_Empty(t *testing.T) {
 	RegisterT(t)
 
 	r := validate.Success()
 	r.AddFieldFailure("name")
 	Expect(r.Ok).IsTrue()
-	Expect(r.Failures["name"]).HasLen(0)
+	Expect(r.Errors).HasLen(0)
 
 	r.AddFieldFailure("name", "This field is required")
 	Expect(r.Ok).IsFalse()
-	Expect(r.Failures["name"]).HasLen(1)
+	Expect(r.Errors).HasLen(1)
 }
