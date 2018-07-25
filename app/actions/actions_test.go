@@ -23,30 +23,37 @@ var services = &app.Services{
 	Notifications: inmemory.NewNotificationStorage(),
 }
 
-func ExpectFailed(result *validate.Result, fields ...string) {
+func ExpectFailed(result *validate.Result, expectedFields ...string) {
 	Expect(result.Ok).IsFalse()
 	Expect(result.Err).IsNil()
-	for _, field := range fields {
+
+	errFields := make([]string, 0)
+	for _, err := range result.Errors {
+		if err.Field != "" {
+			errFields = append(errFields, err.Field)
+		}
+	}
+
+	for _, field := range expectedFields {
 		if field == "" {
-			Expect(len(result.Messages) > 0).IsTrue()
+			Expect(len(result.Errors) > 0).IsTrue()
 		} else {
-			if len(result.Failures[field]) == 0 {
-				Fail("Failures should contain field: %s", field)
+			if !contains(errFields, field) {
+				Fail("Failure should contain field: %s", field)
 			}
 		}
 	}
 
-	for field, _ := range result.Failures {
-		if !contains(fields, field) {
-			Fail("Failures should not contain field: %s", field)
+	for _, field := range errFields {
+		if !contains(expectedFields, field) {
+			Fail("Failure should not contain field: %s", field)
 		}
 	}
 }
 
 func ExpectSuccess(result *validate.Result) {
 	Expect(result.Ok).IsTrue()
-	Expect(result.Messages).HasLen(0)
-	Expect(result.Failures).HasLen(0)
+	Expect(result.Errors).HasLen(0)
 	Expect(result.Err).IsNil()
 }
 
