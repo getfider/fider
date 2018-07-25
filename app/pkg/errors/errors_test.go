@@ -75,5 +75,5 @@ func TestNilErrors(t *testing.T) {
 
 	Expect(errors.Cause(nil)).IsNil()
 	Expect(errors.Stack(nil)).IsNil()
-	Expect(errors.Wrap(nil, "", "")).IsNil()
+	Expect(errors.Wrap(nil, "")).IsNil()
 }
