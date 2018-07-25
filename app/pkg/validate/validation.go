@@ -42,7 +42,7 @@ func Success() *Result {
 }
 
 // Failed returns a failed validation result
-func Failed(messages []string) *Result {
+func Failed(messages ...string) *Result {
 	return &Result{Ok: false, Authorized: true, Messages: messages}
 }
 

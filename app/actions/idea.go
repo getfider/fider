@@ -202,9 +202,7 @@ func (input *DeleteIdea) Validate(user *models.User, services *app.Services) *va
 	}
 
 	if isReferenced {
-		return validate.Failed([]string{
-			"This idea cannot be deleted because it's being referenced by a duplicated idea.",
-		})
+		return validate.Failed("This idea cannot be deleted because it's being referenced by a duplicated idea.")
 	}
 
 	input.Idea = idea
