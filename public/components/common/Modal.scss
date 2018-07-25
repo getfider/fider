@@ -9,16 +9,34 @@
   text-align: center;
   vertical-align: middle;
   padding: 1em;
-  background-color: rgba(0,0,0,.70);
+  background-color: rgba(60, 60, 60, .8);
   z-index: 100;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow-y: hidden;
+  animation: dimmerFadeIn 0.5s;
 
   @media only screen and (max-height: 483px) {
     overflow-y: scroll;
     display: block;
+  }
+}
+
+@keyframes dimmerFadeIn {
+  from { background-color: rgba(60, 60, 60, .1); }
+  to { background-color: rgba(60, 60, 60, .8); }
+}
+
+
+@keyframes windowfadeIn {
+  from { 
+    transform: scale(0.7);
+    opacity: 0; 
+  }
+  to { 
+    transform: scale(1);
+    opacity: 1; 
   }
 }
 
@@ -31,6 +49,7 @@
   -webkit-box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   width: 100%;
+  animation: windowfadeIn 0.5s;
 
   &.m-small {
     @include media(">=md") {

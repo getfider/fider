@@ -33,7 +33,7 @@ func Fail(msg string, args ...interface{}) {
 	if currentT == nil {
 		panic("Did you forget to call RegisterT(t)?")
 	}
-	currentT.Errorf(msg, args)
+	currentT.Errorf(msg, args...)
 }
 
 var currentT *testing.T
