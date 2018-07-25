@@ -1,10 +1,12 @@
 import { analytics } from "@fider/services";
 
+export interface ErrorItem {
+  field?: string;
+  message: string;
+}
+
 export interface Failure {
-  messages?: string[];
-  failures?: {
-    [key: string]: string[];
-  };
+  errors?: ErrorItem[];
 }
 
 export interface Result<T = void> {
@@ -25,8 +27,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
       ok: false,
       data: body as T,
       error: {
-        messages: body.messages,
-        failures: body.failures
+        errors: body.errors
       }
     };
   }

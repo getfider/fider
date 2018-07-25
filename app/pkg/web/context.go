@@ -239,8 +239,7 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 	}
 
 	return ctx.BadRequest(Map{
-		"messages": result.Messages,
-		"failures": result.Failures,
+		"errors": result.Errors,
 	})
 }
 
