@@ -28,7 +28,7 @@ func TestInvalidEmail(t *testing.T) {
 		result := validate.Email(email)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -43,7 +43,7 @@ func TestValidEmail(t *testing.T) {
 		result := validate.Email(email)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -60,7 +60,7 @@ func TestInvalidURL(t *testing.T) {
 		result := validate.URL(rawurl)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -75,7 +75,7 @@ func TestValidURL(t *testing.T) {
 		result := validate.URL(rawurl)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -95,7 +95,7 @@ func TestInvalidCNAME(t *testing.T) {
 		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -112,7 +112,7 @@ func TestValidHostname(t *testing.T) {
 		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -133,7 +133,7 @@ func TestValidCNAME_Availability(t *testing.T) {
 		result := validate.CNAME(tenants, cname)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 	for _, cname := range []string{
 		"fider.footbook.com",
@@ -143,6 +143,6 @@ func TestValidCNAME_Availability(t *testing.T) {
 		result := validate.CNAME(tenants, cname)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }

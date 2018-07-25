@@ -45,8 +45,8 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 
 	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
 	if !uploadResult.Ok {
-		if uploadResult.Error != nil {
-			return validate.Error(uploadResult.Error)
+		if uploadResult.Err != nil {
+			return validate.Error(uploadResult.Err)
 		}
 		result.AddFieldFailure("logo", uploadResult.Messages...)
 	}

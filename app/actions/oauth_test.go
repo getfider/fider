@@ -159,6 +159,6 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 		Model: input,
 	}
 	result := action.Validate(nil, services)
-	Expect(result.Error).Equals(app.ErrNotFound)
+	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()
 }

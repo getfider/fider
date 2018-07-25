@@ -43,7 +43,7 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 			result.AddFieldFailure("email", "Email is required.")
 		} else {
 			emailResult := validate.Email(input.Model.Email)
-			if !emailResult.Ok && emailResult.Error != nil {
+			if !emailResult.Ok && emailResult.Err != nil {
 				return emailResult
 			} else if !emailResult.Ok {
 				result.AddFieldFailure("email", emailResult.Messages...)
@@ -67,7 +67,7 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 	}
 
 	subdomainResult := validate.Subdomain(services.Tenants, input.Model.Subdomain)
-	if !subdomainResult.Ok && subdomainResult.Error != nil {
+	if !subdomainResult.Ok && subdomainResult.Err != nil {
 		return subdomainResult
 	} else if !subdomainResult.Ok {
 		result.AddFieldFailure("subdomain", subdomainResult.Messages...)
@@ -102,8 +102,8 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 
 	uploadResult := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
 	if !uploadResult.Ok {
-		if uploadResult.Error != nil {
-			return validate.Error(uploadResult.Error)
+		if uploadResult.Err != nil {
+			return validate.Error(uploadResult.Err)
 		}
 		result.AddFieldFailure("logo", uploadResult.Messages...)
 	}

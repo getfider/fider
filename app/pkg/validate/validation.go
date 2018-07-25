@@ -15,7 +15,7 @@ type Validatable interface {
 type Result struct {
 	Ok         bool
 	Authorized bool
-	Error      error
+	Err        error
 	Messages   []string
 	Failures   map[string][]string
 }
@@ -48,7 +48,7 @@ func Failed(messages []string) *Result {
 
 // Error returns a failed validation result
 func Error(err error) *Result {
-	return &Result{Ok: false, Authorized: true, Error: err}
+	return &Result{Ok: false, Authorized: true, Err: err}
 }
 
 // Unauthorized returns an unauthorized validation result

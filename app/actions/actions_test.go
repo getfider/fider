@@ -25,7 +25,7 @@ var services = &app.Services{
 
 func ExpectFailed(result *validate.Result, fields ...string) {
 	Expect(result.Ok).IsFalse()
-	Expect(result.Error).IsNil()
+	Expect(result.Err).IsNil()
 	for _, field := range fields {
 		if field == "" {
 			Expect(len(result.Messages) > 0).IsTrue()
@@ -47,7 +47,7 @@ func ExpectSuccess(result *validate.Result) {
 	Expect(result.Ok).IsTrue()
 	Expect(result.Messages).HasLen(0)
 	Expect(result.Failures).HasLen(0)
-	Expect(result.Error).IsNil()
+	Expect(result.Err).IsNil()
 }
 
 func contains(slice []string, item string) bool {

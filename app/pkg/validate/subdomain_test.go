@@ -26,7 +26,7 @@ func TestInvalidSubdomains(t *testing.T) {
 		result := validate.Subdomain(nil, subdomain)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
 
@@ -47,7 +47,7 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		result := validate.Subdomain(tenants, subdomain)
 		Expect(result.Ok).IsFalse()
 		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 
 	for _, subdomain := range []string{
@@ -57,6 +57,6 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		result := validate.Subdomain(tenants, subdomain)
 		Expect(result.Ok).IsTrue()
 		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		Expect(result.Err).IsNil()
 	}
 }
