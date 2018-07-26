@@ -10,43 +10,43 @@ import (
 	"github.com/getfider/fider/app/pkg/csv"
 )
 
-func TestExportIdeasToCSV_Empty(t *testing.T) {
+func TestExportPostsToCSV_Empty(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{}
+	posts := []*models.Idea{}
 	expected, err := ioutil.ReadFile("./testdata/empty.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
 
-func TestExportIdeasToCSV_OneIdea(t *testing.T) {
+func TestExportPostsToCSV_OneIdea(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{
+	posts := []*models.Idea{
 		declinedIdea,
 	}
 
 	expected, err := ioutil.ReadFile("./testdata/one-idea.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
 
-func TestExportIdeasToCSV_MoreIdeas(t *testing.T) {
+func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{
+	posts := []*models.Idea{
 		declinedIdea,
 		openIdea,
 		duplicateIdea,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/more-ideas.csv")
+	expected, err := ioutil.ReadFile("./testdata/more-posts.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
