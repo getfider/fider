@@ -21,14 +21,14 @@ func TestExportPostsToCSV_Empty(t *testing.T) {
 	Expect(actual).Equals(expected)
 }
 
-func TestExportPostsToCSV_OneIdea(t *testing.T) {
+func TestExportPostsToCSV_OnePost(t *testing.T) {
 	RegisterT(t)
 
 	posts := []*models.Idea{
-		declinedIdea,
+		declinedPost,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/one-idea.csv")
+	expected, err := ioutil.ReadFile("./testdata/one-post.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
@@ -39,9 +39,9 @@ func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	RegisterT(t)
 
 	posts := []*models.Idea{
-		declinedIdea,
-		openIdea,
-		duplicateIdea,
+		declinedPost,
+		openPost,
+		duplicatePost,
 	}
 
 	expected, err := ioutil.ReadFile("./testdata/more-posts.csv")
@@ -51,7 +51,7 @@ func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	Expect(actual).Equals(expected)
 }
 
-var declinedIdea = &models.Idea{
+var declinedPost = &models.Idea{
 	Number:      10,
 	Title:       "Go is fast",
 	Description: "Very tiny description",
@@ -72,7 +72,7 @@ var declinedIdea = &models.Idea{
 	Tags: []string{"easy", "ignored"},
 }
 
-var openIdea = &models.Idea{
+var openPost = &models.Idea{
 	Number:      15,
 	Title:       "Go is great",
 	Description: "",
@@ -85,7 +85,7 @@ var openIdea = &models.Idea{
 	Status:          models.IdeaOpen,
 }
 
-var duplicateIdea = &models.Idea{
+var duplicatePost = &models.Idea{
 	Number:      20,
 	Title:       "Go is easy",
 	Description: "",

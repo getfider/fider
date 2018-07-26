@@ -292,7 +292,7 @@ func ExportIdeasToCSV() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes, err := csv.FromIdeas(ideas)
+		bytes, err := csv.FromPosts(ideas)
 		if err != nil {
 			return c.Failure(err)
 		}
