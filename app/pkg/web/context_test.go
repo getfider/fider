@@ -105,9 +105,9 @@ func TestTenantURL_WithCNAME(t *testing.T) {
 	tenant := &models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
-		CNAME:     "ideas.theavengers.com",
+		CNAME:     "feedback.theavengers.com",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).Equals("http://ideas.theavengers.com:3000")
+	Expect(ctx.TenantBaseURL(tenant)).Equals("http://feedback.theavengers.com:3000")
 }
 
 func TestTenantURL_SingleHostMode(t *testing.T) {
@@ -126,9 +126,9 @@ func TestGlobalAssetsURL_SingleHostMode(t *testing.T) {
 	RegisterT(t)
 
 	os.Setenv("HOST_MODE", "single")
-	ctx := newGetContext("http://ideas.theavengers.com:3000", nil)
-	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://ideas.theavengers.com:3000/assets/main.js")
-	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://ideas.theavengers.com:3000/assets/main.css")
+	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
+	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
+	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
 
 	os.Setenv("CDN_HOST", "assets-fider.io")
 	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
@@ -143,7 +143,7 @@ func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
 	ctx.SetTenant(&models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
-		CNAME:     "ideas.theavengers.com",
+		CNAME:     "feedback.theavengers.com",
 	})
 
 	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
@@ -158,14 +158,14 @@ func TestTenantAssetsURL_SingleHostMode(t *testing.T) {
 	RegisterT(t)
 
 	os.Setenv("HOST_MODE", "single")
-	ctx := newGetContext("http://ideas.theavengers.com:3000", nil)
+	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
 	ctx.SetTenant(&models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
 	})
 
-	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://ideas.theavengers.com:3000/assets/main.js")
-	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://ideas.theavengers.com:3000/assets/main.css")
+	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
+	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
 
 	os.Setenv("CDN_HOST", "assets-fider.io")
 	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
@@ -180,7 +180,7 @@ func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
 	ctx.SetTenant(&models.Tenant{
 		ID:        1,
 		Subdomain: "theavengers",
-		CNAME:     "ideas.theavengers.com",
+		CNAME:     "feedback.theavengers.com",
 	})
 
 	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")

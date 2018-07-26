@@ -96,7 +96,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	}{
 		{
 			"http://avengers.test.fider.io/",
-			"<http://ideas.theavengers.com/>; rel=\"canonical\"",
+			"<http://feedback.theavengers.com/>; rel=\"canonical\"",
 			false,
 		},
 		{
@@ -105,18 +105,18 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 			true,
 		},
 		{
-			"http://ideas.theavengers.com/",
+			"http://feedback.theavengers.com/",
 			"",
 			false,
 		},
 		{
-			"http://avengers.test.fider.io/ideas",
-			"<http://ideas.theavengers.com/ideas>; rel=\"canonical\"",
+			"http://avengers.test.fider.io/posts",
+			"<http://feedback.theavengers.com/posts>; rel=\"canonical\"",
 			false,
 		},
 		{
-			"http://avengers.test.fider.io/ideas?q=1",
-			"<http://ideas.theavengers.com/ideas?q=1>; rel=\"canonical\"",
+			"http://avengers.test.fider.io/posts?q=1",
+			"<http://feedback.theavengers.com/posts?q=1>; rel=\"canonical\"",
 			false,
 		},
 		{

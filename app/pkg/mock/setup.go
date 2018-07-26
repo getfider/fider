@@ -59,7 +59,7 @@ func createServices(seed bool) *app.Services {
 	if seed {
 		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
 		AvengersTenant, _ = services.Tenants.Add("Avengers", "avengers", models.TenantActive)
-		AvengersTenant.CNAME = "ideas.theavengers.com"
+		AvengersTenant.CNAME = "feedback.theavengers.com"
 
 		JonSnow = &models.User{
 			Name:   "Jon Snow",

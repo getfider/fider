@@ -255,7 +255,7 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 	mock.AvengersTenant.IsPrivate = true
 
 	code, response := server.
-		WithURL("http://ideas.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
 		AddCookie(web.CookieOAuthIdentifier, "888").
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", oauth.FacebookProvider).
@@ -276,7 +276,7 @@ func TestOAuthTokenHandler_InvalidIdentifier(t *testing.T) {
 	mock.AvengersTenant.IsPrivate = true
 
 	code, response := server.
-		WithURL("http://ideas.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
 		AddCookie(web.CookieOAuthIdentifier, "777").
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", oauth.FacebookProvider).
