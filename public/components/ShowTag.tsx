@@ -22,7 +22,7 @@ const getRGB = (color: string) => {
   };
 };
 
-const idealTextColor = (color: string) => {
+const textColor = (color: string) => {
   const components = getRGB(color);
   const bgDelta = components.R * 0.299 + components.G * 0.587 + components.B * 0.114;
   return bgDelta > 140 ? "#333" : "#fff";
@@ -41,7 +41,7 @@ export const ShowTag = (props: TagProps) => {
       className={className}
       style={{
         backgroundColor: `#${props.tag.color}`,
-        color: idealTextColor(props.tag.color)
+        color: textColor(props.tag.color)
       }}
     >
       {!props.tag.isPublic && !props.circular && <i className="lock icon" />}

@@ -130,7 +130,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
-			private.Get("/admin/export/ideas.csv", handlers.ExportIdeasToCSV())
+			private.Get("/admin/export/posts.csv", handlers.ExportIdeasToCSV())
 			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
 			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())

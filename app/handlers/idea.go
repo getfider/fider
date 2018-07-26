@@ -283,8 +283,8 @@ func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models
 	return c.Ok(web.Map{})
 }
 
-// ExportIdeasToCSV returns a CSV with all ideas
-func ExportIdeasToCSV() web.HandlerFunc {
+// ExportPostsToCSV returns a CSV with all posts
+func ExportPostsToCSV() web.HandlerFunc {
 	return func(c web.Context) error {
 
 		ideas, err := c.Services().Ideas.GetAll()

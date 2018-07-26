@@ -80,7 +80,7 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
         <div className="content">
           <b>Are you sure?</b>{" "}
           <span>
-            The tag <ShowTag tag={this.state.tag} /> will be removed from all ideas.
+            The tag <ShowTag tag={this.state.tag} /> will be removed from all posts.
           </span>
         </div>
         <Button className="right" onClick={this.cancelDelete} color="cancel">
