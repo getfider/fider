@@ -60,7 +60,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
               field="text"
               onChange={this.setText}
               value={this.state.text}
-              placeholder="Why are you deleting this idea? (optional)"
+              placeholder="Why are you deleting this post? (optional)"
             >
               <span className="info">
                 This operation <strong>cannot</strong> be undone.

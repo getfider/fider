@@ -23,12 +23,12 @@ const Lonely = () => {
       <p>
         <i className="icon lightbulb outline" aria-hidden="true" />
       </p>
-      <p>It's lonely out here. Start by sharing an idea!</p>
+      <p>It's lonely out here. Start by sharing a suggestion!</p>
     </div>
   );
 };
 
-const defaultWelcomeMessage = `## Welcome to our feedback forum!
+const defaultWelcomeMessage = `## Welcome to our feedback site!
 
 We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
