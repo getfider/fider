@@ -87,9 +87,11 @@ export class ManageAuthenticationPage extends AdminBasePage<
               <ListItem key={o.provider}>
                 {o.isCustomProvider && (
                   <>
-                    <Button onClick={this.edit.bind(this, o.provider)} className="right">
-                      <i className="edit icon" />Edit
-                    </Button>
+                    {Fider.session.user.isAdministrator && (
+                      <Button onClick={this.edit.bind(this, o.provider)} className="right">
+                        <i className="edit icon" />Edit
+                      </Button>
+                    )}
                     <Button onClick={this.startTest.bind(this, o.provider)} className="right">
                       <i className="play icon" />Test
                     </Button>
@@ -110,9 +112,11 @@ export class ManageAuthenticationPage extends AdminBasePage<
             ))}
           </List>
         </Segment>
-        <Button color="positive" onClick={this.addNew}>
-          Add new
-        </Button>
+        {Fider.session.user.isAdministrator && (
+          <Button color="positive" onClick={this.addNew}>
+            Add new
+          </Button>
+        )}
       </>
     );
   }
