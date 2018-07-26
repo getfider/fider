@@ -452,6 +452,7 @@ func (ctx *Context) NoContent(code int) error {
 
 // Redirect the request to a provided URL
 func (ctx *Context) Redirect(url string) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Response.Header().Set("Location", url)
 	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
