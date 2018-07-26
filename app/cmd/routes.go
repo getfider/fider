@@ -16,9 +16,11 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	robots := r.Group()
+	files := r.Group()
 	{
-		robots.Get("/robots.txt", handlers.RobotsTXT())
+		files.Get("/robots.txt", handlers.RobotsTXT())
+		files.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
+		files.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 	}
 
 	assets := r.Group()
@@ -34,8 +36,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	noTenant := r.Group()
 	{
-		noTenant.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
-		noTenant.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 		noTenant.Get("/-/health", handlers.Health())
 
 		noTenant.Post("/api/tenants", handlers.CreateTenant())
