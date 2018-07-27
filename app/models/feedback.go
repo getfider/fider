@@ -138,8 +138,8 @@ var (
 	IdeaDeleted = 6
 )
 
-// GetIdeaStatusName returns the name of an idea status
-func GetIdeaStatusName(status int) string {
+// GetPostStatusName returns the name of a post status
+func GetPostStatusName(status int) string {
 	switch status {
 	case IdeaOpen:
 		return "Open"

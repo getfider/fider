@@ -165,7 +165,7 @@ func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetIdeaStatusName(idea.Status))
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetPostStatusName(idea.Status))
 		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
@@ -200,7 +200,7 @@ func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
 		params := email.Params{
 			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
 			"content":     markdown.Parse(idea.Response.Text),
-			"status":      models.GetIdeaStatusName(idea.Status),
+			"status":      models.GetPostStatusName(idea.Status),
 			"duplicate":   duplicate,
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),

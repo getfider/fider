@@ -62,7 +62,7 @@ func FromPosts(posts []*models.Idea) ([]byte, error) {
 			post.User.Name,
 			strconv.Itoa(post.TotalSupporters),
 			strconv.Itoa(post.TotalComments),
-			models.GetIdeaStatusName(post.Status),
+			models.GetPostStatusName(post.Status),
 			respondedBy,
 			respondedOn,
 			response,
