@@ -8,7 +8,7 @@ import (
 )
 
 //ImageUpload validates given image upload
-func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes int) *Result {
+func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes int) ([]string, error) {
 	messages := []string{}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
@@ -17,7 +17,7 @@ func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes i
 			if err == img.ErrNotSupported {
 				messages = append(messages, "This file format not supported.")
 			} else {
-				return Error(err)
+				return nil, err
 			}
 		} else {
 			if logo.Width < minWidth || logo.Height < minHeight {
@@ -34,8 +34,5 @@ func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes i
 		}
 	}
 
-	if len(messages) > 0 {
-		return Failed(messages)
-	}
-	return Success()
+	return messages, nil
 }

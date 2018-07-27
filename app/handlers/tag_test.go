@@ -36,30 +36,23 @@ func TestCreateTagHandler_ValidRequests(t *testing.T) {
 func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 	RegisterT(t)
 
-	var testCases = []struct {
-		input    string
-		failures []string
-	}{
-		{`{ }`, []string{"failures.name", "failures.color"}},
-		{`{ "name": "" }`, []string{"failures.name", "failures.color"}},
-		{`{ "name": "Bug" }`, []string{"failures.color"}},
-		{`{ "name": "Bug", "color": "ABC" }`, []string{"failures.color"}},
-		{`{ "name": "Bug", "color": "00000X" }`, []string{"failures.color"}},
-		{`{ "name": "123456789012345678901234567890A", "color": "000000" }`, []string{"failures.name"}},
+	var testCases = []string{
+		`{ }`,
+		`{ "name": "" }`,
+		`{ "name": "Bug" }`,
+		`{ "name": "Bug", "color": "ABC" }`,
+		`{ "name": "Bug", "color": "00000X" }`,
+		`{ "name": "123456789012345678901234567890A", "color": "000000" }`,
 	}
 
 	for _, testCase := range testCases {
 		server, _ := mock.NewServer()
-		status, query := server.
+		status, _ := server.
 			AsUser(mock.JonSnow).
-			ExecutePostAsJSON(handlers.CreateEditTag(), testCase.input)
+			ExecutePostAsJSON(handlers.CreateEditTag(), testCase)
 
 		Expect(status).Equals(http.StatusBadRequest)
-		for _, failure := range testCase.failures {
-			Expect(query.Contains(failure)).IsTrue()
-		}
 	}
-
 }
 
 func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
@@ -68,7 +61,7 @@ func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 	server, services := mock.NewServer()
 	services.Tags.Add("Bug", "0000FF", true)
 
-	status, query := server.
+	status, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePostAsJSON(
 			handlers.CreateEditTag(),
@@ -76,7 +69,6 @@ func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 		)
 
 	Expect(status).Equals(http.StatusBadRequest)
-	Expect(query.Contains("failures.name")).IsTrue()
 }
 
 func TestCreateTagHandler_Collaborator(t *testing.T) {

@@ -36,10 +36,8 @@ func (input *SignInByEmail) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("email", "Email must have less than 200 characters.")
 	}
 
-	emailResult := validate.Email(input.Model.Email)
-	if !emailResult.Ok {
-		result.AddFieldFailure("email", emailResult.Messages...)
-	}
+	messages := validate.Email(input.Model.Email)
+	result.AddFieldFailure("email", messages...)
 
 	return result
 }

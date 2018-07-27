@@ -12,19 +12,19 @@ import (
 var domainRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
 
 //Subdomain validates given subdomain
-func Subdomain(tenants storage.Tenant, subdomain string) *Result {
+func Subdomain(tenants storage.Tenant, subdomain string) ([]string, error) {
 	subdomain = strings.ToLower(subdomain)
 
 	if len(subdomain) <= 2 {
-		return Failed([]string{"Subdomain must have more than 2 characters."})
+		return []string{"Subdomain must have more than 2 characters."}, nil
 	}
 
 	if len(subdomain) > 40 {
-		return Failed([]string{"Subdomain must have less than 40 characters."})
+		return []string{"Subdomain must have less than 40 characters."}, nil
 	}
 
 	if !domainRegex.MatchString(subdomain) {
-		return Failed([]string{"Subdomain contains invalid characters."})
+		return []string{"Subdomain contains invalid characters."}, nil
 	}
 
 	switch subdomain {
@@ -32,17 +32,17 @@ func Subdomain(tenants storage.Tenant, subdomain string) *Result {
 		"signup", "fider", "login", "customers", "admin", "setup", "about",
 		"wecanhearyou", "dev", "mail", "billing", "www", "web", "translate",
 		"help", "support", "status", "staging", "cdn", "assets":
-		return Failed([]string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)})
+		return []string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)}, nil
 	}
 
 	available, err := tenants.IsSubdomainAvailable(subdomain)
 	if err != nil {
-		return Error(err)
+		return nil, err
 	}
 
 	if !available {
-		return Failed([]string{"This subdomain is not available anymore."})
+		return []string{"This subdomain is not available anymore."}, nil
 	}
 
-	return Success()
+	return []string{}, nil
 }

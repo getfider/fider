@@ -43,13 +43,11 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		input.Model.Provider = "_" + strings.ToLower(rand.String(10))
 	}
 
-	uploadResult := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
-	if !uploadResult.Ok {
-		if uploadResult.Error != nil {
-			return validate.Error(uploadResult.Error)
-		}
-		result.AddFieldFailure("logo", uploadResult.Messages...)
+	messages, err := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
+	if err != nil {
+		return validate.Error(err)
 	}
+	result.AddFieldFailure("logo", messages...)
 
 	if input.Model.Status != models.OAuthConfigEnabled &&
 		input.Model.Status != models.OAuthConfigDisabled {
@@ -82,20 +80,20 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 
 	if input.Model.AuthorizeURL == "" {
 		result.AddFieldFailure("authorizeUrl", "Authorize URL is required.")
-	} else if urlResult := validate.URL(input.Model.AuthorizeURL); !urlResult.Ok {
-		result.AddFieldFailure("authorizeUrl", urlResult.Messages...)
+	} else if messages := validate.URL(input.Model.AuthorizeURL); len(messages) > 0 {
+		result.AddFieldFailure("authorizeUrl", messages...)
 	}
 
 	if input.Model.TokenURL == "" {
 		result.AddFieldFailure("tokenUrl", "Token URL is required.")
-	} else if urlResult := validate.URL(input.Model.TokenURL); !urlResult.Ok {
-		result.AddFieldFailure("tokenUrl", urlResult.Messages...)
+	} else if messages := validate.URL(input.Model.TokenURL); len(messages) > 0 {
+		result.AddFieldFailure("tokenUrl", messages...)
 	}
 
 	if input.Model.ProfileURL == "" {
 		result.AddFieldFailure("profileUrl", "Profile URL is required.")
-	} else if urlResult := validate.URL(input.Model.ProfileURL); !urlResult.Ok {
-		result.AddFieldFailure("profileUrl", urlResult.Messages...)
+	} else if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
+		result.AddFieldFailure("profileUrl", messages...)
 	}
 
 	if input.Model.JSONUserIDPath == "" {

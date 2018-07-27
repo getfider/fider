@@ -14,63 +14,59 @@ var emailRegex = regexp.MustCompile("^(((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?
 var hostnameRegex = regexp.MustCompile(`^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$`)
 
 //Email validates given email address
-func Email(email string) *Result {
+func Email(email string) []string {
 	email = strings.ToLower(email)
 
 	if len(email) > 200 {
-		return Failed([]string{"Email address must have less than 200 characters."})
+		return []string{"Email address must have less than 200 characters."}
 	}
 
 	if !emailRegex.MatchString(email) {
-		return Failed([]string{fmt.Sprintf("'%s' is not a valid email address.", email)})
+		return []string{fmt.Sprintf("'%s' is not a valid email address.", email)}
 	}
 
-	return Success()
+	return []string{}
 }
 
 //URL validates given URL
-func URL(rawurl string) *Result {
+func URL(rawurl string) []string {
 	rawurl = strings.ToLower(rawurl)
 
 	if len(rawurl) > 300 {
-		return Failed([]string{"URL address must have less than 300 characters."})
+		return []string{"URL address must have less than 300 characters."}
 	}
 
 	_, err := url.ParseRequestURI(rawurl)
 	if err != nil {
-		return Failed([]string{fmt.Sprintf("'%s' is not a valid URL address.", rawurl)})
+		return []string{fmt.Sprintf("'%s' is not a valid URL address.", rawurl)}
 	}
 
-	return Success()
+	return []string{}
 }
 
 //CNAME validates given cname
-func CNAME(tenants storage.Tenant, cname string) *Result {
+func CNAME(tenants storage.Tenant, cname string) []string {
 	cname = strings.ToLower(cname)
 
 	if !env.IsSingleHostMode() {
 		domain := env.MultiTenantDomain()
 		if strings.HasSuffix(cname, domain) || cname == domain[1:] {
-			return Failed([]string{fmt.Sprintf("'%s' is not a valid custom domain.", cname)})
+			return []string{fmt.Sprintf("'%s' is not a valid custom domain.", cname)}
 		}
 	}
 
 	if len(cname) > 100 {
-		return Failed([]string{"Custom domain name must have less than 100 characters."})
+		return []string{"Custom domain name must have less than 100 characters."}
 	}
 
 	if !hostnameRegex.MatchString(cname) || strings.Index(cname, ".") == -1 {
-		return Failed([]string{fmt.Sprintf("'%s' is not a valid custom domain.", cname)})
+		return []string{fmt.Sprintf("'%s' is not a valid custom domain.", cname)}
 	}
 
-	available, err := tenants.IsCNAMEAvailable(cname)
-	if err != nil {
-		return Error(err)
-	}
-
+	available, _ := tenants.IsCNAMEAvailable(cname)
 	if !available {
-		return Failed([]string{"This custom domain is already in use by someone else."})
+		return []string{"This custom domain is already in use by someone else."}
 	}
 
-	return Success()
+	return []string{}
 }

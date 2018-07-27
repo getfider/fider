@@ -56,10 +56,8 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 
 		for _, email := range input.Model.Recipients {
 			if email != "" {
-				emailResult := validate.Email(email)
-				if !emailResult.Ok {
-					result.AddFieldFailure("recipients", emailResult.Messages...)
-				}
+				messages := validate.Email(email)
+				result.AddFieldFailure("recipients", messages...)
 			}
 		}
 

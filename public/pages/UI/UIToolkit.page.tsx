@@ -72,12 +72,12 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
   private forceError = async () => {
     this.setState({
       error: {
-        messages: [],
-        failures: {
-          title: ["Title is mandatory"],
-          description: ["Error #1", "Error #2"],
-          status: ["Status is mandatory"]
-        }
+        errors: [
+          { field: "title", message: "Title is mandatory" },
+          { field: "description", message: "Error #1" },
+          { field: "description", message: "Error #2" },
+          { field: "status", message: "Status is mandatory" }
+        ]
       }
     });
   };

@@ -25,10 +25,8 @@ func TestInvalidEmail(t *testing.T) {
 		"my@company@other.com",
 		rand.String(200) + "@gmail.com",
 	} {
-		result := validate.Email(email)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages := validate.Email(email)
+		Expect(len(messages) > 0).IsTrue()
 	}
 }
 
@@ -40,10 +38,8 @@ func TestValidEmail(t *testing.T) {
 		"hello+alias@company.com",
 		"abc@gmail.com",
 	} {
-		result := validate.Email(email)
-		Expect(result.Ok).IsTrue()
-		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		messages := validate.Email(email)
+		Expect(messages).HasLen(0)
 	}
 }
 
@@ -57,10 +53,8 @@ func TestInvalidURL(t *testing.T) {
 		rand.String(301),
 		"my@company",
 	} {
-		result := validate.URL(rawurl)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages := validate.URL(rawurl)
+		Expect(len(messages) > 0).IsTrue()
 	}
 }
 
@@ -72,10 +66,8 @@ func TestValidURL(t *testing.T) {
 		"https://example.org/oauth",
 		"https://example.org/oauth?test=abc",
 	} {
-		result := validate.URL(rawurl)
-		Expect(result.Ok).IsTrue()
-		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		messages := validate.URL(rawurl)
+		Expect(messages).HasLen(0)
 	}
 }
 
@@ -92,10 +84,8 @@ func TestInvalidCNAME(t *testing.T) {
 		"test.fider.io",
 		"@google.com",
 	} {
-		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages := validate.CNAME(inmemory.NewTenantStorage(), cname)
+		Expect(len(messages) > 0).IsTrue()
 	}
 }
 
@@ -109,10 +99,8 @@ func TestValidHostname(t *testing.T) {
 		"got.com",
 		"hi.m",
 	} {
-		result := validate.CNAME(inmemory.NewTenantStorage(), cname)
-		Expect(result.Ok).IsTrue()
-		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		messages := validate.CNAME(inmemory.NewTenantStorage(), cname)
+		Expect(messages).HasLen(0)
 	}
 }
 
@@ -125,24 +113,22 @@ func TestValidCNAME_Availability(t *testing.T) {
 	tenant.CNAME = "fider.yourcompany.com"
 	tenant, _ = tenants.Add("New York", "newyork", models.TenantActive)
 	tenant.CNAME = "feedback.newyork.com"
+
 	for _, cname := range []string{
 		"footbook.com",
 		"fider.yourcompany.com",
 		"feedback.newyork.com",
 	} {
-		result := validate.CNAME(tenants, cname)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages := validate.CNAME(tenants, cname)
+		Expect(len(messages) > 0).IsTrue()
 	}
+
 	for _, cname := range []string{
 		"fider.footbook.com",
 		"yourcompany.com",
 		"anything.com",
 	} {
-		result := validate.CNAME(tenants, cname)
-		Expect(result.Ok).IsTrue()
-		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		messages := validate.CNAME(tenants, cname)
+		Expect(messages).HasLen(0)
 	}
 }

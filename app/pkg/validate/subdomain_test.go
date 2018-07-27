@@ -23,10 +23,9 @@ func TestInvalidSubdomains(t *testing.T) {
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
 	} {
-		result := validate.Subdomain(nil, subdomain)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages, err := validate.Subdomain(nil, subdomain)
+		Expect(len(messages) > 0).IsTrue()
+		Expect(err).IsNil()
 	}
 }
 
@@ -44,19 +43,17 @@ func TestValidSubdomains_Availability(t *testing.T) {
 		"newyork",
 		"NewYork",
 	} {
-		result := validate.Subdomain(tenants, subdomain)
-		Expect(result.Ok).IsFalse()
-		Expect(len(result.Messages) > 0).IsTrue()
-		Expect(result.Error).IsNil()
+		messages, err := validate.Subdomain(tenants, subdomain)
+		Expect(len(messages) > 0).IsTrue()
+		Expect(err).IsNil()
 	}
 
 	for _, subdomain := range []string{
 		"my-company",
 		"123-company",
 	} {
-		result := validate.Subdomain(tenants, subdomain)
-		Expect(result.Ok).IsTrue()
-		Expect(result.Messages).HasLen(0)
-		Expect(result.Error).IsNil()
+		messages, err := validate.Subdomain(tenants, subdomain)
+		Expect(messages).HasLen(0)
+		Expect(err).IsNil()
 	}
 }

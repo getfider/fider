@@ -230,8 +230,8 @@ func (ctx *Context) Failure(err error) error {
 
 //HandleValidation handles given validation result property to return 400 or 500
 func (ctx *Context) HandleValidation(result *validate.Result) error {
-	if result.Error != nil {
-		return ctx.Failure(result.Error)
+	if result.Err != nil {
+		return ctx.Failure(result.Err)
 	}
 
 	if !result.Authorized {
@@ -239,8 +239,7 @@ func (ctx *Context) HandleValidation(result *validate.Result) error {
 	}
 
 	return ctx.BadRequest(Map{
-		"messages": result.Messages,
-		"failures": result.Failures,
+		"errors": result.Errors,
 	})
 }
 
