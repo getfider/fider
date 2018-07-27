@@ -4,7 +4,7 @@ import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
-  idea: Post;
+  post: Post;
 }
 
 interface ModerationPanelState {
@@ -25,7 +25,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   }
 
   private delete = async () => {
-    const response = await actions.deleteIdea(this.props.idea.number, this.state.text);
+    const response = await actions.deletePost(this.props.post.number, this.state.text);
     if (response.ok) {
       await this.closeModal();
       navigator.goHome();
@@ -47,7 +47,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   };
 
   public render() {
-    const status = PostStatus.Get(this.props.idea.status);
+    const status = PostStatus.Get(this.props.post.status);
     if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return null;
     }

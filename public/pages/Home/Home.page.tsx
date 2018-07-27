@@ -3,12 +3,12 @@ import "./Home.page.scss";
 import * as React from "react";
 import { Post, Tag, PostStatus } from "@fider/models";
 import { MultiLineText } from "@fider/components";
-import { IdeaInput, ListIdeas, IdeasContainer } from "./";
+import { PostInput, ListPosts, PostsContainer } from "./";
 import { actions, Fider } from "@fider/services";
-import { SimilarIdeas } from "./components/SimilarIdeas";
+import { SimilarPosts } from "./components/SimilarPosts";
 
 export interface HomePageProps {
-  ideas: Post[];
+  posts: Post[];
   tags: Tag[];
   countPerStatus: { [key: string]: number };
 }
@@ -67,8 +67,8 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
               text={Fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
               style="full"
             />
-            <IdeaInput
-              placeholder={Fider.session.tenant.invitation || "Enter your idea here..."}
+            <PostInput
+              placeholder={Fider.session.tenant.invitation || "Enter your suggestion here..."}
               onTitleChanged={this.setTitle}
             />
           </div>
@@ -76,10 +76,10 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
             {this.isLonely() ? (
               <Lonely />
             ) : this.state.title ? (
-              <SimilarIdeas title={this.state.title} tags={this.props.tags} />
+              <SimilarPosts title={this.state.title} tags={this.props.tags} />
             ) : (
-              <IdeasContainer
-                ideas={this.props.ideas}
+              <PostsContainer
+                posts={this.props.posts}
                 tags={this.props.tags}
                 countPerStatus={this.props.countPerStatus}
               />

@@ -8,7 +8,7 @@ import { SignInModal } from "@fider/components";
 import { cache, actions, Failure, Fider } from "@fider/services";
 
 interface CommentInputProps {
-  idea: Post;
+  post: Post;
 }
 
 interface CommentInputState {
@@ -32,7 +32,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   private getCacheKey(): string {
-    return `${CACHE_TITLE_KEY}${this.props.idea.id}`;
+    return `${CACHE_TITLE_KEY}${this.props.post.id}`;
   }
 
   private commentChanged = (content: string) => {
@@ -45,7 +45,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       error: undefined
     });
 
-    const result = await actions.createComment(this.props.idea.number, this.state.content);
+    const result = await actions.createComment(this.props.post.number, this.state.content);
     if (result.ok) {
       cache.remove(this.getCacheKey());
       location.reload();

@@ -34,7 +34,7 @@ export class HomePage extends Page {
   @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
   @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
   @findBy(".signout") private SignOut!: Button;
-  @findBy(".c-idea-list") public IdeaList!: IdeaList;
+  @findBy(".c-post-list") public IdeaList!: IdeaList;
   @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
   @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 

@@ -3,22 +3,22 @@ import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
 import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "@fider/components";
 
-interface IdeaSearchProps {
+interface PostSearchProps {
   exclude?: number[];
-  onChanged(ideaNumber: number): void;
+  onChanged(postNumber: number): void;
 }
 
-interface IdeaSearchState {
-  ideas: Post[];
+interface PostSearchState {
+  posts: Post[];
 }
 
-export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {
+export class PostSearch extends React.Component<PostSearchProps, PostSearchState> {
   private timer?: number;
 
-  constructor(props: IdeaSearchProps) {
+  constructor(props: PostSearchProps) {
     super(props);
     this.state = {
-      ideas: []
+      posts: []
     };
     this.search("");
   }
@@ -34,12 +34,12 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   private search = (searchQuery: string) => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      actions.searchIdeas({ query: searchQuery }).then(res => {
-        const ideas =
+      actions.searchPosts({ query: searchQuery }).then(res => {
+        const posts =
           this.props.exclude && this.props.exclude.length > 0
             ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
             : res.data;
-        this.setState({ ideas });
+        this.setState({ posts });
       });
     }, 200);
   };
@@ -47,7 +47,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
   private returnAll = (options: DropdownItemProps[], value: string) => options;
 
   public render() {
-    const options = this.state.ideas.map(i => {
+    const options = this.state.posts.map(i => {
       const status = PostStatus.Get(i.status);
       return {
         key: i.number,
@@ -68,13 +68,13 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
 
     return (
       <Dropdown
-        className="c-idea-search"
+        className="c-post-search"
         fluid={true}
         selectOnBlur={false}
         selection={true}
         search={this.returnAll}
         options={options}
-        placeholder="Search original idea"
+        placeholder="Search original post"
         onChange={this.onChange}
         onSearchChange={this.onSearchChange}
       />

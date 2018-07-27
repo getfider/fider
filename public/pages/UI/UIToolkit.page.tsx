@@ -11,7 +11,7 @@ import {
   ShowTag,
   Segment,
   Segments,
-  ShowIdeaStatus,
+  ShowPostStatus,
   Moment,
   Loader,
   Form,
@@ -233,22 +233,22 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Statuses</h1>
         <List>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Open} />
+            <ShowPostStatus status={PostStatus.Open} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Planned} />
+            <ShowPostStatus status={PostStatus.Planned} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Started} />
+            <ShowPostStatus status={PostStatus.Started} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Duplicate} />
+            <ShowPostStatus status={PostStatus.Duplicate} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Completed} />
+            <ShowPostStatus status={PostStatus.Completed} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={PostStatus.Declined} />
+            <ShowPostStatus status={PostStatus.Declined} />
           </ListItem>
         </List>
 

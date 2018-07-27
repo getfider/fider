@@ -4,12 +4,12 @@ import { SignInModal } from "@fider/components";
 import { cache, actions, Failure, Fider } from "@fider/services";
 import { CurrentUser } from "@fider/models";
 
-interface IdeaInputProps {
+interface PostInputProps {
   placeholder: string;
   onTitleChanged: (title: string) => void;
 }
 
-interface IdeaInputState {
+interface PostInputState {
   title: string;
   description: string;
   focused: boolean;
@@ -17,13 +17,13 @@ interface IdeaInputState {
   error?: Failure;
 }
 
-const CACHE_TITLE_KEY = "IdeaInput-Title";
-const CACHE_DESCRIPTION_KEY = "IdeaInput-Description";
+const CACHE_TITLE_KEY = "PostInput-Title";
+const CACHE_DESCRIPTION_KEY = "PostInput-Description";
 
-export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
+export class PostInput extends React.Component<PostInputProps, PostInputState> {
   private title?: HTMLInputElement;
 
-  constructor(props: IdeaInputProps) {
+  constructor(props: PostInputProps) {
     super(props);
     this.state = {
       title: (Fider.session.isAuthenticated && cache.get(CACHE_TITLE_KEY)) || "",
@@ -63,11 +63,11 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
 
   private submit = async (event: ButtonClickEvent) => {
     if (this.state.title) {
-      const result = await actions.createIdea(this.state.title, this.state.description);
+      const result = await actions.createPost(this.state.title, this.state.description);
       if (result.ok) {
         this.setState({ error: undefined });
         cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
-        location.href = `/ideas/${result.data.number}/${result.data.slug}`;
+        location.href = `/posts/${result.data.number}/${result.data.slug}`;
         event.preventEnable();
       } else if (result.error) {
         this.setState({ error: result.error });
@@ -87,7 +87,7 @@ export class IdeaInput extends React.Component<IdeaInputProps, IdeaInputState> {
           onChange={this.setDescription}
           value={this.state.description}
           minRows={5}
-          placeholder="Describe your idea (optional)"
+          placeholder="Describe your suggestion (optional)"
         />
         <Button color="positive" onClick={this.submit}>
           Submit

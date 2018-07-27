@@ -4,7 +4,7 @@ import { Button, List, ListItem } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 
 interface NotificationsPanelProps {
-  idea: Post;
+  post: Post;
   subscribed: boolean;
 }
 
@@ -21,7 +21,7 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
   private subscribeOrUnsubscribe = async () => {
     const action = this.state.subscribed ? actions.unsubscribe : actions.subscribe;
 
-    const response = await action(this.props.idea.number);
+    const response = await action(this.props.post.number);
     if (response.ok) {
       this.setState(state => ({
         subscribed: !state.subscribed

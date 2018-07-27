@@ -7,7 +7,7 @@ import { actions } from "@fider/services";
 
 interface DiscussionPanelProps {
   user?: CurrentUser;
-  idea: Post;
+  post: Post;
   comments: Comment[];
 }
 
@@ -21,8 +21,8 @@ export class DiscussionPanel extends React.Component<DiscussionPanelProps, {}> {
       <div className="comments-col">
         <div className="c-comment-list">
           <span className="subtitle">Discussion</span>
-          {this.props.comments.map(c => <ShowComment key={c.id} idea={this.props.idea} comment={c} />)}
-          <CommentInput idea={this.props.idea} />
+          {this.props.comments.map(c => <ShowComment key={c.id} idea={this.props.post} comment={c} />)}
+          <CommentInput post={this.props.post} />
         </div>
       </div>
     );

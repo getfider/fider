@@ -1,20 +1,20 @@
 import { http, Result, querystring } from "@fider/services";
 import { Post } from "@fider/models";
 
-export const getAllIdeas = async (): Promise<Result<Post[]>> => {
-  return await http.get<Post[]>("/api/ideas/search");
+export const getAllPosts = async (): Promise<Result<Post[]>> => {
+  return await http.get<Post[]>("/api/posts/search");
 };
 
-export interface SearchIdeasParams {
+export interface SearchPostsParams {
   query?: string;
   filter?: string;
   limit?: number;
   tags?: string[];
 }
 
-export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Post[]>> => {
+export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
   return await http.get<Post[]>(
-    `/api/ideas/search${querystring.stringify({
+    `/api/posts/search${querystring.stringify({
       t: params.tags,
       q: params.query,
       f: params.filter,
@@ -23,36 +23,36 @@ export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Pos
   );
 };
 
-export const deleteIdea = async (ideaNumber: number, text: string): Promise<Result> => {
+export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
   return http
-    .delete(`/api/ideas/${ideaNumber}`, {
+    .delete(`/api/posts/${postNumber}`, {
       text
     })
-    .then(http.event("idea", "delete"));
+    .then(http.event("post", "delete"));
 };
 
-export const addSupport = async (ideaNumber: number): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/support`).then(http.event("idea", "support"));
+export const addSupport = async (postNumber: number): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/support`).then(http.event("post", "support"));
 };
 
-export const removeSupport = async (ideaNumber: number): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/unsupport`).then(http.event("idea", "unsupport"));
+export const removeSupport = async (postNumber: number): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/unsupport`).then(http.event("post", "unsupport"));
 };
 
-export const subscribe = async (ideaNumber: number): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/subscribe`).then(http.event("idea", "subscribe"));
+export const subscribe = async (postNumber: number): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/subscribe`).then(http.event("post", "subscribe"));
 };
 
-export const unsubscribe = async (ideaNumber: number): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/unsubscribe`).then(http.event("idea", "unsubscribe"));
+export const unsubscribe = async (postNumber: number): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/unsubscribe`).then(http.event("post", "unsubscribe"));
 };
 
-export const createComment = async (ideaNumber: number, content: string): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/comments`, { content }).then(http.event("comment", "create"));
+export const createComment = async (postNumber: number, content: string): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/comments`, { content }).then(http.event("comment", "create"));
 };
 
-export const updateComment = async (ideaNumber: number, commentId: number, content: string): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/comments/${commentId}`, { content }).then(http.event("comment", "update"));
+export const updateComment = async (postNumber: number, commentId: number, content: string): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/comments/${commentId}`, { content }).then(http.event("comment", "update"));
 };
 
 interface SetResponseInput {
@@ -61,20 +61,20 @@ interface SetResponseInput {
   originalNumber: number;
 }
 
-export const respond = async (ideaNumber: number, input: SetResponseInput): Promise<Result> => {
+export const respond = async (postNumber: number, input: SetResponseInput): Promise<Result> => {
   return http
-    .post(`/api/ideas/${ideaNumber}/status`, {
+    .post(`/api/posts/${postNumber}/status`, {
       status: input.status,
       text: input.text,
       originalNumber: input.originalNumber
     })
-    .then(http.event("idea", "respond"));
+    .then(http.event("post", "respond"));
 };
 
-export const createIdea = async (title: string, description: string): Promise<Result<Post>> => {
-  return http.post<Post>(`/api/ideas`, { title, description }).then(http.event("idea", "create"));
+export const createPost = async (title: string, description: string): Promise<Result<Post>> => {
+  return http.post<Post>(`/api/posts`, { title, description }).then(http.event("post", "create"));
 };
 
-export const updateIdea = async (ideaNumber: number, title: string, description: string): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}`, { title, description }).then(http.event("idea", "update"));
+export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}`, { title, description }).then(http.event("post", "update"));
 };

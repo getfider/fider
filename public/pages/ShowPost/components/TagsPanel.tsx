@@ -5,7 +5,7 @@ import { ShowTag, List, ListItem } from "@fider/components";
 import { TagListItem } from "./TagListItem";
 
 interface TagsPanelProps {
-  idea: Post;
+  post: Post;
   tags: Tag[];
 }
 
@@ -21,7 +21,7 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     this.state = {
       canEdit: Fider.session.isAuthenticated && Fider.session.user.isCollaborator && this.props.tags.length > 0,
       isEditing: false,
-      assignedTags: this.props.tags.filter(t => this.props.idea.tags.indexOf(t.slug) >= 0)
+      assignedTags: this.props.tags.filter(t => this.props.post.tags.indexOf(t.slug) >= 0)
     };
   }
 
@@ -29,12 +29,12 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     const idx = this.state.assignedTags.indexOf(tag);
     let assignedTags: Tag[] = [];
     if (idx >= 0) {
-      const response = await actions.unassignTag(tag.slug, this.props.idea.number);
+      const response = await actions.unassignTag(tag.slug, this.props.post.number);
       if (response.ok) {
         assignedTags = this.state.assignedTags.splice(idx, 1) && this.state.assignedTags;
       }
     } else {
-      const response = await actions.assignTag(tag.slug, this.props.idea.number);
+      const response = await actions.assignTag(tag.slug, this.props.post.number);
       if (response.ok) {
         assignedTags = this.state.assignedTags.concat(tag);
       }
