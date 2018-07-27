@@ -22,7 +22,7 @@ interface ListIdeasProps {
 const ListIdeaItem = (props: { idea: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
     <ListItem>
-      <SupportCounter idea={props.idea} />
+      <SupportCounter post={props.idea} />
       <div className="c-list-item-content">
         {props.idea.totalComments > 0 && (
           <div className="info right">

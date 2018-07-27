@@ -86,7 +86,7 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
         <div className="header-col">
           <List>
             <ListItem>
-              <SupportCounter idea={this.props.idea} />
+              <SupportCounter post={this.props.idea} />
 
               <div className="idea-header">
                 {this.state.editMode ? (
