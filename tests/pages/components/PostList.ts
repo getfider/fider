@@ -1,7 +1,7 @@
 import { WebComponent, BrowserTab, pageHasLoaded } from "../../lib";
-import { ShowIdeaPage } from "..";
+import { ShowPostPage } from "..";
 
-export class IdeaItem {
+export class PostItem {
   public Vote: WebComponent;
   private Link: WebComponent;
 
@@ -12,14 +12,14 @@ export class IdeaItem {
 
   public async navigate(): Promise<void> {
     await this.Link.click();
-    await this.tab.wait(pageHasLoaded(ShowIdeaPage));
+    await this.tab.wait(pageHasLoaded(ShowPostPage));
   }
 }
 
-export class IdeaList {
+export class PostList {
   constructor(protected tab: BrowserTab, public selector: string) {}
 
-  private async findIdeaIndex(title: string): Promise<number> {
+  private async findPostIndex(title: string): Promise<number> {
     return this.tab.evaluate<number>(
       (text: string, selector: string) => {
         const elements = document.querySelectorAll(`${selector} .c-list-item-title`);
@@ -34,8 +34,8 @@ export class IdeaList {
     );
   }
 
-  public async get(title: string): Promise<IdeaItem> {
-    const idx = await this.findIdeaIndex(title);
-    return new IdeaItem(this.tab, `${this.selector} > .c-list-item:nth-child(${idx + 1})`);
+  public async get(title: string): Promise<PostItem> {
+    const idx = await this.findPostIndex(title);
+    return new PostItem(this.tab, `${this.selector} > .c-list-item:nth-child(${idx + 1})`);
   }
 }

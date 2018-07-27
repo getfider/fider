@@ -8,7 +8,7 @@ import {
   elementIsVisible,
   mailgun
 } from "../lib";
-import { HomePage, ShowIdeaPage } from "../pages";
+import { HomePage, ShowPostPage } from "../pages";
 
 export interface TestContext {
   browser1: Browser;

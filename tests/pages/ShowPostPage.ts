@@ -1,12 +1,12 @@
 import { BrowserTab, Page, WebComponent, TextInput, Button, findBy, elementIsVisible, DropDownList } from "../lib";
 import { CommentList } from "./components";
 
-export class ShowIdeaPage extends Page {
+export class ShowPostPage extends Page {
   constructor(tab: BrowserTab) {
     super(tab);
   }
 
-  @findBy(".idea-header h1") public Title!: WebComponent;
+  @findBy(".post-header h1") public Title!: WebComponent;
   @findBy(".description") public Description!: WebComponent;
   @findBy(".c-segment.l-response .status-label") public Status!: WebComponent;
   @findBy(".c-segment.l-response .content") public ResponseText!: WebComponent;

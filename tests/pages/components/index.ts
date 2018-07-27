@@ -1,2 +1,2 @@
-export * from "./IdeaList";
+export * from "./PostList";
 export * from "./CommentList";
