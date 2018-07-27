@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IdeaStatus, Post } from "@fider/models";
+import { PostStatus, Post } from "@fider/models";
 import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
@@ -47,7 +47,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   };
 
   public render() {
-    const status = IdeaStatus.Get(this.props.idea.status);
+    const status = PostStatus.Get(this.props.idea.status);
     if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return null;
     }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Post, IdeaStatus } from "@fider/models";
+import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
 import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "@fider/components";
 
@@ -48,7 +48,7 @@ export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState
 
   public render() {
     const options = this.state.ideas.map(i => {
-      const status = IdeaStatus.Get(i.status);
+      const status = PostStatus.Get(i.status);
       return {
         key: i.number,
         text: i.title,

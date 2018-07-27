@@ -1,7 +1,7 @@
 import "./ListIdeas.scss";
 
 import * as React from "react";
-import { Post, Tag, IdeaStatus, CurrentUser } from "@fider/models";
+import { Post, Tag, PostStatus, CurrentUser } from "@fider/models";
 import {
   ShowTag,
   ShowIdeaResponse,

@@ -1,7 +1,7 @@
 import "./Home.page.scss";
 
 import * as React from "react";
-import { Post, Tag, IdeaStatus } from "@fider/models";
+import { Post, Tag, PostStatus } from "@fider/models";
 import { MultiLineText } from "@fider/components";
 import { IdeaInput, ListIdeas, IdeasContainer } from "./";
 import { actions, Fider } from "@fider/services";
@@ -46,7 +46,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
       return true;
     }
 
-    if (len === 1 && IdeaStatus.Deleted.value in this.props.countPerStatus) {
+    if (len === 1 && PostStatus.Deleted.value in this.props.countPerStatus) {
       return true;
     }
 

@@ -1,7 +1,7 @@
 import "./SupportCounter.scss";
 
 import * as React from "react";
-import { Post, IdeaStatus } from "@fider/models";
+import { Post, PostStatus } from "@fider/models";
 import { actions, device, classSet, Fider } from "@fider/services";
 import { SignInModal } from "@fider/components";
 
@@ -43,7 +43,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   };
 
   public render() {
-    const status = IdeaStatus.Get(this.props.idea.status);
+    const status = PostStatus.Get(this.props.idea.status);
 
     const className = classSet({
       "m-supported": !status.closed && this.state.supported,

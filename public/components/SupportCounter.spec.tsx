@@ -1,6 +1,6 @@
 import * as React from "react";
 import { shallow } from "enzyme";
-import { Post, UserRole, UserStatus, IdeaStatus } from "@fider/models";
+import { Post, UserRole, UserStatus, PostStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
@@ -14,7 +14,7 @@ beforeEach(() => {
     title: "Add TypeScript",
     description: "",
     createdOn: "",
-    status: IdeaStatus.Started.value,
+    status: PostStatus.Started.value,
     user: {
       id: 5,
       name: "John",
@@ -51,7 +51,7 @@ describe("<SupportCounter />", () => {
   });
 
   test("when idea is closed", () => {
-    idea.status = IdeaStatus.Completed.value;
+    idea.status = PostStatus.Completed.value;
     const wrapper = shallow(<SupportCounter idea={idea} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("5");

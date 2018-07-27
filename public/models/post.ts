@@ -10,13 +10,13 @@ export interface Post {
   status: number;
   user: User;
   viewerSupported: boolean;
-  response: IdeaResponse | null;
+  response: PostResponse | null;
   totalSupporters: number;
   totalComments: number;
   tags: string[];
 }
 
-export class IdeaStatus {
+export class PostStatus {
   constructor(
     public value: number,
     public title: string,
@@ -26,34 +26,34 @@ export class IdeaStatus {
     public filterable: boolean
   ) {}
 
-  public static Open = new IdeaStatus(0, "Open", "open", false, false, false);
-  public static Planned = new IdeaStatus(4, "Planned", "planned", true, false, true);
-  public static Started = new IdeaStatus(1, "Started", "started", true, false, true);
-  public static Completed = new IdeaStatus(2, "Completed", "completed", true, true, true);
-  public static Declined = new IdeaStatus(3, "Declined", "declined", true, true, true);
-  public static Duplicate = new IdeaStatus(5, "Duplicate", "duplicate", true, true, false);
-  public static Deleted = new IdeaStatus(6, "Deleted", "deleted", false, true, false);
+  public static Open = new PostStatus(0, "Open", "open", false, false, false);
+  public static Planned = new PostStatus(4, "Planned", "planned", true, false, true);
+  public static Started = new PostStatus(1, "Started", "started", true, false, true);
+  public static Completed = new PostStatus(2, "Completed", "completed", true, true, true);
+  public static Declined = new PostStatus(3, "Declined", "declined", true, true, true);
+  public static Duplicate = new PostStatus(5, "Duplicate", "duplicate", true, true, false);
+  public static Deleted = new PostStatus(6, "Deleted", "deleted", false, true, false);
 
-  public static Get(value: number): IdeaStatus {
-    for (const status of IdeaStatus.All) {
+  public static Get(value: number): PostStatus {
+    for (const status of PostStatus.All) {
       if (status.value === value) {
         return status;
       }
     }
-    throw new Error(`IdeaStatus not found for value ${value}.`);
+    throw new Error(`PostStatus not found for value ${value}.`);
   }
 
   public static All = [
-    IdeaStatus.Open,
-    IdeaStatus.Planned,
-    IdeaStatus.Started,
-    IdeaStatus.Completed,
-    IdeaStatus.Duplicate,
-    IdeaStatus.Declined
+    PostStatus.Open,
+    PostStatus.Planned,
+    PostStatus.Started,
+    PostStatus.Completed,
+    PostStatus.Duplicate,
+    PostStatus.Declined
   ];
 }
 
-export interface IdeaResponse {
+export interface PostResponse {
   user: User;
   text: string;
   respondedOn: Date;

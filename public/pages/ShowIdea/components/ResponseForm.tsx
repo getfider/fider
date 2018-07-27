@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
-import { Comment, Post, IdeaStatus, User } from "@fider/models";
+import { Comment, Post, PostStatus, User } from "@fider/models";
 import { IdeaSearch } from "../";
 
 import { actions, Failure } from "@fider/services";
@@ -70,7 +70,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       </Button>
     );
 
-    const options = IdeaStatus.All.map(s => ({
+    const options = PostStatus.All.map(s => ({
       value: s.value.toString(),
       label: s.title
     }));
@@ -86,7 +86,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
               options={options}
               onChange={this.setStatus}
             />
-            {this.state.status === IdeaStatus.Duplicate.value ? (
+            {this.state.status === PostStatus.Duplicate.value ? (
               <>
                 <Field>
                   <IdeaSearch exclude={[this.props.idea.number]} onChanged={this.setOriginalNumber} />

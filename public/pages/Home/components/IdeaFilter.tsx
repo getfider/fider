@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Post, IdeaStatus, CurrentUser } from "@fider/models";
+import { Post, PostStatus, CurrentUser } from "@fider/models";
 import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 import { Fider } from "@fider/services";
 
@@ -30,7 +30,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
     }
 
-    IdeaStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
+    PostStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
         text: s.title.toLowerCase(),
         value: s.slug,

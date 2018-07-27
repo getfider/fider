@@ -1,11 +1,11 @@
 import "./ShowIdeaResponse.scss";
 
 import * as React from "react";
-import { User, IdeaResponse, IdeaStatus } from "@fider/models";
+import { User, PostResponse, PostStatus } from "@fider/models";
 import { Gravatar, MultiLineText, Moment, UserName, Segment } from "@fider/components/common";
 
 interface ShowIdeaStatusProps {
-  status: IdeaStatus;
+  status: PostStatus;
 }
 
 export const ShowIdeaStatus = (props: ShowIdeaStatusProps) => {
@@ -21,7 +21,7 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
   if (!original) {
     return null;
   }
-  const status = IdeaStatus.Get(original.status);
+  const status = PostStatus.Get(original.status);
 
   return (
     <div className="content">
@@ -32,7 +32,7 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
 
 interface IdeaResponseProps {
   status: number;
-  response: IdeaResponse | null;
+  response: PostResponse | null;
 }
 
 const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
@@ -48,14 +48,14 @@ const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
 };
 
 export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  const status = IdeaStatus.Get(props.status);
+  const status = PostStatus.Get(props.status);
 
   if (props.response && status.show) {
     return (
       <Segment className="l-response">
         <ShowIdeaStatus status={status} />
         <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
-        {status === IdeaStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
+        {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </Segment>
     );
   }
