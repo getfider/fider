@@ -14,7 +14,7 @@ type Services struct {
 	Tags          storage.Tag
 	Tenants       storage.Tenant
 	Notifications storage.Notification
-	Ideas         storage.Idea
+	Posts         storage.Post
 	Emailer       email.Sender
 }
 
@@ -23,7 +23,7 @@ func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 	s.Users.SetCurrentTenant(tenant)
 	s.Tags.SetCurrentTenant(tenant)
 	s.Tenants.SetCurrentTenant(tenant)
-	s.Ideas.SetCurrentTenant(tenant)
+	s.Posts.SetCurrentTenant(tenant)
 	s.Notifications.SetCurrentTenant(tenant)
 }
 
@@ -32,6 +32,6 @@ func (s *Services) SetCurrentUser(user *models.User) {
 	s.Users.SetCurrentUser(user)
 	s.Tags.SetCurrentUser(user)
 	s.Tenants.SetCurrentUser(user)
-	s.Ideas.SetCurrentUser(user)
+	s.Posts.SetCurrentUser(user)
 	s.Notifications.SetCurrentUser(user)
 }

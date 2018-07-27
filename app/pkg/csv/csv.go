@@ -11,7 +11,7 @@ import (
 )
 
 //FromPosts return a byte array of CSV file containing all posts
-func FromPosts(posts []*models.Idea) ([]byte, error) {
+func FromPosts(posts []*models.Post) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	writer := gocsv.NewWriter(buffer)
 

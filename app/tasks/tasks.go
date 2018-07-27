@@ -64,27 +64,27 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 	})
 }
 
-//NotifyAboutNewIdea sends a notification (web and email) to subscribers
-func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
-	return describe("Notify about new idea", func(c *worker.Context) error {
+//NotifyAboutNewPost sends a notification (web and email) to subscribers
+func NotifyAboutNewPost(post *models.Post) worker.Task {
+	return describe("Notify about new post", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewIdea)
+		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("New idea: **%s**", idea.Title)
-		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		title := fmt.Sprintf("New post: **%s**", post.Title)
+		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewIdea)
+		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -97,37 +97,37 @@ func NotifyAboutNewIdea(idea *models.Idea) worker.Task {
 		}
 
 		params := email.Params{
-			"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-			"content": markdown.Parse(idea.Description),
-			"view":    linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"content": markdown.Parse(post.Description),
+			"view":    linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "new_idea", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c.Tenant(), "new_post", params, c.User().Name, to)
 	})
 }
 
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
-func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker.Task {
+func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, idea.Title)
-		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, post.Title)
+		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -140,10 +140,10 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
+			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
 			"content":     markdown.Parse(comment.Content),
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
@@ -152,42 +152,42 @@ func NotifyAboutNewComment(idea *models.Idea, comment *models.NewComment) worker
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
-	return describe("Notify about idea status change", func(c *worker.Context) error {
+func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
+	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
-		if prevStatus == idea.Status {
+		if prevStatus == post.Status {
 			return nil
 		}
 
 		// Web notification
-		users, err := c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, idea.Title, models.GetPostStatusName(idea.Status))
-		link := fmt.Sprintf("/ideas/%d/%s", idea.Number, idea.Slug)
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, post.Title, models.GetPostStatusName(post.Status))
+		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, idea.ID); err != nil {
+				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Ideas.GetActiveSubscribers(idea.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		var duplicate template.HTML
-		if idea.Status == models.IdeaDuplicate {
-			originalIdea, err := c.Services().Ideas.GetByNumber(idea.Response.Original.Number)
+		if post.Status == models.PostDuplicate {
+			originalPost, err := c.Services().Posts.GetByNumber(post.Response.Original.Number)
 			if err != nil {
 				return c.Failure(err)
 			}
-			duplicate = linkWithText(originalIdea.Title, c.BaseURL(), "/ideas/%d/%s", originalIdea.Number, originalIdea.Slug)
+			duplicate = linkWithText(originalPost.Title, c.BaseURL(), "/posts/%d/%s", originalPost.Number, originalPost.Slug)
 		}
 
 		to := make([]email.Recipient, 0)
@@ -198,12 +198,12 @@ func NotifyAboutStatusChange(idea *models.Idea, prevStatus int) worker.Task {
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, idea.Title),
-			"content":     markdown.Parse(idea.Response.Text),
-			"status":      models.GetPostStatusName(idea.Status),
+			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"content":     markdown.Parse(post.Response.Text),
+			"status":      models.GetPostStatusName(post.Status),
 			"duplicate":   duplicate,
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/ideas/%d/%s", idea.Number, idea.Slug),
+			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 

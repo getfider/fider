@@ -254,14 +254,14 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 	return result, nil
 }
 
-// HasSubscribedTo returns true if current user is receiving notification from specific idea
-func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+// HasSubscribedTo returns true if current user is receiving notification from specific post
+func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
 	if s.user == nil {
 		return false, nil
 	}
 
 	var status int
-	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, ideaID)
+	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, postID)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return false, errors.Wrap(err, "failed to get subscription status")
 	}

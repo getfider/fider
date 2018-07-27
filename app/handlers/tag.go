@@ -75,7 +75,7 @@ func AssignTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.AssignTag(input.Tag, input.Idea)
+		err := c.Services().Tags.AssignTag(input.Tag, input.Post)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -92,7 +92,7 @@ func UnassignTag() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tags.UnassignTag(input.Tag, input.Idea)
+		err := c.Services().Tags.UnassignTag(input.Tag, input.Post)
 		if err != nil {
 			return c.Failure(err)
 		}

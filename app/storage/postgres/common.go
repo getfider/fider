@@ -22,9 +22,9 @@ func getFilterData(filter string) (string, []int, string) {
 		sort      string
 	)
 	statuses := []int{
-		models.IdeaOpen,
-		models.IdeaStarted,
-		models.IdeaPlanned,
+		models.PostOpen,
+		models.PostStarted,
+		models.PostPlanned,
 	}
 	switch filter {
 	case "recent":
@@ -38,24 +38,24 @@ func getFilterData(filter string) (string, []int, string) {
 		sort = "comments"
 	case "planned":
 		sort = "response_date"
-		statuses = []int{models.IdeaPlanned}
+		statuses = []int{models.PostPlanned}
 	case "started":
 		sort = "response_date"
-		statuses = []int{models.IdeaStarted}
+		statuses = []int{models.PostStarted}
 	case "completed":
 		sort = "response_date"
-		statuses = []int{models.IdeaCompleted}
+		statuses = []int{models.PostCompleted}
 	case "declined":
 		sort = "response_date"
-		statuses = []int{models.IdeaDeclined}
+		statuses = []int{models.PostDeclined}
 	case "all":
 		sort = "id"
 		statuses = []int{
-			models.IdeaOpen,
-			models.IdeaStarted,
-			models.IdeaPlanned,
-			models.IdeaCompleted,
-			models.IdeaDeclined,
+			models.PostOpen,
+			models.PostStarted,
+			models.PostPlanned,
+			models.PostCompleted,
+			models.PostDeclined,
 		}
 	case "trending":
 		fallthrough

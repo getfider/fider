@@ -12,29 +12,29 @@ type Base interface {
 	SetCurrentUser(*models.User)
 }
 
-// Idea contains read and write operations for ideas
-type Idea interface {
+// Post contains read and write operations for posts
+type Post interface {
 	Base
-	GetByID(ideaID int) (*models.Idea, error)
-	GetBySlug(slug string) (*models.Idea, error)
-	GetByNumber(number int) (*models.Idea, error)
-	GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error)
-	Search(query, filter, limit string, tags []string) ([]*models.Idea, error)
-	GetAll() ([]*models.Idea, error)
+	GetByID(postID int) (*models.Post, error)
+	GetBySlug(slug string) (*models.Post, error)
+	GetByNumber(number int) (*models.Post, error)
+	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
+	Search(query, filter, limit string, tags []string) ([]*models.Post, error)
+	GetAll() ([]*models.Post, error)
 	CountPerStatus() (map[int]int, error)
-	Add(title, description string) (*models.Idea, error)
-	Update(idea *models.Idea, title, description string) (*models.Idea, error)
-	AddComment(idea *models.Idea, content string) (int, error)
+	Add(title, description string) (*models.Post, error)
+	Update(post *models.Post, title, description string) (*models.Post, error)
+	AddComment(post *models.Post, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
-	AddSupporter(idea *models.Idea, user *models.User) error
-	RemoveSupporter(idea *models.Idea, user *models.User) error
-	AddSubscriber(idea *models.Idea, user *models.User) error
-	RemoveSubscriber(idea *models.Idea, user *models.User) error
+	AddSupporter(post *models.Post, user *models.User) error
+	RemoveSupporter(post *models.Post, user *models.User) error
+	AddSubscriber(post *models.Post, user *models.User) error
+	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	SetResponse(idea *models.Idea, text string, status int) error
-	MarkAsDuplicate(idea *models.Idea, original *models.Idea) error
-	IsReferenced(idea *models.Idea) (bool, error)
+	SetResponse(post *models.Post, text string, status int) error
+	MarkAsDuplicate(post *models.Post, original *models.Post) error
+	IsReferenced(post *models.Post) (bool, error)
 	SupportedBy() ([]int, error)
 }
 
@@ -53,7 +53,7 @@ type User interface {
 	GetAll() ([]*models.User, error)
 	GetUserSettings() (map[string]string, error)
 	UpdateSettings(settings map[string]string) error
-	HasSubscribedTo(ideaID int) (bool, error)
+	HasSubscribedTo(postID int) (bool, error)
 }
 
 // Tenant contains read and write operations for tenants
@@ -84,16 +84,16 @@ type Tag interface {
 	GetBySlug(slug string) (*models.Tag, error)
 	Update(tag *models.Tag, name, color string, isPublic bool) (*models.Tag, error)
 	Delete(tag *models.Tag) error
-	GetAssigned(idea *models.Idea) ([]*models.Tag, error)
-	AssignTag(tag *models.Tag, idea *models.Idea) error
-	UnassignTag(tag *models.Tag, idea *models.Idea) error
+	GetAssigned(post *models.Post) ([]*models.Tag, error)
+	AssignTag(tag *models.Tag, post *models.Post) error
+	UnassignTag(tag *models.Tag, post *models.Post) error
 	GetAll() ([]*models.Tag, error)
 }
 
 // Notification contains read and write operations for notifications
 type Notification interface {
 	Base
-	Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error)
+	Insert(user *models.User, title, link string, postID int) (*models.Notification, error)
 	MarkAsRead(id int) error
 	MarkAllAsRead() error
 	TotalUnread() (int, error)

@@ -13,7 +13,7 @@ import (
 func TestExportPostsToCSV_Empty(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Idea{}
+	posts := []*models.Post{}
 	expected, err := ioutil.ReadFile("./testdata/empty.csv")
 	Expect(err).IsNil()
 	actual, err := csv.FromPosts(posts)
@@ -24,7 +24,7 @@ func TestExportPostsToCSV_Empty(t *testing.T) {
 func TestExportPostsToCSV_OnePost(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Idea{
+	posts := []*models.Post{
 		declinedPost,
 	}
 
@@ -38,7 +38,7 @@ func TestExportPostsToCSV_OnePost(t *testing.T) {
 func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	RegisterT(t)
 
-	posts := []*models.Idea{
+	posts := []*models.Post{
 		declinedPost,
 		openPost,
 		duplicatePost,
@@ -51,7 +51,7 @@ func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	Expect(actual).Equals(expected)
 }
 
-var declinedPost = &models.Idea{
+var declinedPost = &models.Post{
 	Number:      10,
 	Title:       "Go is fast",
 	Description: "Very tiny description",
@@ -61,8 +61,8 @@ var declinedPost = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaDeclined,
-	Response: &models.IdeaResponse{
+	Status:          models.PostDeclined,
+	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
 		RespondedOn: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
 		User: &models.User{
@@ -72,7 +72,7 @@ var declinedPost = &models.Idea{
 	Tags: []string{"easy", "ignored"},
 }
 
-var openPost = &models.Idea{
+var openPost = &models.Post{
 	Number:      15,
 	Title:       "Go is great",
 	Description: "",
@@ -82,10 +82,10 @@ var openPost = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaOpen,
+	Status:          models.PostOpen,
 }
 
-var duplicatePost = &models.Idea{
+var duplicatePost = &models.Post{
 	Number:      20,
 	Title:       "Go is easy",
 	Description: "",
@@ -95,14 +95,14 @@ var duplicatePost = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaDuplicate,
-	Response: &models.IdeaResponse{
+	Status:          models.PostDuplicate,
+	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
 		RespondedOn: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
 		User: &models.User{
 			Name: "Arya Stark",
 		},
-		Original: &models.OriginalIdea{
+		Original: &models.OriginalPost{
 			Number: 99,
 			Title:  "Go is very easy",
 		},

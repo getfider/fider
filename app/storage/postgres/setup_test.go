@@ -15,7 +15,7 @@ var trx *dbx.Trx
 
 var tenants *postgres.TenantStorage
 var users *postgres.UserStorage
-var ideas *postgres.IdeaStorage
+var posts *postgres.PostStorage
 var tags *postgres.TagStorage
 var notifications *postgres.NotificationStorage
 
@@ -33,7 +33,7 @@ func SetupDatabaseTest(t *testing.T) {
 
 	tenants = postgres.NewTenantStorage(trx)
 	users = postgres.NewUserStorage(trx)
-	ideas = postgres.NewIdeaStorage(trx)
+	posts = postgres.NewPostStorage(trx)
 	tags = postgres.NewTagStorage(trx)
 	notifications = postgres.NewNotificationStorage(trx)
 

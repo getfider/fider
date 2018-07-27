@@ -82,9 +82,9 @@ func (s *TagStorage) Delete(tag *models.Tag) error {
 	return nil
 }
 
-// AssignTag adds a tag to an idea
-func (s *TagStorage) AssignTag(tag *models.Tag, idea *models.Idea) error {
-	assigned := s.assigned[idea.ID]
+// AssignTag adds a tag to an post
+func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
+	assigned := s.assigned[post.ID]
 	if assigned != nil {
 		for _, assignedTag := range assigned {
 			if assignedTag.ID == tag.ID {
@@ -93,17 +93,17 @@ func (s *TagStorage) AssignTag(tag *models.Tag, idea *models.Idea) error {
 		}
 	}
 
-	s.assigned[idea.ID] = append(s.assigned[idea.ID], tag)
+	s.assigned[post.ID] = append(s.assigned[post.ID], tag)
 	return nil
 }
 
-// UnassignTag removes a tag from an idea
-func (s *TagStorage) UnassignTag(tag *models.Tag, idea *models.Idea) error {
-	assigned := s.assigned[idea.ID]
+// UnassignTag removes a tag from an post
+func (s *TagStorage) UnassignTag(tag *models.Tag, post *models.Post) error {
+	assigned := s.assigned[post.ID]
 	if assigned != nil {
 		for i, assignedTag := range assigned {
 			if assignedTag.ID == tag.ID {
-				s.assigned[idea.ID] = append(s.assigned[idea.ID][:i], s.assigned[idea.ID][i+1:]...)
+				s.assigned[post.ID] = append(s.assigned[post.ID][:i], s.assigned[post.ID][i+1:]...)
 				return nil
 			}
 		}
@@ -111,9 +111,9 @@ func (s *TagStorage) UnassignTag(tag *models.Tag, idea *models.Idea) error {
 	return nil
 }
 
-// GetAssigned returns all tags assigned to given idea
-func (s *TagStorage) GetAssigned(idea *models.Idea) ([]*models.Tag, error) {
-	assigned := s.assigned[idea.ID]
+// GetAssigned returns all tags assigned to given post
+func (s *TagStorage) GetAssigned(post *models.Post) ([]*models.Tag, error) {
+	assigned := s.assigned[post.ID]
 	if assigned != nil {
 		return assigned, nil
 	}

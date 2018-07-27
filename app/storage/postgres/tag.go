@@ -97,7 +97,7 @@ func (s *TagStorage) Update(tag *models.Tag, name, color string, isPublic bool) 
 func (s *TagStorage) Delete(tag *models.Tag) error {
 	_, err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrap(err, "failed to remove tag with id '%d' from all ideas", tag.ID)
+		return errors.Wrap(err, "failed to remove tag with id '%d' from all posts", tag.ID)
 	}
 
 	_, err = s.trx.Execute(`DELETE FROM tags WHERE id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
@@ -107,9 +107,9 @@ func (s *TagStorage) Delete(tag *models.Tag) error {
 	return nil
 }
 
-// AssignTag adds a tag to an idea
-func (s *TagStorage) AssignTag(tag *models.Tag, idea *models.Idea) error {
-	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2 AND tenant_id = $3", idea.ID, tag.ID, s.tenant.ID)
+// AssignTag adds a tag to an post
+func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2 AND tenant_id = $3", post.ID, tag.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to check if tag is already assigned")
 	}
@@ -120,30 +120,30 @@ func (s *TagStorage) AssignTag(tag *models.Tag, idea *models.Idea) error {
 
 	_, err = s.trx.Execute(
 		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
-		tag.ID, idea.ID, time.Now(), s.user.ID, s.tenant.ID,
+		tag.ID, post.ID, time.Now(), s.user.ID, s.tenant.ID,
 	)
 
 	if err != nil {
-		return errors.Wrap(err, "failed to assign tag to idea")
+		return errors.Wrap(err, "failed to assign tag to post")
 	}
 	return nil
 }
 
-// UnassignTag removes a tag from an idea
-func (s *TagStorage) UnassignTag(tag *models.Tag, idea *models.Idea) error {
+// UnassignTag removes a tag from an post
+func (s *TagStorage) UnassignTag(tag *models.Tag, post *models.Post) error {
 	_, err := s.trx.Execute(
 		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2 AND tenant_id = $3`,
-		tag.ID, idea.ID, s.tenant.ID,
+		tag.ID, post.ID, s.tenant.ID,
 	)
 
 	if err != nil {
-		return errors.Wrap(err, "failed to unassign tag from idea")
+		return errors.Wrap(err, "failed to unassign tag from post")
 	}
 	return nil
 }
 
-// GetAssigned returns all tags assigned to given idea
-func (s *TagStorage) GetAssigned(idea *models.Idea) ([]*models.Tag, error) {
+// GetAssigned returns all tags assigned to given post
+func (s *TagStorage) GetAssigned(post *models.Post) ([]*models.Tag, error) {
 	tags, err := s.getTags(`
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
@@ -152,7 +152,7 @@ func (s *TagStorage) GetAssigned(idea *models.Idea) ([]*models.Tag, error) {
 		AND it.tenant_id = t.tenant_id
 		WHERE it.idea_id = $1 AND t.tenant_id = $2
 		ORDER BY t.name
-	`, idea.ID, s.tenant.ID)
+	`, post.ID, s.tenant.ID)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get assigned tags")

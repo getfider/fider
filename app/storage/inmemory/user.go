@@ -137,8 +137,8 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 	return make(map[string]string, 0), nil
 }
 
-// HasSubscribedTo returns true if current user is receiving notification from specific idea
-func (s *UserStorage) HasSubscribedTo(ideaID int) (bool, error) {
+// HasSubscribedTo returns true if current user is receiving notification from specific post
+func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
 	return false, nil
 }
 

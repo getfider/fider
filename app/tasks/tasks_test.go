@@ -108,16 +108,16 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	})
 }
 
-func TestNotifyAboutNewIdeaTask(t *testing.T) {
+func TestNotifyAboutNewPostTask(t *testing.T) {
 	RegisterT(t)
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.JonSnow)
-	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	post, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
 
-	services.Ideas.AddSubscriber(idea, mock.AryaStark)
+	services.Posts.AddSubscriber(post, mock.AryaStark)
 	emailer := services.Emailer.(*noop.Sender)
-	task := tasks.NotifyAboutNewIdea(idea)
+	task := tasks.NotifyAboutNewPost(post)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -127,12 +127,12 @@ func TestNotifyAboutNewIdeaTask(t *testing.T) {
 
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
-	Expect(emailer.Requests[0].TemplateName).Equals("new_idea")
+	Expect(emailer.Requests[0].TemplateName).Equals("new_post")
 	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":   "[Demonstration] Add support for TypeScript",
 		"content": template.HTML("<p>TypeScript is great, please add support for it</p>"),
-		"view":    template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"view":    template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":  template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 	})
 	Expect(emailer.Requests[0].From).Equals("Jon Snow")
@@ -149,9 +149,9 @@ func TestNotifyAboutNewIdeaTask(t *testing.T) {
 	Expect(notifications).HasLen(1)
 	Expect(notifications[0].ID).Equals(1)
 	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
 	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("New idea: **Add support for TypeScript**")
+	Expect(notifications[0].Title).Equals("New post: **Add support for TypeScript**")
 }
 
 func TestNotifyAboutNewCommentTask(t *testing.T) {
@@ -159,14 +159,14 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.JonSnow)
-	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	post, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
 	comment := &models.NewComment{
-		Number:  idea.Number,
+		Number:  post.Number,
 		Content: "I agree",
 	}
 
 	emailer := services.Emailer.(*noop.Sender)
-	task := tasks.NotifyAboutNewComment(idea, comment)
+	task := tasks.NotifyAboutNewComment(post, comment)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -181,9 +181,9 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "[Demonstration] Add support for TypeScript",
 		"content":     template.HTML("<p>I agree</p>"),
-		"view":        template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"view":        template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
-		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>unsubscribe from it</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>"),
 	})
 	Expect(emailer.Requests[0].From).Equals("Arya Stark")
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -199,7 +199,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(notifications).HasLen(1)
 	Expect(notifications[0].ID).Equals(1)
 	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
 	Expect(notifications[0].Read).IsFalse()
 	Expect(notifications[0].Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
 }
@@ -209,11 +209,11 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.AryaStark)
-	idea, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
-	services.Ideas.SetResponse(idea, "Planned for next release.", models.IdeaPlanned)
+	post, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	services.Posts.SetResponse(post, "Planned for next release.", models.PostPlanned)
 
 	emailer := services.Emailer.(*noop.Sender)
-	task := tasks.NotifyAboutStatusChange(idea, models.IdeaOpen)
+	task := tasks.NotifyAboutStatusChange(post, models.PostOpen)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -230,9 +230,9 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		"content":     template.HTML("<p>Planned for next release.</p>"),
 		"duplicate":   template.HTML(""),
 		"status":      "Planned",
-		"view":        template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>View it on your browser</a>"),
+		"view":        template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
-		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>unsubscribe from it</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>"),
 	})
 	Expect(emailer.Requests[0].From).Equals("Jon Snow")
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -248,7 +248,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(notifications).HasLen(1)
 	Expect(notifications[0].ID).Equals(1)
 	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/ideas/1/add-support-for-typescript")
+	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
 	Expect(notifications[0].Read).IsFalse()
 	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **Planned**")
 }
@@ -258,12 +258,12 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.AryaStark)
-	idea1, _ := services.Ideas.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
-	idea2, _ := services.Ideas.Add("I need TypeScript", "")
-	services.Ideas.MarkAsDuplicate(idea2, idea1)
+	post1, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	post2, _ := services.Posts.Add("I need TypeScript", "")
+	services.Posts.MarkAsDuplicate(post2, post1)
 
 	emailer := services.Emailer.(*noop.Sender)
-	task := tasks.NotifyAboutStatusChange(idea2, models.IdeaOpen)
+	task := tasks.NotifyAboutStatusChange(post2, models.PostOpen)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -278,11 +278,11 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "[Demonstration] I need TypeScript",
 		"content":     template.HTML(""),
-		"duplicate":   template.HTML("<a href='http://domain.com/ideas/1/add-support-for-typescript'>Add support for TypeScript</a>"),
+		"duplicate":   template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>Add support for TypeScript</a>"),
 		"status":      "Duplicate",
-		"view":        template.HTML("<a href='http://domain.com/ideas/2/i-need-typescript'>View it on your browser</a>"),
+		"view":        template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
-		"unsubscribe": template.HTML("<a href='http://domain.com/ideas/2/i-need-typescript'>unsubscribe from it</a>"),
+		"unsubscribe": template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>unsubscribe from it</a>"),
 	})
 	Expect(emailer.Requests[0].From).Equals("Jon Snow")
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -298,7 +298,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(notifications).HasLen(1)
 	Expect(notifications[0].ID).Equals(1)
 	Expect(notifications[0].CreatedOn).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/ideas/2/i-need-typescript")
+	Expect(notifications[0].Link).Equals("/posts/2/i-need-typescript")
 	Expect(notifications[0].Read).IsFalse()
 	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **Duplicate**")
 }

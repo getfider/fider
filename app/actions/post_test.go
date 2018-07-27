@@ -8,39 +8,39 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-func TestCreateNewIdea_InvalidIdeaTitles(t *testing.T) {
+func TestCreateNewPost_InvalidPostTitles(t *testing.T) {
 	RegisterT(t)
 
 	services.SetCurrentUser(&models.User{ID: 1})
-	services.Ideas.Add("My great idea", "With a great description")
+	services.Posts.Add("My great post", "With a great description")
 
 	for _, title := range []string{
 		"me",
 		"",
 		"  ",
 		"signup",
-		"My great great great great great great great great great great great great great great great great great idea.",
+		"My great great great great great great great great great great great great great great great great great post.",
 		"my company",
 		"my@company",
 		"my.company",
 		"my+company",
 		"1234567890123456789012345678901234567890ABC",
-		"my GREAT idea",
+		"my GREAT post",
 	} {
-		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
+		action := &actions.CreateNewPost{Model: &models.NewPost{Title: title}}
 		result := action.Validate(nil, services)
 		ExpectFailed(result, "title")
 	}
 }
 
-func TestCreateNewIdea_ValidIdeaTitles(t *testing.T) {
+func TestCreateNewPost_ValidPostTitles(t *testing.T) {
 	RegisterT(t)
 
 	for _, title := range []string{
-		"this is my new idea",
-		"this idea is very descriptive",
+		"this is my new post",
+		"this post is very descriptive",
 	} {
-		action := &actions.CreateNewIdea{Model: &models.NewIdea{Title: title}}
+		action := &actions.CreateNewPost{Model: &models.NewPost{Title: title}}
 		result := action.Validate(nil, services)
 		ExpectSuccess(result)
 	}
@@ -50,28 +50,28 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 	RegisterT(t)
 
 	action := &actions.SetResponse{Model: &models.SetResponse{
-		Status: models.IdeaDeleted,
+		Status: models.PostDeleted,
 		Text:   "Spam!",
 	}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "status")
 }
 
-func TestDeleteIdea_WhenIsBeingReferenced(t *testing.T) {
+func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 	RegisterT(t)
 
 	services.SetCurrentUser(&models.User{ID: 1})
-	idea1, _ := services.Ideas.Add("Idea #1", "")
-	idea2, _ := services.Ideas.Add("Idea #2", "")
-	services.Ideas.MarkAsDuplicate(idea2, idea1)
+	post1, _ := services.Posts.Add("Post #1", "")
+	post2, _ := services.Posts.Add("Post #2", "")
+	services.Posts.MarkAsDuplicate(post2, post1)
 
-	model := &models.DeleteIdea{
-		Number: idea2.Number,
+	model := &models.DeletePost{
+		Number: post2.Number,
 		Text:   "Spam!",
 	}
-	action := &actions.DeleteIdea{Model: model}
+	action := &actions.DeletePost{Model: model}
 	ExpectSuccess(action.Validate(nil, services))
 
-	model.Number = idea1.Number
+	model.Number = post1.Number
 	ExpectFailed(action.Validate(nil, services))
 }

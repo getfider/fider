@@ -33,7 +33,7 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error) {
+func (s *NotificationStorage) Insert(user *models.User, title, link string, postID int) (*models.Notification, error) {
 	if user.ID == s.user.ID {
 		return nil, nil
 	}
@@ -49,7 +49,7 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, idea
 		INSERT INTO notifications (tenant_id, user_id, title, link, read, idea_id, author_id, created_on, updated_on) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
 		RETURNING id
-	`, s.tenant.ID, user.ID, title, link, false, ideaID, s.user.ID, now)
+	`, s.tenant.ID, user.ID, title, link, false, postID, s.user.ID, now)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert notification")
 	}

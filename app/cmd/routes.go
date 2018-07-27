@@ -83,9 +83,9 @@ func routes(r *web.Engine) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
-			public.Get("/api/posts/search", handlers.SearchIdeas())
-			public.Get("/posts/:number", handlers.IdeaDetails())
-			public.Get("/posts/:number/*all", handlers.IdeaDetails())
+			public.Get("/api/posts/search", handlers.SearchPosts())
+			public.Get("/posts/:number", handlers.PostDetails())
+			public.Get("/posts/:number/*all", handlers.PostDetails())
 			public.Get("/signout", handlers.SignOut())
 		}
 
@@ -97,8 +97,8 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/notifications/:id", handlers.ReadNotification())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
-			private.Post("/api/posts", handlers.PostIdea())
-			private.Post("/api/posts/:number", handlers.UpdateIdea())
+			private.Post("/api/posts", handlers.CreatePost())
+			private.Post("/api/posts/:number", handlers.UpdatePost())
 			private.Post("/api/posts/:number/comments", handlers.PostComment())
 			private.Post("/api/posts/:number/comments/:id", handlers.UpdateComment())
 			private.Post("/api/posts/:number/status", handlers.SetResponse())
@@ -131,7 +131,7 @@ func routes(r *web.Engine) *web.Engine {
 
 			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
 			private.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
-			private.Delete("/api/posts/:number", handlers.DeleteIdea())
+			private.Delete("/api/posts/:number", handlers.DeletePost())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
 			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())

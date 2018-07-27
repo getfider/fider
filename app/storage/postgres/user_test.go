@@ -267,7 +267,7 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	users.SetCurrentUser(jonSnow)
 	settings, _ := users.GetUserSettings()
 	Expect(settings).Equals(map[string]string{
-		models.NotificationEventNewIdea.UserSettingsKeyName:      models.NotificationEventNewIdea.DefaultSettingValue,
+		models.NotificationEventNewPost.UserSettingsKeyName:      models.NotificationEventNewPost.DefaultSettingValue,
 		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
 	})
@@ -287,14 +287,14 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(aryaStark)
 	disableAll := map[string]string{
-		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
+		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
 
 	users.UpdateSettings(disableAll)
 	settings, _ := users.GetUserSettings()
 	Expect(settings).Equals(map[string]string{
-		models.NotificationEventNewIdea.UserSettingsKeyName:      "0",
+		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	})
