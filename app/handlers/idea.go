@@ -42,7 +42,7 @@ func Index() web.HandlerFunc {
 		return c.Page(web.Props{
 			Description: description,
 			Data: web.Map{
-				"ideas":          ideas,
+				"posts":          ideas,
 				"tags":           tags,
 				"countPerStatus": stats,
 			},
@@ -159,7 +159,7 @@ func IdeaDetails() web.HandlerFunc {
 			Data: web.Map{
 				"comments":   comments,
 				"subscribed": subscribed,
-				"idea":       idea,
+				"post":       idea,
 				"tags":       tags,
 			},
 		})
