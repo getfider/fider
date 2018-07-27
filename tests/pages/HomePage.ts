@@ -9,8 +9,8 @@ import {
   Button,
   elementIsNotVisible
 } from "../lib";
-import { ShowIdeaPage, FacebookSignInPage } from ".";
-import { IdeaList } from "./components";
+import { ShowPostPage, FacebookSignInPage } from ".";
+import { PostList } from "./components";
 
 export class HomePage extends Page {
   constructor(tab: BrowserTab) {
@@ -23,9 +23,9 @@ export class HomePage extends Page {
 
   @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
   @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
-  @findBy("#input-title") public IdeaTitle!: TextInput;
-  @findBy("#input-description") public IdeaDescription!: TextInput;
-  @findBy(".c-button.m-positive") public SubmitIdea!: Button;
+  @findBy("#input-title") public PostTitle!: TextInput;
+  @findBy("#input-description") public PostDescription!: TextInput;
+  @findBy(".c-button.m-positive") public SubmitPost!: Button;
   @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
   @findBy(".c-unread-count") public UnreadCounter!: WebComponent;
   @findBy(".c-menu-user-heading") public UserName!: WebComponent;
@@ -34,7 +34,7 @@ export class HomePage extends Page {
   @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
   @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
   @findBy(".signout") private SignOut!: Button;
-  @findBy(".c-post-list") public IdeaList!: IdeaList;
+  @findBy(".c-post-list") public PostList!: PostList;
   @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
   @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
 
@@ -42,11 +42,11 @@ export class HomePage extends Page {
     return elementIsVisible("#p-home");
   }
 
-  public async submitNewIdea(title: string, description: string): Promise<void> {
-    await this.IdeaTitle.type(title);
-    await this.IdeaDescription.type(description);
-    await this.SubmitIdea.click();
-    await this.tab.wait(pageHasLoaded(ShowIdeaPage));
+  public async submitNewPost(title: string, description: string): Promise<void> {
+    await this.PostTitle.type(title);
+    await this.PostDescription.type(description);
+    await this.SubmitPost.click();
+    await this.tab.wait(pageHasLoaded(ShowPostPage));
   }
 
   public async signOut(): Promise<void> {
