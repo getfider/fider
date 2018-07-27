@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/handlers"
@@ -87,6 +88,15 @@ func routes(r *web.Engine) *web.Engine {
 			public.Get("/posts/:number", handlers.PostDetails())
 			public.Get("/posts/:number/*all", handlers.PostDetails())
 			public.Get("/signout", handlers.SignOut())
+
+			/* This is a temporary redirect and should be removed in the future */
+			public.Get("/ideas/:number", func(c web.Context) error {
+				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+			})
+			public.Get("/ideas/:number/*all", func(c web.Context) error {
+				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+			})
+			/* This is a temporary redirect and should be removed in the future */
 		}
 
 		private := page.Group()
