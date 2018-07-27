@@ -2,20 +2,20 @@ import * as React from "react";
 
 import { ListIdeas, TagsFilter, IdeaFilter } from "../";
 
-import { Idea, Tag, CurrentUser } from "@fider/models";
+import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
 
 interface IdeasContainerProps {
   user?: CurrentUser;
-  ideas: Idea[];
+  ideas: Post[];
   tags: Tag[];
   countPerStatus: { [key: string]: number };
 }
 
 interface IdeasContainerState {
   loading: boolean;
-  ideas?: Idea[];
+  ideas?: Post[];
   filter: string;
   tags: string[];
   query: string;

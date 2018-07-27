@@ -1,7 +1,7 @@
 import "./ListIdeas.scss";
 
 import * as React from "react";
-import { Idea, Tag, IdeaStatus, CurrentUser } from "@fider/models";
+import { Post, Tag, IdeaStatus, CurrentUser } from "@fider/models";
 import {
   ShowTag,
   ShowIdeaResponse,
@@ -14,12 +14,12 @@ import {
 } from "@fider/components";
 
 interface ListIdeasProps {
-  ideas?: Idea[];
+  ideas?: Post[];
   tags: Tag[];
   emptyText: string;
 }
 
-const ListIdeaItem = (props: { idea: Idea; user?: CurrentUser; tags: Tag[] }) => {
+const ListIdeaItem = (props: { idea: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
     <ListItem>
       <SupportCounter idea={props.idea} />

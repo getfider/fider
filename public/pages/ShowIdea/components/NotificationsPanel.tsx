@@ -1,10 +1,10 @@
 import * as React from "react";
-import { CurrentUser, Idea } from "@fider/models";
+import { CurrentUser, Post } from "@fider/models";
 import { Button, List, ListItem } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 
 interface NotificationsPanelProps {
-  idea: Idea;
+  idea: Post;
   subscribed: boolean;
 }
 

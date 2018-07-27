@@ -1,8 +1,8 @@
 import { http, Result, querystring } from "@fider/services";
-import { Idea } from "@fider/models";
+import { Post } from "@fider/models";
 
-export const getAllIdeas = async (): Promise<Result<Idea[]>> => {
-  return await http.get<Idea[]>("/api/ideas/search");
+export const getAllIdeas = async (): Promise<Result<Post[]>> => {
+  return await http.get<Post[]>("/api/ideas/search");
 };
 
 export interface SearchIdeasParams {
@@ -12,8 +12,8 @@ export interface SearchIdeasParams {
   tags?: string[];
 }
 
-export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Idea[]>> => {
-  return await http.get<Idea[]>(
+export const searchIdeas = async (params: SearchIdeasParams): Promise<Result<Post[]>> => {
+  return await http.get<Post[]>(
     `/api/ideas/search${querystring.stringify({
       t: params.tags,
       q: params.query,
@@ -71,8 +71,8 @@ export const respond = async (ideaNumber: number, input: SetResponseInput): Prom
     .then(http.event("idea", "respond"));
 };
 
-export const createIdea = async (title: string, description: string): Promise<Result<Idea>> => {
-  return http.post<Idea>(`/api/ideas`, { title, description }).then(http.event("idea", "create"));
+export const createIdea = async (title: string, description: string): Promise<Result<Post>> => {
+  return http.post<Post>(`/api/ideas`, { title, description }).then(http.event("idea", "create"));
 };
 
 export const updateIdea = async (ideaNumber: number, title: string, description: string): Promise<Result> => {

@@ -1,6 +1,6 @@
 import { User } from "./identity";
 
-export interface Idea {
+export interface Post {
   id: number;
   number: number;
   slug: string;

@@ -2,7 +2,7 @@ import "./ShowIdea.page.scss";
 
 import * as React from "react";
 
-import { Comment, Idea, Tag } from "@fider/models";
+import { Comment, Post, Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
@@ -23,7 +23,7 @@ import {
 } from "@fider/components";
 
 interface ShowIdeaPageProps {
-  idea: Idea;
+  idea: Post;
   subscribed: boolean;
   comments: Comment[];
   tags: Tag[];

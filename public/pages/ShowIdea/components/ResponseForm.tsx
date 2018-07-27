@@ -1,13 +1,13 @@
 import * as React from "react";
 
 import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
-import { Comment, Idea, IdeaStatus, User } from "@fider/models";
+import { Comment, Post, IdeaStatus, User } from "@fider/models";
 import { IdeaSearch } from "../";
 
 import { actions, Failure } from "@fider/services";
 
 interface ResponseFormProps {
-  idea: Idea;
+  idea: Post;
 }
 
 interface ResponseFormState {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Idea, IdeaStatus } from "@fider/models";
+import { Post, IdeaStatus } from "@fider/models";
 import { actions } from "@fider/services";
 import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "@fider/components";
 
@@ -9,7 +9,7 @@ interface IdeaSearchProps {
 }
 
 interface IdeaSearchState {
-  ideas: Idea[];
+  ideas: Post[];
 }
 
 export class IdeaSearch extends React.Component<IdeaSearchProps, IdeaSearchState> {

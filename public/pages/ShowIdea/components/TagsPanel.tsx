@@ -1,11 +1,11 @@
 import * as React from "react";
-import { CurrentUser, Tag, Idea } from "@fider/models";
+import { CurrentUser, Tag, Post } from "@fider/models";
 import { actions, Fider } from "@fider/services";
 import { ShowTag, List, ListItem } from "@fider/components";
 import { TagListItem } from "./TagListItem";
 
 interface TagsPanelProps {
-  idea: Idea;
+  idea: Post;
   tags: Tag[];
 }
 

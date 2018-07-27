@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Idea, Tag, CurrentUser } from "@fider/models";
+import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListIdeas } from "./ListIdeas";
 import { actions } from "@fider/services";
@@ -12,7 +12,7 @@ interface SimilarIdeasProps {
 
 interface SimilarIdeasState {
   title: string;
-  ideas: Idea[];
+  ideas: Post[];
   loading: boolean;
 }
 

@@ -1,10 +1,10 @@
 import * as React from "react";
 import { shallow } from "enzyme";
-import { Idea, UserRole, UserStatus, IdeaStatus } from "@fider/models";
+import { Post, UserRole, UserStatus, IdeaStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
-let idea: Idea;
+let idea: Post;
 
 beforeEach(() => {
   idea = {
