@@ -25,7 +25,7 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
 
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
   return http
-    .delete(`/api/posts/${postNumber}`, {
+    .delete(`/api/v1/posts/${postNumber}`, {
       text
     })
     .then(http.event("post", "delete"));

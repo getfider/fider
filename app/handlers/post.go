@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -47,23 +46,6 @@ func Index() web.HandlerFunc {
 				"countPerStatus": stats,
 			},
 		})
-	}
-}
-
-// DeletePost deletes an existing post of current tenant
-func DeletePost() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.DeletePost)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		err := c.Services().Posts.SetResponse(input.Post, input.Model.Text, models.PostDeleted)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
 	}
 }
 

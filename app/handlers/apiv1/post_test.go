@@ -5,9 +5,11 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 )
 
@@ -287,4 +289,24 @@ func TestRemoveSupporterHandler(t *testing.T) {
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(post.TotalSupporters).Equals(1)
+}
+
+func TestDeletePostHandler_Authorized(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.DeletePost(), `{ }`)
+
+	Expect(code).Equals(http.StatusOK)
+	post, err := services.Posts.GetByNumber(post.Number)
+	Expect(post).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }

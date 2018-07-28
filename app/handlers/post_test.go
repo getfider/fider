@@ -4,11 +4,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/getfider/fider/app"
-
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 )
 
@@ -144,24 +141,4 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	Expect(code).Equals(http.StatusForbidden)
 	comment, _ := services.Posts.GetCommentByID(commentId)
 	Expect(comment.Content).Equals("My first comment")
-}
-
-func TestDeletePostHandler_Authorized(t *testing.T) {
-	RegisterT(t)
-
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
-	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		AddParam("number", post.Number).
-		ExecutePost(handlers.DeletePost(), `{ }`)
-
-	Expect(code).Equals(http.StatusOK)
-	post, err := services.Posts.GetByNumber(post.Number)
-	Expect(post).IsNil()
-	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }

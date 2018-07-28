@@ -14,9 +14,9 @@ export const deleteTag = async (slug: string): Promise<Result> => {
 };
 
 export const assignTag = async (slug: string, postNumber: number): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "assign"));
+  return http.post(`/api/v1/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "assign"));
 };
 
 export const unassignTag = async (slug: string, postNumber: number): Promise<Result> => {
-  return http.delete(`/api/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "unassign"));
+  return http.delete(`/api/v1/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "unassign"));
 };
