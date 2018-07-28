@@ -69,8 +69,8 @@ export const completeProfile = async (key: string, name: string): Promise<Result
 };
 
 export const changeUserRole = async (userId: number, role: UserRole): Promise<Result> => {
-  return await http.post(`/api/admin/users/${userId}/role`, {
-    role
+  return await http.post(`/api/v1/roles/${role}/users`, {
+    userId
   });
 };
 
