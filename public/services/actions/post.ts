@@ -32,19 +32,19 @@ export const deletePost = async (postNumber: number, text: string): Promise<Resu
 };
 
 export const addSupport = async (postNumber: number): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/support`).then(http.event("post", "support"));
+  return http.post(`/api/v1/posts/${postNumber}/support`).then(http.event("post", "support"));
 };
 
 export const removeSupport = async (postNumber: number): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/unsupport`).then(http.event("post", "unsupport"));
+  return http.delete(`/api/v1/posts/${postNumber}/support`).then(http.event("post", "unsupport"));
 };
 
 export const subscribe = async (postNumber: number): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/subscribe`).then(http.event("post", "subscribe"));
+  return http.post(`/api/v1/posts/${postNumber}/subscription`).then(http.event("post", "subscribe"));
 };
 
 export const unsubscribe = async (postNumber: number): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/unsubscribe`).then(http.event("post", "unsubscribe"));
+  return http.delete(`/api/v1/posts/${postNumber}/subscription`).then(http.event("post", "unsubscribe"));
 };
 
 export const createComment = async (postNumber: number, content: string): Promise<Result> => {

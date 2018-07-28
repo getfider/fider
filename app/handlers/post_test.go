@@ -85,64 +85,6 @@ func TestPostCommentHandler_WithoutContent(t *testing.T) {
 	Expect(code).Equals(http.StatusBadRequest)
 }
 
-func TestAddSupporterHandler(t *testing.T) {
-	RegisterT(t)
-
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
-	first, _ := services.Posts.Add("The Post #1", "The Description #1")
-	second, _ := services.Posts.Add("The Post #2", "The Description #2")
-
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.AryaStark).
-		AddParam("number", second.Number).
-		Execute(handlers.AddSupporter())
-
-	first, _ = services.Posts.GetByNumber(1)
-	second, _ = services.Posts.GetByNumber(2)
-
-	Expect(code).Equals(http.StatusOK)
-	Expect(first.TotalSupporters).Equals(0)
-	Expect(second.TotalSupporters).Equals(1)
-}
-
-func TestAddSupporterHandler_InvalidPost(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.AryaStark).
-		AddParam("number", 999).
-		Execute(handlers.AddSupporter())
-
-	Expect(code).Equals(http.StatusNotFound)
-}
-
-func TestRemoveSupporterHandler(t *testing.T) {
-	RegisterT(t)
-
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
-	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	services.Posts.AddSupporter(post, mock.JonSnow)
-	services.Posts.AddSupporter(post, mock.AryaStark)
-
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.AryaStark).
-		AddParam("number", post.ID).
-		Execute(handlers.RemoveSupporter())
-
-	post, _ = services.Posts.GetByNumber(post.Number)
-
-	Expect(code).Equals(http.StatusOK)
-	Expect(post.TotalSupporters).Equals(1)
-}
-
 func TestAddCommentHandler(t *testing.T) {
 	RegisterT(t)
 
