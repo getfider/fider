@@ -76,5 +76,5 @@ export const createPost = async (title: string, description: string): Promise<Re
 };
 
 export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}`, { title, description }).then(http.event("post", "update"));
+  return http.put(`/api/v1/posts/${postNumber}`, { title, description }).then(http.event("post", "update"));
 };

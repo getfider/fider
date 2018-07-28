@@ -32,7 +32,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     };
   }
 }
-async function request<T>(url: string, method: "GET" | "POST" | "DELETE", body?: any): Promise<Result<T>> {
+async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
   const headers = [["Accept", "application/json"], ["Content-Type", "application/json"]];
   const response = await fetch(url, {
     method,
@@ -49,6 +49,9 @@ export const http = {
   },
   post: async <T = void>(url: string, body?: {}): Promise<Result<T>> => {
     return await request<T>(url, "POST", body);
+  },
+  put: async <T = void>(url: string, body?: {}): Promise<Result<T>> => {
+    return await request<T>(url, "PUT", body);
   },
   delete: async <T = void>(url: string, body?: {}): Promise<Result<T>> => {
     return await request<T>(url, "DELETE", body);

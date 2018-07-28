@@ -50,23 +50,6 @@ func Index() web.HandlerFunc {
 	}
 }
 
-// UpdatePost updates an existing post of current tenant
-func UpdatePost() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.UpdatePost)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		_, err := c.Services().Posts.Update(input.Post, input.Model.Title, input.Model.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
-	}
-}
-
 // DeletePost deletes an existing post of current tenant
 func DeletePost() web.HandlerFunc {
 	return func(c web.Context) error {

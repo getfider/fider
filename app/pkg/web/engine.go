@@ -238,6 +238,11 @@ func (g *Group) Post(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("POST", path, g.handler(handler))
 }
 
+//Put handles HTTP PUT requests
+func (g *Group) Put(path string, handler HandlerFunc) {
+	g.engine.mux.Handle("PUT", path, g.handler(handler))
+}
+
 //Delete handles HTTP DELETE requests
 func (g *Group) Delete(path string, handler HandlerFunc) {
 	g.engine.mux.Handle("DELETE", path, g.handler(handler))
