@@ -72,7 +72,7 @@ export const respond = async (postNumber: number, input: SetResponseInput): Prom
 };
 
 export const createPost = async (title: string, description: string): Promise<Result<Post>> => {
-  return http.post<Post>(`/api/posts`, { title, description }).then(http.event("post", "create"));
+  return http.post<Post>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
 };
 
 export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {

@@ -53,36 +53,6 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 	Expect(code).Equals(http.StatusNotFound)
 }
 
-func TestCreatePostHandler(t *testing.T) {
-	RegisterT(t)
-
-	server, services := mock.NewServer()
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		ExecutePost(handlers.CreatePost(), `{ "title": "My newest post :)" }`)
-
-	post, err := services.Posts.GetByID(1)
-	Expect(code).Equals(http.StatusOK)
-	Expect(err).IsNil()
-	Expect(post.Title).Equals("My newest post :)")
-	Expect(post.TotalSupporters).Equals(1)
-}
-
-func TestCreatePostHandler_WithoutTitle(t *testing.T) {
-	RegisterT(t)
-
-	server, services := mock.NewServer()
-	code, _ := server.
-		OnTenant(mock.DemoTenant).
-		AsUser(mock.JonSnow).
-		ExecutePost(handlers.CreatePost(), `{ "title": "" }`)
-
-	_, err := services.Posts.GetByID(1)
-	Expect(code).Equals(http.StatusBadRequest)
-	Expect(err).IsNotNil()
-}
-
 func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 	RegisterT(t)
 

@@ -108,7 +108,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/notifications/:id", handlers.ReadNotification())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
-			private.Post("/api/posts", handlers.CreatePost())
+			private.Post("/api/v1/posts", apiv1.CreatePost())
 			private.Post("/api/posts/:number", handlers.UpdatePost())
 			private.Post("/api/posts/:number/comments", handlers.PostComment())
 			private.Post("/api/posts/:number/comments/:id", handlers.UpdateComment())

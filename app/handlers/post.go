@@ -50,30 +50,6 @@ func Index() web.HandlerFunc {
 	}
 }
 
-// CreatePost creates a new post on current tenant
-func CreatePost() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.CreateNewPost)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		posts := c.Services().Posts
-		post, err := posts.Add(input.Model.Title, input.Model.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if err := posts.AddSupporter(post, c.User()); err != nil {
-			return c.Failure(err)
-		}
-
-		c.Enqueue(tasks.NotifyAboutNewPost(post))
-
-		return c.Ok(post)
-	}
-}
-
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
 	return func(c web.Context) error {
