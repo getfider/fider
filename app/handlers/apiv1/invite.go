@@ -1,4 +1,4 @@
-package handlers
+package apiv1
 
 import (
 	"strings"
