@@ -1,11 +1,11 @@
 import { resolveRootComponent } from "./router";
-import { HomePage, ShowIdeaPage, InvitationsPage, GeneralSettingsPage, OAuthEchoPage } from "@fider/pages";
+import { HomePage, ShowPostPage, InvitationsPage, GeneralSettingsPage, OAuthEchoPage } from "@fider/pages";
 
 [
   { path: "", expected: HomePage },
-  { path: "/ideas/123", expected: ShowIdeaPage },
-  { path: "/ideas/123/the-slug", expected: ShowIdeaPage },
-  { path: "/ideas" },
+  { path: "/posts/123", expected: ShowPostPage },
+  { path: "/posts/123/the-slug", expected: ShowPostPage },
+  { path: "/posts" },
   { path: "/admin", expected: GeneralSettingsPage },
   { path: "/admin/invitations", expected: InvitationsPage },
   { path: "/oauth/_name/echo", expected: OAuthEchoPage }

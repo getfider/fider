@@ -65,18 +65,18 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(aryaStark)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
 	tags.SetCurrentUser(aryaStark)
 
-	idea, _ := ideas.Add("My great idea", "with a great description")
+	post, _ := posts.Add("My great post", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag, idea)
+	err := tags.AssignTag(tag, post)
 	Expect(err).IsNil()
 
-	assigned, err := tags.GetAssigned(idea)
+	assigned, err := tags.GetAssigned(post)
 	Expect(err).IsNil()
 	Expect(assigned).HasLen(1)
 	Expect(assigned[0].ID).Equals(tag.ID)
@@ -85,10 +85,10 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	Expect(assigned[0].Color).Equals("FFFFFF")
 	Expect(assigned[0].IsPublic).IsTrue()
 
-	err = tags.UnassignTag(tag, idea)
+	err = tags.UnassignTag(tag, post)
 	Expect(err).IsNil()
 
-	assigned, err = tags.GetAssigned(idea)
+	assigned, err = tags.GetAssigned(post)
 	Expect(err).IsNil()
 	Expect(assigned).HasLen(0)
 }
@@ -97,21 +97,21 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(aryaStark)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(aryaStark)
 	tags.SetCurrentTenant(demoTenant)
 	tags.SetCurrentUser(aryaStark)
 
-	idea, _ := ideas.Add("My great idea", "with a great description")
+	post, _ := posts.Add("My great post", "with a great description")
 	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag, idea)
+	err := tags.AssignTag(tag, post)
 	Expect(err).IsNil()
 
 	err = tags.Delete(tag)
 	Expect(err).IsNil()
 
-	assigned, err := tags.GetAssigned(idea)
+	assigned, err := tags.GetAssigned(post)
 	Expect(err).IsNil()
 	Expect(assigned).HasLen(0)
 }

@@ -10,48 +10,48 @@ import (
 	"github.com/getfider/fider/app/pkg/csv"
 )
 
-func TestExportIdeasToCSV_Empty(t *testing.T) {
+func TestExportPostsToCSV_Empty(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{}
+	posts := []*models.Post{}
 	expected, err := ioutil.ReadFile("./testdata/empty.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
 
-func TestExportIdeasToCSV_OneIdea(t *testing.T) {
+func TestExportPostsToCSV_OnePost(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{
-		declinedIdea,
+	posts := []*models.Post{
+		declinedPost,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/one-idea.csv")
+	expected, err := ioutil.ReadFile("./testdata/one-post.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
 
-func TestExportIdeasToCSV_MoreIdeas(t *testing.T) {
+func TestExportPostsToCSV_MorePosts(t *testing.T) {
 	RegisterT(t)
 
-	ideas := []*models.Idea{
-		declinedIdea,
-		openIdea,
-		duplicateIdea,
+	posts := []*models.Post{
+		declinedPost,
+		openPost,
+		duplicatePost,
 	}
 
-	expected, err := ioutil.ReadFile("./testdata/more-ideas.csv")
+	expected, err := ioutil.ReadFile("./testdata/more-posts.csv")
 	Expect(err).IsNil()
-	actual, err := csv.FromIdeas(ideas)
+	actual, err := csv.FromPosts(posts)
 	Expect(err).IsNil()
 	Expect(actual).Equals(expected)
 }
 
-var declinedIdea = &models.Idea{
+var declinedPost = &models.Post{
 	Number:      10,
 	Title:       "Go is fast",
 	Description: "Very tiny description",
@@ -61,8 +61,8 @@ var declinedIdea = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaDeclined,
-	Response: &models.IdeaResponse{
+	Status:          models.PostDeclined,
+	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
 		RespondedOn: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
 		User: &models.User{
@@ -72,7 +72,7 @@ var declinedIdea = &models.Idea{
 	Tags: []string{"easy", "ignored"},
 }
 
-var openIdea = &models.Idea{
+var openPost = &models.Post{
 	Number:      15,
 	Title:       "Go is great",
 	Description: "",
@@ -82,10 +82,10 @@ var openIdea = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaOpen,
+	Status:          models.PostOpen,
 }
 
-var duplicateIdea = &models.Idea{
+var duplicatePost = &models.Post{
 	Number:      20,
 	Title:       "Go is easy",
 	Description: "",
@@ -95,14 +95,14 @@ var duplicateIdea = &models.Idea{
 	},
 	TotalSupporters: 4,
 	TotalComments:   2,
-	Status:          models.IdeaDuplicate,
-	Response: &models.IdeaResponse{
+	Status:          models.PostDuplicate,
+	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
 		RespondedOn: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
 		User: &models.User{
 			Name: "Arya Stark",
 		},
-		Original: &models.OriginalIdea{
+		Original: &models.OriginalPost{
 			Number: 99,
 			Title:  "Go is very easy",
 		},

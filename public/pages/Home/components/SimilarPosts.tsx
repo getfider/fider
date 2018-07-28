@@ -1,32 +1,32 @@
 import * as React from "react";
-import { Idea, Tag, CurrentUser } from "@fider/models";
+import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
-import { ListIdeas } from "./ListIdeas";
+import { ListPosts } from "./ListPosts";
 import { actions } from "@fider/services";
 
-interface SimilarIdeasProps {
+interface SimilarPostsProps {
   title: string;
   tags: Tag[];
   user?: CurrentUser;
 }
 
-interface SimilarIdeasState {
+interface SimilarPostsState {
   title: string;
-  ideas: Idea[];
+  posts: Post[];
   loading: boolean;
 }
 
-export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdeasState> {
-  constructor(props: SimilarIdeasProps) {
+export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
+  constructor(props: SimilarPostsProps) {
     super(props);
     this.state = {
       title: props.title,
       loading: !!props.title,
-      ideas: []
+      posts: []
     };
   }
 
-  public static getDerivedStateFromProps(nextProps: SimilarIdeasProps, prevState: SimilarIdeasState) {
+  public static getDerivedStateFromProps(nextProps: SimilarPostsProps, prevState: SimilarPostsState) {
     if (nextProps.title !== prevState.title) {
       return {
         loading: true,
@@ -36,19 +36,19 @@ export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdea
     return null;
   }
   public componentDidMount() {
-    this.loadSimilarIdeas();
+    this.loadSimilarPosts();
   }
 
   private timer?: number;
   public componentDidUpdate() {
     window.clearTimeout(this.timer);
-    this.timer = window.setTimeout(this.loadSimilarIdeas, 200);
+    this.timer = window.setTimeout(this.loadSimilarPosts, 200);
   }
 
-  private loadSimilarIdeas = () => {
+  private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchIdeas({ query: this.state.title }).then(x => {
-        this.setState({ loading: false, ideas: x.data });
+      actions.searchPosts({ query: this.state.title }).then(x => {
+        this.setState({ loading: false, posts: x.data });
       });
     }
   };
@@ -57,8 +57,8 @@ export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdea
     return (
       <>
         <Heading
-          title="Similar ideas"
-          subtitle="Consider voting on existing ideas instead of posting a new one."
+          title="Similar posts"
+          subtitle="Consider voting on existing posts instead of posting a new one."
           icon="lightbulb outline"
           size="small"
           dividing={true}
@@ -66,10 +66,10 @@ export class SimilarIdeas extends React.Component<SimilarIdeasProps, SimilarIdea
         {this.state.loading ? (
           <Loader />
         ) : (
-          <ListIdeas
-            ideas={this.state.ideas}
+          <ListPosts
+            posts={this.state.posts}
             tags={this.props.tags}
-            emptyText={`No similar ideas matched '${this.props.title}'.`}
+            emptyText={`No similar posts matched '${this.props.title}'.`}
           />
         )}
       </>

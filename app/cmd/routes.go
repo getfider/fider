@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/handlers"
@@ -83,10 +84,19 @@ func routes(r *web.Engine) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
-			public.Get("/api/ideas/search", handlers.SearchIdeas())
-			public.Get("/ideas/:number", handlers.IdeaDetails())
-			public.Get("/ideas/:number/*all", handlers.IdeaDetails())
+			public.Get("/api/posts/search", handlers.SearchPosts())
+			public.Get("/posts/:number", handlers.PostDetails())
+			public.Get("/posts/:number/*all", handlers.PostDetails())
 			public.Get("/signout", handlers.SignOut())
+
+			/* This is a temporary redirect and should be removed in the future */
+			public.Get("/ideas/:number", func(c web.Context) error {
+				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+			})
+			public.Get("/ideas/:number/*all", func(c web.Context) error {
+				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+			})
+			/* This is a temporary redirect and should be removed in the future */
 		}
 
 		private := page.Group()
@@ -97,17 +107,17 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/notifications/:id", handlers.ReadNotification())
 			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
-			private.Post("/api/ideas", handlers.PostIdea())
-			private.Post("/api/ideas/:number", handlers.UpdateIdea())
-			private.Post("/api/ideas/:number/comments", handlers.PostComment())
-			private.Post("/api/ideas/:number/comments/:id", handlers.UpdateComment())
-			private.Post("/api/ideas/:number/status", handlers.SetResponse())
-			private.Post("/api/ideas/:number/support", handlers.AddSupporter())
-			private.Post("/api/ideas/:number/unsupport", handlers.RemoveSupporter())
-			private.Post("/api/ideas/:number/subscribe", handlers.Subscribe())
-			private.Post("/api/ideas/:number/unsubscribe", handlers.Unsubscribe())
-			private.Post("/api/ideas/:number/tags/:slug", handlers.AssignTag())
-			private.Delete("/api/ideas/:number/tags/:slug", handlers.UnassignTag())
+			private.Post("/api/posts", handlers.CreatePost())
+			private.Post("/api/posts/:number", handlers.UpdatePost())
+			private.Post("/api/posts/:number/comments", handlers.PostComment())
+			private.Post("/api/posts/:number/comments/:id", handlers.UpdateComment())
+			private.Post("/api/posts/:number/status", handlers.SetResponse())
+			private.Post("/api/posts/:number/support", handlers.AddSupporter())
+			private.Post("/api/posts/:number/unsupport", handlers.RemoveSupporter())
+			private.Post("/api/posts/:number/subscribe", handlers.Subscribe())
+			private.Post("/api/posts/:number/unsubscribe", handlers.Unsubscribe())
+			private.Post("/api/posts/:number/tags/:slug", handlers.AssignTag())
+			private.Delete("/api/posts/:number/tags/:slug", handlers.UnassignTag())
 			private.Delete("/api/user", handlers.DeleteUser())
 			private.Post("/api/user/settings", handlers.UpdateUserSettings())
 			private.Post("/api/user/change-email", handlers.ChangeUserEmail())
@@ -130,8 +140,8 @@ func routes(r *web.Engine) *web.Engine {
 			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
 			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
-			private.Get("/admin/export/ideas.csv", handlers.ExportIdeasToCSV())
-			private.Delete("/api/ideas/:number", handlers.DeleteIdea())
+			private.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
+			private.Delete("/api/posts/:number", handlers.DeletePost())
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
 			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())

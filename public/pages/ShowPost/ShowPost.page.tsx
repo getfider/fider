@@ -1,14 +1,14 @@
-import "./ShowIdea.page.scss";
+import "./ShowPost.page.scss";
 
 import * as React from "react";
 
-import { Comment, Idea, Tag } from "@fider/models";
+import { Comment, Post, Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
   SupportCounter,
-  ShowIdeaResponse,
+  ShowPostResponse,
   DisplayError,
   Button,
   UserName,
@@ -22,40 +22,40 @@ import {
   TextArea
 } from "@fider/components";
 
-interface ShowIdeaPageProps {
-  idea: Idea;
+interface ShowPostPageProps {
+  post: Post;
   subscribed: boolean;
   comments: Comment[];
   tags: Tag[];
 }
 
-interface ShowIdeaPageState {
+interface ShowPostPageState {
   editMode: boolean;
   newTitle: string;
   newDescription: string;
   error?: Failure;
 }
 
-export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPageState> {
-  constructor(props: ShowIdeaPageProps) {
+export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
+  constructor(props: ShowPostPageProps) {
     super(props);
 
     this.state = {
       editMode: false,
-      newTitle: this.props.idea.title,
-      newDescription: this.props.idea.description
+      newTitle: this.props.post.title,
+      newDescription: this.props.post.description
     };
   }
 
   private saveChanges = async () => {
-    const result = await actions.updateIdea(this.props.idea.number, this.state.newTitle, this.state.newDescription);
+    const result = await actions.updatePost(this.props.post.number, this.state.newTitle, this.state.newDescription);
     if (result.ok) {
       this.setState({
         error: undefined,
         editMode: false
       });
-      this.props.idea.title = this.state.newTitle;
-      this.props.idea.description = this.state.newDescription;
+      this.props.post.title = this.state.newTitle;
+      this.props.post.description = this.state.newDescription;
       this.forceUpdate();
     } else {
       this.setState({
@@ -82,24 +82,24 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
 
   public render() {
     return (
-      <div id="p-show-idea" className="page container">
+      <div id="p-show-post" className="page container">
         <div className="header-col">
           <List>
             <ListItem>
-              <SupportCounter idea={this.props.idea} />
+              <SupportCounter post={this.props.post} />
 
-              <div className="idea-header">
+              <div className="post-header">
                 {this.state.editMode ? (
                   <Form error={this.state.error}>
                     <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                   </Form>
                 ) : (
-                  <h1>{this.props.idea.title}</h1>
+                  <h1>{this.props.post.title}</h1>
                 )}
 
                 <span className="info">
-                  Shared <Moment date={this.props.idea.createdOn} /> by <Gravatar user={this.props.idea.user} />{" "}
-                  <UserName user={this.props.idea.user} />
+                  Shared <Moment date={this.props.post.createdOn} /> by <Gravatar user={this.props.post.user} />{" "}
+                  <UserName user={this.props.post.user} />
                 </span>
               </div>
             </ListItem>
@@ -113,12 +113,12 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
           ) : (
             <MultiLineText
               className="description"
-              text={this.props.idea.description || "No description provided."}
+              text={this.props.post.description || "No description provided."}
               style="simple"
             />
           )}
 
-          <ShowIdeaResponse status={this.props.idea.status} response={this.props.idea.response} />
+          <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
         </div>
 
         <div className="action-col">
@@ -148,18 +148,18 @@ export class ShowIdeaPage extends React.Component<ShowIdeaPageProps, ShowIdeaPag
                     </Button>
                   </ListItem>
                   <ListItem>
-                    <ResponseForm idea={this.props.idea} />
+                    <ResponseForm post={this.props.post} />
                   </ListItem>
                 </List>
               )
             ]}
 
-          <TagsPanel idea={this.props.idea} tags={this.props.tags} />
-          <NotificationsPanel idea={this.props.idea} subscribed={this.props.subscribed} />
-          <ModerationPanel idea={this.props.idea} />
+          <TagsPanel post={this.props.post} tags={this.props.tags} />
+          <NotificationsPanel post={this.props.post} subscribed={this.props.subscribed} />
+          <ModerationPanel post={this.props.post} />
         </div>
 
-        <DiscussionPanel idea={this.props.idea} comments={this.props.comments} />
+        <DiscussionPanel post={this.props.post} comments={this.props.comments} />
       </div>
     );
   }

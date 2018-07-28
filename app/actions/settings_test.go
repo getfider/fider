@@ -62,7 +62,7 @@ func TestValidSettings(t *testing.T) {
 	for _, settings := range []map[string]string{
 		nil,
 		map[string]string{
-			models.NotificationEventNewIdea.UserSettingsKeyName:      models.NotificationEventNewIdea.DefaultSettingValue,
+			models.NotificationEventNewPost.UserSettingsKeyName:      models.NotificationEventNewPost.DefaultSettingValue,
 			models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 			models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
 		},

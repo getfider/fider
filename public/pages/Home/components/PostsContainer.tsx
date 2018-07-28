@@ -1,33 +1,33 @@
 import * as React from "react";
 
-import { ListIdeas, TagsFilter, IdeaFilter } from "../";
+import { ListPosts, TagsFilter, PostFilter } from "../";
 
-import { Idea, Tag, CurrentUser } from "@fider/models";
+import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
 
-interface IdeasContainerProps {
+interface PostsContainerProps {
   user?: CurrentUser;
-  ideas: Idea[];
+  posts: Post[];
   tags: Tag[];
   countPerStatus: { [key: string]: number };
 }
 
-interface IdeasContainerState {
+interface PostsContainerState {
   loading: boolean;
-  ideas?: Idea[];
+  posts?: Post[];
   filter: string;
   tags: string[];
   query: string;
   limit?: number;
 }
 
-export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasContainerState> {
-  constructor(props: IdeasContainerProps) {
+export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
+  constructor(props: PostsContainerProps) {
     super(props);
 
     this.state = {
-      ideas: this.props.ideas,
+      posts: this.props.posts,
       loading: false,
       filter: querystring.get("f"),
       query: querystring.get("q"),
@@ -36,8 +36,8 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
     };
   }
 
-  private changeFilterCriteria<K extends keyof IdeasContainerState>(
-    obj: Pick<IdeasContainerState, K>,
+  private changeFilterCriteria<K extends keyof PostsContainerState>(
+    obj: Pick<PostsContainerState, K>,
     reset: boolean
   ): void {
     this.setState(obj, () => {
@@ -51,18 +51,18 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
         })
       );
 
-      this.searchIdeas(query, this.state.filter, this.state.limit, this.state.tags, reset);
+      this.searchPosts(query, this.state.filter, this.state.limit, this.state.tags, reset);
     });
   }
 
   private timer?: number;
-  private async searchIdeas(query: string, filter: string, limit: number | undefined, tags: string[], reset: boolean) {
+  private async searchPosts(query: string, filter: string, limit: number | undefined, tags: string[], reset: boolean) {
     window.clearTimeout(this.timer);
-    this.setState({ ideas: reset ? undefined : this.state.ideas, loading: true });
+    this.setState({ posts: reset ? undefined : this.state.posts, loading: true });
     this.timer = window.setTimeout(() => {
-      actions.searchIdeas({ query, filter, limit, tags }).then(response => {
+      actions.searchPosts({ query, filter, limit, tags }).then(response => {
         if (this.state.loading) {
-          this.setState({ loading: false, ideas: response.data });
+          this.setState({ loading: false, posts: response.data });
         }
       });
     }, 200);
@@ -94,7 +94,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
   };
 
   private canShowMore = (): boolean => {
-    return this.state.ideas ? this.state.ideas.length >= (this.state.limit || 30) : false;
+    return this.state.posts ? this.state.posts.length >= (this.state.limit || 30) : false;
   };
 
   public render() {
@@ -104,7 +104,7 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
           {!this.state.query && (
             <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
-                <IdeaFilter
+                <PostFilter
                   activeFilter={this.state.filter}
                   filterChanged={this.handleFilterChanged}
                   countPerStatus={this.props.countPerStatus}
@@ -128,15 +128,15 @@ export class IdeasContainer extends React.Component<IdeasContainerProps, IdeasCo
             />
           </div>
         </div>
-        <ListIdeas
-          ideas={this.state.ideas}
+        <ListPosts
+          posts={this.state.posts}
           tags={this.props.tags}
           emptyText={"No results matched your search, try something different."}
         />
         {this.state.loading && <Loader />}
         {this.canShowMore() && (
-          <h5 className="c-idea-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
-            View more ideas
+          <h5 className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
+            View more posts
           </h5>
         )}
       </>

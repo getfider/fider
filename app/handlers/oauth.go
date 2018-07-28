@@ -153,11 +153,6 @@ func OAuthCallback() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
-		//IDEA! when checking for signup, check if it's echo, if yes, redirect with identifier and code and do everything there, expose method to get raw re
-
-		//TODO: check if echo, then skip user creation just redirect to /echo + send extract info plus raw GET response
-		//TODO: else check if config is enabled before looking for users
-
 		//Test OAuth
 		if redirectURL.Path == fmt.Sprintf("/oauth/%s/echo", provider) {
 			var query = redirectURL.Query()

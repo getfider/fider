@@ -239,12 +239,12 @@ func TestArray(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	type ideaTags struct {
+	type postTags struct {
 		ID   int     `db:"id"`
 		Tags []int64 `db:"tags"`
 	}
 
-	result := ideaTags{}
+	result := postTags{}
 	err := trx.Get(&result, "SELECT 1 as id, array[5,10] as tags")
 	Expect(err).IsNil()
 	Expect(result.ID).Equals(1)

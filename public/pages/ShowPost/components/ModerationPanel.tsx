@@ -1,10 +1,10 @@
 import * as React from "react";
-import { IdeaStatus, Idea } from "@fider/models";
+import { PostStatus, Post } from "@fider/models";
 import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 
 interface ModerationPanelProps {
-  idea: Idea;
+  post: Post;
 }
 
 interface ModerationPanelState {
@@ -25,7 +25,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   }
 
   private delete = async () => {
-    const response = await actions.deleteIdea(this.props.idea.number, this.state.text);
+    const response = await actions.deletePost(this.props.post.number, this.state.text);
     if (response.ok) {
       await this.closeModal();
       navigator.goHome();
@@ -47,7 +47,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   };
 
   public render() {
-    const status = IdeaStatus.Get(this.props.idea.status);
+    const status = PostStatus.Get(this.props.post.status);
     if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
       return null;
     }
@@ -60,7 +60,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
               field="text"
               onChange={this.setText}
               value={this.state.text}
-              placeholder="Why are you deleting this idea? (optional)"
+              placeholder="Why are you deleting this post? (optional)"
             >
               <span className="info">
                 This operation <strong>cannot</strong> be undone.

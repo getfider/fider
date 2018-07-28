@@ -34,7 +34,7 @@ func (s *NotificationStorage) SetCurrentUser(user *models.User) {
 }
 
 // Insert notification for given user
-func (s *NotificationStorage) Insert(user *models.User, title, link string, ideaID int) (*models.Notification, error) {
+func (s *NotificationStorage) Insert(user *models.User, title, link string, postID int) (*models.Notification, error) {
 	s.lastID = s.lastID + 1
 	newNotification := &models.Notification{
 		ID:        s.lastID,

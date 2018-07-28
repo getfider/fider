@@ -1,6 +1,6 @@
 @import '~@fider/assets/styles/variables.scss';
 
-.c-idea-list {
+.c-post-list {
   .c-list-item {
     display: flex;
     border-top-width: 0.1px !important;
@@ -33,7 +33,7 @@
   }
 }
 
-.c-idea-list-show-more {
+.c-post-list-show-more {
   cursor: pointer;
   color: $main-color;
   margin-left: 55px;

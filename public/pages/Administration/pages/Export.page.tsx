@@ -14,14 +14,14 @@ export class ExportPage extends AdminBasePage<{}, {}> {
   public content() {
     return (
       <Form>
-        <Field label="Export Ideas">
+        <Field label="Export Posts">
           <p className="info">
-            Use this button to download a CSV file with all ideas in this site. This can be useful to analyse the data
+            Use this button to download a CSV file with all posts in this site. This can be useful to analyse the data
             with an external tool or simply to back it up.
           </p>
         </Field>
         <Field>
-          <Button color="positive" href="/admin/export/ideas.csv">
+          <Button color="positive" href="/admin/export/posts.csv">
             Download
           </Button>
         </Field>

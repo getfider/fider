@@ -1,4 +1,4 @@
-export * from "./ShowIdeaResponse";
+export * from "./ShowPostResponse";
 export * from "./ShowTag";
 export * from "./SignInModal";
 export * from "./SupportCounter";

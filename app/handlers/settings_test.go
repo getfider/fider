@@ -75,7 +75,7 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 
 	settings, _ := services.Users.GetUserSettings()
 	Expect(settings).Equals(map[string]string{
-		models.NotificationEventNewIdea.UserSettingsKeyName:      "1",
+		models.NotificationEventNewPost.UserSettingsKeyName:      "1",
 		models.NotificationEventNewComment.UserSettingsKeyName:   "2",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "3",
 	})

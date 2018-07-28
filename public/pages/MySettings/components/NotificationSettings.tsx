@@ -97,12 +97,8 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
         <div className="notifications-settings">
           <Segments>
             <Segment>
-              <span className="event-title">New Idea</span>
-              {this.info(
-                "event_notification_new_idea",
-                "new ideas posted on this site",
-                "new ideas posted on this site"
-              )}
+              <span className="event-title">New Post</span>
+              {this.info("event_notification_new_idea", "new posts on this site", "new posts on this site")}
               <p>
                 {this.icon("event_notification_new_idea", WebChannel)}
                 {this.icon("event_notification_new_idea", EmailChannel)}
@@ -112,8 +108,8 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
               <span className="event-title">Discussion</span>
               {this.info(
                 "event_notification_new_comment",
-                "comments on ideas you've subscribed to",
-                "comments on all ideas unless individually unsubscribed"
+                "comments on posts you've subscribed to",
+                "comments on all posts unless individually unsubscribed"
               )}
               <p>
                 {this.icon("event_notification_new_comment", WebChannel)}
@@ -124,8 +120,8 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
               <span className="event-title">Status Changed</span>
               {this.info(
                 "event_notification_change_status",
-                "status change on ideas you've subscribed to",
-                "status change on all ideas unless individually unsubscribed"
+                "status change on posts you've subscribed to",
+                "status change on all posts unless individually unsubscribed"
               )}
               <p>
                 {this.icon("event_notification_change_status", WebChannel)}

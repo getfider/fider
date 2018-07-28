@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CurrentUser, IdeaStatus, UserStatus } from "@fider/models";
+import { CurrentUser, PostStatus, UserStatus } from "@fider/models";
 import {
   Heading,
   Button,
@@ -11,7 +11,7 @@ import {
   ShowTag,
   Segment,
   Segments,
-  ShowIdeaStatus,
+  ShowPostStatus,
   Moment,
   Loader,
   Form,
@@ -233,22 +233,22 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Statuses</h1>
         <List>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Open} />
+            <ShowPostStatus status={PostStatus.Open} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Planned} />
+            <ShowPostStatus status={PostStatus.Planned} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Started} />
+            <ShowPostStatus status={PostStatus.Started} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Duplicate} />
+            <ShowPostStatus status={PostStatus.Duplicate} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Completed} />
+            <ShowPostStatus status={PostStatus.Completed} />
           </ListItem>
           <ListItem>
-            <ShowIdeaStatus status={IdeaStatus.Declined} />
+            <ShowPostStatus status={PostStatus.Declined} />
           </ListItem>
         </List>
 

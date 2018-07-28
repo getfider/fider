@@ -1,13 +1,13 @@
 import * as React from "react";
 
 import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
-import { Comment, Idea, IdeaStatus, User } from "@fider/models";
-import { IdeaSearch } from "../";
+import { Comment, Post, PostStatus, User } from "@fider/models";
+import { PostSearch } from "../";
 
 import { actions, Failure } from "@fider/services";
 
 interface ResponseFormProps {
-  idea: Idea;
+  post: Post;
 }
 
 interface ResponseFormState {
@@ -24,14 +24,14 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
     this.state = {
       showModal: false,
-      status: this.props.idea.status,
+      status: this.props.post.status,
       originalNumber: 0,
-      text: this.props.idea.response ? this.props.idea.response.text : ""
+      text: this.props.post.response ? this.props.post.response.text : ""
     };
   }
 
   private submit = async () => {
-    const result = await actions.respond(this.props.idea.number, this.state);
+    const result = await actions.respond(this.props.post.number, this.state);
     if (result.ok) {
       location.reload();
     } else {
@@ -70,7 +70,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       </Button>
     );
 
-    const options = IdeaStatus.All.map(s => ({
+    const options = PostStatus.All.map(s => ({
       value: s.value.toString(),
       label: s.title
     }));
@@ -82,17 +82,17 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             <Select
               field="status"
               label="Status"
-              defaultValue={this.props.idea.status.toString()}
+              defaultValue={this.props.post.status.toString()}
               options={options}
               onChange={this.setStatus}
             />
-            {this.state.status === IdeaStatus.Duplicate.value ? (
+            {this.state.status === PostStatus.Duplicate.value ? (
               <>
                 <Field>
-                  <IdeaSearch exclude={[this.props.idea.number]} onChanged={this.setOriginalNumber} />
+                  <PostSearch exclude={[this.props.post.number]} onChanged={this.setOriginalNumber} />
                 </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
-                <span className="info">Votes from this idea will be merged into original idea.</span>
+                <span className="info">Votes from this post will be merged into original post.</span>
               </>
             ) : (
               <TextArea
@@ -100,7 +100,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 onChange={this.setText}
                 value={this.state.text}
                 minRows={5}
-                placeholder="What's going on with this idea? Let your users know what are your plans..."
+                placeholder="What's going on with this post? Let your users know what are your plans..."
               />
             )}
           </Form>

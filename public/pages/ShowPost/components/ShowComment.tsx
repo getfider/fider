@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Comment, CurrentUser, Idea } from "@fider/models";
+import { Comment, CurrentUser, Post } from "@fider/models";
 import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
-  idea: Idea;
+  post: Post;
   comment: Comment;
 }
 
@@ -45,7 +45,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   };
 
   private saveEdit = async () => {
-    const response = await actions.updateComment(this.props.idea.number, this.state.comment.id, this.state.newContent);
+    const response = await actions.updateComment(this.props.post.number, this.state.comment.id, this.state.newContent);
     if (response.ok) {
       this.state.comment.content = this.state.newContent;
       this.state.comment.editedOn = new Date().toISOString();

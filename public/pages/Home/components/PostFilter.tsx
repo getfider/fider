@@ -1,16 +1,16 @@
 import * as React from "react";
-import { Idea, IdeaStatus, CurrentUser } from "@fider/models";
+import { Post, PostStatus, CurrentUser } from "@fider/models";
 import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 import { Fider } from "@fider/services";
 
-interface IdeaFilterProps {
+interface PostFilterProps {
   activeFilter: string;
   countPerStatus: { [key: string]: number };
   filterChanged: (name: string) => void;
 }
 
-export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
-  constructor(props: IdeaFilterProps) {
+export class PostFilter extends React.Component<PostFilterProps, {}> {
+  constructor(props: PostFilterProps) {
     super(props);
   }
 
@@ -30,7 +30,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
     }
 
-    IdeaStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
+    PostStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
         text: s.title.toLowerCase(),
         value: s.slug,
@@ -49,7 +49,7 @@ export class IdeaFilter extends React.Component<IdeaFilterProps, {}> {
       <>
         Show{" "}
         <Dropdown
-          className="l-ideas-filter"
+          className="l-post-filter"
           header="What do you want to see?"
           inline={true}
           options={options}

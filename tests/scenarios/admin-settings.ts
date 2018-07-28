@@ -8,6 +8,6 @@ it("Tab1: User can change general settings", async () => {
 
   // Assert
   await ensure(ctx.tab1.pages.home.MenuTitle).textIs("Feedback for X");
-  await ensure(ctx.tab1.pages.home.IdeaTitle).attributeIs("placeholder", "Enter here...");
+  await ensure(ctx.tab1.pages.home.PostTitle).attributeIs("placeholder", "Enter here...");
   await ensure(ctx.tab1.pages.home.WelcomeMessage).textIs("Leave your feedback below");
 });

@@ -14,7 +14,7 @@ import (
 	"github.com/lib/pq"
 )
 
-type dbIdea struct {
+type dbPost struct {
 	ID               int            `db:"id"`
 	Number           int            `db:"number"`
 	Title            string         `db:"title"`
@@ -38,8 +38,8 @@ type dbIdea struct {
 	Tags             []string       `db:"tags"`
 }
 
-func (i *dbIdea) toModel() *models.Idea {
-	idea := &models.Idea{
+func (i *dbPost) toModel() *models.Post {
+	post := &models.Post{
 		ID:              i.ID,
 		Number:          i.Number,
 		Title:           i.Title,
@@ -55,13 +55,13 @@ func (i *dbIdea) toModel() *models.Idea {
 	}
 
 	if i.Response.Valid {
-		idea.Response = &models.IdeaResponse{
+		post.Response = &models.PostResponse{
 			Text:        i.Response.String,
 			RespondedOn: i.RespondedOn.Time,
 			User:        i.ResponseUser.toModel(),
 		}
-		if idea.Status == models.IdeaDuplicate && i.OriginalNumber.Valid {
-			idea.Response.Original = &models.OriginalIdea{
+		if post.Status == models.PostDuplicate && i.OriginalNumber.Valid {
+			post.Response.Original = &models.OriginalPost{
 				Number: int(i.OriginalNumber.Int64),
 				Slug:   i.OriginalSlug.String,
 				Title:  i.OriginalTitle.String,
@@ -69,7 +69,7 @@ func (i *dbIdea) toModel() *models.Idea {
 			}
 		}
 	}
-	return idea
+	return post
 }
 
 type dbComment struct {
@@ -100,32 +100,32 @@ type dbStatusCount struct {
 	Count  int `db:"count"`
 }
 
-// IdeaStorage contains read and write operations for ideas
-type IdeaStorage struct {
+// PostStorage contains read and write operations for posts
+type PostStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
 }
 
-// NewIdeaStorage creates a new IdeaStorage
-func NewIdeaStorage(trx *dbx.Trx) *IdeaStorage {
-	return &IdeaStorage{
+// NewPostStorage creates a new PostStorage
+func NewPostStorage(trx *dbx.Trx) *PostStorage {
+	return &PostStorage{
 		trx: trx,
 	}
 }
 
 // SetCurrentTenant to current context
-func (s *IdeaStorage) SetCurrentTenant(tenant *models.Tenant) {
+func (s *PostStorage) SetCurrentTenant(tenant *models.Tenant) {
 	s.tenant = tenant
 }
 
 // SetCurrentUser to current context
-func (s *IdeaStorage) SetCurrentUser(user *models.User) {
+func (s *PostStorage) SetCurrentUser(user *models.User) {
 	s.user = user
 }
 
 var (
-	sqlSelectIdeasWhere = `	WITH 
+	sqlSelectPostsWhere = `	WITH 
 													agg_comments AS (
 															SELECT 
 																	idea_id, 
@@ -195,11 +195,11 @@ var (
 													ON agg_c.idea_id = i.id
 													LEFT JOIN agg_supporters agg_s
 													ON agg_s.idea_id = i.id
-													WHERE i.status != ` + strconv.Itoa(models.IdeaDeleted) + ` AND %s
+													WHERE i.status != ` + strconv.Itoa(models.PostDeleted) + ` AND %s
 													GROUP BY i.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
-func (s *IdeaStorage) getIdeaQuery(filter string) string {
+func (s *PostStorage) getPostQuery(filter string) string {
 	viewerSupportedSubQuery := "null"
 	if s.user != nil {
 		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM idea_supporters WHERE idea_id = i.id AND user_id = %d)", s.user.ID)
@@ -208,61 +208,61 @@ func (s *IdeaStorage) getIdeaQuery(filter string) string {
 	if s.user != nil && s.user.IsCollaborator() {
 		tagCondition = ``
 	}
-	return fmt.Sprintf(sqlSelectIdeasWhere, viewerSupportedSubQuery, tagCondition, filter)
+	return fmt.Sprintf(sqlSelectPostsWhere, viewerSupportedSubQuery, tagCondition, filter)
 }
 
-func (s *IdeaStorage) getSingle(query string, args ...interface{}) (*models.Idea, error) {
-	idea := dbIdea{}
+func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post, error) {
+	post := dbPost{}
 
-	if err := s.trx.Get(&idea, query, args...); err != nil {
+	if err := s.trx.Get(&post, query, args...); err != nil {
 		return nil, err
 	}
 
-	return idea.toModel(), nil
+	return post.toModel(), nil
 }
 
-// GetByID returns idea by given id
-func (s *IdeaStorage) GetByID(ideaID int) (*models.Idea, error) {
-	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, ideaID)
+// GetByID returns post by given id
+func (s *PostStorage) GetByID(postID int) (*models.Post, error) {
+	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, postID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get idea with id '%d'", ideaID)
+		return nil, errors.Wrap(err, "failed to get post with id '%d'", postID)
 	}
-	return idea, nil
+	return post, nil
 }
 
-// GetBySlug returns idea by tenant and slug
-func (s *IdeaStorage) GetBySlug(slug string) (*models.Idea, error) {
-	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
+// GetBySlug returns post by tenant and slug
+func (s *PostStorage) GetBySlug(slug string) (*models.Post, error) {
+	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get idea with slug '%s'", slug)
+		return nil, errors.Wrap(err, "failed to get post with slug '%s'", slug)
 	}
-	return idea, nil
+	return post, nil
 }
 
-// GetByNumber returns idea by tenant and number
-func (s *IdeaStorage) GetByNumber(number int) (*models.Idea, error) {
-	idea, err := s.getSingle(s.getIdeaQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
+// GetByNumber returns post by tenant and number
+func (s *PostStorage) GetByNumber(number int) (*models.Post, error) {
+	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get idea with number '%d'", number)
+		return nil, errors.Wrap(err, "failed to get post with number '%d'", number)
 	}
-	return idea, nil
+	return post, nil
 }
 
-// GetAll returns all tenant ideas
-func (s *IdeaStorage) GetAll() ([]*models.Idea, error) {
-	ideas, err := s.Search("", "all", "all", []string{})
+// GetAll returns all tenant posts
+func (s *PostStorage) GetAll() ([]*models.Post, error) {
+	posts, err := s.Search("", "all", "all", []string{})
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get all ideas")
+		return nil, errors.Wrap(err, "failed to get all posts")
 	}
-	return ideas, nil
+	return posts, nil
 }
 
-// CountPerStatus returns total number of ideas per status
-func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
+// CountPerStatus returns total number of posts per status
+func (s *PostStorage) CountPerStatus() (map[int]int, error) {
 	stats := []*dbStatusCount{}
 	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM ideas WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to count ideas per status")
+		return nil, errors.Wrap(err, "failed to count posts per status")
 	}
 	result := make(map[int]int, len(stats))
 	for _, v := range stats {
@@ -271,9 +271,9 @@ func (s *IdeaStorage) CountPerStatus() (map[int]int, error) {
 	return result, nil
 }
 
-// Search existing ideas based on input
-func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*models.Idea, error) {
-	innerQuery := s.getIdeaQuery("i.tenant_id = $1 AND i.status = ANY($2)")
+// Search existing posts based on input
+func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
+	innerQuery := s.getPostQuery("i.tenant_id = $1 AND i.status = ANY($2)")
 
 	if limit != "all" {
 		if _, err := strconv.Atoi(limit); err != nil {
@@ -282,7 +282,7 @@ func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*mod
 	}
 
 	var (
-		ideas []*dbIdea
+		posts []*dbPost
 		err   error
 	)
 	if query != "" {
@@ -293,12 +293,12 @@ func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			ORDER BY %s DESC
 			LIMIT %s
 		`, innerQuery, scoreField, scoreField, limit)
-		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array([]int{
-			models.IdeaOpen,
-			models.IdeaStarted,
-			models.IdeaPlanned,
-			models.IdeaCompleted,
-			models.IdeaDeclined,
+		err = s.trx.Select(&posts, sql, s.tenant.ID, pq.Array([]int{
+			models.PostOpen,
+			models.PostStarted,
+			models.PostPlanned,
+			models.PostCompleted,
+			models.PostDeclined,
 		}), ToTSQuery(query), query)
 	} else {
 		condition, statuses, sort := getFilterData(filter)
@@ -308,22 +308,22 @@ func (s *IdeaStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			ORDER BY %s DESC
 			LIMIT %s
 		`, innerQuery, condition, sort, limit)
-		err = s.trx.Select(&ideas, sql, s.tenant.ID, pq.Array(statuses), pq.Array(tags))
+		err = s.trx.Select(&posts, sql, s.tenant.ID, pq.Array(statuses), pq.Array(tags))
 	}
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to search ideas")
+		return nil, errors.Wrap(err, "failed to search posts")
 	}
 
-	var result = make([]*models.Idea, len(ideas))
-	for i, idea := range ideas {
-		result[i] = idea.toModel()
+	var result = make([]*models.Post, len(posts))
+	for i, post := range posts {
+		result[i] = post.toModel()
 	}
 	return result, nil
 }
 
-// GetCommentsByIdea returns all comments from given idea
-func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, error) {
+// GetCommentsByPost returns all comments from given post
+func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.trx.Select(&comments,
 		`SELECT c.id, 
@@ -352,9 +352,9 @@ func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, e
 		AND e.tenant_id = c.tenant_id
 		WHERE i.id = $1
 		AND i.tenant_id = $2
-		ORDER BY c.created_on ASC`, idea.ID, s.tenant.ID)
+		ORDER BY c.created_on ASC`, post.ID, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed get comments of idea with id '%d'", idea.ID)
+		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
 	}
 
 	var result = make([]*models.Comment, len(comments))
@@ -364,54 +364,54 @@ func (s *IdeaStorage) GetCommentsByIdea(idea *models.Idea) ([]*models.Comment, e
 	return result, nil
 }
 
-// Update given idea
-func (s *IdeaStorage) Update(idea *models.Idea, title, description string) (*models.Idea, error) {
+// Update given post
+func (s *PostStorage) Update(post *models.Post, title, description string) (*models.Post, error) {
 	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, idea.ID, s.tenant.ID)
+													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, post.ID, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed update idea")
+		return nil, errors.Wrap(err, "failed update post")
 	}
 
-	idea.Slug = slug.Make(title)
-	idea.Title = title
-	idea.Description = description
+	post.Slug = slug.Make(title)
+	post.Title = title
+	post.Description = description
 
-	return idea, nil
+	return post, nil
 }
 
-// Add a new idea in the database
-func (s *IdeaStorage) Add(title, description string) (*models.Idea, error) {
+// Add a new post in the database
+func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 	var id int
 	err := s.trx.Get(&id,
 		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, status) 
 		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0) 
 		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed add new idea")
+		return nil, errors.Wrap(err, "failed add new post")
 	}
 
-	idea, err := s.GetByID(id)
+	post, err := s.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := s.internalAddSubscriber(idea, s.user, false); err != nil {
+	if err := s.internalAddSubscriber(post, s.user, false); err != nil {
 		return nil, err
 	}
 
-	return idea, nil
+	return post, nil
 }
 
-// AddComment places a new comment on an idea
-func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error) {
+// AddComment places a new comment on an post
+func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
 	if err := s.trx.Get(&id,
 		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		s.tenant.ID, idea.ID, content, s.user.ID, time.Now()); err != nil {
+		s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
 
-	if err := s.internalAddSubscriber(idea, s.user, false); err != nil {
+	if err := s.internalAddSubscriber(post, s.user, false); err != nil {
 		return 0, err
 	}
 
@@ -419,7 +419,7 @@ func (s *IdeaStorage) AddComment(idea *models.Idea, content string) (int, error)
 }
 
 // GetCommentByID returns a comment by given ID
-func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
+func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 	comment := dbComment{}
 	err := s.trx.Get(&comment,
 		`SELECT c.id, 
@@ -454,7 +454,7 @@ func (s *IdeaStorage) GetCommentByID(id int) (*models.Comment, error) {
 }
 
 // UpdateComment with given ID and content
-func (s *IdeaStorage) UpdateComment(id int, content string) error {
+func (s *PostStorage) UpdateComment(id int, content string) error {
 	_, err := s.trx.Execute(`
 		UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
 		WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
@@ -464,43 +464,43 @@ func (s *IdeaStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddSupporter adds user to idea list of supporters
-func (s *IdeaStorage) AddSupporter(idea *models.Idea, user *models.User) error {
-	if !idea.CanBeSupported() {
+// AddSupporter adds user to post list of supporters
+func (s *PostStorage) AddSupporter(post *models.Post, user *models.User) error {
+	if !post.CanBeSupported() {
 		return nil
 	}
 
 	_, err := s.trx.Execute(
 		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
-		s.tenant.ID, user.ID, idea.ID, time.Now())
+		s.tenant.ID, user.ID, post.ID, time.Now())
 
 	if err != nil {
-		return errors.Wrap(err, "failed add supporter to idea")
+		return errors.Wrap(err, "failed add supporter to post")
 	}
 
-	return s.internalAddSubscriber(idea, user, false)
+	return s.internalAddSubscriber(post, user, false)
 }
 
-// RemoveSupporter removes user from idea list of supporters
-func (s *IdeaStorage) RemoveSupporter(idea *models.Idea, user *models.User) error {
-	if !idea.CanBeSupported() {
+// RemoveSupporter removes user from post list of supporters
+func (s *PostStorage) RemoveSupporter(post *models.Post, user *models.User) error {
+	if !post.CanBeSupported() {
 		return nil
 	}
 
-	_, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, idea.ID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete idea supporter")
+		return errors.Wrap(err, "failed to delete post supporter")
 	}
 
 	return err
 }
 
-// AddSubscriber adds user to the idea list of subscribers
-func (s *IdeaStorage) AddSubscriber(idea *models.Idea, user *models.User) error {
-	return s.internalAddSubscriber(idea, user, true)
+// AddSubscriber adds user to the post list of subscribers
+func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error {
+	return s.internalAddSubscriber(post, user, true)
 }
 
-func (s *IdeaStorage) internalAddSubscriber(idea *models.Idea, user *models.User, force bool) error {
+func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
 		conflict = "(user_id, idea_id) DO UPDATE SET status = $5, updated_on = $4"
@@ -509,31 +509,31 @@ func (s *IdeaStorage) internalAddSubscriber(idea *models.Idea, user *models.User
 	_, err := s.trx.Execute(fmt.Sprintf(`
 	INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
-		s.tenant.ID, user.ID, idea.ID, time.Now(), models.SubscriberActive,
+		s.tenant.ID, user.ID, post.ID, time.Now(), models.SubscriberActive,
 	)
 	if err != nil {
-		return errors.Wrap(err, "failed insert idea subscriber")
+		return errors.Wrap(err, "failed insert post subscriber")
 	}
 	return nil
 }
 
-// RemoveSubscriber removes user from idea list of subscribers
-func (s *IdeaStorage) RemoveSubscriber(idea *models.Idea, user *models.User) error {
+// RemoveSubscriber removes user from post list of subscribers
+func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) error {
 	_, err := s.trx.Execute(`
 		INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
 		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, idea_id)
 		DO UPDATE SET status = 0, updated_on = $4`,
-		s.tenant.ID, user.ID, idea.ID, time.Now(),
+		s.tenant.ID, user.ID, post.ID, time.Now(),
 	)
 	if err != nil {
-		return errors.Wrap(err, "failed remove idea subscriber")
+		return errors.Wrap(err, "failed remove post subscriber")
 	}
 	return nil
 }
 
 // GetActiveSubscribers based on input and settings
-func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
-	idea, err := s.GetByNumber(number)
+func (s *PostStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
+	post, err := s.GetByNumber(number)
 	if err != nil {
 		return make([]*models.User, 0), err
 	}
@@ -579,7 +579,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 				(set.value IS NULL AND u.role = ANY($5))
 				OR CAST(set.value AS integer) & $6 > 0
 			)`,
-			idea.ID,
+			post.ID,
 			models.SubscriberActive,
 			event.UserSettingsKeyName,
 			s.tenant.ID,
@@ -591,7 +591,7 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	}
 
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get idea number '%d' subscribers", number)
+		return nil, errors.Wrap(err, "failed to get post number '%d' subscribers", number)
 	}
 
 	var result = make([]*models.User, len(users))
@@ -601,28 +601,28 @@ func (s *IdeaStorage) GetActiveSubscribers(number int, channel models.Notificati
 	return result, nil
 }
 
-// SetResponse changes current idea response
-func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) error {
-	if status == models.IdeaDuplicate {
-		return errors.New("Use MarkAsDuplicate to change an idea status to Duplicate")
+// SetResponse changes current post response
+func (s *PostStorage) SetResponse(post *models.Post, text string, status int) error {
+	if status == models.PostDuplicate {
+		return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
 	}
 
 	respondedOn := time.Now()
-	if idea.Status == status && idea.Response != nil {
-		respondedOn = idea.Response.RespondedOn
+	if post.Status == status && post.Response != nil {
+		respondedOn = post.Response.RespondedOn
 	}
 
 	_, err := s.trx.Execute(`
 	UPDATE ideas 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
+	`, post.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
 	if err != nil {
-		return errors.Wrap(err, "failed to update idea's response")
+		return errors.Wrap(err, "failed to update post's response")
 	}
 
-	idea.Status = status
-	idea.Response = &models.IdeaResponse{
+	post.Status = status
+	post.Response = &models.PostResponse{
 		Text:        text,
 		RespondedOn: respondedOn,
 		User:        s.user,
@@ -630,17 +630,17 @@ func (s *IdeaStorage) SetResponse(idea *models.Idea, text string, status int) er
 	return nil
 }
 
-// MarkAsDuplicate set idea as a duplicate of another idea
-func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) error {
+// MarkAsDuplicate set post as a duplicate of another post
+func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) error {
 	respondedOn := time.Now()
-	if idea.Status == models.IdeaDuplicate && idea.Response != nil {
-		respondedOn = idea.Response.RespondedOn
+	if post.Status == models.PostDuplicate && post.Response != nil {
+		respondedOn = post.Response.RespondedOn
 	}
 
 	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", idea.ID, s.tenant.ID)
+	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrap(err, "failed to get supporters of idea with id '%d'", idea.ID)
+		return errors.Wrap(err, "failed to get supporters of post with id '%d'", post.ID)
 	}
 
 	for _, u := range users {
@@ -653,16 +653,16 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 	UPDATE ideas 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, idea.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.IdeaDuplicate)
+	`, post.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.PostDuplicate)
 	if err != nil {
-		return errors.Wrap(err, "failed to update idea's response")
+		return errors.Wrap(err, "failed to update post's response")
 	}
 
-	idea.Status = models.IdeaDuplicate
-	idea.Response = &models.IdeaResponse{
+	post.Status = models.PostDuplicate
+	post.Response = &models.PostResponse{
 		RespondedOn: respondedOn,
 		User:        s.user,
-		Original: &models.OriginalIdea{
+		Original: &models.OriginalPost{
 			Number: original.Number,
 			Title:  original.Title,
 			Slug:   original.Slug,
@@ -672,26 +672,26 @@ func (s *IdeaStorage) MarkAsDuplicate(idea *models.Idea, original *models.Idea) 
 	return nil
 }
 
-// IsReferenced returns true if another idea is referencing given idea
-func (s *IdeaStorage) IsReferenced(idea *models.Idea) (bool, error) {
+// IsReferenced returns true if another post is referencing given post
+func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	exists, err := s.trx.Exists(`
 		SELECT 1 FROM ideas i 
 		INNER JOIN ideas o
 		ON o.tenant_id = i.tenant_id
 		AND o.id = i.original_id
 		WHERE i.tenant_id = $1
-		AND o.id = $2`, s.tenant.ID, idea.ID)
+		AND o.id = $2`, s.tenant.ID, post.ID)
 	if err != nil {
-		return false, errors.Wrap(err, "failed to check if idea is referenced")
+		return false, errors.Wrap(err, "failed to check if post is referenced")
 	}
 	return exists, nil
 }
 
-// SupportedBy returns a list of Idea ID supported by given user
-func (s *IdeaStorage) SupportedBy() ([]int, error) {
-	ideas, err := s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
+// SupportedBy returns a list of Post ID supported by given user
+func (s *PostStorage) SupportedBy() ([]int, error) {
+	posts, err := s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user's supported ideas")
+		return nil, errors.Wrap(err, "failed to get user's supported posts")
 	}
-	return ideas, nil
+	return posts, nil
 }

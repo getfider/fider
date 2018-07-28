@@ -1,12 +1,12 @@
 import "./SupportCounter.scss";
 
 import * as React from "react";
-import { Idea, IdeaStatus } from "@fider/models";
+import { Post, PostStatus } from "@fider/models";
 import { actions, device, classSet, Fider } from "@fider/services";
 import { SignInModal } from "@fider/components";
 
 interface SupportCounterProps {
-  idea: Idea;
+  post: Post;
 }
 
 interface SupportCounterState {
@@ -19,8 +19,8 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   constructor(props: SupportCounterProps) {
     super(props);
     this.state = {
-      supported: props.idea.viewerSupported,
-      total: props.idea.totalSupporters,
+      supported: props.post.viewerSupported,
+      total: props.post.totalSupporters,
       showSignIn: false
     };
   }
@@ -33,7 +33,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
 
     const action = this.state.supported ? actions.removeSupport : actions.addSupport;
 
-    const response = await action(this.props.idea.number);
+    const response = await action(this.props.post.number);
     if (response.ok) {
       this.setState(state => ({
         supported: !state.supported,
@@ -43,7 +43,7 @@ export class SupportCounter extends React.Component<SupportCounterProps, Support
   };
 
   public render() {
-    const status = IdeaStatus.Get(this.props.idea.status);
+    const status = PostStatus.Get(this.props.post.status);
 
     const className = classSet({
       "m-supported": !status.closed && this.state.supported,

@@ -11,24 +11,24 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
-// CreateNewIdea is used to create a new idea
-type CreateNewIdea struct {
-	Model *models.NewIdea
+// CreateNewPost is used to create a new post
+type CreateNewPost struct {
+	Model *models.NewPost
 }
 
 // Initialize the model
-func (input *CreateNewIdea) Initialize() interface{} {
-	input.Model = new(models.NewIdea)
+func (input *CreateNewPost) Initialize() interface{} {
+	input.Model = new(models.NewPost)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewIdea) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateNewPost) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil
 }
 
 // Validate is current model is valid
-func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateNewPost) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Title == "" {
@@ -41,38 +41,38 @@ func (input *CreateNewIdea) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	idea, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
+	post, err := services.Posts.GetBySlug(slug.Make(input.Model.Title))
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if idea != nil {
+	} else if post != nil {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
 	return result
 }
 
-// UpdateIdea is used to edit an existing new idea
-type UpdateIdea struct {
-	Model *models.UpdateIdea
-	Idea  *models.Idea
+// UpdatePost is used to edit an existing new post
+type UpdatePost struct {
+	Model *models.UpdatePost
+	Post  *models.Post
 }
 
 // Initialize the model
-func (input *UpdateIdea) Initialize() interface{} {
-	input.Model = new(models.UpdateIdea)
+func (input *UpdatePost) Initialize() interface{} {
+	input.Model = new(models.UpdatePost)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateIdea) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *UpdatePost) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate is current model is valid
-func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *UpdatePost) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+	post, err := services.Posts.GetByNumber(input.Model.Number)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -87,14 +87,14 @@ func (input *UpdateIdea) Validate(user *models.User, services *app.Services) *va
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	another, err := services.Ideas.GetBySlug(slug.Make(input.Model.Title))
+	another, err := services.Posts.GetBySlug(slug.Make(input.Model.Title))
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if another != nil && another.ID != idea.ID {
+	} else if another != nil && another.ID != post.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	input.Idea = idea
+	input.Post = post
 
 	return result
 }
@@ -126,10 +126,10 @@ func (input *AddNewComment) Validate(user *models.User, services *app.Services) 
 	return result
 }
 
-// SetResponse represents the action to update an idea response
+// SetResponse represents the action to update an post response
 type SetResponse struct {
 	Model    *models.SetResponse
-	Original *models.Idea
+	Original *models.Post
 }
 
 // Initialize the model
@@ -147,19 +147,19 @@ func (input *SetResponse) IsAuthorized(user *models.User, services *app.Services
 func (input *SetResponse) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < models.IdeaOpen || input.Model.Status > models.IdeaDuplicate {
+	if input.Model.Status < models.PostOpen || input.Model.Status > models.PostDuplicate {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if input.Model.Status == models.IdeaDuplicate {
+	if input.Model.Status == models.PostDuplicate {
 		if input.Model.OriginalNumber == input.Model.Number {
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		original, err := services.Ideas.GetByNumber(input.Model.OriginalNumber)
+		original, err := services.Posts.GetByNumber(input.Model.OriginalNumber)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
-				result.AddFieldFailure("originalNumber", "Original idea not found")
+				result.AddFieldFailure("originalNumber", "Original post not found")
 			} else {
 				return validate.Error(err)
 			}
@@ -172,40 +172,40 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 	return result
 }
 
-// DeleteIdea represents the action of an administrator deleting an existing Idea
-type DeleteIdea struct {
-	Model *models.DeleteIdea
-	Idea  *models.Idea
+// DeletePost represents the action of an administrator deleting an existing Post
+type DeletePost struct {
+	Model *models.DeletePost
+	Post  *models.Post
 }
 
 // Initialize the model
-func (input *DeleteIdea) Initialize() interface{} {
-	input.Model = new(models.DeleteIdea)
+func (input *DeletePost) Initialize() interface{} {
+	input.Model = new(models.DeletePost)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteIdea) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *DeletePost) IsAuthorized(user *models.User, services *app.Services) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeleteIdea) Validate(user *models.User, services *app.Services) *validate.Result {
-	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+func (input *DeletePost) Validate(user *models.User, services *app.Services) *validate.Result {
+	post, err := services.Posts.GetByNumber(input.Model.Number)
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	isReferenced, err := services.Ideas.IsReferenced(idea)
+	isReferenced, err := services.Posts.IsReferenced(post)
 	if err != nil {
 		return validate.Error(err)
 	}
 
 	if isReferenced {
-		return validate.Failed("This idea cannot be deleted because it's being referenced by a duplicated idea.")
+		return validate.Failed("This post cannot be deleted because it's being referenced by a duplicated post.")
 	}
 
-	input.Idea = idea
+	input.Post = post
 
 	return validate.Success()
 }
@@ -223,7 +223,7 @@ func (input *EditComment) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *EditComment) IsAuthorized(user *models.User, services *app.Services) bool {
-	comment, err := services.Ideas.GetCommentByID(input.Model.ID)
+	comment, err := services.Posts.GetCommentByID(input.Model.ID)
 	if err != nil {
 		return false
 	}

@@ -1,20 +1,20 @@
 import * as React from "react";
 import { shallow } from "enzyme";
-import { Idea, UserRole, UserStatus, IdeaStatus } from "@fider/models";
+import { Post, UserRole, UserStatus, PostStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
-let idea: Idea;
+let post: Post;
 
 beforeEach(() => {
-  idea = {
+  post = {
     id: 1,
     number: 10,
     slug: "add-typescript",
     title: "Add TypeScript",
     description: "",
     createdOn: "",
-    status: IdeaStatus.Started.value,
+    status: PostStatus.Started.value,
     user: {
       id: 5,
       name: "John",
@@ -31,9 +31,9 @@ beforeEach(() => {
 
 describe("<SupportCounter />", () => {
   test("when viewerSupported === true", () => {
-    idea.viewerSupported = true;
-    idea.totalSupporters = 9;
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+    post.viewerSupported = true;
+    post.totalSupporters = 9;
+    const wrapper = shallow(<SupportCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("9");
     expect(button.hasClass("m-supported")).toBe(true);
@@ -41,18 +41,18 @@ describe("<SupportCounter />", () => {
   });
 
   test("when viewerSupported === false", () => {
-    idea.viewerSupported = false;
-    idea.totalSupporters = 2;
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+    post.viewerSupported = false;
+    post.totalSupporters = 2;
+    const wrapper = shallow(<SupportCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("2");
     expect(button.hasClass("m-supported")).toBe(false);
     expect(button.hasClass("m-disabled")).toBe(false);
   });
 
-  test("when idea is closed", () => {
-    idea.status = IdeaStatus.Completed.value;
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+  test("when post is closed", () => {
+    post.status = PostStatus.Completed.value;
+    const wrapper = shallow(<SupportCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("5");
     expect(button.hasClass("m-supported")).toBe(false);
@@ -64,7 +64,7 @@ describe("<SupportCounter />", () => {
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+    const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
     await rerender(wrapper);
     expect(wrapper.find("SignInModal").length).toBe(1);
@@ -76,9 +76,9 @@ describe("<SupportCounter />", () => {
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+    const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/ideas/10/support");
+    expect(mock).toHaveBeenCalledWith("/api/posts/10/support");
     expect(mock).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
@@ -86,14 +86,14 @@ describe("<SupportCounter />", () => {
   });
 
   test("click when authenticated and viewerSupported === true", async () => {
-    idea.viewerSupported = true;
+    post.viewerSupported = true;
     fiderMock.authenticated();
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter idea={idea} />);
+    const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/ideas/10/unsupport");
+    expect(mock).toHaveBeenCalledWith("/api/posts/10/unsupport");
     expect(mock).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);

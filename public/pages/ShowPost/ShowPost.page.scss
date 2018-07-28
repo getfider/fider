@@ -1,8 +1,8 @@
 @import '~@fider/assets/styles/variables.scss';
 
-#p-show-idea {
+#p-show-post {
 
-  .idea-header {
+  .post-header {
     width: 100%;
     h1 {
       font-weight: 400;
@@ -54,7 +54,7 @@
 }
 
 .c-response-form {
-  .c-idea-search {
+  .c-post-search {
     .support {
       text-align: center;
       width: 50px;

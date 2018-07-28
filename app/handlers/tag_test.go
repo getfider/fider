@@ -178,15 +178,15 @@ func TestAssignTagHandler_Success(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
+	post, _ := services.Posts.Add("Post Title", "Post Description")
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", tag.Slug).
-		AddParam("number", idea.Number).
+		AddParam("number", post.Number).
 		Execute(handlers.AssignTag())
 
-	tags, err := services.Tags.GetAssigned(idea)
+	tags, err := services.Tags.GetAssigned(post)
 	Expect(status).Equals(http.StatusOK)
 	Expect(err).IsNil()
 	Expect(tags[0]).Equals(tag)
@@ -219,12 +219,12 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 		services.SetCurrentTenant(mock.DemoTenant)
 		services.SetCurrentUser(mock.JonSnow)
 		tag, _ := services.Tags.Add("Bug", "0000FF", true)
-		idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
+		post, _ := services.Posts.Add("Post Title", "Post Description")
 
 		status, _ := server.
 			AsUser(mock.AryaStark).
 			AddParam("slug", tag.Slug).
-			AddParam("number", idea.Number).
+			AddParam("number", post.Number).
 			Execute(handler)
 
 		Expect(status).Equals(http.StatusForbidden)
@@ -238,16 +238,16 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	tag, _ := services.Tags.Add("Bug", "0000FF", true)
-	idea, _ := services.Ideas.Add("Idea Title", "Idea Description")
-	services.Tags.AssignTag(tag, idea)
+	post, _ := services.Posts.Add("Post Title", "Post Description")
+	services.Tags.AssignTag(tag, post)
 
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", tag.Slug).
-		AddParam("number", idea.Number).
+		AddParam("number", post.Number).
 		Execute(handlers.UnassignTag())
 
-	tags, err := services.Tags.GetAssigned(idea)
+	tags, err := services.Tags.GetAssigned(post)
 	Expect(status).Equals(http.StatusOK)
 	Expect(err).IsNil()
 	Expect(tags).HasLen(0)

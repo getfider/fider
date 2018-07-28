@@ -92,10 +92,10 @@ func (input *DeleteTag) Validate(user *models.User, services *app.Services) *val
 	return validate.Success()
 }
 
-// AssignUnassignTag is used to assign or remove a tag to/from an idea
+// AssignUnassignTag is used to assign or remove a tag to/from an post
 type AssignUnassignTag struct {
 	Tag   *models.Tag
-	Idea  *models.Idea
+	Post  *models.Post
 	Model *models.AssignUnassignTag
 }
 
@@ -112,7 +112,7 @@ func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Se
 
 // Validate is current model is valid
 func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
-	idea, err := services.Ideas.GetByNumber(input.Model.Number)
+	post, err := services.Posts.GetByNumber(input.Model.Number)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -123,6 +123,6 @@ func (input *AssignUnassignTag) Validate(user *models.User, services *app.Servic
 	}
 
 	input.Tag = tag
-	input.Idea = idea
+	input.Post = post
 	return validate.Success()
 }

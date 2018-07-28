@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-//Idea represents an idea on a tenant board
-type Idea struct {
+//Post represents an post on a tenant board
+type Post struct {
 	ID              int           `json:"id"`
 	Number          int           `json:"number"`
 	Title           string        `json:"title"`
@@ -18,30 +18,30 @@ type Idea struct {
 	TotalSupporters int           `json:"totalSupporters"`
 	TotalComments   int           `json:"totalComments"`
 	Status          int           `json:"status"`
-	Response        *IdeaResponse `json:"response"`
+	Response        *PostResponse `json:"response"`
 	Tags            []string      `json:"tags"`
 }
 
-// CanBeSupported returns true if this idea can be Supported/UnSupported
-func (i *Idea) CanBeSupported() bool {
-	return i.Status != IdeaCompleted && i.Status != IdeaDeclined && i.Status != IdeaDuplicate
+// CanBeSupported returns true if this post can be Supported/UnSupported
+func (i *Post) CanBeSupported() bool {
+	return i.Status != PostCompleted && i.Status != PostDeclined && i.Status != PostDuplicate
 }
 
-// NewIdea represents a new idea
-type NewIdea struct {
+// NewPost represents a new post
+type NewPost struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-// UpdateIdea represents a request to edit an existing idea
-type UpdateIdea struct {
+// UpdatePost represents a request to edit an existing post
+type UpdatePost struct {
 	Number      int    `route:"number"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-// DeleteIdea represents a request to delete an existing idea
-type DeleteIdea struct {
+// DeletePost represents a request to delete an existing post
+type DeletePost struct {
 	Number int    `route:"number"`
 	Text   string `json:"text"`
 }
@@ -54,12 +54,12 @@ type NewComment struct {
 
 // EditComment represents a request to edit existing comment
 type EditComment struct {
-	IdeaNumber int    `route:"number"`
+	PostNumber int    `route:"number"`
 	ID         int    `route:"id"`
 	Content    string `json:"content"`
 }
 
-// SetResponse represents the action to update an idea response
+// SetResponse represents the action to update an post response
 type SetResponse struct {
 	Number         int    `route:"number"`
 	Status         int    `json:"status"`
@@ -67,23 +67,23 @@ type SetResponse struct {
 	OriginalNumber int    `json:"originalNumber"`
 }
 
-//IdeaResponse is a staff response to a given idea
-type IdeaResponse struct {
+//PostResponse is a staff response to a given post
+type PostResponse struct {
 	Text        string        `json:"text"`
 	RespondedOn time.Time     `json:"respondedOn"`
 	User        *User         `json:"user"`
-	Original    *OriginalIdea `json:"original"`
+	Original    *OriginalPost `json:"original"`
 }
 
-//OriginalIdea holds details of the original idea of a duplicate
-type OriginalIdea struct {
+//OriginalPost holds details of the original post of a duplicate
+type OriginalPost struct {
 	Number int    `json:"number"`
 	Title  string `json:"title"`
 	Slug   string `json:"slug"`
 	Status int    `json:"status"`
 }
 
-//Comment represents an user comment on an idea
+//Comment represents an user comment on an post
 type Comment struct {
 	ID        int        `json:"id"`
 	Content   string     `json:"content"`
@@ -115,45 +115,45 @@ type DeleteTag struct {
 	Slug string `route:"slug"`
 }
 
-// AssignUnassignTag is used to assign or remove a tag to/from an idea
+// AssignUnassignTag is used to assign or remove a tag to/from an post
 type AssignUnassignTag struct {
 	Slug   string `route:"slug"`
 	Number int    `route:"number"`
 }
 
 var (
-	//IdeaOpen is the default status
-	IdeaOpen = 0
-	//IdeaStarted is used when the idea has been accepted and work is in progress
-	IdeaStarted = 1
-	//IdeaCompleted is used when the idea has been accepted and already implemented
-	IdeaCompleted = 2
-	//IdeaDeclined is used when organizers decide to decline an idea
-	IdeaDeclined = 3
-	//IdeaPlanned is used when organizers have accepted an idea and it's on the roadmap
-	IdeaPlanned = 4
-	//IdeaDuplicate is used when the idea has already been posted before
-	IdeaDuplicate = 5
-	//IdeaDeleted is used when the idea is completely removed from the site and should never be shown again
-	IdeaDeleted = 6
+	//PostOpen is the default status
+	PostOpen = 0
+	//PostStarted is used when the post has been accepted and work is in progress
+	PostStarted = 1
+	//PostCompleted is used when the post has been accepted and already implemented
+	PostCompleted = 2
+	//PostDeclined is used when organizers decide to decline an post
+	PostDeclined = 3
+	//PostPlanned is used when organizers have accepted an post and it's on the roadmap
+	PostPlanned = 4
+	//PostDuplicate is used when the post has already been posted before
+	PostDuplicate = 5
+	//PostDeleted is used when the post is completely removed from the site and should never be shown again
+	PostDeleted = 6
 )
 
-// GetIdeaStatusName returns the name of an idea status
-func GetIdeaStatusName(status int) string {
+// GetPostStatusName returns the name of a post status
+func GetPostStatusName(status int) string {
 	switch status {
-	case IdeaOpen:
+	case PostOpen:
 		return "Open"
-	case IdeaStarted:
+	case PostStarted:
 		return "Started"
-	case IdeaCompleted:
+	case PostCompleted:
 		return "Completed"
-	case IdeaDeclined:
+	case PostDeclined:
 		return "Declined"
-	case IdeaPlanned:
+	case PostPlanned:
 		return "Planned"
-	case IdeaDuplicate:
+	case PostDuplicate:
 		return "Duplicate"
-	case IdeaDeleted:
+	case PostDeleted:
 		return "Deleted"
 	default:
 		return "Unknown"
@@ -191,8 +191,8 @@ func notificationEventValidation(v string) bool {
 }
 
 var (
-	//NotificationEventNewIdea is triggered when a new idea is posted
-	NotificationEventNewIdea = NotificationEvent{
+	//NotificationEventNewPost is triggered when a new post is posted
+	NotificationEventNewPost = NotificationEvent{
 		UserSettingsKeyName:          "event_notification_new_idea",
 		DefaultSettingValue:          strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
 		RequiresSubscripionUserRoles: []Role{},
@@ -216,7 +216,7 @@ var (
 		},
 		Validate: notificationEventValidation,
 	}
-	//NotificationEventChangeStatus is triggered when a new idea has its status changed
+	//NotificationEventChangeStatus is triggered when a new post has its status changed
 	NotificationEventChangeStatus = NotificationEvent{
 		UserSettingsKeyName: "event_notification_change_status",
 		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
@@ -232,7 +232,7 @@ var (
 	}
 	//AllNotificationEvents contains all possible notification events
 	AllNotificationEvents = []NotificationEvent{
-		NotificationEventNewIdea,
+		NotificationEventNewPost,
 		NotificationEventNewComment,
 		NotificationEventChangeStatus,
 	}

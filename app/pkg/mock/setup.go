@@ -51,7 +51,7 @@ func createServices(seed bool) *app.Services {
 		Users:         &inmemory.UserStorage{},
 		Tags:          inmemory.NewTagStorage(),
 		Notifications: inmemory.NewNotificationStorage(),
-		Ideas:         inmemory.NewIdeaStorage(),
+		Posts:         inmemory.NewPostStorage(),
 		OAuth:         &OAuthService{},
 		Emailer:       noop.NewSender(),
 	}
@@ -59,7 +59,7 @@ func createServices(seed bool) *app.Services {
 	if seed {
 		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
 		AvengersTenant, _ = services.Tenants.Add("Avengers", "avengers", models.TenantActive)
-		AvengersTenant.CNAME = "ideas.theavengers.com"
+		AvengersTenant.CNAME = "feedback.theavengers.com"
 
 		JonSnow = &models.User{
 			Name:   "Jon Snow",

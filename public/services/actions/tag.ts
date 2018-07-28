@@ -13,10 +13,10 @@ export const deleteTag = async (slug: string): Promise<Result> => {
   return http.delete(`/api/admin/tags/${slug}`).then(http.event("tag", "delete"));
 };
 
-export const assignTag = async (slug: string, ideaNumber: number): Promise<Result> => {
-  return http.post(`/api/ideas/${ideaNumber}/tags/${slug}`).then(http.event("tag", "assign"));
+export const assignTag = async (slug: string, postNumber: number): Promise<Result> => {
+  return http.post(`/api/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "assign"));
 };
 
-export const unassignTag = async (slug: string, ideaNumber: number): Promise<Result> => {
-  return http.delete(`/api/ideas/${ideaNumber}/tags/${slug}`).then(http.event("tag", "unassign"));
+export const unassignTag = async (slug: string, postNumber: number): Promise<Result> => {
+  return http.delete(`/api/posts/${postNumber}/tags/${slug}`).then(http.event("tag", "unassign"));
 };

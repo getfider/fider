@@ -14,7 +14,7 @@ import {
   ManageAuthenticationPage,
   ManageTagsPage,
   OAuthEchoPage,
-  ShowIdeaPage,
+  ShowPostPage,
   MySettingsPage,
   MyNotificationsPage,
   UIToolkitPage
@@ -39,7 +39,7 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
 
 const pathRegex = [
   route("", HomePage),
-  route("/ideas/:number*", ShowIdeaPage),
+  route("/posts/:number*", ShowPostPage),
   route("/admin/members", ManageMembersPage),
   route("/admin/tags", ManageTagsPage),
   route("/admin/privacy", PrivacySettingsPage),

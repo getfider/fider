@@ -30,15 +30,15 @@ func TestNotificationStorage_Insert_Read_Count(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(jonSnow)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(jonSnow)
-	idea, _ := ideas.Add("Title", "Description")
+	post, _ := posts.Add("Title", "Description")
 
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
+	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
 	Expect(err).IsNil()
-	not2, err := notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
+	not2, err := notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
 	Expect(err).IsNil()
 
 	notifications.SetCurrentUser(aryaStark)
@@ -61,14 +61,14 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(jonSnow)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(jonSnow)
-	idea, _ := ideas.Add("Title", "Description")
+	post, _ := posts.Add("Title", "Description")
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
+	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
+	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
 
 	notifications.SetCurrentUser(aryaStark)
 
@@ -90,15 +90,15 @@ func TestNotificationStorage_ReadAll(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(jonSnow)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(jonSnow)
 
-	idea, _ := ideas.Add("Title", "Description")
+	post, _ := posts.Add("Title", "Description")
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", idea.ID)
+	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
+	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
 
 	notifications.SetCurrentUser(aryaStark)
 
@@ -119,13 +119,13 @@ func TestNotificationStorage_GetNotificationById(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(jonSnow)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(jonSnow)
-	idea, _ := ideas.Add("Title", "Description")
+	post, _ := posts.Add("Title", "Description")
 
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", idea.ID)
+	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
 	Expect(err).IsNil()
 
 	notifications.SetCurrentUser(aryaStark)
@@ -140,13 +140,13 @@ func TestNotificationStorage_GetNotificationById_OtherUser(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ideas.SetCurrentTenant(demoTenant)
-	ideas.SetCurrentUser(jonSnow)
-	idea, _ := ideas.Add("Title", "Description")
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+	post, _ := posts.Add("Title", "Description")
 
 	notifications.SetCurrentTenant(demoTenant)
 	notifications.SetCurrentUser(aryaStark)
-	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", idea.ID)
+	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", post.ID)
 	Expect(err).IsNil()
 
 	not1, err = notifications.GetNotification(not1.ID)

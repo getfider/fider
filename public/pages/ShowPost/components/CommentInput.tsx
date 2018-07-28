@@ -1,14 +1,14 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Idea, CurrentUser } from "@fider/models";
+import { Post, CurrentUser } from "@fider/models";
 import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
 
 interface CommentInputProps {
-  idea: Idea;
+  post: Post;
 }
 
 interface CommentInputState {
@@ -32,7 +32,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   private getCacheKey(): string {
-    return `${CACHE_TITLE_KEY}${this.props.idea.id}`;
+    return `${CACHE_TITLE_KEY}${this.props.post.id}`;
   }
 
   private commentChanged = (content: string) => {
@@ -45,7 +45,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       error: undefined
     });
 
-    const result = await actions.createComment(this.props.idea.number, this.state.content);
+    const result = await actions.createComment(this.props.post.number, this.state.content);
     if (result.ok) {
       cache.remove(this.getCacheKey());
       location.reload();

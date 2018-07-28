@@ -10,8 +10,8 @@ import (
 	"github.com/getfider/fider/app/models"
 )
 
-//FromIdeas return a byte array of CSV file containing all ideas
-func FromIdeas(ideas []*models.Idea) ([]byte, error) {
+//FromPosts return a byte array of CSV file containing all posts
+func FromPosts(posts []*models.Post) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	writer := gocsv.NewWriter(buffer)
 
@@ -35,7 +35,7 @@ func FromIdeas(ideas []*models.Idea) ([]byte, error) {
 		return nil, err
 	}
 
-	for _, idea := range ideas {
+	for _, post := range posts {
 		var (
 			originalNumber string
 			originalTitle  string
@@ -44,31 +44,31 @@ func FromIdeas(ideas []*models.Idea) ([]byte, error) {
 			response       string
 		)
 
-		if idea.Response != nil {
-			respondedBy = idea.Response.User.Name
-			respondedOn = idea.Response.RespondedOn.Format(time.RFC3339)
-			response = idea.Response.Text
-			if idea.Response.Original != nil {
-				originalNumber = strconv.Itoa(idea.Response.Original.Number)
-				originalTitle = idea.Response.Original.Title
+		if post.Response != nil {
+			respondedBy = post.Response.User.Name
+			respondedOn = post.Response.RespondedOn.Format(time.RFC3339)
+			response = post.Response.Text
+			if post.Response.Original != nil {
+				originalNumber = strconv.Itoa(post.Response.Original.Number)
+				originalTitle = post.Response.Original.Title
 			}
 		}
 
 		record := []string{
-			strconv.Itoa(idea.Number),
-			idea.Title,
-			idea.Description,
-			idea.CreatedOn.Format(time.RFC3339),
-			idea.User.Name,
-			strconv.Itoa(idea.TotalSupporters),
-			strconv.Itoa(idea.TotalComments),
-			models.GetIdeaStatusName(idea.Status),
+			strconv.Itoa(post.Number),
+			post.Title,
+			post.Description,
+			post.CreatedOn.Format(time.RFC3339),
+			post.User.Name,
+			strconv.Itoa(post.TotalSupporters),
+			strconv.Itoa(post.TotalComments),
+			models.GetPostStatusName(post.Status),
 			respondedBy,
 			respondedOn,
 			response,
 			originalNumber,
 			originalTitle,
-			strings.Join(idea.Tags, ", "),
+			strings.Join(post.Tags, ", "),
 		}
 		if err := writer.Write(record); err != nil {
 			return nil, err

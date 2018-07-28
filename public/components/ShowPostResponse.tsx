@@ -1,18 +1,18 @@
-import "./ShowIdeaResponse.scss";
+import "./ShowPostResponse.scss";
 
 import * as React from "react";
-import { User, IdeaResponse, IdeaStatus } from "@fider/models";
+import { PostResponse, PostStatus } from "@fider/models";
 import { Gravatar, MultiLineText, Moment, UserName, Segment } from "@fider/components/common";
 
-interface ShowIdeaStatusProps {
-  status: IdeaStatus;
+interface ShowPostStatusProps {
+  status: PostStatus;
 }
 
-export const ShowIdeaStatus = (props: ShowIdeaStatusProps) => {
+export const ShowPostStatus = (props: ShowPostStatusProps) => {
   return <span className={`status-label status-${props.status.slug}`}>{props.status.title}</span>;
 };
 
-const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
+const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
   if (!props.response) {
     return null;
   }
@@ -21,21 +21,21 @@ const DuplicateDetails = (props: IdeaResponseProps): JSX.Element | null => {
   if (!original) {
     return null;
   }
-  const status = IdeaStatus.Get(original.status);
+  const status = PostStatus.Get(original.status);
 
   return (
     <div className="content">
-      <span>&#8618;</span> <a href={`/ideas/${original.number}/${original.slug}`}>{original.title}</a>
+      <span>&#8618;</span> <a href={`/posts/${original.number}/${original.slug}`}>{original.title}</a>
     </div>
   );
 };
 
-interface IdeaResponseProps {
+interface PostResponseProps {
   status: number;
-  response: IdeaResponse | null;
+  response: PostResponse | null;
 }
 
-const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
+const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
   if (!props.response || !props.response.text) {
     return null;
   }
@@ -47,15 +47,15 @@ const StatusDetails = (props: IdeaResponseProps): JSX.Element | null => {
   );
 };
 
-export const ShowIdeaResponse = (props: IdeaResponseProps): JSX.Element => {
-  const status = IdeaStatus.Get(props.status);
+export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
+  const status = PostStatus.Get(props.status);
 
   if (props.response && status.show) {
     return (
       <Segment className="l-response">
-        <ShowIdeaStatus status={status} />
+        <ShowPostStatus status={status} />
         <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
-        {status === IdeaStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
+        {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </Segment>
     );
   }

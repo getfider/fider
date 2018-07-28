@@ -12,7 +12,7 @@ import (
 // Index is the default home page
 func Index() web.HandlerFunc {
 	return func(c web.Context) error {
-		ideas, err := c.Services().Ideas.Search(
+		posts, err := c.Services().Posts.Search(
 			c.QueryParam("q"),
 			c.QueryParam("f"),
 			c.QueryParam("l"),
@@ -27,7 +27,7 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		stats, err := c.Services().Ideas.CountPerStatus()
+		stats, err := c.Services().Posts.CountPerStatus()
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -36,13 +36,13 @@ func Index() web.HandlerFunc {
 		if c.Tenant().WelcomeMessage != "" {
 			description = markdown.PlainText(c.Tenant().WelcomeMessage)
 		} else {
-			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas."
+			description = "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share posts."
 		}
 
 		return c.Page(web.Props{
 			Description: description,
 			Data: web.Map{
-				"ideas":          ideas,
+				"posts":          posts,
 				"tags":           tags,
 				"countPerStatus": stats,
 			},
@@ -50,10 +50,10 @@ func Index() web.HandlerFunc {
 	}
 }
 
-// SearchIdeas return existing ideas based on search criteria
-func SearchIdeas() web.HandlerFunc {
+// SearchPosts return existing posts based on search criteria
+func SearchPosts() web.HandlerFunc {
 	return func(c web.Context) error {
-		ideas, err := c.Services().Ideas.Search(
+		posts, err := c.Services().Posts.Search(
 			c.QueryParam("q"),
 			c.QueryParam("f"),
 			c.QueryParam("l"),
@@ -62,60 +62,43 @@ func SearchIdeas() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(ideas)
+		return c.Ok(posts)
 	}
 }
 
-// PostIdea creates a new idea on current tenant
-func PostIdea() web.HandlerFunc {
+// CreatePost creates a new post on current tenant
+func CreatePost() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(actions.CreateNewIdea)
+		input := new(actions.CreateNewPost)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		ideas := c.Services().Ideas
-		idea, err := ideas.Add(input.Model.Title, input.Model.Description)
+		posts := c.Services().Posts
+		post, err := posts.Add(input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := ideas.AddSupporter(idea, c.User()); err != nil {
+		if err := posts.AddSupporter(post, c.User()); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewIdea(idea))
+		c.Enqueue(tasks.NotifyAboutNewPost(post))
 
-		return c.Ok(idea)
+		return c.Ok(post)
 	}
 }
 
-// UpdateIdea updates an existing idea of current tenant
-func UpdateIdea() web.HandlerFunc {
+// UpdatePost updates an existing post of current tenant
+func UpdatePost() web.HandlerFunc {
 	return func(c web.Context) error {
-		input := new(actions.UpdateIdea)
+		input := new(actions.UpdatePost)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Ideas.Update(input.Idea, input.Model.Title, input.Model.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
-	}
-}
-
-// DeleteIdea deletes an existing idea of current tenant
-func DeleteIdea() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.DeleteIdea)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		err := c.Services().Ideas.SetResponse(input.Idea, input.Model.Text, models.IdeaDeleted)
+		_, err := c.Services().Posts.Update(input.Post, input.Model.Title, input.Model.Description)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -124,21 +107,38 @@ func DeleteIdea() web.HandlerFunc {
 	}
 }
 
-// IdeaDetails shows details of given Idea by id
-func IdeaDetails() web.HandlerFunc {
+// DeletePost deletes an existing post of current tenant
+func DeletePost() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.DeletePost)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Posts.SetResponse(input.Post, input.Model.Text, models.PostDeleted)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// PostDetails shows details of given Post by id
+func PostDetails() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		ideas := c.Services().Ideas
-		idea, err := ideas.GetByNumber(number)
+		posts := c.Services().Posts
+		post, err := posts.GetByNumber(number)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		comments, err := ideas.GetCommentsByIdea(idea)
+		comments, err := posts.GetCommentsByPost(post)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -148,25 +148,25 @@ func IdeaDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subscribed, err := c.Services().Users.HasSubscribedTo(idea.ID)
+		subscribed, err := c.Services().Users.HasSubscribedTo(post.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Page(web.Props{
-			Title:       idea.Title,
-			Description: markdown.PlainText(idea.Description),
+			Title:       post.Title,
+			Description: markdown.PlainText(post.Description),
 			Data: web.Map{
 				"comments":   comments,
 				"subscribed": subscribed,
-				"idea":       idea,
+				"post":       post,
 				"tags":       tags,
 			},
 		})
 	}
 }
 
-// PostComment creates a new comment on given idea
+// PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.AddNewComment)
@@ -174,17 +174,17 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
+		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Ideas.AddComment(idea, input.Model.Content)
+		_, err = c.Services().Posts.AddComment(post, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(idea, input.Model))
+		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
 
 		return c.Ok(web.Map{})
 	}
@@ -198,7 +198,7 @@ func UpdateComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Ideas.UpdateComment(input.Model.ID, input.Model.Content)
+		err := c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -207,7 +207,7 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
-// SetResponse changes current idea staff response
+// SetResponse changes current post staff response
 func SetResponse() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.SetResponse)
@@ -215,67 +215,67 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		idea, err := c.Services().Ideas.GetByNumber(input.Model.Number)
+		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		prevStatus := idea.Status
-		if input.Model.Status == models.IdeaDuplicate {
-			err = c.Services().Ideas.MarkAsDuplicate(idea, input.Original)
+		prevStatus := post.Status
+		if input.Model.Status == models.PostDuplicate {
+			err = c.Services().Posts.MarkAsDuplicate(post, input.Original)
 		} else {
-			err = c.Services().Ideas.SetResponse(idea, input.Model.Text, input.Model.Status)
+			err = c.Services().Posts.SetResponse(post, input.Model.Text, input.Model.Status)
 		}
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(idea, prevStatus))
+		c.Enqueue(tasks.NotifyAboutStatusChange(post, prevStatus))
 
 		return c.Ok(web.Map{})
 	}
 }
 
-// AddSupporter adds current user to given idea list of supporters
+// AddSupporter adds current user to given post list of supporters
 func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Ideas.AddSupporter)
+		return addOrRemove(c, c.Services().Posts.AddSupporter)
 	}
 }
 
-// RemoveSupporter removes current user from given idea list of supporters
+// RemoveSupporter removes current user from given post list of supporters
 func RemoveSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Ideas.RemoveSupporter)
+		return addOrRemove(c, c.Services().Posts.RemoveSupporter)
 	}
 }
 
-// Subscribe adds current user to list of subscribers of given idea
+// Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Ideas.AddSubscriber)
+		return addOrRemove(c, c.Services().Posts.AddSubscriber)
 	}
 }
 
-// Unsubscribe removes current user from list of subscribers of given idea
+// Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Ideas.RemoveSubscriber)
+		return addOrRemove(c, c.Services().Posts.RemoveSubscriber)
 	}
 }
 
-func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models.User) error) error {
+func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	idea, err := c.Services().Ideas.GetByNumber(number)
+	post, err := c.Services().Posts.GetByNumber(number)
 	if err != nil {
 		return c.Failure(err)
 	}
 
-	err = addOrRemove(idea, c.User())
+	err = addOrRemove(post, c.User())
 	if err != nil {
 		return c.Failure(err)
 	}
@@ -283,20 +283,20 @@ func addOrRemove(c web.Context, addOrRemove func(idea *models.Idea, user *models
 	return c.Ok(web.Map{})
 }
 
-// ExportIdeasToCSV returns a CSV with all ideas
-func ExportIdeasToCSV() web.HandlerFunc {
+// ExportPostsToCSV returns a CSV with all posts
+func ExportPostsToCSV() web.HandlerFunc {
 	return func(c web.Context) error {
 
-		ideas, err := c.Services().Ideas.GetAll()
+		posts, err := c.Services().Posts.GetAll()
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		bytes, err := csv.FromIdeas(ideas)
+		bytes, err := csv.FromPosts(posts)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Attachment("ideas.csv", "text/csv", bytes)
+		return c.Attachment("posts.csv", "text/csv", bytes)
 	}
 }
