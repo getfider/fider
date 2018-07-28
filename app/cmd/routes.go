@@ -146,9 +146,9 @@ func routes(r *web.Engine) *web.Engine {
 			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
 			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())
-			private.Delete("/api/admin/tags/:slug", handlers.DeleteTag())
-			private.Post("/api/admin/tags/:slug", handlers.CreateEditTag())
-			private.Post("/api/admin/tags", handlers.CreateEditTag())
+			private.Post("/api/v1/admin/tags", apiv1.CreateEditTag())
+			private.Put("/api/v1/admin/tags/:slug", apiv1.CreateEditTag())
+			private.Delete("/api/v1/admin/tags/:slug", apiv1.DeleteTag())
 			private.Post("/api/admin/oauth", handlers.SaveOAuthConfig())
 			private.Post("/api/admin/users/:user_id/role", handlers.ChangeUserRole())
 		}
