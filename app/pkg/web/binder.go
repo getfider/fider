@@ -27,7 +27,8 @@ func NewDefaultBinder() *DefaultBinder {
 
 func methodHasBody(method string) bool {
 	return method == http.MethodPost ||
-		method == http.MethodDelete
+		method == http.MethodDelete ||
+		method == http.MethodPut
 }
 
 //Bind request data to object i

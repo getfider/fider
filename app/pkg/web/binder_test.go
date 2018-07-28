@@ -24,13 +24,16 @@ func TestDefaultBinder_FromParams(t *testing.T) {
 	params := make(web.StringMap, 0)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
-	ctx := newBodyContext("POST", params, `{ "name": "Jon Snow" }`, "application/json")
-	u := new(updateUser)
-	err := binder.Bind(u, ctx)
-	Expect(err).IsNil()
-	Expect(u.Number).Equals(2)
-	Expect(u.Slug).Equals("jon-snow")
-	Expect(u.Name).Equals("Jon Snow")
+
+	for _, method := range []string{"POST", "PUT", "DELETE"} {
+		ctx := newBodyContext(method, params, `{ "name": "Jon Snow" }`, "application/json")
+		u := new(updateUser)
+		err := binder.Bind(u, ctx)
+		Expect(err).IsNil()
+		Expect(u.Number).Equals(2)
+		Expect(u.Slug).Equals("jon-snow")
+		Expect(u.Name).Equals("Jon Snow")
+	}
 }
 
 func TestDefaultBinder_TrimSpaces(t *testing.T) {
