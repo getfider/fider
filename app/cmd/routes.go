@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
@@ -84,7 +85,7 @@ func routes(r *web.Engine) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
-			public.Get("/api/posts/search", handlers.SearchPosts())
+			public.Get("/api/v1/posts", apiv1.SearchPosts())
 			public.Get("/posts/:number", handlers.PostDetails())
 			public.Get("/posts/:number/*all", handlers.PostDetails())
 			public.Get("/signout", handlers.SignOut())

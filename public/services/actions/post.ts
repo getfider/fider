@@ -2,7 +2,7 @@ import { http, Result, querystring } from "@fider/services";
 import { Post } from "@fider/models";
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
-  return await http.get<Post[]>("/api/posts/search");
+  return await http.get<Post[]>("/api/v1/posts");
 };
 
 export interface SearchPostsParams {
@@ -14,7 +14,7 @@ export interface SearchPostsParams {
 
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
   return await http.get<Post[]>(
-    `/api/posts/search${querystring.stringify({
+    `/api/v1/posts${querystring.stringify({
       t: params.tags,
       q: params.query,
       f: params.filter,
