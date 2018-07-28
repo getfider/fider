@@ -112,7 +112,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Put("/api/v1/posts/:number", apiv1.UpdatePost())
 			private.Post("/api/posts/:number/comments", handlers.PostComment())
 			private.Post("/api/posts/:number/comments/:id", handlers.UpdateComment())
-			private.Post("/api/posts/:number/status", handlers.SetResponse())
+			private.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
 			private.Post("/api/posts/:number/support", handlers.AddSupporter())
 			private.Post("/api/posts/:number/unsupport", handlers.RemoveSupporter())
 			private.Post("/api/posts/:number/subscribe", handlers.Subscribe())

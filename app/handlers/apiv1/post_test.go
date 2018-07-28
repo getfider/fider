@@ -1,10 +1,13 @@
 package apiv1_test
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/handlers/apiv1"
+	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 )
@@ -121,6 +124,110 @@ func TestUpdatePostHandler_DuplicateTitle(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("number", post1.Number).
 		ExecutePost(apiv1.UpdatePost(), `{ "title": "My Second Post", "description": "And description too..." }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestSetResponseHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+	services.Posts.AddSupporter(post, mock.AryaStark)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.ID).
+		ExecutePost(handlers.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.PostCompleted))
+
+	post, _ = services.Posts.GetByNumber(post.Number)
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(post.Status).Equals(models.PostCompleted)
+	Expect(post.Response.Text).Equals("Done!")
+	Expect(post.Response.User.ID).Equals(mock.JonSnow.ID)
+}
+
+func TestSetResponseHandler_Unauthorized(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+	services.Posts.AddSupporter(post, mock.AryaStark)
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", post.ID).
+		ExecutePost(handlers.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.PostCompleted))
+
+	post, _ = services.Posts.GetByNumber(post.Number)
+
+	Expect(code).Equals(http.StatusForbidden)
+	Expect(post.Status).Equals(models.PostOpen)
+}
+
+func TestSetResponseHandler_Duplicate(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post1, _ := services.Posts.Add("The Post #1", "The Description #1")
+	post2, _ := services.Posts.Add("The Post #2", "The Description #2")
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.PostDuplicate, post2.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+	Expect(code).Equals(http.StatusOK)
+
+	post1, _ = services.Posts.GetByNumber(post1.Number)
+	Expect(post1.Status).Equals(models.PostDuplicate)
+
+	post2, _ = services.Posts.GetByNumber(post2.Number)
+	Expect(post2.Status).Equals(models.PostOpen)
+}
+
+func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post1, _ := services.Posts.Add("The Post #1", "The Description #1")
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": 9999 }`, models.PostDuplicate)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post1.ID).
+		ExecutePost(handlers.SetResponse(), body)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+
+	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.PostDuplicate, post.Number)
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.ID).
+		ExecutePost(handlers.SetResponse(), body)
 
 	Expect(code).Equals(http.StatusBadRequest)
 }

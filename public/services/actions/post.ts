@@ -63,7 +63,7 @@ interface SetResponseInput {
 
 export const respond = async (postNumber: number, input: SetResponseInput): Promise<Result> => {
   return http
-    .post(`/api/posts/${postNumber}/status`, {
+    .put(`/api/v1/posts/${postNumber}/status`, {
       status: input.status,
       text: input.text,
       originalNumber: input.originalNumber

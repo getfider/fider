@@ -150,35 +150,6 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
-// SetResponse changes current post staff response
-func SetResponse() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.SetResponse)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		prevStatus := post.Status
-		if input.Model.Status == models.PostDuplicate {
-			err = c.Services().Posts.MarkAsDuplicate(post, input.Original)
-		} else {
-			err = c.Services().Posts.SetResponse(post, input.Model.Text, input.Model.Status)
-		}
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		c.Enqueue(tasks.NotifyAboutStatusChange(post, prevStatus))
-
-		return c.Ok(web.Map{})
-	}
-}
-
 // AddSupporter adds current user to given post list of supporters
 func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
