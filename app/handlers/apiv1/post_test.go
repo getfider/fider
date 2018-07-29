@@ -310,3 +310,98 @@ func TestDeletePostHandler_Authorized(t *testing.T) {
 	Expect(post).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }
+
+func TestPostCommentHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("My First Post", "With a description")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.PostComment(), `{ "content": "This is a comment!" }`)
+
+	Expect(code).Equals(http.StatusOK)
+}
+
+func TestPostCommentHandler_WithoutContent(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("My First Post", "With a description")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.PostComment(), `{ "content": "" }`)
+
+	Expect(code).Equals(http.StatusBadRequest)
+}
+
+func TestAddCommentHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecutePost(apiv1.PostComment(), `{ "content": "My first comment" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	comments, _ := services.Posts.GetCommentsByPost(post)
+	Expect(comments).HasLen(1)
+}
+
+func TestUpdateCommentHandler_Authorized(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+	commentId, _ := services.Posts.AddComment(post, "My first comment")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", post.Number).
+		AddParam("id", commentId).
+		ExecutePost(apiv1.UpdateComment(), `{ "content": "My first comment has been edited" }`)
+
+	Expect(code).Equals(http.StatusOK)
+	comment, _ := services.Posts.GetCommentByID(commentId)
+	Expect(comment.Content).Equals("My first comment has been edited")
+}
+
+func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("The Post #1", "The Description #1")
+	commentId, _ := services.Posts.AddComment(post, "My first comment")
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.AryaStark).
+		AddParam("number", post.Number).
+		AddParam("id", commentId).
+		ExecutePost(apiv1.UpdateComment(), `{ "content": "My first comment has been edited" }`)
+
+	Expect(code).Equals(http.StatusForbidden)
+	comment, _ := services.Posts.GetCommentByID(commentId)
+	Expect(comment.Content).Equals("My first comment")
+}

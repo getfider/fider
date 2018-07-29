@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/tasks"
 )
 
 // Index is the default home page
@@ -88,47 +86,6 @@ func PostDetails() web.HandlerFunc {
 				"tags":       tags,
 			},
 		})
-	}
-}
-
-// PostComment creates a new comment on given post
-func PostComment() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.AddNewComment)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		_, err = c.Services().Posts.AddComment(post, input.Model.Content)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
-
-		return c.Ok(web.Map{})
-	}
-}
-
-// UpdateComment changes an existing comment with new content
-func UpdateComment() web.HandlerFunc {
-	return func(c web.Context) error {
-		input := new(actions.EditComment)
-		if result := c.BindTo(input); !result.Ok {
-			return c.HandleValidation(result)
-		}
-
-		err := c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Ok(web.Map{})
 	}
 }
 

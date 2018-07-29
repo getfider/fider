@@ -48,11 +48,13 @@ export const unsubscribe = async (postNumber: number): Promise<Result> => {
 };
 
 export const createComment = async (postNumber: number, content: string): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/comments`, { content }).then(http.event("comment", "create"));
+  return http.post(`/api/v1/posts/${postNumber}/comments`, { content }).then(http.event("comment", "create"));
 };
 
 export const updateComment = async (postNumber: number, commentId: number, content: string): Promise<Result> => {
-  return http.post(`/api/posts/${postNumber}/comments/${commentId}`, { content }).then(http.event("comment", "update"));
+  return http
+    .put(`/api/v1/posts/${postNumber}/comments/${commentId}`, { content })
+    .then(http.event("comment", "update"));
 };
 
 interface SetResponseInput {

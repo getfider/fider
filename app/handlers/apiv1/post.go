@@ -110,6 +110,47 @@ func DeletePost() web.HandlerFunc {
 	}
 }
 
+// PostComment creates a new comment on given post
+func PostComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.AddNewComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		_, err = c.Services().Posts.AddComment(post, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
+
+		return c.Ok(web.Map{})
+	}
+}
+
+// UpdateComment changes an existing comment with new content
+func UpdateComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.EditComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // AddSupporter adds current user to given post list of supporters
 func AddSupporter() web.HandlerFunc {
 	return func(c web.Context) error {
