@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"image/png"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
@@ -17,22 +15,6 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
-
-var netClient = &http.Client{
-	Timeout: time.Second * 30,
-	Transport: &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   30 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	},
-}
 
 //Avatar returns a gravatar picture of fallsback to letter avatar based on name
 func Avatar() web.HandlerFunc {
@@ -49,7 +31,7 @@ func Avatar() web.HandlerFunc {
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
 						"GravatarURL": url,
 					})
-					resp, err := netClient.Get(url)
+					resp, err := http.Get(url)
 					if err == nil {
 						defer resp.Body.Close()
 
