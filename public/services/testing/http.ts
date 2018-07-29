@@ -9,7 +9,8 @@ export const httpMock = {
     });
     http.get = fn;
     http.post = fn;
+    http.put = fn;
     http.delete = fn;
-    return fn;
+    return http;
   }
 };
