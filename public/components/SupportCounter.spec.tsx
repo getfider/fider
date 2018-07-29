@@ -68,7 +68,8 @@ describe("<SupportCounter />", () => {
     wrapper.find("button").simulate("click");
     await rerender(wrapper);
     expect(wrapper.find("SignInModal").length).toBe(1);
-    expect(mock).toHaveBeenCalledTimes(0);
+    expect(mock.post).toHaveBeenCalledTimes(0);
+    expect(mock.delete).toHaveBeenCalledTimes(0);
   });
 
   test("click when authenticated and viewerSupported === false", async () => {
@@ -78,8 +79,8 @@ describe("<SupportCounter />", () => {
 
     const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/posts/10/support");
-    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/support");
+    expect(mock.post).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
     expect(wrapper.find("button").text()).toBe("6");
@@ -93,8 +94,8 @@ describe("<SupportCounter />", () => {
 
     const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/posts/10/unsupport");
-    expect(mock).toHaveBeenCalledTimes(1);
+    expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/support");
+    expect(mock.delete).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
     expect(wrapper.find("button").text()).toBe("4");

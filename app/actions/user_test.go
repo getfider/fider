@@ -63,7 +63,7 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: models.RoleAdministrator}}
 	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
-	ExpectFailed(result, "user_id")
+	ExpectFailed(result, "userId")
 }
 
 func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
@@ -83,5 +83,5 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: models.RoleAdministrator}}
 	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
-	ExpectFailed(result, "user_id")
+	ExpectFailed(result, "userId")
 }

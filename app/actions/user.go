@@ -35,12 +35,12 @@ func (input *ChangeUserRole) Validate(user *models.User, services *app.Services)
 	target, err := services.Users.GetByID(input.Model.UserID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
-			result.AddFieldFailure("user_id", "User not found")
+			result.AddFieldFailure("userId", "User not found")
 		} else {
 			return validate.Error(err)
 		}
 	} else if target.Tenant.ID != user.Tenant.ID {
-		result.AddFieldFailure("user_id", "User not found")
+		result.AddFieldFailure("userId", "User not found")
 	}
 	return result
 }

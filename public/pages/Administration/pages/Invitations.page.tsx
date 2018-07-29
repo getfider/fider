@@ -66,7 +66,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
   private sendInvites = async (e: ButtonClickEvent) => {
     const result = await actions.sendInvites(this.state.subject, this.state.message, this.state.recipients);
     if (result.ok) {
-      notify.success("The invites have been sent.");
+      notify.success("Your invites have been sent.");
       this.setState({ rawRecipients: "", numOfRecipients: 0, recipients: [], error: undefined });
     } else {
       this.setState({ error: result.error });
@@ -87,7 +87,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         <TextArea
           field="recipients"
           label="Send invitations to"
-          placeholder="william@example.com; michael@company.com"
+          placeholder="james@example.com; carol@example.com"
           minRows={1}
           value={this.state.rawRecipients}
           onChange={this.setRecipients}
@@ -108,14 +108,7 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
           </p>
         </Input>
 
-        <TextArea
-          field="message"
-          label="Message"
-          placeholder="william@example.com; michael@company.com"
-          minRows={8}
-          value={this.state.message}
-          onChange={this.setMessage}
-        >
+        <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
           <div className="info">
             <p>
               This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high

@@ -1,11 +1,11 @@
-package handlers_test
+package apiv1_test
 
 import (
 	"net/http"
 	"testing"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/handlers"
+	"github.com/getfider/fider/app/handlers/apiv1"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -19,7 +19,7 @@ func TestCreateTagHandler_ValidRequests(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePost(
-			handlers.CreateEditTag(),
+			apiv1.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "00FF00", "isPublic": true }`,
 		)
 
@@ -49,7 +49,7 @@ func TestCreateTagHandler_InvalidRequests(t *testing.T) {
 		server, _ := mock.NewServer()
 		status, _ := server.
 			AsUser(mock.JonSnow).
-			ExecutePostAsJSON(handlers.CreateEditTag(), testCase)
+			ExecutePostAsJSON(apiv1.CreateEditTag(), testCase)
 
 		Expect(status).Equals(http.StatusBadRequest)
 	}
@@ -64,7 +64,7 @@ func TestCreateTagHandler_AlreadyInUse(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePostAsJSON(
-			handlers.CreateEditTag(),
+			apiv1.CreateEditTag(),
 			`{ "name": "Bug", "color": "0000FF", "isPublic": true }`,
 		)
 
@@ -78,7 +78,7 @@ func TestCreateTagHandler_Collaborator(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.AryaStark).
 		ExecutePost(
-			handlers.CreateEditTag(),
+			apiv1.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
@@ -93,7 +93,7 @@ func TestEditInvalidTagHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
 		ExecutePost(
-			handlers.CreateEditTag(),
+			apiv1.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
@@ -110,7 +110,7 @@ func TestEditExistingTagHandler(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
 		ExecutePost(
-			handlers.CreateEditTag(),
+			apiv1.CreateEditTag(),
 			`{ "name": "Feature Request", "color": "000000", "isPublic": true }`,
 		)
 
@@ -131,7 +131,7 @@ func TestDeleteInvalidTagHandler(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
-		Execute(handlers.DeleteTag())
+		Execute(apiv1.DeleteTag())
 
 	Expect(status).Equals(http.StatusNotFound)
 }
@@ -145,7 +145,7 @@ func TestDeleteExistingTagHandler(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
-		Execute(handlers.DeleteTag())
+		Execute(apiv1.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).Equals(http.StatusOK)
@@ -162,13 +162,12 @@ func TestDeleteExistingTagHandler_Collaborator(t *testing.T) {
 	status, _ := server.
 		AsUser(mock.AryaStark).
 		AddParam("slug", "bug").
-		Execute(handlers.DeleteTag())
+		Execute(apiv1.DeleteTag())
 
 	tag, err := services.Tags.GetBySlug("bug")
 	Expect(status).Equals(http.StatusForbidden)
 	Expect(tag).IsNotNil()
 	Expect(err).IsNil()
-
 }
 
 func TestAssignTagHandler_Success(t *testing.T) {
@@ -184,7 +183,7 @@ func TestAssignTagHandler_Success(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("slug", tag.Slug).
 		AddParam("number", post.Number).
-		Execute(handlers.AssignTag())
+		Execute(apiv1.AssignTag())
 
 	tags, err := services.Tags.GetAssigned(post)
 	Expect(status).Equals(http.StatusOK)
@@ -201,7 +200,7 @@ func TestAssignTagHandler_UnknownTag(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("slug", "bug").
 		AddParam("number", 1).
-		Execute(handlers.AssignTag())
+		Execute(apiv1.AssignTag())
 
 	Expect(status).Equals(http.StatusNotFound)
 }
@@ -210,8 +209,8 @@ func TestAssignOrUnassignTagHandler_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
 	var testCases = []web.HandlerFunc{
-		handlers.AssignTag(),
-		handlers.UnassignTag(),
+		apiv1.AssignTag(),
+		apiv1.UnassignTag(),
 	}
 
 	for _, handler := range testCases {
@@ -245,7 +244,7 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 		AsUser(mock.JonSnow).
 		AddParam("slug", tag.Slug).
 		AddParam("number", post.Number).
-		Execute(handlers.UnassignTag())
+		Execute(apiv1.UnassignTag())
 
 	tags, err := services.Tags.GetAssigned(post)
 	Expect(status).Equals(http.StatusOK)

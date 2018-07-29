@@ -1,4 +1,5 @@
 User-agent: *
-Disallow: /api/
+Disallow: /_api/
+Disallow: /api/v1/
 Disallow: /admin/
 Disallow: /oauth/

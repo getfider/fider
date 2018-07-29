@@ -12,8 +12,6 @@ import (
 var (
 	//ErrContentTypeNotAllowed is used when POSTing a body that is not json
 	ErrContentTypeNotAllowed = stdErrors.New("Only Content-Type application/json is allowed")
-	intType                  = reflect.TypeOf(0)
-	stringType               = reflect.TypeOf("")
 )
 
 //DefaultBinder is the default HTTP binder
@@ -27,7 +25,8 @@ func NewDefaultBinder() *DefaultBinder {
 
 func methodHasBody(method string) bool {
 	return method == http.MethodPost ||
-		method == http.MethodDelete
+		method == http.MethodDelete ||
+		method == http.MethodPut
 }
 
 //Bind request data to object i
@@ -56,11 +55,12 @@ func (b *DefaultBinder) bindRoute(idx int, target reflect.Value, targetType refl
 	name := targetType.Field(idx).Tag.Get("route")
 	if name != "" {
 		field := target.Field(idx)
-		fieldType := field.Type()
-		if fieldType == intType {
+		fieldTypeKind := field.Type().Kind()
+
+		if isInt(fieldTypeKind) {
 			value, _ := strconv.ParseInt(params[name], 10, 64)
 			field.SetInt(value)
-		} else if fieldType == stringType {
+		} else if isString(fieldTypeKind) {
 			field.SetString(params[name])
 		}
 	}
@@ -74,16 +74,23 @@ func (b *DefaultBinder) format(idx int, target reflect.Value, targetType reflect
 	fieldTypeKind := fieldType.Kind()
 	format := targetType.Field(idx).Tag.Get("format")
 
-	if fieldType == stringType {
+	if isString(fieldTypeKind) {
 		value := field.Interface().(string)
 		field.SetString(applyFormat(format, value))
-	} else if fieldTypeKind == reflect.Slice && fieldType.Elem() == stringType {
+	} else if fieldTypeKind == reflect.Slice && isString(fieldType.Elem().Kind()) {
 		values := field.Interface().([]string)
 		for i, value := range values {
 			field.Index(i).SetString(applyFormat(format, value))
 		}
 	}
+}
 
+func isInt(k reflect.Kind) bool {
+	return k == reflect.Int || k == reflect.Int8 || k == reflect.Int16 || k == reflect.Int32 || k == reflect.Int64
+}
+
+func isString(k reflect.Kind) bool {
+	return k == reflect.String
 }
 
 func applyFormat(format string, value string) string {

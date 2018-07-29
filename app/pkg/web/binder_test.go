@@ -24,13 +24,16 @@ func TestDefaultBinder_FromParams(t *testing.T) {
 	params := make(web.StringMap, 0)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
-	ctx := newBodyContext("POST", params, `{ "name": "Jon Snow" }`, "application/json")
-	u := new(updateUser)
-	err := binder.Bind(u, ctx)
-	Expect(err).IsNil()
-	Expect(u.Number).Equals(2)
-	Expect(u.Slug).Equals("jon-snow")
-	Expect(u.Name).Equals("Jon Snow")
+
+	for _, method := range []string{"POST", "PUT", "DELETE"} {
+		ctx := newBodyContext(method, params, `{ "name": "Jon Snow" }`, "application/json")
+		u := new(updateUser)
+		err := binder.Bind(u, ctx)
+		Expect(err).IsNil()
+		Expect(u.Number).Equals(2)
+		Expect(u.Slug).Equals("jon-snow")
+		Expect(u.Name).Equals("Jon Snow")
+	}
 }
 
 func TestDefaultBinder_TrimSpaces(t *testing.T) {
@@ -171,4 +174,39 @@ func TestDefaultBinder_POST_NonJSON(t *testing.T) {
 	u := new(user)
 	err := binder.Bind(u, ctx)
 	Expect(err).Equals(web.ErrContentTypeNotAllowed)
+}
+
+func TestDefaultBinder_POST_CustomType(t *testing.T) {
+	RegisterT(t)
+
+	type Size int
+	type Size32 int32
+	type Size64 int64
+	const (
+		Small   Size   = 1
+		Large   Size   = 2
+		Small32 Size32 = 3
+		Large32 Size32 = 4
+		Small64 Size64 = 5
+		Large64 Size64 = 6
+	)
+
+	type pizza struct {
+		TheSize   Size   `route:"size"`
+		TheSize32 Size32 `route:"size32"`
+		TheSize64 Size64 `route:"size64"`
+	}
+
+	params := make(web.StringMap, 0)
+	params["size"] = "1"
+	params["size32"] = "4"
+	params["size64"] = "5"
+	ctx := newBodyContext("POST", params, `{ }`, "application/json")
+
+	u := new(pizza)
+	err := binder.Bind(u, ctx)
+	Expect(err).IsNil()
+	Expect(u.TheSize).Equals(Small)
+	Expect(u.TheSize32).Equals(Large32)
+	Expect(u.TheSize64).Equals(Small64)
 }

@@ -20,7 +20,7 @@ export interface CreateTenantResponse {
 }
 
 export const createTenant = async (request: CreateTenantRequest): Promise<Result<CreateTenantResponse>> => {
-  return await http.post<CreateTenantResponse>("/api/tenants", request);
+  return await http.post<CreateTenantResponse>("/_api/tenants", request);
 };
 
 export interface UpdateTenantSettingsRequest {
@@ -38,44 +38,44 @@ export interface UpdateTenantSettingsRequest {
 }
 
 export const updateTenantSettings = async (request: UpdateTenantSettingsRequest): Promise<Result> => {
-  return await http.post("/api/admin/settings/general", request);
+  return await http.post("/_api/admin/settings/general", request);
 };
 
 export const updateTenantAdvancedSettings = async (customCSS: string): Promise<Result> => {
-  return await http.post("/api/admin/settings/advanced", { customCSS });
+  return await http.post("/_api/admin/settings/advanced", { customCSS });
 };
 
 export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {
-  return await http.post("/api/admin/settings/privacy", {
+  return await http.post("/_api/admin/settings/privacy", {
     isPrivate
   });
 };
 
 export const checkAvailability = async (subdomain: string): Promise<Result<CheckAvailabilityResponse>> => {
-  return await http.get<CheckAvailabilityResponse>(`/api/tenants/${subdomain}/availability`);
+  return await http.get<CheckAvailabilityResponse>(`/_api/tenants/${subdomain}/availability`);
 };
 
 export const signIn = async (email: string): Promise<Result> => {
-  return await http.post("/api/signin", {
+  return await http.post("/_api/signin", {
     email
   });
 };
 
 export const completeProfile = async (key: string, name: string): Promise<Result> => {
-  return await http.post("/api/signin/complete", {
+  return await http.post("/_api/signin/complete", {
     key,
     name
   });
 };
 
 export const changeUserRole = async (userId: number, role: UserRole): Promise<Result> => {
-  return await http.post(`/api/admin/users/${userId}/role`, {
-    role
+  return await http.post(`/api/v1/roles/${role}/users`, {
+    userId
   });
 };
 
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {
-  return await http.get<OAuthConfig>(`/api/admin/oauth/${provider}`);
+  return await http.get<OAuthConfig>(`/_api/admin/oauth/${provider}`);
 };
 
 export interface CreateEditOAuthConfigRequest {
@@ -95,5 +95,5 @@ export interface CreateEditOAuthConfigRequest {
 }
 
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
-  return await http.post("/api/admin/oauth", request);
+  return await http.post("/_api/admin/oauth", request);
 };
