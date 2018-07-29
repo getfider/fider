@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"image/png"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
@@ -15,6 +17,17 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
+
+var netTransport = &http.Transport{
+	Dial: (&net.Dialer{
+		Timeout: 5 * time.Second,
+	}).Dial,
+	TLSHandshakeTimeout: 30 * time.Second,
+}
+var netClient = &http.Client{
+	Timeout:   time.Second * 10,
+	Transport: netTransport,
+}
 
 //Avatar returns a gravatar picture of fallsback to letter avatar based on name
 func Avatar() web.HandlerFunc {
@@ -31,7 +44,7 @@ func Avatar() web.HandlerFunc {
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
 						"GravatarURL": url,
 					})
-					resp, err := http.Get(url)
+					resp, err := netClient.Get(url)
 					if err == nil {
 						defer resp.Body.Close()
 
