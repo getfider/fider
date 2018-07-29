@@ -18,15 +18,20 @@ import (
 	"github.com/goenning/letteravatar"
 )
 
-var netTransport = &http.Transport{
-	Dial: (&net.Dialer{
-		Timeout: 5 * time.Second,
-	}).Dial,
-	TLSHandshakeTimeout: 30 * time.Second,
-}
 var netClient = &http.Client{
-	Timeout:   time.Second * 10,
-	Transport: netTransport,
+	Timeout: time.Second * 30,
+	Transport: &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   30 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	},
 }
 
 //Avatar returns a gravatar picture of fallsback to letter avatar based on name
