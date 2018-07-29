@@ -41,6 +41,8 @@ func Avatar() web.HandlerFunc {
 								return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
 							}
 						}
+					} else {
+						c.Logger().Error(err)
 					}
 				}
 			}
