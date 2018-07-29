@@ -1,7 +1,7 @@
 import { http, Result } from "@fider/services";
 
 export const getTotalUnreadNotifications = async (): Promise<Result<number>> => {
-  return http.get<{ total: number }>("/api/notifications/unread/total").then(result => {
+  return http.get<{ total: number }>("/_api/notifications/unread/total").then(result => {
     return {
       ok: result.ok,
       error: result.error,
@@ -11,5 +11,5 @@ export const getTotalUnreadNotifications = async (): Promise<Result<number>> => 
 };
 
 export const markAllAsRead = async (): Promise<Result> => {
-  return await http.post("/api/notifications/read-all");
+  return await http.post("/_api/notifications/read-all");
 };

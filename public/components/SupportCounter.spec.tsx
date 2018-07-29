@@ -78,7 +78,7 @@ describe("<SupportCounter />", () => {
 
     const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/posts/10/support");
+    expect(mock).toHaveBeenCalledWith("/api/v1/posts/10/support");
     expect(mock).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
@@ -93,7 +93,7 @@ describe("<SupportCounter />", () => {
 
     const wrapper = shallow(<SupportCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock).toHaveBeenCalledWith("/api/posts/10/unsupport");
+    expect(mock).toHaveBeenCalledWith("/api/v1/posts/10/unsupport");
     expect(mock).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);

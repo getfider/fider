@@ -40,8 +40,8 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		noTenant.Get("/-/health", handlers.Health())
 
-		noTenant.Post("/api/tenants", handlers.CreateTenant())
-		noTenant.Get("/api/tenants/:subdomain/availability", handlers.CheckAvailability())
+		noTenant.Post("/_api/tenants", handlers.CreateTenant())
+		noTenant.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
 		noTenant.Get("/signup", handlers.SignUp())
 
 		noTenant.Get("/oauth/:provider", handlers.SignInByOAuth())
@@ -71,8 +71,8 @@ func routes(r *web.Engine) *web.Engine {
 		open.Get("/not-invited", handlers.NotInvitedPage())
 		open.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 		open.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
-		open.Post("/api/signin/complete", handlers.CompleteSignInProfile())
-		open.Post("/api/signin", handlers.SignInByEmail())
+		open.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
+		open.Post("/_api/signin", handlers.SignInByEmail())
 	}
 
 	r.Use(middlewares.User())
@@ -119,11 +119,11 @@ func routes(r *web.Engine) *web.Engine {
 			private.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 			private.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
 			private.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
-			private.Delete("/api/user", handlers.DeleteUser())
-			private.Post("/api/user/settings", handlers.UpdateUserSettings())
-			private.Post("/api/user/change-email", handlers.ChangeUserEmail())
-			private.Post("/api/notifications/read-all", handlers.ReadAllNotifications())
-			private.Get("/api/notifications/unread/total", handlers.TotalUnreadNotifications())
+			private.Delete("/_api/user", handlers.DeleteUser())
+			private.Post("/_api/user/settings", handlers.UpdateUserSettings())
+			private.Post("/_api/user/change-email", handlers.ChangeUserEmail())
+			private.Post("/_api/notifications/read-all", handlers.ReadAllNotifications())
+			private.Get("/_api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
 			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
@@ -134,7 +134,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/members", handlers.ManageMembers())
 			private.Get("/admin/tags", handlers.ManageTags())
 			private.Get("/admin/authentication", handlers.ManageAuthentication())
-			private.Get("/api/admin/oauth/:provider", handlers.GetOAuthConfig())
+			private.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 			private.Post("/api/v1/invitations/send", apiv1.SendInvites())
 			private.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
@@ -143,13 +143,13 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
 			private.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 			private.Delete("/api/v1/posts/:number", apiv1.DeletePost())
-			private.Post("/api/admin/settings/general", handlers.UpdateSettings())
-			private.Post("/api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
-			private.Post("/api/admin/settings/privacy", handlers.UpdatePrivacy())
-			private.Post("/api/v1/admin/tags", apiv1.CreateEditTag())
-			private.Put("/api/v1/admin/tags/:slug", apiv1.CreateEditTag())
-			private.Delete("/api/v1/admin/tags/:slug", apiv1.DeleteTag())
-			private.Post("/api/admin/oauth", handlers.SaveOAuthConfig())
+			private.Post("/_api/admin/settings/general", handlers.UpdateSettings())
+			private.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
+			private.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
+			private.Post("/api/v1/tags", apiv1.CreateEditTag())
+			private.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
+			private.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+			private.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 			private.Post("/api/v1/roles/:role/users", handlers.ChangeUserRole())
 		}
 	}
