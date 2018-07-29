@@ -1,5 +1,6 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const publicFolder = path.resolve(__dirname, "public");
 const isProduction = process.env.NODE_ENV === "production";
@@ -8,7 +9,8 @@ const plugins = [
   new MiniCssExtractPlugin({ 
     filename: "css/[name].[hash].css",
     chunkFilename: "css/[name].[hash].css"
-  })
+  }),
+  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
 ];
 
 if (!isProduction) {
@@ -47,7 +49,10 @@ module.exports = {
       { 
         test: /\.(ts|tsx)$/,
         include: publicFolder,
-        use: "ts-loader",
+        loader: "ts-loader",
+        options: {
+          transpileOnly: true
+        }
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
