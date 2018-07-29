@@ -2,7 +2,18 @@ package web
 
 import (
 	"net/http"
+	"time"
+
+	"github.com/getfider/fider/app/pkg/env"
 )
+
+func init() {
+	//Increase transport timeouts when running Tests
+	if env.IsTest() {
+		transport := http.DefaultTransport.(*http.Transport)
+		transport.TLSHandshakeTimeout = 30 * time.Second
+	}
+}
 
 // Client is an interface for HTTP Client
 type Client interface {
