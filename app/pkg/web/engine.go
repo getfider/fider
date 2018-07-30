@@ -208,6 +208,42 @@ func (e *Engine) Use(middleware MiddlewareFunc) {
 	e.middlewares = append(e.middlewares, middleware)
 }
 
+//Get handles HTTP GET requests
+func (e *Engine) Get(path string, handler HandlerFunc) {
+	e.mux.Handle("GET", path, e.handle(e.middlewares, handler))
+}
+
+//Post handles HTTP POST requests
+func (e *Engine) Post(path string, handler HandlerFunc) {
+	e.mux.Handle("POST", path, e.handle(e.middlewares, handler))
+}
+
+//Put handles HTTP PUT requests
+func (e *Engine) Put(path string, handler HandlerFunc) {
+	e.mux.Handle("PUT", path, e.handle(e.middlewares, handler))
+}
+
+//Delete handles HTTP DELETE requests
+func (e *Engine) Delete(path string, handler HandlerFunc) {
+	e.mux.Handle("DELETE", path, e.handle(e.middlewares, handler))
+}
+
+func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httprouter.Handle {
+	next := handler
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		next = middlewares[i](next)
+	}
+	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+		params := make(StringMap, 0)
+		for _, p := range ps {
+			params[p.Key] = p.Value
+		}
+		ctx := e.NewContext(res, req, params)
+		next(ctx)
+	}
+	return h
+}
+
 //Group is our router group wrapper
 type Group struct {
 	engine      *Engine
@@ -230,38 +266,22 @@ func (g *Group) Use(middleware MiddlewareFunc) {
 
 //Get handles HTTP GET requests
 func (g *Group) Get(path string, handler HandlerFunc) {
-	g.engine.mux.Handle("GET", path, g.handler(handler))
+	g.engine.mux.Handle("GET", path, g.engine.handle(g.middlewares, handler))
 }
 
 //Post handles HTTP POST requests
 func (g *Group) Post(path string, handler HandlerFunc) {
-	g.engine.mux.Handle("POST", path, g.handler(handler))
+	g.engine.mux.Handle("POST", path, g.engine.handle(g.middlewares, handler))
 }
 
 //Put handles HTTP PUT requests
 func (g *Group) Put(path string, handler HandlerFunc) {
-	g.engine.mux.Handle("PUT", path, g.handler(handler))
+	g.engine.mux.Handle("PUT", path, g.engine.handle(g.middlewares, handler))
 }
 
 //Delete handles HTTP DELETE requests
 func (g *Group) Delete(path string, handler HandlerFunc) {
-	g.engine.mux.Handle("DELETE", path, g.handler(handler))
-}
-
-func (g *Group) handler(handler HandlerFunc) httprouter.Handle {
-	next := handler
-	for i := len(g.middlewares) - 1; i >= 0; i-- {
-		next = g.middlewares[i](next)
-	}
-	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		params := make(StringMap, 0)
-		for _, p := range ps {
-			params[p.Key] = p.Value
-		}
-		ctx := g.engine.NewContext(res, req, params)
-		next(ctx)
-	}
-	return h
+	g.engine.mux.Handle("DELETE", path, g.engine.handle(g.middlewares, handler))
 }
 
 // Static return files from given folder
@@ -288,7 +308,7 @@ func (g *Group) Static(prefix, root string) {
 			return nil
 		}
 	}
-	g.engine.mux.Handle("GET", prefix, g.handler(h))
+	g.engine.mux.Handle("GET", prefix, g.engine.handle(g.middlewares, h))
 }
 
 // ParseCookie return a list of cookie parsed from raw Set-Cookie
