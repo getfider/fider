@@ -3,6 +3,7 @@ package actions_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -49,7 +50,7 @@ func TestChangeUserRole_InvalidRole(t *testing.T) {
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: 4}}
 	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
-	ExpectFailed(result, "role")
+	Expect(result.Err).Equals(app.ErrNotFound)
 }
 
 func TestChangeUserRole_InvalidUser(t *testing.T) {
@@ -84,4 +85,23 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 	action.IsAuthorized(currentUser, nil)
 	result := action.Validate(currentUser, services)
 	ExpectFailed(result, "userId")
+}
+
+func TestChangeUserRole_CurrentUser(t *testing.T) {
+	RegisterT(t)
+
+	currentUser := &models.User{
+		Tenant: &models.Tenant{ID: 2},
+		Role:   models.RoleAdministrator,
+	}
+	services.Users.Register(currentUser)
+
+	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: currentUser.ID, Role: models.RoleVisitor}}
+	action.IsAuthorized(currentUser, nil)
+	result := action.Validate(currentUser, services)
+	ExpectFailed(result, "userId")
+
+	user, err := services.Users.GetByID(currentUser.ID)
+	Expect(err).IsNil()
+	Expect(user.Role).Equals(models.RoleAdministrator)
 }
