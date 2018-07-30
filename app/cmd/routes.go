@@ -55,6 +55,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
+	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
@@ -77,7 +78,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/", handlers.Index())
 	r.Get("/posts/:number", handlers.PostDetails())
 	r.Get("/posts/:number/*all", handlers.PostDetails())
-	r.Get("/signout", handlers.SignOut())
 
 	/*
 	** This is a temporary redirect and should be removed in the future
