@@ -30,17 +30,22 @@ func (input *ChangeUserRole) IsAuthorized(user *models.User, services *app.Servi
 func (input *ChangeUserRole) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 	if input.Model.Role < models.RoleVisitor || input.Model.Role > models.RoleAdministrator {
-		result.AddFieldFailure("role", "Invalid role")
+		return validate.Error(app.ErrNotFound)
 	}
+
+	if user.ID == input.Model.UserID {
+		result.AddFieldFailure("userId", "It is not allowed to change your own Role.")
+	}
+
 	target, err := services.Users.GetByID(input.Model.UserID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
-			result.AddFieldFailure("userId", "User not found")
+			result.AddFieldFailure("userId", "User not found.")
 		} else {
 			return validate.Error(err)
 		}
 	} else if target.Tenant.ID != user.Tenant.ID {
-		result.AddFieldFailure("userId", "User not found")
+		result.AddFieldFailure("userId", "User not found.")
 	}
 	return result
 }
