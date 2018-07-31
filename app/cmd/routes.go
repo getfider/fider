@@ -85,9 +85,11 @@ func routes(r *web.Engine) *web.Engine {
 		public := page.Group()
 		{
 			public.Get("/", handlers.Index())
-			public.Get("/api/v1/posts", apiv1.SearchPosts())
 			public.Get("/posts/:number", handlers.PostDetails())
 			public.Get("/posts/:number/*all", handlers.PostDetails())
+			public.Get("/api/v1/posts", apiv1.SearchPosts())
+			public.Get("/api/v1/tags", apiv1.ListTags())
+			public.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 			public.Get("/signout", handlers.SignOut())
 
 			/* This is a temporary redirect and should be removed in the future */
@@ -135,6 +137,7 @@ func routes(r *web.Engine) *web.Engine {
 			private.Get("/admin/tags", handlers.ManageTags())
 			private.Get("/admin/authentication", handlers.ManageAuthentication())
 			private.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
+			private.Get("/api/v1/users", apiv1.ListUsers())
 			private.Post("/api/v1/invitations/send", apiv1.SendInvites())
 			private.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 
