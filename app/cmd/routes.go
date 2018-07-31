@@ -135,6 +135,8 @@ func routes(r *web.Engine) *web.Engine {
 	api := r.Group()
 	{
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
+		api.Get("/api/v1/tags", apiv1.ListTags())
+		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 
 		//From this step, a User is required
 		api.Use(middlewares.IsAuthenticated())
@@ -154,6 +156,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Collaborators and Administrators are allowed
 		api.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
+		api.Get("/api/v1/users", apiv1.ListUsers())
 		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 

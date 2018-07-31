@@ -405,3 +405,24 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	comment, _ := services.Posts.GetCommentByID(commentId)
 	Expect(comment.Content).Equals("My first comment")
 }
+
+func TestListCommentHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("My First Post", "With a description")
+	services.Posts.AddComment(post, "This is ...")
+	services.Posts.AddComment(post, "Great!")
+
+	code, query := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecuteAsJSON(apiv1.ListComments())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.IsArray()).IsTrue()
+	Expect(query.ArrayLength()).Equals(2)
+}
