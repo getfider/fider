@@ -6,6 +6,18 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
+// ListTags returns all tags
+func ListTags() web.HandlerFunc {
+	return func(c web.Context) error {
+		tags, err := c.Services().Tags.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(tags)
+	}
+}
+
 // AssignTag to existing dea
 func AssignTag() web.HandlerFunc {
 	return func(c web.Context) error {

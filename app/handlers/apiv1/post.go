@@ -110,6 +110,28 @@ func DeletePost() web.HandlerFunc {
 	}
 }
 
+// ListComments returns a list of all comments of a post
+func ListComments() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		comments, err := c.Services().Posts.GetCommentsByPost(post)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(comments)
+	}
+}
+
 // PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {

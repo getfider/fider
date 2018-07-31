@@ -251,3 +251,21 @@ func TestUnassignTagHandler_Success(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(tags).HasLen(0)
 }
+
+func TestListTagsHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	services.Tags.Add("Bug", "0000FF", true)
+	services.Tags.Add("Feature Request", "0000FF", true)
+
+	status, query := server.
+		AsUser(mock.JonSnow).
+		ExecuteAsJSON(apiv1.ListTags())
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(query.IsArray()).IsTrue()
+	Expect(query.ArrayLength()).Equals(2)
+}
