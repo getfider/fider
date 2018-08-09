@@ -29,6 +29,8 @@ type Message struct {
 	Body    string
 }
 
+var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
+
 // RenderMessage returns the HTML of an email based on template and params
 func RenderMessage(templateName string, params Params) *Message {
 	tpl, ok := cache[templateName]
@@ -43,11 +45,24 @@ func RenderMessage(templateName string, params Params) *Message {
 	}
 
 	var bf bytes.Buffer
-	tpl.Execute(&bf, params)
+	if err := tpl.Execute(&bf, params); err != nil {
+		panic(err)
+	}
+
 	lines := strings.Split(bf.String(), "\n")
+	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
+
+	bf.Reset()
+	if err := baseTpl.Execute(&bf, Params{
+		"logo": params["logo"],
+		"body": template.HTML(body),
+	}); err != nil {
+		panic(err)
+	}
+
 	return &Message{
 		Subject: strings.TrimLeft(lines[0], "subject: "),
-		Body:    strings.TrimLeft(strings.Join(lines[2:], "\n"), " "),
+		Body:    bf.String(),
 	}
 }
 

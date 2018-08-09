@@ -1,16 +1,28 @@
-subject: {{ .title }}
+subject: [{{ .tenantName }}] {{ .title }}
 body:
-
-{{ if .duplicate }}
-  <i>This post has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}.</i>
-{{ else }}
-  <i>Status has changed to <strong>{{ .status }}</strong>.</i> <br />
-
-  {{ .content }}
-{{ end }}
-
-<span style="color:#666;font-size:11px">
-— <br />
-You are receiving this because you are subscribed to this thread. Please do not reply to this email. <br />
-{{ .view }}, {{ .unsubscribe }} or {{ .change }}.
-</span>
+<tr>
+  <td>
+    {{ if .duplicate }}
+      <i><strong>{{ .title }}</strong> has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}.</i>
+    {{ else }}
+      <i>Status of <strong>{{ .title }}</strong> has changed to <strong>{{ .status }}</strong>.</i> <br />
+    {{ end }}
+  </td>
+</tr>
+<tr>
+  <td></td>
+  <td height="10" style="line-height:1px;">&nbsp;</td>
+  <td></td>
+</tr>
+<tr>
+  <td style="border-top:1px solid #efefef;">{{ .content }}</td>
+</tr>
+<tr>
+  <td>
+    <span style="color:#666;font-size:11px">
+    — <br />
+    You are receiving this because you are subscribed to this thread. <br />
+    {{ .view }}, {{ .unsubscribe }} or {{ .change }}.
+    </span>
+  </td>
+</tr>

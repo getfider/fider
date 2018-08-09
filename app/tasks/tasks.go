@@ -29,6 +29,7 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
 		to := email.NewRecipient(model.Name, model.Email, email.Params{
+			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
 		return c.Services().Emailer.Send(c.Tenant(), "signup_email", email.Params{}, "Fider", to)
@@ -97,10 +98,12 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 		}
 
 		params := email.Params{
-			"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
-			"content": markdown.Parse(post.Description),
-			"view":    linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"title":      post.Title,
+			"tenantName": c.Tenant().Name,
+			"userName":   c.User().Name,
+			"content":    markdown.Parse(post.Description),
+			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
 		return c.Services().Emailer.BatchSend(c.Tenant(), "new_post", params, c.User().Name, to)
@@ -140,7 +143,9 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"title":       post.Title,
+			"tenantName":  c.Tenant().Name,
+			"userName":    c.User().Name,
 			"content":     markdown.Parse(comment.Content),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
@@ -198,7 +203,8 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"title":       post.Title,
+			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Parse(post.Response.Text),
 			"status":      models.GetPostStatusName(post.Status),
 			"duplicate":   duplicate,

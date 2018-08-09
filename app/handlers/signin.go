@@ -44,7 +44,7 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 15*time.Minute, input.Model)
+		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 30*time.Minute, input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}
