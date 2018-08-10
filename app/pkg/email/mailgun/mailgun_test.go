@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/worker"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/mock"
@@ -16,10 +18,16 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
+var logger = noop.NewLogger()
 var client = mock.NewHTTPClient()
-var sender = mailgun.NewSender(noop.NewLogger(), client, "mydomain.com", "mys3cr3tk3y")
+var sender = mailgun.NewSender(logger, client, "mydomain.com", "mys3cr3tk3y")
 var tenant = &models.Tenant{
 	Subdomain: "got",
+}
+var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
+
+func init() {
+	ctx.SetTenant(tenant)
 }
 
 func TestSend_Success(t *testing.T) {
@@ -31,7 +39,7 @@ func TestSend_Success(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "jon.snow@got.com",
 	}
-	sender.Send(tenant, "echo_test", email.Params{
+	sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -61,7 +69,7 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "",
 	}
-	sender.Send(tenant, "echo_test", email.Params{
+	sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -77,7 +85,7 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "jon.snow@got.com",
 	}
-	sender.Send(tenant, "echo_test", email.Params{
+	sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -105,7 +113,7 @@ func TestBatch_Success(t *testing.T) {
 			},
 		},
 	}
-	sender.BatchSend(tenant, "echo_test", email.Params{}, "Fider Test", to)
+	sender.BatchSend(ctx, "echo_test", email.Params{}, "Fider Test", to)
 
 	Expect(client.Requests).HasLen(1)
 	Expect(client.Requests[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")

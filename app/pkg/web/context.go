@@ -134,7 +134,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 }
 
 //Tenant returns current tenant
-func (ctx *Context) Tenant() *models.Tenant {
+func (ctx Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant

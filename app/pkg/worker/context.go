@@ -46,7 +46,9 @@ func (c *Context) SetUser(user *models.User) {
 	if user != nil {
 		c.logger.SetProperty(log.PropertyKeyUserID, user.ID)
 	}
-	c.services.SetCurrentUser(user)
+	if c.services != nil {
+		c.services.SetCurrentUser(user)
+	}
 }
 
 //SetTenant on context
@@ -55,7 +57,9 @@ func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
 		c.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
 	}
-	c.services.SetCurrentTenant(tenant)
+	if c.services != nil {
+		c.services.SetCurrentTenant(tenant)
+	}
 }
 
 //SetServices on current context

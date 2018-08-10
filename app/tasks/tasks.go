@@ -31,7 +31,7 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 		to := email.NewRecipient(model.Name, model.Email, email.Params{
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "signup_email", email.Params{}, "Fider", to)
+		return c.Services().Emailer.Send(c, "signup_email", email.Params{}, "Fider", to)
 	})
 }
 
@@ -42,7 +42,7 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "signin_email", email.Params{}, c.Tenant().Name, to)
+		return c.Services().Emailer.Send(c, "signin_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -60,7 +60,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			"newEmail": model.Email,
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
+		return c.Services().Emailer.Send(c, "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -103,7 +103,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "new_post", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "new_post", params, c.User().Name, to)
 	})
 }
 
@@ -147,7 +147,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "new_comment", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "new_comment", params, c.User().Name, to)
 	})
 }
 
@@ -207,7 +207,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "change_status", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "change_status", params, c.User().Name, to)
 	})
 }
 
@@ -227,7 +227,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 				"message": markdown.Parse(toMessage),
 			})
 		}
-		return c.Services().Emailer.BatchSend(c.Tenant(), "invite_email", email.Params{
+		return c.Services().Emailer.BatchSend(c, "invite_email", email.Params{
 			"subject": subject,
 		}, c.User().Name, to)
 	})
