@@ -118,6 +118,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 			wc.SetUser(c.User())
 			wc.SetTenant(c.Tenant())
 			wc.SetBaseURL(c.BaseURL())
+			wc.SetLogoURL(c.LogoURL())
 			return task.Job(wc)
 		}
 	}
@@ -134,7 +135,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 }
 
 //Tenant returns current tenant
-func (ctx *Context) Tenant() *models.Tenant {
+func (ctx Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant
@@ -479,4 +480,20 @@ func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.MustGet("CDN_HOST") + path
 	}
 	return ctx.BaseURL() + path
+}
+
+// LogoURL return the full URL to the tenant-specific logo URL
+func (ctx Context) LogoURL() string {
+	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
+		return ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
+	}
+	return "https://getfider.com/images/logo-100x100.png"
+}
+
+// FaviconURL return the full URL to the tenant-specific favicon URL
+func (ctx Context) FaviconURL() string {
+	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
+		return ctx.TenantAssetsURL("/images/50/%d", ctx.Tenant().LogoID)
+	}
+	return ctx.GlobalAssetsURL("/favicon.ico")
 }

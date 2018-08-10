@@ -4,7 +4,6 @@ import (
 	"fmt"
 	gosmtp "net/smtp"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -54,7 +53,7 @@ func (s *Sender) ReplaceSend(send func(string, gosmtp.Auth, string, []string, []
 }
 
 //Send an email
-func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
+func (s *Sender) Send(ctx email.Context, templateName string, params email.Params, from string, to email.Recipient) error {
 	if to.Address == "" {
 		return nil
 	}
@@ -93,9 +92,9 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 }
 
 // BatchSend an email to multiple recipients
-func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
-		if err := s.Send(tenant, templateName, params, from, r); err != nil {
+		if err := s.Send(ctx, templateName, params, from, r); err != nil {
 			return errors.Wrap(err, "failed to batch send email to %d recipients", len(to))
 		}
 	}

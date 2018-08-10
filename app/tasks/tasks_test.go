@@ -31,7 +31,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("signup_email")
-	Expect(emailer.Requests[0].Tenant).IsNil()
+	Expect(emailer.Requests[0].Context.Tenant()).IsNil()
 	Expect(emailer.Requests[0].Params).Equals(email.Params{})
 	Expect(emailer.Requests[0].From).Equals("Fider")
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -60,7 +60,7 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("signin_email")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{})
 	Expect(emailer.Requests[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -92,7 +92,7 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("change_emailaddress_email")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{})
 	Expect(emailer.Requests[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailer.Requests[0].To).HasLen(1)
@@ -128,7 +128,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("new_post")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":   "[Demonstration] Add support for TypeScript",
 		"content": template.HTML("<p>TypeScript is great, please add support for it</p>"),
@@ -177,7 +177,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("new_comment")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "[Demonstration] Add support for TypeScript",
 		"content":     template.HTML("<p>I agree</p>"),
@@ -224,7 +224,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("change_status")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "[Demonstration] Add support for TypeScript",
 		"content":     template.HTML("<p>Planned for next release.</p>"),
@@ -274,7 +274,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("change_status")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "[Demonstration] I need TypeScript",
 		"content":     template.HTML(""),
@@ -322,7 +322,7 @@ func TestSendInvites(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(emailer.Requests).HasLen(1)
 	Expect(emailer.Requests[0].TemplateName).Equals("invite_email")
-	Expect(emailer.Requests[0].Tenant).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"subject": "My Subject",
 	})

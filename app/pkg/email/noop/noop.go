@@ -1,12 +1,11 @@
 package noop
 
 import (
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 )
 
 type request struct {
-	Tenant       *models.Tenant
+	Context      email.Context
 	TemplateName string
 	Params       email.Params
 	From         string
@@ -26,9 +25,9 @@ func NewSender() *Sender {
 }
 
 // Send an email
-func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
+func (s *Sender) Send(ctx email.Context, templateName string, params email.Params, from string, to email.Recipient) error {
 	s.Requests = append(s.Requests, &request{
-		Tenant:       tenant,
+		Context:      ctx,
 		TemplateName: templateName,
 		Params:       params,
 		From:         from,
@@ -39,10 +38,10 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 }
 
 // BatchSend an email to multiple recipients
-func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.Params, from string, to []email.Recipient) error {
 	if len(to) > 0 {
 		s.Requests = append(s.Requests, &request{
-			Tenant:       tenant,
+			Context:      ctx,
 			TemplateName: templateName,
 			Params:       params,
 			From:         from,

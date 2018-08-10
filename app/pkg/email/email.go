@@ -66,6 +66,12 @@ func RenderMessage(templateName string, params Params) *Message {
 	}
 }
 
+// Context holds everything emailers need to know about execution context
+type Context interface {
+	Tenant() *models.Tenant
+	LogoURL() string
+}
+
 // NoReply is the default 'from' address
 var NoReply = env.MustGet("EMAIL_NOREPLY")
 
@@ -107,6 +113,6 @@ func CanSendTo(address string) bool {
 
 // Sender is used to send emails
 type Sender interface {
-	Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error
-	BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error
+	Send(ctx Context, templateName string, params Params, from string, to Recipient) error
+	BatchSend(ctx Context, templateName string, params Params, from string, to []Recipient) error
 }
