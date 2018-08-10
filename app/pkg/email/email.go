@@ -32,7 +32,7 @@ type Message struct {
 var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
 
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(templateName string, params Params) *Message {
+func RenderMessage(ctx Context, templateName string, params Params) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
 		var err error
@@ -54,7 +54,7 @@ func RenderMessage(templateName string, params Params) *Message {
 
 	bf.Reset()
 	if err := baseTpl.Execute(&bf, Params{
-		"logo": params["logo"],
+		"logo": ctx.LogoURL(),
 		"body": template.HTML(body),
 	}); err != nil {
 		panic(err)

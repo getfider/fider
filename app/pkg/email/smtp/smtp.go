@@ -72,7 +72,7 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 		"Params":       to.Params,
 	})
 
-	message := email.RenderMessage(templateName, params.Merge(to.Params))
+	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
 	b.Set("From", fmt.Sprintf("%s <%s>", from, email.NoReply))
 	b.Set("To", fmt.Sprintf("%s <%s>", to.Name, to.Address))

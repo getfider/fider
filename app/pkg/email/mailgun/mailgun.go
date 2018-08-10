@@ -48,9 +48,9 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 		for k := range to[0].Params {
 			params[k] = fmt.Sprintf("%%recipient.%s%%", k)
 		}
-		message = email.RenderMessage(templateName, params)
+		message = email.RenderMessage(ctx, templateName, params)
 	} else {
-		message = email.RenderMessage(templateName, params.Merge(to[0].Params))
+		message = email.RenderMessage(ctx, templateName, params.Merge(to[0].Params))
 	}
 
 	form := url.Values{}
