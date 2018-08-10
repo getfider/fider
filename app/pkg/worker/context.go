@@ -17,6 +17,7 @@ type Context struct {
 	logger   log.Logger
 	db       *dbx.Database
 	baseURL  string
+	logoURL  string
 	user     *models.User
 	tenant   *models.Tenant
 }
@@ -38,6 +39,11 @@ func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) 
 //SetBaseURL on context
 func (c *Context) SetBaseURL(baseURL string) {
 	c.baseURL = baseURL
+}
+
+//SetLogoURL on context
+func (c *Context) SetLogoURL(logoURL string) {
+	c.logoURL = logoURL
 }
 
 //SetUser on context
@@ -112,4 +118,9 @@ func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	c.logger.Error(err)
 	return err
+}
+
+// LogoURL return the full URL to the tenant-specific logo URL
+func (c Context) LogoURL() string {
+	return c.logoURL
 }

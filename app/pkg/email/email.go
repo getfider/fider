@@ -54,6 +54,7 @@ func RenderMessage(templateName string, params Params) *Message {
 // Context holds everything emailers need to know about execution context
 type Context interface {
 	Tenant() *models.Tenant
+	LogoURL() string
 }
 
 // NoReply is the default 'from' address
