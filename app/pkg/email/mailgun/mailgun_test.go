@@ -56,9 +56,52 @@ func TestSend_Success(t *testing.T) {
 	Expect(values.Get("to")).Equals("Jon Sow <jon.snow@got.com>")
 	Expect(values.Get("from")).Equals("Fider Test <noreply@random.org>")
 	Expect(values.Get("subject")).Equals("Message to: Hello")
-	Expect(values.Get("html")).Equals("Hello World Hello!")
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
+	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	</head>
+	<body bgcolor="#F7F7F7" style="font-size:16px">
+		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:14px;">
+			<tr>
+				<td width="200"></td>
+				<td height="40">&nbsp;</td>
+				<td width="200"></td>
+			</tr>
+			
+			<tr>
+				<td></td>
+				<td>
+					<table width="100%" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;">
+						Hello World Hello!
+					</table>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td height="10" style="line-height:1px;">&nbsp;</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<span style="color:#666;font-size:11px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td height="40">&nbsp;</td>
+				<td></td>
+			</tr>
+		</table>
+	</body>
+</html>`)
 }
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
@@ -130,9 +173,52 @@ func TestBatch_Success(t *testing.T) {
 	Expect(values["to"][1]).Equals("Arya Stark <arya.start@got.com>")
 	Expect(values.Get("from")).Equals("Fider Test <noreply@random.org>")
 	Expect(values.Get("subject")).Equals("Message to: %recipient.name%")
-	Expect(values.Get("html")).Equals("Hello World %recipient.name%!")
 	Expect(values["o:tag"]).HasLen(2)
 	Expect(values["o:tag"][0]).Equals("template:echo_test")
 	Expect(values["o:tag"][1]).Equals("tenant:got")
 	Expect(values.Get("recipient-variables")).Equals("{\"arya.start@got.com\":{\"name\":\"Arya\"},\"jon.snow@got.com\":{\"name\":\"Jon\"}}")
+	Expect(values.Get("html")).Equals(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	</head>
+	<body bgcolor="#F7F7F7" style="font-size:16px">
+		<table width="100%" bgcolor="#F7F7F7" cellpadding="0" cellspacing="0" border="0" style="text-align:center;font-size:14px;">
+			<tr>
+				<td width="200"></td>
+				<td height="40">&nbsp;</td>
+				<td width="200"></td>
+			</tr>
+			
+			<tr>
+				<td></td>
+				<td>
+					<table width="100%" bgcolor="#FFFFFF" cellpadding="0" cellspacing="0" border="0" style="text-align:left;padding:20px;border-radius:5px;color:#1c262d;border:1px solid #ECECEC;">
+						Hello World %recipient.name%!
+					</table>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td height="10" style="line-height:1px;">&nbsp;</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td>
+					<span style="color:#666;font-size:11px">This email was sent from a notification-only address that cannot accept incoming email. Please do not reply to this message.</span>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td height="40">&nbsp;</td>
+				<td></td>
+			</tr>
+		</table>
+	</body>
+</html>`)
 }

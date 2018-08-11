@@ -52,9 +52,14 @@ func RenderMessage(ctx Context, templateName string, params Params) *Message {
 	lines := strings.Split(bf.String(), "\n")
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
+	logo, ok := params["logo"].(string)
+	if !ok || logo == "" {
+		logo = ctx.LogoURL()
+	}
+
 	bf.Reset()
 	if err := baseTpl.Execute(&bf, Params{
-		"logo": ctx.LogoURL(),
+		"logo": logo,
 		"body": template.HTML(body),
 	}); err != nil {
 		panic(err)
