@@ -56,6 +56,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	form := url.Values{}
 
 	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
+	form.Add("h:Reply-To", fmt.Sprintf("NoReply <%s>", email.NoReply))
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
 	form.Add("o:tag", fmt.Sprintf("template:%s", templateName))
