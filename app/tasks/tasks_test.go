@@ -131,6 +131,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":      "Add support for TypeScript",
+		"postLink":   template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName": "Demonstration",
 		"userName":   "Jon Snow",
 		"content":    template.HTML("<p>TypeScript is great, please add support for it</p>"),
@@ -182,6 +183,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "Add support for TypeScript",
+		"postLink":    template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName":  "Demonstration",
 		"userName":    "Arya Stark",
 		"content":     template.HTML("<p>I agree</p>"),
@@ -231,6 +233,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "Add support for TypeScript",
+		"postLink":    template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName":  "Demonstration",
 		"content":     template.HTML("<p>Planned for next release.</p>"),
 		"duplicate":   template.HTML(""),
@@ -282,6 +285,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
 	Expect(emailer.Requests[0].Params).Equals(email.Params{
 		"title":       "I need TypeScript",
+		"postLink":    template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>#2</a>"),
 		"tenantName":  "Demonstration",
 		"content":     template.HTML(""),
 		"duplicate":   template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>Add support for TypeScript</a>"),
