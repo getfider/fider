@@ -146,6 +146,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Parse(comment.Content),
+			"number":      linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),

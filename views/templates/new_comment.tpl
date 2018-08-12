@@ -1,7 +1,12 @@
 subject: [{{ .tenantName }}] {{ .title }}
 body:
 <tr>
-  <td><strong>{{ .userName }}</strong> left a comment on <strong>{{ .title }}</strong>.</td>
+  <td>
+    <strong>{{ .userName }}</strong> left a comment on 
+    <strong>
+      {{ .title }} ({{ .number }})
+    </strong>
+  </td>
 </tr>
 <tr>
   <td></td>
