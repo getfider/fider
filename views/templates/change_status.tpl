@@ -3,9 +3,9 @@ body:
 <tr>
   <td>
     {{ if .duplicate }}
-      <i><strong>{{ .title }}</strong> has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}.</i>
+      <i><strong>{{ .title }} ({{ .postLink }})</strong> has been closed as a <strong>{{ .status }}</strong> of {{ .duplicate }}.</i>
     {{ else }}
-      <i>Status of <strong>{{ .title }}</strong> has changed to <strong>{{ .status }}</strong>.</i> <br />
+      <i>Status of <strong>{{ .title }} ({{ .postLink }})</strong> has changed to <strong>{{ .status }}</strong>.</i> <br />
     {{ end }}
   </td>
 </tr>

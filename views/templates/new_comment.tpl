@@ -4,7 +4,7 @@ body:
   <td>
     <strong>{{ .userName }}</strong> left a comment on 
     <strong>
-      {{ .title }} ({{ .number }})
+      {{ .title }} ({{ .postLink }})
     </strong>
   </td>
 </tr>

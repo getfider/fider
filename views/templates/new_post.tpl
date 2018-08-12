@@ -1,7 +1,9 @@
 subject: [{{ .tenantName }}] {{ .title }}
 body:
 <tr>
-  <td><strong>{{ .userName }}</strong> created a new post <strong>{{ .title }}</strong>.</td>
+  <td>
+    <strong>{{ .userName }}</strong> created a new post <strong>{{ .title }} ({{ .postLink }})</strong>.
+  </td>
 </tr>
 <tr>
   <td></td>

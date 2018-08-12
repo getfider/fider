@@ -101,6 +101,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"userName":   c.User().Name,
 			"content":    markdown.Parse(post.Description),
+			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
@@ -146,7 +147,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Parse(comment.Content),
-			"number":      linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
@@ -204,6 +205,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 
 		params := email.Params{
 			"title":       post.Title,
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Parse(post.Response.Text),
 			"status":      models.GetPostStatusName(post.Status),
