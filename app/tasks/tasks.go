@@ -29,6 +29,7 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
 		to := email.NewRecipient(model.Name, model.Email, email.Params{
+			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
 		return c.Services().Emailer.Send(c, "signup_email", email.Params{}, "Fider", to)

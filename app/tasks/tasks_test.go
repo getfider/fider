@@ -37,6 +37,7 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	Expect(emailer.Requests[0].To).HasLen(1)
 	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
 		Params: email.Params{
+			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": template.HTML("<a href='http://domain.com/signup/verify?k=1234'>http://domain.com/signup/verify?k=1234</a>"),
 		},
 	})
