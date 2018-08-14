@@ -1,9 +1,27 @@
-subject: {{ .title }}
+subject: [{{ .tenantName }}] {{ .title }}
 body:
-{{ .content }}
-
-<span style="color:#666;font-size:11px">
-— <br />
-You are receiving this because you are subscribed to this thread. Please do not reply to this email. <br />
-{{ .view }}, {{ .unsubscribe }} or {{ .change }}.
-</span>
+<tr>
+  <td>
+    <strong>{{ .userName }}</strong> left a comment on 
+    <strong>
+      {{ .title }} ({{ .postLink }})
+    </strong>
+  </td>
+</tr>
+<tr>
+  <td></td>
+  <td height="10" style="line-height:1px;">&nbsp;</td>
+  <td></td>
+</tr>
+<tr>
+  <td style="border-top:1px solid #efefef;">{{ .content }}</td>
+</tr>
+<tr>
+  <td>
+    <span style="color:#666;font-size:11px">
+    — <br />
+    You are receiving this because you are subscribed to this thread. <br />
+    {{ .view }}, {{ .unsubscribe }} or {{ .change }}.
+    </span>
+  </td>
+</tr>

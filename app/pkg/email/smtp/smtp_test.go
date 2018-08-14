@@ -4,6 +4,8 @@ import (
 	gosmtp "net/smtp"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/worker"
+
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/email"
@@ -19,10 +21,14 @@ type request struct {
 	body       []byte
 }
 
-var sender = smtp.NewSender(noop.NewLogger(), "localhost", "1234", "us3r", "p4ss")
+var logger = noop.NewLogger()
+var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
+
+var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
+
 var requests = make([]request, 0)
 
 func mockSend(servername string, auth gosmtp.Auth, from string, to []string, body []byte) error {
@@ -31,6 +37,7 @@ func mockSend(servername string, auth gosmtp.Auth, from string, to []string, bod
 }
 
 func reset() {
+	ctx.SetTenant(tenant)
 	sender.ReplaceSend(mockSend)
 	requests = make([]request, 0)
 }
@@ -43,7 +50,7 @@ func TestSend_Success(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "jon.snow@got.com",
 	}
-	err := sender.Send(tenant, "echo_test", email.Params{
+	err := sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -53,7 +60,8 @@ func TestSend_Success(t *testing.T) {
 	Expect(requests[0].auth).Equals(gosmtp.PlainAuth("", "us3r", "p4ss", "localhost"))
 	Expect(requests[0].from).Equals("noreply@random.org")
 	Expect(requests[0].to).Equals([]string{"jon.snow@got.com"})
-	Expect(string(requests[0].body)).Equals("From: Fider Test <noreply@random.org>\r\nTo: Jon Sow <jon.snow@got.com>\r\nSubject: Message to: Hello\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\nHello World Hello!")
+	Expect(string(requests[0].body)).ContainsSubstring("From: Fider Test <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: Jon Sow <jon.snow@got.com>\r\nSubject: Message to: Hello\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
+	Expect(string(requests[0].body)).ContainsSubstring("Hello World Hello!")
 }
 func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
@@ -63,7 +71,7 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "",
 	}
-	err := sender.Send(tenant, "echo_test", email.Params{
+	err := sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -80,7 +88,7 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 		Name:    "Jon Sow",
 		Address: "jon.snow@got.com",
 	}
-	err := sender.Send(tenant, "echo_test", email.Params{
+	err := sender.Send(ctx, "echo_test", email.Params{
 		"name": "Hello",
 	}, "Fider Test", to)
 
@@ -110,7 +118,7 @@ func TestBatch_Success(t *testing.T) {
 		},
 	}
 
-	err := sender.BatchSend(tenant, "echo_test", email.Params{}, "Fider Test", to)
+	err := sender.BatchSend(ctx, "echo_test", email.Params{}, "Fider Test", to)
 	Expect(err).IsNil()
 
 	Expect(requests).HasLen(2)
@@ -119,11 +127,13 @@ func TestBatch_Success(t *testing.T) {
 	Expect(requests[0].auth).Equals(gosmtp.PlainAuth("", "us3r", "p4ss", "localhost"))
 	Expect(requests[0].from).Equals("noreply@random.org")
 	Expect(requests[0].to).Equals([]string{"jon.snow@got.com"})
-	Expect(string(requests[0].body)).Equals("From: Fider Test <noreply@random.org>\r\nTo: Jon Sow <jon.snow@got.com>\r\nSubject: Message to: Jon\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\nHello World Jon!")
+	Expect(string(requests[0].body)).ContainsSubstring("From: Fider Test <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: Jon Sow <jon.snow@got.com>\r\nSubject: Message to: Jon\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
+	Expect(string(requests[0].body)).ContainsSubstring("Hello World Jon!")
 
 	Expect(requests[1].servername).Equals("localhost:1234")
 	Expect(requests[1].auth).Equals(gosmtp.PlainAuth("", "us3r", "p4ss", "localhost"))
 	Expect(requests[1].from).Equals("noreply@random.org")
 	Expect(requests[1].to).Equals([]string{"arya.start@got.com"})
-	Expect(string(requests[1].body)).Equals("From: Fider Test <noreply@random.org>\r\nTo: Arya Stark <arya.start@got.com>\r\nSubject: Message to: Arya\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\nHello World Arya!")
+	Expect(string(requests[1].body)).ContainsSubstring("From: Fider Test <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: Arya Stark <arya.start@got.com>\r\nSubject: Message to: Arya\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\n\r\n")
+	Expect(string(requests[1].body)).ContainsSubstring("Hello World Arya!")
 }
