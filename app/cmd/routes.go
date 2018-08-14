@@ -142,23 +142,23 @@ func routes(r *web.Engine) *web.Engine {
 		api.Use(middlewares.IsAuthenticated())
 
 		api.Post("/api/v1/posts", apiv1.CreatePost())
-		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
 		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
-		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
 		api.Post("/api/v1/posts/:number/support", apiv1.AddSupporter())
 		api.Delete("/api/v1/posts/:number/support", apiv1.RemoveSupporter())
 		api.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
 		api.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
-		api.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
-		api.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
 
 		//From this step, only Collaborators and Administrators are allowed
 		api.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
 		api.Get("/api/v1/users", apiv1.ListUsers())
+		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
 		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
+		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
+		api.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
+		api.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
 
 		//From this step, only Administrators are allowed
 		api.Use(middlewares.IsAuthorized(models.RoleAdministrator))
