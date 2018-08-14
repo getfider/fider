@@ -29,9 +29,10 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
 		to := email.NewRecipient(model.Name, model.Email, email.Params{
+			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "signup_email", email.Params{}, "Fider", to)
+		return c.Services().Emailer.Send(c, "signup_email", email.Params{}, "Fider", to)
 	})
 }
 
@@ -42,7 +43,7 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "signin_email", email.Params{}, c.Tenant().Name, to)
+		return c.Services().Emailer.Send(c, "signin_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -60,7 +61,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			"newEmail": model.Email,
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c.Tenant(), "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
+		return c.Services().Emailer.Send(c, "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
 	})
 }
 
@@ -97,13 +98,16 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 		}
 
 		params := email.Params{
-			"title":   fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
-			"content": markdown.Parse(post.Description),
-			"view":    linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":  linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"title":      post.Title,
+			"tenantName": c.Tenant().Name,
+			"userName":   c.User().Name,
+			"content":    markdown.Parse(post.Description),
+			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "new_post", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "new_post", params, c.User().Name, to)
 	})
 }
 
@@ -140,14 +144,17 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"title":       post.Title,
+			"tenantName":  c.Tenant().Name,
+			"userName":    c.User().Name,
 			"content":     markdown.Parse(comment.Content),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "new_comment", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "new_comment", params, c.User().Name, to)
 	})
 }
 
@@ -198,7 +205,9 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 		}
 
 		params := email.Params{
-			"title":       fmt.Sprintf("[%s] %s", c.Tenant().Name, post.Title),
+			"title":       post.Title,
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Parse(post.Response.Text),
 			"status":      models.GetPostStatusName(post.Status),
 			"duplicate":   duplicate,
@@ -207,7 +216,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c.Tenant(), "change_status", params, c.User().Name, to)
+		return c.Services().Emailer.BatchSend(c, "change_status", params, c.User().Name, to)
 	})
 }
 
@@ -227,7 +236,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 				"message": markdown.Parse(toMessage),
 			})
 		}
-		return c.Services().Emailer.BatchSend(c.Tenant(), "invite_email", email.Params{
+		return c.Services().Emailer.BatchSend(c, "invite_email", email.Params{
 			"subject": subject,
 		}, c.User().Name, to)
 	})

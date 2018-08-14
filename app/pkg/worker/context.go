@@ -17,6 +17,7 @@ type Context struct {
 	logger   log.Logger
 	db       *dbx.Database
 	baseURL  string
+	logoURL  string
 	user     *models.User
 	tenant   *models.Tenant
 }
@@ -40,13 +41,20 @@ func (c *Context) SetBaseURL(baseURL string) {
 	c.baseURL = baseURL
 }
 
+//SetLogoURL on context
+func (c *Context) SetLogoURL(logoURL string) {
+	c.logoURL = logoURL
+}
+
 //SetUser on context
 func (c *Context) SetUser(user *models.User) {
 	c.user = user
 	if user != nil {
 		c.logger.SetProperty(log.PropertyKeyUserID, user.ID)
 	}
-	c.services.SetCurrentUser(user)
+	if c.services != nil {
+		c.services.SetCurrentUser(user)
+	}
 }
 
 //SetTenant on context
@@ -55,7 +63,9 @@ func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
 		c.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
 	}
-	c.services.SetCurrentTenant(tenant)
+	if c.services != nil {
+		c.services.SetCurrentTenant(tenant)
+	}
 }
 
 //SetServices on current context
@@ -108,4 +118,9 @@ func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	c.logger.Error(err)
 	return err
+}
+
+// LogoURL return the full URL to the tenant-specific logo URL
+func (c Context) LogoURL() string {
+	return c.logoURL
 }

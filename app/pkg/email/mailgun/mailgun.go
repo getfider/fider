@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -31,12 +30,12 @@ func NewSender(logger log.Logger, client web.Client, domain, apiKey string) *Sen
 }
 
 //Send an email
-func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
-	return s.BatchSend(tenant, templateName, params, from, []email.Recipient{to})
+func (s *Sender) Send(ctx email.Context, templateName string, params email.Params, from string, to email.Recipient) error {
+	return s.BatchSend(ctx, templateName, params, from, []email.Recipient{to})
 }
 
 // BatchSend an email to multiple recipients
-func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.Params, from string, to []email.Recipient) error {
 	if len(to) == 0 {
 		return nil
 	}
@@ -49,19 +48,20 @@ func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params em
 		for k := range to[0].Params {
 			params[k] = fmt.Sprintf("%%recipient.%s%%", k)
 		}
-		message = email.RenderMessage(templateName, params)
+		message = email.RenderMessage(ctx, templateName, params)
 	} else {
-		message = email.RenderMessage(templateName, params.Merge(to[0].Params))
+		message = email.RenderMessage(ctx, templateName, params.Merge(to[0].Params))
 	}
 
 	form := url.Values{}
 
 	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
+	form.Add("h:Reply-To", email.NoReply)
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
 	form.Add("o:tag", fmt.Sprintf("template:%s", templateName))
-	if tenant != nil && !env.IsSingleHostMode() {
-		form.Add("o:tag", fmt.Sprintf("tenant:%s", tenant.Subdomain))
+	if ctx.Tenant() != nil && !env.IsSingleHostMode() {
+		form.Add("o:tag", fmt.Sprintf("tenant:%s", ctx.Tenant().Subdomain))
 	}
 
 	// Set Mailgun's var based on each recipient's variables

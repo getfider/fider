@@ -4,7 +4,6 @@ import (
 	"fmt"
 	gosmtp "net/smtp"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -54,7 +53,7 @@ func (s *Sender) ReplaceSend(send func(string, gosmtp.Auth, string, []string, []
 }
 
 //Send an email
-func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.Params, from string, to email.Recipient) error {
+func (s *Sender) Send(ctx email.Context, templateName string, params email.Params, from string, to email.Recipient) error {
 	if to.Address == "" {
 		return nil
 	}
@@ -73,9 +72,10 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 		"Params":       to.Params,
 	})
 
-	message := email.RenderMessage(templateName, params.Merge(to.Params))
+	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
 	b.Set("From", fmt.Sprintf("%s <%s>", from, email.NoReply))
+	b.Set("Reply-To", email.NoReply)
 	b.Set("To", fmt.Sprintf("%s <%s>", to.Name, to.Address))
 	b.Set("Subject", message.Subject)
 	b.Set("MIME-version", "1.0")
@@ -93,9 +93,9 @@ func (s *Sender) Send(tenant *models.Tenant, templateName string, params email.P
 }
 
 // BatchSend an email to multiple recipients
-func (s *Sender) BatchSend(tenant *models.Tenant, templateName string, params email.Params, from string, to []email.Recipient) error {
+func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.Params, from string, to []email.Recipient) error {
 	for _, r := range to {
-		if err := s.Send(tenant, templateName, params, from, r); err != nil {
+		if err := s.Send(ctx, templateName, params, from, r); err != nil {
 			return errors.Wrap(err, "failed to batch send email to %d recipients", len(to))
 		}
 	}

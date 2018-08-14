@@ -1,3 +1,5 @@
 subject: {{ .subject }}
 body:
-{{ .message }}
+<tr>
+  <td>{{ .message }}</td>
+</tr>

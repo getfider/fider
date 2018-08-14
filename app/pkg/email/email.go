@@ -29,8 +29,10 @@ type Message struct {
 	Body    string
 }
 
+var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
+
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(templateName string, params Params) *Message {
+func RenderMessage(ctx Context, templateName string, params Params) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
 		var err error
@@ -43,12 +45,36 @@ func RenderMessage(templateName string, params Params) *Message {
 	}
 
 	var bf bytes.Buffer
-	tpl.Execute(&bf, params)
+	if err := tpl.Execute(&bf, params); err != nil {
+		panic(err)
+	}
+
 	lines := strings.Split(bf.String(), "\n")
+	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
+
+	logo, ok := params["logo"].(string)
+	if !ok || logo == "" {
+		logo = ctx.LogoURL()
+	}
+
+	bf.Reset()
+	if err := baseTpl.Execute(&bf, Params{
+		"logo": logo,
+		"body": template.HTML(body),
+	}); err != nil {
+		panic(err)
+	}
+
 	return &Message{
 		Subject: strings.TrimLeft(lines[0], "subject: "),
-		Body:    strings.TrimLeft(strings.Join(lines[2:], "\n"), " "),
+		Body:    bf.String(),
 	}
+}
+
+// Context holds everything emailers need to know about execution context
+type Context interface {
+	Tenant() *models.Tenant
+	LogoURL() string
 }
 
 // NoReply is the default 'from' address
@@ -92,6 +118,6 @@ func CanSendTo(address string) bool {
 
 // Sender is used to send emails
 type Sender interface {
-	Send(tenant *models.Tenant, templateName string, params Params, from string, to Recipient) error
-	BatchSend(tenant *models.Tenant, templateName string, params Params, from string, to []Recipient) error
+	Send(ctx Context, templateName string, params Params, from string, to Recipient) error
+	BatchSend(ctx Context, templateName string, params Params, from string, to []Recipient) error
 }
