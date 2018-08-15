@@ -18,12 +18,10 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	files := r.Group()
-	{
-		files.Get("/robots.txt", handlers.RobotsTXT())
-		files.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
-		files.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
-	}
+	r.Get("/-/health", handlers.Health())
+	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
+	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
 	assets := r.Group()
 	{
@@ -36,18 +34,13 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
 
-	noTenant := r.Group()
-	{
-		noTenant.Get("/-/health", handlers.Health())
+	r.Post("/_api/tenants", handlers.CreateTenant())
+	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
+	r.Get("/signup", handlers.SignUp())
+	r.Get("/oauth/:provider", handlers.SignInByOAuth())
+	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())
 
-		noTenant.Post("/_api/tenants", handlers.CreateTenant())
-		noTenant.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
-		noTenant.Get("/signup", handlers.SignUp())
-
-		noTenant.Get("/oauth/:provider", handlers.SignInByOAuth())
-		noTenant.Get("/oauth/:provider/callback", handlers.OAuthCallback())
-	}
-
+	//From this step, a Tenant is required (regardless of status)
 	r.Use(middlewares.RequireTenant())
 
 	tenantAssets := r.Group()
@@ -60,101 +53,121 @@ func routes(r *web.Engine) *web.Engine {
 		})
 	}
 
-	open := r.Group()
-	{
-		open.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
-		open.Get("/signup/verify", handlers.VerifySignUpKey())
-		open.Get("/oauth/:provider/token", handlers.OAuthToken())
-		open.Get("/oauth/:provider/echo", handlers.OAuthEcho())
-		open.Use(middlewares.OnlyActiveTenants())
-		open.Get("/signin", handlers.SignInPage())
-		open.Get("/not-invited", handlers.NotInvitedPage())
-		open.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
-		open.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
-		open.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
-		open.Post("/_api/signin", handlers.SignInByEmail())
-	}
+	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
+	r.Get("/signup/verify", handlers.VerifySignUpKey())
+	r.Get("/signout", handlers.SignOut())
+	r.Get("/oauth/:provider/token", handlers.OAuthToken())
+	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
+	//From this step, a only active Tenants are allowed
+	r.Use(middlewares.OnlyActiveTenants())
+
+	r.Get("/signin", handlers.SignInPage())
+	r.Get("/not-invited", handlers.NotInvitedPage())
+	r.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
+	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
+	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
+	r.Post("/_api/signin", handlers.SignInByEmail())
+
+	//From this step, the User might be available
 	r.Use(middlewares.User())
 
-	page := r.Group()
+	//From this step, block if it's private tenant with unauthenticated user
+	r.Use(middlewares.CheckTenantPrivacy())
+
+	r.Get("/", handlers.Index())
+	r.Get("/posts/:number", handlers.PostDetails())
+	r.Get("/posts/:number/*all", handlers.PostDetails())
+
+	/*
+	** This is a temporary redirect and should be removed in the future
+	** START
+	 */
+	r.Get("/ideas/:number", func(c web.Context) error {
+		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+	})
+	r.Get("/ideas/:number/*all", func(c web.Context) error {
+		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+	})
+	/*
+	** END
+	 */
+
+	ui := r.Group()
 	{
-		page.Use(middlewares.OnlyActiveTenants())
-		page.Use(middlewares.CheckTenantPrivacy())
+		//From this step, a User is required
+		ui.Use(middlewares.IsAuthenticated())
 
-		public := page.Group()
-		{
-			public.Get("/", handlers.Index())
-			public.Get("/posts/:number", handlers.PostDetails())
-			public.Get("/posts/:number/*all", handlers.PostDetails())
-			public.Get("/api/v1/posts", apiv1.SearchPosts())
-			public.Get("/api/v1/tags", apiv1.ListTags())
-			public.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
-			public.Get("/signout", handlers.SignOut())
+		ui.Get("/settings", handlers.UserSettings())
+		ui.Get("/notifications", handlers.Notifications())
+		ui.Get("/notifications/:id", handlers.ReadNotification())
+		ui.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
-			/* This is a temporary redirect and should be removed in the future */
-			public.Get("/ideas/:number", func(c web.Context) error {
-				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
-			})
-			public.Get("/ideas/:number/*all", func(c web.Context) error {
-				return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
-			})
-			/* This is a temporary redirect and should be removed in the future */
-		}
+		ui.Delete("/_api/user", handlers.DeleteUser())
+		ui.Post("/_api/user/settings", handlers.UpdateUserSettings())
+		ui.Post("/_api/user/change-email", handlers.ChangeUserEmail())
+		ui.Post("/_api/notifications/read-all", handlers.ReadAllNotifications())
+		ui.Get("/_api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
-		private := page.Group()
-		{
-			private.Use(middlewares.IsAuthenticated())
-			private.Get("/settings", handlers.UserSettings())
-			private.Get("/notifications", handlers.Notifications())
-			private.Get("/notifications/:id", handlers.ReadNotification())
-			private.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
+		//From this step, only Collaborators and Administrators are allowed
+		ui.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
 
-			private.Post("/api/v1/posts", apiv1.CreatePost())
-			private.Put("/api/v1/posts/:number", apiv1.UpdatePost())
-			private.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
-			private.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
-			private.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
-			private.Post("/api/v1/posts/:number/support", apiv1.AddSupporter())
-			private.Delete("/api/v1/posts/:number/support", apiv1.RemoveSupporter())
-			private.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
-			private.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
-			private.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
-			private.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
-			private.Delete("/_api/user", handlers.DeleteUser())
-			private.Post("/_api/user/settings", handlers.UpdateUserSettings())
-			private.Post("/_api/user/change-email", handlers.ChangeUserEmail())
-			private.Post("/_api/notifications/read-all", handlers.ReadAllNotifications())
-			private.Get("/_api/notifications/unread/total", handlers.TotalUnreadNotifications())
+		ui.Get("/admin", handlers.GeneralSettingsPage())
+		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
+		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
+		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
+		ui.Get("/admin/members", handlers.ManageMembers())
+		ui.Get("/admin/tags", handlers.ManageTags())
+		ui.Get("/admin/authentication", handlers.ManageAuthentication())
+		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
-			private.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+		//From this step, only Administrators are allowed
+		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
-			private.Get("/admin", handlers.GeneralSettingsPage())
-			private.Get("/admin/advanced", handlers.AdvancedSettingsPage())
-			private.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
-			private.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
-			private.Get("/admin/members", handlers.ManageMembers())
-			private.Get("/admin/tags", handlers.ManageTags())
-			private.Get("/admin/authentication", handlers.ManageAuthentication())
-			private.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
-			private.Get("/api/v1/users", apiv1.ListUsers())
-			private.Post("/api/v1/invitations/send", apiv1.SendInvites())
-			private.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
+		ui.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
+		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
+		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
+		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
+		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
+		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
+	}
 
-			private.Use(middlewares.IsAuthorized(models.RoleAdministrator))
+	api := r.Group()
+	{
+		api.Get("/api/v1/posts", apiv1.SearchPosts())
+		api.Get("/api/v1/tags", apiv1.ListTags())
+		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 
-			private.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
-			private.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
-			private.Delete("/api/v1/posts/:number", apiv1.DeletePost())
-			private.Post("/_api/admin/settings/general", handlers.UpdateSettings())
-			private.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
-			private.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
-			private.Post("/api/v1/tags", apiv1.CreateEditTag())
-			private.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
-			private.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
-			private.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
-			private.Post("/api/v1/roles/:role/users", handlers.ChangeUserRole())
-		}
+		//From this step, a User is required
+		api.Use(middlewares.IsAuthenticated())
+
+		api.Post("/api/v1/posts", apiv1.CreatePost())
+		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
+		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
+		api.Post("/api/v1/posts/:number/support", apiv1.AddSupporter())
+		api.Delete("/api/v1/posts/:number/support", apiv1.RemoveSupporter())
+		api.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
+		api.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
+
+		//From this step, only Collaborators and Administrators are allowed
+		api.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+
+		api.Get("/api/v1/users", apiv1.ListUsers())
+		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
+		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
+		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
+		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
+		api.Post("/api/v1/posts/:number/tags/:slug", apiv1.AssignTag())
+		api.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
+
+		//From this step, only Administrators are allowed
+		api.Use(middlewares.IsAuthorized(models.RoleAdministrator))
+
+		api.Delete("/api/v1/posts/:number", apiv1.DeletePost())
+		api.Post("/api/v1/tags", apiv1.CreateEditTag())
+		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
+		api.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
+		api.Post("/api/v1/roles/:role/users", handlers.ChangeUserRole())
 	}
 
 	return r
