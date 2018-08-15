@@ -63,7 +63,7 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 		ExecutePost(handlers.UpdateUserSettings(), `{ 
 			"name": "Jon Stark",
 			"settings": {
-				"event_notification_new_idea": "1",
+				"event_notification_new_post": "1",
 				"event_notification_new_comment": "2",
 				"event_notification_change_status": "3"
 			}

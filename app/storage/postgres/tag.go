@@ -95,7 +95,7 @@ func (s *TagStorage) Update(tag *models.Tag, name, color string, isPublic bool) 
 
 // Delete a tag by its id
 func (s *TagStorage) Delete(tag *models.Tag) error {
-	_, err := s.trx.Execute(`DELETE FROM idea_tags WHERE tag_id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM post_tags WHERE tag_id = $1 AND tenant_id = $2`, tag.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to remove tag with id '%d' from all posts", tag.ID)
 	}
@@ -109,7 +109,7 @@ func (s *TagStorage) Delete(tag *models.Tag) error {
 
 // AssignTag adds a tag to an post
 func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
-	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM idea_tags WHERE idea_id = $1 AND tag_id = $2 AND tenant_id = $3", post.ID, tag.ID, s.tenant.ID)
+	alreadyAssigned, err := s.trx.Exists("SELECT 1 FROM post_tags WHERE post_id = $1 AND tag_id = $2 AND tenant_id = $3", post.ID, tag.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to check if tag is already assigned")
 	}
@@ -119,7 +119,7 @@ func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
 	}
 
 	_, err = s.trx.Execute(
-		`INSERT INTO idea_tags (tag_id, idea_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
+		`INSERT INTO post_tags (tag_id, post_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
 		tag.ID, post.ID, time.Now(), s.user.ID, s.tenant.ID,
 	)
 
@@ -132,7 +132,7 @@ func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
 // UnassignTag removes a tag from an post
 func (s *TagStorage) UnassignTag(tag *models.Tag, post *models.Post) error {
 	_, err := s.trx.Execute(
-		`DELETE FROM idea_tags WHERE tag_id = $1 AND idea_id = $2 AND tenant_id = $3`,
+		`DELETE FROM post_tags WHERE tag_id = $1 AND post_id = $2 AND tenant_id = $3`,
 		tag.ID, post.ID, s.tenant.ID,
 	)
 
@@ -147,10 +147,10 @@ func (s *TagStorage) GetAssigned(post *models.Post) ([]*models.Tag, error) {
 	tags, err := s.getTags(`
 		SELECT t.id, t.name, t.slug, t.color, t.is_public 
 		FROM tags t
-		INNER JOIN idea_tags it
-		ON it.tag_id = t.id
-		AND it.tenant_id = t.tenant_id
-		WHERE it.idea_id = $1 AND t.tenant_id = $2
+		INNER JOIN post_tags pt
+		ON pt.tag_id = t.id
+		AND pt.tenant_id = t.tenant_id
+		WHERE pt.post_id = $1 AND t.tenant_id = $2
 		ORDER BY t.name
 	`, post.ID, s.tenant.ID)
 

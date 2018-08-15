@@ -128,46 +128,46 @@ var (
 	sqlSelectPostsWhere = `	WITH 
 													agg_comments AS (
 															SELECT 
-																	idea_id, 
+																	post_id, 
 																	COUNT(CASE WHEN comments.created_on > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
 																	COUNT(*) as all
 															FROM comments 
-															INNER JOIN ideas
-															ON ideas.id = comments.idea_id
-															AND ideas.tenant_id = comments.tenant_id
-															WHERE ideas.tenant_id = $1
-															GROUP BY idea_id
+															INNER JOIN posts
+															ON posts.id = comments.post_id
+															AND posts.tenant_id = comments.tenant_id
+															WHERE posts.tenant_id = $1
+															GROUP BY post_id
 													),
 													agg_supporters AS (
 															SELECT 
-																	idea_id, 
-																	COUNT(CASE WHEN idea_supporters.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
+															post_id, 
+																	COUNT(CASE WHEN post_supporters.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
 																	COUNT(*) as all
-															FROM idea_supporters 
-															INNER JOIN ideas
-															ON ideas.id = idea_supporters.idea_id
-															AND ideas.tenant_id = idea_supporters.tenant_id
-															WHERE ideas.tenant_id = $1
-															GROUP BY idea_id
+															FROM post_supporters 
+															INNER JOIN posts
+															ON posts.id = post_supporters.post_id
+															AND posts.tenant_id = post_supporters.tenant_id
+															WHERE posts.tenant_id = $1
+															GROUP BY post_id
 													)
-													SELECT i.id, 
-																i.number, 
-																i.title, 
-																i.slug, 
-																i.description, 
-																i.created_on,
+													SELECT p.id, 
+																p.number, 
+																p.title, 
+																p.slug, 
+																p.description, 
+																p.created_on,
 																COALESCE(agg_s.all, 0) as supporters,
 																COALESCE(agg_c.all, 0) as comments,
 																COALESCE(agg_s.recent, 0) AS recent_supporters,
 																COALESCE(agg_c.recent, 0) AS recent_comments,																
-																i.status, 
+																p.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
 																u.email AS user_email,
 																u.role AS user_role,
 																u.status AS user_status,
-																i.response,
-																i.response_date,
+																p.response,
+																p.response_date,
 																r.id AS response_user_id, 
 																r.name AS response_user_name, 
 																r.email AS response_user_email, 
@@ -179,30 +179,30 @@ var (
 																d.status AS original_status,
 																array_remove(array_agg(t.slug), NULL) AS tags,
 																COALESCE(%s, false) AS viewer_supported
-													FROM ideas i
+													FROM posts p
 													INNER JOIN users u
-													ON u.id = i.user_id
+													ON u.id = p.user_id
 													LEFT JOIN users r
-													ON r.id = i.response_user_id
-													LEFT JOIN idea_tags it
-													ON it.idea_id = i.id
-													LEFT JOIN ideas d
-													ON d.id = i.original_id
+													ON r.id = p.response_user_id
+													LEFT JOIN post_tags pt
+													ON pt.post_id = p.id
+													LEFT JOIN posts d
+													ON d.id = p.original_id
 													LEFT JOIN tags t
-													ON t.id = it.tag_id
+													ON t.id = pt.tag_id
 													%s
 													LEFT JOIN agg_comments agg_c
-													ON agg_c.idea_id = i.id
+													ON agg_c.post_id = p.id
 													LEFT JOIN agg_supporters agg_s
-													ON agg_s.idea_id = i.id
-													WHERE i.status != ` + strconv.Itoa(models.PostDeleted) + ` AND %s
-													GROUP BY i.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
+													ON agg_s.post_id = p.id
+													WHERE p.status != ` + strconv.Itoa(models.PostDeleted) + ` AND %s
+													GROUP BY p.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
 func (s *PostStorage) getPostQuery(filter string) string {
 	viewerSupportedSubQuery := "null"
 	if s.user != nil {
-		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM idea_supporters WHERE idea_id = i.id AND user_id = %d)", s.user.ID)
+		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM post_supporters WHERE post_id = p.id AND user_id = %d)", s.user.ID)
 	}
 	tagCondition := `AND t.is_public = true`
 	if s.user != nil && s.user.IsCollaborator() {
@@ -223,7 +223,7 @@ func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post
 
 // GetByID returns post by given id
 func (s *PostStorage) GetByID(postID int) (*models.Post, error) {
-	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.id = $2"), s.tenant.ID, postID)
+	post, err := s.getSingle(s.getPostQuery("p.tenant_id = $1 AND p.id = $2"), s.tenant.ID, postID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get post with id '%d'", postID)
 	}
@@ -232,7 +232,7 @@ func (s *PostStorage) GetByID(postID int) (*models.Post, error) {
 
 // GetBySlug returns post by tenant and slug
 func (s *PostStorage) GetBySlug(slug string) (*models.Post, error) {
-	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.slug = $2"), s.tenant.ID, slug)
+	post, err := s.getSingle(s.getPostQuery("p.tenant_id = $1 AND p.slug = $2"), s.tenant.ID, slug)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get post with slug '%s'", slug)
 	}
@@ -241,7 +241,7 @@ func (s *PostStorage) GetBySlug(slug string) (*models.Post, error) {
 
 // GetByNumber returns post by tenant and number
 func (s *PostStorage) GetByNumber(number int) (*models.Post, error) {
-	post, err := s.getSingle(s.getPostQuery("i.tenant_id = $1 AND i.number = $2"), s.tenant.ID, number)
+	post, err := s.getSingle(s.getPostQuery("p.tenant_id = $1 AND p.number = $2"), s.tenant.ID, number)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get post with number '%d'", number)
 	}
@@ -260,7 +260,7 @@ func (s *PostStorage) GetAll() ([]*models.Post, error) {
 // CountPerStatus returns total number of posts per status
 func (s *PostStorage) CountPerStatus() (map[int]int, error) {
 	stats := []*dbStatusCount{}
-	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM ideas WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
+	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to count posts per status")
 	}
@@ -273,7 +273,7 @@ func (s *PostStorage) CountPerStatus() (map[int]int, error) {
 
 // Search existing posts based on input
 func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
-	innerQuery := s.getPostQuery("i.tenant_id = $1 AND i.status = ANY($2)")
+	innerQuery := s.getPostQuery("p.tenant_id = $1 AND p.status = ANY($2)")
 
 	if limit != "all" {
 		if _, err := strconv.Atoi(limit); err != nil {
@@ -341,17 +341,17 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				e.role AS edited_by_role,
 				e.status AS edited_by_status
 		FROM comments c
-		INNER JOIN ideas i
-		ON i.id = c.idea_id
-		AND i.tenant_id = c.tenant_id
+		INNER JOIN posts p
+		ON p.id = c.post_id
+		AND p.tenant_id = c.tenant_id
 		INNER JOIN users u
 		ON u.id = c.user_id
 		AND u.tenant_id = c.tenant_id
 		LEFT JOIN users e
 		ON e.id = c.edited_by_id
 		AND e.tenant_id = c.tenant_id
-		WHERE i.id = $1
-		AND i.tenant_id = $2
+		WHERE p.id = $1
+		AND p.tenant_id = $2
 		ORDER BY c.created_on ASC`, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
@@ -366,7 +366,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 
 // Update given post
 func (s *PostStorage) Update(post *models.Post, title, description string) (*models.Post, error) {
-	_, err := s.trx.Execute(`UPDATE ideas SET title = $1, slug = $2, description = $3 
+	_, err := s.trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
 													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed update post")
@@ -383,8 +383,8 @@ func (s *PostStorage) Update(post *models.Post, title, description string) (*mod
 func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO ideas (title, slug, number, description, tenant_id, user_id, created_on, status) 
-		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM ideas i WHERE i.tenant_id = $4), $3, $4, $5, $6, 0) 
+		`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_on, status) 
+		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
 		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed add new post")
@@ -406,7 +406,7 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
 	if err := s.trx.Get(&id,
-		"INSERT INTO comments (tenant_id, idea_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+		"INSERT INTO comments (tenant_id, post_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
@@ -471,7 +471,7 @@ func (s *PostStorage) AddSupporter(post *models.Post, user *models.User) error {
 	}
 
 	_, err := s.trx.Execute(
-		`INSERT INTO idea_supporters (tenant_id, user_id, idea_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
+		`INSERT INTO post_supporters (tenant_id, user_id, post_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
 		s.tenant.ID, user.ID, post.ID, time.Now())
 
 	if err != nil {
@@ -487,7 +487,7 @@ func (s *PostStorage) RemoveSupporter(post *models.Post, user *models.User) erro
 		return nil
 	}
 
-	_, err := s.trx.Execute(`DELETE FROM idea_supporters WHERE user_id = $1 AND idea_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM post_supporters WHERE user_id = $1 AND post_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete post supporter")
 	}
@@ -503,11 +503,11 @@ func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error 
 func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
-		conflict = "(user_id, idea_id) DO UPDATE SET status = $5, updated_on = $4"
+		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_on = $4"
 	}
 
 	_, err := s.trx.Execute(fmt.Sprintf(`
-	INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
+	INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_on, updated_on, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
 		s.tenant.ID, user.ID, post.ID, time.Now(), models.SubscriberActive,
 	)
@@ -520,8 +520,8 @@ func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User
 // RemoveSubscriber removes user from post list of subscribers
 func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) error {
 	_, err := s.trx.Execute(`
-		INSERT INTO idea_subscribers (tenant_id, user_id, idea_id, created_on, updated_on, status)
-		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, idea_id)
+		INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_on, updated_on, status)
+		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, post_id)
 		DO UPDATE SET status = 0, updated_on = $4`,
 		s.tenant.ID, user.ID, post.ID, time.Now(),
 	)
@@ -564,9 +564,9 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 		err = s.trx.Select(&users, `
 			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 			FROM users u
-			LEFT JOIN idea_subscribers sub
+			LEFT JOIN post_subscribers sub
 			ON sub.user_id = u.id
-			AND sub.idea_id = $1
+			AND sub.post_id = $1
 			AND sub.tenant_id = u.tenant_id
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
@@ -613,7 +613,7 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status int) er
 	}
 
 	_, err := s.trx.Execute(`
-	UPDATE ideas 
+	UPDATE posts 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, post.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
@@ -638,7 +638,7 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	}
 
 	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT user_id AS id FROM idea_supporters WHERE idea_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
+	err := s.trx.Select(&users, "SELECT user_id AS id FROM post_supporters WHERE post_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed to get supporters of post with id '%d'", post.ID)
 	}
@@ -650,7 +650,7 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	}
 
 	_, err = s.trx.Execute(`
-	UPDATE ideas 
+	UPDATE posts 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
 	`, post.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.PostDuplicate)
@@ -675,11 +675,11 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 // IsReferenced returns true if another post is referencing given post
 func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	exists, err := s.trx.Exists(`
-		SELECT 1 FROM ideas i 
-		INNER JOIN ideas o
-		ON o.tenant_id = i.tenant_id
-		AND o.id = i.original_id
-		WHERE i.tenant_id = $1
+		SELECT 1 FROM posts p 
+		INNER JOIN posts o
+		ON o.tenant_id = p.tenant_id
+		AND o.id = p.original_id
+		WHERE p.tenant_id = $1
 		AND o.id = $2`, s.tenant.ID, post.ID)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to check if post is referenced")
@@ -689,7 +689,7 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 
 // SupportedBy returns a list of Post ID supported by given user
 func (s *PostStorage) SupportedBy() ([]int, error) {
-	posts, err := s.trx.QueryIntArray("SELECT idea_id FROM idea_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
+	posts, err := s.trx.QueryIntArray("SELECT post_id FROM post_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user's supported posts")
 	}
