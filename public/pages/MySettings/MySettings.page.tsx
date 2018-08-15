@@ -124,8 +124,8 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
                     <a href="https://en.gravatar.com/" target="blank">
                       Gravatar
                     </a>{" "}
-                    to display profile avatars. <br />
-                    A letter avatar based on your name is generated for profiles without a Gravatar.
+                    to display profile avatars. <br />A letter avatar based on your name is generated for profiles
+                    without a Gravatar.
                   </p>
                 </div>
               </Field>

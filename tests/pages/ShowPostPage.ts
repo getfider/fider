@@ -6,26 +6,43 @@ export class ShowPostPage extends Page {
     super(tab);
   }
 
-  @findBy(".post-header h1") public Title!: WebComponent;
-  @findBy(".description") public Description!: WebComponent;
-  @findBy(".c-segment.l-response .status-label") public Status!: WebComponent;
-  @findBy(".c-segment.l-response .content") public ResponseText!: WebComponent;
-  @findBy(".c-support-counter button") public SupportCounter!: WebComponent;
-  @findBy(".action-col .c-button.respond") public RespondButton!: Button;
-  @findBy(".c-modal-window .c-response-form") public ResponseModal!: WebComponent;
-  @findBy(".c-comment-list") public Comments!: CommentList;
+  @findBy(".post-header h1")
+  public Title!: WebComponent;
+  @findBy(".description")
+  public Description!: WebComponent;
+  @findBy(".c-segment.l-response .status-label")
+  public Status!: WebComponent;
+  @findBy(".c-segment.l-response .content")
+  public ResponseText!: WebComponent;
+  @findBy(".c-support-counter button")
+  public SupportCounter!: WebComponent;
+  @findBy(".action-col .c-button.respond")
+  public RespondButton!: Button;
+  @findBy(".c-modal-window .c-response-form")
+  public ResponseModal!: WebComponent;
+  @findBy(".c-comment-list")
+  public Comments!: CommentList;
 
-  @findBy(".c-modal-window .c-response-form #input-status") private ResponseModalStatus!: DropDownList;
-  @findBy(".c-modal-window .c-response-form #input-text") private ResponseModalText!: TextInput;
-  @findBy(".c-modal-window .c-modal-footer .c-button.m-positive") private ResponseModalSubmitButton!: Button;
+  @findBy(".c-modal-window .c-response-form #input-status")
+  private ResponseModalStatus!: DropDownList;
+  @findBy(".c-modal-window .c-response-form #input-text")
+  private ResponseModalText!: TextInput;
+  @findBy(".c-modal-window .c-modal-footer .c-button.m-positive")
+  private ResponseModalSubmitButton!: Button;
 
-  @findBy(".c-comment-input #input-content") private CommentInput!: TextInput;
-  @findBy(".c-comment-input .c-button.m-positive") private SubmitCommentButton!: Button;
+  @findBy(".c-comment-input #input-content")
+  private CommentInput!: TextInput;
+  @findBy(".c-comment-input .c-button.m-positive")
+  private SubmitCommentButton!: Button;
 
-  @findBy(".action-col .c-button.edit") private Edit!: Button;
-  @findBy("#input-title") private EditTitle!: TextInput;
-  @findBy("#input-description") private EditDescription!: TextInput;
-  @findBy(".action-col .c-button.save") private SaveEdit!: Button;
+  @findBy(".action-col .c-button.edit")
+  private Edit!: Button;
+  @findBy("#input-title")
+  private EditTitle!: TextInput;
+  @findBy("#input-description")
+  private EditDescription!: TextInput;
+  @findBy(".action-col .c-button.save")
+  private SaveEdit!: Button;
 
   public loadCondition() {
     return elementIsVisible(this.Title);

@@ -79,7 +79,8 @@ export class ManageAuthenticationPage extends AdminBasePage<
           Additional information is available in our{" "}
           <a target="_blank" href="https://getfider.com/docs/configuring-oauth/">
             OAuth Documentation
-          </a>.
+          </a>
+          .
         </p>
         <Segment>
           <List divided={true}>
@@ -89,11 +90,13 @@ export class ManageAuthenticationPage extends AdminBasePage<
                   <>
                     {Fider.session.user.isAdministrator && (
                       <Button onClick={this.edit.bind(this, o.provider)} className="right">
-                        <i className="edit icon" />Edit
+                        <i className="edit icon" />
+                        Edit
                       </Button>
                     )}
                     <Button onClick={this.startTest.bind(this, o.provider)} className="right">
-                      <i className="play icon" />Test
+                      <i className="play icon" />
+                      Test
                     </Button>
                   </>
                 )}

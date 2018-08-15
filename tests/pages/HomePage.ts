@@ -21,22 +21,38 @@ export class HomePage extends Page {
     return `${this.tab.baseUrl}/`;
   }
 
-  @findBy(".c-menu-item-title") public MenuTitle!: WebComponent;
-  @findBy(".welcome-message") public WelcomeMessage!: WebComponent;
-  @findBy("#input-title") public PostTitle!: TextInput;
-  @findBy("#input-description") public PostDescription!: TextInput;
-  @findBy(".c-button.m-positive") public SubmitPost!: Button;
-  @findBy(".c-menu-item-signin") public UserMenu!: WebComponent;
-  @findBy(".c-unread-count") public UnreadCounter!: WebComponent;
-  @findBy(".c-menu-user-heading") public UserName!: WebComponent;
-  @findBy(".c-modal-window") public SignInModal!: WebComponent;
-  @findBy(".c-modal-window .c-button.m-facebook") public FacebookSignIn!: Button;
-  @findBy(".c-modal-window .c-signin-control #input-email") private EmailSignInInput!: TextInput;
-  @findBy(".c-modal-window .c-signin-control .c-button.m-positive") private EmailSignInButton!: TextInput;
-  @findBy(".signout") private SignOut!: Button;
-  @findBy(".c-post-list") public PostList!: PostList;
-  @findBy(".c-modal-window input") private CompleteEmailSignInInput!: TextInput;
-  @findBy(".c-modal-window button") private CompleteEmailSignInButton!: Button;
+  @findBy(".c-menu-item-title")
+  public MenuTitle!: WebComponent;
+  @findBy(".welcome-message")
+  public WelcomeMessage!: WebComponent;
+  @findBy("#input-title")
+  public PostTitle!: TextInput;
+  @findBy("#input-description")
+  public PostDescription!: TextInput;
+  @findBy(".c-button.m-positive")
+  public SubmitPost!: Button;
+  @findBy(".c-menu-item-signin")
+  public UserMenu!: WebComponent;
+  @findBy(".c-unread-count")
+  public UnreadCounter!: WebComponent;
+  @findBy(".c-menu-user-heading")
+  public UserName!: WebComponent;
+  @findBy(".c-modal-window")
+  public SignInModal!: WebComponent;
+  @findBy(".c-modal-window .c-button.m-facebook")
+  public FacebookSignIn!: Button;
+  @findBy(".c-modal-window .c-signin-control #input-email")
+  private EmailSignInInput!: TextInput;
+  @findBy(".c-modal-window .c-signin-control .c-button.m-positive")
+  private EmailSignInButton!: TextInput;
+  @findBy(".signout")
+  private SignOut!: Button;
+  @findBy(".c-post-list")
+  public PostList!: PostList;
+  @findBy(".c-modal-window input")
+  private CompleteEmailSignInInput!: TextInput;
+  @findBy(".c-modal-window button")
+  private CompleteEmailSignInButton!: Button;
 
   public loadCondition() {
     return elementIsVisible("#p-home");
