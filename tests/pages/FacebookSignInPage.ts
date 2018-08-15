@@ -6,9 +6,12 @@ export class FacebookSignInPage extends Page {
     super(tab);
   }
 
-  @findBy("#email") public Email!: TextInput;
-  @findBy('input[type="password"]') public Password!: TextInput;
-  @findBy("#loginbutton") public Confirm!: Button;
+  @findBy("#email")
+  public Email!: TextInput;
+  @findBy('input[type="password"]')
+  public Password!: TextInput;
+  @findBy("#loginbutton")
+  public Confirm!: Button;
 
   public loadCondition() {
     return elementIsVisible(this.Email);

@@ -20,15 +20,24 @@ export class SignUpPage extends Page {
     return `${this.tab.baseUrl}/signup`;
   }
 
-  @findBy("#p-signup") private Container!: WebComponent;
-  @findBy("#p-signup .c-button.m-facebook") public FacebookSignIn!: Button;
-  @findBy("#p-signup #input-name") public UserName!: TextInput;
-  @findBy("#p-signup #input-email") public UserEmail!: TextInput;
-  @findBy("#p-signup #input-tenantName") public TenantName!: TextInput;
-  @findBy("#p-signup #input-subdomain") public Subdomain!: TextInput;
-  @findBy("#p-signup .c-button.m-positive") public Confirm!: Button;
-  @findBy("#p-signup .c-message.m-success") private SubdomainOk!: WebComponent;
-  @findBy(".c-modal-window") private ConfirmationModal!: WebComponent;
+  @findBy("#p-signup")
+  private Container!: WebComponent;
+  @findBy("#p-signup .c-button.m-facebook")
+  public FacebookSignIn!: Button;
+  @findBy("#p-signup #input-name")
+  public UserName!: TextInput;
+  @findBy("#p-signup #input-email")
+  public UserEmail!: TextInput;
+  @findBy("#p-signup #input-tenantName")
+  public TenantName!: TextInput;
+  @findBy("#p-signup #input-subdomain")
+  public Subdomain!: TextInput;
+  @findBy("#p-signup .c-button.m-positive")
+  public Confirm!: Button;
+  @findBy("#p-signup .c-message.m-success")
+  private SubdomainOk!: WebComponent;
+  @findBy(".c-modal-window")
+  private ConfirmationModal!: WebComponent;
 
   public loadCondition(): WaitCondition {
     return elementIsVisible(this.Container);

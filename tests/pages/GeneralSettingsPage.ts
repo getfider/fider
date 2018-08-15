@@ -20,10 +20,14 @@ export class GeneralSettingsPage extends Page {
     return `${this.tab.baseUrl}/admin`;
   }
 
-  @findBy("#p-admin-general #input-title") private TitleInput!: TextInput;
-  @findBy("#p-admin-general #input-welcomeMessage") private WelcomeMessageInput!: TextInput;
-  @findBy("#p-admin-general #input-invitation") private InvitationInput!: TextInput;
-  @findBy("#p-admin-general .c-button.m-positive") private SaveChangesButton!: Button;
+  @findBy("#p-admin-general #input-title")
+  private TitleInput!: TextInput;
+  @findBy("#p-admin-general #input-welcomeMessage")
+  private WelcomeMessageInput!: TextInput;
+  @findBy("#p-admin-general #input-invitation")
+  private InvitationInput!: TextInput;
+  @findBy("#p-admin-general .c-button.m-positive")
+  private SaveChangesButton!: Button;
 
   public loadCondition(): WaitCondition {
     return elementIsVisible(this.TitleInput);

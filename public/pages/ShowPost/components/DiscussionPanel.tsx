@@ -21,7 +21,9 @@ export class DiscussionPanel extends React.Component<DiscussionPanelProps, {}> {
       <div className="comments-col">
         <div className="c-comment-list">
           <span className="subtitle">Discussion</span>
-          {this.props.comments.map(c => <ShowComment key={c.id} post={this.props.post} comment={c} />)}
+          {this.props.comments.map(c => (
+            <ShowComment key={c.id} post={this.props.post} comment={c} />
+          ))}
           <CommentInput post={this.props.post} />
         </div>
       </div>
