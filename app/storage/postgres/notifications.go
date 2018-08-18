@@ -46,7 +46,7 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, post
 		Read:      false,
 	}
 	err := s.trx.Get(&notification.ID, `
-		INSERT INTO notifications (tenant_id, user_id, title, link, read, idea_id, author_id, created_on, updated_on) 
+		INSERT INTO notifications (tenant_id, user_id, title, link, read, post_id, author_id, created_on, updated_on) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
 		RETURNING id
 	`, s.tenant.ID, user.ID, title, link, false, postID, s.user.ID, now)

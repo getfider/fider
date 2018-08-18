@@ -16,8 +16,8 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
-	trx.Execute("INSERT INTO ideas (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	trx.Execute("INSERT INTO posts (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	trx.Execute("INSERT INTO posts (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
 
 	posts.SetCurrentTenant(demoTenant)
 

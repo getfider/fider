@@ -193,7 +193,7 @@ func notificationEventValidation(v string) bool {
 var (
 	//NotificationEventNewPost is triggered when a new post is posted
 	NotificationEventNewPost = NotificationEvent{
-		UserSettingsKeyName:          "event_notification_new_idea",
+		UserSettingsKeyName:          "event_notification_new_post",
 		DefaultSettingValue:          strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
 		RequiresSubscripionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{

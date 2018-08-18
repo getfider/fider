@@ -98,10 +98,10 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
           <Segments>
             <Segment>
               <span className="event-title">New Post</span>
-              {this.info("event_notification_new_idea", "new posts on this site", "new posts on this site")}
+              {this.info("event_notification_new_post", "new posts on this site", "new posts on this site")}
               <p>
-                {this.icon("event_notification_new_idea", WebChannel)}
-                {this.icon("event_notification_new_idea", EmailChannel)}
+                {this.icon("event_notification_new_post", WebChannel)}
+                {this.icon("event_notification_new_post", EmailChannel)}
               </p>
             </Segment>
             <Segment>

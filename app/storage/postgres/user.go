@@ -261,7 +261,7 @@ func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
 	}
 
 	var status int
-	err := s.trx.Scalar(&status, "SELECT status FROM idea_subscribers WHERE user_id = $1 AND idea_id = $2", s.user.ID, postID)
+	err := s.trx.Scalar(&status, "SELECT status FROM post_subscribers WHERE user_id = $1 AND post_id = $2", s.user.ID, postID)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return false, errors.Wrap(err, "failed to get subscription status")
 	}
@@ -301,8 +301,8 @@ func (s *UserStorage) Delete() error {
 		{"user_settings", "user_id"},
 		{"notifications", "user_id"},
 		{"notifications", "author_id"},
-		{"idea_supporters", "user_id"},
-		{"idea_subscribers", "user_id"},
+		{"post_supporters", "user_id"},
+		{"post_subscribers", "user_id"},
 		{"email_verifications", "user_id"},
 	}
 
