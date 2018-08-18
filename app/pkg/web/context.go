@@ -16,6 +16,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -57,6 +58,7 @@ var (
 	preffixKey            = "__CTX_"
 	tenantContextKey      = preffixKey + "TENANT"
 	userContextKey        = preffixKey + "USER"
+	claimsContextKey      = preffixKey + "CLAIMS"
 	transactionContextKey = preffixKey + "TRANSACTION"
 	servicesContextKey    = preffixKey + "SERVICES"
 	tasksContextKey       = preffixKey + "TASKS"
@@ -276,6 +278,20 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 //AddParam add a single param to route parameters list
 func (ctx *Context) AddParam(name, value string) {
 	ctx.params[name] = value
+}
+
+//Claims returns current user claims
+func (ctx *Context) Claims() *jwt.FiderClaims {
+	claims, ok := ctx.Get(claimsContextKey).(*jwt.FiderClaims)
+	if ok {
+		return claims
+	}
+	return nil
+}
+
+//SetClaims update HTTP context with current user claims
+func (ctx *Context) SetClaims(claims *jwt.FiderClaims) {
+	ctx.Set(claimsContextKey, claims)
 }
 
 //User returns authenticated user

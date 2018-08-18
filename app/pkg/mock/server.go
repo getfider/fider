@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jsonq"
+	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -77,6 +78,12 @@ func (s *Server) AddHeader(name string, value string) *Server {
 // AddCookie add key-value to current context cookies
 func (s *Server) AddCookie(name string, value string) *Server {
 	s.context.Request.AddCookie(&http.Cookie{Name: name, Value: value})
+	return s
+}
+
+// WithClaims set current context user claims
+func (s *Server) WithClaims(claims *jwt.FiderClaims) *Server {
+	s.context.SetClaims(claims)
 	return s
 }
 

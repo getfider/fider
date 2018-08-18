@@ -11,11 +11,19 @@ var jwtSecret = env.MustGet("JWT_SECRET")
 // Metadata is the basic JWT information
 type Metadata = jwtgo.StandardClaims
 
+const (
+	//FiderClaimsOriginUI is assigned to Fider claims when the Auth Token is generated through the UI
+	FiderClaimsOriginUI = "ui"
+	//FiderClaimsOriginAPI is assigned to Fider claims when the Auth Token is generated through the API
+	FiderClaimsOriginAPI = "api"
+)
+
 // FiderClaims represents what goes into JWT tokens
 type FiderClaims struct {
 	UserID    int    `json:"user/id"`
 	UserName  string `json:"user/name"`
 	UserEmail string `json:"user/email"`
+	Origin    string `json:"origin"`
 	Metadata
 }
 
