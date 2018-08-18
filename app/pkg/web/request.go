@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -76,4 +77,9 @@ func (r *Request) Cookie(name string) (*http.Cookie, error) {
 // AddCookie adds a cookie
 func (r *Request) AddCookie(cookie *http.Cookie) {
 	r.instance.AddCookie(cookie)
+}
+
+// IsAPI returns true if its a request for an API resource
+func (r *Request) IsAPI() bool {
+	return strings.HasPrefix(r.URL.Path, "/api/")
 }

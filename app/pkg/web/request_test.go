@@ -75,6 +75,7 @@ func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
 	Expect(req.URL.Scheme).Equals("https")
 	Expect(req.IsSecure).Equals(true)
+	Expect(req.IsAPI()).IsFalse()
 }
 
 func TestRequest_FullURL(t *testing.T) {
@@ -84,13 +85,14 @@ func TestRequest_FullURL(t *testing.T) {
 		&http.Request{
 			TLS:        &tls.ConnectionState{},
 			Host:       "demo.test.fider.io",
-			RequestURI: "/echo?value=Jon",
+			RequestURI: "/api/hello?value=Jon",
 		},
 	)
 
-	Expect(req.URL.String()).Equals("https://demo.test.fider.io/echo?value=Jon")
-	Expect(req.URL.Path).Equals("/echo")
+	Expect(req.URL.String()).Equals("https://demo.test.fider.io/api/hello?value=Jon")
+	Expect(req.URL.Path).Equals("/api/hello")
 	Expect(req.URL.Query().Get("value")).Equals("Jon")
-	Expect(req.URL.RequestURI()).Equals("/echo?value=Jon")
+	Expect(req.URL.RequestURI()).Equals("/api/hello?value=Jon")
 	Expect(req.IsSecure).Equals(true)
+	Expect(req.IsAPI()).IsTrue()
 }

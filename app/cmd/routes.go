@@ -69,10 +69,13 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
-	//From this step, the User might be available
+	//Extract user from cookie and inject it into web.Context (if available)
 	r.Use(middlewares.User())
 
-	//From this step, block if it's private tenant with unauthenticated user
+	//Block if an API-originated AuthToken requests a non-API resource
+	r.Use(middlewares.CheckAuthTokenOrigin())
+
+	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 
 	r.Get("/", handlers.Index())

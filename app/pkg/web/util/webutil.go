@@ -16,6 +16,7 @@ func encode(user *models.User) string {
 		UserID:    user.ID,
 		UserName:  user.Name,
 		UserEmail: user.Email,
+		Origin:    jwt.FiderClaimsOriginUI,
 		Metadata: jwt.Metadata{
 			ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
 		},
