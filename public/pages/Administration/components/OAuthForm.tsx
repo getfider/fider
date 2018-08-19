@@ -253,7 +253,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             onChange={this.setProfileUrl}
           >
             <p className="info">
-              The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the 
+              The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the
               Access Token.
             </p>
           </Input>
@@ -299,7 +299,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserEmailPath}
             >
               <p className="info">
-                Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For 
+                Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For
                 the example below, the path would be <strong>profile.emails[0]</strong>.
               </p>
             </Input>
