@@ -23,4 +23,14 @@
       color: $red;
     }
   }
+
+  .l-api-key {
+    h4 {
+      margin-top: 50px;
+    }
+    code {
+      padding: 5px;
+      background-color: $gray-lighter;
+    }
+  }
 }

@@ -3,7 +3,7 @@ import "./MySettings.page.scss";
 import * as React from "react";
 
 import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
-import { DangerZone, NotificationSettings } from "./";
+import { DangerZone, APIKeyForm, NotificationSettings } from "./";
 
 import { CurrentUser, UserSettings } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
@@ -169,6 +169,14 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
             </Form>
           </div>
         </div>
+
+        {Fider.session.user.isCollaborator && (
+          <div className="row">
+            <div className="col-lg-7">
+              <APIKeyForm />
+            </div>
+          </div>
+        )}
 
         <div className="row">
           <div className="col-lg-7">

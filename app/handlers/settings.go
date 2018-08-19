@@ -122,3 +122,17 @@ func DeleteUser() web.HandlerFunc {
 		return c.Ok(web.Map{})
 	}
 }
+
+// RegenerateAPIKey regenerates current user's API Key
+func RegenerateAPIKey() web.HandlerFunc {
+	return func(c web.Context) error {
+		apiKey, err := c.Services().Users.RegenerateAPIKey()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{
+			"apiKey": apiKey,
+		})
+	}
+}
