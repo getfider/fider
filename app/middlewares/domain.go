@@ -140,7 +140,7 @@ func User() web.MiddlewareFunc {
 				}
 			}
 
-			if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
+			if user != nil && c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
 				c.SetUser(user)
 			}
 
