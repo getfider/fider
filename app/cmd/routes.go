@@ -134,6 +134,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
+		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 	}
 
 	api := r.Group()
@@ -171,7 +172,6 @@ func routes(r *web.Engine) *web.Engine {
 		api.Post("/api/v1/tags", apiv1.CreateEditTag())
 		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
 		api.Delete("/api/v1/tags/:slug", apiv1.DeleteTag())
-		api.Post("/api/v1/roles/:role/users", handlers.ChangeUserRole())
 	}
 
 	return r
