@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage"
 
@@ -124,23 +125,19 @@ func (s *OAuthService) GetProfile(provider string, code string) (*oauth.UserProf
 		return nil, errors.New("Provider %s is disabled", provider)
 	}
 
-	statusCode, body, err := s.GetRawProfile(provider, code)
+	body, err := s.GetRawProfile(provider, code)
 	if err != nil {
 		return nil, err
-	}
-
-	if statusCode != 200 {
-		return nil, errors.New("Failed to request GET profile. Status Code: %d. Body: %s", statusCode, body)
 	}
 
 	return s.ParseRawProfile(provider, body)
 }
 
 //GetRawProfile returns raw JSON response from Profile API
-func (s *OAuthService) GetRawProfile(provider string, code string) (int, string, error) {
+func (s *OAuthService) GetRawProfile(provider string, code string) (string, error) {
 	config, err := s.getConfig(provider)
 	if err != nil {
-		return 0, "", err
+		return "", err
 	}
 
 	exchange := (&oauth2.Config{
@@ -155,11 +152,29 @@ func (s *OAuthService) GetRawProfile(provider string, code string) (int, string,
 
 	oauthToken, err := exchange(oauth2.NoContext, code)
 	if err != nil {
-		rErr := err.(*oauth2.RetrieveError)
-		return rErr.Response.StatusCode, string(rErr.Body), nil
+		return "", err
 	}
 
-	return s.doGet(config.ProfileURL, oauthToken.AccessToken)
+	if config.ProfileURL == "" {
+		parts := strings.Split(oauthToken.AccessToken, ".")
+		if len(parts) != 3 {
+			return "", errors.New("AccessToken is not JWT")
+		}
+
+		body, _ := jwt.DecodeSegment(parts[1])
+		return string(body), nil
+	}
+
+	statusCode, body, err := s.doGet(config.ProfileURL, oauthToken.AccessToken)
+	if err != nil {
+		return "", err
+	}
+
+	if statusCode != 200 {
+		return "", errors.New("Failed to request profile. Status Code: %d. Body: %s", statusCode, body)
+	}
+
+	return body, nil
 }
 
 //ParseRawProfile parses raw profile response into UserProfile model

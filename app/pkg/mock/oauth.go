@@ -11,8 +11,8 @@ func (s *OAuthService) GetAuthURL(provider, redirect, identifier string) (string
 }
 
 //GetRawProfile returns raw JSON response from Profile API
-func (s *OAuthService) GetRawProfile(provider string, code string) (int, string, error) {
-	return 500, "", nil
+func (s *OAuthService) GetRawProfile(provider string, code string) (string, error) {
+	return "", nil
 }
 
 //ParseRawProfile parses raw profile response into UserProfile model

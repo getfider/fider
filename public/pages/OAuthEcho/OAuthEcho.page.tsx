@@ -5,7 +5,7 @@ import { navigator } from "@fider/services";
 import { Segments, Segment } from "@fider/components";
 
 interface OAuthEchoPageProps {
-  statusCode: number;
+  err: string | undefined;
   body: string;
   profile: {
     id: string;
@@ -23,7 +23,16 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
     navigator.replaceState("/");
   }
 
-  public render() {
+  private renderError() {
+    return (
+      <>
+        <h5>Error</h5>
+        <pre>{this.props.err}</pre>
+      </>
+    );
+  }
+
+  private renderParseResult() {
     const idOk = this.props.profile && this.props.profile.id !== "";
     const nameOk = this.props.profile && this.props.profile.name !== "Anonymous";
     const emailOk = this.props.profile && this.props.profile.email !== "";
@@ -36,9 +45,7 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
     }
 
     return (
-      <div id="p-oauth-echo" className="page container">
-        <h3>Profile API Response</h3>
-        <h5>Status Code: {this.props.statusCode}</h5>
+      <>
         <h5>Raw Body</h5>
         <pre>{responseBody}</pre>
         <h5>Parsed Profile</h5>
@@ -76,6 +83,14 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
             )}
           </Segment>
         </Segments>
+      </>
+    );
+  }
+
+  public render() {
+    return (
+      <div id="p-oauth-echo" className="page container">
+        {this.props.err ? this.renderError() : this.renderParseResult()}
       </div>
     );
   }
