@@ -553,7 +553,8 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			AND (
 				(set.value IS NULL AND u.role = ANY($3))
 				OR CAST(set.value AS integer) & $4 > 0
-			)`,
+			)
+			ORDER by u.id`,
 			event.UserSettingsKeyName,
 			s.tenant.ID,
 			pq.Array(event.DefaultEnabledUserRoles),
@@ -578,7 +579,8 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			AND (
 				(set.value IS NULL AND u.role = ANY($5))
 				OR CAST(set.value AS integer) & $6 > 0
-			)`,
+			)
+			ORDER by u.id`,
 			post.ID,
 			models.SubscriberActive,
 			event.UserSettingsKeyName,

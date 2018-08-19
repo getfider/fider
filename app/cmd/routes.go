@@ -138,7 +138,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	api := r.Group()
 	{
-		api.Post("/api/v1/authorize", apiv1.Authorize())
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
 		api.Get("/api/v1/tags", apiv1.ListTags())
 		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
