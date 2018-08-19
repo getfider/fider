@@ -25,7 +25,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
         <p className="info">
           Your new API Key is: <code>{this.state.apiKey}</code>
         </p>
-        <p className="info">Stored it securely on your servers and never expose it on client applications.</p>
+        <p className="info">Stored it securely on your servers and never store it in the client side of your app.</p>
       </>
     );
   }
