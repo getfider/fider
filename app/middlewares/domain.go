@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/getfider/fider/app/models"
 
@@ -102,6 +103,14 @@ func User() web.MiddlewareFunc {
 				token = webutil.GetSignUpAuthCookie(c)
 				if token != "" {
 					webutil.AddAuthTokenCookie(c, token)
+				}
+			}
+
+			if token == "" {
+				authHeader := c.Request.GetHeader("Authorization")
+				parts := strings.Split(authHeader, "Bearer")
+				if len(parts) == 2 {
+					token = strings.TrimSpace(parts[1])
 				}
 			}
 
