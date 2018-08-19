@@ -240,8 +240,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
           <h3>User Profile</h3>
           <p className="info">
-            This section is used to configure how Fider will fetch user information like Id, Name and Email after the
-            authentication OAuth process.
+            This section is used to configure how Fider will fetch user after the authentication process.
           </p>
 
           <Input
