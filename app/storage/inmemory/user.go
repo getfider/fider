@@ -13,6 +13,7 @@ type UserStorage struct {
 	users           []*models.User
 	lastID          int
 	settingsPerUser map[int]map[string]string
+	userByAPIKey    map[string]*models.User
 }
 
 // GetByID returns a user based on given id
@@ -150,4 +151,28 @@ func (s *UserStorage) Delete() error {
 	s.user.Status = models.UserDeleted
 	s.user.Providers = make([]*models.UserProvider, 0)
 	return nil
+}
+
+// RegenerateAPIKey generates a new API Key and returns it
+func (s *UserStorage) RegenerateAPIKey() (string, error) {
+	apiKey := models.GenerateSecretKey()
+	if s.userByAPIKey == nil {
+		s.userByAPIKey = make(map[string]*models.User)
+	}
+	s.userByAPIKey[apiKey] = s.user
+	return apiKey, nil
+}
+
+// GetByAPIKey returns a user based on its API key
+func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
+	if s.userByAPIKey == nil {
+		s.userByAPIKey = make(map[string]*models.User)
+	}
+
+	for userAPIKey, user := range s.userByAPIKey {
+		if userAPIKey == apiKey {
+			return user, nil
+		}
+	}
+	return nil, app.ErrNotFound
 }

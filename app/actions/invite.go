@@ -69,7 +69,7 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 					if errors.Cause(err) == app.ErrNotFound {
 						input.Invitations = append(input.Invitations, &models.UserInvitation{
 							Email:           email,
-							VerificationKey: models.GenerateVerificationKey(),
+							VerificationKey: models.GenerateSecretKey(),
 						})
 					}
 				}

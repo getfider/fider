@@ -14,7 +14,7 @@ type SignInByEmail struct {
 // Initialize the model
 func (input *SignInByEmail) Initialize() interface{} {
 	input.Model = new(models.SignInByEmail)
-	input.Model.VerificationKey = models.GenerateVerificationKey()
+	input.Model.VerificationKey = models.GenerateSecretKey()
 	return input.Model
 }
 

@@ -326,3 +326,28 @@ func TestUserStorage_Delete(t *testing.T) {
 	Expect(user.Status).Equals(models.UserDeleted)
 	Expect(user.Providers).HasLen(0)
 }
+
+func TestUserStorage_APIKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	users.SetCurrentUser(jonSnow)
+
+	apiKey, err := users.RegenerateAPIKey()
+	Expect(apiKey).HasLen(32)
+	Expect(err).IsNil()
+
+	user, err := users.GetByAPIKey(apiKey)
+	Expect(user).Equals(jonSnow)
+	Expect(err).IsNil()
+
+	users.RegenerateAPIKey()
+	user, err = users.GetByAPIKey(apiKey)
+	Expect(user).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+
+	user, err = users.GetByAPIKey("SOME-INVALID-KEY")
+	Expect(user).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+}

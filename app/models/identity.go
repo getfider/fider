@@ -294,7 +294,7 @@ type InviteUsers struct {
 	Recipients []string `json:"recipients" format:"lower"`
 }
 
-// GenerateVerificationKey used on email verifications
-func GenerateVerificationKey() string {
+// GenerateSecretKey returns a 32 chars key that is unique
+func GenerateSecretKey() string {
 	return strings.Replace(uuid.NewV4().String(), "-", "", 4)
 }
