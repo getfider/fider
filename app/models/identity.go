@@ -1,11 +1,10 @@
 package models
 
 import (
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/uuid"
+	"github.com/getfider/fider/app/pkg/rand"
 )
 
 //Tenant represents a tenant
@@ -294,7 +293,7 @@ type InviteUsers struct {
 	Recipients []string `json:"recipients" format:"lower"`
 }
 
-// GenerateSecretKey returns a 64 chars key that is unique
+// GenerateSecretKey returns a 64 chars key
 func GenerateSecretKey() string {
-	return strings.Replace(uuid.NewV4().String(), "-", "", 4)
+	return rand.String(64)
 }

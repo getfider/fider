@@ -16,7 +16,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/log/database"
-	"github.com/getfider/fider/app/pkg/uuid"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
 )
@@ -67,10 +67,10 @@ type Engine struct {
 func New(settings *models.SystemSettings) *Engine {
 	db := dbx.New()
 	logger := database.NewLogger("WEB", db)
-	logger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+	logger.SetProperty(log.PropertyKeyContextID, rand.String(32))
 
 	bgLogger := database.NewLogger("BGW", db)
-	bgLogger.SetProperty(log.PropertyKeyContextID, uuid.NewV4().String())
+	bgLogger.SetProperty(log.PropertyKeyContextID, rand.String(32))
 
 	router := &Engine{
 		mux:         httprouter.New(),
@@ -163,7 +163,7 @@ func (e *Engine) Stop() error {
 
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
-	contextID := uuid.NewV4().String()
+	contextID := rand.String(32)
 	request := WrapRequest(req)
 	ctxLogger := e.logger.New()
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)

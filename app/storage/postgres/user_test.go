@@ -336,7 +336,7 @@ func TestUserStorage_APIKey(t *testing.T) {
 	users.SetCurrentUser(jonSnow)
 
 	apiKey, err := users.RegenerateAPIKey()
-	Expect(apiKey).HasLen(32)
+	Expect(apiKey).HasLen(64)
 	Expect(err).IsNil()
 
 	user, err := users.GetByAPIKey(apiKey)

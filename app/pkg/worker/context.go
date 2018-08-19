@@ -6,7 +6,7 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/uuid"
+	"github.com/getfider/fider/app/pkg/rand"
 )
 
 //Context holds references to services available for jobs
@@ -25,7 +25,7 @@ type Context struct {
 //NewContext creates a new context
 func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
 	ctxLogger := logger.New()
-	contextID := uuid.NewV4().String()
+	contextID := rand.String(32)
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
 
 	return &Context{
