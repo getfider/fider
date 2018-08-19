@@ -92,3 +92,8 @@ var (
 	//OAuthConfigEnabled is used to enable an OAuthConfig for public use
 	OAuthConfigEnabled = 2
 )
+
+// APIAuthorize is used during API Authorize process
+type APIAuthorize struct {
+	APIKey string `json:"apiKey"`
+}
