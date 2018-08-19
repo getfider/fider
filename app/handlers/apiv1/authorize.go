@@ -22,7 +22,7 @@ func Authorize() web.HandlerFunc {
 			UserEmail: input.User.Email,
 			Origin:    jwt.FiderClaimsOriginAPI,
 			Metadata: jwt.Metadata{
-				ExpiresAt: time.Now().Add(365 * 24 * time.Hour).Unix(),
+				ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 			},
 		})
 		if err != nil {

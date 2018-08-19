@@ -38,7 +38,7 @@ func (input *APIAuthorize) Validate(user *models.User, services *app.Services) *
 			} else {
 				return validate.Error(err)
 			}
-		} else {
+		} else if user.Role != models.RoleVisitor {
 			input.User = user
 		}
 	}
