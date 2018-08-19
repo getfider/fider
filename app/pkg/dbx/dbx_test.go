@@ -103,7 +103,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	defer trx.Rollback()
 	u := []*user{}
 
-	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1")
+	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1 ORDER BY id")
 	Expect(err).IsNil()
 
 	Expect(u).HasLen(3)
@@ -154,6 +154,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 		INNER JOIN tenants t
 		ON t.id = u.tenant_id
 		WHERE u.tenant_id = 1
+		ORDER BY u.id
 	`)
 	Expect(err).IsNil()
 	Expect(u).HasLen(3)

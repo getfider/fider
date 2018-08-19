@@ -224,26 +224,6 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             onChange={this.setTokenUrl}
           />
 
-          <h3>User Profile</h3>
-          <p className="info">
-            This section is used to configure how Fider will fetch user information like Id, Name and Email after the
-            authentication OAuth process.
-          </p>
-
-          <Input
-            field="profileUrl"
-            label="Profile API URL"
-            maxLength={300}
-            value={this.state.profileUrl}
-            disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setProfileUrl}
-          >
-            <p className="info">
-              This URL is used to fetch the authenticated user details. It must return a JSON and not require any
-              QueryString parameter. E.g: Google Profile URL is https://www.googleapis.com/plus/v1/people/me
-            </p>
-          </Input>
-
           <Input
             field="scope"
             label="Scope"
@@ -255,6 +235,25 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             <p className="info">
               It is recommended to only request the minimum scopes we need to fecth the user <strong>id</strong>,{" "}
               <strong>name</strong> and <strong>email</strong>. Multiple scopes must be separated by space.
+            </p>
+          </Input>
+
+          <h3>User Profile</h3>
+          <p className="info">
+            This section is used to configure how Fider will fetch user after the authentication process.
+          </p>
+
+          <Input
+            field="profileUrl"
+            label="Profile API URL"
+            maxLength={300}
+            value={this.state.profileUrl}
+            disabled={!Fider.session.user.isAdministrator}
+            onChange={this.setProfileUrl}
+          >
+            <p className="info">
+              The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the
+              Access Token.
             </p>
           </Input>
 
@@ -271,7 +270,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserIdPath}
             >
               <p className="info">
-                Path to extract User ID from JSON. This ID <strong>must</strong> be unique within the provider or
+                Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or
                 unexpected side effects might happen. For example below, the path would be <strong>id</strong>.
               </p>
             </Input>
@@ -285,8 +284,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserNamePath}
             >
               <p className="info">
-                Path to extract user Display Name from JSON. This is optional, but <strong>highly</strong> recommended.
-                For the example below, the path would be <strong>profile.name</strong>.
+                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>
+                recommended. For the example below, the path would be <strong>profile.name</strong>.
               </p>
             </Input>
             <Input
@@ -299,8 +298,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserEmailPath}
             >
               <p className="info">
-                Path to extract user Email from JSON. This is optional, but <strong>highly</strong> recommended. For the
-                example below, the path would be <strong>profile.emails[0]</strong>.
+                Path to extract user Email from the JSON. This is optional, but <strong>highly</strong> recommended. For
+                the example below, the path would be <strong>profile.emails[0]</strong>.
               </p>
             </Input>
           </div>

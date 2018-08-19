@@ -90,10 +90,10 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		result.AddFieldFailure("tokenUrl", messages...)
 	}
 
-	if input.Model.ProfileURL == "" {
-		result.AddFieldFailure("profileUrl", "Profile URL is required.")
-	} else if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
-		result.AddFieldFailure("profileUrl", messages...)
+	if input.Model.ProfileURL != "" {
+		if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
+			result.AddFieldFailure("profileUrl", messages...)
+		}
 	}
 
 	if input.Model.JSONUserIDPath == "" {
