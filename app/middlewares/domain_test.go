@@ -466,3 +466,22 @@ func TestUser_InvalidAPIKey(t *testing.T) {
 	Expect(status).Equals(http.StatusBadRequest)
 	Expect(query.String("errors[0].message")).Equals("API Key is invalid")
 }
+
+func TestUser_ValidAPIKey_Visitor(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Users.SetCurrentUser(mock.AryaStark)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, query := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		ExecuteAsJSON(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.String("errors[0].message")).Equals("API Key is invalid")
+}
