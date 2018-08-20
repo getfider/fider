@@ -287,7 +287,7 @@ func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
 // Delete removes current user personal data and mark it as deleted
 func (s *UserStorage) Delete() error {
 	if _, err := s.trx.Execute(
-		"UPDATE users SET role = $3, status = $4, name = '', email = '' WHERE id = $1 AND tenant_id = $2",
+		"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
 		s.user.ID, s.tenant.ID, models.RoleVisitor, models.UserDeleted,
 	); err != nil {
 		return errors.Wrap(err, "failed to delete current user")
