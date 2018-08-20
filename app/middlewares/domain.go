@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/validate"
+
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app"
@@ -133,7 +135,7 @@ func User() web.MiddlewareFunc {
 					user, err = c.Services().Users.GetByAPIKey(apiKey)
 					if err != nil {
 						if errors.Cause(err) == app.ErrNotFound {
-							return next(c)
+							return c.HandleValidation(validate.Failed("API Key is invalid"))
 						}
 						return err
 					}

@@ -2,6 +2,7 @@ package middlewares_test
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -428,4 +429,40 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.HttpOnly).IsTrue()
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
+}
+
+func TestUser_ValidAPIKey(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Users.SetCurrentUser(mock.JonSnow)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+}
+
+func TestUser_InvalidAPIKey(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+
+	server.Use(middlewares.User())
+	status, query := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", "Bearer MY-KEY").
+		ExecuteAsJSON(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.String("errors[0].message")).Equals("API Key is invalid")
 }
