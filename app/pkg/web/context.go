@@ -180,7 +180,9 @@ func (ctx *Context) IsAuthenticated() bool {
 
 //IsAjax returns true if request is AJAX
 func (ctx *Context) IsAjax() bool {
-	return strings.Contains(ctx.Request.GetHeader("Accept"), "application/json")
+	accept := ctx.Request.GetHeader("Accept")
+	contentType := ctx.Request.GetHeader("Content-Type")
+	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
 //Unauthorized returns a 403 response
