@@ -139,6 +139,10 @@ func User() web.MiddlewareFunc {
 						}
 						return err
 					}
+
+					if !user.IsCollaborator() {
+						return c.HandleValidation(validate.Failed("API Key is invalid"))
+					}
 				}
 			}
 
