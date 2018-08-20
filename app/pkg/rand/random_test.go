@@ -7,8 +7,6 @@ import (
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
-var letterRunes = []rune("123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
 func TestRandomString(t *testing.T) {
 	RegisterT(t)
 

@@ -58,7 +58,7 @@ type ChangeUserEmail struct {
 // Initialize the model
 func (input *ChangeUserEmail) Initialize() interface{} {
 	input.Model = new(models.ChangeUserEmail)
-	input.Model.VerificationKey = models.GenerateVerificationKey()
+	input.Model.VerificationKey = models.GenerateSecretKey()
 	return input.Model
 }
 

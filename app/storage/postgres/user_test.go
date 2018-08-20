@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/getfider/fider/app"
@@ -325,4 +326,36 @@ func TestUserStorage_Delete(t *testing.T) {
 	Expect(user.Role).Equals(models.RoleVisitor)
 	Expect(user.Status).Equals(models.UserDeleted)
 	Expect(user.Providers).HasLen(0)
+}
+
+func TestUserStorage_APIKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	users.SetCurrentUser(jonSnow)
+
+	apiKey, err := users.RegenerateAPIKey()
+	Expect(apiKey).HasLen(64)
+	Expect(err).IsNil()
+
+	user, err := users.GetByAPIKey(apiKey)
+	Expect(user).Equals(jonSnow)
+	Expect(err).IsNil()
+
+	//try to get by uppercase key
+	user, err = users.GetByAPIKey(strings.ToUpper(apiKey))
+	Expect(user).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+
+	//regenerate and try to get again
+	users.RegenerateAPIKey()
+	user, err = users.GetByAPIKey(apiKey)
+	Expect(user).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+
+	//try to get by some unknown key
+	user, err = users.GetByAPIKey("SOME-INVALID-KEY")
+	Expect(user).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }

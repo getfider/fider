@@ -10,7 +10,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/uuid"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
 )
@@ -210,7 +210,7 @@ func OAuthCallback() web.HandlerFunc {
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
-		identifier := uuid.NewV4().String()
+		identifier := rand.String(16)
 
 		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(2*time.Hour))
 

@@ -1,11 +1,10 @@
 package models
 
 import (
-	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/uuid"
+	"github.com/getfider/fider/app/pkg/rand"
 )
 
 //Tenant represents a tenant
@@ -294,7 +293,7 @@ type InviteUsers struct {
 	Recipients []string `json:"recipients" format:"lower"`
 }
 
-// GenerateVerificationKey used on email verifications
-func GenerateVerificationKey() string {
-	return strings.Replace(uuid.NewV4().String(), "-", "", 4)
+// GenerateSecretKey returns a 64 chars key
+func GenerateSecretKey() string {
+	return rand.String(64)
 }

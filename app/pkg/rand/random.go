@@ -9,22 +9,17 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-var letterRunes = []byte("123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-// Int returns a random integer
-func Int(min, max int) int {
-	return min + rand.Intn(max-min)
-}
+var chars = []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 // String returns a random string of given length
-func String(lenght int) string {
-	if lenght <= 0 {
+func String(n int) string {
+	if n <= 0 {
 		return ""
 	}
 
-	bytes := make([]byte, lenght)
-	for i := 0; i < lenght; i++ {
-		bytes[i] = letterRunes[Int(0, len(letterRunes))]
+	bytes := make([]byte, n)
+	for i := 0; i < n; i++ {
+		bytes[i] = chars[rand.Intn(len(chars))]
 	}
 
 	return string(bytes)

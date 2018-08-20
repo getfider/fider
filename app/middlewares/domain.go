@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/getfider/fider/app/models"
 
@@ -93,7 +94,10 @@ func RequireTenant() web.MiddlewareFunc {
 func User() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			var token string
+			var (
+				token string
+				user  *models.User
+			)
 
 			cookie, err := c.Request.Cookie(web.CookieAuthName)
 			if err == nil {
@@ -113,7 +117,7 @@ func User() web.MiddlewareFunc {
 					return next(c)
 				}
 
-				user, err := c.Services().Users.GetByID(claims.UserID)
+				user, err = c.Services().Users.GetByID(claims.UserID)
 				if err != nil {
 					if errors.Cause(err) == app.ErrNotFound {
 						c.RemoveCookie(web.CookieAuthName)
@@ -121,10 +125,23 @@ func User() web.MiddlewareFunc {
 					}
 					return err
 				}
-
-				if c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
-					c.SetUser(user)
+			} else {
+				authHeader := c.Request.GetHeader("Authorization")
+				parts := strings.Split(authHeader, "Bearer")
+				if len(parts) == 2 {
+					apiKey := strings.TrimSpace(parts[1])
+					user, err = c.Services().Users.GetByAPIKey(apiKey)
+					if err != nil {
+						if errors.Cause(err) == app.ErrNotFound {
+							return next(c)
+						}
+						return err
+					}
 				}
+			}
+
+			if user != nil && c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
+				c.SetUser(user)
 			}
 
 			return next(c)

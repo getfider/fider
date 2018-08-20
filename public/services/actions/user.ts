@@ -17,3 +17,7 @@ export const changeUserEmail = async (email: string): Promise<Result> => {
 export const deleteCurrentAccount = async (): Promise<Result> => {
   return await http.delete("/_api/user");
 };
+
+export const regenerateAPIKey = async (): Promise<Result<{ apiKey: string }>> => {
+  return await http.post<{ apiKey: string }>("/_api/user/regenerate-apikey");
+};

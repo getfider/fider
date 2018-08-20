@@ -16,7 +16,7 @@ type CreateTenant struct {
 // Initialize the model
 func (input *CreateTenant) Initialize() interface{} {
 	input.Model = new(models.CreateTenant)
-	input.Model.VerificationKey = models.GenerateVerificationKey()
+	input.Model.VerificationKey = models.GenerateSecretKey()
 	return input.Model
 }
 
