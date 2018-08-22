@@ -283,7 +283,7 @@ type UpdateUserSettings struct {
 // ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
 	Role   Role `route:"role"`
-	UserID int  `json:"userId"`
+	UserID int  `json:"userID"`
 }
 
 // InviteUsers is used to invite new users into Fider
