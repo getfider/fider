@@ -27,7 +27,7 @@ type UserProfile struct {
 type ProviderOption struct {
 	Provider         string `json:"provider"`
 	DisplayName      string `json:"displayName"`
-	ClientID         string `json:"clientId"`
+	ClientID         string `json:"clientID"`
 	URL              string `json:"url"`
 	CallbackURL      string `json:"callbackURL"`
 	LogoID           int    `json:"logoID"`

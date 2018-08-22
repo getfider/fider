@@ -25,14 +25,14 @@ export interface OAuthFormState {
   provider: string;
   displayName: string;
   enabled: boolean;
-  clientId: string;
+  clientID: string;
   clientSecret: string;
   clientSecretEnabled: boolean;
   authorizeURL: string;
   tokenURL: string;
   profileURL: string;
   scope: string;
-  jsonUserIdPath: string;
+  jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
   logoURL?: string;
@@ -47,14 +47,14 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       provider: this.props.config ? this.props.config.provider : "",
       enabled: this.props.config ? this.props.config.status === OAuthConfigStatus.Enabled : false,
       displayName: this.props.config ? this.props.config.displayName : "",
-      clientId: this.props.config ? this.props.config.clientId : "",
+      clientID: this.props.config ? this.props.config.clientID : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
       clientSecretEnabled: !this.props.config,
       authorizeURL: this.props.config ? this.props.config.authorizeURL : "",
       tokenURL: this.props.config ? this.props.config.tokenURL : "",
       profileURL: this.props.config ? this.props.config.profileURL : "",
       scope: this.props.config ? this.props.config.scope : "",
-      jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
+      jsonUserIDPath: this.props.config ? this.props.config.jsonUserIDPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
       logoURL: this.props.config ? OAuthProviderLogoURL(this.props.config.logoID) : ""
@@ -66,13 +66,13 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       provider: this.state.provider,
       status: this.state.enabled ? OAuthConfigStatus.Enabled : OAuthConfigStatus.Disabled,
       displayName: this.state.displayName,
-      clientId: this.state.clientId,
+      clientID: this.state.clientID,
       clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
       authorizeURL: this.state.authorizeURL,
       tokenURL: this.state.tokenURL,
       profileURL: this.state.profileURL,
       scope: this.state.scope,
-      jsonUserIdPath: this.state.jsonUserIdPath,
+      jsonUserIDPath: this.state.jsonUserIDPath,
       jsonUserNamePath: this.state.jsonUserNamePath,
       jsonUserEmailPath: this.state.jsonUserEmailPath,
       logo: this.state.logo
@@ -100,8 +100,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ enabled });
   };
 
-  private setClientId = (clientId: string) => {
-    this.setState({ clientId });
+  private setClientID = (clientID: string) => {
+    this.setState({ clientID });
   };
 
   private setClientSecret = (clientSecret: string) => {
@@ -124,8 +124,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ scope });
   };
 
-  private setJSONUserIdPath = (jsonUserIdPath: string) => {
-    this.setState({ jsonUserIdPath });
+  private setJSONUserIDPath = (jsonUserIDPath: string) => {
+    this.setState({ jsonUserIDPath });
   };
 
   private setJSONUserNamePath = (jsonUserNamePath: string) => {
@@ -179,12 +179,12 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
           </div>
 
           <Input
-            field="clientId"
+            field="clientID"
             label="Client ID"
             maxLength={100}
-            value={this.state.clientId}
+            value={this.state.clientID}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setClientId}
+            onChange={this.setClientID}
           />
 
           <Input
@@ -261,13 +261,13 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
           <div className="row">
             <Input
-              field="jsonUserIdPath"
+              field="jsonUserIDPath"
               label="ID"
               className="col-sm-4"
               maxLength={100}
-              value={this.state.jsonUserIdPath}
+              value={this.state.jsonUserIDPath}
               disabled={!Fider.session.user.isAdministrator}
-              onChange={this.setJSONUserIdPath}
+              onChange={this.setJSONUserIDPath}
             >
               <p className="info">
                 Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or

@@ -107,7 +107,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 </div>
                 {o.isCustomProvider && (
                   <span className="info">
-                    <strong>Client ID:</strong> {o.clientId} <br />
+                    <strong>Client ID:</strong> {o.clientID} <br />
                     <strong>Callback URL:</strong> {o.callbackURL}
                   </span>
                 )}
