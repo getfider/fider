@@ -17,8 +17,8 @@ export class HomePage extends Page {
     super(tab);
   }
 
-  public getUrl(): string {
-    return `${this.tab.baseUrl}/`;
+  public getURL(): string {
+    return `${this.tab.baseURL}/`;
   }
 
   @findBy(".c-menu-item-title")

@@ -10,7 +10,7 @@ import {
   Input,
   ImageUploader,
   ImageUploadState,
-  TenantLogoUrl
+  TenantLogoURL
 } from "@fider/components/common";
 import { actions, Failure, fileToBase64, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
@@ -153,7 +153,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         <ImageUploader
           label="Logo"
           field="logo"
-          defaultImageUrl={TenantLogoUrl(200)}
+          defaultImageURL={TenantLogoURL(200)}
           previewMaxWidth={200}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setLogo}

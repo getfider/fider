@@ -6,14 +6,14 @@ export interface NewablePage<T extends Page> {
 
 export abstract class Page {
   public async navigate(): Promise<void> {
-    await this.tab.navigate(this.getUrl());
+    await this.tab.navigate(this.getURL());
     await this.tab.wait(this.loadCondition());
   }
 
   public abstract loadCondition(): WaitCondition;
 
-  protected getUrl(): string {
-    throw new Error("getUrl not implemented");
+  protected getURL(): string {
+    throw new Error("getURL not implemented");
   }
 
   public constructor(protected tab: BrowserTab) {}

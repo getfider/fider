@@ -6,7 +6,7 @@ import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components";
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
-import { actions, notify, navigator, Fider, uploadedImageUrl } from "@fider/services";
+import { actions, notify, navigator, Fider, uploadedImageURL } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[];
@@ -108,7 +108,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 {o.isCustomProvider && (
                   <span className="info">
                     <strong>Client ID:</strong> {o.clientId} <br />
-                    <strong>Callback URL:</strong> {o.callbackUrl}
+                    <strong>Callback URL:</strong> {o.callbackURL}
                   </span>
                 )}
               </ListItem>

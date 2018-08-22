@@ -79,20 +79,20 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 
 	if input.Model.AuthorizeURL == "" {
-		result.AddFieldFailure("authorizeUrl", "Authorize URL is required.")
+		result.AddFieldFailure("authorizeURL", "Authorize URL is required.")
 	} else if messages := validate.URL(input.Model.AuthorizeURL); len(messages) > 0 {
-		result.AddFieldFailure("authorizeUrl", messages...)
+		result.AddFieldFailure("authorizeURL", messages...)
 	}
 
 	if input.Model.TokenURL == "" {
-		result.AddFieldFailure("tokenUrl", "Token URL is required.")
+		result.AddFieldFailure("tokenURL", "Token URL is required.")
 	} else if messages := validate.URL(input.Model.TokenURL); len(messages) > 0 {
-		result.AddFieldFailure("tokenUrl", messages...)
+		result.AddFieldFailure("tokenURL", messages...)
 	}
 
 	if input.Model.ProfileURL != "" {
 		if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
-			result.AddFieldFailure("profileUrl", messages...)
+			result.AddFieldFailure("profileURL", messages...)
 		}
 	}
 
