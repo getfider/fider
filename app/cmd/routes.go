@@ -20,8 +20,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/-/health", handlers.Health())
 	r.Get("/robots.txt", handlers.RobotsTXT())
-	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
-	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
 	assets := r.Group()
 	{
@@ -33,6 +31,9 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
+
+	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
+	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
 	r.Post("/_api/tenants", handlers.CreateTenant())
 	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
