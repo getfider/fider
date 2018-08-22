@@ -84,10 +84,10 @@ export interface CreateEditOAuthConfigRequest {
   displayName: string;
   clientId: string;
   clientSecret: string;
-  authorizeUrl: string;
-  tokenUrl: string;
+  authorizeURL: string;
+  tokenURL: string;
   scope: string;
-  profileUrl: string;
+  profileURL: string;
   jsonUserIdPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;

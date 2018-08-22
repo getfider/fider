@@ -64,12 +64,12 @@ export class SignUpPage extends React.Component<{}, SignUpPageState> {
         if (Fider.isSingleHostMode()) {
           location.reload();
         } else {
-          let baseUrl = `${location.protocol}//${this.state.subdomain.value}${Fider.settings.domain}`;
+          let baseURL = `${location.protocol}//${this.state.subdomain.value}${Fider.settings.domain}`;
           if (location.port) {
-            baseUrl = `${baseUrl}:${location.port}`;
+            baseURL = `${baseURL}:${location.port}`;
           }
 
-          location.href = baseUrl;
+          location.href = baseURL;
         }
       } else {
         this.setState({ submitted: true });

@@ -6,11 +6,11 @@ import { pageHasLoaded } from "./conditions";
 export class BrowserTab {
   private page: puppeteer.Page;
   public pages: AllPages;
-  public baseUrl: string;
+  public baseURL: string;
 
-  public constructor(page: puppeteer.Page, baseUrl: string) {
+  public constructor(page: puppeteer.Page, baseURL: string) {
     this.page = page;
-    this.baseUrl = baseUrl;
+    this.baseURL = baseURL;
     this.pages = new AllPages(this);
   }
 

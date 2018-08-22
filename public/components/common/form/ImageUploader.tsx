@@ -9,14 +9,14 @@ import { Button, ButtonClickEvent } from "@fider/components";
 interface ImageUploaderProps {
   field: string;
   label?: string;
-  defaultImageUrl?: string;
+  defaultImageURL?: string;
   disabled?: boolean;
   previewMaxWidth: number;
-  onChange(state: ImageUploaderState, previewUrl?: string): void;
+  onChange(state: ImageUploaderState, previewURL?: string): void;
 }
 
 interface ImageUploaderState extends ImageUploadState {
-  previewUrl?: string;
+  previewURL?: string;
 }
 
 export interface ImageUploadState {
@@ -34,7 +34,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     this.state = {
       upload: undefined,
       remove: false,
-      previewUrl: this.props.defaultImageUrl
+      previewURL: this.props.defaultImageURL
     };
   }
 
@@ -50,10 +50,10 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             action: "upload"
           },
           remove: false,
-          previewUrl: `data:${file.type};base64,${base64}`
+          previewURL: `data:${file.type};base64,${base64}`
         },
         () => {
-          this.props.onChange(this.state, this.state.previewUrl);
+          this.props.onChange(this.state, this.state.previewURL);
         }
       );
     }
@@ -64,10 +64,10 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       {
         remove: true,
         upload: undefined,
-        previewUrl: undefined
+        previewURL: undefined
       },
       () => {
-        this.props.onChange(this.state, this.state.previewUrl);
+        this.props.onChange(this.state, this.state.previewURL);
       }
     );
   };
@@ -80,7 +80,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
   public render() {
     const isUploading = !!this.state.upload;
-    const hasFile = (!this.state.remove && this.props.defaultImageUrl) || isUploading;
+    const hasFile = (!this.state.remove && this.props.defaultImageURL) || isUploading;
 
     const imgStyles: React.CSSProperties = {
       maxWidth: `${this.props.previewMaxWidth}px`
@@ -97,7 +97,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             })}
           >
             <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
-            {hasFile && <img className="preview" src={this.state.previewUrl} style={imgStyles} />}
+            {hasFile && <img className="preview" src={this.state.previewURL} style={imgStyles} />}
             <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
             <div className="c-form-field-wrapper">

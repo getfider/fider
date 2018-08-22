@@ -16,9 +16,9 @@ export class Browser {
     return new Browser(browser);
   }
 
-  public async newTab(baseUrl: string): Promise<BrowserTab> {
+  public async newTab(baseURL: string): Promise<BrowserTab> {
     const page = await this.browser.newPage();
-    return new BrowserTab(page, baseUrl);
+    return new BrowserTab(page, baseURL);
   }
 
   public async close(): Promise<void> {

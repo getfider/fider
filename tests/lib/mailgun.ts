@@ -24,7 +24,7 @@ const httpGet = (endpoint: string): Promise<any> => {
 
 export const mailgun = {
   getLinkFromLastEmailTo: async (tenant: string, subject: string, to: string): Promise<string> => {
-    let messageUrl = "";
+    let messageURL = "";
     let count = 0;
 
     do {
@@ -39,17 +39,17 @@ export const mailgun = {
 
       const events = await httpGet(url);
       if (events.items.length > 0 && events.items[0].recipient === to) {
-        messageUrl = events.items[0].storage.url;
+        messageURL = events.items[0].storage.url;
       } else {
         await delay(500);
       }
-    } while (!messageUrl && count < 30);
+    } while (!messageURL && count < 30);
 
     if (count === 30) {
       throw new Error(`Message not found for ${to}.`);
     }
 
-    const messages = await httpGet(messageUrl);
+    const messages = await httpGet(messageURL);
 
     const matches = /<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/.exec(messages["body-html"]);
     if (matches) {

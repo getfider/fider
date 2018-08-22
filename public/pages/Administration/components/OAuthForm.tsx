@@ -13,7 +13,7 @@ import {
   ImageUploadState,
   ImageUploader,
   Toggle,
-  OAuthProviderLogoUrl
+  OAuthProviderLogoURL
 } from "@fider/components";
 
 interface OAuthFormProps {
@@ -28,14 +28,14 @@ export interface OAuthFormState {
   clientId: string;
   clientSecret: string;
   clientSecretEnabled: boolean;
-  authorizeUrl: string;
-  tokenUrl: string;
-  profileUrl: string;
+  authorizeURL: string;
+  tokenURL: string;
+  profileURL: string;
   scope: string;
   jsonUserIdPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logoUrl?: string;
+  logoURL?: string;
   logo?: ImageUploadState;
   error?: Failure;
 }
@@ -50,14 +50,14 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       clientId: this.props.config ? this.props.config.clientId : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
       clientSecretEnabled: !this.props.config,
-      authorizeUrl: this.props.config ? this.props.config.authorizeUrl : "",
-      tokenUrl: this.props.config ? this.props.config.tokenUrl : "",
-      profileUrl: this.props.config ? this.props.config.profileUrl : "",
+      authorizeURL: this.props.config ? this.props.config.authorizeURL : "",
+      tokenURL: this.props.config ? this.props.config.tokenURL : "",
+      profileURL: this.props.config ? this.props.config.profileURL : "",
       scope: this.props.config ? this.props.config.scope : "",
       jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoUrl: this.props.config ? OAuthProviderLogoUrl(this.props.config.logoID) : ""
+      logoURL: this.props.config ? OAuthProviderLogoURL(this.props.config.logoID) : ""
     };
   }
 
@@ -68,9 +68,9 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       displayName: this.state.displayName,
       clientId: this.state.clientId,
       clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
-      authorizeUrl: this.state.authorizeUrl,
-      tokenUrl: this.state.tokenUrl,
-      profileUrl: this.state.profileUrl,
+      authorizeURL: this.state.authorizeURL,
+      tokenURL: this.state.tokenURL,
+      profileURL: this.state.profileURL,
       scope: this.state.scope,
       jsonUserIdPath: this.state.jsonUserIdPath,
       jsonUserNamePath: this.state.jsonUserNamePath,
@@ -92,8 +92,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ displayName });
   };
 
-  private setLogo = (logo: ImageUploadState, previewUrl: string) => {
-    this.setState({ logo, logoUrl: previewUrl });
+  private setLogo = (logo: ImageUploadState, previewURL: string) => {
+    this.setState({ logo, logoURL: previewURL });
   };
 
   private setStatus = async (enabled: boolean) => {
@@ -108,16 +108,16 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ clientSecret });
   };
 
-  private setAuthorizeUrl = (authorizeUrl: string) => {
-    this.setState({ authorizeUrl });
+  private setAuthorizeURL = (authorizeURL: string) => {
+    this.setState({ authorizeURL });
   };
 
-  private setTokenUrl = (tokenUrl: string) => {
-    this.setState({ tokenUrl });
+  private setTokenURL = (tokenURL: string) => {
+    this.setState({ tokenURL });
   };
 
-  private setProfileUrl = (profileUrl: string) => {
-    this.setState({ profileUrl });
+  private setProfileURL = (profileURL: string) => {
+    this.setState({ profileURL });
   };
 
   private setScope = (scope: string) => {
@@ -160,7 +160,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               <ImageUploader
                 label="Logo"
                 field="logo"
-                defaultImageUrl={this.state.logoUrl}
+                defaultImageURL={this.state.logoURL}
                 previewMaxWidth={80}
                 disabled={!Fider.session.user.isAdministrator}
                 onChange={this.setLogo}
@@ -208,20 +208,20 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             }
           />
           <Input
-            field="authorizeUrl"
+            field="authorizeURL"
             label="Authorize URL"
             maxLength={300}
-            value={this.state.authorizeUrl}
+            value={this.state.authorizeURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setAuthorizeUrl}
+            onChange={this.setAuthorizeURL}
           />
           <Input
-            field="tokenUrl"
+            field="tokenURL"
             label="Token URL"
             maxLength={300}
-            value={this.state.tokenUrl}
+            value={this.state.tokenURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setTokenUrl}
+            onChange={this.setTokenURL}
           />
 
           <Input
@@ -244,12 +244,12 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
           </p>
 
           <Input
-            field="profileUrl"
+            field="profileURL"
             label="Profile API URL"
             maxLength={300}
-            value={this.state.profileUrl}
+            value={this.state.profileURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setProfileUrl}
+            onChange={this.setProfileURL}
           >
             <p className="info">
               The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the
