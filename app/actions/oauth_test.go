@@ -18,11 +18,11 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		input    *models.CreateEditOAuthConfig
 	}{
 		{
-			expected: []string{"displayName", "status", "tokenURL", "clientId", "clientSecret", "scope", "authorizeURL", "tokenURL", "jsonUserIdPath"},
+			expected: []string{"displayName", "status", "tokenURL", "clientID", "clientSecret", "scope", "authorizeURL", "tokenURL", "jsonUserIDPath"},
 			input:    &models.CreateEditOAuthConfig{},
 		},
 		{
-			expected: []string{"displayName", "status", "tokenURL", "clientId", "clientSecret", "scope", "authorizeURL", "tokenURL", "profileURL", "jsonUserIdPath", "jsonUserNamePath", "jsonUserEmailPath"},
+			expected: []string{"displayName", "status", "tokenURL", "clientID", "clientSecret", "scope", "authorizeURL", "tokenURL", "profileURL", "jsonUserIDPath", "jsonUserNamePath", "jsonUserEmailPath"},
 			input: &models.CreateEditOAuthConfig{
 				DisplayName:       rand.String(51),
 				ClientID:          rand.String(101),

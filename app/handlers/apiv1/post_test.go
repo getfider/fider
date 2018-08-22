@@ -371,17 +371,17 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	commentId, _ := services.Posts.AddComment(post, "My first comment")
+	commentID, _ := services.Posts.AddComment(post, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", post.Number).
-		AddParam("id", commentId).
+		AddParam("id", commentID).
 		ExecutePost(apiv1.UpdateComment(), `{ "content": "My first comment has been edited" }`)
 
 	Expect(code).Equals(http.StatusOK)
-	comment, _ := services.Posts.GetCommentByID(commentId)
+	comment, _ := services.Posts.GetCommentByID(commentID)
 	Expect(comment.Content).Equals("My first comment has been edited")
 }
 
@@ -392,17 +392,17 @@ func TestUpdateCommentHandler_Unauthorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	commentId, _ := services.Posts.AddComment(post, "My first comment")
+	commentID, _ := services.Posts.AddComment(post, "My first comment")
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", post.Number).
-		AddParam("id", commentId).
+		AddParam("id", commentID).
 		ExecutePost(apiv1.UpdateComment(), `{ "content": "My first comment has been edited" }`)
 
 	Expect(code).Equals(http.StatusForbidden)
-	comment, _ := services.Posts.GetCommentByID(commentId)
+	comment, _ := services.Posts.GetCommentByID(commentID)
 	Expect(comment.Content).Equals("My first comment")
 }
 

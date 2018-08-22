@@ -82,13 +82,13 @@ export interface CreateEditOAuthConfigRequest {
   provider: string;
   status: number;
   displayName: string;
-  clientId: string;
+  clientID: string;
   clientSecret: string;
   authorizeURL: string;
   tokenURL: string;
   scope: string;
   profileURL: string;
-  jsonUserIdPath: string;
+  jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
   logo?: ImageUploadState;

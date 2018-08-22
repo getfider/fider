@@ -51,9 +51,9 @@ export const createComment = async (postNumber: number, content: string): Promis
   return http.post(`/api/v1/posts/${postNumber}/comments`, { content }).then(http.event("comment", "create"));
 };
 
-export const updateComment = async (postNumber: number, commentId: number, content: string): Promise<Result> => {
+export const updateComment = async (postNumber: number, commentID: number, content: string): Promise<Result> => {
   return http
-    .put(`/api/v1/posts/${postNumber}/comments/${commentId}`, { content })
+    .put(`/api/v1/posts/${postNumber}/comments/${commentID}`, { content })
     .then(http.event("comment", "update"));
 };
 

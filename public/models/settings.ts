@@ -1,7 +1,7 @@
 export interface OAuthProviderOption {
   provider: string;
   displayName: string;
-  clientId: string;
+  clientID: string;
   url: string;
   callbackURL: string;
   logoID: number;
@@ -35,14 +35,14 @@ export interface OAuthConfig {
   provider: string;
   displayName: string;
   status: number;
-  clientId: string;
+  clientID: string;
   clientSecret: string;
   authorizeURL: string;
   tokenURL: string;
   profileURL: string;
   logoID: number;
   scope: string;
-  jsonUserIdPath: string;
+  jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
 }
