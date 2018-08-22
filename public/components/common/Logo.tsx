@@ -9,15 +9,15 @@ interface TenantLogoProps {
 
 export const TenantLogoUrl = (size: Size): string | undefined => {
   const tenant = Fider.session.tenant;
-  if (tenant && tenant.logoId > 0) {
-    return uploadedImageUrl(tenant.logoId, size);
+  if (tenant && tenant.logoID > 0) {
+    return uploadedImageUrl(tenant.logoID, size);
   }
   return undefined;
 };
 
 export const TenantLogo = (props: TenantLogoProps) => {
   const tenant = Fider.session.tenant;
-  if (tenant && tenant.logoId > 0) {
+  if (tenant && tenant.logoID > 0) {
     return <img src={TenantLogoUrl(props.size)} alt={tenant.name} />;
   }
   return null;
@@ -27,7 +27,7 @@ interface OAuthProviderLogoProps {
   option: {
     provider?: string;
     displayName: string;
-    logoId?: number;
+    logoID?: number;
   };
 }
 
@@ -46,8 +46,8 @@ export const OAuthProviderLogoUrl = (id?: number): string | undefined => {
 };
 
 export const OAuthProviderLogo = (props: OAuthProviderLogoProps) => {
-  if (props.option.logoId && props.option.logoId > 0) {
-    return <img src={OAuthProviderLogoUrl(props.option.logoId)} alt={props.option.displayName} />;
+  if (props.option.logoID && props.option.logoID > 0) {
+    return <img src={OAuthProviderLogoUrl(props.option.logoID)} alt={props.option.displayName} />;
   }
 
   if (props.option.provider && props.option.provider in systemProvidersLogo) {
