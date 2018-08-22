@@ -1,6 +1,6 @@
 import * as React from "react";
 import { shallow } from "enzyme";
-import { Post, UserRole, UserStatus, PostStatus } from "@fider/models";
+import { Post, UserRole, PostStatus } from "@fider/models";
 import { SupportCounter } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
@@ -18,8 +18,7 @@ beforeEach(() => {
     user: {
       id: 5,
       name: "John",
-      role: UserRole.Collaborator,
-      status: UserStatus.Active
+      role: UserRole.Collaborator
     },
     viewerSupported: false,
     response: null,

@@ -320,12 +320,8 @@ func TestUserStorage_Delete(t *testing.T) {
 	Expect(user).IsNil()
 
 	user, err = users.GetByID(jonSnow.ID)
-	Expect(err).IsNil()
-	Expect(user.Name).Equals("")
-	Expect(user.Email).Equals("")
-	Expect(user.Role).Equals(models.RoleVisitor)
-	Expect(user.Status).Equals(models.UserDeleted)
-	Expect(user.Providers).HasLen(0)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(user).IsNil()
 }
 
 func TestUserStorage_APIKey(t *testing.T) {

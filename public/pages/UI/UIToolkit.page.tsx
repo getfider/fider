@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CurrentUser, PostStatus, UserStatus } from "@fider/models";
+import { CurrentUser, PostStatus } from "@fider/models";
 import {
   Heading,
   Button,
@@ -28,15 +28,13 @@ import { notify, Failure } from "@fider/services";
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
-  role: UserRole.Administrator,
-  status: UserStatus.Active
+  role: UserRole.Administrator
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
-  role: UserRole.Visitor,
-  status: UserStatus.Active
+  role: UserRole.Visitor
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };

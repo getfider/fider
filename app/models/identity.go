@@ -43,7 +43,7 @@ type User struct {
 	Tenant    *Tenant         `json:"-"`
 	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"-"`
-	Status    int             `json:"status"`
+	Status    int             `json:"-"`
 }
 
 var (
