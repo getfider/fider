@@ -226,7 +226,8 @@ func (s *UserStorage) ChangeEmail(userID int, email string) error {
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
-	err := trx.Get(&user, "SELECT id, name, email, tenant_id, role, status FROM users WHERE "+filter, args...)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status FROM users WHERE status != %d AND ", models.UserDeleted)
+	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +243,12 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 // GetAll return all users of current tenant
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT id, name, email, tenant_id, role, status FROM users WHERE tenant_id = $1 ORDER BY id", s.tenant.ID)
+	err := s.trx.Select(&users, `
+		SELECT id, name, email, tenant_id, role, status 
+		FROM users 
+		WHERE tenant_id = $1 
+		AND status != $2
+		ORDER BY id`, s.tenant.ID, models.UserDeleted)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get all users")
 	}

@@ -13,12 +13,6 @@ export interface User {
   id: number;
   name: string;
   role: UserRole;
-  status: UserStatus;
-}
-
-export enum UserStatus {
-  Active = 1,
-  Deleted = 2
 }
 
 export enum UserRole {
@@ -32,7 +26,6 @@ export interface CurrentUser {
   name: string;
   email: string;
   role: UserRole;
-  status: UserStatus;
   isAdministrator: boolean;
   isCollaborator: boolean;
 }
