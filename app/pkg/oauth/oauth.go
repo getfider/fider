@@ -30,7 +30,7 @@ type ProviderOption struct {
 	ClientID         string `json:"clientId"`
 	URL              string `json:"url"`
 	CallbackURL      string `json:"callbackUrl"`
-	LogoID           int    `json:"logoId"`
+	LogoID           int    `json:"logoID"`
 	IsCustomProvider bool   `json:"isCustomProvider"`
 	IsEnabled        bool   `json:"isEnabled"`
 }

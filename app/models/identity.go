@@ -17,7 +17,7 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
-	LogoID         int    `json:"logoId"`
+	LogoID         int    `json:"logoID"`
 	CustomCSS      string `json:"-"`
 }
 

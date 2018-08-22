@@ -57,7 +57,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoUrl: this.props.config ? OAuthProviderLogoUrl(this.props.config.logoId) : ""
+      logoUrl: this.props.config ? OAuthProviderLogoUrl(this.props.config.logoID) : ""
     };
   }
 

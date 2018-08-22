@@ -6,7 +6,7 @@ export interface Tenant {
   invitation: string;
   welcomeMessage: string;
   isPrivate: boolean;
-  logoId: number;
+  logoID: number;
 }
 
 export interface User {

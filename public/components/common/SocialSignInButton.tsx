@@ -7,7 +7,7 @@ interface SocialSignInButtonProps {
     displayName: string;
     provider?: string;
     url?: string;
-    logoId?: number;
+    logoID?: number;
     logoUrl?: string;
   };
   redirectTo?: string;
