@@ -89,7 +89,7 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("role", models.RoleAdministrator).
-		ExecutePost(handlers.ChangeUserRole(), fmt.Sprintf(`{ "userId": %d }`, mock.AryaStark.ID))
+		ExecutePost(handlers.ChangeUserRole(), fmt.Sprintf(`{ "userID": %d }`, mock.AryaStark.ID))
 
 	user, _ := services.Users.GetByID(mock.AryaStark.ID)
 
