@@ -63,9 +63,9 @@ jobs:
       - run:
           name: initialize postgres database
           command: |
-             for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done		             for i in `seq 1 60`;
-             for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done		             do
-             for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run:
           name: test
           command: |
