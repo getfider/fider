@@ -175,11 +175,11 @@ func (a *AnyAssertions) Panics() (panicked bool) {
 	return
 }
 
-//EventuallyEquals asserts that, withtin 5 seconds, the actual function will return same value as expected value
+//EventuallyEquals asserts that, withtin 30 seconds, the actual function will return same value as expected value
 func (a *AnyAssertions) EventuallyEquals(expected interface{}) bool {
 	mustBeFunction(a.actual)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	ticker := time.NewTicker(100 * time.Millisecond)
