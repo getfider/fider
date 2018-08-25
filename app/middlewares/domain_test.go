@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -484,4 +485,92 @@ func TestUser_ValidAPIKey_Visitor(t *testing.T) {
 
 	Expect(status).Equals(http.StatusBadRequest)
 	Expect(query.String("errors[0].message")).Equals("API Key is invalid")
+}
+
+func TestUser_Impersonation_Collaborator(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	user := &models.User{
+		Name:   "The Collaborator",
+		Role:   models.RoleCollaborator,
+		Status: models.UserActive,
+		Tenant: mock.DemoTenant,
+	}
+	services.Users.SetCurrentTenant(mock.DemoTenant)
+	services.Users.Register(user)
+	services.Users.SetCurrentUser(user)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, query := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("X-Fider-UserID", strconv.Itoa(mock.JonSnow.ID)).
+		ExecuteAsJSON(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.String("errors[0].message")).Equals("Only Administrators are allowed to impersonate another user")
+}
+
+func TestUser_Impersonation_InvalidUser(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Users.SetCurrentUser(mock.JonSnow)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, query := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("X-Fider-UserID", "ABC").
+		ExecuteAsJSON(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.String("errors[0].message")).Equals("User not found for given impersonate UserID 'ABC'")
+}
+
+func TestUser_Impersonation_UserNotFound(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Users.SetCurrentUser(mock.JonSnow)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, query := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("X-Fider-UserID", "999").
+		ExecuteAsJSON(func(c web.Context) error {
+			return c.NoContent(http.StatusOK)
+		})
+
+	Expect(status).Equals(http.StatusBadRequest)
+	Expect(query.String("errors[0].message")).Equals("User not found for given impersonate UserID '999'")
+}
+
+func TestUser_Impersonation_ValidUser(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Users.SetCurrentUser(mock.JonSnow)
+	apiKey, _ := services.Users.RegenerateAPIKey()
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("X-Fider-UserID", strconv.Itoa(mock.AryaStark.ID)).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Arya Stark")
 }
