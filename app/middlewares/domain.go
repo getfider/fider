@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/validate"
@@ -144,6 +145,23 @@ func User() web.MiddlewareFunc {
 
 					if !user.IsCollaborator() {
 						return c.HandleValidation(validate.Failed("API Key is invalid"))
+					}
+
+					if impersonateUserIDStr := c.Request.GetHeader("X-Fider-UserID"); impersonateUserIDStr != "" {
+						if !user.IsAdministrator() {
+							return c.HandleValidation(validate.Failed("Only Administrators are allowed to impersonate another user"))
+						}
+						impersonateUserID, err := strconv.Atoi(impersonateUserIDStr)
+						if err != nil {
+							return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
+						}
+						user, err = c.Services().Users.GetByID(impersonateUserID)
+						if err != nil {
+							if errors.Cause(err) == app.ErrNotFound {
+								return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
+							}
+							return err
+						}
 					}
 				}
 			}
