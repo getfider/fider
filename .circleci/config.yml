@@ -1,7 +1,7 @@
 version: 2
 references:
   builder: &builder 
-    getfider/circleci:0.0.11
+    getfider/circleci:0.0.12
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
@@ -51,11 +51,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: setup postgres
+          name: waiting for postgres to be ready
           command: |
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
-            for i in 1 2 3 4 5; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
+            for i in `seq 1 60`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgres && exit 1
+      - run:
+          name: initialize postgres database
+          command: |
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE fider_ci" && break || sleep 2; done
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE EXTENSION pg_trgm" -d fider_ci && break || sleep 2; done
+             for i in 1 2 3 4 5 6 7 8 9 10; do psql -h localhost -p 5432 -U postgres -c "CREATE USER fider_ci WITH PASSWORD 'fider_ci_pw'" && break || sleep 2; done
       - run:
           name: test
           command: |
