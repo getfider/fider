@@ -61,9 +61,9 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 
 	if input.Model.ClientID == "" {
-		result.AddFieldFailure("clientId", "Client ID is required.")
+		result.AddFieldFailure("clientID", "Client ID is required.")
 	} else if len(input.Model.ClientID) > 100 {
-		result.AddFieldFailure("clientId", "Client ID must have less than 100 characters.")
+		result.AddFieldFailure("clientID", "Client ID must have less than 100 characters.")
 	}
 
 	if input.Model.ClientSecret == "" {
@@ -79,27 +79,27 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 
 	if input.Model.AuthorizeURL == "" {
-		result.AddFieldFailure("authorizeUrl", "Authorize URL is required.")
+		result.AddFieldFailure("authorizeURL", "Authorize URL is required.")
 	} else if messages := validate.URL(input.Model.AuthorizeURL); len(messages) > 0 {
-		result.AddFieldFailure("authorizeUrl", messages...)
+		result.AddFieldFailure("authorizeURL", messages...)
 	}
 
 	if input.Model.TokenURL == "" {
-		result.AddFieldFailure("tokenUrl", "Token URL is required.")
+		result.AddFieldFailure("tokenURL", "Token URL is required.")
 	} else if messages := validate.URL(input.Model.TokenURL); len(messages) > 0 {
-		result.AddFieldFailure("tokenUrl", messages...)
+		result.AddFieldFailure("tokenURL", messages...)
 	}
 
 	if input.Model.ProfileURL != "" {
 		if messages := validate.URL(input.Model.ProfileURL); len(messages) > 0 {
-			result.AddFieldFailure("profileUrl", messages...)
+			result.AddFieldFailure("profileURL", messages...)
 		}
 	}
 
 	if input.Model.JSONUserIDPath == "" {
-		result.AddFieldFailure("jsonUserIdPath", "JSON User Id Path is required.")
+		result.AddFieldFailure("jsonUserIDPath", "JSON User ID Path is required.")
 	} else if len(input.Model.JSONUserIDPath) > 100 {
-		result.AddFieldFailure("jsonUserIdPath", "JSON User Id Path must have less than 100 characters.")
+		result.AddFieldFailure("jsonUserIDPath", "JSON User ID Path must have less than 100 characters.")
 	}
 
 	if len(input.Model.JSONUserNamePath) > 100 {

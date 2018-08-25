@@ -17,7 +17,7 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
-	LogoID         int    `json:"logoId"`
+	LogoID         int    `json:"logoID"`
 	CustomCSS      string `json:"-"`
 }
 
@@ -283,7 +283,7 @@ type UpdateUserSettings struct {
 // ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
 	Role   Role `route:"role"`
-	UserID int  `json:"userId"`
+	UserID int  `json:"userID"`
 }
 
 // InviteUsers is used to invite new users into Fider

@@ -123,7 +123,7 @@ export const isCookieEnabled = (): boolean => {
   }
 };
 
-export const uploadedImageUrl = (id: number, size: number): string | undefined => {
+export const uploadedImageURL = (id: number, size: number): string | undefined => {
   if (id > 0) {
     return `${Fider.settings.assetsURL}/images/${size}/${id}`;
   }

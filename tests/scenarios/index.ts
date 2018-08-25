@@ -26,11 +26,11 @@ describe("E2E", () => {
     const now = new Date().getTime();
     const tenantName = `Selenium ${now}`;
     const tenantSubdomain = process.env.HOST_MODE === "single" ? "login" : `selenium${now}`;
-    const baseUrl = `http://${tenantSubdomain}.dev.fider.io:3000`;
+    const baseURL = `http://${tenantSubdomain}.dev.fider.io:3000`;
     const browser1 = await Browser.launch();
-    const tab1 = await browser1.newTab(baseUrl);
+    const tab1 = await browser1.newTab(baseURL);
     const browser2 = await Browser.launch();
-    const tab2 = await browser2.newTab(baseUrl);
+    const tab2 = await browser2.newTab(baseURL);
 
     ctx = {
       tenantName,

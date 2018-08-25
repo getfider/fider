@@ -33,13 +33,13 @@ type CreateEditOAuthConfig struct {
 	Provider          string       `json:"provider"`
 	Status            int          `json:"status"`
 	DisplayName       string       `json:"displayName"`
-	ClientID          string       `json:"clientId"`
+	ClientID          string       `json:"clientID"`
 	ClientSecret      string       `json:"clientSecret"`
-	AuthorizeURL      string       `json:"authorizeUrl" format:"lower"`
-	TokenURL          string       `json:"tokenUrl" format:"lower"`
+	AuthorizeURL      string       `json:"authorizeURL" format:"lower"`
+	TokenURL          string       `json:"tokenURL" format:"lower"`
 	Scope             string       `json:"scope"`
-	ProfileURL        string       `json:"profileUrl" format:"lower"`
-	JSONUserIDPath    string       `json:"jsonUserIdPath"`
+	ProfileURL        string       `json:"profileURL" format:"lower"`
+	JSONUserIDPath    string       `json:"jsonUserIDPath"`
 	JSONUserNamePath  string       `json:"jsonUserNamePath"`
 	JSONUserEmailPath string       `json:"jsonUserEmailPath"`
 }
@@ -72,15 +72,15 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 		"id":                o.ID,
 		"provider":          o.Provider,
 		"displayName":       o.DisplayName,
-		"logoId":            o.LogoID,
+		"logoID":            o.LogoID,
 		"status":            o.Status,
-		"clientId":          o.ClientID,
+		"clientID":          o.ClientID,
 		"clientSecret":      secret,
-		"authorizeUrl":      o.AuthorizeURL,
-		"tokenUrl":          o.TokenURL,
-		"profileUrl":        o.ProfileURL,
+		"authorizeURL":      o.AuthorizeURL,
+		"tokenURL":          o.TokenURL,
+		"profileURL":        o.ProfileURL,
 		"scope":             o.Scope,
-		"jsonUserIdPath":    o.JSONUserIDPath,
+		"jsonUserIDPath":    o.JSONUserIDPath,
 		"jsonUserNamePath":  o.JSONUserNamePath,
 		"jsonUserEmailPath": o.JSONUserEmailPath,
 	})

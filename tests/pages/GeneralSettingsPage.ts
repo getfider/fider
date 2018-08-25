@@ -16,8 +16,8 @@ export class GeneralSettingsPage extends Page {
     super(tab);
   }
 
-  public getUrl(): string {
-    return `${this.tab.baseUrl}/admin`;
+  public getURL(): string {
+    return `${this.tab.baseURL}/admin`;
   }
 
   @findBy("#p-admin-general #input-title")

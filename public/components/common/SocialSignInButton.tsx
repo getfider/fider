@@ -7,8 +7,8 @@ interface SocialSignInButtonProps {
     displayName: string;
     provider?: string;
     url?: string;
-    logoId?: number;
-    logoUrl?: string;
+    logoID?: number;
+    logoURL?: string;
   };
   redirectTo?: string;
 }
@@ -23,8 +23,8 @@ export class SocialSignInButton extends React.Component<SocialSignInButtonProps,
     });
     return (
       <Button href={href} rel="nofollow" fluid={true} className={className}>
-        {this.props.option.logoUrl ? (
-          <img src={this.props.option.logoUrl} />
+        {this.props.option.logoURL ? (
+          <img src={this.props.option.logoURL} />
         ) : (
           <OAuthProviderLogo option={this.props.option} />
         )}

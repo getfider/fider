@@ -115,7 +115,7 @@ func TestNotificationStorage_ReadAll(t *testing.T) {
 	Expect(allNotifications[1].Read).IsTrue()
 }
 
-func TestNotificationStorage_GetNotificationById(t *testing.T) {
+func TestNotificationStorage_GetNotificationByID(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -136,7 +136,7 @@ func TestNotificationStorage_GetNotificationById(t *testing.T) {
 	Expect(not1.Read).IsFalse()
 }
 
-func TestNotificationStorage_GetNotificationById_OtherUser(t *testing.T) {
+func TestNotificationStorage_GetNotificationByID_OtherUser(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 

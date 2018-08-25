@@ -16,8 +16,8 @@ export class SignUpPage extends Page {
     super(tab);
   }
 
-  public getUrl(): string {
-    return `${this.tab.baseUrl}/signup`;
+  public getURL(): string {
+    return `${this.tab.baseURL}/signup`;
   }
 
   @findBy("#p-signup")

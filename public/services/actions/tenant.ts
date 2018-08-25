@@ -68,9 +68,9 @@ export const completeProfile = async (key: string, name: string): Promise<Result
   });
 };
 
-export const changeUserRole = async (userId: number, role: UserRole): Promise<Result> => {
+export const changeUserRole = async (userID: number, role: UserRole): Promise<Result> => {
   return await http.post(`/_api/admin/roles/${role}/users`, {
-    userId
+    userID
   });
 };
 
@@ -82,13 +82,13 @@ export interface CreateEditOAuthConfigRequest {
   provider: string;
   status: number;
   displayName: string;
-  clientId: string;
+  clientID: string;
   clientSecret: string;
-  authorizeUrl: string;
-  tokenUrl: string;
+  authorizeURL: string;
+  tokenURL: string;
   scope: string;
-  profileUrl: string;
-  jsonUserIdPath: string;
+  profileURL: string;
+  jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
   logo?: ImageUploadState;

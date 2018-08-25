@@ -13,7 +13,7 @@ import {
   ImageUploadState,
   ImageUploader,
   Toggle,
-  OAuthProviderLogoUrl
+  OAuthProviderLogoURL
 } from "@fider/components";
 
 interface OAuthFormProps {
@@ -25,17 +25,17 @@ export interface OAuthFormState {
   provider: string;
   displayName: string;
   enabled: boolean;
-  clientId: string;
+  clientID: string;
   clientSecret: string;
   clientSecretEnabled: boolean;
-  authorizeUrl: string;
-  tokenUrl: string;
-  profileUrl: string;
+  authorizeURL: string;
+  tokenURL: string;
+  profileURL: string;
   scope: string;
-  jsonUserIdPath: string;
+  jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logoUrl?: string;
+  logoURL?: string;
   logo?: ImageUploadState;
   error?: Failure;
 }
@@ -47,17 +47,17 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       provider: this.props.config ? this.props.config.provider : "",
       enabled: this.props.config ? this.props.config.status === OAuthConfigStatus.Enabled : false,
       displayName: this.props.config ? this.props.config.displayName : "",
-      clientId: this.props.config ? this.props.config.clientId : "",
+      clientID: this.props.config ? this.props.config.clientID : "",
       clientSecret: this.props.config ? this.props.config.clientSecret : "",
       clientSecretEnabled: !this.props.config,
-      authorizeUrl: this.props.config ? this.props.config.authorizeUrl : "",
-      tokenUrl: this.props.config ? this.props.config.tokenUrl : "",
-      profileUrl: this.props.config ? this.props.config.profileUrl : "",
+      authorizeURL: this.props.config ? this.props.config.authorizeURL : "",
+      tokenURL: this.props.config ? this.props.config.tokenURL : "",
+      profileURL: this.props.config ? this.props.config.profileURL : "",
       scope: this.props.config ? this.props.config.scope : "",
-      jsonUserIdPath: this.props.config ? this.props.config.jsonUserIdPath : "",
+      jsonUserIDPath: this.props.config ? this.props.config.jsonUserIDPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoUrl: this.props.config ? OAuthProviderLogoUrl(this.props.config.logoId) : ""
+      logoURL: this.props.config ? OAuthProviderLogoURL(this.props.config.logoID) : ""
     };
   }
 
@@ -66,13 +66,13 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       provider: this.state.provider,
       status: this.state.enabled ? OAuthConfigStatus.Enabled : OAuthConfigStatus.Disabled,
       displayName: this.state.displayName,
-      clientId: this.state.clientId,
+      clientID: this.state.clientID,
       clientSecret: this.state.clientSecretEnabled ? this.state.clientSecret : "",
-      authorizeUrl: this.state.authorizeUrl,
-      tokenUrl: this.state.tokenUrl,
-      profileUrl: this.state.profileUrl,
+      authorizeURL: this.state.authorizeURL,
+      tokenURL: this.state.tokenURL,
+      profileURL: this.state.profileURL,
       scope: this.state.scope,
-      jsonUserIdPath: this.state.jsonUserIdPath,
+      jsonUserIDPath: this.state.jsonUserIDPath,
       jsonUserNamePath: this.state.jsonUserNamePath,
       jsonUserEmailPath: this.state.jsonUserEmailPath,
       logo: this.state.logo
@@ -92,40 +92,40 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ displayName });
   };
 
-  private setLogo = (logo: ImageUploadState, previewUrl: string) => {
-    this.setState({ logo, logoUrl: previewUrl });
+  private setLogo = (logo: ImageUploadState, previewURL: string) => {
+    this.setState({ logo, logoURL: previewURL });
   };
 
   private setStatus = async (enabled: boolean) => {
     this.setState({ enabled });
   };
 
-  private setClientId = (clientId: string) => {
-    this.setState({ clientId });
+  private setClientID = (clientID: string) => {
+    this.setState({ clientID });
   };
 
   private setClientSecret = (clientSecret: string) => {
     this.setState({ clientSecret });
   };
 
-  private setAuthorizeUrl = (authorizeUrl: string) => {
-    this.setState({ authorizeUrl });
+  private setAuthorizeURL = (authorizeURL: string) => {
+    this.setState({ authorizeURL });
   };
 
-  private setTokenUrl = (tokenUrl: string) => {
-    this.setState({ tokenUrl });
+  private setTokenURL = (tokenURL: string) => {
+    this.setState({ tokenURL });
   };
 
-  private setProfileUrl = (profileUrl: string) => {
-    this.setState({ profileUrl });
+  private setProfileURL = (profileURL: string) => {
+    this.setState({ profileURL });
   };
 
   private setScope = (scope: string) => {
     this.setState({ scope });
   };
 
-  private setJSONUserIdPath = (jsonUserIdPath: string) => {
-    this.setState({ jsonUserIdPath });
+  private setJSONUserIDPath = (jsonUserIDPath: string) => {
+    this.setState({ jsonUserIDPath });
   };
 
   private setJSONUserNamePath = (jsonUserNamePath: string) => {
@@ -160,7 +160,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               <ImageUploader
                 label="Logo"
                 field="logo"
-                defaultImageUrl={this.state.logoUrl}
+                defaultImageURL={this.state.logoURL}
                 previewMaxWidth={80}
                 disabled={!Fider.session.user.isAdministrator}
                 onChange={this.setLogo}
@@ -179,12 +179,12 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
           </div>
 
           <Input
-            field="clientId"
+            field="clientID"
             label="Client ID"
             maxLength={100}
-            value={this.state.clientId}
+            value={this.state.clientID}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setClientId}
+            onChange={this.setClientID}
           />
 
           <Input
@@ -208,20 +208,20 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
             }
           />
           <Input
-            field="authorizeUrl"
+            field="authorizeURL"
             label="Authorize URL"
             maxLength={300}
-            value={this.state.authorizeUrl}
+            value={this.state.authorizeURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setAuthorizeUrl}
+            onChange={this.setAuthorizeURL}
           />
           <Input
-            field="tokenUrl"
+            field="tokenURL"
             label="Token URL"
             maxLength={300}
-            value={this.state.tokenUrl}
+            value={this.state.tokenURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setTokenUrl}
+            onChange={this.setTokenURL}
           />
 
           <Input
@@ -244,12 +244,12 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
           </p>
 
           <Input
-            field="profileUrl"
+            field="profileURL"
             label="Profile API URL"
             maxLength={300}
-            value={this.state.profileUrl}
+            value={this.state.profileURL}
             disabled={!Fider.session.user.isAdministrator}
-            onChange={this.setProfileUrl}
+            onChange={this.setProfileURL}
           >
             <p className="info">
               The URL to fetch the authenticated user info. If empty, Fider will try to parse the user info from the
@@ -261,13 +261,13 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
 
           <div className="row">
             <Input
-              field="jsonUserIdPath"
+              field="jsonUserIDPath"
               label="ID"
               className="col-sm-4"
               maxLength={100}
-              value={this.state.jsonUserIdPath}
+              value={this.state.jsonUserIDPath}
               disabled={!Fider.session.user.isAdministrator}
-              onChange={this.setJSONUserIdPath}
+              onChange={this.setJSONUserIDPath}
             >
               <p className="info">
                 Path to extract User ID from the JSON. This ID <strong>must</strong> be unique within the provider or
