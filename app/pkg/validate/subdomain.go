@@ -31,7 +31,8 @@ func Subdomain(tenants storage.Tenant, subdomain string) ([]string, error) {
 	case
 		"signup", "fider", "login", "customers", "admin", "setup", "about",
 		"wecanhearyou", "dev", "mail", "billing", "www", "web", "translate",
-		"help", "support", "status", "staging", "cdn", "assets":
+		"help", "support", "status", "staging", "cdn", "assets", "live",
+		"manage", "mgmt", "platform", "production", "development":
 		return []string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)}, nil
 	}
 
