@@ -111,15 +111,16 @@ func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
 			start := time.Now()
-			c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} started", log.Props{
+			c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", log.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
+				"ClientIP":   c.Request.ClientIP,
 			})
 
 			trx, err := c.Engine().Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", log.Props{
+				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", log.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -152,7 +153,7 @@ func WebSetup() web.MiddlewareFunc {
 					}
 					c.Failure(err)
 					c.Rollback()
-					c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
 						"HttpMethod": c.Request.Method,
 						"URL":        c.Request.URL.String(),
 						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -163,7 +164,7 @@ func WebSetup() web.MiddlewareFunc {
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -176,7 +177,7 @@ func WebSetup() web.MiddlewareFunc {
 				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
 					"Error": err.Error(),
 				})
-				c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -185,7 +186,7 @@ func WebSetup() web.MiddlewareFunc {
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+			c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
 				"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),

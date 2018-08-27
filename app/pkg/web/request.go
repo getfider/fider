@@ -13,6 +13,7 @@ import (
 type Request struct {
 	instance      *http.Request
 	Method        string
+	ClientIP      string
 	ContentLength int64
 	Body          string
 	IsSecure      bool
@@ -45,9 +46,20 @@ func WrapRequest(request *http.Request) Request {
 		}
 	}
 
+	clientIP := request.Header.Get("X-Forwarded-For")
+	if clientIP == "" {
+		clientIP = strings.Split(request.RemoteAddr, ":")[0]
+		if clientIP == "" {
+			clientIP = "N/A"
+		}
+	} else {
+		clientIP = strings.Split(clientIP, ",")[0]
+	}
+
 	return Request{
 		instance:      request,
 		Method:        request.Method,
+		ClientIP:      strings.TrimSpace(clientIP),
 		ContentLength: request.ContentLength,
 		Body:          string(bodyBytes),
 		URL:           u,
