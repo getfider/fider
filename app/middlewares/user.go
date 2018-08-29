@@ -51,7 +51,7 @@ func User() web.MiddlewareFunc {
 					}
 					return err
 				}
-			} else {
+			} else if c.Request.IsAPI() {
 				authHeader := c.Request.GetHeader("Authorization")
 				parts := strings.Split(authHeader, "Bearer")
 				if len(parts) == 2 {
