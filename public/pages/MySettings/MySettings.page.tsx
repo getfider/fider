@@ -170,7 +170,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </div>
         </div>
 
-        {true && (
+        {false && (
           <div className="row">
             <div className="col-lg-7">
               <APIKeyForm />
