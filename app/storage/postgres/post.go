@@ -15,43 +15,43 @@ import (
 )
 
 type dbPost struct {
-	ID               int            `db:"id"`
-	Number           int            `db:"number"`
-	Title            string         `db:"title"`
-	Slug             string         `db:"slug"`
-	Description      string         `db:"description"`
-	CreatedOn        time.Time      `db:"created_on"`
-	User             *dbUser        `db:"user"`
-	ViewerSupported  bool           `db:"viewer_supported"`
-	TotalSupporters  int            `db:"supporters"`
-	TotalComments    int            `db:"comments"`
-	RecentSupporters int            `db:"recent_supporters"`
-	RecentComments   int            `db:"recent_comments"`
-	Status           int            `db:"status"`
-	Response         sql.NullString `db:"response"`
-	RespondedOn      dbx.NullTime   `db:"response_date"`
-	ResponseUser     *dbUser        `db:"response_user"`
-	OriginalNumber   sql.NullInt64  `db:"original_number"`
-	OriginalTitle    sql.NullString `db:"original_title"`
-	OriginalSlug     sql.NullString `db:"original_slug"`
-	OriginalStatus   sql.NullInt64  `db:"original_status"`
-	Tags             []string       `db:"tags"`
+	ID             int            `db:"id"`
+	Number         int            `db:"number"`
+	Title          string         `db:"title"`
+	Slug           string         `db:"slug"`
+	Description    string         `db:"description"`
+	CreatedOn      time.Time      `db:"created_on"`
+	User           *dbUser        `db:"user"`
+	ViewerVoted    bool           `db:"viewer_voted"`
+	TotalVotes     int            `db:"votes"`
+	TotalComments  int            `db:"comments"`
+	RecentVotes    int            `db:"recent_votes"`
+	RecentComments int            `db:"recent_comments"`
+	Status         int            `db:"status"`
+	Response       sql.NullString `db:"response"`
+	RespondedOn    dbx.NullTime   `db:"response_date"`
+	ResponseUser   *dbUser        `db:"response_user"`
+	OriginalNumber sql.NullInt64  `db:"original_number"`
+	OriginalTitle  sql.NullString `db:"original_title"`
+	OriginalSlug   sql.NullString `db:"original_slug"`
+	OriginalStatus sql.NullInt64  `db:"original_status"`
+	Tags           []string       `db:"tags"`
 }
 
 func (i *dbPost) toModel() *models.Post {
 	post := &models.Post{
-		ID:              i.ID,
-		Number:          i.Number,
-		Title:           i.Title,
-		Slug:            i.Slug,
-		Description:     i.Description,
-		CreatedOn:       i.CreatedOn,
-		ViewerSupported: i.ViewerSupported,
-		TotalSupporters: i.TotalSupporters,
-		TotalComments:   i.TotalComments,
-		Status:          i.Status,
-		User:            i.User.toModel(),
-		Tags:            i.Tags,
+		ID:            i.ID,
+		Number:        i.Number,
+		Title:         i.Title,
+		Slug:          i.Slug,
+		Description:   i.Description,
+		CreatedOn:     i.CreatedOn,
+		ViewerVoted:   i.ViewerVoted,
+		TotalVotes:    i.TotalVotes,
+		TotalComments: i.TotalComments,
+		Status:        i.Status,
+		User:          i.User.toModel(),
+		Tags:          i.Tags,
 	}
 
 	if i.Response.Valid {
@@ -138,15 +138,15 @@ var (
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													),
-													agg_supporters AS (
+													agg_votes AS (
 															SELECT 
 															post_id, 
-																	COUNT(CASE WHEN post_supporters.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
+																	COUNT(CASE WHEN post_votes.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
 																	COUNT(*) as all
-															FROM post_supporters 
+															FROM post_votes 
 															INNER JOIN posts
-															ON posts.id = post_supporters.post_id
-															AND posts.tenant_id = post_supporters.tenant_id
+															ON posts.id = post_votes.post_id
+															AND posts.tenant_id = post_votes.tenant_id
 															WHERE posts.tenant_id = $1
 															GROUP BY post_id
 													)
@@ -156,9 +156,9 @@ var (
 																p.slug, 
 																p.description, 
 																p.created_on,
-																COALESCE(agg_s.all, 0) as supporters,
+																COALESCE(agg_s.all, 0) as votes,
 																COALESCE(agg_c.all, 0) as comments,
-																COALESCE(agg_s.recent, 0) AS recent_supporters,
+																COALESCE(agg_s.recent, 0) AS recent_votes,
 																COALESCE(agg_c.recent, 0) AS recent_comments,																
 																p.status, 
 																u.id AS user_id, 
@@ -178,7 +178,7 @@ var (
 																d.slug AS original_slug,
 																d.status AS original_status,
 																array_remove(array_agg(t.slug), NULL) AS tags,
-																COALESCE(%s, false) AS viewer_supported
+																COALESCE(%s, false) AS viewer_voted
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
@@ -193,22 +193,22 @@ var (
 													%s
 													LEFT JOIN agg_comments agg_c
 													ON agg_c.post_id = p.id
-													LEFT JOIN agg_supporters agg_s
+													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
 													WHERE p.status != ` + strconv.Itoa(models.PostDeleted) + ` AND %s
 													GROUP BY p.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
 func (s *PostStorage) getPostQuery(filter string) string {
-	viewerSupportedSubQuery := "null"
+	viewerVotedSubQuery := "null"
 	if s.user != nil {
-		viewerSupportedSubQuery = fmt.Sprintf("(SELECT true FROM post_supporters WHERE post_id = p.id AND user_id = %d)", s.user.ID)
+		viewerVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", s.user.ID)
 	}
 	tagCondition := `AND t.is_public = true`
 	if s.user != nil && s.user.IsCollaborator() {
 		tagCondition = ``
 	}
-	return fmt.Sprintf(sqlSelectPostsWhere, viewerSupportedSubQuery, tagCondition, filter)
+	return fmt.Sprintf(sqlSelectPostsWhere, viewerVotedSubQuery, tagCondition, filter)
 }
 
 func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post, error) {
@@ -464,32 +464,32 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddSupporter adds user to post list of supporters
-func (s *PostStorage) AddSupporter(post *models.Post, user *models.User) error {
-	if !post.CanBeSupported() {
+// AddVote adds user to post list of votes
+func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
+	if !post.CanBeVoted() {
 		return nil
 	}
 
 	_, err := s.trx.Execute(
-		`INSERT INTO post_supporters (tenant_id, user_id, post_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
+		`INSERT INTO post_votes (tenant_id, user_id, post_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
 		s.tenant.ID, user.ID, post.ID, time.Now())
 
 	if err != nil {
-		return errors.Wrap(err, "failed add supporter to post")
+		return errors.Wrap(err, "failed add vote to post")
 	}
 
 	return s.internalAddSubscriber(post, user, false)
 }
 
-// RemoveSupporter removes user from post list of supporters
-func (s *PostStorage) RemoveSupporter(post *models.Post, user *models.User) error {
-	if !post.CanBeSupported() {
+// RemoveVote removes user from post list of votes
+func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
+	if !post.CanBeVoted() {
 		return nil
 	}
 
-	_, err := s.trx.Execute(`DELETE FROM post_supporters WHERE user_id = $1 AND post_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
+	_, err := s.trx.Execute(`DELETE FROM post_votes WHERE user_id = $1 AND post_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete post supporter")
+		return errors.Wrap(err, "failed to remove vote from post")
 	}
 
 	return err
@@ -640,13 +640,13 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	}
 
 	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT user_id AS id FROM post_supporters WHERE post_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
+	err := s.trx.Select(&users, "SELECT user_id AS id FROM post_votes WHERE post_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
 	if err != nil {
-		return errors.Wrap(err, "failed to get supporters of post with id '%d'", post.ID)
+		return errors.Wrap(err, "failed to get votes of post with id '%d'", post.ID)
 	}
 
 	for _, u := range users {
-		if err := s.AddSupporter(original, u.toModel()); err != nil {
+		if err := s.AddVote(original, u.toModel()); err != nil {
 			return err
 		}
 	}
@@ -689,11 +689,11 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	return exists, nil
 }
 
-// SupportedBy returns a list of Post ID supported by given user
-func (s *PostStorage) SupportedBy() ([]int, error) {
-	posts, err := s.trx.QueryIntArray("SELECT post_id FROM post_supporters WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
+// VotedBy returns a list of Post ID voted by given user
+func (s *PostStorage) VotedBy() ([]int, error) {
+	posts, err := s.trx.QueryIntArray("SELECT post_id FROM post_votes WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user's supported posts")
+		return nil, errors.Wrap(err, "failed to get user's voted posts")
 	}
 	return posts, nil
 }

@@ -150,8 +150,8 @@ func routes(r *web.Engine) *web.Engine {
 		api.Post("/api/v1/posts", apiv1.CreatePost())
 		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
-		api.Post("/api/v1/posts/:number/support", apiv1.AddSupporter())
-		api.Delete("/api/v1/posts/:number/support", apiv1.RemoveSupporter())
+		api.Post("/api/v1/posts/:number/vote", apiv1.AddVote())
+		api.Delete("/api/v1/posts/:number/vote", apiv1.RemoveVote())
 		api.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())
 		api.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 

@@ -55,9 +55,9 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
         value: i.number,
         content: (
           <>
-            <span className="support">
+            <span className="votes">
               <i className="caret up icon" />
-              {i.totalSupporters}
+              {i.totalVotes}
             </span>
             <span className={`status-label status-${status.slug}`}>{status.title}</span>
             {i.title}

@@ -7,23 +7,23 @@ import (
 
 //Post represents an post on a tenant board
 type Post struct {
-	ID              int           `json:"id"`
-	Number          int           `json:"number"`
-	Title           string        `json:"title"`
-	Slug            string        `json:"slug"`
-	Description     string        `json:"description"`
-	CreatedOn       time.Time     `json:"createdOn"`
-	User            *User         `json:"user"`
-	ViewerSupported bool          `json:"viewerSupported"`
-	TotalSupporters int           `json:"totalSupporters"`
-	TotalComments   int           `json:"totalComments"`
-	Status          int           `json:"status"`
-	Response        *PostResponse `json:"response"`
-	Tags            []string      `json:"tags"`
+	ID            int           `json:"id"`
+	Number        int           `json:"number"`
+	Title         string        `json:"title"`
+	Slug          string        `json:"slug"`
+	Description   string        `json:"description"`
+	CreatedOn     time.Time     `json:"createdOn"`
+	User          *User         `json:"user"`
+	ViewerVoted   bool          `json:"viewerVoted"`
+	TotalVotes    int           `json:"totalVotes"`
+	TotalComments int           `json:"totalComments"`
+	Status        int           `json:"status"`
+	Response      *PostResponse `json:"response"`
+	Tags          []string      `json:"tags"`
 }
 
-// CanBeSupported returns true if this post can be Supported/UnSupported
-func (i *Post) CanBeSupported() bool {
+// CanBeVoted returns true if this post can have its vote changed
+func (i *Post) CanBeVoted() bool {
 	return i.Status != PostCompleted && i.Status != PostDeclined && i.Status != PostDuplicate
 }
 

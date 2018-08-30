@@ -6,7 +6,7 @@ export class PostItem {
   private Link: WebComponent;
 
   constructor(protected tab: BrowserTab, public selector: string) {
-    this.Vote = new WebComponent(tab, `${this.selector} .c-support-counter button`);
+    this.Vote = new WebComponent(tab, `${this.selector} .c-vote-counter button`);
     this.Link = new WebComponent(tab, `${this.selector} .c-list-item-title`);
   }
 

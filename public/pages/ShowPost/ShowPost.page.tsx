@@ -7,7 +7,7 @@ import { actions, Failure, Fider } from "@fider/services";
 
 import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
-  SupportCounter,
+  VoteCounter,
   ShowPostResponse,
   DisplayError,
   Button,
@@ -86,7 +86,7 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
         <div className="header-col">
           <List>
             <ListItem>
-              <SupportCounter post={this.props.post} />
+              <VoteCounter post={this.props.post} />
 
               <div className="post-header">
                 {this.state.editMode ? (

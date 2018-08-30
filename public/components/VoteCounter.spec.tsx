@@ -1,7 +1,7 @@
 import * as React from "react";
 import { shallow } from "enzyme";
 import { Post, UserRole, PostStatus } from "@fider/models";
-import { SupportCounter } from "@fider/components";
+import { VoteCounter } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
 let post: Post;
@@ -20,41 +20,41 @@ beforeEach(() => {
       name: "John",
       role: UserRole.Collaborator
     },
-    viewerSupported: false,
+    viewerVoted: false,
     response: null,
-    totalSupporters: 5,
+    totalVotes: 5,
     totalComments: 2,
     tags: []
   };
 });
 
-describe("<SupportCounter />", () => {
-  test("when viewerSupported === true", () => {
-    post.viewerSupported = true;
-    post.totalSupporters = 9;
-    const wrapper = shallow(<SupportCounter post={post} />);
+describe("<VoteCounter />", () => {
+  test("when viewerVoted === true", () => {
+    post.viewerVoted = true;
+    post.totalVotes = 9;
+    const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("9");
-    expect(button.hasClass("m-supported")).toBe(true);
+    expect(button.hasClass("m-voted")).toBe(true);
     expect(button.hasClass("m-disabled")).toBe(false);
   });
 
-  test("when viewerSupported === false", () => {
-    post.viewerSupported = false;
-    post.totalSupporters = 2;
-    const wrapper = shallow(<SupportCounter post={post} />);
+  test("when viewerVoted === false", () => {
+    post.viewerVoted = false;
+    post.totalVotes = 2;
+    const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("2");
-    expect(button.hasClass("m-supported")).toBe(false);
+    expect(button.hasClass("m-voted")).toBe(false);
     expect(button.hasClass("m-disabled")).toBe(false);
   });
 
   test("when post is closed", () => {
     post.status = PostStatus.Completed.value;
-    const wrapper = shallow(<SupportCounter post={post} />);
+    const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("5");
-    expect(button.hasClass("m-supported")).toBe(false);
+    expect(button.hasClass("m-voted")).toBe(false);
     expect(button.hasClass("m-disabled")).toBe(true);
   });
 
@@ -63,7 +63,7 @@ describe("<SupportCounter />", () => {
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter post={post} />);
+    const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
     await rerender(wrapper);
     expect(wrapper.find("SignInModal").length).toBe(1);
@@ -71,29 +71,29 @@ describe("<SupportCounter />", () => {
     expect(mock.delete).toHaveBeenCalledTimes(0);
   });
 
-  test("click when authenticated and viewerSupported === false", async () => {
+  test("click when authenticated and viewerVoted === false", async () => {
     fiderMock.authenticated();
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter post={post} />);
+    const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/support");
+    expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/vote");
     expect(mock.post).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
     expect(wrapper.find("button").text()).toBe("6");
   });
 
-  test("click when authenticated and viewerSupported === true", async () => {
-    post.viewerSupported = true;
+  test("click when authenticated and viewerVoted === true", async () => {
+    post.viewerVoted = true;
     fiderMock.authenticated();
 
     const mock = httpMock.alwaysOk();
 
-    const wrapper = shallow(<SupportCounter post={post} />);
+    const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/support");
+    expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/vote");
     expect(mock.delete).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);

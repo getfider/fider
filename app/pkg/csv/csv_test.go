@@ -59,9 +59,9 @@ var declinedPost = &models.Post{
 	User: &models.User{
 		Name: "Faceless",
 	},
-	TotalSupporters: 4,
-	TotalComments:   2,
-	Status:          models.PostDeclined,
+	TotalVotes:    4,
+	TotalComments: 2,
+	Status:        models.PostDeclined,
 	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
 		RespondedOn: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
@@ -80,9 +80,9 @@ var openPost = &models.Post{
 	User: &models.User{
 		Name: "Someone else",
 	},
-	TotalSupporters: 4,
-	TotalComments:   2,
-	Status:          models.PostOpen,
+	TotalVotes:    4,
+	TotalComments: 2,
+	Status:        models.PostOpen,
 }
 
 var duplicatePost = &models.Post{
@@ -93,9 +93,9 @@ var duplicatePost = &models.Post{
 	User: &models.User{
 		Name: "Faceless",
 	},
-	TotalSupporters: 4,
-	TotalComments:   2,
-	Status:          models.PostDuplicate,
+	TotalVotes:    4,
+	TotalComments: 2,
+	Status:        models.PostDuplicate,
 	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
 		RespondedOn: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
