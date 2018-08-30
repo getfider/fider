@@ -27,15 +27,15 @@ type Post interface {
 	AddComment(post *models.Post, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
-	AddSupporter(post *models.Post, user *models.User) error
-	RemoveSupporter(post *models.Post, user *models.User) error
+	AddVote(post *models.Post, user *models.User) error
+	RemoveVote(post *models.Post, user *models.User) error
 	AddSubscriber(post *models.Post, user *models.User) error
 	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(post *models.Post, text string, status int) error
 	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
-	SupportedBy() ([]int, error)
+	VotedBy() ([]int, error)
 }
 
 // User is used for user operations

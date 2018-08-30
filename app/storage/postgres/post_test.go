@@ -30,7 +30,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(dbPosts[0].Number).Equals(2)
 	Expect(dbPosts[0].Description).Equals("no description")
 	Expect(dbPosts[0].User.Name).Equals("Arya Stark")
-	Expect(dbPosts[0].TotalSupporters).Equals(0)
+	Expect(dbPosts[0].TotalVotes).Equals(0)
 	Expect(dbPosts[0].Status).Equals(models.PostCompleted)
 
 	Expect(dbPosts[1].Title).Equals("add twitter integration")
@@ -38,7 +38,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(dbPosts[1].Number).Equals(1)
 	Expect(dbPosts[1].Description).Equals("Would be great to see it integrated with twitter")
 	Expect(dbPosts[1].User.Name).Equals("Jon Snow")
-	Expect(dbPosts[1].TotalSupporters).Equals(0)
+	Expect(dbPosts[1].TotalVotes).Equals(0)
 	Expect(dbPosts[1].Status).Equals(models.PostStarted)
 
 	dbPosts, err = posts.Search("twitter", "trending", "10", []string{})
@@ -64,8 +64,8 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(dbPostByID.ID).Equals(post.ID)
 	Expect(dbPostByID.Number).Equals(1)
-	Expect(dbPostByID.ViewerSupported).IsFalse()
-	Expect(dbPostByID.TotalSupporters).Equals(0)
+	Expect(dbPostByID.HasVoted).IsFalse()
+	Expect(dbPostByID.TotalVotes).Equals(0)
 	Expect(dbPostByID.Status).Equals(models.PostOpen)
 	Expect(dbPostByID.Title).Equals("My new post")
 	Expect(dbPostByID.Description).Equals("with this description")
@@ -78,8 +78,8 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(dbPostBySlug.ID).Equals(post.ID)
 	Expect(dbPostBySlug.Number).Equals(1)
-	Expect(dbPostBySlug.ViewerSupported).IsFalse()
-	Expect(dbPostBySlug.TotalSupporters).Equals(0)
+	Expect(dbPostBySlug.HasVoted).IsFalse()
+	Expect(dbPostBySlug.TotalVotes).Equals(0)
 	Expect(dbPostBySlug.Status).Equals(models.PostOpen)
 	Expect(dbPostBySlug.Title).Equals("My new post")
 	Expect(dbPostBySlug.Description).Equals("with this description")
@@ -206,7 +206,7 @@ func TestPostStorage_Update(t *testing.T) {
 	Expect(post.Slug).Equals("the-new-comment")
 }
 
-func TestPostStorage_AddSupporter(t *testing.T) {
+func TestPostStorage_AddVote(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -217,23 +217,23 @@ func TestPostStorage_AddSupporter(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	err = posts.AddSupporter(post, aryaStark)
+	err = posts.AddVote(post, aryaStark)
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
-	Expect(dbPost.ViewerSupported).IsFalse()
-	Expect(dbPost.TotalSupporters).Equals(1)
+	Expect(dbPost.HasVoted).IsFalse()
+	Expect(dbPost.TotalVotes).Equals(1)
 
-	err = posts.AddSupporter(post, jonSnow)
+	err = posts.AddVote(post, jonSnow)
 	Expect(err).IsNil()
 
 	dbPost, err = posts.GetByNumber(1)
 	Expect(err).IsNil()
-	Expect(dbPost.ViewerSupported).IsTrue()
-	Expect(dbPost.TotalSupporters).Equals(2)
+	Expect(dbPost.HasVoted).IsTrue()
+	Expect(dbPost.TotalVotes).Equals(2)
 }
 
-func TestPostStorage_AddSupporter_Twice(t *testing.T) {
+func TestPostStorage_AddVote_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -242,18 +242,18 @@ func TestPostStorage_AddSupporter_Twice(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddSupporter(post, jonSnow)
+	err := posts.AddVote(post, jonSnow)
 	Expect(err).IsNil()
 
-	err = posts.AddSupporter(post, jonSnow)
+	err = posts.AddVote(post, jonSnow)
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
 	Expect(err).IsNil()
-	Expect(dbPost.TotalSupporters).Equals(1)
+	Expect(dbPost.TotalVotes).Equals(1)
 }
 
-func TestPostStorage_RemoveSupporter(t *testing.T) {
+func TestPostStorage_RemoveVote(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -262,18 +262,18 @@ func TestPostStorage_RemoveSupporter(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddSupporter(post, jonSnow)
+	err := posts.AddVote(post, jonSnow)
 	Expect(err).IsNil()
 
-	err = posts.RemoveSupporter(post, jonSnow)
+	err = posts.RemoveVote(post, jonSnow)
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
 	Expect(err).IsNil()
-	Expect(dbPost.TotalSupporters).Equals(0)
+	Expect(dbPost.TotalVotes).Equals(0)
 }
 
-func TestPostStorage_RemoveSupporter_Twice(t *testing.T) {
+func TestPostStorage_RemoveVote_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -282,18 +282,18 @@ func TestPostStorage_RemoveSupporter_Twice(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddSupporter(post, jonSnow)
+	err := posts.AddVote(post, jonSnow)
 	Expect(err).IsNil()
 
-	err = posts.RemoveSupporter(post, jonSnow)
+	err = posts.RemoveVote(post, jonSnow)
 	Expect(err).IsNil()
 
-	err = posts.RemoveSupporter(post, jonSnow)
+	err = posts.RemoveVote(post, jonSnow)
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
 	Expect(err).IsNil()
-	Expect(dbPost.TotalSupporters).Equals(0)
+	Expect(dbPost.TotalVotes).Equals(0)
 }
 
 func TestPostStorage_SetResponse(t *testing.T) {
@@ -355,24 +355,24 @@ func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 
 	post1, _ := posts.Add("My new post", "with this description")
-	posts.AddSupporter(post1, jonSnow)
+	posts.AddVote(post1, jonSnow)
 
 	posts.SetCurrentUser(aryaStark)
 	post2, _ := posts.Add("My other post", "with similar description")
-	posts.AddSupporter(post2, aryaStark)
+	posts.AddVote(post2, aryaStark)
 
 	posts.SetCurrentUser(jonSnow)
 	posts.MarkAsDuplicate(post2, post1)
 	post1, _ = posts.GetByID(post1.ID)
 
-	Expect(post1.TotalSupporters).Equals(2)
+	Expect(post1.TotalVotes).Equals(2)
 	Expect(post1.Status).Equals(models.PostOpen)
 	Expect(post1.Response).IsNil()
 
 	post2, _ = posts.GetByID(post2.ID)
 
 	Expect(post2.Response.Text).Equals("")
-	Expect(post2.TotalSupporters).Equals(1)
+	Expect(post2.TotalVotes).Equals(1)
 	Expect(post2.Status).Equals(models.PostDuplicate)
 	Expect(post2.Response.User.ID).Equals(1)
 	Expect(post2.Response.Original.Number).Equals(post1.Number)
@@ -401,7 +401,7 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	Expect(post2).IsNil()
 }
 
-func TestPostStorage_AddSupporter_ClosedPost(t *testing.T) {
+func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -409,30 +409,30 @@ func TestPostStorage_AddSupporter_ClosedPost(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
 	posts.SetResponse(post, "We liked this post", models.PostCompleted)
-	posts.AddSupporter(post, jonSnow)
+	posts.AddVote(post, jonSnow)
 
 	dbPost, err := posts.GetByNumber(post.Number)
 	Expect(err).IsNil()
-	Expect(dbPost.TotalSupporters).Equals(0)
+	Expect(dbPost.TotalVotes).Equals(0)
 }
 
-func TestPostStorage_RemoveSupporter_ClosedPost(t *testing.T) {
+func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
-	posts.AddSupporter(post, jonSnow)
+	posts.AddVote(post, jonSnow)
 	posts.SetResponse(post, "We liked this post", models.PostCompleted)
-	posts.RemoveSupporter(post, jonSnow)
+	posts.RemoveVote(post, jonSnow)
 
 	dbPost, err := posts.GetByNumber(post.Number)
 	Expect(err).IsNil()
-	Expect(dbPost.TotalSupporters).Equals(1)
+	Expect(dbPost.TotalVotes).Equals(1)
 }
 
-func TestPostStorage_ListSupportedPosts(t *testing.T) {
+func TestPostStorage_ListVotedPosts(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
@@ -440,16 +440,16 @@ func TestPostStorage_ListSupportedPosts(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post1, _ := posts.Add("My new post", "with this description")
 	post2, _ := posts.Add("My other post", "with better description")
-	posts.AddSupporter(post1, aryaStark)
-	posts.AddSupporter(post2, aryaStark)
+	posts.AddVote(post1, aryaStark)
+	posts.AddVote(post2, aryaStark)
 
 	posts.SetCurrentUser(jonSnow)
-	arr, err := posts.SupportedBy()
+	arr, err := posts.VotedBy()
 	Expect(err).IsNil()
 	Expect(arr).Equals([]int{})
 
 	posts.SetCurrentUser(aryaStark)
-	arr, err = posts.SupportedBy()
+	arr, err = posts.VotedBy()
 	Expect(err).IsNil()
 	Expect(arr).Equals([]int{post1.ID, post2.ID})
 }

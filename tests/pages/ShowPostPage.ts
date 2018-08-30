@@ -14,8 +14,8 @@ export class ShowPostPage extends Page {
   public Status!: WebComponent;
   @findBy(".c-segment.l-response .content")
   public ResponseText!: WebComponent;
-  @findBy(".c-support-counter button")
-  public SupportCounter!: WebComponent;
+  @findBy(".c-vote-counter button")
+  public VoteCounter!: WebComponent;
   @findBy(".action-col .c-button.respond")
   public RespondButton!: Button;
   @findBy(".c-modal-window .c-response-form")

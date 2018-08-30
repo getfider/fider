@@ -30,10 +30,10 @@ func getFilterData(filter string) (string, []int, string) {
 	case "recent":
 		sort = "id"
 	case "my-votes":
-		condition = "AND viewer_supported = true"
+		condition = "AND has_voted = true"
 		sort = "id"
 	case "most-wanted":
-		sort = "supporters"
+		sort = "votes"
 	case "most-discussed":
 		sort = "comments"
 	case "planned":
@@ -60,7 +60,7 @@ func getFilterData(filter string) (string, []int, string) {
 	case "trending":
 		fallthrough
 	default:
-		sort = "((COALESCE(recent_supporters, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_on)/3600) + 2, 1.4)"
+		sort = "((COALESCE(recent_votes, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_on)/3600) + 2, 1.4)"
 	}
 	return condition, statuses, sort
 }

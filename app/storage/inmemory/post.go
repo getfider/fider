@@ -11,23 +11,23 @@ import (
 
 // PostStorage contains read and write operations for posts
 type PostStorage struct {
-	lastID           int
-	lastCommentID    int
-	posts            []*models.Post
-	postsSupportedBy map[int][]int
-	postSubscribers  map[int][]*models.User
-	postComments     map[int][]*models.Comment
-	tenant           *models.Tenant
-	user             *models.User
+	lastID          int
+	lastCommentID   int
+	posts           []*models.Post
+	postsVotedBy    map[int][]int
+	postSubscribers map[int][]*models.User
+	postComments    map[int][]*models.Comment
+	tenant          *models.Tenant
+	user            *models.User
 }
 
 // NewPostStorage creates a new PostStorage
 func NewPostStorage() *PostStorage {
 	return &PostStorage{
-		posts:            make([]*models.Post, 0),
-		postsSupportedBy: make(map[int][]int, 0),
-		postSubscribers:  make(map[int][]*models.User, 0),
-		postComments:     make(map[int][]*models.Comment, 0),
+		posts:           make([]*models.Post, 0),
+		postsVotedBy:    make(map[int][]int, 0),
+		postSubscribers: make(map[int][]*models.User, 0),
+		postComments:    make(map[int][]*models.Comment, 0),
 	}
 }
 
@@ -110,7 +110,7 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 		User:        s.user,
 	}
 	s.posts = append(s.posts, post)
-	s.postsSupportedBy[s.user.ID] = append(s.postsSupportedBy[s.user.ID], post.ID)
+	s.postsVotedBy[s.user.ID] = append(s.postsVotedBy[s.user.ID], post.ID)
 	s.AddSubscriber(post, s.user)
 	return post, nil
 }
@@ -153,22 +153,22 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddSupporter adds user to post list of supporters
-func (s *PostStorage) AddSupporter(post *models.Post, user *models.User) error {
-	s.postsSupportedBy[user.ID] = append(s.postsSupportedBy[user.ID], post.ID)
-	post.TotalSupporters = post.TotalSupporters + 1
+// AddVote adds user to post list of votes
+func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
+	s.postsVotedBy[user.ID] = append(s.postsVotedBy[user.ID], post.ID)
+	post.TotalVotes = post.TotalVotes + 1
 	return nil
 }
 
-// RemoveSupporter removes user from post list of supporters
-func (s *PostStorage) RemoveSupporter(post *models.Post, user *models.User) error {
-	for i, id := range s.postsSupportedBy[user.ID] {
+// RemoveVote removes user from post list of votes
+func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
+	for i, id := range s.postsVotedBy[user.ID] {
 		if id == post.ID {
-			s.postsSupportedBy[user.ID] = append(s.postsSupportedBy[user.ID][:i], s.postsSupportedBy[user.ID][i+1:]...)
+			s.postsVotedBy[user.ID] = append(s.postsVotedBy[user.ID][:i], s.postsVotedBy[user.ID][i+1:]...)
 			break
 		}
 	}
-	post.TotalSupporters = post.TotalSupporters - 1
+	post.TotalVotes = post.TotalVotes - 1
 	return nil
 }
 
@@ -218,9 +218,9 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	return false, nil
 }
 
-// SupportedBy returns a list of Post ID supported by given user
-func (s *PostStorage) SupportedBy() ([]int, error) {
-	return s.postsSupportedBy[s.user.ID], nil
+// VotedBy returns a list of Post ID voted by given user
+func (s *PostStorage) VotedBy() ([]int, error) {
+	return s.postsVotedBy[s.user.ID], nil
 }
 
 // AddSubscriber adds user to the post list of subscribers

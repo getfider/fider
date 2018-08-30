@@ -26,7 +26,7 @@ func TestCreatePostHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(err).IsNil()
 	Expect(post.Title).Equals("My newest post :)")
-	Expect(post.TotalSupporters).Equals(1)
+	Expect(post.TotalVotes).Equals(1)
 }
 
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
@@ -136,7 +136,7 @@ func TestSetResponseHandler(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	services.Posts.AddSupporter(post, mock.AryaStark)
+	services.Posts.AddVote(post, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -159,7 +159,7 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.AryaStark)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	services.Posts.AddSupporter(post, mock.AryaStark)
+	services.Posts.AddVote(post, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -233,7 +233,7 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 	Expect(code).Equals(http.StatusBadRequest)
 }
 
-func TestAddSupporterHandler(t *testing.T) {
+func TestAddVoteHandler(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
@@ -246,17 +246,17 @@ func TestAddSupporterHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", second.Number).
-		Execute(apiv1.AddSupporter())
+		Execute(apiv1.AddVote())
 
 	first, _ = services.Posts.GetByNumber(1)
 	second, _ = services.Posts.GetByNumber(2)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(first.TotalSupporters).Equals(0)
-	Expect(second.TotalSupporters).Equals(1)
+	Expect(first.TotalVotes).Equals(0)
+	Expect(second.TotalVotes).Equals(1)
 }
 
-func TestAddSupporterHandler_InvalidPost(t *testing.T) {
+func TestAddVoteHandler_InvalidPost(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
@@ -264,31 +264,31 @@ func TestAddSupporterHandler_InvalidPost(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", 999).
-		Execute(apiv1.AddSupporter())
+		Execute(apiv1.AddVote())
 
 	Expect(code).Equals(http.StatusNotFound)
 }
 
-func TestRemoveSupporterHandler(t *testing.T) {
+func TestRemoveVoteHandler(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
-	services.Posts.AddSupporter(post, mock.JonSnow)
-	services.Posts.AddSupporter(post, mock.AryaStark)
+	services.Posts.AddVote(post, mock.JonSnow)
+	services.Posts.AddVote(post, mock.AryaStark)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", post.ID).
-		Execute(apiv1.RemoveSupporter())
+		Execute(apiv1.RemoveVote())
 
 	post, _ = services.Posts.GetByNumber(post.Number)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(post.TotalSupporters).Equals(1)
+	Expect(post.TotalVotes).Equals(1)
 }
 
 func TestDeletePostHandler_Authorized(t *testing.T) {

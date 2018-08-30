@@ -37,7 +37,7 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := posts.AddSupporter(post, c.User()); err != nil {
+		if err := posts.AddVote(post, c.User()); err != nil {
 			return c.Failure(err)
 		}
 
@@ -173,17 +173,17 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
-// AddSupporter adds current user to given post list of supporters
-func AddSupporter() web.HandlerFunc {
+// AddVote adds current user to given post list of votes
+func AddVote() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Posts.AddSupporter)
+		return addOrRemove(c, c.Services().Posts.AddVote)
 	}
 }
 
-// RemoveSupporter removes current user from given post list of supporters
-func RemoveSupporter() web.HandlerFunc {
+// RemoveVote removes current user from given post list of votes
+func RemoveVote() web.HandlerFunc {
 	return func(c web.Context) error {
-		return addOrRemove(c, c.Services().Posts.RemoveSupporter)
+		return addOrRemove(c, c.Services().Posts.RemoveVote)
 	}
 }
 

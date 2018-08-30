@@ -307,7 +307,7 @@ func (s *UserStorage) Delete() error {
 		{"user_settings", "user_id"},
 		{"notifications", "user_id"},
 		{"notifications", "author_id"},
-		{"post_supporters", "user_id"},
+		{"post_votes", "user_id"},
 		{"post_subscribers", "user_id"},
 		{"email_verifications", "user_id"},
 	}

@@ -59,7 +59,7 @@ it("Tab1: Can submit Posts", async () => {
   // Assert
   await ensure(ctx.tab1.pages.showPost.Title).textIs("Add support to TypeScript");
   await ensure(ctx.tab1.pages.showPost.Description).textIs("Because the language and community is awesome! :)");
-  await ensure(ctx.tab1.pages.showPost.SupportCounter).textIs("1");
+  await ensure(ctx.tab1.pages.showPost.VoteCounter).textIs("1");
 });
 
 it("Tab1: Can edit title and description", async () => {
@@ -69,7 +69,7 @@ it("Tab1: Can edit title and description", async () => {
   // Assert
   await ensure(ctx.tab1.pages.showPost.Title).textIs("Support for TypeScript");
   await ensure(ctx.tab1.pages.showPost.Description).textIs("Because the language and community is awesome!");
-  await ensure(ctx.tab1.pages.showPost.SupportCounter).textIs("1");
+  await ensure(ctx.tab1.pages.showPost.VoteCounter).textIs("1");
 });
 
 it("Tab2: Can login as another user", async () => {

@@ -5,7 +5,7 @@ import { Post, Tag, PostStatus, CurrentUser } from "@fider/models";
 import {
   ShowTag,
   ShowPostResponse,
-  SupportCounter,
+  VoteCounter,
   Gravatar,
   MultiLineText,
   Moment,
@@ -22,7 +22,7 @@ interface ListPostsProps {
 const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) => {
   return (
     <ListItem>
-      <SupportCounter post={props.post} />
+      <VoteCounter post={props.post} />
       <div className="c-list-item-content">
         {props.post.totalComments > 0 && (
           <div className="info right">

@@ -1,4 +1,4 @@
-number,title,description,created_on,created_by,total_supporters,total_comments,status,responded_by,responded_on,response,original_number,original_title,tags
+number,title,description,created_on,created_by,total_votes,total_comments,status,responded_by,responded_on,response,original_number,original_title,tags
 10,Go is fast,Very tiny description,2018-03-23T19:33:22Z,Faceless,4,2,Declined,John Snow,2018-04-04T19:48:10Z,Nothing we need to do,,,"easy, ignored"
 15,Go is great,,2018-02-21T15:51:35Z,Someone else,4,2,Open,,,,,,
 20,Go is easy,,2018-01-12T01:46:59Z,Faceless,4,2,Duplicate,Arya Stark,2018-03-17T10:15:42Z,This has already been suggested,99,Go is very easy,"this-tag-has,comma"
