@@ -32,11 +32,11 @@ export const deletePost = async (postNumber: number, text: string): Promise<Resu
 };
 
 export const addVote = async (postNumber: number): Promise<Result> => {
-  return http.post(`/api/v1/posts/${postNumber}/vote`).then(http.event("post", "vote"));
+  return http.post(`/api/v1/posts/${postNumber}/votes`).then(http.event("post", "vote"));
 };
 
 export const removeVote = async (postNumber: number): Promise<Result> => {
-  return http.delete(`/api/v1/posts/${postNumber}/vote`).then(http.event("post", "unvote"));
+  return http.delete(`/api/v1/posts/${postNumber}/votes`).then(http.event("post", "unvote"));
 };
 
 export const subscribe = async (postNumber: number): Promise<Result> => {

@@ -78,7 +78,7 @@ describe("<VoteCounter />", () => {
 
     const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/vote");
+    expect(mock.post).toHaveBeenCalledWith("/api/v1/posts/10/votes");
     expect(mock.post).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
@@ -93,7 +93,7 @@ describe("<VoteCounter />", () => {
 
     const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
-    expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/vote");
+    expect(mock.delete).toHaveBeenCalledWith("/api/v1/posts/10/votes");
     expect(mock.delete).toHaveBeenCalledTimes(1);
 
     await rerender(wrapper);
