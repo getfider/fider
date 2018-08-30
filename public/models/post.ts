@@ -9,7 +9,7 @@ export interface Post {
   createdOn: string;
   status: number;
   user: User;
-  viewerVoted: boolean;
+  hasVoted: boolean;
   response: PostResponse | null;
   totalVotes: number;
   totalComments: number;

@@ -19,7 +19,7 @@ export class VoteCounter extends React.Component<VoteCounterProps, VoteCounterSt
   constructor(props: VoteCounterProps) {
     super(props);
     this.state = {
-      voted: props.post.viewerVoted,
+      voted: props.post.hasVoted,
       total: props.post.totalVotes,
       showSignIn: false
     };

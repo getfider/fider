@@ -22,7 +22,7 @@ type dbPost struct {
 	Description    string         `db:"description"`
 	CreatedOn      time.Time      `db:"created_on"`
 	User           *dbUser        `db:"user"`
-	ViewerVoted    bool           `db:"viewer_voted"`
+	HasVoted       bool           `db:"has_voted"`
 	TotalVotes     int            `db:"votes"`
 	TotalComments  int            `db:"comments"`
 	RecentVotes    int            `db:"recent_votes"`
@@ -46,7 +46,7 @@ func (i *dbPost) toModel() *models.Post {
 		Slug:          i.Slug,
 		Description:   i.Description,
 		CreatedOn:     i.CreatedOn,
-		ViewerVoted:   i.ViewerVoted,
+		HasVoted:      i.HasVoted,
 		TotalVotes:    i.TotalVotes,
 		TotalComments: i.TotalComments,
 		Status:        i.Status,
@@ -178,7 +178,7 @@ var (
 																d.slug AS original_slug,
 																d.status AS original_status,
 																array_remove(array_agg(t.slug), NULL) AS tags,
-																COALESCE(%s, false) AS viewer_voted
+																COALESCE(%s, false) AS has_voted
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
@@ -200,15 +200,15 @@ var (
 )
 
 func (s *PostStorage) getPostQuery(filter string) string {
-	viewerVotedSubQuery := "null"
+	hasVotedSubQuery := "null"
 	if s.user != nil {
-		viewerVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", s.user.ID)
+		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", s.user.ID)
 	}
 	tagCondition := `AND t.is_public = true`
 	if s.user != nil && s.user.IsCollaborator() {
 		tagCondition = ``
 	}
-	return fmt.Sprintf(sqlSelectPostsWhere, viewerVotedSubQuery, tagCondition, filter)
+	return fmt.Sprintf(sqlSelectPostsWhere, hasVotedSubQuery, tagCondition, filter)
 }
 
 func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post, error) {

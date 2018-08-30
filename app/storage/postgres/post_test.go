@@ -64,7 +64,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(dbPostByID.ID).Equals(post.ID)
 	Expect(dbPostByID.Number).Equals(1)
-	Expect(dbPostByID.ViewerVoted).IsFalse()
+	Expect(dbPostByID.HasVoted).IsFalse()
 	Expect(dbPostByID.TotalVotes).Equals(0)
 	Expect(dbPostByID.Status).Equals(models.PostOpen)
 	Expect(dbPostByID.Title).Equals("My new post")
@@ -78,7 +78,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(dbPostBySlug.ID).Equals(post.ID)
 	Expect(dbPostBySlug.Number).Equals(1)
-	Expect(dbPostBySlug.ViewerVoted).IsFalse()
+	Expect(dbPostBySlug.HasVoted).IsFalse()
 	Expect(dbPostBySlug.TotalVotes).Equals(0)
 	Expect(dbPostBySlug.Status).Equals(models.PostOpen)
 	Expect(dbPostBySlug.Title).Equals("My new post")
@@ -221,7 +221,7 @@ func TestPostStorage_AddVote(t *testing.T) {
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
-	Expect(dbPost.ViewerVoted).IsFalse()
+	Expect(dbPost.HasVoted).IsFalse()
 	Expect(dbPost.TotalVotes).Equals(1)
 
 	err = posts.AddVote(post, jonSnow)
@@ -229,7 +229,7 @@ func TestPostStorage_AddVote(t *testing.T) {
 
 	dbPost, err = posts.GetByNumber(1)
 	Expect(err).IsNil()
-	Expect(dbPost.ViewerVoted).IsTrue()
+	Expect(dbPost.HasVoted).IsTrue()
 	Expect(dbPost.TotalVotes).Equals(2)
 }
 

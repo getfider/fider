@@ -30,7 +30,7 @@ func getFilterData(filter string) (string, []int, string) {
 	case "recent":
 		sort = "id"
 	case "my-votes":
-		condition = "AND viewer_voted = true"
+		condition = "AND has_voted = true"
 		sort = "id"
 	case "most-wanted":
 		sort = "votes"

@@ -14,7 +14,7 @@ type Post struct {
 	Description   string        `json:"description"`
 	CreatedOn     time.Time     `json:"createdOn"`
 	User          *User         `json:"user"`
-	ViewerVoted   bool          `json:"viewerVoted"`
+	HasVoted      bool          `json:"hasVoted"`
 	TotalVotes    int           `json:"totalVotes"`
 	TotalComments int           `json:"totalComments"`
 	Status        int           `json:"status"`

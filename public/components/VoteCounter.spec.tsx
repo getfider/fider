@@ -20,7 +20,7 @@ beforeEach(() => {
       name: "John",
       role: UserRole.Collaborator
     },
-    viewerVoted: false,
+    hasVoted: false,
     response: null,
     totalVotes: 5,
     totalComments: 2,
@@ -29,8 +29,8 @@ beforeEach(() => {
 });
 
 describe("<VoteCounter />", () => {
-  test("when viewerVoted === true", () => {
-    post.viewerVoted = true;
+  test("when hasVoted === true", () => {
+    post.hasVoted = true;
     post.totalVotes = 9;
     const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
@@ -39,8 +39,8 @@ describe("<VoteCounter />", () => {
     expect(button.hasClass("m-disabled")).toBe(false);
   });
 
-  test("when viewerVoted === false", () => {
-    post.viewerVoted = false;
+  test("when hasVoted === false", () => {
+    post.hasVoted = false;
     post.totalVotes = 2;
     const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
@@ -71,7 +71,7 @@ describe("<VoteCounter />", () => {
     expect(mock.delete).toHaveBeenCalledTimes(0);
   });
 
-  test("click when authenticated and viewerVoted === false", async () => {
+  test("click when authenticated and hasVoted === false", async () => {
     fiderMock.authenticated();
 
     const mock = httpMock.alwaysOk();
@@ -85,8 +85,8 @@ describe("<VoteCounter />", () => {
     expect(wrapper.find("button").text()).toBe("6");
   });
 
-  test("click when authenticated and viewerVoted === true", async () => {
-    post.viewerVoted = true;
+  test("click when authenticated and hasVoted === true", async () => {
+    post.hasVoted = true;
     fiderMock.authenticated();
 
     const mock = httpMock.alwaysOk();
