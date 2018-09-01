@@ -187,9 +187,6 @@ func (ctx *Context) IsAjax() bool {
 
 //Unauthorized returns a 403 response
 func (ctx *Context) Unauthorized() error {
-	if ctx.IsAjax() {
-		return ctx.JSON(http.StatusForbidden, Map{})
-	}
 	return ctx.Render(http.StatusForbidden, "403.html", Props{
 		Title:       "Not Authorized",
 		Description: "You are not authorized to view this page.",
@@ -272,6 +269,10 @@ func (ctx *Context) Page(props Props) error {
 
 // Render renders a template with data and sends a text/html response with status
 func (ctx *Context) Render(code int, template string, props Props) error {
+	if ctx.IsAjax() {
+		return ctx.JSON(code, Map{})
+	}
+
 	buf := new(bytes.Buffer)
 	ctx.engine.renderer.Render(buf, template, props, ctx)
 	return ctx.Blob(code, HTMLContentType, buf.Bytes())
