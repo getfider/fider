@@ -169,6 +169,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		api.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
+		api.Post("/api/v1/users", apiv1.CreateUser())
 		api.Delete("/api/v1/posts/:number", apiv1.DeletePost())
 		api.Post("/api/v1/tags", apiv1.CreateEditTag())
 		api.Put("/api/v1/tags/:slug", apiv1.CreateEditTag())
