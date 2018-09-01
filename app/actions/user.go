@@ -7,6 +7,50 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
+//CreateUser is the action to create a new user
+type CreateUser struct {
+	Model *models.CreateUser
+}
+
+// Initialize the model
+func (input *CreateUser) Initialize() interface{} {
+	input.Model = new(models.CreateUser)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *CreateUser) IsAuthorized(user *models.User, services *app.Services) bool {
+	return user != nil && user.IsAdministrator()
+}
+
+// Validate is current model is valid
+func (input *CreateUser) Validate(user *models.User, services *app.Services) *validate.Result {
+	result := validate.Success()
+
+	if input.Model.Name == "" {
+		result.AddFieldFailure("name", "Name is required.")
+	} else if len(input.Model.Name) > 100 {
+		result.AddFieldFailure("name", "Name must have less than 100 characters.")
+	}
+
+	if input.Model.Email == "" && input.Model.Reference == "" {
+		result.AddFieldFailure("", "Either email or reference is required")
+	} else {
+		if input.Model.Email != "" {
+			messages := validate.Email(input.Model.Email)
+			if len(messages) > 0 {
+				result.AddFieldFailure("email", messages...)
+			}
+		}
+
+		if len(input.Model.Reference) > 100 {
+			result.AddFieldFailure("reference", "Reference must have less than 100 characters.")
+		}
+	}
+
+	return result
+}
+
 //ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
 	Model *models.ChangeUserRole

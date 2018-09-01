@@ -280,6 +280,13 @@ type UpdateUserSettings struct {
 	Settings map[string]string `json:"settings"`
 }
 
+// CreateUser is the input model to create a new user
+type CreateUser struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Reference string `json:"reference"`
+}
+
 // ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
 	Role   Role `route:"role"`

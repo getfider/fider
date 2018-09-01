@@ -7,7 +7,90 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/rand"
 )
+
+func TestCreateUser_InvalidInput(t *testing.T) {
+	RegisterT(t)
+
+	testCases := []struct {
+		expected []string
+		message  string
+		input    *models.CreateUser
+	}{
+		{
+			expected: []string{"name"},
+			message:  "Either email or reference is required",
+			input:    &models.CreateUser{},
+		},
+		{
+			expected: []string{"email"},
+			input: &models.CreateUser{
+				Name:  "Jon Snow",
+				Email: "helloworld",
+			},
+		},
+		{
+			expected: []string{"name", "email", "reference"},
+			input: &models.CreateUser{
+				Name:      rand.String(101),
+				Email:     rand.String(201),
+				Reference: rand.String(101),
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		action := &actions.CreateUser{
+			Model: testCase.input,
+		}
+		result := action.Validate(nil, services)
+		ExpectFailed(result, testCase.expected...)
+		if testCase.message != "" {
+			for k, v := range result.Errors {
+				if v.Field == "" {
+					Expect(result.Errors[k].Message).Equals(testCase.message)
+				}
+			}
+		}
+	}
+}
+
+func TestCreateUser_ValidInput(t *testing.T) {
+	RegisterT(t)
+
+	testCases := []struct {
+		input *models.CreateUser
+	}{
+		{
+			input: &models.CreateUser{
+				Name:      "John Snow",
+				Email:     "jon.snow@got.com",
+				Reference: "812747824",
+			},
+		},
+		{
+			input: &models.CreateUser{
+				Name:  "John Snow",
+				Email: "jon.snow@got.com",
+			},
+		},
+		{
+			input: &models.CreateUser{
+				Name:      "John Snow",
+				Reference: "812747824",
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		action := &actions.CreateUser{
+			Model: testCase.input,
+		}
+		result := action.Validate(nil, services)
+		ExpectSuccess(result)
+	}
+}
 
 func TestChangeUserRole_Unauthorized(t *testing.T) {
 	RegisterT(t)
