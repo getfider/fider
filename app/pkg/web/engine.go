@@ -37,12 +37,13 @@ var (
 )
 
 type notFoundHandler struct {
-	router *Engine
+	engine  *Engine
+	handler HandlerFunc
 }
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	ctx := h.router.NewContext(res, req, nil)
-	ctx.NotFound()
+	ctx := h.engine.NewContext(res, req, nil)
+	h.handler(ctx)
 }
 
 //HandlerFunc represents an HTTP handler
@@ -82,7 +83,6 @@ func New(settings *models.SystemSettings) *Engine {
 		worker:      worker.New(db, bgLogger),
 	}
 
-	router.mux.NotFound = &notFoundHandler{router}
 	return router
 }
 
@@ -226,6 +226,14 @@ func (e *Engine) Put(path string, handler HandlerFunc) {
 //Delete handles HTTP DELETE requests
 func (e *Engine) Delete(path string, handler HandlerFunc) {
 	e.mux.Handle("DELETE", path, e.handle(e.middlewares, handler))
+}
+
+//NotFound register how to handle routes that are not found
+func (e *Engine) NotFound(handler HandlerFunc) {
+	e.mux.NotFound = &notFoundHandler{
+		engine:  e,
+		handler: handler,
+	}
 }
 
 func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httprouter.Handle {

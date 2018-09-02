@@ -15,6 +15,15 @@ import (
 func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
+	r.NotFound(func(c web.Context) error {
+		next := func(c web.Context) error {
+			return c.NotFound()
+		}
+		next = middlewares.Tenant()(next)
+		next = middlewares.WebSetup()(next)
+		return next(c)
+	})
+
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
