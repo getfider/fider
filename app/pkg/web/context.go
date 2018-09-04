@@ -220,7 +220,6 @@ func (ctx *Context) Failure(err error) error {
 		"Body":       ctx.Request.Body,
 		"HttpMethod": ctx.Request.Method,
 		"URL":        ctx.Request.URL.String(),
-		"UserAgent":  ctx.Request.GetHeader("User-Agent"),
 	})
 
 	ctx.Render(http.StatusInternalServerError, "500.html", Props{

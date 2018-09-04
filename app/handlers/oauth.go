@@ -212,7 +212,7 @@ func SignInByOAuth() web.HandlerFunc {
 		provider := c.Param("provider")
 		identifier := rand.String(16)
 
-		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(2*time.Hour))
+		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(24*time.Hour))
 
 		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), identifier)
 		if err != nil {
