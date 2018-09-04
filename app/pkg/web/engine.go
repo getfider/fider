@@ -167,6 +167,7 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 	request := WrapRequest(req)
 	ctxLogger := e.logger.New()
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
 
 	return Context{
 		id:       contextID,
