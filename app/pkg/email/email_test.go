@@ -52,32 +52,65 @@ func TestRenderMessage(t *testing.T) {
 </html>`)
 }
 
-func TestEmailWhitelist_Valid(t *testing.T) {
+func TestCanSendTo(t *testing.T) {
 	RegisterT(t)
 
-	email.SetWhitelist("(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)")
-
-	for _, address := range []string{
-		"me@fider.io",
-		"john@fider.io",
-		"me+123@fider.io",
-		"darthvader.fider@gmail.com",
-		"darthvader.fider+1234@gmail.com",
-		"darthvader.fider+434@gmail.com",
-	} {
-		Expect(email.CanSendTo(address)).IsTrue()
+	testCases := []struct {
+		whitelist string
+		blacklist string
+		input     []string
+		canSend   bool
+	}{
+		{
+			whitelist: "(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)",
+			blacklist: "",
+			input:     []string{"me@fider.io", "me+123@fider.io", "darthvader.fider@gmail.com", "darthvader.fider+434@gmail.com"},
+			canSend:   true,
+		},
+		{
+			whitelist: "(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)",
+			blacklist: "",
+			input:     []string{"me+123@fider.iod", "me@fidero.io", "darthvader.fidera@gmail.com", "@fider.io"},
+			canSend:   false,
+		},
+		{
+			whitelist: "(^.+@fider.io$)|(^darthvader\\.fider(\\+.*)?@gmail\\.com$)",
+			blacklist: "(^.+@fider.io$)",
+			input:     []string{"me@fider.io"},
+			canSend:   true,
+		},
+		{
+			whitelist: "",
+			blacklist: "(^.+@fider.io$)",
+			input:     []string{"me@fider.io", "abc@fider.io"},
+			canSend:   false,
+		},
+		{
+			whitelist: "",
+			blacklist: "(^.+@fider.io$)",
+			input:     []string{"me@fider.com", "abc@fiderio.io"},
+			canSend:   true,
+		},
+		{
+			whitelist: "",
+			blacklist: "",
+			input:     []string{"me@fider.io"},
+			canSend:   true,
+		},
+		{
+			whitelist: "",
+			blacklist: "",
+			input:     []string{"", " "},
+			canSend:   false,
+		},
 	}
 
-	for _, address := range []string{
-		"",
-		"me@fidero.io",
-		"@fider.io",
-		"me+123@fider.iod",
-		"darthvader@gmail.com",
-		"darthvader.fider@gmaila.com",
-		"darthvader.fidera@gmail.com",
-	} {
-		Expect(email.CanSendTo(address)).IsFalse()
+	for _, testCase := range testCases {
+		email.SetWhitelist(testCase.whitelist)
+		email.SetBlacklist(testCase.blacklist)
+		for _, input := range testCase.input {
+			Expect(email.CanSendTo(input)).Equals(testCase.canSend)
+		}
 	}
 }
 

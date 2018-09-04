@@ -98,6 +98,8 @@ func NewRecipient(name, address string, params Params) Recipient {
 
 var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
 var whitelistRegex = regexp.MustCompile(whitelist)
+var blacklist = env.GetEnvOrDefault("EMAIL_BLACKLIST", "")
+var blacklistRegex = regexp.MustCompile(blacklist)
 
 // SetWhitelist can be used to change email whitelist during rutime
 func SetWhitelist(s string) {
@@ -105,15 +107,27 @@ func SetWhitelist(s string) {
 	whitelistRegex = regexp.MustCompile(whitelist)
 }
 
+// SetBlacklist can be used to change email blacklist during rutime
+func SetBlacklist(s string) {
+	blacklist = s
+	blacklistRegex = regexp.MustCompile(blacklist)
+}
+
 // CanSendTo returns true if Fider is allowed to send email to given address
 func CanSendTo(address string) bool {
 	if strings.TrimSpace(address) == "" {
 		return false
 	}
-	if whitelist == "" {
-		return true
+
+	if whitelist != "" {
+		return whitelistRegex.MatchString(address)
 	}
-	return whitelistRegex.MatchString(address)
+
+	if blacklist != "" {
+		return !blacklistRegex.MatchString(address)
+	}
+
+	return true
 }
 
 // Sender is used to send emails

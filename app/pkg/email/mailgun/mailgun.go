@@ -72,7 +72,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 				form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
 				recipientVariables[r.Address] = r.Params
 			} else {
-				s.logger.Warnf("Skipping email to '@{Name} <@{Address}>' due to whitelist.", log.Props{
+				s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
 					"Name":    r.Name,
 					"Address": r.Address,
 				})
@@ -80,7 +80,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 		}
 	}
 
-	// If we skipped all recipients due to whitelist, just return
+	// If we skipped all recipients, just return
 	if len(recipientVariables) == 0 {
 		return nil
 	}
