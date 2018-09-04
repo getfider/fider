@@ -49,15 +49,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 
 			trx.SetLogger(c.Logger())
 
-			c.SetServices(&app.Services{
-				Tenants:       postgres.NewTenantStorage(trx),
-				Users:         postgres.NewUserStorage(trx),
-				Posts:         postgres.NewPostStorage(trx),
-				Tags:          postgres.NewTagStorage(trx),
-				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       newEmailer(c.Logger()),
-			})
-
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
@@ -73,6 +64,15 @@ func WorkerSetup() worker.MiddlewareFunc {
 					})
 				}
 			}()
+
+			c.SetServices(&app.Services{
+				Tenants:       postgres.NewTenantStorage(trx),
+				Users:         postgres.NewUserStorage(trx),
+				Posts:         postgres.NewPostStorage(trx),
+				Tags:          postgres.NewTagStorage(trx),
+				Notifications: postgres.NewNotificationStorage(trx),
+				Emailer:       newEmailer(c.Logger()),
+			})
 
 			//Execute the chain
 			if err = next(c); err != nil {
@@ -117,6 +117,23 @@ func WebSetup() web.MiddlewareFunc {
 				"ClientIP":   c.Request.ClientIP,
 			})
 
+			//In case it panics somewhere
+			defer func() {
+				if r := recover(); r != nil {
+					err, ok := r.(error)
+					if !ok {
+						err = fmt.Errorf("%v", r)
+					}
+					c.Failure(err)
+					c.Rollback()
+					c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+						"HttpMethod": c.Request.Method,
+						"URL":        c.Request.URL.String(),
+						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					})
+				}
+			}()
+
 			trx, err := c.Engine().Database().Begin()
 			if err != nil {
 				err = c.Failure(err)
@@ -143,23 +160,6 @@ func WebSetup() web.MiddlewareFunc {
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       newEmailer(c.Logger()),
 			})
-
-			//In case it panics somewhere
-			defer func() {
-				if r := recover(); r != nil {
-					err, ok := r.(error)
-					if !ok {
-						err = fmt.Errorf("%v", r)
-					}
-					c.Failure(err)
-					c.Rollback()
-					c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
-						"HttpMethod": c.Request.Method,
-						"URL":        c.Request.URL.String(),
-						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
-					})
-				}
-			}()
 
 			//Execute the chain
 			if err := next(c); err != nil {
