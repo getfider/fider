@@ -106,6 +106,11 @@ func SignUp() web.HandlerFunc {
 			if tenant != nil {
 				return c.Redirect("/")
 			}
+		} else {
+			baseURL := webutil.GetOAuthBaseURL(c)
+			if !strings.HasPrefix(c.Request.URL.String(), baseURL) {
+				return c.Redirect(baseURL + "/signup")
+			}
 		}
 
 		return c.Page(web.Props{
