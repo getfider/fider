@@ -59,7 +59,7 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	}
 
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping email to '@{Name} <@{Address}>' due to whitelist.", log.Props{
+		s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
 			"Name":    to.Name,
 			"Address": to.Address,
 		})
