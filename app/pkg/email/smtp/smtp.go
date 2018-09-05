@@ -1,8 +1,11 @@
 package smtp
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net"
 	gosmtp "net/smtp"
+	"net/url"
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -39,16 +42,16 @@ type Sender struct {
 	port     string
 	username string
 	password string
-	send     func(string, gosmtp.Auth, string, []string, []byte) error
+	send     func(string, string, gosmtp.Auth, string, []string, []byte) error
 }
 
 //NewSender creates a new mailgun email sender
 func NewSender(logger log.Logger, host, port, username, password string) *Sender {
-	return &Sender{logger, host, port, username, password, gosmtp.SendMail}
+	return &Sender{logger, host, port, username, password, sendMail}
 }
 
 //ReplaceSend can be used to mock internal send function
-func (s *Sender) ReplaceSend(send func(string, gosmtp.Auth, string, []string, []byte) error) {
+func (s *Sender) ReplaceSend(send func(string, string, gosmtp.Auth, string, []string, []byte) error) {
 	s.send = send
 }
 
@@ -56,6 +59,12 @@ func (s *Sender) ReplaceSend(send func(string, gosmtp.Auth, string, []string, []
 func (s *Sender) Send(ctx email.Context, templateName string, params email.Params, from string, to email.Recipient) error {
 	if to.Address == "" {
 		return nil
+	}
+
+	u, err := url.Parse(ctx.BaseURL())
+	localname := "localhost"
+	if err == nil {
+		localname = u.Hostname()
 	}
 
 	if !email.CanSendTo(to.Address) {
@@ -84,7 +93,7 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
 	auth := authenticate(s.username, s.password, s.host)
-	err := s.send(servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
+	err = s.send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
@@ -100,4 +109,50 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 		}
 	}
 	return nil
+}
+
+func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []string, msg []byte) error {
+	host, _, _ := net.SplitHostPort(serverAddress)
+	c, err := gosmtp.Dial(serverAddress)
+	if err != nil {
+		return err
+	}
+	defer c.Close()
+	if err = c.Hello(localName); err != nil {
+		return err
+	}
+	if ok, _ := c.Extension("STARTTLS"); ok {
+		config := &tls.Config{ServerName: host}
+		if err = c.StartTLS(config); err != nil {
+			return err
+		}
+	}
+	if a != nil {
+		if ok, _ := c.Extension("AUTH"); ok {
+			if err = c.Auth(a); err != nil {
+				return err
+			}
+		}
+	}
+	if err = c.Mail(from); err != nil {
+		return err
+	}
+	for _, addr := range to {
+		if err = c.Rcpt(addr); err != nil {
+			return err
+		}
+	}
+	w, err := c.Data()
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+	return c.Quit()
 }

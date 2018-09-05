@@ -365,7 +365,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL
-func (ctx *Context) BaseURL() string {
+func (ctx Context) BaseURL() string {
 	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
 	if ctx.Request.URL.Port() != "" {

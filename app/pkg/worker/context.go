@@ -84,7 +84,7 @@ func (c *Context) TaskName() string {
 }
 
 //BaseURL from current context
-func (c *Context) BaseURL() string {
+func (c Context) BaseURL() string {
 	return c.baseURL
 }
 

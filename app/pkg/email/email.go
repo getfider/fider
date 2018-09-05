@@ -74,6 +74,7 @@ func RenderMessage(ctx Context, templateName string, params Params) *Message {
 // Context holds everything emailers need to know about execution context
 type Context interface {
 	Tenant() *models.Tenant
+	BaseURL() string
 	LogoURL() string
 }
 
