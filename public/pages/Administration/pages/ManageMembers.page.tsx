@@ -33,7 +33,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
   }
 
   private groupUsers(): ManageMembersPageState {
-    const usersByRole = this.props.users.reduce<{ [key: number]: User[] }>((groups, x) => {
+    const usersByRole = this.props.users.reduce<{ [key: string]: User[] }>((groups, x) => {
       groups[x.role] = [x].concat(groups[x.role] || []);
       return groups;
     }, {});

@@ -2,7 +2,7 @@ import "./Gravatar.scss";
 
 import * as React from "react";
 import { classSet, Fider } from "@fider/services";
-import { User, UserRole } from "@fider/models";
+import { User, isCollaborator } from "@fider/models";
 
 interface GravatarProps {
   user?: User;
@@ -18,7 +18,7 @@ export const Gravatar = (props: GravatarProps) => {
   const className = classSet({
     "c-avatar": true,
     [`m-${size}`]: true,
-    "m-staff": props.user && props.user.role >= UserRole.Collaborator
+    "m-staff": props.user && isCollaborator(props.user.role)
   });
 
   return <img className={className} title={name} src={url} />;
