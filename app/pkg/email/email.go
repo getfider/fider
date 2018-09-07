@@ -2,6 +2,7 @@ package email
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"regexp"
 	"strings"
@@ -94,6 +95,19 @@ func NewRecipient(name, address string, params Params) Recipient {
 		Address: address,
 		Params:  params,
 	}
+}
+
+// Strings returns the RFC format to send emails via SMTP
+func (r Recipient) String() string {
+	if r.Address == "" {
+		return ""
+	}
+
+	if r.Name == "" {
+		return r.Address
+	}
+
+	return fmt.Sprintf(`"%s" <%s>`, r.Name, r.Address)
 }
 
 var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
