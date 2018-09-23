@@ -18,7 +18,7 @@ func TestGravatarHandler(t *testing.T) {
 	server, services := mock.NewServer()
 	user := &models.User{
 		Name:   "Darth Vader",
-		Email:  "darthvader.fider@gmail.com",
+		Email:  "DarthVader.fider@gmail.com",
 		Tenant: mock.DemoTenant,
 	}
 	services.Users.Register(user)
