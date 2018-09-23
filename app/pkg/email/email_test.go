@@ -131,3 +131,49 @@ func TestParamsMerge(t *testing.T) {
 		"email": "john.snow@got.com",
 	})
 }
+
+func TestRecipient_String(t *testing.T) {
+	RegisterT(t)
+
+	testCases := []struct {
+		name     string
+		email    string
+		expected string
+	}{
+		{
+			name:     "Jon",
+			email:    "jon@got.com",
+			expected: `"Jon" <jon@got.com>`,
+		},
+		{
+			name:     "Snow, Jon",
+			email:    "jon@got.com",
+			expected: `"Snow, Jon" <jon@got.com>`,
+		},
+		{
+			name:     "",
+			email:    "jon@got.com",
+			expected: "<jon@got.com>",
+		},
+		{
+			name:     "Jon's Home Account",
+			email:    "jon@got.com",
+			expected: `"Jon's Home Account" <jon@got.com>`,
+		},
+		{
+			name:     `Jon "Great" Snow`,
+			email:    "jon@got.com",
+			expected: `"Jon \"Great\" Snow" <jon@got.com>`,
+		},
+		{
+			name:     "Jon",
+			email:    "",
+			expected: "",
+		},
+	}
+
+	for _, testCase := range testCases {
+		r := email.NewRecipient(testCase.name, testCase.email, email.Params{})
+		Expect(r.String()).Equals(testCase.expected)
+	}
+}
