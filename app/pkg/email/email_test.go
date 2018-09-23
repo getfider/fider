@@ -153,7 +153,17 @@ func TestRecipient_String(t *testing.T) {
 		{
 			name:     "",
 			email:    "jon@got.com",
-			expected: "jon@got.com",
+			expected: "<jon@got.com>",
+		},
+		{
+			name:     "Jon's Home Account",
+			email:    "jon@got.com",
+			expected: `"Jon's Home Account" <jon@got.com>`,
+		},
+		{
+			name:     `Jon "Great" Snow`,
+			email:    "jon@got.com",
+			expected: `"Jon \"Great\" Snow" <jon@got.com>`,
 		},
 		{
 			name:     "Jon",

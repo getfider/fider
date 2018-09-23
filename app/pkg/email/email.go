@@ -2,8 +2,8 @@ package email
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
+	"net/mail"
 	"regexp"
 	"strings"
 
@@ -103,11 +103,12 @@ func (r Recipient) String() string {
 		return ""
 	}
 
-	if r.Name == "" {
-		return r.Address
+	address := mail.Address{
+		Name:    r.Name,
+		Address: r.Address,
 	}
 
-	return fmt.Sprintf(`"%s" <%s>`, r.Name, r.Address)
+	return address.String()
 }
 
 var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
