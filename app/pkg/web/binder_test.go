@@ -176,26 +176,36 @@ func TestDefaultBinder_POST_NonJSON(t *testing.T) {
 	Expect(err).Equals(web.ErrContentTypeNotAllowed)
 }
 
+type Size int
+type Size32 int32
+type Size64 int64
+
+const (
+	Small   Size   = 1
+	Large   Size   = 2
+	Small32 Size32 = 3
+	Large32 Size32 = 4
+	Small64 Size64 = 5
+	Large64 Size64 = 6
+)
+
+type pizza struct {
+	TheSize   Size   `route:"size"`
+	TheSize32 Size32 `route:"size32"`
+	TheSize64 Size64 `route:"size64"`
+}
+
+func (p *Size) UnmarshalString(s string) error {
+	if s == "large" {
+		*p = Large
+	} else {
+		*p = Small
+	}
+	return nil
+}
+
 func TestDefaultBinder_POST_CustomType(t *testing.T) {
 	RegisterT(t)
-
-	type Size int
-	type Size32 int32
-	type Size64 int64
-	const (
-		Small   Size   = 1
-		Large   Size   = 2
-		Small32 Size32 = 3
-		Large32 Size32 = 4
-		Small64 Size64 = 5
-		Large64 Size64 = 6
-	)
-
-	type pizza struct {
-		TheSize   Size   `route:"size"`
-		TheSize32 Size32 `route:"size32"`
-		TheSize64 Size64 `route:"size64"`
-	}
 
 	params := make(web.StringMap, 0)
 	params["size"] = "1"
@@ -209,4 +219,21 @@ func TestDefaultBinder_POST_CustomType(t *testing.T) {
 	Expect(u.TheSize).Equals(Small)
 	Expect(u.TheSize32).Equals(Large32)
 	Expect(u.TheSize64).Equals(Small64)
+}
+
+func TestDefaultBinder_POST_CustomType_Unmarshall(t *testing.T) {
+	RegisterT(t)
+
+	type pizza struct {
+		TheSize Size `route:"size"`
+	}
+
+	params := make(web.StringMap, 0)
+	params["size"] = "large"
+	ctx := newBodyContext("POST", params, `{ }`, "application/json")
+
+	u := new(pizza)
+	err := binder.Bind(u, ctx)
+	Expect(err).IsNil()
+	Expect(u.TheSize).Equals(Large)
 }
