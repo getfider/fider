@@ -10,11 +10,7 @@ There are many ways you can contribute to Fider.
 
 ## Getting started with Fider codebase
 
-<<<<<<< HEAD
 Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that. If you're working on something not tracked yet, please open a new Issue before the Pull Request. If you have any question or need any help, leave a comment on the issue and we'll try our best to help you.
-=======
-Before you start working on something that you intend to send a Pull Request to Fider, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that. If you're working on something that is not yet tracked, please open a new Issue before the Pull Request.
->>>>>>> b6a43a63cc3410793abdd19a088a2bd09e9e6397
 
 Fider is written in Go (backend) and TypeScript (frontend), but we also use things like Node.js, React and PostgreSQL.
 If you know these technologies or would like to learn them, lucky you! This is the right place!
