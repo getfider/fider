@@ -57,6 +57,7 @@ func (Build) All() {
 }
 
 func (Build) Docker() error {
+	mg.Deps(Build.UI)
 	if err := buildServer(map[string]string{
 		"CGO_ENABLED": "0",
 		"GOOS":        "linux",
