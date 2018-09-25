@@ -11,15 +11,19 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-func init() {
-	os.Setenv("MAGEFILE_VERBOSE", "true")
-}
-
 var buildTime = time.Now().Format("2006.01.02.150405")
 var buildNumber = os.Getenv("CIRCLE_BUILD_NUM")
+var exeName = "fider"
+
+func init() {
+	os.Setenv("MAGEFILE_VERBOSE", "true")
+	if runtime.GOOS == "windows" {
+		exeName = "fider.exe"
+	}
+}
 
 func Run() error {
-	return sh.Run("godotenv", "-f", ".env", "./fider")
+	return sh.Run("godotenv", "-f", ".env", "./"+exeName)
 }
 
 func Lint() error {
@@ -86,13 +90,13 @@ func (Test) All() {
 
 func (Test) Coverage() error {
 	mg.Deps(Build.Server)
-	sh.Run("godotenv", "-f", ".test.env", "./fider", "migrate")
+	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
 	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-coverprofile=cover.out", "-coverpkg=all", "-race")
 }
 
 func (Test) Server() error {
 	mg.Deps(Build.Server)
-	sh.Run("godotenv", "-f", ".test.env", "./fider", "migrate")
+	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
 	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-race")
 }
 
@@ -104,5 +108,5 @@ func (Test) UI() error {
 // Utils
 func buildServer(env map[string]string) error {
 	ldflags := "-s -w -X main.buildtime=" + buildTime + " -X main.buildnumber=" + buildNumber
-	return sh.RunWith(env, "go", "build", "-ldflags='"+ldflags+"'", "-o", "fider", ".")
+	return sh.RunWith(env, "go", "build", "-ldflags='"+ldflags+"'", "-o", exeName, ".")
 }
