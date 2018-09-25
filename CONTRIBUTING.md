@@ -20,7 +20,12 @@ Install the following tools:
 - Go 1.10+ (https://golang.org/)
 - Node.js 10+ (https://nodejs.org/)
 - Docker (https://www.docker.com/)
+
+We also use the following Go CLI tools, so install them using `go get <url>`:
+
 - cosmtrek/air (https://github.com/cosmtrek/air/)
+- joho/godotenv (https://github.com/joho/godotenv/)
+- magefile/mage (https://github.com/magefile/mage/)
 
 To setup your development workspace:
 
@@ -28,10 +33,10 @@ To setup your development workspace:
 2) run `npm install` to install front end packages 
 3) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
 4) run `cp .example.env .env` to create a local environment configuration file.
-5) run `make watch` to start the application.
+5) run `mage watch:all` to start the application.
 6) Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
 To run the unit tests:
 
 1) run `docker-compose up -d pgtest` to start a test-only PostgreSQL database on Docker.
-2) run `make test`.
+2) run `mage test:all`.
