@@ -40,3 +40,5 @@ To run the unit tests:
 
 1) run `docker-compose up -d pgtest` to start a test-only PostgreSQL database on Docker.
 2) run `mage test:all`.
+
+**NOTE:** It's currently not possible to build and develop Fider on **Windows**, if you're a Windows user and want to contribute to Fider, please help us resolve this [issue](https://github.com/getfider/fider/issues/434) first.
