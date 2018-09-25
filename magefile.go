@@ -11,10 +11,6 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
-var Aliases = map[string]interface{}{
-	"watch": Watch.All,
-}
-
 func init() {
 	os.Setenv("MAGEFILE_VERBOSE", "true")
 }
