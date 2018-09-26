@@ -128,10 +128,11 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 		}
 	}
 	if a != nil {
-		if ok, _ := c.Extension("AUTH"); ok {
-			if err = c.Auth(a); err != nil {
-				return err
-			}
+		if ok, _ := c.Extension("AUTH"); !ok {
+			return errors.New("smtp: server doesn't support AUTH")
+		}
+		if err = c.Auth(a); err != nil {
+			return err
 		}
 	}
 	if err = c.Mail(from); err != nil {
