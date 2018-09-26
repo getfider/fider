@@ -15,6 +15,12 @@ var buildTime = time.Now().Format("2006.01.02.150405")
 var buildNumber = os.Getenv("CIRCLE_BUILD_NUM")
 var exeName = "fider"
 
+var Aliases = map[string]interface{}{
+	"build": Build.All,
+	"test":  Test.All,
+	"watch": Watch.All,
+}
+
 func init() {
 	os.Setenv("MAGEFILE_VERBOSE", "true")
 	if runtime.GOOS == "windows" {

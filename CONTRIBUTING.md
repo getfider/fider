@@ -33,12 +33,12 @@ To setup your development workspace:
 2) run `npm install` to install front end packages 
 3) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
 4) run `cp .example.env .env` to create a local environment configuration file.
-5) run `mage watch:all` to start the application.
+5) run `mage watch` to start the application.
 6) Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
 To run the unit tests:
 
 1) run `docker-compose up -d pgtest` to start a test-only PostgreSQL database on Docker.
-2) run `mage test:all`.
+2) run `mage test`.
 
 **NOTE:** It's currently not possible to build and develop Fider on **Windows**, if you're a Windows user and want to contribute to Fider, please help us resolve this [issue](https://github.com/getfider/fider/issues/434) first.
