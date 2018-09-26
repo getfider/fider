@@ -31,7 +31,7 @@ var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
 
 var requests = make([]request, 0)
 
-func mockSend(servername string, auth gosmtp.Auth, from string, to []string, body []byte) error {
+func mockSend(localname, servername string, auth gosmtp.Auth, from string, to []string, body []byte) error {
 	requests = append(requests, request{servername, auth, from, to, body})
 	return nil
 }

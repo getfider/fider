@@ -114,5 +114,5 @@ func (Test) UI() error {
 // Utils
 func buildServer(env map[string]string) error {
 	ldflags := "-s -w -X main.buildtime=" + buildTime + " -X main.buildnumber=" + buildNumber
-	return sh.RunWith(env, "go", "build", "-ldflags='"+ldflags+"'", "-o", exeName, ".")
+	return sh.RunWith(env, "go", "build", "-ldflags", ldflags, "-o", exeName, ".")
 }
