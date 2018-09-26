@@ -11,7 +11,8 @@ export class Browser {
   public static async launch(): Promise<Browser> {
     const browser = await puppeteer.launch({
       headless: true,
-      devtools: false
+      devtools: false,
+      ignoreHTTPSErrors: true
     });
     return new Browser(browser);
   }

@@ -14,6 +14,7 @@ start_fider () {
     -p 3000:3000 \
     -e HOST_MODE=$1 \
     -e DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@$PG_CONTAINER:5432/fider_e2e?sslmode=disable \
+    -v `pwd`/etc:/app/etc \
     --env-file .env \
     --link $PG_CONTAINER \
     --name $FIDER_CONTAINER getfider/fider:e2e

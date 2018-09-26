@@ -26,7 +26,7 @@ describe("E2E", () => {
     const now = new Date().getTime();
     const tenantName = `Selenium ${now}`;
     const tenantSubdomain = process.env.HOST_MODE === "single" ? "login" : `selenium${now}`;
-    const baseURL = `http://${tenantSubdomain}.dev.fider.io:3000`;
+    const baseURL = `https://${tenantSubdomain}.dev.fider.io:3000`;
     const browser1 = await Browser.launch();
     const tab1 = await browser1.newTab(baseURL);
     const browser2 = await Browser.launch();
