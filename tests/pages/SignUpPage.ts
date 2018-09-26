@@ -32,6 +32,8 @@ export class SignUpPage extends Page {
   public TenantName!: TextInput;
   @findBy("#p-signup #input-subdomain")
   public Subdomain!: TextInput;
+  @findBy("#p-signup #input-legalAgreement")
+  private LegalAgreement!: WebComponent;
   @findBy("#p-signup .c-button.m-positive")
   public Confirm!: Button;
   @findBy("#p-signup .c-message.m-success")
@@ -58,6 +60,9 @@ export class SignUpPage extends Page {
     if (await this.Subdomain.isVisible()) {
       await this.Subdomain.type(subdomain);
       await this.tab.wait(elementIsVisible(this.SubdomainOk));
+    }
+    if (await this.LegalAgreement.isVisible()) {
+      await this.LegalAgreement.click();
     }
     await this.Confirm.click();
     await this.tab.waitAny([pageHasLoaded(HomePage), elementIsVisible(this.ConfirmationModal)]);
