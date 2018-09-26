@@ -54,8 +54,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	}
 
 	form := url.Values{}
-
-	form.Add("from", fmt.Sprintf("%s <%s>", from, email.NoReply))
+	form.Add("from", email.NewRecipient(from, email.NoReply, email.Params{}).String())
 	form.Add("h:Reply-To", email.NoReply)
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
@@ -69,7 +68,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	for _, r := range to {
 		if r.Address != "" {
 			if email.CanSendTo(r.Address) {
-				form.Add("to", fmt.Sprintf("%s <%s>", r.Name, r.Address))
+				form.Add("to", r.String())
 				recipientVariables[r.Address] = r.Params
 			} else {
 				s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{

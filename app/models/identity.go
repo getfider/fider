@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -64,6 +65,29 @@ const (
 	//RoleAdministrator has full access to administrative console
 	RoleAdministrator Role = 3
 )
+
+var roleIDs = map[Role]string{
+	RoleVisitor:       "visitor",
+	RoleCollaborator:  "collaborator",
+	RoleAdministrator: "administrator",
+}
+
+var roleNames = map[string]Role{
+	"visitor":       RoleVisitor,
+	"collaborator":  RoleCollaborator,
+	"administrator": RoleAdministrator,
+}
+
+// MarshalJSON returns the JSON version of the role
+func (role Role) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"%s"`, roleIDs[role])), nil
+}
+
+// UnmarshalString parse string into a role
+func (role *Role) UnmarshalString(s string) error {
+	*role = roleNames[s]
+	return nil
+}
 
 //EmailVerificationKind specifies which kind of process is being verified by email
 type EmailVerificationKind int16

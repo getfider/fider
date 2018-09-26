@@ -27,8 +27,8 @@ run_e2e () {
 
 if [[ $1 == 'build' ]] || [ -z $1 ]
 then
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
-  docker build -t getfider/fider:e2e .
+  mage build:docker
+  docker tag getfider/fider getfider/fider:e2e
 fi
 
 if [[ $1 == 'single' ]] || [ -z $1 ]

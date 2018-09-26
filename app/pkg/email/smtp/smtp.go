@@ -83,9 +83,9 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 
 	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
-	b.Set("From", fmt.Sprintf("%s <%s>", from, email.NoReply))
+	b.Set("From", email.NewRecipient(from, email.NoReply, email.Params{}).String())
 	b.Set("Reply-To", email.NoReply)
-	b.Set("To", fmt.Sprintf("%s <%s>", to.Name, to.Address))
+	b.Set("To", to.String())
 	b.Set("Subject", message.Subject)
 	b.Set("MIME-version", "1.0")
 	b.Set("Content-Type", "text/html; charset=\"UTF-8\"")

@@ -16,10 +16,14 @@ export interface User {
 }
 
 export enum UserRole {
-  Visitor = 1,
-  Collaborator = 2,
-  Administrator = 3
+  Visitor = "visitor",
+  Collaborator = "collaborator",
+  Administrator = "administrator"
 }
+
+export const isCollaborator = (role: UserRole): boolean => {
+  return role === UserRole.Collaborator || role === UserRole.Administrator;
+};
 
 export interface CurrentUser {
   id: number;

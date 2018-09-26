@@ -1,7 +1,7 @@
 version: 2
 references:
   builder: &builder 
-    getfider/circleci:0.0.12
+    getfider/circleci:0.0.13
   workdir: &workdir 
     /go/src/github.com/getfider/fider
 
@@ -33,10 +33,9 @@ jobs:
       - restore_cache:
           keys:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
-      - run: make lint
-      - run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make build
+      - run: mage lint
       - setup_remote_docker
-      - run: docker build -t getfider/fider .
+      - run: mage build:docker
       - run: docker save -o ./docker-image.tar getfider/fider
       - persist_to_workspace:
           root: ./
@@ -70,7 +69,7 @@ jobs:
           name: test
           command: |
             mkdir ./dist
-            DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable make coverage
+            DATABASE_URL=postgres://fider_ci:fider_ci_pw@localhost:5432/fider_ci?sslmode=disable mage test:coverage
             bash <(curl -s https://codecov.io/bash)
 
   test-ui:
@@ -84,7 +83,7 @@ jobs:
             - fider-v1-npm-{{ checksum "package-lock.json" }}
       - run:
           name: test
-          command: make test-ui
+          command: mage test:ui
 
   push:
     docker:
