@@ -23,7 +23,7 @@ type Notification struct {
 	Title     string    `json:"title" db:"title"`
 	Link      string    `json:"link" db:"link"`
 	Read      bool      `json:"read" db:"read"`
-	CreatedOn time.Time `json:"createdOn" db:"created_on"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 }
 
 // CreateEditOAuthConfig is used to create/edit an OAuth Configuration

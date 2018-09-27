@@ -12,7 +12,7 @@ type Post struct {
 	Title         string        `json:"title"`
 	Slug          string        `json:"slug"`
 	Description   string        `json:"description"`
-	CreatedOn     time.Time     `json:"createdOn"`
+	CreatedAt     time.Time     `json:"createdAt"`
 	User          *User         `json:"user"`
 	HasVoted      bool          `json:"hasVoted"`
 	TotalVotes    int           `json:"totalVotes"`
@@ -70,7 +70,7 @@ type SetResponse struct {
 //PostResponse is a staff response to a given post
 type PostResponse struct {
 	Text        string        `json:"text"`
-	RespondedOn time.Time     `json:"respondedOn"`
+	RespondedAt time.Time     `json:"respondedAt"`
 	User        *User         `json:"user"`
 	Original    *OriginalPost `json:"original"`
 }
@@ -87,9 +87,9 @@ type OriginalPost struct {
 type Comment struct {
 	ID        int        `json:"id"`
 	Content   string     `json:"content"`
-	CreatedOn time.Time  `json:"createdOn"`
+	CreatedAt time.Time  `json:"createdAt"`
 	User      *User      `json:"user"`
-	EditedOn  *time.Time `json:"editedOn"`
+	EditedAt  *time.Time `json:"editedAt"`
 	EditedBy  *User      `json:"editedBy"`
 }
 

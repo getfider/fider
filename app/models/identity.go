@@ -286,9 +286,9 @@ type EmailVerification struct {
 	Key        string
 	UserID     int
 	Kind       EmailVerificationKind
-	CreatedOn  time.Time
-	ExpiresOn  time.Time
-	VerifiedOn *time.Time
+	CreatedAt  time.Time
+	ExpiresAt  time.Time
+	VerifiedAt *time.Time
 }
 
 // CompleteProfile is the model used to complete user profile during email sign in

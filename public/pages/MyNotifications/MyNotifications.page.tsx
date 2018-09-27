@@ -40,7 +40,7 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
           <a href={`/notifications/${n.id}`}>
             <MultiLineText text={n.title} style="simple" />
             <span className="info">
-              <Moment date={n.createdOn} />
+              <Moment date={n.createdAt} />
             </span>
           </a>
         </ListItem>

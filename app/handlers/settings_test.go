@@ -158,7 +158,7 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 
 	result, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
 	Expect(err).IsNil()
-	Expect(result.VerifiedOn).IsNotNil()
+	Expect(result.VerifiedAt).IsNotNil()
 }
 
 func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {

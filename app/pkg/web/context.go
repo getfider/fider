@@ -160,6 +160,9 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := ctx.engine.binder.Bind(i.Initialize(), ctx)
 	if err != nil {
+		if err == ErrContentTypeNotAllowed {
+			return validate.Failed(err.Error())
+		}
 		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
 	if !i.IsAuthorized(ctx.User(), ctx.Services()) {

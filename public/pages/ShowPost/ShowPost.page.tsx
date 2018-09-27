@@ -98,7 +98,7 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 )}
 
                 <span className="info">
-                  Shared <Moment date={this.props.post.createdOn} /> by <Gravatar user={this.props.post.user} />{" "}
+                  Shared <Moment date={this.props.post.createdAt} /> by <Gravatar user={this.props.post.user} />{" "}
                   <UserName user={this.props.post.user} />
                 </span>
               </div>

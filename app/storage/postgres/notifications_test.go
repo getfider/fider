@@ -78,7 +78,7 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 
 	notifications.MarkAsRead(allNotifications[0].ID)
 	notifications.MarkAsRead(allNotifications[1].ID)
-	trx.Execute("UPDATE notifications SET updated_on = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), allNotifications[0].ID)
+	trx.Execute("UPDATE notifications SET updated_at = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), allNotifications[0].ID)
 
 	allNotifications, err = notifications.GetActiveNotifications()
 	Expect(err).IsNil()

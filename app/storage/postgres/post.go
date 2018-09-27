@@ -20,7 +20,7 @@ type dbPost struct {
 	Title          string         `db:"title"`
 	Slug           string         `db:"slug"`
 	Description    string         `db:"description"`
-	CreatedOn      time.Time      `db:"created_on"`
+	CreatedAt      time.Time      `db:"created_at"`
 	User           *dbUser        `db:"user"`
 	HasVoted       bool           `db:"has_voted"`
 	TotalVotes     int            `db:"votes"`
@@ -29,7 +29,7 @@ type dbPost struct {
 	RecentComments int            `db:"recent_comments"`
 	Status         int            `db:"status"`
 	Response       sql.NullString `db:"response"`
-	RespondedOn    dbx.NullTime   `db:"response_date"`
+	RespondedAt    dbx.NullTime   `db:"response_date"`
 	ResponseUser   *dbUser        `db:"response_user"`
 	OriginalNumber sql.NullInt64  `db:"original_number"`
 	OriginalTitle  sql.NullString `db:"original_title"`
@@ -45,7 +45,7 @@ func (i *dbPost) toModel() *models.Post {
 		Title:         i.Title,
 		Slug:          i.Slug,
 		Description:   i.Description,
-		CreatedOn:     i.CreatedOn,
+		CreatedAt:     i.CreatedAt,
 		HasVoted:      i.HasVoted,
 		TotalVotes:    i.TotalVotes,
 		TotalComments: i.TotalComments,
@@ -57,7 +57,7 @@ func (i *dbPost) toModel() *models.Post {
 	if i.Response.Valid {
 		post.Response = &models.PostResponse{
 			Text:        i.Response.String,
-			RespondedOn: i.RespondedOn.Time,
+			RespondedAt: i.RespondedAt.Time,
 			User:        i.ResponseUser.toModel(),
 		}
 		if post.Status == models.PostDuplicate && i.OriginalNumber.Valid {
@@ -75,9 +75,9 @@ func (i *dbPost) toModel() *models.Post {
 type dbComment struct {
 	ID        int          `db:"id"`
 	Content   string       `db:"content"`
-	CreatedOn time.Time    `db:"created_on"`
+	CreatedAt time.Time    `db:"created_at"`
 	User      *dbUser      `db:"user"`
-	EditedOn  dbx.NullTime `db:"edited_on"`
+	EditedAt  dbx.NullTime `db:"edited_at"`
 	EditedBy  *dbUser      `db:"edited_by"`
 }
 
@@ -85,12 +85,12 @@ func (c *dbComment) toModel() *models.Comment {
 	comment := &models.Comment{
 		ID:        c.ID,
 		Content:   c.Content,
-		CreatedOn: c.CreatedOn,
+		CreatedAt: c.CreatedAt,
 		User:      c.User.toModel(),
 	}
-	if c.EditedOn.Valid {
+	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel()
-		comment.EditedOn = &c.EditedOn.Time
+		comment.EditedAt = &c.EditedAt.Time
 	}
 	return comment
 }
@@ -129,7 +129,7 @@ var (
 													agg_comments AS (
 															SELECT 
 																	post_id, 
-																	COUNT(CASE WHEN comments.created_on > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
+																	COUNT(CASE WHEN comments.created_at > CURRENT_DATE - INTERVAL '30 days' THEN 1 END) as recent,
 																	COUNT(*) as all
 															FROM comments 
 															INNER JOIN posts
@@ -141,7 +141,7 @@ var (
 													agg_votes AS (
 															SELECT 
 															post_id, 
-																	COUNT(CASE WHEN post_votes.created_on > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
+																	COUNT(CASE WHEN post_votes.created_at > CURRENT_DATE - INTERVAL '30 days'  THEN 1 END) as recent,
 																	COUNT(*) as all
 															FROM post_votes 
 															INNER JOIN posts
@@ -155,7 +155,7 @@ var (
 																p.title, 
 																p.slug, 
 																p.description, 
-																p.created_on,
+																p.created_at,
 																COALESCE(agg_s.all, 0) as votes,
 																COALESCE(agg_c.all, 0) as comments,
 																COALESCE(agg_s.recent, 0) AS recent_votes,
@@ -328,8 +328,8 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 	err := s.trx.Select(&comments,
 		`SELECT c.id, 
 				c.content, 
-				c.created_on, 
-				c.edited_on, 
+				c.created_at, 
+				c.edited_at, 
 				u.id AS user_id, 
 				u.name AS user_name,
 				u.email AS user_email,
@@ -352,7 +352,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 		AND e.tenant_id = c.tenant_id
 		WHERE p.id = $1
 		AND p.tenant_id = $2
-		ORDER BY c.created_on ASC`, post.ID, s.tenant.ID)
+		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
 	}
@@ -383,7 +383,7 @@ func (s *PostStorage) Update(post *models.Post, title, description string) (*mod
 func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_on, status) 
+		`INSERT INTO posts (title, slug, number, description, tenant_id, user_id, created_at, status) 
 		 VALUES ($1, $2, (SELECT COALESCE(MAX(number), 0) + 1 FROM posts p WHERE p.tenant_id = $4), $3, $4, $5, $6, 0) 
 		 RETURNING id`, title, slug.Make(title), description, s.tenant.ID, s.user.ID, time.Now())
 	if err != nil {
@@ -406,7 +406,7 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
 	if err := s.trx.Get(&id,
-		"INSERT INTO comments (tenant_id, post_id, content, user_id, created_on) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+		"INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
 		s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
@@ -424,8 +424,8 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 	err := s.trx.Get(&comment,
 		`SELECT c.id, 
 						c.content, 
-						c.created_on, 
-						c.edited_on, 
+						c.created_at, 
+						c.edited_at, 
 						u.id AS user_id, 
 						u.name AS user_name,
 						u.email AS user_email,
@@ -456,7 +456,7 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 // UpdateComment with given ID and content
 func (s *PostStorage) UpdateComment(id int, content string) error {
 	_, err := s.trx.Execute(`
-		UPDATE comments SET content = $1, edited_on = $2, edited_by_id = $3 
+		UPDATE comments SET content = $1, edited_at = $2, edited_by_id = $3 
 		WHERE id = $4 AND tenant_id = $5`, content, time.Now(), s.user.ID, id, s.tenant.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update comment")
@@ -471,7 +471,7 @@ func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
 	}
 
 	_, err := s.trx.Execute(
-		`INSERT INTO post_votes (tenant_id, user_id, post_id, created_on) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
+		`INSERT INTO post_votes (tenant_id, user_id, post_id, created_at) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
 		s.tenant.ID, user.ID, post.ID, time.Now())
 
 	if err != nil {
@@ -503,11 +503,11 @@ func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error 
 func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
-		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_on = $4"
+		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_at = $4"
 	}
 
 	_, err := s.trx.Execute(fmt.Sprintf(`
-	INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_on, updated_on, status)
+	INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
 		s.tenant.ID, user.ID, post.ID, time.Now(), models.SubscriberActive,
 	)
@@ -520,9 +520,9 @@ func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User
 // RemoveSubscriber removes user from post list of subscribers
 func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) error {
 	_, err := s.trx.Execute(`
-		INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_on, updated_on, status)
+		INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
 		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, post_id)
-		DO UPDATE SET status = 0, updated_on = $4`,
+		DO UPDATE SET status = 0, updated_at = $4`,
 		s.tenant.ID, user.ID, post.ID, time.Now(),
 	)
 	if err != nil {
@@ -609,16 +609,16 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status int) er
 		return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
 	}
 
-	respondedOn := time.Now()
+	respondedAt := time.Now()
 	if post.Status == status && post.Response != nil {
-		respondedOn = post.Response.RespondedOn
+		respondedAt = post.Response.RespondedAt
 	}
 
 	_, err := s.trx.Execute(`
 	UPDATE posts 
 	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, post.ID, s.tenant.ID, text, respondedOn, s.user.ID, status)
+	`, post.ID, s.tenant.ID, text, respondedAt, s.user.ID, status)
 	if err != nil {
 		return errors.Wrap(err, "failed to update post's response")
 	}
@@ -626,7 +626,7 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status int) er
 	post.Status = status
 	post.Response = &models.PostResponse{
 		Text:        text,
-		RespondedOn: respondedOn,
+		RespondedAt: respondedAt,
 		User:        s.user,
 	}
 	return nil
@@ -634,9 +634,9 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status int) er
 
 // MarkAsDuplicate set post as a duplicate of another post
 func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) error {
-	respondedOn := time.Now()
+	respondedAt := time.Now()
 	if post.Status == models.PostDuplicate && post.Response != nil {
-		respondedOn = post.Response.RespondedOn
+		respondedAt = post.Response.RespondedAt
 	}
 
 	var users []*dbUser
@@ -655,14 +655,14 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	UPDATE posts 
 	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 	WHERE id = $1 and tenant_id = $2
-	`, post.ID, s.tenant.ID, original.ID, respondedOn, s.user.ID, models.PostDuplicate)
+	`, post.ID, s.tenant.ID, original.ID, respondedAt, s.user.ID, models.PostDuplicate)
 	if err != nil {
 		return errors.Wrap(err, "failed to update post's response")
 	}
 
 	post.Status = models.PostDuplicate
 	post.Response = &models.PostResponse{
-		RespondedOn: respondedOn,
+		RespondedAt: respondedAt,
 		User:        s.user,
 		Original: &models.OriginalPost{
 			Number: original.Number,

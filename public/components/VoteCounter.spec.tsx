@@ -13,7 +13,7 @@ beforeEach(() => {
     slug: "add-typescript",
     title: "Add TypeScript",
     description: "",
-    createdOn: "",
+    createdAt: "",
     status: PostStatus.Started.value,
     user: {
       id: 5,

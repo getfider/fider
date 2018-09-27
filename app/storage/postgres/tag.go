@@ -58,7 +58,7 @@ func (s *TagStorage) Add(name, color string, isPublic bool) (*models.Tag, error)
 
 	var id int
 	err := s.trx.Get(&id, `
-		INSERT INTO tags (name, slug, color, is_public, created_on, tenant_id) 
+		INSERT INTO tags (name, slug, color, is_public, created_at, tenant_id) 
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`, name, tagSlug, color, isPublic, time.Now(), s.tenant.ID)
 	if err != nil {
@@ -119,7 +119,7 @@ func (s *TagStorage) AssignTag(tag *models.Tag, post *models.Post) error {
 	}
 
 	_, err = s.trx.Execute(
-		`INSERT INTO post_tags (tag_id, post_id, created_on, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
+		`INSERT INTO post_tags (tag_id, post_id, created_at, created_by_id, tenant_id) VALUES ($1, $2, $3, $4, $5)`,
 		tag.ID, post.ID, time.Now(), s.user.ID, s.tenant.ID,
 	)
 
