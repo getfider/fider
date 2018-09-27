@@ -173,7 +173,7 @@ func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
 }
 
 // SetResponse changes current post response
-func (s *PostStorage) SetResponse(post *models.Post, text string, status int) error {
+func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
 	for i, storedPost := range s.posts {
 		if storedPost.Number == post.Number {
 			if status == models.PostDeleted {

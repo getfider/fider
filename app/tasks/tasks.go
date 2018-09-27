@@ -159,7 +159,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
+func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
 		if prevStatus == post.Status {
