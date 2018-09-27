@@ -16,8 +16,8 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO posts (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
-	trx.Execute("INSERT INTO posts (title, slug, number, description, created_on, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
 
 	posts.SetCurrentTenant(demoTenant)
 
@@ -140,7 +140,7 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	Expect(comment.ID).Equals(commentID)
 	Expect(comment.Content).Equals("Comment #1")
 	Expect(comment.User.ID).Equals(jonSnow.ID)
-	Expect(comment.EditedOn).IsNil()
+	Expect(comment.EditedAt).IsNil()
 	Expect(comment.EditedBy).IsNil()
 
 	posts.SetCurrentUser(aryaStark)
@@ -152,7 +152,7 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	Expect(comment.ID).Equals(commentID)
 	Expect(comment.Content).Equals("Comment #1 with edit")
 	Expect(comment.User.ID).Equals(jonSnow.ID)
-	Expect(comment.EditedOn).IsNotNil()
+	Expect(comment.EditedAt).IsNotNil()
 	Expect(comment.EditedBy.ID).Equals(aryaStark.ID)
 }
 
@@ -336,15 +336,15 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 	post, _ := posts.Add("My new post", "with this description")
 	posts.SetResponse(post, "We liked this post", models.PostStarted)
 	post, _ = posts.GetByID(post.ID)
-	respondedOn := post.Response.RespondedOn
+	respondedAt := post.Response.RespondedAt
 
 	posts.SetResponse(post, "We liked this post and we'll work on it", models.PostStarted)
 	post, _ = posts.GetByID(post.ID)
-	Expect(post.Response.RespondedOn).Equals(respondedOn)
+	Expect(post.Response.RespondedAt).Equals(respondedAt)
 
 	posts.SetResponse(post, "We finished it", models.PostCompleted)
 	post, _ = posts.GetByID(post.ID)
-	Expect(post.Response.RespondedOn).TemporarilySimilar(respondedOn, time.Second)
+	Expect(post.Response.RespondedAt).TemporarilySimilar(respondedAt, time.Second)
 }
 
 func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {

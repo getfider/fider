@@ -131,7 +131,7 @@ func (l *Logger) log(level log.Level, message string, props log.Props) {
 	message = log.Parse(message, props, false)
 
 	_, err = trx.Execute(
-		"INSERT INTO logs (tag, level, text, created_on, properties) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO logs (tag, level, text, created_at, properties) VALUES ($1, $2, $3, $4, $5)",
 		l.tag, level.String(), message, time.Now(), props,
 	)
 

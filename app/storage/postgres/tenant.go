@@ -56,9 +56,9 @@ type dbEmailVerification struct {
 	Key        string                       `db:"key"`
 	Kind       models.EmailVerificationKind `db:"kind"`
 	UserID     dbx.NullInt                  `db:"user_id"`
-	CreatedOn  time.Time                    `db:"created_on"`
-	ExpiresOn  time.Time                    `db:"expires_on"`
-	VerifiedOn dbx.NullTime                 `db:"verified_on"`
+	CreatedAt  time.Time                    `db:"created_at"`
+	ExpiresAt  time.Time                    `db:"expires_at"`
+	VerifiedAt dbx.NullTime                 `db:"verified_at"`
 }
 
 func (t *dbEmailVerification) toModel() *models.EmailVerification {
@@ -67,13 +67,13 @@ func (t *dbEmailVerification) toModel() *models.EmailVerification {
 		Email:      t.Email,
 		Key:        t.Key,
 		Kind:       t.Kind,
-		CreatedOn:  t.CreatedOn,
-		ExpiresOn:  t.ExpiresOn,
-		VerifiedOn: nil,
+		CreatedAt:  t.CreatedAt,
+		ExpiresAt:  t.ExpiresAt,
+		VerifiedAt: nil,
 	}
 
-	if t.VerifiedOn.Valid {
-		model.VerifiedOn = &t.VerifiedOn.Time
+	if t.VerifiedAt.Valid {
+		model.VerifiedAt = &t.VerifiedAt.Time
 	}
 
 	if t.UserID.Valid {
@@ -145,7 +145,7 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO tenants (name, subdomain, created_on, cname, invitation, welcome_message, status, is_private, custom_css) 
+		`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css) 
 		 VALUES ($1, $2, $3, '', '', '', $4, false, '') 
 		 RETURNING id`, name, subdomain, time.Now(), status)
 	if err != nil {
@@ -223,7 +223,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 func (s *TenantStorage) SaveNewUpload(content []byte) (int, error) {
 	var newID int
 	err := s.trx.Get(&newID, `
-		INSERT INTO uploads (tenant_id, size, content_type, file, created_on)
+		INSERT INTO uploads (tenant_id, size, content_type, file, created_at)
 		VALUES ($1, $2, $3, $4, $5) RETURNING id
 		`, s.current.ID, len(content), http.DetectContentType(content), content, time.Now(),
 	)
@@ -289,7 +289,7 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 		userID = request.GetUser().ID
 	}
 
-	query := "INSERT INTO email_verifications (tenant_id, email, created_on, expires_on, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+	query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
 	_, err := s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
 	if err != nil {
 		return errors.Wrap(err, "failed to save verification key for kind '%d'", request.GetKind())
@@ -301,7 +301,7 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error) {
 	verification := dbEmailVerification{}
 
-	query := "SELECT id, email, name, key, created_on, verified_on, expires_on, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
+	query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
 	err := s.trx.Get(&verification, query, key, kind)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get email verification by its key")
@@ -312,7 +312,7 @@ func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind,
 
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
-	query := "UPDATE email_verifications SET verified_on = $1 WHERE tenant_id = $2 AND key = $3"
+	query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3"
 	_, err := s.trx.Execute(query, time.Now(), s.current.ID, key)
 	if err != nil {
 		return errors.Wrap(err, "failed to update verified date of email verification request")

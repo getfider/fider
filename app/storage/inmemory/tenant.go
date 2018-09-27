@@ -162,9 +162,9 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 		Kind:       request.GetKind(),
 		Key:        key,
 		UserID:     userID,
-		CreatedOn:  time.Now(),
-		ExpiresOn:  time.Now().Add(duration),
-		VerifiedOn: nil,
+		CreatedAt:  time.Now(),
+		ExpiresAt:  time.Now().Add(duration),
+		VerifiedAt: nil,
 	})
 	return nil
 }
@@ -184,7 +184,7 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	for _, verification := range s.verifications {
 		if verification.Key == key {
 			now := time.Now()
-			verification.VerifiedOn = &now
+			verification.VerifiedAt = &now
 		}
 	}
 	return nil

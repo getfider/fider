@@ -297,29 +297,29 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	//Find and check values
 	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindSignUp, "s3cr3tk3y")
 	Expect(err).IsNil()
-	Expect(result.CreatedOn).TemporarilySimilar(time.Now(), 1*time.Second)
-	Expect(result.VerifiedOn).IsNil()
+	Expect(result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
+	Expect(result.VerifiedAt).IsNil()
 	Expect(result.Email).Equals("jon.snow@got.com")
 	Expect(result.Name).Equals("Jon Snow")
 	Expect(result.Kind).Equals(models.EmailVerificationKindSignUp)
 	Expect(result.Key).Equals("s3cr3tk3y")
 	Expect(result.UserID).Equals(0)
-	Expect(result.ExpiresOn).TemporarilySimilar(result.CreatedOn.Add(15*time.Minute), 1*time.Second)
+	Expect(result.ExpiresAt).TemporarilySimilar(result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 
 	//Set as verified check values
 	err = tenants.SetKeyAsVerified("s3cr3tk3y")
 	Expect(err).IsNil()
 
-	//Find and check that VerifiedOn is now set
+	//Find and check that VerifiedAt is now set
 	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignUp, "s3cr3tk3y")
 	Expect(err).IsNil()
-	Expect(time.Now().After(result.CreatedOn)).IsTrue()
-	Expect(result.VerifiedOn.After(result.CreatedOn)).IsTrue()
+	Expect(time.Now().After(result.CreatedAt)).IsTrue()
+	Expect(result.VerifiedAt.After(result.CreatedAt)).IsTrue()
 	Expect(result.Email).Equals("jon.snow@got.com")
 	Expect(result.Name).Equals("Jon Snow")
 	Expect(result.Key).Equals("s3cr3tk3y")
 	Expect(result.UserID).Equals(0)
-	Expect(result.ExpiresOn).TemporarilySimilar(result.CreatedOn.Add(15*time.Minute), 1*time.Second)
+	Expect(result.ExpiresAt).TemporarilySimilar(result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 
 	//Wrong kind should not find it
 	result, err = tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "s3cr3tk3y")
@@ -345,14 +345,14 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	//Find and check values
 	result, err := tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
 	Expect(err).IsNil()
-	Expect(result.CreatedOn).TemporarilySimilar(time.Now(), 1*time.Second)
-	Expect(result.VerifiedOn).IsNil()
+	Expect(result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
+	Expect(result.VerifiedAt).IsNil()
 	Expect(result.Email).Equals("jon.stark@got.com")
 	Expect(result.Name).Equals("")
 	Expect(result.Kind).Equals(models.EmailVerificationKindChangeEmail)
 	Expect(result.Key).Equals("th3-s3cr3t")
 	Expect(result.UserID).Equals(jonSnow.ID)
-	Expect(result.ExpiresOn).TemporarilySimilar(result.CreatedOn.Add(15*time.Minute), 1*time.Second)
+	Expect(result.ExpiresAt).TemporarilySimilar(result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 }
 
 func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {

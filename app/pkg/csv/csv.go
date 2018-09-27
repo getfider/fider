@@ -19,13 +19,13 @@ func FromPosts(posts []*models.Post) ([]byte, error) {
 		"number",
 		"title",
 		"description",
-		"created_on",
+		"created_at",
 		"created_by",
 		"total_votes",
 		"total_comments",
 		"status",
 		"responded_by",
-		"responded_on",
+		"responded_at",
 		"response",
 		"original_number",
 		"original_title",
@@ -40,13 +40,13 @@ func FromPosts(posts []*models.Post) ([]byte, error) {
 			originalNumber string
 			originalTitle  string
 			respondedBy    string
-			respondedOn    string
+			respondedAt    string
 			response       string
 		)
 
 		if post.Response != nil {
 			respondedBy = post.Response.User.Name
-			respondedOn = post.Response.RespondedOn.Format(time.RFC3339)
+			respondedAt = post.Response.RespondedAt.Format(time.RFC3339)
 			response = post.Response.Text
 			if post.Response.Original != nil {
 				originalNumber = strconv.Itoa(post.Response.Original.Number)
@@ -58,13 +58,13 @@ func FromPosts(posts []*models.Post) ([]byte, error) {
 			strconv.Itoa(post.Number),
 			post.Title,
 			post.Description,
-			post.CreatedOn.Format(time.RFC3339),
+			post.CreatedAt.Format(time.RFC3339),
 			post.User.Name,
 			strconv.Itoa(post.TotalVotes),
 			strconv.Itoa(post.TotalComments),
 			models.GetPostStatusName(post.Status),
 			respondedBy,
-			respondedOn,
+			respondedAt,
 			response,
 			originalNumber,
 			originalTitle,

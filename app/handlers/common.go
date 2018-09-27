@@ -70,12 +70,12 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	}
 
 	//If key has been used, return Gone
-	if result.VerifiedOn != nil {
+	if result.VerifiedAt != nil {
 		return nil, c.Gone()
 	}
 
 	//If key expired, return Gone
-	if time.Now().After(result.ExpiresOn) {
+	if time.Now().After(result.ExpiresAt) {
 		err = c.Services().Tenants.SetKeyAsVerified(key)
 		if err != nil {
 			return nil, c.Failure(err)

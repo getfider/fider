@@ -6,7 +6,7 @@ export interface Post {
   slug: string;
   title: string;
   description: string;
-  createdOn: string;
+  createdAt: string;
   status: number;
   user: User;
   hasVoted: boolean;
@@ -56,7 +56,7 @@ export class PostStatus {
 export interface PostResponse {
   user: User;
   text: string;
-  respondedOn: Date;
+  respondedAt: Date;
   original?: {
     number: number;
     title: string;
@@ -68,9 +68,9 @@ export interface PostResponse {
 export interface Comment {
   id: number;
   content: string;
-  createdOn: string;
+  createdAt: string;
   user: User;
-  editedOn?: string;
+  editedAt?: string;
   editedBy?: User;
 }
 

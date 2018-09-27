@@ -3,5 +3,5 @@ export interface Notification {
   title: string;
   link: string;
   read: boolean;
-  createdOn: string;
+  createdAt: string;
 }

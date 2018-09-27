@@ -122,13 +122,13 @@ func (s *UserStorage) Register(user *models.User) error {
 	user.Status = models.UserActive
 	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.Get(&user.ID,
-		"INSERT INTO users (name, email, created_on, tenant_id, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+		"INSERT INTO users (name, email, created_at, tenant_id, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
 		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive); err != nil {
 		return errors.Wrap(err, "failed to register new user")
 	}
 
 	for _, provider := range user.Providers {
-		if _, err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
+		if _, err := s.trx.Execute("INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)", s.tenant.ID, user.ID, provider.Name, provider.UID, now); err != nil {
 			return errors.Wrap(err, "failed to add provider to new user")
 		}
 	}
@@ -138,7 +138,7 @@ func (s *UserStorage) Register(user *models.User) error {
 
 // RegisterProvider adds given provider to userID
 func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider) error {
-	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_on) VALUES ($1, $2, $3, $4, $5)"
+	cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)"
 	_, err := s.trx.Execute(cmd, s.tenant.ID, userID, provider.Name, provider.UID, time.Now())
 	if err != nil {
 		return errors.Wrap(err, "failed to add provider '%s' to user with id '%d'", provider.Name, userID)

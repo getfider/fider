@@ -42,11 +42,11 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, post
 	notification := &models.Notification{
 		Title:     title,
 		Link:      link,
-		CreatedOn: now,
+		CreatedAt: now,
 		Read:      false,
 	}
 	err := s.trx.Get(&notification.ID, `
-		INSERT INTO notifications (tenant_id, user_id, title, link, read, post_id, author_id, created_on, updated_on) 
+		INSERT INTO notifications (tenant_id, user_id, title, link, read, post_id, author_id, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8)
 		RETURNING id
 	`, s.tenant.ID, user.ID, title, link, false, postID, s.user.ID, now)
@@ -74,7 +74,7 @@ func (s *NotificationStorage) MarkAsRead(id int) error {
 		return nil
 	}
 	_, err := s.trx.Execute(`
-		UPDATE notifications SET read = true, updated_on = $1
+		UPDATE notifications SET read = true, updated_at = $1
 		WHERE id = $2 AND tenant_id = $3 AND user_id = $4 AND read = false
 	`, time.Now(), id, s.tenant.ID, s.user.ID)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *NotificationStorage) MarkAllAsRead() error {
 		return nil
 	}
 	_, err := s.trx.Execute(`
-		UPDATE notifications SET read = true, updated_on = $1
+		UPDATE notifications SET read = true, updated_at = $1
 		WHERE tenant_id = $2 AND user_id = $3 AND read = false
 	`, time.Now(), s.tenant.ID, s.user.ID)
 	if err != nil {
@@ -102,10 +102,10 @@ func (s *NotificationStorage) MarkAllAsRead() error {
 func (s *NotificationStorage) GetActiveNotifications() ([]*models.Notification, error) {
 	notifications := []*models.Notification{}
 	err := s.trx.Select(&notifications, `
-		SELECT id, title, link, read, created_on 
+		SELECT id, title, link, read, created_at 
 		FROM notifications 
 		WHERE tenant_id = $1 AND user_id = $2
-		AND (read = false OR updated_on > CURRENT_DATE - INTERVAL '30 days')
+		AND (read = false OR updated_at > CURRENT_DATE - INTERVAL '30 days')
 	`, s.tenant.ID, s.user.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get active notifications")
@@ -117,7 +117,7 @@ func (s *NotificationStorage) GetActiveNotifications() ([]*models.Notification, 
 func (s *NotificationStorage) GetNotification(id int) (*models.Notification, error) {
 	notification := &models.Notification{}
 	err := s.trx.Get(notification, `
-		SELECT id, title, link, read, created_on 
+		SELECT id, title, link, read, created_at 
 		FROM notifications
 		WHERE id = $1 AND tenant_id = $2 AND user_id = $3
 	`, id, s.tenant.ID, s.user.ID)

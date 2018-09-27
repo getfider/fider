@@ -41,7 +41,7 @@ func (s *NotificationStorage) Insert(user *models.User, title, link string, post
 		Title:     title,
 		Link:      link,
 		Read:      false,
-		CreatedOn: time.Now(),
+		CreatedAt: time.Now(),
 	}
 	all, ok := s.notifications[user]
 	if !ok {

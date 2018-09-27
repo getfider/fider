@@ -121,7 +121,7 @@ func (s *PostStorage) AddComment(post *models.Post, content string) (int, error)
 	s.postComments[post.ID] = append(s.postComments[post.ID], &models.Comment{
 		ID:        s.lastCommentID,
 		Content:   content,
-		CreatedOn: time.Now(),
+		CreatedAt: time.Now(),
 		User:      s.user,
 	})
 
@@ -148,7 +148,7 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 		return err
 	}
 	comment.Content = content
-	comment.EditedOn = &now
+	comment.EditedAt = &now
 	comment.EditedBy = s.user
 	return nil
 }
@@ -183,7 +183,7 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status int) er
 				storedPost.Response = &models.PostResponse{
 					Text:        text,
 					User:        s.user,
-					RespondedOn: time.Now(),
+					RespondedAt: time.Now(),
 				}
 			}
 		}
@@ -203,7 +203,7 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 		},
 		Text:        "",
 		User:        s.user,
-		RespondedOn: time.Now(),
+		RespondedAt: time.Now(),
 	}
 	return nil
 }

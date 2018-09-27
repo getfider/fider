@@ -48,7 +48,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     const response = await actions.updateComment(this.props.post.number, this.state.comment.id, this.state.newContent);
     if (response.ok) {
       this.state.comment.content = this.state.newContent;
-      this.state.comment.editedOn = new Date().toISOString();
+      this.state.comment.editedAt = new Date().toISOString();
       this.state.comment.editedBy = Fider.session.user;
       this.setState({
         comment: this.state.comment
@@ -66,11 +66,11 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   public render() {
     const c = this.state.comment;
 
-    const edittedMetadata = !!c.editedOn &&
+    const edittedMetadata = !!c.editedAt &&
       !!c.editedBy && (
         <div className="c-comment-metadata">
           ·{" "}
-          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedOn)}`}>edited</span>
+          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>edited</span>
         </div>
       );
 
@@ -80,7 +80,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
         <div className="c-comment-content">
           <UserName user={c.user} />
           <div className="c-comment-metadata">
-            · <Moment date={c.createdOn} />
+            · <Moment date={c.createdAt} />
           </div>
           {edittedMetadata}
           {!this.state.isEditting &&

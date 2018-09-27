@@ -55,7 +55,7 @@ var declinedPost = &models.Post{
 	Number:      10,
 	Title:       "Go is fast",
 	Description: "Very tiny description",
-	CreatedOn:   time.Date(2018, 3, 23, 19, 33, 22, 0, time.UTC),
+	CreatedAt:   time.Date(2018, 3, 23, 19, 33, 22, 0, time.UTC),
 	User: &models.User{
 		Name: "Faceless",
 	},
@@ -64,7 +64,7 @@ var declinedPost = &models.Post{
 	Status:        models.PostDeclined,
 	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
-		RespondedOn: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
+		RespondedAt: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
 		User: &models.User{
 			Name: "John Snow",
 		},
@@ -76,7 +76,7 @@ var openPost = &models.Post{
 	Number:      15,
 	Title:       "Go is great",
 	Description: "",
-	CreatedOn:   time.Date(2018, 2, 21, 15, 51, 35, 0, time.UTC),
+	CreatedAt:   time.Date(2018, 2, 21, 15, 51, 35, 0, time.UTC),
 	User: &models.User{
 		Name: "Someone else",
 	},
@@ -89,7 +89,7 @@ var duplicatePost = &models.Post{
 	Number:      20,
 	Title:       "Go is easy",
 	Description: "",
-	CreatedOn:   time.Date(2018, 1, 12, 1, 46, 59, 0, time.UTC),
+	CreatedAt:   time.Date(2018, 1, 12, 1, 46, 59, 0, time.UTC),
 	User: &models.User{
 		Name: "Faceless",
 	},
@@ -98,7 +98,7 @@ var duplicatePost = &models.Post{
 	Status:        models.PostDuplicate,
 	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
-		RespondedOn: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
+		RespondedAt: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),
 		User: &models.User{
 			Name: "Arya Stark",
 		},
