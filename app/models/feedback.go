@@ -140,27 +140,44 @@ var (
 	//PostDeleted is used when the post is completely removed from the site and should never be shown again
 	PostDeleted PostStatus = 6
 )
+var postStatusIDs = map[PostStatus]string{
+	PostOpen:      "open",
+	PostStarted:   "started",
+	PostCompleted: "completed",
+	PostDeclined:  "declined",
+	PostPlanned:   "planned",
+	PostDuplicate: "duplicate",
+	PostDeleted:   "deleted",
+}
 
-// GetPostStatusName returns the name of a post status
-func GetPostStatusName(status PostStatus) string {
-	switch status {
-	case PostOpen:
-		return "Open"
-	case PostStarted:
-		return "Started"
-	case PostCompleted:
-		return "Completed"
-	case PostDeclined:
-		return "Declined"
-	case PostPlanned:
-		return "Planned"
-	case PostDuplicate:
-		return "Duplicate"
-	case PostDeleted:
-		return "Deleted"
-	default:
-		return "Unknown"
+var postStatusNames = map[string]PostStatus{
+	"open":      PostOpen,
+	"started":   PostStarted,
+	"completed": PostCompleted,
+	"declined":  PostDeclined,
+	"planned":   PostPlanned,
+	"duplicate": PostDuplicate,
+	"deleted":   PostDeleted,
+}
+
+// MarshalText returns the Text version of the post status
+func (status PostStatus) MarshalText() ([]byte, error) {
+	return []byte(postStatusIDs[status]), nil
+}
+
+// UnmarshalText parse string into a post status
+func (status *PostStatus) UnmarshalText(text []byte) error {
+	*status = postStatusNames[string(text)]
+	return nil
+}
+
+// Name returns the name of a post status
+func (status PostStatus) Name() string {
+	name, ok := postStatusIDs[status]
+	if ok {
+		return name
 	}
+	return "Unknown"
 }
 
 var (

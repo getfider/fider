@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -78,14 +77,14 @@ var roleNames = map[string]Role{
 	"administrator": RoleAdministrator,
 }
 
-// MarshalJSON returns the JSON version of the role
-func (role Role) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, roleIDs[role])), nil
+// MarshalText returns the Text version of the post status
+func (role Role) MarshalText() ([]byte, error) {
+	return []byte(roleIDs[role]), nil
 }
 
-// UnmarshalString parse string into a role
-func (role *Role) UnmarshalString(s string) error {
-	*role = roleNames[s]
+// UnmarshalText parse string into a post status
+func (role *Role) UnmarshalText(text []byte) error {
+	*role = roleNames[string(text)]
 	return nil
 }
 

@@ -21,7 +21,7 @@ type Post interface {
 	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
 	Search(query, filter, limit string, tags []string) ([]*models.Post, error)
 	GetAll() ([]*models.Post, error)
-	CountPerStatus() (map[int]int, error)
+	CountPerStatus() (map[models.PostStatus]int, error)
 	Add(title, description string) (*models.Post, error)
 	Update(post *models.Post, title, description string) (*models.Post, error)
 	AddComment(post *models.Post, content string) (int, error)

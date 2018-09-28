@@ -96,8 +96,8 @@ func (c *dbComment) toModel() *models.Comment {
 }
 
 type dbStatusCount struct {
-	Status int `db:"status"`
-	Count  int `db:"count"`
+	Status models.PostStatus `db:"status"`
+	Count  int               `db:"count"`
 }
 
 // PostStorage contains read and write operations for posts
@@ -258,13 +258,13 @@ func (s *PostStorage) GetAll() ([]*models.Post, error) {
 }
 
 // CountPerStatus returns total number of posts per status
-func (s *PostStorage) CountPerStatus() (map[int]int, error) {
+func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 	stats := []*dbStatusCount{}
 	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to count posts per status")
 	}
-	result := make(map[int]int, len(stats))
+	result := make(map[models.PostStatus]int, len(stats))
 	for _, v := range stats {
 		result[v.Status] = v.Count
 	}

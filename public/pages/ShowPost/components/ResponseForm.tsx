@@ -12,7 +12,7 @@ interface ResponseFormProps {
 
 interface ResponseFormState {
   showModal: boolean;
-  status: number;
+  status: string;
   text: string;
   originalNumber: number;
   error?: Failure;
@@ -51,7 +51,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
 
   private setStatus = (opt?: SelectOption) => {
     if (opt) {
-      this.setState({ status: parseInt(opt.value, 10) });
+      this.setState({ status: opt.value });
     }
   };
 

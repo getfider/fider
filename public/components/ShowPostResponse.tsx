@@ -9,7 +9,7 @@ interface ShowPostStatusProps {
 }
 
 export const ShowPostStatus = (props: ShowPostStatusProps) => {
-  return <span className={`status-label status-${props.status.slug}`}>{props.status.title}</span>;
+  return <span className={`status-label status-${props.status.value}`}>{props.status.title}</span>;
 };
 
 const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -31,7 +31,7 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
 };
 
 interface PostResponseProps {
-  status: number;
+  status: string;
   response: PostResponse | null;
 }
 

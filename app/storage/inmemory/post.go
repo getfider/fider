@@ -84,8 +84,8 @@ func (s *PostStorage) GetAll() ([]*models.Post, error) {
 }
 
 // CountPerStatus returns total number of posts per status
-func (s *PostStorage) CountPerStatus() (map[int]int, error) {
-	return make(map[int]int, 0), nil
+func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
+	return make(map[models.PostStatus]int, 0), nil
 }
 
 // Search existing posts based on input

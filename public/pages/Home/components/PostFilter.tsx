@@ -33,7 +33,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     PostStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
         text: s.title.toLowerCase(),
-        value: s.slug,
+        value: s.value,
         content: (
           <span>
             {s.title} <a className="counter">{this.props.countPerStatus[s.value]}</a>

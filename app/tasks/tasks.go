@@ -172,7 +172,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, post.Title, models.GetPostStatusName(post.Status))
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, post.Title, post.Status.Name())
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
@@ -209,7 +209,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Parse(post.Response.Text),
-			"status":      models.GetPostStatusName(post.Status),
+			"status":      post.Status.Name(),
 			"duplicate":   duplicate,
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
