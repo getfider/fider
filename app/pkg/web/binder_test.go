@@ -195,8 +195,8 @@ type pizza struct {
 	TheSize64 Size64 `route:"size64"`
 }
 
-func (p *Size) UnmarshalString(s string) error {
-	if s == "large" {
+func (p *Size) UnmarshalText(s []byte) error {
+	if string(s) == "large" {
 		*p = Large
 	} else {
 		*p = Small
