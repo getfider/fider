@@ -66,7 +66,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   public render() {
     const c = this.state.comment;
 
-    const edittedMetadata = !!c.editedAt &&
+    const editedMetadata = !!c.editedAt &&
       !!c.editedBy && (
         <div className="c-comment-metadata">
           ·{" "}
@@ -82,7 +82,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
           <div className="c-comment-metadata">
             · <Moment date={c.createdAt} />
           </div>
-          {edittedMetadata}
+          {editedMetadata}
           {!this.state.isEditting &&
             this.canEditComment(c) && (
               <div className="c-comment-metadata">

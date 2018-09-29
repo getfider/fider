@@ -43,7 +43,12 @@ func CreatePost() web.HandlerFunc {
 
 		c.Enqueue(tasks.NotifyAboutNewPost(post))
 
-		return c.Ok(post)
+		return c.Ok(web.Map{
+			"id":     post.ID,
+			"number": post.Number,
+			"title":  post.Title,
+			"slug":   post.Slug,
+		})
 	}
 }
 
@@ -145,14 +150,16 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Posts.AddComment(post, input.Model.Content)
+		id, err := c.Services().Posts.AddComment(post, input.Model.Content)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
 
-		return c.Ok(web.Map{})
+		return c.Ok(web.Map{
+			"id": id,
+		})
 	}
 }
 

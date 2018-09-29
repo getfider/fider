@@ -89,8 +89,8 @@ type Comment struct {
 	Content   string     `json:"content"`
 	CreatedAt time.Time  `json:"createdAt"`
 	User      *User      `json:"user"`
-	EditedAt  *time.Time `json:"editedAt"`
-	EditedBy  *User      `json:"editedBy"`
+	EditedAt  *time.Time `json:"editedAt,omitempty"`
+	EditedBy  *User      `json:"editedBy,omitempty"`
 }
 
 //Tag represents a simple tag
