@@ -18,7 +18,7 @@ type Post struct {
 	TotalVotes    int           `json:"totalVotes"`
 	TotalComments int           `json:"totalComments"`
 	Status        PostStatus    `json:"status"`
-	Response      *PostResponse `json:"response"`
+	Response      *PostResponse `json:"response,omitempty"`
 	Tags          []string      `json:"tags"`
 }
 
