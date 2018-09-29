@@ -238,7 +238,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		"tenantName":  "Demonstration",
 		"content":     template.HTML("<p>Planned for next release.</p>"),
 		"duplicate":   template.HTML(""),
-		"status":      "Planned",
+		"status":      "planned",
 		"view":        template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 		"unsubscribe": template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>"),
@@ -259,7 +259,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
 	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
 	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **Planned**")
+	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
 }
 
 func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
@@ -290,7 +290,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"tenantName":  "Demonstration",
 		"content":     template.HTML(""),
 		"duplicate":   template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>Add support for TypeScript</a>"),
-		"status":      "Duplicate",
+		"status":      "duplicate",
 		"view":        template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 		"unsubscribe": template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>unsubscribe from it</a>"),
@@ -311,7 +311,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
 	Expect(notifications[0].Link).Equals("/posts/2/i-need-typescript")
 	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **Duplicate**")
+	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **duplicate**")
 }
 
 func TestSendInvites(t *testing.T) {

@@ -49,7 +49,7 @@ func (i *dbPost) toModel() *models.Post {
 		HasVoted:      i.HasVoted,
 		TotalVotes:    i.TotalVotes,
 		TotalComments: i.TotalComments,
-		Status:        i.Status,
+		Status:        models.PostStatus(i.Status),
 		User:          i.User.toModel(),
 		Tags:          i.Tags,
 	}
@@ -65,7 +65,7 @@ func (i *dbPost) toModel() *models.Post {
 				Number: int(i.OriginalNumber.Int64),
 				Slug:   i.OriginalSlug.String,
 				Title:  i.OriginalTitle.String,
-				Status: int(i.OriginalStatus.Int64),
+				Status: models.PostStatus(i.OriginalStatus.Int64),
 			}
 		}
 	}
@@ -96,8 +96,8 @@ func (c *dbComment) toModel() *models.Comment {
 }
 
 type dbStatusCount struct {
-	Status int `db:"status"`
-	Count  int `db:"count"`
+	Status models.PostStatus `db:"status"`
+	Count  int               `db:"count"`
 }
 
 // PostStorage contains read and write operations for posts
@@ -195,7 +195,7 @@ var (
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
-													WHERE p.status != ` + strconv.Itoa(models.PostDeleted) + ` AND %s
+													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s
 													GROUP BY p.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
 )
 
@@ -258,13 +258,13 @@ func (s *PostStorage) GetAll() ([]*models.Post, error) {
 }
 
 // CountPerStatus returns total number of posts per status
-func (s *PostStorage) CountPerStatus() (map[int]int, error) {
+func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 	stats := []*dbStatusCount{}
 	err := s.trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to count posts per status")
 	}
-	result := make(map[int]int, len(stats))
+	result := make(map[models.PostStatus]int, len(stats))
 	for _, v := range stats {
 		result[v.Status] = v.Count
 	}
@@ -293,7 +293,7 @@ func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			ORDER BY %s DESC
 			LIMIT %s
 		`, innerQuery, scoreField, scoreField, limit)
-		err = s.trx.Select(&posts, sql, s.tenant.ID, pq.Array([]int{
+		err = s.trx.Select(&posts, sql, s.tenant.ID, pq.Array([]models.PostStatus{
 			models.PostOpen,
 			models.PostStarted,
 			models.PostPlanned,
@@ -604,7 +604,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 }
 
 // SetResponse changes current post response
-func (s *PostStorage) SetResponse(post *models.Post, text string, status int) error {
+func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
 	if status == models.PostDuplicate {
 		return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
 	}

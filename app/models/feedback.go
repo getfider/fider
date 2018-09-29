@@ -17,8 +17,8 @@ type Post struct {
 	HasVoted      bool          `json:"hasVoted"`
 	TotalVotes    int           `json:"totalVotes"`
 	TotalComments int           `json:"totalComments"`
-	Status        int           `json:"status"`
-	Response      *PostResponse `json:"response"`
+	Status        PostStatus    `json:"status"`
+	Response      *PostResponse `json:"response,omitempty"`
 	Tags          []string      `json:"tags"`
 }
 
@@ -61,10 +61,10 @@ type EditComment struct {
 
 // SetResponse represents the action to update an post response
 type SetResponse struct {
-	Number         int    `route:"number"`
-	Status         int    `json:"status"`
-	Text           string `json:"text"`
-	OriginalNumber int    `json:"originalNumber"`
+	Number         int        `route:"number"`
+	Status         PostStatus `json:"status"`
+	Text           string     `json:"text"`
+	OriginalNumber int        `json:"originalNumber"`
 }
 
 //PostResponse is a staff response to a given post
@@ -77,10 +77,10 @@ type PostResponse struct {
 
 //OriginalPost holds details of the original post of a duplicate
 type OriginalPost struct {
-	Number int    `json:"number"`
-	Title  string `json:"title"`
-	Slug   string `json:"slug"`
-	Status int    `json:"status"`
+	Number int        `json:"number"`
+	Title  string     `json:"title"`
+	Slug   string     `json:"slug"`
+	Status PostStatus `json:"status"`
 }
 
 //Comment represents an user comment on an post
@@ -121,43 +121,63 @@ type AssignUnassignTag struct {
 	Number int    `route:"number"`
 }
 
+//PostStatus is the status of a given post
+type PostStatus int
+
 var (
 	//PostOpen is the default status
-	PostOpen = 0
+	PostOpen PostStatus
 	//PostStarted is used when the post has been accepted and work is in progress
-	PostStarted = 1
+	PostStarted PostStatus = 1
 	//PostCompleted is used when the post has been accepted and already implemented
-	PostCompleted = 2
+	PostCompleted PostStatus = 2
 	//PostDeclined is used when organizers decide to decline an post
-	PostDeclined = 3
+	PostDeclined PostStatus = 3
 	//PostPlanned is used when organizers have accepted an post and it's on the roadmap
-	PostPlanned = 4
+	PostPlanned PostStatus = 4
 	//PostDuplicate is used when the post has already been posted before
-	PostDuplicate = 5
+	PostDuplicate PostStatus = 5
 	//PostDeleted is used when the post is completely removed from the site and should never be shown again
-	PostDeleted = 6
+	PostDeleted PostStatus = 6
 )
+var postStatusIDs = map[PostStatus]string{
+	PostOpen:      "open",
+	PostStarted:   "started",
+	PostCompleted: "completed",
+	PostDeclined:  "declined",
+	PostPlanned:   "planned",
+	PostDuplicate: "duplicate",
+	PostDeleted:   "deleted",
+}
 
-// GetPostStatusName returns the name of a post status
-func GetPostStatusName(status int) string {
-	switch status {
-	case PostOpen:
-		return "Open"
-	case PostStarted:
-		return "Started"
-	case PostCompleted:
-		return "Completed"
-	case PostDeclined:
-		return "Declined"
-	case PostPlanned:
-		return "Planned"
-	case PostDuplicate:
-		return "Duplicate"
-	case PostDeleted:
-		return "Deleted"
-	default:
-		return "Unknown"
+var postStatusNames = map[string]PostStatus{
+	"open":      PostOpen,
+	"started":   PostStarted,
+	"completed": PostCompleted,
+	"declined":  PostDeclined,
+	"planned":   PostPlanned,
+	"duplicate": PostDuplicate,
+	"deleted":   PostDeleted,
+}
+
+// MarshalText returns the Text version of the post status
+func (status PostStatus) MarshalText() ([]byte, error) {
+	return []byte(postStatusIDs[status]), nil
+}
+
+// UnmarshalText parse string into a post status
+func (status *PostStatus) UnmarshalText(text []byte) error {
+	*status = postStatusNames[string(text)]
+	return nil
+}
+
+// Name returns the name of a post status
+func (status PostStatus) Name() string {
+	name, ok := postStatusIDs[status]
+	if ok {
+		return name
 	}
+	return "Unknown"
 }
 
 var (

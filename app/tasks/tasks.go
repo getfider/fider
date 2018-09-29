@@ -159,7 +159,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
+func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
 		if prevStatus == post.Status {
@@ -172,7 +172,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, post.Title, models.GetPostStatusName(post.Status))
+		title := fmt.Sprintf("**%s** changed status of **%s** to **%s**", c.User().Name, post.Title, post.Status.Name())
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
@@ -209,7 +209,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus int) worker.Task {
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Parse(post.Response.Text),
-			"status":      models.GetPostStatusName(post.Status),
+			"status":      post.Status.Name(),
 			"duplicate":   duplicate,
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),

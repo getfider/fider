@@ -16,12 +16,12 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getFilterData(filter string) (string, []int, string) {
+func getFilterData(filter string) (string, []models.PostStatus, string) {
 	var (
 		condition string
 		sort      string
 	)
-	statuses := []int{
+	statuses := []models.PostStatus{
 		models.PostOpen,
 		models.PostStarted,
 		models.PostPlanned,
@@ -38,19 +38,19 @@ func getFilterData(filter string) (string, []int, string) {
 		sort = "comments"
 	case "planned":
 		sort = "response_date"
-		statuses = []int{models.PostPlanned}
+		statuses = []models.PostStatus{models.PostPlanned}
 	case "started":
 		sort = "response_date"
-		statuses = []int{models.PostStarted}
+		statuses = []models.PostStatus{models.PostStarted}
 	case "completed":
 		sort = "response_date"
-		statuses = []int{models.PostCompleted}
+		statuses = []models.PostStatus{models.PostCompleted}
 	case "declined":
 		sort = "response_date"
-		statuses = []int{models.PostDeclined}
+		statuses = []models.PostStatus{models.PostDeclined}
 	case "all":
 		sort = "id"
-		statuses = []int{
+		statuses = []models.PostStatus{
 			models.PostOpen,
 			models.PostStarted,
 			models.PostPlanned,

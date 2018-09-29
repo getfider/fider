@@ -21,7 +21,7 @@ type Post interface {
 	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
 	Search(query, filter, limit string, tags []string) ([]*models.Post, error)
 	GetAll() ([]*models.Post, error)
-	CountPerStatus() (map[int]int, error)
+	CountPerStatus() (map[models.PostStatus]int, error)
 	Add(title, description string) (*models.Post, error)
 	Update(post *models.Post, title, description string) (*models.Post, error)
 	AddComment(post *models.Post, content string) (int, error)
@@ -32,7 +32,7 @@ type Post interface {
 	AddSubscriber(post *models.Post, user *models.User) error
 	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	SetResponse(post *models.Post, text string, status int) error
+	SetResponse(post *models.Post, text string, status models.PostStatus) error
 	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
 	VotedBy() ([]int, error)
