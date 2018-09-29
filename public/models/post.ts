@@ -11,8 +11,8 @@ export interface Post {
   user: User;
   hasVoted: boolean;
   response: PostResponse | null;
-  totalVotes: number;
-  totalComments: number;
+  votesCount: number;
+  commentsCount: number;
   tags: string[];
 }
 

@@ -59,8 +59,8 @@ var declinedPost = &models.Post{
 	User: &models.User{
 		Name: "Faceless",
 	},
-	TotalVotes:    4,
-	TotalComments: 2,
+	VotesCount:    4,
+	CommentsCount: 2,
 	Status:        models.PostDeclined,
 	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
@@ -80,8 +80,8 @@ var openPost = &models.Post{
 	User: &models.User{
 		Name: "Someone else",
 	},
-	TotalVotes:    4,
-	TotalComments: 2,
+	VotesCount:    4,
+	CommentsCount: 2,
 	Status:        models.PostOpen,
 }
 
@@ -93,8 +93,8 @@ var duplicatePost = &models.Post{
 	User: &models.User{
 		Name: "Faceless",
 	},
-	TotalVotes:    4,
-	TotalComments: 2,
+	VotesCount:    4,
+	CommentsCount: 2,
 	Status:        models.PostDuplicate,
 	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
