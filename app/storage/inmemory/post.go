@@ -89,7 +89,7 @@ func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 }
 
 // Search existing posts based on input
-func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
+func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*models.Post, error) {
 	return s.posts, nil
 }
 

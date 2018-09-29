@@ -16,7 +16,7 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getFilterData(filter string) (string, []models.PostStatus, string) {
+func getViewData(view string) (string, []models.PostStatus, string) {
 	var (
 		condition string
 		sort      string
@@ -26,7 +26,7 @@ func getFilterData(filter string) (string, []models.PostStatus, string) {
 		models.PostStarted,
 		models.PostPlanned,
 	}
-	switch filter {
+	switch view {
 	case "recent":
 		sort = "id"
 	case "my-votes":

@@ -4,9 +4,9 @@ import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
 import { Fider } from "@fider/services";
 
 interface PostFilterProps {
-  activeFilter: string;
+  activeView: string;
   countPerStatus: { [key: string]: number };
-  filterChanged: (name: string) => void;
+  viewChanged: (name: string) => void;
 }
 
 export class PostFilter extends React.Component<PostFilterProps, {}> {
@@ -14,8 +14,8 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     super(props);
   }
 
-  private handleChangeFilter = (item: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
-    this.props.filterChanged(data.value as string);
+  private handleChangeView = (item: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+    this.props.viewChanged(data.value as string);
   };
 
   public render() {
@@ -42,8 +42,8 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
       });
     });
 
-    const filterExists = options.filter(x => x.value === this.props.activeFilter).length > 0;
-    const activeFilter = filterExists ? this.props.activeFilter : "trending";
+    const viewExists = options.filter(x => x.value === this.props.activeView).length > 0;
+    const activeView = viewExists ? this.props.activeView : "trending";
 
     return (
       <>
@@ -53,8 +53,8 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
           header="What do you want to see?"
           inline={true}
           options={options}
-          defaultValue={activeFilter}
-          onChange={this.handleChangeFilter}
+          defaultValue={activeView}
+          onChange={this.handleChangeView}
         />
       </>
     );

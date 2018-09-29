@@ -7,7 +7,7 @@ export const getAllPosts = async (): Promise<Result<Post[]>> => {
 
 export interface SearchPostsParams {
   query?: string;
-  filter?: string;
+  view?: string;
   limit?: number;
   tags?: string[];
 }
@@ -15,10 +15,10 @@ export interface SearchPostsParams {
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
   return await http.get<Post[]>(
     `/api/v1/posts${querystring.stringify({
-      t: params.tags,
-      q: params.query,
-      f: params.filter,
-      l: params.limit
+      tags: params.tags,
+      query: params.query,
+      view: params.view,
+      limit: params.limit
     })}`
   );
 };

@@ -272,7 +272,7 @@ func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 }
 
 // Search existing posts based on input
-func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
+func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*models.Post, error) {
 	innerQuery := s.getPostQuery("p.tenant_id = $1 AND p.status = ANY($2)")
 
 	if limit != "all" {
@@ -301,7 +301,7 @@ func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			models.PostDeclined,
 		}), ToTSQuery(query), query)
 	} else {
-		condition, statuses, sort := getFilterData(filter)
+		condition, statuses, sort := getViewData(view)
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
 			WHERE tags @> $3 %s
