@@ -8,7 +8,7 @@ import { actions, Failure, Fider } from "@fider/services";
 
 interface TagListItemProps {
   tag: Tag;
-  onTagEditted: (tag: Tag) => void;
+  onTagEdited: (tag: Tag) => void;
   onTagDeleted: (tag: Tag) => void;
 }
 
@@ -68,7 +68,7 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
         tag
       });
 
-      this.props.onTagEditted(tag);
+      this.props.onTagEdited(tag);
     } else {
       return result.error;
     }

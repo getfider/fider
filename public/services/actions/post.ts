@@ -73,8 +73,15 @@ export const respond = async (postNumber: number, input: SetResponseInput): Prom
     .then(http.event("post", "respond"));
 };
 
-export const createPost = async (title: string, description: string): Promise<Result<Post>> => {
-  return http.post<Post>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
+interface CreatePostResponse {
+  id: number;
+  number: number;
+  title: string;
+  slug: string;
+}
+
+export const createPost = async (title: string, description: string): Promise<Result<CreatePostResponse>> => {
+  return http.post<CreatePostResponse>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
 };
 
 export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {
