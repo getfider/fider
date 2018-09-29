@@ -24,9 +24,9 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
     <ListItem>
       <VoteCounter post={props.post} />
       <div className="c-list-item-content">
-        {props.post.totalComments > 0 && (
+        {props.post.commentsCount > 0 && (
           <div className="info right">
-            {props.post.totalComments} <i className="comments outline icon" />
+            {props.post.commentsCount} <i className="comments outline icon" />
           </div>
         )}
         <a className="c-list-item-title" href={`/posts/${props.post.number}/${props.post.slug}`}>

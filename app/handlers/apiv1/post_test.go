@@ -26,7 +26,7 @@ func TestCreatePostHandler(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(err).IsNil()
 	Expect(post.Title).Equals("My newest post :)")
-	Expect(post.TotalVotes).Equals(1)
+	Expect(post.VotesCount).Equals(1)
 }
 
 func TestCreatePostHandler_WithoutTitle(t *testing.T) {
@@ -252,8 +252,8 @@ func TestAddVoteHandler(t *testing.T) {
 	second, _ = services.Posts.GetByNumber(2)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(first.TotalVotes).Equals(0)
-	Expect(second.TotalVotes).Equals(1)
+	Expect(first.VotesCount).Equals(0)
+	Expect(second.VotesCount).Equals(1)
 }
 
 func TestAddVoteHandler_InvalidPost(t *testing.T) {
@@ -288,7 +288,7 @@ func TestRemoveVoteHandler(t *testing.T) {
 	post, _ = services.Posts.GetByNumber(post.Number)
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(post.TotalVotes).Equals(1)
+	Expect(post.VotesCount).Equals(1)
 }
 
 func TestDeletePostHandler_Authorized(t *testing.T) {

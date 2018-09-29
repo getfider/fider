@@ -22,8 +22,8 @@ beforeEach(() => {
     },
     hasVoted: false,
     response: null,
-    totalVotes: 5,
-    totalComments: 2,
+    votesCount: 5,
+    commentsCount: 2,
     tags: []
   };
 });
@@ -31,7 +31,7 @@ beforeEach(() => {
 describe("<VoteCounter />", () => {
   test("when hasVoted === true", () => {
     post.hasVoted = true;
-    post.totalVotes = 9;
+    post.votesCount = 9;
     const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("9");
@@ -41,7 +41,7 @@ describe("<VoteCounter />", () => {
 
   test("when hasVoted === false", () => {
     post.hasVoted = false;
-    post.totalVotes = 2;
+    post.votesCount = 2;
     const wrapper = shallow(<VoteCounter post={post} />);
     const button = wrapper.find("button");
     expect(button.text()).toBe("2");

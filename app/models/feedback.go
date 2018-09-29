@@ -15,8 +15,8 @@ type Post struct {
 	CreatedAt     time.Time     `json:"createdAt"`
 	User          *User         `json:"user"`
 	HasVoted      bool          `json:"hasVoted"`
-	TotalVotes    int           `json:"totalVotes"`
-	TotalComments int           `json:"totalComments"`
+	VotesCount    int           `json:"votesCount"`
+	CommentsCount int           `json:"commentsCount"`
 	Status        PostStatus    `json:"status"`
 	Response      *PostResponse `json:"response,omitempty"`
 	Tags          []string      `json:"tags"`
