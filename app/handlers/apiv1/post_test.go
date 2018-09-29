@@ -142,7 +142,7 @@ func TestSetResponseHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", post.ID).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.PostCompleted))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, models.PostCompleted.Name()))
 
 	post, _ = services.Posts.GetByNumber(post.Number)
 
@@ -165,7 +165,7 @@ func TestSetResponseHandler_Unauthorized(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
 		AddParam("number", post.ID).
-		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": %d, "text": "Done!" }`, models.PostCompleted))
+		ExecutePost(apiv1.SetResponse(), fmt.Sprintf(`{ "status": "%s", "text": "Done!" }`, models.PostCompleted.Name()))
 
 	post, _ = services.Posts.GetByNumber(post.Number)
 
@@ -182,7 +182,7 @@ func TestSetResponseHandler_Duplicate(t *testing.T) {
 	post1, _ := services.Posts.Add("The Post #1", "The Description #1")
 	post2, _ := services.Posts.Add("The Post #2", "The Description #2")
 
-	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.PostDuplicate, post2.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, models.PostDuplicate.Name(), post2.Number)
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -205,7 +205,7 @@ func TestSetResponseHandler_Duplicate_NotFound(t *testing.T) {
 	services.SetCurrentUser(mock.AryaStark)
 	post1, _ := services.Posts.Add("The Post #1", "The Description #1")
 
-	body := fmt.Sprintf(`{ "status": %d, "originalNumber": 9999 }`, models.PostDuplicate)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": 9999 }`, models.PostDuplicate.Name())
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -223,7 +223,7 @@ func TestSetResponseHandler_Duplicate_Itself(t *testing.T) {
 	services.SetCurrentUser(mock.AryaStark)
 	post, _ := services.Posts.Add("The Post #1", "The Description #1")
 
-	body := fmt.Sprintf(`{ "status": %d, "originalNumber": %d }`, models.PostDuplicate, post.Number)
+	body := fmt.Sprintf(`{ "status": "%s", "originalNumber": %d }`, models.PostDuplicate.Name(), post.Number)
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).

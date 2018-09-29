@@ -58,7 +58,7 @@ export const updateComment = async (postNumber: number, commentID: number, conte
 };
 
 interface SetResponseInput {
-  status: number;
+  status: string;
   text: string;
   originalNumber: number;
 }

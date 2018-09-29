@@ -61,9 +61,10 @@ func (b *DefaultBinder) bindRoute(idx int, target reflect.Value, targetType refl
 			value, err := strconv.ParseInt(params[name], 10, 64)
 			if err != nil {
 				obj := reflect.New(field.Type())
-				m := obj.MethodByName("UnmarshalString")
+				m := obj.MethodByName("UnmarshalText")
 				if m.IsValid() {
-					r := m.Call([]reflect.Value{reflect.ValueOf(params[name])})
+					b := []byte(params[name])
+					r := m.Call([]reflect.Value{reflect.ValueOf(b)})
 					if r[0].IsNil() {
 						field.Set(obj.Elem())
 					}

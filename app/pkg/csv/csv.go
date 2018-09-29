@@ -62,7 +62,7 @@ func FromPosts(posts []*models.Post) ([]byte, error) {
 			post.User.Name,
 			strconv.Itoa(post.TotalVotes),
 			strconv.Itoa(post.TotalComments),
-			models.GetPostStatusName(post.Status),
+			post.Status.Name(),
 			respondedBy,
 			respondedAt,
 			response,
