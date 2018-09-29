@@ -11,10 +11,10 @@ import (
 func SearchPosts() web.HandlerFunc {
 	return func(c web.Context) error {
 		posts, err := c.Services().Posts.Search(
-			c.QueryParam("q"),
-			c.QueryParam("f"),
-			c.QueryParam("l"),
-			c.QueryParamAsArray("t"),
+			c.QueryParam("query"),
+			c.QueryParam("view"),
+			c.QueryParam("limit"),
+			c.QueryParamAsArray("tags"),
 		)
 		if err != nil {
 			return c.Failure(err)

@@ -16,7 +16,7 @@ interface PostsContainerProps {
 interface PostsContainerState {
   loading: boolean;
   posts?: Post[];
-  filter: string;
+  view: string;
   tags: string[];
   query: string;
   limit?: number;
@@ -29,10 +29,10 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     this.state = {
       posts: this.props.posts,
       loading: false,
-      filter: querystring.get("f"),
-      query: querystring.get("q"),
-      tags: querystring.getArray("t"),
-      limit: querystring.getNumber("l")
+      view: querystring.get("view"),
+      query: querystring.get("query"),
+      tags: querystring.getArray("tags"),
+      limit: querystring.getNumber("limit")
     };
   }
 
@@ -44,23 +44,23 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       const query = this.state.query.trim().toLowerCase();
       navigator.replaceState(
         querystring.stringify({
-          t: this.state.tags,
-          q: query,
-          f: this.state.filter,
-          l: this.state.limit
+          tags: this.state.tags,
+          query,
+          view: this.state.view,
+          limit: this.state.limit
         })
       );
 
-      this.searchPosts(query, this.state.filter, this.state.limit, this.state.tags, reset);
+      this.searchPosts(query, this.state.view, this.state.limit, this.state.tags, reset);
     });
   }
 
   private timer?: number;
-  private async searchPosts(query: string, filter: string, limit: number | undefined, tags: string[], reset: boolean) {
+  private async searchPosts(query: string, view: string, limit: number | undefined, tags: string[], reset: boolean) {
     window.clearTimeout(this.timer);
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true });
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, filter, limit, tags }).then(response => {
+      actions.searchPosts({ query, view, limit, tags }).then(response => {
         if (this.state.loading) {
           this.setState({ loading: false, posts: response.data });
         }
@@ -68,8 +68,8 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     }, 200);
   }
 
-  private handleFilterChanged = (filter: string) => {
-    this.changeFilterCriteria({ filter }, true);
+  private handleViewChanged = (view: string) => {
+    this.changeFilterCriteria({ view }, true);
   };
 
   private handleTagsFilterChanged = (tags: string[]) => {
@@ -105,8 +105,8 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <PostFilter
-                  activeFilter={this.state.filter}
-                  filterChanged={this.handleFilterChanged}
+                  activeView={this.state.view}
+                  viewChanged={this.handleViewChanged}
                   countPerStatus={this.props.countPerStatus}
                 />
                 <TagsFilter
