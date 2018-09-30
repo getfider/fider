@@ -19,7 +19,7 @@ type Post interface {
 	GetBySlug(slug string) (*models.Post, error)
 	GetByNumber(number int) (*models.Post, error)
 	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
-	Search(query, filter, limit string, tags []string) ([]*models.Post, error)
+	Search(query, view, limit string, tags []string) ([]*models.Post, error)
 	GetAll() ([]*models.Post, error)
 	CountPerStatus() (map[models.PostStatus]int, error)
 	Add(title, description string) (*models.Post, error)

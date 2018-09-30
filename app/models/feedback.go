@@ -15,8 +15,8 @@ type Post struct {
 	CreatedAt     time.Time     `json:"createdAt"`
 	User          *User         `json:"user"`
 	HasVoted      bool          `json:"hasVoted"`
-	TotalVotes    int           `json:"totalVotes"`
-	TotalComments int           `json:"totalComments"`
+	VotesCount    int           `json:"votesCount"`
+	CommentsCount int           `json:"commentsCount"`
 	Status        PostStatus    `json:"status"`
 	Response      *PostResponse `json:"response,omitempty"`
 	Tags          []string      `json:"tags"`
@@ -89,8 +89,8 @@ type Comment struct {
 	Content   string     `json:"content"`
 	CreatedAt time.Time  `json:"createdAt"`
 	User      *User      `json:"user"`
-	EditedAt  *time.Time `json:"editedAt"`
-	EditedBy  *User      `json:"editedBy"`
+	EditedAt  *time.Time `json:"editedAt,omitempty"`
+	EditedBy  *User      `json:"editedBy,omitempty"`
 }
 
 //Tag represents a simple tag

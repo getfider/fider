@@ -89,7 +89,7 @@ func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 }
 
 // Search existing posts based on input
-func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
+func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*models.Post, error) {
 	return s.posts, nil
 }
 
@@ -156,7 +156,7 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 // AddVote adds user to post list of votes
 func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
 	s.postsVotedBy[user.ID] = append(s.postsVotedBy[user.ID], post.ID)
-	post.TotalVotes = post.TotalVotes + 1
+	post.VotesCount = post.VotesCount + 1
 	return nil
 }
 
@@ -168,7 +168,7 @@ func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
 			break
 		}
 	}
-	post.TotalVotes = post.TotalVotes - 1
+	post.VotesCount = post.VotesCount - 1
 	return nil
 }
 

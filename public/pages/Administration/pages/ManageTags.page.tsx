@@ -73,7 +73,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
     });
   };
 
-  private handleTagEditted = (tag: Tag) => {
+  private handleTagEdited = (tag: Tag) => {
     this.setState({
       allTags: this.state.allTags.sort(tagSorter)
     });
@@ -81,9 +81,7 @@ export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTag
 
   private getTagList(filter: (tag: Tag) => boolean) {
     return this.state.allTags.filter(filter).map(t => {
-      return (
-        <TagListItem key={t.id} tag={t} onTagDeleted={this.handleTagDeleted} onTagEditted={this.handleTagEditted} />
-      );
+      return <TagListItem key={t.id} tag={t} onTagDeleted={this.handleTagDeleted} onTagEdited={this.handleTagEdited} />;
     });
   }
 

@@ -16,7 +16,7 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getFilterData(filter string) (string, []models.PostStatus, string) {
+func getViewData(view string) (string, []models.PostStatus, string) {
 	var (
 		condition string
 		sort      string
@@ -26,16 +26,16 @@ func getFilterData(filter string) (string, []models.PostStatus, string) {
 		models.PostStarted,
 		models.PostPlanned,
 	}
-	switch filter {
+	switch view {
 	case "recent":
 		sort = "id"
 	case "my-votes":
 		condition = "AND has_voted = true"
 		sort = "id"
 	case "most-wanted":
-		sort = "votes"
+		sort = "votes_count"
 	case "most-discussed":
-		sort = "comments"
+		sort = "comments_count"
 	case "planned":
 		sort = "response_date"
 		statuses = []models.PostStatus{models.PostPlanned}
@@ -60,7 +60,7 @@ func getFilterData(filter string) (string, []models.PostStatus, string) {
 	case "trending":
 		fallthrough
 	default:
-		sort = "((COALESCE(recent_votes, 0)*5 + COALESCE(recent_comments, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
+		sort = "((COALESCE(recent_votes_count, 0)*5 + COALESCE(recent_comments_count, 0) *3)-1) / pow((EXTRACT(EPOCH FROM current_timestamp - created_at)/3600) + 2, 1.4)"
 	}
 	return condition, statuses, sort
 }

@@ -7,7 +7,7 @@ export const getAllPosts = async (): Promise<Result<Post[]>> => {
 
 export interface SearchPostsParams {
   query?: string;
-  filter?: string;
+  view?: string;
   limit?: number;
   tags?: string[];
 }
@@ -15,10 +15,10 @@ export interface SearchPostsParams {
 export const searchPosts = async (params: SearchPostsParams): Promise<Result<Post[]>> => {
   return await http.get<Post[]>(
     `/api/v1/posts${querystring.stringify({
-      t: params.tags,
-      q: params.query,
-      f: params.filter,
-      l: params.limit
+      tags: params.tags,
+      query: params.query,
+      view: params.view,
+      limit: params.limit
     })}`
   );
 };
@@ -73,8 +73,15 @@ export const respond = async (postNumber: number, input: SetResponseInput): Prom
     .then(http.event("post", "respond"));
 };
 
-export const createPost = async (title: string, description: string): Promise<Result<Post>> => {
-  return http.post<Post>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
+interface CreatePostResponse {
+  id: number;
+  number: number;
+  title: string;
+  slug: string;
+}
+
+export const createPost = async (title: string, description: string): Promise<Result<CreatePostResponse>> => {
+  return http.post<CreatePostResponse>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
 };
 
 export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {

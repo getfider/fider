@@ -23,10 +23,10 @@ type dbPost struct {
 	CreatedAt      time.Time      `db:"created_at"`
 	User           *dbUser        `db:"user"`
 	HasVoted       bool           `db:"has_voted"`
-	TotalVotes     int            `db:"votes"`
-	TotalComments  int            `db:"comments"`
-	RecentVotes    int            `db:"recent_votes"`
-	RecentComments int            `db:"recent_comments"`
+	VotesCount     int            `db:"votes_count"`
+	CommentsCount  int            `db:"comments_count"`
+	RecentVotes    int            `db:"recent_votes_count"`
+	RecentComments int            `db:"recent_comments_count"`
 	Status         int            `db:"status"`
 	Response       sql.NullString `db:"response"`
 	RespondedAt    dbx.NullTime   `db:"response_date"`
@@ -47,8 +47,8 @@ func (i *dbPost) toModel() *models.Post {
 		Description:   i.Description,
 		CreatedAt:     i.CreatedAt,
 		HasVoted:      i.HasVoted,
-		TotalVotes:    i.TotalVotes,
-		TotalComments: i.TotalComments,
+		VotesCount:    i.VotesCount,
+		CommentsCount: i.CommentsCount,
 		Status:        models.PostStatus(i.Status),
 		User:          i.User.toModel(),
 		Tags:          i.Tags,
@@ -156,10 +156,10 @@ var (
 																p.slug, 
 																p.description, 
 																p.created_at,
-																COALESCE(agg_s.all, 0) as votes,
-																COALESCE(agg_c.all, 0) as comments,
-																COALESCE(agg_s.recent, 0) AS recent_votes,
-																COALESCE(agg_c.recent, 0) AS recent_comments,																
+																COALESCE(agg_s.all, 0) as votes_count,
+																COALESCE(agg_c.all, 0) as comments_count,
+																COALESCE(agg_s.recent, 0) AS recent_votes_count,
+																COALESCE(agg_c.recent, 0) AS recent_comments_count,																
 																p.status, 
 																u.id AS user_id, 
 																u.name AS user_name, 
@@ -272,7 +272,7 @@ func (s *PostStorage) CountPerStatus() (map[models.PostStatus]int, error) {
 }
 
 // Search existing posts based on input
-func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*models.Post, error) {
+func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*models.Post, error) {
 	innerQuery := s.getPostQuery("p.tenant_id = $1 AND p.status = ANY($2)")
 
 	if limit != "all" {
@@ -301,7 +301,7 @@ func (s *PostStorage) Search(query, filter, limit string, tags []string) ([]*mod
 			models.PostDeclined,
 		}), ToTSQuery(query), query)
 	} else {
-		condition, statuses, sort := getFilterData(filter)
+		condition, statuses, sort := getViewData(view)
 		sql := fmt.Sprintf(`
 			SELECT * FROM (%s) AS q 
 			WHERE tags @> $3 %s
