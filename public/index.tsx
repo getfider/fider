@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
+import { ErrorBoundary } from "@fider/components";
 import { analytics, classSet, Fider } from "@fider/services";
 import { ToastContainer } from "react-toastify";
 
@@ -28,12 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
       "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
     });
     ReactDOM.render(
-      <>
+      <ErrorBoundary>
         <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && <Header />}
         {React.createElement(config.component, fider.session.props)}
         {config.showHeader && <Footer />}
-      </>,
+      </ErrorBoundary>,
       root
     );
   }
