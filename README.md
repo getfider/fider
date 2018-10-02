@@ -21,7 +21,7 @@
   </h3>
 </div>
 
-<div align="center">
+<div align="center left">
   <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="graphs/contributors">contributors</a></sub>
 </div>
 
