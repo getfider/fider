@@ -62,7 +62,7 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
     return (
       <div className="c-signin-control">
         {providersLen > 0 && (
-          <div>
+          <div className="l-signin-social">
             <div className="row">
               {Fider.settings.oauth.map((o, i) => (
                 <React.Fragment key={o.provider}>
@@ -74,12 +74,13 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
               ))}
             </div>
             <p className="info">We will never post to these accounts on your behalf.</p>
-            <div className="c-divider">OR</div>
           </div>
         )}
 
+        {providersLen > 0 && <div className="c-divider">OR</div>}
+
         {this.props.useEmail && (
-          <div>
+          <div className="l-signin-email">
             <p>Enter your email address to sign in</p>
             <Form error={this.state.error}>
               <Input
