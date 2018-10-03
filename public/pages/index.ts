@@ -1,5 +1,6 @@
 export * from "./Home";
 export * from "./Administration";
+export * from "./Error";
 export * from "./SignIn";
 export * from "./SignUp";
 export * from "./CompleteSignInProfile";
