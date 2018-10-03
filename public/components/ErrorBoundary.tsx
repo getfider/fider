@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShowError } from "./ShowError";
+import { ErrorPage } from "@fider/pages";
 
 interface ErrorBoundaryProps {
   onError?: (err: Error) => void;
@@ -36,7 +36,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     const { error, errorInfo } = this.state;
 
     if (error && errorInfo) {
-      return <ShowError error={error} errorInfo={errorInfo} />;
+      return <ErrorPage error={error} errorInfo={errorInfo} />;
     } else {
       return this.props.children;
     }

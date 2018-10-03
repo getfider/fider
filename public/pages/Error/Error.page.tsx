@@ -1,10 +1,10 @@
-import "./ShowError.scss";
+import "./Error.page.scss";
 import { Fider } from "@fider/services";
 import { TenantLogo } from "@fider/components";
 
 import * as React from "react";
 
-interface ShowErrorProps {
+interface ErrorPageProps {
   title?: string;
   message?: string;
   error: Error;
@@ -13,21 +13,21 @@ interface ShowErrorProps {
   showError?: () => boolean;
 }
 
-const defaultProps: Partial<ShowErrorProps> = {
+const defaultProps: Partial<ErrorPageProps> = {
   title: "Whoops!",
   message: "An unexpected rendering error has occurred.",
   showError: () => !Fider.isProduction()
 };
 
-export const ShowError: React.SFC<ShowErrorProps> = ({
+export const ErrorPage: React.SFC<ErrorPageProps> = ({
   title = "Whoops!",
   message = "An unexpected rendering error has occurred.",
   error,
   errorInfo,
   showError
-}: ShowErrorProps) => {
+}: ErrorPageProps) => {
   return (
-    <div className="c-show-error container failure-page">
+    <div id="p-error" className="container failure-page">
       <TenantLogo size={100} />
       <div className="content">
         <h2>{title}</h2>
@@ -44,4 +44,4 @@ export const ShowError: React.SFC<ShowErrorProps> = ({
   );
 };
 
-ShowError.defaultProps = defaultProps;
+ErrorPage.defaultProps = defaultProps;
