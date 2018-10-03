@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { analytics, classSet, Fider } from "@fider/services";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 import "semantic-ui-css/components/reset.min.css";
 import "semantic-ui-css/components/icon.min.css";
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     ReactDOM.render(
       <>
-        <ToastContainer position="top-right" toastClassName="c-toast" />
+        <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
         {config.showHeader && <Header />}
         {React.createElement(config.component, fider.session.props)}
         {config.showHeader && <Footer />}
