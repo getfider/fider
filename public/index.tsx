@@ -14,6 +14,12 @@ import "semantic-ui-css/components/transition.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";
 
+const logProductionError = (err: Error) => {
+  if (Fider.isProduction()) {
+    analytics.error(err);
+  }
+};
+
 window.addEventListener("error", (evt: ErrorEvent) => {
   analytics.error(evt.error);
 });
@@ -29,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
     });
     ReactDOM.render(
-      <ErrorBoundary>
+      <ErrorBoundary showError={!Fider.isProduction()} onError={logProductionError}>
         <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && <Header />}
         {React.createElement(config.component, fider.session.props)}
