@@ -16,6 +16,7 @@ import "@fider/assets/styles/main.scss";
 
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {
+    console.error(err); // tslint:disable-line
     analytics.error(err);
   }
 };
@@ -35,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
     });
     ReactDOM.render(
-      <ErrorBoundary showError={!Fider.isProduction()} onError={logProductionError}>
+      <ErrorBoundary onError={logProductionError}>
         <ToastContainer position="top-right" toastClassName="c-toast" />
         {config.showHeader && <Header />}
         {React.createElement(config.component, fider.session.props)}

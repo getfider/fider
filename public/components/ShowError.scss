@@ -1,16 +1,7 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-show-error {
-    margin-top: 20px;
-
-    .logo {
-        max-height: 100px;
-        margin: 0 auto;
-        display: block;
-    }
-
-    .content {
-        margin: 0 auto;
-        max-width: 300px;
+    .error {
+        margin-top: 10px;
     }
 }

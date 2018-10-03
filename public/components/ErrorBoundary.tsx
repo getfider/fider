@@ -2,12 +2,12 @@ import * as React from "react";
 import { ShowError } from "./ShowError";
 
 interface ErrorBoundaryProps {
-  showError?: boolean;
   onError?: (err: Error) => void;
 }
 
 interface ErrorBoundaryState {
   error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -15,28 +15,28 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     super(props);
 
     this.state = {
-      error: undefined
+      error: undefined,
+      errorInfo: undefined
     };
   }
 
-  public componentDidCatch(error: Error, errorinfo: React.ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     const onError = this.props.onError;
     if (onError) {
       onError(error);
     }
 
     this.setState({
-      error
+      error,
+      errorInfo
     });
   }
 
   public render() {
-    const showError = this.props.showError;
-    const error = this.state.error;
+    const { error, errorInfo } = this.state;
 
-    if (error) {
-      const message = showError ? error.message : undefined;
-      return <ShowError message={message} />;
+    if (error && errorInfo) {
+      return <ShowError error={error} errorInfo={errorInfo} />;
     } else {
       return this.props.children;
     }
