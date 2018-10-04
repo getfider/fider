@@ -102,3 +102,9 @@ type Notification interface {
 	GetActiveNotifications() ([]*models.Notification, error)
 	GetNotification(id int) (*models.Notification, error)
 }
+
+// Event contains read and write operations for Audit Events
+type Event interface {
+	Base
+	Add(name string) (*models.Event, error)
+}
