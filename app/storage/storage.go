@@ -107,4 +107,5 @@ type Notification interface {
 type Event interface {
 	Base
 	Add(name string) (*models.Event, error)
+	GetByID(id int) (*models.Event, error)
 }

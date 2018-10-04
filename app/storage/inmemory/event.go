@@ -7,7 +7,7 @@ type EventStorage struct {
 	lastID int
 	user   *models.User
 	tenant *models.Tenant
-	events []*models.Event
+	events map[int]*models.Event
 }
 
 // NewEventStorage creates a new inmemory EventStorage
@@ -33,7 +33,13 @@ func (e *EventStorage) Add(name string) (*models.Event, error) {
 		TenantID: e.tenant.ID,
 		Name:     name,
 	}
-	e.events = append(e.events, event)
+	e.events[event.ID] = event
 
+	return event, nil
+}
+
+// GetByID returns the event with the specified id
+func (e *EventStorage) GetByID(id int) (*models.Event, error) {
+	event := e.events[id]
 	return event, nil
 }
