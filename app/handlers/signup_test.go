@@ -139,6 +139,7 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	ExpectFiderToken(cookie.Value, user)
 	Expect(cookie.Domain).Equals("test.fider.io")
 	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(5*time.Minute), 5*time.Second)
 }
