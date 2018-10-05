@@ -33,18 +33,18 @@ func (e *EventStorage) SetCurrentUser(user *models.User) {
 }
 
 // Add stores a new event
-func (e *EventStorage) Add(name string) (*models.Event, error) {
-	// TODO: Add Query Logic, Review struct tags
+func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 	event := &models.Event{
 		TenantID:  e.tenant.ID,
+		ClientIP:  clientIP,
 		Name:      name,
 		CreatedAt: time.Now(),
 	}
 	err := e.trx.Get(&event.ID, `
-		INSERT INTO events (tenant_id, name, created_at) 
-		VALUES ($1, $2, $3)
+		INSERT INTO events (tenant_id, client_ip, name, created_at) 
+		VALUES ($1, $2, $3, $4)
 		RETURNING id
-	`, event.TenantID, event.Name, event.CreatedAt)
+	`, event.TenantID, event.ClientIP, event.Name, event.CreatedAt)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert event")
@@ -57,7 +57,7 @@ func (e *EventStorage) Add(name string) (*models.Event, error) {
 func (e *EventStorage) GetByID(id int) (*models.Event, error) {
 	event := &models.Event{}
 	err := e.trx.Get(event, `
-		SELECT id, tenant_id, name, created_at
+		SELECT id, tenant_id, client_ip, name, created_at
 		FROM events
 		WHERE id = $1 AND tenant_id = $2
 	`, id, e.tenant.ID)

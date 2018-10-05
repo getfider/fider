@@ -1,6 +1,9 @@
 package inmemory
 
-import "github.com/getfider/fider/app/models"
+import (
+	"time"
+	"github.com/getfider/fider/app/models"
+)
 
 // EventStorage contains read and write operations for Audit Events
 type EventStorage struct {
@@ -26,12 +29,14 @@ func (e *EventStorage) SetCurrentUser(user *models.User) {
 }
 
 // Add stores a new event
-func (e *EventStorage) Add(name string) (*models.Event, error) {
+func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 	e.lastID++
 	event := &models.Event{
 		ID:       e.lastID,
 		TenantID: e.tenant.ID,
+		ClientIP: clientIP,
 		Name:     name,
+		CreatedAt: time.Now()
 	}
 	e.events[event.ID] = event
 
