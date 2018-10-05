@@ -98,7 +98,7 @@ type APIAuthorize struct {
 	APIKey string `json:"apiKey"`
 }
 
-// Event is used for tracking audit events and actions
+// Event is used for tracking client audit events and actions
 type Event struct {
 	ID        int       `json:"id" db:"id"`
 	ClientIP  string    `json:"clientIP" db:"client_ip"`
