@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"time"
+
 	"github.com/getfider/fider/app/models"
 )
 
@@ -32,11 +33,11 @@ func (e *EventStorage) SetCurrentUser(user *models.User) {
 func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 	e.lastID++
 	event := &models.Event{
-		ID:       e.lastID,
-		TenantID: e.tenant.ID,
-		ClientIP: clientIP,
-		Name:     name,
-		CreatedAt: time.Now()
+		ID:        e.lastID,
+		TenantID:  e.tenant.ID,
+		ClientIP:  clientIP,
+		Name:      name,
+		CreatedAt: time.Now(),
 	}
 	e.events[event.ID] = event
 
