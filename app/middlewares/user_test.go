@@ -128,6 +128,7 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.Value).Equals("")
 	Expect(cookie.Domain).Equals("test.fider.io")
 	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(-100*time.Hour), 5*time.Second)
 
@@ -136,6 +137,7 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.Value).Equals(token)
 	Expect(cookie.Domain).Equals("")
 	Expect(cookie.HttpOnly).IsTrue()
+	Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 }

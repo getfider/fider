@@ -17,7 +17,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 Install the following tools:
 
-- Go 1.10+ (https://golang.org/)
+- Go 1.11+ (https://golang.org/)
 - Node.js 10+ (https://nodejs.org/ or run `nvm use` if you have nvm installed)
 - Docker (https://www.docker.com/)
 
