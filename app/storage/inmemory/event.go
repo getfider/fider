@@ -34,7 +34,6 @@ func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 	e.lastID++
 	event := &models.Event{
 		ID:        e.lastID,
-		TenantID:  e.tenant.ID,
 		ClientIP:  clientIP,
 		Name:      name,
 		CreatedAt: time.Now(),

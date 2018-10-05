@@ -19,7 +19,6 @@ func TestEventStorage_AddAndGet(t *testing.T) {
 
 	event, err = events.GetByID(event.ID)
 	Expect(err).IsNil()
-	Expect(event.TenantID).Equals(demoTenant.ID)
 	Expect(event.ClientIP).Equals(clientIP)
 	Expect(event.Name).Equals(name)
 }
