@@ -97,7 +97,7 @@ func (Test) All() {
 func (Test) Coverage() error {
 	mg.Deps(Build.Server)
 	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
-	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-coverprofile=cover.out", "-coverpkg=all", "-race")
+	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-coverprofile=cover.out", "-coverpkg=all", "-p=8", "-race")
 }
 
 func (Test) Server() error {
