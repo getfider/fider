@@ -39,7 +39,11 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
           and take note of it.
         </p>
         <p className="info">
-          To learn how to use the API, read the <a href="#">official documentation</a>.
+          To learn how to use the API, read the{" "}
+          <a href="https://getfider.com/docs/api" target="_blank">
+            official documentation
+          </a>
+          .
         </p>
         <p>
           <Button size="tiny" onClick={this.renegerate}>
