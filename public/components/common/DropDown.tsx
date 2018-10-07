@@ -136,7 +136,11 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   };
 
   public render() {
-    const displayLabel = this.state.selected ? this.state.selected.label : this.props.placeholder;
+    const text = this.state.selected ? (
+      this.state.selected.label
+    ) : (
+      <span className="c-dropdown-placeholder">{this.props.placeholder}</span>
+    );
 
     const dropdownClass = classSet({
       "c-dropdown": true,
@@ -152,7 +156,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
             <div className="c-dropdown-text">{this.props.renderSelected(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
-              <div>{displayLabel}</div>
+              <div>{text}</div>
               <span className="c-dropdown-arrow" />
             </div>
           )}

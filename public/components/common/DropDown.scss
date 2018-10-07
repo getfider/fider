@@ -32,6 +32,10 @@
     padding: 8px 52px 8px 10px;
     transition: all 200ms ease;
 
+    .c-dropdown-placeholder {
+      color: $gray-light;
+    }
+
     .c-dropdown-arrow {
       border-color: $gray-dark transparent transparent;
       border-style: solid;

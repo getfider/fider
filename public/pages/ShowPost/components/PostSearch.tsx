@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
-import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "@fider/components";
+import { FiderDropDown, FiderDropDownItem } from "@fider/components";
 
 interface PostSearchProps {
   exclude?: number[];
@@ -23,12 +23,12 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     this.search("");
   }
 
-  private onSearchChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownOnSearchChangeData) => {
-    this.search(data.searchQuery);
-  };
+  // private onSearchChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownOnSearchChangeData) => {
+  //   this.search(data.searchQuery);
+  // };
 
-  private onChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
-    this.props.onChanged(parseInt(data.value as string, 10));
+  private onChange = (item: FiderDropDownItem) => {
+    this.props.onChanged(item.value as number);
   };
 
   private search = (searchQuery: string) => {
@@ -44,39 +44,40 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     }, 200);
   };
 
-  private returnAll = (options: DropdownItemProps[], value: string) => options;
+  private returnAll = (options: FiderDropDownItem[], value: string) => options;
+
+  public renderItem = (item: FiderDropDownItem) => {
+    const post = this.state.posts.filter(p => p.number === item.value)[0];
+    const status = PostStatus.Get(post.status);
+    return (
+      <>
+        <span className="votes">
+          <i className="caret up icon" />
+          {post.votesCount}
+        </span>
+        <span className={`status-label status-${status.value}`}>{status.title}</span>
+        {post.title}
+      </>
+    );
+  };
 
   public render() {
-    const options = this.state.posts.map(i => {
-      const status = PostStatus.Get(i.status);
+    const items = this.state.posts.map(i => {
       return {
-        key: i.number,
-        text: i.title,
-        value: i.number,
-        content: (
-          <>
-            <span className="votes">
-              <i className="caret up icon" />
-              {i.votesCount}
-            </span>
-            <span className={`status-label status-${status.value}`}>{status.title}</span>
-            {i.title}
-          </>
-        )
+        label: i.title,
+        value: i.number
       };
     });
 
     return (
-      <Dropdown
+      <FiderDropDown
         className="c-post-search"
-        fluid={true}
-        selectOnBlur={false}
-        selection={true}
-        search={this.returnAll}
-        options={options}
+        // search={this.returnAll}
+        items={items}
         placeholder="Search original post"
         onChange={this.onChange}
-        onSearchChange={this.onSearchChange}
+        renderItem={this.renderItem}
+        // onSearchChange={this.onSearchChange}
       />
     );
   }
