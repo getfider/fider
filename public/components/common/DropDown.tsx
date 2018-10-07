@@ -14,9 +14,11 @@ export interface DropDownProps {
   defaultValue?: any;
   items: DropDownItem[];
   placeholder?: string;
+  searchable?: boolean;
   inline?: boolean;
   header?: string;
   onChange?: (item: DropDownItem) => void;
+  onSearchChange?: (e: React.FormEvent<HTMLInputElement>) => void;
   renderSelected?: (item?: DropDownItem) => JSX.Element;
   renderItem?: (item: DropDownItem) => JSX.Element;
 }
@@ -142,6 +144,8 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       <span className="c-dropdown-placeholder">{this.props.placeholder}</span>
     );
 
+    const search = <input type="text" autoFocus={true} onChange={this.props.onSearchChange} />;
+
     const dropdownClass = classSet({
       "c-dropdown": true,
       [`${this.props.className}`]: this.props.className,
@@ -156,7 +160,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
             <div className="c-dropdown-text">{this.props.renderSelected(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
-              <div>{text}</div>
+              {this.state.isOpen && this.props.searchable ? search : <div>{text}</div>}
               <span className="c-dropdown-arrow" />
             </div>
           )}

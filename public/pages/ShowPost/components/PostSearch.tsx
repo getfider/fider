@@ -23,9 +23,9 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     this.search("");
   }
 
-  // private onSearchChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownOnSearchChangeData) => {
-  //   this.search(data.searchQuery);
-  // };
+  private onSearchChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    this.search(e.currentTarget.value);
+  };
 
   private onChange = (item: FiderDropDownItem) => {
     this.props.onChanged(item.value as number);
@@ -72,12 +72,12 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     return (
       <FiderDropDown
         className="c-post-search"
-        // search={this.returnAll}
+        searchable={true}
         items={items}
         placeholder="Search original post"
         onChange={this.onChange}
         renderItem={this.renderItem}
-        // onSearchChange={this.onSearchChange}
+        onSearchChange={this.onSearchChange}
       />
     );
   }
