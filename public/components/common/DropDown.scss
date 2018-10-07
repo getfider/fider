@@ -3,6 +3,15 @@
 .c-dropdown {
   position: relative;
 
+  &.is-inline {
+    display: inline-block;
+    .c-dropdown-menu {
+      width: auto;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+  }
+
   &.is-open {
     .c-dropdown-arrow {
       border-color: transparent transparent $gray-dark;
@@ -51,14 +60,25 @@
     max-height: 200px;
     overflow-y: auto;
     position: absolute;
-    top: 100%;
     width: 100%;
+    top: 100%;
     z-index: 1000;
+    min-width: min-content;
     -webkit-overflow-scrolling: touch;
+
+    > * {
+      white-space: nowrap;
+    }
+
+    .c-dropdown-menu-header {
+      padding: 8px 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: .78571429em;
+    }
 
     .c-dropdown-item {
       box-sizing: border-box;
-      color: rgba(51, 51, 51, 0.8);
       cursor: pointer;
       display: block;
       padding: 8px 10px;
@@ -74,6 +94,7 @@
       
       &.is-selected {
         background-color: $gray-lightest;
+        font-weight: 700;
       }
     }
 

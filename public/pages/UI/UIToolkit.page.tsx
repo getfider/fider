@@ -81,6 +81,13 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     });
   };
 
+  private renderSelected = (item?: FiderDropDownItem) => {
+    if (item) {
+      return this.renderColorItem(item);
+    }
+    return <span>...</span>;
+  };
+
   private renderColorItem = (item: FiderDropDownItem) => {
     return <span style={{ color: item.value }}>{item.label}</span>;
   };
@@ -97,6 +104,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <FiderDropDown
           items={[{ label: "Green", value: "green" }, { label: "Red", value: "red" }, { label: "Blue", value: "blue" }]}
           placeholder="Select a color"
+          inline={true}
+          itemListHeader="What color do you like the most?"
+          renderSelected={this.renderSelected}
           renderItem={this.renderColorItem}
         />
 

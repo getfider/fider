@@ -3,8 +3,6 @@ import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
 /* TODO
-- Default Option Render
-- Custom Option Render
 - Default Header Render
 - Custom Header Render
 - Option List Header
@@ -21,7 +19,10 @@ export interface DropDownProps {
   defaultValue?: any;
   items: DropDownItem[];
   placeholder: string;
+  inline?: boolean;
+  itemListHeader?: string;
   onChange?: (item: DropDownItem) => void;
+  renderSelected?: (item?: DropDownItem) => JSX.Element;
   renderItem?: (item: DropDownItem) => JSX.Element;
 }
 
@@ -118,7 +119,14 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       return this.renderItem(item);
     });
 
-    return items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>;
+    return (
+      <div className="c-dropdown-menu">
+        {this.props.itemListHeader && <div className="c-dropdown-menu-header">{this.props.itemListHeader}</div>}
+        <div className="c-dropdown-menu-items">
+          {items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>}
+        </div>
+      </div>
+    );
   }
 
   public handleDocumentClick = (event: any) => {
@@ -137,16 +145,23 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
     const dropdownClass = classSet({
       "c-dropdown": true,
-      "is-open": this.state.isOpen
+      "is-open": this.state.isOpen,
+      "is-inline": this.props.inline
     });
 
     return (
       <div className={dropdownClass}>
-        <div className="c-dropdown-control" onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
-          <div>{displayLabel}</div>
-          <span className="c-dropdown-arrow" />
+        <div onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
+          {this.props.renderSelected ? (
+            this.props.renderSelected(this.state.selected)
+          ) : (
+            <div className="c-dropdown-control">
+              <div>{displayLabel}</div>
+              <span className="c-dropdown-arrow" />
+            </div>
+          )}
         </div>
-        {this.state.isOpen && <div className="c-dropdown-menu">{this.buildItemList()}</div>}
+        {this.state.isOpen && this.buildItemList()}
       </div>
     );
   }
