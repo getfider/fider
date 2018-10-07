@@ -81,7 +81,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     });
   };
 
-  private renderSelected = (item?: DropDownItem) => {
+  private renderText = (item?: DropDownItem) => {
     if (item) {
       return item.render;
     }
@@ -373,7 +373,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
               placeholder="Select a color"
               inline={true}
               header="What color do you like the most?"
-              renderSelected={this.renderSelected}
+              renderText={this.renderText}
             />
           </Field>
 

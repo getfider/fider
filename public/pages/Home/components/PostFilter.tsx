@@ -20,7 +20,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     this.props.viewChanged(item.value as string);
   };
 
-  public renderSelected = (item?: DropDownItem) => {
+  public renderText = (item?: DropDownItem) => {
     return <>{item!.label.toLowerCase()}</>;
   };
 
@@ -59,7 +59,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
           header="What do you want to see?"
           inline={true}
           items={options}
-          renderSelected={this.renderSelected}
+          renderText={this.renderText}
           defaultValue={activeView}
           onChange={this.handleChangeView}
         />{" "}

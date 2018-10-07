@@ -35,7 +35,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     this.props.selectionChanged(selected);
   };
 
-  private renderSelected = () => {
+  private renderText = () => {
     const text =
       this.state.selected.length === 0
         ? "any tag"
@@ -71,7 +71,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
           className="l-tags-filter"
           inline={true}
           items={items}
-          renderSelected={this.renderSelected}
+          renderText={this.renderText}
           onChange={this.onChange}
         />
       </>

@@ -20,7 +20,7 @@ export interface DropDownProps {
   header?: string;
   onChange?: (item: DropDownItem) => void;
   onSearchChange?: (e: React.FormEvent<HTMLInputElement>) => void;
-  renderSelected?: (item?: DropDownItem) => JSX.Element | undefined;
+  renderText?: (item?: DropDownItem) => JSX.Element | undefined;
 }
 
 export interface DropDownState {
@@ -151,8 +151,8 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     return (
       <div className={dropdownClass}>
         <div onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
-          {this.props.renderSelected ? (
-            <div className="c-dropdown-text">{this.props.renderSelected(this.state.selected)}</div>
+          {this.props.renderText ? (
+            <div className="c-dropdown-text">{this.props.renderText(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
               {this.state.isOpen && this.props.searchable ? search : <div>{text}</div>}
