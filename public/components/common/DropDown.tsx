@@ -19,9 +19,10 @@ export interface DropDownItem {
 
 export interface DropDownProps {
   defaultValue?: any;
-  options: DropDownItem[];
+  items: DropDownItem[];
   placeholder: string;
   onChange?: (item: DropDownItem) => void;
+  renderItem?: (item: DropDownItem) => JSX.Element;
 }
 
 export interface DropDownState {
@@ -35,7 +36,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   constructor(props: DropDownProps) {
     super(props);
     this.state = {
-      selected: this.parseValue(props.defaultValue, props.options),
+      selected: this.findItem(props.defaultValue, props.items),
       isOpen: false
     };
     this.mounted = true;
@@ -65,10 +66,10 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     });
   };
 
-  public parseValue(value: any, options: DropDownItem[]): DropDownItem | undefined {
-    for (const opt of options) {
-      if (opt.value === value) {
-        return opt;
+  public findItem(value: any, items: DropDownItem[]): DropDownItem | undefined {
+    for (const item of items) {
+      if (item.value === value) {
+        return item;
       }
     }
     return undefined;
@@ -92,16 +93,12 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     }
   }
 
-  public renderOption(option: DropDownItem) {
-    let value = option.value;
-    if (typeof value === "undefined") {
-      value = option.label || option;
-    }
-    const label = option.label || option.value || option;
-
+  public renderItem(item: DropDownItem) {
+    const { label, value } = item;
+    const isSelected = this.state.selected && (value === this.state.selected.value || value === this.state.selected);
     const className = classSet({
-      "c-dropdown-option": true,
-      "is-selected": this.state.selected && (value === this.state.selected.value || value === this.state.selected)
+      "c-dropdown-item": true,
+      "is-selected": isSelected
     });
 
     return (
@@ -111,17 +108,17 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
         onMouseDown={this.setValue.bind(this, value, label)}
         onClick={this.setValue.bind(this, value, label)}
       >
-        {label}
+        {this.props.renderItem ? this.props.renderItem(item) : label}
       </div>
     );
   }
 
-  public buildMenu() {
-    const ops = this.props.options.map(option => {
-      return this.renderOption(option);
+  public buildItemList() {
+    const items = this.props.items.map(item => {
+      return this.renderItem(item);
     });
 
-    return ops.length ? ops : <div className={`c-dropdown-noresults`}>No options found</div>;
+    return items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>;
   }
 
   public handleDocumentClick = (event: any) => {
@@ -149,7 +146,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
           <div>{displayLabel}</div>
           <span className="c-dropdown-arrow" />
         </div>
-        {this.state.isOpen && <div className="c-dropdown-menu">{this.buildMenu()}</div>}
+        {this.state.isOpen && <div className="c-dropdown-menu">{this.buildItemList()}</div>}
       </div>
     );
   }
