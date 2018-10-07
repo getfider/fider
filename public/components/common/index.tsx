@@ -27,6 +27,10 @@ export * from "./Loader";
 export * from "./Logo";
 export * from "./Toggle";
 export * from "./FiderVersion";
+
+import { DropDown } from "./Dropdown";
+export { DropDown as FiderDropDown };
+
 import Textarea from "react-textarea-autosize";
 export { Textarea };
 
