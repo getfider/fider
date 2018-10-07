@@ -22,7 +22,7 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "semantic-ui-react", "tslib" ]
+    vendor: [ "react", "react-dom", "tslib" ]
   },
   output: {
     path: __dirname + "/dist",

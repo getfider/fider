@@ -24,7 +24,7 @@ import {
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
-import { FiderDropDown, FiderDropDownItem } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
 
 const jonSnow: User = {
   id: 0,
@@ -81,14 +81,14 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     });
   };
 
-  private renderSelected = (item?: FiderDropDownItem) => {
+  private renderSelected = (item?: DropDownItem) => {
     if (item) {
       return this.renderColorItem(item);
     }
     return <span>...</span>;
   };
 
-  private renderColorItem = (item: FiderDropDownItem) => {
+  private renderColorItem = (item: DropDownItem) => {
     return <span style={{ color: item.value }}>{item.label}</span>;
   };
 
@@ -360,7 +360,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           />
 
           <Field label="Number">
-            <FiderDropDown
+            <DropDown
               items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
               defaultValue={"1"}
               placeholder="Select a number"
@@ -368,7 +368,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </Field>
 
           <Field label="Color (custom render)">
-            <FiderDropDown
+            <DropDown
               items={[
                 { label: "Green", value: "green" },
                 { label: "Red", value: "red" },

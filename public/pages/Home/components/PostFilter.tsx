@@ -1,6 +1,6 @@
 import * as React from "react";
 import { PostStatus } from "@fider/models";
-import { FiderDropDown, FiderDropDownItem } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
 import { Fider } from "@fider/services";
 
 import "./PostFilter.scss";
@@ -16,15 +16,15 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     super(props);
   }
 
-  private handleChangeView = (item: FiderDropDownItem) => {
+  private handleChangeView = (item: DropDownItem) => {
     this.props.viewChanged(item.value as string);
   };
 
-  public renderSelected = (item?: FiderDropDownItem) => {
+  public renderSelected = (item?: DropDownItem) => {
     return <>{item!.label.toLowerCase()}</>;
   };
 
-  public renderItem = (item: FiderDropDownItem) => {
+  public renderItem = (item: DropDownItem) => {
     return (
       <span>
         {item.label} <a className="counter">{this.props.countPerStatus[item.value]}</a>
@@ -33,7 +33,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
   };
 
   public render() {
-    const options: FiderDropDownItem[] = [
+    const options: DropDownItem[] = [
       { value: "trending", label: "Trending" },
       { value: "recent", label: "Recent" },
       { value: "most-wanted", label: "Most Wanted" },
@@ -57,7 +57,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     return (
       <>
         Show{" "}
-        <FiderDropDown
+        <DropDown
           className="l-post-filter"
           header="What do you want to see?"
           inline={true}

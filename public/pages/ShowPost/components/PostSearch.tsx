@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
-import { FiderDropDown, FiderDropDownItem } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
 
 interface PostSearchProps {
   exclude?: number[];
@@ -27,7 +27,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     this.search(e.currentTarget.value);
   };
 
-  private onChange = (item: FiderDropDownItem) => {
+  private onChange = (item: DropDownItem) => {
     this.props.onChanged(item.value as number);
   };
 
@@ -44,9 +44,9 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     }, 200);
   };
 
-  private returnAll = (options: FiderDropDownItem[], value: string) => options;
+  private returnAll = (options: DropDownItem[], value: string) => options;
 
-  public renderItem = (item: FiderDropDownItem) => {
+  public renderItem = (item: DropDownItem) => {
     const post = this.state.posts.filter(p => p.number === item.value)[0];
     const status = PostStatus.Get(post.status);
     return (
@@ -70,7 +70,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     });
 
     return (
-      <FiderDropDown
+      <DropDown
         className="c-post-search"
         searchable={true}
         items={items}

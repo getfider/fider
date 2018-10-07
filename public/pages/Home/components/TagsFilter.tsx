@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
-import { FiderDropDown, FiderDropDownItem } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
 
 import "./TagsFilter.scss";
 
@@ -23,7 +23,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     };
   }
 
-  private onChange = (item: FiderDropDownItem) => {
+  private onChange = (item: DropDownItem) => {
     let selected = [];
     const idx = this.state.selected.indexOf(item.value as string);
     if (idx >= 0) {
@@ -35,7 +35,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     this.props.selectionChanged(selected);
   };
 
-  private renderItem = (item: FiderDropDownItem) => {
+  private renderItem = (item: DropDownItem) => {
     const tag = this.props.tags.filter(t => t.slug === item.value)[0];
     return (
       <div className={this.state.selected.indexOf(tag.slug) >= 0 ? "selected-tag" : ""}>
@@ -71,7 +71,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     return (
       <>
         with{" "}
-        <FiderDropDown
+        <DropDown
           className="l-tags-filter"
           inline={true}
           items={items}

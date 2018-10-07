@@ -27,12 +27,7 @@ export * from "./Loader";
 export * from "./Logo";
 export * from "./Toggle";
 export * from "./FiderVersion";
-
-import { DropDown, DropDownItem } from "./Dropdown";
-export { DropDown as FiderDropDown, DropDownItem as FiderDropDownItem };
+export * from "./Dropdown";
 
 import Textarea from "react-textarea-autosize";
 export { Textarea };
-
-import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "semantic-ui-react";
-export { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData };
