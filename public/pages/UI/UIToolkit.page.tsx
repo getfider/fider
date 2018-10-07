@@ -81,12 +81,14 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     });
   };
 
-  public options = [{ label: "one", value: "one" }, { label: "two", value: "two" }, { label: "three", value: "three" }];
-
   public render() {
     return (
       <div id="p-ui-toolkit" className="page container">
-        <FiderDropDown options={this.options} defaultValue={"one"} placeholder="Select an option" />
+        <FiderDropDown
+          options={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+          defaultValue={"1"}
+          placeholder="Select a number"
+        />
 
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>

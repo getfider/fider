@@ -3,8 +3,6 @@ import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
 /* TODO
-- Refactor CSS Classes
-- CSS Similar to Semantic UI
 - Default Option Render
 - Custom Option Render
 - Default Header Render
