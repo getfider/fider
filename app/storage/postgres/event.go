@@ -57,11 +57,16 @@ func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 		Name:      name,
 		CreatedAt: time.Now(),
 	}
+	dbClientIP := sql.NullString{
+		String: clientIP,
+		Valid:  len(clientIP) > 0,
+	}
+
 	err := e.trx.Get(&event.ID, `
 		INSERT INTO events (tenant_id, client_ip, name, created_at) 
 		VALUES ($1, $2, $3, $4)
 		RETURNING id
-	`, e.tenant.ID, event.ClientIP, event.Name, event.CreatedAt)
+	`, e.tenant.ID, dbClientIP, event.Name, event.CreatedAt)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert event")
