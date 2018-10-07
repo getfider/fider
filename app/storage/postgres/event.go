@@ -1,12 +1,30 @@
 package postgres
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 )
+
+type dbEvent struct {
+	ID        int            `db:"id"`
+	TenantID  int            `db:"tenant_id"`
+	ClientIP  sql.NullString `db:"client_ip"`
+	Name      string         `db:"name"`
+	CreatedAt time.Time      `db:"created_at"`
+}
+
+func (d *dbEvent) toModel() *models.Event {
+	return &models.Event{
+		ID:        d.ID,
+		ClientIP:  d.ClientIP.String,
+		Name:      d.Name,
+		CreatedAt: d.CreatedAt,
+	}
+}
 
 // EventStorage contains read and write operations for Audit Events
 type EventStorage struct {
@@ -54,9 +72,9 @@ func (e *EventStorage) Add(clientIP, name string) (*models.Event, error) {
 
 // GetByID returns the event with the specified id
 func (e *EventStorage) GetByID(id int) (*models.Event, error) {
-	event := &models.Event{}
+	event := &dbEvent{}
 	err := e.trx.Get(event, `
-		SELECT id, client_ip, name, created_at
+		SELECT id, tenant_id, client_ip, name, created_at
 		FROM events
 		WHERE id = $1 AND tenant_id = $2
 	`, id, e.tenant.ID)
@@ -65,5 +83,5 @@ func (e *EventStorage) GetByID(id int) (*models.Event, error) {
 		return nil, errors.Wrap(err, "failed to find event with id %d", id)
 	}
 
-	return event, nil
+	return event.toModel(), nil
 }

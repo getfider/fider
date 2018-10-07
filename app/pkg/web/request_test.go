@@ -51,7 +51,7 @@ func TestRequest_WithPort(t *testing.T) {
 
 	Expect(req.Method).Equals("GET")
 	Expect(req.GetHeader("Content-Type")).Equals("application/json")
-	Expect(req.ClientIP).Equals("N/A")
+	Expect(req.ClientIP).Equals("")
 	Expect(req.URL.Hostname()).Equals("helloworld.com")
 	Expect(req.URL.Scheme).Equals("http")
 	Expect(req.URL.Port()).Equals("3000")

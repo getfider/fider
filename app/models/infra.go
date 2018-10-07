@@ -100,8 +100,8 @@ type APIAuthorize struct {
 
 // Event is used for tracking client audit events and actions
 type Event struct {
-	ID        int       `json:"id" db:"id"`
-	ClientIP  string    `json:"clientIP" db:"client_ip"`
-	Name      string    `json:"name" db:"name"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	ID        int       `json:"id"`
+	ClientIP  string    `json:"clientIP"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
 }
