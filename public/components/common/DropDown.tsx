@@ -149,7 +149,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       <div className={dropdownClass}>
         <div onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
           {this.props.renderSelected ? (
-            this.props.renderSelected(this.state.selected)
+            <div className="c-dropdown-text">{this.props.renderSelected(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
               <div>{displayLabel}</div>

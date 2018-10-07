@@ -21,7 +21,7 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
   };
 
   public renderSelected = (item?: FiderDropDownItem) => {
-    return <span className="selected-filter">{item!.label.toLowerCase()}</span>;
+    return <>{item!.label.toLowerCase()}</>;
   };
 
   public renderItem = (item: FiderDropDownItem) => {
