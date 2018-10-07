@@ -35,17 +35,6 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     this.props.selectionChanged(selected);
   };
 
-  private renderItem = (item: DropDownItem) => {
-    const tag = this.props.tags.filter(t => t.slug === item.value)[0];
-    return (
-      <div className={this.state.selected.indexOf(tag.slug) >= 0 ? "selected-tag" : ""}>
-        <i className="icon check" />
-        <ShowTag tag={tag} size="mini" circular={true} />
-        {tag.name}
-      </div>
-    );
-  };
-
   private renderSelected = () => {
     const text =
       this.state.selected.length === 0
@@ -64,7 +53,14 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     const items = this.props.tags.map(t => {
       return {
         value: t.slug,
-        label: t.name
+        label: t.name,
+        render: (
+          <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
+            <i className="icon check" />
+            <ShowTag tag={t} size="mini" circular={true} />
+            {t.name}
+          </div>
+        )
       };
     });
 
@@ -75,7 +71,6 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
           className="l-tags-filter"
           inline={true}
           items={items}
-          renderItem={this.renderItem}
           renderSelected={this.renderSelected}
           onChange={this.onChange}
         />

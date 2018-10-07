@@ -24,14 +24,6 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     return <>{item!.label.toLowerCase()}</>;
   };
 
-  public renderItem = (item: DropDownItem) => {
-    return (
-      <span>
-        {item.label} <a className="counter">{this.props.countPerStatus[item.value]}</a>
-      </span>
-    );
-  };
-
   public render() {
     const options: DropDownItem[] = [
       { value: "trending", label: "Trending" },
@@ -47,7 +39,12 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     PostStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
         label: s.title,
-        value: s.value
+        value: s.value,
+        render: (
+          <span>
+            {s.title} <a className="counter">{this.props.countPerStatus[s.value]}</a>
+          </span>
+        )
       });
     });
 
@@ -63,7 +60,6 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
           inline={true}
           items={options}
           renderSelected={this.renderSelected}
-          renderItem={this.renderItem}
           defaultValue={activeView}
           onChange={this.handleChangeView}
         />{" "}

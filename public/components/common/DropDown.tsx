@@ -7,6 +7,7 @@ import "./DropDown.scss";
 export interface DropDownItem {
   value: any;
   label: string;
+  render?: JSX.Element;
 }
 
 export interface DropDownProps {
@@ -19,8 +20,7 @@ export interface DropDownProps {
   header?: string;
   onChange?: (item: DropDownItem) => void;
   onSearchChange?: (e: React.FormEvent<HTMLInputElement>) => void;
-  renderSelected?: (item?: DropDownItem) => JSX.Element;
-  renderItem?: (item: DropDownItem) => JSX.Element;
+  renderSelected?: (item?: DropDownItem) => JSX.Element | undefined;
 }
 
 export interface DropDownState {
@@ -73,12 +73,9 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     return undefined;
   }
 
-  public setValue(value: any, label: string) {
+  public setSelected(selected: DropDownItem) {
     const newState = {
-      selected: {
-        value,
-        label
-      },
+      selected,
       isOpen: false
     };
     this.fireChangeEvent(newState);
@@ -91,9 +88,9 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     }
   }
 
-  public renderItem(item: DropDownItem) {
+  public renderItem = (item: DropDownItem) => {
     const { label, value } = item;
-    const isSelected = this.state.selected && (value === this.state.selected.value || value === this.state.selected);
+    const isSelected = this.state.selected && value === this.state.selected.value;
     const className = classSet({
       "c-dropdown-item": true,
       "is-selected": isSelected
@@ -103,18 +100,16 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       <div
         key={value}
         className={className}
-        onMouseDown={this.setValue.bind(this, value, label)}
-        onClick={this.setValue.bind(this, value, label)}
+        onMouseDown={this.setSelected.bind(this, item)}
+        onClick={this.setSelected.bind(this, item)}
       >
-        {this.props.renderItem ? this.props.renderItem(item) : label}
+        {item.render ? item.render : label}
       </div>
     );
-  }
+  };
 
   public buildItemList() {
-    const items = this.props.items.map(item => {
-      return this.renderItem(item);
-    });
+    const items = this.props.items.map(this.renderItem);
 
     return (
       <div className="c-dropdown-menu">

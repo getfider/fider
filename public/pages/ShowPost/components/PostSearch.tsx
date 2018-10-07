@@ -46,26 +46,22 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
 
   private returnAll = (options: DropDownItem[], value: string) => options;
 
-  public renderItem = (item: DropDownItem) => {
-    const post = this.state.posts.filter(p => p.number === item.value)[0];
-    const status = PostStatus.Get(post.status);
-    return (
-      <>
-        <span className="votes">
-          <i className="caret up icon" />
-          {post.votesCount}
-        </span>
-        <span className={`status-label status-${status.value}`}>{status.title}</span>
-        {post.title}
-      </>
-    );
-  };
-
   public render() {
-    const items = this.state.posts.map(i => {
+    const items = this.state.posts.map(p => {
+      const status = PostStatus.Get(p.status);
       return {
-        label: i.title,
-        value: i.number
+        label: p.title,
+        value: p.number,
+        render: (
+          <>
+            <span className="votes">
+              <i className="caret up icon" />
+              {p.votesCount}
+            </span>
+            <span className={`status-label status-${status.value}`}>{status.title}</span>
+            {p.title}
+          </>
+        )
       };
     });
 
@@ -76,7 +72,6 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
         items={items}
         placeholder="Search original post"
         onChange={this.onChange}
-        renderItem={this.renderItem}
         onSearchChange={this.onSearchChange}
       />
     );

@@ -83,13 +83,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
   private renderSelected = (item?: DropDownItem) => {
     if (item) {
-      return this.renderColorItem(item);
+      return item.render;
     }
     return <span>...</span>;
-  };
-
-  private renderColorItem = (item: DropDownItem) => {
-    return <span style={{ color: item.value }}>{item.label}</span>;
   };
 
   public render() {
@@ -370,15 +366,14 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           <Field label="Color (custom render)">
             <DropDown
               items={[
-                { label: "Green", value: "green" },
-                { label: "Red", value: "red" },
-                { label: "Blue", value: "blue" }
+                { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
+                { label: "Red", value: "red", render: <span style={{ color: "red" }}>Red</span> },
+                { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> }
               ]}
               placeholder="Select a color"
               inline={true}
               header="What color do you like the most?"
               renderSelected={this.renderSelected}
-              renderItem={this.renderColorItem}
             />
           </Field>
 
