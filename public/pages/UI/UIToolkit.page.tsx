@@ -19,7 +19,7 @@ import {
   TextArea,
   RadioButton,
   Select,
-  SocialSignInButton,
+  Field,
   SelectOption
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
@@ -95,21 +95,6 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
   public render() {
     return (
       <div id="p-ui-toolkit" className="page container">
-        <FiderDropDown
-          items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
-          defaultValue={"1"}
-          placeholder="Select a number"
-        />
-        <br />
-        <FiderDropDown
-          items={[{ label: "Green", value: "green" }, { label: "Red", value: "red" }, { label: "Blue", value: "blue" }]}
-          placeholder="Select a color"
-          inline={true}
-          itemListHeader="What color do you like the most?"
-          renderSelected={this.renderSelected}
-          renderItem={this.renderColorItem}
-        />
-
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>
         <h3>Heading 3</h3>
@@ -373,6 +358,29 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             ]}
             onChange={this.notifyStatusChange}
           />
+
+          <Field label="Number">
+            <FiderDropDown
+              items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+              defaultValue={"1"}
+              placeholder="Select a number"
+            />
+          </Field>
+
+          <Field label="Color (custom render)">
+            <FiderDropDown
+              items={[
+                { label: "Green", value: "green" },
+                { label: "Red", value: "red" },
+                { label: "Blue", value: "blue" }
+              ]}
+              placeholder="Select a color"
+              inline={true}
+              header="What color do you like the most?"
+              renderSelected={this.renderSelected}
+              renderItem={this.renderColorItem}
+            />
+          </Field>
 
           <Button onClick={this.forceError}>Save</Button>
         </Form>

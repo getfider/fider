@@ -1,7 +1,9 @@
 import * as React from "react";
-import { Post, PostStatus, CurrentUser } from "@fider/models";
-import { Dropdown, DropdownItemProps, DropdownProps } from "@fider/components";
+import { PostStatus } from "@fider/models";
+import { FiderDropDown, FiderDropDownItem } from "@fider/components";
 import { Fider } from "@fider/services";
+
+import "./PostFilter.scss";
 
 interface PostFilterProps {
   activeView: string;
@@ -14,31 +16,38 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     super(props);
   }
 
-  private handleChangeView = (item: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
-    this.props.viewChanged(data.value as string);
+  private handleChangeView = (item: FiderDropDownItem) => {
+    this.props.viewChanged(item.value as string);
+  };
+
+  public renderSelected = (item?: FiderDropDownItem) => {
+    return <span className="selected-filter">{item!.label.toLowerCase()}</span>;
+  };
+
+  public renderItem = (item: FiderDropDownItem) => {
+    return (
+      <span>
+        {item.label} <a className="counter">{this.props.countPerStatus[item.value]}</a>
+      </span>
+    );
   };
 
   public render() {
-    const options: DropdownItemProps[] = [
-      { text: "trending", value: "trending", content: "Trending" },
-      { text: "recent", value: "recent", content: "Recent" },
-      { text: "most wanted", value: "most-wanted", content: "Most Wanted" },
-      { text: "most discussed", value: "most-discussed", content: "Most Discussed" }
+    const options: FiderDropDownItem[] = [
+      { value: "trending", label: "Trending" },
+      { value: "recent", label: "Recent" },
+      { value: "most-wanted", label: "Most Wanted" },
+      { value: "most-discussed", label: "Most Discussed" }
     ];
 
     if (Fider.session.isAuthenticated) {
-      options.push({ text: "my votes", value: "my-votes", content: "My Votes" });
+      options.push({ value: "my-votes", label: "My Votes" });
     }
 
     PostStatus.All.filter(s => s.filterable && this.props.countPerStatus[s.value]).forEach(s => {
       options.push({
-        text: s.title.toLowerCase(),
-        value: s.value,
-        content: (
-          <span>
-            {s.title} <a className="counter">{this.props.countPerStatus[s.value]}</a>
-          </span>
-        )
+        label: s.title,
+        value: s.value
       });
     });
 
@@ -48,14 +57,16 @@ export class PostFilter extends React.Component<PostFilterProps, {}> {
     return (
       <>
         Show{" "}
-        <Dropdown
+        <FiderDropDown
           className="l-post-filter"
           header="What do you want to see?"
           inline={true}
-          options={options}
+          items={options}
+          renderSelected={this.renderSelected}
+          renderItem={this.renderItem}
           defaultValue={activeView}
           onChange={this.handleChangeView}
-        />
+        />{" "}
       </>
     );
   }

@@ -2,12 +2,6 @@ import * as React from "react";
 import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
-/* TODO
-- Default Header Render
-- Custom Header Render
-- Option List Header
-*/
-
 import "./DropDown.scss";
 
 export interface DropDownItem {
@@ -16,11 +10,12 @@ export interface DropDownItem {
 }
 
 export interface DropDownProps {
+  className?: string;
   defaultValue?: any;
   items: DropDownItem[];
-  placeholder: string;
+  placeholder?: string;
   inline?: boolean;
-  itemListHeader?: string;
+  header?: string;
   onChange?: (item: DropDownItem) => void;
   renderSelected?: (item?: DropDownItem) => JSX.Element;
   renderItem?: (item: DropDownItem) => JSX.Element;
@@ -121,7 +116,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
     return (
       <div className="c-dropdown-menu">
-        {this.props.itemListHeader && <div className="c-dropdown-menu-header">{this.props.itemListHeader}</div>}
+        {this.props.header && <div className="c-dropdown-menu-header">{this.props.header}</div>}
         <div className="c-dropdown-menu-items">
           {items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>}
         </div>
@@ -145,6 +140,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
     const dropdownClass = classSet({
       "c-dropdown": true,
+      [`${this.props.className}`]: this.props.className,
       "is-open": this.state.isOpen,
       "is-inline": this.props.inline
     });
