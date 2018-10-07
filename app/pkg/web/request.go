@@ -49,9 +49,6 @@ func WrapRequest(request *http.Request) Request {
 	clientIP := request.Header.Get("X-Forwarded-For")
 	if clientIP == "" {
 		clientIP = strings.Split(request.RemoteAddr, ":")[0]
-		if clientIP == "" {
-			clientIP = "N/A"
-		}
 	} else {
 		clientIP = strings.Split(clientIP, ",")[0]
 	}

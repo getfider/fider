@@ -97,3 +97,11 @@ var (
 type APIAuthorize struct {
 	APIKey string `json:"apiKey"`
 }
+
+// Event is used for tracking client audit events and actions
+type Event struct {
+	ID        int       `json:"id"`
+	ClientIP  string    `json:"clientIP"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+}
