@@ -40,8 +40,10 @@ var (
 	PlainContentType     = "text/plain"
 	HTMLContentType      = "text/html"
 	JSONContentType      = "application/json"
+	XMLContentType       = "application/xml"
 	UTF8PlainContentType = PlainContentType + "; charset=utf-8"
 	UTF8HTMLContentType  = HTMLContentType + "; charset=utf-8"
+	UTF8XMLContentType   = XMLContentType + "; charset=utf-8"
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
@@ -448,6 +450,11 @@ func (ctx *Context) Set(key string, val interface{}) {
 // String returns a text response with status code.
 func (ctx *Context) String(code int, text string) error {
 	return ctx.Blob(code, UTF8PlainContentType, []byte(text))
+}
+
+// XML returns a XML response with status code.
+func (ctx *Context) XML(code int, text string) error {
+	return ctx.Blob(code, UTF8XMLContentType, []byte(text))
 }
 
 // JSON returns a JSON response with status code.
