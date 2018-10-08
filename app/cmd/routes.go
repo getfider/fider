@@ -53,6 +53,8 @@ func routes(r *web.Engine) *web.Engine {
 	//From this step, a Tenant is required (regardless of status)
 	r.Use(middlewares.RequireTenant())
 
+	r.Get("/sitemap.xml", handlers.Sitemap())
+
 	tenantAssets := r.Group()
 	{
 		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))

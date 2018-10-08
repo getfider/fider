@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -33,6 +35,33 @@ func LegalPage(title, file string) web.HandlerFunc {
 				"Content": string(bytes),
 			},
 		})
+	}
+}
+
+//Sitemap returns the sitemap.xml of current site
+func Sitemap() web.HandlerFunc {
+	return func(c web.Context) error {
+		if c.Tenant().IsPrivate {
+			return c.NotFound()
+		}
+
+		posts, err := c.Services().Posts.GetAll()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		baseURL := c.BaseURL()
+		text := strings.Builder{}
+		text.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+		text.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
+		text.WriteString(fmt.Sprintf("<url> <loc>%s</loc> </url>", baseURL))
+		for _, post := range posts {
+			text.WriteString(fmt.Sprintf("<url> <loc>%s/posts/%d/%s</loc> </url>", baseURL, post.Number, post.Slug))
+		}
+		text.WriteString(`</urlset>`)
+
+		c.Response.Header().Del("Content-Security-Policy")
+		return c.XML(http.StatusOK, text.String())
 	}
 }
 
