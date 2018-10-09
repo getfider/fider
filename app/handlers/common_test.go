@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -53,6 +54,67 @@ func TestRobotsTXT(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	code, _ := server.Execute(handlers.RobotsTXT())
+	code, response := server.
+		WithURL("https://demo.test.fider.io/robots.txt").
+		Execute(handlers.RobotsTXT())
+	content, _ := ioutil.ReadAll(response.Body)
 	Expect(code).Equals(http.StatusOK)
+	Expect(string(content)).Equals(`User-agent: *
+Disallow: /_api/
+Disallow: /api/v1/
+Disallow: /admin/
+Disallow: /oauth/
+Sitemap: https://demo.test.fider.io/sitemap.xml`)
+}
+
+func TestSitemap(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
+		Execute(handlers.Sitemap())
+
+	bytes, _ := ioutil.ReadAll(response.Body)
+	Expect(code).Equals(http.StatusOK)
+	Expect(string(bytes)).Equals(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url> <loc>http://demo.test.fider.io:3000</loc> </url></urlset>`)
+}
+
+func TestSitemap_WithPosts(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Posts.SetCurrentUser(mock.AryaStark)
+	services.Posts.Add("My new idea 1", "")
+	services.Posts.SetCurrentUser(mock.AryaStark)
+	services.Posts.Add("The other idea", "")
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
+		Execute(handlers.Sitemap())
+
+	bytes, _ := ioutil.ReadAll(response.Body)
+	Expect(code).Equals(http.StatusOK)
+	Expect(string(bytes)).Equals(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url> <loc>http://demo.test.fider.io:3000</loc> </url><url> <loc>http://demo.test.fider.io:3000/posts/1/my-new-idea-1</loc> </url><url> <loc>http://demo.test.fider.io:3000/posts/2/the-other-idea</loc> </url></urlset>`)
+}
+
+func TestSitemap_PrivateTenant_WithPosts(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.Posts.SetCurrentUser(mock.AryaStark)
+	services.Posts.Add("My new idea 1", "")
+	services.Posts.SetCurrentUser(mock.AryaStark)
+	services.Posts.Add("The other idea", "")
+
+	mock.DemoTenant.IsPrivate = true
+
+	code, _ := server.
+		OnTenant(mock.DemoTenant).
+		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
+		Execute(handlers.Sitemap())
+
+	Expect(code).Equals(http.StatusNotFound)
 }
