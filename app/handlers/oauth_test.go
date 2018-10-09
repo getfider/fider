@@ -38,10 +38,12 @@ func TestSignInByOAuthHandler(t *testing.T) {
 	server, _ := mock.NewServer()
 	code, response := server.
 		AddParam("provider", oauth.FacebookProvider).
+		AddHeader("User-Agent", "Chrome").
+		WithClientIP("1.1.1.1").
 		Execute(handlers.SignInByOAuth())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).ContainsSubstring("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect=|")
+	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect=|656e0c3864ae014bcaf370c2b2d265a7cc969ac50fe82a67c97f3042393a84dfd251596997d09e4f0f5a184e1b3dfccf24b193c2347e22c2b895d251290df162")
 }
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
@@ -123,8 +125,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=888&redirect=/hello").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/hello").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())
@@ -139,8 +140,7 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 
 	server, services := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=888&redirect=/hello").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/hello").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())
@@ -169,8 +169,7 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=798&identifier=888&redirect=/").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=798&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())
@@ -210,8 +209,7 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	})
 
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=888&redirect=/").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())
@@ -233,8 +231,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	server, services := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=888&redirect=/").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.GoogleProvider).
 		Execute(handlers.OAuthToken())
@@ -255,8 +252,7 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 	mock.AvengersTenant.IsPrivate = true
 
 	code, response := server.
-		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
-		AddCookie(web.CookieOAuthIdentifier, "888").
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=7c0b0d99a6e4c33cda0f6f63547f878f4dd9f486dfe5d0446ce004b1c0ff28f191ff86f5d5933d3614cceee6fbbdc17e658881d3a164dfa5d6f4c699b2126e3d&redirect=/").
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())
@@ -276,8 +272,7 @@ func TestOAuthTokenHandler_InvalidIdentifier(t *testing.T) {
 	mock.AvengersTenant.IsPrivate = true
 
 	code, response := server.
-		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=888&redirect=/").
-		AddCookie(web.CookieOAuthIdentifier, "777").
+		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=WRONG&redirect=/").
 		OnTenant(mock.AvengersTenant).
 		AddParam("provider", oauth.FacebookProvider).
 		Execute(handlers.OAuthToken())

@@ -53,9 +53,6 @@ const CookieAuthName = "auth"
 // CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
 const CookieSignUpAuthName = "__signup_auth"
 
-// CookieOAuthIdentifier is the name of the cookie that holds the temporary OAuth identifier string
-const CookieOAuthIdentifier = "__oauth_identifier"
-
 var (
 	preffixKey            = "__CTX_"
 	tenantContextKey      = preffixKey + "TENANT"

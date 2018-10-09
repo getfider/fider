@@ -81,6 +81,12 @@ func (s *Server) AddCookie(name string, value string) *Server {
 	return s
 }
 
+// WithClientIP set current ClientIP address
+func (s *Server) WithClientIP(clientIP string) *Server {
+	s.context.Request.ClientIP = clientIP
+	return s
+}
+
 // WithClaims set current context user claims
 func (s *Server) WithClaims(claims *jwt.FiderClaims) *Server {
 	s.context.SetClaims(claims)
