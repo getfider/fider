@@ -54,8 +54,17 @@ func TestRobotsTXT(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	code, _ := server.Execute(handlers.RobotsTXT())
+	code, response := server.
+		WithURL("https://demo.test.fider.io/robots.txt").
+		Execute(handlers.RobotsTXT())
+	content, _ := ioutil.ReadAll(response.Body)
 	Expect(code).Equals(http.StatusOK)
+	Expect(string(content)).Equals(`User-agent: *
+Disallow: /_api/
+Disallow: /api/v1/
+Disallow: /admin/
+Disallow: /oauth/
+Sitemap: https://demo.test.fider.io/sitemap.xml`)
 }
 
 func TestSitemap(t *testing.T) {
