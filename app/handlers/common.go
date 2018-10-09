@@ -72,7 +72,9 @@ func RobotsTXT() web.HandlerFunc {
 		if err != nil {
 			return c.NotFound()
 		}
-		return c.String(http.StatusOK, string(bytes))
+		sitemapURL := c.BaseURL() + "/sitemap.xml"
+		content := fmt.Sprintf("%s\nSitemap: %s", bytes, sitemapURL)
+		return c.String(http.StatusOK, content)
 	}
 }
 
