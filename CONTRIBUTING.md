@@ -21,11 +21,11 @@ Install the following tools:
 - Node.js 10+ (https://nodejs.org/ or run `nvm use` if you have nvm installed)
 - Docker (https://www.docker.com/)
 
-We also use the following Go CLI tools, so install them using `go get <url>`:
+We also use the following Go CLI tools. Install them using the `go get <url>` commands listed below:
 
-- cosmtrek/air (https://github.com/cosmtrek/air/)
-- joho/godotenv (https://github.com/joho/godotenv/)
-- magefile/mage (https://github.com/magefile/mage/)
+- cosmtrek/air (go get https://github.com/cosmtrek/air/)
+- joho/godotenv (go get github.com/joho/godotenv/cmd/godotenv/)
+- magefile/mage (go get https://github.com/magefile/mage/)
 
 To setup your development workspace:
 
