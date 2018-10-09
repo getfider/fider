@@ -8,9 +8,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
 )
@@ -25,14 +25,11 @@ func OAuthEcho() web.HandlerFunc {
 			return c.Redirect("/")
 		}
 
-		identifier := c.QueryParam("identifier")
-		cookie, err := c.Request.Cookie(web.CookieOAuthIdentifier)
-		if err != nil {
-			return c.Failure(errors.Wrap(err, "failed to get oauth identifier cookie"))
-		}
+		originIdentifier := c.QueryParam("identifier")
+		currentIdentifier := getOAuthIdentifier(c)
 
-		c.RemoveCookie(web.CookieOAuthIdentifier)
-		if identifier == "" || cookie.Value == "" || identifier != cookie.Value {
+		if originIdentifier != currentIdentifier {
+			c.Logger().Warn("OAuth identifier doesn't match. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
@@ -72,15 +69,11 @@ func OAuthToken() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
-		identifier := c.QueryParam("identifier")
-		cookie, err := c.Request.Cookie(web.CookieOAuthIdentifier)
-		if err != nil {
-			c.Logger().Warn(err.Error())
-			return c.Redirect(redirectURL.String())
-		}
+		originIdentifier := c.QueryParam("identifier")
+		currentIdentifier := getOAuthIdentifier(c)
 
-		c.RemoveCookie(web.CookieOAuthIdentifier)
-		if identifier == "" || cookie.Value == "" || identifier != cookie.Value {
+		if originIdentifier != currentIdentifier {
+			c.Logger().Warn("OAuth identifier doesn't match. Aborting sign in process.")
 			return c.Redirect(redirectURL.String())
 		}
 
@@ -210,14 +203,17 @@ func OAuthCallback() web.HandlerFunc {
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
-		identifier := rand.String(16)
 
-		c.AddCookie(web.CookieOAuthIdentifier, identifier, time.Now().Add(24*time.Hour))
-
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), identifier)
+		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), getOAuthIdentifier(c))
 		if err != nil {
 			return c.Failure(err)
 		}
 		return c.Redirect(authURL)
 	}
+}
+
+func getOAuthIdentifier(c web.Context) string {
+	identifier := fmt.Sprintf("%s-%s", c.Request.ClientIP, c.Request.GetHeader("User-Agent"))
+	c.Logger().Info(identifier)
+	return crypto.SHA512(identifier)
 }

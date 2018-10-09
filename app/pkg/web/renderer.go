@@ -9,17 +9,17 @@ import (
 	"io/ioutil"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/md5"
 	"github.com/getfider/fider/app/pkg/oauth"
 )
 
 var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
-		return md5.Hash(input)
+		return crypto.MD5(input)
 	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Parse(input)
