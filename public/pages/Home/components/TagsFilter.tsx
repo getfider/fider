@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
-import { Dropdown, DropdownProps } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
+
+import "./TagsFilter.scss";
 
 interface TagsFilterProps {
   tags: Tag[];
@@ -21,16 +23,26 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     };
   }
 
-  private onChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+  private onChange = (item: DropDownItem) => {
     let selected = [];
-    const idx = this.state.selected.indexOf(data.value as string);
+    const idx = this.state.selected.indexOf(item.value as string);
     if (idx >= 0) {
       selected = this.state.selected.splice(idx, 1) && this.state.selected;
     } else {
-      selected = this.state.selected.concat(data.value as string);
+      selected = this.state.selected.concat(item.value as string);
     }
     this.setState({ selected });
     this.props.selectionChanged(selected);
+  };
+
+  private renderText = () => {
+    const text =
+      this.state.selected.length === 0
+        ? "any tag"
+        : this.state.selected.length === 1
+          ? "1 tag"
+          : `${this.state.selected.length} tags`;
+    return <>{text}</>;
   };
 
   public render() {
@@ -38,11 +50,11 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
       return null;
     }
 
-    const options = this.props.tags.map(t => {
+    const items = this.props.tags.map(t => {
       return {
         value: t.slug,
-        text: t.name,
-        content: (
+        label: t.name,
+        render: (
           <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
             <i className="icon check" />
             <ShowTag tag={t} size="mini" circular={true} />
@@ -52,23 +64,14 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
       };
     });
 
-    const text =
-      this.state.selected.length === 0
-        ? "any tag"
-        : this.state.selected.length === 1
-          ? "1 tag"
-          : `${this.state.selected.length} tags`;
-
     return (
       <>
         with{" "}
-        <Dropdown
+        <DropDown
           className="l-tags-filter"
-          selectOnBlur={false}
-          text={text}
-          defaultValue="0"
           inline={true}
-          options={options}
+          items={items}
+          renderText={this.renderText}
           onChange={this.onChange}
         />
       </>

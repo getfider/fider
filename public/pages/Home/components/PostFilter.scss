@@ -1,0 +1,29 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.l-post-filter {
+  .c-dropdown-text {
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 1px dashed $gray-darker;
+  }
+
+  .c-dropdown-menu {
+    max-height: -webkit-max-content;
+    max-height: -moz-max-content;
+    max-height: max-content;
+  }
+
+  .counter {
+    font-size: 8px;
+    background-color: $gray-lighter;
+    color: $text-color;
+    display: inline-block;
+    min-width: 15px;
+    padding: 0px 5px;
+    margin-left: 5px;
+    text-align: center;
+    border-radius: 10px;
+    vertical-align: top;
+    font-weight: 600;
+  }
+}

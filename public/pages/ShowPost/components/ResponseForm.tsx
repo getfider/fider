@@ -82,7 +82,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
             <Select
               field="status"
               label="Status"
-              defaultValue={this.props.post.status.toString()}
+              defaultValue={this.state.status}
               options={options}
               onChange={this.setStatus}
             />

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
-import { Dropdown, DropdownProps, DropdownItemProps, DropdownOnSearchChangeData } from "@fider/components";
+import { DropDown, DropDownItem } from "@fider/components";
 
 interface PostSearchProps {
   exclude?: number[];
@@ -23,12 +23,12 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     this.search("");
   }
 
-  private onSearchChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownOnSearchChangeData) => {
-    this.search(data.searchQuery);
+  private onSearchChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    this.search(e.currentTarget.value);
   };
 
-  private onChange = (e: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
-    this.props.onChanged(parseInt(data.value as string, 10));
+  private onChange = (item: DropDownItem) => {
+    this.props.onChanged(item.value as number);
   };
 
   private search = (searchQuery: string) => {
@@ -44,36 +44,32 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     }, 200);
   };
 
-  private returnAll = (options: DropdownItemProps[], value: string) => options;
+  private returnAll = (options: DropDownItem[], value: string) => options;
 
   public render() {
-    const options = this.state.posts.map(i => {
-      const status = PostStatus.Get(i.status);
+    const items = this.state.posts.map(p => {
+      const status = PostStatus.Get(p.status);
       return {
-        key: i.number,
-        text: i.title,
-        value: i.number,
-        content: (
+        label: p.title,
+        value: p.number,
+        render: (
           <>
             <span className="votes">
               <i className="caret up icon" />
-              {i.votesCount}
+              {p.votesCount}
             </span>
             <span className={`status-label status-${status.value}`}>{status.title}</span>
-            {i.title}
+            {p.title}
           </>
         )
       };
     });
 
     return (
-      <Dropdown
+      <DropDown
         className="c-post-search"
-        fluid={true}
-        selectOnBlur={false}
-        selection={true}
-        search={this.returnAll}
-        options={options}
+        searchable={true}
+        items={items}
         placeholder="Search original post"
         onChange={this.onChange}
         onSearchChange={this.onSearchChange}

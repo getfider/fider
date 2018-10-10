@@ -19,11 +19,12 @@ import {
   TextArea,
   RadioButton,
   Select,
-  SocialSignInButton,
+  Field,
   SelectOption
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
+import { DropDown, DropDownItem } from "@fider/components";
 
 const jonSnow: User = {
   id: 0,
@@ -78,6 +79,13 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         ]
       }
     });
+  };
+
+  private renderText = (item?: DropDownItem) => {
+    if (item) {
+      return item.render;
+    }
+    return <span>...</span>;
   };
 
   public render() {
@@ -346,6 +354,28 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             ]}
             onChange={this.notifyStatusChange}
           />
+
+          <Field label="Number">
+            <DropDown
+              items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+              defaultValue={"1"}
+              placeholder="Select a number"
+            />
+          </Field>
+
+          <Field label="Color (custom render)">
+            <DropDown
+              items={[
+                { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
+                { label: "Red", value: "red", render: <span style={{ color: "red" }}>Red</span> },
+                { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> }
+              ]}
+              placeholder="Select a color"
+              inline={true}
+              header="What color do you like the most?"
+              renderText={this.renderText}
+            />
+          </Field>
 
           <Button onClick={this.forceError}>Save</Button>
         </Form>
