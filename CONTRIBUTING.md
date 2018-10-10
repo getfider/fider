@@ -36,7 +36,7 @@ To setup your development workspace:
 5) run `mage watch` to start the application.
 6) Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
-**Important:** Fider has a strong dependency on an email delivery service. You'll need to edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server.
+**Important:** Fider has a strong dependency on an email delivery service. You'll need to edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
 
 To run the unit tests:
 
