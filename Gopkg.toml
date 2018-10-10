@@ -31,3 +31,6 @@
   branch = "master"
   name = "golang.org/x/crypto"
 
+[[constraint]]
+  name = "github.com/patrickmn/go-cache"
+  version = "2.1.0"

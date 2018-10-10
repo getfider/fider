@@ -19,6 +19,7 @@ import (
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
+	"github.com/patrickmn/go-cache"
 )
 
 var (
@@ -62,6 +63,7 @@ type Engine struct {
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
 	server      *http.Server
+	cache       *cache.Cache
 }
 
 //New creates a new Engine
@@ -81,6 +83,7 @@ func New(settings *models.SystemSettings) *Engine {
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
 		worker:      worker.New(db, bgLogger),
+		cache:       cache.New(5*time.Minute, 10*time.Minute),
 	}
 
 	return router
@@ -188,6 +191,11 @@ func (e *Engine) Logger() log.Logger {
 //Database returns current database
 func (e *Engine) Database() *dbx.Database {
 	return e.db
+}
+
+//Cache returns current cache
+func (e *Engine) Cache() *cache.Cache {
+	return e.cache
 }
 
 //Worker returns current worker referenc
