@@ -29,6 +29,8 @@ export interface DropDownState {
 }
 
 export class DropDown extends React.Component<DropDownProps, DropDownState> {
+  private mounted = false;
+
   constructor(props: DropDownProps) {
     super(props);
     this.state = {
@@ -37,6 +39,24 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     };
   }
 
+  public componentDidMount() {
+    this.mounted = true;
+  }
+
+  public componentWillUnmount() {
+    this.mounted = false;
+    this.removeListeners();
+  }
+
+  private addListeners() {
+    document.addEventListener("click", this.handleDocumentClick, false);
+    document.addEventListener("touchend", this.handleDocumentClick, false);
+  }
+
+  private removeListeners() {
+    document.removeEventListener("click", this.handleDocumentClick, false);
+    document.removeEventListener("touchend", this.handleDocumentClick, false);
+  }
 
   public handleMouseDown = (event: any) => {
     if (event.type === "mousedown" && event.button !== 0) {
@@ -50,10 +70,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       {
         isOpen: true
       },
-      () => {
-        document.addEventListener("click", this.handleDocumentClick, false);
-        document.addEventListener("touchend", this.handleDocumentClick, false);
-      }
+      this.addListeners
     );
   };
 
@@ -72,7 +89,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       isOpen: false
     };
     this.fireChangeEvent(newState);
-    this.setState(newState);
+    this.setState(newState, this.removeListeners);
   }
 
   public fireChangeEvent(newState: DropDownState) {
@@ -115,18 +132,17 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   }
 
   public handleDocumentClick = (event: any) => {
-    const node = findDOMNode(this);
-    if (node && !node.contains(event.target)) {
-      if (this.state.isOpen) {
-        this.setState(
-          {
-            isOpen: false
-          },
-          () => {
-            document.removeEventListener("click", this.handleDocumentClick, false);
-            document.removeEventListener("touchend", this.handleDocumentClick, false);
-          }
-        );
+    if (this.mounted) {
+      const node = findDOMNode(this);
+      if (node && !node.contains(event.target)) {
+        if (this.state.isOpen) {
+          this.setState(
+            {
+              isOpen: false
+            },
+            this.removeListeners
+          );
+        }
       }
     }
   };
