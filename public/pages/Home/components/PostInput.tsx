@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DisplayError, Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
+import { DisplayError, Button, ButtonClickEvent, Input, Form, MarkDownTextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
 import { cache, actions, Failure, Fider } from "@fider/services";
 import { CurrentUser } from "@fider/models";
@@ -82,7 +82,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
   public render() {
     const details = (
       <>
-        <TextArea
+        <MarkDownTextArea
           field="description"
           onChange={this.setDescription}
           value={this.state.description}

@@ -5,7 +5,7 @@ import * as React from "react";
 import {
   Button,
   ButtonClickEvent,
-  TextArea,
+  MarkDownTextArea,
   Form,
   Input,
   ImageUploader,
@@ -134,7 +134,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setTitle}
         />
-        <TextArea
+        <MarkDownTextArea
           field="welcomeMessage"
           label="Welcome Message"
           value={this.state.welcomeMessage}

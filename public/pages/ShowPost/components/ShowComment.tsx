@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Comment, CurrentUser, Post } from "@fider/models";
-import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText } from "@fider/components";
+import { Gravatar, UserName, Moment, Form, MarkDownTextArea, Button, MultiLineText } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
@@ -95,7 +95,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
           <div className="c-comment-text">
             {this.state.isEditting ? (
               <Form error={this.state.error}>
-                <TextArea
+                <MarkDownTextArea
                   field="content"
                   minRows={1}
                   value={this.state.newContent}

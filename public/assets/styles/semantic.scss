@@ -3,3 +3,21 @@
 .ui.dropdown .menu > .item {
   font-size: $font-size;
 }
+
+.ui.tabular.menu {
+  min-height: 30px;
+  border: none;
+  .item {
+    font-size: $font-size;
+    border: none;
+  }
+
+  .active.item {
+    margin-bottom: 0;
+    border: none;
+    background: $gray-lightest;
+  }
+  .preview {
+    min-height: 100px;
+  }
+}

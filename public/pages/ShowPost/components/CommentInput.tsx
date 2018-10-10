@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Post, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
+import { Gravatar, UserName, Button, DisplayError, SignInControl, MarkDownTextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
@@ -75,7 +75,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
           {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
           <Form error={this.state.error}>
             {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
-            <TextArea
+            <MarkDownTextArea
               placeholder="Write a comment..."
               field="content"
               value={this.state.content}
