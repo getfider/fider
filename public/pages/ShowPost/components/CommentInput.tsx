@@ -2,7 +2,15 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Post, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, MarkDownTextArea, Form } from "@fider/components/common";
+import {
+  Gravatar,
+  UserName,
+  Button,
+  DisplayError,
+  SignInControl,
+  MarkDownTextArea,
+  Form
+} from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";

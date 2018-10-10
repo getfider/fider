@@ -22,13 +22,13 @@ export class MarkDownTextArea extends React.Component<MarkDownTextAreaProps, {}>
   constructor(props: MarkDownTextAreaProps) {
     super(props);
     this.state = {
-      value: props.value || ''
+      value: props.value || ""
     };
   }
 
   private onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     if (this.props.onChange) {
-      this.setState({ value: e.currentTarget.value});
+      this.setState({ value: e.currentTarget.value });
       this.props.onChange(e.currentTarget.value);
     }
   };
