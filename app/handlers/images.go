@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/img"
@@ -28,6 +29,16 @@ func Avatar() web.HandlerFunc {
 			if err == nil && user.Tenant.ID == c.Tenant().ID {
 				if user.Email != "" {
 					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(user.Email)), size)
+					cacheKey := fmt.Sprintf("gavatar:%s", url)
+
+					//If gavatar was found in cache
+					if image, found := c.Engine().Cache().Get(cacheKey); found {
+						c.Logger().Debugf("Gavatar found in cache: @{GravatarURL}", log.Props{
+							"GravatarURL": cacheKey,
+						})
+						return c.Blob(http.StatusOK, http.DetectContentType(image.([]byte)), image.([]byte))
+					}
+
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
 						"GravatarURL": url,
 					})
@@ -38,6 +49,7 @@ func Avatar() web.HandlerFunc {
 						if resp.StatusCode == http.StatusOK {
 							bytes, err := ioutil.ReadAll(resp.Body)
 							if err == nil {
+								c.Engine().Cache().Set(cacheKey, bytes, time.Hour*24)
 								return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
 							}
 						}
