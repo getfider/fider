@@ -199,11 +199,11 @@ var (
 
 //NotificationEvent represents all possible notification events
 type NotificationEvent struct {
-	UserSettingsKeyName          string
-	DefaultSettingValue          string
-	RequiresSubscripionUserRoles []Role
-	DefaultEnabledUserRoles      []Role
-	Validate                     func(string) bool
+	UserSettingsKeyName           string
+	DefaultSettingValue           string
+	RequiresSubscriptionUserRoles []Role
+	DefaultEnabledUserRoles       []Role
+	Validate                      func(string) bool
 }
 
 func notificationEventValidation(v string) bool {
@@ -213,9 +213,9 @@ func notificationEventValidation(v string) bool {
 var (
 	//NotificationEventNewPost is triggered when a new post is posted
 	NotificationEventNewPost = NotificationEvent{
-		UserSettingsKeyName:          "event_notification_new_post",
-		DefaultSettingValue:          strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{},
+		UserSettingsKeyName:           "event_notification_new_post",
+		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscriptionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
@@ -226,7 +226,7 @@ var (
 	NotificationEventNewComment = NotificationEvent{
 		UserSettingsKeyName: "event_notification_new_comment",
 		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{
+		RequiresSubscriptionUserRoles: []Role{
 			RoleVisitor,
 		},
 		DefaultEnabledUserRoles: []Role{
@@ -240,7 +240,7 @@ var (
 	NotificationEventChangeStatus = NotificationEvent{
 		UserSettingsKeyName: "event_notification_change_status",
 		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{
+		RequiresSubscriptionUserRoles: []Role{
 			RoleVisitor,
 		},
 		DefaultEnabledUserRoles: []Role{

@@ -274,7 +274,7 @@ func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
 
 	if errors.Cause(err) == app.ErrNotFound {
 		for _, e := range models.AllNotificationEvents {
-			for _, r := range e.RequiresSubscripionUserRoles {
+			for _, r := range e.RequiresSubscriptionUserRoles {
 				if r == s.user.Role {
 					return false, nil
 				}

@@ -221,7 +221,7 @@ func TestDefaultBinder_POST_CustomType(t *testing.T) {
 	Expect(u.TheSize64).Equals(Small64)
 }
 
-func TestDefaultBinder_POST_CustomType_Unmarshall(t *testing.T) {
+func TestDefaultBinder_POST_CustomType_Unmarshal(t *testing.T) {
 	RegisterT(t)
 
 	type pizza struct {

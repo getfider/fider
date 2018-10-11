@@ -54,13 +54,13 @@ const CookieAuthName = "auth"
 const CookieSignUpAuthName = "__signup_auth"
 
 var (
-	preffixKey            = "__CTX_"
-	tenantContextKey      = preffixKey + "TENANT"
-	userContextKey        = preffixKey + "USER"
-	claimsContextKey      = preffixKey + "CLAIMS"
-	transactionContextKey = preffixKey + "TRANSACTION"
-	servicesContextKey    = preffixKey + "SERVICES"
-	tasksContextKey       = preffixKey + "TASKS"
+	prefixKey            = "__CTX_"
+	tenantContextKey      = prefixKey + "TENANT"
+	userContextKey        = prefixKey + "USER"
+	claimsContextKey      = prefixKey + "CLAIMS"
+	transactionContextKey = prefixKey + "TRANSACTION"
+	servicesContextKey    = prefixKey + "SERVICES"
+	tasksContextKey       = prefixKey + "TASKS"
 )
 
 //Context shared between http pipeline
