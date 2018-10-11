@@ -93,12 +93,16 @@ func (e *Engine) Start(address string) {
 		"Env": env.Current(),
 	})
 
-	certFile := env.GetEnvOrDefault("SSL_CERT", "")
-	keyFile := env.GetEnvOrDefault("SSL_CERT_KEY", "")
-	autoSSL := env.GetEnvOrDefault("SSL_AUTO", "")
+	var (
+		autoSSL      = env.GetEnvOrDefault("SSL_AUTO", "")
+		certFilePath = ""
+		keyFilePath  = ""
+	)
 
-	certFilePath := env.Etc(certFile)
-	keyFilePath := env.Etc(keyFile)
+	if env.IsDefined("SSL_CERT") {
+		certFilePath = env.Etc(env.GetEnvOrDefault("SSL_CERT", ""))
+		keyFilePath = env.Etc(env.GetEnvOrDefault("SSL_CERT_KEY", ""))
+	}
 
 	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
@@ -128,7 +132,7 @@ func (e *Engine) Start(address string) {
 		e.logger.Infof("https (auto ssl) server started on @{Address}", log.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
-	} else if certFile == "" && keyFile == "" {
+	} else if certFilePath == "" && keyFilePath == "" {
 		e.logger.Infof("http server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
