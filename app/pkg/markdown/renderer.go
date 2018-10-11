@@ -125,7 +125,7 @@ func (r renderer) LineBreak(out *bytes.Buffer) {
 	out.Write([]byte{'\n'})
 }
 
-// Link is the link tag callback.  Outputs a sipmle plain-text version
+// Link is the link tag callback.  Outputs a simple plain-text version
 // of the input.
 func (r renderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
 	out.Write(content)
