@@ -172,10 +172,7 @@
   input-imports = [
     "github.com/dgrijalva/jwt-go",
     "github.com/goenning/letteravatar",
-<<<<<<< HEAD
     "github.com/goenning/sqlcertcache",
-=======
->>>>>>> master
     "github.com/gosimple/slug",
     "github.com/julienschmidt/httprouter",
     "github.com/lib/pq",
