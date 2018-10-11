@@ -3,7 +3,7 @@ import { Modal, Checkbox } from "@fider/components/common";
 import { Fider } from "@fider/services";
 
 interface LegalAgreementProps {
-  onChange: (agrred: boolean) => void;
+  onChange: (agreed: boolean) => void;
 }
 
 export const TermsOfService: React.StatelessComponent<{}> = () => {

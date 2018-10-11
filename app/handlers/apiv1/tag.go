@@ -79,7 +79,7 @@ func CreateEditTag() web.HandlerFunc {
 	}
 }
 
-// DeleteTag deletes anexisting tag
+// DeleteTag deletes an existing tag
 func DeleteTag() web.HandlerFunc {
 	return func(c web.Context) error {
 		input := new(actions.DeleteTag)

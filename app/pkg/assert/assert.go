@@ -175,7 +175,7 @@ func (a *AnyAssertions) Panics() (panicked bool) {
 	return
 }
 
-//EventuallyEquals asserts that, withtin 30 seconds, the actual function will return same value as expected value
+//EventuallyEquals asserts that, within 30 seconds, the actual function will return same value as expected value
 func (a *AnyAssertions) EventuallyEquals(expected interface{}) bool {
 	mustBeFunction(a.actual)
 

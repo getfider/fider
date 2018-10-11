@@ -58,7 +58,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
           <p className="info">
             Custom CSS allows you to change the look and feel of Fider so that you can apply your own branding.
             <br />
-            This is a powerful and flexibe feature, but requires basic understanding of{" "}
+            This is a powerful and flexible feature, but requires basic understanding of{" "}
             <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
           </p>
           <p className="info">
