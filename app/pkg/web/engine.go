@@ -194,7 +194,7 @@ func (e *Engine) Database() *dbx.Database {
 	return e.db
 }
 
-//Worker returns current worker referenc
+//Worker returns current worker reference
 func (e *Engine) Worker() worker.Worker {
 	return e.worker
 }

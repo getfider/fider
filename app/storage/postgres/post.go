@@ -540,7 +540,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	var users []*dbUser
 
-	if len(event.RequiresSubscripionUserRoles) == 0 {
+	if len(event.RequiresSubscriptionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
 			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 			FROM users u
@@ -587,7 +587,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			s.tenant.ID,
 			pq.Array(event.DefaultEnabledUserRoles),
 			channel,
-			pq.Array(event.RequiresSubscripionUserRoles),
+			pq.Array(event.RequiresSubscriptionUserRoles),
 			models.UserActive,
 		)
 	}

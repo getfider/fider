@@ -12,7 +12,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
     this.state = {};
   }
 
-  private renegerate = async () => {
+  private regenerate = async () => {
     const result = await actions.regenerateAPIKey();
     if (result.ok) {
       this.setState({ apiKey: result.data.apiKey });
@@ -46,7 +46,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
           .
         </p>
         <p>
-          <Button size="tiny" onClick={this.renegerate}>
+          <Button size="tiny" onClick={this.regenerate}>
             Regenerate API Key
           </Button>
         </p>

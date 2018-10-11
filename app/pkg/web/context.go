@@ -28,7 +28,7 @@ type Map map[string]interface{}
 // StringMap defines a map of type `map[string]string`
 type StringMap map[string]string
 
-// Props defines the data required to rende rages
+// Props defines the data required to render rages
 type Props struct {
 	Title       string
 	Description string
@@ -54,13 +54,13 @@ const CookieAuthName = "auth"
 const CookieSignUpAuthName = "__signup_auth"
 
 var (
-	preffixKey            = "__CTX_"
-	tenantContextKey      = preffixKey + "TENANT"
-	userContextKey        = preffixKey + "USER"
-	claimsContextKey      = preffixKey + "CLAIMS"
-	transactionContextKey = preffixKey + "TRANSACTION"
-	servicesContextKey    = preffixKey + "SERVICES"
-	tasksContextKey       = preffixKey + "TASKS"
+	prefixKey            = "__CTX_"
+	tenantContextKey      = prefixKey + "TENANT"
+	userContextKey        = prefixKey + "USER"
+	claimsContextKey      = prefixKey + "CLAIMS"
+	transactionContextKey = prefixKey + "TRANSACTION"
+	servicesContextKey    = prefixKey + "SERVICES"
+	tasksContextKey       = prefixKey + "TASKS"
 )
 
 //Context shared between http pipeline

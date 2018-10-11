@@ -117,13 +117,13 @@ var whitelistRegex = regexp.MustCompile(whitelist)
 var blacklist = env.GetEnvOrDefault("EMAIL_BLACKLIST", "")
 var blacklistRegex = regexp.MustCompile(blacklist)
 
-// SetWhitelist can be used to change email whitelist during rutime
+// SetWhitelist can be used to change email whitelist during runtime
 func SetWhitelist(s string) {
 	whitelist = s
 	whitelistRegex = regexp.MustCompile(whitelist)
 }
 
-// SetBlacklist can be used to change email blacklist during rutime
+// SetBlacklist can be used to change email blacklist during runtime
 func SetBlacklist(s string) {
 	blacklist = s
 	blacklistRegex = regexp.MustCompile(blacklist)

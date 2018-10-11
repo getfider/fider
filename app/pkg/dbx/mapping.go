@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-//RowMapper is resposible for mapping a sql.Rows into a Struct (model)
+//RowMapper is responsible for mapping a sql.Rows into a Struct (model)
 type RowMapper struct {
 	cache map[reflect.Type]TypeMapper
 	sync.RWMutex

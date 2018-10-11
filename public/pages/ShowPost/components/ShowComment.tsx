@@ -10,7 +10,7 @@ interface ShowCommentProps {
 
 interface ShowCommentState {
   comment: Comment;
-  isEditting: boolean;
+  isEditing: boolean;
   newContent: string;
   error?: Failure;
 }
@@ -20,7 +20,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     super(props);
     this.state = {
       comment: props.comment,
-      isEditting: false,
+      isEditing: false,
       newContent: ""
     };
   }
@@ -33,12 +33,12 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   }
 
   private startEdit = () => {
-    this.setState({ isEditting: true, newContent: this.state.comment.content, error: undefined });
+    this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
   };
 
   private cancelEdit = async () => {
     this.setState({
-      isEditting: false,
+      isEditing: false,
       newContent: "",
       error: undefined
     });
@@ -83,7 +83,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
             · <Moment date={c.createdAt} />
           </div>
           {editedMetadata}
-          {!this.state.isEditting &&
+          {!this.state.isEditing &&
             this.canEditComment(c) && (
               <div className="c-comment-metadata">
                 ·{" "}
@@ -93,7 +93,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
               </div>
             )}
           <div className="c-comment-text">
-            {this.state.isEditting ? (
+            {this.state.isEditing ? (
               <Form error={this.state.error}>
                 <TextArea
                   field="content"
