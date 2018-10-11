@@ -42,6 +42,11 @@ type Database struct {
 	mapper *RowMapper
 }
 
+// Connection returns current database connection
+func (db *Database) Connection() *sql.DB {
+	return db.conn
+}
+
 // SetLogger replaces current database Logger
 func (db *Database) SetLogger(logger log.Logger) {
 	db.logger = logger

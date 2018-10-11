@@ -1,0 +1,10 @@
+version: '3'
+services:
+  pgcache_test:
+    restart: always
+    image: postgres:9.6.8
+    ports:
+      - "6543:5432"
+    environment:
+      POSTGRES_USER: pgcache_test
+      POSTGRES_PASSWORD: pgcache_test_pw
