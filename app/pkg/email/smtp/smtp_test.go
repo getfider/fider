@@ -141,6 +141,6 @@ func TestBatch_Success(t *testing.T) {
 	Expect(requests[1].from).Equals("noreply@random.org")
 	Expect(requests[1].to).Equals([]string{"arya.start@got.com"})
 	Expect(string(requests[1].body)).ContainsSubstring("From: \"Fider Test\" <noreply@random.org>\r\nReply-To: noreply@random.org\r\nTo: \"Arya Stark\" <arya.start@got.com>\r\nSubject: Message to: Arya\r\nMIME-version: 1.0\r\nContent-Type: text/html; charset=\"UTF-8\"\r\nDate: ")
-	Expect(string(requests[0].body)).ContainsSubstring("Message-ID: ")
+	Expect(string(requests[1].body)).ContainsSubstring("Message-ID: ")
 	Expect(string(requests[1].body)).ContainsSubstring("Hello World Arya!")
 }
