@@ -27,6 +27,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:340c6e87fb30a2a8b7b098b3fc07bf2c78291be5515acb0ec33fd2fe4a1b53cc"
+  name = "github.com/goenning/sqlcertcache"
+  packages = ["."]
+  pruneopts = ""
+  revision = "99f858c5bf37a984858e406db3053037d278abdd"
+
+[[projects]]
+  branch = "master"
   digest = "1:05f7dd1dc7530cd6b959f8b49660cd898f8dc9601b4e764ef9bdf211e6318774"
   name = "github.com/golang/freetype"
   packages = [
@@ -164,6 +172,7 @@
   input-imports = [
     "github.com/dgrijalva/jwt-go",
     "github.com/goenning/letteravatar",
+    "github.com/goenning/sqlcertcache",
     "github.com/gosimple/slug",
     "github.com/julienschmidt/httprouter",
     "github.com/lib/pq",
