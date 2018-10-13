@@ -18,7 +18,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 #### 1. Install the following tools:
 
 | Software  | How to install | What is it used for |
-|---|---|---|---|---|
+|---|---|---|
 | Go 1.11+ | https://golang.org/ | To compile server side code |
 | Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To bundle client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
@@ -37,7 +37,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 #### 3. To start the application
 
-1. run `mage watch` to start the application on watch mode. The application will be reloaded everytime another file is changed. Alternatively, it's possible to start Fider by running `mage build` and `mage run`.
+1. run `mage watch` to start the application on watch mode. The application will be reloaded everytime a file is changed. Alternatively, it's also possible to start Fider by running `mage build` and `mage run`.
 2. Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
 #### 4. To run the unit tests:
