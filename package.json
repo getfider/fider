@@ -18,7 +18,7 @@
     "@types/jest": "23.3.5",
     "@types/jsdom": "12.2.0",
     "@types/markdown-it": "0.0.6",
-    "@types/node": "10.7.0",
+    "@types/node": "10.11.7",
     "@types/puppeteer": "1.9.0",
     "@types/react": "16.4.16",
     "@types/react-dom": "16.0.9",
