@@ -33,3 +33,6 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   branch = "master"
   name = "golang.org/x/crypto"
 
+[[constraint]]
+  branch = "master"
+  name = "github.com/google/uuid"

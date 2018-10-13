@@ -6,10 +6,14 @@ import (
 	"net"
 	gosmtp "net/smtp"
 	"net/url"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/google/uuid"
 )
 
 func authenticate(username string, password string, host string) gosmtp.Auth {
@@ -81,6 +85,11 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 		"Params":       to.Params,
 	})
 
+	messageID, err := generateMessageID()
+	if err != nil {
+		return err
+	}
+
 	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
 	b.Set("From", email.NewRecipient(from, email.NoReply, email.Params{}).String())
@@ -89,6 +98,8 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	b.Set("Subject", message.Subject)
 	b.Set("MIME-version", "1.0")
 	b.Set("Content-Type", "text/html; charset=\"UTF-8\"")
+	b.Set("Date", time.Now().Format(time.RFC1123Z))
+	b.Set("Message-ID", messageID)
 	b.Body(message.Body)
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
@@ -156,4 +167,16 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 		return err
 	}
 	return c.Quit()
+}
+
+func generateMessageID() (string, error) {
+	timestamp := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
+	unq := uuid.New()
+	randStr := unq.String()
+	host, err := os.Hostname()
+	if err != nil {
+		return "", err
+	}
+	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, host)
+	return messageID, nil
 }
