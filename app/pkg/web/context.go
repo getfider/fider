@@ -54,7 +54,7 @@ const CookieAuthName = "auth"
 const CookieSignUpAuthName = "__signup_auth"
 
 var (
-	prefixKey            = "__CTX_"
+	prefixKey             = "__CTX_"
 	tenantContextKey      = prefixKey + "TENANT"
 	userContextKey        = prefixKey + "USER"
 	claimsContextKey      = prefixKey + "CLAIMS"
@@ -276,7 +276,7 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 
 	buf := new(bytes.Buffer)
 	ctx.engine.renderer.Render(buf, template, props, ctx)
-	return ctx.Blob(code, HTMLContentType, buf.Bytes())
+	return ctx.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
 
 //AddParam add a single param to route parameters list
@@ -460,7 +460,7 @@ func (ctx *Context) JSON(code int, i interface{}) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal response to JSON")
 	}
-	return ctx.Blob(code, JSONContentType, b)
+	return ctx.Blob(code, UTF8JSONContentType, b)
 }
 
 // Blob sends a blob response with status code and content type.
