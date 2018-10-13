@@ -15,7 +15,9 @@ interface NotificationsPanelState {
 export class NotificationsPanel extends React.Component<NotificationsPanelProps, NotificationsPanelState> {
   constructor(props: NotificationsPanelProps) {
     super(props);
-    this.state = this.props;
+    this.state = {
+      subscribed: this.props.subscribed
+    };
   }
 
   private subscribeOrUnsubscribe = async () => {
