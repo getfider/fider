@@ -49,9 +49,9 @@ export class DropDownList extends WebComponent {
     const value = await this.tab.evaluate<string>(
       (selector: string, textToSelect: string) => {
         const options = document.querySelectorAll(`${selector} option`);
-        for (const opt of options) {
-          if (opt && opt.textContent === textToSelect) {
-            return (opt as HTMLOptionElement).value;
+        for (let i = 0; i <= options.length; i++) {
+          if (options[i] && options[i].textContent === textToSelect) {
+            return (options[i] as HTMLOptionElement).value;
           }
         }
         return "";
