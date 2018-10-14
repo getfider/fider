@@ -20,6 +20,7 @@ $focus-color: #85b7d9;
 
 // Buttons
 $white: #fff;
+$white-dark: #f9f9f9;
 $gray-lightest: rgba(0,0,0,.03);
 $gray-lighter: #eee;
 $gray-light: #d5d5d5;
@@ -47,6 +48,11 @@ $xl-width: 1200px;
   }
   @else if $media == ">=sm" {
     @media only screen and (min-width: #{$sm-width}) { 
+      @content; 
+    }
+  }
+  @else if $media == "<md" {
+    @media only screen and (max-width: #{$lg-width - 0.1px}) { 
       @content; 
     }
   }

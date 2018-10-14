@@ -18,6 +18,7 @@ export interface DropDownProps {
   searchable?: boolean;
   inline?: boolean;
   header?: string;
+  direction?: "left" | "right";
   onChange?: (item: DropDownItem) => void;
   onSearchChange?: (e: React.FormEvent<HTMLInputElement>) => void;
   renderText?: (item?: DropDownItem) => JSX.Element | undefined;
@@ -30,6 +31,10 @@ export interface DropDownState {
 
 export class DropDown extends React.Component<DropDownProps, DropDownState> {
   private mounted = false;
+
+  public static defaultProps: Partial<DropDownProps> = {
+    direction: "right"
+  };
 
   constructor(props: DropDownProps) {
     super(props);
@@ -160,7 +165,9 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       "c-dropdown": true,
       [`${this.props.className}`]: this.props.className,
       "is-open": this.state.isOpen,
-      "is-inline": this.props.inline
+      "is-inline": this.props.inline,
+      "m-right": this.props.direction === "right",
+      "m-left": this.props.direction === "left"
     });
 
     return (

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Comment, CurrentUser, Post } from "@fider/models";
-import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText } from "@fider/components";
+import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText, DropDown, DropDownItem } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
@@ -32,10 +32,6 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     return false;
   }
 
-  private startEdit = () => {
-    this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
-  };
-
   private cancelEdit = async () => {
     this.setState({
       isEditing: false,
@@ -63,56 +59,68 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     this.setState({ newContent });
   };
 
+  private renderText = () => {
+    return <i className="ellipsis horizontal icon" />;
+  };
+
+  private onActionSelected = (item: DropDownItem) => {
+    if (item.value === "edit") {
+      this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
+    }
+  };
+
   public render() {
     const c = this.state.comment;
 
     const editedMetadata = !!c.editedAt &&
       !!c.editedBy && (
         <div className="c-comment-metadata">
-          ·{" "}
           <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>edited</span>
         </div>
       );
 
     return (
       <div className="c-comment">
-        <Gravatar user={c.user} />
-        <div className="c-comment-content">
-          <UserName user={c.user} />
-          <div className="c-comment-metadata">
-            · <Moment date={c.createdAt} />
+        <div className="c-comment-header">
+          <Gravatar user={c.user} />
+          <div className="c-comment-title">
+            <UserName user={c.user} />
+            <div className="c-comment-metadata">
+              <Moment date={c.createdAt} />
+            </div>
+            {editedMetadata}
           </div>
-          {editedMetadata}
           {!this.state.isEditing &&
             this.canEditComment(c) && (
-              <div className="c-comment-metadata">
-                ·{" "}
-                <span className="clickable" onClick={this.startEdit}>
-                  edit
-                </span>
-              </div>
+              <DropDown
+                className="l-more-actions"
+                direction="left"
+                items={[{ label: "Edit", value: "edit" }]}
+                onChange={this.onActionSelected}
+                renderText={this.renderText}
+              />
             )}
-          <div className="c-comment-text">
-            {this.state.isEditing ? (
-              <Form error={this.state.error}>
-                <TextArea
-                  field="content"
-                  minRows={1}
-                  value={this.state.newContent}
-                  placeholder={c.content}
-                  onChange={this.setNewContent}
-                />
-                <Button size="tiny" onClick={this.saveEdit} color="positive">
-                  Save
-                </Button>
-                <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
-                  Cancel
-                </Button>
-              </Form>
-            ) : (
-              <MultiLineText text={c.content} style="simple" />
-            )}
-          </div>
+        </div>
+        <div className="c-comment-text">
+          {this.state.isEditing ? (
+            <Form error={this.state.error}>
+              <TextArea
+                field="content"
+                minRows={1}
+                value={this.state.newContent}
+                placeholder={c.content}
+                onChange={this.setNewContent}
+              />
+              <Button size="tiny" onClick={this.saveEdit} color="positive">
+                Save
+              </Button>
+              <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
+                Cancel
+              </Button>
+            </Form>
+          ) : (
+            <MultiLineText text={c.content} style="simple" />
+          )}
         </div>
       </div>
     );

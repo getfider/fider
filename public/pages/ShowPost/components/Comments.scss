@@ -11,25 +11,69 @@
 
   .c-comment {
     position: relative;
-    margin: 0 0 15px 0;
-    border: none;
+    margin: 0 0 10px 0;
     border-top: none;
     line-height: 1.2;
+    border: 1px solid $gray-lighter;
 
-    .c-comment-content {
-      display: inline-block;
-      width: 85%;
+    .c-comment-header {
+      background-color: $white-dark;
+      line-height: 30px;
+      padding: 5px 10px;
+      vertical-align: middle;
 
-      .c-comment-text {
-        margin-top: 2px;
+      @include media("<md") {
+        line-height: 15px;
+        .c-username {
+          display: block;
+        }
       }
-  
-      .c-comment-metadata {
+
+      .c-comment-title {
         display: inline-block;
-        margin-left: .5em;
+      }
+
+      .c-comment-metadata {
+        &::before {
+          content: "· ";
+        }
+        display: inline-block;
         font-size: 80%;
         color: $gray-darker;
+        margin-left: 5px;
       }
+
+      .l-more-actions {
+        cursor: pointer;
+        display: inline-block;
+        position: absolute;
+        right: 10px;
+        @include media("<md") {
+          top: 12px;
+        }
+
+        .ellipsis.icon {
+          color: $gray-dark;
+        }
+
+        &:hover {
+          .ellipsis.icon {
+            color: $gray-darkest;
+          }
+        }
+
+        &.is-open {
+          display: inline-block !important;
+          .ellipsis.icon {
+            color: $gray-darkest;
+          }
+        }
+      }
+    }
+
+    .c-comment-text {
+      background-color: $white;
+      padding: 10px;
     }
   }
 }
