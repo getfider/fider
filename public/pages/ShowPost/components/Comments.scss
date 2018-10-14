@@ -34,13 +34,15 @@
       }
 
       .c-comment-metadata {
-        &::before {
-          content: "· ";
+        @include media(">=lg") {
+          margin-left: 5px;
+          &::before {
+            content: "· ";
+          }
         }
         display: inline-block;
         font-size: 80%;
         color: $gray-darker;
-        margin-left: 5px;
       }
 
       .l-more-actions {
