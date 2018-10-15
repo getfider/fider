@@ -59,7 +59,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     this.setState({ newContent });
   };
 
-  private renderText = () => {
+  private renderEllipsis = () => {
     return <i className="ellipsis horizontal icon" />;
   };
 
@@ -97,7 +97,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
                 direction="left"
                 items={[{ label: "Edit", value: "edit" }]}
                 onChange={this.onActionSelected}
-                renderText={this.renderText}
+                renderText={this.renderEllipsis}
               />
             )}
         </div>
