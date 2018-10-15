@@ -6,7 +6,7 @@
   }
 
   .c-avatar {
-    margin-right: 10px;
+    margin-right: 5px;
     vertical-align: top;
     margin-top: 2px;
   }
@@ -17,13 +17,9 @@
     border-top: none;
     line-height: 1.2;
 
-    .c-comment-header {
-      line-height: 30px;
-      vertical-align: middle;
-
-      .c-comment-title {
-        display: inline-block;
-      }
+    .c-comment-content {
+      display: inline-block;
+      width: 85%;
 
       .c-comment-metadata {
         display: inline-block;
@@ -38,6 +34,10 @@
         margin-left: 10px;
         position: relative;
         top: 2px;
+
+        .c-dropdown-menu {
+          border-radius: 5px;
+        }
 
         .ellipsis.icon {
           color: $gray-dark;
@@ -56,11 +56,6 @@
           }
         }
       }
-    }
-
-    .c-comment-text {
-      background-color: $white;
-      margin-left: 40px;
     }
   }
 }

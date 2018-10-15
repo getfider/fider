@@ -83,15 +83,13 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
 
     return (
       <div className="c-comment">
-        <div className="c-comment-header">
-          <Gravatar user={c.user} />
-          <div className="c-comment-title">
-            <UserName user={c.user} />
-            <div className="c-comment-metadata">
-              · <Moment date={c.createdAt} />
-            </div>
-            {editedMetadata}
+        <Gravatar user={c.user} />
+        <div className="c-comment-content">
+          <UserName user={c.user} />
+          <div className="c-comment-metadata">
+            · <Moment date={c.createdAt} />
           </div>
+          {editedMetadata}
           {!this.state.isEditing &&
             this.canEditComment(c) && (
               <DropDown
@@ -102,27 +100,27 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
                 renderText={this.renderEllipsis}
               />
             )}
-        </div>
-        <div className="c-comment-text">
-          {this.state.isEditing ? (
-            <Form error={this.state.error}>
-              <TextArea
-                field="content"
-                minRows={1}
-                value={this.state.newContent}
-                placeholder={c.content}
-                onChange={this.setNewContent}
-              />
-              <Button size="tiny" onClick={this.saveEdit} color="positive">
-                Save
-              </Button>
-              <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
-                Cancel
-              </Button>
-            </Form>
-          ) : (
-            <MultiLineText text={c.content} style="simple" />
-          )}
+          <div className="c-comment-text">
+            {this.state.isEditing ? (
+              <Form error={this.state.error}>
+                <TextArea
+                  field="content"
+                  minRows={1}
+                  value={this.state.newContent}
+                  placeholder={c.content}
+                  onChange={this.setNewContent}
+                />
+                <Button size="tiny" onClick={this.saveEdit} color="positive">
+                  Save
+                </Button>
+                <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
+                  Cancel
+                </Button>
+              </Form>
+            ) : (
+              <MultiLineText text={c.content} style="simple" />
+            )}
+          </div>
         </div>
       </div>
     );
