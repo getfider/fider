@@ -249,6 +249,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
     border-left: 4px solid $gray-light;
     margin: 5px 0;
   }
+  ul, ol {
+    margin: 0;
+    padding-left: 30px;
+  }
   img {
     max-width: 100%;
   }

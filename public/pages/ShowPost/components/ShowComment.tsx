@@ -1,6 +1,16 @@
 import * as React from "react";
-import { Comment, CurrentUser, Post } from "@fider/models";
-import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText } from "@fider/components";
+import { Comment, Post } from "@fider/models";
+import {
+  Gravatar,
+  UserName,
+  Moment,
+  Form,
+  TextArea,
+  Button,
+  MultiLineText,
+  DropDown,
+  DropDownItem
+} from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
@@ -32,10 +42,6 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     return false;
   }
 
-  private startEdit = () => {
-    this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
-  };
-
   private cancelEdit = async () => {
     this.setState({
       isEditing: false,
@@ -63,14 +69,25 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     this.setState({ newContent });
   };
 
+  private renderEllipsis = () => {
+    return <i className="ellipsis horizontal icon" />;
+  };
+
+  private onActionSelected = (item: DropDownItem) => {
+    if (item.value === "edit") {
+      this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
+    }
+  };
+
   public render() {
     const c = this.state.comment;
 
     const editedMetadata = !!c.editedAt &&
       !!c.editedBy && (
         <div className="c-comment-metadata">
-          ·{" "}
-          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>edited</span>
+          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>
+            · edited
+          </span>
         </div>
       );
 
@@ -85,12 +102,13 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
           {editedMetadata}
           {!this.state.isEditing &&
             this.canEditComment(c) && (
-              <div className="c-comment-metadata">
-                ·{" "}
-                <span className="clickable" onClick={this.startEdit}>
-                  edit
-                </span>
-              </div>
+              <DropDown
+                className="l-more-actions"
+                direction="left"
+                items={[{ label: "Edit", value: "edit" }]}
+                onChange={this.onActionSelected}
+                renderText={this.renderEllipsis}
+              />
             )}
           <div className="c-comment-text">
             {this.state.isEditing ? (

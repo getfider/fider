@@ -19,6 +19,12 @@
     }
   }
 
+  &.m-left {
+    .c-dropdown-menu {
+      right: 0;
+    }
+  }
+
   .c-dropdown-control {
     position: relative;
     overflow: hidden;
