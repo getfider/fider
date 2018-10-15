@@ -180,6 +180,23 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
+// DeleteComment deletes an existing comment by its ID
+func DeleteComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.DeleteComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Posts.DeleteComment(input.Model.CommentID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c web.Context) error {

@@ -75,3 +75,27 @@ func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 	model.Number = post1.Number
 	ExpectFailed(action.Validate(nil, services))
 }
+
+func TestDeleteComment(t *testing.T) {
+	RegisterT(t)
+
+	author := &models.User{ID: 1, Role: models.RoleVisitor}
+	notAuthor := &models.User{ID: 2, Role: models.RoleVisitor}
+	administrator := &models.User{ID: 3, Role: models.RoleAdministrator}
+
+	services.SetCurrentUser(author)
+	post1, _ := services.Posts.Add("Post #1", "")
+	commentID, _ := services.Posts.AddComment(post1, "Comment #1")
+
+	action := &actions.DeleteComment{
+		Model: &models.DeleteComment{
+			CommentID: commentID,
+		},
+	}
+
+	authorized := action.IsAuthorized(notAuthor, services)
+	Expect(authorized).IsFalse()
+
+	authorized = action.IsAuthorized(administrator, services)
+	Expect(authorized).IsTrue()
+}
