@@ -75,7 +75,9 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     const editedMetadata = !!c.editedAt &&
       !!c.editedBy && (
         <div className="c-comment-metadata">
-          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>edited</span>
+          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>
+            · edited
+          </span>
         </div>
       );
 

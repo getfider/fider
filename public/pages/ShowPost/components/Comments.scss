@@ -6,29 +6,24 @@
   }
 
   .c-avatar {
-    margin-right: 5px;
+    margin-right: 10px;
     vertical-align: top;
     margin-top: 2px;
   }
 
   .c-comment {
     position: relative;
-    margin: 0 0 10px 0;
+    margin: 0 0 20px 0;
     border-top: none;
     line-height: 1.2;
-    border: 1px solid $gray-lighter;
 
     .c-comment-header {
-      background-color: $white-dark;
-      line-height: 30px;
-      padding: 5px 10px;
+      line-height: 15px;
+      margin-bottom: 10px;
       vertical-align: middle;
 
-      @include media("<md") {
-        line-height: 15px;
-        .c-username {
-          display: block;
-        }
+      .c-username {
+        display: block;
       }
 
       .c-comment-title {
@@ -36,15 +31,12 @@
       }
 
       .c-comment-metadata {
-        @include media(">=lg") {
-          margin-left: 5px;
-          &::before {
-            content: "· ";
-          }
-        }
         display: inline-block;
         font-size: 80%;
         color: $gray-darker;
+        & + .c-comment-metadata {
+          margin-left: 3px;
+        }
       }
 
       .l-more-actions {
@@ -77,7 +69,7 @@
 
     .c-comment-text {
       background-color: $white;
-      padding: 10px;
+      margin-left: 40px;
     }
   }
 }
