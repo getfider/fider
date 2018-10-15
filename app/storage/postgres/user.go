@@ -1,11 +1,10 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
-
-	"database/sql"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -345,4 +344,23 @@ func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
 		return nil, errors.Wrap(err, "failed to get user with API Key '%s'", apiKey)
 	}
 	return user, nil
+}
+
+func (s *UserStorage) FindLike(query string) ([]*models.User, error) {
+	var users []*dbUser
+	err := s.trx.Select(&users, `
+		SELECT id, name, email, tenant_id, role, status 
+		FROM users 
+		WHERE name like $1 || '%'`, query)
+
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find users like like '%s'", query)
+	}
+
+	var result = make([]*models.User, len(users))
+	for i, user := range users {
+		result[i] = user.toModel()
+	}
+
+	return result, nil
 }

@@ -1,6 +1,8 @@
 package inmemory
 
 import (
+	"strings"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -175,4 +177,14 @@ func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
 		}
 	}
 	return nil, app.ErrNotFound
+}
+
+func (s *UserStorage) FindLike(query string) ([]*models.User, error) {
+	var found []*models.User
+	for _, user := range s.users {
+		if strings.HasPrefix(user.Name, query) {
+			found = append(found, user)
+		}
+	}
+	return found, nil
 }

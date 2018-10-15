@@ -355,3 +355,13 @@ func TestUserStorage_APIKey(t *testing.T) {
 	Expect(user).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }
+
+func TestUserStorage_findLike(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users, err := users.FindLike("Jon")
+	Expect(err).IsNil()
+	Expect(users).HasLen(1)
+	Expect(users[0].Name).Equals("Jon Snow")
+}
