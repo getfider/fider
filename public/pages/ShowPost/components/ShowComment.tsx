@@ -1,6 +1,16 @@
 import * as React from "react";
-import { Comment, CurrentUser, Post } from "@fider/models";
-import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText, DropDown, DropDownItem } from "@fider/components";
+import { Comment, Post } from "@fider/models";
+import {
+  Gravatar,
+  UserName,
+  Moment,
+  Form,
+  TextArea,
+  Button,
+  MultiLineText,
+  DropDown,
+  DropDownItem
+} from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
