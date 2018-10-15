@@ -18,13 +18,8 @@
     line-height: 1.2;
 
     .c-comment-header {
-      line-height: 15px;
-      margin-bottom: 10px;
+      line-height: 30px;
       vertical-align: middle;
-
-      .c-username {
-        display: block;
-      }
 
       .c-comment-title {
         display: inline-block;
@@ -34,19 +29,15 @@
         display: inline-block;
         font-size: 80%;
         color: $gray-darker;
-        & + .c-comment-metadata {
-          margin-left: 3px;
-        }
+        margin-left: 3px;
       }
 
       .l-more-actions {
         cursor: pointer;
         display: inline-block;
-        position: absolute;
-        right: 10px;
-        @include media("<md") {
-          top: 12px;
-        }
+        margin-left: 10px;
+        position: relative;
+        top: 2px;
 
         .ellipsis.icon {
           color: $gray-dark;

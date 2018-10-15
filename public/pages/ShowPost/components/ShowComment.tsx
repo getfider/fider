@@ -88,7 +88,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
           <div className="c-comment-title">
             <UserName user={c.user} />
             <div className="c-comment-metadata">
-              <Moment date={c.createdAt} />
+              · <Moment date={c.createdAt} />
             </div>
             {editedMetadata}
           </div>
