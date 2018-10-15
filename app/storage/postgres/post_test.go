@@ -156,6 +156,26 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	Expect(comment.EditedBy.ID).Equals(aryaStark.ID)
 }
 
+func TestPostStorage_AddDeleteComment(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+	post, err := posts.Add("My new post", "with this description")
+	Expect(err).IsNil()
+
+	commentID, err := posts.AddComment(post, "Comment #1")
+	Expect(err).IsNil()
+
+	err = posts.DeleteComment(commentID)
+	Expect(err).IsNil()
+
+	comment, err := posts.GetCommentByID(commentID)
+	Expect(err).Equals(app.ErrNotFound)
+	Expect(comment).IsNil()
+}
+
 func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

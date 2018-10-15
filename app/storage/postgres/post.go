@@ -136,7 +136,7 @@ var (
 															ON posts.id = comments.post_id
 															AND posts.tenant_id = comments.tenant_id
 															WHERE posts.tenant_id = $1
-															AND comments.status = ` + strconv.Itoa(models.CommentActive) + `
+															AND comments.deleted_at IS NULL
 															GROUP BY post_id
 													),
 													agg_votes AS (
@@ -353,8 +353,8 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 		AND e.tenant_id = c.tenant_id
 		WHERE p.id = $1
 		AND p.tenant_id = $2
-		AND c.status = $3
-		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID, models.CommentActive)
+		AND c.deleted_at IS NULL
+		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
 	}
@@ -408,10 +408,10 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
 	if err := s.trx.Get(&id, `
-		INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, status) 
-		VALUES ($1, $2, $3, $4, $5, $6) 
+		INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
+		VALUES ($1, $2, $3, $4, $5) 
 		RETURNING id
-	`, s.tenant.ID, post.ID, content, s.user.ID, time.Now(), models.CommentActive); err != nil {
+	`, s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
 
@@ -420,6 +420,17 @@ func (s *PostStorage) AddComment(post *models.Post, content string) (int, error)
 	}
 
 	return id, nil
+}
+
+// DeleteComment by its id
+func (s *PostStorage) DeleteComment(id int) error {
+	if _, err := s.trx.Execute(
+		"UPDATE comments SET deleted_at = $1, deleted_by_id = $2 WHERE id = $3 AND tenant_id = $4",
+		time.Now(), s.user.ID, id, s.tenant.ID,
+	); err != nil {
+		return errors.Wrap(err, "failed delete comment")
+	}
+	return nil
 }
 
 // GetCommentByID returns a comment by given ID
@@ -449,7 +460,7 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 		AND e.tenant_id = c.tenant_id
 		WHERE c.id = $1
 		AND c.tenant_id = $2
-		AND c.status = $3`, id, s.tenant.ID, models.CommentActive)
+		AND c.deleted_at IS NULL`, id, s.tenant.ID)
 
 	if err != nil {
 		return nil, err
