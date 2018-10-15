@@ -93,6 +93,13 @@ type Comment struct {
 	EditedBy  *User      `json:"editedBy,omitempty"`
 }
 
+var (
+	//CommentActive is the default status for comments
+	CommentActive = 1
+	//CommentDeleted is used for comments that have been deleted
+	CommentDeleted = 2
+)
+
 //Tag represents a simple tag
 type Tag struct {
 	ID       int    `json:"id"`

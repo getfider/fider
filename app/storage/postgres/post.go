@@ -136,6 +136,7 @@ var (
 															ON posts.id = comments.post_id
 															AND posts.tenant_id = comments.tenant_id
 															WHERE posts.tenant_id = $1
+															AND comments.status = ` + strconv.Itoa(models.CommentActive) + `
 															GROUP BY post_id
 													),
 													agg_votes AS (
@@ -352,7 +353,8 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 		AND e.tenant_id = c.tenant_id
 		WHERE p.id = $1
 		AND p.tenant_id = $2
-		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID)
+		AND c.status = $3
+		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID, models.CommentActive)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
 	}
@@ -405,9 +407,11 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 // AddComment places a new comment on an post
 func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
-	if err := s.trx.Get(&id,
-		"INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
+	if err := s.trx.Get(&id, `
+		INSERT INTO comments (tenant_id, post_id, content, user_id, created_at, status) 
+		VALUES ($1, $2, $3, $4, $5, $6) 
+		RETURNING id
+	`, s.tenant.ID, post.ID, content, s.user.ID, time.Now(), models.CommentActive); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
 
@@ -444,7 +448,8 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 		ON e.id = c.edited_by_id
 		AND e.tenant_id = c.tenant_id
 		WHERE c.id = $1
-		AND c.tenant_id = $2`, id, s.tenant.ID)
+		AND c.tenant_id = $2
+		AND c.status = $3`, id, s.tenant.ID, models.CommentActive)
 
 	if err != nil {
 		return nil, err
