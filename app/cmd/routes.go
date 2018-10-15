@@ -119,6 +119,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/change-email/verify", handlers.VerifyChangeEmailKey())
 
 		ui.Delete("/_api/user", handlers.DeleteUser())
+		ui.Get("/_api/mentions", handlers.GetMentions())
 		ui.Post("/_api/user/regenerate-apikey", handlers.RegenerateAPIKey())
 		ui.Post("/_api/user/settings", handlers.UpdateUserSettings())
 		ui.Post("/_api/user/change-email", handlers.ChangeUserEmail())
