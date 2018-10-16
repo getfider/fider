@@ -55,7 +55,7 @@ Does your organization use Fider? [Become a sponsor](https://opencollective.com/
 
 ## Backers
 
-Thank you to all our backers! 🙏
+Thanks a lot to all our backers! 🙏
 
 <a href="https://opencollective.com/fider" target="_blank">
   <img src="https://opencollective.com/fider/backers.svg?width=890">
