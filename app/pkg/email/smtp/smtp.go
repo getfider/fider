@@ -1,7 +1,9 @@
 package smtp
 
 import (
+	"crypto/rand"
 	"crypto/tls"
+	"encoding/hex"
 	"fmt"
 	"net"
 	gosmtp "net/smtp"
@@ -13,7 +15,6 @@ import (
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/google/uuid"
 )
 
 func authenticate(username string, password string, host string) gosmtp.Auth {
@@ -171,8 +172,9 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 
 func generateMessageID() (string, error) {
 	timestamp := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
-	unq := uuid.New()
-	randStr := unq.String()
+	buf := make([]byte, 16)
+	rand.Read(buf)
+	randStr := hex.EncodeToString(buf)
 	host, err := os.Hostname()
 	if err != nil {
 		return "", err

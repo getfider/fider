@@ -54,14 +54,6 @@
   revision = "ae59567b9aab61b50b2590679a62c3c044030b61"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a25a2c5ae694b01713fb6cd03c3b1ac1ccc1902b9f0a922680a88ec254f968e1"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8"
-
-[[projects]]
   digest = "1:eaa18118b73be68b0be2410a9797fe172f5e386243b6bff16fd5da4d22c9d966"
   name = "github.com/gosimple/slug"
   packages = ["."]
