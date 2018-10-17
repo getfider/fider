@@ -8,7 +8,6 @@ import (
 	"net"
 	gosmtp "net/smtp"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 
@@ -86,11 +85,6 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 		"Params":       to.Params,
 	})
 
-	messageID, err := generateMessageID()
-	if err != nil {
-		return err
-	}
-
 	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
 	b.Set("From", email.NewRecipient(from, email.NoReply, email.Params{}).String())
@@ -100,7 +94,7 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	b.Set("MIME-version", "1.0")
 	b.Set("Content-Type", "text/html; charset=\"UTF-8\"")
 	b.Set("Date", time.Now().Format(time.RFC1123Z))
-	b.Set("Message-ID", messageID)
+	b.Set("Message-ID", generateMessageID(localname))
 	b.Body(message.Body)
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
@@ -170,15 +164,11 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 	return c.Quit()
 }
 
-func generateMessageID() (string, error) {
+func generateMessageID(localName string) string {
 	timestamp := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 	buf := make([]byte, 16)
 	rand.Read(buf)
 	randStr := hex.EncodeToString(buf)
-	host, err := os.Hostname()
-	if err != nil {
-		return "", err
-	}
-	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, host)
-	return messageID, nil
+	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, localName)
+	return messageID
 }
