@@ -144,6 +144,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
               <DropDown
                 className="l-more-actions"
                 direction="left"
+                highlightSelected={false}
                 items={[
                   { label: "Edit", value: "edit" },
                   { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }

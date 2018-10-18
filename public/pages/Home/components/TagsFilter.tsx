@@ -70,6 +70,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         <DropDown
           className="l-tags-filter"
           inline={true}
+          highlightSelected={false}
           items={items}
           renderText={this.renderText}
           onChange={this.onChange}
