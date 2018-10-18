@@ -97,7 +97,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
 
   private modal() {
     return (
-      <Modal.Window isOpen={this.state.showDeleteConfirmation} center={false} size="large">
+      <Modal.Window isOpen={this.state.showDeleteConfirmation} center={false} size="small">
         <Modal.Header>Delete Comment</Modal.Header>
         <Modal.Content>
           <p>
