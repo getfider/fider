@@ -33,7 +33,7 @@
 
 This project exists thanks to all the people who contribute.
 
-<a href="graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/getfider/fider/graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
 Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
 

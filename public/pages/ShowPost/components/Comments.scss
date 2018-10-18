@@ -1,18 +1,19 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-comment-list {
-  max-width: 650px;
+  @include media(">=lg") {
+    max-width: 650px;
+  }
 
   .c-avatar {
-    margin-right: 5px;
+    margin-right: 10px;
     vertical-align: top;
     margin-top: 2px;
   }
 
   .c-comment {
     position: relative;
-    margin: 0 0 15px 0;
-    border: none;
+    margin: 0 0 20px 0;
     border-top: none;
     line-height: 1.2;
 
@@ -20,15 +21,41 @@
       display: inline-block;
       width: 85%;
 
-      .c-comment-text {
-        margin-top: 2px;
-      }
-  
       .c-comment-metadata {
         display: inline-block;
-        margin-left: .5em;
         font-size: 80%;
         color: $gray-darker;
+        margin-left: 3px;
+      }
+
+      .l-more-actions {
+        cursor: pointer;
+        display: inline-block;
+        margin-left: 10px;
+        position: relative;
+        top: 2px;
+
+        .c-dropdown-menu {
+          border-radius: 5px;
+          width: 100px;
+        }
+
+        .ellipsis.icon {
+          color: $gray-dark;
+        }
+
+        &:hover {
+          .ellipsis.icon {
+            color: $gray-darkest;
+          }
+        }
+
+        &.is-open {
+          display: inline-block !important;
+          .ellipsis.icon {
+            color: $gray-darkest;
+          }
+        }
       }
     }
   }

@@ -15,32 +15,45 @@ Before start working on something that you intend to send a Pull Request, make s
 Fider is written in Go (backend) and TypeScript (frontend), but we also use things like Node.js, React and PostgreSQL.
 If you know these technologies or would like to learn them, lucky you! This is the right place!
 
-Install the following tools:
+#### 1. Install the following tools:
 
-- Go 1.11+ (https://golang.org/)
-- Node.js 10+ (https://nodejs.org/ or run `nvm use` if you have nvm installed)
-- Docker (https://www.docker.com/)
+| Software  | How to install | What is it used for |
+|---|---|---|
+| Go 1.11+ | https://golang.org/ | To compile server side code |
+| Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To bundle client side code |
+| Docker | https://www.docker.com/ | To start local PostgreSQL instances |
+| cosmtrek/air | `go get github.com/cosmtrek/air/` | Live reload for Go apps |
+| joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | A `.env` file loader |
+| magefile/mage | `go get github.com/magefile/mage/` | A cross-platform Make alternative |
 
-We also use the following Go CLI tools. Install them using the `go get <url>` commands listed below:
+#### 2. To setup your development workspace:
 
-- cosmtrek/air `go get github.com/cosmtrek/air/`
-- joho/godotenv `go get github.com/joho/godotenv/cmd/godotenv/`
-- magefile/mage `go get github.com/magefile/mage/`
+1. clone the repository into `$GOPATH/src/github.com/getfider/fider`.
+2. run `npm install` to install client side packages .
+3. run `docker-compose up -d` to start a local PostgreSQL database on Docker.
+4. run `cp .example.env .env` to create a local environment configuration file.
 
-To setup your development workspace:
+- **Important:** Fider has a strong dependency on an email delivery service. You'll need to edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
 
-1) clone the repository into `$GOPATH/src/github.com/getfider/fider`
-2) run `npm install` to install front end packages 
-3) run `docker-compose up -d pgdev` to start a local PostgreSQL database on Docker.
-4) run `cp .example.env .env` to create a local environment configuration file.
-5) run `mage watch` to start the application.
-6) Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
+#### 3. To start the application
 
-**Important:** Fider has a strong dependency on an email delivery service. You'll need to edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
+1. run `mage watch` to start the application on watch mode. The application will be reloaded everytime a file is changed. Alternatively, it's also possible to start Fider by running `mage build` and `mage run`.
+2. Navigate to `http://localhost:3000/` and 🎉! You should see the sign up page of Fider!
 
-To run the unit tests:
+#### 4. To run the unit tests:
 
-1) run `docker-compose up -d pgtest` to start a test-only PostgreSQL database on Docker.
-2) run `mage test`.
+1. run `mage test` to run both UI and Server unit tests.
 
-**NOTE:** It's currently not possible to build and develop Fider on **Windows**, if you're a Windows user and want to contribute to Fider, please help us resolve this [issue](https://github.com/getfider/fider/issues/434) first.
+## Common Issues
+
+#### 1. It doesn't work on Windows
+
+This is a known [Issue #434](https://github.com/getfider/fider/issues/434). If you're a Windows user and want to contribute to Fider, please help us resolve this.
+
+#### 2. godotenv: not found
+
+This happens when godotenv was not (or incorrectly) installed. Install it by running `go get github.com/joho/godotenv/cmd/godotenv/`.
+
+#### 3. mage watch throws 'too many open files' error
+
+macOS has a small limit on how many files can be open at the same time. This limit is usually OK for most users, but developers tools usuage require a larger limit. [Learn how to resolve this](https://www.macobserver.com/tips/deep-dive/evade-macos-many-open-files-error-pushing-limits/).
