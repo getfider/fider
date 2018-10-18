@@ -9,9 +9,10 @@ import {
   Button,
   MultiLineText,
   DropDown,
-  DropDownItem
+  DropDownItem,
+  Modal
 } from "@fider/components";
-import { formatDate, Failure, actions, Fider } from "@fider/services";
+import { formatDate, Failure, actions, Fider, navigator } from "@fider/services";
 
 interface ShowCommentProps {
   post: Post;
@@ -23,6 +24,7 @@ interface ShowCommentState {
   isEditing: boolean;
   newContent: string;
   error?: Failure;
+  showDeleteConfirmation: boolean;
 }
 
 export class ShowComment extends React.Component<ShowCommentProps, ShowCommentState> {
@@ -31,7 +33,8 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     this.state = {
       comment: props.comment,
       isEditing: false,
-      newContent: ""
+      newContent: "",
+      showDeleteConfirmation: false
     };
   }
 
@@ -73,11 +76,46 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     return <i className="ellipsis horizontal icon" />;
   };
 
+  private closeModal = async () => {
+    this.setState({ showDeleteConfirmation: false });
+  };
+
+  private deleteComment = async () => {
+    const response = await actions.deleteComment(this.props.post.number, this.props.comment.id);
+    if (response.ok) {
+      location.reload();
+    }
+  };
+
   private onActionSelected = (item: DropDownItem) => {
     if (item.value === "edit") {
       this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
+    } else if (item.value === "delete") {
+      this.setState({ showDeleteConfirmation: true });
     }
   };
+
+  private modal() {
+    return (
+      <Modal.Window isOpen={this.state.showDeleteConfirmation} center={false} size="large">
+        <Modal.Header>Delete Comment</Modal.Header>
+        <Modal.Content>
+          <p>
+            This process is irreversible. <strong>Are you sure?</strong>
+          </p>
+        </Modal.Content>
+
+        <Modal.Footer>
+          <Button color="danger" onClick={this.deleteComment}>
+            Delete
+          </Button>
+          <Button color="cancel" onClick={this.closeModal}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal.Window>
+    );
+  }
 
   public render() {
     const c = this.state.comment;
@@ -93,6 +131,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
 
     return (
       <div className="c-comment">
+        {this.modal()}
         <Gravatar user={c.user} />
         <div className="c-comment-content">
           <UserName user={c.user} />
@@ -105,7 +144,10 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
               <DropDown
                 className="l-more-actions"
                 direction="left"
-                items={[{ label: "Edit", value: "edit" }]}
+                items={[
+                  { label: "Edit", value: "edit" },
+                  { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+                ]}
                 onChange={this.onActionSelected}
                 renderText={this.renderEllipsis}
               />
