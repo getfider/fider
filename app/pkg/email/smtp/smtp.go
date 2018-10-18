@@ -167,7 +167,10 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 func generateMessageID(localName string) string {
 	timestamp := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
 	buf := make([]byte, 16)
-	rand.Read(buf)
+	_, err := rand.Read(buf)
+	if err != nil {
+	  panic(err)
+	}
 	randStr := hex.EncodeToString(buf)
 	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, localName)
 	return messageID
