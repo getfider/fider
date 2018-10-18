@@ -27,6 +27,7 @@ type Post interface {
 	AddComment(post *models.Post, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
+	DeleteComment(id int) error
 	AddVote(post *models.Post, user *models.User) error
 	RemoveVote(post *models.Post, user *models.User) error
 	AddSubscriber(post *models.Post, user *models.User) error

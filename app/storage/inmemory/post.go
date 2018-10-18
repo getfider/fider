@@ -128,6 +128,21 @@ func (s *PostStorage) AddComment(post *models.Post, content string) (int, error)
 	return s.lastCommentID, nil
 }
 
+// DeleteComment by its id
+func (s *PostStorage) DeleteComment(id int) error {
+	for _, p := range s.posts {
+		if comments, ok := s.postComments[p.ID]; ok {
+			for idx, comment := range comments {
+				if comment.ID == id {
+					s.postComments[p.ID] = append(comments[:idx], comments[idx+1:]...)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // GetCommentByID returns a comment by given ID
 func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 	for _, comments := range s.postComments {

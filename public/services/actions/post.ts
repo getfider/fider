@@ -57,6 +57,10 @@ export const updateComment = async (postNumber: number, commentID: number, conte
     .then(http.event("comment", "update"));
 };
 
+export const deleteComment = async (postNumber: number, commentID: number): Promise<Result> => {
+  return http.delete(`/api/v1/posts/${postNumber}/comments/${commentID}`).then(http.event("comment", "delete"));
+};
+
 interface SetResponseInput {
   status: string;
   text: string;
