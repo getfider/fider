@@ -2,19 +2,19 @@ package middlewares
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/mailgun"
 	"github.com/getfider/fider/app/pkg/email/noop"
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/worker"
-
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
+	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
@@ -203,11 +203,13 @@ func newEmailer(logger log.Logger) email.Sender {
 	if env.IsDefined("EMAIL_MAILGUN_API") {
 		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
 	}
+	authlogin, _ := strconv.ParseBool(env.GetEnvOrDefault("EMAIL_SMTP_AUTH_LOGIN", "0"))
 	return smtp.NewSender(
 		logger,
 		env.MustGet("EMAIL_SMTP_HOST"),
 		env.MustGet("EMAIL_SMTP_PORT"),
 		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
 		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
+		authlogin,
 	)
 }

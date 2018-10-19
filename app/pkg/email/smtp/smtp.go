@@ -12,9 +12,12 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 )
 
-func authenticate(username string, password string, host string) gosmtp.Auth {
+func authenticate(username string, password string, host string, authlogin bool) gosmtp.Auth {
 	if username == "" && password == "" {
 		return nil
+	}
+	if authlogin == true {
+		return LoginAuth(username, password)
 	}
 	return gosmtp.PlainAuth("", username, password, host)
 }
@@ -37,17 +40,18 @@ func (b *builder) Bytes() []byte {
 
 //Sender is used to send emails
 type Sender struct {
-	logger   log.Logger
-	host     string
-	port     string
-	username string
-	password string
-	send     func(string, string, gosmtp.Auth, string, []string, []byte) error
+	logger    log.Logger
+	host      string
+	port      string
+	username  string
+	password  string
+	authlogin bool
+	send      func(string, string, gosmtp.Auth, string, []string, []byte) error
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, host, port, username, password string) *Sender {
-	return &Sender{logger, host, port, username, password, sendMail}
+func NewSender(logger log.Logger, host, port, username, password string, authlogin bool) *Sender {
+	return &Sender{logger, host, port, username, password, authlogin, sendMail}
 }
 
 //ReplaceSend can be used to mock internal send function
@@ -92,7 +96,7 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	b.Body(message.Body)
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
-	auth := authenticate(s.username, s.password, s.host)
+	auth := authenticate(s.username, s.password, s.host, s.authlogin)
 	err = s.send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)

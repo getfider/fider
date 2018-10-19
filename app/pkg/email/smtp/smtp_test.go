@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/pkg/worker"
-
+	
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/email"
@@ -22,7 +22,7 @@ type request struct {
 }
 
 var logger = noop.NewLogger()
-var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss")
+var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss", false)
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
