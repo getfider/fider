@@ -4,17 +4,16 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/mailgun"
 	"github.com/getfider/fider/app/pkg/email/noop"
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/worker"
-
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
+	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
