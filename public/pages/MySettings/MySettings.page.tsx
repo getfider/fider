@@ -170,11 +170,13 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-lg-7">
-            <APIKeyForm />
+        {Fider.session.user.isCollaborator && (
+          <div className="row">
+            <div className="col-lg-7">
+              <APIKeyForm />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="row">
           <div className="col-lg-7">
