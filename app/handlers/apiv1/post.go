@@ -52,6 +52,23 @@ func CreatePost() web.HandlerFunc {
 	}
 }
 
+// GetPost retrieves the existing post by id
+func GetPost() web.HandlerFunc {
+        return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(post)
+	}
+}
+
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -120,7 +137,7 @@ func ListComments() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		post, err := c.Services().Posts.GetByNumber(number)
@@ -228,7 +245,7 @@ func Unsubscribe() web.HandlerFunc {
 func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
-		return c.Failure(err)
+		return c.NotFound()
 	}
 
 	post, err := c.Services().Posts.GetByNumber(number)
