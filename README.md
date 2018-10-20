@@ -22,7 +22,7 @@
 </div>
 
 <div align="center">
-  <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="graphs/contributors">contributors</a></sub>
+  <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
 </div>
 
 <br />
