@@ -49,7 +49,7 @@ func TestGetPostHandler(t *testing.T) {
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)
 	services.SetCurrentUser(mock.JonSnow)
-	post, _ := services.Posts.Add("My First Post", "With a description")
+	post, _ := services.Posts.Add("My First Post", "Such an amazing description")
 
 	code, query := server.
 		OnTenant(mock.DemoTenant).
@@ -59,7 +59,7 @@ func TestGetPostHandler(t *testing.T) {
         
 	Expect(code).Equals(http.StatusOK)
 	Expect(query.String("title")).Equals("My First Post")
-	Expect(query.String("description")).Equals("With a description")       	
+	Expect(query.String("description")).Equals("Such an amazing description")	
 }
 
 func TestUpdatePostHandler_TenantStaff(t *testing.T) {
