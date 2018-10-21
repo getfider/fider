@@ -159,7 +159,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Use(middlewares.IsAuthenticated())
 
 		api.Post("/api/v1/posts", apiv1.CreatePost())
-                api.Get("/api/v1/posts/:number", apiv1.GetPost())
+		api.Get("/api/v1/posts/:number", apiv1.GetPost())
 		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
 		api.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
