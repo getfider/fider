@@ -3,7 +3,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 	"time"
 
@@ -11,6 +13,15 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+// required dependencies for building fider
+var requiredDeps = []string{
+	"air",
+	"godotenv",
+	"docker",
+	"npm",
+	"node",
+	"mage",
+}
 var buildTime = time.Now().Format("2006.01.02.150405")
 var buildNumber = os.Getenv("CIRCLE_BUILD_NUM")
 var exeName = "fider"
@@ -26,6 +37,23 @@ func init() {
 	if runtime.GOOS == "windows" {
 		exeName = "fider.exe"
 	}
+
+	missingDeps := missingDependencies()
+	if len(missingDeps) > 0 {
+		fmt.Printf("Dependencies %v are missing. Please install them and try again.\n", missingDeps)
+		os.Exit(1)
+	}
+}
+
+func missingDependencies() []string {
+	var missingDeps []string
+	for _, dep := range requiredDeps {
+		_, err := exec.LookPath(dep)
+		if err != nil {
+			missingDeps = append(missingDeps, dep)
+		}
+	}
+	return missingDeps
 }
 
 func Run() error {
