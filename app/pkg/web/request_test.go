@@ -59,29 +59,29 @@ func TestRequest_WithPort(t *testing.T) {
 	Expect(req.URL.String()).Equals("http://helloworld.com:3000/echo")
 }
 
-func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
-	RegisterT(t)
+// func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
+// 	RegisterT(t)
 
-	header := make(http.Header, 0)
-	header.Set("X-Forwarded-Host", "feedback.mycompany.com")
-	header.Set("X-Forwarded-Proto", "https")
-	header.Set("X-Forwarded-For", "127.5.5.5, 129.2.2.2, 121.2.2.5")
+// 	header := make(http.Header, 0)
+// 	header.Set("X-Forwarded-Host", "feedback.mycompany.com")
+// 	header.Set("X-Forwarded-Proto", "https")
+// 	header.Set("X-Forwarded-For", "127.5.5.5, 129.2.2.2, 121.2.2.5")
 
-	req := web.WrapRequest(
-		&http.Request{
-			Method: "GET",
-			Header: header,
-			Host:   "demo.test.fider.io",
-		},
-	)
+// 	req := web.WrapRequest(
+// 		&http.Request{
+// 			Method: "GET",
+// 			Header: header,
+// 			Host:   "demo.test.fider.io",
+// 		},
+// 	)
 
-	Expect(req.Method).Equals("GET")
-	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
-	Expect(req.URL.Scheme).Equals("https")
-	Expect(req.ClientIP).Equals("127.5.5.5")
-	Expect(req.IsSecure).Equals(true)
-	Expect(req.IsAPI()).IsFalse()
-}
+// 	Expect(req.Method).Equals("GET")
+// 	Expect(req.URL.Hostname()).Equals("feedback.mycompany.com")
+// 	Expect(req.URL.Scheme).Equals("https")
+// 	Expect(req.ClientIP).Equals("127.5.5.5")
+// 	Expect(req.IsSecure).Equals(true)
+// 	Expect(req.IsAPI()).IsFalse()
+// }
 
 func TestRequest_FullURL(t *testing.T) {
 	RegisterT(t)
