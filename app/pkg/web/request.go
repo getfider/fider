@@ -62,11 +62,11 @@ func WrapRequest(request *http.Request) Request {
 
 // getClientIP returns the IP of the original requestor.
 func getClientIP(request *http.Request) (clientIP string) {
-	if forwardedHosts := request.Header.Get("X-Forwarded-For"); forwardedHosts != "" {
-		clientIP = strings.Split(forwardedHosts, ",")[0]
-	} else {
-		clientIP, _, _ = net.SplitHostPort(request.RemoteAddr)
-	}
+	// if forwardedHosts := request.Header.Get("X-Forwarded-For"); forwardedHosts != "" {
+	// 	clientIP = strings.Split(forwardedHosts, ",")[0]
+	// } else {
+	clientIP, _, _ = net.SplitHostPort(request.RemoteAddr)
+	//}
 	return
 }
 
