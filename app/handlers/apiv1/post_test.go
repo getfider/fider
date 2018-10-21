@@ -426,3 +426,22 @@ func TestListCommentHandler(t *testing.T) {
 	Expect(query.IsArray()).IsTrue()
 	Expect(query.ArrayLength()).Equals(2)
 }
+
+func TestGetPostHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("My First Post", "With a description")
+
+	code, query := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecuteAsJSON(apiv1.GetPost())
+
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.IsArray()).IsTrue()
+	Expect(query.ArrayLength()).Equals(2)
+}
