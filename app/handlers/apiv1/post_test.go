@@ -442,5 +442,4 @@ func TestGetPostHandler(t *testing.T) {
 		ExecuteAsJSON(apiv1.GetPost())
 
 	Expect(code).Equals(http.StatusOK)
-	Expect(query.Title).Equals('My First Post')
 }
