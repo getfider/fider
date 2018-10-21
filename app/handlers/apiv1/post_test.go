@@ -51,15 +51,15 @@ func TestGetPostHandler(t *testing.T) {
 	services.SetCurrentUser(mock.JonSnow)
 	post, _ := services.Posts.Add("My First Post", "With a description")
 
-	code, post := server.
+	code, query := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", post.Number).
 		ExecuteAsJSON(apiv1.GetPost())
         
 	Expect(code).Equals(http.StatusOK)
-	Expect(post.Title).Equals("My First Post")
-	Expect(post.Description).Equals("With a description")       	
+	Expect(query.String("title")).Equals("My First Post")
+	Expect(query.String("description")).Equals("With a description")       	
 }
 
 func TestUpdatePostHandler_TenantStaff(t *testing.T) {
