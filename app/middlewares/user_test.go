@@ -54,6 +54,28 @@ func TestUser_WithCookie(t *testing.T) {
 	Expect(response.HeaderMap["Set-Cookie"]).HasLen(0)
 }
 
+func TestUser_Banned(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	mock.JonSnow.Status = models.UserBanned
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusForbidden)
+}
+
 func TestUser_WithCookie_InvalidUser(t *testing.T) {
 	RegisterT(t)
 
