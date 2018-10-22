@@ -65,6 +65,7 @@ func createServices(seed bool) *app.Services {
 			Name:   "Jon Snow",
 			Email:  "jon.snow@got.com",
 			Tenant: DemoTenant,
+			Status: models.UserActive,
 			Role:   models.RoleAdministrator,
 			Providers: []*models.UserProvider{
 				{UID: "FB1234", Name: oauth.FacebookProvider},
@@ -72,7 +73,13 @@ func createServices(seed bool) *app.Services {
 		}
 		services.Users.Register(JonSnow)
 
-		AryaStark = &models.User{Name: "Arya Stark", Email: "arya.stark@got.com", Tenant: DemoTenant, Role: models.RoleVisitor}
+		AryaStark = &models.User{
+			Name:   "Arya Stark",
+			Email:  "arya.stark@got.com",
+			Tenant: DemoTenant,
+			Status: models.UserActive,
+			Role:   models.RoleVisitor,
+		}
 		services.Users.Register(AryaStark)
 	}
 
