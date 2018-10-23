@@ -214,6 +214,5 @@ func SignInByOAuth() web.HandlerFunc {
 
 func getOAuthIdentifier(c web.Context) string {
 	identifier := fmt.Sprintf("%s-%s", c.Request.ClientIP, c.Request.GetHeader("User-Agent"))
-	c.Logger().Info(identifier)
 	return crypto.SHA512(identifier)
 }
