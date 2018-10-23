@@ -13,6 +13,11 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+// warning shown when at least one dependency is not installed
+var missingDepsWarning = `Dependencies %v are missing. Please install them and try again.
+To learn how, visit our contributors guide: https://github.com/getfider/fider/blob/master/CONTRIBUTING.md.
+`
+
 // required dependencies for building fider
 var requiredDeps = []string{
 	"air",
@@ -40,20 +45,9 @@ func init() {
 
 	missingDeps := missingDependencies()
 	if len(missingDeps) > 0 {
-		fmt.Printf("Dependencies %v are missing. Please install them and try again.\n", missingDeps)
+		fmt.Printf(missingDepsWarning, missingDeps)
 		os.Exit(1)
 	}
-}
-
-func missingDependencies() []string {
-	var missingDeps []string
-	for _, dep := range requiredDeps {
-		_, err := exec.LookPath(dep)
-		if err != nil {
-			missingDeps = append(missingDeps, dep)
-		}
-	}
-	return missingDeps
 }
 
 func Run() error {
@@ -143,4 +137,15 @@ func (Test) UI() error {
 func buildServer(env map[string]string) error {
 	ldflags := "-s -w -X main.buildtime=" + buildTime + " -X main.buildnumber=" + buildNumber
 	return sh.RunWith(env, "go", "build", "-ldflags", ldflags, "-o", exeName, ".")
+}
+
+func missingDependencies() []string {
+	var missingDeps []string
+	for _, dep := range requiredDeps {
+		_, err := exec.LookPath(dep)
+		if err != nil {
+			missingDeps = append(missingDeps, dep)
+		}
+	}
+	return missingDeps
 }
