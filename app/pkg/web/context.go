@@ -155,6 +155,15 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	ctx.Set(tenantContextKey, tenant)
 }
 
+//Bind context values into given model
+func (ctx *Context) Bind(i interface{}) error {
+	err := ctx.engine.binder.Bind(i, ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to bind request to model")
+	}
+	return nil
+}
+
 //BindTo context values into given model
 func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := ctx.engine.binder.Bind(i.Initialize(), ctx)

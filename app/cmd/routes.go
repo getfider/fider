@@ -29,6 +29,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/-/health", handlers.Health())
 	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
 
 	assets := r.Group()
 	{
