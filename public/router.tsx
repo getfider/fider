@@ -1,30 +1,22 @@
 import * as React from "react";
-
-import {
-  HomePage,
-  SignInPage,
-  SignUpPage,
-  ManageMembersPage,
-  CompleteSignInProfilePage,
-  PrivacySettingsPage,
-  InvitationsPage,
-  ExportPage,
-  GeneralSettingsPage,
-  AdvancedSettingsPage,
-  ManageAuthenticationPage,
-  ManageTagsPage,
-  OAuthEchoPage,
-  ShowPostPage,
-  MySettingsPage,
-  MyNotificationsPage,
-  UIToolkitPage
-} from "@fider/pages";
+import * as Loadable from "react-loadable";
 
 interface PageConfiguration {
   regex: RegExp;
   component: any;
   showHeader: boolean;
 }
+
+export const LoadablePage = (importPathSuffix: string, exportName: string) => {
+  return Loadable({
+    loader: async () => {
+      const module = await import(`@fider/pages/${importPathSuffix}`);
+      return module[exportName];
+    },
+    loading: () => <div>Loading...</div>,
+    delay: 400
+  });
+};
 
 const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
   path = path
@@ -38,24 +30,33 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
 };
 
 const pathRegex = [
-  route("", HomePage),
-  route("/posts/:number*", ShowPostPage),
-  route("/admin/members", ManageMembersPage),
-  route("/admin/tags", ManageTagsPage),
-  route("/admin/privacy", PrivacySettingsPage),
-  route("/admin/export", ExportPage),
-  route("/admin/invitations", InvitationsPage),
-  route("/admin/authentication", ManageAuthenticationPage),
-  route("/admin/advanced", AdvancedSettingsPage),
-  route("/admin", GeneralSettingsPage),
-  route("/signin", SignInPage, false),
-  route("/signup", SignUpPage, false),
-  route("/signin/verify", CompleteSignInProfilePage),
-  route("/invite/verify", CompleteSignInProfilePage),
-  route("/notifications", MyNotificationsPage),
-  route("/settings", MySettingsPage),
-  route("/oauth/:string/echo", OAuthEchoPage, false),
-  route("/-/ui", UIToolkitPage)
+  route("", LoadablePage("Home/Home.page", "HomePage")),
+  route("/posts/:number*", LoadablePage("ShowPost/ShowPost.page", "ShowPostPage")),
+  route("/admin/members", LoadablePage("Administration/pages/ManageMembers.page", "ManageMembersPage")),
+  route("/admin/tags", LoadablePage("Administration/pages/ManageTags.page", "ManageTagsPage")),
+  route("/admin/privacy", LoadablePage("Administration/pages/PrivacySettings.page", "PrivacySettingsPage")),
+  route("/admin/export", LoadablePage("Administration/pages/Export.page", "ExportPage")),
+  route("/admin/invitations", LoadablePage("Administration/pages/Invitations.page", "InvitationsPage")),
+  route(
+    "/admin/authentication",
+    LoadablePage("Administration/pages/ManageAuthentication.page", "ManageAuthenticationPage")
+  ),
+  route("/admin/advanced", LoadablePage("Administration/pages/AdvancedSettings.page", "AdvancedSettingsPage")),
+  route("/admin", LoadablePage("Administration/pages/GeneralSettings.page", "GeneralSettingsPage")),
+  route("/signin", LoadablePage("SignIn/SignIn.page", "SignInPage"), false),
+  route("/signup", LoadablePage("SignUp/SignUp.page", "SignUpPage"), false),
+  route(
+    "/signin/verify",
+    LoadablePage("CompleteSignInProfile/CompleteSignInProfile.page", "CompleteSignInProfilePage")
+  ),
+  route(
+    "/invite/verify",
+    LoadablePage("CompleteSignInProfile/CompleteSignInProfile.page", "CompleteSignInProfilePage")
+  ),
+  route("/notifications", LoadablePage("MyNotifications/MyNotifications.page", "MyNotificationsPage")),
+  route("/settings", LoadablePage("MySettings/MySettings.page", "MySettingsPage")),
+  route("/oauth/:string/echo", LoadablePage("OAuthEcho/OAuthEcho.page", "OAuthEchoPage"), false),
+  route("/-/ui", LoadablePage("UI/UIToolkit.page", "UIToolkitPage"))
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {

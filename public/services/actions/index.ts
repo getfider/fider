@@ -4,4 +4,3 @@ export * from "./post";
 export * from "./tenant";
 export * from "./notification";
 export * from "./invite";
-export { Failure } from "@fider/services/http";
