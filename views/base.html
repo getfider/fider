@@ -43,11 +43,11 @@
 
   {{template "content" .}}
 
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch"></script>
-  <script src="{{ .__vendorBundle }}"></script>
-  <script src="{{ .__jsBundle }}"></script>
   <script type="text/javascript" nonce="{{ .__contextID }}">
     {{template "javascript" .}}
   </script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
+  <script src="{{ .__vendorBundle }}" crossorigin="anonymous"></script>
+  <script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>
 </body>
 </html>
