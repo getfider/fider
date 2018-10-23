@@ -51,6 +51,8 @@ var (
 	UserActive = 1
 	//UserDeleted is used for users that chose to delete their accounts
 	UserDeleted = 2
+	//UserBanned is used for users that have been banned by staff members
+	UserBanned = 3
 )
 
 //Role is the role of a user inside a tenant
