@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -85,6 +86,27 @@ func Page(title, description string) web.HandlerFunc {
 			Title:       title,
 			Description: description,
 		})
+	}
+}
+
+//NewLogError is the input model for UI errors
+type NewLogError struct {
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+//LogError logs an error coming from the UI
+func LogError() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(NewLogError)
+		err := c.Bind(input)
+		if err != nil {
+			return c.Failure(err)
+		}
+		c.Logger().Errorf(input.Message, log.Props{
+			"Data": input.Data,
+		})
+		return c.Ok(web.Map{})
 	}
 }
 
