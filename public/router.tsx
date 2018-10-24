@@ -1,22 +1,13 @@
 import * as React from "react";
 import * as Loadable from "react-loadable";
 
+import * as Pages from "@fider/AsyncPages";
+
 interface PageConfiguration {
   regex: RegExp;
   component: any;
   showHeader: boolean;
 }
-
-export const LoadablePage = (importPathSuffix: string, exportName: string) => {
-  return Loadable({
-    loader: async () => {
-      const module = await import(`@fider/pages/${importPathSuffix}`);
-      return module[exportName];
-    },
-    loading: () => <div>Loading...</div>,
-    delay: 400
-  });
-};
 
 const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
   path = path
@@ -30,33 +21,24 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
 };
 
 const pathRegex = [
-  route("", LoadablePage("Home/Home.page", "HomePage")),
-  route("/posts/:number*", LoadablePage("ShowPost/ShowPost.page", "ShowPostPage")),
-  route("/admin/members", LoadablePage("Administration/pages/ManageMembers.page", "ManageMembersPage")),
-  route("/admin/tags", LoadablePage("Administration/pages/ManageTags.page", "ManageTagsPage")),
-  route("/admin/privacy", LoadablePage("Administration/pages/PrivacySettings.page", "PrivacySettingsPage")),
-  route("/admin/export", LoadablePage("Administration/pages/Export.page", "ExportPage")),
-  route("/admin/invitations", LoadablePage("Administration/pages/Invitations.page", "InvitationsPage")),
-  route(
-    "/admin/authentication",
-    LoadablePage("Administration/pages/ManageAuthentication.page", "ManageAuthenticationPage")
-  ),
-  route("/admin/advanced", LoadablePage("Administration/pages/AdvancedSettings.page", "AdvancedSettingsPage")),
-  route("/admin", LoadablePage("Administration/pages/GeneralSettings.page", "GeneralSettingsPage")),
-  route("/signin", LoadablePage("SignIn/SignIn.page", "SignInPage"), false),
-  route("/signup", LoadablePage("SignUp/SignUp.page", "SignUpPage"), false),
-  route(
-    "/signin/verify",
-    LoadablePage("CompleteSignInProfile/CompleteSignInProfile.page", "CompleteSignInProfilePage")
-  ),
-  route(
-    "/invite/verify",
-    LoadablePage("CompleteSignInProfile/CompleteSignInProfile.page", "CompleteSignInProfilePage")
-  ),
-  route("/notifications", LoadablePage("MyNotifications/MyNotifications.page", "MyNotificationsPage")),
-  route("/settings", LoadablePage("MySettings/MySettings.page", "MySettingsPage")),
-  route("/oauth/:string/echo", LoadablePage("OAuthEcho/OAuthEcho.page", "OAuthEchoPage"), false),
-  route("/-/ui", LoadablePage("UI/UIToolkit.page", "UIToolkitPage"))
+  route("", Pages.AsyncHomePage),
+  route("/posts/:number*", Pages.AsyncShowPostPage),
+  route("/admin/members", Pages.AsyncManageMembersPage),
+  route("/admin/tags", Pages.AsyncManageTagsPage),
+  route("/admin/privacy", Pages.AsyncPrivacySettingsPage),
+  route("/admin/export", Pages.AsyncExportPage),
+  route("/admin/invitations", Pages.AsyncInvitationsPage),
+  route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
+  route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
+  route("/admin", Pages.AsyncGeneralSettingsPage),
+  route("/signin", Pages.AsyncSignInPage, false),
+  route("/signup", Pages.AsyncSignUpPage, false),
+  route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),
+  route("/invite/verify", Pages.AsyncCompleteSignInProfilePage),
+  route("/notifications", Pages.AsyncMyNotificationsPage),
+  route("/settings", Pages.AsyncMySettingsPage),
+  route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
+  route("/-/ui", Pages.AsyncUIToolkitPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {
@@ -64,7 +46,7 @@ export const resolveRootComponent = (path: string): PageConfiguration => {
     path = path.substring(0, path.length - 1);
   }
   for (const entry of pathRegex) {
-    if (entry.regex.test(path)) {
+    if (entry && entry.regex.test(path)) {
       return entry;
     }
   }

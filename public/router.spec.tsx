@@ -1,13 +1,21 @@
 import { resolveRootComponent } from "./router";
-import * as Loadable from "react-loadable";
+import * as Pages from "@fider/AsyncPages";
 
-[{ path: "", shouldError: false }, { path: "thispathshouldn'tmatchanything", shouldError: true }].forEach(x => {
+[
+  { path: "", expected: Pages.AsyncHomePage },
+  { path: "/posts/123", expected: Pages.AsyncShowPostPage },
+  { path: "/posts/123/the-slug", expected: Pages.AsyncShowPostPage },
+  { path: "/posts" },
+  { path: "/admin", expected: Pages.AsyncGeneralSettingsPage },
+  { path: "/admin/invitations", expected: Pages.AsyncInvitationsPage },
+  { path: "/oauth/_name/echo", expected: Pages.AsyncOAuthEchoPage }
+].forEach(x => {
   test(`Router should resolve correct component for path '${x.path}'`, () => {
-    if (x.shouldError) {
-      expect(() => resolveRootComponent(x.path)).toThrowError();
-    } else {
+    if (x.expected) {
       const page = resolveRootComponent(x.path);
-      expect(page.component).toBeTruthy();
+      expect(page.component).toEqual(x.expected);
+    } else {
+      expect(() => resolveRootComponent(x.path)).toThrowError();
     }
   });
 });
