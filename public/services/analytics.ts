@@ -7,10 +7,10 @@ export const analytics = {
       });
     }
   },
-  error: (err: Error): void => {
+  error: (err?: Error): void => {
     if (window.ga) {
       window.ga("send", "exception", {
-        exDescription: err.stack,
+        exDescription: err ? err.stack : "<not available>",
         exFatal: false
       });
     }
