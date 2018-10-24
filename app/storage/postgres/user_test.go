@@ -360,6 +360,8 @@ func TestUserStorage_findLike(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	users.SetCurrentTenant(demoTenant)
+
 	users, err := users.FindLike("Jon")
 	Expect(err).IsNil()
 	Expect(users).HasLen(1)

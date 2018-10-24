@@ -351,7 +351,9 @@ func (s *UserStorage) FindLike(query string) ([]*models.User, error) {
 	err := s.trx.Select(&users, `
 		SELECT id, name, email, tenant_id, role, status 
 		FROM users 
-		WHERE name like $1 || '%'`, query)
+		WHERE name like $1 || '%'
+		AND tenant_id = $2 
+		AND status != $3`, query, s.tenant.ID, models.UserDeleted)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find users like like '%s'", query)
