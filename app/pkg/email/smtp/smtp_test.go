@@ -4,13 +4,12 @@ import (
 	gosmtp "net/smtp"
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/worker"
-	
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/log/noop"
+	"github.com/getfider/fider/app/pkg/worker"
 )
 
 type request struct {
@@ -22,7 +21,7 @@ type request struct {
 }
 
 var logger = noop.NewLogger()
-var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss", false)
+var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }

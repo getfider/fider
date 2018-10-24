@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -203,13 +202,11 @@ func newEmailer(logger log.Logger) email.Sender {
 	if env.IsDefined("EMAIL_MAILGUN_API") {
 		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
 	}
-	authlogin, _ := strconv.ParseBool(env.GetEnvOrDefault("EMAIL_SMTP_AUTH_LOGIN", "0"))
 	return smtp.NewSender(
 		logger,
 		env.MustGet("EMAIL_SMTP_HOST"),
 		env.MustGet("EMAIL_SMTP_PORT"),
 		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
 		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
-		authlogin,
 	)
 }
