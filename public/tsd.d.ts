@@ -9,6 +9,9 @@ declare global {
     __tenant: Tenant;
     __settings: SystemSettings;
   }
+
+  var __webpack_nonce__:string;
+  var __webpack_public_path__:string; 
 }
 
 declare var require: (id: string) => any;
