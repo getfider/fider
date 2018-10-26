@@ -4,7 +4,6 @@ import React from "react";
 import { Fider } from "@fider/services";
 import { TenantLogo } from "@fider/components";
 
-
 interface ErrorPageProps {
   title?: string;
   message?: string;
