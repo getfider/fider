@@ -205,6 +205,14 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 			newLogoID.Scan(uploadID)
 		}
 
+		// Try to find out if there is an upload for the logo id of the tenant
+		oldLogoExists, err := s.trx.Exists("SELECT content_type, size, file FROM uploads WHERE id = $1", s.current.LogoID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get old tenant logo upload")
+		}
+
+		oldLogoID := s.current.LogoID
+
 		// Update current tenant logo to either new ID or null
 		query := "UPDATE tenants SET logo_id = $1 WHERE id = $2"
 		_, err = s.trx.Execute(query, newLogoID, s.current.ID)
@@ -214,6 +222,12 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 
 		// Update reference to new logo ID
 		s.current.LogoID = int(newLogoID.Int64)
+
+		if oldLogoExists {
+			if _, err = s.trx.Execute(`DELETE FROM uploads WHERE id = $1`, oldLogoID); err != nil {
+				return errors.Wrap(err, "failed to remove old logo upload")
+			}
+		}
 	}
 
 	return nil
