@@ -1,6 +1,5 @@
-import * as React from "react";
+import React from "react";
 
-import { CurrentUser } from "@fider/models";
 import { Button, Form, Field } from "@fider/components";
 import { AdminBasePage } from "../components";
 

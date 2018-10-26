@@ -1,6 +1,6 @@
 import "./TagForm.scss";
 
-import * as React from "react";
+import React from "react";
 import { OAuthConfig, OAuthConfigStatus } from "@fider/models";
 import { Failure, Fider, actions, navigator } from "@fider/services";
 import {

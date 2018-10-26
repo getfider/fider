@@ -1,8 +1,9 @@
 import "./Error.page.scss";
+
+import React from "react";
 import { Fider } from "@fider/services";
 import { TenantLogo } from "@fider/components";
 
-import * as React from "react";
 
 interface ErrorPageProps {
   title?: string;

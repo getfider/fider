@@ -1,4 +1,4 @@
-import * as md from "markdown-it";
+import md from "markdown-it";
 
 const fullMarkdown = md("commonmark", {
   html: false,

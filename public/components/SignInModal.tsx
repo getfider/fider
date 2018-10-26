@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Modal, SignInControl, LegalFooter } from "@fider/components/common";
 
 interface SignInModalProps {

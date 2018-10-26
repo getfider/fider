@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Failure } from "@fider/services";
 
 const arrayToTag = (items: string[]) => {

@@ -1,5 +1,5 @@
-import * as React from "react";
-import { CurrentUser, Post } from "@fider/models";
+import React from "react";
+import { Post } from "@fider/models";
 import { Button, List, ListItem } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 

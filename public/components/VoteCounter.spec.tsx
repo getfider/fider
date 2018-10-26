@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { shallow } from "enzyme";
 import { Post, UserRole, PostStatus } from "@fider/models";
 import { VoteCounter } from "@fider/components";

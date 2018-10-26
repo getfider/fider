@@ -1,10 +1,8 @@
 import "./Modal.scss";
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { SignInControl, EnvironmentInfo, Gravatar } from "@fider/components/common";
-import { actions, classSet } from "@fider/services";
+import React from "react";
+import ReactDOM from "react-dom";
+import { classSet } from "@fider/services";
 
 interface ModalWindowProps {
   isOpen: boolean;
