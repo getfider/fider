@@ -3,6 +3,15 @@ import { Failure, classSet } from "@fider/services";
 import { ValidationContext } from "../";
 import { DisplayError, hasError } from "./DisplayError";
 import Textarea from "react-textarea-autosize";
+import getCaretCoordinates = require('textarea-caret');
+import { runInThisContext } from 'vm';
+
+
+export interface TextAreaTriggerStart {
+  top: number;
+  left: number;
+  key: string;
+}
 
 interface TextAreaProps {
   label?: string;
@@ -12,13 +21,27 @@ interface TextAreaProps {
   minRows?: number;
   placeholder?: string;
   onChange?: (value: string) => void;
+  onTriggerStart?: (e : TextAreaTriggerStart) => void;
+  onTriggerEnd?: () => void;
+  onTriggerChange?: (t: string) => void;
+  onTriggerSelect?: (t: string) => void;
   inputRef?: (node: HTMLTextAreaElement) => void;
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }
 
-export class TextArea extends React.Component<TextAreaProps, {}> {
+interface TextAreaState {
+  suggestionTriggered: boolean;
+  suggestionTriggerPosition: number;
+}
+
+
+export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
   constructor(props: TextAreaProps) {
     super(props);
+  }
+
+  componentDidMount = () => {
+    this.setState({suggestionTriggered : false})
   }
 
   private onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
@@ -26,6 +49,81 @@ export class TextArea extends React.Component<TextAreaProps, {}> {
       this.props.onChange(e.currentTarget.value);
     }
   };
+
+  private onKeyDown = (e : React.KeyboardEvent<HTMLTextAreaElement>) => {
+    console.log("keyDown")
+    const {onTriggerEnd, onTriggerChange, onTriggerStart, onTriggerSelect} = this.props;
+
+    const {suggestionTriggered, suggestionTriggerPosition} = this.state;
+
+    const {key, which, currentTarget} = e
+    if (onTriggerStart ){
+      const { selectionStart } = e.currentTarget;
+
+      console.log(suggestionTriggered);
+      console.log(suggestionTriggerPosition);
+      if( suggestionTriggered ){
+        // Backspace handling
+        if (which === 8 && selectionStart <= suggestionTriggerPosition) {
+          this.setState({
+            suggestionTriggered : false,
+            suggestionTriggerPosition: 0
+          });
+
+          onTriggerEnd && setTimeout(() =>{ onTriggerEnd() }, 0);
+        }
+        // Down arrow handling
+        else if (which === 40 && onTriggerSelect) {
+          e.preventDefault();
+          setTimeout(() => {
+            onTriggerSelect("down");
+          }, 0);
+        }
+        // Up arrow handling
+        else if (which === 38 && onTriggerSelect) {
+          e.preventDefault();
+          setTimeout(() => {
+            onTriggerSelect("up");
+          }, 0);
+        }
+        // Enter handling
+        else if (which === 13 && onTriggerSelect) {
+          e.preventDefault();
+          setTimeout(() => {
+            onTriggerSelect("selected");
+          }, 0);
+          this.setState({
+            suggestionTriggered : false,
+            suggestionTriggerPosition: 0
+          });
+        }
+        else {
+          onTriggerChange && setTimeout(()=> {
+            const capturedText = currentTarget.value.substr(suggestionTriggerPosition, selectionStart);
+            onTriggerChange(capturedText)
+            });
+        }
+      }
+      else {
+        if (key === '@'){
+          const caretCoordinates =  getCaretCoordinates(e.currentTarget, selectionStart)
+
+          this.setState({ suggestionTriggered : true,
+                          suggestionTriggerPosition: selectionStart + 1
+                        });
+
+          setTimeout(()=> {
+            onTriggerStart( {
+              key : key,
+              left : caretCoordinates.left,
+              top : caretCoordinates.top + caretCoordinates.height + 5
+            });
+          });
+        }
+
+     }
+    }
+  }
 
   public render() {
     return (
@@ -44,6 +142,7 @@ export class TextArea extends React.Component<TextAreaProps, {}> {
                   id={`input-${this.props.field}`}
                   disabled={this.props.disabled}
                   onChange={this.onChange}
+                  onKeyDown={this.onKeyDown}
                   value={this.props.value}
                   minRows={this.props.minRows || 3}
                   placeholder={this.props.placeholder}

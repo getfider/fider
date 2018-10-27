@@ -2,8 +2,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Post, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
-import { SignInModal } from "@fider/components";
+import { Gravatar, UserName, Button, DisplayError, SignInControl, TextAreaTriggerStart, TextArea, Form } from "@fider/components/common";
+import { SignInModal, SuggestionBox } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
 
@@ -15,6 +15,11 @@ interface CommentInputState {
   content: string;
   error?: Failure;
   showSignIn: boolean;
+  showMentionSuggestion: boolean;
+  mentionSuggestionTop: number;
+  mentionSuggestionLeft: number;
+  mentionText: string[];
+  mentionSelected: number;
 }
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-";
@@ -27,7 +32,12 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     this.state = {
       content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
-      showSignIn: false
+      showSignIn: false,
+      showMentionSuggestion: false,
+      mentionSuggestionTop: 0,
+      mentionSuggestionLeft: 0,
+      mentionText: [],
+      mentionSelected: 0
     };
   }
 
@@ -67,6 +77,45 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     this.input = e;
   };
 
+  private mentionStart = (e : TextAreaTriggerStart) => {
+    this.setState({
+      mentionSuggestionLeft : e.left,
+      mentionSuggestionTop  : e.top,
+      showMentionSuggestion: true
+    })
+  }
+  private mentionChange = (text : string) => {
+    this.setState({
+      mentionText : text.split(" "),
+    });
+  }
+
+  private mentionEnd = () => {
+    this.setState({
+      showMentionSuggestion: false,
+    })
+  }
+
+  private mentionSelect = (selectEvent : string) => {
+    switch (selectEvent){
+      case ("up"): {
+        const selected = (this.state.mentionSelected - 1) % this.state.mentionText.length;
+        this.setState({mentionSelected : selected})
+        break;
+      }
+      case ("down"): {
+        const selected = (this.state.mentionSelected + 1) % this.state.mentionText.length;
+        this.setState({mentionSelected : selected})
+        break;
+      }
+      case ("selected"): {
+        this.setState({showMentionSuggestion : false})
+        break;
+      }
+
+    }
+  };
+
   public render() {
     return (
       <>
@@ -82,8 +131,20 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               minRows={1}
               onChange={this.commentChanged}
               onFocus={this.handleOnFocus}
+              onTriggerStart={this.mentionStart}
+              onTriggerChange={this.mentionChange}
+              onTriggerEnd={this.mentionEnd}
+              onTriggerSelect={this.mentionSelect}
               inputRef={this.setInputRef}
+            >
+            <SuggestionBox
+              top={this.state.mentionSuggestionTop}
+              left={this.state.mentionSuggestionLeft}
+              shown={this.state.showMentionSuggestion}
+              data={this.state.mentionText}
+              itemSelected={this.state.mentionSelected}
             />
+            </TextArea>
             {this.state.content && (
               <Button color="positive" onClick={this.submit}>
                 Submit
