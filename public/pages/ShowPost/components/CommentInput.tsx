@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { Post, CurrentUser, User } from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, TextAreaTriggerStart, TextArea, Form } from "@fider/components/common";
+import { Gravatar, UserName, Button, DisplayError, SignInControl, TextAreaTriggerStart, TriggerTextArea, Form } from "@fider/components/common";
 import { SignInModal, SuggestionBox } from "@fider/components";
 
 import { cache, actions, Failure, Fider, mentions } from "@fider/services";
@@ -134,7 +134,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
           {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
           <Form error={this.state.error}>
             {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
-            <TextArea
+            <TriggerTextArea
               placeholder="Write a comment..."
               field="content"
               value={this.state.content}
@@ -155,7 +155,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               data={this.state.mentionText.map(u => u.name)}
               itemSelected={this.state.mentionSelected}
             />
-            </TextArea>
+            </TriggerTextArea>
             {this.state.content && (
               <Button color="positive" onClick={this.submit}>
                 Submit

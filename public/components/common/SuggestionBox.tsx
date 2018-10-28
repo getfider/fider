@@ -16,7 +16,7 @@ export class SuggestionBox extends React.Component<SuggesionBoxProps, {}> {
         super(props);
     }
     
-    private onItemClick(e: React.MouseEvent<HTMLDivElement>) {
+    private onItemClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if (this.props.onItemClick){
         const index = Number(e.currentTarget.getAttribute("key"));
         const data = this.props.data[index];
