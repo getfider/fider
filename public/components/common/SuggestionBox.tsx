@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { number } from 'prop-types';
 
 interface SuggesionBoxProps {
     top: number;
@@ -6,6 +7,7 @@ interface SuggesionBoxProps {
     shown: boolean;
     data: string[];
     itemSelected?: number;
+    onItemClick?: (item: string, itemNumber:number) => void;
 }
 
 export class SuggestionBox extends React.Component<SuggesionBoxProps, {}> {
@@ -14,6 +16,14 @@ export class SuggestionBox extends React.Component<SuggesionBoxProps, {}> {
         super(props);
     }
     
+    private onItemClick(e: React.MouseEvent<HTMLDivElement>) {
+      if (this.props.onItemClick){
+        const index = Number(e.currentTarget.getAttribute("key"));
+        const data = this.props.data[index];
+        this.props.onItemClick(data, index);
+      }
+    }
+
     public render(){
         return <div
         style={{
@@ -30,15 +40,16 @@ export class SuggestionBox extends React.Component<SuggesionBoxProps, {}> {
           >
 
           {
-            this.props.data.map((user, index) => (
+            this.props.data.map((item, index) => (
               <div
                 style={{
                   padding: '5px 5px',
                   background: index === this.props.itemSelected ? '#eee' : ''
                 }}
-                key = {user}
+                key = {index}
+                onClick = {this.onItemClick}
               >
-                { user }
+                { item }
               </div>
             ))  
           }

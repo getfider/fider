@@ -100,7 +100,18 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     })
   }
 
-  private mentionSelect = (selectEvent : string) => {
+  // This is too rudimentary as it will override whatever is in front of the mention
+  private mentionSelected = (mentionStartIndex : number, cursorPosition: number) =>{
+    const {content} = this.state;
+    const contentBeforeMention = content.substring(0, mentionStartIndex);
+    const contentAfterCursor = content.substring(cursorPosition);
+    const mention = this.state.mentionText[this.state.mentionSelected].name;
+
+    const toReplace = contentBeforeMention + mention + contentAfterCursor;
+    this.setState({showMentionSuggestion: false, content: toReplace})
+  }
+
+  private mentionArrow = (selectEvent : string) => {
     switch (selectEvent){
       case ("up"): {
         const selected = (this.state.mentionSelected - 1) % this.state.mentionText.length;
@@ -112,11 +123,6 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
         this.setState({mentionSelected : selected})
         break;
       }
-      case ("selected"): {
-        this.setState({showMentionSuggestion : false})
-        break;
-      }
-
     }
   };
 
@@ -138,7 +144,8 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               onTriggerStart={this.mentionStart}
               onTriggerChange={this.mentionChange}
               onTriggerEnd={this.mentionEnd}
-              onTriggerSelect={this.mentionSelect}
+              onTriggerSelected={this.mentionSelected}
+              onTriggerArrow={this.mentionArrow}
               inputRef={this.setInputRef}
             >
             <SuggestionBox

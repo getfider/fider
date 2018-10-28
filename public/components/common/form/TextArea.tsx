@@ -23,8 +23,9 @@ interface TextAreaProps {
   onChange?: (value: string) => void;
   onTriggerStart?: (e : TextAreaTriggerStart) => void;
   onTriggerEnd?: () => void;
-  onTriggerChange?: (t: string) => void;
-  onTriggerSelect?: (t: string) => void;
+  onTriggerChange?: (text: string) => void;
+  onTriggerArrow?: (arrow: string) => void;
+  onTriggerSelected?: (triggerPosition: number, cursorPosition : number) => void;
   inputRef?: (node: HTMLTextAreaElement) => void;
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }
@@ -51,8 +52,7 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
   };
 
   private onKeyDown = (e : React.KeyboardEvent<HTMLTextAreaElement>) => {
-    console.log("keyDown")
-    const {onTriggerEnd, onTriggerChange, onTriggerStart, onTriggerSelect} = this.props;
+    const {onTriggerEnd, onTriggerChange, onTriggerStart, onTriggerArrow, onTriggerSelected} = this.props;
 
     const {suggestionTriggered, suggestionTriggerPosition} = this.state;
 
@@ -60,8 +60,6 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
     if (onTriggerStart ){
       const { selectionStart } = e.currentTarget;
 
-      console.log(suggestionTriggered);
-      console.log(suggestionTriggerPosition);
       if( suggestionTriggered ){
         // Backspace handling
         if (which === 8 && selectionStart <= suggestionTriggerPosition) {
@@ -73,24 +71,26 @@ export class TextArea extends React.Component<TextAreaProps, TextAreaState> {
           onTriggerEnd && setTimeout(() =>{ onTriggerEnd() }, 0);
         }
         // Down arrow handling
-        else if (which === 40 && onTriggerSelect) {
+        else if (which === 40 && onTriggerArrow) {
           e.preventDefault();
           setTimeout(() => {
-            onTriggerSelect("down");
+            onTriggerArrow("down");
           }, 0);
         }
         // Up arrow handling
-        else if (which === 38 && onTriggerSelect) {
+        else if (which === 38 && onTriggerArrow) {
           e.preventDefault();
           setTimeout(() => {
-            onTriggerSelect("up");
+            onTriggerArrow("up");
           }, 0);
         }
         // Enter handling
-        else if (which === 13 && onTriggerSelect) {
+        else if (which === 13 && onTriggerSelected) {
+          console.log("selected");
+          const capturedText = currentTarget.value.substr(suggestionTriggerPosition, selectionStart);
           e.preventDefault();
           setTimeout(() => {
-            onTriggerSelect("selected");
+            onTriggerSelected(suggestionTriggerPosition, selectionStart);
           }, 0);
           this.setState({
             suggestionTriggered : false,
