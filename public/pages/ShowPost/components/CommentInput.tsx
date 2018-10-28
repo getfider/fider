@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Post, CurrentUser } from "@fider/models";
+import { Post, CurrentUser, User } from "@fider/models";
 import { Gravatar, UserName, Button, DisplayError, SignInControl, TextAreaTriggerStart, TextArea, Form } from "@fider/components/common";
 import { SignInModal, SuggestionBox } from "@fider/components";
 
-import { cache, actions, Failure, Fider } from "@fider/services";
+import { cache, actions, Failure, Fider, mentions } from "@fider/services";
 
 interface CommentInputProps {
   post: Post;
@@ -18,7 +18,7 @@ interface CommentInputState {
   showMentionSuggestion: boolean;
   mentionSuggestionTop: number;
   mentionSuggestionLeft: number;
-  mentionText: string[];
+  mentionText: User[];
   mentionSelected: number;
 }
 
@@ -85,9 +85,13 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     })
   }
   private mentionChange = (text : string) => {
-    this.setState({
-      mentionText : text.split(" "),
-    });
+
+    mentions.get(text).then((response) => {
+      this.setState({
+        mentionText : response.data
+      });
+    })
+
   }
 
   private mentionEnd = () => {
@@ -141,7 +145,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               top={this.state.mentionSuggestionTop}
               left={this.state.mentionSuggestionLeft}
               shown={this.state.showMentionSuggestion}
-              data={this.state.mentionText}
+              data={this.state.mentionText.map(u => u.name)}
               itemSelected={this.state.mentionSelected}
             />
             </TextArea>

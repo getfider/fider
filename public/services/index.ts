@@ -10,4 +10,5 @@ import * as querystring from "./querystring";
 import * as device from "./device";
 import * as actions from "./actions";
 import navigator from "./navigator";
-export { actions, querystring, navigator, device, notify, markdown };
+import * as mentions from "./mentions";
+export { actions, querystring, navigator, device, notify, markdown, mentions };
