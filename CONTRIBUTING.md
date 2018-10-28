@@ -22,6 +22,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 | Go 1.11+ | https://golang.org/ | To compile server side code |
 | Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To bundle client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
+| Python 2.7.X | https://www.python.org/downloads/ | To automatically build node-sass npm package during its installation |
 | cosmtrek/air | `go get github.com/cosmtrek/air/` | Live reload for Go apps |
 | joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | A `.env` file loader |
 | magefile/mage | `go get github.com/magefile/mage/` | A cross-platform Make alternative |
