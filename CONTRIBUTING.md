@@ -57,3 +57,15 @@ This happens when godotenv was not (or incorrectly) installed. Install it by run
 #### 3. mage watch throws 'too many open files' error
 
 macOS has a small limit on how many files can be open at the same time. This limit is usually OK for most users, but developers tools usuage require a larger limit. [Learn how to resolve this](https://www.macobserver.com/tips/deep-dive/evade-macos-many-open-files-error-pushing-limits/).
+
+#### 4. mage isn't found even after installing (Windows)
+
+Include in windows PATH variable the path %GOPATH%\bin, and restart command prompt
+
+#### 5. node-sass doesn't install correctly on Windows
+
+If error message shows in console: "Error: not found: python2", install Python 2.7.X
+
+If error message below shows, it might be that only Python 3.X is installed. Install Python 2.7.X.
+	import sys; print "%s.%s.%s" % sys.version_info[:3];
+	SyntaxError: invalid syntax
