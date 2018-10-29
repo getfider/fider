@@ -4,8 +4,6 @@ import { ValidationContext } from "../";
 import { DisplayError, hasError } from "./DisplayError";
 import Textarea from "react-textarea-autosize";
 
-import { runInThisContext } from 'vm';
-
 export interface TextAreaProps {
   field: string;
   label?: string;
@@ -14,7 +12,7 @@ export interface TextAreaProps {
   minRows?: number;
   placeholder?: string;
   onChange?: (value: string) => void;
-  onKeyDown?: (e : React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   inputRef?: (node: HTMLTextAreaElement) => void;
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }

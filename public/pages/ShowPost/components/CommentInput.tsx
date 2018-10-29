@@ -1,12 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { Post, CurrentUser} from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, TriggerTextArea, Form } from "@fider/components/common";
-import { SignInModal, SuggestionBox } from "@fider/components";
+import { Post } from "@fider/models";
+import { Gravatar, UserName, Button, Form } from "@fider/components/common";
+import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
-import { MentionableTextArea } from '@fider/components/common/MentionableTextArea';
+import { MentionableTextArea } from "@fider/components/common/MentionableTextArea";
 
 interface CommentInputProps {
   post: Post;
@@ -28,7 +28,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     this.state = {
       content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
-      showSignIn: false,
+      showSignIn: false
     };
   }
 
@@ -41,14 +41,14 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     this.setState({ content });
   };
 
-  private mentionSelected = (startIndex : number, endIndex: number, mention: string) =>{
-    const {content} = this.state;
+  private mentionSelected = (startIndex: number, endIndex: number, mention: string) => {
+    const { content } = this.state;
     const contentBeforeMention = content.substring(0, startIndex);
     const contentAfterCursor = content.substring(endIndex);
-    
+
     const toReplace = contentBeforeMention + mention + contentAfterCursor;
-    this.setState({ content: toReplace})
-  }
+    this.setState({ content: toReplace });
+  };
 
   public submit = async () => {
     this.setState({
