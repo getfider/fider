@@ -8,7 +8,7 @@ export interface TextAreaTriggerStart {
     key: string;
   }
 
-interface TriggerTextAreaProps extends TextAreaProps {
+export interface TriggerTextAreaProps extends TextAreaProps {
     onTriggerStart?: (e : TextAreaTriggerStart) => void;
     onTriggerEnd?: () => void;
     onTriggerChange?: (text: string) => void;
