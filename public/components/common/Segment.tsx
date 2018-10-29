@@ -1,6 +1,6 @@
 import "./Segment.scss";
 
-import * as React from "react";
+import React from "react";
 
 interface SegmentProps {
   className?: string;

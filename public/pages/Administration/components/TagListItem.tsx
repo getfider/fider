@@ -1,7 +1,5 @@
-import "./TagForm.scss";
-
-import * as React from "react";
-import { Tag, CurrentUser } from "@fider/models";
+import React from "react";
+import { Tag } from "@fider/models";
 import { ListItem, ShowTag, Button } from "@fider/components";
 import { TagFormState, TagForm } from "./";
 import { actions, Failure, Fider } from "@fider/services";

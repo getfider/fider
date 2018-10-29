@@ -1,6 +1,6 @@
 import "./Gravatar.scss";
 
-import * as React from "react";
+import React from "react";
 import { classSet, Fider } from "@fider/services";
 import { User, isCollaborator } from "@fider/models";
 

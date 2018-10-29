@@ -1,11 +1,11 @@
 import "./MySettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
+import { Modal, Form, Button, Gravatar, Heading, Field, Input } from "@fider/components";
 import { DangerZone, APIKeyForm, NotificationSettings } from "./";
 
-import { CurrentUser, UserSettings } from "@fider/models";
+import { UserSettings } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 
 interface MySettingsPageState {

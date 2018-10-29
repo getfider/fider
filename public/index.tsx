@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";

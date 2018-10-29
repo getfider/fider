@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { PostStatus, Post } from "@fider/models";
 import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
