@@ -1,14 +1,20 @@
 import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
 
 export class FiderSession {
+  private pContextID: string;
   private pTenant: Tenant;
   private pUser: CurrentUser | undefined;
   private pProps: { [key: string]: any } = {};
 
   constructor() {
+    this.pContextID = window.__contextID;
     this.pProps = window.__props;
     this.pUser = window.__user;
     this.pTenant = window.__tenant;
+  }
+
+  public get contextID(): string {
+    return this.pContextID;
   }
 
   public get user(): CurrentUser {
