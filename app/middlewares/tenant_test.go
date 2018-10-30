@@ -194,10 +194,10 @@ func TestOnlyActiveTenants_Inactive(t *testing.T) {
 
 	server.Use(middlewares.OnlyActiveTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusTeapot)
 	})
 
-	Expect(status).Equals(http.StatusNotFound)
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
