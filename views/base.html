@@ -15,7 +15,7 @@
     <meta property="og:image" content="{{ .__logo }}">
     {{ if .__tenant }} 
       {{ if .__tenant.CustomCSS }} 
-      <link rel="stylesheet" href="{{ .__settings.assetsURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
+      <link rel="stylesheet" href="{{ .__settings.tenantAssetsURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
       {{ end }}
     {{ end }}
 </head>
