@@ -20,7 +20,9 @@ const logProductionError = (err: Error) => {
 };
 
 window.addEventListener("error", (evt: ErrorEvent) => {
-  actions.logError(evt.message, evt.error);
+  if (evt.error && evt.colno > 0 && evt.lineno > 0) {
+    actions.logError(evt.message, evt.error);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {
