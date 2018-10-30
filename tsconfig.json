@@ -3,6 +3,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es5",
     "strict": true,
     "sourceMap": true,
