@@ -44,7 +44,7 @@ func CreateTenant() web.HandlerFunc {
 
 		socialSignUp := input.Model.Token != ""
 
-		status := models.TenantInactive
+		status := models.TenantPending
 		if socialSignUp {
 			status = models.TenantActive
 		}
@@ -123,7 +123,7 @@ func SignUp() web.HandlerFunc {
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
 	return func(c web.Context) error {
-		if c.Tenant().Status == models.TenantInactive {
+		if c.Tenant().Status == models.TenantPending {
 			return VerifySignInKey(models.EmailVerificationKindSignUp)(c)
 		}
 		return c.NotFound()

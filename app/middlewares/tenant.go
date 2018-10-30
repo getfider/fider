@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/getfider/fider/app/models"
 
@@ -96,7 +97,10 @@ func OnlyActiveTenants() web.MiddlewareFunc {
 			if c.Tenant().Status == models.TenantActive {
 				return next(c)
 			}
-			return c.NotFound()
+			return c.Render(http.StatusOK, "pending-activation.html", web.Props{
+				Title:       "Pending Activation",
+				Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
+			})
 		}
 	}
 }
