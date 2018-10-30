@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Fider, uploadedImageURL } from "@fider/services";
 
 type Size = 24 | 50 | 100 | 200;

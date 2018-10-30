@@ -29,8 +29,8 @@ import { readFileSync } from "fs";
 [
   { input: new Date(2018, 4, 27, 10, 12, 59), expected: "May 27, 2018 · 10:12" },
   { input: new Date(2058, 12, 12, 23, 21, 53), expected: "January 12, 2059 · 23:21" },
-  { input: "2018-04-11T18:13:33.128082Z", expected: "April 11, 2018 · 18:13" },
-  { input: "2017-11-20T07:47:42.158142Z", expected: "November 20, 2017 · 07:47" }
+  { input: "2018-04-11T18:13:33.128082", expected: "April 11, 2018 · 18:13" },
+  { input: "2017-11-20T07:47:42.158142", expected: "November 20, 2017 · 07:47" }
 ].forEach(x => {
   test(`formatDate of ${x.input} should be ${x.expected}`, () => {
     const result = formatDate(x.input);

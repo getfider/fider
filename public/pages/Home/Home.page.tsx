@@ -1,10 +1,10 @@
 import "./Home.page.scss";
 
-import * as React from "react";
+import React from "react";
 import { Post, Tag, PostStatus } from "@fider/models";
 import { MultiLineText } from "@fider/components";
-import { PostInput, ListPosts, PostsContainer } from "./";
-import { actions, Fider } from "@fider/services";
+import { PostInput, PostsContainer } from "./";
+import { Fider } from "@fider/services";
 import { SimilarPosts } from "./components/SimilarPosts";
 
 export interface HomePageProps {

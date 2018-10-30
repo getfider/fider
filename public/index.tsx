@@ -1,8 +1,8 @@
 __webpack_nonce__ = "NGI4ZGQxOWIyYTYzMzQzYjBhNWU3YTk0OTdjNmI4MGU";
 __webpack_public_path__ = process.env.ASSET_PATH || ""; // Should Never be Null due to DefinePlugin
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";

@@ -1,5 +1,4 @@
-import * as React from "react";
-import * as Loadable from "react-loadable";
+import React from "react";
 
 import * as Pages from "@fider/AsyncPages";
 

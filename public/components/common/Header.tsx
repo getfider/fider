@@ -1,6 +1,6 @@
 import "./Header.scss";
 
-import * as React from "react";
+import React from "react";
 import { SignInModal, EnvironmentInfo, Gravatar, TenantLogo } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 

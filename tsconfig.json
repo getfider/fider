@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "target": "es5",
     "strict": true,
     "sourceMap": true,

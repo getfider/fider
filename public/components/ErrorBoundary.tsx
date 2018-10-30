@@ -1,6 +1,5 @@
-import * as React from "react";
-import { ErrorPage } from "@fider/pages/Error/Error.page";
-
+import React from "react";
+import { ErrorPage } from "@fider/pages";
 interface ErrorBoundaryProps {
   onError?: (err: Error) => void;
 }
