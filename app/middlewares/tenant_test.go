@@ -190,7 +190,7 @@ func TestOnlyActiveTenants_Inactive(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantInactive
+	mock.DemoTenant.Status = models.TenantPending
 
 	server.Use(middlewares.OnlyActiveTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {

@@ -64,7 +64,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 		}
 
 		var user *models.User
-		if kind == models.EmailVerificationKindSignUp && c.Tenant().Status == models.TenantInactive {
+		if kind == models.EmailVerificationKindSignUp && c.Tenant().Status == models.TenantPending {
 			if err = c.Services().Tenants.Activate(c.Tenant().ID); err != nil {
 				return c.Failure(err)
 			}

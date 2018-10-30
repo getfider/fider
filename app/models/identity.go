@@ -24,8 +24,8 @@ type Tenant struct {
 var (
 	//TenantActive is the default status for most tenants
 	TenantActive = 1
-	//TenantInactive is used for signup via email that requires user confirmation
-	TenantInactive = 2
+	//TenantPending is used for signup via email that requires user confirmation
+	TenantPending = 2
 )
 
 //Upload represents a file that has been uploaded to Fider
