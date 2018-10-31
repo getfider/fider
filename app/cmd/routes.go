@@ -72,8 +72,8 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
-	//From this step, a only active Tenants are allowed
-	r.Use(middlewares.OnlyActiveTenants())
+	//If tenant is pending, block it from using any other route
+	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
@@ -84,9 +84,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	//Extract user from cookie and inject it into web.Context (if available)
 	r.Use(middlewares.User())
-
-	//Block if an API-originated AuthToken requests a non-API resource
-	r.Use(middlewares.CheckAuthTokenOrigin())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
