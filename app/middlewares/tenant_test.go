@@ -173,12 +173,13 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	Expect(response.Body.String()).Equals("MyCompany")
 }
 
-func TestOnlyActiveTenants_Active(t *testing.T) {
+func TestBlockPendingTenants_Active(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantActive
 
-	server.Use(middlewares.OnlyActiveTenants())
+	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -186,18 +187,18 @@ func TestOnlyActiveTenants_Active(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 }
 
-func TestOnlyActiveTenants_Inactive(t *testing.T) {
+func TestBlockPendingTenants_Pending(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantInactive
+	mock.DemoTenant.Status = models.TenantPending
 
-	server.Use(middlewares.OnlyActiveTenants())
+	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusTeapot)
 	})
 
-	Expect(status).Equals(http.StatusNotFound)
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {

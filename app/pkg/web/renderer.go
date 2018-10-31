@@ -142,7 +142,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
-		"assetsURL":       ctx.TenantAssetsURL(""),
+		"tenantAssetsURL": ctx.TenantAssetsURL(""),
+		"globalAssetsURL": ctx.GlobalAssetsURL(""),
 		"oauth":           oauthProviders,
 	}
 

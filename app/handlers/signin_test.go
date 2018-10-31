@@ -207,7 +207,7 @@ func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 
 	e := &models.CreateTenant{Email: "hot.pie@got.com", Name: "Hot Pie"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-	mock.DemoTenant.Status = models.TenantInactive
+	mock.DemoTenant.Status = models.TenantPending
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
