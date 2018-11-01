@@ -1,10 +1,7 @@
 const path = require("path");
 
-const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
-const ASSET_PATH = process.env.ASSET_PATH || "/assets/";
 
 const publicFolder = path.resolve(__dirname, "public");
 const isProduction = process.env.NODE_ENV === "production";
@@ -14,10 +11,7 @@ const plugins = [
     filename: "css/[name].[chunkhash].css",
     chunkFilename: "css/[name].[chunkhash].css"
   }),
-  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
-  new webpack.DefinePlugin({
-    'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH)
-  })
+  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
 ];
 
 if (!isProduction) {
@@ -34,7 +28,7 @@ module.exports = {
   output: {
     path: __dirname + "/dist",
     filename: "js/[name].[chunkhash].js",
-    publicPath: ASSET_PATH,
+    publicPath: "/assets/",
   },
   devtool: "source-map",
   resolve: {

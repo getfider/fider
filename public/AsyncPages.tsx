@@ -3,12 +3,18 @@ import Loadable from "react-loadable";
 
 import { Loader } from "@fider/components/common/Loader";
 
+const Loading = () => (
+  <div className="page">
+    <Loader />
+  </div>
+)
+
 export const AsyncHomePage = Loadable({
   loader: async () => {
     const module = await import("@fider/pages/Home/Home.page");
     return module.HomePage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncShowPostPage = Loadable({
@@ -16,7 +22,7 @@ export const AsyncShowPostPage = Loadable({
     const module = await import("@fider/pages/ShowPost/ShowPost.page");
     return module.ShowPostPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncManageMembersPage = Loadable({
@@ -24,7 +30,7 @@ export const AsyncManageMembersPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/ManageMembers.page");
     return module.ManageMembersPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncManageTagsPage = Loadable({
@@ -32,7 +38,7 @@ export const AsyncManageTagsPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/ManageTags.page");
     return module.ManageTagsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncPrivacySettingsPage = Loadable({
@@ -40,7 +46,7 @@ export const AsyncPrivacySettingsPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/PrivacySettings.page");
     return module.PrivacySettingsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncExportPage = Loadable({
@@ -48,7 +54,7 @@ export const AsyncExportPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/Export.page");
     return module.ExportPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncInvitationsPage = Loadable({
@@ -56,7 +62,7 @@ export const AsyncInvitationsPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/Invitations.page");
     return module.InvitationsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncManageAuthenticationPage = Loadable({
@@ -64,7 +70,7 @@ export const AsyncManageAuthenticationPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/ManageAuthentication.page");
     return module.ManageAuthenticationPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncAdvancedSettingsPage = Loadable({
@@ -72,7 +78,7 @@ export const AsyncAdvancedSettingsPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/AdvancedSettings.page");
     return module.AdvancedSettingsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncGeneralSettingsPage = Loadable({
@@ -80,7 +86,7 @@ export const AsyncGeneralSettingsPage = Loadable({
     const module = await import("@fider/pages/Administration/pages/GeneralSettings.page");
     return module.GeneralSettingsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncSignInPage = Loadable({
@@ -88,7 +94,7 @@ export const AsyncSignInPage = Loadable({
     const module = await import("@fider/pages/SignIn/SignIn.page");
     return module.SignInPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncSignUpPage = Loadable({
@@ -96,7 +102,7 @@ export const AsyncSignUpPage = Loadable({
     const module = await import("@fider/pages/SignUp/SignUp.page");
     return module.SignUpPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncCompleteSignInProfilePage = Loadable({
@@ -104,7 +110,7 @@ export const AsyncCompleteSignInProfilePage = Loadable({
     const module = await import("@fider/pages/CompleteSignInProfile/CompleteSignInProfile.page");
     return module.CompleteSignInProfilePage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncMyNotificationsPage = Loadable({
@@ -112,7 +118,7 @@ export const AsyncMyNotificationsPage = Loadable({
     const module = await import("@fider/pages/MyNotifications/MyNotifications.page");
     return module.MyNotificationsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncMySettingsPage = Loadable({
@@ -120,7 +126,7 @@ export const AsyncMySettingsPage = Loadable({
     const module = await import("@fider/pages/MySettings/MySettings.page");
     return module.MySettingsPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncOAuthEchoPage = Loadable({
@@ -128,7 +134,7 @@ export const AsyncOAuthEchoPage = Loadable({
     const module = await import("@fider/pages/OAuthEcho/OAuthEcho.page");
     return module.OAuthEchoPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });
 
 export const AsyncUIToolkitPage = Loadable({
@@ -136,5 +142,5 @@ export const AsyncUIToolkitPage = Loadable({
     const module = await import("@fider/pages/UI/UIToolkit.page");
     return module.UIToolkitPage;
   },
-  loading: () => <Loader />
+  loading: () => <Loading />
 });

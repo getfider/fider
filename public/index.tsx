@@ -1,7 +1,7 @@
 const fider = Fider.initialize();
 
 __webpack_nonce__ = Fider.session.contextID;
-__webpack_public_path__ = Fider.settings.globalAssetsURL || "/assets/";
+__webpack_public_path__ = `${Fider.settings.globalAssetsURL}/assets/`;
 
 import React from "react";
 import ReactDOM from "react-dom";
