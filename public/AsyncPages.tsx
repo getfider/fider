@@ -7,7 +7,7 @@ const Loading = () => (
   <div className="page">
     <Loader />
   </div>
-)
+);
 
 export const AsyncHomePage = Loadable({
   loader: async () => {
