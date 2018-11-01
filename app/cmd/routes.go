@@ -91,6 +91,12 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
+	//Extract user from cookie and inject it into web.Context (if available)
+	r.Use(middlewares.User())
+
+	//Block if it's an inactive tenant with a non-administrator user
+	r.Use(middlewares.BlockInativeTenants())
+
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 

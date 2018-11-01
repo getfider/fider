@@ -115,3 +115,16 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 		}
 	}
 }
+
+// BlockInativeTenants blocks requests of non-administrator users on inactive tenants
+func BlockInativeTenants() web.MiddlewareFunc {
+	return func(next web.HandlerFunc) web.HandlerFunc {
+		return func(c web.Context) error {
+			isAdmin := c.IsAuthenticated() && c.User().Role == models.RoleAdministrator
+			if c.Tenant().Status == models.TenantInactive && !isAdmin {
+				return c.Redirect("/signin")
+			}
+			return next(c)
+		}
+	}
+}
