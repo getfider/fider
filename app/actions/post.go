@@ -33,7 +33,7 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+	} else if len(input.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
