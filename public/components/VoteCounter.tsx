@@ -1,6 +1,6 @@
 import "./VoteCounter.scss";
 
-import * as React from "react";
+import React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions, device, classSet, Fider } from "@fider/services";
 import { SignInModal } from "@fider/components";

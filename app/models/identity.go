@@ -24,8 +24,10 @@ type Tenant struct {
 var (
 	//TenantActive is the default status for most tenants
 	TenantActive = 1
-	//TenantInactive is used for signup via email that requires user confirmation
-	TenantInactive = 2
+	//TenantPending is used for signup via email that requires user confirmation
+	TenantPending = 2
+	//TenantInactive is used when tenants are inative for various reasons
+	TenantInactive = 3
 )
 
 //Upload represents a file that has been uploaded to Fider
@@ -51,6 +53,8 @@ var (
 	UserActive = 1
 	//UserDeleted is used for users that chose to delete their accounts
 	UserDeleted = 2
+	//UserBanned is used for users that have been banned by staff members
+	UserBanned = 3
 )
 
 //Role is the role of a user inside a tenant

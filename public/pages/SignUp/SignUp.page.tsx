@@ -1,6 +1,6 @@
 import "./SignUp.page.scss";
 
-import * as React from "react";
+import React from "react";
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components";
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services";
 

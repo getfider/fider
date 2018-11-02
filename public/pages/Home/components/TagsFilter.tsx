@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
 import { DropDown, DropDownItem } from "@fider/components";
@@ -70,6 +70,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         <DropDown
           className="l-tags-filter"
           inline={true}
+          highlightSelected={false}
           items={items}
           renderText={this.renderText}
           onChange={this.onChange}

@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -57,67 +56,6 @@ func TestIsAuthenticated_WithoutUser(t *testing.T) {
 	status, _ := server.Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
-
-	Expect(status).Equals(http.StatusForbidden)
-}
-
-func TestCheckAuthTokenOrigin_WithoutClaims(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.CheckAuthTokenOrigin())
-
-	status, _ := server.Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
-	})
-
-	Expect(status).Equals(http.StatusOK)
-}
-
-func TestCheckAuthTokenOrigin_WithUIClaims_OnAPIResource(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.CheckAuthTokenOrigin())
-
-	status, _ := server.
-		WithURL("http://example.com/api/echo").
-		WithClaims(&jwt.FiderClaims{Origin: jwt.FiderClaimsOriginUI}).
-		Execute(func(c web.Context) error {
-			return c.NoContent(http.StatusOK)
-		})
-
-	Expect(status).Equals(http.StatusOK)
-}
-
-func TestCheckAuthTokenOrigin_WithAPIClaims_OnAPIResource(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.CheckAuthTokenOrigin())
-
-	status, _ := server.
-		WithURL("http://example.com/api/echo").
-		WithClaims(&jwt.FiderClaims{Origin: jwt.FiderClaimsOriginAPI}).
-		Execute(func(c web.Context) error {
-			return c.NoContent(http.StatusOK)
-		})
-
-	Expect(status).Equals(http.StatusOK)
-}
-
-func TestCheckAuthTokenOrigin_WithAPIClaims_OnUIResource(t *testing.T) {
-	RegisterT(t)
-
-	server, _ := mock.NewServer()
-	server.Use(middlewares.CheckAuthTokenOrigin())
-
-	status, _ := server.
-		WithURL("http://example.com/").
-		WithClaims(&jwt.FiderClaims{Origin: jwt.FiderClaimsOriginAPI}).
-		Execute(func(c web.Context) error {
-			return c.NoContent(http.StatusOK)
-		})
 
 	Expect(status).Equals(http.StatusForbidden)
 }

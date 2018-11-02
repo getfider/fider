@@ -1,7 +1,9 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-side-menu-toggler {
-  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
   margin-top: 5px;
   cursor: pointer;
 

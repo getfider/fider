@@ -29,6 +29,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/-/health", handlers.Health())
 	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
 
 	assets := r.Group()
 	{
@@ -71,8 +72,8 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
-	//From this step, a only active Tenants are allowed
-	r.Use(middlewares.OnlyActiveTenants())
+	//If tenant is pending, block it from using any other route
+	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
@@ -83,9 +84,6 @@ func routes(r *web.Engine) *web.Engine {
 
 	//Extract user from cookie and inject it into web.Context (if available)
 	r.Use(middlewares.User())
-
-	//Block if an API-originated AuthToken requests a non-API resource
-	r.Use(middlewares.CheckAuthTokenOrigin())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
@@ -154,6 +152,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
 		api.Get("/api/v1/tags", apiv1.ListTags())
 		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
+		api.Get("/api/v1/posts/:number", apiv1.GetPost())
 
 		//From this step, a User is required
 		api.Use(middlewares.IsAuthenticated())
@@ -161,6 +160,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Post("/api/v1/posts", apiv1.CreatePost())
 		api.Post("/api/v1/posts/:number/comments", apiv1.PostComment())
 		api.Put("/api/v1/posts/:number/comments/:id", apiv1.UpdateComment())
+		api.Delete("/api/v1/posts/:number/comments/:id", apiv1.DeleteComment())
 		api.Post("/api/v1/posts/:number/votes", apiv1.AddVote())
 		api.Delete("/api/v1/posts/:number/votes", apiv1.RemoveVote())
 		api.Post("/api/v1/posts/:number/subscription", apiv1.Subscribe())

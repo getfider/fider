@@ -1,6 +1,6 @@
 import "./OAuthEcho.page.scss";
 
-import * as React from "react";
+import React from "react";
 import { navigator } from "@fider/services";
 import { Segments, Segment } from "@fider/components";
 

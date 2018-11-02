@@ -1,6 +1,6 @@
 import "./UserName.scss";
 
-import * as React from "react";
+import React from "react";
 import { User, isCollaborator } from "@fider/models";
 import { classSet } from "@fider/services";
 

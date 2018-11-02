@@ -1,9 +1,9 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
-import { analytics, classSet, Fider } from "@fider/services";
+import { classSet, Fider, actions } from "@fider/services";
 import { ToastContainer, toast } from "react-toastify";
 
 import "semantic-ui-css/components/reset.min.css";
@@ -15,12 +15,14 @@ import "@fider/assets/styles/main.scss";
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {
     console.error(err); // tslint:disable-line
-    analytics.error(err);
+    actions.logError(err.message, err);
   }
 };
 
 window.addEventListener("error", (evt: ErrorEvent) => {
-  analytics.error(evt.error);
+  if (evt.error && evt.colno > 0 && evt.lineno > 0) {
+    actions.logError(evt.message, evt.error);
+  }
 });
 
 document.addEventListener("DOMContentLoaded", () => {

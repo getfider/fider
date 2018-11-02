@@ -15,7 +15,7 @@
     <meta property="og:image" content="{{ .__logo }}">
     {{ if .__tenant }} 
       {{ if .__tenant.CustomCSS }} 
-      <link rel="stylesheet" href="{{ .__settings.assetsURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
+      <link rel="stylesheet" href="{{ .__settings.tenantAssetsURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
       {{ end }}
     {{ end }}
 </head>
@@ -43,11 +43,11 @@
 
   {{template "content" .}}
 
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch"></script>
-  <script src="{{ .__vendorBundle }}"></script>
-  <script src="{{ .__jsBundle }}"></script>
   <script type="text/javascript" nonce="{{ .__contextID }}">
     {{template "javascript" .}}
   </script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
+  <script src="{{ .__vendorBundle }}" crossorigin="anonymous"></script>
+  <script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>
 </body>
 </html>

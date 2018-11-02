@@ -52,6 +52,23 @@ func CreatePost() web.HandlerFunc {
 	}
 }
 
+// GetPost retrieves the existing post by number
+func GetPost() web.HandlerFunc {
+        return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(post)
+	}
+}
+
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -120,7 +137,7 @@ func ListComments() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		post, err := c.Services().Posts.GetByNumber(number)
@@ -180,6 +197,23 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
+// DeleteComment deletes an existing comment by its ID
+func DeleteComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.DeleteComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Posts.DeleteComment(input.Model.CommentID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -211,7 +245,7 @@ func Unsubscribe() web.HandlerFunc {
 func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
-		return c.Failure(err)
+		return c.NotFound()
 	}
 
 	post, err := c.Services().Posts.GetByNumber(number)

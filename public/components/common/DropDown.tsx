@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
@@ -17,6 +17,7 @@ export interface DropDownProps {
   placeholder?: string;
   searchable?: boolean;
   inline?: boolean;
+  highlightSelected?: boolean;
   header?: string;
   direction?: "left" | "right";
   onChange?: (item: DropDownItem) => void;
@@ -33,7 +34,8 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   private mounted = false;
 
   public static defaultProps: Partial<DropDownProps> = {
-    direction: "right"
+    direction: "right",
+    highlightSelected: true
   };
 
   constructor(props: DropDownProps) {
@@ -105,7 +107,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
   public renderItem = (item: DropDownItem) => {
     const { label, value } = item;
-    const isSelected = this.state.selected && value === this.state.selected.value;
+    const isSelected = this.props.highlightSelected && this.state.selected && value === this.state.selected.value;
     const className = classSet({
       "c-dropdown-item": true,
       "is-selected": isSelected

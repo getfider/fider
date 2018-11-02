@@ -1,6 +1,4 @@
-import "./TagForm.scss";
-
-import * as React from "react";
+import React from "react";
 import { User, UserRole } from "@fider/models";
 import { ListItem, Gravatar, UserName, Button } from "@fider/components";
 import { actions } from "@fider/services";

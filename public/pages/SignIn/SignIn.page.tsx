@@ -1,6 +1,6 @@
 import "./SignIn.page.scss";
 
-import * as React from "react";
+import React from "react";
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components";
 import { notify, Fider } from "@fider/services";
 

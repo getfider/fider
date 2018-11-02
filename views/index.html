@@ -2,6 +2,7 @@
 // Compressed to avoid whitespace being printed
 {{define "javascript"}} 
     {{ if .__user }}window.__user = {{ .__user }};{{ end }}
+    window.__contextID = {{ .__contextID }};
     window.__settings = {{ .__settings }};
     window.__tenant = {{ .__tenant }};
     window.__props = {};
