@@ -173,7 +173,6 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/goenning/letteravatar",
     "github.com/goenning/sqlcertcache",
-    "github.com/google/uuid",
     "github.com/gosimple/slug",
     "github.com/julienschmidt/httprouter",
     "github.com/lib/pq",
