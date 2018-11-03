@@ -46,6 +46,22 @@ func TestSignInByOAuthHandler(t *testing.T) {
 	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io/oauth/token?provider=facebook&redirect=|656e0c3864ae014bcaf370c2b2d265a7cc969ac50fe82a67c97f3042393a84dfd251596997d09e4f0f5a184e1b3dfccf24b193c2347e22c2b895d251290df162")
 }
 
+func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	code, response := server.
+		AsUser(mock.JonSnow).
+		AddParam("provider", oauth.FacebookProvider).
+		WithURL("http://avengers.test.fider.io/oauth/facebook?redirect=http://avengers.test.fider.io").
+		AddHeader("User-Agent", "Chrome").
+		WithClientIP("1.1.1.1").
+		Execute(handlers.SignInByOAuth())
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://avengers.test.fider.io")
+}
+
 func TestCallbackHandler_InvalidState(t *testing.T) {
 	RegisterT(t)
 
