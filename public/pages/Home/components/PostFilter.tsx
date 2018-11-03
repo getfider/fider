@@ -1,9 +1,9 @@
+import "./PostFilter.scss";
+
 import React from "react";
 import { PostStatus } from "@fider/models";
 import { DropDown, DropDownItem } from "@fider/components";
 import { Fider } from "@fider/services";
-
-import "./PostFilter.scss";
 
 interface PostFilterProps {
   activeView: string;

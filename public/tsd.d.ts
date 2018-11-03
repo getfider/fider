@@ -10,6 +10,9 @@ declare global {
     __tenant: Tenant;
     __settings: SystemSettings;
   }
+
+  var __webpack_nonce__: string; // tslint:disable-line
+  var __webpack_public_path__:string; // tslint:disable-line
 }
 
 declare var require: (id: string) => any;

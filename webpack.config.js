@@ -1,4 +1,5 @@
 const path = require("path");
+
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
@@ -7,8 +8,8 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const plugins = [
   new MiniCssExtractPlugin({ 
-    filename: "css/[name].[hash].css",
-    chunkFilename: "css/[name].[hash].css"
+    filename: "css/[name].[chunkhash].css",
+    chunkFilename: "css/[name].[chunkhash].css"
   }),
   new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
 ];
@@ -22,7 +23,7 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify" ]
+    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable" ]
   },
   output: {
     path: __dirname + "/dist",

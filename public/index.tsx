@@ -1,3 +1,8 @@
+const fider = Fider.initialize();
+
+__webpack_nonce__ = Fider.session.contextID;
+__webpack_public_path__ = `${Fider.settings.globalAssetsURL}/assets/`;
+
 import React from "react";
 import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
@@ -26,8 +31,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const fider = Fider.initialize();
-
   const root = document.getElementById("root");
   if (root) {
     const config = resolveRootComponent(location.pathname);
