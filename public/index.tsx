@@ -51,7 +51,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     "is-authenticated": fider.session.isAuthenticated,
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
   });
-  const root = document.getElementById("root");
   ReactDOM.render(
     <ErrorBoundary onError={logProductionError}>
       <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
@@ -59,6 +58,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
       {React.createElement(config.component, fider.session.props)}
       {config.showHeader && <Footer />}
     </ErrorBoundary>,
-    root
+    document.getElementById("root")
   );
 })();

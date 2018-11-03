@@ -1,11 +1,14 @@
 import { Fider } from "@fider/services";
 
 const navigator = {
+  userAgent: () => {
+    return window.navigator.userAgent || window.navigator.appVersion;
+  },
   url: () => {
     return window.location.href;
   },
-  isBrowserSupported: () => {
-    const ua = window.navigator.userAgent || window.navigator.appVersion;
+  isBrowserSupported() {
+    const ua = this.userAgent();
     const isIE = ua.indexOf("MSIE") >= 0;
     if (isIE) {
       // On IE, the only supported version is IE 11
