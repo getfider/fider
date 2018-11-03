@@ -10,3 +10,4 @@
     window.__props['{{ $key }}'] = {{ $value }};{{ end }}{{ end }} {{end}}
         
 {{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}
+{{define "end-of-body"}}<script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>{{end}}
