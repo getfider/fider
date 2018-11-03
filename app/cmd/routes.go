@@ -41,6 +41,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
+	r.Use(middlewares.User())
 
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
@@ -81,9 +82,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
-
-	//Extract user from cookie and inject it into web.Context (if available)
-	r.Use(middlewares.User())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
