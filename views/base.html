@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
     <link rel="preload" href="{{ .__fontBundle }}" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ .__cssBundle }}" />
@@ -48,6 +49,6 @@
   </script>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
   <script src="{{ .__vendorBundle }}" crossorigin="anonymous"></script>
-  <script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>
+  {{template "end-of-body" .}}
 </body>
 </html>

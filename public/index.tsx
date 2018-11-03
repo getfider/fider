@@ -1,14 +1,9 @@
-const fider = Fider.initialize();
-
-__webpack_nonce__ = Fider.session.contextID;
-__webpack_public_path__ = `${Fider.settings.globalAssetsURL}/assets/`;
-
 import React from "react";
 import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
-import { classSet, Fider, actions } from "@fider/services";
+import { classSet, Fider, actions, navigator } from "@fider/services";
 import { ToastContainer, toast } from "react-toastify";
 
 import "semantic-ui-css/components/reset.min.css";
@@ -30,22 +25,39 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const root = document.getElementById("root");
-  if (root) {
-    const config = resolveRootComponent(location.pathname);
-    document.body.className = classSet({
-      "is-authenticated": fider.session.isAuthenticated,
-      "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
-    });
-    ReactDOM.render(
-      <ErrorBoundary onError={logProductionError}>
-        <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
-        {config.showHeader && <Header />}
-        {React.createElement(config.component, fider.session.props)}
-        {config.showHeader && <Footer />}
-      </ErrorBoundary>,
-      root
-    );
+(() => {
+  let fider;
+
+  if (!navigator.isBrowserSupported()) {
+    navigator.goTo("/browser-not-supported");
+    return;
   }
-});
+
+  try {
+    fider = Fider.initialize();
+
+    __webpack_nonce__ = fider.session.contextID;
+    __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;
+  } catch (err) {
+    actions
+      .logError(err.message || "An unhandled error occurred", err.error)
+      .then(() => navigator.goTo("/browser-not-supported"))
+      .catch(() => navigator.goTo("/browser-not-supported"));
+    return;
+  }
+
+  const config = resolveRootComponent(location.pathname);
+  document.body.className = classSet({
+    "is-authenticated": fider.session.isAuthenticated,
+    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
+  });
+  ReactDOM.render(
+    <ErrorBoundary onError={logProductionError}>
+      <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
+      {config.showHeader && <Header />}
+      {React.createElement(config.component, fider.session.props)}
+      {config.showHeader && <Footer />}
+    </ErrorBoundary>,
+    document.getElementById("root")
+  );
+})();
