@@ -2,7 +2,7 @@
 
 {{define "content"}}
   <div class="container legal-page">
-    {{ .Content | markdown }}
+    {{ .__props.Content | markdown }}
   </div>
 {{end}}
 
