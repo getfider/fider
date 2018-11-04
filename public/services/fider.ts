@@ -40,7 +40,7 @@ export class FiderImpl {
 
   public initialize = (): FiderImpl => {
     const el = document.getElementById("server-data");
-    const data = el ? JSON.parse(el.innerText) : {};
+    const data = el ? JSON.parse(el.textContent || el.innerText) : {};
     this.pSettings = data.__settings;
     this.pSession = new FiderSession(data);
     return this;
