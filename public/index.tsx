@@ -15,13 +15,21 @@ import "@fider/assets/styles/main.scss";
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {
     console.error(err); // tslint:disable-line
-    actions.logError(err.message, err);
+    actions.logError(`react.ErrorBoundary: ${err.message}`, err);
   }
 };
 
+window.addEventListener("unhandledrejection", (evt: PromiseRejectionEvent) => {
+  if (evt.reason instanceof Error) {
+    actions.logError(`window.unhandledrejection: ${evt.reason.message}`, evt.reason);
+  } else if (evt.reason) {
+    actions.logError(`window.unhandledrejection: ${evt.reason.toString()}`);
+  }
+});
+
 window.addEventListener("error", (evt: ErrorEvent) => {
   if (evt.error && evt.colno > 0 && evt.lineno > 0) {
-    actions.logError(evt.message, evt.error);
+    actions.logError(`window.error: ${evt.message}`, evt.error);
   }
 });
 
