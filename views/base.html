@@ -44,8 +44,8 @@
 
   {{template "content" .}}
 
-  <script type="text/javascript" nonce="{{ .__contextID }}">
-    {{template "javascript" .}}
+  <script id="server-data" type="application/json">
+    {{template "server-data" .}}
   </script>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
   <script src="{{ .__vendorBundle }}" crossorigin="anonymous"></script>
