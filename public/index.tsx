@@ -33,18 +33,10 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     return;
   }
 
-  try {
-    fider = Fider.initialize();
+  fider = Fider.initialize();
 
-    __webpack_nonce__ = fider.session.contextID;
-    __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;
-  } catch (err) {
-    actions
-      .logError(err.message || "An unhandled error occurred", err.error)
-      .then(() => navigator.goTo("/browser-not-supported"))
-      .catch(() => navigator.goTo("/browser-not-supported"));
-    return;
-  }
+  __webpack_nonce__ = fider.session.contextID;
+  __webpack_public_path__ = `${fider.settings.globalAssetsURL}/assets/`;
 
   const config = resolveRootComponent(location.pathname);
   document.body.className = classSet({
