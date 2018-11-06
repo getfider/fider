@@ -311,17 +311,39 @@ body, h1, h2, h3, h4, h5, .ui, input {
   height: 60%;
   text-align: center;
   margin-top: 100px;
+  max-width: 800px !important;
   p {
-    font-size: 150%;
+    font-size: 130%;
     line-height: 30px;
   }
   h1 {
-    font-size: 200%;
+    font-size: 180%;
     color: #3b4450;
   }
   img {
     max-height: 100px;
     max-width: 100px;
+  }
+  .l-browser-list {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+    a {
+      display: block;
+    }
+    .browser-logo {
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 48px;
+      height: 48px;
+    }
+    .browser-name {
+      font-weight: bold;
+    }
+    .browser-download {
+      float: right;
+      line-height: 48px;
+    }
   }
 }
 

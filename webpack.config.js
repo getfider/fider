@@ -8,8 +8,8 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const plugins = [
   new MiniCssExtractPlugin({ 
-    filename: "css/[name].[chunkhash].css",
-    chunkFilename: "css/[name].[chunkhash].css"
+    filename: "css/[name].[contenthash].css",
+    chunkFilename: "css/[name].[contenthash].css"
   }),
   new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
 ];
@@ -27,7 +27,7 @@ module.exports = {
   },
   output: {
     path: __dirname + "/dist",
-    filename: "js/[name].[chunkhash].js",
+    filename: "js/[name].[contenthash].js",
     publicPath: "/assets/",
   },
   devtool: "source-map",
