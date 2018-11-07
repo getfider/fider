@@ -288,3 +288,28 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(subscribers).HasLen(0)
 }
+
+func TestSubscription_DeletedPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(aryaStark)
+
+	post1, _ := posts.Add("Post #1", "Description #1")
+	posts.SetResponse(post1, "Invalid Post!", models.PostDeleted)
+
+	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+	Expect(err).IsNil()
+	Expect(subscribers).HasLen(2)
+
+	users.SetCurrentUser(jonSnow)
+	subscribed, err := users.HasSubscribedTo(post1.ID)
+	Expect(err).IsNil()
+	Expect(subscribed).IsTrue()
+
+	users.SetCurrentUser(aryaStark)
+	subscribed, err = users.HasSubscribedTo(post1.ID)
+	Expect(err).IsNil()
+	Expect(subscribed).IsTrue()
+}
