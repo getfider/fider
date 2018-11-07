@@ -1,5 +1,5 @@
 import * as React from "react";
-import getCaretCoordinates = require("textarea-caret");
+import getCaretCoordinates from "textarea-caret";
 import { TextArea, TextAreaProps } from "./TextArea";
 
 export interface TextAreaTriggerStart {

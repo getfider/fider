@@ -3,6 +3,8 @@ package tasks
 import (
 	"fmt"
 	"html/template"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,6 +14,8 @@ import (
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
 )
+
+var mentionsPattern = regexp.MustCompile(`\[(\d+)\]`)
 
 func describe(name string, job worker.Job) worker.Task {
 	return worker.Task{Name: name, Job: job}
@@ -23,6 +27,23 @@ func link(baseURL, path string, args ...interface{}) template.HTML {
 
 func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML {
 	return template.HTML(fmt.Sprintf("<a href='%s%s'>%s</a>", baseURL, fmt.Sprintf(path, args...), text))
+}
+
+func replaceMentions(text string, c *worker.Context) string {
+	return mentionsPattern.ReplaceAllStringFunc(text, func(match string) string {
+		r := []rune(match)
+		i, err := strconv.ParseInt(string(r[1:len(r)-1]), 10, 32)
+		if err != nil {
+			return "???"
+		} else {
+			user, err2 := c.Services().Users.GetByID(int(i))
+			if err2 == nil {
+				return user.Name
+			} else {
+				return "???"
+			}
+		}
+	})
 }
 
 //SendSignUpEmail is used to send the sign up email to requestor
@@ -114,19 +135,33 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 //NotifyAboutNewComment sends a notification (web and email) to subscribers
 func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
+
+		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, post.Title)
+		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
+		// Mention web notifications
+		mentionsMatch := mentionsPattern.FindAllStringSubmatch(comment.Content, -1)
+
+		for _, match := range mentionsMatch {
+			id, _ := strconv.ParseInt(match[1], 10, 32)
+			user, _ := c.Services().Users.GetByID(int(id))
+
+			if user.ID != c.User().ID {
+				title := fmt.Sprintf("**%s** mentioned you", c.User().Name)
+				_, _ = c.Services().Notifications.Insert(user, title, link, post.ID)
+			}
+		}
+
+		// Here we will also send only one notification, as the second insert will fail
+
 		// Web notification
 		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		title := fmt.Sprintf("**%s** left a comment on **%s**", c.User().Name, post.Title)
-		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
-					return c.Failure(err)
-				}
+				c.Services().Notifications.Insert(user, title, link, post.ID)
 			}
 		}
 
@@ -136,10 +171,20 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		toMap := make(map[string]email.Recipient)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				toMap[user.Email] = email.NewRecipient(user.Name, user.Email, email.Params{})
+			}
+		}
+
+		// Mentions Email notifications
+		for _, match := range mentionsMatch {
+			id, _ := strconv.ParseInt(match[1], 10, 32)
+			user, _ := c.Services().Users.GetByID(int(id))
+
+			if user.ID != c.User().ID {
+				toMap[user.Email] = email.NewRecipient(user.Name, user.Email, email.Params{"mention": true})
 			}
 		}
 
@@ -147,11 +192,17 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"title":       post.Title,
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
-			"content":     markdown.Parse(comment.Content),
+			"content":     markdown.Parse(replaceMentions(comment.Content, c)),
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+		}
+
+		// This is done so that we don't send two emails to a user for the same post, the mention one will prevail
+		to := make([]email.Recipient, 0)
+		for _, value := range toMap {
+			to = append(to, value)
 		}
 
 		return c.Services().Emailer.BatchSend(c, "new_comment", params, c.User().Name, to)

@@ -2,7 +2,12 @@ subject: [{{ .tenantName }}] {{ .title }}
 body:
 <tr>
   <td>
-    <strong>{{ .userName }}</strong> left a comment on 
+    <strong>{{ .userName }}</strong>
+    {{if .mention}}
+    mentioned you on
+    {{else}}
+    left a comment on
+    {{end}}
     <strong>
       {{ .title }} ({{ .postLink }})
     </strong>

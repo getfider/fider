@@ -54,7 +54,7 @@ func CreatePost() web.HandlerFunc {
 
 // GetPost retrieves the existing post by number
 func GetPost() web.HandlerFunc {
-        return func(c web.Context) error {
+	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
