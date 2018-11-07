@@ -1,7 +1,7 @@
-import * as React from "react";
+import React from "react";
 
-import { Modal, Button, DisplayError, Textarea, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
-import { Comment, Post, PostStatus, User } from "@fider/models";
+import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
+import { Post, PostStatus } from "@fider/models";
 import { PostSearch } from "../";
 
 import { actions, Failure } from "@fider/services";

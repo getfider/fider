@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/getfider/fider/app/models"
 
@@ -89,14 +90,17 @@ func RequireTenant() web.MiddlewareFunc {
 	}
 }
 
-// OnlyActiveTenants blocks requests for inactive tenants
-func OnlyActiveTenants() web.MiddlewareFunc {
+// BlockPendingTenants blocks requests for pending tenants
+func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c web.Context) error {
-			if c.Tenant().Status == models.TenantActive {
-				return next(c)
+			if c.Tenant().Status == models.TenantPending {
+				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
+					Title:       "Pending Activation",
+					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
+				})
 			}
-			return c.NotFound()
+			return next(c)
 		}
 	}
 }

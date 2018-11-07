@@ -1,8 +1,8 @@
 import "./ShowPostResponse.scss";
 
-import * as React from "react";
+import React from "react";
 import { PostResponse, PostStatus } from "@fider/models";
-import { Gravatar, MultiLineText, Moment, UserName, Segment } from "@fider/components/common";
+import { Gravatar, MultiLineText, UserName, Segment } from "@fider/components/common";
 
 interface ShowPostStatusProps {
   status: PostStatus;

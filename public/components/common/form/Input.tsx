@@ -1,8 +1,7 @@
-import * as React from "react";
-import { Failure, classSet } from "@fider/services";
+import React from "react";
+import { classSet } from "@fider/services";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
-import { Button } from "@fider/components";
 
 interface InputProps {
   field: string;

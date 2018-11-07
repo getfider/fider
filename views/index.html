@@ -1,11 +1,7 @@
 // Print all variables that does not start with _ (95)
 // Compressed to avoid whitespace being printed
-{{define "javascript"}} 
-    {{ if .__user }}window.__user = {{ .__user }};{{ end }}
-    window.__settings = {{ .__settings }};
-    window.__tenant = {{ .__tenant }};
-    window.__props = {};
-{{ range $key, $value := . }}{{ $first := index $key 1 }}{{ if ne $first 95 }}
-    window.__props['{{ $key }}'] = {{ $value }};{{ end }}{{ end }} {{end}}
-        
+{{define "server-data"}} 
+    {{ . }}
+{{ end }}
 {{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}
+{{define "end-of-body"}}<script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>{{end}}

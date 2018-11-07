@@ -1,17 +1,8 @@
 import "./ListPosts.scss";
 
-import * as React from "react";
-import { Post, Tag, PostStatus, CurrentUser } from "@fider/models";
-import {
-  ShowTag,
-  ShowPostResponse,
-  VoteCounter,
-  Gravatar,
-  MultiLineText,
-  Moment,
-  ListItem,
-  List
-} from "@fider/components";
+import React from "react";
+import { Post, Tag, CurrentUser } from "@fider/models";
+import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components";
 
 interface ListPostsProps {
   posts?: Post[];

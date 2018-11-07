@@ -1,12 +1,12 @@
 import "./ManageAuthentication.page.scss";
 
-import * as React from "react";
+import React from "react";
 
 import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components";
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
-import { actions, notify, navigator, Fider, uploadedImageURL } from "@fider/services";
+import { actions, notify, Fider } from "@fider/services";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[];

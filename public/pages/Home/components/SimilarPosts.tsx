@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListPosts } from "./ListPosts";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Comment, Post } from "@fider/models";
 import {
   Gravatar,
@@ -12,7 +12,7 @@ import {
   DropDownItem,
   Modal
 } from "@fider/components";
-import { formatDate, Failure, actions, Fider, navigator } from "@fider/services";
+import { formatDate, Failure, actions, Fider } from "@fider/services";
 
 interface ShowCommentProps {
   post: Post;

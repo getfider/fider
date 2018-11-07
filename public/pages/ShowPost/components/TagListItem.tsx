@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Tag } from "@fider/models";
 import { ListItem, ShowTag } from "@fider/components";
 
