@@ -230,11 +230,6 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			return c.Failure(err)
 		}
 
-		c.Logger().Info("test")
-		c.Logger().Info(post.Title)
-		c.Logger().Info(post.Status.Name())
-		c.Logger().Info(post.Response.Text)
-
 		title := fmt.Sprintf("**%s** deleted **%s**", c.User().Name, post.Title)
 		for _, user := range users {
 			if user.ID != c.User().ID {
