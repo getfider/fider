@@ -92,10 +92,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		tmpl = r.add(name)
 	}
 
-	m := props.Data
-	if m == nil {
-		m = make(Map, 0)
-	}
+	m := make(Map, 0)
 
 	tenantName := "Fider"
 	if ctx.Tenant() != nil {
@@ -123,6 +120,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["__contextID"] = ctx.ContextID()
 	m["__currentURL"] = ctx.Request.URL.String()
 	m["__tenant"] = ctx.Tenant()
+	m["__props"] = props.Data
 
 	oauthProviders := make([]*oauth.ProviderOption, 0)
 	if !ctx.IsAuthenticated() && ctx.Services() != nil {
@@ -142,7 +140,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
-		"assetsURL":       ctx.TenantAssetsURL(""),
+		"tenantAssetsURL": ctx.TenantAssetsURL(""),
+		"globalAssetsURL": ctx.GlobalAssetsURL(""),
 		"oauth":           oauthProviders,
 	}
 

@@ -241,3 +241,29 @@ func (input *EditComment) Validate(user *models.User, services *app.Services) *v
 
 	return result
 }
+
+// DeleteComment represents the action of deleting an existing comment
+type DeleteComment struct {
+	Model *models.DeleteComment
+}
+
+// Initialize the model
+func (input *DeleteComment) Initialize() interface{} {
+	input.Model = new(models.DeleteComment)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *DeleteComment) IsAuthorized(user *models.User, services *app.Services) bool {
+	comment, err := services.Posts.GetCommentByID(input.Model.CommentID)
+	if err != nil {
+		return false
+	}
+
+	return user.ID == comment.User.ID || user.IsCollaborator()
+}
+
+// Validate if current model is valid
+func (input *DeleteComment) Validate(user *models.User, services *app.Services) *validate.Result {
+	return validate.Success()
+}

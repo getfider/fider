@@ -1,6 +1,6 @@
 import "./SignInControl.scss";
 
-import * as React from "react";
+import React from "react";
 import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components";
 import { device, actions, Failure, Fider, isCookieEnabled } from "@fider/services";
 

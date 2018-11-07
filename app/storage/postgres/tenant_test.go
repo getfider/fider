@@ -18,7 +18,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 
 	Expect(err).IsNil()
 	Expect(tenant).IsNotNil()
@@ -27,7 +27,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(tenant.Name).Equals("My Domain Inc.")
 	Expect(tenant.Subdomain).Equals("mydomain")
-	Expect(tenant.Status).Equals(models.TenantInactive)
+	Expect(tenant.Status).Equals(models.TenantPending)
 	Expect(tenant.IsPrivate).IsFalse()
 
 	err = tenants.Activate(tenant.ID)
@@ -47,7 +47,7 @@ func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 
 	os.Setenv("HOST_MODE", "single")
 
-	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 	Expect(err).IsNil()
 	Expect(tenant).IsNotNil()
 }

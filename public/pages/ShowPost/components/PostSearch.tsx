@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions } from "@fider/services";
 import { DropDown, DropDownItem } from "@fider/components";

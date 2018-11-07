@@ -1,7 +1,7 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
 
 import { Post } from "@fider/models";
+
 import { Gravatar, UserName, Button, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 

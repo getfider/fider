@@ -1,10 +1,10 @@
 import "./ManageTags.page.scss";
 
-import * as React from "react";
-import { ShowTag, Button, Gravatar, UserName, Segment, List, ListItem, Heading } from "@fider/components";
+import React from "react";
+import { Button, Segment, List, ListItem, Heading } from "@fider/components";
 import { AdminBasePage, TagForm, TagFormState, TagListItem } from "../components";
 
-import { Tag, CurrentUser, UserRole } from "@fider/models";
+import { Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
 interface ManageTagsPageProps {

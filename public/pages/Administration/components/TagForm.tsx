@@ -1,18 +1,7 @@
 import "./TagForm.scss";
 
-import * as React from "react";
-import {
-  Button,
-  Input,
-  ButtonClickEvent,
-  ShowTag,
-  DisplayError,
-  Form,
-  RadioButton,
-  Field,
-  SelectOption
-} from "@fider/components";
-import { Tag } from "@fider/models";
+import React from "react";
+import { Button, Input, ShowTag, Form, RadioButton, Field, SelectOption } from "@fider/components";
 import { Failure } from "@fider/services";
 
 interface TagFormProps {

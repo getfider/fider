@@ -207,7 +207,7 @@ func TestVerifySignUpKeyHandler_InactiveTenant(t *testing.T) {
 
 	e := &models.CreateTenant{Email: "hot.pie@got.com", Name: "Hot Pie"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-	mock.DemoTenant.Status = models.TenantInactive
+	mock.DemoTenant.Status = models.TenantPending
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -331,7 +331,6 @@ func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models
 				Expect(cookie.Name).Equals(web.CookieAuthName)
 				ExpectFiderToken(cookie.Value, expected)
 				Expect(cookie.HttpOnly).IsTrue()
-				Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 				Expect(cookie.Path).Equals("/")
 				Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 				return
