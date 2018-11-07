@@ -220,6 +220,54 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 	})
 }
 
+//NotifyAboutDeletedPost sends a notification (web and email) to subscribers of the post that has been deleted
+func NotifyAboutDeletedPost(post *models.Post) worker.Task {
+	return describe("Notify about deleted post", func(c *worker.Context) error {
+
+		// Web notification
+		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		c.Logger().Info("test")
+		c.Logger().Info(post.Title)
+		c.Logger().Info(post.Status.Name())
+		c.Logger().Info(post.Response.Text)
+
+		title := fmt.Sprintf("**%s** deleted **%s**", c.User().Name, post.Title)
+		for _, user := range users {
+			if user.ID != c.User().ID {
+				if _, err = c.Services().Notifications.Insert(user, title, "", post.ID); err != nil {
+					return c.Failure(err)
+				}
+			}
+		}
+
+		// Email notification
+		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		to := make([]email.Recipient, 0)
+		for _, user := range users {
+			if user.ID != c.User().ID {
+				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+			}
+		}
+
+		params := email.Params{
+			"title":      post.Title,
+			"tenantName": c.Tenant().Name,
+			"content":    markdown.Parse(post.Response.Text),
+			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+		}
+
+		return c.Services().Emailer.BatchSend(c, "delete_post", params, c.User().Name, to)
+	})
+}
+
 //SendInvites sends one email to each invited recipient
 func SendInvites(subject, message string, invitations []*models.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
