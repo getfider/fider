@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { classSet } from "@fider/services";
 import { DisplayError, ValidationContext, hasError } from "../";
 

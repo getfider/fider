@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 import { HomePage, HomePageProps, SignInPage } from "../";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";

@@ -1,6 +1,6 @@
 import "./ImageUploader.scss";
 
-import * as React from "react";
+import React from "react";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
 import { classSet, fileToBase64 } from "@fider/services";

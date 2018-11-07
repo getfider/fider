@@ -203,8 +203,13 @@ func OAuthCallback() web.HandlerFunc {
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
 		provider := c.Param("provider")
+		redirect := c.QueryParam("redirect")
 
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, c.QueryParam("redirect"), getOAuthIdentifier(c))
+		if c.IsAuthenticated() {
+			return c.Redirect(redirect)
+		}
+
+		authURL, err := c.Services().OAuth.GetAuthURL(provider, redirect, getOAuthIdentifier(c))
 		if err != nil {
 			return c.Failure(err)
 		}

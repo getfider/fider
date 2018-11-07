@@ -1,24 +1,6 @@
-import * as React from "react";
+import React from "react";
 
-import {
-  HomePage,
-  SignInPage,
-  SignUpPage,
-  ManageMembersPage,
-  CompleteSignInProfilePage,
-  PrivacySettingsPage,
-  InvitationsPage,
-  ExportPage,
-  GeneralSettingsPage,
-  AdvancedSettingsPage,
-  ManageAuthenticationPage,
-  ManageTagsPage,
-  OAuthEchoPage,
-  ShowPostPage,
-  MySettingsPage,
-  MyNotificationsPage,
-  UIToolkitPage
-} from "@fider/pages";
+import * as Pages from "@fider/AsyncPages";
 
 interface PageConfiguration {
   regex: RegExp;
@@ -38,24 +20,24 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
 };
 
 const pathRegex = [
-  route("", HomePage),
-  route("/posts/:number*", ShowPostPage),
-  route("/admin/members", ManageMembersPage),
-  route("/admin/tags", ManageTagsPage),
-  route("/admin/privacy", PrivacySettingsPage),
-  route("/admin/export", ExportPage),
-  route("/admin/invitations", InvitationsPage),
-  route("/admin/authentication", ManageAuthenticationPage),
-  route("/admin/advanced", AdvancedSettingsPage),
-  route("/admin", GeneralSettingsPage),
-  route("/signin", SignInPage, false),
-  route("/signup", SignUpPage, false),
-  route("/signin/verify", CompleteSignInProfilePage),
-  route("/invite/verify", CompleteSignInProfilePage),
-  route("/notifications", MyNotificationsPage),
-  route("/settings", MySettingsPage),
-  route("/oauth/:string/echo", OAuthEchoPage, false),
-  route("/-/ui", UIToolkitPage)
+  route("", Pages.AsyncHomePage),
+  route("/posts/:number*", Pages.AsyncShowPostPage),
+  route("/admin/members", Pages.AsyncManageMembersPage),
+  route("/admin/tags", Pages.AsyncManageTagsPage),
+  route("/admin/privacy", Pages.AsyncPrivacySettingsPage),
+  route("/admin/export", Pages.AsyncExportPage),
+  route("/admin/invitations", Pages.AsyncInvitationsPage),
+  route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
+  route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
+  route("/admin", Pages.AsyncGeneralSettingsPage),
+  route("/signin", Pages.AsyncSignInPage, false),
+  route("/signup", Pages.AsyncSignUpPage, false),
+  route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),
+  route("/invite/verify", Pages.AsyncCompleteSignInProfilePage),
+  route("/notifications", Pages.AsyncMyNotificationsPage),
+  route("/settings", Pages.AsyncMySettingsPage),
+  route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
+  route("/-/ui", Pages.AsyncUIToolkitPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {
@@ -63,7 +45,7 @@ export const resolveRootComponent = (path: string): PageConfiguration => {
     path = path.substring(0, path.length - 1);
   }
   for (const entry of pathRegex) {
-    if (entry.regex.test(path)) {
+    if (entry && entry.regex.test(path)) {
       return entry;
     }
   }

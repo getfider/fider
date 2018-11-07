@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Button, OAuthProviderLogo } from "@fider/components/common";
 import { classSet } from "@fider/services";
 

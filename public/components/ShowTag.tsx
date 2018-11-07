@@ -1,6 +1,6 @@
 import "./ShowTag.scss";
 
-import * as React from "react";
+import React from "react";
 import { Tag } from "@fider/models";
 import { classSet } from "@fider/services";
 

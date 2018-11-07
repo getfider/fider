@@ -1,10 +1,8 @@
 import "./PrivacySettings.page.scss";
 
-import * as React from "react";
-
-import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, DisplayError, Toggle, Form } from "@fider/components/common";
-import { actions, notify, Failure, Fider } from "@fider/services";
+import React from "react";
+import { Toggle, Form } from "@fider/components/common";
+import { actions, notify, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
 
 interface PrivacySettingsPageState {

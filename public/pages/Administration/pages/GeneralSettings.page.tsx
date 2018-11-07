@@ -1,6 +1,6 @@
 import "./GeneralSettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
 import {
   Button,

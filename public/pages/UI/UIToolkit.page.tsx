@@ -1,5 +1,5 @@
-import * as React from "react";
-import { CurrentUser, PostStatus } from "@fider/models";
+import React from "react";
+import { PostStatus } from "@fider/models";
 import {
   Heading,
   Button,

@@ -1,8 +1,8 @@
 import "./MyNotifications.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import { CurrentUser, Notification } from "@fider/models";
+import { Notification } from "@fider/models";
 import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 

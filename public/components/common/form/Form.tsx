@@ -1,8 +1,8 @@
 import "./Form.scss";
 
-import * as React from "react";
+import React from "react";
 import { Failure, classSet } from "@fider/services";
-import { Button, DisplayError } from "@fider/components";
+import { DisplayError } from "@fider/components";
 
 interface ValidationContext {
   error?: Failure;

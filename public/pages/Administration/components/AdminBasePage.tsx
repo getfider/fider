@@ -1,6 +1,6 @@
 import "./AdminBasePage.scss";
 
-import * as React from "react";
+import React from "react";
 import { Heading } from "@fider/components";
 import { SideMenu, SideMenuToggler } from "./";
 
