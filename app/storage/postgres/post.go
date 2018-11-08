@@ -581,11 +581,8 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			FROM users u
 			LEFT JOIN post_subscribers sub
 			ON sub.user_id = u.id
+			AND sub.post_id = (SELECT id FROM posts p WHERE p.tenant_id = $4 and p.number = $1 LIMIT 1)
 			AND sub.tenant_id = u.tenant_id
-			LEFT JOIN posts p
-			ON p.id = sub.post_id
-			AND p.tenant_id = u.tenant_id
-			AND p.number = $1
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
 			AND set.key = $3
