@@ -52,7 +52,6 @@ func TestSubscription_NoSettings(t *testing.T) {
 	subscribed, err = users.HasSubscribedTo(post1.ID)
 	Expect(err).IsNil()
 	Expect(subscribed).IsFalse()
-
 }
 
 func TestSubscription_RemoveSubscriber(t *testing.T) {
@@ -302,14 +301,24 @@ func TestSubscription_DeletedPost(t *testing.T) {
 	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).IsNil()
 	Expect(subscribers).HasLen(2)
+	Expect(subscribers[0].ID).Equals(jonSnow.ID)
+	Expect(subscribers[1].ID).Equals(aryaStark.ID)
+}
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err := users.HasSubscribedTo(post1.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+func TestSubscription_SubscribedToDifferentPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(post1.ID)
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+
+	post1, _ := posts.Add("Post #1", "Description #1")
+	post2, _ := posts.Add("Post #2", "Description #2")
+	err := posts.AddSubscriber(post2, aryaStark)
 	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+
+	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+	Expect(err).IsNil()
+	Expect(subscribers).HasLen(1)
+	Expect(subscribers[0].ID).Equals(jonSnow.ID)
 }
