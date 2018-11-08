@@ -76,7 +76,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       logo: this.state.logo
     });
     if (result.ok) {
-      navigator.goTo("/admin/authentication");
+      location.reload();
     } else {
       this.setState({ error: result.error });
     }

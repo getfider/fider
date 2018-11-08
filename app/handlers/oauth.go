@@ -205,7 +205,14 @@ func SignInByOAuth() web.HandlerFunc {
 		provider := c.Param("provider")
 		redirect := c.QueryParam("redirect")
 
-		if c.IsAuthenticated() {
+		if redirect == "" {
+			redirect = c.BaseURL()
+		}
+
+		redirectURL, _ := url.ParseRequestURI(redirect)
+		redirectURL.ResolveReference(c.Request.URL)
+
+		if c.IsAuthenticated() && redirectURL.Path != fmt.Sprintf("/oauth/%s/echo", provider) {
 			return c.Redirect(redirect)
 		}
 
