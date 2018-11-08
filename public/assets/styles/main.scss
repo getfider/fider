@@ -209,6 +209,12 @@ body, h1, h2, h3, h4, h5, .ui, input {
   text-align: center;
 }
 
+svg.icon {
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
 .clickable {
   cursor: pointer;
 }
