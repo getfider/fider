@@ -23,7 +23,7 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable", "react-icons" ]
+    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable" ]
   },
   output: {
     path: __dirname + "/dist",
@@ -32,10 +32,15 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".mjs", ".ts", ".tsx", ".js"],
     alias: {
       "@fider": publicFolder
     }
+  },
+  performance: {
+    maxEntrypointSize: 250000,
+    maxAssetSize: 250000,
+    hints: 'error'
   },
   module: {
     rules: [
@@ -71,8 +76,7 @@ module.exports = {
         vendor: {
           chunks: 'initial',
           name: 'vendor',
-          test: 'vendor',
-          enforce: true
+          test: 'vendor'
         },
       }
     }

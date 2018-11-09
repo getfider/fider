@@ -2,7 +2,7 @@ import React from "react";
 import { classSet } from "@fider/services";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
-import { IconType } from "react-icons/lib";
+import { IconType } from "react-icons";
 
 interface InputProps {
   field: string;

@@ -2,7 +2,7 @@ import "./Heading.scss";
 
 import React from "react";
 import { classSet } from "@fider/services";
-import { IconType } from "react-icons/lib";
+import { IconType } from "react-icons";
 
 interface HeadingLogo {
   title: string;
