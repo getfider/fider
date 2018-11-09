@@ -19,8 +19,10 @@ export const logError = async (message: string, err?: Error): Promise<Result | u
     stack: err ? err.stack : "<not available>"
   };
 
-  return http.post("/_api/log-error", { message, data }).then(response => {
+  try {
     analytics.error(err);
-    return response;
-  });
+    return await http.post("/_api/log-error", { message, data });
+  } catch (err) {
+    // tslint:disable-next-line:no-empty
+  }
 };
