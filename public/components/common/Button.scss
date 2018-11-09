@@ -14,6 +14,10 @@
   text-align: left;
   font-weight: 600;
 
+  .icon {
+    vertical-align: bottom;
+  }
+
   &.m-cancel {
     color: $link-color;
     background-color: transparent;

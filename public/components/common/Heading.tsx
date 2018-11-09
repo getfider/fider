@@ -2,12 +2,13 @@ import "./Heading.scss";
 
 import React from "react";
 import { classSet } from "@fider/services";
+import { IconType } from "react-icons/lib";
 
 interface HeadingLogo {
   title: string;
   dividing?: boolean;
   size?: "normal" | "small";
-  icon?: string;
+  icon?: IconType;
   subtitle?: string;
   className?: string;
 }
@@ -26,13 +27,12 @@ export const Heading = (props: HeadingLogo) => {
   const iconClassName = classSet({
     "c-heading-icon": true,
     circular: level <= 2,
-    [props.icon!]: props.icon,
     icon: true
   });
 
   return (
     <Tag className={className}>
-      {props.icon && <i className={iconClassName} />}
+      {props.icon && React.createElement(props.icon)}
       <div className="c-heading-content">
         {props.title}
         <div className="c-heading-subtitle">{props.subtitle}</div>

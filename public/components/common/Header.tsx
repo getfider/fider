@@ -3,6 +3,7 @@ import "./Header.scss";
 import React from "react";
 import { SignInModal, EnvironmentInfo, Gravatar, TenantLogo } from "@fider/components";
 import { actions, Fider } from "@fider/services";
+import { FaUser, FaCog, FaCaretDown } from "react-icons/fa";
 
 interface HeaderState {
   showSignIn: boolean;
@@ -38,7 +39,7 @@ export class Header extends React.Component<{}, HeaderState> {
     const items = Fider.session.isAuthenticated && (
       <div className="c-menu-user">
         <div className="c-menu-user-heading">
-          <i className="user icon" />
+          <FaUser />
           {Fider.session.user.name}
         </div>
         <a href="/settings" className="c-menu-user-item">
@@ -51,7 +52,7 @@ export class Header extends React.Component<{}, HeaderState> {
         <div className="c-menu-user-divider" />
         {Fider.session.user.isCollaborator && [
           <div key={1} className="c-menu-user-heading">
-            <i className="setting icon" />
+            <FaCog />
             Administration
           </div>,
           <a key={2} href="/admin" className="c-menu-user-item">
@@ -81,7 +82,7 @@ export class Header extends React.Component<{}, HeaderState> {
                 {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
                 {this.state.unreadNotifications > 0 && <div className="c-unread-dot" />}
                 {!Fider.session.isAuthenticated && <span>Sign in</span>}
-                {Fider.session.isAuthenticated && <i className="dropdown icon" />}
+                {Fider.session.isAuthenticated && <FaCaretDown />}
                 {items}
               </div>
             )}

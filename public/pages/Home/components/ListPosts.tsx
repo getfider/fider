@@ -3,6 +3,7 @@ import "./ListPosts.scss";
 import React from "react";
 import { Post, Tag, CurrentUser } from "@fider/models";
 import { ShowTag, ShowPostResponse, VoteCounter, MultiLineText, ListItem, List } from "@fider/components";
+import { FaRegComments } from "react-icons/fa";
 
 interface ListPostsProps {
   posts?: Post[];
@@ -17,7 +18,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
       <div className="c-list-item-content">
         {props.post.commentsCount > 0 && (
           <div className="info right">
-            {props.post.commentsCount} <i className="comments outline icon" />
+            {props.post.commentsCount} <FaRegComments />
           </div>
         )}
         <a className="c-list-item-title" href={`/posts/${props.post.number}/${props.post.slug}`}>

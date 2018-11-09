@@ -3,6 +3,7 @@ import "./OAuthEcho.page.scss";
 import React from "react";
 import { navigator } from "@fider/services";
 import { Segments, Segment } from "@fider/components";
+import { FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
 
 interface OAuthEchoPageProps {
   err: string | undefined;
@@ -14,9 +15,9 @@ interface OAuthEchoPageProps {
   };
 }
 
-const ok = <i className="check circle icon" />;
-const error = <i className="times circle icon" />;
-const warn = <i className="exclamation triangle icon" />;
+const ok = <FaCheckCircle />;
+const error = <FaTimesCircle />;
+const warn = <FaExclamationTriangle />;
 
 export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
   public componentDidMount() {

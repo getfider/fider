@@ -4,6 +4,7 @@ import React from "react";
 import { Toggle, Form } from "@fider/components/common";
 import { actions, notify, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
+import { FaKey } from "react-icons/fa";
 
 interface PrivacySettingsPageState {
   isPrivate: boolean;
@@ -12,7 +13,7 @@ interface PrivacySettingsPageState {
 export class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
   public id = "p-admin-privacy";
   public name = "privacy";
-  public icon = "key";
+  public icon = FaKey;
   public title = "Privacy";
   public subtitle = "Manage your site privacy";
 

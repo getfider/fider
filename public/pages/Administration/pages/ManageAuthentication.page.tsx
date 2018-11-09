@@ -7,6 +7,7 @@ import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fi
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
 import { actions, notify, Fider } from "@fider/services";
+import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa";
 
 interface ManageAuthenticationPageProps {
   providers: OAuthProviderOption[];
@@ -23,7 +24,7 @@ export class ManageAuthenticationPage extends AdminBasePage<
 > {
   public id = "p-admin-authentication";
   public name = "authentication";
-  public icon = "sign in alternate";
+  public icon = FaSignInAlt;
   public title = "Authentication";
   public subtitle = "Manage your site authentication";
 
@@ -90,12 +91,12 @@ export class ManageAuthenticationPage extends AdminBasePage<
                   <>
                     {Fider.session.user.isAdministrator && (
                       <Button onClick={this.edit.bind(this, o.provider)} className="right">
-                        <i className="edit icon" />
+                        <FaEdit />
                         Edit
                       </Button>
                     )}
                     <Button onClick={this.startTest.bind(this, o.provider)} className="right">
-                      <i className="play icon" />
+                      <FaPlay />
                       Test
                     </Button>
                   </>

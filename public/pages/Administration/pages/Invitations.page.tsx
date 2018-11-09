@@ -3,6 +3,7 @@ import React from "react";
 import { Button, ButtonClickEvent, TextArea, Form, Input, Field } from "@fider/components";
 import { actions, notify, Failure, Fider } from "@fider/services";
 import { AdminBasePage } from "../components";
+import { FaEnvelope } from "react-icons/fa";
 
 interface InvitationsPageState {
   subject: string;
@@ -16,7 +17,7 @@ interface InvitationsPageState {
 export class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
   public id = "p-admin-invitations";
   public name = "invitations";
-  public icon = "envelope";
+  public icon = FaEnvelope;
   public title = "Invitations";
   public subtitle = "Invite people to share their feedback";
 

@@ -13,6 +13,7 @@ import {
   Modal
 } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
+import { FaEllipsisH } from "react-icons/fa";
 
 interface ShowCommentProps {
   post: Post;
@@ -73,7 +74,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   };
 
   private renderEllipsis = () => {
-    return <i className="ellipsis horizontal icon" />;
+    return <FaEllipsisH />;
   };
 
   private closeModal = async () => {

@@ -5,9 +5,7 @@ import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, actions, navigator } from "@fider/services";
 import { ToastContainer, toast } from "react-toastify";
-import { IconContext } from "react-icons";
-
-import "semantic-ui-css/components/reset.min.css";
+import { IconContext } from "react-icons/lib";
 
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";

@@ -25,6 +25,7 @@ import {
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
 import { DropDown, DropDownItem } from "@fider/components";
+import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
 
 const jonSnow: User = {
   id: 0,
@@ -125,11 +126,11 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
         </List>
 
-        <Heading title="Page Heading" icon="settings" subtitle="This is a page heading" />
+        <Heading title="Page Heading" icon={FaCogs} subtitle="This is a page heading" />
 
         <Heading
           title="Section Heading"
-          icon="lightbulb outline"
+          icon={FaRegLightbulb}
           subtitle="This is a page heading"
           size="small"
           dividing={true}
@@ -382,7 +383,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <Segment>
           <h1>Search</h1>
-          <Input field="search" placeholder="Search..." icon="search" />
+          <Input field="search" placeholder="Search..." icon={FaSearch} />
         </Segment>
       </div>
     );

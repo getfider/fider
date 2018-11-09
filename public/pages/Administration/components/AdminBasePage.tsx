@@ -3,11 +3,12 @@ import "./AdminBasePage.scss";
 import React from "react";
 import { Heading } from "@fider/components";
 import { SideMenu, SideMenuToggler } from "./";
+import { IconType } from "react-icons/lib";
 
 export abstract class AdminBasePage<P, S> extends React.Component<P, S> {
   public abstract id: string;
   public abstract name: string;
-  public abstract icon: string;
+  public abstract icon: IconType;
   public abstract title: string;
   public abstract subtitle: string;
   public abstract content(): JSX.Element;

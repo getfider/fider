@@ -5,6 +5,7 @@ import { Segment, List, Input, Form } from "@fider/components/common";
 import { User, UserRole } from "@fider/models";
 import { Fider } from "@fider/services";
 import { AdminBasePage, UserListItem } from "../components";
+import { FaUsers } from "react-icons/fa";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -23,7 +24,7 @@ interface ManageMembersPageProps {
 export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
   public id = "p-admin-members";
   public name = "members";
-  public icon = "users";
+  public icon = FaUsers;
   public title = "Members";
   public subtitle = "Manage your site administrators and collaborators";
 

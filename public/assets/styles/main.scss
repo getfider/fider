@@ -210,9 +210,10 @@ body, h1, h2, h3, h4, h5, .ui, input {
 }
 
 svg.icon {
-  display: block;
-  text-align: center;
-  width: 100%;
+  display: inline-block;
+  opacity: 1;
+  margin: 0 .25rem 0 0;
+  width: 1.18em;
 }
 
 .clickable {
@@ -232,7 +233,7 @@ svg.icon {
     &:hover {
       color: $main-color;
     }
-    i {
+    svg.icon {
       float: right;
     }
   }
