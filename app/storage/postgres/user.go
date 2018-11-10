@@ -40,7 +40,7 @@ func (u *dbUser) toModel() *models.User {
 		Tenant:    u.Tenant.toModel(),
 		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
-		Status:    int(u.Status.Int64),
+		Status:    models.UserStatus(u.Status.Int64),
 	}
 
 	for i, p := range u.Providers {
