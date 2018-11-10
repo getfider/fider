@@ -26,13 +26,14 @@ export const Heading = (props: HeadingLogo) => {
 
   const iconClassName = classSet({
     "c-heading-icon": true,
-    circular: level <= 2,
-    icon: true
+    circular: level <= 2
   });
+
+  const icon = props.icon && <div className={iconClassName}>{React.createElement(props.icon)}</div>;
 
   return (
     <Tag className={className}>
-      {props.icon && React.createElement(props.icon)}
+      {icon}
       <div className="c-heading-content">
         {props.title}
         <div className="c-heading-subtitle">{props.subtitle}</div>

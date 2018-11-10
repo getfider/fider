@@ -39,8 +39,7 @@ export class Header extends React.Component<{}, HeaderState> {
     const items = Fider.session.isAuthenticated && (
       <div className="c-menu-user">
         <div className="c-menu-user-heading">
-          <FaUser />
-          {Fider.session.user.name}
+          <FaUser /> <span>{Fider.session.user.name}</span>
         </div>
         <a href="/settings" className="c-menu-user-item">
           Settings
@@ -52,8 +51,7 @@ export class Header extends React.Component<{}, HeaderState> {
         <div className="c-menu-user-divider" />
         {Fider.session.user.isCollaborator && [
           <div key={1} className="c-menu-user-heading">
-            <FaCog />
-            Administration
+            <FaCog /> <span>Administration</span>
           </div>,
           <a key={2} href="/admin" className="c-menu-user-item">
             Site Settings

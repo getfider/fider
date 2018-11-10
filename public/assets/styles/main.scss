@@ -18,7 +18,7 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
-  font-size: 14px;
+  font-size: $font-size;
   font-family: $font-site;
   background-color: $bg-color;
   color: $text-color;
@@ -27,6 +27,7 @@ body {
 
 button, input, optgroup, select, textarea {
   font-family: $font-site;
+  font-size: $font-size;
 }
 
 /*******************************
@@ -212,8 +213,8 @@ body, h1, h2, h3, h4, h5, .ui, input {
 svg.icon {
   display: inline-block;
   opacity: 1;
-  margin: 0 .25rem 0 0;
   width: 1.18em;
+  vertical-align: middle;
 }
 
 .clickable {

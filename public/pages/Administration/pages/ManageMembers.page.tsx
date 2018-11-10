@@ -123,8 +123,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 <List hover={true}>
                   {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
                 </List>
-                {this.state.newAdministratorFilter &&
-                  this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
+                {this.state.newAdministratorFilter && this.state.filteredNewAdministrators.length === 0 && (
+                  <p className="info">No users to show.</p>
+                )}
               </Form>
             )}
           </Segment>
@@ -149,8 +150,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 <List hover={true}>
                   {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
                 </List>
-                {this.state.newCollaboratorFilter &&
-                  this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
+                {this.state.newCollaboratorFilter && this.state.filteredNewCollaborators.length === 0 && (
+                  <p className="info">No users to show.</p>
+                )}
               </Form>
             )}
           </Segment>
