@@ -145,8 +145,9 @@ func (ctx *Context) Enqueue(task worker.Task) {
 	}
 
 	ctx.Set(tasksContextKey, append(tasks, worker.Task{
-		Name: task.Name,
-		Job:  wrap(ctx),
+		OriginSessionID: ctx.SessionID(),
+		Name:            task.Name,
+		Job:             wrap(ctx),
 	}))
 }
 
