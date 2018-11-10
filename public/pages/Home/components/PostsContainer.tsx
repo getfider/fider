@@ -5,6 +5,7 @@ import { ListPosts, TagsFilter, PostFilter } from "../";
 import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
+import { FaTimes, FaSearch } from "react-icons/fa";
 
 interface PostsContainerProps {
   user?: CurrentUser;
@@ -120,7 +121,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           <div className={!this.state.query ? `l-search-col col-sm-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
             <Input
               field="query"
-              icon={this.state.query ? "cancel" : "search"}
+              icon={this.state.query ? FaTimes : FaSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
               placeholder="Search..."
               value={this.state.query}

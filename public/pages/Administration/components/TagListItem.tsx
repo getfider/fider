@@ -3,6 +3,7 @@ import { Tag } from "@fider/models";
 import { ListItem, ShowTag, Button } from "@fider/components";
 import { TagFormState, TagForm } from "./";
 import { actions, Failure, Fider } from "@fider/services";
+import { FaTimes, FaEdit } from "react-icons/fa";
 
 interface TagListItemProps {
   tag: Tag;
@@ -93,12 +94,12 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
 
   private renderViewMode() {
     const buttons = Fider.session.user.isAdministrator && [
-      <Button key={0} onClick={this.startDelete} className="right">
-        <i className="remove icon" />
+      <Button size="mini" key={0} onClick={this.startDelete} className="right">
+        <FaTimes />
         Delete
       </Button>,
-      <Button key={1} onClick={this.startEdit} className="right">
-        <i className="edit icon" />
+      <Button size="mini" key={1} onClick={this.startEdit} className="right">
+        <FaEdit />
         Edit
       </Button>
     ];
@@ -127,8 +128,8 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
     const view = this.state.isDeleting
       ? this.renderDeleteMode()
       : this.state.isEditing
-        ? this.renderEditMode()
-        : this.renderViewMode();
+      ? this.renderEditMode()
+      : this.renderViewMode();
 
     return <ListItem>{view}</ListItem>;
   }

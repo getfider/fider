@@ -6,6 +6,7 @@ import { MultiLineText } from "@fider/components";
 import { PostInput, PostsContainer } from "./";
 import { Fider } from "@fider/services";
 import { SimilarPosts } from "./components/SimilarPosts";
+import { FaRegLightbulb } from "react-icons/fa";
 
 export interface HomePageProps {
   posts: Post[];
@@ -21,7 +22,7 @@ const Lonely = () => {
   return (
     <div className="center">
       <p>
-        <i className="icon lightbulb outline" aria-hidden="true" />
+        <FaRegLightbulb />
       </p>
       <p>It's lonely out here. Start by sharing a suggestion!</p>
     </div>

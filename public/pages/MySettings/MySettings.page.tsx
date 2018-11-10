@@ -7,6 +7,7 @@ import { DangerZone, APIKeyForm, NotificationSettings } from "./";
 
 import { UserSettings } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
+import { FaRegAddressCard } from "react-icons/fa";
 
 interface MySettingsPageState {
   showModal: boolean;
@@ -109,7 +110,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon="address card outline" />
+        <Heading title="Settings" subtitle="Manage your profile settings" icon={FaRegAddressCard} />
 
         <div className="row">
           <div className="col-lg-7">

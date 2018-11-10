@@ -5,9 +5,7 @@ import { Header, Footer } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, actions, navigator } from "@fider/services";
 import { ToastContainer, toast } from "react-toastify";
-
-import "semantic-ui-css/components/reset.min.css";
-import "semantic-ui-css/components/icon.min.css";
+import { IconContext } from "react-icons";
 
 import "react-toastify/dist/ReactToastify.css";
 import "@fider/assets/styles/main.scss";
@@ -53,10 +51,12 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   });
   ReactDOM.render(
     <ErrorBoundary onError={logProductionError}>
-      <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
-      {config.showHeader && <Header />}
-      {React.createElement(config.component, fider.session.props)}
-      {config.showHeader && <Footer />}
+      <IconContext.Provider value={{ className: "icon" }}>
+        <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
+        {config.showHeader && <Header />}
+        {React.createElement(config.component, fider.session.props)}
+        {config.showHeader && <Footer />}
+      </IconContext.Provider>
     </ErrorBoundary>,
     document.getElementById("root")
   );

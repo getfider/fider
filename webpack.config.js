@@ -19,6 +19,9 @@ if (!isProduction) {
   plugins.push(new CleanObsoleteChunks());
 }
 
+// On Development Mode, we allow Assets to be up to 10 times bigger than on Prodution Mode
+const maxSizeFactor = isProduction ? 1 : 10;
+
 module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
@@ -32,10 +35,15 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    extensions: [".mjs", ".ts", ".tsx", ".js"],
     alias: {
       "@fider": publicFolder
     }
+  },
+  performance: {
+    maxEntrypointSize: 389120 * maxSizeFactor, // 380 KiB. Should ideally be ~240 KiB
+    maxAssetSize: 256000 * maxSizeFactor, // 250 KiB
+    hints: 'error'
   },
   module: {
     rules: [
@@ -54,14 +62,6 @@ module.exports = {
         options: {
           transpileOnly: true
         }
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
-        use: "file-loader?name=fonts/[name].[hash].[ext]"
-      },
-      {
-        test: /\.(png|gif|jpg|jpeg)$/,
-        use: "file-loader?name=images/[name].[hash].[ext]"
       }
     ]
   },
@@ -69,10 +69,9 @@ module.exports = {
     splitChunks: {
       cacheGroups: {
         vendor: {
-          chunks: 'initial',
+          chunks: 'all',
           name: 'vendor',
-          test: 'vendor',
-          enforce: true
+          test: 'vendor'
         },
       }
     }

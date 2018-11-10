@@ -5,6 +5,7 @@ import React from "react";
 import { AdminBasePage } from "../components";
 import { TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
 import { Failure, actions, Fider } from "@fider/services";
+import { FaStar } from "react-icons/fa";
 
 interface AdvancedSettingsPageProps {
   customCSS: string;
@@ -18,7 +19,7 @@ interface AdvancedSettingsPageState {
 export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
   public id = "p-admin-advanced";
   public name = "advanced";
-  public icon = "star";
+  public icon = FaStar;
   public title = "Advanced";
   public subtitle = "Manage your site settings";
 

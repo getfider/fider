@@ -37,13 +37,11 @@ export class UserListItem extends React.Component<UserListItemProps, {}> {
         </div>
         {this.props.removable && (
           <Button size="tiny" color="danger" onClick={this.demote} className="right showover">
-            <i className="remove icon" />
             Remove
           </Button>
         )}
         {this.props.addable && (
           <Button size="tiny" color="positive" onClick={this.promote} className="right showover">
-            <i className="add icon" />
             Add
           </Button>
         )}

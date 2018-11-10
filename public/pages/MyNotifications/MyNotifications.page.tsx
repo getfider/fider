@@ -5,6 +5,7 @@ import React from "react";
 import { Notification } from "@fider/models";
 import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
+import { FaBell } from "react-icons/fa";
 
 interface MyNotificationsPageProps {
   notifications: Notification[];
@@ -58,7 +59,7 @@ export class MyNotificationsPage extends React.Component<MyNotificationsPageProp
   public render() {
     return (
       <div id="p-my-notifications" className="page container">
-        <Heading title="Notifications" subtitle="Stay up to date with what's happening" icon="bell" />
+        <Heading title="Notifications" subtitle="Stay up to date with what's happening" icon={FaBell} />
 
         <h4>
           Unread

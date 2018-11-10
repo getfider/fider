@@ -5,6 +5,7 @@ import { Segment, List, Input, Form } from "@fider/components/common";
 import { User, UserRole } from "@fider/models";
 import { Fider } from "@fider/services";
 import { AdminBasePage, UserListItem } from "../components";
+import { FaUsers } from "react-icons/fa";
 
 interface ManageMembersPageState {
   administrators: User[];
@@ -23,7 +24,7 @@ interface ManageMembersPageProps {
 export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
   public id = "p-admin-members";
   public name = "members";
-  public icon = "users";
+  public icon = FaUsers;
   public title = "Members";
   public subtitle = "Manage your site administrators and collaborators";
 
@@ -122,8 +123,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 <List hover={true}>
                   {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
                 </List>
-                {this.state.newAdministratorFilter &&
-                  this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
+                {this.state.newAdministratorFilter && this.state.filteredNewAdministrators.length === 0 && (
+                  <p className="info">No users to show.</p>
+                )}
               </Form>
             )}
           </Segment>
@@ -148,8 +150,9 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
                 <List hover={true}>
                   {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
                 </List>
-                {this.state.newCollaboratorFilter &&
-                  this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
+                {this.state.newCollaboratorFilter && this.state.filteredNewCollaborators.length === 0 && (
+                  <p className="info">No users to show.</p>
+                )}
               </Form>
             )}
           </Segment>
