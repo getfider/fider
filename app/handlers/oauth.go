@@ -8,7 +8,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
@@ -25,11 +24,9 @@ func OAuthEcho() web.HandlerFunc {
 			return c.Redirect("/")
 		}
 
-		originIdentifier := c.QueryParam("identifier")
-		currentIdentifier := getOAuthIdentifier(c)
-
-		if originIdentifier != currentIdentifier {
-			c.Logger().Warn("OAuth identifier doesn't match. Aborting sign in process.")
+		identifier := c.QueryParam("identifier")
+		if identifier == "" || identifier != c.SessionID() {
+			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
@@ -69,11 +66,9 @@ func OAuthToken() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
-		originIdentifier := c.QueryParam("identifier")
-		currentIdentifier := getOAuthIdentifier(c)
-
-		if originIdentifier != currentIdentifier {
-			c.Logger().Warn("OAuth identifier doesn't match. Aborting sign in process.")
+		identifier := c.QueryParam("identifier")
+		if identifier == "" || identifier != c.SessionID() {
+			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect(redirectURL.String())
 		}
 
@@ -216,15 +211,10 @@ func SignInByOAuth() web.HandlerFunc {
 			return c.Redirect(redirect)
 		}
 
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, redirect, getOAuthIdentifier(c))
+		authURL, err := c.Services().OAuth.GetAuthURL(provider, redirect, c.SessionID())
 		if err != nil {
 			return c.Failure(err)
 		}
 		return c.Redirect(authURL)
 	}
-}
-
-func getOAuthIdentifier(c web.Context) string {
-	identifier := fmt.Sprintf("%s-%s", c.Request.ClientIP, c.Request.GetHeader("User-Agent"))
-	return crypto.SHA512(identifier)
 }
