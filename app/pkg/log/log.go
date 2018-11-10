@@ -29,6 +29,8 @@ type Logger interface {
 }
 
 const (
+	// PropertyKeySessionID is the session id of current logger
+	PropertyKeySessionID = "SessionID"
 	// PropertyKeyContextID is the context id of current logger
 	PropertyKeyContextID = "ContextID"
 	// PropertyKeyUserID is the user id of current logger

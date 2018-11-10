@@ -167,36 +167,20 @@ func (e *Engine) Stop() error {
 
 //NewContext creates and return a new context
 func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
-	request := WrapRequest(req)
-
-	cookie, err := request.Cookie(CookieSessionName)
-	if err != nil {
-		cookie = &http.Cookie{
-			Name:     CookieSessionName,
-			Value:    rand.String(48),
-			Domain:   env.MultiTenantDomain(),
-			Path:     "/",
-			HttpOnly: true,
-			Expires:  time.Now().Add(365 * 24 * time.Hour),
-			Secure:   request.IsSecure,
-		}
-		http.SetCookie(res, cookie)
-	}
-
 	contextID := rand.String(32)
+	request := WrapRequest(req)
 	ctxLogger := e.logger.New()
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
 	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
 
 	return Context{
-		id:        contextID,
-		sessionID: cookie.Value,
-		Response:  res,
-		Request:   request,
-		engine:    e,
-		logger:    ctxLogger,
-		params:    params,
-		worker:    e.worker,
+		id:       contextID,
+		Response: res,
+		Request:  request,
+		engine:   e,
+		logger:   ctxLogger,
+		params:   params,
+		worker:   e.worker,
 	}
 }
 

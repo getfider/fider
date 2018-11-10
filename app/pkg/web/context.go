@@ -89,6 +89,12 @@ func (ctx *Context) SessionID() string {
 	return ctx.sessionID
 }
 
+//SetSessionID sets the session ID on current context
+func (ctx *Context) SetSessionID(id string) {
+	ctx.sessionID = id
+	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
+}
+
 //ContextID returns the unique id for this context
 func (ctx *Context) ContextID() string {
 	return ctx.id
@@ -346,15 +352,17 @@ func (ctx *Context) Services() *app.Services {
 }
 
 //AddCookie adds a cookie
-func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
+	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
 		Secure:   ctx.Request.IsSecure,
-	})
+	}
+	http.SetCookie(ctx.Response, cookie)
+	return cookie
 }
 
 //RemoveCookie removes a cookie

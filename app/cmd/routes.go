@@ -27,10 +27,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	r.Get("/-/health", handlers.Health())
-	r.Get("/robots.txt", handlers.RobotsTXT())
-	r.Post("/_api/log-error", handlers.LogError())
-
 	assets := r.Group()
 	{
 		assets.Use(middlewares.CORS())
@@ -38,6 +34,12 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/assets/*filepath", "dist")
 	}
+
+	r.Use(middlewares.Session())
+
+	r.Get("/-/health", handlers.Health())
+	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
 
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
