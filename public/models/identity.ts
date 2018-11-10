@@ -37,6 +37,7 @@ export interface CurrentUser {
   name: string;
   email: string;
   role: UserRole;
+  status: UserStatus;
   isAdministrator: boolean;
   isCollaborator: boolean;
 }
