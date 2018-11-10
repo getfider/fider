@@ -41,7 +41,7 @@ func (w *Worker) WithBaseURL(baseURL string) *Worker {
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	context := worker.NewContext("0", task.Name, nil, noop.NewLogger())
+	context := worker.NewContext("0", task, nil, noop.NewLogger())
 	context.SetServices(w.services)
 	context.SetUser(w.user)
 	context.SetTenant(w.tenant)
