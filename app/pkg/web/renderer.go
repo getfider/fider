@@ -84,7 +84,6 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		r.assets["main.js"] = r.getBundle("/dist/js", "main", "js")
 		r.assets["vendor.js"] = r.getBundle("/dist/js", "vendor", "js")
 		r.assets["main.css"] = r.getBundle("/dist/css", "main", "css")
-		r.assets["icons.woff2"] = r.getBundle("/dist/fonts", "icons", "woff2")
 	}
 
 	tmpl, ok := r.templates[name]
