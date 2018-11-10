@@ -128,8 +128,8 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
     const view = this.state.isDeleting
       ? this.renderDeleteMode()
       : this.state.isEditing
-        ? this.renderEditMode()
-        : this.renderViewMode();
+      ? this.renderEditMode()
+      : this.renderViewMode();
 
     return <ListItem>{view}</ListItem>;
   }
