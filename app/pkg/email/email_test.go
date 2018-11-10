@@ -14,7 +14,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	ctx := worker.NewContext("ID-1", "TaskName", nil, noop.NewLogger())
+	ctx := worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, noop.NewLogger())
 	message := email.RenderMessage(ctx, "echo_test", email.Params{
 		"name": "Fider",
 	})

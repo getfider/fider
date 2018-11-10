@@ -24,7 +24,7 @@ var sender = mailgun.NewSender(logger, client, "mydomain.com", "mys3cr3tk3y")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
-var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
+var ctx = worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, logger)
 
 func init() {
 	ctx.SetTenant(tenant)
