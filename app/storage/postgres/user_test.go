@@ -355,3 +355,29 @@ func TestUserStorage_APIKey(t *testing.T) {
 	Expect(user).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }
+
+func TestUserStorage_BlockUser(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	userID := 1
+
+	user, err := users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserActive)
+
+	err = users.Block(userID)
+	Expect(err).IsNil()
+
+	user, err = users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserBlocked)
+
+	err = users.Unblock(userID)
+	Expect(err).IsNil()
+
+	user, err = users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserActive)
+}
