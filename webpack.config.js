@@ -62,14 +62,6 @@ module.exports = {
         options: {
           transpileOnly: true
         }
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
-        use: "file-loader?name=fonts/[name].[hash].[ext]"
-      },
-      {
-        test: /\.(png|gif|jpg|jpeg)$/,
-        use: "file-loader?name=images/[name].[hash].[ext]"
       }
     ]
   },

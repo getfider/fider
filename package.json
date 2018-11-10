@@ -30,7 +30,6 @@
     "dotenv": "6.1.0",
     "enzyme": "3.7.0",
     "enzyme-adapter-react-16": "1.6.0",
-    "file-loader": "2.0.0",
     "fork-ts-checker-webpack-plugin": "0.4.14",
     "jest": "23.6.0",
     "mini-css-extract-plugin": "0.4.4",
