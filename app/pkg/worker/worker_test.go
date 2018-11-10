@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/pkg/log/noop"
+	"github.com/getfider/fider/app/pkg/rand"
 
 	"github.com/getfider/fider/app/pkg/worker"
 
@@ -14,7 +15,8 @@ import (
 )
 
 var dummyTask = worker.Task{
-	Name: "Do Something",
+	OriginSessionID: rand.String(32),
+	Name:            "Do Something",
 	Job: func(c *worker.Context) error {
 		return nil
 	},
