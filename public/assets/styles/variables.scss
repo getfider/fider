@@ -53,6 +53,11 @@ $xl-width: 1200px;
       @content; 
     }
   }
+  @else if $media == "<=md" {
+    @media only screen and (max-width: #{$lg-width - 0.1px}) { 
+      @content; 
+    }
+  }
   @else if $media == "md" {
     @media only screen and (min-width: #{$md-width}) and (max-width: #{$lg-width - 0.1px}) { 
       @content; 
