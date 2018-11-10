@@ -47,6 +47,9 @@ var (
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
+// CookieSessionName is the name of the cookie that holds the session ID
+const CookieSessionName = "user_session_id"
+
 // CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
 
@@ -65,19 +68,25 @@ var (
 
 //Context shared between http pipeline
 type Context struct {
-	id       string
-	Response http.ResponseWriter
-	Request  Request
-	engine   *Engine
-	logger   log.Logger
-	params   StringMap
-	store    Map
-	worker   worker.Worker
+	id        string
+	sessionID string
+	Response  http.ResponseWriter
+	Request   Request
+	engine    *Engine
+	logger    log.Logger
+	params    StringMap
+	store     Map
+	worker    worker.Worker
 }
 
 //Engine returns main HTTP engine
 func (ctx *Context) Engine() *Engine {
 	return ctx.engine
+}
+
+//SessionID returns the current session ID
+func (ctx *Context) SessionID() string {
+	return ctx.sessionID
 }
 
 //ContextID returns the unique id for this context
