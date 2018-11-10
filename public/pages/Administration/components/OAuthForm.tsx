@@ -282,7 +282,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserNamePath}
             >
               <p className="info">
-                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>
+                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>{" "}
                 recommended. For the example below, the path would be <strong>profile.name</strong>.
               </p>
             </Input>

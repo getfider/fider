@@ -94,11 +94,11 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
 
   private renderViewMode() {
     const buttons = Fider.session.user.isAdministrator && [
-      <Button key={0} onClick={this.startDelete} className="right">
+      <Button size="mini" key={0} onClick={this.startDelete} className="right">
         <FaTimes />
         Delete
       </Button>,
-      <Button key={1} onClick={this.startEdit} className="right">
+      <Button size="mini" key={1} onClick={this.startEdit} className="right">
         <FaEdit />
         Edit
       </Button>

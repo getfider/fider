@@ -90,12 +90,12 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 {o.isCustomProvider && (
                   <>
                     {Fider.session.user.isAdministrator && (
-                      <Button onClick={this.edit.bind(this, o.provider)} className="right">
+                      <Button onClick={this.edit.bind(this, o.provider)} size="mini" className="right">
                         <FaEdit />
                         Edit
                       </Button>
                     )}
-                    <Button onClick={this.startTest.bind(this, o.provider)} className="right">
+                    <Button onClick={this.startTest.bind(this, o.provider)} size="mini" className="right">
                       <FaPlay />
                       Test
                     </Button>

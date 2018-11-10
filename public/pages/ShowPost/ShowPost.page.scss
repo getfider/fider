@@ -44,8 +44,12 @@
   }
 
   .c-tag-list {
-    .icon.check {
-      color: $green;
+    .m-selectable {
+      .icon {
+        height: 12px;
+        margin-right: 2px;
+        color: $green;
+      }
     }
     span {
       margin-left: 5px;

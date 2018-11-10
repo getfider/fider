@@ -139,6 +139,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Buttons</h1>
         <List>
           <ListItem>
+            <Button size="large">
+              <FaRegLightbulb /> Large Icon
+            </Button>
             <Button size="large">Large Default</Button>
             <Button color="positive" size="large">
               Large Positive
@@ -152,6 +155,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="normal">
+              <FaRegLightbulb /> Normal Icon
+            </Button>
             <Button size="normal">Normal Default</Button>
             <Button color="positive" size="normal">
               Normal Positive
@@ -165,6 +171,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="small">
+              <FaRegLightbulb /> Small Icon
+            </Button>
             <Button size="small">Small Default</Button>
             <Button color="positive" size="small">
               Small Positive
@@ -178,6 +187,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="tiny">
+              <FaRegLightbulb /> Tiny Icon
+            </Button>
             <Button size="tiny">Tiny Default</Button>
             <Button color="positive" size="tiny">
               Tiny Positive
@@ -191,6 +203,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="mini">
+              <FaRegLightbulb /> Mini Icon
+            </Button>
             <Button size="mini">Mini Default</Button>
             <Button color="positive" size="mini">
               Mini Positive
@@ -204,6 +219,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button href="#">
+              <FaRegLightbulb /> Link
+            </Button>
             <Button href="#">Link</Button>
             <Button href="#" color="positive">
               Link
@@ -214,6 +232,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button disabled={true}>
+              <FaRegLightbulb /> Default
+            </Button>
             <Button disabled={true}>Default</Button>
             <Button disabled={true} color="positive">
               Positive

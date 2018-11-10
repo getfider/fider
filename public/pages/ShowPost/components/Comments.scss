@@ -40,19 +40,20 @@
           width: 100px;
         }
 
-        .ellipsis.icon {
+        .icon {
           color: $gray-dark;
+          font-size: 12px;
         }
 
         &:hover {
-          .ellipsis.icon {
+          .icon {
             color: $gray-darkest;
           }
         }
 
         &.is-open {
           display: inline-block !important;
-          .ellipsis.icon {
+          .icon {
             color: $gray-darkest;
           }
         }

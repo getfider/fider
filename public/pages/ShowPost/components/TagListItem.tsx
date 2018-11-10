@@ -1,6 +1,7 @@
 import React from "react";
 import { Tag } from "@fider/models";
 import { ListItem, ShowTag } from "@fider/components";
+import { FaCheck } from "react-icons/fa";
 
 interface TagListItemProps {
   tag: Tag;
@@ -16,7 +17,7 @@ export class TagListItem extends React.Component<TagListItemProps, {}> {
   public render() {
     return (
       <ListItem onClick={this.onClick}>
-        <i className={`icon ${this.props.assigned && "check"}`} />
+        {this.props.assigned ? <FaCheck /> : <svg className="icon" />}
         <ShowTag tag={this.props.tag} size="mini" circular={true} />
         <span>{this.props.tag.name}</span>
       </ListItem>

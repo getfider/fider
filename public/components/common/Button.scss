@@ -15,8 +15,7 @@
   font-weight: 600;
 
   .icon {
-    vertical-align: bottom;
-    margin-right: 2px;
+    margin-top: -3px;
   }
 
   &.m-cancel {
@@ -41,9 +40,11 @@
   &.m-positive {
     color: $white;
     background-color: $green;
+    border: 1px solid $green;
 
     &:hover {
       background-color: $green-darker;
+      border-color: $green-darker;
     }
   }
 
