@@ -40,7 +40,7 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable" ]
+    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable", "react-icons/lib" ]
   },
   output: {
     path: __dirname + "/dist",
@@ -57,7 +57,7 @@ module.exports = {
   performance: {
     maxEntrypointSize: 389120 * maxSizeFactor, // 380 KiB. Should ideally be ~240 KiB
     maxAssetSize: 256000 * maxSizeFactor, // 250 KiB
-    hints: 'error'
+    hints: "error"
   },
   module: {
     rules: [
@@ -85,7 +85,7 @@ module.exports = {
         common: {
           chunks: 'all',
           name: 'common',
-          test: /[\\/]public[\\/](components|services|assets)[\\/]/
+          test: /[\\/]public[\\/](components|services|assets|models)[\\/]/
         },
         vendor: {
           chunks: 'all',

@@ -81,11 +81,6 @@ func (r *Renderer) loadAssets(ctx *Context) {
 		} `json:"entrypoints"`
 	}
 
-	r.assets = &clientAssets{
-		CSS: make([]string, 0),
-		JS:  make([]string, 0),
-	}
-
 	jsonFile, err := os.Open(env.Path("/dist/assets.json"))
 	if err != nil {
 		panic(errors.Wrap(err, "failed to open file: assets.json"))
@@ -97,6 +92,11 @@ func (r *Renderer) loadAssets(ctx *Context) {
 	err = json.Unmarshal([]byte(jsonBytes), file)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse file: assets.json"))
+	}
+
+	r.assets = &clientAssets{
+		CSS: make([]string, 0),
+		JS:  make([]string, 0),
 	}
 
 	for _, asset := range file.Entrypoints.Main.Assets {
