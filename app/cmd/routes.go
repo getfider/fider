@@ -62,7 +62,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	tenantAssets := r.Group()
 	{
-		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
+		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
