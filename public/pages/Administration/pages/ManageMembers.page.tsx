@@ -52,7 +52,8 @@ const UserListItem = (props: UserListItemProps) => {
           inline={true}
           highlightSelected={false}
           items={[
-            !blocked && (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
+            !blocked &&
+              (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
             !blocked && (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
             !blocked && (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
             isVisitor && !blocked && { label: "Block User", value: "block" },
@@ -149,21 +150,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
     return -1;
   };
 
-  private chunks = () => {
-    const [col1, col2] = [[], []] as User[][];
-    this.state.visibleUsers.forEach((user, index) => {
-      if (index % 2 === 0) {
-        col1.push(user);
-      } else {
-        col2.push(user);
-      }
-    });
-    return [col1, col2];
-  };
-
   public content() {
-    const [col1, col2] = this.chunks();
-
     return (
       <>
         <Input
@@ -175,23 +162,12 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
           onChange={this.handleSearchFilterChanged}
         />
         <Segment>
-          {col1.length === 0 && <span>No users found.</span>}
-          <div className="row">
-            <div className="col-lg-6 col-left">
-              <List divided={true}>
-                {col1.map(user => (
-                  <UserListItem key={user.id} user={user} onAction={this.handleAction} />
-                ))}
-              </List>
-            </div>
-            <div className="col-lg-6 col-right">
-              <List divided={true}>
-                {col2.map(user => (
-                  <UserListItem key={user.id} user={user} onAction={this.handleAction} />
-                ))}
-              </List>
-            </div>
-          </div>
+          {this.state.visibleUsers.length === 0 && <span>No users found.</span>}
+          <List divided={true}>
+            {this.state.visibleUsers.map(user => (
+              <UserListItem key={user.id} user={user} onAction={this.handleAction} />
+            ))}
+          </List>
         </Segment>
         <p className="info">
           {!this.state.query && (
