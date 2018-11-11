@@ -1,10 +1,11 @@
 import "./ManageMembers.page.scss";
 
 import React from "react";
-import { Segment, List, Input, ListItem, Gravatar, UserName, DropDown } from "@fider/components/common";
+import { Segment, List, Input, ListItem, Gravatar, UserName, DropDown, DropDownItem } from "@fider/components/common";
 import { User, UserRole, UserStatus } from "@fider/models";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa";
+import { actions, Fider } from "@fider/services";
 
 interface ManageMembersPageState {
   query: string;
@@ -16,7 +17,12 @@ interface ManageMembersPageProps {
   users: User[];
 }
 
-const UserListItem = (props: { user: User }) => {
+interface UserListItemProps {
+  user: User;
+  onAction: (actionName: string, user: User) => Promise<void>;
+}
+
+const UserListItem = (props: UserListItemProps) => {
   const admin = props.user.role === UserRole.Administrator && <span className="staff">administrator</span>;
   const collaborator = props.user.role === UserRole.Collaborator && <span className="staff">collaborator</span>;
   const blocked = props.user.status === UserStatus.Blocked && <span className="blocked">blocked</span>;
@@ -24,6 +30,10 @@ const UserListItem = (props: { user: User }) => {
 
   const renderEllipsis = () => {
     return <FaEllipsisH />;
+  };
+
+  const actionSelected = (item: DropDownItem) => {
+    props.onAction(item.value, props.user);
   };
 
   return (
@@ -35,19 +45,23 @@ const UserListItem = (props: { user: User }) => {
           {admin} {collaborator} {blocked}
         </span>
       </div>
-      <DropDown
-        className="l-user-actions"
-        direction="left"
-        highlightSelected={false}
-        items={[
-          (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
-          (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
-          (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
-          !blocked && { label: "Block User", value: "block" },
-          !!blocked && { label: "Unblock User", value: "unblock" }
-        ]}
-        renderText={renderEllipsis}
-      />
+      {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
+        <DropDown
+          className="l-user-actions"
+          direction="left"
+          inline={true}
+          highlightSelected={false}
+          items={[
+            !blocked && (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
+            !blocked && (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
+            !blocked && (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
+            isVisitor && !blocked && { label: "Block User", value: "block" },
+            isVisitor && !!blocked && { label: "Unblock User", value: "unblock" }
+          ]}
+          renderText={renderEllipsis}
+          onChange={actionSelected}
+        />
+      )}
     </ListItem>
   );
 };
@@ -61,17 +75,19 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
 
   constructor(props: ManageMembersPageProps) {
     super(props);
+
+    const users = this.props.users.sort(this.sortByStaff);
     this.state = {
       query: "",
-      users: this.props.users,
-      visibleUsers: this.props.users.slice(0, 10)
+      users,
+      visibleUsers: users.slice(0, 10)
     };
   }
 
   private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
     event.preventDefault();
     this.setState({
-      visibleUsers: this.state.users.slice(0, this.state.users.length + 10)
+      visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10)
     });
   };
 
@@ -80,8 +96,57 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
   };
 
   private handleSearchFilterChanged = (query: string) => {
-    const users = this.props.users.filter(x => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+    const users = this.props.users
+      .filter(x => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0)
+      .sort(this.sortByStaff);
     this.setState({ query, users, visibleUsers: users.slice(0, 10) });
+  };
+
+  private handleAction = async (actionName: string, user: User) => {
+    const changeRole = async (role: UserRole) => {
+      const result = await actions.changeUserRole(user.id, role);
+      if (result.ok) {
+        user.role = role;
+      }
+      this.handleSearchFilterChanged(this.state.query);
+    };
+
+    const changeStatus = async (status: UserStatus) => {
+      const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser;
+      const result = await action(user.id);
+      if (result.ok) {
+        user.status = status;
+      }
+      this.forceUpdate();
+    };
+
+    if (actionName === "to-collaborator") {
+      await changeRole(UserRole.Collaborator);
+    } else if (actionName === "to-visitor") {
+      await changeRole(UserRole.Visitor);
+    } else if (actionName === "to-administrator") {
+      await changeRole(UserRole.Administrator);
+    } else if (actionName === "block") {
+      await changeStatus(UserStatus.Blocked);
+    } else if (actionName === "unblock") {
+      await changeStatus(UserStatus.Active);
+    }
+  };
+
+  private sortByStaff = (left: User, right: User) => {
+    if (right.role === left.role) {
+      if (left.name < right.name) {
+        return -1;
+      } else if (left.name > right.name) {
+        return 1;
+      }
+      return 0;
+    }
+
+    if (right.role !== UserRole.Visitor) {
+      return 1;
+    }
+    return -1;
   };
 
   private chunks = () => {
@@ -110,18 +175,19 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
           onChange={this.handleSearchFilterChanged}
         />
         <Segment>
+          {col1.length === 0 && <span>No users found.</span>}
           <div className="row">
             <div className="col-lg-6 col-left">
               <List divided={true}>
                 {col1.map(user => (
-                  <UserListItem key={user.id} user={user} />
+                  <UserListItem key={user.id} user={user} onAction={this.handleAction} />
                 ))}
               </List>
             </div>
             <div className="col-lg-6 col-right">
               <List divided={true}>
                 {col2.map(user => (
-                  <UserListItem key={user.id} user={user} />
+                  <UserListItem key={user.id} user={user} onAction={this.handleAction} />
                 ))}
               </List>
             </div>
@@ -144,6 +210,18 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
             </a>
           )}
         </p>
+        <ul className="l-legend info">
+          <li>
+            <strong>&middot; Administrators</strong> have full access to edit and manage content, permissions and
+            settings.
+          </li>
+          <li>
+            <strong>&middot; Collaborators</strong> can edit and manage content, but not permissions and settings.
+          </li>
+          <li>
+            <strong>&middot; Blocked</strong> users are unable to log into this site.
+          </li>
+        </ul>
       </>
     );
   }
