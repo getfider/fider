@@ -1,7 +1,7 @@
 import React from "react";
 import { Tag } from "@fider/models";
 import { ListItem, ShowTag, Button } from "@fider/components";
-import { TagFormState, TagForm } from "./";
+import { TagFormState, TagForm } from "./TagForm";
 import { actions, Failure, Fider } from "@fider/services";
 import { FaTimes, FaEdit } from "react-icons/fa";
 

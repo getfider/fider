@@ -1,11 +1,12 @@
 import React from "react";
 
-import { ListPosts, TagsFilter, PostFilter } from "../";
-
 import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
+import { PostFilter } from "./PostFilter";
+import { ListPosts } from "./ListPosts";
+import { TagsFilter } from "./TagsFilter";
 
 interface PostsContainerProps {
   user?: CurrentUser;
@@ -78,10 +79,6 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
   };
 
   private handleSearchFilterChanged = (query: string) => {
-    this.changeFilterCriteria({ query }, true);
-  };
-
-  private handleSearchClick = (query: string) => {
     this.changeFilterCriteria({ query }, true);
   };
 

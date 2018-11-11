@@ -15,8 +15,6 @@ interface ModerationPanelState {
 }
 
 export class ModerationPanel extends React.Component<ModerationPanelProps, ModerationPanelState> {
-  private form!: Form;
-
   constructor(props: ModerationPanelProps) {
     super(props);
     this.state = {

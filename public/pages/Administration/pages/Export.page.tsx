@@ -1,8 +1,8 @@
 import React from "react";
 
 import { Button, Form, Field } from "@fider/components";
-import { AdminBasePage } from "../components";
 import { FaRegFileExcel } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 export class ExportPage extends AdminBasePage<{}, {}> {
   public id = "p-admin-export";

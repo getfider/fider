@@ -3,10 +3,11 @@ import "./Home.page.scss";
 import React from "react";
 import { Post, Tag, PostStatus } from "@fider/models";
 import { MultiLineText } from "@fider/components";
-import { PostInput, PostsContainer } from "./";
 import { Fider } from "@fider/services";
 import { SimilarPosts } from "./components/SimilarPosts";
 import { FaRegLightbulb } from "react-icons/fa";
+import { PostInput } from "./components/PostInput";
+import { PostsContainer } from "./components/PostsContainer";
 
 export interface HomePageProps {
   posts: Post[];

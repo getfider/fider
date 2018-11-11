@@ -17,7 +17,7 @@ describe("<ErrorBoundary />", () => {
 
   test("when no error caught", () => {
     const errorSpy = jest.fn();
-    const wrapper = shallow(
+    shallow(
       <ErrorBoundary onError={errorSpy}>
         <div id="no-error">No Error!</div>
       </ErrorBoundary>

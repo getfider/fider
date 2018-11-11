@@ -2,7 +2,7 @@ const path = require("path");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const publicFolder = path.resolve(__dirname, "public");
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -11,7 +11,10 @@ const plugins = [
     filename: "css/[name].[contenthash].css",
     chunkFilename: "css/[name].[contenthash].css"
   }),
-  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
+  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
+  new BundleAnalyzerPlugin({
+    analyzerMode: "static"
+  })
 ];
 
 if (!isProduction) {

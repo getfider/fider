@@ -2,10 +2,10 @@ import React from "react";
 
 import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
 import { Post, PostStatus } from "@fider/models";
-import { PostSearch } from "../";
 
 import { actions, Failure } from "@fider/services";
 import { FaBullhorn } from "react-icons/fa";
+import { PostSearch } from "./PostSearch";
 
 interface ResponseFormProps {
   post: Post;

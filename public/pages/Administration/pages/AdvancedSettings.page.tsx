@@ -2,10 +2,10 @@ import "./AdvancedSettings.page.scss";
 
 import React from "react";
 
-import { AdminBasePage } from "../components";
 import { TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaStar } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 interface AdvancedSettingsPageProps {
   customCSS: string;

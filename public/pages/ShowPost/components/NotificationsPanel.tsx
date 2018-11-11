@@ -2,7 +2,7 @@ import React from "react";
 import { Post } from "@fider/models";
 import { Button, List, ListItem } from "@fider/components";
 import { actions, Fider } from "@fider/services";
-import { FaVolumeOff, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 
 interface NotificationsPanelProps {
   post: Post;

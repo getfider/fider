@@ -2,7 +2,7 @@ import React from "react";
 
 import { Button, ButtonClickEvent, TextArea, Form, Input, Field } from "@fider/components";
 import { actions, notify, Failure, Fider } from "@fider/services";
-import { AdminBasePage } from "../components";
+import { AdminBasePage } from "../components/AdminBasePage";
 import { FaEnvelope } from "react-icons/fa";
 
 interface InvitationsPageState {

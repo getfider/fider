@@ -13,8 +13,8 @@ import {
   TenantLogoURL
 } from "@fider/components/common";
 import { actions, Failure, fileToBase64, Fider } from "@fider/services";
-import { AdminBasePage } from "../components";
 import { FaCogs } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 interface GeneralSettingsPageProps {
   publicIP: string;

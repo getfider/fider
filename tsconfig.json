@@ -23,6 +23,7 @@
     "baseUrl": "./public",
     "importHelpers": true,
     "noEmitHelpers": true,
+    "noUnusedLocals": true,
     "paths": {
       "@fider/*": [
         "*"

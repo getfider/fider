@@ -2,7 +2,7 @@ import "./AdminBasePage.scss";
 
 import React from "react";
 import { Heading } from "@fider/components";
-import { SideMenu, SideMenuToggler } from "./";
+import { SideMenu, SideMenuToggler } from "./SideMenu";
 import { IconType } from "react-icons";
 
 export abstract class AdminBasePage<P, S> extends React.Component<P, S> {

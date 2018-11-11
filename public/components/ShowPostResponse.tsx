@@ -21,7 +21,6 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
   if (!original) {
     return null;
   }
-  const status = PostStatus.Get(original.status);
 
   return (
     <div className="content">
