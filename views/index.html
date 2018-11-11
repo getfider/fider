@@ -1,10 +1,11 @@
 // Print all variables that does not start with _ (95)
 // Compressed to avoid whitespace being printed
 {{define "server-data"}} 
-    {{ . }}
+  {{ . }}
 {{ end }}
 {{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}
 {{define "end-of-body"}}
-<script src="{{ .__jsBundle }}" crossorigin="anonymous"></script>
-<script src="{{ .__vendorBundle }}" crossorigin="anonymous"></script>
+  {{range .__assets.JS}}
+  <script src="{{ . }}" crossorigin="anonymous"></script>
+  {{end}}
 {{end}}

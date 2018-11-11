@@ -22,7 +22,7 @@ const plugins = [
       children: false,
       chunks: false,
       entrypoints: true,
-      chunkGroups: true,
+      chunkGroups: false,
       modules: false
     }
   })
@@ -82,6 +82,11 @@ module.exports = {
   optimization: {
     splitChunks: {
       cacheGroups: {
+        common: {
+          chunks: 'all',
+          name: 'common',
+          test: /[\\/]public[\\/](components|services|assets)[\\/]/
+        },
         vendor: {
           chunks: 'all',
           name: 'vendor',
