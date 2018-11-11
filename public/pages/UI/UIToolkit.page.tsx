@@ -1,5 +1,5 @@
 import React from "react";
-import { PostStatus } from "@fider/models";
+import { PostStatus, UserStatus } from "@fider/models";
 import {
   Heading,
   Button,
@@ -30,13 +30,15 @@ import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
-  role: UserRole.Administrator
+  role: UserRole.Administrator,
+  status: UserStatus.Active
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
-  role: UserRole.Visitor
+  role: UserRole.Visitor,
+  status: UserStatus.Active
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
