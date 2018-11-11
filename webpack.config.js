@@ -22,7 +22,7 @@ const plugins = [
       children: false,
       chunks: false,
       entrypoints: true,
-      chunkGroups: true,
+      chunkGroups: false,
       modules: false
     }
   })
@@ -40,7 +40,19 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable" ]
+    vendor: [ 
+      "react", 
+      "react-dom", 
+      "tslib", 
+      "markdown-it",
+      "react-textarea-autosize", 
+      "react-toastify", 
+      "react-loadable", 
+      "react-icons/lib" 
+    ],
+    vendorCSS: [ 
+      "react-toastify/dist/ReactToastify.css" 
+    ],
   },
   output: {
     path: __dirname + "/dist",
@@ -57,7 +69,7 @@ module.exports = {
   performance: {
     maxEntrypointSize: 389120 * maxSizeFactor, // 380 KiB. Should ideally be ~240 KiB
     maxAssetSize: 256000 * maxSizeFactor, // 250 KiB
-    hints: 'error'
+    hints: "error"
   },
   module: {
     rules: [
@@ -82,6 +94,11 @@ module.exports = {
   optimization: {
     splitChunks: {
       cacheGroups: {
+        common: {
+          chunks: 'all',
+          name: 'common',
+          test: /[\\/]public[\\/](components|services|models)[\\/]/
+        },
         vendor: {
           chunks: 'all',
           name: 'vendor',
