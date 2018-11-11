@@ -69,9 +69,11 @@ func (r *Renderer) loadAssets(ctx *Context) {
 	r.Lock()
 	defer r.Unlock()
 
-	if r.assets != nil {
+	if r.assets != nil && env.IsProduction() {
 		return
 	}
+
+	ctx.logger.Debug("Loading client assets")
 
 	type assetsFile struct {
 		Entrypoints struct {

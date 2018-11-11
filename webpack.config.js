@@ -40,7 +40,19 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ "react", "react-dom", "tslib", "markdown-it", "react-textarea-autosize", "react-toastify", "react-loadable", "react-icons/lib" ]
+    vendor: [ 
+      "react", 
+      "react-dom", 
+      "tslib", 
+      "markdown-it",
+      "react-textarea-autosize", 
+      "react-toastify", 
+      "react-loadable", 
+      "react-icons/lib" 
+    ],
+    vendorCSS: [ 
+      "react-toastify/dist/ReactToastify.css" 
+    ],
   },
   output: {
     path: __dirname + "/dist",
@@ -85,7 +97,7 @@ module.exports = {
         common: {
           chunks: 'all',
           name: 'common',
-          test: /[\\/]public[\\/](components|services|assets|models)[\\/]/
+          test: /[\\/]public[\\/](components|services|models)[\\/]/
         },
         vendor: {
           chunks: 'all',
