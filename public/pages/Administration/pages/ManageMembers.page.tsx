@@ -48,7 +48,6 @@ const UserListItem = (props: UserListItemProps) => {
       {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
         <DropDown
           className="l-user-actions"
-          direction="left"
           inline={true}
           highlightSelected={false}
           items={[
@@ -93,7 +92,7 @@ export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, Man
   };
 
   private clearSearch = () => {
-    this.setState({ query: "" });
+    this.handleSearchFilterChanged("");
   };
 
   private handleSearchFilterChanged = (query: string) => {
