@@ -6,7 +6,6 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const publicFolder = path.resolve(__dirname, "public");
 
 const isProduction = process.env.NODE_ENV === "production";
-const isDebug = process.env.DEBUG === "1";
 
 const plugins = [
   new MiniCssExtractPlugin({ 
@@ -14,15 +13,20 @@ const plugins = [
     chunkFilename: "css/[name].[contenthash].css"
   }),
   new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
+  new BundleAnalyzerPlugin({
+    analyzerMode: "disabled", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
+    generateStatsFile: true,
+    statsFilename: "assets.json",
+    statsOptions: {
+      assets: false,
+      children: false,
+      chunks: false,
+      entrypoints: true,
+      chunkGroups: true,
+      modules: false
+    }
+  })
 ];
-
-if (isDebug) {
-  plugins.push(
-    new BundleAnalyzerPlugin({
-      analyzerMode: "static"
-    })
-  );
-}
 
 if (!isProduction) {
   const CleanObsoleteChunks = require("webpack-clean-obsolete-chunks");
@@ -88,7 +92,9 @@ module.exports = {
   },
   plugins,
   stats: {
+    assets: true,
     children: false,
+    entrypoints: false,
     modules: false,
   }
 };
