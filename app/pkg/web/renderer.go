@@ -65,12 +65,12 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) loadAssets(ctx *Context) {
+func (r *Renderer) loadAssets(ctx *Context) error {
 	r.Lock()
 	defer r.Unlock()
 
 	if r.assets != nil && env.IsProduction() {
-		return
+		return nil
 	}
 
 	ctx.logger.Debug("Loading client assets")
@@ -85,7 +85,7 @@ func (r *Renderer) loadAssets(ctx *Context) {
 
 	jsonFile, err := os.Open(env.Path("/dist/assets.json"))
 	if err != nil {
-		panic(errors.Wrap(err, "failed to open file: assets.json"))
+		return errors.Wrap(err, "failed to open file: assets.json")
 	}
 	defer jsonFile.Close()
 
@@ -93,7 +93,7 @@ func (r *Renderer) loadAssets(ctx *Context) {
 	file := &assetsFile{}
 	err = json.Unmarshal([]byte(jsonBytes), file)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to parse file: assets.json"))
+		return errors.Wrap(err, "failed to parse file: assets.json")
 	}
 
 	r.assets = &clientAssets{
@@ -113,6 +113,8 @@ func (r *Renderer) loadAssets(ctx *Context) {
 			r.assets.JS = append(r.assets.JS, assetURL)
 		}
 	}
+
+	return nil
 }
 
 //Render a template based on parameters
@@ -120,7 +122,10 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
-		r.loadAssets(ctx)
+		err := r.loadAssets(ctx)
+		if err != nil && !env.IsTest() {
+			panic(err)
+		}
 	}
 
 	tmpl, ok := r.templates[name]
