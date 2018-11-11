@@ -4,7 +4,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const publicFolder = path.resolve(__dirname, "public");
+
 const isProduction = process.env.NODE_ENV === "production";
+const isDebug = process.env.DEBUG === "1";
 
 const plugins = [
   new MiniCssExtractPlugin({ 
@@ -12,10 +14,15 @@ const plugins = [
     chunkFilename: "css/[name].[contenthash].css"
   }),
   new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
-  new BundleAnalyzerPlugin({
-    analyzerMode: "static"
-  })
 ];
+
+if (isDebug) {
+  plugins.push(
+    new BundleAnalyzerPlugin({
+      analyzerMode: "static"
+    })
+  );
+}
 
 if (!isProduction) {
   const CleanObsoleteChunks = require("webpack-clean-obsolete-chunks");
