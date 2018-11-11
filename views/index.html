@@ -5,7 +5,9 @@
 {{ end }}
 {{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}
 {{define "end-of-body"}}
+  {{ if .__assets }}
   {{range .__assets.JS}}
   <script src="{{ . }}" crossorigin="anonymous"></script>
+  {{end}}
   {{end}}
 {{end}}
