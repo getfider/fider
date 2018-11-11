@@ -50,6 +50,15 @@
     "webpack-cli": "3.1.2"
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": {
+          "ignoreCodes": [
+            "TS6133"
+          ]
+        }
+      }
+    },
     "transform": {
       "^.+\\.(tsx|ts)?$": "ts-jest"
     },
