@@ -5,7 +5,6 @@ import React from "react";
 import { Comment, Post, Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
-import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
   VoteCounter,
   ShowPostResponse,
@@ -21,6 +20,11 @@ import {
   TextArea
 } from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
+import { ResponseForm } from "./components/ResponseForm";
+import { TagsPanel } from "./components/TagsPanel";
+import { NotificationsPanel } from "./components/NotificationsPanel";
+import { ModerationPanel } from "./components/ModerationPanel";
+import { DiscussionPanel } from "./components/DiscussionPanel";
 
 interface ShowPostPageProps {
   post: Post;

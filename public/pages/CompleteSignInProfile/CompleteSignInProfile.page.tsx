@@ -1,6 +1,7 @@
 import React from "react";
 
-import { HomePage, HomePageProps, SignInPage } from "../";
+import { HomePage, HomePageProps } from "../Home";
+import { SignInPage } from "../SignIn";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
 import { actions, Failure, querystring, Fider } from "@fider/services";
 

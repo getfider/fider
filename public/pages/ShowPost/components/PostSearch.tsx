@@ -45,8 +45,6 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     }, 200);
   };
 
-  private returnAll = (options: DropDownItem[], value: string) => options;
-
   public render() {
     const items = this.state.posts.map(p => {
       const status = PostStatus.Get(p.status);

@@ -2,7 +2,8 @@ import "./Comments.scss";
 
 import React from "react";
 import { CurrentUser, Comment, Post } from "@fider/models";
-import { ShowComment, CommentInput } from "../";
+import { ShowComment } from "./ShowComment";
+import { CommentInput } from "./CommentInput";
 
 interface DiscussionPanelProps {
   user?: CurrentUser;

@@ -1,5 +1,5 @@
 import { http, Result } from "@fider/services/http";
-import { Tenant, UserRole, OAuthConfig } from "@fider/models";
+import { UserRole, OAuthConfig } from "@fider/models";
 import { ImageUploadState } from "@fider/components";
 
 export interface CheckAvailabilityResponse {

@@ -3,11 +3,13 @@ import "./MySettings.page.scss";
 import React from "react";
 
 import { Modal, Form, Button, Gravatar, Heading, Field, Input } from "@fider/components";
-import { DangerZone, APIKeyForm, NotificationSettings } from "./";
 
 import { UserSettings } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaRegAddressCard } from "react-icons/fa";
+import { NotificationSettings } from "./components/NotificationSettings";
+import { APIKeyForm } from "./components/APIKeyForm";
+import { DangerZone } from "./components/DangerZone";
 
 interface MySettingsPageState {
   showModal: boolean;

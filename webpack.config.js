@@ -2,8 +2,9 @@ const path = require("path");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const publicFolder = path.resolve(__dirname, "public");
+
 const isProduction = process.env.NODE_ENV === "production";
 
 const plugins = [
@@ -11,7 +12,20 @@ const plugins = [
     filename: "css/[name].[contenthash].css",
     chunkFilename: "css/[name].[contenthash].css"
   }),
-  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
+  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
+  new BundleAnalyzerPlugin({
+    analyzerMode: "disabled", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
+    generateStatsFile: true,
+    statsFilename: "assets.json",
+    statsOptions: {
+      assets: false,
+      children: false,
+      chunks: false,
+      entrypoints: true,
+      chunkGroups: true,
+      modules: false
+    }
+  })
 ];
 
 if (!isProduction) {
@@ -78,7 +92,9 @@ module.exports = {
   },
   plugins,
   stats: {
+    assets: true,
     children: false,
+    entrypoints: false,
     modules: false,
   }
 };

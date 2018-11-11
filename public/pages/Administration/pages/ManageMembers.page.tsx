@@ -4,8 +4,9 @@ import React from "react";
 import { Segment, List, Input, Form } from "@fider/components/common";
 import { User, UserRole } from "@fider/models";
 import { Fider } from "@fider/services";
-import { AdminBasePage, UserListItem } from "../components";
 import { FaUsers } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
+import { UserListItem } from "../components/UserListItem";
 
 interface ManageMembersPageState {
   administrators: User[];
