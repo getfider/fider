@@ -26,7 +26,6 @@ func TestRenderer_Basic(t *testing.T) {
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
 	renderer.Render(buf, "index.html", web.Props{}, ctx)
-	// ioutil.WriteFile(env.Path("/app/pkg/web/testdata/basic.html"), buf.Bytes(), 0777)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/basic.html", ctx)
 }
 
