@@ -40,7 +40,7 @@ type Renderer struct {
 	logger    log.Logger
 	settings  *models.SystemSettings
 	assets    *clientAssets
-	sync.RWMutex
+	mutex     sync.RWMutex
 }
 
 // NewRenderer creates a new Renderer
@@ -49,6 +49,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 		templates: make(map[string]*template.Template),
 		logger:    logger,
 		settings:  settings,
+		mutex:     sync.RWMutex{},
 	}
 }
 
@@ -66,8 +67,8 @@ func (r *Renderer) add(name string) *template.Template {
 }
 
 func (r *Renderer) loadAssets(ctx *Context) error {
-	r.Lock()
-	defer r.Unlock()
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 
 	if r.assets != nil && env.IsProduction() {
 		return nil
@@ -83,7 +84,13 @@ func (r *Renderer) loadAssets(ctx *Context) error {
 		} `json:"entrypoints"`
 	}
 
-	jsonFile, err := os.Open(env.Path("/dist/assets.json"))
+	assetsFilePath := "/dist/assets.json"
+	if env.IsTest() {
+		// Load a fake assets.json for Unit Testing
+		assetsFilePath = "/app/pkg/web/testdata/assets.json"
+	}
+
+	jsonFile, err := os.Open(env.Path(assetsFilePath))
 	if err != nil {
 		return errors.Wrap(err, "failed to open file: assets.json")
 	}
