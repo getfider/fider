@@ -101,7 +101,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"userName":   c.User().Name,
-			"content":    markdown.Parse(post.Description),
+			"content":    markdown.Simple(post.Description),
 			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
@@ -147,7 +147,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"title":       post.Title,
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
-			"content":     markdown.Parse(comment.Content),
+			"content":     markdown.Simple(comment.Content),
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
@@ -208,7 +208,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"title":       post.Title,
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
-			"content":     markdown.Parse(post.Response.Text),
+			"content":     markdown.Simple(post.Response.Text),
 			"status":      post.Status.Name(),
 			"duplicate":   duplicate,
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
@@ -255,7 +255,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 		params := email.Params{
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
-			"content":    markdown.Parse(post.Response.Text),
+			"content":    markdown.Simple(post.Response.Text),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
@@ -276,7 +276,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 			url := fmt.Sprintf("%s/invite/verify?k=%s", c.BaseURL(), invite.VerificationKey)
 			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
 			to[i] = email.NewRecipient("", invite.Email, email.Params{
-				"message": markdown.Parse(toMessage),
+				"message": markdown.Full(toMessage),
 			})
 		}
 		return c.Services().Emailer.BatchSend(c, "invite_email", email.Params{

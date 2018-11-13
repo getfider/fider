@@ -25,7 +25,7 @@ var templateFunctions = template.FuncMap{
 		return crypto.MD5(input)
 	},
 	"markdown": func(input string) template.HTML {
-		return markdown.Parse(input)
+		return markdown.Full(input)
 	},
 }
 
