@@ -131,6 +131,8 @@ func OAuthToken() web.HandlerFunc {
 // If the request is for a sign up, we exchange the OAuth code and get the user profile
 func OAuthCallback() web.HandlerFunc {
 	return func(c web.Context) error {
+		c.Response.Header().Add("X-Robots-Tag", "noindex")
+
 		provider := c.Param("provider")
 		state := c.QueryParam("state")
 		parts := strings.Split(state, "|")
@@ -197,6 +199,8 @@ func OAuthCallback() web.HandlerFunc {
 // A cookie is stored in user's browser with a random identifier that is later used to verify the authenticity of the request
 func SignInByOAuth() web.HandlerFunc {
 	return func(c web.Context) error {
+		c.Response.Header().Add("X-Robots-Tag", "noindex")
+
 		provider := c.Param("provider")
 		redirect := c.QueryParam("redirect")
 
