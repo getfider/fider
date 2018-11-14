@@ -44,7 +44,7 @@ module.exports = {
       "react", 
       "react-dom", 
       "tslib", 
-      "markdown-it",
+      "marked",
       "react-textarea-autosize", 
       "react-toastify", 
       "react-loadable", 
