@@ -46,12 +46,8 @@ module.exports = {
       "tslib", 
       "marked",
       "react-textarea-autosize", 
-      "react-toastify", 
       "react-loadable", 
       "react-icons/lib" 
-    ],
-    vendorCSS: [ 
-      "react-toastify/dist/ReactToastify.css" 
     ],
   },
   output: {
