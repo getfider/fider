@@ -331,7 +331,6 @@ func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models
 				Expect(cookie.Name).Equals(web.CookieAuthName)
 				ExpectFiderToken(cookie.Value, expected)
 				Expect(cookie.HttpOnly).IsTrue()
-				Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 				Expect(cookie.Path).Equals("/")
 				Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 				return

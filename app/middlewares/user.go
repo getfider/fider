@@ -89,7 +89,7 @@ func User() web.MiddlewareFunc {
 
 			if user != nil && c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
 
-				if user.Status == models.UserBanned {
+				if user.Status == models.UserBlocked {
 					c.RemoveCookie(web.CookieAuthName)
 					return c.Unauthorized()
 				}

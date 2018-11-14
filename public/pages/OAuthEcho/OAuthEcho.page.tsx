@@ -3,6 +3,7 @@ import "./OAuthEcho.page.scss";
 import React from "react";
 import { navigator } from "@fider/services";
 import { Segments, Segment } from "@fider/components";
+import { FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
 
 interface OAuthEchoPageProps {
   err: string | undefined;
@@ -14,9 +15,9 @@ interface OAuthEchoPageProps {
   };
 }
 
-const ok = <i className="check circle icon" />;
-const error = <i className="times circle icon" />;
-const warn = <i className="exclamation triangle icon" />;
+const ok = <FaCheckCircle className="check" />;
+const error = <FaTimesCircle className="error" />;
+const warn = <FaExclamationTriangle className="warn" />;
 
 export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
   public componentDidMount() {
@@ -63,24 +64,24 @@ export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
             <p>
               {nameOk ? ok : warn}
               <strong>Name:</strong> {this.props.profile && this.props.profile.name}
+              {!nameOk && (
+                <p className="info">
+                  Name is required, if not found we'll use <strong>Anonymous</strong> as the name of every new user.
+                </p>
+              )}
             </p>
-            {!nameOk && (
-              <p className="info">
-                Name is required, if not found we'll use <strong>Anonymous</strong> as the name of every new user.
-              </p>
-            )}
           </Segment>
           <Segment>
             <p>
               {emailOk ? ok : warn}
               <strong>Email:</strong> {this.props.profile && this.props.profile.email}
+              {!emailOk && (
+                <p className="info">
+                  Email is not required, but highly recommended. If invalid or not found, new users won't be able to
+                  receive notifications.
+                </p>
+              )}
             </p>
-            {!emailOk && (
-              <p className="info">
-                Email is not required, but highly recommended. If invalid or not found, new users won't be able to
-                receive notifications.
-              </p>
-            )}
           </Segment>
         </Segments>
       </>

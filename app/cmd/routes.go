@@ -27,10 +27,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	r.Get("/-/health", handlers.Health())
-	r.Get("/robots.txt", handlers.RobotsTXT())
-	r.Post("/_api/log-error", handlers.LogError())
-
 	assets := r.Group()
 	{
 		assets.Use(middlewares.CORS())
@@ -39,9 +35,17 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
+	r.Use(middlewares.Session())
+
+	r.Get("/-/health", handlers.Health())
+	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
+
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
+	r.Use(middlewares.User())
 
+	r.Get("/browser-not-supported", handlers.BrowserNotSupported())
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
@@ -58,7 +62,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	tenantAssets := r.Group()
 	{
-		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
+		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
@@ -81,9 +85,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
-
-	//Extract user from cookie and inject it into web.Context (if available)
-	r.Use(middlewares.User())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
@@ -145,6 +146,8 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
+		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
+		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 	}
 
 	api := r.Group()

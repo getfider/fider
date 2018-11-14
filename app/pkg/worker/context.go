@@ -23,14 +23,18 @@ type Context struct {
 }
 
 //NewContext creates a new context
-func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
+func NewContext(workerID string, task Task, db *dbx.Database, logger log.Logger) *Context {
 	ctxLogger := logger.New()
 	contextID := rand.String(32)
+
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	if task.OriginSessionID != "" {
+		ctxLogger.SetProperty(log.PropertyKeySessionID, task.OriginSessionID)
+	}
 
 	return &Context{
 		workerID: workerID,
-		taskName: taskName,
+		taskName: task.Name,
 		db:       db,
 		logger:   ctxLogger,
 	}

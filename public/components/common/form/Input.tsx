@@ -2,6 +2,7 @@ import React from "react";
 import { classSet } from "@fider/services";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
+import { IconType } from "react-icons";
 
 interface InputProps {
   field: string;
@@ -9,7 +10,7 @@ interface InputProps {
   className?: string;
   autoFocus?: boolean;
   afterLabel?: JSX.Element;
-  icon?: string;
+  icon?: IconType;
   maxLength?: number;
   value?: string;
   disabled?: boolean;
@@ -48,6 +49,13 @@ export class Input extends React.Component<InputProps, {}> {
         this.props.suffix
       );
 
+    const icon = !!this.props.icon
+      ? React.createElement(this.props.icon, {
+          onClick: this.props.onIconClick,
+          className: classSet({ link: !!this.props.onIconClick })
+        })
+      : undefined;
+
     return (
       <ValidationContext.Consumer>
         {ctx => (
@@ -56,7 +64,7 @@ export class Input extends React.Component<InputProps, {}> {
               "c-form-field": true,
               "m-suffix": this.props.suffix,
               "m-error": hasError(this.props.field, ctx.error),
-              "m-icon": this.props.icon,
+              "m-icon": !!this.props.icon,
               [`${this.props.className}`]: this.props.className
             })}
           >
@@ -80,16 +88,7 @@ export class Input extends React.Component<InputProps, {}> {
                 onKeyDown={this.props.onSubmit ? this.onKeyDown : undefined}
                 onChange={this.onChange}
               />
-              {!!this.props.icon && (
-                <i
-                  onClick={this.props.onIconClick}
-                  className={classSet({
-                    icon: true,
-                    [this.props.icon]: true,
-                    link: this.props.onIconClick
-                  })}
-                />
-              )}
+              {icon}
               {suffix}
             </div>
             <DisplayError fields={[this.props.field]} error={ctx.error} />

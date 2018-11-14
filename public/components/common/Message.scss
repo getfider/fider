@@ -8,6 +8,15 @@
   border-radius: 3px;
   margin-bottom: 10px;
 
+  .icon {
+    margin-right: 5px;
+    height: 14px;
+  }
+
+  span {
+    vertical-align: middle;
+  }
+
   &.m-success {
     color: $green-darker;
     border-color: $green-darker;

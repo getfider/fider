@@ -2,10 +2,13 @@ import "./ManageTags.page.scss";
 
 import React from "react";
 import { Button, Segment, List, ListItem, Heading } from "@fider/components";
-import { AdminBasePage, TagForm, TagFormState, TagListItem } from "../components";
 
 import { Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
+import { FaTags } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
+import { TagFormState, TagForm } from "../components/TagForm";
+import { TagListItem } from "../components/TagListItem";
 
 interface ManageTagsPageProps {
   tags: Tag[];
@@ -30,7 +33,7 @@ const tagSorter = (t1: Tag, t2: Tag) => {
 export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
   public id = "p-admin-tags";
   public name = "tags";
-  public icon = "tags";
+  public icon = FaTags;
   public title = "Tags";
   public subtitle = "Manage your site tags";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { ErrorPage } from "@fider/pages";
+import { ErrorPage } from "@fider/pages/Error/Error.page";
 
 interface ErrorBoundaryProps {
   onError?: (err: Error) => void;

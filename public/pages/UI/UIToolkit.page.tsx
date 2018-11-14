@@ -1,5 +1,5 @@
 import React from "react";
-import { PostStatus } from "@fider/models";
+import { PostStatus, UserStatus } from "@fider/models";
 import {
   Heading,
   Button,
@@ -25,17 +25,20 @@ import {
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
 import { DropDown, DropDownItem } from "@fider/components";
+import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
 
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
-  role: UserRole.Administrator
+  role: UserRole.Administrator,
+  status: UserStatus.Active
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
-  role: UserRole.Visitor
+  role: UserRole.Visitor,
+  status: UserStatus.Active
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
@@ -125,11 +128,11 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
         </List>
 
-        <Heading title="Page Heading" icon="settings" subtitle="This is a page heading" />
+        <Heading title="Page Heading" icon={FaCogs} subtitle="This is a page heading" />
 
         <Heading
           title="Section Heading"
-          icon="lightbulb outline"
+          icon={FaRegLightbulb}
           subtitle="This is a page heading"
           size="small"
           dividing={true}
@@ -138,6 +141,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Buttons</h1>
         <List>
           <ListItem>
+            <Button size="large">
+              <FaRegLightbulb /> Large Icon
+            </Button>
             <Button size="large">Large Default</Button>
             <Button color="positive" size="large">
               Large Positive
@@ -151,6 +157,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="normal">
+              <FaRegLightbulb /> Normal Icon
+            </Button>
             <Button size="normal">Normal Default</Button>
             <Button color="positive" size="normal">
               Normal Positive
@@ -164,6 +173,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="small">
+              <FaRegLightbulb /> Small Icon
+            </Button>
             <Button size="small">Small Default</Button>
             <Button color="positive" size="small">
               Small Positive
@@ -177,6 +189,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="tiny">
+              <FaRegLightbulb /> Tiny Icon
+            </Button>
             <Button size="tiny">Tiny Default</Button>
             <Button color="positive" size="tiny">
               Tiny Positive
@@ -190,6 +205,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="mini">
+              <FaRegLightbulb /> Mini Icon
+            </Button>
             <Button size="mini">Mini Default</Button>
             <Button color="positive" size="mini">
               Mini Positive
@@ -203,6 +221,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button href="#">
+              <FaRegLightbulb /> Link
+            </Button>
             <Button href="#">Link</Button>
             <Button href="#" color="positive">
               Link
@@ -213,6 +234,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button disabled={true}>
+              <FaRegLightbulb /> Default
+            </Button>
             <Button disabled={true}>Default</Button>
             <Button disabled={true} color="positive">
               Positive
@@ -382,7 +406,7 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <Segment>
           <h1>Search</h1>
-          <Input field="search" placeholder="Search..." icon="search" />
+          <Input field="search" placeholder="Search..." icon={FaSearch} />
         </Segment>
       </div>
     );

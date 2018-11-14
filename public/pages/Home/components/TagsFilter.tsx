@@ -1,9 +1,10 @@
+import "./TagsFilter.scss";
+
 import React from "react";
 import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
 import { DropDown, DropDownItem } from "@fider/components";
-
-import "./TagsFilter.scss";
+import { FaCheck } from "react-icons/fa";
 
 interface TagsFilterProps {
   tags: Tag[];
@@ -40,8 +41,8 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
       this.state.selected.length === 0
         ? "any tag"
         : this.state.selected.length === 1
-          ? "1 tag"
-          : `${this.state.selected.length} tags`;
+        ? "1 tag"
+        : `${this.state.selected.length} tags`;
     return <>{text}</>;
   };
 
@@ -56,7 +57,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         label: t.name,
         render: (
           <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
-            <i className="icon check" />
+            <FaCheck />
             <ShowTag tag={t} size="mini" circular={true} />
             {t.name}
           </div>

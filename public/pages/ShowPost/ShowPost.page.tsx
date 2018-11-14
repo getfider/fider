@@ -5,11 +5,9 @@ import React from "react";
 import { Comment, Post, Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
-import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
   VoteCounter,
   ShowPostResponse,
-  DisplayError,
   Button,
   UserName,
   Gravatar,
@@ -21,6 +19,12 @@ import {
   Form,
   TextArea
 } from "@fider/components";
+import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
+import { ResponseForm } from "./components/ResponseForm";
+import { TagsPanel } from "./components/TagsPanel";
+import { NotificationsPanel } from "./components/NotificationsPanel";
+import { ModerationPanel } from "./components/ModerationPanel";
+import { DiscussionPanel } from "./components/DiscussionPanel";
 
 interface ShowPostPageProps {
   post: Post;
@@ -131,12 +135,12 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 <List key={1}>
                   <ListItem>
                     <Button className="save" color="positive" fluid={true} onClick={this.saveChanges}>
-                      <i className="save icon" /> Save
+                      <FaSave /> Save
                     </Button>
                   </ListItem>
                   <ListItem>
                     <Button className="cancel" fluid={true} onClick={this.cancelEdit}>
-                      <i className="cancel icon" /> Cancel
+                      <FaTimes /> Cancel
                     </Button>
                   </ListItem>
                 </List>
@@ -144,7 +148,7 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 <List key={1}>
                   <ListItem>
                     <Button className="edit" fluid={true} onClick={this.startEdit}>
-                      <i className="edit icon" /> Edit
+                      <FaEdit /> Edit
                     </Button>
                   </ListItem>
                   <ListItem>

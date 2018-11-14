@@ -45,7 +45,7 @@ export const formatDate = (input: Date | string): string => {
   const hours = twoDigits(date.getHours());
   const minutes = twoDigits(date.getMinutes());
 
-  return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} · ${hours}:${minutes}`;
+  return `${monthNames[monthIndex]} ${day}, ${year} · ${hours}:${minutes}`;
 };
 
 const templates: { [key: string]: string } = {

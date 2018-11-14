@@ -6,11 +6,11 @@ export class FiderSession {
   private pUser: CurrentUser | undefined;
   private pProps: { [key: string]: any } = {};
 
-  constructor() {
-    this.pContextID = window.__contextID;
-    this.pProps = window.__props;
-    this.pUser = window.__user;
-    this.pTenant = window.__tenant;
+  constructor(data: any) {
+    this.pContextID = data.__contextID;
+    this.pProps = data.__props;
+    this.pUser = data.__user;
+    this.pTenant = data.__tenant;
   }
 
   public get contextID(): string {
@@ -39,8 +39,10 @@ export class FiderImpl {
   private pSession!: FiderSession;
 
   public initialize = (): FiderImpl => {
-    this.pSettings = window.__settings;
-    this.pSession = new FiderSession();
+    const el = document.getElementById("server-data");
+    const data = el ? JSON.parse(el.textContent || el.innerText) : {};
+    this.pSettings = data.__settings;
+    this.pSession = new FiderSession(data);
     return this;
   };
 
