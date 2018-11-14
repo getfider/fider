@@ -4,7 +4,8 @@ marked.setOptions({
   headerIds: false,
   xhtml: true,
   smartLists: true,
-  gfm: true
+  gfm: true,
+  breaks: true
 });
 
 const link = (href: string, title: string, text: string) => {

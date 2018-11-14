@@ -32,6 +32,13 @@ How are you?`,
     expectedFull: `<h1>Hello World</h1>
 <p>How are you?</p>`,
     expectedSimple: `<p>Hello World</p><p>How are you?</p>`
+  },
+  {
+    input: `-123
+-456
+-789`,
+    expectedFull: "<p>-123<br/>-456<br/>-789</p>",
+    expectedSimple: "<p>-123<br/>-456<br/>-789</p>"
   }
 ];
 
