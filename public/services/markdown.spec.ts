@@ -8,8 +8,30 @@ const testCases = [
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
-    expectedFull: '<p>My Picture <img src="http://demo.dev.fider.io:3000/images/100/28" alt="" /></p>',
-    expectedSimple: '<p>My Picture !<a href="http://demo.dev.fider.io:3000/images/100/28" target="_blank"></a></p>'
+    expectedFull: '<p>My Picture <img src="http://demo.dev.fider.io:3000/images/100/28" alt=""/></p>',
+    expectedSimple: "<p>My Picture </p>"
+  },
+  {
+    input: "# Hello World",
+    expectedFull: "<h1>Hello World</h1>",
+    expectedSimple: "<p>Hello World</p>"
+  },
+  {
+    input: "~~Option 3~~",
+    expectedFull: "<p><del>Option 3</del></p>",
+    expectedSimple: "<p><del>Option 3</del></p>"
+  },
+  {
+    input: "Check this out: `HEEEY`",
+    expectedFull: "<p>Check this out: <code>HEEEY</code></p>",
+    expectedSimple: "<p>Check this out: <code>HEEEY</code></p>"
+  },
+  {
+    input: `# Hello World
+How are you?`,
+    expectedFull: `<h1>Hello World</h1>
+<p>How are you?</p>`,
+    expectedSimple: `<p>Hello World</p><p>How are you?</p>`
   }
 ];
 

@@ -4,7 +4,7 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "markdown-it": "8.4.2",
+    "marked": "0.5.1",
     "react": "16.6.3",
     "react-dom": "16.6.3",
     "react-icons": "3.2.2",
@@ -18,7 +18,7 @@
     "@types/enzyme-adapter-react-16": "1.0.3",
     "@types/jest": "23.3.9",
     "@types/jsdom": "12.2.0",
-    "@types/markdown-it": "0.0.6",
+    "@types/marked": "0.4.2",
     "@types/node": "10.12.7",
     "@types/puppeteer": "1.10.0",
     "@types/react": "16.7.4",
