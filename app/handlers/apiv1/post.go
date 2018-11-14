@@ -159,6 +159,23 @@ func ListComments() web.HandlerFunc {
 	}
 }
 
+// GetComment returns a single comment by its ID
+func GetComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		comment, err := c.Services().Posts.GetCommentByID(id)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(comment)
+	}
+}
+
 // PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
 	return func(c web.Context) error {
