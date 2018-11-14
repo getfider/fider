@@ -154,8 +154,9 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
 		api.Get("/api/v1/tags", apiv1.ListTags())
-		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		api.Get("/api/v1/posts/:number", apiv1.GetPost())
+		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
+		api.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
 
 		//From this step, a User is required
 		api.Use(middlewares.IsAuthenticated())
