@@ -15,6 +15,11 @@ func TestFullMarkdown(t *testing.T) {
 		"# Hello World":                      `<h1>Hello World</h1>`,
 		"![](http://example.com/hello.jpg)":  `<p><img src="http://example.com/hello.jpg" alt="" /></p>`,
 		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
+		`-123
+-456
+-789`: `<p>-123<br />
+-456<br />
+-789</p>`,
 		`
 - **Option 1**
 - *Option 2*
@@ -51,7 +56,12 @@ func TestPlainTextMarkdown(t *testing.T) {
 		"![My Image](http://example.com/hello.jpg)": ``,
 		"Go to http://example.com/hello.jpg":        `Go to http://example.com/hello.jpg`,
 		"~~Option 3~~":                              `Option 3`,
-		"# Hello World":                             `Hello World`,
+		`-123
+-456
+-789`: `-123
+-456
+-789`,
+		"# Hello World": `Hello World`,
 		`# Hello World
 How are you?`: `Hello World
 How are you?`,
@@ -79,6 +89,11 @@ func TestSimpleMarkdown(t *testing.T) {
 		"# Hello World":                             `<p>Hello World</p>`,
 		"### Hello World":                           `<p>Hello World</p>`,
 		"Check this out: `HEEEY`":                   "<p>Check this out: <code>HEEEY</code></p>",
+		`-123
+-456
+-789`: `<p>-123<br />
+-456<br />
+-789</p>`,
 		`# Hello World
 How are you?`: `<p>Hello World</p>
 
