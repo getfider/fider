@@ -29,7 +29,7 @@ interface GeneralSettingsPageState {
   error?: Failure;
 }
 
-export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
+export default class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
   private fileSelector?: HTMLInputElement | null;
 
   public id = "p-admin-general";

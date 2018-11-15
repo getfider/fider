@@ -10,7 +10,7 @@ interface PrivacySettingsPageState {
   isPrivate: boolean;
 }
 
-export class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
+export default class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
   public id = "p-admin-privacy";
   public name = "privacy";
   public icon = FaKey;

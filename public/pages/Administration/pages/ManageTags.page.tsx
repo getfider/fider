@@ -30,7 +30,7 @@ const tagSorter = (t1: Tag, t2: Tag) => {
   return 0;
 };
 
-export class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
+export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, ManageTagsPageState> {
   public id = "p-admin-tags";
   public name = "tags";
   public icon = FaTags;

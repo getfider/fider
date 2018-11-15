@@ -47,7 +47,6 @@ module.exports = {
       "marked",
       "react-textarea-autosize", 
       "react-toastify", 
-      "react-loadable", 
       "react-icons/lib" 
     ],
     vendorCSS: [ 

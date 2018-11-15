@@ -24,7 +24,7 @@ interface MySettingsPageProps {
   userSettings: UserSettings;
 }
 
-export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
+export default class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {

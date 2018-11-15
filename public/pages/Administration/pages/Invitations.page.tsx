@@ -14,7 +14,7 @@ interface InvitationsPageState {
   error?: Failure;
 }
 
-export class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
+export default class InvitationsPage extends AdminBasePage<{}, InvitationsPageState> {
   public id = "p-admin-invitations";
   public name = "invitations";
   public icon = FaEnvelope;
