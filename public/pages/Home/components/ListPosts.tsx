@@ -34,30 +34,20 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
   );
 };
 
-export class ListPosts extends React.Component<ListPostsProps, {}> {
-  constructor(props: ListPostsProps) {
-    super(props);
+export const ListPosts = (props: ListPostsProps) => {
+  if (!props.posts) {
+    return null;
   }
 
-  public render() {
-    if (!this.props.posts) {
-      return null;
-    }
-
-    if (this.props.posts.length === 0) {
-      return <p className="center">{this.props.emptyText}</p>;
-    }
-
-    return (
-      <List className="c-post-list" divided={true}>
-        {this.props.posts.map(post => (
-          <ListPostItem
-            key={post.id}
-            post={post}
-            tags={this.props.tags.filter(tag => post.tags.indexOf(tag.slug) >= 0)}
-          />
-        ))}
-      </List>
-    );
+  if (props.posts.length === 0) {
+    return <p className="center">{props.emptyText}</p>;
   }
-}
+
+  return (
+    <List className="c-post-list" divided={true}>
+      {props.posts.map(post => (
+        <ListPostItem key={post.id} post={post} tags={props.tags.filter(tag => post.tags.indexOf(tag.slug) >= 0)} />
+      ))}
+    </List>
+  );
+};

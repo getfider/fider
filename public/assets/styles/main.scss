@@ -250,19 +250,31 @@ svg.icon {
 .markdown-body {
   overflow-wrap: break-word;
   word-break: break-word;
+
   blockquote {
     padding: 0 8px;
     color: $gray-darkest;
     border-left: 4px solid $gray-light;
     margin: 5px 0;
   }
+
   ul, ol {
-    margin: 0;
     padding-left: 30px;
+    margin: 0 0 14px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
+
   img {
     max-width: 100%;
   }
+
   pre {
     overflow-x: scroll;
     padding: 16px;
