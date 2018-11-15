@@ -34,7 +34,7 @@ const defaultWelcomeMessage = `We'd love to hear what you're thinking about.
 
 What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
-export class HomePage extends React.Component<HomePageProps, HomePageState> {
+export default class HomePage extends React.Component<HomePageProps, HomePageState> {
   constructor(props: HomePageProps) {
     super(props);
     this.state = {

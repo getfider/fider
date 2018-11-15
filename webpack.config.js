@@ -46,7 +46,6 @@ module.exports = {
       "tslib", 
       "marked",
       "react-textarea-autosize", 
-      "react-loadable", 
       "react-icons/lib" 
     ],
   },

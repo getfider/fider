@@ -51,7 +51,7 @@ interface UIToolkitPageState {
   error?: Failure;
 }
 
-export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
+export default class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
   constructor(props: {}) {
     super(props);
     this.state = {};

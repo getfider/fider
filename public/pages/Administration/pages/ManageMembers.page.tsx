@@ -66,7 +66,7 @@ const UserListItem = (props: UserListItemProps) => {
   );
 };
 
-export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
+export default class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
   public id = "p-admin-members";
   public name = "members";
   public icon = FaUsers;
