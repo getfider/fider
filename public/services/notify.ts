@@ -1,9 +1,13 @@
-import { toast } from "react-toastify";
+const toastify = () => import(/* webpackChunkName: "toastify" */ "./toastify");
 
-export const success = (message: string | JSX.Element) => {
-  toast.success(message);
+export const success = (content: string | JSX.Element) => {
+  return toastify().then(toast => {
+    toast.success(content);
+  });
 };
 
-export const error = (message: string | JSX.Element) => {
-  toast.error(message);
+export const error = (content: string | JSX.Element) => {
+  return toastify().then(toast => {
+    toast.error(content);
+  });
 };

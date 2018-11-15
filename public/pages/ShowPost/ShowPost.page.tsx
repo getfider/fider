@@ -40,7 +40,7 @@ interface ShowPostPageState {
   error?: Failure;
 }
 
-export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
+export default class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
   constructor(props: ShowPostPageProps) {
     super(props);
 

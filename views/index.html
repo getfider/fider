@@ -3,7 +3,7 @@
 {{define "server-data"}} 
   {{ . }}
 {{ end }}
-{{define "content"}}<div id="root"></div><div id="root-modal"></div>{{end}}
+{{define "content"}}<div id="root"></div><div id="root-modal"></div><div id="root-toastify"></div>{{end}}
 {{define "end-of-body"}}
   {{ if .__assets }}
   {{range .__assets.JS}}

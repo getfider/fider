@@ -1,11 +1,16 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
-import { Header, Footer } from "@fider/components/common";
+import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, actions, navigator } from "@fider/services";
-import { ToastContainer, toast } from "react-toastify";
 import { IconContext } from "react-icons";
+
+const Loading = () => (
+  <div className="page">
+    <Loader />
+  </div>
+);
 
 import "@fider/assets/styles/main.scss";
 
@@ -51,9 +56,8 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   ReactDOM.render(
     <ErrorBoundary onError={logProductionError}>
       <IconContext.Provider value={{ className: "icon" }}>
-        <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
         {config.showHeader && <Header />}
-        {React.createElement(config.component, fider.session.props)}
+        <Suspense fallback={<Loading />}>{React.createElement(config.component, fider.session.props)}</Suspense>
         {config.showHeader && <Footer />}
       </IconContext.Provider>
     </ErrorBoundary>,

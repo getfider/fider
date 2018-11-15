@@ -19,7 +19,7 @@ const ok = <FaCheckCircle className="check" />;
 const error = <FaTimesCircle className="error" />;
 const warn = <FaExclamationTriangle className="warn" />;
 
-export class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
+export default class OAuthEchoPage extends React.Component<OAuthEchoPageProps, {}> {
   public componentDidMount() {
     navigator.replaceState("/");
   }

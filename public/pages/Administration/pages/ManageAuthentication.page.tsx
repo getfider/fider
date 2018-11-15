@@ -18,7 +18,7 @@ interface ManageAuthenticationPageState {
   editing?: OAuthConfig;
 }
 
-export class ManageAuthenticationPage extends AdminBasePage<
+export default class ManageAuthenticationPage extends AdminBasePage<
   ManageAuthenticationPageProps,
   ManageAuthenticationPageState
 > {

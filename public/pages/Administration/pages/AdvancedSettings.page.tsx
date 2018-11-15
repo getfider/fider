@@ -16,7 +16,7 @@ interface AdvancedSettingsPageState {
   error?: Failure;
 }
 
-export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
+export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
   public id = "p-admin-advanced";
   public name = "advanced";
   public icon = FaStar;

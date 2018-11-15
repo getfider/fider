@@ -4,7 +4,7 @@ import { Button, Form, Field } from "@fider/components";
 import { FaRegFileExcel } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 
-export class ExportPage extends AdminBasePage<{}, {}> {
+export default class ExportPage extends AdminBasePage<{}, {}> {
   public id = "p-admin-export";
   public name = "export";
   public icon = FaRegFileExcel;

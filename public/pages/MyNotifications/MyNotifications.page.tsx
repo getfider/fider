@@ -16,7 +16,7 @@ interface MyNotificationsPageState {
   recent: Notification[];
 }
 
-export class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
+export default class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
   constructor(props: MyNotificationsPageProps) {
     super(props);
 
