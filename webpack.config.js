@@ -63,8 +63,8 @@ module.exports = {
     }
   },
   performance: {
-    maxEntrypointSize: 389120 * maxSizeFactor, // 380 KiB. Should ideally be ~240 KiB
-    maxAssetSize: 256000 * maxSizeFactor, // 250 KiB
+    maxEntrypointSize: 307200 * maxSizeFactor, // 300 KiB. Should ideally be ~240 KiB
+    maxAssetSize: 184320 * maxSizeFactor, // 180 KiB
     hints: "error"
   },
   module: {
