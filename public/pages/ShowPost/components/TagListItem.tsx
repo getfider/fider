@@ -9,18 +9,16 @@ interface TagListItemProps {
   onClick: (tag: Tag) => void;
 }
 
-export class TagListItem extends React.Component<TagListItemProps, {}> {
-  private onClick = () => {
-    this.props.onClick(this.props.tag);
+export const TagListItem = (props: TagListItemProps) => {
+  const onClick = () => {
+    props.onClick(props.tag);
   };
 
-  public render() {
-    return (
-      <ListItem onClick={this.onClick}>
-        {this.props.assigned ? <FaCheck /> : <svg className="icon" />}
-        <ShowTag tag={this.props.tag} size="mini" circular={true} />
-        <span>{this.props.tag.name}</span>
-      </ListItem>
-    );
-  }
-}
+  return (
+    <ListItem onClick={onClick}>
+      {props.assigned ? <FaCheck /> : <svg className="icon" />}
+      <ShowTag tag={props.tag} size="mini" circular={true} />
+      <span>{props.tag.name}</span>
+    </ListItem>
+  );
+};

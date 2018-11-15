@@ -23,79 +23,69 @@ interface InputProps {
   onChange?: (value: string) => void;
 }
 
-export class Input extends React.Component<InputProps, {}> {
-  constructor(props: InputProps) {
-    super(props);
-  }
-
-  private onChange = (e: React.FormEvent<HTMLInputElement>) => {
-    if (this.props.onChange) {
-      this.props.onChange(e.currentTarget.value);
+export const Input: React.StatelessComponent<InputProps> = props => {
+  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
+    if (props.onChange) {
+      props.onChange(e.currentTarget.value);
     }
   };
 
-  private onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (event.keyCode === 13 && this.props.onSubmit) {
-      this.props.onSubmit();
+  const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (event.keyCode === 13 && props.onSubmit) {
+      props.onSubmit();
       event.preventDefault();
     }
   };
 
-  public render() {
-    const suffix =
-      typeof this.props.suffix === "string" ? (
-        <span className="c-form-input-suffix">{this.props.suffix}</span>
-      ) : (
-        this.props.suffix
-      );
+  const suffix =
+    typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix;
 
-    const icon = !!this.props.icon
-      ? React.createElement(this.props.icon, {
-          onClick: this.props.onIconClick,
-          className: classSet({ link: !!this.props.onIconClick })
-        })
-      : undefined;
+  const icon = !!props.icon
+    ? React.createElement(props.icon, {
+        onClick: props.onIconClick,
+        className: classSet({ link: !!props.onIconClick })
+      })
+    : undefined;
 
-    return (
-      <ValidationContext.Consumer>
-        {ctx => (
-          <div
-            className={classSet({
-              "c-form-field": true,
-              "m-suffix": this.props.suffix,
-              "m-error": hasError(this.props.field, ctx.error),
-              "m-icon": !!this.props.icon,
-              [`${this.props.className}`]: this.props.className
-            })}
-          >
-            {!!this.props.label && (
-              <label htmlFor={`input-${this.props.field}`}>
-                {this.props.label}
-                {this.props.afterLabel}
-              </label>
-            )}
-            <div className="c-form-field-wrapper">
-              <input
-                id={`input-${this.props.field}`}
-                type="text"
-                ref={this.props.inputRef}
-                autoFocus={this.props.autoFocus}
-                onFocus={this.props.onFocus}
-                maxLength={this.props.maxLength}
-                disabled={this.props.disabled}
-                value={this.props.value}
-                placeholder={this.props.placeholder}
-                onKeyDown={this.props.onSubmit ? this.onKeyDown : undefined}
-                onChange={this.onChange}
-              />
-              {icon}
-              {suffix}
-            </div>
-            <DisplayError fields={[this.props.field]} error={ctx.error} />
-            {this.props.children}
+  return (
+    <ValidationContext.Consumer>
+      {ctx => (
+        <div
+          className={classSet({
+            "c-form-field": true,
+            "m-suffix": props.suffix,
+            "m-error": hasError(props.field, ctx.error),
+            "m-icon": !!props.icon,
+            [`${props.className}`]: props.className
+          })}
+        >
+          {!!props.label && (
+            <label htmlFor={`input-${props.field}`}>
+              {props.label}
+              {props.afterLabel}
+            </label>
+          )}
+          <div className="c-form-field-wrapper">
+            <input
+              id={`input-${props.field}`}
+              type="text"
+              ref={props.inputRef}
+              autoFocus={props.autoFocus}
+              onFocus={props.onFocus}
+              maxLength={props.maxLength}
+              disabled={props.disabled}
+              value={props.value}
+              placeholder={props.placeholder}
+              onKeyDown={props.onSubmit ? onKeyDown : undefined}
+              onChange={onChange}
+            />
+            {icon}
+            {suffix}
           </div>
-        )}
-      </ValidationContext.Consumer>
-    );
-  }
-}
+          <DisplayError fields={[props.field]} error={ctx.error} />
+          {props.children}
+        </div>
+      )}
+    </ValidationContext.Consumer>
+  );
+};
