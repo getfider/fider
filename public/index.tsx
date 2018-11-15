@@ -4,7 +4,6 @@ import { resolveRootComponent } from "@fider/router";
 import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, actions, navigator } from "@fider/services";
-import { ToastContainer, toast } from "react-toastify";
 import { IconContext } from "react-icons";
 
 const Loading = () => (
@@ -57,7 +56,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   ReactDOM.render(
     <ErrorBoundary onError={logProductionError}>
       <IconContext.Provider value={{ className: "icon" }}>
-        <ToastContainer position={toast.POSITION.TOP_RIGHT} toastClassName="c-toast" />
         {config.showHeader && <Header />}
         <Suspense fallback={<Loading />}>{React.createElement(config.component, fider.session.props)}</Suspense>
         {config.showHeader && <Footer />}
