@@ -4,11 +4,7 @@ type LazyImport = () => Promise<{ default: ComponentType<any> }>;
 
 const MAX_RETRIES = 5;
 
-const retry = <T extends ComponentType<any>>(
-  fn: LazyImport,
-  retriesLeft = MAX_RETRIES,
-  interval = 500
-): Promise<{ default: ComponentType<any> }> => {
+const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES, interval = 500): Promise<{ default: ComponentType<any> }> => {
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
