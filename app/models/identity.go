@@ -45,17 +45,43 @@ type User struct {
 	Tenant    *Tenant         `json:"-"`
 	Role      Role            `json:"role"`
 	Providers []*UserProvider `json:"-"`
-	Status    int             `json:"-"`
+	Status    UserStatus      `json:"status"`
 }
+
+//UserStatus is the status of a user
+type UserStatus int
 
 var (
 	//UserActive is the default status for users
-	UserActive = 1
+	UserActive UserStatus = 1
 	//UserDeleted is used for users that chose to delete their accounts
-	UserDeleted = 2
-	//UserBanned is used for users that have been banned by staff members
-	UserBanned = 3
+	UserDeleted UserStatus = 2
+	//UserBlocked is used for users that have been blocked by staff members
+	UserBlocked UserStatus = 3
 )
+
+var userStatusIDs = map[UserStatus]string{
+	UserActive:  "active",
+	UserDeleted: "deleted",
+	UserBlocked: "blocked",
+}
+
+var userStatusName = map[string]UserStatus{
+	"active":  UserActive,
+	"deleted": UserDeleted,
+	"blocked": UserBlocked,
+}
+
+// MarshalText returns the Text version of the user status
+func (status UserStatus) MarshalText() ([]byte, error) {
+	return []byte(userStatusIDs[status]), nil
+}
+
+// UnmarshalText parse string into a user status
+func (status *UserStatus) UnmarshalText(text []byte) error {
+	*status = userStatusName[string(text)]
+	return nil
+}
 
 //Role is the role of a user inside a tenant
 type Role int
@@ -81,12 +107,12 @@ var roleNames = map[string]Role{
 	"administrator": RoleAdministrator,
 }
 
-// MarshalText returns the Text version of the post status
+// MarshalText returns the Text version of the user role
 func (role Role) MarshalText() ([]byte, error) {
 	return []byte(roleIDs[role]), nil
 }
 
-// UnmarshalText parse string into a post status
+// UnmarshalText parse string into a user role
 func (role *Role) UnmarshalText(text []byte) error {
 	*role = roleNames[string(text)]
 	return nil

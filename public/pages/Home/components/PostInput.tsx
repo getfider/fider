@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
-import { cache, actions, Failure, Fider } from "@fider/services";
+import { cache, actions, Failure, Fider, device } from "@fider/services";
 
 interface PostInputProps {
   placeholder: string;
@@ -37,7 +37,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
   }
 
   public componentDidMount() {
-    if (Fider.session.isAuthenticated && this.title) {
+    if (Fider.session.isAuthenticated && this.title && !device.isTouch()) {
       this.title.focus();
     }
   }

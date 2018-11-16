@@ -102,6 +102,10 @@
         min-width: 160px;
         border-radius: 0px 0px 5px 5px;
 
+        span {
+          vertical-align: middle;
+        }
+
         .c-menu-user-heading {
           white-space: nowrap;
           font-size: $font-size-mini;
@@ -112,6 +116,7 @@
           font-weight: 600;
           cursor: default;
         }
+
         .c-menu-user-item {
           font-size: $font-size-small;
           padding: 10px;

@@ -22,11 +22,14 @@
     .c-tag {
       margin: 0 5px 0 0;
     }
-    i.check {
+    .icon {
+      height: 12px;
+      margin-right: 2px;
+      vertical-align: top;
       color: transparent;
     }
     .selected-tag {
-      i.check {
+      .icon {
         color: $green;
       }
     }

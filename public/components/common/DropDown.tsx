@@ -13,7 +13,7 @@ export interface DropDownItem {
 export interface DropDownProps {
   className?: string;
   defaultValue?: any;
-  items: DropDownItem[];
+  items: Array<DropDownItem | undefined | false>;
   placeholder?: string;
   searchable?: boolean;
   inline?: boolean;
@@ -81,9 +81,9 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     );
   };
 
-  public findItem(value: any, items: DropDownItem[]): DropDownItem | undefined {
+  public findItem(value: any, items: Array<DropDownItem | undefined | false>): DropDownItem | undefined {
     for (const item of items) {
-      if (item.value === value) {
+      if (item && item.value === value) {
         return item;
       }
     }
@@ -105,7 +105,11 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     }
   }
 
-  public renderItem = (item: DropDownItem) => {
+  public renderItem = (item: DropDownItem | undefined | false) => {
+    if (!item) {
+      return;
+    }
+
     const { label, value } = item;
     const isSelected = this.props.highlightSelected && this.state.selected && value === this.state.selected.value;
     const className = classSet({

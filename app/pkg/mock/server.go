@@ -45,8 +45,9 @@ func (s *Server) Engine() *web.Engine {
 }
 
 // Use adds a new middleware to pipeline
-func (s *Server) Use(middleware web.MiddlewareFunc) {
+func (s *Server) Use(middleware web.MiddlewareFunc) *Server {
 	s.middleware = append(s.middleware, middleware)
+	return s
 }
 
 // OnTenant set current context tenant

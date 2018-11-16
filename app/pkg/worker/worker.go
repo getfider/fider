@@ -18,8 +18,9 @@ type Job func(c *Context) error
 
 //Task represents the Name and Job to be run on background
 type Task struct {
-	Name string
-	Job  Job
+	OriginSessionID string
+	Name            string
+	Job             Job
 }
 
 //Worker is a process that runs tasks
@@ -57,13 +58,12 @@ func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
 }
 
 //Run initializes the worker loop
-func (w *BackgroundWorker) Run(id string) {
+func (w *BackgroundWorker) Run(workerID string) {
 	w.logger.Infof("Starting worker @{WorkerID:magenta}.", log.Props{
-		"WorkerID": id,
+		"WorkerID": workerID,
 	})
 	for task := range w.queue {
-
-		c := NewContext(id, task.Name, w.db, w.logger)
+		c := NewContext(workerID, task, w.db, w.logger)
 
 		w.middleware(task.Job)(c)
 		w.Lock()

@@ -16,8 +16,9 @@
     margin: 0 auto;
     padding: 0 0;
 
-    i.icon {
+    .icon {
       color: #C4C9CD;
+      margin-bottom: -3px;
     }
   }
 
@@ -29,12 +30,12 @@
   button.no-touch:hover {
     color: $main-color;
 
-    i.icon {
+    .icon {
       color: lighten($main-color, 20%) !important;
     }
   }
 
-  i.icon {
+  .icon {
     margin: 0 auto;
     display: block;
   }

@@ -14,6 +14,10 @@
   text-align: left;
   font-weight: 600;
 
+  .icon {
+    margin-top: -3px;
+  }
+
   &.m-cancel {
     color: $link-color;
     background-color: transparent;
@@ -36,9 +40,11 @@
   &.m-positive {
     color: $white;
     background-color: $green;
+    border: 1px solid $green;
 
     &:hover {
       background-color: $green-darker;
+      border-color: $green-darker;
     }
   }
 
