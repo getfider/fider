@@ -23,7 +23,7 @@ func SendSampleInvite() web.HandlerFunc {
 			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
 			to := email.NewRecipient(c.User().Name, c.User().Email, email.Params{
 				"subject": input.Model.Subject,
-				"message": markdown.Parse(input.Model.Message),
+				"message": markdown.Full(input.Model.Message),
 			})
 			err := c.Services().Emailer.Send(c, "invite_email", email.Params{}, c.Tenant().Name, to)
 			if err != nil {

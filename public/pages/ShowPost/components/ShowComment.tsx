@@ -13,6 +13,7 @@ import {
   Modal
 } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
+import { FaEllipsisH } from "react-icons/fa";
 
 interface ShowCommentProps {
   post: Post;
@@ -73,7 +74,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   };
 
   private renderEllipsis = () => {
-    return <i className="ellipsis horizontal icon" />;
+    return <FaEllipsisH />;
   };
 
   private closeModal = async () => {
@@ -120,14 +121,11 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   public render() {
     const c = this.state.comment;
 
-    const editedMetadata = !!c.editedAt &&
-      !!c.editedBy && (
-        <div className="c-comment-metadata">
-          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>
-            · edited
-          </span>
-        </div>
-      );
+    const editedMetadata = !!c.editedAt && !!c.editedBy && (
+      <div className="c-comment-metadata">
+        <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>· edited</span>
+      </div>
+    );
 
     return (
       <div className="c-comment">
@@ -139,20 +137,19 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
             · <Moment date={c.createdAt} />
           </div>
           {editedMetadata}
-          {!this.state.isEditing &&
-            this.canEditComment(c) && (
-              <DropDown
-                className="l-more-actions"
-                direction="left"
-                highlightSelected={false}
-                items={[
-                  { label: "Edit", value: "edit" },
-                  { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
-                ]}
-                onChange={this.onActionSelected}
-                renderText={this.renderEllipsis}
-              />
-            )}
+          {!this.state.isEditing && this.canEditComment(c) && (
+            <DropDown
+              className="l-more-actions"
+              direction="left"
+              highlightSelected={false}
+              items={[
+                { label: "Edit", value: "edit" },
+                { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+              ]}
+              onChange={this.onActionSelected}
+              renderText={this.renderEllipsis}
+            />
+          )}
           <div className="c-comment-text">
             {this.state.isEditing ? (
               <Form error={this.state.error}>

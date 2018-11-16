@@ -13,7 +13,8 @@ import {
   TenantLogoURL
 } from "@fider/components/common";
 import { actions, Failure, fileToBase64, Fider } from "@fider/services";
-import { AdminBasePage } from "../components";
+import { FaCogs } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 interface GeneralSettingsPageProps {
   publicIP: string;
@@ -28,12 +29,12 @@ interface GeneralSettingsPageState {
   error?: Failure;
 }
 
-export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
+export default class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
   private fileSelector?: HTMLInputElement | null;
 
   public id = "p-admin-general";
   public name = "general";
-  public icon = "settings";
+  public icon = FaCogs;
   public title = "General";
   public subtitle = "Manage your site settings";
 

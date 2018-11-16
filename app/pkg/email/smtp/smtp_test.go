@@ -27,7 +27,7 @@ var tenant = &models.Tenant{
 	Subdomain: "got",
 }
 
-var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
+var ctx = worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, logger)
 
 var requests = make([]request, 0)
 

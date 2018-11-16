@@ -61,7 +61,7 @@ func (s *PostStorage) Update(post *models.Post, title, description string) (*mod
 // GetByNumber returns post by tenant and number
 func (s *PostStorage) GetByNumber(number int) (*models.Post, error) {
 	for _, post := range s.posts {
-		if post.Number == number {
+		if post.Number == number && post.Status != models.PostDeleted {
 			return post, nil
 		}
 	}
@@ -71,7 +71,7 @@ func (s *PostStorage) GetByNumber(number int) (*models.Post, error) {
 // GetBySlug returns post by tenant and slug
 func (s *PostStorage) GetBySlug(slug string) (*models.Post, error) {
 	for _, post := range s.posts {
-		if post.Slug == slug {
+		if post.Slug == slug && post.Status != models.PostDeleted {
 			return post, nil
 		}
 	}
@@ -189,17 +189,13 @@ func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
 
 // SetResponse changes current post response
 func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
-	for i, storedPost := range s.posts {
+	for _, storedPost := range s.posts {
 		if storedPost.Number == post.Number {
-			if status == models.PostDeleted {
-				s.posts = append(s.posts[:i], s.posts[i+1:]...)
-			} else {
-				storedPost.Status = status
-				storedPost.Response = &models.PostResponse{
-					Text:        text,
-					User:        s.user,
-					RespondedAt: time.Now(),
-				}
+			storedPost.Status = status
+			storedPost.Response = &models.PostResponse{
+				Text:        text,
+				User:        s.user,
+				RespondedAt: time.Now(),
 			}
 		}
 	}
@@ -257,10 +253,17 @@ func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) err
 
 // GetActiveSubscribers based on input and settings
 func (s *PostStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
-	post, err := s.GetByNumber(number)
-	if err != nil {
-		return nil, err
+	var post *models.Post
+	for _, p := range s.posts {
+		if p.Number == number {
+			post = p
+		}
 	}
+
+	if post == nil {
+		return nil, app.ErrNotFound
+	}
+
 	subscribers, ok := s.postSubscribers[post.ID]
 	if ok {
 		users := make([]*models.User, len(subscribers))

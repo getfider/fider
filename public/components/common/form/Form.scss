@@ -74,14 +74,11 @@
         opacity: .5;
         width: 35px;
         height: 100%;
+        padding: 12px 0px;
         margin: 0;
         top: 0;
         right: 0;
-        &::before {
-          top: 10px;
-          right: 12px;
-          position: absolute;
-        }
+        position: absolute;
 
         &.link {
           cursor: pointer;

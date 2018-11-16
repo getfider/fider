@@ -24,7 +24,7 @@ interface SignUpPageState {
   };
 }
 
-export class SignUpPage extends React.Component<{}, SignUpPageState> {
+export default class SignUpPage extends React.Component<{}, SignUpPageState> {
   private user?: OAuthUser;
 
   constructor(props: {}) {

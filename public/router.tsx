@@ -1,5 +1,3 @@
-import React from "react";
-
 import * as Pages from "@fider/AsyncPages";
 
 interface PageConfiguration {

@@ -2,7 +2,6 @@
 @import 'reset.scss';
 @import 'grid.scss';
 @import 'utility.scss';
-@import 'semantic.scss';
 
 /*******************************
              Site
@@ -18,7 +17,7 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
-  font-size: 14px;
+  font-size: $font-size;
   font-family: $font-site;
   background-color: $bg-color;
   color: $text-color;
@@ -27,6 +26,7 @@ body {
 
 button, input, optgroup, select, textarea {
   font-family: $font-site;
+  font-size: $font-size;
 }
 
 /*******************************
@@ -209,6 +209,13 @@ body, h1, h2, h3, h4, h5, .ui, input {
   text-align: center;
 }
 
+svg.icon {
+  display: inline-block;
+  opacity: 1;
+  width: 1.18em;
+  vertical-align: middle;
+}
+
 .clickable {
   cursor: pointer;
 }
@@ -226,7 +233,7 @@ body, h1, h2, h3, h4, h5, .ui, input {
     &:hover {
       color: $main-color;
     }
-    i {
+    svg.icon {
       float: right;
     }
   }
@@ -243,19 +250,31 @@ body, h1, h2, h3, h4, h5, .ui, input {
 .markdown-body {
   overflow-wrap: break-word;
   word-break: break-word;
+
   blockquote {
     padding: 0 8px;
     color: $gray-darkest;
     border-left: 4px solid $gray-light;
     margin: 5px 0;
   }
+
   ul, ol {
-    margin: 0;
     padding-left: 30px;
+    margin: 0 0 14px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
+
   img {
     max-width: 100%;
   }
+
   pre {
     overflow-x: scroll;
     padding: 16px;
