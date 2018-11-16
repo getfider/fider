@@ -1,10 +1,14 @@
-import { lazy } from "react";
+import { lazy, ComponentType } from "react";
 
-type LazyImport<T> = () => Promise<{ default: T }>;
+type LazyImport = () => Promise<{ default: ComponentType<any> }>;
 
 const MAX_RETRIES = 5;
 
-const retry = (fn: LazyImport<any>, retriesLeft = MAX_RETRIES, interval = 500): Promise<{ default: any }> => {
+const retry = <T extends ComponentType<any>>(
+  fn: LazyImport,
+  retriesLeft = MAX_RETRIES,
+  interval = 500
+): Promise<{ default: ComponentType<any> }> => {
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
@@ -20,7 +24,7 @@ const retry = (fn: LazyImport<any>, retriesLeft = MAX_RETRIES, interval = 500): 
   });
 };
 
-const load = (fn: LazyImport<any>) => lazy(() => retry(() => fn()));
+const load = (fn: LazyImport) => lazy(() => retry(() => fn()));
 
 export const AsyncHomePage = load(() => import("@fider/pages/Home/Home.page"));
 
