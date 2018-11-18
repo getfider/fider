@@ -2,6 +2,8 @@ package smtp
 
 import (
 	gosmtp "net/smtp"
+
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type agnosticAuth struct {
@@ -33,7 +35,10 @@ func AgnosticAuth(identity, username, password, host string) gosmtp.Auth {
 
 func (a *agnosticAuth) Start(server *gosmtp.ServerInfo) (string, []byte, error) {
 	a.auth = a.FindAuth(server)
-	return a.auth.Start(server)
+	if a.auth != nil {
+		return a.auth.Start(server)
+	}
+	return "", nil, errors.New("server auth mechanism not supported")
 }
 
 func (a *agnosticAuth) Next(fromServer []byte, more bool) ([]byte, error) {
