@@ -1,8 +1,8 @@
 import React from "react";
 
 import { Post, Tag, CurrentUser } from "@fider/models";
-import { Loader, Field, Input } from "@fider/components";
-import { actions, navigator, querystring } from "@fider/services";
+import { Loader, Field, Input, Hint } from "@fider/components";
+import { actions, navigator, querystring, Fider } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
 import { PostFilter } from "./PostFilter";
 import { ListPosts } from "./ListPosts";
@@ -100,7 +100,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       <>
         <div className="row">
           {!this.state.query && (
-            <div className="l-filter-col col-sm-7 col-md-8 col-lg-9 mb-2">
+            <div className="l-filter-col col-7 col-md-8 col-lg-9 mb-2">
               <Field>
                 <PostFilter
                   activeView={this.state.view}
@@ -115,7 +115,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               </Field>
             </div>
           )}
-          <div className={!this.state.query ? `l-search-col col-sm-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
+          <div className={!this.state.query ? `l-search-col col-5 col-md-4 col-lg-3 mb-2` : "col-sm-12 mb-2"}>
             <Input
               field="query"
               icon={this.state.query ? FaTimes : FaSearch}

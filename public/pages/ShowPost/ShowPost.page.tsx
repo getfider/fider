@@ -102,7 +102,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 )}
 
                 <span className="info">
-                  Shared <Moment date={this.props.post.createdAt} /> by <Gravatar user={this.props.post.user} />{" "}
+                  <Moment date={this.props.post.createdAt} /> &middot; <Gravatar user={this.props.post.user} />{" "}
                   <UserName user={this.props.post.user} />
                 </span>
               </div>
@@ -115,14 +115,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
             </Form>
           ) : (
-            <MultiLineText
-              className="description"
-              text={this.props.post.description || "No description provided."}
-              style="simple"
-            />
+            <MultiLineText className="description" text={this.props.post.description} style="simple" />
           )}
 
-          <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
+          <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
         </div>
 
         <div className="action-col">

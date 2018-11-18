@@ -50,6 +50,7 @@ const UserListItem = (props: UserListItemProps) => {
           className="l-user-actions"
           inline={true}
           highlightSelected={false}
+          style="simple"
           items={[
             !blocked &&
               (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
@@ -58,7 +59,7 @@ const UserListItem = (props: UserListItemProps) => {
             isVisitor && !blocked && { label: "Block User", value: "block" },
             isVisitor && !!blocked && { label: "Unblock User", value: "unblock" }
           ]}
-          renderText={renderEllipsis}
+          renderControl={renderEllipsis}
           onChange={actionSelected}
         />
       )}

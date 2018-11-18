@@ -12,7 +12,7 @@ const Loading = () => (
   </div>
 );
 
-import "@fider/assets/styles/main.scss";
+import "@fider/assets/styles/index.scss";
 
 const logProductionError = (err: Error) => {
   if (Fider.isProduction()) {

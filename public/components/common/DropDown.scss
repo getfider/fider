@@ -14,7 +14,7 @@
 
   &.is-open {
     .c-dropdown-arrow {
-      border-color: transparent transparent $gray-dark;
+      border-color: transparent transparent $gray;
       border-width: 0 5px 5px;
     }
   }
@@ -25,15 +25,29 @@
     }
   }
 
+
+  &.m-style-simple {
+
+  }
+
+  &.m-style-normal {
+    .c-dropdown-control {
+      border: 1px solid $gray-light;
+  
+      &:hover {
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+      }
+    }
+  }
+
   .c-dropdown-control {
     position: relative;
+    cursor: pointer;
     overflow: hidden;
     background-color: $white;
-    border: 1px solid $gray-light;
     border-radius: 3px;
     box-sizing: border-box;
-    color: #333;
-    cursor: default;
+    color: $gray-darkest;
     outline: none;
     padding: 8px 52px 8px 10px;
     transition: all 200ms ease;
@@ -57,12 +71,8 @@
       margin-top: -ceil(2.5);
       position: absolute;
       right: 10px;
-      top: 14px;
+      top: 40%;
       width: 0
-    }
-  
-    &:hover {
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     }
   }
 
@@ -111,7 +121,6 @@
       }
       
       &.is-selected {
-        background-color: $gray-lightest;
         font-weight: 700;
       }
     }

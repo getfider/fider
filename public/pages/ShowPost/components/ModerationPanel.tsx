@@ -86,7 +86,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         <List>
           <ListItem>
             <Button color="danger" size="tiny" fluid={true} onClick={this.showModal}>
-              <FaTimes /> Delete
+              Delete
             </Button>
           </ListItem>
         </List>

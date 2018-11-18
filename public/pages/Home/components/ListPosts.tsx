@@ -25,7 +25,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
           {props.post.title}
         </a>
         <MultiLineText className="c-list-item-description" text={props.post.description} style="simple" />
-        <ShowPostResponse status={props.post.status} response={props.post.response} />
+        <ShowPostResponse showUser={false} status={props.post.status} response={props.post.response} />
         {props.tags.map(tag => (
           <ShowTag key={tag.id} size="tiny" tag={tag} />
         ))}

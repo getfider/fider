@@ -18,9 +18,9 @@ export const Message: React.StatelessComponent<MessageProps> = props => {
   const icon = props.type === "error" ? <FaBan /> : <FaRegCheckCircle />;
 
   return (
-    <div className={className}>
+    <p className={className}>
       {props.showIcon === true && icon}
       <span>{props.children}</span>
-    </div>
+    </p>
   );
 };

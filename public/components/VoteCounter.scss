@@ -11,13 +11,14 @@
     width: 45px;
     font-weight: 700;
     cursor: pointer;
-    background-color: $bg-color;
+    background-color: transparent;
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
+    color: $gray-darker;
 
     .icon {
-      color: #C4C9CD;
+      color: $gray-darker;
       margin-bottom: -3px;
     }
   }
@@ -31,7 +32,7 @@
     color: $main-color;
 
     .icon {
-      color: lighten($main-color, 20%) !important;
+      color: $main-color;
     }
   }
 
