@@ -1,0 +1,18 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-hint {
+  position: relative;
+  padding: 15px 35px 15px 15px;
+  margin-bottom: 10px;
+  color: $blue-darker;
+  border-left: 4px solid $blue;
+  background-color: $blue-lightest;
+
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: $font-size-large;
+    cursor: pointer;
+  }
+}

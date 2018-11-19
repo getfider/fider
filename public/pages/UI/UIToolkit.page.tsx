@@ -1,3 +1,5 @@
+import "./UIToolkit.page.scss";
+
 import React from "react";
 import { PostStatus, UserStatus } from "@fider/models";
 import {
@@ -20,7 +22,10 @@ import {
   RadioButton,
   Select,
   Field,
-  SelectOption
+  SelectOption,
+  ButtonClickEvent,
+  Message,
+  Hint
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
@@ -71,6 +76,10 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
     }
   };
 
+  private showLoading = async (e: ButtonClickEvent) => {
+    return e.preventEnable();
+  };
+
   private forceError = async () => {
     this.setState({
       error: {
@@ -86,6 +95,13 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
 
   private renderText = (item?: DropDownItem) => {
     if (item) {
+      return `${item.label} (value: ${item.value})`;
+    }
+    return <span>No country is selected</span>;
+  };
+
+  private renderControl = (item?: DropDownItem) => {
+    if (item) {
       return item.render;
     }
     return <span>...</span>;
@@ -94,11 +110,49 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
   public render() {
     return (
       <div id="p-ui-toolkit" className="page container">
+        <div className="color-scale">
+          <div className="color gray-darkest" />
+          <div className="color gray-darker" />
+          <div className="color gray-dark" />
+          <div className="color gray-default" />
+          <div className="color gray-light" />
+          <div className="color gray-lighter" />
+          <div className="color gray-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color green-darkest" />
+          <div className="color green-darker" />
+          <div className="color green-dark" />
+          <div className="color green-default" />
+          <div className="color green-light" />
+          <div className="color green-lighter" />
+          <div className="color green-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color red-darkest" />
+          <div className="color red-darker" />
+          <div className="color red-dark" />
+          <div className="color red-default" />
+          <div className="color red-light" />
+          <div className="color red-lighter" />
+          <div className="color red-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color blue-darkest" />
+          <div className="color blue-darker" />
+          <div className="color blue-dark" />
+          <div className="color blue-default" />
+          <div className="color blue-light" />
+          <div className="color blue-lighter" />
+          <div className="color blue-lightest" />
+        </div>
+
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>
         <h3>Heading 3</h3>
         <h4>Heading 4</h4>
         <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
         <p>General Text Paragraph</p>
         <p className="info">Info Text</p>
 
@@ -245,6 +299,19 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
               Danger
             </Button>
           </ListItem>
+
+          <ListItem>
+            <Button onClick={this.showLoading}>
+              <FaRegLightbulb /> Loading
+            </Button>
+            <Button onClick={this.showLoading}>Loading</Button>
+            <Button color="positive" onClick={this.showLoading}>
+              Loading
+            </Button>
+            <Button color="danger" onClick={this.showLoading}>
+              Loading
+            </Button>
+          </ListItem>
         </List>
 
         <h1>Toggle</h1>
@@ -334,6 +401,18 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
         <h1>Loader</h1>
         <Loader />
 
+        <h1>Message Box</h1>
+        <Message showIcon={true} type="error">
+          Something went wrong.
+        </Message>
+        <Message showIcon={true} type="success">
+          Your order has been confirmed.
+        </Message>
+
+        <h1>Hints</h1>
+        <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
+        <Hint>You can't close this one :)</Hint>
+
         <h1>Form</h1>
         <Form error={this.state.error}>
           <Input label="Title" field="title">
@@ -387,7 +466,20 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
             />
           </Field>
 
-          <Field label="Color (custom render)">
+          <Field label="Country (custom render text)">
+            <DropDown
+              items={[
+                { label: "Brazil", value: "br" },
+                { label: "United States", value: "us" },
+                { label: "Ireland", value: "ie" }
+              ]}
+              defaultValue={"1"}
+              renderText={this.renderText}
+              placeholder="Select a number"
+            />
+          </Field>
+
+          <Field label="Color (custom render control)">
             <DropDown
               items={[
                 { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
@@ -396,8 +488,9 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
               ]}
               placeholder="Select a color"
               inline={true}
+              style="simple"
               header="What color do you like the most?"
-              renderText={this.renderText}
+              renderControl={this.renderControl}
             />
           </Field>
 

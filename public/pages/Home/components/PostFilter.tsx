@@ -16,10 +16,6 @@ export const PostFilter = (props: PostFilterProps) => {
     props.viewChanged(item.value as string);
   };
 
-  const renderText = (item?: DropDownItem) => {
-    return <>{item!.label.toLowerCase()}</>;
-  };
-
   const options: DropDownItem[] = [
     { value: "trending", label: "Trending" },
     { value: "recent", label: "Recent" },
@@ -47,17 +43,17 @@ export const PostFilter = (props: PostFilterProps) => {
   const activeView = viewExists ? props.activeView : "trending";
 
   return (
-    <>
-      Show{" "}
+    <div>
+      <span className="subtitle">View</span>
       <DropDown
-        className="l-post-filter"
         header="What do you want to see?"
+        className="l-post-filter"
         inline={true}
+        style="simple"
         items={options}
-        renderText={renderText}
         defaultValue={activeView}
         onChange={handleChangeView}
-      />{" "}
-    </>
+      />
+    </div>
   );
 };

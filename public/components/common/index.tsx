@@ -12,6 +12,7 @@ export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
 export * from "./Gravatar";
 export * from "./Message";
+export * from "./Hint";
 export * from "./Footer";
 export * from "./Header";
 export * from "./Heading";

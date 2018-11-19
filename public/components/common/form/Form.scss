@@ -59,7 +59,8 @@
       border-radius: 3px;
     
       &:focus {
-        border: 1px solid $focus-color;
+        border: 1px solid $gray;
+        box-shadow: 0px 0px 1px 1px $gray-light;
       }
     
       &:disabled {
@@ -97,8 +98,11 @@
     input[type=text],
     textarea,
     select {
-      background-color: rgba($error, .05);
-      border-color: $error;
+      border-color: $red;
+    }
+
+    label {
+      color: $red;
     }
   }
 
@@ -127,7 +131,7 @@
     .c-form-input-suffix {
       line-height: 20px;
       flex: 0 0 auto;
-      padding: 8px 10px 9px 10px;;
+      padding: 8px 10px 9px 10px;
       font-weight: 600;
       background-color: $gray-lighter;
       border-top-right-radius: 3px;
@@ -147,7 +151,7 @@
 }
 
 .c-form-field-error {
-  color: $error;
+  color: $red;
   font-weight: bold;
   font-size: $font-size-small;
   margin: 0 0 10px 0;
