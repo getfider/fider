@@ -1,8 +1,8 @@
 import React from "react";
 
 import { Post, Tag, CurrentUser } from "@fider/models";
-import { Loader, Field, Input, Hint } from "@fider/components";
-import { actions, navigator, querystring, Fider } from "@fider/services";
+import { Loader, Field, Input } from "@fider/components";
+import { actions, navigator, querystring } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
 import { PostFilter } from "./PostFilter";
 import { ListPosts } from "./ListPosts";

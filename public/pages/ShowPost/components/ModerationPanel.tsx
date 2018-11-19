@@ -2,7 +2,6 @@ import React from "react";
 import { PostStatus, Post } from "@fider/models";
 import { actions, navigator, Failure, Fider } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
-import { FaTimes } from "react-icons/fa";
 
 interface ModerationPanelProps {
   post: Post;

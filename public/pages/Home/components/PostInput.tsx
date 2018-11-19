@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
-import { cache, actions, Failure, Fider, device } from "@fider/services";
+import { cache, actions, Failure, Fider } from "@fider/services";
 
 interface PostInputProps {
   placeholder: string;
