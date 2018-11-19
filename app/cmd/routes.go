@@ -98,10 +98,10 @@ func routes(r *web.Engine) *web.Engine {
 	** START
 	 */
 	r.Get("/ideas/:number", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	r.Get("/ideas/:number/*all", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	/*
 	** END

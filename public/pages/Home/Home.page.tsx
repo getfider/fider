@@ -2,7 +2,7 @@ import "./Home.page.scss";
 
 import React from "react";
 import { Post, Tag, PostStatus } from "@fider/models";
-import { MultiLineText } from "@fider/components";
+import { MultiLineText, Hint } from "@fider/components";
 import { Fider } from "@fider/services";
 import { SimilarPosts } from "./components/SimilarPosts";
 import { FaRegLightbulb } from "react-icons/fa";
@@ -21,7 +21,14 @@ export interface HomePageState {
 
 const Lonely = () => {
   return (
-    <div className="center">
+    <div className="l-lonely center">
+      <Hint
+        permanentCloseKey="at-least-3-posts"
+        condition={Fider.session.isAuthenticated && Fider.session.user.isAdministrator}
+      >
+        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The
+        initial content is key to start the interactions with your audience.
+      </Hint>
       <p>
         <FaRegLightbulb />
       </p>
@@ -63,7 +70,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
     return (
       <div id="p-home" className="page container">
         <div className="row">
-          <div className="col-md-4">
+          <div className="l-welcome-col col-md-4">
             <MultiLineText
               className="welcome-message"
               text={Fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
@@ -74,7 +81,7 @@ export default class HomePage extends React.Component<HomePageProps, HomePageSta
               onTitleChanged={this.setTitle}
             />
           </div>
-          <div className="col-md-8">
+          <div className="l-posts-col col-md-8">
             {this.isLonely() ? (
               <Lonely />
             ) : this.state.title ? (

@@ -1,15 +1,22 @@
-@import 'variables.scss';
-@import 'reset.scss';
-@import 'grid.scss';
-@import 'utility.scss';
-
 /*******************************
              Site
 *******************************/
 
+@-ms-viewport {
+  width: device-width;
+}
+
 html,
 body {
   height: 100%;
+  box-sizing: border-box;
+  -ms-overflow-style: scrollbar;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
 body {
@@ -17,10 +24,9 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
-  font-size: $font-size;
   font-family: $font-site;
   background-color: $bg-color;
-  color: $text-color;
+  color: $gray-darkest;
   font-size: $font-size;
 }
 
@@ -111,39 +117,34 @@ a:hover {
 
 .status-label {
   text-transform: uppercase;
-  color: $white;
   display: inline-block;
   line-height: 1;
-  padding: 5px 4px;
   font-weight: 600;
-  border: none;
-  border-radius: 3px;
-  font-size: $font-size-micro;
+  font-size: $font-size-mini;
 }
 
 .status-open {
-  color: $text-color;
-  background-color: #e8e8e8;
+  color: $gray-darkest;
 }
 
 .status-planned {
-  background-color: #6435c9;
+  color: #6435c9;
 }
 
 .status-started {
-  background-color: #2185d0;
+  color: #2185d0;
 }
 
 .status-completed {
-  background-color: #21ba45;
+  color: #21ba45;
 }
 
 .status-declined {
-  background-color: #db2828
+  color: #db2828
 }
 
 .status-duplicate {
-  background-color: #fbbd08;
+  color: #d6a100;
 }
 
 /*******************************
@@ -197,7 +198,7 @@ body, h1, h2, h3, h4, h5, .ui, input {
 .info {
   font-size: 90%;
   font-weight: 400;
-  color: rgba($text-color, .8);
+  color: $gray-darker;
 }
 
 .right {
@@ -226,7 +227,7 @@ svg.icon {
   font-weight: 600;
   letter-spacing: .3px;
   text-transform: uppercase;
-  color: #999;
+  color: $gray-dark;
   display: block;
   &.active {
     cursor: pointer;

@@ -510,6 +510,14 @@ func (ctx *Context) Redirect(url string) error {
 	return nil
 }
 
+// PermanentRedirect the request to a provided URL
+func (ctx *Context) PermanentRedirect(url string) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Response.Header().Set("Location", url)
+	ctx.Response.WriteHeader(http.StatusPermanentRedirect)
+	return nil
+}
+
 // GlobalAssetsURL return the full URL to a globally shared static asset
 func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)

@@ -1,9 +1,5 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .l-tags-filter {
-  .c-dropdown-text {
-    font-weight: 700;
-    cursor: pointer;
-    border-bottom: 1px dashed $gray-darker;
-  }
+  vertical-align: middle;
 }
