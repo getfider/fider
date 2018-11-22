@@ -57,7 +57,7 @@ export class TriggerTextArea extends React.Component<TriggerTextAreaProps,Trigge
             }
             // Enter handling
             else if (which === 13 && onTriggerSelected) {
-              const capturedText = currentTarget.value.substring(suggestionTriggerPosition, selectionStart + 1);
+              const capturedText = currentTarget.value.substr(suggestionTriggerPosition, selectionStart);
               e.preventDefault();
               setTimeout(() => {
                 onTriggerSelected(suggestionTriggerPosition, selectionStart);
@@ -69,9 +69,7 @@ export class TriggerTextArea extends React.Component<TriggerTextAreaProps,Trigge
             }
             else {
               onTriggerChange && setTimeout(()=> {
-                console.log(suggestionTriggerPosition, selectionStart);
-                const capturedText = currentTarget.value.substring(suggestionTriggerPosition, selectionStart + 1);
-                console.log(capturedText);
+                const capturedText = currentTarget.value.substr(suggestionTriggerPosition, selectionStart);
                 onTriggerChange(capturedText)
                 });
             }
