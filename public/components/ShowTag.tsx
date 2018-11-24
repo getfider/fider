@@ -3,6 +3,7 @@ import "./ShowTag.scss";
 import React from "react";
 import { Tag } from "@fider/models";
 import { classSet } from "@fider/services";
+import { FaLock } from "react-icons/fa";
 
 interface TagProps {
   tag: Tag;
@@ -44,7 +45,7 @@ export const ShowTag = (props: TagProps) => {
         color: textColor(props.tag.color)
       }}
     >
-      {!props.tag.isPublic && !props.circular && <i className="lock icon" />}
+      {!props.tag.isPublic && !props.circular && <FaLock />}
       {props.circular ? "" : props.tag.name || "Tag"}
     </div>
   );

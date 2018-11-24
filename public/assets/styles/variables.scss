@@ -10,31 +10,101 @@ $font-size-xlarge: 22px;
 $font-site: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Helvetica Neue", Helvetica, sans-serif;
 $font-code: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 
-$main-color: #0069ff;
-$admin-color: #365899;
 $bg-color: #fdfdfd;
-$menu-color: #fff;
-$text-color: #333;
-$link-color: #07C;
-$focus-color: #85b7d9;
-
-// Buttons
-$black-light: #232323;
-$black: #000;
 $white: #fff;
-$white-dark: #f9f9f9;
-$gray-lightest: rgba(0,0,0,.03);
-$gray-lighter: #eee;
-$gray-light: #d5d5d5;
-$gray: #d5d5d5;
-$gray-dark: rgba(0, 0, 0, 0.3);
-$gray-darker: rgba(0, 0, 0, 0.4);
-$gray-darkest: rgba(0, 0, 0, 0.5);
-$green: #28a745;
-$green-darker: #49852e;
-$red: #c82333;
+
+// http://www.colorbox.io
+// Luminosity 98 to 15 with Sine EaseOut
+$gray-darkest: #262626;
+$gray-darker: #5c5c5c;
+$gray-dark: #929292;
+$gray: #c2c2c2;
+$gray-light: #e3e3e3;
+$gray-lighter: #f5f5f5;
+$gray-lightest: #fafafa;
+
+$gray-scale: (
+  darkest: $gray-darkest,
+  darker: $gray-darker,
+  dark: $gray-dark,
+  default: $gray,
+  light: $gray-light,
+  lighter: $gray-lighter,
+  lightest: $gray-lightest,
+);
+
+// http://www.colorbox.io
+// Hue 121 to 121 SineEaseOut
+// Saturation 5 to 80 SineEaseOut
+// Luminosity 100 to 40 SineEaseOut
+$green-darkest: #19801b;
+$green-darker: #23a025;
+$green-dark: #36c138;
+$green: #58dd5a;
+$green-light: #89f18b;
+$green-lighter: #bffcc0;
+$green-lightest: #f2fff2;
+
+$green-scale: (
+  darkest: $green-darkest,
+  darker: $green-darker,
+  dark: $green-dark,
+  default: $green,
+  light: $green-light,
+  lighter: $green-lighter,
+  lightest: $green-lightest,
+);
+
+// http://www.colorbox.io
+// Hue 0 to 0 SineEaseOut
+// Saturation 5 to 80 SineEaseOut
+// Luminosity 100 to 40 SineEaseOut
+$red-darkest: #801919;
+$red-darker: #a02323;
+$red-dark: #c13636;
+$red: #dd5858;
+$red-light: #f18989;
+$red-lighter: #fcbfbf;
+$red-lightest: #fff2f2;
+
+$red-scale: (
+  darkest: $red-darkest,
+  darker: $red-darker,
+  dark: $red-dark,
+  default: $red,
+  light: $red-light,
+  lighter: $red-lighter,
+  lightest: $red-lightest,
+);
+
+
+// http://www.colorbox.io
+// Hue 220 to 220 SineEaseOut
+// Saturation 5 to 80 SineEaseOut
+// Luminosity 100 to 40 SineEaseOut
+$blue-darkest: #193c80;
+$blue-darker: #234da0;
+$blue-dark: #3664c1;
+$blue: #5885dd;
+$blue-light: #89acf1;
+$blue-lighter: #bfd4fc;
+$blue-lightest: #f2f7ff;
+
+$main-color: #3b4ade;
+$admin-color: #3b4ade;
+$link-color: #3664c1;
+
+$blue-scale: (
+  darkest: $blue-darkest,
+  darker: $blue-darker,
+  dark: $blue-dark,
+  default: $blue,
+  light: $blue-light,
+  lighter: $blue-lighter,
+  lightest: $blue-lightest,
+);
+
 $orange: #ff9320;
-$error: #ef7878;
 
 // Queries
 $sm-width: 576px;
@@ -50,6 +120,11 @@ $xl-width: 1200px;
   }
   @else if $media == ">=sm" {
     @media only screen and (min-width: #{$sm-width}) { 
+      @content; 
+    }
+  }
+  @else if $media == "<=md" {
+    @media only screen and (max-width: #{$lg-width - 0.1px}) { 
       @content; 
     }
   }
@@ -87,14 +162,14 @@ $xl-width: 1200px;
 
 @function textColorFor($color) {
   @if (lightness($color) > 60) {
-    @return #484848; // Lighter background, return dark color
+    @return $gray-darkest; // Lighter background, return dark color
   } @else {
-    @return #ffffff; // Darker background, return light color
+    @return $gray-lightest; // Darker background, return light color
   }
 }
 
 @mixin disabled() {
-  cursor: default;
+  cursor: not-allowed;
   opacity: .45!important;
   background-image: none!important;
   -webkit-box-shadow: none!important;

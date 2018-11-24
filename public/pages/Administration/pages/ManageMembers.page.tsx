@@ -1,160 +1,204 @@
 import "./ManageMembers.page.scss";
 
 import React from "react";
-import { Segment, List, Input, Form } from "@fider/components/common";
-import { User, UserRole } from "@fider/models";
-import { Fider } from "@fider/services";
-import { AdminBasePage, UserListItem } from "../components";
+import { Segment, List, Input, ListItem, Gravatar, UserName, DropDown, DropDownItem } from "@fider/components/common";
+import { User, UserRole, UserStatus } from "@fider/models";
+import { AdminBasePage } from "../components/AdminBasePage";
+import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa";
+import { actions, Fider } from "@fider/services";
 
 interface ManageMembersPageState {
-  administrators: User[];
-  collaborators: User[];
-  visitors: User[];
-  filteredNewAdministrators: User[];
-  filteredNewCollaborators: User[];
-  newAdministratorFilter: string;
-  newCollaboratorFilter: string;
+  query: string;
+  users: User[];
+  visibleUsers: User[];
 }
 
 interface ManageMembersPageProps {
   users: User[];
 }
 
-export class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
+interface UserListItemProps {
+  user: User;
+  onAction: (actionName: string, user: User) => Promise<void>;
+}
+
+const UserListItem = (props: UserListItemProps) => {
+  const admin = props.user.role === UserRole.Administrator && <span className="staff">administrator</span>;
+  const collaborator = props.user.role === UserRole.Collaborator && <span className="staff">collaborator</span>;
+  const blocked = props.user.status === UserStatus.Blocked && <span className="blocked">blocked</span>;
+  const isVisitor = props.user.role === UserRole.Visitor;
+
+  const renderEllipsis = () => {
+    return <FaEllipsisH />;
+  };
+
+  const actionSelected = (item: DropDownItem) => {
+    props.onAction(item.value, props.user);
+  };
+
+  return (
+    <ListItem>
+      <Gravatar user={props.user} />
+      <div className="l-user-details">
+        <UserName user={props.user} />
+        <span>
+          {admin} {collaborator} {blocked}
+        </span>
+      </div>
+      {Fider.session.user.id !== props.user.id && Fider.session.user.isAdministrator && (
+        <DropDown
+          className="l-user-actions"
+          inline={true}
+          highlightSelected={false}
+          style="simple"
+          items={[
+            !blocked &&
+              (!!collaborator || isVisitor) && { label: "Promote to Administrator", value: "to-administrator" },
+            !blocked && (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
+            !blocked && (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
+            isVisitor && !blocked && { label: "Block User", value: "block" },
+            isVisitor && !!blocked && { label: "Unblock User", value: "unblock" }
+          ]}
+          renderControl={renderEllipsis}
+          onChange={actionSelected}
+        />
+      )}
+    </ListItem>
+  );
+};
+
+export default class ManageMembersPage extends AdminBasePage<ManageMembersPageProps, ManageMembersPageState> {
   public id = "p-admin-members";
   public name = "members";
-  public icon = "users";
+  public icon = FaUsers;
   public title = "Members";
   public subtitle = "Manage your site administrators and collaborators";
 
   constructor(props: ManageMembersPageProps) {
     super(props);
-    this.state = this.groupUsers();
-  }
 
-  private groupUsers(): ManageMembersPageState {
-    const usersByRole = this.props.users.reduce<{ [key: string]: User[] }>((groups, x) => {
-      groups[x.role] = [x].concat(groups[x.role] || []);
-      return groups;
-    }, {});
-
-    return {
-      administrators: usersByRole[UserRole.Administrator] || [],
-      collaborators: usersByRole[UserRole.Collaborator] || [],
-      visitors: usersByRole[UserRole.Visitor] || [],
-      filteredNewAdministrators: [],
-      filteredNewCollaborators: [],
-      newAdministratorFilter: "",
-      newCollaboratorFilter: ""
+    const users = this.props.users.sort(this.sortByStaff);
+    this.state = {
+      query: "",
+      users,
+      visibleUsers: users.slice(0, 10)
     };
   }
 
-  private onRoleChanged = () => {
-    this.setState(this.groupUsers());
+  private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
+    event.preventDefault();
+    this.setState({
+      visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10)
+    });
   };
 
-  private showUser(user: User, role: UserRole, addable: boolean, removable: boolean) {
-    if (user.id === Fider.session.user.id || Fider.session.user.role !== UserRole.Administrator) {
-      removable = false;
+  private clearSearch = () => {
+    this.handleSearchFilterChanged("");
+  };
+
+  private handleSearchFilterChanged = (query: string) => {
+    const users = this.props.users
+      .filter(x => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0)
+      .sort(this.sortByStaff);
+    this.setState({ query, users, visibleUsers: users.slice(0, 10) });
+  };
+
+  private handleAction = async (actionName: string, user: User) => {
+    const changeRole = async (role: UserRole) => {
+      const result = await actions.changeUserRole(user.id, role);
+      if (result.ok) {
+        user.role = role;
+      }
+      this.handleSearchFilterChanged(this.state.query);
+    };
+
+    const changeStatus = async (status: UserStatus) => {
+      const action = status === UserStatus.Blocked ? actions.blockUser : actions.unblockUser;
+      const result = await action(user.id);
+      if (result.ok) {
+        user.status = status;
+      }
+      this.forceUpdate();
+    };
+
+    if (actionName === "to-collaborator") {
+      await changeRole(UserRole.Collaborator);
+    } else if (actionName === "to-visitor") {
+      await changeRole(UserRole.Visitor);
+    } else if (actionName === "to-administrator") {
+      await changeRole(UserRole.Administrator);
+    } else if (actionName === "block") {
+      await changeStatus(UserStatus.Blocked);
+    } else if (actionName === "unblock") {
+      await changeStatus(UserStatus.Active);
+    }
+  };
+
+  private sortByStaff = (left: User, right: User) => {
+    if (right.role === left.role) {
+      if (left.name < right.name) {
+        return -1;
+      } else if (left.name > right.name) {
+        return 1;
+      }
+      return 0;
     }
 
-    return (
-      <UserListItem
-        key={user.id}
-        role={role}
-        user={user}
-        addable={addable}
-        removable={removable}
-        onChange={this.onRoleChanged}
-      />
-    );
-  }
-
-  private filterVisitors(property: string, text: string) {
-    let filtered: User[] = [];
-    if (text) {
-      filtered = this.state.visitors.filter(x => x.name.toLowerCase().indexOf(text.toLowerCase()) >= 0);
+    if (right.role !== UserRole.Visitor) {
+      return 1;
     }
-
-    if (property === "administrator") {
-      this.setState({
-        newAdministratorFilter: text,
-        filteredNewAdministrators: filtered
-      });
-    } else if (property === "collaborator") {
-      this.setState({
-        newCollaboratorFilter: text,
-        filteredNewCollaborators: filtered
-      });
-    }
-  }
-
-  private handleSearch = {
-    administrator: (query: string) => {
-      this.filterVisitors("administrator", query);
-    },
-    collaborator: (query: string) => {
-      this.filterVisitors("collaborator", query);
-    }
+    return -1;
   };
 
   public content() {
     return (
-      <div className="row">
-        <div className="col-lg-6">
-          <Segment>
-            <h4>Administrators</h4>
-            <p className="info">
-              Administrators have full access to edit and manage content, permissions and settings.
-            </p>
-            <List hover={true}>
-              {this.state.administrators.map(x => this.showUser(x, UserRole.Administrator, false, true))}
-            </List>
-            {Fider.session.user.isAdministrator && (
-              <Form size="mini">
-                <Input
-                  label="Add new administrator"
-                  field="new-administrator"
-                  value={this.state.newAdministratorFilter}
-                  onChange={this.handleSearch.administrator}
-                  placeholder="Search users by name"
-                />
-                <List hover={true}>
-                  {this.state.filteredNewAdministrators.map(x => this.showUser(x, UserRole.Administrator, true, false))}
-                </List>
-                {this.state.newAdministratorFilter &&
-                  this.state.filteredNewAdministrators.length === 0 && <p className="info">No users to show.</p>}
-              </Form>
-            )}
-          </Segment>
-        </div>
-
-        <div className="col-lg-6">
-          <Segment>
-            <h4>Collaborators</h4>
-            <p className="info">Collaborators can edit and manage content, but not permissions and settings.</p>
-            <List hover={true}>
-              {this.state.collaborators.map(x => this.showUser(x, UserRole.Collaborator, false, true))}
-            </List>
-            {Fider.session.user.isAdministrator && (
-              <Form size="mini">
-                <Input
-                  label="Add new collaborator"
-                  field="new-collaborator"
-                  value={this.state.newCollaboratorFilter}
-                  onChange={this.handleSearch.collaborator}
-                  placeholder="Search users by name"
-                />
-                <List hover={true}>
-                  {this.state.filteredNewCollaborators.map(x => this.showUser(x, UserRole.Collaborator, true, false))}
-                </List>
-                {this.state.newCollaboratorFilter &&
-                  this.state.filteredNewCollaborators.length === 0 && <p className="info">No users to show.</p>}
-              </Form>
-            )}
-          </Segment>
-        </div>
-      </div>
+      <>
+        <Input
+          field="query"
+          icon={this.state.query ? FaTimes : FaSearch}
+          onIconClick={this.state.query ? this.clearSearch : undefined}
+          placeholder="Search for users by name..."
+          value={this.state.query}
+          onChange={this.handleSearchFilterChanged}
+        />
+        <Segment>
+          {this.state.visibleUsers.length === 0 && <span>No users found.</span>}
+          <List divided={true}>
+            {this.state.visibleUsers.map(user => (
+              <UserListItem key={user.id} user={user} onAction={this.handleAction} />
+            ))}
+          </List>
+        </Segment>
+        <p className="info">
+          {!this.state.query && (
+            <>
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} registered users
+            </>
+          )}
+          {this.state.query && (
+            <>
+              Showing {this.state.visibleUsers.length} of {this.state.users.length} users matching '{this.state.query}'
+            </>
+          )}
+          {this.state.visibleUsers.length < this.state.users.length && (
+            <a className="l-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
+              view more
+            </a>
+          )}
+        </p>
+        <ul className="l-legend info">
+          <li>
+            <strong>&middot; Administrators</strong> have full access to edit and manage content, permissions and
+            settings.
+          </li>
+          <li>
+            <strong>&middot; Collaborators</strong> can edit and manage content, but not permissions and settings.
+          </li>
+          <li>
+            <strong>&middot; Blocked</strong> users are unable to log into this site.
+          </li>
+        </ul>
+      </>
     );
   }
 }

@@ -32,13 +32,12 @@ export const ErrorPage: React.SFC<ErrorPageProps> = ({
       <div className="content">
         <h2>{title}</h2>
         <p>{message}</p>
-        {showError &&
-          showError() && (
-            <pre className="error">
-              {error.toString()}
-              {errorInfo.componentStack}
-            </pre>
-          )}
+        {showError && showError() && (
+          <pre className="error">
+            {error.toString()}
+            {errorInfo.componentStack}
+          </pre>
+        )}
       </div>
     </div>
   );

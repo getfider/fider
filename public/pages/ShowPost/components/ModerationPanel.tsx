@@ -14,8 +14,6 @@ interface ModerationPanelState {
 }
 
 export class ModerationPanel extends React.Component<ModerationPanelProps, ModerationPanelState> {
-  private form!: Form;
-
   constructor(props: ModerationPanelProps) {
     super(props);
     this.state = {
@@ -87,7 +85,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
         <List>
           <ListItem>
             <Button color="danger" size="tiny" fluid={true} onClick={this.showModal}>
-              <i className="delete icon" /> Delete
+              Delete
             </Button>
           </ListItem>
         </List>

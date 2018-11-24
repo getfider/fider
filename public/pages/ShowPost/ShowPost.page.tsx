@@ -5,11 +5,9 @@ import React from "react";
 import { Comment, Post, Tag } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
-import { TagsPanel, DiscussionPanel, ResponseForm, NotificationsPanel, ModerationPanel } from "./";
 import {
   VoteCounter,
   ShowPostResponse,
-  DisplayError,
   Button,
   UserName,
   Gravatar,
@@ -21,6 +19,12 @@ import {
   Form,
   TextArea
 } from "@fider/components";
+import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
+import { ResponseForm } from "./components/ResponseForm";
+import { TagsPanel } from "./components/TagsPanel";
+import { NotificationsPanel } from "./components/NotificationsPanel";
+import { ModerationPanel } from "./components/ModerationPanel";
+import { DiscussionPanel } from "./components/DiscussionPanel";
 
 interface ShowPostPageProps {
   post: Post;
@@ -36,7 +40,7 @@ interface ShowPostPageState {
   error?: Failure;
 }
 
-export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
+export default class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
   constructor(props: ShowPostPageProps) {
     super(props);
 
@@ -98,7 +102,7 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 )}
 
                 <span className="info">
-                  Shared <Moment date={this.props.post.createdAt} /> by <Gravatar user={this.props.post.user} />{" "}
+                  <Moment date={this.props.post.createdAt} /> &middot; <Gravatar user={this.props.post.user} />{" "}
                   <UserName user={this.props.post.user} />
                 </span>
               </div>
@@ -111,14 +115,10 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
             </Form>
           ) : (
-            <MultiLineText
-              className="description"
-              text={this.props.post.description || "No description provided."}
-              style="simple"
-            />
+            <MultiLineText className="description" text={this.props.post.description} style="simple" />
           )}
 
-          <ShowPostResponse status={this.props.post.status} response={this.props.post.response} />
+          <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
         </div>
 
         <div className="action-col">
@@ -131,12 +131,12 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 <List key={1}>
                   <ListItem>
                     <Button className="save" color="positive" fluid={true} onClick={this.saveChanges}>
-                      <i className="save icon" /> Save
+                      <FaSave /> Save
                     </Button>
                   </ListItem>
                   <ListItem>
                     <Button className="cancel" fluid={true} onClick={this.cancelEdit}>
-                      <i className="cancel icon" /> Cancel
+                      <FaTimes /> Cancel
                     </Button>
                   </ListItem>
                 </List>
@@ -144,7 +144,7 @@ export class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPag
                 <List key={1}>
                   <ListItem>
                     <Button className="edit" fluid={true} onClick={this.startEdit}>
-                      <i className="edit icon" /> Edit
+                      <FaEdit /> Edit
                     </Button>
                   </ListItem>
                   <ListItem>

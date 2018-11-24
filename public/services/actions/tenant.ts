@@ -1,5 +1,5 @@
 import { http, Result } from "@fider/services/http";
-import { Tenant, UserRole, OAuthConfig } from "@fider/models";
+import { UserRole, OAuthConfig } from "@fider/models";
 import { ImageUploadState } from "@fider/components";
 
 export interface CheckAvailabilityResponse {
@@ -72,6 +72,14 @@ export const changeUserRole = async (userID: number, role: UserRole): Promise<Re
   return await http.post(`/_api/admin/roles/${role}/users`, {
     userID
   });
+};
+
+export const blockUser = async (userID: number): Promise<Result> => {
+  return await http.put(`/_api/admin/users/${userID}/block`);
+};
+
+export const unblockUser = async (userID: number): Promise<Result> => {
+  return await http.delete(`/_api/admin/users/${userID}/block`);
 };
 
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {

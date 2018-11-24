@@ -40,7 +40,7 @@ func (u *dbUser) toModel() *models.User {
 		Tenant:    u.Tenant.toModel(),
 		Role:      models.Role(u.Role.Int64),
 		Providers: make([]*models.UserProvider, len(u.Providers)),
-		Status:    int(u.Status.Int64),
+		Status:    models.UserStatus(u.Status.Int64),
 	}
 
 	for i, p := range u.Providers {
@@ -345,4 +345,26 @@ func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
 		return nil, errors.Wrap(err, "failed to get user with API Key '%s'", apiKey)
 	}
 	return user, nil
+}
+
+// Block a given user from using Fider
+func (s *UserStorage) Block(userID int) error {
+	if _, err := s.trx.Execute(
+		"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
+		userID, s.tenant.ID, models.UserBlocked,
+	); err != nil {
+		return errors.Wrap(err, "failed to block user")
+	}
+	return nil
+}
+
+// Unblock a given user so that they can use Fider again
+func (s *UserStorage) Unblock(userID int) error {
+	if _, err := s.trx.Execute(
+		"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
+		userID, s.tenant.ID, models.UserActive,
+	); err != nil {
+		return errors.Wrap(err, "failed to unblock user")
+	}
+	return nil
 }

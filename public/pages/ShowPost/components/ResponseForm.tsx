@@ -2,9 +2,10 @@ import React from "react";
 
 import { Modal, Button, DisplayError, Select, Form, TextArea, Field, SelectOption } from "@fider/components";
 import { Post, PostStatus } from "@fider/models";
-import { PostSearch } from "../";
 
 import { actions, Failure } from "@fider/services";
+import { FaBullhorn } from "react-icons/fa";
+import { PostSearch } from "./PostSearch";
 
 interface ResponseFormProps {
   post: Post;
@@ -66,7 +67,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   public render() {
     const button = (
       <Button className="respond" fluid={true} onClick={this.showModal}>
-        <i className="announcement icon" /> Respond
+        <FaBullhorn /> Respond
       </Button>
     );
 

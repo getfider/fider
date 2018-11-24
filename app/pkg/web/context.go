@@ -47,6 +47,9 @@ var (
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
+// CookieSessionName is the name of the cookie that holds the session ID
+const CookieSessionName = "user_session_id"
+
 // CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
 
@@ -65,19 +68,31 @@ var (
 
 //Context shared between http pipeline
 type Context struct {
-	id       string
-	Response http.ResponseWriter
-	Request  Request
-	engine   *Engine
-	logger   log.Logger
-	params   StringMap
-	store    Map
-	worker   worker.Worker
+	id        string
+	sessionID string
+	Response  http.ResponseWriter
+	Request   Request
+	engine    *Engine
+	logger    log.Logger
+	params    StringMap
+	store     Map
+	worker    worker.Worker
 }
 
 //Engine returns main HTTP engine
 func (ctx *Context) Engine() *Engine {
 	return ctx.engine
+}
+
+//SessionID returns the current session ID
+func (ctx *Context) SessionID() string {
+	return ctx.sessionID
+}
+
+//SetSessionID sets the session ID on current context
+func (ctx *Context) SetSessionID(id string) {
+	ctx.sessionID = id
+	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -130,8 +145,9 @@ func (ctx *Context) Enqueue(task worker.Task) {
 	}
 
 	ctx.Set(tasksContextKey, append(tasks, worker.Task{
-		Name: task.Name,
-		Job:  wrap(ctx),
+		OriginSessionID: ctx.SessionID(),
+		Name:            task.Name,
+		Job:             wrap(ctx),
 	}))
 }
 
@@ -337,15 +353,17 @@ func (ctx *Context) Services() *app.Services {
 }
 
 //AddCookie adds a cookie
-func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
+	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
 		Secure:   ctx.Request.IsSecure,
-	})
+	}
+	http.SetCookie(ctx.Response, cookie)
+	return cookie
 }
 
 //RemoveCookie removes a cookie
@@ -489,6 +507,14 @@ func (ctx *Context) Redirect(url string) error {
 	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Response.Header().Set("Location", url)
 	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
+	return nil
+}
+
+// PermanentRedirect the request to a provided URL
+func (ctx *Context) PermanentRedirect(url string) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Response.Header().Set("Location", url)
+	ctx.Response.WriteHeader(http.StatusPermanentRedirect)
 	return nil
 }
 

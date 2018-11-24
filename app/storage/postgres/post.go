@@ -549,12 +549,10 @@ func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) err
 
 // GetActiveSubscribers based on input and settings
 func (s *PostStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
-	post, err := s.GetByNumber(number)
-	if err != nil {
-		return make([]*models.User, 0), err
-	}
-
-	var users []*dbUser
+	var (
+		users []*dbUser
+		err   error
+	)
 
 	if len(event.RequiresSubscriptionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
@@ -583,7 +581,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			FROM users u
 			LEFT JOIN post_subscribers sub
 			ON sub.user_id = u.id
-			AND sub.post_id = $1
+			AND sub.post_id = (SELECT id FROM posts p WHERE p.tenant_id = $4 and p.number = $1 LIMIT 1)
 			AND sub.tenant_id = u.tenant_id
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
@@ -597,7 +595,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 				OR CAST(set.value AS integer) & $6 > 0
 			)
 			ORDER by u.id`,
-			post.ID,
+			number,
 			models.SubscriberActive,
 			event.UserSettingsKeyName,
 			s.tenant.ID,

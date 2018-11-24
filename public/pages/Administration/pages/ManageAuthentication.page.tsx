@@ -1,10 +1,11 @@
 import React from "react";
 
-import { AdminBasePage } from "../components";
 import { Segment, List, ListItem, Button, Heading, OAuthProviderLogo } from "@fider/components";
 import { OAuthConfig, OAuthProviderOption } from "@fider/models";
 import { OAuthForm } from "../components/OAuthForm";
 import { actions, notify, Fider } from "@fider/services";
+import { FaEdit, FaPlay, FaSignInAlt } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 import "./ManageAuthentication.page.scss";
 
@@ -17,13 +18,13 @@ interface ManageAuthenticationPageState {
   editing?: OAuthConfig;
 }
 
-export class ManageAuthenticationPage extends AdminBasePage<
+export default class ManageAuthenticationPage extends AdminBasePage<
   ManageAuthenticationPageProps,
   ManageAuthenticationPageState
 > {
   public id = "p-admin-authentication";
   public name = "authentication";
-  public icon = "sign in alternate";
+  public icon = FaSignInAlt;
   public title = "Authentication";
   public subtitle = "Manage your site authentication";
 
@@ -89,13 +90,13 @@ export class ManageAuthenticationPage extends AdminBasePage<
                 {o.isCustomProvider && (
                   <>
                     {Fider.session.user.isAdministrator && (
-                      <Button onClick={this.edit.bind(this, o.provider)} className="right">
-                        <i className="edit icon" />
+                      <Button onClick={this.edit.bind(this, o.provider)} size="mini" className="right">
+                        <FaEdit />
                         Edit
                       </Button>
                     )}
-                    <Button onClick={this.startTest.bind(this, o.provider)} className="right">
-                      <i className="play icon" />
+                    <Button onClick={this.startTest.bind(this, o.provider)} size="mini" className="right">
+                      <FaPlay />
                       Test
                     </Button>
                   </>

@@ -20,7 +20,7 @@ func authenticate(username string, password string, host string) gosmtp.Auth {
 	if username == "" && password == "" {
 		return nil
 	}
-	return gosmtp.PlainAuth("", username, password, host)
+	return AgnosticAuth("", username, password, host)
 }
 
 type builder struct {

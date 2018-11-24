@@ -27,10 +27,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	r.Get("/-/health", handlers.Health())
-	r.Get("/robots.txt", handlers.RobotsTXT())
-	r.Post("/_api/log-error", handlers.LogError())
-
 	assets := r.Group()
 	{
 		assets.Use(middlewares.CORS())
@@ -38,6 +34,12 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/favicon.ico", "favicon.ico")
 		assets.Static("/assets/*filepath", "dist")
 	}
+
+	r.Use(middlewares.Session())
+
+	r.Get("/-/health", handlers.Health())
+	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
 
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
@@ -60,7 +62,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	tenantAssets := r.Group()
 	{
-		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
+		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
@@ -96,10 +98,10 @@ func routes(r *web.Engine) *web.Engine {
 	** START
 	 */
 	r.Get("/ideas/:number", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	r.Get("/ideas/:number/*all", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	/*
 	** END
@@ -144,14 +146,17 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
+		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
+		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 	}
 
 	api := r.Group()
 	{
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
 		api.Get("/api/v1/tags", apiv1.ListTags())
-		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		api.Get("/api/v1/posts/:number", apiv1.GetPost())
+		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
+		api.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
 
 		//From this step, a User is required
 		api.Use(middlewares.IsAuthenticated())

@@ -262,6 +262,52 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
 }
 
+func TestNotifyAboutDeletePostTask(t *testing.T) {
+	RegisterT(t)
+
+	worker, services := mock.NewWorker()
+	services.SetCurrentUser(mock.AryaStark)
+	post, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
+	services.Posts.SetResponse(post, "Invalid post!", models.PostDeleted)
+
+	emailer := services.Emailer.(*noop.Sender)
+	task := tasks.NotifyAboutDeletedPost(post)
+
+	err := worker.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		WithBaseURL("http://domain.com").
+		Execute(task)
+
+	Expect(err).IsNil()
+	Expect(emailer.Requests).HasLen(1)
+	Expect(emailer.Requests[0].TemplateName).Equals("delete_post")
+	Expect(emailer.Requests[0].Context.Tenant()).Equals(mock.DemoTenant)
+	Expect(emailer.Requests[0].Params).Equals(email.Params{
+		"title":      "Add support for TypeScript",
+		"tenantName": "Demonstration",
+		"content":    template.HTML("<p>Invalid post!</p>"),
+		"change":     template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+	})
+	Expect(emailer.Requests[0].From).Equals("Jon Snow")
+	Expect(emailer.Requests[0].To).HasLen(1)
+	Expect(emailer.Requests[0].To[0]).Equals(email.Recipient{
+		Name:    "Arya Stark",
+		Address: "arya.stark@got.com",
+		Params:  email.Params{},
+	})
+
+	services.SetCurrentUser(mock.AryaStark)
+	notifications, err := services.Notifications.GetActiveNotifications()
+	Expect(err).IsNil()
+	Expect(notifications).HasLen(1)
+	Expect(notifications[0].ID).Equals(1)
+	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(notifications[0].Link).Equals("")
+	Expect(notifications[0].Read).IsFalse()
+	Expect(notifications[0].Title).Equals("**Jon Snow** deleted **Add support for TypeScript**")
+}
+
 func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	RegisterT(t)
 

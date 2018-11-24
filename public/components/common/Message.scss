@@ -1,22 +1,24 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-message {
-  border-style: solid;
-  border-width: 1px;
-  font-weight: 600;
-  padding: 10px;
-  border-radius: 3px;
+  padding: 15px;
   margin-bottom: 10px;
+
+  .icon {
+    margin-right: 5px;
+    margin-top: -4px;
+    height: 14px;
+  }
 
   &.m-success {
     color: $green-darker;
-    border-color: $green-darker;
-    background-color: rgba($green-darker, 0.08)
+    border-left: 4px solid $green;
+    background-color: $green-lightest;
   }
 
   &.m-error {
-    color: $error;
-    border-color: $error;
-    background-color: rgba($error, 0.08)
+    color: $red-darker;
+    border-left: 4px solid $red;
+    background-color: $red-lightest;
   }
 }

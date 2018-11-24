@@ -4,13 +4,13 @@
   margin: 0px 0px 10px 0px;
 
   .c-heading-content {
-    display: table-cell;
+    display: inline-block;
     vertical-align: middle;
 
     .c-heading-subtitle {
       font-weight: 400;
       margin-top: 5px;
-      color: $gray-darkest;
+      color: $gray-darker;
       font-size: $font-size;
     }
   }
@@ -24,8 +24,20 @@
     @include media("sm") {
       font-size: 20px;
     }
-    display: table-cell;
+    display: inline-block;
     vertical-align: middle;
+    &.circular {
+      border-radius: 500em !important;
+      padding: 0.5em 0 !important;
+      -webkit-box-shadow: 0 0 0 0.1em rgba(0,0,0,0.1) inset;
+      box-shadow: 0 0 0 0.1em rgba(0,0,0,0.1) inset;
+      width: 2em !important;
+      height: 2em !important;
+      text-align: center;
+      .icon {
+        vertical-align: top;
+      }
+    }
   }
 
   &.m-dividing {

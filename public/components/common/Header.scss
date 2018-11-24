@@ -83,7 +83,7 @@
 
       &:hover {
         > span {
-          color: $text-color;
+          color: $gray-darkest;
         }
       }
 
@@ -96,29 +96,34 @@
         top: 100%!important;
         opacity: 1;
         z-index: 11;
-        background-color: $menu-color;
+        background-color: $white;
         box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
         border: 1px solid rgba(34,36,38,.15);
         min-width: 160px;
         border-radius: 0px 0px 5px 5px;
+
+        span {
+          vertical-align: middle;
+        }
 
         .c-menu-user-heading {
           white-space: nowrap;
           font-size: $font-size-mini;
           padding: 10px;
           display: block;
-          color: $text-color;
+          color: $gray-darkest;
           text-transform: uppercase;
           font-weight: 600;
           cursor: default;
         }
+
         .c-menu-user-item {
           font-size: $font-size-small;
           padding: 10px;
           display: block;
-          color: $text-color;
+          color: $gray-darkest;
           &:hover {
-            background-color: $gray-lightest;
+            background-color: $gray-lighter;
           }
         }
         .c-menu-user-divider {

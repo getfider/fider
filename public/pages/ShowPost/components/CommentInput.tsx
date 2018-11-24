@@ -25,7 +25,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     super(props);
 
     this.state = {
-      content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
+      content: (Fider.session.isAuthenticated && cache.session.get(this.getCacheKey())) || "",
       showSignIn: false
     };
   }
@@ -35,7 +35,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   private commentChanged = (content: string) => {
-    cache.set(this.getCacheKey(), content);
+    cache.session.set(this.getCacheKey(), content);
     this.setState({ content });
   };
 
@@ -46,7 +46,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     const result = await actions.createComment(this.props.post.number, this.state.content);
     if (result.ok) {
-      cache.remove(this.getCacheKey());
+      cache.session.remove(this.getCacheKey());
       location.reload();
     } else {
       this.setState({

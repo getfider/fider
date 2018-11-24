@@ -1,6 +1,6 @@
 import React from "react";
 import { OAuthConfig, OAuthConfigStatus } from "@fider/models";
-import { Failure, Fider, actions, navigator } from "@fider/services";
+import { Failure, Fider, actions } from "@fider/services";
 import {
   Form,
   Button,
@@ -76,7 +76,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       logo: this.state.logo
     });
     if (result.ok) {
-      navigator.goTo("/admin/authentication");
+      location.reload();
     } else {
       this.setState({ error: result.error });
     }
@@ -282,7 +282,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserNamePath}
             >
               <p className="info">
-                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>
+                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>{" "}
                 recommended. For the example below, the path would be <strong>profile.name</strong>.
               </p>
             </Input>

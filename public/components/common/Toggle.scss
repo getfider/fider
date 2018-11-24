@@ -22,8 +22,8 @@
   label {
     display: inline-block;
     vertical-align: middle;
-    width: 40px;
-    height: 20px;
+    width: 30px;
+    height: 15px;
     border-radius: 10px;
     position: relative;
     cursor: pointer;
@@ -32,23 +32,23 @@
 
   .switch {
     position: absolute;
-    width: 19px;
-    height: 18px;
+    width: 13px;
+    height: 13px;
     margin-top: 1px;
     margin-left: 1px;
     border-radius: 1em;
-    background: $white;
-    box-shadow: 5px 0px 28px -9px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 1px 5px 0px $gray-dark;
+    background: $gray-lightest;
     transition: transform .2s ease-in;
   }
 
   input:checked ~ label {
-    background: $green;
+    background: $green-dark;
   }
   
   input:checked ~ label .switch {
-    background: $white;
-    transform: translatex(19px);
+    background: $gray-lightest;
+    transform: translatex(15px);
     transition: transform .2s ease-in;
   }
 }

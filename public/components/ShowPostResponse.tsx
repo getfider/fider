@@ -21,7 +21,6 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
   if (!original) {
     return null;
   }
-  const status = PostStatus.Get(original.status);
 
   return (
     <div className="content">
@@ -33,6 +32,7 @@ const DuplicateDetails = (props: PostResponseProps): JSX.Element | null => {
 interface PostResponseProps {
   status: string;
   response: PostResponse | null;
+  showUser: boolean;
 }
 
 const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
@@ -50,11 +50,15 @@ const StatusDetails = (props: PostResponseProps): JSX.Element | null => {
 export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
   const status = PostStatus.Get(props.status);
 
-  if (props.response && status.show) {
+  if (props.response && (status.show || props.response.text)) {
     return (
       <Segment className="l-response">
-        <ShowPostStatus status={status} />
-        <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
+        {status.show && <ShowPostStatus status={status} />}
+        {props.showUser && (
+          <>
+            <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
+          </>
+        )}
         {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}
       </Segment>
     );
