@@ -116,6 +116,7 @@ func SignUp() web.HandlerFunc {
 		return c.Page(web.Props{
 			Title:       "Sign up",
 			Description: "Sign up for Fider and let your customers share, vote and discuss on suggestions they have to make your product even better.",
+			ChunkName:   "SignUp.page",
 		})
 	}
 }

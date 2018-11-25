@@ -29,6 +29,16 @@ func TestRenderer_Basic(t *testing.T) {
 	compareRendererResponse(buf, "/app/pkg/web/testdata/basic.html", ctx)
 }
 
+func TestRenderer_WithChunkPreload(t *testing.T) {
+	RegisterT(t)
+
+	buf := new(bytes.Buffer)
+	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
+	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer.Render(buf, "index.html", web.Props{ChunkName: "Test.page"}, ctx)
+	compareRendererResponse(buf, "/app/pkg/web/testdata/chunk.html", ctx)
+}
+
 func TestRenderer_Tenant(t *testing.T) {
 	RegisterT(t)
 

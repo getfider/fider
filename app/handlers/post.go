@@ -38,6 +38,7 @@ func Index() web.HandlerFunc {
 
 		return c.Page(web.Props{
 			Description: description,
+			ChunkName:   "Home.page",
 			Data: web.Map{
 				"posts":          posts,
 				"tags":           tags,
@@ -79,6 +80,7 @@ func PostDetails() web.HandlerFunc {
 		return c.Page(web.Props{
 			Title:       post.Title,
 			Description: markdown.PlainText(post.Description),
+			ChunkName:   "ShowPost.page",
 			Data: web.Map{
 				"comments":   comments,
 				"subscribed": subscribed,

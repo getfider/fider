@@ -21,7 +21,8 @@ func SignInPage() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Sign in",
+			Title:     "Sign in",
+			ChunkName: "SignIn.page",
 		})
 	}
 }

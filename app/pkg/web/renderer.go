@@ -36,11 +36,12 @@ type clientAssets struct {
 
 //Renderer is the default HTML Render
 type Renderer struct {
-	templates map[string]*template.Template
-	logger    log.Logger
-	settings  *models.SystemSettings
-	assets    *clientAssets
-	mutex     sync.RWMutex
+	templates     map[string]*template.Template
+	logger        log.Logger
+	settings      *models.SystemSettings
+	assets        *clientAssets
+	chunkedAssets map[string]*clientAssets
+	mutex         sync.RWMutex
 }
 
 // NewRenderer creates a new Renderer
@@ -82,6 +83,9 @@ func (r *Renderer) loadAssets(ctx *Context) error {
 				Assets []string `json:"assets"`
 			} `json:"main"`
 		} `json:"entrypoints"`
+		ChunkGroups map[string]struct {
+			Assets []string `json:"assets"`
+		} `json:"namedChunkGroups"`
 	}
 
 	assetsFilePath := "/dist/assets.json"
@@ -108,20 +112,36 @@ func (r *Renderer) loadAssets(ctx *Context) error {
 		JS:  make([]string, 0),
 	}
 
-	for _, asset := range file.Entrypoints.Main.Assets {
+	r.assets = getClientAssets(ctx, file.Entrypoints.Main.Assets)
+	r.chunkedAssets = make(map[string]*clientAssets)
+
+	for chunkName, chunkGroup := range file.ChunkGroups {
+		r.chunkedAssets[chunkName] = getClientAssets(ctx, chunkGroup.Assets)
+	}
+
+	return nil
+}
+
+func getClientAssets(ctx *Context, assets []string) *clientAssets {
+	clientAssets := &clientAssets{
+		CSS: make([]string, 0),
+		JS:  make([]string, 0),
+	}
+
+	for _, asset := range assets {
 		if strings.HasSuffix(asset, ".map") {
 			continue
 		}
 
 		assetURL := ctx.GlobalAssetsURL("/assets/" + asset)
 		if strings.HasSuffix(asset, ".css") {
-			r.assets.CSS = append(r.assets.CSS, assetURL)
+			clientAssets.CSS = append(clientAssets.CSS, assetURL)
 		} else if strings.HasSuffix(asset, ".js") {
-			r.assets.JS = append(r.assets.JS, assetURL)
+			clientAssets.JS = append(clientAssets.JS, assetURL)
 		}
 	}
 
-	return nil
+	return clientAssets
 }
 
 //Render a template based on parameters
@@ -157,6 +177,10 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	if props.Description != "" {
 		description := strings.Replace(props.Description, "\n", " ", -1)
 		m["__description"] = fmt.Sprintf("%.150s", description)
+	}
+
+	if props.ChunkName != "" {
+		m["__chunkAssets"] = r.chunkedAssets[props.ChunkName]
 	}
 
 	m["__assets"] = r.assets

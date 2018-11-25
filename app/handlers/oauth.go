@@ -33,7 +33,8 @@ func OAuthEcho() web.HandlerFunc {
 		body, err := c.Services().OAuth.GetRawProfile(provider, code)
 		if err != nil {
 			return c.Page(web.Props{
-				Title: "OAuth Test Page",
+				Title:     "OAuth Test Page",
+				ChunkName: "OAuthEcho.page",
 				Data: web.Map{
 					"err": errors.Cause(err).Error(),
 				},
@@ -43,7 +44,8 @@ func OAuthEcho() web.HandlerFunc {
 		profile, _ := c.Services().OAuth.ParseRawProfile(provider, body)
 
 		return c.Page(web.Props{
-			Title: "OAuth Test Page",
+			Title:     "OAuth Test Page",
+			ChunkName: "OAuthEcho.page",
 			Data: web.Map{
 				"body":    body,
 				"profile": profile,

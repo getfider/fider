@@ -22,7 +22,7 @@ const plugins = [
       children: false,
       chunks: false,
       entrypoints: true,
-      chunkGroups: false,
+      chunkGroups: true,
       modules: false
     }
   })

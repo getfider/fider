@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="{{ . }}" />
   {{end}}
   {{end}}
+  {{ if .__chunkAssets }}
+    {{range .__chunkAssets.CSS}}
+      <link rel="preload" href="{{ . }}" as="style" />
+    {{end}}
+    {{range .__chunkAssets.JS}}
+      <link rel="preload" href="{{ . }}" as="script" />
+    {{end}}
+  {{end}}
   <title>{{ .__title }}</title>
   <meta name="description" content="{{ .__description }}" />
   <meta property="og:title" content="{{ .__title }}" />
