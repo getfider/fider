@@ -264,6 +264,28 @@ func Unsubscribe() web.HandlerFunc {
 	}
 }
 
+// ListVoters returns a list of all users that voted on given post
+func ListVoters() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		users, err := c.Services().Posts.ListVoters(post)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(users)
+	}
+}
+
 func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
