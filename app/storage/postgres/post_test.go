@@ -526,3 +526,20 @@ func TestPostStorage_IsReferenced(t *testing.T) {
 	Expect(referenced).IsTrue()
 	Expect(err).IsNil()
 }
+
+func TestPostStorage_ListVotersOfPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+	post1, _ := posts.Add("My new post", "with this description")
+	posts.AddVote(post1, jonSnow)
+	posts.AddVote(post1, aryaStark)
+
+	users, err := posts.ListVoters(post1)
+	Expect(err).IsNil()
+	Expect(users).HasLen(2)
+	Expect(users[0].Name).Equals("Jon Snow")
+	Expect(users[1].Name).Equals("Arya Stark")
+}

@@ -711,3 +711,26 @@ func (s *PostStorage) VotedBy() ([]int, error) {
 	}
 	return posts, nil
 }
+
+// ListVoters returns a list of all users that voted on given post
+func (s *PostStorage) ListVoters(post *models.Post) ([]*models.User, error) {
+	var users []*dbUser
+	err := s.trx.Select(&users, `
+		SELECT u.id, u.name, u.email, u.tenant_id, u.role, u.status 
+		FROM post_votes pv
+		INNER JOIN users u
+		ON u.id = pv.user_id
+		AND u.tenant_id = pv.tenant_id 
+		WHERE pv.post_id = $1  
+		AND pv.tenant_id = $2
+		ORDER BY pv.created_at`, post.ID, s.tenant.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get voters of post")
+	}
+
+	var result = make([]*models.User, len(users))
+	for i, user := range users {
+		result[i] = user.toModel()
+	}
+	return result, nil
+}
