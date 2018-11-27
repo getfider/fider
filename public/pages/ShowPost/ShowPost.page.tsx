@@ -2,7 +2,7 @@ import "./ShowPost.page.scss";
 
 import React from "react";
 
-import { Comment, Post, Tag } from "@fider/models";
+import { Comment, Post, Tag, User } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
 import {
@@ -25,12 +25,17 @@ import { TagsPanel } from "./components/TagsPanel";
 import { NotificationsPanel } from "./components/NotificationsPanel";
 import { ModerationPanel } from "./components/ModerationPanel";
 import { DiscussionPanel } from "./components/DiscussionPanel";
+import { VotersPanel } from "./components/VotersPanel";
 
 interface ShowPostPageProps {
   post: Post;
   subscribed: boolean;
   comments: Comment[];
   tags: Tag[];
+  voters: {
+    total: number;
+    list: User[];
+  };
 }
 
 interface ShowPostPageState {
@@ -122,6 +127,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
         </div>
 
         <div className="action-col">
+          <VotersPanel post={this.props.post} voters={this.props.voters} />
+
           {Fider.session.isAuthenticated &&
             Fider.session.user.isCollaborator && [
               <span key={0} className="subtitle">
