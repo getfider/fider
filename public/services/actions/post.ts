@@ -1,5 +1,5 @@
 import { http, Result, querystring } from "@fider/services";
-import { Post, User } from "@fider/models";
+import { Post, Vote } from "@fider/models";
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts");
@@ -47,8 +47,8 @@ export const unsubscribe = async (postNumber: number): Promise<Result> => {
   return http.delete(`/api/v1/posts/${postNumber}/subscription`).then(http.event("post", "unsubscribe"));
 };
 
-export const listVoters = async (postNumber: number): Promise<Result<User[]>> => {
-  return http.get<User[]>(`/api/v1/posts/${postNumber}/voters`);
+export const listVotes = async (postNumber: number): Promise<Result<Vote[]>> => {
+  return http.get<Vote[]>(`/api/v1/posts/${postNumber}/votes`);
 };
 
 export const createComment = async (postNumber: number, content: string): Promise<Result> => {
