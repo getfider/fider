@@ -15,7 +15,6 @@ func ListUsers() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-
 		return c.Ok(users)
 	}
 }

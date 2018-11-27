@@ -175,7 +175,7 @@ func routes(r *web.Engine) *web.Engine {
 
 		api.Get("/api/v1/users", apiv1.ListUsers())
 		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
-		api.Get("/api/v1/posts/:number/voters", apiv1.ListVoters())
+		api.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())
