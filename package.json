@@ -4,15 +4,15 @@
   "repository": "https://github.com/getfider/fider",
   "private": true,
   "dependencies": {
-    "@types/textarea-caret": "^3.0.0",
     "markdown-it": "8.4.2",
     "react": "16.6.0",
     "react-dom": "16.6.0",
     "react-loadable": "^5.5.0",
+    "react-mentions": "^2.4.1",
     "react-textarea-autosize": "7.0.4",
     "react-toastify": "4.4.0",
-    "textarea-caret": "^3.1.0",
     "semantic-ui-css": "2.4.1",
+    "textarea-caret": "^3.1.0",
     "tslib": "1.9.3"
   },
   "devDependencies": {

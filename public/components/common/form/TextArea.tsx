@@ -4,7 +4,7 @@ import { ValidationContext } from "../";
 import { DisplayError, hasError } from "./DisplayError";
 import Textarea from "react-textarea-autosize";
 
-import { runInThisContext } from 'vm';
+// import { runInThisContext } from 'vm';
 
 export interface TextAreaProps {
   field: string;

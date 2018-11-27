@@ -3,7 +3,7 @@ export * from "./form/Form";
 export * from "./form/Input";
 export * from "./form/ImageUploader";
 export * from "./form/TextArea";
-export * from "./form/TriggerTextArea";
+export * from "./form/MentionableTextArea";
 export * from "./form/RadioButton";
 export * from "./form/DisplayError";
 export * from "./form/Select";
