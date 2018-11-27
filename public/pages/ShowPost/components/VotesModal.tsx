@@ -1,36 +1,36 @@
-import "./VotersModal.scss";
+import "./VotesModal.scss";
 
 import React from "react";
-import { Post, User } from "@fider/models";
+import { Post, Vote } from "@fider/models";
 import { Modal, Button, Loader, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 
-interface VotersModalProps {
+interface VotesModalProps {
   isOpen: boolean;
   post: Post;
   onClose?: () => void;
 }
 
-interface VotersModalState {
+interface VotesModalState {
   searchText: string;
-  users: User[];
+  votes: Vote[];
   isLoading: boolean;
 }
 
-export class VotersModal extends React.Component<VotersModalProps, VotersModalState> {
-  constructor(props: VotersModalProps) {
+export class VotesModal extends React.Component<VotesModalProps, VotesModalState> {
+  constructor(props: VotesModalProps) {
     super(props);
     this.state = {
       searchText: "",
-      users: [],
+      votes: [],
       isLoading: true
     };
   }
 
   public componentDidMount() {
-    actions.listVoters(this.props.post.number).then(response => {
+    actions.listVotes(this.props.post.number).then(response => {
       if (response.ok) {
-        this.setState({ users: response.data, isLoading: false });
+        this.setState({ votes: response.data, isLoading: false });
       }
     });
   }
@@ -43,14 +43,14 @@ export class VotersModal extends React.Component<VotersModalProps, VotersModalSt
 
   public render() {
     return (
-      <Modal.Window className="c-voters-modal" isOpen={this.props.isOpen} center={false} onClose={this.props.onClose}>
+      <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.props.onClose}>
         <Modal.Content>
           {this.state.isLoading && <Loader />}
           <div>
             {!this.state.isLoading && (
               <List>
-                {this.state.users.map(x => (
-                  <ListItem key={x.id}>{x.name}</ListItem>
+                {this.state.votes.map(x => (
+                  <ListItem key={x.user.id}>{x.user.name}</ListItem>
                 ))}
               </List>
             )}
