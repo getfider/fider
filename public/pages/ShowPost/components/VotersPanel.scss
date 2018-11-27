@@ -1,0 +1,18 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.l-voters-list {
+  .c-avatar {
+    margin: 0 -8px 0 -2px;
+    padding: 0;
+    border: 2px solid $bg-color;
+  }
+}
+
+.l-voters-more {
+  margin-left: 10px;
+  font-weight: 600;
+  font-size: $font-size-small;
+  &.clickable:hover {
+    text-decoration: underline;
+  }
+}
