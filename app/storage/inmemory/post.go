@@ -234,9 +234,9 @@ func (s *PostStorage) VotedBy() ([]int, error) {
 	return s.postsVotedBy[s.user.ID], nil
 }
 
-// ListVoters returns a list of all users that voted on given post
-func (s *PostStorage) ListVoters(post *models.Post) ([]*models.User, error) {
-	return make([]*models.User, 0), nil
+// ListVotes returns a list of all votes on given post
+func (s *PostStorage) ListVotes(post *models.Post) ([]*models.Vote, error) {
+	return make([]*models.Vote, 0), nil
 }
 
 // AddSubscriber adds user to the post list of subscribers

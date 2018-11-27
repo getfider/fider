@@ -15,11 +15,6 @@ func ListUsers() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-
-		for _, u := range users {
-			u.ShowEmail = c.IsAuthenticated() && c.User().IsCollaborator()
-		}
-
 		return c.Ok(users)
 	}
 }

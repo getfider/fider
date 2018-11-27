@@ -22,6 +22,16 @@ type Post struct {
 	Tags          []string      `json:"tags"`
 }
 
+//Vote represents a vote given by a user on a post
+type Vote struct {
+	User *struct {
+		ID    int    `json:"id" db:"id"`
+		Name  string `json:"name" db:"name"`
+		Email string `json:"email,omitempty" db:"email"`
+	} `json:"user" db:"user"`
+	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+}
+
 // CanBeVoted returns true if this post can have its vote changed
 func (i *Post) CanBeVoted() bool {
 	return i.Status != PostCompleted && i.Status != PostDeclined && i.Status != PostDuplicate
