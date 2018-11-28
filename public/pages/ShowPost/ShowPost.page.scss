@@ -41,6 +41,10 @@
     @include media(">=md") {
       width: 200px;
     }
+
+    .subtitle + .c-list {
+      margin-bottom: 10px;
+    }
   }
 
   .c-tag-list {
