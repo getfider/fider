@@ -76,13 +76,9 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		votes, err := c.Services().Posts.ListVotes(post)
+		votes, err := c.Services().Posts.ListVotes(post, 6)
 		if err != nil {
 			return c.Failure(err)
-		}
-
-		if len(votes) > 6 {
-			votes = votes[0:6]
 		}
 
 		return c.Page(web.Props{

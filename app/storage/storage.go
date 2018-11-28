@@ -37,7 +37,7 @@ type Post interface {
 	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
 	VotedBy() ([]int, error)
-	ListVotes(post *models.Post) ([]*models.Vote, error)
+	ListVotes(post *models.Post, limit int) ([]*models.Vote, error)
 }
 
 // User is used for user operations

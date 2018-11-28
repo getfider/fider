@@ -277,7 +277,7 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		votes, err := c.Services().Posts.ListVotes(post)
+		votes, err := c.Services().Posts.ListVotes(post, -1)
 		if err != nil {
 			return c.Failure(err)
 		}
