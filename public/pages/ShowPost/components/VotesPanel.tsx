@@ -40,7 +40,7 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
     });
 
     return (
-      <div>
+      <>
         <VotesModal post={this.props.post} isOpen={this.state.showModal} onClose={this.hideModal} />
         <span className="subtitle">Voters</span>
         <div className="l-votes-list">
@@ -58,7 +58,7 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
             </span>
           )}
         </div>
-      </div>
+      </>
     );
   }
 }
