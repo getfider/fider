@@ -87,14 +87,14 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     const icon = this.state.canEdit && (this.state.isEditing ? <FaCheckCircle /> : <FaCog />);
 
     return (
-      <div>
+      <>
         <span className={subtitleClasses} onClick={this.onSubtitleClick}>
           Tags {icon}
         </span>
 
         {!this.state.isEditing && tagsList}
         {this.state.isEditing && editTagsList}
-      </div>
+      </>
     );
   }
 }
