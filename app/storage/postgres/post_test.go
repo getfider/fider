@@ -537,7 +537,7 @@ func TestPostStorage_ListVotesOfPost(t *testing.T) {
 	posts.AddVote(post1, jonSnow)
 	posts.AddVote(post1, aryaStark)
 
-	users, err := posts.ListVotes(post1)
+	users, err := posts.ListVotes(post1, -1)
 	Expect(err).IsNil()
 	Expect(users).HasLen(2)
 

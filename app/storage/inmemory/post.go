@@ -235,7 +235,7 @@ func (s *PostStorage) VotedBy() ([]int, error) {
 }
 
 // ListVotes returns a list of all votes on given post
-func (s *PostStorage) ListVotes(post *models.Post) ([]*models.Vote, error) {
+func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
 	return make([]*models.Vote, 0), nil
 }
 

@@ -713,7 +713,12 @@ func (s *PostStorage) VotedBy() ([]int, error) {
 }
 
 // ListVotes returns a list of all votes on given post
-func (s *PostStorage) ListVotes(post *models.Post) ([]*models.Vote, error) {
+func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
+	sqlLimit := "ALL"
+	if limit > 0 {
+		sqlLimit = strconv.Itoa(limit)
+	}
+
 	var votes []*models.Vote
 	err := s.trx.Select(&votes, `
 		SELECT 
@@ -727,7 +732,8 @@ func (s *PostStorage) ListVotes(post *models.Post) ([]*models.Vote, error) {
 		AND u.tenant_id = pv.tenant_id 
 		WHERE pv.post_id = $1  
 		AND pv.tenant_id = $2
-		ORDER BY pv.created_at`, post.ID, s.tenant.ID)
+		ORDER BY pv.created_at
+		LIMIT `+sqlLimit, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get votes of post")
 	}
