@@ -3,7 +3,7 @@
 .c-votes-modal {
   .c-modal-content {
     height: 300px;
-    overflow: scroll;
+    overflow-y: scroll;
     .c-list-item {
       margin: 5px 0px;
       .c-avatar {
