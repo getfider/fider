@@ -2,7 +2,7 @@ import "./Gravatar.scss";
 
 import React from "react";
 import { classSet, Fider } from "@fider/services";
-import { User, isCollaborator, UserRole } from "@fider/models";
+import { isCollaborator, UserRole } from "@fider/models";
 
 interface GravatarProps {
   user?: {
