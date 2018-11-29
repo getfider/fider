@@ -28,7 +28,7 @@ func NewLogger(tag string) *Logger {
 		logger:  stdLog.New(os.Stdout, "", 0),
 		level:   log.ParseLevel(level),
 		props:   make(log.Props, 0),
-		enabled: true,
+		enabled: !env.IsTest(),
 	}
 }
 
