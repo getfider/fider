@@ -9,29 +9,21 @@ import (
 // Logger doesn't log anything
 type Logger struct {
 	enabled bool
-	ru      *sync.RWMutex
 }
 
 // NewLogger creates a new Logger
 func NewLogger() *Logger {
 	return &Logger{
 		enabled: true,
-		ru:      &sync.RWMutex{},
 	}
 }
 
 // Disable logs for this logger
 func (l *Logger) Disable() {
-	l.ru.Lock()
-	defer l.ru.Unlock()
-	l.enabled = false
 }
 
 // Enable logs for this logger
 func (l *Logger) Enable() {
-	l.ru.Lock()
-	defer l.ru.Unlock()
-	l.enabled = true
 }
 
 // SetLevel increases/decreases current log level
@@ -40,7 +32,7 @@ func (l *Logger) SetLevel(level log.Level) {
 
 // IsEnabled returns true if given level is enabled
 func (l *Logger) IsEnabled(level log.Level) bool {
-	return l.enabled
+	return true
 }
 
 // Debug logs a DEBUG message
