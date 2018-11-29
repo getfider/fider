@@ -26,7 +26,6 @@ type Logger struct {
 // NewLogger creates a new Logger
 func NewLogger(tag string, db *dbx.Database) *Logger {
 	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
-
 	return &Logger{
 		tag:     tag,
 		db:      db,

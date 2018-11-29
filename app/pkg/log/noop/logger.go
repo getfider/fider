@@ -11,9 +11,7 @@ type Logger struct {
 
 // NewLogger creates a new Logger
 func NewLogger() *Logger {
-	return &Logger{
-		enabled: true,
-	}
+	return &Logger{}
 }
 
 // Disable logs for this logger
