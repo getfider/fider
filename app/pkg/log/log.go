@@ -13,6 +13,8 @@ type Level uint8
 
 // Logger defines the logging interface.
 type Logger interface {
+	Disable()
+	Enable()
 	SetLevel(level Level)
 	SetProperty(key string, value interface{})
 	Debug(message string)

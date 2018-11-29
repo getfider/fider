@@ -1,6 +1,7 @@
 version: '2'
 services:
   pgdev:
+    container_name: fider_pgdev
     restart: always
     image: postgres:9.6.8
     volumes:
@@ -11,6 +12,7 @@ services:
       POSTGRES_USER: fider
       POSTGRES_PASSWORD: fider_pw
   pgtest:
+    container_name: fider_pgtest
     restart: always
     image: postgres:9.6.8
     ports:
