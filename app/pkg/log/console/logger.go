@@ -84,7 +84,6 @@ func (l *Logger) Warnf(message string, props log.Props) {
 
 // Errorf logs a ERROR message
 func (l *Logger) Errorf(message string, props log.Props) {
-	panic(message)
 	l.log(log.ERROR, message, props)
 }
 

@@ -1,26 +1,36 @@
 package noop
 
-import "github.com/getfider/fider/app/pkg/log"
+import (
+	"sync"
+
+	"github.com/getfider/fider/app/pkg/log"
+)
 
 // Logger doesn't log anything
 type Logger struct {
 	enabled bool
+	ru      *sync.RWMutex
 }
 
 // NewLogger creates a new Logger
 func NewLogger() *Logger {
 	return &Logger{
 		enabled: true,
+		ru:      &sync.RWMutex{},
 	}
 }
 
 // Disable logs for this logger
 func (l *Logger) Disable() {
+	l.ru.Lock()
+	defer l.ru.Unlock()
 	l.enabled = false
 }
 
 // Enable logs for this logger
 func (l *Logger) Enable() {
+	l.ru.Lock()
+	defer l.ru.Unlock()
 	l.enabled = true
 }
 
