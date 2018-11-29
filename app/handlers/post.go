@@ -76,6 +76,11 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		votes, err := c.Services().Posts.ListVotes(post, 6)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:       post.Title,
 			Description: markdown.PlainText(post.Description),
@@ -84,6 +89,7 @@ func PostDetails() web.HandlerFunc {
 				"subscribed": subscribed,
 				"post":       post,
 				"tags":       tags,
+				"votes":      votes,
 			},
 		})
 	}

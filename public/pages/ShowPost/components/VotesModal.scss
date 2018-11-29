@@ -1,0 +1,24 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-votes-modal {
+  .c-modal-content {
+    height: 300px;
+    overflow-y: scroll;
+    .c-list-item {
+      margin: 5px 0px;
+      .c-avatar {
+        margin-right: 5px;
+      }
+      .l-user {
+        display: inline-block;
+        vertical-align: middle;
+        span {
+          display: block;
+        }
+      }
+      span.date {
+        float: right;
+      }
+    }
+  }
+}

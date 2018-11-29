@@ -79,7 +79,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     );
 
     return (
-      <div>
+      <>
         {modal}
         <span className="subtitle">Moderation</span>
         <List>
@@ -89,7 +89,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
             </Button>
           </ListItem>
         </List>
-      </div>
+      </>
     );
   }
 }
