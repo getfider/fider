@@ -13,21 +13,33 @@ import (
 
 // Logger output messages to console
 type Logger struct {
-	logger *stdLog.Logger
-	level  log.Level
-	tag    string
-	props  log.Props
+	logger  *stdLog.Logger
+	level   log.Level
+	tag     string
+	props   log.Props
+	enabled bool
 }
 
 // NewLogger creates a new Logger
 func NewLogger(tag string) *Logger {
 	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
 	return &Logger{
-		tag:    tag,
-		logger: stdLog.New(os.Stdout, "", 0),
-		level:  log.ParseLevel(level),
-		props:  make(log.Props, 0),
+		tag:     tag,
+		logger:  stdLog.New(os.Stdout, "", 0),
+		level:   log.ParseLevel(level),
+		props:   make(log.Props, 0),
+		enabled: true,
 	}
+}
+
+// Disable logs for this logger
+func (l *Logger) Disable() {
+	l.enabled = false
+}
+
+// Enable logs for this logger
+func (l *Logger) Enable() {
+	l.enabled = true
 }
 
 // SetLevel increases/decreases current log level
@@ -37,7 +49,7 @@ func (l *Logger) SetLevel(level log.Level) {
 
 // IsEnabled returns true if given level is enabled
 func (l *Logger) IsEnabled(level log.Level) bool {
-	return level >= l.level
+	return l.enabled && level >= l.level
 }
 
 // Debug logs a DEBUG message
@@ -72,6 +84,7 @@ func (l *Logger) Warnf(message string, props log.Props) {
 
 // Errorf logs a ERROR message
 func (l *Logger) Errorf(message string, props log.Props) {
+	panic(message)
 	l.log(log.ERROR, message, props)
 }
 
@@ -105,7 +118,6 @@ func (l *Logger) log(level log.Level, message string, props log.Props) {
 	if !l.IsEnabled(level) {
 		return
 	}
-
 	message = log.Parse(message, props, true)
 	contextID := l.props[log.PropertyKeyContextID]
 	l.logger.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), l.tag, contextID, message)

@@ -4,11 +4,24 @@ import "github.com/getfider/fider/app/pkg/log"
 
 // Logger doesn't log anything
 type Logger struct {
+	enabled bool
 }
 
 // NewLogger creates a new Logger
 func NewLogger() *Logger {
-	return &Logger{}
+	return &Logger{
+		enabled: true,
+	}
+}
+
+// Disable logs for this logger
+func (l *Logger) Disable() {
+	l.enabled = false
+}
+
+// Enable logs for this logger
+func (l *Logger) Enable() {
+	l.enabled = true
 }
 
 // SetLevel increases/decreases current log level
@@ -17,7 +30,7 @@ func (l *Logger) SetLevel(level log.Level) {
 
 // IsEnabled returns true if given level is enabled
 func (l *Logger) IsEnabled(level log.Level) bool {
-	return true
+	return l.enabled
 }
 
 // Debug logs a DEBUG message
