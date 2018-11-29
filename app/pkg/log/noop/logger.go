@@ -1,8 +1,6 @@
 package noop
 
 import (
-	"sync"
-
 	"github.com/getfider/fider/app/pkg/log"
 )
 
