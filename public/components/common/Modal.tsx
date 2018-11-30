@@ -5,6 +5,7 @@ import ReactDOM from "react-dom";
 import { classSet } from "@fider/services";
 
 interface ModalWindowProps {
+  className?: string;
   isOpen: boolean;
   size?: "small" | "large";
   canClose?: boolean;
@@ -91,6 +92,7 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
 
     const className = classSet({
       "c-modal-window": true,
+      [`${this.props.className}`]: !!this.props.className,
       "m-center": this.props.center,
       [`m-${this.props.size}`]: true
     });

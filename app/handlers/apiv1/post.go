@@ -264,8 +264,8 @@ func Unsubscribe() web.HandlerFunc {
 	}
 }
 
-// ListVoters returns a list of all users that voted on given post
-func ListVoters() web.HandlerFunc {
+// ListVotes returns a list of all votes on given post
+func ListVotes() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
@@ -277,16 +277,12 @@ func ListVoters() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		users, err := c.Services().Posts.ListVoters(post)
+		votes, err := c.Services().Posts.ListVotes(post, -1)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		for _, u := range users {
-			u.ShowEmail = c.IsAuthenticated() && c.User().IsCollaborator()
-		}
-
-		return c.Ok(users)
+		return c.Ok(votes)
 	}
 }
 
