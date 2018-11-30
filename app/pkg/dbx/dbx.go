@@ -309,7 +309,9 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		items = reflect.Append(items, item)
 	}
 
-	reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	if items.Len() > 0 {
+		reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	}
 	return nil
 }
 

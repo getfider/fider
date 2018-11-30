@@ -719,7 +719,7 @@ func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, e
 		sqlLimit = strconv.Itoa(limit)
 	}
 
-	var votes []*models.Vote
+	votes := []*models.Vote{}
 	err := s.trx.Select(&votes, `
 		SELECT 
 			pv.created_at, 
