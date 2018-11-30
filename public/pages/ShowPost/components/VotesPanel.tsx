@@ -52,11 +52,12 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
               +{extraVotesCount} more
             </span>
           )}
-          {extraVotesCount === 0 && canShowAll && (
+          {this.props.votes.length > 0 && extraVotesCount === 0 && canShowAll && (
             <span onClick={this.showModal} className={moreVotesClassName}>
               see details
             </span>
           )}
+          {this.props.votes.length === 0 && <span className="info">None yet</span>}
         </div>
       </>
     );
