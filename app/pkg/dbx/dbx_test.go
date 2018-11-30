@@ -1,6 +1,7 @@
 package dbx_test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -252,6 +253,28 @@ func TestArray(t *testing.T) {
 	Expect(result.Tags).HasLen(2)
 	Expect(result.Tags[0]).Equals(int64(5))
 	Expect(result.Tags[1]).Equals(int64(10))
+}
+
+func TestArray_Empty(t *testing.T) {
+	RegisterT(t)
+	db := dbx.New()
+	defer db.Close()
+
+	trx, _ := db.Begin()
+	defer trx.Rollback()
+
+	type postTags struct {
+		ID   int    `db:"id"`
+		Slug string `db:"slug"`
+	}
+
+	result := []*postTags{}
+	err := trx.Select(&result, "SELECT id, name FROM Tags WHERE id = -1")
+	Expect(err).IsNil()
+	Expect(result).HasLen(0)
+	bytes, err := json.Marshal(result)
+	Expect(err).IsNil()
+	Expect(string(bytes)).Equals("[]")
 }
 
 func TestByteArray(t *testing.T) {
