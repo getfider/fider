@@ -31,9 +31,11 @@ export const ErrorPage: React.SFC<ErrorPageProps> = ({
       <TenantLogo size={100} useFiderIfEmpty={true} />
       <h1>{title}</h1>
       <p>{message}</p>
-      <span>
-        Take me back to <a href={Fider.settings.baseURL}>{Fider.settings.baseURL}</a> home page.
-      </span>
+      {Fider.settings && (
+        <span>
+          Take me back to <a href={Fider.settings.baseURL}>{Fider.settings.baseURL}</a> home page.
+        </span>
+      )}
       {showError && showError() && (
         <pre className="error">
           {error.toString()}
