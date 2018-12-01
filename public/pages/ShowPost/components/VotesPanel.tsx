@@ -16,18 +16,15 @@ interface VotesPanelState {
 }
 
 export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState> {
-  private canShowAll = false;
   constructor(props: VotesPanelProps) {
     super(props);
-    this.canShowAll = Fider.session.isAuthenticated && Fider.session.user.isCollaborator;
-
     this.state = {
       showModal: false
     };
   }
 
   private showModal = () => {
-    if (this.canShowAll) {
+    if (this.canShowAll()) {
       this.setState({ showModal: true });
     }
   };
@@ -36,11 +33,15 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
     this.setState({ showModal: false });
   };
 
+  private canShowAll = () => {
+    return Fider.session.isAuthenticated && Fider.session.user.isCollaborator;
+  };
+
   public render() {
     const extraVotesCount = this.props.post.votesCount - this.props.votes.length;
     const moreVotesClassName = classSet({
       "l-votes-more": true,
-      clickable: this.canShowAll
+      clickable: this.canShowAll()
     });
 
     return (
@@ -56,7 +57,7 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
               +{extraVotesCount} more
             </span>
           )}
-          {this.props.votes.length > 0 && extraVotesCount === 0 && this.canShowAll && (
+          {this.props.votes.length > 0 && extraVotesCount === 0 && this.canShowAll() && (
             <span onClick={this.showModal} className={moreVotesClassName}>
               see details
             </span>
