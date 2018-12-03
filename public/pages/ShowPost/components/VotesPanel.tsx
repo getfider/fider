@@ -24,19 +24,24 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
   }
 
   private showModal = () => {
-    this.setState({ showModal: true });
+    if (this.canShowAll()) {
+      this.setState({ showModal: true });
+    }
   };
 
   private hideModal = () => {
     this.setState({ showModal: false });
   };
 
+  private canShowAll = () => {
+    return Fider.session.isAuthenticated && Fider.session.user.isCollaborator;
+  };
+
   public render() {
     const extraVotesCount = this.props.post.votesCount - this.props.votes.length;
-    const canShowAll = Fider.session.isAuthenticated && Fider.session.user.isCollaborator;
     const moreVotesClassName = classSet({
       "l-votes-more": true,
-      clickable: canShowAll
+      clickable: this.canShowAll()
     });
 
     return (
@@ -52,7 +57,7 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
               +{extraVotesCount} more
             </span>
           )}
-          {this.props.votes.length > 0 && extraVotesCount === 0 && canShowAll && (
+          {this.props.votes.length > 0 && extraVotesCount === 0 && this.canShowAll() && (
             <span onClick={this.showModal} className={moreVotesClassName}>
               see details
             </span>

@@ -515,7 +515,7 @@ func (ctx *Context) Redirect(url string) error {
 func (ctx *Context) PermanentRedirect(url string) error {
 	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Response.Header().Set("Location", url)
-	ctx.Response.WriteHeader(http.StatusPermanentRedirect)
+	ctx.Response.WriteHeader(http.StatusMovedPermanently)
 	return nil
 }
 
