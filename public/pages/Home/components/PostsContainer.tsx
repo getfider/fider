@@ -91,11 +91,14 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     this.changeFilterCriteria({ limit: (this.state.limit || 30) + 10 }, false);
   };
 
-  private canShowMore = (): boolean => {
-    return this.state.posts ? this.state.posts.length >= (this.state.limit || 30) : false;
+  private getShowMoreLink = (): string | undefined => {
+    if (this.state.posts && this.state.posts.length >= (this.state.limit || 30)) {
+      return querystring.set("limit", (this.state.limit || 30) + 10);
+    }
   };
 
   public render() {
+    const showMoreLink = this.getShowMoreLink();
     return (
       <>
         <div className="row">
@@ -132,10 +135,10 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           emptyText={"No results matched your search, try something different."}
         />
         {this.state.loading && <Loader />}
-        {this.canShowMore() && (
-          <h5 className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
+        {showMoreLink && (
+          <a href={showMoreLink} className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
             View more posts
-          </h5>
+          </a>
         )}
       </>
     );

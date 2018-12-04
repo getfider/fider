@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/getfider/fider/app/models"
@@ -65,7 +64,7 @@ func MultiTenant() web.MiddlewareFunc {
 					baseURL := c.TenantBaseURL(tenant)
 					if baseURL != c.BaseURL() {
 						link := baseURL + c.Request.URL.RequestURI()
-						c.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
+						c.SetCanonicalLink(link)
 					}
 				}
 			}

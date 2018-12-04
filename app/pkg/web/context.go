@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -152,7 +153,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 }
 
 //Tenant returns current tenant
-func (ctx Context) Tenant() *models.Tenant {
+func (ctx *Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant
@@ -394,7 +395,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL
-func (ctx Context) BaseURL() string {
+func (ctx *Context) BaseURL() string {
 	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
 	if ctx.Request.URL.Port() != "" {
@@ -543,7 +544,7 @@ func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL
-func (ctx Context) LogoURL() string {
+func (ctx *Context) LogoURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		return ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
 	}
@@ -551,9 +552,31 @@ func (ctx Context) LogoURL() string {
 }
 
 // FaviconURL return the full URL to the tenant-specific favicon URL
-func (ctx Context) FaviconURL() string {
+func (ctx *Context) FaviconURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		return ctx.TenantAssetsURL("/images/50/%d", ctx.Tenant().LogoID)
 	}
 	return ctx.GlobalAssetsURL("/favicon.ico")
+}
+
+// SetCanonicalLink sets the canonical link on the HTTP Response Headers
+func (ctx *Context) SetCanonicalLink(link string) {
+	u, err := url.Parse(link)
+	if err == nil {
+		if u.Host == "" {
+			baseURL, ok := ctx.Get("Canonical-BaseURL").(string)
+			if !ok {
+				baseURL = ctx.BaseURL()
+			}
+			if len(link) > 0 && link[0] != '/' {
+				link = "/" + link
+			}
+			link = baseURL + link
+			ctx.Response.Header().Set("Link", fmt.Sprintf("<%s%s>; rel=\"canonical\"", baseURL, link))
+		} else {
+			ctx.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
+		}
+
+		ctx.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
+	}
 }
