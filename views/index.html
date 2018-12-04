@@ -7,7 +7,7 @@
 {{define "end-of-body"}}
   {{ if .__assets }}
   {{range .__assets.JS}}
-  <script src="{{ . }}" crossorigin="anonymous"></script>
+  <script src="{{ $.__settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
   {{end}}
   {{end}}
 {{end}}
