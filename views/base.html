@@ -7,7 +7,7 @@
   <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
   {{ if .__assets }}
   {{range .__assets.CSS}}
-    <link rel="stylesheet" href="{{ . }}" />
+    <link rel="stylesheet" href="{{ $.__settings.globalAssetsURL }}{{ . }}" />
   {{end}}
   {{end}}
   <title>{{ .__title }}</title>
