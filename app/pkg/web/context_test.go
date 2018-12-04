@@ -190,3 +190,39 @@ func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
 	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://theavengers.assets-fider.io/assets/main.js")
 	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://theavengers.assets-fider.io/assets/main.css")
 }
+
+func TestCanonicalURL_SameDomain(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
+
+	ctx.SetCanonicalLink("")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("/some-url")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/some-url>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("/some-other-url")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/some-other-url>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("page-b/abc.html")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/page-b/abc.html>; rel="canonical"`)
+}
+
+func TestCanonicalURL_DifferentDomain(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
+
+	ctx.SetCanonicalLink("http://feedback.theavengers.com/some-url")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/some-url>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("/some-other-url")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/some-other-url>; rel="canonical"`)
+
+	ctx.SetCanonicalLink("page-b/abc.html")
+	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/page-b/abc.html>; rel="canonical"`)
+}

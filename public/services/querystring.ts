@@ -4,6 +4,17 @@ export const getNumber = (name: string): number | undefined => {
   return parseInt(get(name), 10) || undefined;
 };
 
+export const set = (name: string, value: any): string => {
+  const uri = navigator.url();
+  const re = new RegExp("([?&])" + name + "=.*?(&|$)", "i");
+  if (uri.match(re)) {
+    return uri.replace(re, "$1" + name + "=" + value + "$2");
+  } else {
+    const separator = uri.indexOf("?") !== -1 ? "&" : "?";
+    return uri + separator + name + "=" + value;
+  }
+};
+
 export const get = (name: string): string => {
   name = name.replace(/[\[\]]/g, "\\$&");
   const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");

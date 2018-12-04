@@ -15,16 +15,17 @@
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
-    color: $gray-darker;
+    color: $gray-dark;
 
     .icon {
-      color: $gray-darker;
+      color: $gray-dark;
       margin-bottom: -3px;
     }
   }
 
   button.m-disabled {
     @include disabled();
+    cursor: not-allowed;
   }
 
   button.m-voted, 
