@@ -12,10 +12,10 @@
   {{end}}
   {{ if .__chunkAssets }}
     {{range .__chunkAssets.CSS}}
-      <link rel="preload" href="{{ . }}" as="style" />
+      <link rel="preload" href="{{ $.__settings.globalAssetsURL }}{{ . }}" as="style" />
     {{end}}
     {{range .__chunkAssets.JS}}
-      <link rel="preload" href="{{ . }}" as="script" />
+      <link rel="preload" href="{{ $.__settings.globalAssetsURL }}{{ . }}" as="script" />
     {{end}}
   {{end}}
   <title>{{ .__title }}</title>

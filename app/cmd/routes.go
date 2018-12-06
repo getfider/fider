@@ -70,7 +70,7 @@ func routes(r *web.Engine) *web.Engine {
 		})
 	}
 
-	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
+	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements", "UIToolkit.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
@@ -129,8 +129,8 @@ func routes(r *web.Engine) *web.Engine {
 
 		ui.Get("/admin", handlers.GeneralSettingsPage())
 		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
-		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
-		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
+		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", "", "PrivacySettings.page"))
+		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Invitations.page"))
 		ui.Get("/admin/members", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
@@ -139,7 +139,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
-		ui.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
+		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())

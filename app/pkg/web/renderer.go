@@ -110,17 +110,17 @@ func (r *Renderer) loadAssets() error {
 		JS:  make([]string, 0),
 	}
 
-	r.assets = getClientAssets(ctx, file.Entrypoints.Main.Assets)
+	r.assets = getClientAssets(file.Entrypoints.Main.Assets)
 	r.chunkedAssets = make(map[string]*clientAssets)
 
 	for chunkName, chunkGroup := range file.ChunkGroups {
-		r.chunkedAssets[chunkName] = getClientAssets(ctx, chunkGroup.Assets)
+		r.chunkedAssets[chunkName] = getClientAssets(chunkGroup.Assets)
 	}
 
 	return nil
 }
 
-func getClientAssets(ctx *Context, assets []string) *clientAssets {
+func getClientAssets(assets []string) *clientAssets {
 	clientAssets := &clientAssets{
 		CSS: make([]string, 0),
 		JS:  make([]string, 0),
