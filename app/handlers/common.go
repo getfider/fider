@@ -80,11 +80,12 @@ func RobotsTXT() web.HandlerFunc {
 }
 
 //Page returns a page without properties
-func Page(title, description string) web.HandlerFunc {
+func Page(title, description, chunkName string) web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Props{
 			Title:       title,
 			Description: description,
+			ChunkName:   chunkName,
 		})
 	}
 }

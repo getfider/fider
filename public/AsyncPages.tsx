@@ -23,40 +23,87 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: Co
 
 const load = (fn: LazyImport) => lazy(() => retry(() => fn()));
 
-export const AsyncHomePage = load(() => import("@fider/pages/Home/Home.page"));
+export const AsyncHomePage = load(() =>
+  import(/* webpackChunkName: "Home.page" */
+  "@fider/pages/Home/Home.page")
+);
 
-export const AsyncShowPostPage = load(() => import("@fider/pages/ShowPost/ShowPost.page"));
+export const AsyncShowPostPage = load(() =>
+  import(/* webpackChunkName: "ShowPost.page" */
+  "@fider/pages/ShowPost/ShowPost.page")
+);
 
-export const AsyncManageMembersPage = load(() => import("@fider/pages/Administration/pages/ManageMembers.page"));
+export const AsyncManageMembersPage = load(() =>
+  import(/* webpackChunkName: "ManageMembers.page" */
+  "@fider/pages/Administration/pages/ManageMembers.page")
+);
 
-export const AsyncManageTagsPage = load(() => import("@fider/pages/Administration/pages/ManageTags.page"));
+export const AsyncManageTagsPage = load(() =>
+  import(/* webpackChunkName: "ManageTags.page" */
+  "@fider/pages/Administration/pages/ManageTags.page")
+);
 
-export const AsyncPrivacySettingsPage = load(() => import("@fider/pages/Administration/pages/PrivacySettings.page"));
+export const AsyncPrivacySettingsPage = load(() =>
+  import(/* webpackChunkName: "PrivacySettings.page" */
+  "@fider/pages/Administration/pages/PrivacySettings.page")
+);
 
-export const AsyncExportPage = load(() => import("@fider/pages/Administration/pages/Export.page"));
+export const AsyncExportPage = load(() =>
+  import(/* webpackChunkName: "Export.page" */
+  "@fider/pages/Administration/pages/Export.page")
+);
 
-export const AsyncInvitationsPage = load(() => import("@fider/pages/Administration/pages/Invitations.page"));
+export const AsyncInvitationsPage = load(() =>
+  import(/* webpackChunkName: "Invitations.page" */
+  "@fider/pages/Administration/pages/Invitations.page")
+);
 
 export const AsyncManageAuthenticationPage = load(() =>
-  import("@fider/pages/Administration/pages/ManageAuthentication.page")
+  import(/* webpackChunkName: "ManageAuthentication.page" */
+  "@fider/pages/Administration/pages/ManageAuthentication.page")
 );
 
-export const AsyncAdvancedSettingsPage = load(() => import("@fider/pages/Administration/pages/AdvancedSettings.page"));
+export const AsyncAdvancedSettingsPage = load(() =>
+  import(/* webpackChunkName: "AdvancedSettings.page" */
+  "@fider/pages/Administration/pages/AdvancedSettings.page")
+);
 
-export const AsyncGeneralSettingsPage = load(() => import("@fider/pages/Administration/pages/GeneralSettings.page"));
+export const AsyncGeneralSettingsPage = load(() =>
+  import(/* webpackChunkName: "GeneralSettings.page" */
+  "@fider/pages/Administration/pages/GeneralSettings.page")
+);
 
-export const AsyncSignInPage = load(() => import("@fider/pages/SignIn/SignIn.page"));
+export const AsyncSignInPage = load(() =>
+  import(/* webpackChunkName: "SignIn.page" */
+  "@fider/pages/SignIn/SignIn.page")
+);
 
-export const AsyncSignUpPage = load(() => import("@fider/pages/SignUp/SignUp.page"));
+export const AsyncSignUpPage = load(() =>
+  import(/* webpackChunkName: "SignUp.page" */
+  "@fider/pages/SignUp/SignUp.page")
+);
 
 export const AsyncCompleteSignInProfilePage = load(() =>
-  import("@fider/pages/CompleteSignInProfile/CompleteSignInProfile.page")
+  import(/* webpackChunkName: "CompleteSignInProfile.page" */
+  "@fider/pages/CompleteSignInProfile/CompleteSignInProfile.page")
 );
 
-export const AsyncMyNotificationsPage = load(() => import("@fider/pages/MyNotifications/MyNotifications.page"));
+export const AsyncMyNotificationsPage = load(() =>
+  import(/* webpackChunkName: "MyNotifications.page" */
+  "@fider/pages/MyNotifications/MyNotifications.page")
+);
 
-export const AsyncMySettingsPage = load(() => import("@fider/pages/MySettings/MySettings.page"));
+export const AsyncMySettingsPage = load(() =>
+  import(/* webpackChunkName: "MySettings.page" */
+  "@fider/pages/MySettings/MySettings.page")
+);
 
-export const AsyncOAuthEchoPage = load(() => import("@fider/pages/OAuthEcho/OAuthEcho.page"));
+export const AsyncOAuthEchoPage = load(() =>
+  import(/* webpackChunkName: "OAuthEcho.page" */
+  "@fider/pages/OAuthEcho/OAuthEcho.page")
+);
 
-export const AsyncUIToolkitPage = load(() => import("@fider/pages/UI/UIToolkit.page"));
+export const AsyncUIToolkitPage = load(() =>
+  import(/* webpackChunkName: "UIToolkit.page" */
+  "@fider/pages/UI/UIToolkit.page")
+);

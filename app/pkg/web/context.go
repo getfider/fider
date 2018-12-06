@@ -33,6 +33,7 @@ type StringMap map[string]string
 type Props struct {
 	Title       string
 	Description string
+	ChunkName   string
 	Data        Map
 }
 
