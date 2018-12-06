@@ -19,9 +19,12 @@ import (
 //Avatar returns a gravatar picture of fallsback to letter avatar based on name
 func Avatar() web.HandlerFunc {
 	return func(c web.Context) error {
+		c.Response.Header().Add("ETag", "Fider")
+
 		name := c.Param("name")
 		size, _ := c.ParamAsInt("size")
 		id, err := c.ParamAsInt("id")
+		c.Response.Header().Add("ETag", c.Param("md5"))
 
 		if err == nil && id > 0 {
 			user, err := c.Services().Users.GetByID(id)
@@ -66,6 +69,8 @@ func Avatar() web.HandlerFunc {
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
+		c.Response.Header().Add("ETag", "Fider")
+
 		id, err := c.ParamAsInt("id")
 		if err != nil {
 			return c.NotFound()

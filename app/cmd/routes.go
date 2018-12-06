@@ -66,6 +66,7 @@ func routes(r *web.Engine) *web.Engine {
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
+			c.Response.Header().Add("ETag", "Fider")
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
 	}
