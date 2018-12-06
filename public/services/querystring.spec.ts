@@ -40,6 +40,18 @@ import navigator from "./navigator";
 });
 
 [
+  { qs: "?name=John&age=30", name: "age", value: 60, expected: "http://example.com?name=John&age=60" },
+  { qs: "", name: "age", value: 50, expected: "http://example.com?age=50" },
+  { qs: "?age=2", name: "age", value: 21, expected: "http://example.com?age=21" }
+].forEach(x => {
+  test(`set(${x.name}, ${x.value}) should return ${x.expected}`, () => {
+    navigator.url = () => `http://example.com${x.qs}`;
+    const newQueryString = qs.set(x.name, x.value);
+    expect(newQueryString).toEqual(x.expected);
+  });
+});
+
+[
   { object: {}, expected: "" },
   { object: undefined, expected: "" },
   {
