@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/rand"
@@ -17,7 +18,12 @@ func Session() web.MiddlewareFunc {
 				cookie = c.AddCookie(web.CookieSessionName, rand.String(48), nextYear)
 			}
 			c.SetSessionID(cookie.Value)
-			return next(c)
+			err = next(c)
+			cc := c.Response.Header().Get("Cache-Control")
+			if strings.Contains(cc, "max-age=") {
+				c.Response.Header().Del("Set-Cookie")
+			}
+			return err
 		}
 	}
 }
