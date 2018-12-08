@@ -291,7 +291,7 @@ func TestByteArray(t *testing.T) {
 		Content     []byte `db:"file"`
 	}
 
-	fileContent, err := ioutil.ReadFile(env.Path("/favicon.ico"))
+	fileContent, err := ioutil.ReadFile(env.Path("/favicon.png"))
 	Expect(err).IsNil()
 
 	_, err = trx.Execute(`

@@ -23,7 +23,7 @@ func TestValidateImageUpload(t *testing.T) {
 		{"/app/pkg/img/testdata/logo4.png", 1},
 		{"/app/pkg/img/testdata/logo5.png", 0},
 		{"/README.md", 1},
-		{"/favicon.ico", 1},
+		{"/app/pkg/img/testdata/favicon.ico", 1},
 	}
 
 	for _, testCase := range testCases {

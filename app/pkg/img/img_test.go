@@ -22,7 +22,7 @@ var parseTestCases = []struct {
 	{"/app/pkg/img/testdata/logo5.png", 200, 200, true},
 	{"/app/pkg/img/testdata/logo6.jpg", 400, 400, true},
 	{"/app/pkg/img/testdata/logo7.gif", 400, 400, true},
-	{"/favicon.ico", 0, 0, false},
+	{"/app/pkg/img/testdata/favicon.ico", 0, 0, false},
 }
 
 func TestImageParse(t *testing.T) {
