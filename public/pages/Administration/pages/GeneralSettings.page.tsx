@@ -16,10 +16,6 @@ import { actions, Failure, fileToBase64, Fider } from "@fider/services";
 import { FaCogs } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 
-interface GeneralSettingsPageProps {
-  publicIP: string;
-}
-
 interface GeneralSettingsPageState {
   logo?: ImageUploadState;
   title: string;
@@ -29,7 +25,7 @@ interface GeneralSettingsPageState {
   error?: Failure;
 }
 
-export default class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
+export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettingsPageState> {
   private fileSelector?: HTMLInputElement | null;
 
   public id = "p-admin-general";
@@ -38,7 +34,7 @@ export default class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPa
   public title = "General";
   public subtitle = "Manage your site settings";
 
-  constructor(props: GeneralSettingsPageProps) {
+  constructor(props: {}) {
     super(props);
 
     this.state = {
