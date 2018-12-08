@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"fmt"
+	"image/color"
 	"image/png"
 	"io/ioutil"
 	"net/http"
@@ -83,6 +84,13 @@ func Favicon() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if c.QueryParam("bg") == "white" {
+			bytes, err = img.ChangeBackground(bytes, color.White)
+			if err != nil {
+				return c.Failure(err)
+			}
+		}
+
 		return c.Blob(http.StatusOK, "image/png", bytes)
 	}
 }
@@ -108,6 +116,13 @@ func ViewUploadedImage() web.HandlerFunc {
 		bytes, err := img.Resize(logo.Content, size)
 		if err != nil {
 			return c.Failure(err)
+		}
+
+		if c.QueryParam("bg") == "white" {
+			bytes, err = img.ChangeBackground(bytes, color.White)
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		return c.Blob(http.StatusOK, logo.ContentType, bytes)
