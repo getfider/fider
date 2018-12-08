@@ -59,7 +59,7 @@ func ChangeBackground(file []byte, bgColor color.Color) ([]byte, error) {
 }
 
 //Resize image based on given size
-func Resize(file []byte, size int) ([]byte, error) {
+func Resize(file []byte, size int, padding int) ([]byte, error) {
 	src, format, err := decode(file)
 	if err != nil {
 		return nil, err
@@ -68,11 +68,14 @@ func Resize(file []byte, size int) ([]byte, error) {
 	srcBounds := src.Bounds()
 	srcW, srcH := srcBounds.Dx(), srcBounds.Dy()
 	if (srcW <= size && srcH <= size) || srcW != srcH {
-		return file, nil
+		size = srcW
 	}
 
+	padding = size * padding / 100
 	dst := image.NewRGBA(image.Rect(0, 0, size, size))
-	draw.CatmullRom.Scale(dst, dst.Bounds(), src, srcBounds, draw.Src, nil)
+	dstBounds := image.Rect(padding, padding, size-padding, size-padding)
+	srcBounds = image.Rect(0, 0, srcBounds.Max.X, srcBounds.Max.Y)
+	draw.CatmullRom.Scale(dst, dstBounds, src, srcBounds, draw.Src, nil)
 
 	return encode(dst, format)
 }

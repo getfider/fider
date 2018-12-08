@@ -69,29 +69,43 @@ func Avatar() web.HandlerFunc {
 //Favicon returns the Fider favicon by given size
 func Favicon() web.HandlerFunc {
 	return func(c web.Context) error {
-		size, err := c.ParamAsInt("size")
-		if err != nil {
-			return c.NotFound()
-		}
+		var (
+			bytes       []byte
+			contentType string
+		)
 
-		image, err := ioutil.ReadFile(env.Path("favicon.png"))
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		bytes, err := img.Resize(image, size)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if c.QueryParam("bg") == "white" {
-			bytes, err = img.ChangeBackground(bytes, color.White)
+		id, err := c.ParamAsInt("id")
+		if err == nil {
+			logo, err := c.Services().Tenants.GetUpload(id)
+			if err != nil {
+				return c.Failure(err)
+			}
+			bytes = logo.Content
+			contentType = logo.ContentType
+		} else {
+			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
+			contentType = "image/png"
 			if err != nil {
 				return c.Failure(err)
 			}
 		}
 
-		return c.Blob(http.StatusOK, "image/png", bytes)
+		size, err := c.ParamAsInt("size")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		bytes, err = img.Resize(bytes, size, 5)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		bytes, err = img.ChangeBackground(bytes, color.Black)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Blob(http.StatusOK, contentType, bytes)
 	}
 }
 
@@ -113,16 +127,9 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes, err := img.Resize(logo.Content, size)
+		bytes, err := img.Resize(logo.Content, size, 0)
 		if err != nil {
 			return c.Failure(err)
-		}
-
-		if c.QueryParam("bg") == "white" {
-			bytes, err = img.ChangeBackground(bytes, color.White)
-			if err != nil {
-				return c.Failure(err)
-			}
 		}
 
 		return c.Blob(http.StatusOK, logo.ContentType, bytes)

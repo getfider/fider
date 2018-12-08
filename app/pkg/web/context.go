@@ -555,7 +555,7 @@ func (ctx *Context) LogoURL() string {
 // FaviconURL return the full URL to the tenant-specific favicon URL
 func (ctx *Context) FaviconURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		return ctx.TenantAssetsURL("/images/:size/%d", ctx.Tenant().LogoID)
+		return ctx.TenantAssetsURL("/images/:size/%d/favicon", ctx.Tenant().LogoID)
 	}
 	return ctx.GlobalAssetsURL("/favicon/:size")
 }
