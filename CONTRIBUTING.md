@@ -57,3 +57,7 @@ This happens when godotenv was not (or incorrectly) installed. Install it by run
 #### 3. mage watch throws 'too many open files' error
 
 macOS has a small limit on how many files can be open at the same time. This limit is usually OK for most users, but developers tools usuage require a larger limit. [Learn how to resolve this](https://www.macobserver.com/tips/deep-dive/evade-macos-many-open-files-error-pushing-limits/).
+
+#### 4. mage isn't found even after installing
+
+Include %GOPATH%\bin in PATH environment variable and restart the terminal
