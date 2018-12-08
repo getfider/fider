@@ -31,7 +31,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		assets.Use(middlewares.CORS())
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
-		assets.Static("/favicon.ico", "favicon.ico")
+		assets.Get("/favicon/:size", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
 	}
 

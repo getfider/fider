@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/env"
+
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
@@ -60,6 +62,28 @@ func Avatar() web.HandlerFunc {
 		}
 
 		return c.Blob(http.StatusOK, "image/png", buf.Bytes())
+	}
+}
+
+//Favicon returns the Fider favicon by given size
+func Favicon() web.HandlerFunc {
+	return func(c web.Context) error {
+		size, err := c.ParamAsInt("size")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		image, err := ioutil.ReadFile(env.Path("favicon.png"))
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		bytes, err := img.Resize(image, size)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Blob(http.StatusOK, "image/png", bytes)
 	}
 }
 
