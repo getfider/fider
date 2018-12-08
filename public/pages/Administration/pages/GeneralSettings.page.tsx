@@ -95,7 +95,8 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
       <>
         <strong>{this.state.cname}</strong> {recordType}{" "}
         <strong>
-          {Fider.session.tenant.subdomain}{Fider.settings.domain}
+          {Fider.session.tenant.subdomain}
+          {Fider.settings.domain}
         </strong>
       </>
     );
