@@ -53,6 +53,7 @@ var resizeTestCases = []struct {
 	padding         int
 }{
 	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200, 0},
+	// Skip for now, very slow to resize non rectangle images
 	// {"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200x200.jpg", 200, 0},
 	// {"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200x200.gif", 200, 0},
 	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100, 0},
