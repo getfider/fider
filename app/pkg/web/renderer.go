@@ -186,6 +186,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	m["__favicon"] = ctx.FaviconURL()
 	m["__contextID"] = ctx.ContextID()
 	m["__currentURL"] = ctx.Request.URL.String()
+	if canonicalURL := ctx.Get("Canonical-URL"); canonicalURL != nil {
+		m["__canonicalURL"] = canonicalURL
+	}
 	m["__tenant"] = ctx.Tenant()
 	m["__props"] = props.Data
 

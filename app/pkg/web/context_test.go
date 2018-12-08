@@ -196,17 +196,17 @@ func TestCanonicalURL_SameDomain(t *testing.T) {
 
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
-	ctx.SetCanonicalLink("")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000>; rel="canonical"`)
+	ctx.SetCanonicalURL("")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000`)
 
-	ctx.SetCanonicalLink("/some-url")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/some-url>; rel="canonical"`)
+	ctx.SetCanonicalURL("/some-url")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-url`)
 
-	ctx.SetCanonicalLink("/some-other-url")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/some-other-url>; rel="canonical"`)
+	ctx.SetCanonicalURL("/some-other-url")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-other-url`)
 
-	ctx.SetCanonicalLink("page-b/abc.html")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://theavengers.test.fider.io:3000/page-b/abc.html>; rel="canonical"`)
+	ctx.SetCanonicalURL("page-b/abc.html")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/page-b/abc.html`)
 }
 
 func TestCanonicalURL_DifferentDomain(t *testing.T) {
@@ -214,15 +214,15 @@ func TestCanonicalURL_DifferentDomain(t *testing.T) {
 
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
-	ctx.SetCanonicalLink("http://feedback.theavengers.com/some-url")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/some-url>; rel="canonical"`)
+	ctx.SetCanonicalURL("http://feedback.theavengers.com/some-url")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-url`)
 
-	ctx.SetCanonicalLink("")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com>; rel="canonical"`)
+	ctx.SetCanonicalURL("")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com`)
 
-	ctx.SetCanonicalLink("/some-other-url")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/some-other-url>; rel="canonical"`)
+	ctx.SetCanonicalURL("/some-other-url")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-other-url`)
 
-	ctx.SetCanonicalLink("page-b/abc.html")
-	Expect(ctx.Response.Header().Get("Link")).Equals(`<http://feedback.theavengers.com/page-b/abc.html>; rel="canonical"`)
+	ctx.SetCanonicalURL("page-b/abc.html")
+	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
 }
