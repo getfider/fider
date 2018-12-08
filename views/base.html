@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link rel="icon" type="image/x-icon" href="{{ .__favicon }}">
+  {{ if .__canonicalURL }}
+  <link rel="canonical" href="{{ .__canonicalURL }}" />
+  {{ end }}
   {{ if .__assets }}
   {{range .__assets.CSS}}
     <link rel="stylesheet" href="{{ $.__settings.globalAssetsURL }}{{ . }}" />
