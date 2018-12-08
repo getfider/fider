@@ -101,7 +101,7 @@ func Favicon() web.HandlerFunc {
 		}
 
 		if c.QueryParam("bg") != "" {
-			bytes, err = img.ChangeBackground(bytes, color.Black)
+			bytes, err = img.ChangeBackground(bytes, color.White)
 			if err != nil {
 				return c.Failure(err)
 			}
