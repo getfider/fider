@@ -22,7 +22,6 @@ If you know these technologies or would like to learn them, lucky you! This is t
 | Go 1.11+ | https://golang.org/ | To compile server side code |
 | Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To bundle client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
-| Python 2.7.X | https://www.python.org/downloads/ | To automatically build node-sass npm package during its installation |
 | cosmtrek/air | `go get github.com/cosmtrek/air/` | Live reload for Go apps |
 | joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | A `.env` file loader |
 | magefile/mage | `go get github.com/magefile/mage/` | A cross-platform Make alternative |
@@ -59,14 +58,6 @@ This happens when godotenv was not (or incorrectly) installed. Install it by run
 
 macOS has a small limit on how many files can be open at the same time. This limit is usually OK for most users, but developers tools usuage require a larger limit. [Learn how to resolve this](https://www.macobserver.com/tips/deep-dive/evade-macos-many-open-files-error-pushing-limits/).
 
-#### 4. mage isn't found even after installing (Windows)
+#### 4. mage isn't found even after installing
 
-Include in windows PATH variable the path %GOPATH%\bin, and restart command prompt
-
-#### 5. node-sass doesn't install correctly on Windows
-
-If error message shows in console: "Error: not found: python2", install Python 2.7.X
-
-If error message below shows, it might be that only Python 3.X is installed. Install Python 2.7.X.
-	import sys; print "%s.%s.%s" % sys.version_info[:3];
-	SyntaxError: invalid syntax
+Include %GOPATH%\bin in PATH environment variable and restart the terminal
