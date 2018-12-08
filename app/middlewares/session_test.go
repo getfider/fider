@@ -47,3 +47,19 @@ func TestSession_ExistingSession(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Set-Cookie")).Equals("")
 }
+
+func TestSession_RemoveSessionIfResponseIsCached(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	server.Use(middlewares.Session())
+	server.Use(middlewares.ClientCache(30 * time.Hour))
+
+	status, response := server.Execute(func(c web.Context) error {
+		return c.NoContent(http.StatusOK)
+	})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Header().Get("Cache-Control")).Equals("public, max-age=108000")
+	Expect(response.Header().Get("Set-Cookie")).Equals("")
+}
