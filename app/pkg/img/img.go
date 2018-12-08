@@ -65,6 +65,8 @@ func Resize(file []byte, size int, padding int) ([]byte, error) {
 		return nil, err
 	}
 
+	//TODO: Very slow to resize images with aspect ratio different than 1:1
+
 	srcBounds := src.Bounds()
 	srcW, srcH := srcBounds.Dx(), srcBounds.Dy()
 	if (srcW <= size && srcH <= size) || srcW != srcH {
