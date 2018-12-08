@@ -94,7 +94,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	}{
 		{
 			"http://avengers.test.fider.io/",
-			"<http://feedback.theavengers.com/>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/",
 			false,
 		},
 		{
@@ -109,12 +109,12 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		},
 		{
 			"http://avengers.test.fider.io/posts",
-			"<http://feedback.theavengers.com/posts>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/posts",
 			false,
 		},
 		{
 			"http://avengers.test.fider.io/posts?q=1",
-			"<http://feedback.theavengers.com/posts?q=1>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/posts?q=1",
 			false,
 		},
 		{
@@ -131,14 +131,17 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		if testCase.isAjax {
 			server.AddHeader("Accept", "application/json")
 		}
-		status, response := server.
+
+		var canonicalURL string
+		status, _ := server.
 			WithURL(testCase.input).
 			Execute(func(c web.Context) error {
+				canonicalURL, _ = c.Get("Canonical-URL").(string)
 				return c.Ok(web.Map{})
 			})
 
 		Expect(status).Equals(http.StatusOK)
-		Expect(response.HeaderMap.Get("Link")).Equals(testCase.output)
+		Expect(canonicalURL).Equals(testCase.output)
 	}
 
 }

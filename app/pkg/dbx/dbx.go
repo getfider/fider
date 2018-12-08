@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"reflect"
+	"strconv"
 	"time"
 
 	"strings"
@@ -30,8 +31,18 @@ func NewWithLogger(logger log.Logger) *Database {
 		panic(errors.Wrap(err, "failed to open connection to the database"))
 	}
 
-	conn.SetMaxIdleConns(20)
-	conn.SetMaxOpenConns(50)
+	maxIdle, err := strconv.Atoi(env.GetEnvOrDefault("DATABASE_MAX_IDLE_CONNS", "10"))
+	if err != nil {
+		panic(errors.Wrap(err, "failed to convert DATABASE_MAX_IDLE_CONNS to integer"))
+	}
+	conn.SetMaxIdleConns(maxIdle)
+
+	maxOpen, err := strconv.Atoi(env.GetEnvOrDefault("DATABASE_MAX_OPEN_CONNS", "20"))
+	if err != nil {
+		panic(errors.Wrap(err, "failed to convert DATABASE_MAX_OPEN_CONNS to integer"))
+	}
+	conn.SetMaxOpenConns(maxOpen)
+
 	return &Database{conn, logger, NewRowMapper()}
 }
 

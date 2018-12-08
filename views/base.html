@@ -6,6 +6,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link rel="icon" href='{{ replace .__favicon ":size" "64" }}' sizes="64x64" type="image/png">
   <link rel="apple-touch-icon" href='{{ replace .__favicon ":size" "180" }}' sizes="180x180" type="image/png">
+  {{ if .__canonicalURL }}
+  <link rel="canonical" href="{{ .__canonicalURL }}" />
+  {{ end }}
   {{ if .__assets }}
   {{range .__assets.CSS}}
     <link rel="stylesheet" href="{{ $.__settings.globalAssetsURL }}{{ . }}" />

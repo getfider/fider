@@ -560,24 +560,23 @@ func (ctx *Context) FaviconURL() string {
 	return ctx.GlobalAssetsURL("/favicon/:size")
 }
 
-// SetCanonicalLink sets the canonical link on the HTTP Response Headers
-func (ctx *Context) SetCanonicalLink(link string) {
-	u, err := url.Parse(link)
+// SetCanonicalURL sets the canonical link on the HTTP Response Headers
+func (ctx *Context) SetCanonicalURL(rawurl string) {
+	u, err := url.Parse(rawurl)
 	if err == nil {
 		if u.Host == "" {
 			baseURL, ok := ctx.Get("Canonical-BaseURL").(string)
 			if !ok {
 				baseURL = ctx.BaseURL()
 			}
-			if len(link) > 0 && link[0] != '/' {
-				link = "/" + link
+			if len(rawurl) > 0 && rawurl[0] != '/' {
+				rawurl = "/" + rawurl
 			}
-			link = baseURL + link
-			ctx.Response.Header().Set("Link", fmt.Sprintf("<%s%s>; rel=\"canonical\"", baseURL, link))
+			rawurl = baseURL + rawurl
 		} else {
 			ctx.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
 		}
 
-		ctx.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
+		ctx.Set("Canonical-URL", rawurl)
 	}
 }
