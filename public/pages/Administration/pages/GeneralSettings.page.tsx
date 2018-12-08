@@ -93,13 +93,14 @@ export default class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPa
   };
 
   public dnsInstructions(): JSX.Element {
-    const isApex = this.state.cname.split(".").length === 2;
-    const recordType = isApex ? "A" : "CNAME";
-    const publicIP = this.props.publicIP || "<error>";
-    const targetRecord = isApex ? publicIP : `${Fider.session.tenant.subdomain}${Fider.settings.domain}`;
+    const isApex = this.state.cname.split(".").length <= 2;
+    const recordType = isApex ? "ALIAS" : "CNAME";
     return (
       <>
-        <strong>{this.state.cname}</strong> {recordType} <strong>{targetRecord}</strong>
+        <strong>{this.state.cname}</strong> {recordType}{" "}
+        <strong>
+          {Fider.session.tenant.subdomain}{Fider.settings.domain}
+        </strong>
       </>
     );
   }
