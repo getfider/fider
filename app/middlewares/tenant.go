@@ -64,7 +64,7 @@ func MultiTenant() web.MiddlewareFunc {
 					baseURL := c.TenantBaseURL(tenant)
 					if baseURL != c.BaseURL() {
 						link := baseURL + c.Request.URL.RequestURI()
-						c.SetCanonicalLink(link)
+						c.SetCanonicalURL(link)
 					}
 				}
 			}

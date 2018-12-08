@@ -50,6 +50,17 @@ func TestRenderer_Tenant(t *testing.T) {
 	compareRendererResponse(buf, "/app/pkg/web/testdata/tenant.html", ctx)
 }
 
+func TestRenderer_WithCanonicalURL(t *testing.T) {
+	RegisterT(t)
+
+	buf := new(bytes.Buffer)
+	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
+	ctx.SetCanonicalURL("http://feedback.demo.org")
+	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer.Render(buf, "index.html", web.Props{}, ctx)
+	compareRendererResponse(buf, "/app/pkg/web/testdata/canonical.html", ctx)
+}
+
 func TestRenderer_Props(t *testing.T) {
 	RegisterT(t)
 

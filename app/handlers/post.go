@@ -9,7 +9,7 @@ import (
 // Index is the default home page
 func Index() web.HandlerFunc {
 	return func(c web.Context) error {
-		c.SetCanonicalLink("")
+		c.SetCanonicalURL("")
 
 		posts, err := c.Services().Posts.Search(
 			c.QueryParam("query"),
