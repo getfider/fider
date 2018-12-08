@@ -183,7 +183,7 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	tenant, _ := tenants.GetByDomain("demo")
 	tenants.SetCurrentTenant(tenant)
 
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.png"))
 
 	settings := &models.UpdateTenantSettings{
 		Logo: &models.ImageUpload{
@@ -203,7 +203,7 @@ func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
 	Expect(upload.Size).Equals(len(logo))
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+	Expect(upload.ContentType).Equals("image/png")
 
 	//Remove Logo
 	settings.Logo.Upload = nil
@@ -223,7 +223,7 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	tenant, _ := tenants.GetByDomain("demo")
 	tenants.SetCurrentTenant(tenant)
 
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.png"))
 
 	settings := &models.UpdateTenantSettings{
 		Logo: &models.ImageUpload{
@@ -244,7 +244,7 @@ func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
 	Expect(upload.Size).Equals(len(logo))
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+	Expect(upload.ContentType).Equals("image/png")
 
 	//Replace logo with a new one
 	newLogo, _ := ioutil.ReadFile(env.Path("./README.md"))
@@ -379,14 +379,14 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
+	logo, _ := ioutil.ReadFile(env.Path("./favicon.png"))
 
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
 		ID: 0,
 		Logo: &models.ImageUpload{
 			Upload: &models.ImageUploadData{
 				Content:     logo,
-				ContentType: "image/vnd.microsoft.icon",
+				ContentType: "image/png",
 			},
 		},
 		Provider:          "_TEST",
@@ -422,7 +422,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	upload, err := tenants.GetUpload(config.LogoID)
 	Expect(err).IsNil()
 	Expect(upload.Content).Equals(logo)
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
+	Expect(upload.ContentType).Equals("image/png")
 
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
 		ID: config.ID,

@@ -31,7 +31,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		assets.Use(middlewares.CORS())
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
-		assets.Static("/favicon.ico", "favicon.ico")
+		assets.Get("/favicon/:size", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
 	}
 
@@ -66,6 +66,7 @@ func routes(r *web.Engine) *web.Engine {
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
 
 		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
+		tenantAssets.Get("/images/:size/:id/favicon", handlers.Favicon())
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))

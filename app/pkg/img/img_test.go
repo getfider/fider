@@ -1,6 +1,7 @@
 package img_test
 
 import (
+	"image/color"
 	"io/ioutil"
 	"testing"
 
@@ -22,7 +23,7 @@ var parseTestCases = []struct {
 	{"/app/pkg/img/testdata/logo5.png", 200, 200, true},
 	{"/app/pkg/img/testdata/logo6.jpg", 400, 400, true},
 	{"/app/pkg/img/testdata/logo7.gif", 400, 400, true},
-	{"/favicon.ico", 0, 0, false},
+	{"/app/pkg/img/testdata/favicon.ico", 0, 0, false},
 }
 
 func TestImageParse(t *testing.T) {
@@ -49,15 +50,17 @@ var resizeTestCases = []struct {
 	fileName        string
 	resizedFileName string
 	size            int
+	padding         int
 }{
-	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200},
-	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2.jpg", 200},
-	{"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3.gif", 200},
-	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100},
-	{"/app/pkg/img/testdata/logo5.png", "/app/pkg/img/testdata/logo5.png", 200},
-	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200},
-	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-200x200.gif", 200},
-	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7.gif", 1000},
+	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200, 0},
+	//TODO: Very slow to resize images with aspect ratio different than 1:1
+	// {"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200x200.jpg", 200, 0},
+	// {"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200x200.gif", 200, 0},
+	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100, 0},
+	{"/app/pkg/img/testdata/logo5.png", "/app/pkg/img/testdata/logo5-200x200.png", 200, 0},
+	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200, 0},
+	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-200x200.gif", 200, 0},
+	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-1000-1000.gif", 1000, 0},
 }
 
 func TestImageResize(t *testing.T) {
@@ -67,12 +70,38 @@ func TestImageResize(t *testing.T) {
 		bytes, err := ioutil.ReadFile(env.Path(testCase.fileName))
 		Expect(err).IsNil()
 
-		resized, err := img.Resize(bytes, testCase.size)
+		resized, err := img.Resize(bytes, testCase.size, testCase.padding)
 		Expect(err).IsNil()
 
 		expected, err := ioutil.ReadFile(env.Path(testCase.resizedFileName))
 		Expect(err).IsNil()
 
 		Expect(resized).Equals(expected)
+	}
+}
+
+var bgColorTestCases = []struct {
+	fileName           string
+	whiteColorFileName string
+	bgColor            color.Color
+}{
+	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-white.png", color.White},
+	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-black.png", color.Black},
+}
+
+func TestImageChangeBackground(t *testing.T) {
+	RegisterT(t)
+
+	for _, testCase := range bgColorTestCases {
+		bytes, err := ioutil.ReadFile(env.Path(testCase.fileName))
+		Expect(err).IsNil()
+
+		withColor, err := img.ChangeBackground(bytes, testCase.bgColor)
+		Expect(err).IsNil()
+
+		expected, err := ioutil.ReadFile(env.Path(testCase.whiteColorFileName))
+		Expect(err).IsNil()
+
+		Expect(withColor).Equals(expected)
 	}
 }

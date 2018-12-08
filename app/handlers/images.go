@@ -3,10 +3,13 @@ package handlers
 import (
 	"bytes"
 	"fmt"
+	"image/color"
 	"image/png"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/env"
 
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/img"
@@ -63,6 +66,51 @@ func Avatar() web.HandlerFunc {
 	}
 }
 
+//Favicon returns the Fider favicon by given size
+func Favicon() web.HandlerFunc {
+	return func(c web.Context) error {
+		var (
+			bytes       []byte
+			contentType string
+		)
+
+		id, err := c.ParamAsInt("id")
+		if err == nil {
+			logo, err := c.Services().Tenants.GetUpload(id)
+			if err != nil {
+				return c.Failure(err)
+			}
+			bytes = logo.Content
+			contentType = logo.ContentType
+		} else {
+			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
+			contentType = "image/png"
+			if err != nil {
+				return c.Failure(err)
+			}
+		}
+
+		size, err := c.ParamAsInt("size")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		bytes, err = img.Resize(bytes, size, 5)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if c.QueryParam("bg") != "" {
+			bytes, err = img.ChangeBackground(bytes, color.White)
+			if err != nil {
+				return c.Failure(err)
+			}
+		}
+
+		return c.Blob(http.StatusOK, contentType, bytes)
+	}
+}
+
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -81,7 +129,7 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes, err := img.Resize(logo.Content, size)
+		bytes, err := img.Resize(logo.Content, size, 0)
 		if err != nil {
 			return c.Failure(err)
 		}

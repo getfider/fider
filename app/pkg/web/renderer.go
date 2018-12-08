@@ -24,6 +24,9 @@ var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
+	"replace": func(input, from, to string) string {
+		return strings.Replace(input, from, to, -1)
+	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
 	},
