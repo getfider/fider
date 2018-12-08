@@ -1,20 +1,19 @@
 import "./PrivacySettings.page.scss";
 
-import * as React from "react";
-
-import { SystemSettings, CurrentUser, Tenant } from "@fider/models";
-import { Button, ButtonClickEvent, DisplayError, Toggle, Form } from "@fider/components/common";
-import { actions, notify, Failure, Fider } from "@fider/services";
-import { AdminBasePage } from "../components";
+import React from "react";
+import { Toggle, Form } from "@fider/components/common";
+import { actions, notify, Fider } from "@fider/services";
+import { AdminBasePage } from "@fider/pages/Administration/components/AdminBasePage";
+import { FaKey } from "react-icons/fa";
 
 interface PrivacySettingsPageState {
   isPrivate: boolean;
 }
 
-export class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
+export default class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettingsPageState> {
   public id = "p-admin-privacy";
   public name = "privacy";
-  public icon = "key";
+  public icon = FaKey;
   public title = "Privacy";
   public subtitle = "Manage your site privacy";
 

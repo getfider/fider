@@ -54,7 +54,7 @@ func CreatePost() web.HandlerFunc {
 
 // GetPost retrieves the existing post by number
 func GetPost() web.HandlerFunc {
-        return func(c web.Context) error {
+	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
@@ -128,6 +128,11 @@ func DeletePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if input.Model.Text != "" {
+			// Only send notification if user wrote a comment.
+			c.Enqueue(tasks.NotifyAboutDeletedPost(input.Post))
+		}
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -151,6 +156,23 @@ func ListComments() web.HandlerFunc {
 		}
 
 		return c.Ok(comments)
+	}
+}
+
+// GetComment returns a single comment by its ID
+func GetComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		comment, err := c.Services().Posts.GetCommentByID(id)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(comment)
 	}
 }
 
@@ -239,6 +261,28 @@ func Subscribe() web.HandlerFunc {
 func Unsubscribe() web.HandlerFunc {
 	return func(c web.Context) error {
 		return addOrRemove(c, c.Services().Posts.RemoveSubscriber)
+	}
+}
+
+// ListVotes returns a list of all votes on given post
+func ListVotes() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		votes, err := c.Services().Posts.ListVotes(post, -1)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(votes)
 	}
 }
 

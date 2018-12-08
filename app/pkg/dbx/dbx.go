@@ -102,9 +102,14 @@ func (trx *Trx) SetLogger(logger log.Logger) {
 	trx.logger = logger
 }
 
-// NoLogs disable logs from this transaction
+// NoLogs disable logs for this transaction
 func (trx *Trx) NoLogs() {
-	trx.logger.SetLevel(log.NONE)
+	trx.logger.Disable()
+}
+
+// ResumeLogs resume logs for this transaction
+func (trx *Trx) ResumeLogs() {
+	trx.logger.Enable()
 }
 
 // Execute given SQL command
@@ -304,7 +309,9 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		items = reflect.Append(items, item)
 	}
 
-	reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	if items.Len() > 0 {
+		reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	}
 	return nil
 }
 

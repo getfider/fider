@@ -20,11 +20,6 @@ func TestCreateNewPost_InvalidPostTitles(t *testing.T) {
 		"  ",
 		"signup",
 		"My great great great great great great great great great great great great great great great great great post.",
-		"my company",
-		"my@company",
-		"my.company",
-		"my+company",
-		"1234567890123456789012345678901234567890ABC",
 		"my GREAT post",
 	} {
 		action := &actions.CreateNewPost{Model: &models.NewPost{Title: title}}

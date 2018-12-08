@@ -68,12 +68,12 @@ func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
 		id, err := c.ParamAsInt("id")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		size, err := c.ParamAsInt("size")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		logo, err := c.Services().Tenants.GetUpload(id)

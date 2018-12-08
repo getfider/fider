@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://github.com/getfider/fider">
-    <img src="public/assets/images/logo-small.png" />
+  <a href="https://getfider.com">
+    <img src="etc/logo-small.png" />
   </a>
   <h1 align="center">Fider</h1>
   <div align="center">

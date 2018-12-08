@@ -1,7 +1,8 @@
 import "./Message.scss";
 
-import * as React from "react";
+import React from "react";
 import { classSet } from "@fider/services";
+import { FaBan, FaRegCheckCircle } from "react-icons/fa";
 
 interface MessageProps {
   type: "success" | "error";
@@ -14,12 +15,12 @@ export const Message: React.StatelessComponent<MessageProps> = props => {
     [`m-${props.type}`]: true
   });
 
-  const icon = props.type === "error" ? "ban" : "check circle outline";
+  const icon = props.type === "error" ? <FaBan /> : <FaRegCheckCircle />;
 
   return (
-    <div className={className}>
-      {props.showIcon === true && <i className={`${icon} icon`} />}
-      {props.children}
-    </div>
+    <p className={className}>
+      {props.showIcon === true && icon}
+      <span>{props.children}</span>
+    </p>
   );
 };

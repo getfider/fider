@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
@@ -13,16 +13,18 @@ export interface DropDownItem {
 export interface DropDownProps {
   className?: string;
   defaultValue?: any;
-  items: DropDownItem[];
+  items: Array<DropDownItem | undefined | false>;
   placeholder?: string;
   searchable?: boolean;
   inline?: boolean;
+  style: "normal" | "simple";
   highlightSelected?: boolean;
   header?: string;
   direction?: "left" | "right";
   onChange?: (item: DropDownItem) => void;
   onSearchChange?: (e: React.FormEvent<HTMLInputElement>) => void;
-  renderText?: (item?: DropDownItem) => JSX.Element | undefined;
+  renderText?: (item?: DropDownItem) => JSX.Element | string | undefined;
+  renderControl?: (item?: DropDownItem) => JSX.Element | string | undefined;
 }
 
 export interface DropDownState {
@@ -35,6 +37,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
   public static defaultProps: Partial<DropDownProps> = {
     direction: "right",
+    style: "normal",
     highlightSelected: true
   };
 
@@ -81,9 +84,9 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     );
   };
 
-  public findItem(value: any, items: DropDownItem[]): DropDownItem | undefined {
+  public findItem(value: any, items: Array<DropDownItem | undefined | false>): DropDownItem | undefined {
     for (const item of items) {
-      if (item.value === value) {
+      if (item && item.value === value) {
         return item;
       }
     }
@@ -105,7 +108,11 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     }
   }
 
-  public renderItem = (item: DropDownItem) => {
+  public renderItem = (item: DropDownItem | undefined | false) => {
+    if (!item) {
+      return;
+    }
+
     const { label, value } = item;
     const isSelected = this.props.highlightSelected && this.state.selected && value === this.state.selected.value;
     const className = classSet({
@@ -167,6 +174,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       "c-dropdown": true,
       [`${this.props.className}`]: this.props.className,
       "is-open": this.state.isOpen,
+      [`m-style-${this.props.style}`]: true,
       "is-inline": this.props.inline,
       "m-right": this.props.direction === "right",
       "m-left": this.props.direction === "left"
@@ -175,11 +183,17 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     return (
       <div className={dropdownClass}>
         <div onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
-          {this.props.renderText ? (
-            <div className="c-dropdown-text">{this.props.renderText(this.state.selected)}</div>
+          {this.props.renderControl ? (
+            <div className="c-dropdown-control">{this.props.renderControl(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
-              {this.state.isOpen && this.props.searchable ? search : <div>{text}</div>}
+              {this.state.isOpen && this.props.searchable ? (
+                search
+              ) : this.props.renderText ? (
+                this.props.renderText(this.state.selected)
+              ) : (
+                <div>{text}</div>
+              )}
               <span className="c-dropdown-arrow" />
             </div>
           )}

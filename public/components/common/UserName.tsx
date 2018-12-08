@@ -1,17 +1,21 @@
 import "./UserName.scss";
 
-import * as React from "react";
-import { User, isCollaborator } from "@fider/models";
+import React from "react";
+import { isCollaborator, UserRole } from "@fider/models";
 import { classSet } from "@fider/services";
 
 interface UserNameProps {
-  user: User;
+  user: {
+    id: number;
+    name: string;
+    role?: UserRole;
+  };
 }
 
 export const UserName = (props: UserNameProps) => {
   const className = classSet({
     "c-username": true,
-    "m-staff": isCollaborator(props.user.role)
+    "m-staff": props.user.role && isCollaborator(props.user.role)
   });
 
   return <span className={className}>{props.user.name || "Anonymous"}</span>;

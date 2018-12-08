@@ -12,6 +12,8 @@ start_fider () {
   docker run \
     -d \
     -p 3000:3000 \
+    -e SSL_CERT=development.crt \
+    -e SSL_CERT_KEY=development.key \
     -e HOST_MODE=$1 \
     -e DATABASE_URL=postgres://fider_e2e:fider_e2e_pw@$PG_CONTAINER:5432/fider_e2e?sslmode=disable \
     -v `pwd`/etc:/app/etc \

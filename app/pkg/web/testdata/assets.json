@@ -1,0 +1,25 @@
+{
+  "entrypoints": {
+    "main": {
+      "assets": [
+        "css/file1.css",
+        "css/file1.css.map",
+        "js/file1.js",
+        "js/file1.js.map",
+        "images/logo.jpg",
+        "js/file2.js",
+        "js/file2.js.map"
+      ]
+    }
+  },
+  "namedChunkGroups": {
+    "Test.page": {
+      "assets": [
+        "css/Test.page.css",
+        "css/Test.page.css.map",
+        "js/Test.page.js",
+        "js/Test.page.js.map"
+      ]
+    }
+  }
+}

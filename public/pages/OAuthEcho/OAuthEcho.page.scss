@@ -1,13 +1,17 @@
 @import '~@fider/assets/styles/variables.scss';
 
 #p-oauth-echo {
-  i.times.icon {
+  .icon {
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  .icon.error {
     color: $red;
   }
-  i.check.icon {
+  .icon.check {
     color: $green;
   }
-  i.exclamation.icon {
+  .icon.warn {
     color: $orange;
   }
 }

@@ -1,7 +1,8 @@
-import * as React from "react";
-import { CurrentUser, Post } from "@fider/models";
+import React from "react";
+import { Post } from "@fider/models";
 import { Button, List, ListItem } from "@fider/components";
 import { actions, Fider } from "@fider/services";
+import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 
 interface NotificationsPanelProps {
   post: Post;
@@ -38,11 +39,11 @@ export class NotificationsPanel extends React.Component<NotificationsPanelProps,
 
     const button = this.state.subscribed ? (
       <Button fluid={true} onClick={this.subscribeOrUnsubscribe}>
-        <i className="volume off icon" /> Unsubscribe
+        <FaVolumeMute /> Unsubscribe
       </Button>
     ) : (
       <Button fluid={true} onClick={this.subscribeOrUnsubscribe}>
-        <i className="volume up icon" /> Subscribe
+        <FaVolumeUp /> Subscribe
       </Button>
     );
 

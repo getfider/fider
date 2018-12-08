@@ -1,10 +1,11 @@
-import * as React from "react";
+import React from "react";
 import { Fider, uploadedImageURL } from "@fider/services";
 
 type Size = 24 | 50 | 100 | 200;
 
 interface TenantLogoProps {
   size: Size;
+  useFiderIfEmpty?: boolean;
 }
 
 export const TenantLogoURL = (size: Size): string | undefined => {
@@ -19,8 +20,14 @@ export const TenantLogo = (props: TenantLogoProps) => {
   const tenant = Fider.session.tenant;
   if (tenant && tenant.logoID > 0) {
     return <img src={TenantLogoURL(props.size)} alt={tenant.name} />;
+  } else if (props.useFiderIfEmpty) {
+    return <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />;
   }
   return null;
+};
+
+TenantLogo.defaultProps = {
+  useFiderIfEmpty: false
 };
 
 interface OAuthProviderLogoProps {

@@ -1,12 +1,15 @@
 import "./MySettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
-import { DangerZone, APIKeyForm, NotificationSettings } from "./";
+import { Modal, Form, Button, Gravatar, Heading, Field, Input } from "@fider/components";
 
-import { CurrentUser, UserSettings } from "@fider/models";
+import { UserSettings } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
+import { FaRegAddressCard } from "react-icons/fa";
+import { NotificationSettings } from "./components/NotificationSettings";
+import { APIKeyForm } from "./components/APIKeyForm";
+import { DangerZone } from "./components/DangerZone";
 
 interface MySettingsPageState {
   showModal: boolean;
@@ -21,7 +24,7 @@ interface MySettingsPageProps {
   userSettings: UserSettings;
 }
 
-export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
+export default class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {
@@ -109,7 +112,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon="address card outline" />
+        <Heading title="Settings" subtitle="Manage your profile settings" icon={FaRegAddressCard} />
 
         <div className="row">
           <div className="col-lg-7">
@@ -141,7 +144,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               >
                 <p className="info">
                   {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be displayed to anyone"
+                    ? "Your email is private and will never be publicly displayed"
                     : "Your account doesn't have an email."}
                 </p>
                 {this.state.changingEmail && (

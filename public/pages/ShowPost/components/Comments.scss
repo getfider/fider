@@ -6,7 +6,7 @@
   }
 
   .c-avatar {
-    margin-right: 10px;
+    margin-right: 5px;
     vertical-align: top;
     margin-top: 2px;
   }
@@ -29,30 +29,29 @@
       }
 
       .l-more-actions {
-        cursor: pointer;
-        display: inline-block;
-        margin-left: 10px;
-        position: relative;
-        top: 2px;
+        .c-dropdown-control {
+          padding: 0px 0px 0px 5px;
+        }
 
         .c-dropdown-menu {
           border-radius: 5px;
           width: 100px;
         }
 
-        .ellipsis.icon {
+        .icon {
           color: $gray-dark;
+          font-size: 12px;
         }
 
         &:hover {
-          .ellipsis.icon {
+          .icon {
             color: $gray-darkest;
           }
         }
 
         &.is-open {
           display: inline-block !important;
-          .ellipsis.icon {
+          .icon {
             color: $gray-darkest;
           }
         }

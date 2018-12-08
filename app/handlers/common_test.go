@@ -25,7 +25,7 @@ func TestPageHandler(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	code, _ := server.
-		Execute(handlers.Page("The Title", "The Description"))
+		Execute(handlers.Page("The Title", "The Description", "TheChunk.Page"))
 
 	Expect(code).Equals(http.StatusOK)
 }

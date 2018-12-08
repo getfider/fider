@@ -34,13 +34,17 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
 }
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
   const headers = [["Accept", "application/json"], ["Content-Type", "application/json"]];
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: JSON.stringify(body),
-    credentials: "same-origin"
-  });
-  return await toResult<T>(response);
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(body),
+      credentials: "same-origin"
+    });
+    return await toResult<T>(response);
+  } catch (err) {
+    throw new Error(`Failed to ${method} ${url} with body '${body ? JSON.stringify(body) : "<empty>"}'`);
+  }
 }
 
 export const http = {

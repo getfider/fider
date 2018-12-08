@@ -15,7 +15,8 @@ func GeneralSettingsPage() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "General · Site Settings",
+			Title:     "General · Site Settings",
+			ChunkName: "GeneralSettings.page",
 			Data: web.Map{
 				"publicIP": publicIP,
 			},
@@ -27,7 +28,8 @@ func GeneralSettingsPage() web.HandlerFunc {
 func AdvancedSettingsPage() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Props{
-			Title: "Advanced · Site Settings",
+			Title:     "Advanced · Site Settings",
+			ChunkName: "AdvancedSettings.page",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
 			},
@@ -95,7 +97,8 @@ func ManageMembers() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Manage Members · Site Settings",
+			Title:     "Manage Members · Site Settings",
+			ChunkName: "ManageMembers.page",
 			Data: web.Map{
 				"users": users,
 			},
@@ -112,7 +115,8 @@ func ManageAuthentication() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Authentication · Site Settings",
+			Title:     "Authentication · Site Settings",
+			ChunkName: "ManageAuthentication.page",
 			Data: web.Map{
 				"providers": providers,
 			},

@@ -54,11 +54,11 @@ func TestUser_WithCookie(t *testing.T) {
 	Expect(response.HeaderMap["Set-Cookie"]).HasLen(0)
 }
 
-func TestUser_Banned(t *testing.T) {
+func TestUser_Blocked(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	mock.JonSnow.Status = models.UserBanned
+	mock.JonSnow.Status = models.UserBlocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -150,7 +150,6 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.Value).Equals("")
 	Expect(cookie.Domain).Equals("test.fider.io")
 	Expect(cookie.HttpOnly).IsTrue()
-	Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(-100*time.Hour), 5*time.Second)
 
@@ -159,7 +158,6 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	Expect(cookie.Value).Equals(token)
 	Expect(cookie.Domain).Equals("")
 	Expect(cookie.HttpOnly).IsTrue()
-	Expect(cookie.SameSite).Equals(http.SameSiteLaxMode)
 	Expect(cookie.Path).Equals("/")
 	Expect(cookie.Expires).TemporarilySimilar(time.Now().Add(365*24*time.Hour), 5*time.Second)
 }

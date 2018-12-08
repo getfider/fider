@@ -6,11 +6,12 @@
     border-top-width: 0.1px !important;
 
     .c-list-item-title {
-      color: $text-color;
+      color: $gray-darkest;
+      font-weight: 500;
       display: block;
       max-width: 85%;
       margin-bottom: 10px;
-      font-size: $font-size-big;
+      font-size: $font-size-large;
       &:hover {
         color: $main-color;
       }
@@ -23,10 +24,14 @@
       .c-tag {
         margin: 0 3px 3px 0;
       }
+
+      svg.icon {
+        vertical-align: middle;
+      }
     }
     
     .c-list-item-description {
-      color: $gray-darkest;
+      color: $gray-darker;
       min-height: 20px;
       margin-bottom: 10px;
     }
@@ -35,6 +40,7 @@
 
 .c-post-list-show-more {
   cursor: pointer;
+  font-weight: 500;
   color: $main-color;
   margin-left: 55px;
 }

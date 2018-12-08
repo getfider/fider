@@ -27,10 +27,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Use(middlewares.Secure())
 	r.Use(middlewares.Compress())
 
-	r.Get("/-/health", handlers.Health())
-	r.Get("/robots.txt", handlers.RobotsTXT())
-	r.Post("/_api/log-error", handlers.LogError())
-
 	assets := r.Group()
 	{
 		assets.Use(middlewares.CORS())
@@ -39,9 +35,17 @@ func routes(r *web.Engine) *web.Engine {
 		assets.Static("/assets/*filepath", "dist")
 	}
 
+	r.Use(middlewares.Session())
+
+	r.Get("/-/health", handlers.Health())
+	r.Get("/robots.txt", handlers.RobotsTXT())
+	r.Post("/_api/log-error", handlers.LogError())
+
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
+	r.Use(middlewares.User())
 
+	r.Get("/browser-not-supported", handlers.BrowserNotSupported())
 	r.Get("/privacy", handlers.LegalPage("Privacy Policy", "privacy.md"))
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
@@ -58,22 +62,24 @@ func routes(r *web.Engine) *web.Engine {
 
 	tenantAssets := r.Group()
 	{
-		tenantAssets.Use(middlewares.ClientCache(72 * time.Hour))
+		tenantAssets.Use(middlewares.ClientCache(5 * 24 * time.Hour))
 		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
+
+		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/images/:size/:id", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
 	}
 
-	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements"))
+	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements", "UIToolkit.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
 	r.Get("/signout", handlers.SignOut())
 	r.Get("/oauth/:provider/token", handlers.OAuthToken())
 	r.Get("/oauth/:provider/echo", handlers.OAuthEcho())
 
-	//From this step, a only active Tenants are allowed
-	r.Use(middlewares.OnlyActiveTenants())
+	//If tenant is pending, block it from using any other route
+	r.Use(middlewares.BlockPendingTenants())
 
 	r.Get("/signin", handlers.SignInPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
@@ -81,12 +87,6 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
-
-	//Extract user from cookie and inject it into web.Context (if available)
-	r.Use(middlewares.User())
-
-	//Block if an API-originated AuthToken requests a non-API resource
-	r.Use(middlewares.CheckAuthTokenOrigin())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
@@ -100,10 +100,10 @@ func routes(r *web.Engine) *web.Engine {
 	** START
 	 */
 	r.Get("/ideas/:number", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	r.Get("/ideas/:number/*all", func(c web.Context) error {
-		return c.Redirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
+		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	/*
 	** END
@@ -131,8 +131,8 @@ func routes(r *web.Engine) *web.Engine {
 
 		ui.Get("/admin", handlers.GeneralSettingsPage())
 		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
-		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", ""))
-		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", ""))
+		ui.Get("/admin/privacy", handlers.Page("Privacy · Site Settings", "", "PrivacySettings.page"))
+		ui.Get("/admin/invitations", handlers.Page("Invitations · Site Settings", "", "Invitations.page"))
 		ui.Get("/admin/members", handlers.ManageMembers())
 		ui.Get("/admin/tags", handlers.ManageTags())
 		ui.Get("/admin/authentication", handlers.ManageAuthentication())
@@ -141,21 +141,24 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
-		ui.Get("/admin/export", handlers.Page("Export · Site Settings", ""))
+		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
 		ui.Post("/_api/admin/oauth", handlers.SaveOAuthConfig())
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
+		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
+		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
 	}
 
 	api := r.Group()
 	{
 		api.Get("/api/v1/posts", apiv1.SearchPosts())
 		api.Get("/api/v1/tags", apiv1.ListTags())
-		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
 		api.Get("/api/v1/posts/:number", apiv1.GetPost())
+		api.Get("/api/v1/posts/:number/comments", apiv1.ListComments())
+		api.Get("/api/v1/posts/:number/comments/:id", apiv1.GetComment())
 
 		//From this step, a User is required
 		api.Use(middlewares.IsAuthenticated())
@@ -174,6 +177,7 @@ func routes(r *web.Engine) *web.Engine {
 
 		api.Get("/api/v1/users", apiv1.ListUsers())
 		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
+		api.Get("/api/v1/posts/:number/votes", apiv1.ListVotes())
 		api.Post("/api/v1/invitations/send", apiv1.SendInvites())
 		api.Post("/api/v1/invitations/sample", apiv1.SendSampleInvite())
 		api.Put("/api/v1/posts/:number/status", apiv1.SetResponse())

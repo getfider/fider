@@ -41,11 +41,19 @@
     @include media(">=md") {
       width: 200px;
     }
+
+    .subtitle + .c-list {
+      margin-bottom: 10px;
+    }
   }
 
   .c-tag-list {
-    .icon.check {
-      color: $green;
+    .m-selectable {
+      .icon {
+        height: 12px;
+        margin-right: 2px;
+        color: $green;
+      }
     }
     span {
       margin-left: 5px;
@@ -59,7 +67,7 @@
       text-align: center;
       width: 50px;
       display: inline-block;
-      i {
+      .icon {
         margin: 0;
       }
     }

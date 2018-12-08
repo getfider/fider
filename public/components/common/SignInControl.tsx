@@ -1,6 +1,6 @@
 import "./SignInControl.scss";
 
-import * as React from "react";
+import React from "react";
 import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components";
 import { device, actions, Failure, Fider, isCookieEnabled } from "@fider/services";
 
@@ -22,14 +22,6 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
       email: ""
     };
   }
-
-  private onEmailKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (event.keyCode === 13) {
-      // ENTER
-      this.signIn();
-      event.preventDefault();
-    }
-  };
 
   private signIn = async () => {
     const result = await actions.signIn(this.state.email);

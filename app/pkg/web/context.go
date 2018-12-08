@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -32,6 +33,7 @@ type StringMap map[string]string
 type Props struct {
 	Title       string
 	Description string
+	ChunkName   string
 	Data        Map
 }
 
@@ -46,6 +48,9 @@ var (
 	UTF8XMLContentType   = XMLContentType + "; charset=utf-8"
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
+
+// CookieSessionName is the name of the cookie that holds the session ID
+const CookieSessionName = "user_session_id"
 
 // CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
@@ -65,19 +70,31 @@ var (
 
 //Context shared between http pipeline
 type Context struct {
-	id       string
-	Response http.ResponseWriter
-	Request  Request
-	engine   *Engine
-	logger   log.Logger
-	params   StringMap
-	store    Map
-	worker   worker.Worker
+	id        string
+	sessionID string
+	Response  http.ResponseWriter
+	Request   Request
+	engine    *Engine
+	logger    log.Logger
+	params    StringMap
+	store     Map
+	worker    worker.Worker
 }
 
 //Engine returns main HTTP engine
 func (ctx *Context) Engine() *Engine {
 	return ctx.engine
+}
+
+//SessionID returns the current session ID
+func (ctx *Context) SessionID() string {
+	return ctx.sessionID
+}
+
+//SetSessionID sets the session ID on current context
+func (ctx *Context) SetSessionID(id string) {
+	ctx.sessionID = id
+	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -130,13 +147,14 @@ func (ctx *Context) Enqueue(task worker.Task) {
 	}
 
 	ctx.Set(tasksContextKey, append(tasks, worker.Task{
-		Name: task.Name,
-		Job:  wrap(ctx),
+		OriginSessionID: ctx.SessionID(),
+		Name:            task.Name,
+		Job:             wrap(ctx),
 	}))
 }
 
 //Tenant returns current tenant
-func (ctx Context) Tenant() *models.Tenant {
+func (ctx *Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant
@@ -337,16 +355,17 @@ func (ctx *Context) Services() *app.Services {
 }
 
 //AddCookie adds a cookie
-func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
+	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
 		Secure:   ctx.Request.IsSecure,
-		SameSite: http.SameSiteLaxMode,
-	})
+	}
+	http.SetCookie(ctx.Response, cookie)
+	return cookie
 }
 
 //RemoveCookie removes a cookie
@@ -358,7 +377,6 @@ func (ctx *Context) RemoveCookie(name string) {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
 		Secure:   ctx.Request.IsSecure,
-		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -378,7 +396,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL
-func (ctx Context) BaseURL() string {
+func (ctx *Context) BaseURL() string {
 	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
 	if ctx.Request.URL.Port() != "" {
@@ -494,6 +512,14 @@ func (ctx *Context) Redirect(url string) error {
 	return nil
 }
 
+// PermanentRedirect the request to a provided URL
+func (ctx *Context) PermanentRedirect(url string) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Response.Header().Set("Location", url)
+	ctx.Response.WriteHeader(http.StatusMovedPermanently)
+	return nil
+}
+
 // GlobalAssetsURL return the full URL to a globally shared static asset
 func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
@@ -519,7 +545,7 @@ func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL
-func (ctx Context) LogoURL() string {
+func (ctx *Context) LogoURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		return ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
 	}
@@ -527,9 +553,31 @@ func (ctx Context) LogoURL() string {
 }
 
 // FaviconURL return the full URL to the tenant-specific favicon URL
-func (ctx Context) FaviconURL() string {
+func (ctx *Context) FaviconURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
 		return ctx.TenantAssetsURL("/images/50/%d", ctx.Tenant().LogoID)
 	}
 	return ctx.GlobalAssetsURL("/favicon.ico")
+}
+
+// SetCanonicalLink sets the canonical link on the HTTP Response Headers
+func (ctx *Context) SetCanonicalLink(link string) {
+	u, err := url.Parse(link)
+	if err == nil {
+		if u.Host == "" {
+			baseURL, ok := ctx.Get("Canonical-BaseURL").(string)
+			if !ok {
+				baseURL = ctx.BaseURL()
+			}
+			if len(link) > 0 && link[0] != '/' {
+				link = "/" + link
+			}
+			link = baseURL + link
+			ctx.Response.Header().Set("Link", fmt.Sprintf("<%s%s>; rel=\"canonical\"", baseURL, link))
+		} else {
+			ctx.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
+		}
+
+		ctx.Response.Header().Set("Link", fmt.Sprintf("<%s>; rel=\"canonical\"", link))
+	}
 }

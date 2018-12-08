@@ -1,6 +1,6 @@
 import "./List.scss";
 
-import * as React from "react";
+import React from "react";
 import { classSet } from "@fider/services";
 
 interface ListProps {
