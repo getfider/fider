@@ -41,6 +41,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/robots.txt", handlers.RobotsTXT())
 	r.Post("/_api/log-error", handlers.LogError())
 
+	r.Use(middlewares.Maintenance())
 	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
 	r.Use(middlewares.User())
