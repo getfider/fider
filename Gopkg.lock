@@ -10,6 +10,22 @@
   version = "v0.13.0"
 
 [[projects]]
+  digest = "1:bd444f85703c5aff1ba686cb52766fd38c3730d4e1dfb02327b2481bfe674997"
+  name = "github.com/Azure/azure-pipeline-go"
+  packages = ["pipeline"]
+  pruneopts = ""
+  revision = "b8e3409182fd52e74f7d7bdfbff5833591b3b655"
+  version = "v0.1.8"
+
+[[projects]]
+  digest = "1:f0dc2e8b5f53bd286e49ba57313df9d450ec1f273c59bc7b0011fd4e99eea7db"
+  name = "github.com/Azure/azure-storage-blob-go"
+  packages = ["azblob"]
+  pruneopts = ""
+  revision = "5152f14ace1c6db66bd9cb57840703a8358fa7bc"
+  version = "0.3.0"
+
+[[projects]]
   digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
@@ -170,6 +186,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/Azure/azure-storage-blob-go/azblob",
     "github.com/dgrijalva/jwt-go",
     "github.com/goenning/letteravatar",
     "github.com/goenning/sqlcertcache",

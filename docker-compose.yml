@@ -20,3 +20,13 @@ services:
     environment:
       POSTGRES_USER: fider_test
       POSTGRES_PASSWORD: fider_test_pw
+  azblobtest:
+    container_name: fider_azblobtest
+    restart: always
+    image: arafato/azurite:2.6.5
+    volumes:
+      - ./data/azblobtest:/opt/azurite/folder
+    ports:
+      - "10000:10000"
+    environment:
+      executable: blob

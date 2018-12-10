@@ -34,6 +34,10 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   name = "golang.org/x/crypto"
 
 [[constraint]]
+  version = "^0.3.0"
+  name = "github.com/Azure/azure-storage-blob-go"
+
+[[constraint]]
   branch = "master"
   name = "github.com/goenning/sqlcertcache"
 
