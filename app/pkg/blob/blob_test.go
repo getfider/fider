@@ -8,11 +8,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/dbx"
+
 	"github.com/getfider/fider/app/models"
 
 	az "github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/getfider/fider/app/pkg/blob/azblob"
 	"github.com/getfider/fider/app/pkg/blob/fs"
+	"github.com/getfider/fider/app/pkg/blob/sql"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/blob"
@@ -43,6 +46,17 @@ func setupAZBLOB(t *testing.T) *azblob.Storage {
 	container.Create(context.Background(), az.Metadata{}, az.PublicAccessNone)
 
 	client, err := azblob.NewStorage(endpointURL, accountName, accountKey, containerName)
+	Expect(err).IsNil()
+
+	return client
+}
+
+func setupSQL(t *testing.T) *sql.Storage {
+	RegisterT(t)
+
+	db := dbx.New()
+	db.Seed()
+	client, err := sql.NewStorage(db)
 	Expect(err).IsNil()
 
 	return client
@@ -83,6 +97,11 @@ func TestBlobStorage(t *testing.T) {
 
 		t.Run("Test_AZBLOB_"+tt.name, func(t *testing.T) {
 			client := setupAZBLOB(t)
+			tt.test(client, t)
+		})
+
+		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
+			client := setupSQL(t)
 			tt.test(client, t)
 		})
 	}
