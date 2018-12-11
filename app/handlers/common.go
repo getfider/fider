@@ -18,6 +18,10 @@ import (
 //Health always returns OK
 func Health() web.HandlerFunc {
 	return func(c web.Context) error {
+		err := c.Engine().Database().Ping()
+		if err != nil {
+			return c.Failure(err)
+		}
 		return c.Ok(web.Map{})
 	}
 }
