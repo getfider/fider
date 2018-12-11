@@ -6,16 +6,26 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
 var perm os.FileMode = 0744
 
+var _ blob.Storage = (*Storage)(nil)
+
 // Storage stores blobs on FileSystem
 type Storage struct {
 	path string
+}
+
+// Session is a per-request object to interact with the storage
+type Session struct {
+	storage *Storage
+	tenant  *models.Tenant
 }
 
 // NewStorage creates a new FileSystem Storage
@@ -30,9 +40,25 @@ func NewStorage(path string) (*Storage, error) {
 	}, nil
 }
 
+// NewSession creates a new session
+func (s *Storage) NewSession(tenant *models.Tenant) blob.Session {
+	return &Session{
+		storage: s,
+		tenant:  tenant,
+	}
+}
+
+func (s *Session) keyFullPath(key string) string {
+	fullPath := path.Join(s.storage.path, key)
+	if s.tenant != nil {
+		fullPath = path.Join("tenants", strconv.Itoa(s.tenant.ID), fullPath)
+	}
+	return fullPath
+}
+
 // Get returns a blob with given key
-func (s *Storage) Get(key string) (*blob.Blob, error) {
-	fullPath := path.Join(s.path, key)
+func (s *Session) Get(key string) (*blob.Blob, error) {
+	fullPath := s.keyFullPath(key)
 	stats, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -55,8 +81,8 @@ func (s *Storage) Get(key string) (*blob.Blob, error) {
 }
 
 // Delete a blob with given key
-func (s *Storage) Delete(key string) error {
-	fullPath := path.Join(s.path, key)
+func (s *Session) Delete(key string) error {
+	fullPath := s.keyFullPath(key)
 	err := os.Remove(fullPath)
 	if err != nil && !os.IsNotExist(err) {
 		return errors.Wrap(err, "failed to delete file '%s' from FileSystem", key)
@@ -65,8 +91,8 @@ func (s *Storage) Delete(key string) error {
 }
 
 // Store a blob with given key and content. Blobs with same key are replaced.
-func (s *Storage) Store(b *blob.Blob) error {
-	fullPath := path.Join(s.path, b.Key)
+func (s *Session) Store(b *blob.Blob) error {
+	fullPath := s.keyFullPath(b.Key)
 	err := os.MkdirAll(filepath.Dir(fullPath), perm)
 
 	if err != nil {

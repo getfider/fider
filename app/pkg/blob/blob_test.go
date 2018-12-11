@@ -8,6 +8,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/models"
+
 	az "github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/getfider/fider/app/pkg/blob/azblob"
 	"github.com/getfider/fider/app/pkg/blob/fs"
@@ -16,6 +18,9 @@ import (
 	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/env"
 )
+
+var tenant1 = &models.Tenant{ID: 1}
+var tenant2 = &models.Tenant{ID: 2}
 
 func setupAZBLOB(t *testing.T) *azblob.Storage {
 	RegisterT(t)
@@ -34,6 +39,7 @@ func setupAZBLOB(t *testing.T) *azblob.Storage {
 	u, _ := url.Parse(endpointURL)
 	service := az.NewServiceURL(*u, p)
 	container := service.NewContainerURL(containerName)
+	container.Delete(context.Background(), az.ContainerAccessConditions{})
 	container.Create(context.Background(), az.Metadata{}, az.PublicAccessNone)
 
 	client, err := azblob.NewStorage(endpointURL, accountName, accountKey, containerName)
@@ -65,6 +71,7 @@ var tests = []struct {
 }{
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
+	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -82,6 +89,7 @@ func TestBlobStorage(t *testing.T) {
 }
 
 func AllOperations(client blob.Storage, t *testing.T) {
+	sess := client.NewSession(nil)
 	var testCases = []struct {
 		localPath   string
 		key         string
@@ -93,7 +101,7 @@ func AllOperations(client blob.Storage, t *testing.T) {
 
 	for _, testCase := range testCases {
 		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
-		err := client.Store(&blob.Blob{
+		err := sess.Store(&blob.Blob{
 			Key:         testCase.key,
 			Object:      bytes,
 			ContentType: testCase.contentType,
@@ -101,23 +109,54 @@ func AllOperations(client blob.Storage, t *testing.T) {
 		})
 		Expect(err).IsNil()
 
-		b, err := client.Get(testCase.key)
+		b, err := sess.Get(testCase.key)
 		Expect(err).IsNil()
 		Expect(b.Key).Equals(testCase.key)
 		Expect(b.Object).Equals(bytes)
 		Expect(b.Size).Equals(int64(len(bytes)))
 		Expect(b.ContentType).Equals(testCase.contentType)
 
-		err = client.Delete(testCase.key)
+		err = sess.Delete(testCase.key)
 		Expect(err).IsNil()
 
-		b, err = client.Get(testCase.key)
+		b, err = sess.Get(testCase.key)
 		Expect(b).IsNil()
 		Expect(err).Equals(blob.ErrNotFound)
 	}
 }
 
 func DeleteUnkownFile(client blob.Storage, t *testing.T) {
-	err := client.Delete("path/somefile.txt")
+	sess := client.NewSession(nil)
+	err := sess.Delete("path/somefile.txt")
 	Expect(err).IsNil()
+}
+
+func SameKey_DifferentTenant(client blob.Storage, t *testing.T) {
+	sess := client.NewSession(tenant1)
+	key := "path/to/file3.txt"
+	bytes, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file3.txt"))
+
+	err := sess.Store(&blob.Blob{
+		Key:         key,
+		Object:      bytes,
+		ContentType: "text/plain; charset=utf-8",
+		Size:        int64(len(bytes)),
+	})
+	Expect(err).IsNil()
+
+	b, err := sess.Get(key)
+	Expect(err).IsNil()
+	Expect(b.Object).Equals(bytes)
+
+	sess2 := client.NewSession(tenant2)
+
+	b, err = sess2.Get(key)
+	Expect(b).IsNil()
+	Expect(err).Equals(blob.ErrNotFound)
+
+	sess3 := client.NewSession(nil)
+
+	b, err = sess3.Get(key)
+	Expect(b).IsNil()
+	Expect(err).Equals(blob.ErrNotFound)
 }
