@@ -6,6 +6,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
@@ -43,6 +44,10 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		c.Logger().Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+			"TotalInvites": len(input.Invitations),
+			"ClientIP":     c.Request.ClientIP,
+		})
 		c.Enqueue(tasks.SendInvites(input.Model.Subject, input.Model.Message, input.Invitations))
 
 		return c.Ok(web.Map{})
