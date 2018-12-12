@@ -24,6 +24,12 @@ var tenant2 = &models.Tenant{ID: 2}
 func setupS3(t *testing.T) *s3.Storage {
 	RegisterT(t)
 
+	err := os.RemoveAll(env.Path("data/s3test/test-bucket"))
+	Expect(err).IsNil()
+
+	err = os.MkdirAll(env.Path("data/s3test/test-bucket"), 0777)
+	Expect(err).IsNil()
+
 	endpointURL := env.GetEnvOrDefault("S3_ENDPOINT_URL", "")
 	region := env.GetEnvOrDefault("S3_REGION", "")
 	accessKeyID := env.GetEnvOrDefault("S3_ACCESS_KEY_ID", "")
@@ -70,7 +76,7 @@ var tests = []struct {
 }{
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
-	//{"SameKey_DifferentTenant", SameKey_DifferentTenant},
+	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 }
 
 func TestBlobStorage(t *testing.T) {
