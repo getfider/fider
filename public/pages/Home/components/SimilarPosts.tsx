@@ -59,7 +59,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
       <>
         <Heading
           title="Similar posts"
-          subtitle="Consider voting on existing posts instead of posting a new one."
+          subtitle="Consider voting on existing posts instead."
           icon={FaRegLightbulb}
           size="small"
           dividing={true}
