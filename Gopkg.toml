@@ -1,6 +1,18 @@
 
 ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 
+[prune]
+  [[prune.project]]
+    name = "github.com/aws/aws-sdk-go"
+    go-tests = true
+    unused-packages = true
+
+  [[prune.project]]
+    name = "github.com/jmespath/go-jmespath"
+    go-tests = true
+    unused-packages = true
+    non-go = false
+
 [[constraint]]
   name = "github.com/dgrijalva/jwt-go"
   version = "^3.2.0"
@@ -32,6 +44,10 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 [[constraint]]
   branch = "master"
   name = "golang.org/x/crypto"
+
+[[constraint]]
+  version = "v1.16.3"
+  name = "github.com/aws/aws-sdk-go"
 
 [[constraint]]
   branch = "master"
