@@ -144,6 +144,7 @@ func (a *AnyAssertions) IsNil() bool {
 		return true
 	}
 	err := fmt.Errorf("IsNil assertion failed. \n Actual: \n\t\t %v", a.actual)
+	panic(err)
 	currentT.Error(errors.StackN(err, 1))
 	return false
 }
