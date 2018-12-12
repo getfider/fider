@@ -1,6 +1,11 @@
 
 ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 
+[prune]
+  [[prune.project]]
+    name = "github.com/aws/aws-sdk-go"
+    unused-packages = true
+
 [[constraint]]
   name = "github.com/dgrijalva/jwt-go"
   version = "^3.2.0"
@@ -36,6 +41,10 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 [[constraint]]
   version = "^0.3.0"
   name = "github.com/Azure/azure-storage-blob-go"
+
+[[constraint]]
+  version = "v1.16.3"
+  name = "github.com/aws/aws-sdk-go"
 
 [[constraint]]
   branch = "master"
