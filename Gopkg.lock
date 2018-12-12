@@ -10,7 +10,7 @@
   version = "v0.13.0"
 
 [[projects]]
-  digest = "1:573aa6b425a958b5600e8ca0c0da004283156d26a18b74201ee273eec422be61"
+  digest = "1:4488d53934d19e169589db4c90a11bf452fa1e5e97176fe60892ebf8121fe05a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -48,7 +48,7 @@
     "service/s3",
     "service/sts",
   ]
-  pruneopts = "U"
+  pruneopts = "UT"
   revision = "818fa5c274d4dee665096411e2bad037f47c31f7"
   version = "v1.16.3"
 
@@ -105,10 +105,10 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "c2b33e84"
 
 [[projects]]
