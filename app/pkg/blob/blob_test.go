@@ -1,10 +1,7 @@
 package blob_test
 
 import (
-	"context"
 	"io/ioutil"
-	"log"
-	"net/url"
 	"os"
 	"testing"
 
@@ -12,8 +9,6 @@ import (
 
 	"github.com/getfider/fider/app/models"
 
-	az "github.com/Azure/azure-storage-blob-go/azblob"
-	"github.com/getfider/fider/app/pkg/blob/azblob"
 	"github.com/getfider/fider/app/pkg/blob/fs"
 	"github.com/getfider/fider/app/pkg/blob/s3"
 	"github.com/getfider/fider/app/pkg/blob/sql"
@@ -36,32 +31,6 @@ func setupS3(t *testing.T) *s3.Storage {
 	bucket := env.GetEnvOrDefault("S3_BUCKET", "")
 
 	client, err := s3.NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket)
-	Expect(err).IsNil()
-
-	return client
-}
-
-func setupAZBLOB(t *testing.T) *azblob.Storage {
-	RegisterT(t)
-
-	endpointURL := env.GetEnvOrDefault("AZBLOB_ENDPOINT_URL", "")
-	accountName := env.GetEnvOrDefault("AZBLOB_ACCOUNT_NAME", "")
-	accountKey := env.GetEnvOrDefault("AZBLOB_ACCOUNT_KEY", "")
-	containerName := env.GetEnvOrDefault("AZBLOB_CONTAINER", "")
-
-	credential, err := az.NewSharedKeyCredential(accountName, accountKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	p := az.NewPipeline(credential, az.PipelineOptions{})
-	u, _ := url.Parse(endpointURL)
-	service := az.NewServiceURL(*u, p)
-	container := service.NewContainerURL(containerName)
-	container.Delete(context.Background(), az.ContainerAccessConditions{})
-	container.Create(context.Background(), az.Metadata{}, az.PublicAccessNone)
-
-	client, err := azblob.NewStorage(endpointURL, accountName, accountKey, containerName)
 	Expect(err).IsNil()
 
 	return client
@@ -101,7 +70,7 @@ var tests = []struct {
 }{
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
-	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
+	//{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -113,11 +82,6 @@ func TestBlobStorage(t *testing.T) {
 
 		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
 			client := setupS3(t)
-			tt.test(client, t)
-		})
-
-		t.Run("Test_AZBLOB_"+tt.name, func(t *testing.T) {
-			client := setupAZBLOB(t)
 			tt.test(client, t)
 		})
 
