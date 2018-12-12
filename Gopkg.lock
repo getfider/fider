@@ -2,10 +2,10 @@
 
 
 [[projects]]
-  digest = "1:97a0f8cd20d7c37ebcc83e462a98a408557ddccb172c1a172548c364c4fa4d92"
+  digest = "1:28181cff95634e84b01ac5d9d5bffd201cd02404b78a0e69ba29e9bc41703ff0"
   name = "cloud.google.com/go"
   packages = ["compute/metadata"]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "5a9e19d4e1e41a734154e44a2132b358afb49a03"
   version = "v0.13.0"
 
@@ -53,54 +53,54 @@
   version = "v1.16.3"
 
 [[projects]]
-  digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
+  digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:3ab5705c74b6709740430c7b18600d2ee49508da329fb601e76089258d8dbd0f"
+  digest = "1:c7073f7f18a2be8b8a31e8e23fe16c2141c3cbd0170c3eacea8f167438f3b655"
   name = "github.com/goenning/letteravatar"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "553181ed4055278e356ce21812adb34ae487f88e"
 
 [[projects]]
   branch = "master"
-  digest = "1:340c6e87fb30a2a8b7b098b3fc07bf2c78291be5515acb0ec33fd2fe4a1b53cc"
+  digest = "1:409b1dfc403db55b7d617924f753e2617101c7d4ccc8f918f84cb7bffa897db3"
   name = "github.com/goenning/sqlcertcache"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "99f858c5bf37a984858e406db3053037d278abdd"
 
 [[projects]]
   branch = "master"
-  digest = "1:05f7dd1dc7530cd6b959f8b49660cd898f8dc9601b4e764ef9bdf211e6318774"
+  digest = "1:7a6377256f670508711c56c25556d639e673c0fa0f519c5a758fdcbfc8af9ac8"
   name = "github.com/golang/freetype"
   packages = [
     ".",
     "raster",
     "truetype",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
 
 [[projects]]
   branch = "master"
-  digest = "1:cabcfea19d9d5caa22b151a08f554a44654be0a59a89539ea1d37bc8cc40e240"
+  digest = "1:9b0e71863f18fc5de645a263184c8a6409ae731e847b35b25da4be818f1975fa"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "ae59567b9aab61b50b2590679a62c3c044030b61"
 
 [[projects]]
-  digest = "1:eaa18118b73be68b0be2410a9797fe172f5e386243b6bff16fd5da4d22c9d966"
+  digest = "1:0ae2e1b2d4cdff4834aa28ce2e33a7b6de91e10150e3647fe1b9fd63a51b39ce"
   name = "github.com/gosimple/slug"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "e9f42fa127660e552d0ad2b589868d403a9be7c6"
   version = "v1.1.1"
 
@@ -113,53 +113,53 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:566c0d1d07fdc4f4707a8d5602004d6377be8a2b4f98a84a05cf328285208d32"
+  digest = "1:3a1e2d3c7b109c4f7bd10b208d0cbc578e618fb26832cf96544c638d927022bf"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "adbc77eec0d91467376ca515bc3a14b8434d0f18"
 
 [[projects]]
   branch = "master"
-  digest = "1:09792d732b079867772cdbabdf7dc54ef9f9d04c998a9ce6226657151fccbb94"
+  digest = "1:37ce7d7d80531b227023331002c0d42b4b4b291a96798c82a049d03a54ba79e4"
   name = "github.com/lib/pq"
   packages = [
     ".",
     "oid",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "90697d60dd844d5ef6ff15135d0203f65d2f53b8"
 
 [[projects]]
   branch = "master"
-  digest = "1:dbf4e16c65ac05df91dd12f5bb52ac7a0530e570a76f4855d157997850ebb1fa"
+  digest = "1:e6a29574542c00bb18adb1bfbe629ff88c468c2af2e2e953d3e58eda07165086"
   name = "github.com/rainycape/unidecode"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "cb7f23ec59bec0d61b19c56cd88cee3d0cc1870c"
 
 [[projects]]
-  digest = "1:fd0e88ec70bf0efce538ec8b968a824d992cc60a6cf1539698aa366b3527a053"
+  digest = "1:8bc629776d035c003c7814d4369521afe67fdb8efc4b5f66540d29343b98cf23"
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
   version = "v1.5.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:2986531b68839ca01ad327308865099fa9b77aa8bc267dbad2e60ed39a1bb081"
+  digest = "1:507fa82feeba6c3651d3cfb7593a498144ae6455e1b00dde2e0c344cdfdc9c4d"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "2c241ca3045ddc354463c376a9515d9f1f1390a4"
 
 [[projects]]
   branch = "master"
-  digest = "1:28e108b7ce8dbc7148c9689da77078d4b22cb5e91faa5a85ea825d11739997e9"
+  digest = "1:47469b46cc6c4cd691dbab8d43899b9afddb2855600719ed5db91bf1532cf772"
   name = "golang.org/x/image"
   packages = [
     "draw",
@@ -167,23 +167,23 @@
     "math/f64",
     "math/fixed",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "e20db36d77bd0cb36cea8fe49d5c37d82d21591f"
 
 [[projects]]
   branch = "master"
-  digest = "1:4d72ed63792924162d3d65ac102e7c9e0e748fc33d80dbb4b044933ebd492468"
+  digest = "1:cb2c7a3956a0b04d0ddca74cc7a008b467db63d3b6cbdc678111e9ea1416fc95"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
 
 [[projects]]
   branch = "master"
-  digest = "1:a6237bd1fe4eed8524971a2923fcadb54e9584b19516a35d3f76f1c53f603cf9"
+  digest = "1:10f69df7d03f1799319a065a80633204821d98afcbb1f2d62a1f2be01abdacab"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
@@ -194,11 +194,11 @@
     "jws",
     "jwt",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "ef147856a6ddbb60760db74283d2424e98c87bff"
 
 [[projects]]
-  digest = "1:934fb8966f303ede63aa405e2c8d7f0a427a05ea8df335dfdc1833dd4d40756f"
+  digest = "1:a48f97fb737d5d61cf13e81cfef040942d217d086766b823757d39d4f6a4c547"
   name = "google.golang.org/appengine"
   packages = [
     ".",
@@ -212,7 +212,7 @@
     "internal/urlfetch",
     "urlfetch",
   ]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
