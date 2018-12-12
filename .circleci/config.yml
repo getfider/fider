@@ -50,6 +50,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: start minio
+          command: docker-compose up -d s3test
+      - run:
           name: waiting for postgres to be ready
           command: |
             for i in `seq 1 60`;
