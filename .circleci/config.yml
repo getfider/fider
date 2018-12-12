@@ -46,16 +46,14 @@ jobs:
     docker:
       - image: *builder
       - image: postgres:9.6.8
+      - image: minioio/minio:RELEASE.2018-11-22T02-51-56Z
+        environment:
+          MINIO_ACCESS_KEY: s3user
+          MINIO_SECRET_KEY: s3user-s3cr3t
+          command: mkdir data/s3test && /server /data
     working_directory: *workdir
     steps:
       - checkout
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.23.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            mv ~/docker-compose /usr/local/bin/docker-compose
-      - setup_remote_docker
       - run:
           name: start minio
           command: docker-compose up -d s3test
