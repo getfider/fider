@@ -50,7 +50,7 @@ jobs:
         environment:
           MINIO_ACCESS_KEY: s3user
           MINIO_SECRET_KEY: s3user-s3cr3t
-          command: mkdir data/s3test && /server /data
+          command: server /data
     working_directory: *workdir
     steps:
       - checkout
