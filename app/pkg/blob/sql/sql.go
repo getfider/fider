@@ -63,7 +63,7 @@ func (s *Session) Get(key string) (*blob.Blob, error) {
 	}
 
 	b := dbBlob{}
-	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR $2 is null)", key, tenantID)
+	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return nil, blob.ErrNotFound
@@ -91,7 +91,7 @@ func (s *Session) Delete(key string) error {
 		tenantID.Scan(s.tenant.ID)
 	}
 
-	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR $2 is null)", key, tenantID)
+	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete blob with key '%s'", key)
 	}

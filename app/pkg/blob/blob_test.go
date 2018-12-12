@@ -179,3 +179,49 @@ func SameKey_DifferentTenant(client blob.Storage, t *testing.T) {
 	Expect(b).IsNil()
 	Expect(err).Equals(blob.ErrNotFound)
 }
+
+func SameKey_DifferentTenant_Delete(client blob.Storage, t *testing.T) {
+	key := "path/to/super-file.txt"
+	bytes1, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file.txt"))
+	bytes2, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file3.txt"))
+
+	sess1 := client.NewSession(tenant1)
+	sess2 := client.NewSession(tenant2)
+
+	err := sess1.Store(&blob.Blob{
+		Key:         key,
+		Object:      bytes1,
+		ContentType: "text/plain; charset=utf-8",
+		Size:        int64(len(bytes1)),
+	})
+	Expect(err).IsNil()
+
+	err = sess2.Store(&blob.Blob{
+		Key:         key,
+		Object:      bytes2,
+		ContentType: "text/plain; charset=utf-8",
+		Size:        int64(len(bytes2)),
+	})
+	Expect(err).IsNil()
+
+	b, err := sess1.Get(key)
+	Expect(err).IsNil()
+	Expect(b.Object).Equals(len(bytes1))
+
+	b, err = sess2.Get(key)
+	Expect(err).IsNil()
+	Expect(b.Object).Equals(len(bytes2))
+
+	err = sess1.Delete(key)
+	Expect(err).IsNil()
+
+	b, err = sess2.Get(key)
+	Expect(err).IsNil()
+	Expect(b.Object).Equals(len(bytes2))
+	Expect(err).IsNil()
+
+	sess3 := client.NewSession(nil)
+	b, err = sess3.Get(key)
+	Expect(b).IsNil()
+	Expect(err).Equals(blob.ErrNotFound)
+}
