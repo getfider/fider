@@ -59,7 +59,6 @@ func NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket string
 
 // NewSession creates a new session
 func (s *Storage) NewSession(tenant *models.Tenant) blob.Session {
-
 	return &Session{
 		storage:  s,
 		tenant:   tenant,
@@ -118,6 +117,10 @@ func (s *Session) Delete(key string) error {
 
 // Store a blob with given key and content. Blobs with same key are replaced.
 func (s *Session) Store(b *blob.Blob) error {
+	if err := blob.ValidateKey(b.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", b.Key)
+	}
+
 	reader := bytes.NewReader(b.Object)
 	_, err := s.s3Client.PutObject(&s3.PutObjectInput{
 		Bucket:      s.storage.bucket,

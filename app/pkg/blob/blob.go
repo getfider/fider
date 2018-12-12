@@ -2,6 +2,7 @@ package blob
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/getfider/fider/app/models"
 )
@@ -16,6 +17,17 @@ type Blob struct {
 
 // ErrNotFound is returned when given blob is not found
 var ErrNotFound = errors.New("Blob not found")
+
+// ErrInvalidKeyFormat is returned when blob key is in invalid format
+var ErrInvalidKeyFormat = errors.New("Blob key is in invalid format")
+
+// ValidateKey checks if key is is valid format
+func ValidateKey(key string) error {
+	if len(key) == 0 || len(key) > 512 || strings.Contains(key, " ") {
+		return ErrInvalidKeyFormat
+	}
+	return nil
+}
 
 // Storage is how Fider persists blobs
 type Storage interface {

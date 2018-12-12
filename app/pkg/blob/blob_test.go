@@ -5,6 +5,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/errors"
+
+	"github.com/getfider/fider/app/pkg/rand"
+
 	"github.com/getfider/fider/app/pkg/dbx"
 
 	"github.com/getfider/fider/app/models"
@@ -77,6 +81,7 @@ var tests = []struct {
 	{"AllOperations", AllOperations},
 	{"DeleteUnkownFile", DeleteUnkownFile},
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
+	{"KeyFormats", KeyFormats},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -215,4 +220,53 @@ func SameKey_DifferentTenant_Delete(client blob.Storage, t *testing.T) {
 	b, err = sess3.Get(key)
 	Expect(b).IsNil()
 	Expect(err).Equals(blob.ErrNotFound)
+}
+
+func KeyFormats(client blob.Storage, t *testing.T) {
+	RegisterT(t)
+	sess := client.NewSession(nil)
+
+	testCases := []struct {
+		key   string
+		valid bool
+	}{
+		{
+			key:   "Jon",
+			valid: true,
+		},
+		{
+			key:   "ASDHASJDKHAJSDJ.png",
+			valid: true,
+		},
+		{
+			key:   "",
+			valid: false,
+		},
+		{
+			key:   " file.txt",
+			valid: false,
+		},
+		{
+			key:   "file with space.txt",
+			valid: false,
+		},
+		{
+			key:   rand.String(513),
+			valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		err := sess.Store(&blob.Blob{
+			Key:         testCase.key,
+			Object:      make([]byte, 0),
+			ContentType: "text/plain; charset=utf-8",
+			Size:        0,
+		})
+		if testCase.valid {
+			Expect(err).IsNil()
+		} else {
+			Expect(errors.Cause(err)).Equals(blob.ErrInvalidKeyFormat)
+		}
+	}
 }

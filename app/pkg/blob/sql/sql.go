@@ -107,6 +107,10 @@ func (s *Session) Delete(key string) error {
 
 // Store a blob with given key and content. Blobs with same key are replaced.
 func (s *Session) Store(b *blob.Blob) error {
+	if err := blob.ValidateKey(b.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", b.Key)
+	}
+
 	trx, err := s.storage.db.Begin()
 	if err != nil {
 		return errors.Wrap(err, "failed to open transaction")
