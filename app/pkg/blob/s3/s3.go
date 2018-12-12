@@ -19,7 +19,7 @@ import (
 
 var _ blob.Storage = (*Storage)(nil)
 
-// Storage stores blobs on an Azure Blob Container
+// Storage stores blobs on an S3 compatible service
 type Storage struct {
 	awsSession *session.Session
 	bucket     *string
@@ -39,7 +39,7 @@ func isNotFound(err error) bool {
 	return false
 }
 
-// NewStorage creates a new Azure Blob Container storage
+// NewStorage creates a S3 compatible service storage
 func NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket string) (*Storage, error) {
 
 	s3Config := &aws.Config{
