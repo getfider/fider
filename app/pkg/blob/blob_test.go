@@ -3,8 +3,13 @@ package blob_test
 import (
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	awss3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app/pkg/errors"
 
 	"github.com/getfider/fider/app/pkg/rand"
@@ -28,17 +33,28 @@ var tenant2 = &models.Tenant{ID: 2}
 func setupS3(t *testing.T) *s3.Storage {
 	RegisterT(t)
 
-	err := os.RemoveAll(env.Path("data/s3test/test-bucket"))
-	Expect(err).IsNil()
-
-	err = os.MkdirAll(env.Path("data/s3test/test-bucket"), 0777)
-	Expect(err).IsNil()
-
 	endpointURL := env.GetEnvOrDefault("S3_ENDPOINT_URL", "")
 	region := env.GetEnvOrDefault("S3_REGION", "")
 	accessKeyID := env.GetEnvOrDefault("S3_ACCESS_KEY_ID", "")
 	secretAccessKey := env.GetEnvOrDefault("S3_SECRET_ACCESS_KEY", "")
 	bucket := env.GetEnvOrDefault("S3_BUCKET", "")
+
+	s3Config := &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
+		Endpoint:         aws.String(endpointURL),
+		Region:           aws.String(region),
+		DisableSSL:       aws.Bool(strings.HasSuffix(endpointURL, "http://")),
+		S3ForcePathStyle: aws.Bool(true),
+	}
+
+	awsSession := session.New(s3Config)
+	s3Client := awss3.New(awsSession)
+	s3Client.DeleteBucket(&awss3.DeleteBucketInput{
+		Bucket: aws.String(bucket),
+	})
+	s3Client.CreateBucket(&awss3.CreateBucketInput{
+		Bucket: aws.String(bucket),
+	})
 
 	client, err := s3.NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket)
 	Expect(err).IsNil()
