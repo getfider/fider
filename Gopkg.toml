@@ -5,10 +5,6 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   go-tests = true
   unused-packages = true
 
-  [[prune.project]]
-    name = "github.com/jmespath/go-jmespath"
-    non-go = false
-
 [[constraint]]
   name = "github.com/dgrijalva/jwt-go"
   version = "^3.2.0"
