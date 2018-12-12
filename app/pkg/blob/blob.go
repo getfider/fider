@@ -26,6 +26,9 @@ func ValidateKey(key string) error {
 	if len(key) == 0 || len(key) > 512 || strings.Contains(key, " ") {
 		return ErrInvalidKeyFormat
 	}
+	if strings.HasPrefix(key, "/") || strings.HasSuffix(key, "/") {
+		return ErrInvalidKeyFormat
+	}
 	return nil
 }
 

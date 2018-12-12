@@ -243,6 +243,14 @@ func KeyFormats(client blob.Storage, t *testing.T) {
 			valid: false,
 		},
 		{
+			key:   "/path/to/Jon",
+			valid: false,
+		},
+		{
+			key:   "path/to/Jon/",
+			valid: false,
+		},
+		{
 			key:   " file.txt",
 			valid: false,
 		},
