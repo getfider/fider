@@ -15,6 +15,7 @@ import (
 	az "github.com/Azure/azure-storage-blob-go/azblob"
 	"github.com/getfider/fider/app/pkg/blob/azblob"
 	"github.com/getfider/fider/app/pkg/blob/fs"
+	"github.com/getfider/fider/app/pkg/blob/s3"
 	"github.com/getfider/fider/app/pkg/blob/sql"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -24,6 +25,21 @@ import (
 
 var tenant1 = &models.Tenant{ID: 1}
 var tenant2 = &models.Tenant{ID: 2}
+
+func setupS3(t *testing.T) *s3.Storage {
+	RegisterT(t)
+
+	endpointURL := env.GetEnvOrDefault("S3_ENDPOINT_URL", "")
+	region := env.GetEnvOrDefault("S3_REGION", "")
+	accessKeyID := env.GetEnvOrDefault("S3_ACCESS_KEY_ID", "")
+	secretAccessKey := env.GetEnvOrDefault("S3_SECRET_ACCESS_KEY", "")
+	bucket := env.GetEnvOrDefault("S3_BUCKET", "")
+
+	client, err := s3.NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket)
+	Expect(err).IsNil()
+
+	return client
+}
 
 func setupAZBLOB(t *testing.T) *azblob.Storage {
 	RegisterT(t)
@@ -92,6 +108,11 @@ func TestBlobStorage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("Test_FS_"+tt.name, func(t *testing.T) {
 			client := setupFS(t)
+			tt.test(client, t)
+		})
+
+		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
+			client := setupS3(t)
 			tt.test(client, t)
 		})
 
