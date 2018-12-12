@@ -58,6 +58,12 @@ func (db *Database) Connection() *sql.DB {
 	return db.conn
 }
 
+// Ping checks if current database connection is healthy
+func (db *Database) Ping() error {
+	_, err := db.conn.Exec("SELECT 1")
+	return err
+}
+
 // SetLogger replaces current database Logger
 func (db *Database) SetLogger(logger log.Logger) {
 	db.logger = logger
