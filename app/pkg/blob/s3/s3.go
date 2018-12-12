@@ -21,15 +21,14 @@ var _ blob.Storage = (*Storage)(nil)
 
 // Storage stores blobs on an S3 compatible service
 type Storage struct {
-	awsSession *session.Session
-	bucket     *string
+	s3Client *s3.S3
+	bucket   *string
 }
 
 // Session is a per-request object to interact with the storage
 type Session struct {
-	storage  *Storage
-	tenant   *models.Tenant
-	s3Client *s3.S3
+	storage *Storage
+	tenant  *models.Tenant
 }
 
 func isNotFound(err error) bool {
@@ -52,17 +51,16 @@ func NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket string
 	awsSession := session.New(s3Config)
 
 	return &Storage{
-		awsSession: awsSession,
-		bucket:     aws.String(bucket),
+		s3Client: s3.New(awsSession),
+		bucket:   aws.String(bucket),
 	}, nil
 }
 
 // NewSession creates a new session
 func (s *Storage) NewSession(tenant *models.Tenant) blob.Session {
 	return &Session{
-		storage:  s,
-		tenant:   tenant,
-		s3Client: s3.New(s.awsSession),
+		storage: s,
+		tenant:  tenant,
 	}
 }
 
@@ -75,7 +73,7 @@ func (s *Session) keyFullPathURL(key string) string {
 
 // Get returns a blob with given key
 func (s *Session) Get(key string) (*blob.Blob, error) {
-	resp, err := s.s3Client.GetObject(&s3.GetObjectInput{
+	resp, err := s.storage.s3Client.GetObject(&s3.GetObjectInput{
 		Bucket: s.storage.bucket,
 		Key:    aws.String(s.keyFullPathURL(key)),
 	})
@@ -102,7 +100,7 @@ func (s *Session) Get(key string) (*blob.Blob, error) {
 
 // Delete a blob with given key
 func (s *Session) Delete(key string) error {
-	_, err := s.s3Client.DeleteObject(&s3.DeleteObjectInput{
+	_, err := s.storage.s3Client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: s.storage.bucket,
 		Key:    aws.String(s.keyFullPathURL(key)),
 	})
@@ -122,7 +120,7 @@ func (s *Session) Store(b *blob.Blob) error {
 	}
 
 	reader := bytes.NewReader(b.Object)
-	_, err := s.s3Client.PutObject(&s3.PutObjectInput{
+	_, err := s.storage.s3Client.PutObject(&s3.PutObjectInput{
 		Bucket:      s.storage.bucket,
 		Key:         aws.String(s.keyFullPathURL(b.Key)),
 		ContentType: aws.String(b.ContentType),
