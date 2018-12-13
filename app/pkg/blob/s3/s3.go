@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/blob"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -21,14 +22,8 @@ var _ blob.Storage = (*Storage)(nil)
 
 // Storage stores blobs on an S3 compatible service
 type Storage struct {
-	s3Client *s3.S3
-	bucket   *string
-}
-
-// Session is a per-request object to interact with the storage
-type Session struct {
-	storage *Storage
-	tenant  *models.Tenant
+	bucket *string
+	tenant *models.Tenant
 }
 
 func isNotFound(err error) bool {
@@ -38,43 +33,51 @@ func isNotFound(err error) bool {
 	return false
 }
 
+//Client is an S3 Client
+var DefaultClient *s3.S3
+
+func init() {
+	endpointURL := env.GetEnvOrDefault("BLOB_STORAGE_S3_ENDPOINT_URL", "")
+	if endpointURL != "" {
+		region := env.GetEnvOrDefault("BLOB_STORAGE_S3_REGION", "")
+		accessKeyID := env.GetEnvOrDefault("BLOB_STORAGE_S3_ACCESS_KEY_ID", "")
+		secretAccessKey := env.GetEnvOrDefault("BLOB_STORAGE_S3_SECRET_ACCESS_KEY", "")
+
+		s3Config := &aws.Config{
+			Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
+			Endpoint:         aws.String(endpointURL),
+			Region:           aws.String(region),
+			DisableSSL:       aws.Bool(strings.HasSuffix(endpointURL, "http://")),
+			S3ForcePathStyle: aws.Bool(true),
+		}
+		awsSession := session.New(s3Config)
+		DefaultClient = s3.New(awsSession)
+	}
+}
+
 // NewStorage creates a S3 compatible service storage
-func NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket string) (*Storage, error) {
-
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
-		Endpoint:         aws.String(endpointURL),
-		Region:           aws.String(region),
-		DisableSSL:       aws.Bool(strings.HasSuffix(endpointURL, "http://")),
-		S3ForcePathStyle: aws.Bool(true),
-	}
-	awsSession := session.New(s3Config)
-
+func NewStorage(bucket string) *Storage {
 	return &Storage{
-		s3Client: s3.New(awsSession),
-		bucket:   aws.String(bucket),
-	}, nil
-}
-
-// NewSession creates a new session
-func (s *Storage) NewSession(tenant *models.Tenant) blob.Session {
-	return &Session{
-		storage: s,
-		tenant:  tenant,
+		bucket: aws.String(bucket),
 	}
 }
 
-func (s *Session) keyFullPathURL(key string) string {
+func (s *Storage) keyFullPathURL(key string) string {
 	if s.tenant != nil {
 		return path.Join("tenants", strconv.Itoa(s.tenant.ID), key)
 	}
 	return key
 }
 
+// SetCurrentTenant to current context
+func (s *Storage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
 // Get returns a blob with given key
-func (s *Session) Get(key string) (*blob.Blob, error) {
-	resp, err := s.storage.s3Client.GetObject(&s3.GetObjectInput{
-		Bucket: s.storage.bucket,
+func (s *Storage) Get(key string) (*blob.Blob, error) {
+	resp, err := DefaultClient.GetObject(&s3.GetObjectInput{
+		Bucket: s.bucket,
 		Key:    aws.String(s.keyFullPathURL(key)),
 	})
 	if err != nil {
@@ -99,9 +102,9 @@ func (s *Session) Get(key string) (*blob.Blob, error) {
 }
 
 // Delete a blob with given key
-func (s *Session) Delete(key string) error {
-	_, err := s.storage.s3Client.DeleteObject(&s3.DeleteObjectInput{
-		Bucket: s.storage.bucket,
+func (s *Storage) Delete(key string) error {
+	_, err := DefaultClient.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: s.bucket,
 		Key:    aws.String(s.keyFullPathURL(key)),
 	})
 	if err != nil {
@@ -113,22 +116,22 @@ func (s *Session) Delete(key string) error {
 	return nil
 }
 
-// Store a blob with given key and content. Blobs with same key are replaced.
-func (s *Session) Store(b *blob.Blob) error {
-	if err := blob.ValidateKey(b.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", b.Key)
+// Put a blob with given key and content. Blobs with same key are replaced.
+func (s *Storage) Put(key string, content []byte, contentType string) error {
+	if err := blob.ValidateKey(key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", key)
 	}
 
-	reader := bytes.NewReader(b.Object)
-	_, err := s.storage.s3Client.PutObject(&s3.PutObjectInput{
-		Bucket:      s.storage.bucket,
-		Key:         aws.String(s.keyFullPathURL(b.Key)),
-		ContentType: aws.String(b.ContentType),
+	reader := bytes.NewReader(content)
+	_, err := DefaultClient.PutObject(&s3.PutObjectInput{
+		Bucket:      s.bucket,
+		Key:         aws.String(s.keyFullPathURL(key)),
+		ContentType: aws.String(contentType),
 		ACL:         aws.String(s3.ObjectCannedACLPrivate),
 		Body:        reader,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to upload blob '%s' to S3", b.Key)
+		return errors.Wrap(err, "failed to upload blob '%s' to S3", key)
 	}
 	return nil
 }

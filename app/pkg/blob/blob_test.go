@@ -3,12 +3,9 @@ package blob_test
 import (
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app/pkg/errors"
 
@@ -33,33 +30,15 @@ var tenant2 = &models.Tenant{ID: 2}
 func setupS3(t *testing.T) *s3.Storage {
 	RegisterT(t)
 
-	endpointURL := env.GetEnvOrDefault("S3_ENDPOINT_URL", "")
-	region := env.GetEnvOrDefault("S3_REGION", "")
-	accessKeyID := env.GetEnvOrDefault("S3_ACCESS_KEY_ID", "")
-	secretAccessKey := env.GetEnvOrDefault("S3_SECRET_ACCESS_KEY", "")
-	bucket := env.GetEnvOrDefault("S3_BUCKET", "")
-
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
-		Endpoint:         aws.String(endpointURL),
-		Region:           aws.String(region),
-		DisableSSL:       aws.Bool(strings.HasSuffix(endpointURL, "http://")),
-		S3ForcePathStyle: aws.Bool(true),
-	}
-
-	awsSession := session.New(s3Config)
-	s3Client := awss3.New(awsSession)
-	s3Client.DeleteBucket(&awss3.DeleteBucketInput{
+	bucket := "test-bucket"
+	s3.DefaultClient.DeleteBucket(&awss3.DeleteBucketInput{
 		Bucket: aws.String(bucket),
 	})
-	s3Client.CreateBucket(&awss3.CreateBucketInput{
+	s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
 		Bucket: aws.String(bucket),
 	})
 
-	client, err := s3.NewStorage(endpointURL, region, accessKeyID, secretAccessKey, bucket)
-	Expect(err).IsNil()
-
-	return client
+	return s3.NewStorage(bucket)
 }
 
 func setupSQL(t *testing.T) *sql.Storage {
@@ -67,24 +46,18 @@ func setupSQL(t *testing.T) *sql.Storage {
 
 	db := dbx.New()
 	db.Seed()
-	client, err := sql.NewStorage(db)
+	trx, err := db.Begin()
 	Expect(err).IsNil()
-
-	return client
+	return sql.NewStorage(trx)
 }
 
 func setupFS(t *testing.T) *fs.Storage {
 	RegisterT(t)
 
-	rootFolder := env.Path("tmp/fs_test")
-
-	err := os.RemoveAll(rootFolder)
+	err := os.RemoveAll("./tmp/fs_test")
 	Expect(err).IsNil()
 
-	client, err := fs.NewStorage(rootFolder)
-	Expect(err).IsNil()
-
-	return client
+	return fs.NewStorage("./tmp/fs_test")
 }
 
 type blobTestCase func(client blob.Storage, t *testing.T)
@@ -101,26 +74,26 @@ var tests = []struct {
 }
 
 func TestBlobStorage(t *testing.T) {
+	sqlClient := setupSQL(t)
+	s3Client := setupS3(t)
+	fsClient := setupFS(t)
+
 	for _, tt := range tests {
 		t.Run("Test_FS_"+tt.name, func(t *testing.T) {
-			client := setupFS(t)
-			tt.test(client, t)
+			tt.test(fsClient, t)
 		})
 
 		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
-			client := setupS3(t)
-			tt.test(client, t)
+			tt.test(s3Client, t)
 		})
 
 		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
-			client := setupSQL(t)
-			tt.test(client, t)
+			tt.test(sqlClient, t)
 		})
 	}
 }
 
 func AllOperations(client blob.Storage, t *testing.T) {
-	sess := client.NewSession(nil)
 	var testCases = []struct {
 		localPath   string
 		key         string
@@ -132,62 +105,51 @@ func AllOperations(client blob.Storage, t *testing.T) {
 
 	for _, testCase := range testCases {
 		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
-		err := sess.Store(&blob.Blob{
-			Key:         testCase.key,
-			Object:      bytes,
-			ContentType: testCase.contentType,
-			Size:        int64(len(bytes)),
-		})
+		err := client.Put(testCase.key, bytes, testCase.contentType)
 		Expect(err).IsNil()
 
-		b, err := sess.Get(testCase.key)
+		b, err := client.Get(testCase.key)
 		Expect(err).IsNil()
 		Expect(b.Key).Equals(testCase.key)
 		Expect(b.Object).Equals(bytes)
 		Expect(b.Size).Equals(int64(len(bytes)))
 		Expect(b.ContentType).Equals(testCase.contentType)
 
-		err = sess.Delete(testCase.key)
+		err = client.Delete(testCase.key)
 		Expect(err).IsNil()
 
-		b, err = sess.Get(testCase.key)
+		b, err = client.Get(testCase.key)
 		Expect(b).IsNil()
 		Expect(err).Equals(blob.ErrNotFound)
 	}
 }
 
 func DeleteUnkownFile(client blob.Storage, t *testing.T) {
-	sess := client.NewSession(nil)
-	err := sess.Delete("path/somefile.txt")
+	err := client.Delete("path/somefile.txt")
 	Expect(err).IsNil()
 }
 
 func SameKey_DifferentTenant(client blob.Storage, t *testing.T) {
-	sess := client.NewSession(tenant1)
+	client.SetCurrentTenant(tenant1)
 	key := "path/to/file3.txt"
 	bytes, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file3.txt"))
 
-	err := sess.Store(&blob.Blob{
-		Key:         key,
-		Object:      bytes,
-		ContentType: "text/plain; charset=utf-8",
-		Size:        int64(len(bytes)),
-	})
+	err := client.Put(key, bytes, "text/plain; charset=utf-8")
 	Expect(err).IsNil()
 
-	b, err := sess.Get(key)
+	b, err := client.Get(key)
 	Expect(err).IsNil()
 	Expect(b.Object).Equals(bytes)
 
-	sess2 := client.NewSession(tenant2)
+	client.SetCurrentTenant(tenant2)
 
-	b, err = sess2.Get(key)
+	b, err = client.Get(key)
 	Expect(b).IsNil()
 	Expect(err).Equals(blob.ErrNotFound)
 
-	sess3 := client.NewSession(nil)
+	client.SetCurrentTenant(nil)
 
-	b, err = sess3.Get(key)
+	b, err = client.Get(key)
 	Expect(b).IsNil()
 	Expect(err).Equals(blob.ErrNotFound)
 }
@@ -197,50 +159,42 @@ func SameKey_DifferentTenant_Delete(client blob.Storage, t *testing.T) {
 	bytes1, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file.txt"))
 	bytes2, _ := ioutil.ReadFile(env.Path("/app/pkg/blob/testdata/file3.txt"))
 
-	sess1 := client.NewSession(tenant1)
-	sess2 := client.NewSession(tenant2)
-
-	err := sess1.Store(&blob.Blob{
-		Key:         key,
-		Object:      bytes1,
-		ContentType: "text/plain; charset=utf-8",
-		Size:        int64(len(bytes1)),
-	})
+	client.SetCurrentTenant(tenant1)
+	err := client.Put(key, bytes1, "text/plain; charset=utf-8")
 	Expect(err).IsNil()
 
-	err = sess2.Store(&blob.Blob{
-		Key:         key,
-		Object:      bytes2,
-		ContentType: "text/plain; charset=utf-8",
-		Size:        int64(len(bytes2)),
-	})
+	client.SetCurrentTenant(tenant2)
+	err = client.Put(key, bytes2, "text/plain; charset=utf-8")
 	Expect(err).IsNil()
 
-	b, err := sess1.Get(key)
+	client.SetCurrentTenant(tenant1)
+	b, err := client.Get(key)
 	Expect(err).IsNil()
 	Expect(b.Object).Equals(len(bytes1))
 
-	b, err = sess2.Get(key)
+	client.SetCurrentTenant(tenant2)
+	b, err = client.Get(key)
 	Expect(err).IsNil()
 	Expect(b.Object).Equals(len(bytes2))
 
-	err = sess1.Delete(key)
+	client.SetCurrentTenant(tenant1)
+	err = client.Delete(key)
 	Expect(err).IsNil()
 
-	b, err = sess2.Get(key)
+	client.SetCurrentTenant(tenant2)
+	b, err = client.Get(key)
 	Expect(err).IsNil()
 	Expect(b.Object).Equals(len(bytes2))
 	Expect(err).IsNil()
 
-	sess3 := client.NewSession(nil)
-	b, err = sess3.Get(key)
+	client.SetCurrentTenant(nil)
+	b, err = client.Get(key)
 	Expect(b).IsNil()
 	Expect(err).Equals(blob.ErrNotFound)
 }
 
 func KeyFormats(client blob.Storage, t *testing.T) {
 	RegisterT(t)
-	sess := client.NewSession(nil)
 
 	testCases := []struct {
 		key   string
@@ -281,12 +235,7 @@ func KeyFormats(client blob.Storage, t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		err := sess.Store(&blob.Blob{
-			Key:         testCase.key,
-			Object:      make([]byte, 0),
-			ContentType: "text/plain; charset=utf-8",
-			Size:        0,
-		})
+		err := client.Put(testCase.key, make([]byte, 0), "text/plain; charset=utf-8")
 		if testCase.valid {
 			Expect(err).IsNil()
 		} else {
