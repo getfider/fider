@@ -2,16 +2,8 @@
 ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 
 [prune]
-  [[prune.project]]
-    name = "github.com/aws/aws-sdk-go"
-    go-tests = true
-    unused-packages = true
-
-  [[prune.project]]
-    name = "github.com/jmespath/go-jmespath"
-    go-tests = true
-    unused-packages = true
-    non-go = false
+  go-tests = true
+  unused-packages = true
 
 [[constraint]]
   name = "github.com/dgrijalva/jwt-go"
