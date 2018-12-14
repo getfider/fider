@@ -19,45 +19,36 @@ var _ blob.Storage = (*Storage)(nil)
 
 // Storage stores blobs on FileSystem
 type Storage struct {
-	path string
-}
-
-// Session is a per-request object to interact with the storage
-type Session struct {
-	storage *Storage
-	tenant  *models.Tenant
+	path   string
+	tenant *models.Tenant
 }
 
 // NewStorage creates a new FileSystem Storage
-func NewStorage(path string) (*Storage, error) {
+func NewStorage(path string) *Storage {
 	err := os.MkdirAll(path, perm)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create path '%s'", path)
+		panic(errors.Wrap(err, "failed to create path '%s'", path))
 	}
 
 	return &Storage{
-		path,
-	}, nil
-}
-
-// NewSession creates a new session
-func (s *Storage) NewSession(tenant *models.Tenant) blob.Session {
-	return &Session{
-		storage: s,
-		tenant:  tenant,
+		path: path,
 	}
 }
 
-func (s *Session) keyFullPath(key string) string {
-	fullPath := path.Join(s.storage.path, key)
+// SetCurrentTenant to current context
+func (s *Storage) SetCurrentTenant(tenant *models.Tenant) {
+	s.tenant = tenant
+}
+
+func (s *Storage) keyFullPath(key string) string {
 	if s.tenant != nil {
-		fullPath = path.Join("tenants", strconv.Itoa(s.tenant.ID), fullPath)
+		return path.Join(s.path, "tenants", strconv.Itoa(s.tenant.ID), key)
 	}
-	return fullPath
+	return path.Join(s.path, key)
 }
 
 // Get returns a blob with given key
-func (s *Session) Get(key string) (*blob.Blob, error) {
+func (s *Storage) Get(key string) (*blob.Blob, error) {
 	fullPath := s.keyFullPath(key)
 	stats, err := os.Stat(fullPath)
 	if err != nil {
@@ -81,7 +72,7 @@ func (s *Session) Get(key string) (*blob.Blob, error) {
 }
 
 // Delete a blob with given key
-func (s *Session) Delete(key string) error {
+func (s *Storage) Delete(key string) error {
 	fullPath := s.keyFullPath(key)
 	err := os.Remove(fullPath)
 	if err != nil && !os.IsNotExist(err) {
@@ -90,20 +81,20 @@ func (s *Session) Delete(key string) error {
 	return nil
 }
 
-// Store a blob with given key and content. Blobs with same key are replaced.
-func (s *Session) Store(b *blob.Blob) error {
-	if err := blob.ValidateKey(b.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", b.Key)
+// Put a blob with given key and content. Blobs with same key are replaced.
+func (s *Storage) Put(key string, content []byte, contentType string) error {
+	if err := blob.ValidateKey(key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", key)
 	}
 
-	fullPath := s.keyFullPath(b.Key)
+	fullPath := s.keyFullPath(key)
 	err := os.MkdirAll(filepath.Dir(fullPath), perm)
 
 	if err != nil {
 		return errors.Wrap(err, "failed to create folder '%s' on FileSystem", fullPath)
 	}
 
-	err = ioutil.WriteFile(fullPath, b.Object, perm)
+	err = ioutil.WriteFile(fullPath, content, perm)
 	if err != nil {
 		return errors.Wrap(err, "failed to create file '%s' on FileSystem", fullPath)
 	}

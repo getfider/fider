@@ -5,11 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/email/mailgun"
-	"github.com/getfider/fider/app/pkg/email/noop"
-	"github.com/getfider/fider/app/pkg/email/smtp"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/web/util"
@@ -70,7 +66,8 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Posts:         postgres.NewPostStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       newEmailer(c.Logger()),
+				Emailer:       di.NewEmailer(c.Logger()),
+				Blobs:         di.NewBlobStorage(trx),
 			})
 
 			//Execute the chain
@@ -157,7 +154,8 @@ func WebSetup() web.MiddlewareFunc {
 				Posts:         postgres.NewPostStorage(trx),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       newEmailer(c.Logger()),
+				Emailer:       di.NewEmailer(c.Logger()),
+				Blobs:         di.NewBlobStorage(trx),
 			})
 
 			//Execute the chain
@@ -193,20 +191,4 @@ func WebSetup() web.MiddlewareFunc {
 			return nil
 		}
 	}
-}
-
-func newEmailer(logger log.Logger) email.Sender {
-	if env.IsTest() {
-		return noop.NewSender()
-	}
-	if env.IsDefined("EMAIL_MAILGUN_API") {
-		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
-	}
-	return smtp.NewSender(
-		logger,
-		env.MustGet("EMAIL_SMTP_HOST"),
-		env.MustGet("EMAIL_SMTP_PORT"),
-		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
-		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
-	)
 }

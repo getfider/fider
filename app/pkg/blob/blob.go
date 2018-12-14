@@ -34,12 +34,8 @@ func ValidateKey(key string) error {
 
 // Storage is how Fider persists blobs
 type Storage interface {
-	NewSession(tenant *models.Tenant) Session
-}
-
-// Session is a per-request object to interact with the storage
-type Session interface {
+	SetCurrentTenant(tenant *models.Tenant)
 	Get(key string) (*Blob, error)
 	Delete(key string) error
-	Store(b *Blob) error
+	Put(key string, content []byte, contentType string) error
 }

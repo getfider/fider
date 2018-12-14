@@ -5,7 +5,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob/fs"
 	"github.com/getfider/fider/app/pkg/email/noop"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -54,6 +56,7 @@ func createServices(seed bool) *app.Services {
 		Posts:         inmemory.NewPostStorage(),
 		OAuth:         &OAuthService{},
 		Emailer:       noop.NewSender(),
+		Blobs:         fs.NewStorage(env.Path("tmp")),
 	}
 
 	if seed {
