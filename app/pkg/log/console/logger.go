@@ -22,7 +22,7 @@ type Logger struct {
 
 // NewLogger creates a new Logger
 func NewLogger(tag string) *Logger {
-	level := strings.ToUpper(env.GetEnvOrDefault("LOG_LEVEL", ""))
+	level := strings.ToUpper(env.Config.Log.Level)
 	return &Logger{
 		tag:     tag,
 		logger:  stdLog.New(os.Stdout, "", 0),

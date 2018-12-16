@@ -2,10 +2,10 @@ package webutil_test
 
 import (
 	"net/url"
-	"os"
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/web/util"
+	"github.com/getfider/fider/app/pkg/env"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/web"
@@ -26,10 +26,10 @@ func TestGetOAuthBaseURL(t *testing.T) {
 
 	ctx := newContext("https://mydomain.com/hello-world")
 
-	os.Setenv("HOST_MODE", "multi")
+	env.Config.HostMode = "multi"
 	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
 
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("https://mydomain.com")
 }
 
@@ -38,9 +38,9 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
 
-	os.Setenv("HOST_MODE", "multi")
+	env.Config.HostMode = "multi"
 	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
 
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
 }

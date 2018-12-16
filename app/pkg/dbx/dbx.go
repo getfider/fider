@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"reflect"
-	"strconv"
 	"time"
 
 	"strings"
@@ -26,22 +25,13 @@ func New() *Database {
 
 // NewWithLogger creates a new Database instance with logging or panic
 func NewWithLogger(logger log.Logger) *Database {
-	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
+	conn, err := sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to open connection to the database"))
 	}
 
-	maxIdle, err := strconv.Atoi(env.GetEnvOrDefault("DATABASE_MAX_IDLE_CONNS", "10"))
-	if err != nil {
-		panic(errors.Wrap(err, "failed to convert DATABASE_MAX_IDLE_CONNS to integer"))
-	}
-	conn.SetMaxIdleConns(maxIdle)
-
-	maxOpen, err := strconv.Atoi(env.GetEnvOrDefault("DATABASE_MAX_OPEN_CONNS", "20"))
-	if err != nil {
-		panic(errors.Wrap(err, "failed to convert DATABASE_MAX_OPEN_CONNS to integer"))
-	}
-	conn.SetMaxOpenConns(maxOpen)
+	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
+	conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
 
 	return &Database{conn, logger, NewRowMapper()}
 }

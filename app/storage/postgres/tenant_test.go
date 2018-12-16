@@ -2,7 +2,6 @@ package postgres_test
 
 import (
 	"io/ioutil"
-	"os"
 	"testing"
 	"time"
 
@@ -45,7 +44,7 @@ func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 	Expect(err).IsNil()

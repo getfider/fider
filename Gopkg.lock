@@ -113,6 +113,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:bd1b5ce5a04000dbe5d1c22812699509c17a8572c6385a43023c7e08ea4e7623"
+  name = "github.com/joeshaw/envdecode"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c9e0158544672841c3ebf49308f536d918f2e525"
+
+[[projects]]
+  branch = "master"
   digest = "1:3a1e2d3c7b109c4f7bd10b208d0cbc578e618fb26832cf96544c638d927022bf"
   name = "github.com/julienschmidt/httprouter"
   packages = ["."]
@@ -229,6 +237,7 @@
     "github.com/goenning/letteravatar",
     "github.com/goenning/sqlcertcache",
     "github.com/gosimple/slug",
+    "github.com/joeshaw/envdecode",
     "github.com/julienschmidt/httprouter",
     "github.com/lib/pq",
     "github.com/russross/blackfriday",

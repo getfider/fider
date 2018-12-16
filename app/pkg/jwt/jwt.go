@@ -6,7 +6,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
-var jwtSecret = env.MustGet("JWT_SECRET")
+var jwtSecret = env.Config.JWTSecret
 
 // Metadata is the basic JWT information
 type Metadata = jwtgo.StandardClaims

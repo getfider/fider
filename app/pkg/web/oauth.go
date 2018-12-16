@@ -5,8 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/env"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -24,8 +25,8 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-func getProviderStatus(envKey string) int {
-	if os.Getenv(envKey) == "" {
+func getProviderStatus(key string) int {
+	if key == "" {
 		return models.OAuthConfigDisabled
 	}
 	return models.OAuthConfigEnabled
@@ -37,9 +38,9 @@ var (
 			Provider:          oauth.FacebookProvider,
 			DisplayName:       "Facebook",
 			ProfileURL:        "https://graph.facebook.com/me?fields=name,email",
-			Status:            getProviderStatus("OAUTH_FACEBOOK_APPID"),
-			ClientID:          os.Getenv("OAUTH_FACEBOOK_APPID"),
-			ClientSecret:      os.Getenv("OAUTH_FACEBOOK_SECRET"),
+			Status:            getProviderStatus(env.Config.OAuth.Facebook.AppID),
+			ClientID:          env.Config.OAuth.Facebook.AppID,
+			ClientSecret:      env.Config.OAuth.Facebook.Secret,
 			Scope:             "public_profile email",
 			AuthorizeURL:      facebook.Endpoint.AuthURL,
 			TokenURL:          facebook.Endpoint.TokenURL,
@@ -51,9 +52,9 @@ var (
 			Provider:          oauth.GoogleProvider,
 			DisplayName:       "Google",
 			ProfileURL:        "https://www.googleapis.com/plus/v1/people/me",
-			Status:            getProviderStatus("OAUTH_GOOGLE_CLIENTID"),
-			ClientID:          os.Getenv("OAUTH_GOOGLE_CLIENTID"),
-			ClientSecret:      os.Getenv("OAUTH_GOOGLE_SECRET"),
+			Status:            getProviderStatus(env.Config.OAuth.Google.ClientID),
+			ClientID:          env.Config.OAuth.Google.ClientID,
+			ClientSecret:      env.Config.OAuth.Google.Secret,
 			Scope:             "profile email",
 			AuthorizeURL:      google.Endpoint.AuthURL,
 			TokenURL:          google.Endpoint.TokenURL,
@@ -65,9 +66,9 @@ var (
 			Provider:          oauth.GitHubProvider,
 			DisplayName:       "GitHub",
 			ProfileURL:        "https://api.github.com/user",
-			Status:            getProviderStatus("OAUTH_GITHUB_CLIENTID"),
-			ClientID:          os.Getenv("OAUTH_GITHUB_CLIENTID"),
-			ClientSecret:      os.Getenv("OAUTH_GITHUB_SECRET"),
+			Status:            getProviderStatus(env.Config.OAuth.GitHub.ClientID),
+			ClientID:          env.Config.OAuth.GitHub.ClientID,
+			ClientSecret:      env.Config.OAuth.GitHub.Secret,
 			Scope:             "user:email",
 			AuthorizeURL:      github.Endpoint.AuthURL,
 			TokenURL:          github.Endpoint.TokenURL,

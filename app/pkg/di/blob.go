@@ -22,28 +22,35 @@ func NewEmailer(logger log.Logger) email.Sender {
 	if env.IsTest() {
 		return noop.NewSender()
 	}
-	if env.IsDefined("EMAIL_MAILGUN_API") {
-		return mailgun.NewSender(logger, web.NewHTTPClient(), env.MustGet("EMAIL_MAILGUN_DOMAIN"), env.MustGet("EMAIL_MAILGUN_API"))
+
+	if env.Config.Email.Mailgun.APIKey != "" {
+		return mailgun.NewSender(
+			logger,
+			web.NewHTTPClient(),
+			env.Config.Email.Mailgun.Domain,
+			env.Config.Email.Mailgun.APIKey,
+		)
 	}
+
 	return smtp.NewSender(
 		logger,
-		env.MustGet("EMAIL_SMTP_HOST"),
-		env.MustGet("EMAIL_SMTP_PORT"),
-		env.GetEnvOrDefault("EMAIL_SMTP_USERNAME", ""),
-		env.GetEnvOrDefault("EMAIL_SMTP_PASSWORD", ""),
+		env.Config.Email.SMTP.Host,
+		env.Config.Email.SMTP.Port,
+		env.Config.Email.SMTP.Username,
+		env.Config.Email.SMTP.Password,
 	)
 }
 
 // NewBlobStorage creates a new blob storage instance based on current configuration
 func NewBlobStorage(trx *dbx.Trx) blob.Storage {
-	storageType := strings.ToLower(env.GetEnvOrDefault("BLOB_STORAGE", "sql"))
+	storageType := strings.ToLower(env.Config.BlobStorage.Type)
 	switch storageType {
 	case "sql":
 		return sql.NewStorage(trx)
 	case "s3":
-		return s3.NewStorage(env.MustGet("BLOB_STORAGE_S3_BUCKET"))
+		return s3.NewStorage(env.Config.BlobStorage.S3.BucketName)
 	case "fs":
-		return fs.NewStorage(env.MustGet("BLOB_STORAGE_FS_PATH"))
+		return fs.NewStorage(env.Config.BlobStorage.FS.Path)
 	}
 	panic("Invalid blob storage type: " + storageType)
 }
