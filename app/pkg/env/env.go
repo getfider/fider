@@ -90,6 +90,7 @@ func init() {
 
 // Reload configuration from current Enviornment Variables
 func Reload() {
+	Config = config{}
 	err := envdecode.Decode(&Config)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
