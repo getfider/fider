@@ -126,6 +126,18 @@ func (s *PostStorage) SetCurrentUser(user *models.User) {
 
 var (
 	sqlSelectPostsWhere = `	WITH 
+													agg_tags AS ( 
+														SELECT 
+																post_id, 
+																ARRAY_REMOVE(ARRAY_AGG(tags.slug), NULL) as tags
+														FROM post_tags
+														INNER JOIN tags
+														ON tags.ID = post_tags.TAG_ID
+														AND tags.tenant_id = post_tags.tenant_id
+														WHERE post_tags.tenant_id = $1
+														%s
+														GROUP BY post_id 
+													), 
 													agg_comments AS (
 															SELECT 
 																	post_id, 
@@ -178,38 +190,37 @@ var (
 																d.title AS original_title,
 																d.slug AS original_slug,
 																d.status AS original_status,
-																array_remove(array_agg(t.slug), NULL) AS tags,
+																COALESCE(agg_t.tags, ARRAY[]::text[]) AS tags,
 																COALESCE(%s, false) AS has_voted
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
+													AND u.tenant_id = $1
 													LEFT JOIN users r
 													ON r.id = p.response_user_id
-													LEFT JOIN post_tags pt
-													ON pt.post_id = p.id
+													AND r.tenant_id = $1
 													LEFT JOIN posts d
 													ON d.id = p.original_id
-													LEFT JOIN tags t
-													ON t.id = pt.tag_id
-													%s
+													AND d.tenant_id = $1
 													LEFT JOIN agg_comments agg_c
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
-													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s
-													GROUP BY p.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
+													LEFT JOIN agg_tags agg_t 
+													ON agg_t.post_id = p.id
+													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s`
 )
 
 func (s *PostStorage) getPostQuery(filter string) string {
+	tagCondition := `AND tags.is_public = true`
+	if s.user != nil && s.user.IsCollaborator() {
+		tagCondition = ``
+	}
 	hasVotedSubQuery := "null"
 	if s.user != nil {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", s.user.ID)
 	}
-	tagCondition := `AND t.is_public = true`
-	if s.user != nil && s.user.IsCollaborator() {
-		tagCondition = ``
-	}
-	return fmt.Sprintf(sqlSelectPostsWhere, hasVotedSubQuery, tagCondition, filter)
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, filter)
 }
 
 func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post, error) {
