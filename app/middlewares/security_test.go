@@ -2,11 +2,11 @@ package middlewares_test
 
 import (
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -35,7 +35,7 @@ func TestSecureWithoutCDN(t *testing.T) {
 func TestSecureWithCDN(t *testing.T) {
 	RegisterT(t)
 
-	os.Setenv("CDN_HOST", "test.fider.io")
+	env.Config.CDN.Host = "test.fider.io"
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Secure())
@@ -58,7 +58,7 @@ func TestSecureWithCDN(t *testing.T) {
 func TestSecureWithCDN_SingleHost(t *testing.T) {
 	RegisterT(t)
 
-	os.Setenv("CDN_HOST", "test.fider.io")
+	env.Config.CDN.Host = "test.fider.io"
 
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.Secure())

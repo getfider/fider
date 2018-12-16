@@ -1,8 +1,6 @@
 package mock
 
 import (
-	"os"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/blob/fs"
@@ -28,7 +26,7 @@ var AryaStark *models.User
 func NewSingleTenantServer() (*Server, *app.Services) {
 	services := createServices(false)
 	server := createServer(services)
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 	return server, services
 }
 
@@ -36,7 +34,7 @@ func NewSingleTenantServer() (*Server, *app.Services) {
 func NewServer() (*Server, *app.Services) {
 	services := createServices(true)
 	server := createServer(services)
-	os.Setenv("HOST_MODE", "multi")
+	env.Config.HostMode = "multi"
 	return server, services
 }
 

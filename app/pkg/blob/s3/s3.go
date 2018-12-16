@@ -33,21 +33,17 @@ func isNotFound(err error) bool {
 	return false
 }
 
-//Client is an S3 Client
+//DefaultClient is an S3 Client
 var DefaultClient *s3.S3
 
 func init() {
-	endpointURL := env.GetEnvOrDefault("BLOB_STORAGE_S3_ENDPOINT_URL", "")
-	if endpointURL != "" {
-		region := env.GetEnvOrDefault("BLOB_STORAGE_S3_REGION", "")
-		accessKeyID := env.GetEnvOrDefault("BLOB_STORAGE_S3_ACCESS_KEY_ID", "")
-		secretAccessKey := env.GetEnvOrDefault("BLOB_STORAGE_S3_SECRET_ACCESS_KEY", "")
-
+	s3EnvConfig := env.Config.BlobStorage.S3
+	if s3EnvConfig.EndpointURL != "" {
 		s3Config := &aws.Config{
-			Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
-			Endpoint:         aws.String(endpointURL),
-			Region:           aws.String(region),
-			DisableSSL:       aws.Bool(strings.HasSuffix(endpointURL, "http://")),
+			Credentials:      credentials.NewStaticCredentials(s3EnvConfig.AccessKeyID, s3EnvConfig.SecretAccessKey, ""),
+			Endpoint:         aws.String(s3EnvConfig.EndpointURL),
+			Region:           aws.String(s3EnvConfig.Region),
+			DisableSSL:       aws.Bool(strings.HasSuffix(s3EnvConfig.EndpointURL, "http://")),
 			S3ForcePathStyle: aws.Bool(true),
 		}
 		awsSession := session.New(s3Config)

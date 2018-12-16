@@ -3,9 +3,9 @@ package mailgun_test
 import (
 	"io/ioutil"
 	"net/url"
-	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app/models"
@@ -32,7 +32,7 @@ func init() {
 
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
-	os.Setenv("HOST_MODE", "MULTI")
+	env.Config.HostMode = "multi"
 	client.Reset()
 
 	to := email.Recipient{

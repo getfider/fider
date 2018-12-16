@@ -90,18 +90,17 @@ func New(settings *models.SystemSettings) *Engine {
 func (e *Engine) Start(address string) {
 	e.logger.Info("Application is starting")
 	e.logger.Infof("GO_ENV: @{Env}", log.Props{
-		"Env": env.Current(),
+		"Env": env.Config.Environment,
 	})
 
 	var (
-		autoSSL      = env.GetEnvOrDefault("SSL_AUTO", "")
 		certFilePath = ""
 		keyFilePath  = ""
 	)
 
-	if env.IsDefined("SSL_CERT") {
-		certFilePath = env.Etc(env.GetEnvOrDefault("SSL_CERT", ""))
-		keyFilePath = env.Etc(env.GetEnvOrDefault("SSL_CERT_KEY", ""))
+	if env.Config.SSLCert != "" {
+		certFilePath = env.Etc(env.Config.SSLCert)
+		keyFilePath = env.Etc(env.Config.SSLCertKey)
 	}
 
 	e.server = &http.Server{
@@ -122,7 +121,7 @@ func (e *Engine) Start(address string) {
 		err         error
 		certManager *CertificateManager
 	)
-	if autoSSL == "true" {
+	if env.Config.AutoSSL {
 		certManager, err = NewCertificateManager(certFilePath, keyFilePath, e.db.Connection())
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))

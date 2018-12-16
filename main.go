@@ -29,9 +29,9 @@ func main() {
 		BuildTime:       buildtime,
 		Version:         version,
 		Compiler:        runtime.Version(),
-		Environment:     env.Current(),
-		GoogleAnalytics: env.GetEnvOrDefault("GOOGLE_ANALYTICS", ""),
-		Mode:            env.Mode(),
+		Environment:     env.Config.Environment,
+		GoogleAnalytics: env.Config.GoogleAnalytics,
+		Mode:            env.Config.HostMode,
 		Domain:          env.MultiTenantDomain(),
 		HasLegal:        env.HasLegal(),
 	}

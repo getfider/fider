@@ -80,7 +80,7 @@ type Context interface {
 }
 
 // NoReply is the default 'from' address
-var NoReply = env.MustGet("EMAIL_NOREPLY")
+var NoReply = env.Config.Email.NoReply
 
 // Recipient contains details of who is receiving the email
 type Recipient struct {
@@ -112,9 +112,9 @@ func (r Recipient) String() string {
 	return address.String()
 }
 
-var whitelist = env.GetEnvOrDefault("EMAIL_WHITELIST", "")
+var whitelist = env.Config.Email.Whitelist
 var whitelistRegex = regexp.MustCompile(whitelist)
-var blacklist = env.GetEnvOrDefault("EMAIL_BLACKLIST", "")
+var blacklist = env.Config.Email.Blacklist
 var blacklistRegex = regexp.MustCompile(blacklist)
 
 // SetWhitelist can be used to change email whitelist during runtime

@@ -2,12 +2,12 @@ package middlewares_test
 
 import (
 	"net/http"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/getfider/fider/app/middlewares"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -30,11 +30,11 @@ func TestMaintenance_Enabled(t *testing.T) {
 	RegisterT(t)
 
 	defer func() {
-		os.Setenv("MAINTENANCE", "")
+		env.Config.Maintenance.Enabled = false
 	}()
 
 	server, _ := mock.NewServer()
-	os.Setenv("MAINTENANCE", "true")
+	env.Config.Maintenance.Enabled = true
 	server.Use(middlewares.ClientCache(30 * time.Hour))
 	server.Use(middlewares.Maintenance())
 	handler := func(c web.Context) error {

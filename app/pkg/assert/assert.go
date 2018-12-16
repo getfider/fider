@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -61,6 +62,7 @@ func restartEnv() {
 	for k, v := range envVariables {
 		os.Setenv(k, v)
 	}
+	env.Reload()
 }
 
 //AnyAssertions is used to assert any kind of value

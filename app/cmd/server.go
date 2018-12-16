@@ -21,7 +21,7 @@ func RunServer(settings *models.SystemSettings) int {
 
 	e := routes(web.New(settings))
 
-	go e.Start(":" + env.GetEnvOrDefault("PORT", "3000"))
+	go e.Start(":" + env.Config.Port)
 	return listenSignals(e, settings)
 }
 
