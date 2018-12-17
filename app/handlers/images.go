@@ -71,16 +71,17 @@ func Favicon() web.HandlerFunc {
 	return func(c web.Context) error {
 		var (
 			bytes       []byte
+			err         error
 			contentType string
 		)
 
-		id, err := c.ParamAsInt("id")
-		if err == nil {
-			logo, err := c.Services().Tenants.GetUpload(id)
+		bkey := c.Param("bkey")
+		if bkey != "" {
+			logo, err := c.Services().Blobs.Get(bkey)
 			if err != nil {
 				return c.Failure(err)
 			}
-			bytes = logo.Content
+			bytes = logo.Object
 			contentType = logo.ContentType
 		} else {
 			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
@@ -114,22 +115,19 @@ func Favicon() web.HandlerFunc {
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
-		id, err := c.ParamAsInt("id")
-		if err != nil {
-			return c.NotFound()
-		}
+		bkey := c.Param("bkey")
 
 		size, err := c.ParamAsInt("size")
 		if err != nil {
 			return c.NotFound()
 		}
 
-		logo, err := c.Services().Tenants.GetUpload(id)
+		logo, err := c.Services().Blobs.Get(bkey)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		bytes, err := img.Resize(logo.Content, size, 0)
+		bytes, err := img.Resize(logo.Object, size, 0)
 		if err != nil {
 			return c.Failure(err)
 		}

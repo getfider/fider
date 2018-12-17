@@ -26,6 +26,7 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
 export interface UpdateTenantSettingsRequest {
   logo?: {
     upload?: {
+      fileName?: string;
       content?: string;
       contentType?: string;
     };

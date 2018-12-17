@@ -77,7 +77,6 @@ type Tenant interface {
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
-	GetUpload(id int) (*models.Upload, error)
 	SaveOAuthConfig(config *models.CreateEditOAuthConfig) error
 	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)
 	ListOAuthConfig() ([]*models.OAuthConfig, error)

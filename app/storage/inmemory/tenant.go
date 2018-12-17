@@ -1,7 +1,6 @@
 package inmemory
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -12,12 +11,10 @@ import (
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
 	lastID        int
-	lastLogoID    int
 	tenants       []*models.Tenant
 	current       *models.Tenant
 	user          *models.User
 	verifications []*models.EmailVerification
-	tenantLogos   map[int]*models.Upload
 	oauthConfigs  []*models.OAuthConfig
 }
 
@@ -26,7 +23,6 @@ func NewTenantStorage() *TenantStorage {
 	return &TenantStorage{
 		tenants:       make([]*models.Tenant, 0),
 		verifications: make([]*models.EmailVerification, 0),
-		tenantLogos:   make(map[int]*models.Upload, 0),
 		oauthConfigs:  make([]*models.OAuthConfig, 0),
 	}
 }
@@ -93,20 +89,6 @@ func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	for _, tenant := range s.tenants {
 		if tenant.ID == s.current.ID {
-
-			if settings.Logo != nil && settings.Logo.Upload != nil && len(settings.Logo.Upload.Content) > 0 {
-				s.lastLogoID = s.lastLogoID + 1
-				if s.tenantLogos == nil {
-					s.tenantLogos = make(map[int]*models.Upload, 0)
-				}
-				tenant.LogoID = s.lastLogoID
-				s.tenantLogos[s.lastLogoID] = &models.Upload{
-					Content:     settings.Logo.Upload.Content,
-					Size:        len(settings.Logo.Upload.Content),
-					ContentType: http.DetectContentType(settings.Logo.Upload.Content),
-				}
-			}
-
 			tenant.Invitation = settings.Invitation
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title
@@ -188,18 +170,6 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 		}
 	}
 	return nil
-}
-
-// GetUpload returns upload by id
-func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
-	if s.tenantLogos != nil {
-		logo, ok := s.tenantLogos[id]
-		if !ok {
-			return nil, app.ErrNotFound
-		}
-		return logo, nil
-	}
-	return nil, app.ErrNotFound
 }
 
 // SaveOAuthConfig saves given config into database

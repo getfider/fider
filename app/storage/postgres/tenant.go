@@ -1,8 +1,6 @@
 package postgres
 
 import (
-	"database/sql"
-	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -13,16 +11,16 @@ import (
 )
 
 type dbTenant struct {
-	ID             int         `db:"id"`
-	Name           string      `db:"name"`
-	Subdomain      string      `db:"subdomain"`
-	CNAME          string      `db:"cname"`
-	Invitation     string      `db:"invitation"`
-	WelcomeMessage string      `db:"welcome_message"`
-	Status         int         `db:"status"`
-	IsPrivate      bool        `db:"is_private"`
-	LogoID         dbx.NullInt `db:"logo_id"`
-	CustomCSS      string      `db:"custom_css"`
+	ID             int    `db:"id"`
+	Name           string `db:"name"`
+	Subdomain      string `db:"subdomain"`
+	CNAME          string `db:"cname"`
+	Invitation     string `db:"invitation"`
+	WelcomeMessage string `db:"welcome_message"`
+	Status         int    `db:"status"`
+	IsPrivate      bool   `db:"is_private"`
+	LogoBlobKey    string `db:"logo_bkey"`
+	CustomCSS      string `db:"custom_css"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -30,7 +28,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		return nil
 	}
 
-	tenant := &models.Tenant{
+	return &models.Tenant{
 		ID:             t.ID,
 		Name:           t.Name,
 		Subdomain:      t.Subdomain,
@@ -39,14 +37,9 @@ func (t *dbTenant) toModel() *models.Tenant {
 		WelcomeMessage: t.WelcomeMessage,
 		Status:         t.Status,
 		IsPrivate:      t.IsPrivate,
+		LogoBlobKey:    t.LogoBlobKey,
 		CustomCSS:      t.CustomCSS,
 	}
-
-	if t.LogoID.Valid {
-		tenant.LogoID = int(t.LogoID.Int64)
-	}
-
-	return tenant
 }
 
 type dbEmailVerification struct {
@@ -84,20 +77,20 @@ func (t *dbEmailVerification) toModel() *models.EmailVerification {
 }
 
 type dbOAuthConfig struct {
-	ID                int         `db:"id"`
-	Provider          string      `db:"provider"`
-	DisplayName       string      `db:"display_name"`
-	LogoID            dbx.NullInt `db:"logo_id"`
-	Status            int         `db:"status"`
-	ClientID          string      `db:"client_id"`
-	ClientSecret      string      `db:"client_secret"`
-	AuthorizeURL      string      `db:"authorize_url"`
-	TokenURL          string      `db:"token_url"`
-	Scope             string      `db:"scope"`
-	ProfileURL        string      `db:"profile_url"`
-	JSONUserIDPath    string      `db:"json_user_id_path"`
-	JSONUserNamePath  string      `db:"json_user_name_path"`
-	JSONUserEmailPath string      `db:"json_user_email_path"`
+	ID                int    `db:"id"`
+	Provider          string `db:"provider"`
+	DisplayName       string `db:"display_name"`
+	LogoBlobKey       string `db:"logo_bkey"`
+	Status            int    `db:"status"`
+	ClientID          string `db:"client_id"`
+	ClientSecret      string `db:"client_secret"`
+	AuthorizeURL      string `db:"authorize_url"`
+	TokenURL          string `db:"token_url"`
+	Scope             string `db:"scope"`
+	ProfileURL        string `db:"profile_url"`
+	JSONUserIDPath    string `db:"json_user_id_path"`
+	JSONUserNamePath  string `db:"json_user_name_path"`
+	JSONUserEmailPath string `db:"json_user_email_path"`
 }
 
 func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
@@ -106,7 +99,7 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 		Provider:          m.Provider,
 		DisplayName:       m.DisplayName,
 		Status:            m.Status,
-		LogoID:            int(m.LogoID.Int64),
+		LogoBlobKey:       m.LogoBlobKey,
 		ClientID:          m.ClientID,
 		ClientSecret:      m.ClientSecret,
 		AuthorizeURL:      m.AuthorizeURL,
@@ -145,8 +138,8 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
 	err := s.trx.Get(&id,
-		`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css) 
-		 VALUES ($1, $2, $3, '', '', '', $4, false, '') 
+		`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey) 
+		 VALUES ($1, $2, $3, '', '', '', $4, false, '', '') 
 		 RETURNING id`, name, subdomain, time.Now(), status)
 	if err != nil {
 		return nil, err
@@ -159,7 +152,7 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants ORDER BY id LIMIT 1")
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css FROM tenants ORDER BY id LIMIT 1")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
@@ -171,7 +164,7 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_id, custom_css FROM tenants WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 ORDER BY cname DESC", env.Subdomain(domain), domain, domain)
+	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css FROM tenants WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 ORDER BY cname DESC", env.Subdomain(domain), domain, domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}
@@ -181,8 +174,13 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 // UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
-	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4 WHERE id = $5"
-	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, s.current.ID)
+	var bkey string
+	if settings.Logo != nil {
+		bkey = settings.Logo.BlobKey
+	}
+
+	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
+	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, bkey, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
 	}
@@ -192,45 +190,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	s.current.CNAME = settings.CNAME
 	s.current.WelcomeMessage = settings.WelcomeMessage
 
-	// Only update tenant logo if there's a change
-	if settings.Logo != nil {
-		var newLogoID sql.NullInt64
-
-		// If there's an upload, save it
-		if !settings.Logo.Remove && len(settings.Logo.Upload.Content) > 0 {
-			uploadID, err := s.SaveNewUpload(settings.Logo.Upload.Content)
-			if err != nil {
-				return errors.Wrap(err, "failed to upload new tenant logo")
-			}
-			newLogoID.Scan(uploadID)
-		}
-
-		// Update current tenant logo to either new ID or null
-		query := "UPDATE tenants SET logo_id = $1 WHERE id = $2"
-		_, err = s.trx.Execute(query, newLogoID, s.current.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed update tenant logo")
-		}
-
-		// Update reference to new logo ID
-		s.current.LogoID = int(newLogoID.Int64)
-	}
-
 	return nil
-}
-
-// SaveNewUpload saves given content and return upload id
-func (s *TenantStorage) SaveNewUpload(content []byte) (int, error) {
-	var newID int
-	err := s.trx.Get(&newID, `
-		INSERT INTO uploads (tenant_id, size, content_type, file, created_at)
-		VALUES ($1, $2, $3, $4, $5) RETURNING id
-		`, s.current.ID, len(content), http.DetectContentType(content), content, time.Now(),
-	)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to save new upload")
-	}
-	return newID, nil
 }
 
 // UpdateAdvancedSettings of current tenant
@@ -320,79 +280,46 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	return nil
 }
 
-// GetUpload returns upload by id
-func (s *TenantStorage) GetUpload(id int) (*models.Upload, error) {
-	upload := &models.Upload{}
-	err := s.trx.Get(upload, `
-		SELECT content_type, size, file 
-		FROM uploads
-		WHERE tenant_id = $1 AND id = $2
-	`, s.current.ID, id)
-	if err == app.ErrNotFound {
-		return nil, app.ErrNotFound
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get upload from tenant")
-	}
-	return upload, nil
-}
-
 // SaveOAuthConfig saves given config into database
 func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
 	var err error
+	var bkey string
+	if config.Logo != nil {
+		bkey = config.Logo.BlobKey
+	}
 
 	if config.ID == 0 {
 		query := `INSERT INTO oauth_providers (
 			tenant_id, provider, display_name, status,
 			client_id, client_secret, authorize_url,
 			profile_url, token_url, scope, json_user_id_path,
-			json_user_name_path, json_user_email_path
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+			json_user_name_path, json_user_email_path, logo_bkey
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		RETURNING id`
 
 		err = s.trx.Get(&config.ID, query, s.current.ID, config.Provider,
 			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath)
+			config.JSONUserEmailPath, bkey)
 	} else {
 		query := `
 			UPDATE oauth_providers 
 			SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
 					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
-					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13
+					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
+					logo_bkey = $14
 		WHERE tenant_id = $1 AND id = $2`
 
 		_, err = s.trx.Execute(query, s.current.ID, config.ID,
 			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath)
+			config.JSONUserEmailPath, bkey)
 	}
 
 	if err != nil {
 		return errors.Wrap(err, "failed to save OAuth Provider")
-	}
-
-	// Only update OAuth logo if there's a change
-	if config.Logo != nil {
-		var newLogoID sql.NullInt64
-
-		// If there's an upload, save it
-		if !config.Logo.Remove && len(config.Logo.Upload.Content) > 0 {
-			uploadID, err := s.SaveNewUpload(config.Logo.Upload.Content)
-			if err != nil {
-				return errors.Wrap(err, "failed to upload new OAuth logo")
-			}
-			newLogoID.Scan(uploadID)
-		}
-
-		// Update current OAuth logo to either new ID or null
-		query := "UPDATE oauth_providers SET logo_id = $1 WHERE tenant_id = $2 and id = $3"
-		_, err = s.trx.Execute(query, newLogoID, s.current.ID, config.ID)
-		if err != nil {
-			return errors.Wrap(err, "failed update OAuth logo")
-		}
 	}
 
 	return nil
@@ -406,7 +333,7 @@ func (s *TenantStorage) GetOAuthConfigByProvider(provider string) (*models.OAuth
 
 	config := &dbOAuthConfig{}
 	err := s.trx.Get(config, `
-	SELECT id, provider, display_name, status, logo_id,
+	SELECT id, provider, display_name, status, logo_bkey,
 				 client_id, client_secret, authorize_url,
 				 profile_url, token_url, scope, json_user_id_path,
 				 json_user_name_path, json_user_email_path
@@ -424,7 +351,7 @@ func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
 	configs := []*dbOAuthConfig{}
 	if s.current != nil {
 		err := s.trx.Select(&configs, `
-		SELECT id, provider, display_name, status, logo_id,
+		SELECT id, provider, display_name, status, logo_bkey,
 					 client_id, client_secret, authorize_url,
 					 profile_url, token_url, scope, json_user_id_path,
 					 json_user_name_path, json_user_email_path

@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -152,4 +153,18 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	}
 
 	return result, nil
+}
+
+func handleImageUpload(c web.Context, img *models.ImageUpload) error {
+	if img != nil {
+		if img.Upload != nil && len(img.Upload.Content) > 0 {
+			bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), img.Upload.FileName)
+			err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
+			if err != nil {
+				return err
+			}
+			img.BlobKey = bkey
+		}
+	}
+	return nil
 }

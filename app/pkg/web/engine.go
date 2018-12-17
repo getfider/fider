@@ -6,6 +6,7 @@ import (
 	stdLog "log"
 	"net/http"
 	"os"
+	"path"
 	"runtime"
 	"strconv"
 	"time"
@@ -306,10 +307,10 @@ func (g *Group) Static(prefix, root string) {
 	var h HandlerFunc
 	if fi.IsDir() {
 		h = func(c Context) error {
-			path := root + c.Param("filepath")
-			fi, err := os.Stat(path)
+			filePath := path.Join(root, c.Param("filepath"))
+			fi, err := os.Stat(filePath)
 			if err == nil && !fi.IsDir() {
-				http.ServeFile(c.Response, c.Request.instance, path)
+				http.ServeFile(c.Response, c.Request.instance, filePath)
 				return nil
 			}
 			return c.NotFound()

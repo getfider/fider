@@ -245,7 +245,7 @@ func (s *OAuthService) ListAllProviders() ([]*oauth.ProviderOption, error) {
 			URL:              fmt.Sprintf("/oauth/%s", p.Provider),
 			CallbackURL:      fmt.Sprintf("%s/oauth/%s/callback", s.oauthBaseURL, p.Provider),
 			IsCustomProvider: string(p.Provider[0]) == "_",
-			LogoID:           p.LogoID,
+			LogoBlobKey:      p.LogoBlobKey,
 			IsEnabled:        p.Status == models.OAuthConfigEnabled,
 		})
 	}

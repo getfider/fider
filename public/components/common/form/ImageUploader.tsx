@@ -21,6 +21,7 @@ interface ImageUploaderState extends ImageUploadState {
 
 export interface ImageUploadState {
   upload?: {
+    fileName?: string;
     content?: string;
     contentType?: string;
   };
@@ -45,6 +46,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       this.setState(
         {
           upload: {
+            fileName: file.name,
             content: base64,
             contentType: file.type,
             action: "upload"
