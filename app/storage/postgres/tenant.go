@@ -134,6 +134,11 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 	s.user = user
 }
 
+// Current returns current context tenant
+func (s *TenantStorage) Current() *models.Tenant {
+	return s.current
+}
+
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	var id int
@@ -174,13 +179,8 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 // UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
-	var bkey string
-	if settings.Logo != nil {
-		bkey = settings.Logo.BlobKey
-	}
-
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, bkey, s.current.ID)
+	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, settings.Logo.BlobKey, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
 	}
@@ -283,10 +283,6 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 // SaveOAuthConfig saves given config into database
 func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
 	var err error
-	var bkey string
-	if config.Logo != nil {
-		bkey = config.Logo.BlobKey
-	}
 
 	if config.ID == 0 {
 		query := `INSERT INTO oauth_providers (
@@ -301,7 +297,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath, bkey)
+			config.JSONUserEmailPath, config.Logo.BlobKey)
 	} else {
 		query := `
 			UPDATE oauth_providers 
@@ -315,7 +311,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
 			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
 			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath, bkey)
+			config.JSONUserEmailPath, config.Logo.BlobKey)
 	}
 
 	if err != nil {

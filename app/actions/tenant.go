@@ -97,6 +97,7 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
+	input.Model.Logo.BlobKey = services.Tenants.Current().LogoBlobKey
 	messages, err := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
 	if err != nil {
 		return validate.Error(err)

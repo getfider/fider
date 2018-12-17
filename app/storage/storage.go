@@ -65,6 +65,7 @@ type User interface {
 // Tenant contains read and write operations for tenants
 type Tenant interface {
 	Base
+	Current() *models.Tenant
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	Activate(id int) error
