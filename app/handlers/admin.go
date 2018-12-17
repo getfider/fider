@@ -37,6 +37,7 @@ func UpdateSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		input.Model.Logo.BlobKey = c.Tenant().LogoBlobKey
 		err := handleImageUpload(c, input.Model.Logo)
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new tenant logo")

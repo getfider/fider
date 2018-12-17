@@ -156,15 +156,15 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 }
 
 func handleImageUpload(c web.Context, img *models.ImageUpload) error {
-	if img != nil {
-		if img.Upload != nil && len(img.Upload.Content) > 0 {
-			bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), img.Upload.FileName)
-			err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
-			if err != nil {
-				return err
-			}
-			img.BlobKey = bkey
+	if img.Remove {
+		img.BlobKey = ""
+	} else if img.Upload != nil && len(img.Upload.Content) > 0 {
+		bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), img.Upload.FileName)
+		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
+		if err != nil {
+			return err
 		}
+		img.BlobKey = bkey
 	}
 	return nil
 }

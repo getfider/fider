@@ -84,6 +84,7 @@ type UpdateTenantSettings struct {
 // Initialize the model
 func (input *UpdateTenantSettings) Initialize() interface{} {
 	input.Model = new(models.UpdateTenantSettings)
+	input.Model.Logo = &models.ImageUpload{}
 	return input.Model
 }
 
