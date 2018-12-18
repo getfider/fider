@@ -182,6 +182,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 	for _, c := range s.oauthConfigs {
 		if c.ID == config.ID {
 			c.Provider = config.Provider
+			c.LogoBlobKey = config.Logo.BlobKey
 			c.DisplayName = config.DisplayName
 			c.ClientID = config.ClientID
 			c.ClientSecret = config.ClientSecret
@@ -199,6 +200,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 		ID:                config.ID,
 		Provider:          config.Provider,
 		DisplayName:       config.DisplayName,
+		LogoBlobKey:       config.Logo.BlobKey,
 		ClientID:          config.ClientID,
 		ClientSecret:      config.ClientSecret,
 		AuthorizeURL:      config.AuthorizeURL,
