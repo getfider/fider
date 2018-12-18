@@ -13,9 +13,6 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-// ErrInvalidServerName is returned when SNI server name is invalid
-var ErrInvalidServerName = errors.New("ssl: invalid server name")
-
 func getDefaultTLSConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion:               tls.VersionTLS12,
@@ -85,14 +82,14 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 
 	// Fail is ServerName is empty or does't contain a dot
 	if serverName == "" || !strings.Contains(serverName, ".") {
-		return nil, ErrInvalidServerName
+		return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
 	}
 
 	if m.leaf != nil {
-		if !env.IsSingleHostMode() {
+		if !env.IsSingleHostMode() && strings.HasSuffix(serverName, env.MultiTenantDomain()) {
 			subdomain := strings.TrimSuffix(serverName, env.MultiTenantDomain())
 			if strings.Count(subdomain, ".") > 0 {
-				return nil, ErrInvalidServerName
+				return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
 			}
 		}
 
