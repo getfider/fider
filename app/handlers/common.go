@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -159,7 +160,7 @@ func handleImageUpload(c web.Context, img *models.ImageUpload) error {
 	if img.Remove {
 		img.BlobKey = ""
 	} else if img.Upload != nil && len(img.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), img.Upload.FileName)
+		bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
 		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
 		if err != nil {
 			return err
