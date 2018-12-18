@@ -7,10 +7,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/goenning/sqlcertcache"
 	"golang.org/x/crypto/acme/autocert"
 )
+
+// ErrInvalidServerName is returned when SNI server name is invalid
+var ErrInvalidServerName = errors.New("ssl: invalid server name")
 
 func getDefaultTLSConfig() *tls.Config {
 	return &tls.Config{
@@ -77,13 +81,25 @@ func NewCertificateManager(certFile, keyFile string, conn *sql.DB) (*Certificate
 //It first tries to use loaded certificate for incoming request if it's compatible
 //Otherwise fallsback to a automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+
+	// Fail is ServerName is empty or does't contain a dot
+	if hello.ServerName == "" || !strings.Contains(strings.Trim(hello.ServerName, "."), ".") {
+		return nil, ErrInvalidServerName
+	}
+
 	if m.leaf != nil {
-		//skip autoSSL is ServerName is empty or does't contain a dot
-		skipAutoCert := hello.ServerName == "" || !strings.Contains(strings.Trim(hello.ServerName, "."), ".")
-		if skipAutoCert || m.leaf.VerifyHostname(hello.ServerName) == nil {
+		if !env.IsSingleHostMode() {
+			subdomain := strings.TrimSuffix(hello.ServerName, env.MultiTenantDomain())
+			if strings.Count(subdomain, ".") > 0 {
+				return nil, ErrInvalidServerName
+			}
+		}
+
+		if m.leaf.VerifyHostname(hello.ServerName) == nil {
 			return &m.cert, nil
 		}
 	}
+
 	return m.autossl.GetCertificate(hello)
 }
 
