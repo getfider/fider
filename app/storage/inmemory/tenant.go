@@ -180,10 +180,13 @@ func (s *TenantStorage) SetKeyAsVerified(key string) error {
 
 // SaveOAuthConfig saves given config into database
 func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
+	bkey := ""
+	if config.Logo != nil {
+		bkey = config.Logo.BlobKey
+	}
 	for _, c := range s.oauthConfigs {
 		if c.ID == config.ID {
 			c.Provider = config.Provider
-			c.LogoBlobKey = config.Logo.BlobKey
 			c.DisplayName = config.DisplayName
 			c.ClientID = config.ClientID
 			c.ClientSecret = config.ClientSecret
@@ -194,6 +197,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 			c.JSONUserIDPath = config.JSONUserIDPath
 			c.JSONUserNamePath = config.JSONUserNamePath
 			c.JSONUserEmailPath = config.JSONUserEmailPath
+			c.LogoBlobKey = bkey
 			return nil
 		}
 	}
@@ -201,7 +205,7 @@ func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) er
 		ID:                config.ID,
 		Provider:          config.Provider,
 		DisplayName:       config.DisplayName,
-		LogoBlobKey:       config.Logo.BlobKey,
+		LogoBlobKey:       bkey,
 		ClientID:          config.ClientID,
 		ClientSecret:      config.ClientSecret,
 		AuthorizeURL:      config.AuthorizeURL,

@@ -179,8 +179,13 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 // UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
+	bkey := ""
+	if settings.Logo != nil {
+		bkey = settings.Logo.BlobKey
+	}
+
 	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, settings.Logo.BlobKey, s.current.ID)
+	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, bkey, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant settings")
 	}
