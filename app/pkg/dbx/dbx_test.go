@@ -295,14 +295,14 @@ func TestByteArray(t *testing.T) {
 	Expect(err).IsNil()
 
 	_, err = trx.Execute(`
-		INSERT INTO uploads (tenant_id, size, content_type, file)
-		VALUES (1, $1, 'text/plain', $2)
+		INSERT INTO blobs (key, tenant_id, size, content_type, file)
+		VALUES ('favicon.png', 1, $1, 'text/plain', $2)
 	`, len(fileContent), fileContent)
 
 	Expect(err).IsNil()
 
 	theFile := file{}
-	err = trx.Get(&theFile, "SELECT content_type, size, file FROM uploads WHERE id = 1")
+	err = trx.Get(&theFile, "SELECT content_type, size, file FROM blobs WHERE key = 'favicon.png' AND tenant_id = 1")
 	Expect(err).IsNil()
 	Expect(theFile.ContentType).Equals("text/plain")
 	Expect(theFile.Content).Equals(fileContent)
