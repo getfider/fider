@@ -98,6 +98,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 			tenant.WelcomeMessage = settings.WelcomeMessage
 			tenant.Name = settings.Title
 			tenant.CNAME = settings.CNAME
+			tenant.LogoBlobKey = settings.Logo.BlobKey
 			return nil
 		}
 	}
