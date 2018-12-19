@@ -21,8 +21,8 @@ func Test_GetCertificate(t *testing.T) {
 		serverName string
 		valid      bool
 	}{
-		{"multi", "all-test-fider-io", "", false},
-		{"multi", "all-test-fider-io", "fider", false},
+		{"multi", "all-test-fider-io", "", true},
+		{"multi", "all-test-fider-io", "fider", true},
 		{"multi", "all-test-fider-io", "feedback.test.fider.io", true},
 		{"multi", "all-test-fider-io", "FEEDBACK.test.fider.io", true},
 		{"multi", "all-test-fider-io", "app.feedback.test.fider.io", false},

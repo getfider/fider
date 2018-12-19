@@ -78,14 +78,14 @@ func NewCertificateManager(certFile, keyFile string, conn *sql.DB) (*Certificate
 //It first tries to use loaded certificate for incoming request if it's compatible
 //Otherwise fallsback to a automatically generated certificate by Let's Encrypt
 func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	serverName := strings.Trim(strings.ToLower(hello.ServerName), ".")
-
-	// Fail is ServerName is empty or does't contain a dot
-	if serverName == "" || !strings.Contains(serverName, ".") {
-		return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
-	}
-
 	if m.leaf != nil {
+		serverName := strings.Trim(strings.ToLower(hello.ServerName), ".")
+
+		// If ServerName is empty or does't contain a dot, just return the certificate
+		if serverName == "" || !strings.Contains(serverName, ".") {
+			return &m.cert, nil
+		}
+
 		if env.IsSingleHostMode() {
 			return &m.cert, nil
 		} else if strings.HasSuffix(serverName, env.MultiTenantDomain()) {
