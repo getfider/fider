@@ -86,15 +86,13 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 	}
 
 	if m.leaf != nil {
-		if !env.IsSingleHostMode() && strings.HasSuffix(serverName, env.MultiTenantDomain()) {
-			subdomain := strings.TrimSuffix(serverName, env.MultiTenantDomain())
-			if strings.Count(subdomain, ".") > 0 {
-				return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
-			}
-		}
-
-		if m.leaf.VerifyHostname(serverName) == nil {
+		if env.IsSingleHostMode() {
 			return &m.cert, nil
+		} else if strings.HasSuffix(serverName, env.MultiTenantDomain()) {
+			if m.leaf.VerifyHostname(serverName) == nil {
+				return &m.cert, nil
+			}
+			return nil, errors.New(`ssl: invalid server name "%s"`, serverName)
 		}
 	}
 

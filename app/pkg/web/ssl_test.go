@@ -28,6 +28,7 @@ func Test_GetCertificate(t *testing.T) {
 		{"multi", "all-test-fider-io", "app.feedback.test.fider.io", false},
 		{"multi", "all-test-fider-io", "my.app.feedback.test.fider.io", false},
 		{"single", "test-fider-io", "test.fider.io", true},
+		{"single", "test-fider-io", "fider.io", true},
 	}
 
 	for _, testCase := range testCases {
