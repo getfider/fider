@@ -18,7 +18,7 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
-	LogoID         int    `json:"logoID"`
+	LogoBlobKey    string `json:"logoBlobKey"`
 	CustomCSS      string `json:"-"`
 }
 
@@ -230,12 +230,14 @@ type UpdateTenantAdvancedSettings struct {
 
 //ImageUpload is the input model used to upload/remove an image
 type ImageUpload struct {
-	Upload *ImageUploadData `json:"upload"`
-	Remove bool             `json:"remove"`
+	BlobKey string
+	Upload  *ImageUploadData `json:"upload"`
+	Remove  bool             `json:"remove"`
 }
 
-//UpdateTenantSettingsLogoUpload is the input model used to upload a new logo
+//ImageUploadData is the input model used to upload a new logo
 type ImageUploadData struct {
+	FileName    string `json:"fileName"`
 	ContentType string `json:"contentType"`
 	Content     []byte `json:"content"`
 }

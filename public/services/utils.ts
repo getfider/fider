@@ -123,9 +123,9 @@ export const isCookieEnabled = (): boolean => {
   }
 };
 
-export const uploadedImageURL = (id: number, size: number): string | undefined => {
-  if (id > 0) {
-    return `${Fider.settings.tenantAssetsURL}/images/${size}/${id}`;
+export const uploadedImageURL = (bkey: string, size: number): string | undefined => {
+  if (bkey) {
+    return `${Fider.settings.tenantAssetsURL}/images/${size}/${bkey}`;
   }
   return undefined;
 };

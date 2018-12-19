@@ -17,6 +17,7 @@ type CreateEditOAuthConfig struct {
 // Initialize the model
 func (input *CreateEditOAuthConfig) Initialize() interface{} {
 	input.Model = new(models.CreateEditOAuthConfig)
+	input.Model.Logo = &models.ImageUpload{}
 	return input.Model
 }
 
@@ -36,6 +37,7 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		}
 
 		input.Model.ID = config.ID
+		input.Model.Logo.BlobKey = config.LogoBlobKey
 		if input.Model.ClientSecret == "" {
 			input.Model.ClientSecret = config.ClientSecret
 		}

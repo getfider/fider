@@ -243,3 +243,14 @@ func KeyFormats(client blob.Storage, t *testing.T) {
 		}
 	}
 }
+
+func TestSanitizeFileName(t *testing.T) {
+	RegisterT(t)
+
+	Expect(blob.SanitizeFileName("João.txt")).Equals("joao.txt")
+	Expect(blob.SanitizeFileName(" Jon")).Equals("jon")
+	Expect(blob.SanitizeFileName("Jon.png")).Equals("jon.png")
+	Expect(blob.SanitizeFileName("Jon Snow.png ")).Equals("jon-snow.png")
+	Expect(blob.SanitizeFileName(" ヒキワリ.png")).Equals("hikiwari.png")
+	Expect(blob.SanitizeFileName("люди рождаются свободными.png")).Equals("liudi-rozhdaiutsia-svobodnymi.png")
+}

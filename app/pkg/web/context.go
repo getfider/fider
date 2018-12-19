@@ -14,6 +14,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -241,7 +242,8 @@ func (ctx *Context) Gone() error {
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
-	if errors.Cause(err) == app.ErrNotFound {
+	cause := errors.Cause(err)
+	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
 		return ctx.NotFound()
 	}
 
@@ -445,7 +447,7 @@ func (ctx *Context) Param(name string) string {
 	if ctx.params == nil {
 		return ""
 	}
-	return ctx.params[name]
+	return strings.TrimPrefix(ctx.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
@@ -546,16 +548,16 @@ func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 
 // LogoURL return the full URL to the tenant-specific logo URL
 func (ctx *Context) LogoURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		return ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
+	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
+		return ctx.TenantAssetsURL("/images/200/%s", ctx.Tenant().LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }
 
 // FaviconURL return the full URL to the tenant-specific favicon URL
 func (ctx *Context) FaviconURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		return ctx.TenantAssetsURL("/images/:size/%d/favicon", ctx.Tenant().LogoID)
+	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
+		return ctx.TenantAssetsURL("/favicon/:size/%s", ctx.Tenant().LogoBlobKey)
 	}
 	return ctx.GlobalAssetsURL("/favicon/:size")
 }

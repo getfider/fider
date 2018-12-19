@@ -4,7 +4,7 @@ export interface OAuthProviderOption {
   clientID: string;
   url: string;
   callbackURL: string;
-  logoID: number;
+  logoBlobKey: string;
   isCustomProvider: boolean;
   isEnabled: boolean;
 }
@@ -41,7 +41,7 @@ export interface OAuthConfig {
   authorizeURL: string;
   tokenURL: string;
   profileURL: string;
-  logoID: number;
+  logoBlobKey: string;
   scope: string;
   jsonUserIDPath: string;
   jsonUserNamePath: string;

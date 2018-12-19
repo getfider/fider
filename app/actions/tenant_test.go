@@ -116,6 +116,7 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "subdomain")
 }
+
 func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
@@ -133,7 +134,8 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 	RegisterT(t)
 
-	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{}}
+	action := actions.UpdateTenantSettings{}
+	action.Initialize()
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "title")
 }
@@ -160,4 +162,20 @@ func TestUpdateTenantSettings_LargeInvitation(t *testing.T) {
 	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123"}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "invitation")
+}
+
+func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
+	RegisterT(t)
+	services.SetCurrentTenant(&models.Tenant{
+		ID:          1,
+		LogoBlobKey: "hello-world.png",
+	})
+
+	action := actions.UpdateTenantSettings{}
+	action.Initialize()
+	action.Model.Title = "OK"
+	action.Model.Invitation = "Share your ideas!"
+	result := action.Validate(nil, services)
+	ExpectSuccess(result)
+	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
 }

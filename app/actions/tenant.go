@@ -84,6 +84,7 @@ type UpdateTenantSettings struct {
 // Initialize the model
 func (input *UpdateTenantSettings) Initialize() interface{} {
 	input.Model = new(models.UpdateTenantSettings)
+	input.Model.Logo = &models.ImageUpload{}
 	return input.Model
 }
 
@@ -96,6 +97,9 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
+	if services.Tenants.Current() != nil {
+		input.Model.Logo.BlobKey = services.Tenants.Current().LogoBlobKey
+	}
 	messages, err := validate.ImageUpload(input.Model.Logo, 200, 200, 100)
 	if err != nil {
 		return validate.Error(err)

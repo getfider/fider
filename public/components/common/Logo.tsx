@@ -10,15 +10,15 @@ interface TenantLogoProps {
 
 export const TenantLogoURL = (size: Size): string | undefined => {
   const tenant = Fider.session.tenant;
-  if (tenant && tenant.logoID > 0) {
-    return uploadedImageURL(tenant.logoID, size);
+  if (tenant && tenant.logoBlobKey) {
+    return uploadedImageURL(tenant.logoBlobKey, size);
   }
   return undefined;
 };
 
 export const TenantLogo = (props: TenantLogoProps) => {
   const tenant = Fider.session.tenant;
-  if (tenant && tenant.logoID > 0) {
+  if (tenant && tenant.logoBlobKey) {
     return <img src={TenantLogoURL(props.size)} alt={tenant.name} />;
   } else if (props.useFiderIfEmpty) {
     return <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />;
@@ -34,7 +34,7 @@ interface OAuthProviderLogoProps {
   option: {
     provider?: string;
     displayName: string;
-    logoID?: number;
+    logoBlobKey?: string;
   };
 }
 
@@ -45,16 +45,16 @@ const systemProvidersLogo: { [key: string]: string } = {
     "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvVFIvMjAwMS9SRUMtU1ZHLTIwMDEwOTA0L0RURC9zdmcxMC5kdGQnPjxzdmcgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzIgMzIiIGhlaWdodD0iMzJweCIgaWQ9IkxheWVyXzEiIHZlcnNpb249IjEuMCIgdmlld0JveD0iMCAwIDMyIDMyIiB3aWR0aD0iMzJweCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTYuMDAzLDBDNy4xNywwLDAuMDA4LDcuMTYyLDAuMDA4LDE1Ljk5NyAgYzAsNy4wNjcsNC41ODIsMTMuMDYzLDEwLjk0LDE1LjE3OWMwLjgsMC4xNDYsMS4wNTItMC4zMjgsMS4wNTItMC43NTJjMC0wLjM4LDAuMDA4LTEuNDQyLDAtMi43NzcgIGMtNC40NDksMC45NjctNS4zNzEtMi4xMDctNS4zNzEtMi4xMDdjLTAuNzI3LTEuODQ4LTEuNzc1LTIuMzQtMS43NzUtMi4zNGMtMS40NTItMC45OTIsMC4xMDktMC45NzMsMC4xMDktMC45NzMgIGMxLjYwNSwwLjExMywyLjQ1MSwxLjY0OSwyLjQ1MSwxLjY0OWMxLjQyNywyLjQ0MywzLjc0MywxLjczNyw0LjY1NCwxLjMyOWMwLjE0Ni0xLjAzNCwwLjU2LTEuNzM5LDEuMDE3LTIuMTM5ICBjLTMuNTUyLTAuNDA0LTcuMjg2LTEuNzc2LTcuMjg2LTcuOTA2YzAtMS43NDcsMC42MjMtMy4xNzQsMS42NDYtNC4yOTJDNy4yOCwxMC40NjQsNi43Myw4LjgzNyw3LjYwMiw2LjYzNCAgYzAsMCwxLjM0My0wLjQzLDQuMzk4LDEuNjQxYzEuMjc2LTAuMzU1LDIuNjQ1LTAuNTMyLDQuMDA1LTAuNTM4YzEuMzU5LDAuMDA2LDIuNzI3LDAuMTgzLDQuMDA1LDAuNTM4ICBjMy4wNTUtMi4wNyw0LjM5Ni0xLjY0MSw0LjM5Ni0xLjY0MWMwLjg3MiwyLjIwMywwLjMyMywzLjgzLDAuMTU5LDQuMjM0YzEuMDIzLDEuMTE4LDEuNjQ0LDIuNTQ1LDEuNjQ0LDQuMjkyICBjMCw2LjE0Ni0zLjc0LDcuNDk4LTcuMzA0LDcuODkzQzE5LjQ3OSwyMy41NDgsMjAsMjQuNTA4LDIwLDI2YzAsMiwwLDMuOTAyLDAsNC40MjhjMCwwLjQyOCwwLjI1OCwwLjkwMSwxLjA3LDAuNzQ2ICBDMjcuNDIyLDI5LjA1NSwzMiwyMy4wNjIsMzIsMTUuOTk3QzMyLDcuMTYyLDI0LjgzOCwwLDE2LjAwMywweiIgZmlsbD0iIzE4MTYxNiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PGcvPjxnLz48Zy8+PGcvPjxnLz48Zy8+PC9zdmc+"
 };
 
-export const OAuthProviderLogoURL = (id?: number): string | undefined => {
-  if (id && id > 0) {
-    return uploadedImageURL(id, 100);
+export const OAuthProviderLogoURL = (logoBlobKey?: string): string | undefined => {
+  if (logoBlobKey) {
+    return uploadedImageURL(logoBlobKey, 100);
   }
   return undefined;
 };
 
 export const OAuthProviderLogo = (props: OAuthProviderLogoProps) => {
-  if (props.option.logoID && props.option.logoID > 0) {
-    return <img src={OAuthProviderLogoURL(props.option.logoID)} alt={props.option.displayName} />;
+  if (props.option.logoBlobKey) {
+    return <img src={OAuthProviderLogoURL(props.option.logoBlobKey)} alt={props.option.displayName} />;
   }
 
   if (props.option.provider && props.option.provider in systemProvidersLogo) {

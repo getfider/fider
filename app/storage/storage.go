@@ -65,6 +65,7 @@ type User interface {
 // Tenant contains read and write operations for tenants
 type Tenant interface {
 	Base
+	Current() *models.Tenant
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	Activate(id int) error
@@ -77,7 +78,6 @@ type Tenant interface {
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
-	GetUpload(id int) (*models.Upload, error)
 	SaveOAuthConfig(config *models.CreateEditOAuthConfig) error
 	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)
 	ListOAuthConfig() ([]*models.OAuthConfig, error)
