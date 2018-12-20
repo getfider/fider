@@ -2,7 +2,6 @@ package sql
 
 import (
 	"database/sql"
-	"os"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -12,8 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 )
-
-var perm os.FileMode = 0744
 
 var _ blob.Storage = (*Storage)(nil)
 
@@ -25,14 +22,14 @@ type dbBlob struct {
 
 // Storage stores blobs on FileSystem
 type Storage struct {
-	trx    *dbx.Trx
+	db     *dbx.Database
 	tenant *models.Tenant
 }
 
 // NewStorage creates a new SQL Storage
-func NewStorage(trx *dbx.Trx) *Storage {
+func NewStorage(db *dbx.Database) *Storage {
 	return &Storage{
-		trx: trx,
+		db: db,
 	}
 }
 
@@ -48,8 +45,14 @@ func (s *Storage) Get(key string) (*blob.Blob, error) {
 		tenantID.Scan(s.tenant.ID)
 	}
 
+	trx, err := s.db.Begin()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open transaction")
+	}
+	defer trx.Commit()
+
 	b := dbBlob{}
-	err := s.trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
+	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return nil, blob.ErrNotFound
@@ -72,7 +75,13 @@ func (s *Storage) Delete(key string) error {
 		tenantID.Scan(s.tenant.ID)
 	}
 
-	_, err := s.trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
+	trx, err := s.db.Begin()
+	if err != nil {
+		return errors.Wrap(err, "failed to open transaction")
+	}
+	defer trx.Commit()
+
+	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", key, tenantID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete blob with key '%s'", key)
 	}
@@ -95,8 +104,14 @@ func (s *Storage) Put(key string, content []byte, contentType string) error {
 		tenantID.Scan(s.tenant.ID)
 	}
 
+	trx, err := s.db.Begin()
+	if err != nil {
+		return errors.Wrap(err, "failed to open transaction")
+	}
+	defer trx.Commit()
+
 	now := time.Now()
-	_, err := s.trx.Execute(`
+	_, err = trx.Execute(`
 	INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
 	VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
 	DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7

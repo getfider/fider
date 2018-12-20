@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/storage/postgres"
 )
@@ -67,7 +67,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(trx),
+				Blobs:         di.NewBlobStorage(c.Database()),
 			})
 
 			//Execute the chain
@@ -155,7 +155,7 @@ func WebSetup() web.MiddlewareFunc {
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(trx),
+				Blobs:         di.NewBlobStorage(c.Engine().Database()),
 			})
 
 			//Execute the chain

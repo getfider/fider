@@ -70,14 +70,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:409b1dfc403db55b7d617924f753e2617101c7d4ccc8f918f84cb7bffa897db3"
-  name = "github.com/goenning/sqlcertcache"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "99f858c5bf37a984858e406db3053037d278abdd"
-
-[[projects]]
-  branch = "master"
   digest = "1:7a6377256f670508711c56c25556d639e673c0fa0f519c5a758fdcbfc8af9ac8"
   name = "github.com/golang/freetype"
   packages = [
@@ -235,7 +227,6 @@
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/dgrijalva/jwt-go",
     "github.com/goenning/letteravatar",
-    "github.com/goenning/sqlcertcache",
     "github.com/gosimple/slug",
     "github.com/joeshaw/envdecode",
     "github.com/julienschmidt/httprouter",

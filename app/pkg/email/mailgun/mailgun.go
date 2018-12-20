@@ -3,7 +3,6 @@ package mailgun
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/http"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
@@ -19,13 +18,13 @@ var baseURL = "https://api.mailgun.net/v3/%s/messages"
 //Sender is used to send emails
 type Sender struct {
 	logger log.Logger
-	client web.Client
+	client http.Client
 	domain string
 	apiKey string
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, client web.Client, domain, apiKey string) *Sender {
+func NewSender(logger log.Logger, client http.Client, domain, apiKey string) *Sender {
 	return &Sender{logger, client, domain, apiKey}
 }
 

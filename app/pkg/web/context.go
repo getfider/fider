@@ -492,6 +492,14 @@ func (ctx *Context) JSON(code int, i interface{}) error {
 	return ctx.Blob(code, UTF8JSONContentType, b)
 }
 
+// Image sends an image blob response with status code and content type.
+func (ctx *Context) Image(contentType string, b []byte) error {
+	if !strings.HasPrefix(contentType, "image/") {
+		return ctx.Failure(errors.New("'%s' is not an image", ctx.Request.URL.String()))
+	}
+	return ctx.Blob(http.StatusOK, contentType, b)
+}
+
 // Blob sends a blob response with status code and content type.
 func (ctx *Context) Blob(code int, contentType string, b []byte) error {
 	ctx.Response.Header().Set("Content-Type", contentType)

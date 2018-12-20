@@ -103,10 +103,7 @@ func (s *Storage) Delete(key string) error {
 		Bucket: s.bucket,
 		Key:    aws.String(s.keyFullPathURL(key)),
 	})
-	if err != nil {
-		if isNotFound(err) {
-			return blob.ErrNotFound
-		}
+	if err != nil && !isNotFound(err) {
 		return errors.Wrap(err, "failed to delete blob '%s' from S3", key)
 	}
 	return nil
