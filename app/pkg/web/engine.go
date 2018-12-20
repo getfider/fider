@@ -123,7 +123,7 @@ func (e *Engine) Start(address string) {
 		certManager *CertificateManager
 	)
 	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath, e.db.Connection())
+		certManager, err = NewCertificateManager(certFilePath, keyFilePath, e.db)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}

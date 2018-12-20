@@ -37,7 +37,7 @@ func Test_GetCertificate(t *testing.T) {
 		keyFile := env.Path("/app/pkg/web/testdata/" + testCase.cert + ".key")
 		wildcardCert, _ := tls.LoadX509KeyPair(certFile, keyFile)
 
-		manager, err := NewCertificateManager(certFile, keyFile, db.Connection())
+		manager, err := NewCertificateManager(certFile, keyFile, db)
 		Expect(err).IsNil()
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 			ServerName: testCase.serverName,
@@ -58,7 +58,7 @@ func Test_UseAutoCert(t *testing.T) {
 	db := dbx.New()
 	defer db.Close()
 
-	manager, err := NewCertificateManager("", "", db.Connection())
+	manager, err := NewCertificateManager("", "", db)
 	Expect(err).IsNil()
 
 	invalidServerNames := []string{"ideas.app.com", "feedback.mysite.com"}

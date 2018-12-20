@@ -9,12 +9,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/getfider/fider/app/pkg/env"
-
 	"github.com/getfider/fider/app/pkg/crypto"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
-
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
@@ -41,7 +39,7 @@ func Avatar() web.HandlerFunc {
 						if resp.StatusCode == http.StatusOK {
 							bytes, err := ioutil.ReadAll(resp.Body)
 							if err == nil {
-								return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
+								return c.Image(http.DetectContentType(bytes), bytes)
 							}
 						}
 					}
@@ -62,7 +60,7 @@ func Avatar() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Blob(http.StatusOK, "image/png", buf.Bytes())
+		return c.Image("image/png", buf.Bytes())
 	}
 }
 
@@ -108,7 +106,7 @@ func Favicon() web.HandlerFunc {
 			}
 		}
 
-		return c.Blob(http.StatusOK, contentType, bytes)
+		return c.Image(contentType, bytes)
 	}
 }
 
@@ -132,6 +130,6 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		return c.Blob(http.StatusOK, logo.ContentType, bytes)
+		return c.Image(logo.ContentType, bytes)
 	}
 }

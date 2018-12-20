@@ -43,9 +43,5 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 
 [[constraint]]
   branch = "master"
-  name = "github.com/goenning/sqlcertcache"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/joeshaw/envdecode"
 

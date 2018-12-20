@@ -14,7 +14,7 @@ import (
 	"github.com/getfider/fider/app/pkg/email/smtp"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/pkg/web/http"
 )
 
 // NewEmailer creates a new emailer instance based on current configuration
@@ -26,7 +26,7 @@ func NewEmailer(logger log.Logger) email.Sender {
 	if env.Config.Email.Mailgun.APIKey != "" {
 		return mailgun.NewSender(
 			logger,
-			web.NewHTTPClient(),
+			http.NewClient(),
 			env.Config.Email.Mailgun.Domain,
 			env.Config.Email.Mailgun.APIKey,
 		)
@@ -42,11 +42,11 @@ func NewEmailer(logger log.Logger) email.Sender {
 }
 
 // NewBlobStorage creates a new blob storage instance based on current configuration
-func NewBlobStorage(trx *dbx.Trx) blob.Storage {
+func NewBlobStorage(db *dbx.Database) blob.Storage {
 	storageType := strings.ToLower(env.Config.BlobStorage.Type)
 	switch storageType {
 	case "sql":
-		return sql.NewStorage(trx)
+		return sql.NewStorage(db)
 	case "s3":
 		return s3.NewStorage(env.Config.BlobStorage.S3.BucketName)
 	case "fs":

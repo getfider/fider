@@ -46,9 +46,7 @@ func setupSQL(t *testing.T) *sql.Storage {
 
 	db := dbx.New()
 	db.Seed()
-	trx, err := db.Begin()
-	Expect(err).IsNil()
-	return sql.NewStorage(trx)
+	return sql.NewStorage(db)
 }
 
 func setupFS(t *testing.T) *fs.Storage {

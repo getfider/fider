@@ -3,13 +3,14 @@ package web
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"database/sql"
 	"net/http"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/blob"
+	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/goenning/sqlcertcache"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -45,16 +46,11 @@ type CertificateManager struct {
 }
 
 //NewCertificateManager creates a new CertificateManager
-func NewCertificateManager(certFile, keyFile string, conn *sql.DB) (*CertificateManager, error) {
-	cache, err := sqlcertcache.New(conn, "autocert_cache")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to initialize new sqlcertcache")
-	}
-
+func NewCertificateManager(certFile, keyFile string, db *dbx.Database) (*CertificateManager, error) {
 	manager := &CertificateManager{
 		autossl: autocert.Manager{
 			Prompt: autocert.AcceptTOS,
-			Cache:  cache,
+			Cache:  blob.NewAutoCert(di.NewBlobStorage(db)),
 		},
 	}
 
