@@ -3,6 +3,7 @@ package img_test
 import (
 	"image/color"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -51,22 +52,27 @@ var resizeTestCases = []struct {
 	resizedFileName string
 	size            int
 	padding         int
+	skipCI          bool
 }{
-	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200, 0},
-	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w.jpg", 200, 0},
-	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w-pad20.jpg", 200, 20},
-	// {"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200w.gif", 200, 0},
-	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100, 0},
-	{"/app/pkg/img/testdata/logo5.png", "/app/pkg/img/testdata/logo5-200x200.png", 200, 0},
-	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200, 0},
-	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-200x200.gif", 200, 0},
-	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-1000-1000.gif", 1000, 0},
+	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200, 0, false},
+	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w.jpg", 200, 0, true},
+	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w-pad20.jpg", 200, 20, true},
+	{"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200w.gif", 200, 0, true},
+	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100, 0, false},
+	{"/app/pkg/img/testdata/logo5.png", "/app/pkg/img/testdata/logo5-200x200.png", 200, 0, false},
+	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200, 0, false},
+	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-200x200.gif", 200, 0, false},
+	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-1000-1000.gif", 1000, 0, false},
 }
 
 func TestImageResize(t *testing.T) {
 	RegisterT(t)
 
 	for _, testCase := range resizeTestCases {
+		if testCase.skipCI && os.Getenv("CI") == "true" {
+			continue
+		}
+
 		bytes, err := ioutil.ReadFile(env.Path(testCase.fileName))
 		Expect(err).IsNil()
 
