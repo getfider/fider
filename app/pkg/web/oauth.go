@@ -22,7 +22,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
-	"golang.org/x/oauth2/google"
 )
 
 func getProviderStatus(key string) int {
@@ -48,19 +47,19 @@ var (
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
-		&models.OAuthConfig{
+		&models.OAuthConfig{ // https://accounts.google.com/.well-known/openid-configuration
 			Provider:          oauth.GoogleProvider,
 			DisplayName:       "Google",
-			ProfileURL:        "https://www.googleapis.com/plus/v1/people/me",
+			ProfileURL:        "https://openidconnect.googleapis.com/v1/userinfo",
 			Status:            getProviderStatus(env.Config.OAuth.Google.ClientID),
 			ClientID:          env.Config.OAuth.Google.ClientID,
 			ClientSecret:      env.Config.OAuth.Google.Secret,
 			Scope:             "profile email",
-			AuthorizeURL:      google.Endpoint.AuthURL,
-			TokenURL:          google.Endpoint.TokenURL,
-			JSONUserIDPath:    "id",
-			JSONUserNamePath:  "displayName",
-			JSONUserEmailPath: "emails[0].value",
+			AuthorizeURL:      "https://accounts.google.com/o/oauth2/v2/auth",
+			TokenURL:          "https://oauth2.googleapis.com/token",
+			JSONUserIDPath:    "sub",
+			JSONUserNamePath:  "name",
+			JSONUserEmailPath: "email",
 		},
 		&models.OAuthConfig{
 			Provider:          oauth.GitHubProvider,
@@ -185,6 +184,7 @@ func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfil
 		return nil, err
 	}
 
+	println(body)
 	query := jsonq.New(body)
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
