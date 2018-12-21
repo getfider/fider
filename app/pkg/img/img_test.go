@@ -53,9 +53,9 @@ var resizeTestCases = []struct {
 	padding         int
 }{
 	{"/app/pkg/img/testdata/logo1.png", "/app/pkg/img/testdata/logo1-200x200.png", 200, 0},
-	// {"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w.jpg", 200, 0},
-	// {"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w-pad20.jpg", 200, 20},
-	{"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200w.gif", 200, 0},
+	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w.jpg", 200, 0},
+	{"/app/pkg/img/testdata/logo2.jpg", "/app/pkg/img/testdata/logo2-200w-pad20.jpg", 200, 20},
+	// {"/app/pkg/img/testdata/logo3.gif", "/app/pkg/img/testdata/logo3-200w.gif", 200, 0},
 	{"/app/pkg/img/testdata/logo4.png", "/app/pkg/img/testdata/logo4-100x100.png", 100, 0},
 	{"/app/pkg/img/testdata/logo5.png", "/app/pkg/img/testdata/logo5-200x200.png", 200, 0},
 	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200, 0},
