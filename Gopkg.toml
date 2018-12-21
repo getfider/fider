@@ -42,6 +42,10 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   name = "github.com/aws/aws-sdk-go"
 
 [[constraint]]
+  version = "v1.5.0"
+  name = "github.com/disintegration/imaging"
+
+[[constraint]]
   branch = "master"
   name = "github.com/joeshaw/envdecode"
 
