@@ -69,6 +69,7 @@ func TestImageResize(t *testing.T) {
 	RegisterT(t)
 
 	for _, testCase := range resizeTestCases {
+		// we don't run it on CI because it's way too slow, we need to investigate why
 		if testCase.skipCI && os.Getenv("CI") == "true" {
 			continue
 		}
