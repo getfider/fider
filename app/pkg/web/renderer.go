@@ -66,15 +66,13 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) loadAssets(ctx *Context) error {
+func (r *Renderer) loadAssets() error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 
 	if r.assets != nil && env.IsProduction() {
 		return nil
 	}
-
-	ctx.logger.Debug("Loading client assets")
 
 	type assetsFile struct {
 		Entrypoints struct {
@@ -113,7 +111,7 @@ func (r *Renderer) loadAssets(ctx *Context) error {
 			continue
 		}
 
-		assetURL := ctx.GlobalAssetsURL("/assets/" + asset)
+		assetURL := "/assets/" + asset
 		if strings.HasSuffix(asset, ".css") {
 			r.assets.CSS = append(r.assets.CSS, assetURL)
 		} else if strings.HasSuffix(asset, ".js") {
@@ -129,7 +127,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
-		err := r.loadAssets(ctx)
+		err := r.loadAssets()
 		if err != nil && !env.IsTest() {
 			panic(err)
 		}
