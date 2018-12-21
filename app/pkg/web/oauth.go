@@ -50,14 +50,14 @@ var (
 		&models.OAuthConfig{ // https://accounts.google.com/.well-known/openid-configuration
 			Provider:          oauth.GoogleProvider,
 			DisplayName:       "Google",
-			ProfileURL:        "https://openidconnect.googleapis.com/v1/userinfo",
+			ProfileURL:        "https://www.googleapis.com/oauth2/v1/userinfo",
 			Status:            getProviderStatus(env.Config.OAuth.Google.ClientID),
 			ClientID:          env.Config.OAuth.Google.ClientID,
 			ClientSecret:      env.Config.OAuth.Google.Secret,
 			Scope:             "profile email",
 			AuthorizeURL:      "https://accounts.google.com/o/oauth2/v2/auth",
 			TokenURL:          "https://oauth2.googleapis.com/token",
-			JSONUserIDPath:    "sub",
+			JSONUserIDPath:    "id",
 			JSONUserNamePath:  "name",
 			JSONUserEmailPath: "email",
 		},
@@ -184,7 +184,6 @@ func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfil
 		return nil, err
 	}
 
-	println(body)
 	query := jsonq.New(body)
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
