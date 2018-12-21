@@ -57,7 +57,7 @@ func ChangeBackground(bgColor color.Color) ImageOperation {
 	}
 }
 
-//Padding adds a padding based on given percentage
+//Padding adds a padding based on given value
 func Padding(padding int) ImageOperation {
 	return func(src image.Image, format string) image.Image {
 		if padding == 0 {
@@ -67,11 +67,8 @@ func Padding(padding int) ImageOperation {
 		srcBounds := src.Bounds()
 		srcW, srcH := srcBounds.Dx(), srcBounds.Dy()
 
-		paddingW := srcW * padding / 100
-		paddingH := srcH * padding / 100
-
-		dst := image.NewRGBA(image.Rect(0, 0, srcW+paddingW, srcH+paddingH))
-		draw.Draw(dst, dst.Bounds(), src, image.Pt(-paddingW/2, -paddingH/2), draw.Src)
+		dst := image.NewRGBA(image.Rect(0, 0, srcW+padding, srcH+padding))
+		draw.Draw(dst, dst.Bounds(), src, image.Pt(-padding/2, -padding/2), draw.Src)
 		return dst
 	}
 }
