@@ -433,6 +433,19 @@ func (ctx *Context) QueryParam(key string) string {
 	return ctx.Request.URL.Query().Get(key)
 }
 
+//QueryParamAsInt returns querystring parameter for given key
+func (ctx *Context) QueryParamAsInt(key string) (int, error) {
+	value := ctx.QueryParam(key)
+	if value == "" {
+		return 0, nil
+	}
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
+	}
+	return intValue, nil
+}
+
 //QueryParamAsArray returns querystring parameter for given key as an array
 func (ctx *Context) QueryParamAsArray(key string) []string {
 	param := ctx.QueryParam(key)
@@ -557,7 +570,7 @@ func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 // LogoURL return the full URL to the tenant-specific logo URL
 func (ctx *Context) LogoURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
-		return ctx.TenantAssetsURL("/images/200/%s", ctx.Tenant().LogoBlobKey)
+		return ctx.TenantAssetsURL("/images/%s?size=200", ctx.Tenant().LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }
@@ -565,9 +578,9 @@ func (ctx *Context) LogoURL() string {
 // FaviconURL return the full URL to the tenant-specific favicon URL
 func (ctx *Context) FaviconURL() string {
 	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
-		return ctx.TenantAssetsURL("/favicon/:size/%s", ctx.Tenant().LogoBlobKey)
+		return ctx.TenantAssetsURL("/favicon/%s", ctx.Tenant().LogoBlobKey)
 	}
-	return ctx.GlobalAssetsURL("/favicon/:size")
+	return ctx.GlobalAssetsURL("/favicon")
 }
 
 // SetCanonicalURL sets the canonical link on the HTTP Response Headers

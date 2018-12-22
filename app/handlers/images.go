@@ -89,21 +89,24 @@ func Favicon() web.HandlerFunc {
 			}
 		}
 
-		size, err := c.ParamAsInt("size")
-		if err != nil {
-			return c.NotFound()
-		}
-
-		bytes, err = img.Resize(bytes, size, 5)
+		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)
 		}
 
+		opts := []img.ImageOperation{}
+		if size > 0 {
+			opts = append(opts, img.Padding(size*10/100))
+			opts = append(opts, img.Resize(size))
+		}
+
 		if c.QueryParam("bg") != "" {
-			bytes, err = img.ChangeBackground(bytes, color.White)
-			if err != nil {
-				return c.Failure(err)
-			}
+			opts = append(opts, img.ChangeBackground(color.White))
+		}
+
+		bytes, err = img.Apply(bytes, opts...)
+		if err != nil {
+			return c.Failure(err)
 		}
 
 		return c.Image(contentType, bytes)
@@ -115,9 +118,9 @@ func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
 		bkey := c.Param("bkey")
 
-		size, err := c.ParamAsInt("size")
+		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.NotFound()
+			return c.Failure(err)
 		}
 
 		logo, err := c.Services().Blobs.Get(bkey)
@@ -125,9 +128,12 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes, err := img.Resize(logo.Object, size, 0)
-		if err != nil {
-			return c.Failure(err)
+		bytes := logo.Object
+		if size > 0 {
+			bytes, err = img.Apply(bytes, img.Resize(size))
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		return c.Image(logo.ContentType, bytes)

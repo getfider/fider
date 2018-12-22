@@ -61,6 +61,14 @@
   version = "v3.2.0"
 
 [[projects]]
+  digest = "1:2694597a20d303502ad1b7f1cc688977c7dc34da732ccf4d27e98b552cceed5b"
+  name = "github.com/disintegration/imaging"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0bd5694c78c9c3d9a3cd06a706a8f3c59296a9ac"
+  version = "v1.5.0"
+
+[[projects]]
   branch = "master"
   digest = "1:c7073f7f18a2be8b8a31e8e23fe16c2141c3cbd0170c3eacea8f167438f3b655"
   name = "github.com/goenning/letteravatar"
@@ -159,13 +167,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:47469b46cc6c4cd691dbab8d43899b9afddb2855600719ed5db91bf1532cf772"
+  digest = "1:3f27b2eb37fc7c73de41226ec8b21066019934150c96d87f6e76354945a6f005"
   name = "golang.org/x/image"
   packages = [
+    "bmp",
     "draw",
     "font",
     "math/f64",
     "math/fixed",
+    "tiff",
+    "tiff/lzw",
   ]
   pruneopts = "UT"
   revision = "e20db36d77bd0cb36cea8fe49d5c37d82d21591f"
@@ -226,6 +237,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/dgrijalva/jwt-go",
+    "github.com/disintegration/imaging",
     "github.com/goenning/letteravatar",
     "github.com/gosimple/slug",
     "github.com/joeshaw/envdecode",

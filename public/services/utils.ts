@@ -125,7 +125,7 @@ export const isCookieEnabled = (): boolean => {
 
 export const uploadedImageURL = (bkey: string, size: number): string | undefined => {
   if (bkey) {
-    return `${Fider.settings.tenantAssetsURL}/images/${size}/${bkey}`;
+    return `${Fider.settings.tenantAssetsURL}/images/${bkey}?size=${size}`;
   }
   return undefined;
 };
