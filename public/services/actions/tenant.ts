@@ -1,6 +1,5 @@
 import { http, Result } from "@fider/services/http";
-import { UserRole, OAuthConfig } from "@fider/models";
-import { ImageUploadState } from "@fider/components";
+import { UserRole, OAuthConfig, ImageUpload } from "@fider/models";
 
 export interface CheckAvailabilityResponse {
   message: string;
@@ -24,14 +23,7 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
 };
 
 export interface UpdateTenantSettingsRequest {
-  logo?: {
-    upload?: {
-      fileName?: string;
-      content?: string;
-      contentType?: string;
-    };
-    remove: boolean;
-  };
+  logo?: ImageUpload;
   title: string;
   invitation: string;
   welcomeMessage: string;
@@ -100,7 +92,7 @@ export interface CreateEditOAuthConfigRequest {
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logo?: ImageUploadState;
+  logo?: ImageUpload;
 }
 
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {
