@@ -5,6 +5,7 @@ import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
 import { classSet, fileToBase64 } from "@fider/services";
 import { Button, ButtonClickEvent } from "@fider/components";
+import { FaRegImage } from "react-icons/fa";
 
 interface ImageUploaderProps {
   field: string;
@@ -99,19 +100,27 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             })}
           >
             <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
-            {hasFile && <img className="preview" src={this.state.previewURL} style={imgStyles} />}
+
+            {hasFile && (
+              <div className="preview">
+                <img src={this.state.previewURL} style={imgStyles} />
+                {!this.props.disabled && (
+                  <Button onClick={this.removeFile} color="danger">
+                    X
+                  </Button>
+                )}
+              </div>
+            )}
+
             <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
-            <div className="c-form-field-wrapper">
-              <Button size="tiny" onClick={this.selectFile} disabled={this.props.disabled}>
-                {hasFile ? "Change" : "Upload"}
-              </Button>
-              {hasFile && (
-                <Button onClick={this.removeFile} size="tiny" disabled={this.props.disabled}>
-                  Remove
+            {!hasFile && (
+              <div className="c-form-field-wrapper">
+                <Button onClick={this.selectFile} disabled={this.props.disabled}>
+                  <FaRegImage />
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
             {this.props.children}
           </div>
         )}
