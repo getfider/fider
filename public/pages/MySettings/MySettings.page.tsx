@@ -2,7 +2,7 @@ import "./MySettings.page.scss";
 
 import React from "react";
 
-import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploader } from "@fider/components";
+import { Modal, Form, Button, Heading, Input, Select, SelectOption } from "@fider/components";
 
 import { UserSettings, UserAvatarType } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
@@ -39,7 +39,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
   }
 
   private confirm = async () => {
-    const result = await actions.updateUserSettings(this.state.name, this.state.userSettings);
+    const result = await actions.updateUserSettings(this.state.name, this.state.avatarType, this.state.userSettings);
     if (result.ok) {
       location.reload();
     } else if (result.error) {
@@ -159,24 +159,12 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 defaultValue={this.state.avatarType}
                 options={[
                   { label: "Letter", value: UserAvatarType.Letter },
-                  { label: "Gravatar", value: UserAvatarType.Gravatar },
-                  { label: "Custom", value: UserAvatarType.Custom }
+                  { label: "Gravatar", value: UserAvatarType.Gravatar }
                 ]}
                 onChange={this.avatarTypeChanged}
               >
-                {this.state.avatarType === UserAvatarType.Custom && (
-                  <ImageUploader
-                    field="avatar"
-                    previewMaxWidth={80}
-                    disabled={!Fider.session.user.isAdministrator}
-                    onChange={console.log}
-                  >
-                    <p className="info">
-                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-                      dimensions of 80x80 pixels.
-                    </p>
-                  </ImageUploader>
-                )}
+                {this.state.avatarType === UserAvatarType.Gravatar && <p className="info">Gravatar</p>}
+                {this.state.avatarType === UserAvatarType.Letter && <p className="info">Letter</p>}
               </Select>
 
               <NotificationSettings

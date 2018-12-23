@@ -22,6 +22,10 @@ func LetterAvatar() web.HandlerFunc {
 	return func(c web.Context) error {
 		id := c.Param("id")
 		name := c.Param("name")
+		if name == "" {
+			name = "?"
+		}
+
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)

@@ -36,11 +36,7 @@ func (u *dbUser) toModel(ctx storage.Context) *models.User {
 		return nil
 	}
 
-	nameForAvatar := "?"
-	if u.Name.Valid {
-		nameForAvatar = url.PathEscape(u.Name.String)
-	}
-
+	avatarType := models.AvatarType(u.AvatarType.Int64)
 	user := &models.User{
 		ID:         int(u.ID.Int64),
 		Name:       u.Name.String,
@@ -49,8 +45,8 @@ func (u *dbUser) toModel(ctx storage.Context) *models.User {
 		Role:       models.Role(u.Role.Int64),
 		Providers:  make([]*models.UserProvider, len(u.Providers)),
 		Status:     models.UserStatus(u.Status.Int64),
-		AvatarType: models.AvatarType(u.AvatarType.Int64),
-		AvatarURL:  ctx.TenantAssetsURL("/avatars/gravatar/%d/%s", u.ID.Int64, nameForAvatar),
+		AvatarType: avatarType,
+		AvatarURL:  ctx.TenantAssetsURL("/avatars/%s/%d/%s", avatarType.String(), u.ID.Int64, url.PathEscape(u.Name.String)),
 	}
 
 	for i, p := range u.Providers {
@@ -159,8 +155,8 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 
 // Update user profile
 func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
-	cmd := "UPDATE users SET name = $2 WHERE id = $1 AND tenant_id = $3"
-	_, err := s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	cmd := "UPDATE users SET name = $3, avatar_type = $4 WHERE id = $1 AND tenant_id = $2"
+	_, err := s.trx.Execute(cmd, s.user.ID, s.tenant.ID, settings.Name, settings.AvatarType)
 	if err != nil {
 		return errors.Wrap(err, "failed to update user")
 	}

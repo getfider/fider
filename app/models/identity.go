@@ -74,12 +74,17 @@ var avatarTypesName = map[string]AvatarType{
 	"custom":   AvatarTypeCustom,
 }
 
-// MarshalText returns the Text version of the user status
+// String returns the string version of the user status
+func (t AvatarType) String() string {
+	return avatarTypesIDs[t]
+}
+
+// MarshalText returns the Text version of the avatar type
 func (t AvatarType) MarshalText() ([]byte, error) {
 	return []byte(avatarTypesIDs[t]), nil
 }
 
-// UnmarshalText parse string into a user status
+// UnmarshalText parse string into a avatar type
 func (t *AvatarType) UnmarshalText(text []byte) error {
 	*t = avatarTypesName[string(text)]
 	return nil
@@ -368,8 +373,9 @@ type CompleteProfile struct {
 
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
-	Name     string            `json:"name"`
-	Settings map[string]string `json:"settings"`
+	Name       string            `json:"name"`
+	AvatarType AvatarType        `json:"avatarType"`
+	Settings   map[string]string `json:"settings"`
 }
 
 // CreateUser is the input model to create a new user

@@ -32,6 +32,10 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 		result.AddFieldFailure("name", "Name is required.")
 	}
 
+	if input.Model.AvatarType < 1 || input.Model.AvatarType > 3 {
+		result.AddFieldFailure("avatarType", "Invalid avatar type.")
+	}
+
 	if len(input.Model.Name) > 50 {
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
