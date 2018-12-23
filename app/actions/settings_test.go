@@ -15,7 +15,12 @@ func TestInvalidUserNames(t *testing.T) {
 		"",
 		"123456789012345678901234567890123456789012345678901", // 51 chars
 	} {
-		action := &actions.UpdateUserSettings{Model: &models.UpdateUserSettings{Name: name}}
+		action := &actions.UpdateUserSettings{
+			Model: &models.UpdateUserSettings{
+				Name:       name,
+				AvatarType: models.AvatarTypeGravatar,
+			},
+		}
 		result := action.Validate(nil, services)
 		ExpectFailed(result, "name")
 	}
@@ -28,7 +33,12 @@ func TestValidUserNames(t *testing.T) {
 		"Jon Snow",
 		"Arya",
 	} {
-		action := &actions.UpdateUserSettings{Model: &models.UpdateUserSettings{Name: name}}
+		action := &actions.UpdateUserSettings{
+			Model: &models.UpdateUserSettings{
+				Name:       name,
+				AvatarType: models.AvatarTypeGravatar,
+			},
+		}
 		result := action.Validate(nil, services)
 		ExpectSuccess(result)
 	}
@@ -52,7 +62,7 @@ func TestInvalidSettings(t *testing.T) {
 			},
 		}
 		result := action.Validate(nil, services)
-		ExpectFailed(result, "settings")
+		ExpectFailed(result, "settings", "avatarType")
 	}
 }
 
@@ -72,8 +82,9 @@ func TestValidSettings(t *testing.T) {
 	} {
 		action := &actions.UpdateUserSettings{
 			Model: &models.UpdateUserSettings{
-				Name:     "John Snow",
-				Settings: settings,
+				Name:       "John Snow",
+				Settings:   settings,
+				AvatarType: models.AvatarTypeGravatar,
 			},
 		}
 		result := action.Validate(nil, services)

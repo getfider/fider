@@ -31,8 +31,12 @@ func LetterAvatar() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if size >= 200 {
+			size = 200
+		}
+
 		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
-			PaletteKey: fmt.Sprintf("%s-%s", id, name),
+			PaletteKey: fmt.Sprintf("%s:%s", id, name),
 		})
 		if err != nil {
 			return c.Failure(err)
@@ -59,6 +63,10 @@ func Gravatar() web.HandlerFunc {
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)
+		}
+
+		if size >= 200 {
+			size = 200
 		}
 
 		if err == nil && id > 0 {
