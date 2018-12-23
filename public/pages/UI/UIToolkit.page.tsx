@@ -9,7 +9,7 @@ import {
   UserName,
   ListItem,
   Toggle,
-  Gravatar,
+  Avatar,
   ShowTag,
   Segment,
   Segments,
@@ -177,10 +177,10 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
 
         <List>
           <ListItem>
-            <Gravatar user={jonSnow} /> <UserName user={jonSnow} />
+            <Avatar user={jonSnow} /> <UserName user={jonSnow} />
           </ListItem>
           <ListItem>
-            <Gravatar user={aryaStark} /> <UserName user={aryaStark} />
+            <Avatar user={aryaStark} /> <UserName user={aryaStark} />
           </ListItem>
         </List>
 

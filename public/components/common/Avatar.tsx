@@ -1,10 +1,10 @@
-import "./Gravatar.scss";
+import "./Avatar.scss";
 
 import React from "react";
 import { classSet, Fider } from "@fider/services";
 import { isCollaborator, UserRole } from "@fider/models";
 
-interface GravatarProps {
+interface AvatarProps {
   user?: {
     id?: number;
     name: string;
@@ -14,7 +14,7 @@ interface GravatarProps {
   size?: "small" | "normal" | "large";
 }
 
-export const Gravatar = (props: GravatarProps) => {
+export const Avatar = (props: AvatarProps) => {
   const size = props.size || "normal";
   const id = props.user ? props.user.id : 0;
   const name = props.user ? props.user.name : "";

@@ -1,7 +1,7 @@
 import "./Header.scss";
 
 import React from "react";
-import { SignInModal, EnvironmentInfo, Gravatar, TenantLogo } from "@fider/components";
+import { SignInModal, EnvironmentInfo, Avatar, TenantLogo } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 import { FaUser, FaCog, FaCaretDown } from "react-icons/fa";
 
@@ -77,7 +77,7 @@ export class Header extends React.Component<{}, HeaderState> {
             </a>
             {showRightMenu && (
               <div onClick={this.showModal} className="c-menu-item-signin">
-                {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
+                {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
                 {this.state.unreadNotifications > 0 && <div className="c-unread-dot" />}
                 {!Fider.session.isAuthenticated && <span>Sign in</span>}
                 {Fider.session.isAuthenticated && <FaCaretDown />}

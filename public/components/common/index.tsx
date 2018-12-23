@@ -10,7 +10,7 @@ export * from "./form/Field";
 export * from "./form/Checkbox";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
-export * from "./Gravatar";
+export * from "./Avatar";
 export * from "./Message";
 export * from "./Hint";
 export * from "./Footer";
