@@ -20,7 +20,7 @@ beforeEach(() => {
       name: "John",
       role: UserRole.Collaborator,
       status: UserStatus.Active,
-      avatarURL: "/avatars/50/0/John"
+      avatarURL: "/avatars/letter/5/John"
     },
     hasVoted: false,
     response: null,

@@ -50,7 +50,7 @@ func (u *dbUser) toModel(ctx storage.Context) *models.User {
 		Providers:  make([]*models.UserProvider, len(u.Providers)),
 		Status:     models.UserStatus(u.Status.Int64),
 		AvatarType: models.AvatarType(u.AvatarType.Int64),
-		AvatarURL:  ctx.TenantAssetsURL("/avatars/50/%d/%s", u.ID.Int64, nameForAvatar),
+		AvatarURL:  ctx.TenantAssetsURL("/avatars/gravatar/%d/%s", u.ID.Int64, nameForAvatar),
 	}
 
 	for i, p := range u.Providers {

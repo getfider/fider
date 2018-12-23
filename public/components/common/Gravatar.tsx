@@ -6,6 +6,7 @@ import { isCollaborator, UserRole } from "@fider/models";
 
 interface GravatarProps {
   user?: {
+    id?: number;
     name: string;
     role?: UserRole;
     avatarURL?: string;
@@ -15,8 +16,9 @@ interface GravatarProps {
 
 export const Gravatar = (props: GravatarProps) => {
   const size = props.size || "normal";
+  const id = props.user ? props.user.id : 0;
   const name = props.user ? props.user.name : "";
-  const url = `${Fider.settings.tenantAssetsURL}/avatars/50/0/${encodeURIComponent(name || "?")}`;
+  const url = `${Fider.settings.tenantAssetsURL}/avatars/letter/${id}/${encodeURIComponent(name || "?")}`;
   const avatarURL = props.user ? props.user.avatarURL || url : url;
 
   const className = classSet({
@@ -25,5 +27,5 @@ export const Gravatar = (props: GravatarProps) => {
     "m-staff": props.user && props.user.role && isCollaborator(props.user.role)
   });
 
-  return <img className={className} title={name} src={avatarURL} />;
+  return <img className={className} title={name} src={`${avatarURL}?size=50`} />;
 };
