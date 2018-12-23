@@ -72,6 +72,15 @@ func (u User) MarshalJSON() ([]byte, error) {
 	})
 }
 
+var (
+	//AvatarTypeLetter is the default avatar type for users
+	AvatarTypeLetter = 1
+	//AvatarTypeGravatar fetches avatar from gravatar (if available)
+	AvatarTypeGravatar = 2
+	//AvatarTypeCustom uses a user uploaded avatar
+	AvatarTypeCustom = 3
+)
+
 //UserStatus is the status of a user
 type UserStatus int
 

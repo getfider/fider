@@ -122,8 +122,8 @@ func (s *UserStorage) Register(user *models.User) error {
 	user.Status = models.UserActive
 	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.Get(&user.ID,
-		"INSERT INTO users (name, email, created_at, tenant_id, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive); err != nil {
+		"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive, models.AvatarTypeGravatar); err != nil {
 		return errors.Wrap(err, "failed to register new user")
 	}
 
