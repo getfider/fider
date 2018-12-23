@@ -3,29 +3,22 @@ import "./ImageUploader.scss";
 import React from "react";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
-import { classSet, fileToBase64 } from "@fider/services";
+import { classSet, fileToBase64, uploadedImageURL } from "@fider/services";
 import { Button, ButtonClickEvent } from "@fider/components";
+import { FaRegImage } from "react-icons/fa";
+import { ImageUpload } from "@fider/models";
 
 interface ImageUploaderProps {
   field: string;
   label?: string;
-  defaultImageURL?: string;
+  bkey?: string;
   disabled?: boolean;
   previewMaxWidth: number;
-  onChange(state: ImageUploaderState, previewURL?: string): void;
+  onChange(state: ImageUpload, previewURL?: string): void;
 }
 
-interface ImageUploaderState extends ImageUploadState {
+interface ImageUploaderState extends ImageUpload {
   previewURL?: string;
-}
-
-export interface ImageUploadState {
-  upload?: {
-    fileName?: string;
-    content?: string;
-    contentType?: string;
-  };
-  remove: boolean;
 }
 
 export class ImageUploader extends React.Component<ImageUploaderProps, ImageUploaderState> {
@@ -35,7 +28,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     this.state = {
       upload: undefined,
       remove: false,
-      previewURL: this.props.defaultImageURL
+      previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth)
     };
   }
 
@@ -45,6 +38,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       const base64 = await fileToBase64(file);
       this.setState(
         {
+          bkey: this.props.bkey,
           upload: {
             fileName: file.name,
             content: base64,
@@ -64,6 +58,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
   public removeFile = async (e: ButtonClickEvent) => {
     this.setState(
       {
+        bkey: this.props.bkey,
         remove: true,
         upload: undefined,
         previewURL: undefined
@@ -82,7 +77,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
   public render() {
     const isUploading = !!this.state.upload;
-    const hasFile = (!this.state.remove && this.props.defaultImageURL) || isUploading;
+    const hasFile = (!this.state.remove && this.props.bkey) || isUploading;
 
     const imgStyles: React.CSSProperties = {
       maxWidth: `${this.props.previewMaxWidth}px`
@@ -99,19 +94,27 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
             })}
           >
             <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
-            {hasFile && <img className="preview" src={this.state.previewURL} style={imgStyles} />}
+
+            {hasFile && (
+              <div className="preview">
+                <img src={this.state.previewURL} style={imgStyles} />
+                {!this.props.disabled && (
+                  <Button onClick={this.removeFile} color="danger">
+                    X
+                  </Button>
+                )}
+              </div>
+            )}
+
             <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
-            <div className="c-form-field-wrapper">
-              <Button size="tiny" onClick={this.selectFile} disabled={this.props.disabled}>
-                {hasFile ? "Change" : "Upload"}
-              </Button>
-              {hasFile && (
-                <Button onClick={this.removeFile} size="tiny" disabled={this.props.disabled}>
-                  Remove
+            {!hasFile && (
+              <div className="c-form-field-wrapper">
+                <Button onClick={this.selectFile} disabled={this.props.disabled}>
+                  <FaRegImage />
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
             {this.props.children}
           </div>
         )}

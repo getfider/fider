@@ -2,22 +2,14 @@ import "./GeneralSettings.page.scss";
 
 import React from "react";
 
-import {
-  Button,
-  ButtonClickEvent,
-  TextArea,
-  Form,
-  Input,
-  ImageUploader,
-  ImageUploadState,
-  TenantLogoURL
-} from "@fider/components/common";
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common";
 import { actions, Failure, fileToBase64, Fider } from "@fider/services";
 import { FaCogs } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
+import { ImageUpload } from "@fider/models";
 
 interface GeneralSettingsPageState {
-  logo?: ImageUploadState;
+  logo?: ImageUpload;
   title: string;
   invitation: string;
   welcomeMessage: string;
@@ -114,7 +106,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
     this.setState({ invitation });
   };
 
-  private setLogo = (logo: ImageUploadState): void => {
+  private setLogo = (logo: ImageUpload): void => {
     this.setState({ logo });
   };
 
@@ -152,7 +144,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
         <ImageUploader
           label="Logo"
           field="logo"
-          defaultImageURL={TenantLogoURL(200)}
+          bkey={Fider.session.tenant.logoBlobKey}
           previewMaxWidth={200}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setLogo}

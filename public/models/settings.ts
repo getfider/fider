@@ -47,3 +47,13 @@ export interface OAuthConfig {
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
 }
+
+export interface ImageUpload {
+  bkey?: string;
+  upload?: {
+    fileName?: string;
+    content?: string;
+    contentType?: string;
+  };
+  remove: boolean;
+}

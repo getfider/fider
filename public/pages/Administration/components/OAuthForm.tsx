@@ -1,18 +1,7 @@
 import React from "react";
-import { OAuthConfig, OAuthConfigStatus } from "@fider/models";
+import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models";
 import { Failure, Fider, actions } from "@fider/services";
-import {
-  Form,
-  Button,
-  Input,
-  Heading,
-  SocialSignInButton,
-  Field,
-  ImageUploadState,
-  ImageUploader,
-  Toggle,
-  OAuthProviderLogoURL
-} from "@fider/components";
+import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components";
 
 interface OAuthFormProps {
   config?: OAuthConfig;
@@ -33,8 +22,8 @@ export interface OAuthFormState {
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logoURL?: string;
-  logo?: ImageUploadState;
+  logoBlobKey?: string;
+  logo?: ImageUpload;
   error?: Failure;
 }
 
@@ -55,7 +44,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       jsonUserIDPath: this.props.config ? this.props.config.jsonUserIDPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoURL: this.props.config ? OAuthProviderLogoURL(this.props.config.logoBlobKey) : ""
+      logoBlobKey: this.props.config ? this.props.config.logoBlobKey : ""
     };
   }
 
@@ -90,8 +79,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ displayName });
   };
 
-  private setLogo = (logo: ImageUploadState, previewURL: string) => {
-    this.setState({ logo, logoURL: previewURL });
+  private setLogo = (logo: ImageUpload, previewURL: string) => {
+    this.setState({ logo });
   };
 
   private setStatus = async (enabled: boolean) => {
@@ -158,7 +147,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               <ImageUploader
                 label="Logo"
                 field="logo"
-                defaultImageURL={this.state.logoURL}
+                bkey={this.state.logoBlobKey}
                 previewMaxWidth={80}
                 disabled={!Fider.session.user.isAdministrator}
                 onChange={this.setLogo}
