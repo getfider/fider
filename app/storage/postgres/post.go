@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -101,6 +102,30 @@ type dbStatusCount struct {
 	Count  int               `db:"count"`
 }
 
+type dbVote struct {
+	User *struct {
+		ID         int    `db:"id"`
+		Name       string `db:"name"`
+		Email      string `db:"email"`
+		AvatarType int64  `db:"avatar_type"`
+	} `db:"user"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (v *dbVote) toModel(ctx storage.Context) *models.Vote {
+	avatarURL := ctx.TenantAssetsURL("/avatars/%s/%d/%s", models.AvatarType(v.User.AvatarType).String(), v.User.ID, url.PathEscape(v.User.Name))
+	vote := &models.Vote{
+		CreatedAt: v.CreatedAt,
+		User: &models.VoteUser{
+			ID:        v.User.ID,
+			Name:      v.User.Name,
+			Email:     v.User.Email,
+			AvatarURL: avatarURL,
+		},
+	}
+	return vote
+}
+
 // PostStorage contains read and write operations for posts
 type PostStorage struct {
 	trx    *dbx.Trx
@@ -182,6 +207,7 @@ var (
 																u.email AS user_email,
 																u.role AS user_role,
 																u.status AS user_status,
+																u.avatar_type AS user_avatar_type,
 																p.response,
 																p.response_date,
 																r.id AS response_user_id, 
@@ -189,6 +215,7 @@ var (
 																r.email AS response_user_email, 
 																r.role AS response_user_role,
 																r.status AS response_user_status,
+																r.avatar_type AS response_user_avatar_type,
 																d.number AS original_number,
 																d.title AS original_title,
 																d.slug AS original_slug,
@@ -350,11 +377,13 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				u.email AS user_email,
 				u.role AS user_role, 
 				u.status AS user_status, 
+				u.avatar_type AS user_avatar_type,
 				e.id AS edited_by_id, 
 				e.name AS edited_by_name,
 				e.email AS edited_by_email,
 				e.role AS edited_by_role,
-				e.status AS edited_by_status
+				e.status AS edited_by_status,
+				e.avatar_type AS edited_by_avatar_type
 		FROM comments c
 		INNER JOIN posts p
 		ON p.id = c.post_id
@@ -460,11 +489,13 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 						u.email AS user_email,
 						u.role AS user_role, 
 						u.status AS user_status, 
+						u.avatar_type AS user_avatar_type,
 						e.id AS edited_by_id, 
 						e.name AS edited_by_name,
 						e.email AS edited_by_email,
 						e.role AS edited_by_role,
-						e.status AS edited_by_status
+						e.status AS edited_by_status,
+						e.avatar_type AS edited_by_avatar_type
 		FROM comments c
 		INNER JOIN users u
 		ON u.id = c.user_id
@@ -733,13 +764,14 @@ func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, e
 		sqlLimit = strconv.Itoa(limit)
 	}
 
-	votes := []*models.Vote{}
+	votes := []*dbVote{}
 	err := s.trx.Select(&votes, `
 		SELECT 
 			pv.created_at, 
 			u.id AS user_id,
 			u.name AS user_name,
-			u.email AS user_email
+			u.email AS user_email,
+			u.avatar_type AS user_avatar_type
 		FROM post_votes pv
 		INNER JOIN users u
 		ON u.id = pv.user_id
@@ -751,5 +783,10 @@ func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, e
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get votes of post")
 	}
-	return votes, nil
+
+	var result = make([]*models.Vote, len(votes))
+	for i, vote := range votes {
+		result[i] = vote.toModel(s.ctx)
+	}
+	return result, nil
 }
