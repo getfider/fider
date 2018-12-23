@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -40,37 +39,15 @@ type Upload struct {
 
 //User represents an user inside our application
 type User struct {
-	ShowEmail  bool
-	ID         int
-	Name       string
-	Email      string
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Email      string `json:"email,omitempty"`
 	Tenant     *Tenant
-	Role       Role
+	Role       Role `json:"role"`
 	Providers  []*UserProvider
 	AvatarType AvatarType
-	Status     UserStatus
-}
-
-// MarshalJSON interface redefinition
-func (u User) MarshalJSON() ([]byte, error) {
-	email := ""
-	if u.ShowEmail {
-		email = u.Email
-	}
-
-	return json.Marshal(&struct {
-		ID     int        `json:"id"`
-		Name   string     `json:"name"`
-		Email  string     `json:"email,omitempty"`
-		Role   Role       `json:"role"`
-		Status UserStatus `json:"status"`
-	}{
-		ID:     u.ID,
-		Name:   u.Name,
-		Email:  email,
-		Role:   u.Role,
-		Status: u.Status,
-	})
+	AvatarURL  string     `json:"avatarURL,omitempty"`
+	Status     UserStatus `json:"status"`
 }
 
 //AvatarType are the possible types of a user avatar

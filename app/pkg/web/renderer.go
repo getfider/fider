@@ -227,6 +227,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 			"role":            u.Role,
 			"status":          u.Status,
 			"avatarType":      u.AvatarType,
+			"avatarURL":       u.AvatarURL,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
 		}

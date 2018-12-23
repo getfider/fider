@@ -14,6 +14,7 @@ export interface User {
   name: string;
   role: UserRole;
   status: UserStatus;
+  avatarURL: string;
 }
 
 export enum UserAvatarType {
@@ -43,6 +44,7 @@ export interface CurrentUser {
   name: string;
   email: string;
   avatarType: UserAvatarType;
+  avatarURL: string;
   role: UserRole;
   status: UserStatus;
   isAdministrator: boolean;

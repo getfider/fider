@@ -36,14 +36,16 @@ const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
   role: UserRole.Administrator,
-  status: UserStatus.Active
+  status: UserStatus.Active,
+  avatarURL: "/avatars/50/0/Jon%20Snow"
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
   role: UserRole.Visitor,
-  status: UserStatus.Active
+  status: UserStatus.Active,
+  avatarURL: "/avatars/50/0/Arya%20Snow"
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };

@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/storage"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 )
@@ -38,7 +39,7 @@ type dbPost struct {
 	Tags           []string       `db:"tags"`
 }
 
-func (i *dbPost) toModel() *models.Post {
+func (i *dbPost) toModel(ctx storage.Context) *models.Post {
 	post := &models.Post{
 		ID:            i.ID,
 		Number:        i.Number,
@@ -50,7 +51,7 @@ func (i *dbPost) toModel() *models.Post {
 		VotesCount:    i.VotesCount,
 		CommentsCount: i.CommentsCount,
 		Status:        models.PostStatus(i.Status),
-		User:          i.User.toModel(),
+		User:          i.User.toModel(ctx),
 		Tags:          i.Tags,
 	}
 
@@ -58,7 +59,7 @@ func (i *dbPost) toModel() *models.Post {
 		post.Response = &models.PostResponse{
 			Text:        i.Response.String,
 			RespondedAt: i.RespondedAt.Time,
-			User:        i.ResponseUser.toModel(),
+			User:        i.ResponseUser.toModel(ctx),
 		}
 		if post.Status == models.PostDuplicate && i.OriginalNumber.Valid {
 			post.Response.Original = &models.OriginalPost{
@@ -81,15 +82,15 @@ type dbComment struct {
 	EditedBy  *dbUser      `db:"edited_by"`
 }
 
-func (c *dbComment) toModel() *models.Comment {
+func (c *dbComment) toModel(ctx storage.Context) *models.Comment {
 	comment := &models.Comment{
 		ID:        c.ID,
 		Content:   c.Content,
 		CreatedAt: c.CreatedAt,
-		User:      c.User.toModel(),
+		User:      c.User.toModel(ctx),
 	}
 	if c.EditedAt.Valid {
-		comment.EditedBy = c.EditedBy.toModel()
+		comment.EditedBy = c.EditedBy.toModel(ctx)
 		comment.EditedAt = &c.EditedAt.Time
 	}
 	return comment
@@ -105,12 +106,14 @@ type PostStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
+	ctx    storage.Context
 }
 
 // NewPostStorage creates a new PostStorage
-func NewPostStorage(trx *dbx.Trx) *PostStorage {
+func NewPostStorage(trx *dbx.Trx, ctx storage.Context) *PostStorage {
 	return &PostStorage{
 		trx: trx,
+		ctx: ctx,
 	}
 }
 
@@ -230,7 +233,7 @@ func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post
 		return nil, err
 	}
 
-	return post.toModel(), nil
+	return post.toModel(s.ctx), nil
 }
 
 // GetByID returns post by given id
@@ -329,7 +332,7 @@ func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*model
 
 	var result = make([]*models.Post, len(posts))
 	for i, post := range posts {
-		result[i] = post.toModel()
+		result[i] = post.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -372,7 +375,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 
 	var result = make([]*models.Comment, len(comments))
 	for i, comment := range comments {
-		result[i] = comment.toModel()
+		result[i] = comment.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -477,7 +480,7 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 		return nil, err
 	}
 
-	return comment.toModel(), nil
+	return comment.toModel(s.ctx), nil
 }
 
 // UpdateComment with given ID and content
@@ -623,7 +626,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	var result = make([]*models.User, len(users))
 	for i, user := range users {
-		result[i] = user.toModel()
+		result[i] = user.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -671,7 +674,7 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	}
 
 	for _, u := range users {
-		if err := s.AddVote(original, u.toModel()); err != nil {
+		if err := s.AddVote(original, u.toModel(s.ctx)); err != nil {
 			return err
 		}
 	}
