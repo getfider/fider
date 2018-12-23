@@ -14,13 +14,14 @@ import (
 )
 
 type dbUser struct {
-	ID        sql.NullInt64  `db:"id"`
-	Name      sql.NullString `db:"name"`
-	Email     sql.NullString `db:"email"`
-	Tenant    *dbTenant      `db:"tenant"`
-	Role      sql.NullInt64  `db:"role"`
-	Status    sql.NullInt64  `db:"status"`
-	Providers []*dbUserProvider
+	ID         sql.NullInt64  `db:"id"`
+	Name       sql.NullString `db:"name"`
+	Email      sql.NullString `db:"email"`
+	Tenant     *dbTenant      `db:"tenant"`
+	Role       sql.NullInt64  `db:"role"`
+	Status     sql.NullInt64  `db:"status"`
+	AvatarType sql.NullInt64  `db:"avatar_type"`
+	Providers  []*dbUserProvider
 }
 
 type dbUserProvider struct {
@@ -34,13 +35,14 @@ func (u *dbUser) toModel() *models.User {
 	}
 
 	user := &models.User{
-		ID:        int(u.ID.Int64),
-		Name:      u.Name.String,
-		Email:     u.Email.String,
-		Tenant:    u.Tenant.toModel(),
-		Role:      models.Role(u.Role.Int64),
-		Providers: make([]*models.UserProvider, len(u.Providers)),
-		Status:    models.UserStatus(u.Status.Int64),
+		ID:         int(u.ID.Int64),
+		Name:       u.Name.String,
+		Email:      u.Email.String,
+		Tenant:     u.Tenant.toModel(),
+		Role:       models.Role(u.Role.Int64),
+		Providers:  make([]*models.UserProvider, len(u.Providers)),
+		Status:     models.UserStatus(u.Status.Int64),
+		AvatarType: models.AvatarType(u.AvatarType.Int64),
 	}
 
 	for i, p := range u.Providers {
@@ -226,7 +228,7 @@ func (s *UserStorage) ChangeEmail(userID int, email string) error {
 // GetByID returns a user based on given id
 func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status FROM users WHERE status != %d AND ", models.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type FROM users WHERE status != %d AND ", models.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
@@ -244,7 +246,7 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	var users []*dbUser
 	err := s.trx.Select(&users, `
-		SELECT id, name, email, tenant_id, role, status 
+		SELECT id, name, email, tenant_id, role, status, avatar_type
 		FROM users 
 		WHERE tenant_id = $1 
 		AND status != $2

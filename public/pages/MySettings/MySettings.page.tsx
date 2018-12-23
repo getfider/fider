@@ -2,9 +2,9 @@ import "./MySettings.page.scss";
 
 import React from "react";
 
-import { Modal, Form, Button, Gravatar, Heading, Field, Input } from "@fider/components";
+import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploader } from "@fider/components";
 
-import { UserSettings } from "@fider/models";
+import { UserSettings, UserAvatarType } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaRegAddressCard } from "react-icons/fa";
 import { NotificationSettings } from "./components/NotificationSettings";
@@ -15,6 +15,7 @@ interface MySettingsPageState {
   showModal: boolean;
   name: string;
   newEmail: string;
+  avatarType: UserAvatarType;
   changingEmail: boolean;
   error?: Failure;
   userSettings: UserSettings;
@@ -30,6 +31,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     this.state = {
       showModal: false,
       changingEmail: false,
+      avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
       userSettings: this.props.userSettings
@@ -68,6 +70,12 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       newEmail: "",
       error: undefined
     });
+  };
+
+  private avatarTypeChanged = (opt?: SelectOption) => {
+    if (opt) {
+      this.setState({ avatarType: opt.value as UserAvatarType });
+    }
   };
 
   private setName = (name: string) => {
@@ -117,22 +125,6 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
         <div className="row">
           <div className="col-lg-7">
             <Form error={this.state.error}>
-              <Field label="Avatar">
-                <p>
-                  <Gravatar user={Fider.session.user} />
-                </p>
-                <div className="info">
-                  <p>
-                    This site uses{" "}
-                    <a href="https://en.gravatar.com/" target="blank">
-                      Gravatar
-                    </a>{" "}
-                    to display profile avatars. <br />A letter avatar based on your name is generated for profiles
-                    without a Gravatar.
-                  </p>
-                </div>
-              </Field>
-
               <Input
                 label="Email"
                 field="email"
@@ -160,6 +152,32 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
               </Input>
 
               <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
+
+              <Select
+                label="Avatar"
+                field="avatarType"
+                defaultValue={this.state.avatarType}
+                options={[
+                  { label: "Letter", value: UserAvatarType.Letter },
+                  { label: "Gravatar", value: UserAvatarType.Gravatar },
+                  { label: "Custom", value: UserAvatarType.Custom }
+                ]}
+                onChange={this.avatarTypeChanged}
+              >
+                {this.state.avatarType === UserAvatarType.Custom && (
+                  <ImageUploader
+                    field="avatar"
+                    previewMaxWidth={80}
+                    disabled={!Fider.session.user.isAdministrator}
+                    onChange={console.log}
+                  >
+                    <p className="info">
+                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
+                      dimensions of 80x80 pixels.
+                    </p>
+                  </ImageUploader>
+                )}
+              </Select>
 
               <NotificationSettings
                 userSettings={this.props.userSettings}

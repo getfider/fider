@@ -40,14 +40,15 @@ type Upload struct {
 
 //User represents an user inside our application
 type User struct {
-	ShowEmail bool
-	ID        int
-	Name      string
-	Email     string
-	Tenant    *Tenant
-	Role      Role
-	Providers []*UserProvider
-	Status    UserStatus
+	ShowEmail  bool
+	ID         int
+	Name       string
+	Email      string
+	Tenant     *Tenant
+	Role       Role
+	Providers  []*UserProvider
+	AvatarType AvatarType
+	Status     UserStatus
 }
 
 // MarshalJSON interface redefinition
@@ -72,14 +73,40 @@ func (u User) MarshalJSON() ([]byte, error) {
 	})
 }
 
+//AvatarType are the possible types of a user avatar
+type AvatarType int
+
 var (
 	//AvatarTypeLetter is the default avatar type for users
-	AvatarTypeLetter = 1
+	AvatarTypeLetter AvatarType = 1
 	//AvatarTypeGravatar fetches avatar from gravatar (if available)
-	AvatarTypeGravatar = 2
+	AvatarTypeGravatar AvatarType = 2
 	//AvatarTypeCustom uses a user uploaded avatar
-	AvatarTypeCustom = 3
+	AvatarTypeCustom AvatarType = 3
 )
+
+var avatarTypesIDs = map[AvatarType]string{
+	AvatarTypeLetter:   "letter",
+	AvatarTypeGravatar: "gravatar",
+	AvatarTypeCustom:   "custom",
+}
+
+var avatarTypesName = map[string]AvatarType{
+	"letter":   AvatarTypeLetter,
+	"gravatar": AvatarTypeGravatar,
+	"custom":   AvatarTypeCustom,
+}
+
+// MarshalText returns the Text version of the user status
+func (t AvatarType) MarshalText() ([]byte, error) {
+	return []byte(avatarTypesIDs[t]), nil
+}
+
+// UnmarshalText parse string into a user status
+func (t *AvatarType) UnmarshalText(text []byte) error {
+	*t = avatarTypesName[string(text)]
+	return nil
+}
 
 //UserStatus is the status of a user
 type UserStatus int
