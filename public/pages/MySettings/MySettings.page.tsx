@@ -163,8 +163,19 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 ]}
                 onChange={this.avatarTypeChanged}
               >
-                {this.state.avatarType === UserAvatarType.Gravatar && <p className="info">Gravatar</p>}
-                {this.state.avatarType === UserAvatarType.Letter && <p className="info">Letter</p>}
+                {this.state.avatarType === UserAvatarType.Gravatar && (
+                  <p className="info">
+                    A{" "}
+                    <a href="https://en.gravatar.com" target="_blank">
+                      Gravatar
+                    </a>{" "}
+                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your
+                    initials is generated for you.
+                  </p>
+                )}
+                {this.state.avatarType === UserAvatarType.Letter && (
+                  <p className="info">A letter avatar based on your initials is generated for you.</p>
+                )}
               </Select>
 
               <NotificationSettings
