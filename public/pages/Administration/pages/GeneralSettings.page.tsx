@@ -18,8 +18,6 @@ interface GeneralSettingsPageState {
 }
 
 export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettingsPageState> {
-  private fileSelector?: HTMLInputElement | null;
-
   public id = "p-admin-general";
   public name = "general";
   public icon = FaCogs;
@@ -44,12 +42,6 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
       location.href = `/`;
     } else if (result.error) {
       this.setState({ error: result.error });
-    }
-  };
-
-  public selectFile = async (e: ButtonClickEvent) => {
-    if (this.fileSelector) {
-      this.fileSelector.click();
     }
   };
 

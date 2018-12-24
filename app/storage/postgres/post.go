@@ -103,10 +103,11 @@ type dbStatusCount struct {
 
 type dbVote struct {
 	User *struct {
-		ID         int    `db:"id"`
-		Name       string `db:"name"`
-		Email      string `db:"email"`
-		AvatarType int64  `db:"avatar_type"`
+		ID            int    `db:"id"`
+		Name          string `db:"name"`
+		Email         string `db:"email"`
+		AvatarType    int64  `db:"avatar_type"`
+		AvatarBlobKey string `db:"avatar_bkey"`
 	} `db:"user"`
 	CreatedAt time.Time `db:"created_at"`
 }
@@ -118,7 +119,7 @@ func (v *dbVote) toModel(ctx storage.Context) *models.Vote {
 			ID:        v.User.ID,
 			Name:      v.User.Name,
 			Email:     v.User.Email,
-			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name),
+			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
 		},
 	}
 	return vote
@@ -206,6 +207,7 @@ var (
 																u.role AS user_role,
 																u.status AS user_status,
 																u.avatar_type AS user_avatar_type,
+																u.avatar_bkey AS user_avatar_bkey,
 																p.response,
 																p.response_date,
 																r.id AS response_user_id, 
@@ -214,6 +216,7 @@ var (
 																r.role AS response_user_role,
 																r.status AS response_user_status,
 																r.avatar_type AS response_user_avatar_type,
+																r.avatar_bkey AS response_user_avatar_bkey,
 																d.number AS original_number,
 																d.title AS original_title,
 																d.slug AS original_slug,
@@ -375,13 +378,15 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				u.email AS user_email,
 				u.role AS user_role, 
 				u.status AS user_status, 
-				u.avatar_type AS user_avatar_type,
+				u.avatar_type AS user_avatar_type, 
+				u.avatar_bkey AS user_avatar_bkey, 
 				e.id AS edited_by_id, 
 				e.name AS edited_by_name,
 				e.email AS edited_by_email,
 				e.role AS edited_by_role,
 				e.status AS edited_by_status,
-				e.avatar_type AS edited_by_avatar_type
+				e.avatar_type AS edited_by_avatar_type, 
+				e.avatar_bkey AS edited_by_avatar_bkey 
 		FROM comments c
 		INNER JOIN posts p
 		ON p.id = c.post_id
@@ -486,14 +491,16 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 						u.name AS user_name,
 						u.email AS user_email,
 						u.role AS user_role, 
-						u.status AS user_status, 
+						u.status AS user_status,
 						u.avatar_type AS user_avatar_type,
+						u.avatar_bkey AS user_avatar_bkey, 
 						e.id AS edited_by_id, 
 						e.name AS edited_by_name,
 						e.email AS edited_by_email,
 						e.role AS edited_by_role,
 						e.status AS edited_by_status,
-						e.avatar_type AS edited_by_avatar_type
+						e.avatar_type AS edited_by_avatar_type,
+						e.avatar_bkey AS edited_by_avatar_bkey
 		FROM comments c
 		INNER JOIN users u
 		ON u.id = c.user_id

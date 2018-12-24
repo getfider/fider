@@ -37,7 +37,7 @@ func UpdateSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := handleImageUpload(c, input.Model.Logo)
+		err := handleImageUpload(c, input.Model.Logo, "logos")
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new tenant logo")
 		}
@@ -141,7 +141,7 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := handleImageUpload(c, input.Model.Logo)
+		err := handleImageUpload(c, input.Model.Logo, "logos")
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new OAuth logo")
 		}

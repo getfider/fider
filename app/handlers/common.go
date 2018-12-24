@@ -156,11 +156,11 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	return result, nil
 }
 
-func handleImageUpload(c web.Context, img *models.ImageUpload) error {
+func handleImageUpload(c web.Context, img *models.ImageUpload, preffix string) error {
 	if img.Remove {
 		img.BlobKey = ""
 	} else if img.Upload != nil && len(img.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("logos/%s-%s", rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
+		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
 		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
 		if err != nil {
 			return err

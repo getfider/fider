@@ -44,6 +44,7 @@ export interface CurrentUser {
   name: string;
   email: string;
   avatarType: UserAvatarType;
+  avatarBlobKey: string;
   avatarURL: string;
   role: UserRole;
   status: UserStatus;

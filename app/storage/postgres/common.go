@@ -67,9 +67,14 @@ func getViewData(view string) (string, []models.PostStatus, string) {
 	return condition, statuses, sort
 }
 
-func buildAvatarURL(ctx storage.Context, avatarType models.AvatarType, id int, name string) string {
+func buildAvatarURL(ctx storage.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {
 	if name == "" {
 		name = "-"
 	}
-	return ctx.TenantAssetsURL("/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
+
+	if avatarType == models.AvatarTypeCustom {
+		return ctx.TenantAssetsURL("/images/%s", avatarBlobKey)
+	} else {
+		return ctx.TenantAssetsURL("/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
+	}
 }
