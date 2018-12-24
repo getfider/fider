@@ -3,7 +3,7 @@ import "./GeneralSettings.page.scss";
 import React from "react";
 
 import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common";
-import { actions, Failure, fileToBase64, Fider } from "@fider/services";
+import { actions, Failure, Fider } from "@fider/services";
 import { FaCogs } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { ImageUpload } from "@fider/models";
@@ -45,33 +45,6 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
     } else if (result.error) {
       this.setState({ error: result.error });
     }
-  };
-
-  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const base64 = await fileToBase64(file);
-      this.setState({
-        logo: {
-          upload: {
-            content: base64,
-            contentType: file.type,
-            action: "upload"
-          },
-          ignore: false,
-          remove: false
-        }
-      });
-    }
-  };
-
-  public removeFile = async (e: ButtonClickEvent) => {
-    this.setState({
-      logo: {
-        ignore: false,
-        remove: true
-      }
-    });
   };
 
   public selectFile = async (e: ButtonClickEvent) => {

@@ -56,6 +56,10 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
   };
 
   public removeFile = async (e: ButtonClickEvent) => {
+    if (this.fileSelector) {
+      this.fileSelector.value = "";
+    }
+
     this.setState(
       {
         bkey: this.props.bkey,
