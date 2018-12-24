@@ -776,7 +776,8 @@ func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, e
 			u.id AS user_id,
 			u.name AS user_name,
 			u.email AS user_email,
-			u.avatar_type AS user_avatar_type
+			u.avatar_type AS user_avatar_type,
+			u.avatar_bkey AS user_avatar_bkey
 		FROM post_votes pv
 		INNER JOIN users u
 		ON u.id = pv.user_id
