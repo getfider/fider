@@ -17,12 +17,57 @@ import (
 	"github.com/goenning/letteravatar"
 )
 
-//Avatar returns a gravatar picture of fallsback to letter avatar based on name
-func Avatar() web.HandlerFunc {
+//LetterAvatar returns a letter gravatar picture based on given name
+func LetterAvatar() web.HandlerFunc {
 	return func(c web.Context) error {
+		id := c.Param("id")
 		name := c.Param("name")
-		size, _ := c.ParamAsInt("size")
+		if name == "" {
+			name = "?"
+		}
+
+		size, err := c.QueryParamAsInt("size")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if size >= 200 {
+			size = 200
+		}
+
+		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
+			PaletteKey: fmt.Sprintf("%s:%s", id, name),
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		buf := new(bytes.Buffer)
+		err = png.Encode(buf, img)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Image("image/png", buf.Bytes())
+	}
+}
+
+//Gravatar returns a gravatar picture of fallsback to letter avatar based on name
+func Gravatar() web.HandlerFunc {
+	return func(c web.Context) error {
 		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		size, err := c.QueryParamAsInt("size")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if size >= 200 {
+			size = 200
+		}
 
 		if err == nil && id > 0 {
 			user, err := c.Services().Users.GetByID(id)
@@ -47,20 +92,7 @@ func Avatar() web.HandlerFunc {
 			}
 		}
 
-		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
-			PaletteKey: fmt.Sprintf("%d:%s", id, name),
-		})
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		buf := new(bytes.Buffer)
-		err = png.Encode(buf, img)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Image("image/png", buf.Bytes())
+		return LetterAvatar()(c)
 	}
 }
 

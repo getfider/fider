@@ -138,6 +138,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 			wc.SetTenant(c.Tenant())
 			wc.SetBaseURL(c.BaseURL())
 			wc.SetLogoURL(c.LogoURL())
+			wc.SetAssetsBaseURL(c.TenantAssetsURL(""))
 			return task.Job(wc)
 		}
 	}

@@ -14,6 +14,13 @@ export interface User {
   name: string;
   role: UserRole;
   status: UserStatus;
+  avatarURL: string;
+}
+
+export enum UserAvatarType {
+  Letter = "letter",
+  Gravatar = "gravatar",
+  Custom = "custom"
 }
 
 export enum UserStatus {
@@ -36,6 +43,8 @@ export interface CurrentUser {
   id: number;
   name: string;
   email: string;
+  avatarType: UserAvatarType;
+  avatarURL: string;
   role: UserRole;
   status: UserStatus;
   isAdministrator: boolean;

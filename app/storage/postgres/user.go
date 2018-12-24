@@ -11,16 +11,18 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/storage"
 )
 
 type dbUser struct {
-	ID        sql.NullInt64  `db:"id"`
-	Name      sql.NullString `db:"name"`
-	Email     sql.NullString `db:"email"`
-	Tenant    *dbTenant      `db:"tenant"`
-	Role      sql.NullInt64  `db:"role"`
-	Status    sql.NullInt64  `db:"status"`
-	Providers []*dbUserProvider
+	ID         sql.NullInt64  `db:"id"`
+	Name       sql.NullString `db:"name"`
+	Email      sql.NullString `db:"email"`
+	Tenant     *dbTenant      `db:"tenant"`
+	Role       sql.NullInt64  `db:"role"`
+	Status     sql.NullInt64  `db:"status"`
+	AvatarType sql.NullInt64  `db:"avatar_type"`
+	Providers  []*dbUserProvider
 }
 
 type dbUserProvider struct {
@@ -28,19 +30,22 @@ type dbUserProvider struct {
 	UID  sql.NullString `db:"provider_uid"`
 }
 
-func (u *dbUser) toModel() *models.User {
+func (u *dbUser) toModel(ctx storage.Context) *models.User {
 	if u == nil {
 		return nil
 	}
 
+	avatarType := models.AvatarType(u.AvatarType.Int64)
 	user := &models.User{
-		ID:        int(u.ID.Int64),
-		Name:      u.Name.String,
-		Email:     u.Email.String,
-		Tenant:    u.Tenant.toModel(),
-		Role:      models.Role(u.Role.Int64),
-		Providers: make([]*models.UserProvider, len(u.Providers)),
-		Status:    models.UserStatus(u.Status.Int64),
+		ID:         int(u.ID.Int64),
+		Name:       u.Name.String,
+		Email:      u.Email.String,
+		Tenant:     u.Tenant.toModel(),
+		Role:       models.Role(u.Role.Int64),
+		Providers:  make([]*models.UserProvider, len(u.Providers)),
+		Status:     models.UserStatus(u.Status.Int64),
+		AvatarType: avatarType,
+		AvatarURL:  buildAvatarURL(ctx, avatarType, int(u.ID.Int64), u.Name.String),
 	}
 
 	for i, p := range u.Providers {
@@ -63,11 +68,12 @@ type UserStorage struct {
 	tenant *models.Tenant
 	user   *models.User
 	trx    *dbx.Trx
+	ctx    storage.Context
 }
 
 // NewUserStorage creates a new UserStorage
-func NewUserStorage(trx *dbx.Trx) *UserStorage {
-	return &UserStorage{trx: trx}
+func NewUserStorage(trx *dbx.Trx, ctx storage.Context) *UserStorage {
+	return &UserStorage{trx: trx, ctx: ctx}
 }
 
 // SetCurrentTenant to current context
@@ -82,7 +88,7 @@ func (s *UserStorage) SetCurrentUser(user *models.User) {
 
 // GetByID returns a user based on given id
 func (s *UserStorage) GetByID(userID int) (*models.User, error) {
-	user, err := getUser(s.trx, "id = $1", userID)
+	user, err := s.getUser(s.trx, "id = $1", userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user with id '%d'", userID)
 	}
@@ -91,7 +97,7 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 
 // GetByEmail returns a user based on given email
 func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
-	user, err := getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
+	user, err := s.getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user with email '%s'", email)
 	}
@@ -122,8 +128,8 @@ func (s *UserStorage) Register(user *models.User) error {
 	user.Status = models.UserActive
 	user.Email = strings.TrimSpace(user.Email)
 	if err := s.trx.Get(&user.ID,
-		"INSERT INTO users (name, email, created_at, tenant_id, role, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive); err != nil {
+		"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
+		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive, models.AvatarTypeGravatar); err != nil {
 		return errors.Wrap(err, "failed to register new user")
 	}
 
@@ -148,8 +154,8 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 
 // Update user profile
 func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
-	cmd := "UPDATE users SET name = $2 WHERE id = $1 AND tenant_id = $3"
-	_, err := s.trx.Execute(cmd, s.user.ID, settings.Name, s.tenant.ID)
+	cmd := "UPDATE users SET name = $3, avatar_type = $4 WHERE id = $1 AND tenant_id = $2"
+	_, err := s.trx.Execute(cmd, s.user.ID, s.tenant.ID, settings.Name, settings.AvatarType)
 	if err != nil {
 		return errors.Wrap(err, "failed to update user")
 	}
@@ -224,9 +230,9 @@ func (s *UserStorage) ChangeEmail(userID int, email string) error {
 }
 
 // GetByID returns a user based on given id
-func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
+func (s *UserStorage) getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status FROM users WHERE status != %d AND ", models.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type FROM users WHERE status != %d AND ", models.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err
@@ -237,14 +243,14 @@ func getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, er
 		return nil, err
 	}
 
-	return user.toModel(), nil
+	return user.toModel(s.ctx), nil
 }
 
 // GetAll return all users of current tenant
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	var users []*dbUser
 	err := s.trx.Select(&users, `
-		SELECT id, name, email, tenant_id, role, status 
+		SELECT id, name, email, tenant_id, role, status, avatar_type
 		FROM users 
 		WHERE tenant_id = $1 
 		AND status != $2
@@ -255,7 +261,7 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 
 	var result = make([]*models.User, len(users))
 	for i, user := range users {
-		result[i] = user.toModel()
+		result[i] = user.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -340,7 +346,7 @@ func (s *UserStorage) RegenerateAPIKey() (string, error) {
 
 // GetByAPIKey returns a user based on its API key
 func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
-	user, err := getUser(s.trx, "api_key = $1 AND tenant_id = $2", apiKey, s.tenant.ID)
+	user, err := s.getUser(s.trx, "api_key = $1 AND tenant_id = $2", apiKey, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user with API Key '%s'", apiKey)
 	}

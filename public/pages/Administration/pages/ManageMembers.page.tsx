@@ -1,7 +1,7 @@
 import "./ManageMembers.page.scss";
 
 import React from "react";
-import { Segment, List, Input, ListItem, Gravatar, UserName, DropDown, DropDownItem } from "@fider/components/common";
+import { Segment, List, Input, ListItem, Avatar, UserName, DropDown, DropDownItem } from "@fider/components/common";
 import { User, UserRole, UserStatus } from "@fider/models";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { FaUsers, FaEllipsisH, FaTimes, FaSearch } from "react-icons/fa";
@@ -38,7 +38,7 @@ const UserListItem = (props: UserListItemProps) => {
 
   return (
     <ListItem>
-      <Gravatar user={props.user} />
+      <Avatar user={props.user} />
       <div className="l-user-details">
         <UserName user={props.user} />
         <span>

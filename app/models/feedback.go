@@ -22,14 +22,18 @@ type Post struct {
 	Tags          []string      `json:"tags"`
 }
 
+//VoteUser represents a user that voted on a post
+type VoteUser struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email,omitempty"`
+	AvatarURL string `json:"avatarURL,omitempty"`
+}
+
 //Vote represents a vote given by a user on a post
 type Vote struct {
-	User *struct {
-		ID    int    `json:"id" db:"id"`
-		Name  string `json:"name" db:"name"`
-		Email string `json:"email,omitempty" db:"email"`
-	} `json:"user" db:"user"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	User      *VoteUser `json:"user"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // CanBeVoted returns true if this post can have its vote changed

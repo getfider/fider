@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -40,36 +39,55 @@ type Upload struct {
 
 //User represents an user inside our application
 type User struct {
-	ShowEmail bool
-	ID        int
-	Name      string
-	Email     string
-	Tenant    *Tenant
-	Role      Role
-	Providers []*UserProvider
-	Status    UserStatus
+	ID         int             `json:"id"`
+	Name       string          `json:"name"`
+	Tenant     *Tenant         `json:"-"`
+	Email      string          `json:"-"`
+	Role       Role            `json:"role"`
+	Providers  []*UserProvider `json:"-"`
+	AvatarType AvatarType      `json:"-"`
+	AvatarURL  string          `json:"avatarURL,omitempty"`
+	Status     UserStatus      `json:"status"`
 }
 
-// MarshalJSON interface redefinition
-func (u User) MarshalJSON() ([]byte, error) {
-	email := ""
-	if u.ShowEmail {
-		email = u.Email
-	}
+//AvatarType are the possible types of a user avatar
+type AvatarType int
 
-	return json.Marshal(&struct {
-		ID     int        `json:"id"`
-		Name   string     `json:"name"`
-		Email  string     `json:"email,omitempty"`
-		Role   Role       `json:"role"`
-		Status UserStatus `json:"status"`
-	}{
-		ID:     u.ID,
-		Name:   u.Name,
-		Email:  email,
-		Role:   u.Role,
-		Status: u.Status,
-	})
+var (
+	//AvatarTypeLetter is the default avatar type for users
+	AvatarTypeLetter AvatarType = 1
+	//AvatarTypeGravatar fetches avatar from gravatar (if available)
+	AvatarTypeGravatar AvatarType = 2
+	//AvatarTypeCustom uses a user uploaded avatar
+	AvatarTypeCustom AvatarType = 3
+)
+
+var avatarTypesIDs = map[AvatarType]string{
+	AvatarTypeLetter:   "letter",
+	AvatarTypeGravatar: "gravatar",
+	AvatarTypeCustom:   "custom",
+}
+
+var avatarTypesName = map[string]AvatarType{
+	"letter":   AvatarTypeLetter,
+	"gravatar": AvatarTypeGravatar,
+	"custom":   AvatarTypeCustom,
+}
+
+// String returns the string version of the user status
+func (t AvatarType) String() string {
+	return avatarTypesIDs[t]
+}
+
+// MarshalText returns the Text version of the avatar type
+func (t AvatarType) MarshalText() ([]byte, error) {
+	return []byte(avatarTypesIDs[t]), nil
+}
+
+// UnmarshalText parse string into a avatar type
+func (t *AvatarType) UnmarshalText(text []byte) error {
+	*t = avatarTypesName[string(text)]
+	return nil
 }
 
 //UserStatus is the status of a user
@@ -355,8 +373,9 @@ type CompleteProfile struct {
 
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
-	Name     string            `json:"name"`
-	Settings map[string]string `json:"settings"`
+	Name       string            `json:"name"`
+	AvatarType AvatarType        `json:"avatarType"`
+	Settings   map[string]string `json:"settings"`
 }
 
 // CreateUser is the input model to create a new user

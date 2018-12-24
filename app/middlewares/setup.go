@@ -62,8 +62,8 @@ func WorkerSetup() worker.MiddlewareFunc {
 
 			c.SetServices(&app.Services{
 				Tenants:       postgres.NewTenantStorage(trx),
-				Users:         postgres.NewUserStorage(trx),
-				Posts:         postgres.NewPostStorage(trx),
+				Users:         postgres.NewUserStorage(trx, c),
+				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
@@ -150,8 +150,8 @@ func WebSetup() web.MiddlewareFunc {
 			c.SetServices(&app.Services{
 				Tenants:       tenantStorage,
 				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
-				Users:         postgres.NewUserStorage(trx),
-				Posts:         postgres.NewPostStorage(trx),
+				Users:         postgres.NewUserStorage(trx, &c),
+				Posts:         postgres.NewPostStorage(trx, &c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),

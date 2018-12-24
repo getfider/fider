@@ -9,7 +9,7 @@ import {
   UserName,
   ListItem,
   Toggle,
-  Gravatar,
+  Avatar,
   ShowTag,
   Segment,
   Segments,
@@ -36,14 +36,16 @@ const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
   role: UserRole.Administrator,
-  status: UserStatus.Active
+  status: UserStatus.Active,
+  avatarURL: "/avatars/letter/0/Jon%20Snow"
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
   role: UserRole.Visitor,
-  status: UserStatus.Active
+  status: UserStatus.Active,
+  avatarURL: "/avatars/letter/0/Arya%20Snow"
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
@@ -175,10 +177,10 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
 
         <List>
           <ListItem>
-            <Gravatar user={jonSnow} /> <UserName user={jonSnow} />
+            <Avatar user={jonSnow} /> <UserName user={jonSnow} />
           </ListItem>
           <ListItem>
-            <Gravatar user={aryaStark} /> <UserName user={aryaStark} />
+            <Avatar user={aryaStark} /> <UserName user={aryaStark} />
           </ListItem>
         </List>
 

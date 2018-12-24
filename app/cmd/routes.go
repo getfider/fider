@@ -64,7 +64,8 @@ func routes(r *web.Engine) *web.Engine {
 	tenantAssets := r.Group()
 	{
 		tenantAssets.Use(middlewares.ClientCache(5 * 24 * time.Hour))
-		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
+		tenantAssets.Get("/avatars/letter/:id/:name", handlers.LetterAvatar())
+		tenantAssets.Get("/avatars/gravatar/:id/:name", handlers.Gravatar())
 
 		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/favicon/*bkey", handlers.Favicon())
