@@ -41,7 +41,7 @@ type Upload struct {
 type User struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
-	Email      string `json:"email,omitempty"`
+	Email      string
 	Tenant     *Tenant
 	Role       Role `json:"role"`
 	Providers  []*UserProvider
