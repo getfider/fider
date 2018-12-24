@@ -39,15 +39,15 @@ type Upload struct {
 
 //User represents an user inside our application
 type User struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	Email      string
-	Tenant     *Tenant
-	Role       Role `json:"role"`
-	Providers  []*UserProvider
-	AvatarType AvatarType
-	AvatarURL  string     `json:"avatarURL,omitempty"`
-	Status     UserStatus `json:"status"`
+	ID         int             `json:"id"`
+	Name       string          `json:"name"`
+	Tenant     *Tenant         `json:"-"`
+	Email      string          `json:"-"`
+	Role       Role            `json:"role"`
+	Providers  []*UserProvider `json:"-"`
+	AvatarType AvatarType      `json:"-"`
+	AvatarURL  string          `json:"avatarURL,omitempty"`
+	Status     UserStatus      `json:"status"`
 }
 
 //AvatarType are the possible types of a user avatar

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -113,14 +112,13 @@ type dbVote struct {
 }
 
 func (v *dbVote) toModel(ctx storage.Context) *models.Vote {
-	avatarURL := ctx.TenantAssetsURL("/avatars/%s/%d/%s", models.AvatarType(v.User.AvatarType).String(), v.User.ID, url.PathEscape(v.User.Name))
 	vote := &models.Vote{
 		CreatedAt: v.CreatedAt,
 		User: &models.VoteUser{
 			ID:        v.User.ID,
 			Name:      v.User.Name,
 			Email:     v.User.Email,
-			AvatarURL: avatarURL,
+			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name),
 		},
 	}
 	return vote

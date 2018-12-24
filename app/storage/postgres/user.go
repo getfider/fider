@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -46,7 +45,7 @@ func (u *dbUser) toModel(ctx storage.Context) *models.User {
 		Providers:  make([]*models.UserProvider, len(u.Providers)),
 		Status:     models.UserStatus(u.Status.Int64),
 		AvatarType: avatarType,
-		AvatarURL:  ctx.TenantAssetsURL("/avatars/%s/%d/%s", avatarType.String(), u.ID.Int64, url.PathEscape(u.Name.String)),
+		AvatarURL:  buildAvatarURL(ctx, avatarType, int(u.ID.Int64), u.Name.String),
 	}
 
 	for i, p := range u.Providers {
