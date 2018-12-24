@@ -7,8 +7,15 @@ import (
 	"github.com/getfider/fider/app/pkg/img"
 )
 
+// ImageUploadOpts arguments to validate given upload
+type ImageUploadOpts struct {
+	MinWidth     int
+	MinHeight    int
+	MaxKilobytes int
+}
+
 //ImageUpload validates given image upload
-func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes int) ([]string, error) {
+func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
@@ -20,16 +27,16 @@ func ImageUpload(upload *models.ImageUpload, minWidth, minHeight, maxKilobytes i
 				return nil, err
 			}
 		} else {
-			if logo.Width < minWidth || logo.Height < minHeight {
-				messages = append(messages, fmt.Sprintf("The image must have minimum dimensions of %dx%d pixels.", minWidth, minHeight))
+			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
+				messages = append(messages, fmt.Sprintf("The image must have minimum dimensions of %dx%d pixels.", opts.MinWidth, opts.MinHeight))
 			}
 
 			if logo.Width != logo.Height {
 				messages = append(messages, "The image must have an aspect ratio of 1:1.")
 			}
 
-			if logo.Size > (maxKilobytes * 1024) {
-				messages = append(messages, fmt.Sprintf("The image size must be smaller than %dKB.", maxKilobytes))
+			if logo.Size > (opts.MaxKilobytes * 1024) {
+				messages = append(messages, fmt.Sprintf("The image size must be smaller than %dKB.", opts.MaxKilobytes))
 			}
 		}
 	}

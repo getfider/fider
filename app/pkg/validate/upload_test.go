@@ -34,7 +34,11 @@ func TestValidateImageUpload(t *testing.T) {
 				Content: img,
 			},
 		}
-		messages, err := validate.ImageUpload(upload, 200, 200, 100)
+		messages, err := validate.ImageUpload(upload, validate.ImageUploadOpts{
+			MinHeight:    200,
+			MinWidth:     200,
+			MaxKilobytes: 100,
+		})
 		Expect(messages).HasLen(testCase.count)
 		Expect(err).IsNil()
 	}
@@ -43,11 +47,19 @@ func TestValidateImageUpload(t *testing.T) {
 func TestValidateImageUpload_Nil(t *testing.T) {
 	RegisterT(t)
 
-	messages, err := validate.ImageUpload(nil, 200, 200, 50)
+	messages, err := validate.ImageUpload(nil, validate.ImageUploadOpts{
+		MinHeight:    200,
+		MinWidth:     200,
+		MaxKilobytes: 50,
+	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
 
-	messages, err = validate.ImageUpload(&models.ImageUpload{}, 200, 200, 50)
+	messages, err = validate.ImageUpload(&models.ImageUpload{}, validate.ImageUploadOpts{
+		MinHeight:    200,
+		MinWidth:     200,
+		MaxKilobytes: 50,
+	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
 }

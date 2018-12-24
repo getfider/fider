@@ -46,7 +46,11 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 
 	if input.Model.Avatar != nil {
 		input.Model.Avatar.BlobKey = user.AvatarBlobKey
-		messages, err := validate.ImageUpload(input.Model.Avatar, 50, 50, 100)
+		messages, err := validate.ImageUpload(input.Model.Avatar, , validate.ImageUploadOpts{
+			MinHeight:    50,
+			MinWidth:     50,
+			MaxKilobytes: 100,
+		})
 		if err != nil {
 			return validate.Error(err)
 		}
