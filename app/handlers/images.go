@@ -70,11 +70,11 @@ func Gravatar() web.HandlerFunc {
 			if err == nil && user.Tenant.ID == c.Tenant().ID {
 				if user.Email != "" {
 					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(user.Email)), size)
-					cacheKey := fmt.Sprintf("gavatar:%s", url)
+					cacheKey := fmt.Sprintf("gravatar:%s", url)
 
-					//If gavatar was found in cache
+					//If gravatar was found in cache
 					if image, found := c.Engine().Cache().Get(cacheKey); found {
-						c.Logger().Debugf("Gavatar found in cache: @{GravatarURL}", log.Props{
+						c.Logger().Debugf("Gravatar found in cache: @{GravatarURL}", log.Props{
 							"GravatarURL": cacheKey,
 						})
 						return c.Image(http.DetectContentType(image.([]byte)), image.([]byte))
@@ -90,7 +90,7 @@ func Gravatar() web.HandlerFunc {
 						if resp.StatusCode == http.StatusOK {
 							bytes, err := ioutil.ReadAll(resp.Body)
 							if err == nil {
-								c.Engine().Cache().Set(cacheKey, bytes, time.Hour*24)
+								c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
 								return c.Image(http.DetectContentType(bytes), bytes)
 							}
 						}
