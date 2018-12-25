@@ -77,7 +77,8 @@ func Gravatar() web.HandlerFunc {
 						c.Logger().Debugf("Gravatar found in cache: @{GravatarURL}", log.Props{
 							"GravatarURL": cacheKey,
 						})
-						return c.Image(http.DetectContentType(image.([]byte)), image.([]byte))
+						imageInBytes := image.([]byte)
+						return c.Image(http.DetectContentType(imageInBytes), imageInBytes)
 					}
 
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
