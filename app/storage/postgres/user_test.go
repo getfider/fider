@@ -207,12 +207,18 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(jonSnow)
-	err := users.Update(&models.UpdateUserSettings{Name: "Jon Stark"})
+	err := users.Update(&models.UpdateUserSettings{
+		Name: "Jon Stark",
+		Avatar: &models.ImageUpload{
+			BlobKey: "jon.png",
+		},
+	})
 	Expect(err).IsNil()
 
 	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).IsNil()
 	Expect(user.Name).Equals("Jon Stark")
+	Expect(user.AvatarBlobKey).Equals("jon.png")
 }
 
 func TestUserStorage_ChangeRole(t *testing.T) {

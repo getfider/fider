@@ -15,13 +15,12 @@ func TestInvalidUserNames(t *testing.T) {
 		"",
 		"123456789012345678901234567890123456789012345678901", // 51 chars
 	} {
-		action := &actions.UpdateUserSettings{
-			Model: &models.UpdateUserSettings{
-				Name:       name,
-				AvatarType: models.AvatarTypeGravatar,
-			},
-		}
-		result := action.Validate(nil, services)
+
+		action := actions.UpdateUserSettings{}
+		action.Initialize()
+		action.Model.Name = name
+		action.Model.AvatarType = models.AvatarTypeGravatar
+		result := action.Validate(&models.User{}, services)
 		ExpectFailed(result, "name")
 	}
 }
@@ -33,13 +32,11 @@ func TestValidUserNames(t *testing.T) {
 		"Jon Snow",
 		"Arya",
 	} {
-		action := &actions.UpdateUserSettings{
-			Model: &models.UpdateUserSettings{
-				Name:       name,
-				AvatarType: models.AvatarTypeGravatar,
-			},
-		}
-		result := action.Validate(nil, services)
+		action := actions.UpdateUserSettings{}
+		action.Initialize()
+		action.Model.Name = name
+		action.Model.AvatarType = models.AvatarTypeGravatar
+		result := action.Validate(&models.User{}, services)
 		ExpectSuccess(result)
 	}
 }
@@ -55,13 +52,11 @@ func TestInvalidSettings(t *testing.T) {
 			models.NotificationEventNewComment.UserSettingsKeyName: "4",
 		},
 	} {
-		action := &actions.UpdateUserSettings{
-			Model: &models.UpdateUserSettings{
-				Name:     "John Snow",
-				Settings: settings,
-			},
-		}
-		result := action.Validate(nil, services)
+		action := actions.UpdateUserSettings{}
+		action.Initialize()
+		action.Model.Name = "John Snow"
+		action.Model.Settings = settings
+		result := action.Validate(&models.User{}, services)
 		ExpectFailed(result, "settings", "avatarType")
 	}
 }
@@ -80,14 +75,17 @@ func TestValidSettings(t *testing.T) {
 			models.NotificationEventNewComment.UserSettingsKeyName: models.NotificationEventNewComment.DefaultSettingValue,
 		},
 	} {
-		action := &actions.UpdateUserSettings{
-			Model: &models.UpdateUserSettings{
-				Name:       "John Snow",
-				Settings:   settings,
-				AvatarType: models.AvatarTypeGravatar,
-			},
-		}
-		result := action.Validate(nil, services)
+		action := actions.UpdateUserSettings{}
+		action.Initialize()
+		action.Model.Name = "John Snow"
+		action.Model.Settings = settings
+		action.Model.AvatarType = models.AvatarTypeGravatar
+
+		result := action.Validate(&models.User{
+			AvatarBlobKey: "jon.png",
+		}, services)
+
 		ExpectSuccess(result)
+		Expect(action.Model.Avatar.BlobKey).Equals("jon.png")
 	}
 }

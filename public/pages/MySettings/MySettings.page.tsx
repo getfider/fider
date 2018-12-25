@@ -2,9 +2,9 @@ import "./MySettings.page.scss";
 
 import React from "react";
 
-import { Modal, Form, Button, Heading, Input, Select, SelectOption } from "@fider/components";
+import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploader } from "@fider/components";
 
-import { UserSettings, UserAvatarType } from "@fider/models";
+import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaRegAddressCard } from "react-icons/fa";
 import { NotificationSettings } from "./components/NotificationSettings";
@@ -15,6 +15,7 @@ interface MySettingsPageState {
   showModal: boolean;
   name: string;
   newEmail: string;
+  avatar?: ImageUpload;
   avatarType: UserAvatarType;
   changingEmail: boolean;
   error?: Failure;
@@ -39,7 +40,12 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
   }
 
   private confirm = async () => {
-    const result = await actions.updateUserSettings(this.state.name, this.state.avatarType, this.state.userSettings);
+    const result = await actions.updateUserSettings({
+      name: this.state.name,
+      avatarType: this.state.avatarType,
+      avatar: this.state.avatar,
+      settings: this.state.userSettings
+    });
     if (result.ok) {
       location.reload();
     } else if (result.error) {
@@ -94,6 +100,10 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     this.setState({ newEmail });
   };
 
+  private setAvatar = (avatar: ImageUpload): void => {
+    this.setState({ avatar });
+  };
+
   public render() {
     const changeEmail = (
       <span className="ui info clickable" onClick={this.startChangeEmail}>
@@ -136,7 +146,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
               >
                 <p className="info">
                   {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be publicly displayed"
+                    ? "Your email is private and will never be publicly displayed."
                     : "Your account doesn't have an email."}
                 </p>
                 {this.state.changingEmail && (
@@ -159,7 +169,8 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 defaultValue={this.state.avatarType}
                 options={[
                   { label: "Letter", value: UserAvatarType.Letter },
-                  { label: "Gravatar", value: UserAvatarType.Gravatar }
+                  { label: "Gravatar", value: UserAvatarType.Gravatar },
+                  { label: "Custom", value: UserAvatarType.Custom }
                 ]}
                 onChange={this.avatarTypeChanged}
               >
@@ -175,6 +186,19 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 )}
                 {this.state.avatarType === UserAvatarType.Letter && (
                   <p className="info">A letter avatar based on your initials is generated for you.</p>
+                )}
+                {this.state.avatarType === UserAvatarType.Custom && (
+                  <ImageUploader
+                    field="avatar"
+                    previewMaxWidth={80}
+                    onChange={this.setAvatar}
+                    bkey={Fider.session.user.avatarBlobKey}
+                  >
+                    <p className="info">
+                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
+                      dimensions of 50x50 pixels.
+                    </p>
+                  </ImageUploader>
                 )}
               </Select>
 

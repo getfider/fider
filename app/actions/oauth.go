@@ -45,7 +45,12 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		input.Model.Provider = "_" + strings.ToLower(rand.String(10))
 	}
 
-	messages, err := validate.ImageUpload(input.Model.Logo, 24, 24, 50)
+	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
+		IsRequired:   false,
+		MinHeight:    24,
+		MinWidth:     24,
+		MaxKilobytes: 50,
+	})
 	if err != nil {
 		return validate.Error(err)
 	}
