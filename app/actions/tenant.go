@@ -100,7 +100,8 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 	if services.Tenants.Current() != nil {
 		input.Model.Logo.BlobKey = services.Tenants.Current().LogoBlobKey
 	}
-	messages, err := validate.ImageUpload(input.Model.Logo, , validate.ImageUploadOpts{
+	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
+		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 100,

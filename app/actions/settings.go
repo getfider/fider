@@ -16,6 +16,7 @@ type UpdateUserSettings struct {
 // Initialize the model
 func (input *UpdateUserSettings) Initialize() interface{} {
 	input.Model = new(models.UpdateUserSettings)
+	input.Model.Avatar = &models.ImageUpload{}
 	return input.Model
 }
 
@@ -44,20 +45,17 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 	// 	result.AddFieldFailure("avatar", "Upload an image to use as your avatar")
 	// }
 
-	if input.Model.Avatar != nil {
-		input.Model.Avatar.BlobKey = user.AvatarBlobKey
-		messages, err := validate.ImageUpload(input.Model.Avatar, , validate.ImageUploadOpts{
-			MinHeight:    50,
-			MinWidth:     50,
-			MaxKilobytes: 100,
-		})
-		if err != nil {
-			return validate.Error(err)
-		}
-		result.AddFieldFailure("avatar", messages...)
-	} else {
-		input.Model.Avatar = &models.ImageUpload{BlobKey: user.AvatarBlobKey}
+	input.Model.Avatar.BlobKey = user.AvatarBlobKey
+	messages, err := validate.ImageUpload(input.Model.Avatar, validate.ImageUploadOpts{
+		IsRequired:   input.Model.AvatarType == models.AvatarTypeCustom,
+		MinHeight:    50,
+		MinWidth:     50,
+		MaxKilobytes: 100,
+	})
+	if err != nil {
+		return validate.Error(err)
 	}
+	result.AddFieldFailure("avatar", messages...)
 
 	if input.Model.Settings != nil {
 		for k, v := range input.Model.Settings {

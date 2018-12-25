@@ -46,6 +46,7 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 
 	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
+		IsRequired:   false,
 		MinHeight:    24,
 		MinWidth:     24,
 		MaxKilobytes: 50,

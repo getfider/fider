@@ -48,6 +48,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 	RegisterT(t)
 
 	messages, err := validate.ImageUpload(nil, validate.ImageUploadOpts{
+		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
@@ -56,10 +57,38 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 	Expect(err).IsNil()
 
 	messages, err = validate.ImageUpload(&models.ImageUpload{}, validate.ImageUploadOpts{
+		IsRequired:   false,
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
 	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
+}
+
+func TestValidateImageUpload_Required(t *testing.T) {
+	RegisterT(t)
+
+	var testCases = []struct {
+		upload *models.ImageUpload
+		count  int
+	}{
+		{nil, 1},
+		{&models.ImageUpload{}, 1},
+		{&models.ImageUpload{
+			BlobKey: "some-file.png",
+			Remove:  true,
+		}, 1},
+	}
+
+	for _, testCase := range testCases {
+		messages, err := validate.ImageUpload(testCase.upload, validate.ImageUploadOpts{
+			IsRequired:   true,
+			MinHeight:    200,
+			MinWidth:     200,
+			MaxKilobytes: 50,
+		})
+		Expect(messages).HasLen(testCase.count)
+		Expect(err).IsNil()
+	}
 }

@@ -9,6 +9,7 @@ import (
 
 // ImageUploadOpts arguments to validate given upload
 type ImageUploadOpts struct {
+	IsRequired   bool
 	MinWidth     int
 	MinHeight    int
 	MaxKilobytes int
@@ -17,6 +18,12 @@ type ImageUploadOpts struct {
 //ImageUpload validates given image upload
 func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, error) {
 	messages := []string{}
+
+	if opts.IsRequired {
+		if upload == nil || (upload.BlobKey == "" && upload.Upload == nil) || upload.Remove {
+			messages = append(messages, "An image is required.")
+		}
+	}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
 		logo, err := img.Parse(upload.Upload.Content)
