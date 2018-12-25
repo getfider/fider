@@ -169,3 +169,12 @@ func handleImageUpload(c web.Context, img *models.ImageUpload, preffix string) e
 	}
 	return nil
 }
+
+func between(n, min, max int) int {
+	if n > max {
+		return max
+	} else if n < min {
+		return min
+	}
+	return n
+}

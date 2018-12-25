@@ -30,10 +30,7 @@ func LetterAvatar() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-
-		if size >= 200 {
-			size = 200
-		}
+		size = between(size, 50, 200)
 
 		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
 			PaletteKey: fmt.Sprintf("%s:%s", id, name),
@@ -65,9 +62,7 @@ func Gravatar() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if size >= 200 {
-			size = 200
-		}
+		size = between(size, 50, 200)
 
 		if err == nil && id > 0 {
 			user, err := c.Services().Users.GetByID(id)
@@ -126,6 +121,8 @@ func Favicon() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		size = between(size, 50, 200)
+
 		opts := []img.ImageOperation{}
 		if size > 0 {
 			opts = append(opts, img.Padding(size*10/100))
@@ -154,6 +151,8 @@ func ViewUploadedImage() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
+
+		size = between(size, 50, 2000)
 
 		logo, err := c.Services().Blobs.Get(bkey)
 		if err != nil {
