@@ -41,10 +41,6 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 		result.AddFieldFailure("name", "Name must have less than 50 characters.")
 	}
 
-	// if input.Model.AvatarType == models.AvatarTypeCustom && input.Model.Avatar.Remove {
-	// 	result.AddFieldFailure("avatar", "Upload an image to use as your avatar")
-	// }
-
 	input.Model.Avatar.BlobKey = user.AvatarBlobKey
 	messages, err := validate.ImageUpload(input.Model.Avatar, validate.ImageUploadOpts{
 		IsRequired:   input.Model.AvatarType == models.AvatarTypeCustom,
