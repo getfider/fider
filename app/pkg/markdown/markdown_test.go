@@ -8,13 +8,18 @@ import (
 	"github.com/getfider/fider/app/pkg/markdown"
 )
 
-func TestParseMarkdown(t *testing.T) {
+func TestFullMarkdown(t *testing.T) {
 	RegisterT(t)
 
 	for input, expected := range map[string]string{
 		"# Hello World":                      `<h1>Hello World</h1>`,
-		"![](http://example.com/hello.jpg)":  `<p></p>`,
+		"![](http://example.com/hello.jpg)":  `<p><img src="http://example.com/hello.jpg" alt="" /></p>`,
 		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
+		`-123
+-456
+-789`: `<p>-123<br />
+-456<br />
+-789</p>`,
 		`
 - **Option 1**
 - *Option 2*
@@ -37,7 +42,7 @@ This will allow to send and receive SMS and get the IMEI No. in our app.</p>
 
 <p>Thanks!</p>`,
 	} {
-		output := markdown.Parse(input)
+		output := markdown.Full(input)
 		Expect(output).Equals(template.HTML(expected))
 	}
 }
@@ -46,11 +51,17 @@ func TestPlainTextMarkdown(t *testing.T) {
 	RegisterT(t)
 
 	for input, expected := range map[string]string{
-		"**Hello World**":                          `Hello World`,
-		"[My Image](http://example.com/hello.jpg)": `My Image`,
-		"Go to http://example.com/hello.jpg":       `Go to http://example.com/hello.jpg`,
-		"~~Option 3~~":                             `Option 3`,
-		"# Hello World":                            `Hello World`,
+		"**Hello World**":                           `Hello World`,
+		"[My Link](http://example.com/)":            `My Link`,
+		"![My Image](http://example.com/hello.jpg)": ``,
+		"Go to http://example.com/hello.jpg":        `Go to http://example.com/hello.jpg`,
+		"~~Option 3~~":                              `Option 3`,
+		`-123
+-456
+-789`: `-123
+-456
+-789`,
+		"# Hello World": `Hello World`,
 		`# Hello World
 How are you?`: `Hello World
 How are you?`,
@@ -63,5 +74,37 @@ How are you?`,
 	} {
 		output := markdown.PlainText(input)
 		Expect(output).Equals(expected)
+	}
+}
+
+func TestSimpleMarkdown(t *testing.T) {
+	RegisterT(t)
+
+	for input, expected := range map[string]string{
+		"**Hello World**":                           `<p><strong>Hello World</strong></p>`,
+		"[My Link](http://example.com/)":            `<p><a href="http://example.com/">My Link</a></p>`,
+		"![My Image](http://example.com/hello.jpg)": `<p></p>`,
+		"Go to http://example.com/hello.jpg":        `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
+		"~~Option 3~~":                              `<p><del>Option 3</del></p>`,
+		"# Hello World":                             `<p>Hello World</p>`,
+		"### Hello World":                           `<p>Hello World</p>`,
+		"Check this out: `HEEEY`":                   "<p>Check this out: <code>HEEEY</code></p>",
+		`-123
+-456
+-789`: `<p>-123<br />
+-456<br />
+-789</p>`,
+		`# Hello World
+How are you?`: `<p>Hello World</p>
+
+<p>How are you?</p>`,
+		`Hello World
+
+How are you?`: `<p>Hello World</p>
+
+<p>How are you?</p>`,
+	} {
+		output := markdown.Simple(input)
+		Expect(output).Equals(template.HTML(expected))
 	}
 }

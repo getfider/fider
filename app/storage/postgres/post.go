@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/storage"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 )
@@ -38,7 +39,7 @@ type dbPost struct {
 	Tags           []string       `db:"tags"`
 }
 
-func (i *dbPost) toModel() *models.Post {
+func (i *dbPost) toModel(ctx storage.Context) *models.Post {
 	post := &models.Post{
 		ID:            i.ID,
 		Number:        i.Number,
@@ -50,7 +51,7 @@ func (i *dbPost) toModel() *models.Post {
 		VotesCount:    i.VotesCount,
 		CommentsCount: i.CommentsCount,
 		Status:        models.PostStatus(i.Status),
-		User:          i.User.toModel(),
+		User:          i.User.toModel(ctx),
 		Tags:          i.Tags,
 	}
 
@@ -58,7 +59,7 @@ func (i *dbPost) toModel() *models.Post {
 		post.Response = &models.PostResponse{
 			Text:        i.Response.String,
 			RespondedAt: i.RespondedAt.Time,
-			User:        i.ResponseUser.toModel(),
+			User:        i.ResponseUser.toModel(ctx),
 		}
 		if post.Status == models.PostDuplicate && i.OriginalNumber.Valid {
 			post.Response.Original = &models.OriginalPost{
@@ -81,15 +82,15 @@ type dbComment struct {
 	EditedBy  *dbUser      `db:"edited_by"`
 }
 
-func (c *dbComment) toModel() *models.Comment {
+func (c *dbComment) toModel(ctx storage.Context) *models.Comment {
 	comment := &models.Comment{
 		ID:        c.ID,
 		Content:   c.Content,
 		CreatedAt: c.CreatedAt,
-		User:      c.User.toModel(),
+		User:      c.User.toModel(ctx),
 	}
 	if c.EditedAt.Valid {
-		comment.EditedBy = c.EditedBy.toModel()
+		comment.EditedBy = c.EditedBy.toModel(ctx)
 		comment.EditedAt = &c.EditedAt.Time
 	}
 	return comment
@@ -100,17 +101,43 @@ type dbStatusCount struct {
 	Count  int               `db:"count"`
 }
 
+type dbVote struct {
+	User *struct {
+		ID            int    `db:"id"`
+		Name          string `db:"name"`
+		Email         string `db:"email"`
+		AvatarType    int64  `db:"avatar_type"`
+		AvatarBlobKey string `db:"avatar_bkey"`
+	} `db:"user"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (v *dbVote) toModel(ctx storage.Context) *models.Vote {
+	vote := &models.Vote{
+		CreatedAt: v.CreatedAt,
+		User: &models.VoteUser{
+			ID:        v.User.ID,
+			Name:      v.User.Name,
+			Email:     v.User.Email,
+			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
+		},
+	}
+	return vote
+}
+
 // PostStorage contains read and write operations for posts
 type PostStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
+	ctx    storage.Context
 }
 
 // NewPostStorage creates a new PostStorage
-func NewPostStorage(trx *dbx.Trx) *PostStorage {
+func NewPostStorage(trx *dbx.Trx, ctx storage.Context) *PostStorage {
 	return &PostStorage{
 		trx: trx,
+		ctx: ctx,
 	}
 }
 
@@ -126,6 +153,18 @@ func (s *PostStorage) SetCurrentUser(user *models.User) {
 
 var (
 	sqlSelectPostsWhere = `	WITH 
+													agg_tags AS ( 
+														SELECT 
+																post_id, 
+																ARRAY_REMOVE(ARRAY_AGG(tags.slug), NULL) as tags
+														FROM post_tags
+														INNER JOIN tags
+														ON tags.ID = post_tags.TAG_ID
+														AND tags.tenant_id = post_tags.tenant_id
+														WHERE post_tags.tenant_id = $1
+														%s
+														GROUP BY post_id 
+													), 
 													agg_comments AS (
 															SELECT 
 																	post_id, 
@@ -136,6 +175,7 @@ var (
 															ON posts.id = comments.post_id
 															AND posts.tenant_id = comments.tenant_id
 															WHERE posts.tenant_id = $1
+															AND comments.deleted_at IS NULL
 															GROUP BY post_id
 													),
 													agg_votes AS (
@@ -166,6 +206,8 @@ var (
 																u.email AS user_email,
 																u.role AS user_role,
 																u.status AS user_status,
+																u.avatar_type AS user_avatar_type,
+																u.avatar_bkey AS user_avatar_bkey,
 																p.response,
 																p.response_date,
 																r.id AS response_user_id, 
@@ -173,42 +215,43 @@ var (
 																r.email AS response_user_email, 
 																r.role AS response_user_role,
 																r.status AS response_user_status,
+																r.avatar_type AS response_user_avatar_type,
+																r.avatar_bkey AS response_user_avatar_bkey,
 																d.number AS original_number,
 																d.title AS original_title,
 																d.slug AS original_slug,
 																d.status AS original_status,
-																array_remove(array_agg(t.slug), NULL) AS tags,
+																COALESCE(agg_t.tags, ARRAY[]::text[]) AS tags,
 																COALESCE(%s, false) AS has_voted
 													FROM posts p
 													INNER JOIN users u
 													ON u.id = p.user_id
+													AND u.tenant_id = $1
 													LEFT JOIN users r
 													ON r.id = p.response_user_id
-													LEFT JOIN post_tags pt
-													ON pt.post_id = p.id
+													AND r.tenant_id = $1
 													LEFT JOIN posts d
 													ON d.id = p.original_id
-													LEFT JOIN tags t
-													ON t.id = pt.tag_id
-													%s
+													AND d.tenant_id = $1
 													LEFT JOIN agg_comments agg_c
 													ON agg_c.post_id = p.id
 													LEFT JOIN agg_votes agg_s
 													ON agg_s.post_id = p.id
-													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s
-													GROUP BY p.id, u.id, r.id, d.id, agg_s.all, agg_c.all, agg_c.recent, agg_s.recent`
+													LEFT JOIN agg_tags agg_t 
+													ON agg_t.post_id = p.id
+													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s`
 )
 
 func (s *PostStorage) getPostQuery(filter string) string {
+	tagCondition := `AND tags.is_public = true`
+	if s.user != nil && s.user.IsCollaborator() {
+		tagCondition = ``
+	}
 	hasVotedSubQuery := "null"
 	if s.user != nil {
 		hasVotedSubQuery = fmt.Sprintf("(SELECT true FROM post_votes WHERE post_id = p.id AND user_id = %d)", s.user.ID)
 	}
-	tagCondition := `AND t.is_public = true`
-	if s.user != nil && s.user.IsCollaborator() {
-		tagCondition = ``
-	}
-	return fmt.Sprintf(sqlSelectPostsWhere, hasVotedSubQuery, tagCondition, filter)
+	return fmt.Sprintf(sqlSelectPostsWhere, tagCondition, hasVotedSubQuery, filter)
 }
 
 func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post, error) {
@@ -218,7 +261,7 @@ func (s *PostStorage) getSingle(query string, args ...interface{}) (*models.Post
 		return nil, err
 	}
 
-	return post.toModel(), nil
+	return post.toModel(s.ctx), nil
 }
 
 // GetByID returns post by given id
@@ -317,7 +360,7 @@ func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*model
 
 	var result = make([]*models.Post, len(posts))
 	for i, post := range posts {
-		result[i] = post.toModel()
+		result[i] = post.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -335,11 +378,15 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				u.email AS user_email,
 				u.role AS user_role, 
 				u.status AS user_status, 
+				u.avatar_type AS user_avatar_type, 
+				u.avatar_bkey AS user_avatar_bkey, 
 				e.id AS edited_by_id, 
 				e.name AS edited_by_name,
 				e.email AS edited_by_email,
 				e.role AS edited_by_role,
-				e.status AS edited_by_status
+				e.status AS edited_by_status,
+				e.avatar_type AS edited_by_avatar_type, 
+				e.avatar_bkey AS edited_by_avatar_bkey 
 		FROM comments c
 		INNER JOIN posts p
 		ON p.id = c.post_id
@@ -352,6 +399,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 		AND e.tenant_id = c.tenant_id
 		WHERE p.id = $1
 		AND p.tenant_id = $2
+		AND c.deleted_at IS NULL
 		ORDER BY c.created_at ASC`, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed get comments of post with id '%d'", post.ID)
@@ -359,7 +407,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 
 	var result = make([]*models.Comment, len(comments))
 	for i, comment := range comments {
-		result[i] = comment.toModel()
+		result[i] = comment.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -405,9 +453,11 @@ func (s *PostStorage) Add(title, description string) (*models.Post, error) {
 // AddComment places a new comment on an post
 func (s *PostStorage) AddComment(post *models.Post, content string) (int, error) {
 	var id int
-	if err := s.trx.Get(&id,
-		"INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING id",
-		s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
+	if err := s.trx.Get(&id, `
+		INSERT INTO comments (tenant_id, post_id, content, user_id, created_at) 
+		VALUES ($1, $2, $3, $4, $5) 
+		RETURNING id
+	`, s.tenant.ID, post.ID, content, s.user.ID, time.Now()); err != nil {
 		return 0, errors.Wrap(err, "failed add new comment")
 	}
 
@@ -416,6 +466,17 @@ func (s *PostStorage) AddComment(post *models.Post, content string) (int, error)
 	}
 
 	return id, nil
+}
+
+// DeleteComment by its id
+func (s *PostStorage) DeleteComment(id int) error {
+	if _, err := s.trx.Execute(
+		"UPDATE comments SET deleted_at = $1, deleted_by_id = $2 WHERE id = $3 AND tenant_id = $4",
+		time.Now(), s.user.ID, id, s.tenant.ID,
+	); err != nil {
+		return errors.Wrap(err, "failed delete comment")
+	}
+	return nil
 }
 
 // GetCommentByID returns a comment by given ID
@@ -430,12 +491,16 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 						u.name AS user_name,
 						u.email AS user_email,
 						u.role AS user_role, 
-						u.status AS user_status, 
+						u.status AS user_status,
+						u.avatar_type AS user_avatar_type,
+						u.avatar_bkey AS user_avatar_bkey, 
 						e.id AS edited_by_id, 
 						e.name AS edited_by_name,
 						e.email AS edited_by_email,
 						e.role AS edited_by_role,
-						e.status AS edited_by_status
+						e.status AS edited_by_status,
+						e.avatar_type AS edited_by_avatar_type,
+						e.avatar_bkey AS edited_by_avatar_bkey
 		FROM comments c
 		INNER JOIN users u
 		ON u.id = c.user_id
@@ -444,13 +509,14 @@ func (s *PostStorage) GetCommentByID(id int) (*models.Comment, error) {
 		ON e.id = c.edited_by_id
 		AND e.tenant_id = c.tenant_id
 		WHERE c.id = $1
-		AND c.tenant_id = $2`, id, s.tenant.ID)
+		AND c.tenant_id = $2
+		AND c.deleted_at IS NULL`, id, s.tenant.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return comment.toModel(), nil
+	return comment.toModel(s.ctx), nil
 }
 
 // UpdateComment with given ID and content
@@ -533,14 +599,12 @@ func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) err
 
 // GetActiveSubscribers based on input and settings
 func (s *PostStorage) GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
-	post, err := s.GetByNumber(number)
-	if err != nil {
-		return make([]*models.User, 0), err
-	}
+	var (
+		users []*dbUser
+		err   error
+	)
 
-	var users []*dbUser
-
-	if len(event.RequiresSubscripionUserRoles) == 0 {
+	if len(event.RequiresSubscriptionUserRoles) == 0 {
 		err = s.trx.Select(&users, `
 			SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
 			FROM users u
@@ -567,7 +631,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 			FROM users u
 			LEFT JOIN post_subscribers sub
 			ON sub.user_id = u.id
-			AND sub.post_id = $1
+			AND sub.post_id = (SELECT id FROM posts p WHERE p.tenant_id = $4 and p.number = $1 LIMIT 1)
 			AND sub.tenant_id = u.tenant_id
 			LEFT JOIN user_settings set
 			ON set.user_id = u.id
@@ -581,13 +645,13 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 				OR CAST(set.value AS integer) & $6 > 0
 			)
 			ORDER by u.id`,
-			post.ID,
+			number,
 			models.SubscriberActive,
 			event.UserSettingsKeyName,
 			s.tenant.ID,
 			pq.Array(event.DefaultEnabledUserRoles),
 			channel,
-			pq.Array(event.RequiresSubscripionUserRoles),
+			pq.Array(event.RequiresSubscriptionUserRoles),
 			models.UserActive,
 		)
 	}
@@ -598,7 +662,7 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 
 	var result = make([]*models.User, len(users))
 	for i, user := range users {
-		result[i] = user.toModel()
+		result[i] = user.toModel(s.ctx)
 	}
 	return result, nil
 }
@@ -646,7 +710,7 @@ func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) 
 	}
 
 	for _, u := range users {
-		if err := s.AddVote(original, u.toModel()); err != nil {
+		if err := s.AddVote(original, u.toModel(s.ctx)); err != nil {
 			return err
 		}
 	}
@@ -696,4 +760,39 @@ func (s *PostStorage) VotedBy() ([]int, error) {
 		return nil, errors.Wrap(err, "failed to get user's voted posts")
 	}
 	return posts, nil
+}
+
+// ListVotes returns a list of all votes on given post
+func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
+	sqlLimit := "ALL"
+	if limit > 0 {
+		sqlLimit = strconv.Itoa(limit)
+	}
+
+	votes := []*dbVote{}
+	err := s.trx.Select(&votes, `
+		SELECT 
+			pv.created_at, 
+			u.id AS user_id,
+			u.name AS user_name,
+			u.email AS user_email,
+			u.avatar_type AS user_avatar_type,
+			u.avatar_bkey AS user_avatar_bkey
+		FROM post_votes pv
+		INNER JOIN users u
+		ON u.id = pv.user_id
+		AND u.tenant_id = pv.tenant_id 
+		WHERE pv.post_id = $1  
+		AND pv.tenant_id = $2
+		ORDER BY pv.created_at
+		LIMIT `+sqlLimit, post.ID, s.tenant.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get votes of post")
+	}
+
+	var result = make([]*models.Vote, len(votes))
+	for i, vote := range votes {
+		result[i] = vote.toModel(s.ctx)
+	}
+	return result, nil
 }

@@ -80,3 +80,13 @@ export interface Tag {
   color: string;
   isPublic: boolean;
 }
+
+export interface Vote {
+  createdAt: Date;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    avatarURL: string;
+  };
+}

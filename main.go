@@ -12,7 +12,7 @@ import (
 
 var (
 	// replaced during CI build
-	buildtime = ""
+	buildtime   = ""
 	buildnumber = "local"
 
 	// Use this for non-stable releases
@@ -21,7 +21,7 @@ var (
 	// Use this for stable releases
 	// version = "x.y.z"
 
-	version = "0.16.0-" + buildnumber
+	version = "0.18.0-" + buildnumber
 )
 
 func main() {
@@ -29,9 +29,9 @@ func main() {
 		BuildTime:       buildtime,
 		Version:         version,
 		Compiler:        runtime.Version(),
-		Environment:     env.Current(),
-		GoogleAnalytics: env.GetEnvOrDefault("GOOGLE_ANALYTICS", ""),
-		Mode:            env.Mode(),
+		Environment:     env.Config.Environment,
+		GoogleAnalytics: env.Config.GoogleAnalytics,
+		Mode:            env.Config.HostMode,
 		Domain:          env.MultiTenantDomain(),
 		HasLegal:        env.HasLegal(),
 	}

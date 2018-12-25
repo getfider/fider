@@ -1,13 +1,13 @@
-import * as React from "react";
+import React from "react";
 
-import { CurrentUser } from "@fider/models";
 import { Button, Form, Field } from "@fider/components";
-import { AdminBasePage } from "../components";
+import { FaRegFileExcel } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
-export class ExportPage extends AdminBasePage<{}, {}> {
+export default class ExportPage extends AdminBasePage<{}, {}> {
   public id = "p-admin-export";
   public name = "export";
-  public icon = "file excel outline";
+  public icon = FaRegFileExcel;
   public title = "Export";
   public subtitle = "Download your data";
 

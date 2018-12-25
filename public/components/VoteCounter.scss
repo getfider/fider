@@ -11,30 +11,33 @@
     width: 45px;
     font-weight: 700;
     cursor: pointer;
-    background-color: $bg-color;
+    background-color: transparent;
     text-align: center;
     margin: 0 auto;
     padding: 0 0;
+    color: $gray-darker;
 
-    i.icon {
-      color: #C4C9CD;
+    .icon {
+      color: $gray;
+      margin-bottom: -3px;
     }
   }
 
   button.m-disabled {
     @include disabled();
+    cursor: not-allowed;
   }
 
   button.m-voted, 
   button.no-touch:hover {
     color: $main-color;
 
-    i.icon {
-      color: lighten($main-color, 20%) !important;
+    .icon {
+      color: $main-color;
     }
   }
 
-  i.icon {
+  .icon {
     margin: 0 auto;
     display: block;
   }

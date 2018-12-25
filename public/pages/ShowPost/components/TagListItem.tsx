@@ -1,6 +1,7 @@
-import * as React from "react";
+import React from "react";
 import { Tag } from "@fider/models";
 import { ListItem, ShowTag } from "@fider/components";
+import { FaCheck } from "react-icons/fa";
 
 interface TagListItemProps {
   tag: Tag;
@@ -8,18 +9,16 @@ interface TagListItemProps {
   onClick: (tag: Tag) => void;
 }
 
-export class TagListItem extends React.Component<TagListItemProps, {}> {
-  private onClick = () => {
-    this.props.onClick(this.props.tag);
+export const TagListItem = (props: TagListItemProps) => {
+  const onClick = () => {
+    props.onClick(props.tag);
   };
 
-  public render() {
-    return (
-      <ListItem onClick={this.onClick}>
-        <i className={`icon ${this.props.assigned && "check"}`} />
-        <ShowTag tag={this.props.tag} size="mini" circular={true} />
-        <span>{this.props.tag.name}</span>
-      </ListItem>
-    );
-  }
-}
+  return (
+    <ListItem onClick={onClick}>
+      {props.assigned ? <FaCheck /> : <svg className="icon" />}
+      <ShowTag tag={props.tag} size="mini" circular={true} />
+      <span>{props.tag.name}</span>
+    </ListItem>
+  );
+};

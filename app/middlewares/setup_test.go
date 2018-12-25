@@ -82,7 +82,7 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 func TestWorkerSetup(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", "Any Task", dbx.New(), noop.NewLogger())
+	c := worker.NewContext("0", worker.Task{Name: "Any Task"}, dbx.New(), noop.NewLogger())
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
@@ -94,7 +94,7 @@ func TestWorkerSetup(t *testing.T) {
 func TestWorkerSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", "Any Task", dbx.New(), noop.NewLogger())
+	c := worker.NewContext("0", worker.Task{Name: "Any Task"}, dbx.New(), noop.NewLogger())
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()

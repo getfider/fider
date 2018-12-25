@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/tasks"
 
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -63,7 +64,8 @@ func UserSettings() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Settings",
+			Title:     "Settings",
+			ChunkName: "MySettings.page",
 			Data: web.Map{
 				"userSettings": settings,
 			},
@@ -74,18 +76,22 @@ func UserSettings() web.HandlerFunc {
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c web.Context) error {
+		var err error
+
 		input := new(actions.UpdateUserSettings)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Users.Update(input.Model)
-		if err != nil {
+		if err = handleImageUpload(c, input.Model.Avatar, "avatars"); err != nil {
+			return errors.Wrap(err, "failed to upload new user custom avatar")
+		}
+
+		if err = c.Services().Users.Update(input.Model); err != nil {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Users.UpdateSettings(input.Model.Settings)
-		if err != nil {
+		if err = c.Services().Users.UpdateSettings(input.Model.Settings); err != nil {
 			return c.Failure(err)
 		}
 

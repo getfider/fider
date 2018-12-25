@@ -1,8 +1,7 @@
-import * as React from "react";
-import { DisplayError, Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
+import React from "react";
+import { Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
 import { SignInModal } from "@fider/components";
 import { cache, actions, Failure, Fider } from "@fider/services";
-import { CurrentUser } from "@fider/models";
 
 interface PostInputProps {
   placeholder: string;
@@ -26,20 +25,14 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
   constructor(props: PostInputProps) {
     super(props);
     this.state = {
-      title: (Fider.session.isAuthenticated && cache.get(CACHE_TITLE_KEY)) || "",
-      description: (Fider.session.isAuthenticated && cache.get(CACHE_DESCRIPTION_KEY)) || "",
+      title: (Fider.session.isAuthenticated && cache.session.get(CACHE_TITLE_KEY)) || "",
+      description: (Fider.session.isAuthenticated && cache.session.get(CACHE_DESCRIPTION_KEY)) || "",
       focused: false,
       showSignIn: false
     };
 
     if (this.state.title) {
       this.props.onTitleChanged(this.state.title);
-    }
-  }
-
-  public componentDidMount() {
-    if (Fider.session.isAuthenticated && this.title) {
-      this.title.focus();
     }
   }
 
@@ -51,13 +44,13 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
   };
 
   private setTitle = (title: string) => {
-    cache.set(CACHE_TITLE_KEY, title);
+    cache.session.set(CACHE_TITLE_KEY, title);
     this.setState({ title });
     this.props.onTitleChanged(title);
   };
 
   private setDescription = (description: string) => {
-    cache.set(CACHE_DESCRIPTION_KEY, description);
+    cache.session.set(CACHE_DESCRIPTION_KEY, description);
     this.setState({ description });
   };
 
@@ -66,7 +59,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
       const result = await actions.createPost(this.state.title, this.state.description);
       if (result.ok) {
         this.setState({ error: undefined });
-        cache.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
+        cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
         location.href = `/posts/${result.data.number}/${result.data.slug}`;
         event.preventEnable();
       } else if (result.error) {

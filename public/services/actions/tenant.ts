@@ -1,6 +1,5 @@
 import { http, Result } from "@fider/services/http";
-import { Tenant, UserRole, OAuthConfig } from "@fider/models";
-import { ImageUploadState } from "@fider/components";
+import { UserRole, OAuthConfig, ImageUpload } from "@fider/models";
 
 export interface CheckAvailabilityResponse {
   message: string;
@@ -24,13 +23,7 @@ export const createTenant = async (request: CreateTenantRequest): Promise<Result
 };
 
 export interface UpdateTenantSettingsRequest {
-  logo?: {
-    upload?: {
-      content?: string;
-      contentType?: string;
-    };
-    remove: boolean;
-  };
+  logo?: ImageUpload;
   title: string;
   invitation: string;
   welcomeMessage: string;
@@ -74,6 +67,14 @@ export const changeUserRole = async (userID: number, role: UserRole): Promise<Re
   });
 };
 
+export const blockUser = async (userID: number): Promise<Result> => {
+  return await http.put(`/_api/admin/users/${userID}/block`);
+};
+
+export const unblockUser = async (userID: number): Promise<Result> => {
+  return await http.delete(`/_api/admin/users/${userID}/block`);
+};
+
 export const getOAuthConfig = async (provider: string): Promise<Result<OAuthConfig>> => {
   return await http.get<OAuthConfig>(`/_api/admin/oauth/${provider}`);
 };
@@ -91,7 +92,7 @@ export interface CreateEditOAuthConfigRequest {
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logo?: ImageUploadState;
+  logo?: ImageUpload;
 }
 
 export const saveOAuthConfig = async (request: CreateEditOAuthConfigRequest): Promise<Result> => {

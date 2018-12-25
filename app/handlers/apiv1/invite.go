@@ -6,6 +6,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/tasks"
@@ -23,9 +24,9 @@ func SendSampleInvite() web.HandlerFunc {
 			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
 			to := email.NewRecipient(c.User().Name, c.User().Email, email.Params{
 				"subject": input.Model.Subject,
-				"message": markdown.Parse(input.Model.Message),
+				"message": markdown.Full(input.Model.Message),
 			})
-			err := c.Services().Emailer.Send(c, "invite_email", email.Params{}, c.Tenant().Name, to)
+			err := c.Services().Emailer.Send(&c, "invite_email", email.Params{}, c.Tenant().Name, to)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -43,6 +44,10 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		c.Logger().Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+			"TotalInvites": len(input.Invitations),
+			"ClientIP":     c.Request.ClientIP,
+		})
 		c.Enqueue(tasks.SendInvites(input.Model.Subject, input.Model.Message, input.Invitations))
 
 		return c.Ok(web.Map{})

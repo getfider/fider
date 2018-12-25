@@ -18,7 +18,7 @@
         display: block;
       }
       span {
-        color: rgba($text-color, 0.5);
+        color: rgba($gray-darkest, 0.5);
         display: none;
       }
       &:hover {
@@ -32,7 +32,7 @@
     }
 
     .l-links a {
-      color: rgba($text-color, 0.5);
+      color: rgba($gray-darker, 0.5);
       margin: 0px 10px;
       &:hover {
         color: $link-color;

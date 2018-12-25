@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"strings"
-
 	"github.com/gosimple/slug"
 
 	"github.com/getfider/fider/app"
@@ -33,7 +31,7 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+	} else if len(input.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
@@ -79,7 +77,7 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
-	} else if len(input.Model.Title) < 10 || len(strings.Split(input.Model.Title, " ")) < 3 {
+	} else if len(input.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
 	}
 
@@ -240,4 +238,30 @@ func (input *EditComment) Validate(user *models.User, services *app.Services) *v
 	}
 
 	return result
+}
+
+// DeleteComment represents the action of deleting an existing comment
+type DeleteComment struct {
+	Model *models.DeleteComment
+}
+
+// Initialize the model
+func (input *DeleteComment) Initialize() interface{} {
+	input.Model = new(models.DeleteComment)
+	return input.Model
+}
+
+// IsAuthorized returns true if current user is authorized to perform this action
+func (input *DeleteComment) IsAuthorized(user *models.User, services *app.Services) bool {
+	comment, err := services.Posts.GetCommentByID(input.Model.CommentID)
+	if err != nil {
+		return false
+	}
+
+	return user.ID == comment.User.ID || user.IsCollaborator()
+}
+
+// Validate if current model is valid
+func (input *DeleteComment) Validate(user *models.User, services *app.Services) *validate.Result {
+	return validate.Success()
 }

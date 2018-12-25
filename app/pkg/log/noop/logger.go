@@ -1,14 +1,25 @@
 package noop
 
-import "github.com/getfider/fider/app/pkg/log"
+import (
+	"github.com/getfider/fider/app/pkg/log"
+)
 
 // Logger doesn't log anything
 type Logger struct {
+	enabled bool
 }
 
 // NewLogger creates a new Logger
 func NewLogger() *Logger {
 	return &Logger{}
+}
+
+// Disable logs for this logger
+func (l *Logger) Disable() {
+}
+
+// Enable logs for this logger
+func (l *Logger) Enable() {
 }
 
 // SetLevel increases/decreases current log level

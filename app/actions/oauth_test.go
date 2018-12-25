@@ -48,6 +48,14 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 	}
 }
 
+func TestCreateEditOAuthConfig_Initialize(t *testing.T) {
+	RegisterT(t)
+
+	action := &actions.CreateEditOAuthConfig{}
+	action.Initialize()
+	Expect(action.Model.Logo.BlobKey).Equals("")
+}
+
 func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 	RegisterT(t)
 
@@ -78,33 +86,35 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	RegisterT(t)
 
 	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID:           4,
+		ID: 4,
+		Logo: &models.ImageUpload{
+			BlobKey: "hello-world.png",
+		},
 		Provider:     "_NAME",
 		DisplayName:  "My Provider",
 		ClientSecret: "MY_OLD_SECRET",
 	})
 
-	input := &models.CreateEditOAuthConfig{
-		Provider:          "_NAME",
-		DisplayName:       "My Provider",
-		Status:            models.OAuthConfigDisabled,
-		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-		AuthorizeURL:      "http://provider/oauth/authorize",
-		TokenURL:          "http://provider/oauth/token",
-		Scope:             "profile email",
-		ProfileURL:        "http://provider/profile/me",
-		JSONUserIDPath:    "user.id",
-		JSONUserNamePath:  "user.name",
-		JSONUserEmailPath: "user.email",
-	}
-	action := &actions.CreateEditOAuthConfig{
-		Model: input,
-	}
+	action := &actions.CreateEditOAuthConfig{}
+	action.Initialize()
+	action.Model.Provider = "_NAME"
+	action.Model.DisplayName = "My Provider"
+	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.Model.ClientSecret = "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij"
+	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
+	action.Model.TokenURL = "http://provider/oauth/token"
+	action.Model.Scope = "profile email"
+	action.Model.ProfileURL = "http://provider/profile/me"
+	action.Model.JSONUserIDPath = "user.id"
+	action.Model.JSONUserNamePath = "user.name"
+	action.Model.JSONUserEmailPath = "user.email"
+
 	result := action.Validate(nil, services)
 	ExpectSuccess(result)
-	Expect(input.ID).Equals(4)
-	Expect(input.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(action.Model.ID).Equals(4)
+	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
+	Expect(action.Model.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
 }
 
 func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
@@ -112,52 +122,48 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 
 	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
 		ID:           5,
+		Logo:         &models.ImageUpload{},
 		Provider:     "_NAME2",
 		DisplayName:  "My Provider",
 		ClientSecret: "MY_OLD_SECRET",
 	})
 
-	input := &models.CreateEditOAuthConfig{
-		Provider:          "_NAME2",
-		DisplayName:       "My Provider",
-		Status:            models.OAuthConfigDisabled,
-		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-		AuthorizeURL:      "http://provider/oauth/authorize",
-		TokenURL:          "http://provider/oauth/token",
-		Scope:             "profile email",
-		ProfileURL:        "http://provider/profile/me",
-		JSONUserIDPath:    "user.id",
-		JSONUserNamePath:  "user.name",
-		JSONUserEmailPath: "user.email",
-	}
-	action := &actions.CreateEditOAuthConfig{
-		Model: input,
-	}
+	action := &actions.CreateEditOAuthConfig{}
+	action.Initialize()
+	action.Model.Provider = "_NAME2"
+	action.Model.DisplayName = "My Provider"
+	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
+	action.Model.TokenURL = "http://provider/oauth/token"
+	action.Model.Scope = "profile email"
+	action.Model.ProfileURL = "http://provider/profile/me"
+	action.Model.JSONUserIDPath = "user.id"
+	action.Model.JSONUserNamePath = "user.name"
+	action.Model.JSONUserEmailPath = "user.email"
+
 	result := action.Validate(nil, services)
 	ExpectSuccess(result)
-	Expect(input.ID).Equals(5)
-	Expect(input.ClientSecret).Equals("MY_OLD_SECRET")
+	Expect(action.Model.ID).Equals(5)
+	Expect(action.Model.ClientSecret).Equals("MY_OLD_SECRET")
 }
 
 func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	RegisterT(t)
 
-	input := &models.CreateEditOAuthConfig{
-		Provider:          "_MY_NEW_PROVIDER",
-		DisplayName:       "My Provider",
-		Status:            models.OAuthConfigDisabled,
-		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-		AuthorizeURL:      "http://provider/oauth/authorize",
-		TokenURL:          "http://provider/oauth/token",
-		Scope:             "profile email",
-		ProfileURL:        "http://provider/profile/me",
-		JSONUserIDPath:    "user.id",
-		JSONUserNamePath:  "user.name",
-		JSONUserEmailPath: "user.email",
-	}
-	action := &actions.CreateEditOAuthConfig{
-		Model: input,
-	}
+	action := &actions.CreateEditOAuthConfig{}
+	action.Initialize()
+	action.Model.Provider = "_MY_NEW_PROVIDER"
+	action.Model.DisplayName = "My Provider"
+	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
+	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
+	action.Model.TokenURL = "http://provider/oauth/token"
+	action.Model.Scope = "profile email"
+	action.Model.ProfileURL = "http://provider/profile/me"
+	action.Model.JSONUserIDPath = "user.id"
+	action.Model.JSONUserNamePath = "user.name"
+	action.Model.JSONUserEmailPath = "user.email"
 	result := action.Validate(nil, services)
 	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()

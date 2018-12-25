@@ -156,6 +156,26 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	Expect(comment.EditedBy.ID).Equals(aryaStark.ID)
 }
 
+func TestPostStorage_AddDeleteComment(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+	post, err := posts.Add("My new post", "with this description")
+	Expect(err).IsNil()
+
+	commentID, err := posts.AddComment(post, "Comment #1")
+	Expect(err).IsNil()
+
+	err = posts.DeleteComment(commentID)
+	Expect(err).IsNil()
+
+	comment, err := posts.GetCommentByID(commentID)
+	Expect(err).Equals(app.ErrNotFound)
+	Expect(comment).IsNil()
+}
+
 func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
@@ -505,4 +525,27 @@ func TestPostStorage_IsReferenced(t *testing.T) {
 	referenced, err = posts.IsReferenced(post3)
 	Expect(referenced).IsTrue()
 	Expect(err).IsNil()
+}
+
+func TestPostStorage_ListVotesOfPost(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	posts.SetCurrentTenant(demoTenant)
+	posts.SetCurrentUser(jonSnow)
+	post1, _ := posts.Add("My new post", "with this description")
+	posts.AddVote(post1, jonSnow)
+	posts.AddVote(post1, aryaStark)
+
+	users, err := posts.ListVotes(post1, -1)
+	Expect(err).IsNil()
+	Expect(users).HasLen(2)
+
+	Expect(users[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(users[0].User.Name).Equals("Jon Snow")
+	Expect(users[0].User.Email).Equals("jon.snow@got.com")
+
+	Expect(users[1].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(users[1].User.Name).Equals("Arya Stark")
+	Expect(users[1].User.Email).Equals("arya.stark@got.com")
 }

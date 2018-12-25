@@ -1,20 +1,7 @@
-import "./TagForm.scss";
-
-import * as React from "react";
-import { OAuthConfig, OAuthConfigStatus } from "@fider/models";
-import { Failure, Fider, actions, navigator } from "@fider/services";
-import {
-  Form,
-  Button,
-  Input,
-  Heading,
-  SocialSignInButton,
-  Field,
-  ImageUploadState,
-  ImageUploader,
-  Toggle,
-  OAuthProviderLogoURL
-} from "@fider/components";
+import React from "react";
+import { OAuthConfig, OAuthConfigStatus, ImageUpload } from "@fider/models";
+import { Failure, Fider, actions } from "@fider/services";
+import { Form, Button, Input, Heading, SocialSignInButton, Field, ImageUploader, Toggle } from "@fider/components";
 
 interface OAuthFormProps {
   config?: OAuthConfig;
@@ -35,8 +22,8 @@ export interface OAuthFormState {
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
-  logoURL?: string;
-  logo?: ImageUploadState;
+  logoBlobKey?: string;
+  logo?: ImageUpload;
   error?: Failure;
 }
 
@@ -57,7 +44,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       jsonUserIDPath: this.props.config ? this.props.config.jsonUserIDPath : "",
       jsonUserNamePath: this.props.config ? this.props.config.jsonUserNamePath : "",
       jsonUserEmailPath: this.props.config ? this.props.config.jsonUserEmailPath : "",
-      logoURL: this.props.config ? OAuthProviderLogoURL(this.props.config.logoID) : ""
+      logoBlobKey: this.props.config ? this.props.config.logoBlobKey : ""
     };
   }
 
@@ -78,7 +65,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
       logo: this.state.logo
     });
     if (result.ok) {
-      navigator.goTo("/admin/authentication");
+      location.reload();
     } else {
       this.setState({ error: result.error });
     }
@@ -92,8 +79,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ displayName });
   };
 
-  private setLogo = (logo: ImageUploadState, previewURL: string) => {
-    this.setState({ logo, logoURL: previewURL });
+  private setLogo = (logo: ImageUpload, previewURL: string) => {
+    this.setState({ logo });
   };
 
   private setStatus = async (enabled: boolean) => {
@@ -160,7 +147,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               <ImageUploader
                 label="Logo"
                 field="logo"
-                defaultImageURL={this.state.logoURL}
+                bkey={this.state.logoBlobKey}
                 previewMaxWidth={80}
                 disabled={!Fider.session.user.isAdministrator}
                 onChange={this.setLogo}
@@ -284,7 +271,7 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
               onChange={this.setJSONUserNamePath}
             >
               <p className="info">
-                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>
+                Path to extract user Display Name from the JSON. This is optional, but <strong>highly</strong>{" "}
                 recommended. For the example below, the path would be <strong>profile.name</strong>.
               </p>
             </Input>

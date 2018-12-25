@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -28,10 +30,11 @@ type Map map[string]interface{}
 // StringMap defines a map of type `map[string]string`
 type StringMap map[string]string
 
-// Props defines the data required to rende rages
+// Props defines the data required to render rages
 type Props struct {
 	Title       string
 	Description string
+	ChunkName   string
 	Data        Map
 }
 
@@ -47,6 +50,9 @@ var (
 	UTF8JSONContentType  = JSONContentType + "; charset=utf-8"
 )
 
+// CookieSessionName is the name of the cookie that holds the session ID
+const CookieSessionName = "user_session_id"
+
 // CookieAuthName is the name of the cookie that holds the Authentication Token
 const CookieAuthName = "auth"
 
@@ -54,30 +60,42 @@ const CookieAuthName = "auth"
 const CookieSignUpAuthName = "__signup_auth"
 
 var (
-	preffixKey            = "__CTX_"
-	tenantContextKey      = preffixKey + "TENANT"
-	userContextKey        = preffixKey + "USER"
-	claimsContextKey      = preffixKey + "CLAIMS"
-	transactionContextKey = preffixKey + "TRANSACTION"
-	servicesContextKey    = preffixKey + "SERVICES"
-	tasksContextKey       = preffixKey + "TASKS"
+	prefixKey             = "__CTX_"
+	tenantContextKey      = prefixKey + "TENANT"
+	userContextKey        = prefixKey + "USER"
+	claimsContextKey      = prefixKey + "CLAIMS"
+	transactionContextKey = prefixKey + "TRANSACTION"
+	servicesContextKey    = prefixKey + "SERVICES"
+	tasksContextKey       = prefixKey + "TASKS"
 )
 
 //Context shared between http pipeline
 type Context struct {
-	id       string
-	Response http.ResponseWriter
-	Request  Request
-	engine   *Engine
-	logger   log.Logger
-	params   StringMap
-	store    Map
-	worker   worker.Worker
+	id        string
+	sessionID string
+	Response  http.ResponseWriter
+	Request   Request
+	engine    *Engine
+	logger    log.Logger
+	params    StringMap
+	store     Map
+	worker    worker.Worker
 }
 
 //Engine returns main HTTP engine
 func (ctx *Context) Engine() *Engine {
 	return ctx.engine
+}
+
+//SessionID returns the current session ID
+func (ctx *Context) SessionID() string {
+	return ctx.sessionID
+}
+
+//SetSessionID sets the session ID on current context
+func (ctx *Context) SetSessionID(id string) {
+	ctx.sessionID = id
+	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -120,6 +138,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 			wc.SetTenant(c.Tenant())
 			wc.SetBaseURL(c.BaseURL())
 			wc.SetLogoURL(c.LogoURL())
+			wc.SetAssetsBaseURL(c.TenantAssetsURL(""))
 			return task.Job(wc)
 		}
 	}
@@ -130,13 +149,14 @@ func (ctx *Context) Enqueue(task worker.Task) {
 	}
 
 	ctx.Set(tasksContextKey, append(tasks, worker.Task{
-		Name: task.Name,
-		Job:  wrap(ctx),
+		OriginSessionID: ctx.SessionID(),
+		Name:            task.Name,
+		Job:             wrap(ctx),
 	}))
 }
 
 //Tenant returns current tenant
-func (ctx Context) Tenant() *models.Tenant {
+func (ctx *Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
 	if ok {
 		return tenant
@@ -153,6 +173,15 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 		ctx.Services().SetCurrentTenant(tenant)
 	}
 	ctx.Set(tenantContextKey, tenant)
+}
+
+//Bind context values into given model
+func (ctx *Context) Bind(i interface{}) error {
+	err := ctx.engine.binder.Bind(i, ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to bind request to model")
+	}
+	return nil
 }
 
 //BindTo context values into given model
@@ -214,7 +243,8 @@ func (ctx *Context) Gone() error {
 //Failure returns a 500 page
 func (ctx *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
-	if errors.Cause(err) == app.ErrNotFound {
+	cause := errors.Cause(err)
+	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
 		return ctx.NotFound()
 	}
 
@@ -276,7 +306,7 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 
 	buf := new(bytes.Buffer)
 	ctx.engine.renderer.Render(buf, template, props, ctx)
-	return ctx.Blob(code, HTMLContentType, buf.Bytes())
+	return ctx.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
 
 //AddParam add a single param to route parameters list
@@ -328,16 +358,17 @@ func (ctx *Context) Services() *app.Services {
 }
 
 //AddCookie adds a cookie
-func (ctx *Context) AddCookie(name, value string, expires time.Time) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
+	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
 		Secure:   ctx.Request.IsSecure,
-		SameSite: http.SameSiteLaxMode,
-	})
+	}
+	http.SetCookie(ctx.Response, cookie)
+	return cookie
 }
 
 //RemoveCookie removes a cookie
@@ -349,7 +380,6 @@ func (ctx *Context) RemoveCookie(name string) {
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
 		Secure:   ctx.Request.IsSecure,
-		SameSite: http.SameSiteLaxMode,
 	})
 }
 
@@ -369,7 +399,7 @@ func (ctx *Context) ActiveTransaction() *dbx.Trx {
 }
 
 //BaseURL returns base URL
-func (ctx Context) BaseURL() string {
+func (ctx *Context) BaseURL() string {
 	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
 
 	if ctx.Request.URL.Port() != "" {
@@ -404,6 +434,19 @@ func (ctx *Context) QueryParam(key string) string {
 	return ctx.Request.URL.Query().Get(key)
 }
 
+//QueryParamAsInt returns querystring parameter for given key
+func (ctx *Context) QueryParamAsInt(key string) (int, error) {
+	value := ctx.QueryParam(key)
+	if value == "" {
+		return 0, nil
+	}
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
+	}
+	return intValue, nil
+}
+
 //QueryParamAsArray returns querystring parameter for given key as an array
 func (ctx *Context) QueryParamAsArray(key string) []string {
 	param := ctx.QueryParam(key)
@@ -418,7 +461,7 @@ func (ctx *Context) Param(name string) string {
 	if ctx.params == nil {
 		return ""
 	}
-	return ctx.params[name]
+	return strings.TrimPrefix(ctx.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
@@ -460,7 +503,15 @@ func (ctx *Context) JSON(code int, i interface{}) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal response to JSON")
 	}
-	return ctx.Blob(code, JSONContentType, b)
+	return ctx.Blob(code, UTF8JSONContentType, b)
+}
+
+// Image sends an image blob response with status code and content type.
+func (ctx *Context) Image(contentType string, b []byte) error {
+	if !strings.HasPrefix(contentType, "image/") {
+		return ctx.Failure(errors.New("'%s' is not an image", ctx.Request.URL.String()))
+	}
+	return ctx.Blob(http.StatusOK, contentType, b)
 }
 
 // Blob sends a blob response with status code and content type.
@@ -485,14 +536,22 @@ func (ctx *Context) Redirect(url string) error {
 	return nil
 }
 
+// PermanentRedirect the request to a provided URL
+func (ctx *Context) PermanentRedirect(url string) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Response.Header().Set("Location", url)
+	ctx.Response.WriteHeader(http.StatusMovedPermanently)
+	return nil
+}
+
 // GlobalAssetsURL return the full URL to a globally shared static asset
 func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
-	if env.IsDefined("CDN_HOST") {
+	if env.Config.CDN.Host != "" {
 		if env.IsSingleHostMode() {
-			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
+			return ctx.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
-		return ctx.Request.URL.Scheme + "://cdn." + env.MustGet("CDN_HOST") + path
+		return ctx.Request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
 	}
 	return ctx.BaseURL() + path
 }
@@ -500,27 +559,48 @@ func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
 // TenantAssetsURL return the full URL to a tenant-specific static asset
 func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
-	if env.IsDefined("CDN_HOST") && ctx.Tenant() != nil {
+	if env.Config.CDN.Host != "" && ctx.Tenant() != nil {
 		if env.IsSingleHostMode() {
-			return ctx.Request.URL.Scheme + "://" + env.MustGet("CDN_HOST") + path
+			return ctx.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
-		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.MustGet("CDN_HOST") + path
+		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.Config.CDN.Host + path
 	}
 	return ctx.BaseURL() + path
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL
-func (ctx Context) LogoURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		return ctx.TenantAssetsURL("/images/200/%d", ctx.Tenant().LogoID)
+func (ctx *Context) LogoURL() string {
+	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
+		return ctx.TenantAssetsURL("/images/%s?size=200", ctx.Tenant().LogoBlobKey)
 	}
 	return "https://getfider.com/images/logo-100x100.png"
 }
 
 // FaviconURL return the full URL to the tenant-specific favicon URL
-func (ctx Context) FaviconURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoID > 0 {
-		return ctx.TenantAssetsURL("/images/50/%d", ctx.Tenant().LogoID)
+func (ctx *Context) FaviconURL() string {
+	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
+		return ctx.TenantAssetsURL("/favicon/%s", ctx.Tenant().LogoBlobKey)
 	}
-	return ctx.GlobalAssetsURL("/favicon.ico")
+	return ctx.GlobalAssetsURL("/favicon")
+}
+
+// SetCanonicalURL sets the canonical link on the HTTP Response Headers
+func (ctx *Context) SetCanonicalURL(rawurl string) {
+	u, err := url.Parse(rawurl)
+	if err == nil {
+		if u.Host == "" {
+			baseURL, ok := ctx.Get("Canonical-BaseURL").(string)
+			if !ok {
+				baseURL = ctx.BaseURL()
+			}
+			if len(rawurl) > 0 && rawurl[0] != '/' {
+				rawurl = "/" + rawurl
+			}
+			rawurl = baseURL + rawurl
+		} else {
+			ctx.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
+		}
+
+		ctx.Set("Canonical-URL", rawurl)
+	}
 }

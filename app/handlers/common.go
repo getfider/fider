@@ -9,14 +9,21 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
 //Health always returns OK
 func Health() web.HandlerFunc {
 	return func(c web.Context) error {
+		err := c.Engine().Database().Ping()
+		if err != nil {
+			return c.Failure(err)
+		}
 		return c.Ok(web.Map{})
 	}
 }
@@ -79,12 +86,44 @@ func RobotsTXT() web.HandlerFunc {
 }
 
 //Page returns a page without properties
-func Page(title, description string) web.HandlerFunc {
+func Page(title, description, chunkName string) web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Props{
 			Title:       title,
 			Description: description,
+			ChunkName:   chunkName,
 		})
+	}
+}
+
+//BrowserNotSupported returns an error page for browser that Fider dosn't support
+func BrowserNotSupported() web.HandlerFunc {
+	return func(c web.Context) error {
+		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
+			Title:       "Browser not supported",
+			Description: "We don't support this version of your browser",
+		})
+	}
+}
+
+//NewLogError is the input model for UI errors
+type NewLogError struct {
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+//LogError logs an error coming from the UI
+func LogError() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(NewLogError)
+		err := c.Bind(input)
+		if err != nil {
+			return c.Failure(err)
+		}
+		c.Logger().Errorf(input.Message, log.Props{
+			"Data": input.Data,
+		})
+		return c.Ok(web.Map{})
 	}
 }
 
@@ -115,4 +154,27 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	}
 
 	return result, nil
+}
+
+func handleImageUpload(c web.Context, img *models.ImageUpload, preffix string) error {
+	if img.Remove {
+		img.BlobKey = ""
+	} else if img.Upload != nil && len(img.Upload.Content) > 0 {
+		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
+		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
+		if err != nil {
+			return err
+		}
+		img.BlobKey = bkey
+	}
+	return nil
+}
+
+func between(n, min, max int) int {
+	if n > max {
+		return max
+	} else if n < min {
+		return min
+	}
+	return n
 }

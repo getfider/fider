@@ -1,17 +1,22 @@
 import "./MySettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import { Modal, Form, DisplayError, Button, Gravatar, Heading, Field, Input } from "@fider/components";
-import { DangerZone, APIKeyForm, NotificationSettings } from "./";
+import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploader } from "@fider/components";
 
-import { CurrentUser, UserSettings } from "@fider/models";
+import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
+import { FaRegAddressCard } from "react-icons/fa";
+import { NotificationSettings } from "./components/NotificationSettings";
+import { APIKeyForm } from "./components/APIKeyForm";
+import { DangerZone } from "./components/DangerZone";
 
 interface MySettingsPageState {
   showModal: boolean;
   name: string;
   newEmail: string;
+  avatar?: ImageUpload;
+  avatarType: UserAvatarType;
   changingEmail: boolean;
   error?: Failure;
   userSettings: UserSettings;
@@ -21,12 +26,13 @@ interface MySettingsPageProps {
   userSettings: UserSettings;
 }
 
-export class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
+export default class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {
       showModal: false,
       changingEmail: false,
+      avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
       userSettings: this.props.userSettings
@@ -34,7 +40,12 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
   }
 
   private confirm = async () => {
-    const result = await actions.updateUserSettings(this.state.name, this.state.userSettings);
+    const result = await actions.updateUserSettings({
+      name: this.state.name,
+      avatarType: this.state.avatarType,
+      avatar: this.state.avatar,
+      settings: this.state.userSettings
+    });
     if (result.ok) {
       location.reload();
     } else if (result.error) {
@@ -67,6 +78,12 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
     });
   };
 
+  private avatarTypeChanged = (opt?: SelectOption) => {
+    if (opt) {
+      this.setState({ avatarType: opt.value as UserAvatarType });
+    }
+  };
+
   private setName = (name: string) => {
     this.setState({ name });
   };
@@ -81,6 +98,10 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
   private setNewEmail = (newEmail: string) => {
     this.setState({ newEmail });
+  };
+
+  private setAvatar = (avatar: ImageUpload): void => {
+    this.setState({ avatar });
   };
 
   public render() {
@@ -109,27 +130,11 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon="address card outline" />
+        <Heading title="Settings" subtitle="Manage your profile settings" icon={FaRegAddressCard} />
 
         <div className="row">
           <div className="col-lg-7">
             <Form error={this.state.error}>
-              <Field label="Avatar">
-                <p>
-                  <Gravatar user={Fider.session.user} />
-                </p>
-                <div className="info">
-                  <p>
-                    This site uses{" "}
-                    <a href="https://en.gravatar.com/" target="blank">
-                      Gravatar
-                    </a>{" "}
-                    to display profile avatars. <br />A letter avatar based on your name is generated for profiles
-                    without a Gravatar.
-                  </p>
-                </div>
-              </Field>
-
               <Input
                 label="Email"
                 field="email"
@@ -141,7 +146,7 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
               >
                 <p className="info">
                   {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be displayed to anyone"
+                    ? "Your email is private and will never be publicly displayed."
                     : "Your account doesn't have an email."}
                 </p>
                 {this.state.changingEmail && (
@@ -158,6 +163,45 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
 
               <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
+              <Select
+                label="Avatar"
+                field="avatarType"
+                defaultValue={this.state.avatarType}
+                options={[
+                  { label: "Letter", value: UserAvatarType.Letter },
+                  { label: "Gravatar", value: UserAvatarType.Gravatar },
+                  { label: "Custom", value: UserAvatarType.Custom }
+                ]}
+                onChange={this.avatarTypeChanged}
+              >
+                {this.state.avatarType === UserAvatarType.Gravatar && (
+                  <p className="info">
+                    A{" "}
+                    <a href="https://en.gravatar.com" target="_blank">
+                      Gravatar
+                    </a>{" "}
+                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your
+                    initials is generated for you.
+                  </p>
+                )}
+                {this.state.avatarType === UserAvatarType.Letter && (
+                  <p className="info">A letter avatar based on your initials is generated for you.</p>
+                )}
+                {this.state.avatarType === UserAvatarType.Custom && (
+                  <ImageUploader
+                    field="avatar"
+                    previewMaxWidth={80}
+                    onChange={this.setAvatar}
+                    bkey={Fider.session.user.avatarBlobKey}
+                  >
+                    <p className="info">
+                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
+                      dimensions of 50x50 pixels.
+                    </p>
+                  </ImageUploader>
+                )}
+              </Select>
+
               <NotificationSettings
                 userSettings={this.props.userSettings}
                 settingsChanged={this.setNotificationSettings}
@@ -170,11 +214,13 @@ export class MySettingsPage extends React.Component<MySettingsPageProps, MySetti
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-lg-7">
-            <APIKeyForm />
+        {Fider.session.user.isCollaborator && (
+          <div className="row">
+            <div className="col-lg-7">
+              <APIKeyForm />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="row">
           <div className="col-lg-7">

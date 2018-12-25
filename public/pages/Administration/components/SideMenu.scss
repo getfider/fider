@@ -1,7 +1,9 @@
 @import '~@fider/assets/styles/variables.scss';
 
 .c-side-menu-toggler {
-  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
   margin-top: 5px;
   cursor: pointer;
 
@@ -16,7 +18,7 @@
   > div {
     width: 30px;
     height: 4px;
-    background-color: $text-color;
+    background-color: $gray-darkest;
     margin: 4px 0;
     transition: 0.4s;
   }
@@ -46,18 +48,18 @@
     display: block;
     padding: 12px;
     border-bottom: 1px solid rgba(34, 36, 38, .1);
-    color: $text-color;
+    color: $gray-darkest;
 
     &:hover {
-      color: $text-color;
-      background-color: $gray-lightest;
+      color: $gray-darkest;
+      background-color: $gray-lighter;
     }
 
     &.m-active {
       color: $admin-color;
       border-left: 2px solid $admin-color;
       font-weight: 600;
-      background-color: $menu-color;
+      background-color: $white;
       &:hover {
         color: $admin-color;
       }

@@ -1,8 +1,9 @@
-import * as React from "react";
+import React from "react";
 import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListPosts } from "./ListPosts";
 import { actions } from "@fider/services";
+import { FaRegLightbulb } from "react-icons/fa";
 
 interface SimilarPostsProps {
   title: string;
@@ -58,8 +59,8 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
       <>
         <Heading
           title="Similar posts"
-          subtitle="Consider voting on existing posts instead of posting a new one."
-          icon="lightbulb outline"
+          subtitle="Consider voting on existing posts instead."
+          icon={FaRegLightbulb}
           size="small"
           dividing={true}
         />

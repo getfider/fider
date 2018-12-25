@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Button, OAuthProviderLogo } from "@fider/components/common";
 import { classSet } from "@fider/services";
 
@@ -7,29 +7,24 @@ interface SocialSignInButtonProps {
     displayName: string;
     provider?: string;
     url?: string;
-    logoID?: number;
+    logoBlobKey?: string;
     logoURL?: string;
   };
   redirectTo?: string;
 }
 
-export class SocialSignInButton extends React.Component<SocialSignInButtonProps, {}> {
-  public render() {
-    const redirectTo = this.props.redirectTo || location.href;
-    const href = this.props.option.url ? `${this.props.option.url}?redirect=${redirectTo}` : undefined;
-    const className = classSet({
-      "m-social": true,
-      [`m-${this.props.option.provider}`]: this.props.option.provider
-    });
-    return (
-      <Button href={href} rel="nofollow" fluid={true} className={className}>
-        {this.props.option.logoURL ? (
-          <img src={this.props.option.logoURL} />
-        ) : (
-          <OAuthProviderLogo option={this.props.option} />
-        )}
-        <span>{this.props.option.displayName}</span>
-      </Button>
-    );
-  }
-}
+export const SocialSignInButton = (props: SocialSignInButtonProps) => {
+  const redirectTo = props.redirectTo || location.href;
+  const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : undefined;
+  const className = classSet({
+    "m-social": true,
+    [`m-${props.option.provider}`]: props.option.provider
+  });
+
+  return (
+    <Button href={href} rel="nofollow" fluid={true} className={className}>
+      {props.option.logoURL ? <img src={props.option.logoURL} /> : <OAuthProviderLogo option={props.option} />}
+      <span>{props.option.displayName}</span>
+    </Button>
+  );
+};

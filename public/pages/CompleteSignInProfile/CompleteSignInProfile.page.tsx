@@ -1,6 +1,7 @@
-import * as React from "react";
+import React from "react";
 
-import { HomePage, HomePageProps, SignInPage } from "../";
+import HomePage, { HomePageProps } from "../Home/Home.page";
+import SignInPage from "../SignIn/SignIn.page";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
 import { actions, Failure, querystring, Fider } from "@fider/services";
 
@@ -9,7 +10,7 @@ interface CompleteSignInProfilePageState {
   error?: Failure;
 }
 
-export class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
+export default class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
   private key: string;
 
   constructor(props: HomePageProps) {

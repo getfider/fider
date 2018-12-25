@@ -9,6 +9,8 @@ import (
 // Index is the default home page
 func Index() web.HandlerFunc {
 	return func(c web.Context) error {
+		c.SetCanonicalURL("")
+
 		posts, err := c.Services().Posts.Search(
 			c.QueryParam("query"),
 			c.QueryParam("view"),
@@ -38,6 +40,7 @@ func Index() web.HandlerFunc {
 
 		return c.Page(web.Props{
 			Description: description,
+			ChunkName:   "Home.page",
 			Data: web.Map{
 				"posts":          posts,
 				"tags":           tags,
@@ -52,7 +55,7 @@ func PostDetails() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		posts := c.Services().Posts
@@ -76,14 +79,21 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		votes, err := c.Services().Posts.ListVotes(post, 6)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:       post.Title,
 			Description: markdown.PlainText(post.Description),
+			ChunkName:   "ShowPost.page",
 			Data: web.Map{
 				"comments":   comments,
 				"subscribed": subscribed,
 				"post":       post,
 				"tags":       tags,
+				"votes":      votes,
 			},
 		})
 	}

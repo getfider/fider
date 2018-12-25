@@ -52,6 +52,23 @@ func CreatePost() web.HandlerFunc {
 	}
 }
 
+// GetPost retrieves the existing post by number
+func GetPost() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(post)
+	}
+}
+
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -111,6 +128,11 @@ func DeletePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		if input.Model.Text != "" {
+			// Only send notification if user wrote a comment.
+			c.Enqueue(tasks.NotifyAboutDeletedPost(input.Post))
+		}
+
 		return c.Ok(web.Map{})
 	}
 }
@@ -120,7 +142,7 @@ func ListComments() web.HandlerFunc {
 	return func(c web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
-			return c.Failure(err)
+			return c.NotFound()
 		}
 
 		post, err := c.Services().Posts.GetByNumber(number)
@@ -134,6 +156,23 @@ func ListComments() web.HandlerFunc {
 		}
 
 		return c.Ok(comments)
+	}
+}
+
+// GetComment returns a single comment by its ID
+func GetComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		comment, err := c.Services().Posts.GetCommentByID(id)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(comment)
 	}
 }
 
@@ -180,6 +219,23 @@ func UpdateComment() web.HandlerFunc {
 	}
 }
 
+// DeleteComment deletes an existing comment by its ID
+func DeleteComment() web.HandlerFunc {
+	return func(c web.Context) error {
+		input := new(actions.DeleteComment)
+		if result := c.BindTo(input); !result.Ok {
+			return c.HandleValidation(result)
+		}
+
+		err := c.Services().Posts.DeleteComment(input.Model.CommentID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(web.Map{})
+	}
+}
+
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c web.Context) error {
@@ -208,10 +264,32 @@ func Unsubscribe() web.HandlerFunc {
 	}
 }
 
+// ListVotes returns a list of all votes on given post
+func ListVotes() web.HandlerFunc {
+	return func(c web.Context) error {
+		number, err := c.ParamAsInt("number")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		post, err := c.Services().Posts.GetByNumber(number)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		votes, err := c.Services().Posts.ListVotes(post, -1)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Ok(votes)
+	}
+}
+
 func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
-		return c.Failure(err)
+		return c.NotFound()
 	}
 
 	post, err := c.Services().Posts.GetByNumber(number)

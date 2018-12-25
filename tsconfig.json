@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es5",
     "strict": true,
     "sourceMap": true,
     "types": [
-        "markdown-it", 
+        "marked", 
         "react", 
         "react-dom", 
         "react-textarea-autosize",
@@ -20,6 +23,7 @@
     "baseUrl": "./public",
     "importHelpers": true,
     "noEmitHelpers": true,
+    "noUnusedLocals": true,
     "paths": {
       "@fider/*": [
         "*"

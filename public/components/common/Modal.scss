@@ -45,7 +45,7 @@
   text-align: left;
   background: #fff;
   border: none;
-  border-radius: 0.3rem;
+  border-radius: 3px;
   -webkit-box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   width: 100%;
@@ -79,9 +79,11 @@
   }
 
   .c-modal-footer {
-    background: #f9fafb;
+    background: $gray-lightest;
     padding: 10px;
-    border-top: 1px solid rgba(34,36,38,.15);
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top: 1px solid $gray-light;
     &.m-right {
       text-align: right;
     }

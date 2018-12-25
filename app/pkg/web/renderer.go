@@ -1,10 +1,13 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 	"strings"
+	"sync"
 
 	"io/ioutil"
 
@@ -21,17 +24,27 @@ var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
-	"markdown": func(input string) template.HTML {
-		return markdown.Parse(input)
+	"replace": func(input, from, to string) string {
+		return strings.Replace(input, from, to, -1)
 	},
+	"markdown": func(input string) template.HTML {
+		return markdown.Full(input)
+	},
+}
+
+type clientAssets struct {
+	CSS []string
+	JS  []string
 }
 
 //Renderer is the default HTML Render
 type Renderer struct {
-	templates map[string]*template.Template
-	logger    log.Logger
-	settings  *models.SystemSettings
-	assets    map[string]string
+	templates     map[string]*template.Template
+	logger        log.Logger
+	settings      *models.SystemSettings
+	assets        *clientAssets
+	chunkedAssets map[string]*clientAssets
+	mutex         sync.RWMutex
 }
 
 // NewRenderer creates a new Renderer
@@ -40,7 +53,7 @@ func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
 		templates: make(map[string]*template.Template),
 		logger:    logger,
 		settings:  settings,
-		assets:    make(map[string]string, 0),
+		mutex:     sync.RWMutex{},
 	}
 }
 
@@ -57,34 +70,90 @@ func (r *Renderer) add(name string) *template.Template {
 	return tpl
 }
 
-func (r *Renderer) getBundle(folder, prefix, suffix string) string {
-	files, _ := ioutil.ReadDir(env.Path(folder))
-	if len(files) > 0 {
-		for _, file := range files {
-			fileName := file.Name()
-			if strings.HasPrefix(fileName, prefix) && strings.HasSuffix(fileName, suffix) {
-				return fileName
-			}
+func (r *Renderer) loadAssets() error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	if r.assets != nil && env.IsProduction() {
+		return nil
+	}
+
+	type assetsFile struct {
+		Entrypoints struct {
+			Main struct {
+				Assets []string `json:"assets"`
+			} `json:"main"`
+		} `json:"entrypoints"`
+		ChunkGroups map[string]struct {
+			Assets []string `json:"assets"`
+		} `json:"namedChunkGroups"`
+	}
+
+	assetsFilePath := "/dist/assets.json"
+	if env.IsTest() {
+		// Load a fake assets.json for Unit Testing
+		assetsFilePath = "/app/pkg/web/testdata/assets.json"
+	}
+
+	jsonFile, err := os.Open(env.Path(assetsFilePath))
+	if err != nil {
+		return errors.Wrap(err, "failed to open file: assets.json")
+	}
+	defer jsonFile.Close()
+
+	jsonBytes, _ := ioutil.ReadAll(jsonFile)
+	file := &assetsFile{}
+	err = json.Unmarshal([]byte(jsonBytes), file)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse file: assets.json")
+	}
+
+	r.assets = &clientAssets{
+		CSS: make([]string, 0),
+		JS:  make([]string, 0),
+	}
+
+	r.assets = getClientAssets(file.Entrypoints.Main.Assets)
+	r.chunkedAssets = make(map[string]*clientAssets)
+
+	for chunkName, chunkGroup := range file.ChunkGroups {
+		r.chunkedAssets[chunkName] = getClientAssets(chunkGroup.Assets)
+	}
+
+	return nil
+}
+
+func getClientAssets(assets []string) *clientAssets {
+	clientAssets := &clientAssets{
+		CSS: make([]string, 0),
+		JS:  make([]string, 0),
+	}
+
+	for _, asset := range assets {
+		if strings.HasSuffix(asset, ".map") {
+			continue
+		}
+
+		assetURL := "/assets/" + asset
+		if strings.HasSuffix(asset, ".css") {
+			clientAssets.CSS = append(clientAssets.CSS, assetURL)
+		} else if strings.HasSuffix(asset, ".js") {
+			clientAssets.JS = append(clientAssets.JS, assetURL)
 		}
 	}
 
-	// Panic if bundle is not available in production mode
-	if env.IsProduction() {
-		panic(fmt.Sprintf("Bundle not found: %s/%s.", folder, prefix))
-	}
-
-	return ""
+	return clientAssets
 }
 
 //Render a template based on parameters
 func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	var err error
 
-	if len(r.assets) == 0 || env.IsDevelopment() {
-		r.assets["main.js"] = r.getBundle("/dist/js", "main", "js")
-		r.assets["vendor.js"] = r.getBundle("/dist/js", "vendor", "js")
-		r.assets["main.css"] = r.getBundle("/dist/css", "main", "css")
-		r.assets["icons.woff2"] = r.getBundle("/dist/fonts", "icons", "woff2")
+	if r.assets == nil || env.IsDevelopment() {
+		err := r.loadAssets()
+		if err != nil && !env.IsTest() {
+			panic(err)
+		}
 	}
 
 	tmpl, ok := r.templates[name]
@@ -92,10 +161,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		tmpl = r.add(name)
 	}
 
-	m := props.Data
-	if m == nil {
-		m = make(Map, 0)
-	}
+	m := make(Map, 0)
 
 	tenantName := "Fider"
 	if ctx.Tenant() != nil {
@@ -114,15 +180,20 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		m["__description"] = fmt.Sprintf("%.150s", description)
 	}
 
-	m["__vendorBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["vendor.js"])
-	m["__jsBundle"] = ctx.GlobalAssetsURL("/assets/js/%s", r.assets["main.js"])
-	m["__cssBundle"] = ctx.GlobalAssetsURL("/assets/css/%s", r.assets["main.css"])
-	m["__fontBundle"] = ctx.GlobalAssetsURL("/assets/fonts/%s", r.assets["icons.woff2"])
+	if props.ChunkName != "" {
+		m["__chunkAssets"] = r.chunkedAssets[props.ChunkName]
+	}
+
+	m["__assets"] = r.assets
 	m["__logo"] = ctx.LogoURL()
 	m["__favicon"] = ctx.FaviconURL()
 	m["__contextID"] = ctx.ContextID()
 	m["__currentURL"] = ctx.Request.URL.String()
+	if canonicalURL := ctx.Get("Canonical-URL"); canonicalURL != nil {
+		m["__canonicalURL"] = canonicalURL
+	}
 	m["__tenant"] = ctx.Tenant()
+	m["__props"] = props.Data
 
 	oauthProviders := make([]*oauth.ProviderOption, 0)
 	if !ctx.IsAuthenticated() && ctx.Services() != nil {
@@ -142,7 +213,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
-		"assetsURL":       ctx.TenantAssetsURL(""),
+		"tenantAssetsURL": ctx.TenantAssetsURL(""),
+		"globalAssetsURL": ctx.GlobalAssetsURL(""),
 		"oauth":           oauthProviders,
 	}
 
@@ -154,6 +226,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 			"email":           u.Email,
 			"role":            u.Role,
 			"status":          u.Status,
+			"avatarType":      u.AvatarType,
+			"avatarURL":       u.AvatarURL,
+			"avatarBlobKey":   u.AvatarBlobKey,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
 		}

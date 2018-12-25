@@ -1,11 +1,13 @@
 import "./Home.page.scss";
 
-import * as React from "react";
+import React from "react";
 import { Post, Tag, PostStatus } from "@fider/models";
-import { MultiLineText } from "@fider/components";
-import { PostInput, ListPosts, PostsContainer } from "./";
-import { actions, Fider } from "@fider/services";
+import { MultiLineText, Hint } from "@fider/components";
+import { Fider } from "@fider/services";
 import { SimilarPosts } from "./components/SimilarPosts";
+import { FaRegLightbulb } from "react-icons/fa";
+import { PostInput } from "./components/PostInput";
+import { PostsContainer } from "./components/PostsContainer";
 
 export interface HomePageProps {
   posts: Post[];
@@ -19,9 +21,16 @@ export interface HomePageState {
 
 const Lonely = () => {
   return (
-    <div className="center">
+    <div className="l-lonely center">
+      <Hint
+        permanentCloseKey="at-least-3-posts"
+        condition={Fider.session.isAuthenticated && Fider.session.user.isAdministrator}
+      >
+        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The
+        initial content is key to start the interactions with your audience.
+      </Hint>
       <p>
-        <i className="icon lightbulb outline" aria-hidden="true" />
+        <FaRegLightbulb />
       </p>
       <p>It's lonely out here. Start by sharing a suggestion!</p>
     </div>
@@ -32,7 +41,7 @@ const defaultWelcomeMessage = `We'd love to hear what you're thinking about.
 
 What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
-export class HomePage extends React.Component<HomePageProps, HomePageState> {
+export default class HomePage extends React.Component<HomePageProps, HomePageState> {
   constructor(props: HomePageProps) {
     super(props);
     this.state = {
@@ -61,7 +70,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
     return (
       <div id="p-home" className="page container">
         <div className="row">
-          <div className="col-md-4">
+          <div className="l-welcome-col col-md-4">
             <MultiLineText
               className="welcome-message"
               text={Fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
@@ -72,7 +81,7 @@ export class HomePage extends React.Component<HomePageProps, HomePageState> {
               onTitleChanged={this.setTitle}
             />
           </div>
-          <div className="col-md-8">
+          <div className="l-posts-col col-md-8">
             {this.isLonely() ? (
               <Lonely />
             ) : this.state.title ? (

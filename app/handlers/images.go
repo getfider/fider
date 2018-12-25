@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"fmt"
+	"image/color"
 	"image/png"
 	"io/ioutil"
 	"net/http"
@@ -10,19 +11,59 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/pkg/crypto"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
-
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/goenning/letteravatar"
 )
 
-//Avatar returns a gravatar picture of fallsback to letter avatar based on name
-func Avatar() web.HandlerFunc {
+//LetterAvatar returns a letter gravatar picture based on given name
+func LetterAvatar() web.HandlerFunc {
 	return func(c web.Context) error {
+		id := c.Param("id")
 		name := c.Param("name")
-		size, _ := c.ParamAsInt("size")
+		if name == "" {
+			name = "?"
+		}
+
+		size, err := c.QueryParamAsInt("size")
+		if err != nil {
+			return c.Failure(err)
+		}
+		size = between(size, 50, 200)
+
+		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
+			PaletteKey: fmt.Sprintf("%s:%s", id, name),
+		})
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		buf := new(bytes.Buffer)
+		err = png.Encode(buf, img)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		return c.Image("image/png", buf.Bytes())
+	}
+}
+
+//Gravatar returns a gravatar picture of fallsback to letter avatar based on name
+func Gravatar() web.HandlerFunc {
+	return func(c web.Context) error {
 		id, err := c.ParamAsInt("id")
+		if err != nil {
+			return c.NotFound()
+		}
+
+		size, err := c.QueryParamAsInt("size")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		size = between(size, 50, 200)
 
 		if err == nil && id > 0 {
 			user, err := c.Services().Users.GetByID(id)
@@ -36,7 +77,7 @@ func Avatar() web.HandlerFunc {
 						c.Logger().Debugf("Gavatar found in cache: @{GravatarURL}", log.Props{
 							"GravatarURL": cacheKey,
 						})
-						return c.Blob(http.StatusOK, http.DetectContentType(image.([]byte)), image.([]byte))
+						return c.Image(http.DetectContentType(image.([]byte)), image.([]byte))
 					}
 
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
@@ -50,7 +91,7 @@ func Avatar() web.HandlerFunc {
 							bytes, err := ioutil.ReadAll(resp.Body)
 							if err == nil {
 								c.Engine().Cache().Set(cacheKey, bytes, time.Hour*24)
-								return c.Blob(http.StatusOK, http.DetectContentType(bytes), bytes)
+								return c.Image(http.DetectContentType(bytes), bytes)
 							}
 						}
 					}
@@ -58,46 +99,86 @@ func Avatar() web.HandlerFunc {
 			}
 		}
 
-		img, err := letteravatar.Draw(size, strings.ToUpper(letteravatar.Extract(name)), &letteravatar.Options{
-			PaletteKey: fmt.Sprintf("%d:%s", id, name),
-		})
+		return LetterAvatar()(c)
+	}
+}
+
+//Favicon returns the Fider favicon by given size
+func Favicon() web.HandlerFunc {
+	return func(c web.Context) error {
+		var (
+			bytes       []byte
+			err         error
+			contentType string
+		)
+
+		bkey := c.Param("bkey")
+		if bkey != "" {
+			logo, err := c.Services().Blobs.Get(bkey)
+			if err != nil {
+				return c.Failure(err)
+			}
+			bytes = logo.Object
+			contentType = logo.ContentType
+		} else {
+			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
+			contentType = "image/png"
+			if err != nil {
+				return c.Failure(err)
+			}
+		}
+
+		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		buf := new(bytes.Buffer)
-		err = png.Encode(buf, img)
+		size = between(size, 50, 200)
+
+		opts := []img.ImageOperation{}
+		if size > 0 {
+			opts = append(opts, img.Padding(size*10/100))
+			opts = append(opts, img.Resize(size))
+		}
+
+		if c.QueryParam("bg") != "" {
+			opts = append(opts, img.ChangeBackground(color.White))
+		}
+
+		bytes, err = img.Apply(bytes, opts...)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Blob(http.StatusOK, "image/png", buf.Bytes())
+		return c.Image(contentType, bytes)
 	}
 }
 
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
 	return func(c web.Context) error {
-		id, err := c.ParamAsInt("id")
+		bkey := c.Param("bkey")
+
+		size, err := c.QueryParamAsInt("size")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		size, err := c.ParamAsInt("size")
+		size = between(size, 50, 2000)
+
+		logo, err := c.Services().Blobs.Get(bkey)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		logo, err := c.Services().Tenants.GetUpload(id)
-		if err != nil {
-			return c.Failure(err)
+		bytes := logo.Object
+		if size > 0 {
+			bytes, err = img.Apply(bytes, img.Resize(size))
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
-		bytes, err := img.Resize(logo.Content, size)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		return c.Blob(http.StatusOK, logo.ContentType, bytes)
+		return c.Image(logo.ContentType, bytes)
 	}
 }

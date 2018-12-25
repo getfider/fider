@@ -4,7 +4,7 @@ export interface OAuthProviderOption {
   clientID: string;
   url: string;
   callbackURL: string;
-  logoID: number;
+  logoBlobKey: string;
   isCustomProvider: boolean;
   isEnabled: boolean;
 }
@@ -18,7 +18,8 @@ export interface SystemSettings {
   domain: string;
   hasLegal: boolean;
   baseURL: string;
-  assetsURL: string;
+  tenantAssetsURL: string;
+  globalAssetsURL: string;
   oauth: OAuthProviderOption[];
 }
 
@@ -40,9 +41,19 @@ export interface OAuthConfig {
   authorizeURL: string;
   tokenURL: string;
   profileURL: string;
-  logoID: number;
+  logoBlobKey: string;
   scope: string;
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
+}
+
+export interface ImageUpload {
+  bkey?: string;
+  upload?: {
+    fileName?: string;
+    content?: string;
+    contentType?: string;
+  };
+  remove: boolean;
 }

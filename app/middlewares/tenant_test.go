@@ -94,7 +94,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	}{
 		{
 			"http://avengers.test.fider.io/",
-			"<http://feedback.theavengers.com/>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/",
 			false,
 		},
 		{
@@ -109,12 +109,12 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		},
 		{
 			"http://avengers.test.fider.io/posts",
-			"<http://feedback.theavengers.com/posts>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/posts",
 			false,
 		},
 		{
 			"http://avengers.test.fider.io/posts?q=1",
-			"<http://feedback.theavengers.com/posts?q=1>; rel=\"canonical\"",
+			"http://feedback.theavengers.com/posts?q=1",
 			false,
 		},
 		{
@@ -131,14 +131,17 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		if testCase.isAjax {
 			server.AddHeader("Accept", "application/json")
 		}
-		status, response := server.
+
+		var canonicalURL string
+		status, _ := server.
 			WithURL(testCase.input).
 			Execute(func(c web.Context) error {
+				canonicalURL, _ = c.Get("Canonical-URL").(string)
 				return c.Ok(web.Map{})
 			})
 
 		Expect(status).Equals(http.StatusOK)
-		Expect(response.HeaderMap.Get("Link")).Equals(testCase.output)
+		Expect(canonicalURL).Equals(testCase.output)
 	}
 
 }
@@ -173,12 +176,13 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	Expect(response.Body.String()).Equals("MyCompany")
 }
 
-func TestOnlyActiveTenants_Active(t *testing.T) {
+func TestBlockPendingTenants_Active(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantActive
 
-	server.Use(middlewares.OnlyActiveTenants())
+	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -186,18 +190,18 @@ func TestOnlyActiveTenants_Active(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 }
 
-func TestOnlyActiveTenants_Inactive(t *testing.T) {
+func TestBlockPendingTenants_Pending(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantInactive
+	mock.DemoTenant.Status = models.TenantPending
 
-	server.Use(middlewares.OnlyActiveTenants())
+	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusTeapot)
 	})
 
-	Expect(status).Equals(http.StatusNotFound)
+	Expect(status).Equals(http.StatusOK)
 }
 
 func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {

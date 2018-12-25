@@ -1,26 +1,15 @@
 import "./GeneralSettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import {
-  Button,
-  ButtonClickEvent,
-  TextArea,
-  Form,
-  Input,
-  ImageUploader,
-  ImageUploadState,
-  TenantLogoURL
-} from "@fider/components/common";
-import { actions, Failure, fileToBase64, Fider } from "@fider/services";
-import { AdminBasePage } from "../components";
-
-interface GeneralSettingsPageProps {
-  publicIP: string;
-}
+import { Button, ButtonClickEvent, TextArea, Form, Input, ImageUploader } from "@fider/components/common";
+import { actions, Failure, Fider } from "@fider/services";
+import { FaCogs } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
+import { ImageUpload } from "@fider/models";
 
 interface GeneralSettingsPageState {
-  logo?: ImageUploadState;
+  logo?: ImageUpload;
   title: string;
   invitation: string;
   welcomeMessage: string;
@@ -28,16 +17,14 @@ interface GeneralSettingsPageState {
   error?: Failure;
 }
 
-export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps, GeneralSettingsPageState> {
-  private fileSelector?: HTMLInputElement | null;
-
+export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettingsPageState> {
   public id = "p-admin-general";
   public name = "general";
-  public icon = "settings";
+  public icon = FaCogs;
   public title = "General";
   public subtitle = "Manage your site settings";
 
-  constructor(props: GeneralSettingsPageProps) {
+  constructor(props: {}) {
     super(props);
 
     this.state = {
@@ -58,47 +45,16 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     }
   };
 
-  public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const base64 = await fileToBase64(file);
-      this.setState({
-        logo: {
-          upload: {
-            content: base64,
-            contentType: file.type,
-            action: "upload"
-          },
-          ignore: false,
-          remove: false
-        }
-      });
-    }
-  };
-
-  public removeFile = async (e: ButtonClickEvent) => {
-    this.setState({
-      logo: {
-        ignore: false,
-        remove: true
-      }
-    });
-  };
-
-  public selectFile = async (e: ButtonClickEvent) => {
-    if (this.fileSelector) {
-      this.fileSelector.click();
-    }
-  };
-
   public dnsInstructions(): JSX.Element {
-    const isApex = this.state.cname.split(".").length === 2;
-    const recordType = isApex ? "A" : "CNAME";
-    const publicIP = this.props.publicIP || "<error>";
-    const targetRecord = isApex ? publicIP : `${Fider.session.tenant.subdomain}${Fider.settings.domain}`;
+    const isApex = this.state.cname.split(".").length <= 2;
+    const recordType = isApex ? "ALIAS" : "CNAME";
     return (
       <>
-        <strong>{this.state.cname}</strong> {recordType} <strong>{targetRecord}</strong>
+        <strong>{this.state.cname}</strong> {recordType}{" "}
+        <strong>
+          {Fider.session.tenant.subdomain}
+          {Fider.settings.domain}
+        </strong>
       </>
     );
   }
@@ -115,7 +71,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
     this.setState({ invitation });
   };
 
-  private setLogo = (logo: ImageUploadState): void => {
+  private setLogo = (logo: ImageUpload): void => {
     this.setState({ logo });
   };
 
@@ -153,7 +109,7 @@ export class GeneralSettingsPage extends AdminBasePage<GeneralSettingsPageProps,
         <ImageUploader
           label="Logo"
           field="logo"
-          defaultImageURL={TenantLogoURL(200)}
+          bkey={Fider.session.tenant.logoBlobKey}
           previewMaxWidth={200}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setLogo}

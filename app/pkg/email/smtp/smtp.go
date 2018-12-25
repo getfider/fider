@@ -1,11 +1,15 @@
 package smtp
 
 import (
+	"crypto/rand"
 	"crypto/tls"
+	"encoding/hex"
 	"fmt"
 	"net"
 	gosmtp "net/smtp"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -16,7 +20,7 @@ func authenticate(username string, password string, host string) gosmtp.Auth {
 	if username == "" && password == "" {
 		return nil
 	}
-	return gosmtp.PlainAuth("", username, password, host)
+	return AgnosticAuth("", username, password, host)
 }
 
 type builder struct {
@@ -89,6 +93,8 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	b.Set("Subject", message.Subject)
 	b.Set("MIME-version", "1.0")
 	b.Set("Content-Type", "text/html; charset=\"UTF-8\"")
+	b.Set("Date", time.Now().Format(time.RFC1123Z))
+	b.Set("Message-ID", generateMessageID(localname))
 	b.Body(message.Body)
 
 	servername := fmt.Sprintf("%s:%s", s.host, s.port)
@@ -156,4 +162,16 @@ func sendMail(localName, serverAddress string, a gosmtp.Auth, from string, to []
 		return err
 	}
 	return c.Quit()
+}
+
+func generateMessageID(localName string) string {
+	timestamp := strconv.FormatInt(time.Now().UTC().UnixNano(), 10)
+	buf := make([]byte, 16)
+	_, err := rand.Read(buf)
+	if err != nil {
+	  panic(err)
+	}
+	randStr := hex.EncodeToString(buf)
+	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, localName)
+	return messageID
 }

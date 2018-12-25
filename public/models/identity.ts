@@ -6,13 +6,27 @@ export interface Tenant {
   invitation: string;
   welcomeMessage: string;
   isPrivate: boolean;
-  logoID: number;
+  logoBlobKey: string;
 }
 
 export interface User {
   id: number;
   name: string;
   role: UserRole;
+  status: UserStatus;
+  avatarURL: string;
+}
+
+export enum UserAvatarType {
+  Letter = "letter",
+  Gravatar = "gravatar",
+  Custom = "custom"
+}
+
+export enum UserStatus {
+  Active = "active",
+  Deleted = "deleted",
+  Blocked = "blocked"
 }
 
 export enum UserRole {
@@ -29,7 +43,11 @@ export interface CurrentUser {
   id: number;
   name: string;
   email: string;
+  avatarType: UserAvatarType;
+  avatarBlobKey: string;
+  avatarURL: string;
   role: UserRole;
+  status: UserStatus;
   isAdministrator: boolean;
   isCollaborator: boolean;
 }

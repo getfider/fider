@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -11,26 +13,31 @@ import (
 
 //Context holds references to services available for jobs
 type Context struct {
-	workerID string
-	taskName string
-	services *app.Services
-	logger   log.Logger
-	db       *dbx.Database
-	baseURL  string
-	logoURL  string
-	user     *models.User
-	tenant   *models.Tenant
+	workerID      string
+	taskName      string
+	services      *app.Services
+	logger        log.Logger
+	db            *dbx.Database
+	baseURL       string
+	logoURL       string
+	assetsBaseURL string
+	user          *models.User
+	tenant        *models.Tenant
 }
 
 //NewContext creates a new context
-func NewContext(workerID, taskName string, db *dbx.Database, logger log.Logger) *Context {
+func NewContext(workerID string, task Task, db *dbx.Database, logger log.Logger) *Context {
 	ctxLogger := logger.New()
 	contextID := rand.String(32)
+
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	if task.OriginSessionID != "" {
+		ctxLogger.SetProperty(log.PropertyKeySessionID, task.OriginSessionID)
+	}
 
 	return &Context{
 		workerID: workerID,
-		taskName: taskName,
+		taskName: task.Name,
 		db:       db,
 		logger:   ctxLogger,
 	}
@@ -44,6 +51,11 @@ func (c *Context) SetBaseURL(baseURL string) {
 //SetLogoURL on context
 func (c *Context) SetLogoURL(logoURL string) {
 	c.logoURL = logoURL
+}
+
+//SetAssetsBaseURL on context
+func (c *Context) SetAssetsBaseURL(assetsBaseURL string) {
+	c.assetsBaseURL = assetsBaseURL
 }
 
 //SetUser on context
@@ -123,4 +135,10 @@ func (c *Context) Failure(err error) error {
 // LogoURL return the full URL to the tenant-specific logo URL
 func (c Context) LogoURL() string {
 	return c.logoURL
+}
+
+// TenantAssetsURL return the full URL to a tenant-specific static asset
+func (c Context) TenantAssetsURL(path string, a ...interface{}) string {
+	path = fmt.Sprintf(path, a...)
+	return c.assetsBaseURL + path
 }

@@ -6,6 +6,11 @@ import (
 	"github.com/getfider/fider/app/models"
 )
 
+// Context holds everything storages need to know about execution context
+type Context interface {
+	TenantAssetsURL(path string, a ...interface{}) string
+}
+
 // Base is a generic storage base interface
 type Base interface {
 	SetCurrentTenant(*models.Tenant)
@@ -27,6 +32,7 @@ type Post interface {
 	AddComment(post *models.Post, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
+	DeleteComment(id int) error
 	AddVote(post *models.Post, user *models.User) error
 	RemoveVote(post *models.Post, user *models.User) error
 	AddSubscriber(post *models.Post, user *models.User) error
@@ -36,6 +42,7 @@ type Post interface {
 	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
 	VotedBy() ([]int, error)
+	ListVotes(post *models.Post, limit int) ([]*models.Vote, error)
 }
 
 // User is used for user operations
@@ -56,11 +63,14 @@ type User interface {
 	HasSubscribedTo(postID int) (bool, error)
 	GetByAPIKey(apiKey string) (*models.User, error)
 	RegenerateAPIKey() (string, error)
+	Block(userID int) error
+	Unblock(userID int) error
 }
 
 // Tenant contains read and write operations for tenants
 type Tenant interface {
 	Base
+	Current() *models.Tenant
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	Activate(id int) error
@@ -73,7 +83,6 @@ type Tenant interface {
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error
-	GetUpload(id int) (*models.Upload, error)
 	SaveOAuthConfig(config *models.CreateEditOAuthConfig) error
 	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)
 	ListOAuthConfig() ([]*models.OAuthConfig, error)

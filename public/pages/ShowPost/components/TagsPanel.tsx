@@ -1,8 +1,9 @@
-import * as React from "react";
-import { CurrentUser, Tag, Post } from "@fider/models";
+import React from "react";
+import { Tag, Post } from "@fider/models";
 import { actions, Fider } from "@fider/services";
 import { ShowTag, List, ListItem } from "@fider/components";
 import { TagListItem } from "./TagListItem";
+import { FaCheckCircle, FaCog } from "react-icons/fa";
 
 interface TagsPanelProps {
   post: Post;
@@ -83,19 +84,17 @@ export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
     );
 
     const subtitleClasses = `subtitle ${this.state.canEdit && "active"}`;
-    const icon =
-      this.state.canEdit &&
-      (this.state.isEditing ? <i className="check circle icon" /> : <i className="setting icon" />);
+    const icon = this.state.canEdit && (this.state.isEditing ? <FaCheckCircle /> : <FaCog />);
 
     return (
-      <div>
+      <>
         <span className={subtitleClasses} onClick={this.onSubtitleClick}>
           Tags {icon}
         </span>
 
         {!this.state.isEditing && tagsList}
         {this.state.isEditing && editTagsList}
-      </div>
+      </>
     );
   }
 }

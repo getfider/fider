@@ -1,8 +1,6 @@
 package postgres_test
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 	"time"
 
@@ -18,7 +16,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 
 	Expect(err).IsNil()
 	Expect(tenant).IsNotNil()
@@ -27,7 +25,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(tenant.Name).Equals("My Domain Inc.")
 	Expect(tenant.Subdomain).Equals("mydomain")
-	Expect(tenant.Status).Equals(models.TenantInactive)
+	Expect(tenant.Status).Equals(models.TenantPending)
 	Expect(tenant.IsPrivate).IsFalse()
 
 	err = tenants.Activate(tenant.ID)
@@ -45,9 +43,9 @@ func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 
-	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantInactive)
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 	Expect(err).IsNil()
 	Expect(tenant).IsNotNil()
 }
@@ -158,6 +156,9 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 
 	settings := &models.UpdateTenantSettings{
+		Logo: &models.ImageUpload{
+			BlobKey: "some-logo-key.png",
+		},
 		Title:          "New Demonstration",
 		Invitation:     "Leave us your suggestion",
 		WelcomeMessage: "Welcome!",
@@ -173,92 +174,7 @@ func TestTenantStorage_UpdateSettings(t *testing.T) {
 	Expect(tenant.Invitation).Equals("Leave us your suggestion")
 	Expect(tenant.WelcomeMessage).Equals("Welcome!")
 	Expect(tenant.CNAME).Equals("demo.company.com")
-	Expect(tenant.LogoID).Equals(0)
-}
-
-func TestTenantStorage_UpdateSettings_WithLogo(t *testing.T) {
-	SetupDatabaseTest(t)
-	defer TeardownDatabaseTest()
-
-	tenant, _ := tenants.GetByDomain("demo")
-	tenants.SetCurrentTenant(tenant)
-
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
-
-	settings := &models.UpdateTenantSettings{
-		Logo: &models.ImageUpload{
-			Upload: &models.ImageUploadData{
-				Content: logo,
-			},
-		},
-		Title:          "New Demonstration",
-		Invitation:     "Leave us your suggestion",
-		WelcomeMessage: "Welcome!",
-		CNAME:          "demo.company.com",
-	}
-	err := tenants.UpdateSettings(settings)
-	Expect(err).IsNil()
-
-	upload, err := tenants.GetUpload(tenant.LogoID)
-	Expect(err).IsNil()
-	Expect(upload.Content).Equals(logo)
-	Expect(upload.Size).Equals(len(logo))
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
-
-	//Remove Logo
-	settings.Logo.Upload = nil
-	settings.Logo.Remove = true
-	err = tenants.UpdateSettings(settings)
-	Expect(err).IsNil()
-
-	tenant, err = tenants.GetByDomain("demo")
-	Expect(err).IsNil()
-	Expect(tenant.LogoID).Equals(0)
-}
-
-func TestTenantStorage_UpdateSettings_ReplaceLogo(t *testing.T) {
-	SetupDatabaseTest(t)
-	defer TeardownDatabaseTest()
-
-	tenant, _ := tenants.GetByDomain("demo")
-	tenants.SetCurrentTenant(tenant)
-
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
-
-	settings := &models.UpdateTenantSettings{
-		Logo: &models.ImageUpload{
-			Upload: &models.ImageUploadData{
-				Content: logo,
-			},
-		},
-		Title:          "New Demonstration",
-		Invitation:     "Leave us your suggestion",
-		WelcomeMessage: "Welcome!",
-		CNAME:          "demo.company.com",
-	}
-	err := tenants.UpdateSettings(settings)
-	Expect(err).IsNil()
-
-	firstLogoID := tenant.LogoID
-	upload, err := tenants.GetUpload(firstLogoID)
-	Expect(err).IsNil()
-	Expect(upload.Content).Equals(logo)
-	Expect(upload.Size).Equals(len(logo))
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
-
-	//Replace logo with a new one
-	newLogo, _ := ioutil.ReadFile(env.Path("./README.md"))
-	settings.Logo.Upload.Content = newLogo
-	err = tenants.UpdateSettings(settings)
-	Expect(err).IsNil()
-
-	Expect(tenant.LogoID).NotEquals(firstLogoID)
-
-	upload, err = tenants.GetUpload(tenant.LogoID)
-	Expect(err).IsNil()
-	Expect(upload.Content).Equals(newLogo)
-	Expect(upload.Size).Equals(len(newLogo))
-	Expect(upload.ContentType).Equals("text/html; charset=utf-8")
+	Expect(tenant.LogoBlobKey).Equals("some-logo-key.png")
 }
 
 func TestTenantStorage_AdvancedSettings(t *testing.T) {
@@ -379,15 +295,10 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
-	logo, _ := ioutil.ReadFile(env.Path("./favicon.ico"))
-
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
 		ID: 0,
 		Logo: &models.ImageUpload{
-			Upload: &models.ImageUploadData{
-				Content:     logo,
-				ContentType: "image/vnd.microsoft.icon",
-			},
+			BlobKey: "uploads/my-logo-key.png",
 		},
 		Provider:          "_TEST",
 		DisplayName:       "My Provider",
@@ -406,6 +317,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	config, err = tenants.GetOAuthConfigByProvider("_TEST")
 	Expect(err).IsNil()
 	Expect(config.ID).Equals(1)
+	Expect(config.LogoBlobKey).Equals("uploads/my-logo-key.png")
 	Expect(config.Provider).Equals("_TEST")
 	Expect(config.DisplayName).Equals("My Provider")
 	Expect(config.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
@@ -419,15 +331,10 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(config.JSONUserNamePath).Equals("user.name")
 	Expect(config.JSONUserEmailPath).Equals("user.email")
 
-	upload, err := tenants.GetUpload(config.LogoID)
-	Expect(err).IsNil()
-	Expect(upload.Content).Equals(logo)
-	Expect(upload.ContentType).Equals("image/vnd.microsoft.icon")
-
 	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
 		ID: config.ID,
 		Logo: &models.ImageUpload{
-			Remove: true,
+			BlobKey: "",
 		},
 		Provider:          "_TEST2222", //this has to be ignored
 		DisplayName:       "New My Provider",
@@ -447,7 +354,7 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(configs).HasLen(1)
 	Expect(configs[0].ID).Equals(1)
-	Expect(configs[0].LogoID).Equals(0)
+	Expect(configs[0].LogoBlobKey).Equals("")
 	Expect(configs[0].Provider).Equals("_TEST")
 	Expect(configs[0].DisplayName).Equals("New My Provider")
 	Expect(configs[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")

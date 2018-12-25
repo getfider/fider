@@ -5,9 +5,13 @@
   padding: 15px;
   margin: 10px 0;
   background-color: $white;
-  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
   border-radius: 5px;
-  border: 0.1px solid rgba(34, 36, 38, 0.15);
+  box-shadow: 0px 2px 5px 0px $gray-light;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0px 5px 10px 0px $gray-light;
+  }
 
   &:first-child {
     margin-top: 0em;
@@ -16,10 +20,14 @@
 
 .c-segments {
   position: relative;
-  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.15);
+  box-shadow: 0px 2px 5px 0px $gray-light;
   border-radius: 5px;
   margin: 10px 0;
-  border: 0.1px solid rgba(34, 36, 38, 0.15);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0px 5px 10px 0px $gray-light;
+  }
 
   &:first-child {
     margin-top: 0em;
@@ -28,7 +36,6 @@
   .c-segment {
     margin: 0;
     box-shadow: none;
-    border-radius: 0px;
     border: none;
     border-bottom: 0.1px solid rgba(34, 36, 38, 0.15);
     &:last-child {

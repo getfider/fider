@@ -1,11 +1,11 @@
 import "./AdvancedSettings.page.scss";
 
-import * as React from "react";
+import React from "react";
 
-import { CurrentUser } from "@fider/models";
-import { AdminBasePage } from "../components";
-import { DisplayError, TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
+import { TextArea, Form, Button, ButtonClickEvent } from "@fider/components";
 import { Failure, actions, Fider } from "@fider/services";
+import { FaStar } from "react-icons/fa";
+import { AdminBasePage } from "../components/AdminBasePage";
 
 interface AdvancedSettingsPageProps {
   customCSS: string;
@@ -16,10 +16,10 @@ interface AdvancedSettingsPageState {
   error?: Failure;
 }
 
-export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
+export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProps, AdvancedSettingsPageState> {
   public id = "p-admin-advanced";
   public name = "advanced";
-  public icon = "star";
+  public icon = FaStar;
   public title = "Advanced";
   public subtitle = "Manage your site settings";
 
@@ -58,7 +58,7 @@ export class AdvancedSettingsPage extends AdminBasePage<AdvancedSettingsPageProp
           <p className="info">
             Custom CSS allows you to change the look and feel of Fider so that you can apply your own branding.
             <br />
-            This is a powerful and flexibe feature, but requires basic understanding of{" "}
+            This is a powerful and flexible feature, but requires basic understanding of{" "}
             <a href="https://developer.mozilla.org/en-US/docs/Learn/CSS">CSS</a>.
           </p>
           <p className="info">

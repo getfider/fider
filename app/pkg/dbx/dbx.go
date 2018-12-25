@@ -25,13 +25,14 @@ func New() *Database {
 
 // NewWithLogger creates a new Database instance with logging or panic
 func NewWithLogger(logger log.Logger) *Database {
-	conn, err := sql.Open("postgres", env.MustGet("DATABASE_URL"))
+	conn, err := sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to open connection to the database"))
 	}
 
-	conn.SetMaxIdleConns(20)
-	conn.SetMaxOpenConns(50)
+	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
+	conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
+
 	return &Database{conn, logger, NewRowMapper()}
 }
 
@@ -40,6 +41,17 @@ type Database struct {
 	conn   *sql.DB
 	logger log.Logger
 	mapper *RowMapper
+}
+
+// Connection returns current database connection
+func (db *Database) Connection() *sql.DB {
+	return db.conn
+}
+
+// Ping checks if current database connection is healthy
+func (db *Database) Ping() error {
+	_, err := db.conn.Exec("SELECT 1")
+	return err
 }
 
 // SetLogger replaces current database Logger
@@ -97,9 +109,14 @@ func (trx *Trx) SetLogger(logger log.Logger) {
 	trx.logger = logger
 }
 
-// NoLogs disable logs from this transaction
+// NoLogs disable logs for this transaction
 func (trx *Trx) NoLogs() {
-	trx.logger.SetLevel(log.NONE)
+	trx.logger.Disable()
+}
+
+// ResumeLogs resume logs for this transaction
+func (trx *Trx) ResumeLogs() {
+	trx.logger.Enable()
 }
 
 // Execute given SQL command
@@ -299,7 +316,9 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		items = reflect.Append(items, item)
 	}
 
-	reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	if items.Len() > 0 {
+		reflect.Indirect(reflect.ValueOf(data)).Set(items)
+	}
 	return nil
 }
 

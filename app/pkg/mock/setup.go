@@ -1,11 +1,11 @@
 package mock
 
 import (
-	"os"
-
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/blob/fs"
 	"github.com/getfider/fider/app/pkg/email/noop"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
@@ -26,7 +26,7 @@ var AryaStark *models.User
 func NewSingleTenantServer() (*Server, *app.Services) {
 	services := createServices(false)
 	server := createServer(services)
-	os.Setenv("HOST_MODE", "single")
+	env.Config.HostMode = "single"
 	return server, services
 }
 
@@ -34,7 +34,7 @@ func NewSingleTenantServer() (*Server, *app.Services) {
 func NewServer() (*Server, *app.Services) {
 	services := createServices(true)
 	server := createServer(services)
-	os.Setenv("HOST_MODE", "multi")
+	env.Config.HostMode = "multi"
 	return server, services
 }
 
@@ -54,6 +54,7 @@ func createServices(seed bool) *app.Services {
 		Posts:         inmemory.NewPostStorage(),
 		OAuth:         &OAuthService{},
 		Emailer:       noop.NewSender(),
+		Blobs:         fs.NewStorage(env.Path("tmp")),
 	}
 
 	if seed {
@@ -65,6 +66,7 @@ func createServices(seed bool) *app.Services {
 			Name:   "Jon Snow",
 			Email:  "jon.snow@got.com",
 			Tenant: DemoTenant,
+			Status: models.UserActive,
 			Role:   models.RoleAdministrator,
 			Providers: []*models.UserProvider{
 				{UID: "FB1234", Name: oauth.FacebookProvider},
@@ -72,7 +74,13 @@ func createServices(seed bool) *app.Services {
 		}
 		services.Users.Register(JonSnow)
 
-		AryaStark = &models.User{Name: "Arya Stark", Email: "arya.stark@got.com", Tenant: DemoTenant, Role: models.RoleVisitor}
+		AryaStark = &models.User{
+			Name:   "Arya Stark",
+			Email:  "arya.stark@got.com",
+			Tenant: DemoTenant,
+			Status: models.UserActive,
+			Role:   models.RoleVisitor,
+		}
 		services.Users.Register(AryaStark)
 	}
 

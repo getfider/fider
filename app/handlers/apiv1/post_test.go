@@ -43,6 +43,25 @@ func TestCreatePostHandler_WithoutTitle(t *testing.T) {
 	Expect(err).IsNotNil()
 }
 
+func TestGetPostHandler(t *testing.T) {
+	RegisterT(t)
+
+	server, services := mock.NewServer()
+	services.SetCurrentTenant(mock.DemoTenant)
+	services.SetCurrentUser(mock.JonSnow)
+	post, _ := services.Posts.Add("My First Post", "Such an amazing description")
+
+	code, query := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		ExecuteAsJSON(apiv1.GetPost())
+        
+	Expect(code).Equals(http.StatusOK)
+	Expect(query.String("title")).Equals("My First Post")
+	Expect(query.String("description")).Equals("Such an amazing description")	
+}
+
 func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 	RegisterT(t)
 

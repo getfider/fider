@@ -2,46 +2,130 @@ package env
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strings"
 
 	"path"
+
+	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/joeshaw/envdecode"
 )
 
-// GetEnvOrDefault retrieves the value of the environment variable named by the key.
-// It returns the value if available, otherwise returns defaultValue
-func GetEnvOrDefault(name string, defaultValue string) string {
-	value := os.Getenv(name)
-	if value == "" {
-		return defaultValue
+type config struct {
+	Environment string `env:"GO_ENV,default=production"`
+	AutoSSL     bool   `env:"SSL_AUTO,default=false"`
+	SSLCert     string `env:"SSL_CERT"`
+	SSLCertKey  string `env:"SSL_CERT_KEY"`
+	Port        string `env:"PORT,default=3000"`
+	HostMode    string `env:"HOST_MODE,default=single"`
+	HostDomain  string `env:"HOST_DOMAIN"`
+	JWTSecret   string `env:"JWT_SECRET,required"`
+	Database    struct {
+		URL          string `env:"DATABASE_URL,required"`
+		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
+		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`
 	}
-	return value
+	CDN struct {
+		Host string `env:"CDN_HOST"`
+	}
+	Log struct {
+		Level string `env:"LOG_LEVEL,default=INFO"`
+	}
+	OAuth struct {
+		Google struct {
+			ClientID string `env:"OAUTH_GOOGLE_CLIENTID"`
+			Secret   string `env:"OAUTH_GOOGLE_SECRET"`
+		}
+		Facebook struct {
+			AppID  string `env:"OAUTH_FACEBOOK_APPID"`
+			Secret string `env:"OAUTH_FACEBOOK_SECRET"`
+		}
+		GitHub struct {
+			ClientID string `env:"OAUTH_GITHUB_CLIENTID"`
+			Secret   string `env:"OAUTH_GITHUB_SECRET"`
+		}
+	}
+	Email struct {
+		NoReply   string `env:"EMAIL_NOREPLY,required"`
+		Whitelist string `env:"EMAIL_WHITELIST"`
+		Blacklist string `env:"EMAIL_BLACKLIST"`
+		Mailgun   struct {
+			APIKey string `env:"EMAIL_MAILGUN_API"`
+			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
+		}
+		SMTP struct {
+			Host     string `env:"EMAIL_SMTP_HOST"`
+			Port     string `env:"EMAIL_SMTP_PORT"`
+			Username string `env:"EMAIL_SMTP_USERNAME"`
+			Password string `env:"EMAIL_SMTP_PASSWORD"`
+		}
+	}
+	BlobStorage struct {
+		Type string `env:"BLOB_STORAGE,default=sql"`
+		S3   struct {
+			EndpointURL     string `env:"BLOB_STORAGE_S3_ENDPOINT_URL"`
+			Region          string `env:"BLOB_STORAGE_S3_REGION"`
+			AccessKeyID     string `env:"BLOB_STORAGE_S3_ACCESS_KEY_ID"`
+			SecretAccessKey string `env:"BLOB_STORAGE_S3_SECRET_ACCESS_KEY"`
+			BucketName      string `env:"BLOB_STORAGE_S3_BUCKET"`
+		}
+		FS struct {
+			Path string `env:"BLOB_STORAGE_FS_PATH"`
+		}
+	}
+	Maintenance struct {
+		Enabled bool   `env:"MAINTENANCE,default=false,strict"`
+		Message string `env:"MAINTENANCE_MESSAGE"`
+		Until   string `env:"MAINTENANCE_UNTIL"`
+	}
+	GoogleAnalytics string `env:"GOOGLE_ANALYTICS"`
 }
 
-// IsDefined returns true if given environment variable is defined
-func IsDefined(name string) bool {
-	value := os.Getenv(name)
-	return value != ""
+// Config is a strongly typed reference to all configuration parsed from Environment Variables
+var Config config
+
+func init() {
+	Reload()
 }
 
-// MustGet returns environment variable or panic
-func MustGet(name string) string {
+// Reload configuration from current Enviornment Variables
+func Reload() {
+	Config = config{}
+	err := envdecode.Decode(&Config)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse environment variables"))
+	}
+
+	//Environment validations
+	if Config.HostMode != "single" {
+		mustBeSet("HOST_DOMAIN")
+	}
+
+	if Config.Email.Mailgun.APIKey != "" {
+		mustBeSet("EMAIL_MAILGUN_DOMAIN")
+	} else {
+		mustBeSet("EMAIL_SMTP_HOST")
+		mustBeSet("EMAIL_SMTP_PORT")
+	}
+
+	bsType := strings.ToLower(Config.BlobStorage.Type)
+	if bsType == "s3" {
+		mustBeSet("BLOB_STORAGE_S3_BUCKET")
+	} else if bsType == "fs" {
+		mustBeSet("BLOB_STORAGE_FS_PATH")
+	}
+}
+
+func mustBeSet(name string) {
 	value := os.Getenv(name)
 	if value == "" {
 		panic(fmt.Errorf("Could not find environment variable named '%s'", name))
 	}
-	return value
-}
-
-// Mode returns HOST_MODE or its default value
-func Mode() string {
-	return GetEnvOrDefault("HOST_MODE", "single")
 }
 
 // IsSingleHostMode returns true if host mode is set to single tenant
 func IsSingleHostMode() bool {
-	return Mode() == "single"
+	return Config.HostMode == "single"
 }
 
 var hasLegal *bool
@@ -60,51 +144,24 @@ func HasLegal() bool {
 // MultiTenantDomain returns domain name of current instance for multi tenant hosts
 func MultiTenantDomain() string {
 	if !IsSingleHostMode() {
-		return "."+MustGet("HOST_DOMAIN")
+		return "." + Config.HostDomain
 	}
 	return ""
 }
 
-var publicIP = make(map[string]string, 0)
-
-// GetPublicIP returns the public IP of current hosting server
-func GetPublicIP() (string, error) {
-	if IsSingleHostMode() {
-		return "", nil
-	}
-
-	domain := MultiTenantDomain()[1:]
-	if _, ok := publicIP[domain]; !ok {
-		addr, err := net.LookupIP(domain)
-		if err == nil {
-			publicIP[domain] = addr[0].String()
-		} else {
-			return "", err
-		}
-	}
-	return publicIP[domain], nil
-}
-
-// Current returns current Fider environment
-func Current() string {
-	env := os.Getenv("GO_ENV")
-	switch env {
-	case "test":
-		return "test"
-	case "production":
-		return "production"
-	}
-	return "development"
-}
-
 // IsProduction returns true on Fider production environment
 func IsProduction() bool {
-	return Current() == "production"
+	return Config.Environment == "production" || (!IsTest() && !IsDevelopment())
 }
 
 // IsTest returns true on Fider test environment
 func IsTest() bool {
-	return Current() == "test"
+	return Config.Environment == "test"
+}
+
+// IsDevelopment returns true on Fider production environment
+func IsDevelopment() bool {
+	return Config.Environment == "development"
 }
 
 // Path returns root path of project + given path
@@ -124,11 +181,6 @@ func Etc(p ...string) string {
 	return Path(paths...)
 }
 
-// IsDevelopment returns true on Fider production environment
-func IsDevelopment() bool {
-	return Current() == "development"
-}
-
 // Subdomain returns the Fider subdomain (if available) from given host
 func Subdomain(host string) string {
 	if IsSingleHostMode() {
@@ -140,8 +192,8 @@ func Subdomain(host string) string {
 		return strings.Replace(host, domain, "", -1)
 	}
 
-	if IsDefined("CDN_HOST") {
-		domain = MustGet("CDN_HOST")
+	if Config.CDN.Host != "" {
+		domain = Config.CDN.Host
 		parts := strings.Split(domain, ":")
 		if parts[0] != "" && strings.Contains(host, "."+parts[0]) {
 			return strings.Replace(host, "."+parts[0], "", -1)

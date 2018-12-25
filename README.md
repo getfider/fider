@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://github.com/getfider/fider">
-    <img src="public/assets/images/logo-small.png" />
+  <a href="https://getfider.com">
+    <img src="etc/logo-small.png" />
   </a>
   <h1 align="center">Fider</h1>
   <div align="center">
@@ -22,7 +22,7 @@
 </div>
 
 <div align="center">
-  <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="graphs/contributors">contributors</a></sub>
+  <sub>Built with ❤︎ by <a href="https://github.com/goenning">Guilherme Oenning</a> and <a href="https://github.com/getfider/fider/graphs/contributors">contributors</a></sub>
 </div>
 
 <br />
@@ -33,7 +33,7 @@
 
 This project exists thanks to all the people who contribute.
 
-<a href="graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
+<a href="https://github.com/getfider/fider/graphs/contributors"><img src="https://opencollective.com/fider/contributors.svg?width=890&button=false" /></a>
 
 Read our [CONTRIBUTING](CONTRIBUTING.md) guide to learn the many ways you can contribute to Fider.
 

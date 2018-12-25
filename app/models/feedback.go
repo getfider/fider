@@ -22,6 +22,20 @@ type Post struct {
 	Tags          []string      `json:"tags"`
 }
 
+//VoteUser represents a user that voted on a post
+type VoteUser struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Email     string `json:"email,omitempty"`
+	AvatarURL string `json:"avatarURL,omitempty"`
+}
+
+//Vote represents a vote given by a user on a post
+type Vote struct {
+	User      *VoteUser `json:"user"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 // CanBeVoted returns true if this post can have its vote changed
 func (i *Post) CanBeVoted() bool {
 	return i.Status != PostCompleted && i.Status != PostDeclined && i.Status != PostDuplicate
@@ -57,6 +71,12 @@ type EditComment struct {
 	PostNumber int    `route:"number"`
 	ID         int    `route:"id"`
 	Content    string `json:"content"`
+}
+
+// DeleteComment represents a request to delete an existing comment
+type DeleteComment struct {
+	PostNumber int `route:"number"`
+	CommentID  int `route:"id"`
 }
 
 // SetResponse represents the action to update an post response
@@ -199,11 +219,11 @@ var (
 
 //NotificationEvent represents all possible notification events
 type NotificationEvent struct {
-	UserSettingsKeyName          string
-	DefaultSettingValue          string
-	RequiresSubscripionUserRoles []Role
-	DefaultEnabledUserRoles      []Role
-	Validate                     func(string) bool
+	UserSettingsKeyName           string
+	DefaultSettingValue           string
+	RequiresSubscriptionUserRoles []Role
+	DefaultEnabledUserRoles       []Role
+	Validate                      func(string) bool
 }
 
 func notificationEventValidation(v string) bool {
@@ -213,9 +233,9 @@ func notificationEventValidation(v string) bool {
 var (
 	//NotificationEventNewPost is triggered when a new post is posted
 	NotificationEventNewPost = NotificationEvent{
-		UserSettingsKeyName:          "event_notification_new_post",
-		DefaultSettingValue:          strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{},
+		UserSettingsKeyName:           "event_notification_new_post",
+		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
+		RequiresSubscriptionUserRoles: []Role{},
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
@@ -226,7 +246,7 @@ var (
 	NotificationEventNewComment = NotificationEvent{
 		UserSettingsKeyName: "event_notification_new_comment",
 		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{
+		RequiresSubscriptionUserRoles: []Role{
 			RoleVisitor,
 		},
 		DefaultEnabledUserRoles: []Role{
@@ -240,7 +260,7 @@ var (
 	NotificationEventChangeStatus = NotificationEvent{
 		UserSettingsKeyName: "event_notification_change_status",
 		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscripionUserRoles: []Role{
+		RequiresSubscriptionUserRoles: []Role{
 			RoleVisitor,
 		},
 		DefaultEnabledUserRoles: []Role{

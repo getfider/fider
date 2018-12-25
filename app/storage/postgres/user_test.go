@@ -21,6 +21,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	Expect(user.Tenant.ID).Equals(1)
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
+	Expect(user.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
 	Expect(user.Providers).HasLen(1)
 	Expect(user.Providers[0].UID).Equals("FB1234")
 	Expect(user.Providers[0].Name).Equals("facebook")
@@ -143,8 +144,8 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 
 	var tenantID int
 	trx.Get(&tenantID, `
-		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css) 
-		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '')
+		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey) 
+		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '')
 		RETURNING id
 	`)
 	users.SetCurrentTenant(&models.Tenant{
@@ -206,12 +207,18 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(jonSnow)
-	err := users.Update(&models.UpdateUserSettings{Name: "Jon Stark"})
+	err := users.Update(&models.UpdateUserSettings{
+		Name: "Jon Stark",
+		Avatar: &models.ImageUpload{
+			BlobKey: "jon.png",
+		},
+	})
 	Expect(err).IsNil()
 
 	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).IsNil()
 	Expect(user.Name).Equals("Jon Stark")
+	Expect(user.AvatarBlobKey).Equals("jon.png")
 }
 
 func TestUserStorage_ChangeRole(t *testing.T) {
@@ -354,4 +361,30 @@ func TestUserStorage_APIKey(t *testing.T) {
 	user, err = users.GetByAPIKey("SOME-INVALID-KEY")
 	Expect(user).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+}
+
+func TestUserStorage_BlockUser(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	users.SetCurrentTenant(demoTenant)
+	userID := 1
+
+	user, err := users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserActive)
+
+	err = users.Block(userID)
+	Expect(err).IsNil()
+
+	user, err = users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserBlocked)
+
+	err = users.Unblock(userID)
+	Expect(err).IsNil()
+
+	user, err = users.GetByID(userID)
+	Expect(err).IsNil()
+	Expect(user.Status).Equals(models.UserActive)
 }

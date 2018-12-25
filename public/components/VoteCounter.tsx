@@ -1,9 +1,10 @@
 import "./VoteCounter.scss";
 
-import * as React from "react";
+import React from "react";
 import { Post, PostStatus } from "@fider/models";
 import { actions, device, classSet, Fider } from "@fider/services";
 import { SignInModal } from "@fider/components";
+import { FaCaretUp } from "react-icons/fa";
 
 interface VoteCounterProps {
   post: Post;
@@ -53,14 +54,14 @@ export class VoteCounter extends React.Component<VoteCounterProps, VoteCounterSt
 
     const vote = (
       <button className={className} onClick={this.voteOrUndo}>
-        <i className="caret up icon" />
+        <FaCaretUp />
         {this.state.count}
       </button>
     );
 
     const disabled = (
       <button className={className}>
-        <i className="caret up icon" />
+        <FaCaretUp />
         {this.state.count}
       </button>
     );

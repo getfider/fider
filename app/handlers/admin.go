@@ -2,23 +2,16 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
 // GeneralSettingsPage is the general settings page
 func GeneralSettingsPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		publicIP, err := env.GetPublicIP()
-		if err != nil {
-			c.Logger().Error(err)
-		}
-
 		return c.Page(web.Props{
-			Title: "General · Site Settings",
-			Data: web.Map{
-				"publicIP": publicIP,
-			},
+			Title:     "General · Site Settings",
+			ChunkName: "GeneralSettings.page",
 		})
 	}
 }
@@ -27,7 +20,8 @@ func GeneralSettingsPage() web.HandlerFunc {
 func AdvancedSettingsPage() web.HandlerFunc {
 	return func(c web.Context) error {
 		return c.Page(web.Props{
-			Title: "Advanced · Site Settings",
+			Title:     "Advanced · Site Settings",
+			ChunkName: "AdvancedSettings.page",
 			Data: web.Map{
 				"customCSS": c.Tenant().CustomCSS,
 			},
@@ -43,7 +37,12 @@ func UpdateSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.UpdateSettings(input.Model)
+		err := handleImageUpload(c, input.Model.Logo, "logos")
+		if err != nil {
+			return errors.Wrap(err, "failed to upload new tenant logo")
+		}
+
+		err = c.Services().Tenants.UpdateSettings(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -95,7 +94,8 @@ func ManageMembers() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Manage Members · Site Settings",
+			Title:     "Manage Members · Site Settings",
+			ChunkName: "ManageMembers.page",
 			Data: web.Map{
 				"users": users,
 			},
@@ -112,7 +112,8 @@ func ManageAuthentication() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Authentication · Site Settings",
+			Title:     "Authentication · Site Settings",
+			ChunkName: "ManageAuthentication.page",
 			Data: web.Map{
 				"providers": providers,
 			},
@@ -140,7 +141,12 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveOAuthConfig(input.Model)
+		err := handleImageUpload(c, input.Model.Logo, "logos")
+		if err != nil {
+			return errors.Wrap(err, "failed to upload new OAuth logo")
+		}
+
+		err = c.Services().Tenants.SaveOAuthConfig(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}

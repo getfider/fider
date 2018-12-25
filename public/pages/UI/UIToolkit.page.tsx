@@ -1,5 +1,7 @@
-import * as React from "react";
-import { CurrentUser, PostStatus } from "@fider/models";
+import "./UIToolkit.page.scss";
+
+import React from "react";
+import { PostStatus, UserStatus } from "@fider/models";
 import {
   Heading,
   Button,
@@ -7,7 +9,7 @@ import {
   UserName,
   ListItem,
   Toggle,
-  Gravatar,
+  Avatar,
   ShowTag,
   Segment,
   Segments,
@@ -19,22 +21,31 @@ import {
   TextArea,
   RadioButton,
   Select,
-  SocialSignInButton,
-  SelectOption
+  Field,
+  SelectOption,
+  ButtonClickEvent,
+  Message,
+  Hint
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
+import { DropDown, DropDownItem } from "@fider/components";
+import { FaSearch, FaRegLightbulb, FaCogs } from "react-icons/fa";
 
 const jonSnow: User = {
   id: 0,
   name: "Jon Snow",
-  role: UserRole.Administrator
+  role: UserRole.Administrator,
+  status: UserStatus.Active,
+  avatarURL: "/avatars/letter/0/Jon%20Snow"
 };
 
 const aryaStark: User = {
   id: 0,
   name: "Arya Snow",
-  role: UserRole.Visitor
+  role: UserRole.Visitor,
+  status: UserStatus.Active,
+  avatarURL: "/avatars/letter/0/Arya%20Snow"
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
@@ -47,7 +58,7 @@ interface UIToolkitPageState {
   error?: Failure;
 }
 
-export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
+export default class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
   constructor(props: {}) {
     super(props);
     this.state = {};
@@ -67,6 +78,10 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     }
   };
 
+  private showLoading = async (e: ButtonClickEvent) => {
+    return e.preventEnable();
+  };
+
   private forceError = async () => {
     this.setState({
       error: {
@@ -80,14 +95,66 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
     });
   };
 
+  private renderText = (item?: DropDownItem) => {
+    if (item) {
+      return `${item.label} (value: ${item.value})`;
+    }
+    return <span>No country is selected</span>;
+  };
+
+  private renderControl = (item?: DropDownItem) => {
+    if (item) {
+      return item.render;
+    }
+    return <span>...</span>;
+  };
+
   public render() {
     return (
       <div id="p-ui-toolkit" className="page container">
+        <div className="color-scale">
+          <div className="color gray-darkest" />
+          <div className="color gray-darker" />
+          <div className="color gray-dark" />
+          <div className="color gray-default" />
+          <div className="color gray-light" />
+          <div className="color gray-lighter" />
+          <div className="color gray-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color green-darkest" />
+          <div className="color green-darker" />
+          <div className="color green-dark" />
+          <div className="color green-default" />
+          <div className="color green-light" />
+          <div className="color green-lighter" />
+          <div className="color green-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color red-darkest" />
+          <div className="color red-darker" />
+          <div className="color red-dark" />
+          <div className="color red-default" />
+          <div className="color red-light" />
+          <div className="color red-lighter" />
+          <div className="color red-lightest" />
+        </div>
+        <div className="color-scale">
+          <div className="color blue-darkest" />
+          <div className="color blue-darker" />
+          <div className="color blue-dark" />
+          <div className="color blue-default" />
+          <div className="color blue-light" />
+          <div className="color blue-lighter" />
+          <div className="color blue-lightest" />
+        </div>
+
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>
         <h3>Heading 3</h3>
         <h4>Heading 4</h4>
         <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
         <p>General Text Paragraph</p>
         <p className="info">Info Text</p>
 
@@ -110,18 +177,18 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
 
         <List>
           <ListItem>
-            <Gravatar user={jonSnow} /> <UserName user={jonSnow} />
+            <Avatar user={jonSnow} /> <UserName user={jonSnow} />
           </ListItem>
           <ListItem>
-            <Gravatar user={aryaStark} /> <UserName user={aryaStark} />
+            <Avatar user={aryaStark} /> <UserName user={aryaStark} />
           </ListItem>
         </List>
 
-        <Heading title="Page Heading" icon="settings" subtitle="This is a page heading" />
+        <Heading title="Page Heading" icon={FaCogs} subtitle="This is a page heading" />
 
         <Heading
           title="Section Heading"
-          icon="lightbulb outline"
+          icon={FaRegLightbulb}
           subtitle="This is a page heading"
           size="small"
           dividing={true}
@@ -130,6 +197,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Buttons</h1>
         <List>
           <ListItem>
+            <Button size="large">
+              <FaRegLightbulb /> Large Icon
+            </Button>
             <Button size="large">Large Default</Button>
             <Button color="positive" size="large">
               Large Positive
@@ -143,6 +213,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="normal">
+              <FaRegLightbulb /> Normal Icon
+            </Button>
             <Button size="normal">Normal Default</Button>
             <Button color="positive" size="normal">
               Normal Positive
@@ -156,6 +229,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="small">
+              <FaRegLightbulb /> Small Icon
+            </Button>
             <Button size="small">Small Default</Button>
             <Button color="positive" size="small">
               Small Positive
@@ -169,6 +245,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="tiny">
+              <FaRegLightbulb /> Tiny Icon
+            </Button>
             <Button size="tiny">Tiny Default</Button>
             <Button color="positive" size="tiny">
               Tiny Positive
@@ -182,6 +261,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button size="mini">
+              <FaRegLightbulb /> Mini Icon
+            </Button>
             <Button size="mini">Mini Default</Button>
             <Button color="positive" size="mini">
               Mini Positive
@@ -195,6 +277,9 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button href="#">
+              <FaRegLightbulb /> Link
+            </Button>
             <Button href="#">Link</Button>
             <Button href="#" color="positive">
               Link
@@ -205,12 +290,28 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
           </ListItem>
 
           <ListItem>
+            <Button disabled={true}>
+              <FaRegLightbulb /> Default
+            </Button>
             <Button disabled={true}>Default</Button>
             <Button disabled={true} color="positive">
               Positive
             </Button>
             <Button disabled={true} color="danger">
               Danger
+            </Button>
+          </ListItem>
+
+          <ListItem>
+            <Button onClick={this.showLoading}>
+              <FaRegLightbulb /> Loading
+            </Button>
+            <Button onClick={this.showLoading}>Loading</Button>
+            <Button color="positive" onClick={this.showLoading}>
+              Loading
+            </Button>
+            <Button color="danger" onClick={this.showLoading}>
+              Loading
             </Button>
           </ListItem>
         </List>
@@ -302,6 +403,18 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
         <h1>Loader</h1>
         <Loader />
 
+        <h1>Message Box</h1>
+        <Message showIcon={true} type="error">
+          Something went wrong.
+        </Message>
+        <Message showIcon={true} type="success">
+          Your order has been confirmed.
+        </Message>
+
+        <h1>Hints</h1>
+        <Hint permanentCloseKey="ui-toolkip-example">Did you know that you can close this permanently?</Hint>
+        <Hint>You can't close this one :)</Hint>
+
         <h1>Form</h1>
         <Form error={this.state.error}>
           <Input label="Title" field="title">
@@ -347,12 +460,48 @@ export class UIToolkitPage extends React.Component<{}, UIToolkitPageState> {
             onChange={this.notifyStatusChange}
           />
 
+          <Field label="Number">
+            <DropDown
+              items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+              defaultValue={"1"}
+              placeholder="Select a number"
+            />
+          </Field>
+
+          <Field label="Country (custom render text)">
+            <DropDown
+              items={[
+                { label: "Brazil", value: "br" },
+                { label: "United States", value: "us" },
+                { label: "Ireland", value: "ie" }
+              ]}
+              defaultValue={"1"}
+              renderText={this.renderText}
+              placeholder="Select a number"
+            />
+          </Field>
+
+          <Field label="Color (custom render control)">
+            <DropDown
+              items={[
+                { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
+                { label: "Red", value: "red", render: <span style={{ color: "red" }}>Red</span> },
+                { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> }
+              ]}
+              placeholder="Select a color"
+              inline={true}
+              style="simple"
+              header="What color do you like the most?"
+              renderControl={this.renderControl}
+            />
+          </Field>
+
           <Button onClick={this.forceError}>Save</Button>
         </Form>
 
         <Segment>
           <h1>Search</h1>
-          <Input field="search" placeholder="Search..." icon="search" />
+          <Input field="search" placeholder="Search..." icon={FaSearch} />
         </Segment>
       </div>
     );

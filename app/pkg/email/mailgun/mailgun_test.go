@@ -3,9 +3,9 @@ package mailgun_test
 import (
 	"io/ioutil"
 	"net/url"
-	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app/models"
@@ -24,7 +24,7 @@ var sender = mailgun.NewSender(logger, client, "mydomain.com", "mys3cr3tk3y")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
-var ctx = worker.NewContext("ID-1", "TaskName", nil, logger)
+var ctx = worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, logger)
 
 func init() {
 	ctx.SetTenant(tenant)
@@ -32,7 +32,7 @@ func init() {
 
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
-	os.Setenv("HOST_MODE", "MULTI")
+	env.Config.HostMode = "multi"
 	client.Reset()
 
 	to := email.Recipient{

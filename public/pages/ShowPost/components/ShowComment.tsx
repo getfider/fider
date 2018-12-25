@@ -1,7 +1,19 @@
-import * as React from "react";
-import { Comment, CurrentUser, Post } from "@fider/models";
-import { Gravatar, UserName, Moment, Form, TextArea, Button, MultiLineText } from "@fider/components";
+import React from "react";
+import { Comment, Post } from "@fider/models";
+import {
+  Avatar,
+  UserName,
+  Moment,
+  Form,
+  TextArea,
+  Button,
+  MultiLineText,
+  DropDown,
+  DropDownItem,
+  Modal
+} from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
+import { FaEllipsisH } from "react-icons/fa";
 
 interface ShowCommentProps {
   post: Post;
@@ -10,9 +22,10 @@ interface ShowCommentProps {
 
 interface ShowCommentState {
   comment: Comment;
-  isEditting: boolean;
+  isEditing: boolean;
   newContent: string;
   error?: Failure;
+  showDeleteConfirmation: boolean;
 }
 
 export class ShowComment extends React.Component<ShowCommentProps, ShowCommentState> {
@@ -20,8 +33,9 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     super(props);
     this.state = {
       comment: props.comment,
-      isEditting: false,
-      newContent: ""
+      isEditing: false,
+      newContent: "",
+      showDeleteConfirmation: false
     };
   }
 
@@ -32,13 +46,9 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     return false;
   }
 
-  private startEdit = () => {
-    this.setState({ isEditting: true, newContent: this.state.comment.content, error: undefined });
-  };
-
   private cancelEdit = async () => {
     this.setState({
-      isEditting: false,
+      isEditing: false,
       newContent: "",
       error: undefined
     });
@@ -63,37 +73,87 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     this.setState({ newContent });
   };
 
+  private renderEllipsis = () => {
+    return <FaEllipsisH />;
+  };
+
+  private closeModal = async () => {
+    this.setState({ showDeleteConfirmation: false });
+  };
+
+  private deleteComment = async () => {
+    const response = await actions.deleteComment(this.props.post.number, this.props.comment.id);
+    if (response.ok) {
+      location.reload();
+    }
+  };
+
+  private onActionSelected = (item: DropDownItem) => {
+    if (item.value === "edit") {
+      this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
+    } else if (item.value === "delete") {
+      this.setState({ showDeleteConfirmation: true });
+    }
+  };
+
+  private modal() {
+    return (
+      <Modal.Window isOpen={this.state.showDeleteConfirmation} center={false} size="small">
+        <Modal.Header>Delete Comment</Modal.Header>
+        <Modal.Content>
+          <p>
+            This process is irreversible. <strong>Are you sure?</strong>
+          </p>
+        </Modal.Content>
+
+        <Modal.Footer>
+          <Button color="danger" onClick={this.deleteComment}>
+            Delete
+          </Button>
+          <Button color="cancel" onClick={this.closeModal}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal.Window>
+    );
+  }
+
   public render() {
     const c = this.state.comment;
 
-    const editedMetadata = !!c.editedAt &&
-      !!c.editedBy && (
-        <div className="c-comment-metadata">
-          ·{" "}
-          <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>edited</span>
-        </div>
-      );
+    const editedMetadata = !!c.editedAt && !!c.editedBy && (
+      <div className="c-comment-metadata">
+        <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>· edited</span>
+      </div>
+    );
 
     return (
       <div className="c-comment">
-        <Gravatar user={c.user} />
+        {this.modal()}
+        <Avatar user={c.user} />
         <div className="c-comment-content">
           <UserName user={c.user} />
           <div className="c-comment-metadata">
             · <Moment date={c.createdAt} />
           </div>
           {editedMetadata}
-          {!this.state.isEditting &&
-            this.canEditComment(c) && (
-              <div className="c-comment-metadata">
-                ·{" "}
-                <span className="clickable" onClick={this.startEdit}>
-                  edit
-                </span>
-              </div>
-            )}
+          {!this.state.isEditing && this.canEditComment(c) && (
+            <DropDown
+              className="l-more-actions"
+              direction="left"
+              inline={true}
+              style="simple"
+              highlightSelected={false}
+              items={[
+                { label: "Edit", value: "edit" },
+                { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+              ]}
+              onChange={this.onActionSelected}
+              renderControl={this.renderEllipsis}
+            />
+          )}
           <div className="c-comment-text">
-            {this.state.isEditting ? (
+            {this.state.isEditing ? (
               <Form error={this.state.error}>
                 <TextArea
                   field="content"

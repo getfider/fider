@@ -13,7 +13,8 @@ func ManageTags() web.HandlerFunc {
 		}
 
 		return c.Page(web.Props{
-			Title: "Manage Tags · Site Settings",
+			Title:     "Manage Tags · Site Settings",
+			ChunkName: "ManageTags.page",
 			Data: web.Map{
 				"tags": tags,
 			},

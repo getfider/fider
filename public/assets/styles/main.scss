@@ -1,16 +1,22 @@
-@import 'variables.scss';
-@import 'reset.scss';
-@import 'grid.scss';
-@import 'utility.scss';
-@import 'semantic.scss';
-
 /*******************************
              Site
 *******************************/
 
+@-ms-viewport {
+  width: device-width;
+}
+
 html,
 body {
   height: 100%;
+  box-sizing: border-box;
+  -ms-overflow-style: scrollbar;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
 }
 
 body {
@@ -18,15 +24,15 @@ body {
   padding: 0px;
   overflow-x: hidden;
   min-width: 320px;
-  font-size: 14px;
   font-family: $font-site;
   background-color: $bg-color;
-  color: $text-color;
+  color: $gray-darkest;
   font-size: $font-size;
 }
 
 button, input, optgroup, select, textarea {
   font-family: $font-site;
+  font-size: $font-size;
 }
 
 /*******************************
@@ -111,39 +117,34 @@ a:hover {
 
 .status-label {
   text-transform: uppercase;
-  color: $white;
   display: inline-block;
   line-height: 1;
-  padding: 5px 4px;
   font-weight: 600;
-  border: none;
-  border-radius: 3px;
-  font-size: $font-size-micro;
+  font-size: $font-size-mini;
 }
 
 .status-open {
-  color: $text-color;
-  background-color: #e8e8e8;
+  color: $gray-darkest;
 }
 
 .status-planned {
-  background-color: #6435c9;
+  color: #6435c9;
 }
 
 .status-started {
-  background-color: #2185d0;
+  color: #2185d0;
 }
 
 .status-completed {
-  background-color: #21ba45;
+  color: #21ba45;
 }
 
 .status-declined {
-  background-color: #db2828
+  color: #db2828
 }
 
 .status-duplicate {
-  background-color: #fbbd08;
+  color: #d6a100;
 }
 
 /*******************************
@@ -197,7 +198,7 @@ body, h1, h2, h3, h4, h5, .ui, input {
 .info {
   font-size: 90%;
   font-weight: 400;
-  color: rgba($text-color, .8);
+  color: $gray-darker;
 }
 
 .right {
@@ -207,6 +208,13 @@ body, h1, h2, h3, h4, h5, .ui, input {
 
 .center {
   text-align: center;
+}
+
+svg.icon {
+  display: inline-block;
+  opacity: 1;
+  width: 1.18em;
+  vertical-align: middle;
 }
 
 .clickable {
@@ -219,14 +227,14 @@ body, h1, h2, h3, h4, h5, .ui, input {
   font-weight: 600;
   letter-spacing: .3px;
   text-transform: uppercase;
-  color: #999;
+  color: $gray-dark;
   display: block;
   &.active {
     cursor: pointer;
     &:hover {
       color: $main-color;
     }
-    i {
+    svg.icon {
       float: right;
     }
   }
@@ -243,15 +251,31 @@ body, h1, h2, h3, h4, h5, .ui, input {
 .markdown-body {
   overflow-wrap: break-word;
   word-break: break-word;
+
   blockquote {
     padding: 0 8px;
     color: $gray-darkest;
     border-left: 4px solid $gray-light;
     margin: 5px 0;
   }
+
+  ul, ol {
+    padding-left: 30px;
+    margin: 0 0 14px;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
   img {
     max-width: 100%;
   }
+
   pre {
     overflow-x: scroll;
     padding: 16px;
@@ -307,17 +331,39 @@ body, h1, h2, h3, h4, h5, .ui, input {
   height: 60%;
   text-align: center;
   margin-top: 100px;
+  max-width: 800px !important;
   p {
-    font-size: 150%;
+    font-size: 130%;
     line-height: 30px;
   }
   h1 {
-    font-size: 200%;
+    font-size: 180%;
     color: #3b4450;
   }
   img {
     max-height: 100px;
     max-width: 100px;
+  }
+  .l-browser-list {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+    a {
+      display: block;
+    }
+    .browser-logo {
+      margin-right: 10px;
+      vertical-align: middle;
+      width: 48px;
+      height: 48px;
+    }
+    .browser-name {
+      font-weight: bold;
+    }
+    .browser-download {
+      float: right;
+      line-height: 48px;
+    }
   }
 }
 

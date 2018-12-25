@@ -1,4 +1,4 @@
-import * as puppeteer from "puppeteer";
+import puppeteer from "puppeteer";
 import { BrowserTab } from ".";
 
 export class Browser {

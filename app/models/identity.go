@@ -17,15 +17,17 @@ type Tenant struct {
 	CNAME          string `json:"cname"`
 	Status         int    `json:"-"`
 	IsPrivate      bool   `json:"isPrivate"`
-	LogoID         int    `json:"logoID"`
+	LogoBlobKey    string `json:"logoBlobKey"`
 	CustomCSS      string `json:"-"`
 }
 
 var (
 	//TenantActive is the default status for most tenants
 	TenantActive = 1
-	//TenantInactive is used for signup via email that requires user confirmation
-	TenantInactive = 2
+	//TenantPending is used for signup via email that requires user confirmation
+	TenantPending = 2
+	//TenantInactive is used when tenants are inative for various reasons
+	TenantInactive = 3
 )
 
 //Upload represents a file that has been uploaded to Fider
@@ -37,21 +39,92 @@ type Upload struct {
 
 //User represents an user inside our application
 type User struct {
-	ID        int             `json:"id"`
-	Name      string          `json:"name"`
-	Email     string          `json:"-"`
-	Tenant    *Tenant         `json:"-"`
-	Role      Role            `json:"role"`
-	Providers []*UserProvider `json:"-"`
-	Status    int             `json:"-"`
+	ID            int             `json:"id"`
+	Name          string          `json:"name"`
+	Tenant        *Tenant         `json:"-"`
+	Email         string          `json:"-"`
+	Role          Role            `json:"role"`
+	Providers     []*UserProvider `json:"-"`
+	AvatarBlobKey string          `json:"-"`
+	AvatarType    AvatarType      `json:"-"`
+	AvatarURL     string          `json:"avatarURL,omitempty"`
+	Status        UserStatus      `json:"status"`
 }
+
+//AvatarType are the possible types of a user avatar
+type AvatarType int
+
+var (
+	//AvatarTypeLetter is the default avatar type for users
+	AvatarTypeLetter AvatarType = 1
+	//AvatarTypeGravatar fetches avatar from gravatar (if available)
+	AvatarTypeGravatar AvatarType = 2
+	//AvatarTypeCustom uses a user uploaded avatar
+	AvatarTypeCustom AvatarType = 3
+)
+
+var avatarTypesIDs = map[AvatarType]string{
+	AvatarTypeLetter:   "letter",
+	AvatarTypeGravatar: "gravatar",
+	AvatarTypeCustom:   "custom",
+}
+
+var avatarTypesName = map[string]AvatarType{
+	"letter":   AvatarTypeLetter,
+	"gravatar": AvatarTypeGravatar,
+	"custom":   AvatarTypeCustom,
+}
+
+// String returns the string version of the user status
+func (t AvatarType) String() string {
+	return avatarTypesIDs[t]
+}
+
+// MarshalText returns the Text version of the avatar type
+func (t AvatarType) MarshalText() ([]byte, error) {
+	return []byte(avatarTypesIDs[t]), nil
+}
+
+// UnmarshalText parse string into a avatar type
+func (t *AvatarType) UnmarshalText(text []byte) error {
+	*t = avatarTypesName[string(text)]
+	return nil
+}
+
+//UserStatus is the status of a user
+type UserStatus int
 
 var (
 	//UserActive is the default status for users
-	UserActive = 1
+	UserActive UserStatus = 1
 	//UserDeleted is used for users that chose to delete their accounts
-	UserDeleted = 2
+	UserDeleted UserStatus = 2
+	//UserBlocked is used for users that have been blocked by staff members
+	UserBlocked UserStatus = 3
 )
+
+var userStatusIDs = map[UserStatus]string{
+	UserActive:  "active",
+	UserDeleted: "deleted",
+	UserBlocked: "blocked",
+}
+
+var userStatusName = map[string]UserStatus{
+	"active":  UserActive,
+	"deleted": UserDeleted,
+	"blocked": UserBlocked,
+}
+
+// MarshalText returns the Text version of the user status
+func (status UserStatus) MarshalText() ([]byte, error) {
+	return []byte(userStatusIDs[status]), nil
+}
+
+// UnmarshalText parse string into a user status
+func (status *UserStatus) UnmarshalText(text []byte) error {
+	*status = userStatusName[string(text)]
+	return nil
+}
 
 //Role is the role of a user inside a tenant
 type Role int
@@ -77,12 +150,12 @@ var roleNames = map[string]Role{
 	"administrator": RoleAdministrator,
 }
 
-// MarshalText returns the Text version of the post status
+// MarshalText returns the Text version of the user role
 func (role Role) MarshalText() ([]byte, error) {
 	return []byte(roleIDs[role]), nil
 }
 
-// UnmarshalText parse string into a post status
+// UnmarshalText parse string into a user role
 func (role *Role) UnmarshalText(text []byte) error {
 	*role = roleNames[string(text)]
 	return nil
@@ -122,7 +195,7 @@ func (u *User) IsAdministrator() bool {
 	return u.Role == RoleAdministrator
 }
 
-//UserProvider represents the relashionship between an User and an Authentication provide
+//UserProvider represents the relationship between an User and an Authentication provide
 type UserProvider struct {
 	Name string
 	UID  string
@@ -176,12 +249,14 @@ type UpdateTenantAdvancedSettings struct {
 
 //ImageUpload is the input model used to upload/remove an image
 type ImageUpload struct {
-	Upload *ImageUploadData `json:"upload"`
-	Remove bool             `json:"remove"`
+	BlobKey string
+	Upload  *ImageUploadData `json:"upload"`
+	Remove  bool             `json:"remove"`
 }
 
-//UpdateTenantSettingsLogoUpload is the input model used to uploade a new logo
+//ImageUploadData is the input model used to upload a new logo
 type ImageUploadData struct {
+	FileName    string `json:"fileName"`
 	ContentType string `json:"contentType"`
 	Content     []byte `json:"content"`
 }
@@ -299,8 +374,10 @@ type CompleteProfile struct {
 
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
-	Name     string            `json:"name"`
-	Settings map[string]string `json:"settings"`
+	Name       string            `json:"name"`
+	AvatarType AvatarType        `json:"avatarType"`
+	Avatar     *ImageUpload      `json:"avatar"`
+	Settings   map[string]string `json:"settings"`
 }
 
 // CreateUser is the input model to create a new user

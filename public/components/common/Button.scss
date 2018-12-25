@@ -14,8 +14,11 @@
   text-align: left;
   font-weight: 600;
 
+  .icon {
+    margin-top: -3px;
+  }
+
   &.m-cancel {
-    color: $link-color;
     background-color: transparent;
 
     &:hover {
@@ -24,31 +27,34 @@
   }
 
   &.m-default {
-    color: $text-color;
+    color: $gray-darkest;
     background-color: $gray-lightest;
-    border: 1px solid $gray;
+    border: 1px solid $gray-light;
 
     &:hover {
-      background-color: $gray-lighter;
+      border: 1px solid $gray-dark;
     }
   }
 
   &.m-positive {
     color: $white;
-    background-color: $green;
+    background-color: $green-dark;
+    border: 1px solid $green-dark;
 
     &:hover {
       background-color: $green-darker;
+      border-color: $green-darker;
     }
   }
 
   &.m-danger {
     color: $red;
-    border: 1px solid $red;
-    background-color: transparent;
+    border: 1px solid $gray-light;
+    background-color: $white;
 
     &:hover {
       color: $white;
+      border: 1px solid $red;
       background-color: $red;
     }
   }
@@ -132,11 +138,11 @@
 
   &.m-social {
     background-color: $white;
-    color: $text-color;
+    color: $gray-darkest;
     text-align: center;
     height: 40px;
     line-height: 22px;
-    padding: 8px;
+    padding: 8px 0px;
     border: none;
     box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
 
@@ -154,7 +160,9 @@
 
     &:hover {
       background-color: #fafafb;
-      color: $text-color;
+      color: $gray-darkest;
+      border: none;
+      box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
     }
   }
 }

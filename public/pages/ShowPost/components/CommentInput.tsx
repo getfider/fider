@@ -1,8 +1,7 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
 
-import { Post, CurrentUser } from "@fider/models";
-import { Gravatar, UserName, Button, DisplayError, SignInControl, TextArea, Form } from "@fider/components/common";
+import { Post } from "@fider/models";
+import { Avatar, UserName, Button, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
@@ -26,7 +25,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     super(props);
 
     this.state = {
-      content: (Fider.session.isAuthenticated && cache.get(this.getCacheKey())) || "",
+      content: (Fider.session.isAuthenticated && cache.session.get(this.getCacheKey())) || "",
       showSignIn: false
     };
   }
@@ -36,7 +35,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   }
 
   private commentChanged = (content: string) => {
-    cache.set(this.getCacheKey(), content);
+    cache.session.set(this.getCacheKey(), content);
     this.setState({ content });
   };
 
@@ -47,7 +46,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     const result = await actions.createComment(this.props.post.number, this.state.content);
     if (result.ok) {
-      cache.remove(this.getCacheKey());
+      cache.session.remove(this.getCacheKey());
       location.reload();
     } else {
       this.setState({
@@ -72,7 +71,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       <>
         <SignInModal isOpen={this.state.showSignIn} />
         <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
-          {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
+          {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
           <Form error={this.state.error}>
             {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
             <TextArea
