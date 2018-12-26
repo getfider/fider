@@ -8,9 +8,9 @@ const messages = {
   inactive: () => (
     <>
       <p className="welcome">
-        <strong>{Fider.session.tenant.name}</strong> is currently inactive due to lack of payment.
+        <strong>{Fider.session.tenant.name}</strong> is currently inactive.
       </p>
-      <p>To reactivate your Fider site, sign in with an administrator account and subscribe to a plan.</p>
+      <p>To reactivate this site, sign in with an administrator account and update the required settings.</p>
     </>
   ),
   private: () => (
