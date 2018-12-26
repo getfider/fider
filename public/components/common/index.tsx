@@ -2,6 +2,7 @@ export * from "./Button";
 export * from "./form/Form";
 export * from "./form/Input";
 export * from "./form/ImageUploader";
+export * from "./form/MultiImageUploader";
 export * from "./form/TextArea";
 export * from "./form/RadioButton";
 export * from "./form/DisplayError";

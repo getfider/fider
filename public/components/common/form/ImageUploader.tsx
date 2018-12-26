@@ -9,12 +9,13 @@ import { FaRegImage } from "react-icons/fa";
 import { ImageUpload } from "@fider/models";
 
 interface ImageUploaderProps {
+  instanceId?: string;
   field: string;
   label?: string;
   bkey?: string;
   disabled?: boolean;
   previewMaxWidth: number;
-  onChange(state: ImageUpload, previewURL?: string): void;
+  onChange(state: ImageUpload, instanceId?: string): void;
 }
 
 interface ImageUploaderState extends ImageUpload {
@@ -23,6 +24,7 @@ interface ImageUploaderState extends ImageUpload {
 
 export class ImageUploader extends React.Component<ImageUploaderProps, ImageUploaderState> {
   private fileSelector?: HTMLInputElement | null;
+
   constructor(props: ImageUploaderProps) {
     super(props);
     this.state = {
@@ -49,7 +51,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           previewURL: `data:${file.type};base64,${base64}`
         },
         () => {
-          this.props.onChange(this.state, this.state.previewURL);
+          this.props.onChange(this.state, this.props.instanceId);
         }
       );
     }
@@ -68,7 +70,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
         previewURL: undefined
       },
       () => {
-        this.props.onChange(this.state, this.state.previewURL);
+        this.props.onChange(this.state, this.props.instanceId);
       }
     );
   };
