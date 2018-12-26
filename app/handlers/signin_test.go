@@ -200,7 +200,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T
 	Expect(code).Equals(http.StatusOK)
 }
 
-func TestVerifySignUpKeyHandler_LockedTenant(t *testing.T) {
+func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	RegisterT(t)
 
 	server, services := mock.NewServer()
