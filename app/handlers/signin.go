@@ -17,7 +17,7 @@ import (
 func SignInPage() web.HandlerFunc {
 	return func(c web.Context) error {
 
-		if c.Tenant().IsPrivate || c.Tenant().Status == models.TenantInactive {
+		if c.Tenant().IsPrivate || c.Tenant().Status == models.TenantLocked {
 			return c.Page(web.Props{
 				Title:     "Sign in",
 				ChunkName: "SignIn.page",

@@ -5,10 +5,10 @@ import { SignInControl, TenantLogo, LegalNotice } from "@fider/components";
 import { notify, Fider } from "@fider/services";
 
 const messages = {
-  inactive: () => (
+  locked: () => (
     <>
       <p className="welcome">
-        <strong>{Fider.session.tenant.name}</strong> is currently inactive.
+        <strong>{Fider.session.tenant.name}</strong> is currently locked.
       </p>
       <p>To reactivate this site, sign in with an administrator account and update the required settings.</p>
     </>
@@ -37,7 +37,7 @@ export default class SignInPage extends React.Component<{}, {}> {
       <div id="p-signin" className="page container">
         <div className="message">
           <TenantLogo size={100} />
-          {Fider.session.tenant.isPrivate ? messages.private() : messages.inactive()}
+          {Fider.session.tenant.isPrivate ? messages.private() : messages.lockde()}
         </div>
         <SignInControl onEmailSent={this.onEmailSent} useEmail={true} redirectTo={Fider.settings.baseURL} />
         <LegalNotice />

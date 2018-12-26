@@ -94,8 +94,8 @@ func routes(r *web.Engine) *web.Engine {
 	//Extract user from cookie and inject it into web.Context (if available)
 	r.Use(middlewares.User())
 
-	//Block if it's an inactive tenant with a non-administrator user
-	r.Use(middlewares.BlockInativeTenants())
+	//Block if it's a locked tenant with a non-administrator user
+	r.Use(middlewares.BlockLockedTenants())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())

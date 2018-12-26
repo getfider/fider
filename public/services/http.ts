@@ -1,4 +1,4 @@
-import { analytics } from "@fider/services";
+import { analytics, notify } from "@fider/services";
 
 export interface ErrorItem {
   field?: string;
@@ -17,20 +17,29 @@ export interface Result<T = void> {
 
 async function toResult<T>(response: Response): Promise<Result<T>> {
   const body = await response.json();
+
   if (response.status < 400) {
     return {
       ok: true,
       data: body as T
     };
-  } else {
-    return {
-      ok: false,
-      data: body as T,
-      error: {
-        errors: body.errors
-      }
-    };
   }
+
+  if (response.status === 500) {
+    notify.error("An unexpected error occurred while processing your request.");
+  } else if (response.status === 403) {
+    notify.error("You are not authorized to perform this operation.");
+  } else if (response.status === 423) {
+    notify.error("This operation is not allowed. Update your billing settings to unlock it.");
+  }
+
+  return {
+    ok: false,
+    data: body as T,
+    error: {
+      errors: body.errors
+    }
+  };
 }
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
   const headers = [["Accept", "application/json"], ["Content-Type", "application/json"]];
