@@ -98,6 +98,11 @@ export const AsyncMySettingsPage = load(() =>
   "@fider/pages/MySettings/MySettings.page")
 );
 
+export const AsyncBillingPage = load(() =>
+  import(/* webpackChunkName: "Billing.page" */
+  "@fider/pages/Administration/pages/Billing.page")
+);
+
 export const AsyncOAuthEchoPage = load(() =>
   import(/* webpackChunkName: "OAuthEcho.page" */
   "@fider/pages/OAuthEcho/OAuthEcho.page")
