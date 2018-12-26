@@ -1,7 +1,7 @@
 import "./Header.scss";
 
 import React from "react";
-import { SignInModal, EnvironmentInfo, Avatar, TenantLogo } from "@fider/components";
+import { SignInModal, EnvironmentInfo, Avatar, TenantLogo, TenantStatusInfo } from "@fider/components";
 import { actions, Fider } from "@fider/services";
 import { FaUser, FaCog, FaCaretDown } from "react-icons/fa";
 
@@ -86,6 +86,7 @@ export class Header extends React.Component<{}, HeaderState> {
             )}
           </div>
         </div>
+        <TenantStatusInfo />
       </div>
     );
   }

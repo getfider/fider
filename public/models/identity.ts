@@ -5,8 +5,15 @@ export interface Tenant {
   subdomain: string;
   invitation: string;
   welcomeMessage: string;
+  status: TenantStatus;
   isPrivate: boolean;
   logoBlobKey: string;
+}
+
+export enum TenantStatus {
+  Active = 1,
+  Pending = 2,
+  Locked = 3
 }
 
 export interface User {
