@@ -76,6 +76,51 @@ func TestUser_Blocked(t *testing.T) {
 	Expect(status).Equals(http.StatusForbidden)
 }
 
+func TestUser_LockedTenant_Administrator(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantLocked
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.JonSnow.ID,
+		UserName: mock.JonSnow.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, response := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusOK)
+	Expect(response.Body.String()).Equals("Jon Snow")
+}
+
+func TestUser_LockedTenant_Visitor(t *testing.T) {
+	RegisterT(t)
+
+	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantLocked
+	token, _ := jwt.Encode(jwt.FiderClaims{
+		UserID:   mock.AryaStark.ID,
+		UserName: mock.AryaStark.Name,
+	})
+
+	server.Use(middlewares.User())
+	status, _ := server.
+		OnTenant(mock.DemoTenant).
+		AddHeader("Accept", "application/json").
+		AddCookie(web.CookieAuthName, token).
+		Execute(func(c web.Context) error {
+			return c.String(http.StatusOK, c.User().Name)
+		})
+
+	Expect(status).Equals(http.StatusForbidden)
+}
+
 func TestUser_WithCookie_InvalidUser(t *testing.T) {
 	RegisterT(t)
 

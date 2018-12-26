@@ -13,7 +13,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // User gets JWT Auth token from cookie and insert into context
@@ -89,6 +89,13 @@ func User() web.MiddlewareFunc {
 
 			if user != nil && c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
 
+				// only administrators should be allowed to sign in to a locked tenant
+				if c.Tenant().Status == models.TenantLocked && !user.IsAdministrator() {
+					c.RemoveCookie(web.CookieAuthName)
+					return c.Unauthorized()
+				}
+
+				// blocked users are unable to sign in
 				if user.Status == models.UserBlocked {
 					c.RemoveCookie(web.CookieAuthName)
 					return c.Unauthorized()
