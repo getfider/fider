@@ -91,6 +91,9 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
+	//Block if it's a locked tenant with a non-administrator user
+	r.Use(middlewares.BlockLockedTenants())
+
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
 

@@ -26,8 +26,8 @@ var (
 	TenantActive = 1
 	//TenantPending is used for signup via email that requires user confirmation
 	TenantPending = 2
-	//TenantInactive is used when tenants are inative for various reasons
-	TenantInactive = 3
+	//TenantLocked is used when tenants are locked for various reasons
+	TenantLocked = 3
 )
 
 //Upload represents a file that has been uploaded to Fider

@@ -9,21 +9,22 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
 )
 
 // SignInPage renders the sign in page
 func SignInPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		if c.IsAuthenticated() || !c.Tenant().IsPrivate {
-			return c.Redirect(c.BaseURL())
+
+		if c.Tenant().IsPrivate || c.Tenant().Status == models.TenantLocked {
+			return c.Page(web.Props{
+				Title:     "Sign in",
+				ChunkName: "SignIn.page",
+			})
 		}
 
-		return c.Page(web.Props{
-			Title:     "Sign in",
-			ChunkName: "SignIn.page",
-		})
+		return c.Redirect(c.BaseURL())
 	}
 }
 
