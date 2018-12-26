@@ -25,6 +25,10 @@ type config struct {
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
 		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`
 	}
+	Stripe struct {
+		SecretKey string `env:"STRIPE_SECRET_KEY"`
+		PublicKey string `env:"STRIPE_PUBLIC_KEY"`
+	}
 	CDN struct {
 		Host string `env:"CDN_HOST"`
 	}
@@ -121,6 +125,11 @@ func mustBeSet(name string) {
 	if value == "" {
 		panic(fmt.Errorf("Could not find environment variable named '%s'", name))
 	}
+}
+
+// IsBillingEnabled returns true if billing is enabled
+func IsBillingEnabled() bool {
+	return Config.Stripe.SecretKey != "" && Config.Stripe.PublicKey != ""
 }
 
 // IsSingleHostMode returns true if host mode is set to single tenant

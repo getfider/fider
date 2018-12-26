@@ -147,6 +147,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
+		ui.Get("/admin/billing", handlers.BillingPage())
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
