@@ -13,10 +13,12 @@ interface HeadingLogo {
   className?: string;
 }
 
+const Tag: React.StatelessComponent<{ level: number; className: string }> = props =>
+  React.createElement(`h${props.level}`, props, props.children);
+
 export const Heading = (props: HeadingLogo) => {
   const size = props.size || "normal";
   const level = size === "normal" ? 2 : 3;
-  const Tag = `h${level}`;
   const className = classSet({
     "c-heading": true,
     "m-dividing": props.dividing || false,
@@ -32,7 +34,7 @@ export const Heading = (props: HeadingLogo) => {
   const icon = props.icon && <div className={iconClassName}>{React.createElement(props.icon)}</div>;
 
   return (
-    <Tag className={className}>
+    <Tag level={level} className={className}>
       {icon}
       <div className="c-heading-content">
         {props.title}

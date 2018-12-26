@@ -23,7 +23,7 @@ const messages = {
   )
 };
 
-export default class SignInPage extends React.Component<{}, {}> {
+export default class SignInPage extends React.Component<any, {}> {
   private onEmailSent = (email: string) => {
     notify.success(
       <span>
