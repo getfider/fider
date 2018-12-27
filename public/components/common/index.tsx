@@ -9,6 +9,7 @@ export * from "./form/DisplayError";
 export * from "./form/Select";
 export * from "./form/Field";
 export * from "./form/Checkbox";
+export * from "./form/ImageViewer";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
 export * from "./TenantStatusInfo";

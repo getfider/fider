@@ -7,8 +7,8 @@ import (
 	"github.com/getfider/fider/app/tasks"
 
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // ChangeUserEmail register the intent of changing user email
@@ -83,8 +83,8 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		if err = handleImageUpload(c, input.Model.Avatar, "avatars"); err != nil {
-			return errors.Wrap(err, "failed to upload new user custom avatar")
+		if err = webutil.ProcessImageUpload(c, input.Model.Avatar, "avatars"); err != nil {
+			return c.Failure(err)
 		}
 
 		if err = c.Services().Users.Update(input.Model); err != nil {

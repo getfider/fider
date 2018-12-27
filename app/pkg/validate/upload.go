@@ -12,6 +12,7 @@ type ImageUploadOpts struct {
 	IsRequired   bool
 	MinWidth     int
 	MinHeight    int
+	ExactRatio   bool
 	MaxKilobytes int
 }
 
@@ -38,7 +39,7 @@ func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, er
 				messages = append(messages, fmt.Sprintf("The image must have minimum dimensions of %dx%d pixels.", opts.MinWidth, opts.MinHeight))
 			}
 
-			if logo.Width != logo.Height {
+			if opts.ExactRatio && logo.Width != logo.Height {
 				messages = append(messages, "The image must have an aspect ratio of 1:1.")
 			}
 

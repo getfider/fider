@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // GeneralSettingsPage is the general settings page
@@ -37,9 +37,9 @@ func UpdateSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := handleImageUpload(c, input.Model.Logo, "logos")
+		err := webutil.ProcessImageUpload(c, input.Model.Logo, "logos")
 		if err != nil {
-			return errors.Wrap(err, "failed to upload new tenant logo")
+			return c.Failure(err)
 		}
 
 		err = c.Services().Tenants.UpdateSettings(input.Model)
@@ -141,9 +141,9 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := handleImageUpload(c, input.Model.Logo, "logos")
+		err := webutil.ProcessImageUpload(c, input.Model.Logo, "logos")
 		if err != nil {
-			return errors.Wrap(err, "failed to upload new OAuth logo")
+			return c.Failure(err)
 		}
 
 		err = c.Services().Tenants.SaveOAuthConfig(input.Model)
