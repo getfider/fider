@@ -1,9 +1,10 @@
 import React from "react";
 import { ImageUploader } from "./ImageUploader";
-import "./MultiImageUploader.scss";
 import { ImageUpload } from "@fider/models";
 import { ValidationContext, hasError, DisplayError } from "@fider/components";
 import { classSet } from "@fider/services";
+
+import "./MultiImageUploader.scss";
 
 interface MultiImageUploaderProps {
   field: string;
