@@ -48,16 +48,17 @@
   border-radius: 3px;
   -webkit-box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
   box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
-  width: 100%;
   animation: windowfadeIn 0.5s;
 
   &.m-small {
+    width: 100%;
     @include media(">=md") {
       width: 500px;
     }
   }
 
   &.m-large {
+    width: 100%;
     @include media(">=md") {
       width: 750px;
     }
@@ -76,6 +77,10 @@
 
   .c-modal-content {
     padding: 15px 20px;
+    img {
+      max-width: 90vw;
+      max-height: 80vh;
+    }
   }
 
   .c-modal-footer {
