@@ -82,6 +82,11 @@ func UpdatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		err = c.Services().Posts.SetAttachments(input.Post, nil, input.Model.Attachments)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Ok(web.Map{})
 	}
 }

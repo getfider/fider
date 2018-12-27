@@ -105,6 +105,7 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 100,
+		ExactRatio:   true,
 	})
 	if err != nil {
 		return validate.Error(err)

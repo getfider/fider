@@ -249,7 +249,7 @@ type UpdateTenantAdvancedSettings struct {
 
 //ImageUpload is the input model used to upload/remove an image
 type ImageUpload struct {
-	BlobKey string
+	BlobKey string           `json:"bkey"`
 	Upload  *ImageUploadData `json:"upload"`
 	Remove  bool             `json:"remove"`
 }

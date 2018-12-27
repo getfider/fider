@@ -92,6 +92,17 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
+	for _, upload := range input.Model.Attachments {
+		messages, err := validate.ImageUpload(upload, validate.ImageUploadOpts{
+			MaxKilobytes: 5120,
+			ExactRatio:   false,
+		})
+		if err != nil {
+			return validate.Error(err)
+		}
+		result.AddFieldFailure("attachments", messages...)
+	}
+
 	input.Post = post
 
 	return result

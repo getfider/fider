@@ -279,3 +279,13 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 	}
 	return make([]*models.User, 0), nil
 }
+
+// GetAttachments for given post or comment
+func (s *PostStorage) GetAttachments(post *models.Post, comment *models.Comment) ([]string, error) {
+	return make([]string, 0), nil
+}
+
+// SetAttachments on given post or comment
+func (s *PostStorage) SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error {
+	return nil
+}

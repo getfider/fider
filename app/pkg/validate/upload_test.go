@@ -38,6 +38,7 @@ func TestValidateImageUpload(t *testing.T) {
 			MinHeight:    200,
 			MinWidth:     200,
 			MaxKilobytes: 100,
+			ExactRatio:   true,
 		})
 		Expect(messages).HasLen(testCase.count)
 		Expect(err).IsNil()
@@ -52,6 +53,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
+		ExactRatio:   true,
 	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
@@ -61,6 +63,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
+		ExactRatio:   true,
 	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
@@ -87,6 +90,7 @@ func TestValidateImageUpload_Required(t *testing.T) {
 			MinHeight:    200,
 			MinWidth:     200,
 			MaxKilobytes: 50,
+			ExactRatio:   true,
 		})
 		Expect(messages).HasLen(testCase.count)
 		Expect(err).IsNil()
