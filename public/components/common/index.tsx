@@ -11,6 +11,7 @@ export * from "./form/Field";
 export * from "./form/Checkbox";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
+export * from "./TenantStatusInfo";
 export * from "./Avatar";
 export * from "./Message";
 export * from "./Hint";

@@ -36,11 +36,13 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
       actions.searchPosts({ query: searchQuery }).then(res => {
-        const posts =
-          this.props.exclude && this.props.exclude.length > 0
-            ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
-            : res.data;
-        this.setState({ posts });
+        if (res.ok) {
+          const posts =
+            this.props.exclude && this.props.exclude.length > 0
+              ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
+              : res.data;
+          this.setState({ posts });
+        }
       });
     }, 200);
   };
