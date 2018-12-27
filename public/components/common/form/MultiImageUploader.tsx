@@ -47,7 +47,7 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
     this.state = { instances, count, removed: [] };
   }
 
-  private imageUploaded = (upload: ImageUpload, instanceId: string) => {
+  private imageUploaded = (upload: ImageUpload, instanceID: string) => {
     const instances = { ...this.state.instances };
     const removed = [...this.state.removed];
     let count = this.state.count;
@@ -55,12 +55,12 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
       if (upload.bkey) {
         removed.push(upload);
       }
-      delete instances[instanceId];
+      delete instances[instanceID];
       if (--count === this.props.maxUploads) {
         this.addNewElement(instances);
       }
     } else {
-      instances[instanceId].upload = upload;
+      instances[instanceID].upload = upload;
       count++;
       if (count <= this.props.maxUploads) {
         this.addNewElement(instances);
@@ -86,7 +86,7 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
         <ImageUploader
           key={id}
           bkey={bkey}
-          instanceId={id}
+          instanceID={id}
           field="attachment"
           previewMaxWidth={this.props.previewMaxWidth}
           onChange={this.imageUploaded}

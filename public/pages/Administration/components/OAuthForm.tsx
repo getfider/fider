@@ -24,6 +24,7 @@ export interface OAuthFormState {
   jsonUserEmailPath: string;
   logoBlobKey?: string;
   logo?: ImageUpload;
+  logoURL?: string;
   error?: Failure;
 }
 
@@ -79,8 +80,8 @@ export class OAuthForm extends React.Component<OAuthFormProps, OAuthFormState> {
     this.setState({ displayName });
   };
 
-  private setLogo = (logo: ImageUpload, previewURL: string) => {
-    this.setState({ logo });
+  private setLogo = (logo: ImageUpload, instanceID: string, previewURL: string) => {
+    this.setState({ logo, logoURL: previewURL, logoBlobKey: "" });
   };
 
   private setStatus = async (enabled: boolean) => {
