@@ -92,6 +92,10 @@ func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
 
 // UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
+	if settings.Logo.Remove {
+		settings.Logo.BlobKey = ""
+	}
+
 	for _, tenant := range s.tenants {
 		if tenant.ID == s.current.ID {
 			tenant.Invitation = settings.Invitation
