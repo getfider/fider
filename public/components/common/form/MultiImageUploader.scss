@@ -1,7 +1,9 @@
 .c-multi-image-uploader {
-  display: flex;
-  flex-wrap: wrap;
-  .c-image-upload {
-    margin-right: 10px;
+  .c-multi-image-uploader-instances {
+    display: flex;
+    flex-wrap: wrap;
+    .c-image-upload {
+      margin-right: 10px;
+    }
   }
 }

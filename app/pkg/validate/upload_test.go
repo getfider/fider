@@ -38,10 +38,36 @@ func TestValidateImageUpload(t *testing.T) {
 			MinHeight:    200,
 			MinWidth:     200,
 			MaxKilobytes: 100,
+			ExactRatio:   true,
 		})
 		Expect(messages).HasLen(testCase.count)
 		Expect(err).IsNil()
 	}
+}
+
+func TestValidateImageUpload_ExactRatio(t *testing.T) {
+	RegisterT(t)
+
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	opts := validate.ImageUploadOpts{
+		IsRequired:   false,
+		MaxKilobytes: 200,
+	}
+
+	upload := &models.ImageUpload{
+		Upload: &models.ImageUploadData{
+			Content: img,
+		},
+	}
+	opts.ExactRatio = true
+	messages, err := validate.ImageUpload(upload, opts)
+	Expect(messages).HasLen(1)
+	Expect(err).IsNil()
+
+	opts.ExactRatio = false
+	messages, err = validate.ImageUpload(upload, opts)
+	Expect(messages).HasLen(0)
+	Expect(err).IsNil()
 }
 
 func TestValidateImageUpload_Nil(t *testing.T) {
@@ -52,6 +78,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
+		ExactRatio:   true,
 	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
@@ -61,6 +88,7 @@ func TestValidateImageUpload_Nil(t *testing.T) {
 		MinHeight:    200,
 		MinWidth:     200,
 		MaxKilobytes: 50,
+		ExactRatio:   true,
 	})
 	Expect(messages).HasLen(0)
 	Expect(err).IsNil()
@@ -87,6 +115,7 @@ func TestValidateImageUpload_Required(t *testing.T) {
 			MinHeight:    200,
 			MinWidth:     200,
 			MaxKilobytes: 50,
+			ExactRatio:   true,
 		})
 		Expect(messages).HasLen(testCase.count)
 		Expect(err).IsNil()

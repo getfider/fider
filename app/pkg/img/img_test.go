@@ -63,6 +63,7 @@ var resizeTestCases = []struct {
 	{"/app/pkg/img/testdata/logo6.jpg", "/app/pkg/img/testdata/logo6-200x200.jpg", 200, 0, false},
 	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-200x200.gif", 200, 0, false},
 	{"/app/pkg/img/testdata/logo7.gif", "/app/pkg/img/testdata/logo7-1000-1000.gif", 1000, 0, false},
+	{"/app/pkg/img/testdata/logo8.png", "/app/pkg/img/testdata/logo8-200h.gif", 200, 0, false},
 }
 
 func TestImageResize(t *testing.T) {
