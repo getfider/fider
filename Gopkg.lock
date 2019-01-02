@@ -164,14 +164,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:507fa82feeba6c3651d3cfb7593a498144ae6455e1b00dde2e0c344cdfdc9c4d"
+  digest = "1:e3d2db9bc633f4635e6418caf0b0734c43821ecd59105d1798458c6ae4d227fd"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
   ]
   pruneopts = "UT"
-  revision = "2c241ca3045ddc354463c376a9515d9f1f1390a4"
+  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
 
 [[projects]]
   branch = "master"
