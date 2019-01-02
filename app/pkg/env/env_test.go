@@ -67,6 +67,16 @@ func TestMultiTenantDomain(t *testing.T) {
 	Expect(env.MultiTenantDomain()).Equals(".fider.io")
 }
 
+func TestIsBillingEnbled(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.Stripe.SecretKey = ""
+	env.Config.Stripe.PublicKey = "pk_111"
+	Expect(env.IsBillingEnabled()).IsFalse()
+	env.Config.Stripe.SecretKey = "sk_1234"
+	Expect(env.IsBillingEnabled()).IsTrue()
+}
+
 func TestSubdomain(t *testing.T) {
 	RegisterT(t)
 

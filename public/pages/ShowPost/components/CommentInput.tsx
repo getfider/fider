@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Post } from "@fider/models";
-import { Gravatar, UserName, Button, TextArea, Form } from "@fider/components/common";
+import { Avatar, UserName, Button, TextArea, Form } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
@@ -71,7 +71,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
       <>
         <SignInModal isOpen={this.state.showSignIn} />
         <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
-          {Fider.session.isAuthenticated && <Gravatar user={Fider.session.user} />}
+          {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
           <Form error={this.state.error}>
             {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
             <TextArea

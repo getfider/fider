@@ -87,5 +87,6 @@ export interface Vote {
     id: number;
     name: string;
     email: string;
+    avatarURL: string;
   };
 }

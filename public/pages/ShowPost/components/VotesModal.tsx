@@ -2,7 +2,7 @@ import "./VotesModal.scss";
 
 import React from "react";
 import { Post, Vote } from "@fider/models";
-import { Modal, Button, Loader, List, ListItem, Gravatar, UserName, Moment, Input } from "@fider/components";
+import { Modal, Button, Loader, List, ListItem, Avatar, UserName, Moment, Input } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
 
@@ -79,7 +79,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
               <List hover={true}>
                 {this.state.filteredVotes.map(x => (
                   <ListItem key={x.user.id}>
-                    <Gravatar user={x.user} />
+                    <Avatar user={x.user} />
                     <span className="l-user">
                       <UserName user={x.user} />
                       <span className="info">{x.user.email}</span>

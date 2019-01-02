@@ -1,7 +1,7 @@
 import React from "react";
 import { Comment, Post } from "@fider/models";
 import {
-  Gravatar,
+  Avatar,
   UserName,
   Moment,
   Form,
@@ -130,7 +130,7 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
     return (
       <div className="c-comment">
         {this.modal()}
-        <Gravatar user={c.user} />
+        <Avatar user={c.user} />
         <div className="c-comment-content">
           <UserName user={c.user} />
           <div className="c-comment-metadata">

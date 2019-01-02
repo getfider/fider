@@ -38,8 +38,16 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   name = "golang.org/x/crypto"
 
 [[constraint]]
+  name = "github.com/patrickmn/go-cache"
+  version = "2.1.0"
+
+[[constraint]]
   version = "v1.16.3"
   name = "github.com/aws/aws-sdk-go"
+
+[[constraint]]
+  version = "v1.5.0"
+  name = "github.com/disintegration/imaging"
 
 [[constraint]]
   branch = "master"

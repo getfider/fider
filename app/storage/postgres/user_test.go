@@ -21,6 +21,7 @@ func TestUserStorage_GetByID(t *testing.T) {
 	Expect(user.Tenant.ID).Equals(1)
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
+	Expect(user.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
 	Expect(user.Providers).HasLen(1)
 	Expect(user.Providers[0].UID).Equals("FB1234")
 	Expect(user.Providers[0].Name).Equals("facebook")
@@ -206,12 +207,18 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(jonSnow)
-	err := users.Update(&models.UpdateUserSettings{Name: "Jon Stark"})
+	err := users.Update(&models.UpdateUserSettings{
+		Name: "Jon Stark",
+		Avatar: &models.ImageUpload{
+			BlobKey: "jon.png",
+		},
+	})
 	Expect(err).IsNil()
 
 	user, err := users.GetByEmail("jon.snow@got.com")
 	Expect(err).IsNil()
 	Expect(user.Name).Equals("Jon Stark")
+	Expect(user.AvatarBlobKey).Equals("jon.png")
 }
 
 func TestUserStorage_ChangeRole(t *testing.T) {

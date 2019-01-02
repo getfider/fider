@@ -1,0 +1,13 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-image-viewer {
+  display: inline-block;
+  cursor: pointer;
+  margin-top: 10px;
+  img {
+    vertical-align: top;
+  }
+  + .c-image-viewer {
+    margin-left: 10px;
+  }
+}

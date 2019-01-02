@@ -31,7 +31,7 @@ func routes(r *web.Engine) *web.Engine {
 	{
 		assets.Use(middlewares.CORS())
 		assets.Use(middlewares.ClientCache(365 * 24 * time.Hour))
-		assets.Get("/favicon/:size", handlers.Favicon())
+		assets.Get("/favicon", handlers.Favicon())
 		assets.Static("/assets/*filepath", "dist")
 	}
 
@@ -64,11 +64,12 @@ func routes(r *web.Engine) *web.Engine {
 	tenantAssets := r.Group()
 	{
 		tenantAssets.Use(middlewares.ClientCache(5 * 24 * time.Hour))
-		tenantAssets.Get("/avatars/:size/:id/:name", handlers.Avatar())
+		tenantAssets.Get("/avatars/letter/:id/:name", handlers.LetterAvatar())
+		tenantAssets.Get("/avatars/gravatar/:id/:name", handlers.Gravatar())
 
 		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
-		tenantAssets.Get("/favicon/:size/*bkey", handlers.Favicon())
-		tenantAssets.Get("/images/:size/*bkey", handlers.ViewUploadedImage())
+		tenantAssets.Get("/favicon/*bkey", handlers.Favicon())
+		tenantAssets.Get("/images/*bkey", handlers.ViewUploadedImage())
 		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
@@ -89,6 +90,9 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
+
+	//Block if it's a locked tenant with a non-administrator user
+	r.Use(middlewares.BlockLockedTenants())
 
 	//Block if it's private tenant with unauthenticated user
 	r.Use(middlewares.CheckTenantPrivacy())
@@ -143,6 +147,7 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
+		ui.Get("/admin/billing", handlers.BillingPage())
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())

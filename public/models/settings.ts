@@ -18,6 +18,7 @@ export interface SystemSettings {
   domain: string;
   hasLegal: boolean;
   baseURL: string;
+  stripePublicKey?: string;
   tenantAssetsURL: string;
   globalAssetsURL: string;
   oauth: OAuthProviderOption[];
@@ -46,4 +47,14 @@ export interface OAuthConfig {
   jsonUserIDPath: string;
   jsonUserNamePath: string;
   jsonUserEmailPath: string;
+}
+
+export interface ImageUpload {
+  bkey?: string;
+  upload?: {
+    fileName?: string;
+    content?: string;
+    contentType?: string;
+  };
+  remove: boolean;
 }

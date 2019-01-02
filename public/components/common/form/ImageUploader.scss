@@ -4,12 +4,32 @@
   input[type='file'] {
     display: none;
   }
+
+  .c-form-field-wrapper {
+    .c-button {
+      font-size: $font-size-big;
+      padding: 4px 8px;
+    }
+  }
   
-  img.preview {
-    background-color: $white;
-    padding: 10px;
-    border: 1px solid rgba(34, 36, 38, 0.15);
-    border-radius: 3px;
-    margin-right: 10px;
+  .preview {
+    position: relative;
+    display: inline-block;
+    img {
+      padding: 5px;
+      min-width: 50px;
+      min-height: 50px;
+      border: 1px solid $gray-light;
+      cursor: pointer;
+    }
+    .c-button {
+      font-weight: 600;
+      position: absolute;
+      border-color: $red;
+      top: 4px;
+      right: 0px;
+      border-radius: 50%;
+      padding: 4px 6px;
+    }
   }
 }

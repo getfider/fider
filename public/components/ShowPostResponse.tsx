@@ -2,7 +2,7 @@ import "./ShowPostResponse.scss";
 
 import React from "react";
 import { PostResponse, PostStatus } from "@fider/models";
-import { Gravatar, MultiLineText, UserName, Segment } from "@fider/components/common";
+import { Avatar, MultiLineText, UserName, Segment } from "@fider/components/common";
 
 interface ShowPostStatusProps {
   status: PostStatus;
@@ -56,7 +56,7 @@ export const ShowPostResponse = (props: PostResponseProps): JSX.Element => {
         {status.show && <ShowPostStatus status={status} />}
         {props.showUser && (
           <>
-            <Gravatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
+            <Avatar user={props.response.user} size="small" /> <UserName user={props.response.user} />
           </>
         )}
         {status === PostStatus.Duplicate ? DuplicateDetails(props) : StatusDetails(props)}

@@ -14,6 +14,7 @@ import (
 )
 
 func compareRendererResponse(buf *bytes.Buffer, fileName string, ctx *web.Context) {
+	// ioutil.WriteFile(env.Path(fileName), []byte(strings.Replace(buf.String(), ctx.ContextID(), "CONTEXT_ID", -1)), 0744)
 	bytes, err := ioutil.ReadFile(env.Path(fileName))
 	Expect(err).IsNil()
 	Expect(strings.Replace(buf.String(), ctx.ContextID(), "CONTEXT_ID", -1)).Equals(string(bytes))
@@ -89,10 +90,13 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetUser(&models.User{
-		Name:   "Jon Snow",
-		Email:  "jon.snow@got.com",
-		Status: models.UserActive,
-		Role:   models.RoleAdministrator,
+		ID:         5,
+		Name:       "Jon Snow",
+		Email:      "jon.snow@got.com",
+		Status:     models.UserActive,
+		Role:       models.RoleAdministrator,
+		AvatarType: models.AvatarTypeGravatar,
+		AvatarURL:  "https://demo.test.fider.io:3000/avatars/gravatar/5/Jon%20Snow",
 	})
 	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
 	renderer.Render(buf, "index.html", web.Props{

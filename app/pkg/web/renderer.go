@@ -210,6 +210,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"environment":     r.settings.Environment,
 		"compiler":        r.settings.Compiler,
 		"googleAnalytics": r.settings.GoogleAnalytics,
+		"stripePublicKey": env.Config.Stripe.PublicKey,
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
@@ -226,6 +227,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 			"email":           u.Email,
 			"role":            u.Role,
 			"status":          u.Status,
+			"avatarType":      u.AvatarType,
+			"avatarURL":       u.AvatarURL,
+			"avatarBlobKey":   u.AvatarBlobKey,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
 		}

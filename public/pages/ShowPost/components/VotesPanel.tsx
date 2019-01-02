@@ -2,7 +2,7 @@ import "./VotesPanel.scss";
 
 import React from "react";
 import { Post, Vote } from "@fider/models";
-import { Gravatar } from "@fider/components";
+import { Avatar } from "@fider/components";
 import { Fider, classSet } from "@fider/services";
 import { VotesModal } from "./VotesModal";
 
@@ -50,7 +50,7 @@ export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState
         <span className="subtitle">Voters</span>
         <div className="l-votes-list">
           {this.props.votes.map(x => (
-            <Gravatar key={x.user.id} user={x.user} />
+            <Avatar key={x.user.id} user={x.user} />
           ))}
           {extraVotesCount > 0 && (
             <span onClick={this.showModal} className={moreVotesClassName}>

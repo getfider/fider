@@ -63,7 +63,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true });
     this.timer = window.setTimeout(() => {
       actions.searchPosts({ query, view, limit, tags }).then(response => {
-        if (this.state.loading) {
+        if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data });
         }
       });

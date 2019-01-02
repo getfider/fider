@@ -119,6 +119,7 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	tenants.UpdateSettings(&models.UpdateTenantSettings{
 		Title: "My Domain Inc.",
 		CNAME: "feedback.mycompany.com",
+		Logo:  &models.ImageUpload{},
 	})
 
 	tenant, err = tenants.GetByDomain("feedback.mycompany.com")

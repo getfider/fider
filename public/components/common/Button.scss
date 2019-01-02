@@ -50,7 +50,7 @@
   &.m-danger {
     color: $red;
     border: 1px solid $gray-light;
-    background-color: transparent;
+    background-color: $white;
 
     &:hover {
       color: $white;

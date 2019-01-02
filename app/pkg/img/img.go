@@ -5,12 +5,11 @@ import (
 	"image"
 
 	"image/color"
-	"image/gif"
-	"image/jpeg"
 	"image/png"
 
 	stdError "errors"
 
+	"github.com/disintegration/imaging"
 	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/image/draw"
 )
@@ -29,8 +28,8 @@ type File struct {
 func Parse(file []byte) (*File, error) {
 	reader := bytes.NewReader(file)
 
-	image, _, err := image.DecodeConfig(reader)
-	if err != nil {
+	image, format, err := image.DecodeConfig(reader)
+	if err != nil || (format != "png" && format != "gif" && format != "jpeg") {
 		return nil, ErrNotSupported
 	}
 
@@ -41,45 +40,66 @@ func Parse(file []byte) (*File, error) {
 	}, nil
 }
 
+//ImageOperation is an operation that can be performed on an image and retun a modified version of it
+type ImageOperation func(image.Image, string) image.Image
+
 //ChangeBackground will change given image transparent background to given color
-func ChangeBackground(file []byte, bgColor color.Color) ([]byte, error) {
-	src, format, err := decode(file)
-	if err != nil {
-		return nil, err
-	}
+func ChangeBackground(bgColor color.Color) ImageOperation {
+	return func(src image.Image, format string) image.Image {
+		if format != "png" {
+			return src
+		}
 
-	if format != "png" {
-		return file, nil
+		dst := image.NewRGBA(src.Bounds())
+		draw.Draw(dst, dst.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
+		draw.Draw(dst, dst.Bounds(), src, src.Bounds().Min, draw.Over)
+		return dst
 	}
+}
 
-	dst := image.NewRGBA(src.Bounds())
-	draw.Draw(dst, dst.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
-	draw.Draw(dst, dst.Bounds(), src, src.Bounds().Min, draw.Over)
-	return encode(dst, format)
+//Padding adds a padding based on given value
+func Padding(padding int) ImageOperation {
+	return func(src image.Image, format string) image.Image {
+		if padding == 0 {
+			return src
+		}
+
+		srcBounds := src.Bounds()
+		srcW, srcH := srcBounds.Dx(), srcBounds.Dy()
+
+		dst := image.NewRGBA(image.Rect(0, 0, srcW+padding, srcH+padding))
+		draw.Draw(dst, dst.Bounds(), src, image.Pt(-padding/2, -padding/2), draw.Src)
+		return dst
+	}
 }
 
 //Resize image based on given size
-func Resize(file []byte, size int, padding int) ([]byte, error) {
-	src, format, err := decode(file)
+func Resize(size int) ImageOperation {
+	return func(src image.Image, format string) image.Image {
+		b := src.Bounds()
+		srcW, srcH := b.Dx(), b.Dy()
+		if size >= srcH && size >= srcW {
+			return src
+		}
+		if srcW > srcH {
+			return imaging.Resize(src, size, 0, imaging.Lanczos)
+		}
+		return imaging.Resize(src, 0, size, imaging.Lanczos)
+	}
+}
+
+// Apply a list of operations on a given image
+func Apply(input []byte, operations ...ImageOperation) ([]byte, error) {
+	img, format, err := decode(input)
 	if err != nil {
 		return nil, err
 	}
 
-	//TODO: Very slow to resize images with aspect ratio different than 1:1
-
-	srcBounds := src.Bounds()
-	srcW, srcH := srcBounds.Dx(), srcBounds.Dy()
-	if (srcW <= size && srcH <= size) || srcW != srcH {
-		size = srcW
+	for _, op := range operations {
+		img = op(img, format)
 	}
 
-	padding = size * padding / 100
-	dst := image.NewRGBA(image.Rect(0, 0, size, size))
-	dstBounds := image.Rect(padding, padding, size-padding, size-padding)
-	srcBounds = image.Rect(0, 0, srcBounds.Max.X, srcBounds.Max.Y)
-	draw.CatmullRom.Scale(dst, dstBounds, src, srcBounds, draw.Src, nil)
-
-	return encode(dst, format)
+	return encode(img, format)
 }
 
 func decode(file []byte) (image.Image, string, error) {
@@ -91,19 +111,16 @@ func decode(file []byte) (image.Image, string, error) {
 }
 
 func encode(img image.Image, format string) ([]byte, error) {
-	var err error
 	writer := new(bytes.Buffer)
-	if format == "png" {
-		err = png.Encode(writer, img)
-	} else if format == "jpeg" {
-		err = jpeg.Encode(writer, img, nil)
-	} else if format == "gif" {
-		err = gif.Encode(writer, img, nil)
-	}
+	f, _ := imaging.FormatFromExtension(format)
 
+	err := imaging.Encode(
+		writer, img, f,
+		imaging.PNGCompressionLevel(png.BestCompression),
+		imaging.JPEGQuality(95),
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to encode image to '%s'", format)
 	}
-
 	return writer.Bytes(), nil
 }

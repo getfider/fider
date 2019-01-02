@@ -10,7 +10,7 @@ import {
   ShowPostResponse,
   Button,
   UserName,
-  Gravatar,
+  Avatar,
   Moment,
   MultiLineText,
   List,
@@ -104,7 +104,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 )}
 
                 <span className="info">
-                  <Moment date={this.props.post.createdAt} /> &middot; <Gravatar user={this.props.post.user} />{" "}
+                  <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} />{" "}
                   <UserName user={this.props.post.user} />
                 </span>
               </div>
