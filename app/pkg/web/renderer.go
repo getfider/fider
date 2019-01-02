@@ -24,9 +24,6 @@ var templateFunctions = template.FuncMap{
 	"md5": func(input string) string {
 		return crypto.MD5(input)
 	},
-	"replace": func(input, from, to string) string {
-		return strings.Replace(input, from, to, -1)
-	},
 	"markdown": func(input string) template.HTML {
 		return markdown.Full(input)
 	},
@@ -161,7 +158,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		tmpl = r.add(name)
 	}
 
-	m := make(Map, 0)
+	public := make(Map, 0)
+	private := make(Map, 0)
 
 	tenantName := "Fider"
 	if ctx.Tenant() != nil {
@@ -173,27 +171,24 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		title = fmt.Sprintf("%s · %s", props.Title, tenantName)
 	}
 
-	m["__title"] = title
+	public["title"] = title
 
 	if props.Description != "" {
 		description := strings.Replace(props.Description, "\n", " ", -1)
-		m["__description"] = fmt.Sprintf("%.150s", description)
+		public["description"] = fmt.Sprintf("%.150s", description)
 	}
 
 	if props.ChunkName != "" {
-		m["__chunkAssets"] = r.chunkedAssets[props.ChunkName]
+		private["chunkAssets"] = r.chunkedAssets[props.ChunkName]
 	}
 
-	m["__assets"] = r.assets
-	m["__logo"] = ctx.LogoURL()
-	m["__favicon"] = ctx.FaviconURL()
-	m["__contextID"] = ctx.ContextID()
-	m["__currentURL"] = ctx.Request.URL.String()
+	private["assets"] = r.assets
+	private["logo"] = ctx.LogoURL()
+	private["favicon"] = ctx.FaviconURL()
+	private["currentURL"] = ctx.Request.URL.String()
 	if canonicalURL := ctx.Get("Canonical-URL"); canonicalURL != nil {
-		m["__canonicalURL"] = canonicalURL
+		private["canonicalURL"] = canonicalURL
 	}
-	m["__tenant"] = ctx.Tenant()
-	m["__props"] = props.Data
 
 	oauthProviders := make([]*oauth.ProviderOption, 0)
 	if !ctx.IsAuthenticated() && ctx.Services() != nil {
@@ -203,7 +198,10 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		}
 	}
 
-	m["__settings"] = &Map{
+	public["contextID"] = ctx.ContextID()
+	public["tenant"] = ctx.Tenant()
+	public["props"] = props.Data
+	public["settings"] = &Map{
 		"mode":            r.settings.Mode,
 		"buildTime":       r.settings.BuildTime,
 		"version":         r.settings.Version,
@@ -221,7 +219,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	if ctx.IsAuthenticated() {
 		u := ctx.User()
-		m["__user"] = &Map{
+		public["user"] = &Map{
 			"id":              u.ID,
 			"name":            u.Name,
 			"email":           u.Email,
@@ -235,7 +233,10 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		}
 	}
 
-	err = tmpl.Execute(w, m)
+	err = tmpl.Execute(w, Map{
+		"public":  public,
+		"private": private,
+	})
 	if err != nil {
 		panic(errors.Wrap(err, "failed to execute template %s", name))
 	}
