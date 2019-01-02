@@ -175,7 +175,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3f27b2eb37fc7c73de41226ec8b21066019934150c96d87f6e76354945a6f005"
+  digest = "1:98cb8180faeb2421bfb3d6f6c8d2f3525758102e1629ffbaea954c339400e891"
   name = "golang.org/x/image"
   packages = [
     "bmp",
@@ -187,7 +187,7 @@
     "tiff/lzw",
   ]
   pruneopts = "UT"
-  revision = "e20db36d77bd0cb36cea8fe49d5c37d82d21591f"
+  revision = "cd38e8056d9b27bb2f265effa37fb0ea6b8a7f0f"
 
 [[projects]]
   branch = "master"
