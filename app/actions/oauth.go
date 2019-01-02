@@ -49,6 +49,7 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 		IsRequired:   false,
 		MinHeight:    24,
 		MinWidth:     24,
+		ExactRatio:   true,
 		MaxKilobytes: 50,
 	})
 	if err != nil {

@@ -4,30 +4,34 @@ import React from "react";
 import { ValidationContext } from "./Form";
 import { DisplayError, hasError } from "./DisplayError";
 import { classSet, fileToBase64, uploadedImageURL } from "@fider/services";
-import { Button, ButtonClickEvent } from "@fider/components";
+import { Button, ButtonClickEvent, Modal } from "@fider/components";
 import { FaRegImage } from "react-icons/fa";
 import { ImageUpload } from "@fider/models";
 
 interface ImageUploaderProps {
+  instanceID?: string;
   field: string;
   label?: string;
   bkey?: string;
   disabled?: boolean;
   previewMaxWidth: number;
-  onChange(state: ImageUpload, previewURL?: string): void;
+  onChange(state: ImageUpload, instanceID?: string, previewURL?: string): void;
 }
 
 interface ImageUploaderState extends ImageUpload {
   previewURL?: string;
+  showModal: boolean;
 }
 
 export class ImageUploader extends React.Component<ImageUploaderProps, ImageUploaderState> {
   private fileSelector?: HTMLInputElement | null;
+
   constructor(props: ImageUploaderProps) {
     super(props);
     this.state = {
       upload: undefined,
       remove: false,
+      showModal: false,
       previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth)
     };
   }
@@ -49,7 +53,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           previewURL: `data:${file.type};base64,${base64}`
         },
         () => {
-          this.props.onChange(this.state, this.state.previewURL);
+          this.props.onChange(this.state, this.props.instanceID, this.state.previewURL);
         }
       );
     }
@@ -68,7 +72,15 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
         previewURL: undefined
       },
       () => {
-        this.props.onChange(this.state, this.state.previewURL);
+        this.props.onChange(
+          {
+            bkey: this.state.bkey,
+            remove: this.state.remove,
+            upload: this.state.upload
+          },
+          this.props.instanceID,
+          this.state.previewURL
+        );
       }
     );
   };
@@ -78,6 +90,30 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       this.fileSelector.click();
     }
   };
+
+  private openModal = () => {
+    this.setState({ showModal: true });
+  };
+
+  private closeModal = async () => {
+    this.setState({ showModal: false });
+  };
+
+  private modal() {
+    return (
+      <Modal.Window isOpen={this.state.showModal} center={false} size="fluid">
+        <Modal.Content>
+          <img src={this.state.previewURL} />
+        </Modal.Content>
+
+        <Modal.Footer>
+          <Button color="cancel" onClick={this.closeModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal.Window>
+    );
+  }
 
   public render() {
     const isUploading = !!this.state.upload;
@@ -97,11 +133,12 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               "m-error": hasError(this.props.field, ctx.error)
             })}
           >
+            {this.modal()}
             <label htmlFor={`input-${this.props.field}`}>{this.props.label}</label>
 
             {hasFile && (
               <div className="preview">
-                <img src={this.state.previewURL} style={imgStyles} />
+                <img onClick={this.openModal} src={this.state.previewURL} style={imgStyles} />
                 {!this.props.disabled && (
                   <Button onClick={this.removeFile} color="danger">
                     X

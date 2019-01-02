@@ -165,7 +165,7 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		size = between(size, 50, 2000)
+		size = between(size, 0, 2000)
 
 		logo, err := c.Services().Blobs.Get(bkey)
 		if err != nil {

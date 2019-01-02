@@ -46,6 +46,7 @@ func (input *UpdateUserSettings) Validate(user *models.User, services *app.Servi
 		IsRequired:   input.Model.AvatarType == models.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
+		ExactRatio:   true,
 		MaxKilobytes: 100,
 	})
 	if err != nil {

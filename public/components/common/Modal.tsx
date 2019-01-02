@@ -7,7 +7,7 @@ import { classSet } from "@fider/services";
 interface ModalWindowProps {
   className?: string;
   isOpen: boolean;
-  size?: "small" | "large";
+  size?: "small" | "large" | "fluid";
   canClose?: boolean;
   center?: boolean;
   onClose?: () => void;

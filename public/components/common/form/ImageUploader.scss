@@ -17,13 +17,17 @@
     display: inline-block;
     img {
       padding: 5px;
+      min-width: 50px;
+      min-height: 50px;
       border: 1px solid $gray-light;
+      cursor: pointer;
     }
     .c-button {
       font-weight: 600;
       position: absolute;
-      top: -12px;
-      right: -12px;
+      border-color: $red;
+      top: 4px;
+      right: 0px;
       border-radius: 50%;
       padding: 4px 6px;
     }

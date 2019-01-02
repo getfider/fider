@@ -9,11 +9,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -154,20 +152,6 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	}
 
 	return result, nil
-}
-
-func handleImageUpload(c web.Context, img *models.ImageUpload, preffix string) error {
-	if img.Remove {
-		img.BlobKey = ""
-	} else if img.Upload != nil && len(img.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
-		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
-		if err != nil {
-			return err
-		}
-		img.BlobKey = bkey
-	}
-	return nil
 }
 
 func between(n, min, max int) int {

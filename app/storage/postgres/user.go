@@ -156,6 +156,9 @@ func (s *UserStorage) RegisterProvider(userID int, provider *models.UserProvider
 
 // Update user profile
 func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
+	if settings.Avatar.Remove {
+		settings.Avatar.BlobKey = ""
+	}
 	cmd := "UPDATE users SET name = $3, avatar_type = $4, avatar_bkey = $5 WHERE id = $1 AND tenant_id = $2"
 	_, err := s.trx.Execute(cmd, s.user.ID, s.tenant.ID, settings.Name, settings.AvatarType, settings.Avatar.BlobKey)
 	if err != nil {
