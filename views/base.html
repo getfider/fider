@@ -30,11 +30,6 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{{ .private.currentURL }}" />
   <meta property="og:image" content="{{ .private.logo }}">
-  {{ if .public.tenant }} 
-    {{ if .public.tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
-    {{ end }}
-  {{ end }}
 </head>
 <body>
   <noscript class="container">
@@ -65,5 +60,10 @@
   </script>
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
   {{template "end-of-body" .}}
+  {{ if .public.tenant }} 
+    {{ if .public.tenant.CustomCSS }} 
+    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
+    {{ end }}
+  {{ end }}
 </body>
 </html>
