@@ -19,7 +19,7 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
 
 [[constraint]]
   name = "github.com/russross/blackfriday"
-  version = "^1.5.1"
+  version = "^1.5.2"
 
 [[constraint]]
   branch = "master"
