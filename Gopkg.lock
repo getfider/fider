@@ -97,12 +97,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:0ae2e1b2d4cdff4834aa28ce2e33a7b6de91e10150e3647fe1b9fd63a51b39ce"
+  digest = "1:e1aa8e520787bfd8623c7df394352be3183ef207039cfb513ba40dc00c82fa6d"
   name = "github.com/gosimple/slug"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e9f42fa127660e552d0ad2b589868d403a9be7c6"
-  version = "v1.1.1"
+  revision = "42ac18c34c2c6f4843fa48167317dcaa9416d1e2"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
