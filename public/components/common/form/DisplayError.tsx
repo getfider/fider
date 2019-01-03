@@ -10,8 +10,8 @@ interface DisplayErrorProps {
   fields?: string[];
 }
 
-export const hasError = (field: string, error?: Failure): boolean => {
-  if (error && error.errors) {
+export const hasError = (field?: string, error?: Failure): boolean => {
+  if (field && error && error.errors) {
     for (const err of error.errors) {
       if (err.field === field) {
         return true;

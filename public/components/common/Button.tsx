@@ -2,6 +2,7 @@ import React from "react";
 import { classSet } from "@fider/services";
 
 interface ButtonProps {
+  type?: "button" | "submit";
   className?: string;
   disabled?: boolean;
   href?: string;
@@ -33,6 +34,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
 
   public static defaultProps: Partial<ButtonProps> = {
     size: "small",
+    type: "button",
     fluid: false,
     color: "default"
   };
@@ -87,13 +89,13 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       );
     } else if (this.props.onClick) {
       return (
-        <button type="button" className={className} onClick={this.click}>
+        <button type={this.props.type} className={className} onClick={this.click}>
           {this.props.children}
         </button>
       );
     } else {
       return (
-        <button type="button" className={className}>
+        <button type={this.props.type} className={className}>
           {this.props.children}
         </button>
       );

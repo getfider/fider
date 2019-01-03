@@ -8,6 +8,7 @@
     "react": "16.6.3",
     "react-dom": "16.6.3",
     "react-icons": "3.2.2",
+    "react-stripe-elements": "2.0.1",
     "react-textarea-autosize": "7.0.4",
     "react-toastify": "4.4.3",
     "tslib": "1.9.3"
@@ -22,6 +23,7 @@
     "@types/puppeteer": "1.10.0",
     "@types/react": "16.7.4",
     "@types/react-dom": "16.0.9",
+    "@types/react-stripe-elements": "1.1.10",
     "@types/react-textarea-autosize": "4.3.3",
     "css-loader": "1.0.1",
     "dotenv": "6.1.0",

@@ -23,7 +23,7 @@ func TestSecureWithoutCDN(t *testing.T) {
 		return c.NoContent(http.StatusOK)
 	})
 
-	expectedPolicy := "base-uri 'self'; default-src 'self'; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com ; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://www.google-analytics.com ; img-src 'self' https: data: ; font-src 'self' https://fonts.gstatic.com data: ; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com"
+	expectedPolicy := "base-uri 'self'; default-src 'self' https://js.stripe.com; style-src 'self' 'nonce-" + ctxID + "' https://fonts.googleapis.com ; script-src 'self' 'nonce-" + ctxID + "' https://cdn.polyfill.io https://js.stripe.com https://www.google-analytics.com ; img-src 'self' https: data: ; font-src 'self' https://fonts.gstatic.com data: ; object-src 'none'; media-src 'none'; connect-src 'self' https://www.google-analytics.com"
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Content-Security-Policy")).Equals(expectedPolicy)
