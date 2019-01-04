@@ -22,7 +22,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/github"
-	"golang.org/x/oauth2/google"
 )
 
 func getProviderStatus(key string) int {
@@ -51,16 +50,16 @@ var (
 		&models.OAuthConfig{
 			Provider:          oauth.GoogleProvider,
 			DisplayName:       "Google",
-			ProfileURL:        "https://www.googleapis.com/plus/v1/people/me",
+			ProfileURL:        "https://www.googleapis.com/oauth2/v2/userinfo",
 			Status:            getProviderStatus(env.Config.OAuth.Google.ClientID),
 			ClientID:          env.Config.OAuth.Google.ClientID,
 			ClientSecret:      env.Config.OAuth.Google.Secret,
 			Scope:             "profile email",
-			AuthorizeURL:      google.Endpoint.AuthURL,
-			TokenURL:          google.Endpoint.TokenURL,
+			AuthorizeURL:      "https://accounts.google.com/o/oauth2/v2/auth",
+			TokenURL:          "https://www.googleapis.com/oauth2/v4/token",
 			JSONUserIDPath:    "id",
-			JSONUserNamePath:  "displayName",
-			JSONUserEmailPath: "emails[0].value",
+			JSONUserNamePath:  "name",
+			JSONUserEmailPath: "email",
 		},
 		&models.OAuthConfig{
 			Provider:          oauth.GitHubProvider,
