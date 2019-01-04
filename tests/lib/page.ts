@@ -1,8 +1,6 @@
 import { BrowserTab, WaitCondition } from ".";
 
-export interface NewablePage<T extends Page> {
-  new (tab: BrowserTab): T;
-}
+export type NewablePage<T extends Page> = new (tab: BrowserTab) => T;
 
 export abstract class Page {
   public async navigate(): Promise<void> {

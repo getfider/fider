@@ -58,7 +58,7 @@
   <script id="server-data" type="application/json">
     {{template "server-data" .}}
   </script>
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=es6,fetch" crossorigin="anonymous"></script>
   {{template "end-of-body" .}}
   {{ if .public.tenant }} 
     {{ if .public.tenant.CustomCSS }} 
