@@ -33,7 +33,7 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
     return false;
   }
 
-  private toggle(settingsKey: string, channel: Channel) {
+  private async toggle(settingsKey: string, channel: Channel) {
     const userSettings = { ...this.state.userSettings };
     userSettings[settingsKey] = (parseInt(this.state.userSettings[settingsKey], 10) ^ channel).toString();
 
