@@ -8,7 +8,7 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		if !env.IsBillingEnabled() {
+		if !env.IsBillingEnabled() && c.Tenant().Billing == nil {
 			return c.Redirect(c.BaseURL())
 		}
 
