@@ -8,6 +8,9 @@ export interface Tenant {
   status: TenantStatus;
   isPrivate: boolean;
   logoBlobKey: string;
+  billing?: {
+    trialEndsAt: string;
+  };
 }
 
 export enum TenantStatus {

@@ -9,16 +9,17 @@ import (
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID             int    `json:"id"`
-	Name           string `json:"name"`
-	Subdomain      string `json:"subdomain"`
-	Invitation     string `json:"invitation"`
-	WelcomeMessage string `json:"welcomeMessage"`
-	CNAME          string `json:"cname"`
-	Status         int    `json:"status"`
-	IsPrivate      bool   `json:"isPrivate"`
-	LogoBlobKey    string `json:"logoBlobKey"`
-	CustomCSS      string `json:"-"`
+	ID             int            `json:"id"`
+	Name           string         `json:"name"`
+	Subdomain      string         `json:"subdomain"`
+	Invitation     string         `json:"invitation"`
+	WelcomeMessage string         `json:"welcomeMessage"`
+	CNAME          string         `json:"cname"`
+	Status         int            `json:"status"`
+	IsPrivate      bool           `json:"isPrivate"`
+	LogoBlobKey    string         `json:"logoBlobKey"`
+	Billing        *TenantBilling `json:"billing,omitempty"`
+	CustomCSS      string         `json:"-"`
 }
 
 var (
@@ -29,6 +30,11 @@ var (
 	//TenantLocked is used when tenants are locked for various reasons
 	TenantLocked = 3
 )
+
+//TenantBilling has all the billing information of given tenant
+type TenantBilling struct {
+	TrialEndsAt time.Time `json:"trialEndsAt"`
+}
 
 //Upload represents a file that has been uploaded to Fider
 type Upload struct {

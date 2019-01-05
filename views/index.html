@@ -1,13 +1,13 @@
 // Print all variables that does not start with _ (95)
 // Compressed to avoid whitespace being printed
 {{define "server-data"}} 
-  {{ . }}
+  {{ .public }}
 {{ end }}
 {{define "content"}}<div id="root"></div><div id="root-modal"></div><div id="root-toastify"></div>{{end}}
 {{define "end-of-body"}}
-  {{ if .__assets }}
-  {{range .__assets.JS}}
-  <script src="{{ $.__settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
+  {{ if .private.assets }}
+  {{range .private.assets.JS}}
+  <script src="{{ $.public.settings.globalAssetsURL }}{{ . }}" crossorigin="anonymous"></script>
   {{end}}
   {{end}}
 {{end}}

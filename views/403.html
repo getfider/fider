@@ -2,14 +2,14 @@
 
 {{define "content"}}
   <div class="container failure-page">
-    <img src="{{.__logo}}"/>
+    <img src="{{ .private.logo }}"/>
     <h1>NOT AUTHORIZED</h1>
     <p>
       You are not authorized to view this page.
     </p>
 
-    {{ if .__tenant }}
-      <span>Take me back to <a href="{{ .__settings.baseURL }}">{{ .__settings.baseURL }}</a> home page.</span>
+    {{ if .public.tenant }}
+      <span>Take me back to <a href="{{ .public.settings.baseURL }}">{{ .public.settings.baseURL }}</a> home page.</span>
     {{ end }}
   </div>
 {{end}}
