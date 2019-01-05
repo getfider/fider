@@ -188,8 +188,8 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
         </p>
         <ul className="l-legend info">
           <li>
-            <strong>&middot; Administrators</strong> have full access to edit and manage content, permissions and
-            settings.
+            <strong>&middot; Administrators</strong>have full access to edit and manage content, permissions and all
+            site settings{Fider.isBillingEnabled ? ", including billing." : "."}
           </li>
           <li>
             <strong>&middot; Collaborators</strong> can edit and manage content, but not permissions and settings.
