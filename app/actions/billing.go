@@ -27,19 +27,6 @@ func (input *CreateEditBillingPaymentInfo) IsAuthorized(user *models.User, servi
 // Validate is current model is valid
 func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
-	current, err := services.Billing.GetPaymentInfo()
-
-	isNew := current == nil
-	isUpdate := current != nil && input.Model.Card == nil
-	isReplacing := current != nil && input.Model.Card != nil
-
-	if err != nil {
-		return validate.Error(err)
-	}
-
-	if (isNew || isReplacing) && (input.Model.Card == nil || input.Model.Card.Token == "") {
-		result.AddFieldFailure("card", "Card information is required.")
-	}
 
 	if input.Model.Name == "" {
 		result.AddFieldFailure("name", "Name is required.")
@@ -72,6 +59,20 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 
 	if input.Model.AddressPostalCode == "" {
 		result.AddFieldFailure("addressPostalCode", "Postal Code is required.")
+	}
+
+	current, err := services.Billing.GetPaymentInfo()
+
+	isNew := current == nil
+	isUpdate := current != nil && input.Model.Card == nil
+	isReplacing := current != nil && input.Model.Card != nil
+
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	if (isNew || isReplacing) && (input.Model.Card == nil || input.Model.Card.Token == "") {
+		result.AddFieldFailure("card", "Card information is required.")
 	}
 
 	if input.Model.AddressCountry == "" {

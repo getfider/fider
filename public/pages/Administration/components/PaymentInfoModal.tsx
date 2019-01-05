@@ -164,6 +164,9 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                 <div className="col-md-12">
                   <Field label="Card" field="card">
                     <CardElement />
+                    <p className="info">
+                      We neither store or see your card information. We integrate directly with Stripe.
+                    </p>
                   </Field>
                 </div>
               )}
