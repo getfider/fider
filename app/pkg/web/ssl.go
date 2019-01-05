@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"golang.org/x/crypto/acme"
+
 	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/di"
@@ -51,6 +53,7 @@ func NewCertificateManager(certFile, keyFile string, db *dbx.Database) (*Certifi
 		autossl: autocert.Manager{
 			Prompt: autocert.AcceptTOS,
 			Cache:  blob.NewAutoCert(di.NewBlobStorage(db)),
+			Client: acmeClient(),
 		},
 	}
 
@@ -98,4 +101,13 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 //StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
 func (m *CertificateManager) StartHTTPServer() {
 	http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+}
+
+func acmeClient() *acme.Client {
+	if env.IsTest() {
+		return &acme.Client{
+			DirectoryURL: "https://acme-staging.api.letsencrypt.org/directory",
+		}
+	}
+	return nil
 }
