@@ -87,6 +87,7 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 		}
 
 		info.StripeCardID = card.ID
+		info.CardCountry = card.Country
 		info.CardBrand = string(card.Brand)
 		info.CardLast4 = card.Last4
 		info.CardExpMonth = card.ExpMonth

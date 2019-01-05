@@ -23,6 +23,7 @@ type CreateEditBillingPaymentInfoCard struct {
 // PaymentInfo is the model for billing payment info
 type PaymentInfo struct {
 	StripeCardID      string `json:"-"`
+	CardCountry       string `json:"cardCountry"`
 	CardBrand         string `json:"cardBrand"`
 	CardLast4         string `json:"cardLast4"`
 	CardExpMonth      uint8  `json:"cardExpMonth"`
