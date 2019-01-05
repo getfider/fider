@@ -243,7 +243,7 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 
 // UpdateBillingSettings of current tenant
 func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) error {
-	query := "UPDATE tenants_billing SET stripe_customer_Id = $1 WHERE tenant_id = $2"
+	query := "UPDATE tenants_billing SET stripe_customer_id = $1 WHERE tenant_id = $2"
 	_, err := s.trx.Execute(query, billing.StripeCustomerID, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant billing settings")

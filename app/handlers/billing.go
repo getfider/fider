@@ -42,7 +42,7 @@ func UpdatePaymentInfo() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := createStripeCustomerID(c, input.Model)
+		err := ensureStripeCustomerID(c, input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -56,10 +56,10 @@ func UpdatePaymentInfo() web.HandlerFunc {
 	}
 }
 
-func createStripeCustomerID(c web.Context, input *models.CreateEditBillingPaymentInfo) error {
+func ensureStripeCustomerID(c web.Context, input *models.CreateEditBillingPaymentInfo) error {
 	billing := c.Tenant().Billing
 	if billing.StripeCustomerID == "" {
-		customerID, err := c.Services().Billing.CreateCustomer(input)
+		customerID, err := c.Services().Billing.CreateCustomer(input.Email)
 		if err != nil {
 			return err
 		}

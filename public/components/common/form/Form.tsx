@@ -12,7 +12,6 @@ interface FormProps {
   className?: string;
   size?: "mini" | "normal";
   error?: Failure;
-  onSubmit?: (ev: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const ValidationContext = React.createContext<ValidationContext>({});
@@ -25,7 +24,7 @@ export const Form: React.StatelessComponent<FormProps> = props => {
   });
 
   return (
-    <form autoComplete="off" className={className} onSubmit={props.onSubmit}>
+    <form autoComplete="off" className={className}>
       <DisplayError error={props.error} />
       <ValidationContext.Provider value={{ error: props.error }}>{props.children}</ValidationContext.Provider>
     </form>

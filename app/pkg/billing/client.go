@@ -43,14 +43,14 @@ func (c *Client) SetCurrentUser(user *models.User) {
 }
 
 // CreateCustomer on stripe
-func (c *Client) CreateCustomer(input *models.CreateEditBillingPaymentInfo) (string, error) {
+func (c *Client) CreateCustomer(email string) (string, error) {
 	if c.tenant.Billing == nil {
 		return "", errors.New("Tenant doesn't have a billing record")
 	}
 
 	if c.tenant.Billing.StripeCustomerID == "" {
 		customer, err := c.sc.Customers.New(&stripe.CustomerParams{
-			Email:       stripe.String(input.Email),
+			Email:       stripe.String(email),
 			Description: stripe.String(fmt.Sprintf("%s [%s]", c.tenant.Name, c.tenant.Subdomain)),
 		})
 		if err != nil {
