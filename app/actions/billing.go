@@ -74,10 +74,10 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		if !found {
 			result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
 		}
-	}
 
-	if input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
-		result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
+		if input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
+			result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
+		}
 	}
 
 	return result

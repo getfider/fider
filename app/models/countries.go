@@ -9,7 +9,6 @@ type Country struct {
 // GetAllCountries returns a list of all known countries
 func GetAllCountries() []*Country {
 	return []*Country{
-		&Country{Code: "US", Name: ""},
 		&Country{Code: "AF", Name: "Afghanistan"},
 		&Country{Code: "AX", Name: "Åland Islands"},
 		&Country{Code: "AL", Name: "Albania"},
