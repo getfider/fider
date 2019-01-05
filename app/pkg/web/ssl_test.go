@@ -67,7 +67,7 @@ func Test_UseAutoCert(t *testing.T) {
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 			ServerName: serverName,
 		})
-		Expect(err.Error()).Equals(`acme/autocert: unable to authorize "` + serverName + `"; tried ["tls-sni-02" "tls-sni-01"]`)
+		Expect(err.Error()).ContainsSubstring(`acme/autocert: unable to authorize "` + serverName + `"; challenge "tls-alpn-01" failed with error: acme: authorization error`)
 		Expect(cert).IsNil()
 	}
 }
