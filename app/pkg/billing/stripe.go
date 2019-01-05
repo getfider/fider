@@ -51,7 +51,7 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 	if c.tenant.Billing.StripeCustomerID == "" {
 		customer, err := c.sc.Customers.New(&stripe.CustomerParams{
 			Email:       stripe.String(email),
-			Description: stripe.String(fmt.Sprintf("%s [%s]", c.tenant.Name, c.tenant.Subdomain)),
+			Description: stripe.String(customerDesc(c.tenant)),
 		})
 		if err != nil {
 			return "", errors.Wrap(err, "failed to create Stripe customer")
@@ -117,7 +117,7 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	if current.Email != input.Email {
 		_, err = c.sc.Customers.Update(customerID, &stripe.CustomerParams{
 			Email:       stripe.String(input.Email),
-			Description: stripe.String(fmt.Sprintf("%s [%s]", c.tenant.Name, c.tenant.Subdomain)),
+			Description: stripe.String(customerDesc(c.tenant)),
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to update customer billing email")
@@ -171,4 +171,8 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return errors.Wrap(err, "failed to update stripe card")
 	}
 	return nil
+}
+
+func customerDesc(tenant *models.Tenant) string {
+	return fmt.Sprintf("%s [%s]", tenant.Name, tenant.Subdomain)
 }
