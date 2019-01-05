@@ -109,6 +109,12 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	return nil
 }
 
+// UpdateBillingSettings of current tenant
+func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) error {
+	s.current.Billing = billing
+	return nil
+}
+
 // UpdateAdvancedSettings of current tenant
 func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error {
 	for _, tenant := range s.tenants {

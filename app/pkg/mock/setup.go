@@ -3,6 +3,7 @@ package mock
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/blob/fs"
 	"github.com/getfider/fider/app/pkg/email/noop"
 	"github.com/getfider/fider/app/pkg/env"
@@ -55,6 +56,7 @@ func createServices(seed bool) *app.Services {
 		OAuth:         &OAuthService{},
 		Emailer:       noop.NewSender(),
 		Blobs:         fs.NewStorage(env.Path("tmp")),
+		Billing:       billing.NewClient(),
 	}
 
 	if seed {

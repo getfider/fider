@@ -5,22 +5,27 @@ import React from "react";
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { Loader } from "@fider/components";
+import { PaymentInfo } from "@fider/models";
 import { Fider } from "@fider/services";
 import { StripeProvider, Elements } from "react-stripe-elements";
 import BillingSourceForm from "../components/BillingSourceForm";
+
+interface BillingPageProps {
+  paymentInfo?: PaymentInfo;
+}
 
 interface BillingPageState {
   stripe: stripe.Stripe | null;
 }
 
-export default class BillingPage extends AdminBasePage<{}, BillingPageState> {
+export default class BillingPage extends AdminBasePage<BillingPageProps, BillingPageState> {
   public id = "p-admin-billing";
   public name = "billing";
   public icon = FaFileInvoice;
   public title = "Billing";
   public subtitle = "Manage your subscription";
 
-  constructor(props: {}) {
+  constructor(props: BillingPageProps) {
     super(props);
     this.state = {
       stripe: null
@@ -47,7 +52,7 @@ export default class BillingPage extends AdminBasePage<{}, BillingPageState> {
       <>
         <StripeProvider stripe={this.state.stripe}>
           <Elements>
-            <BillingSourceForm />
+            <BillingSourceForm paymentInfo={this.props.paymentInfo} />
           </Elements>
         </StripeProvider>
       </>

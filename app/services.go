@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/oauth"
@@ -18,6 +19,7 @@ type Services struct {
 	Posts         storage.Post
 	Emailer       email.Sender
 	Blobs         blob.Storage
+	Billing       *billing.Client
 }
 
 // SetCurrentTenant to current context
@@ -28,6 +30,7 @@ func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 	s.Posts.SetCurrentTenant(tenant)
 	s.Notifications.SetCurrentTenant(tenant)
 	s.Blobs.SetCurrentTenant(tenant)
+	s.Billing.SetCurrentTenant(tenant)
 }
 
 // SetCurrentUser to current context
@@ -37,4 +40,5 @@ func (s *Services) SetCurrentUser(user *models.User) {
 	s.Tenants.SetCurrentUser(user)
 	s.Posts.SetCurrentUser(user)
 	s.Notifications.SetCurrentUser(user)
+	s.Billing.SetCurrentUser(user)
 }

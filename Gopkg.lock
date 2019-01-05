@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  digest = "1:28181cff95634e84b01ac5d9d5bffd201cd02404b78a0e69ba29e9bc41703ff0"
-  name = "cloud.google.com/go"
-  packages = ["compute/metadata"]
-  pruneopts = "UT"
-  revision = "5a9e19d4e1e41a734154e44a2132b358afb49a03"
-  version = "v0.13.0"
-
-[[projects]]
   digest = "1:4488d53934d19e169589db4c90a11bf452fa1e5e97176fe60892ebf8121fe05a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -163,6 +155,75 @@
   version = "v1.5.1"
 
 [[projects]]
+  digest = "1:a6e5980ac8988d88107a4b1f48359f080d021b218b9985bd443e24614ef1b66b"
+  name = "github.com/stripe/stripe-go"
+  packages = [
+    ".",
+    "account",
+    "applepaydomain",
+    "balance",
+    "bankaccount",
+    "bitcoinreceiver",
+    "bitcointransaction",
+    "card",
+    "charge",
+    "client",
+    "countryspec",
+    "coupon",
+    "customer",
+    "discount",
+    "dispute",
+    "ephemeralkey",
+    "event",
+    "exchangerate",
+    "fee",
+    "feerefund",
+    "file",
+    "filelink",
+    "form",
+    "invoice",
+    "invoiceitem",
+    "issuerfraudrecord",
+    "issuing/authorization",
+    "issuing/card",
+    "issuing/cardholder",
+    "issuing/dispute",
+    "issuing/transaction",
+    "loginlink",
+    "order",
+    "orderreturn",
+    "paymentintent",
+    "paymentsource",
+    "payout",
+    "plan",
+    "product",
+    "radar/valuelist",
+    "radar/valuelistitem",
+    "recipient",
+    "refund",
+    "reporting/reportrun",
+    "reporting/reporttype",
+    "reversal",
+    "sigma/scheduledqueryrun",
+    "sku",
+    "source",
+    "sourcetransaction",
+    "sub",
+    "subitem",
+    "terminal/connectiontoken",
+    "terminal/location",
+    "terminal/reader",
+    "token",
+    "topup",
+    "transfer",
+    "usagerecord",
+    "webhookendpoint",
+  ]
+  pruneopts = "UT"
+  revision = "4fbb4e51a1551a48d073b9900bc6a3d43892646a"
+  version = "v55.3.0"
+
+[[projects]]
   branch = "master"
   digest = "1:507fa82feeba6c3651d3cfb7593a498144ae6455e1b00dde2e0c344cdfdc9c4d"
   name = "golang.org/x/crypto"
@@ -202,31 +263,25 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:10f69df7d03f1799319a065a80633204821d98afcbb1f2d62a1f2be01abdacab"
+  digest = "1:55e182162ac3dcc5e464ceb674c1bf6ec65462ddf661b753ef73a3dc18b5293d"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "facebook",
     "github",
-    "google",
     "internal",
-    "jws",
-    "jwt",
   ]
   pruneopts = "UT"
   revision = "ef147856a6ddbb60760db74283d2424e98c87bff"
 
 [[projects]]
-  digest = "1:a48f97fb737d5d61cf13e81cfef040942d217d086766b823757d39d4f6a4c547"
+  digest = "1:9cf45e754ab2dff5f53a553e6948b994ff738e4d1092ca608dcada945d8be0ef"
   name = "google.golang.org/appengine"
   packages = [
-    ".",
     "internal",
-    "internal/app_identity",
     "internal/base",
     "internal/datastore",
     "internal/log",
-    "internal/modules",
     "internal/remote_api",
     "internal/urlfetch",
     "urlfetch",
@@ -253,12 +308,13 @@
     "github.com/lib/pq",
     "github.com/patrickmn/go-cache",
     "github.com/russross/blackfriday",
+    "github.com/stripe/stripe-go",
+    "github.com/stripe/stripe-go/client",
     "golang.org/x/crypto/acme/autocert",
     "golang.org/x/image/draw",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/facebook",
     "golang.org/x/oauth2/github",
-    "golang.org/x/oauth2/google",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

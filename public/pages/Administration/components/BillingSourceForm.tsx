@@ -1,7 +1,8 @@
 import React from "react";
 import { injectStripe, CardElement } from "react-stripe-elements";
-import { Input, Field, Button, Form, Select } from "@fider/components";
-import { Failure } from "@fider/services";
+import { Input, Field, Button, Form, Select, SelectOption } from "@fider/components";
+import { Failure, actions } from "@fider/services";
+import { PaymentInfo } from "@fider/models";
 
 type PatchedTokenResponse = stripe.TokenResponse & {
   error?: { decline_code?: string };
@@ -14,28 +15,75 @@ interface StripeProps {
 }
 
 interface BillingSourceFormProps {
+  paymentInfo?: PaymentInfo;
   stripe?: StripeProps;
 }
 
 interface BillingSourceFormState {
+  name: string;
+  email: string;
+  addressLine1: string;
+  addressLine2: string;
+  addressCity: string;
+  addressState: string;
+  addressPostalCode: string;
+  addressCountry: string;
   error?: Failure;
 }
 
 class BillingSourceForm extends React.Component<BillingSourceFormProps, BillingSourceFormState> {
   constructor(props: BillingSourceFormProps) {
     super(props);
-    this.state = {};
+    this.state = {
+      name: this.props.paymentInfo ? this.props.paymentInfo.name : "",
+      email: this.props.paymentInfo ? this.props.paymentInfo.email : "",
+      addressLine1: this.props.paymentInfo ? this.props.paymentInfo.addressLine1 : "",
+      addressLine2: this.props.paymentInfo ? this.props.paymentInfo.addressLine2 : "",
+      addressCity: this.props.paymentInfo ? this.props.paymentInfo.addressCity : "",
+      addressState: this.props.paymentInfo ? this.props.paymentInfo.addressState : "",
+      addressPostalCode: this.props.paymentInfo ? this.props.paymentInfo.addressPostalCode : "",
+      addressCountry: this.props.paymentInfo ? this.props.paymentInfo.addressCountry : ""
+    };
   }
 
   public handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
+    if (this.props.paymentInfo) {
+      const response = await actions.updatePaymentInfo({
+        ...this.state
+      });
+
+      this.setState({
+        error: response.error
+      });
+
+      return;
+    }
+
     if (this.props.stripe) {
-      const result = await this.props.stripe.createToken({ name: "Jenny Rosen" });
+      const result = await this.props.stripe.createToken({
+        name: this.state.name,
+        address_line1: this.state.addressLine1,
+        address_line2: this.state.addressLine2,
+        address_city: this.state.addressCity,
+        address_state: this.state.addressState,
+        address_zip: this.state.addressPostalCode,
+        address_country: this.state.addressCountry
+      });
+
       if (result.token) {
-        console.log("Received Stripe token:", result.token);
+        const response = await actions.updatePaymentInfo({
+          ...this.state,
+          card: {
+            type: result.token.type,
+            token: result.token.id,
+            country: result.token.card ? result.token.card.country : ""
+          }
+        });
+
         this.setState({
-          error: undefined
+          error: response.error
         });
       } else if (result.error) {
         this.setState({
@@ -52,32 +100,91 @@ class BillingSourceForm extends React.Component<BillingSourceFormProps, BillingS
     }
   };
 
+  private setName = (name: string) => {
+    this.setState({ name });
+  };
+
+  private setEmail = (email: string) => {
+    this.setState({ email });
+  };
+
+  private setAddressLine1 = (addressLine1: string) => {
+    this.setState({ addressLine1 });
+  };
+
+  private setAddressLine2 = (addressLine2: string) => {
+    this.setState({ addressLine2 });
+  };
+
+  private setAddressCity = (addressCity: string) => {
+    this.setState({ addressCity });
+  };
+
+  private setAddressState = (addressState: string) => {
+    this.setState({ addressState });
+  };
+
+  private setAddressPostalCode = (addressPostalCode: string) => {
+    this.setState({ addressPostalCode });
+  };
+
+  private setAddressCountry = (option: SelectOption | undefined) => {
+    if (option) {
+      this.setState({ addressCountry: option.value });
+    }
+  };
+
   public render() {
     return (
       <Form error={this.state.error} onSubmit={this.handleSubmit}>
         <div className="row">
           <div className="col-md-12">
-            <Input label="Name" field="name" />
+            <Input label="Name" field="name" value={this.state.name} onChange={this.setName} />
+          </div>
+          <div className="col-md-12">
+            <Input label="Email" field="email" value={this.state.email} onChange={this.setEmail} />
           </div>
           <div className="col-md-6">
-            <Input label="Address Line 1" field="address_line1" />
+            <Input
+              label="Address Line 1"
+              value={this.state.addressLine1}
+              field="addressLine1"
+              onChange={this.setAddressLine1}
+            />
           </div>
           <div className="col-md-6">
-            <Input label="Address Line 2" field="address_line2" />
+            <Input
+              label="Address Line 2"
+              value={this.state.addressLine2}
+              field="addressLine2"
+              onChange={this.setAddressLine2}
+            />
           </div>
           <div className="col-md-3">
-            <Input label="City" field="address_city" />
+            <Input label="City" field="addressCity" value={this.state.addressCity} onChange={this.setAddressCity} />
           </div>
           <div className="col-md-3">
-            <Input label="State / Region" field="address_state" />
+            <Input
+              label="State / Region"
+              field="addressState"
+              value={this.state.addressState}
+              onChange={this.setAddressState}
+            />
           </div>
           <div className="col-md-3">
-            <Input label="Postal Code" field="address_zip" />
+            <Input
+              label="Postal Code"
+              field="addressPostalCode"
+              value={this.state.addressPostalCode}
+              onChange={this.setAddressPostalCode}
+            />
           </div>
           <div className="col-md-3">
             <Select
               label="Country"
-              field="address_country"
+              field="addressCountry"
+              onChange={this.setAddressCountry}
+              defaultValue={this.state.addressCountry}
               options={[
                 { value: "", label: "" },
                 { value: "AF", label: "Afghanistan" },
@@ -332,11 +439,13 @@ class BillingSourceForm extends React.Component<BillingSourceFormProps, BillingS
               ]}
             />
           </div>
-          <div className="col-md-12">
-            <Field label="Card" field="card">
-              <CardElement />
-            </Field>
-          </div>
+          {!this.props.paymentInfo && (
+            <div className="col-md-12">
+              <Field label="Card" field="card">
+                <CardElement />
+              </Field>
+            </div>
+          )}
         </div>
         <Button type="submit" color="positive">
           Save

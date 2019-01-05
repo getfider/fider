@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
@@ -68,6 +69,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
 				Blobs:         di.NewBlobStorage(c.Database()),
+				Billing:       billing.NewClient(),
 			})
 
 			//Execute the chain
@@ -156,6 +158,7 @@ func WebSetup() web.MiddlewareFunc {
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
 				Blobs:         di.NewBlobStorage(c.Engine().Database()),
+				Billing:       billing.NewClient(),
 			})
 
 			//Execute the chain
