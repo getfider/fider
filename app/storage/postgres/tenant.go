@@ -11,16 +11,17 @@ import (
 )
 
 type dbTenant struct {
-	ID             int    `db:"id"`
-	Name           string `db:"name"`
-	Subdomain      string `db:"subdomain"`
-	CNAME          string `db:"cname"`
-	Invitation     string `db:"invitation"`
-	WelcomeMessage string `db:"welcome_message"`
-	Status         int    `db:"status"`
-	IsPrivate      bool   `db:"is_private"`
-	LogoBlobKey    string `db:"logo_bkey"`
-	CustomCSS      string `db:"custom_css"`
+	ID             int              `db:"id"`
+	Name           string           `db:"name"`
+	Subdomain      string           `db:"subdomain"`
+	CNAME          string           `db:"cname"`
+	Invitation     string           `db:"invitation"`
+	WelcomeMessage string           `db:"welcome_message"`
+	Status         int              `db:"status"`
+	IsPrivate      bool             `db:"is_private"`
+	LogoBlobKey    string           `db:"logo_bkey"`
+	CustomCSS      string           `db:"custom_css"`
+	Billing        *dbTenantBilling `db:"billing"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -28,7 +29,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		return nil
 	}
 
-	return &models.Tenant{
+	tenant := &models.Tenant{
 		ID:             t.ID,
 		Name:           t.Name,
 		Subdomain:      t.Subdomain,
@@ -40,6 +41,18 @@ func (t *dbTenant) toModel() *models.Tenant {
 		LogoBlobKey:    t.LogoBlobKey,
 		CustomCSS:      t.CustomCSS,
 	}
+
+	if t.Billing != nil && t.Billing.TrialEndsAt.Valid {
+		tenant.Billing = &models.TenantBilling{
+			TrialEndsAt: t.Billing.TrialEndsAt.Time,
+		}
+	}
+
+	return tenant
+}
+
+type dbTenantBilling struct {
+	TrialEndsAt dbx.NullTime `db:"trial_ends_at"`
 }
 
 type dbEmailVerification struct {
@@ -141,13 +154,25 @@ func (s *TenantStorage) Current() *models.Tenant {
 
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
+	now := time.Now()
+
 	var id int
 	err := s.trx.Get(&id,
 		`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey) 
 		 VALUES ($1, $2, $3, '', '', '', $4, false, '', '') 
-		 RETURNING id`, name, subdomain, time.Now(), status)
+		 RETURNING id`, name, subdomain, now, status)
 	if err != nil {
 		return nil, err
+	}
+
+	if env.IsBillingEnabled() {
+		_, err = s.trx.Execute(
+			`INSERT INTO tenants_billing (tenant_id, trial_ends_at) VALUES ($1, $2)`,
+			id, now.Add(30*24*time.Hour),
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return s.GetByDomain(subdomain)
@@ -157,7 +182,14 @@ func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.
 func (s *TenantStorage) First() (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css FROM tenants ORDER BY id LIMIT 1")
+	err := s.trx.Get(&tenant, `
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
+					 tb.trial_ends_at AS billing_trial_ends_at
+		FROM tenants t
+		LEFT JOIN tenants_billing tb
+		ON tb.tenant_id = t.id
+		ORDER BY t.id LIMIT 1
+	`)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get first tenant")
 	}
@@ -169,7 +201,15 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	tenant := dbTenant{}
 
-	err := s.trx.Get(&tenant, "SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css FROM tenants WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 ORDER BY cname DESC", env.Subdomain(domain), domain, domain)
+	err := s.trx.Get(&tenant, `
+		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
+					 tb.trial_ends_at AS billing_trial_ends_at
+		FROM tenants t
+		LEFT JOIN tenants_billing tb
+		ON tb.tenant_id = t.id
+		WHERE t.subdomain = $1 OR t.subdomain = $2 OR t.cname = $3 
+		ORDER BY t.cname DESC
+	`, env.Subdomain(domain), domain, domain)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant with domain '%s'", domain)
 	}

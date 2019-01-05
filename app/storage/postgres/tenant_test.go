@@ -37,6 +37,28 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Subdomain).Equals("mydomain")
 	Expect(tenant.Status).Equals(models.TenantActive)
 	Expect(tenant.IsPrivate).IsFalse()
+	Expect(tenant.Billing).IsNil()
+}
+
+func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	env.Config.Stripe.SecretKey = "sk_1"
+	env.Config.Stripe.PublicKey = "pk_1"
+	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
+
+	Expect(err).IsNil()
+	Expect(tenant).IsNotNil()
+
+	tenant, err = tenants.GetByDomain("mydomain")
+	Expect(err).IsNil()
+	Expect(tenant.Name).Equals("My Domain Inc.")
+	Expect(tenant.Subdomain).Equals("mydomain")
+	Expect(tenant.Status).Equals(models.TenantPending)
+	Expect(tenant.IsPrivate).IsFalse()
+	Expect(tenant.Billing).IsNotNil()
+	Expect(tenant.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
 }
 
 func TestTenantStorage_SingleTenant_Add(t *testing.T) {
