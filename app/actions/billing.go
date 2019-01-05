@@ -29,11 +29,15 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 	result := validate.Success()
 	current, err := services.Billing.GetPaymentInfo()
 
+	isNew := current == nil
+	isUpdate := current != nil && input.Model.Card == nil
+	isReplacing := current != nil && input.Model.Card != nil
+
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	if current == nil && (input.Model.Card == nil || input.Model.Card.Token == "") {
+	if (isNew || isReplacing) && (input.Model.Card == nil || input.Model.Card.Token == "") {
 		result.AddFieldFailure("card", "Card information is required.")
 	}
 
@@ -84,9 +88,9 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 			result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
 		}
 
-		if current == nil && input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
+		if (isNew || isReplacing) && input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
 			result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
-		} else if current != nil && input.Model.AddressCountry != current.CardCountry {
+		} else if isUpdate && input.Model.AddressCountry != current.CardCountry {
 			result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
 		}
 	}

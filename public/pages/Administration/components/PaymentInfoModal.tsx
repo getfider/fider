@@ -22,6 +22,7 @@ interface PaymentInfoModalProps {
 }
 
 interface PaymentInfoModalState {
+  changingCard: boolean;
   name: string;
   email: string;
   addressLine1: string;
@@ -39,6 +40,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
     super(props);
     this.state = {
       stripe: null,
+      changingCard: false,
       name: this.props.paymentInfo ? this.props.paymentInfo.name : "",
       email: this.props.paymentInfo ? this.props.paymentInfo.email : "",
       addressLine1: this.props.paymentInfo ? this.props.paymentInfo.addressLine1 : "",
@@ -51,7 +53,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
   }
 
   public handleSubmit = async () => {
-    if (this.props.paymentInfo) {
+    if (this.props.paymentInfo && !this.state.changingCard) {
       const response = await actions.updatePaymentInfo({
         ...this.state
       });
@@ -148,22 +150,34 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
     this.props.onClose();
   };
 
+  private changeCard = () => {
+    this.setState({ changingCard: true });
+  };
+
   public render() {
     return (
       <Modal.Window isOpen={true} center={false} size="large" onClose={this.props.onClose}>
         <Modal.Content>
           <Form className="c-payment-info-modal" error={this.state.error}>
             <div className="row">
-              {!this.props.paymentInfo && (
+              {(!this.props.paymentInfo || this.state.changingCard) && (
                 <div className="col-md-12">
                   <Field label="Card" field="card">
                     <CardElement />
                   </Field>
                 </div>
               )}
-              {this.props.paymentInfo && (
+              {this.props.paymentInfo && !this.state.changingCard && (
                 <div className="col-md-12">
-                  <Field label="Card" field="card">
+                  <Field
+                    label="Card"
+                    field="card"
+                    afterLabel={
+                      <span className="ui info clickable" onClick={this.changeCard}>
+                        change
+                      </span>
+                    }
+                  >
                     <CardInfo
                       expMonth={this.props.paymentInfo.cardExpMonth}
                       expYear={this.props.paymentInfo.cardExpYear}

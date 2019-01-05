@@ -123,6 +123,7 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	}
 
 	if current.StripeCardID == "" {
+		// new card, just create it
 		_, err = c.sc.Cards.New(&stripe.CardParams{
 			Customer: stripe.String(customerID),
 			Token:    stripe.String(input.Card.Token),
@@ -130,7 +131,25 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		if err != nil {
 			return errors.Wrap(err, "failed to create stripe card")
 		}
+	} else if input.Card != nil && input.Card.Token != "" {
+		// replacing card, create new and delete old
+		_, err = c.sc.Cards.New(&stripe.CardParams{
+			Customer: stripe.String(customerID),
+			Token:    stripe.String(input.Card.Token),
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to create new stripe card")
+		}
+
+		_, err = c.sc.Cards.Del(current.StripeCardID, &stripe.CardParams{
+			Customer: stripe.String(customerID),
+			Token:    stripe.String(input.Card.Token),
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to delete old stripe card")
+		}
 	} else {
+		// updating card, just update current card
 		_, err = c.sc.Cards.Update(current.StripeCardID, &stripe.CardParams{
 			Customer:       stripe.String(customerID),
 			Name:           stripe.String(input.Name),

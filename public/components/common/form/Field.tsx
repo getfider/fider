@@ -7,6 +7,7 @@ interface FieldProps {
   className?: string;
   label?: string;
   field?: string;
+  afterLabel?: JSX.Element;
 }
 
 export const Field: React.StatelessComponent<FieldProps> = props => {
@@ -21,7 +22,12 @@ export const Field: React.StatelessComponent<FieldProps> = props => {
             [props.className!]: props.className
           })}
         >
-          {!!props.label && <label>{props.label}</label>}
+          {!!props.label && (
+            <label>
+              {props.label}
+              {props.afterLabel}
+            </label>
+          )}
           {props.children}
           <DisplayError fields={fields} error={ctx.error} />
         </div>
