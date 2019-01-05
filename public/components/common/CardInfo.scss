@@ -1,0 +1,17 @@
+@import '~@fider/assets/styles/variables.scss';
+
+.c-card-info {
+  span, svg {
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  svg {
+    max-width: 40px;
+    max-height: 40px;
+  }
+  .c-card-info-exp {
+    margin-left: 5px;
+    font-size: $font-size-small;
+    color: $gray-darker;
+  }
+}

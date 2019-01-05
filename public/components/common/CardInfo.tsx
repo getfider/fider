@@ -1,11 +1,30 @@
 import React from "react";
 
+import "./CardInfo.scss";
+
 interface CardBrandProps {
   brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
 }
 
-export const CardBrand = (props: CardBrandProps) => {
-  switch (props.brand) {
+export const CardInfo = (props: CardBrandProps) => {
+  return (
+    <p className="c-card-info">
+      {cardBrand(props.brand)}
+      <span>
+        **** **** **** {props.last4}{" "}
+        <span className="c-card-info-exp">
+          Exp. {props.expMonth}/{props.expYear}
+        </span>
+      </span>
+    </p>
+  );
+};
+
+const cardBrand = (brand: string) => {
+  switch (brand) {
     case "Visa":
       return visa;
     case "American Express":

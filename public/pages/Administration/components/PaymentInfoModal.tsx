@@ -1,6 +1,6 @@
 import React from "react";
 import { injectStripe, CardElement } from "react-stripe-elements";
-import { Input, Field, Button, Form, Select, SelectOption, Modal } from "@fider/components";
+import { Input, Field, Button, Form, Select, SelectOption, Modal, CardInfo } from "@fider/components";
 import { Failure, actions } from "@fider/services";
 import { PaymentInfo } from "@fider/models";
 
@@ -152,12 +152,24 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
     return (
       <Modal.Window isOpen={true} center={false} size="large" onClose={this.props.onClose}>
         <Modal.Content>
-          <Form error={this.state.error}>
+          <Form className="c-payment-info-modal" error={this.state.error}>
             <div className="row">
               {!this.props.paymentInfo && (
                 <div className="col-md-12">
                   <Field label="Card" field="card">
                     <CardElement />
+                  </Field>
+                </div>
+              )}
+              {this.props.paymentInfo && (
+                <div className="col-md-12">
+                  <Field label="Card" field="card">
+                    <CardInfo
+                      expMonth={this.props.paymentInfo.cardExpMonth}
+                      expYear={this.props.paymentInfo.cardExpYear}
+                      brand={this.props.paymentInfo.cardBrand}
+                      last4={this.props.paymentInfo.cardLast4}
+                    />
                   </Field>
                 </div>
               )}

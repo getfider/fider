@@ -4,7 +4,7 @@ import React from "react";
 
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
-import { Segment, Button, CardBrand } from "@fider/components";
+import { Segment, Button, CardInfo } from "@fider/components";
 import { PaymentInfo } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
@@ -74,15 +74,17 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
           </StripeProvider>
         )}
         <div className="row">
-          <div className="col-md-3">
+          <div className="col-md-4">
             <Segment className="l-payment-info">
               <h4>Payment Info</h4>
               {this.props.paymentInfo && (
                 <>
-                  <p>
-                    <CardBrand brand={this.props.paymentInfo.cardBrand} />
-                    <span>**** **** **** {this.props.paymentInfo.cardLast4}</span>
-                  </p>
+                  <CardInfo
+                    expMonth={this.props.paymentInfo.cardExpMonth}
+                    expYear={this.props.paymentInfo.cardExpYear}
+                    brand={this.props.paymentInfo.cardBrand}
+                    last4={this.props.paymentInfo.cardLast4}
+                  />
                   <Button onClick={this.openModal}>Edit</Button>
                 </>
               )}
