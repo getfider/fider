@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  digest = "1:28181cff95634e84b01ac5d9d5bffd201cd02404b78a0e69ba29e9bc41703ff0"
-  name = "cloud.google.com/go"
-  packages = ["compute/metadata"]
-  pruneopts = "UT"
-  revision = "5a9e19d4e1e41a734154e44a2132b358afb49a03"
-  version = "v0.13.0"
-
-[[projects]]
   digest = "1:35564f1cd08e1163bf327e6f595b9e596c4470a77f7f13fe6421236ea99e5966"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -202,31 +194,25 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:3ac0efcc37c266aa53aad54b5dceb7dfa89d58f11978e2f9e7977d5ec260c689"
+  digest = "1:cea04128c498bdd994ddcf81f001f6328c5ce8df707f99ce5ba3ef4ccc6a9671"
   name = "golang.org/x/oauth2"
   packages = [
     ".",
     "facebook",
     "github",
-    "google",
     "internal",
-    "jws",
-    "jwt",
   ]
   pruneopts = "UT"
   revision = "d668ce993890a79bda886613ee587a69dd5da7a6"
 
 [[projects]]
-  digest = "1:a48f97fb737d5d61cf13e81cfef040942d217d086766b823757d39d4f6a4c547"
+  digest = "1:9cf45e754ab2dff5f53a553e6948b994ff738e4d1092ca608dcada945d8be0ef"
   name = "google.golang.org/appengine"
   packages = [
-    ".",
     "internal",
-    "internal/app_identity",
     "internal/base",
     "internal/datastore",
     "internal/log",
-    "internal/modules",
     "internal/remote_api",
     "internal/urlfetch",
     "urlfetch",
@@ -253,12 +239,12 @@
     "github.com/lib/pq",
     "github.com/patrickmn/go-cache",
     "github.com/russross/blackfriday",
+    "golang.org/x/crypto/acme",
     "golang.org/x/crypto/acme/autocert",
     "golang.org/x/image/draw",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/facebook",
     "golang.org/x/oauth2/github",
-    "golang.org/x/oauth2/google",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
