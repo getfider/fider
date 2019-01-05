@@ -78,6 +78,7 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 		Email: customer.Email,
 	}
 
+	// if customer has a card, get details from it
 	if customer.DefaultSource != nil {
 		card, err := c.sc.Cards.Get(customer.DefaultSource.ID, &stripe.CardParams{
 			Customer: stripe.String(customerID),
@@ -112,6 +113,7 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return err
 	}
 
+	// email is different, update it
 	if current.Email != input.Email {
 		_, err = c.sc.Customers.Update(customerID, &stripe.CustomerParams{
 			Email:       stripe.String(input.Email),
@@ -122,8 +124,8 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		}
 	}
 
+	// new card, just create it
 	if current.StripeCardID == "" {
-		// new card, just create it
 		_, err = c.sc.Cards.New(&stripe.CardParams{
 			Customer: stripe.String(customerID),
 			Token:    stripe.String(input.Card.Token),
@@ -131,8 +133,11 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		if err != nil {
 			return errors.Wrap(err, "failed to create stripe card")
 		}
-	} else if input.Card != nil && input.Card.Token != "" {
-		// replacing card, create new and delete old
+		return nil
+	}
+
+	// replacing card, create new and delete old
+	if input.Card != nil && input.Card.Token != "" {
 		_, err = c.sc.Cards.New(&stripe.CardParams{
 			Customer: stripe.String(customerID),
 			Token:    stripe.String(input.Card.Token),
@@ -148,22 +153,22 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		if err != nil {
 			return errors.Wrap(err, "failed to delete old stripe card")
 		}
-	} else {
-		// updating card, just update current card
-		_, err = c.sc.Cards.Update(current.StripeCardID, &stripe.CardParams{
-			Customer:       stripe.String(customerID),
-			Name:           stripe.String(input.Name),
-			AddressCity:    stripe.String(input.AddressCity),
-			AddressCountry: stripe.String(input.AddressCountry),
-			AddressLine1:   stripe.String(input.AddressLine1),
-			AddressLine2:   stripe.String(input.AddressLine2),
-			AddressState:   stripe.String(input.AddressState),
-			AddressZip:     stripe.String(input.AddressPostalCode),
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to update stripe card")
-		}
+		return nil
 	}
 
+	// updating card, just update current card
+	_, err = c.sc.Cards.Update(current.StripeCardID, &stripe.CardParams{
+		Customer:       stripe.String(customerID),
+		Name:           stripe.String(input.Name),
+		AddressCity:    stripe.String(input.AddressCity),
+		AddressCountry: stripe.String(input.AddressCountry),
+		AddressLine1:   stripe.String(input.AddressLine1),
+		AddressLine2:   stripe.String(input.AddressLine2),
+		AddressState:   stripe.String(input.AddressState),
+		AddressZip:     stripe.String(input.AddressPostalCode),
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to update stripe card")
+	}
 	return nil
 }
