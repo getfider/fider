@@ -24,6 +24,7 @@ func BillingPage() web.HandlerFunc {
 			ChunkName: "Billing.page",
 			Data: web.Map{
 				"paymentInfo": paymentInfo,
+				"countries":   models.GetAllCountries(),
 			},
 		})
 	}

@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -61,6 +63,17 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 
 	if input.Model.AddressCountry == "" {
 		result.AddFieldFailure("addressCountry", "Country is required.")
+	} else {
+		countries := models.GetAllCountries()
+		found := false
+		for _, c := range countries {
+			if c.Code == input.Model.AddressCountry {
+				found = true
+			}
+		}
+		if !found {
+			result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
+		}
 	}
 
 	if input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {

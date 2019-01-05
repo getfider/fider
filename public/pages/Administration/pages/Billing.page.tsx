@@ -12,6 +12,7 @@ import BillingSourceForm from "../components/BillingSourceForm";
 
 interface BillingPageProps {
   paymentInfo?: PaymentInfo;
+  countries: Array<{ code: string; name: string }>;
 }
 
 interface BillingPageState {
@@ -52,7 +53,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
       <>
         <StripeProvider stripe={this.state.stripe}>
           <Elements>
-            <BillingSourceForm paymentInfo={this.props.paymentInfo} />
+            <BillingSourceForm paymentInfo={this.props.paymentInfo} countries={this.props.countries} />
           </Elements>
         </StripeProvider>
       </>
