@@ -308,6 +308,8 @@
     "github.com/lib/pq",
     "github.com/patrickmn/go-cache",
     "github.com/russross/blackfriday",
+    "github.com/stripe/stripe-go",
+    "github.com/stripe/stripe-go/client",
     "golang.org/x/crypto/acme",
     "golang.org/x/crypto/acme/autocert",
     "golang.org/x/image/draw",
