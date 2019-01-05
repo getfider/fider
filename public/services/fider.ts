@@ -7,10 +7,10 @@ export class FiderSession {
   private pProps: { [key: string]: any } = {};
 
   constructor(data: any) {
-    this.pContextID = data.__contextID;
-    this.pProps = data.__props;
-    this.pUser = data.__user;
-    this.pTenant = data.__tenant;
+    this.pContextID = data.contextID;
+    this.pProps = data.props;
+    this.pUser = data.user;
+    this.pTenant = data.tenant;
   }
 
   public get contextID(): string {
@@ -41,7 +41,7 @@ export class FiderImpl {
   public initialize = (): FiderImpl => {
     const el = document.getElementById("server-data");
     const data = el ? JSON.parse(el.textContent || el.innerText) : {};
-    this.pSettings = data.__settings;
+    this.pSettings = data.settings;
     this.pSession = new FiderSession(data);
     return this;
   };
