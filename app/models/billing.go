@@ -2,19 +2,22 @@ package models
 
 // CreateEditBillingPaymentInfo is the input model to create or edit billing payment info
 type CreateEditBillingPaymentInfo struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Card  *struct {
-		Type    string `json:"type"`
-		Token   string `json:"token"`
-		Country string `json:"country"`
-	} `json:"card"`
-	AddressLine1      string `json:"addressLine1"`
-	AddressLine2      string `json:"addressLine2"`
-	AddressCity       string `json:"addressCity"`
-	AddressState      string `json:"addressState"`
-	AddressPostalCode string `json:"addressPostalCode"`
-	AddressCountry    string `json:"addressCountry" format:"upper"`
+	Name              string                            `json:"name"`
+	Email             string                            `json:"email"`
+	Card              *CreateEditBillingPaymentInfoCard `json:"card"`
+	AddressLine1      string                            `json:"addressLine1"`
+	AddressLine2      string                            `json:"addressLine2"`
+	AddressCity       string                            `json:"addressCity"`
+	AddressState      string                            `json:"addressState"`
+	AddressPostalCode string                            `json:"addressPostalCode"`
+	AddressCountry    string                            `json:"addressCountry" format:"upper"`
+}
+
+// CreateEditBillingPaymentInfoCard is the input model for a card during billing payment info update
+type CreateEditBillingPaymentInfoCard struct {
+	Type    string `json:"type"`
+	Token   string `json:"token"`
+	Country string `json:"country"`
 }
 
 // PaymentInfo is the model for billing payment info
