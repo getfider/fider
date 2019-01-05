@@ -4,32 +4,32 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <link rel="icon" href='{{ .__favicon }}?size=64' sizes="64x64" type="image/png">
-  <link rel="icon" href='{{ .__favicon }}?size=192' sizes="192x192" type="image/png">
-  <link rel="apple-touch-icon" href='{{ .__favicon }}?size=180&bg=white' sizes="180x180" type="image/png">
-  {{ if .__canonicalURL }}
-  <link rel="canonical" href="{{ .__canonicalURL }}" />
+  <link rel="icon" href='{{ .private.favicon }}?size=64' sizes="64x64" type="image/png">
+  <link rel="icon" href='{{ .private.favicon }}?size=192' sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href='{{ .private.favicon }}?size=180&bg=white' sizes="180x180" type="image/png">
+  {{ if .private.canonicalURL }}
+  <link rel="canonical" href="{{ .private.canonicalURL }}" />
   {{ end }}
-  {{ if .__assets }}
-  {{range .__assets.CSS}}
-    <link rel="stylesheet" href="{{ $.__settings.globalAssetsURL }}{{ . }}" />
+  {{ if .private.assets }}
+  {{range .private.assets.CSS}}
+    <link rel="stylesheet" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" />
   {{end}}
   {{end}}
-  {{ if .__chunkAssets }}
-    {{range .__chunkAssets.CSS}}
-      <link rel="preload" href="{{ $.__settings.globalAssetsURL }}{{ . }}" as="style" />
+  {{ if .private.chunkAssets }}
+    {{range .private.chunkAssets.CSS}}
+      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="style" />
     {{end}}
-    {{range .__chunkAssets.JS}}
-      <link rel="preload" href="{{ $.__settings.globalAssetsURL }}{{ . }}" as="script" />
+    {{range .private.chunkAssets.JS}}
+      <link rel="preload" href="{{ $.public.settings.globalAssetsURL }}{{ . }}" as="script" />
     {{end}}
   {{end}}
-  <title>{{ .__title }}</title>
-  <meta name="description" content="{{ .__description }}" />
-  <meta property="og:title" content="{{ .__title }}" />
-  <meta property="og:description" content="{{ .__description }}" />
+  <title>{{ .public.title }}</title>
+  <meta name="description" content="{{ .public.description }}" />
+  <meta property="og:title" content="{{ .public.title }}" />
+  <meta property="og:description" content="{{ .public.description }}" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="{{ .__currentURL }}" />
-  <meta property="og:image" content="{{ .__logo }}">
+  <meta property="og:url" content="{{ .private.currentURL }}" />
+  <meta property="og:image" content="{{ .private.logo }}">
 </head>
 <body>
   <noscript class="container">
@@ -40,15 +40,15 @@
     </div>
   </noscript>
 
-  {{ if ne .__settings.googleAnalytics "" }}
-  <script type="text/javascript" nonce="{{ .__contextID }}">
+  {{ if ne .public.settings.googleAnalytics "" }}
+  <script type="text/javascript" nonce="{{ .public.contextID }}">
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{ .__settings.googleAnalytics }}', 'auto');
-    {{ if .__tenant }}ga('set', 'dimension1', '{{ .__tenant.Subdomain }}');{{ end }}
+    ga('create', '{{ .public.settings.googleAnalytics }}', 'auto');
+    {{ if .public.tenant }}ga('set', 'dimension1', '{{ .public.tenant.Subdomain }}');{{ end }}
     ga('send', 'pageview');
   </script>
   {{ end }}
@@ -58,11 +58,11 @@
   <script id="server-data" type="application/json">
     {{template "server-data" .}}
   </script>
-  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=default,fetch" crossorigin="anonymous"></script>
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=es6,fetch" crossorigin="anonymous"></script>
   {{template "end-of-body" .}}
-  {{ if .__tenant }} 
-    {{ if .__tenant.CustomCSS }} 
-    <link rel="stylesheet" href="{{ .__settings.tenantAssetsURL }}/custom/{{ .__tenant.CustomCSS | md5 }}.css" />
+  {{ if .public.tenant }} 
+    {{ if .public.tenant.CustomCSS }} 
+    <link rel="stylesheet" href="{{ .public.settings.tenantAssetsURL }}/custom/{{ .public.tenant.CustomCSS | md5 }}.css" />
     {{ end }}
   {{ end }}
 </body>
