@@ -70,7 +70,6 @@ func ensureStripeCustomerID(c web.Context) error {
 			return err
 		}
 
-		billing.StripeCustomerID = customerID
 		err = c.Services().Tenants.UpdateBillingSettings(billing)
 		if err != nil {
 			return err

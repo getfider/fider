@@ -63,10 +63,24 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 		if err != nil {
 			return "", errors.Wrap(err, "failed to create Stripe customer")
 		}
+		c.tenant.Billing.StripeCustomerID = customer.ID
 		return customer.ID, nil
 	}
 
 	return c.tenant.Billing.StripeCustomerID, nil
+}
+
+// DeleteCustomer on stripe
+func (c *Client) DeleteCustomer() error {
+	if !env.IsTest() {
+		return errors.New("Stripe customer can only be deleted on test mode")
+	}
+
+	_, err := c.sc.Customers.Del(c.tenant.Billing.StripeCustomerID, &stripe.CustomerParams{})
+	if err != nil {
+		return errors.Wrap(err, "failed to delete Stripe customer")
+	}
+	return nil
 }
 
 // GetPaymentInfo from a stripe card
@@ -115,6 +129,34 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 	}
 
 	return info, nil
+}
+
+// ClearPaymentInfo removes all payment information from stripe
+func (c *Client) ClearPaymentInfo() error {
+	current, err := c.GetPaymentInfo()
+	if err != nil {
+		return err
+	}
+
+	if current != nil {
+		customerID := c.tenant.Billing.StripeCustomerID
+		_, err = c.sc.Customers.Update(customerID, &stripe.CustomerParams{
+			Email: stripe.String(""),
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to delete customer billing email")
+		}
+		if current.StripeCardID != "" {
+			_, err = c.sc.Cards.Del(current.StripeCardID, &stripe.CardParams{
+				Customer: stripe.String(customerID),
+			})
+			if err != nil {
+				return errors.Wrap(err, "failed to delete customer card")
+			}
+		}
+	}
+
+	return nil
 }
 
 // UpdatePaymentInfo creates or updates customer payment info on stripe
