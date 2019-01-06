@@ -67,10 +67,11 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 
 // GetPaymentInfo from a stripe card
 func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
-	customerID := c.tenant.Billing.StripeCustomerID
-	if customerID == "" {
+	if c.tenant.Billing == nil || c.tenant.Billing.StripeCustomerID == "" {
 		return nil, nil
 	}
+
+	customerID := c.tenant.Billing.StripeCustomerID
 
 	customer, err := c.sc.Customers.Get(customerID, &stripe.CustomerParams{})
 	if err != nil {

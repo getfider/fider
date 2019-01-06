@@ -16,11 +16,11 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 		input    *models.CreateEditBillingPaymentInfo
 	}{
 		{
-			expected: []string{"name", "email", "addressLine1", "addressLine2", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "name", "email", "addressLine1", "addressLine2", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
 			input:    &models.CreateEditBillingPaymentInfo{},
 		},
 		{
-			expected: []string{"email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
 			input: &models.CreateEditBillingPaymentInfo{
 				Name:           "John",
 				AddressLine1:   "Street 1",
@@ -30,7 +30,7 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 			},
 		},
 		{
-			expected: []string{"email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
 			input: &models.CreateEditBillingPaymentInfo{
 				Name:           "John",
 				AddressLine1:   "Street 1",
@@ -48,6 +48,7 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 		action := &actions.CreateEditBillingPaymentInfo{
 			Model: testCase.input,
 		}
+		services.Billing.SetCurrentTenant(&models.Tenant{ID: 2})
 		result := action.Validate(nil, services)
 		ExpectFailed(result, testCase.expected...)
 	}
@@ -67,10 +68,12 @@ func TestCreateEditBillingPaymentInfo_ValidInput(t *testing.T) {
 			Email:             "jon.show@got.com",
 			AddressCountry:    "US",
 			Card: &models.CreateEditBillingPaymentInfoCard{
+				Token:   "tok_visa",
 				Country: "US",
 			},
 		},
 	}
+	services.Billing.SetCurrentTenant(&models.Tenant{ID: 2})
 	result := action.Validate(nil, services)
 	ExpectSuccess(result)
 }
