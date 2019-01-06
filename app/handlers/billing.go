@@ -14,6 +14,11 @@ func BillingPage() web.HandlerFunc {
 			return c.Redirect(c.BaseURL())
 		}
 
+		err := ensureStripeCustomerID(c)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
 		if err != nil {
 			return c.Failure(err)
@@ -42,12 +47,7 @@ func UpdatePaymentInfo() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := ensureStripeCustomerID(c, input.Model)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		err = c.Services().Billing.UpdatePaymentInfo(input.Model)
+		err := c.Services().Billing.UpdatePaymentInfo(input.Model)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -56,10 +56,10 @@ func UpdatePaymentInfo() web.HandlerFunc {
 	}
 }
 
-func ensureStripeCustomerID(c web.Context, input *models.CreateEditBillingPaymentInfo) error {
+func ensureStripeCustomerID(c web.Context) error {
 	billing := c.Tenant().Billing
 	if billing.StripeCustomerID == "" {
-		customerID, err := c.Services().Billing.CreateCustomer(input.Email)
+		customerID, err := c.Services().Billing.CreateCustomer("")
 		if err != nil {
 			return err
 		}

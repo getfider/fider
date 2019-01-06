@@ -2,6 +2,7 @@ package billing
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -49,10 +50,12 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 	}
 
 	if c.tenant.Billing.StripeCustomerID == "" {
-		customer, err := c.sc.Customers.New(&stripe.CustomerParams{
+		params := &stripe.CustomerParams{
 			Email:       stripe.String(email),
 			Description: stripe.String(customerDesc(c.tenant)),
-		})
+		}
+		params.AddMetadata("tenant_id", strconv.Itoa(c.tenant.ID))
+		customer, err := c.sc.Customers.New(params)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to create Stripe customer")
 		}
@@ -74,32 +77,36 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 		return nil, errors.Wrap(err, "failed to get customer")
 	}
 
-	info := &models.PaymentInfo{
-		Email: customer.Email,
+	if customer.Metadata["tenant_id"] != strconv.Itoa(c.tenant.ID) {
+		panic(fmt.Sprintf("Stripe TenantID (%s) doesn't match current Tenant ID (%s). Aborting.", customer.Metadata["tenant_id"], strconv.Itoa(c.tenant.ID)))
 	}
 
-	// if customer has a card, get details from it
-	if customer.DefaultSource != nil {
-		card, err := c.sc.Cards.Get(customer.DefaultSource.ID, &stripe.CardParams{
-			Customer: stripe.String(customerID),
-		})
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get customer's card")
-		}
+	if customer.DefaultSource == nil {
+		return nil, nil
+	}
 
-		info.StripeCardID = card.ID
-		info.CardCountry = card.Country
-		info.CardBrand = string(card.Brand)
-		info.CardLast4 = card.Last4
-		info.CardExpMonth = card.ExpMonth
-		info.CardExpYear = card.ExpYear
-		info.AddressCity = card.AddressCity
-		info.AddressCountry = card.AddressCountry
-		info.Name = card.Name
-		info.AddressLine1 = card.AddressLine1
-		info.AddressLine2 = card.AddressLine2
-		info.AddressState = card.AddressState
-		info.AddressPostalCode = card.AddressZip
+	card, err := c.sc.Cards.Get(customer.DefaultSource.ID, &stripe.CardParams{
+		Customer: stripe.String(customerID),
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get customer's card")
+	}
+
+	info := &models.PaymentInfo{
+		Email:             customer.Email,
+		Name:              card.Name,
+		StripeCardID:      card.ID,
+		CardCountry:       card.Country,
+		CardBrand:         string(card.Brand),
+		CardLast4:         card.Last4,
+		CardExpMonth:      card.ExpMonth,
+		CardExpYear:       card.ExpYear,
+		AddressCity:       card.AddressCity,
+		AddressCountry:    card.AddressCountry,
+		AddressLine1:      card.AddressLine1,
+		AddressLine2:      card.AddressLine2,
+		AddressState:      card.AddressState,
+		AddressPostalCode: card.AddressZip,
 	}
 
 	return info, nil
@@ -114,7 +121,7 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	}
 
 	// email is different, update it
-	if current.Email != input.Email {
+	if current == nil || current.Email != input.Email {
 		_, err = c.sc.Customers.Update(customerID, &stripe.CustomerParams{
 			Email:       stripe.String(input.Email),
 			Description: stripe.String(customerDesc(c.tenant)),
@@ -125,7 +132,7 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	}
 
 	// new card, just create it
-	if current.StripeCardID == "" {
+	if current == nil || current.StripeCardID == "" {
 		_, err = c.sc.Cards.New(&stripe.CardParams{
 			Customer: stripe.String(customerID),
 			Token:    stripe.String(input.Card.Token),
