@@ -44,7 +44,8 @@ func (t *dbTenant) toModel() *models.Tenant {
 
 	if t.Billing != nil && t.Billing.TrialEndsAt.Valid {
 		tenant.Billing = &models.TenantBilling{
-			TrialEndsAt: t.Billing.TrialEndsAt.Time,
+			TrialEndsAt:      t.Billing.TrialEndsAt.Time,
+			StripeCustomerID: t.Billing.StripeCustomerID.String,
 		}
 	}
 
@@ -52,7 +53,8 @@ func (t *dbTenant) toModel() *models.Tenant {
 }
 
 type dbTenantBilling struct {
-	TrialEndsAt dbx.NullTime `db:"trial_ends_at"`
+	StripeCustomerID dbx.NullString `db:"stripe_customer_id"`
+	TrialEndsAt      dbx.NullTime   `db:"trial_ends_at"`
 }
 
 type dbEmailVerification struct {
@@ -184,7 +186,8 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 
 	err := s.trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
-					 tb.trial_ends_at AS billing_trial_ends_at
+					 tb.trial_ends_at AS billing_trial_ends_at,
+					 tb.stripe_customer_id AS billing_stripe_customer_id
 		FROM tenants t
 		LEFT JOIN tenants_billing tb
 		ON tb.tenant_id = t.id
@@ -203,7 +206,8 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 
 	err := s.trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
-					 tb.trial_ends_at AS billing_trial_ends_at
+					 tb.trial_ends_at AS billing_trial_ends_at,
+					 tb.stripe_customer_id AS billing_stripe_customer_id
 		FROM tenants t
 		LEFT JOIN tenants_billing tb
 		ON tb.tenant_id = t.id
@@ -234,6 +238,16 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 	s.current.CNAME = settings.CNAME
 	s.current.WelcomeMessage = settings.WelcomeMessage
 
+	return nil
+}
+
+// UpdateBillingSettings of current tenant
+func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) error {
+	query := "UPDATE tenants_billing SET stripe_customer_id = $1 WHERE tenant_id = $2"
+	_, err := s.trx.Execute(query, billing.StripeCustomerID, s.current.ID)
+	if err != nil {
+		return errors.Wrap(err, "failed update tenant billing settings")
+	}
 	return nil
 }
 

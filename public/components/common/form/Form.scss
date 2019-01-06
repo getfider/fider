@@ -44,53 +44,51 @@
   .c-form-field-wrapper {
     position: relative;
     margin: 0 0 5px;
+  }
 
-    input[type=text],
-    textarea,
-    select {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      padding: 10px;
-      outline: 0;
-      margin: 0;
-      resize: none !important;
-      border: 1px solid $gray-light;
-      border-radius: 3px;
-    
-      &:focus {
-        border: 1px solid $gray;
-        box-shadow: 0px 0px 1px 1px $gray-light;
-      }
-    
-      &:disabled {
-        opacity: .45;
-        cursor: not-allowed;
-      }
 
-      & + .icon {
-        pointer-events: none;
-        cursor: default;
-        position: absolute;
-        opacity: .5;
-        width: 35px;
-        height: 100%;
-        padding: 12px 0px;
-        margin: 0;
-        top: 0;
-        right: 0;
-        position: absolute;
-
-        &.link {
-          cursor: pointer;
-          pointer-events: inherit;
-        }
-      }
+  input[type=text],
+  textarea,
+  select,
+  .StripeElement {
+    background-color: $white;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    padding: 10px;
+    outline: 0;
+    margin: 0;
+    resize: none !important;
+    border: 1px solid $gray-light;
+    border-radius: 3px;
+  
+    &:focus {
+      border: 1px solid $gray;
+      box-shadow: 0px 0px 1px 1px $gray-light;
+    }
+  
+    &:disabled {
+      opacity: .45;
+      cursor: not-allowed;
     }
 
-    select {
-      height: 38px;
-      background-color: $white;
+    & + .icon {
+      pointer-events: none;
+      cursor: default;
+      position: absolute;
+      opacity: .5;
+      width: 35px;
+      height: 100%;
+      padding: 12px 0px;
+      margin: 0;
+      top: 0;
+      right: 0;
+      position: absolute;
+
+      &.link {
+        cursor: pointer;
+        pointer-events: inherit;
+      }
     }
   }
 

@@ -150,6 +150,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/admin/billing", handlers.BillingPage())
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
+		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())

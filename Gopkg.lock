@@ -155,6 +155,75 @@
   version = "v1.5.2"
 
 [[projects]]
+  digest = "1:a6e5980ac8988d88107a4b1f48359f080d021b218b9985bd443e24614ef1b66b"
+  name = "github.com/stripe/stripe-go"
+  packages = [
+    ".",
+    "account",
+    "applepaydomain",
+    "balance",
+    "bankaccount",
+    "bitcoinreceiver",
+    "bitcointransaction",
+    "card",
+    "charge",
+    "client",
+    "countryspec",
+    "coupon",
+    "customer",
+    "discount",
+    "dispute",
+    "ephemeralkey",
+    "event",
+    "exchangerate",
+    "fee",
+    "feerefund",
+    "file",
+    "filelink",
+    "form",
+    "invoice",
+    "invoiceitem",
+    "issuerfraudrecord",
+    "issuing/authorization",
+    "issuing/card",
+    "issuing/cardholder",
+    "issuing/dispute",
+    "issuing/transaction",
+    "loginlink",
+    "order",
+    "orderreturn",
+    "paymentintent",
+    "paymentsource",
+    "payout",
+    "plan",
+    "product",
+    "radar/valuelist",
+    "radar/valuelistitem",
+    "recipient",
+    "refund",
+    "reporting/reportrun",
+    "reporting/reporttype",
+    "reversal",
+    "sigma/scheduledqueryrun",
+    "sku",
+    "source",
+    "sourcetransaction",
+    "sub",
+    "subitem",
+    "terminal/connectiontoken",
+    "terminal/location",
+    "terminal/reader",
+    "token",
+    "topup",
+    "transfer",
+    "usagerecord",
+    "webhookendpoint",
+  ]
+  pruneopts = "UT"
+  revision = "4fbb4e51a1551a48d073b9900bc6a3d43892646a"
+  version = "v55.3.0"
+
+[[projects]]
   branch = "master"
   digest = "1:e3d2db9bc633f4635e6418caf0b0734c43821ecd59105d1798458c6ae4d227fd"
   name = "golang.org/x/crypto"
@@ -239,6 +308,8 @@
     "github.com/lib/pq",
     "github.com/patrickmn/go-cache",
     "github.com/russross/blackfriday",
+    "github.com/stripe/stripe-go",
+    "github.com/stripe/stripe-go/client",
     "golang.org/x/crypto/acme",
     "golang.org/x/crypto/acme/autocert",
     "golang.org/x/image/draw",

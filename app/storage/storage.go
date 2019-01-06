@@ -76,6 +76,7 @@ type Tenant interface {
 	Activate(id int) error
 	GetByDomain(domain string) (*models.Tenant, error)
 	UpdateSettings(settings *models.UpdateTenantSettings) error
+	UpdateBillingSettings(billing *models.TenantBilling) error
 	UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error
 	UpdatePrivacy(settings *models.UpdateTenantPrivacy) error
 	IsSubdomainAvailable(subdomain string) (bool, error)

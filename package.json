@@ -8,6 +8,7 @@
     "react": "16.7.0",
     "react-dom": "16.7.0",
     "react-icons": "3.2.2",
+    "react-stripe-elements": "2.0.1",
     "react-textarea-autosize": "7.1.0",
     "react-toastify": "4.5.2",
     "tslib": "1.9.3"
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@types/enzyme": "3.1.15",
     "@types/enzyme-adapter-react-16": "1.0.3",
+    "@types/react-stripe-elements": "1.1.10",
     "@types/jest": "23.3.11",
     "@types/jsdom": "12.2.1",
     "@types/marked": "0.5.0",
@@ -27,6 +29,7 @@
     "dotenv": "6.2.0",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.7.1",
+    "file-loader": "3.0.1",
     "fork-ts-checker-webpack-plugin": "0.5.2",
     "jest": "23.6.0",
     "mini-css-extract-plugin": "0.5.0",
@@ -71,7 +74,7 @@
       "node"
     ],
     "moduleNameMapper": {
-      "^.*\\.(png|scss)$": "<rootDir>/public/jest.assets.ts",
+      "^.*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
       "@fider/(.*)": "<rootDir>/public/$1"
     }
   }
