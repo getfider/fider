@@ -147,7 +147,7 @@ func TestListPlans(t *testing.T) {
 	plans, err := client.ListPlans()
 	Expect(err).IsNil()
 	Expect(plans).HasLen(3)
-	Expect(plans[0].ID).Equals("plan_EHwSt6MjxOVApj")
+	Expect(plans[0].ID).Equals("plan_EIE1LpQIzPXxOn")
 	Expect(plans[0].Name).Equals("Fider Starter (monthly)")
 	Expect(plans[1].ID).Equals("plan_DoK187GZcnFpKY")
 	Expect(plans[1].Name).Equals("Fider Business (monthly)")

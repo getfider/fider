@@ -9,6 +9,8 @@ export interface Tenant {
   isPrivate: boolean;
   logoBlobKey: string;
   billing?: {
+    stripePlanID: string;
+    subscriptionEndsAt: string;
     trialEndsAt: string;
   };
 }

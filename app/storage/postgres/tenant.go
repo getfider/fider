@@ -44,8 +44,13 @@ func (t *dbTenant) toModel() *models.Tenant {
 
 	if t.Billing != nil && t.Billing.TrialEndsAt.Valid {
 		tenant.Billing = &models.TenantBilling{
-			TrialEndsAt:      t.Billing.TrialEndsAt.Time,
-			StripeCustomerID: t.Billing.StripeCustomerID.String,
+			TrialEndsAt:          t.Billing.TrialEndsAt.Time,
+			StripeCustomerID:     t.Billing.StripeCustomerID.String,
+			StripeSubscriptionID: t.Billing.StripeSubscriptionID.String,
+			StripePlanID:         t.Billing.StripePlanID.String,
+		}
+		if t.Billing.SubscriptionEndsAt.Valid {
+			tenant.Billing.SubscriptionEndsAt = &t.Billing.SubscriptionEndsAt.Time
 		}
 	}
 
@@ -53,8 +58,11 @@ func (t *dbTenant) toModel() *models.Tenant {
 }
 
 type dbTenantBilling struct {
-	StripeCustomerID dbx.NullString `db:"stripe_customer_id"`
-	TrialEndsAt      dbx.NullTime   `db:"trial_ends_at"`
+	StripeCustomerID     dbx.NullString `db:"stripe_customer_id"`
+	StripeSubscriptionID dbx.NullString `db:"stripe_subscription_id"`
+	StripePlanID         dbx.NullString `db:"stripe_plan_id"`
+	TrialEndsAt          dbx.NullTime   `db:"trial_ends_at"`
+	SubscriptionEndsAt   dbx.NullTime   `db:"subscription_ends_at"`
 }
 
 type dbEmailVerification struct {
@@ -187,7 +195,10 @@ func (s *TenantStorage) First() (*models.Tenant, error) {
 	err := s.trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
 					 tb.trial_ends_at AS billing_trial_ends_at,
-					 tb.stripe_customer_id AS billing_stripe_customer_id
+					 tb.subscription_ends_at AS billing_subscription_ends_at,
+					 tb.stripe_customer_id AS billing_stripe_customer_id,
+					 tb.stripe_plan_id AS billing_stripe_plan_id,
+					 tb.stripe_subscription_id AS billing_stripe_subscription_id
 		FROM tenants t
 		LEFT JOIN tenants_billing tb
 		ON tb.tenant_id = t.id
@@ -207,7 +218,10 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	err := s.trx.Get(&tenant, `
 		SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
 					 tb.trial_ends_at AS billing_trial_ends_at,
-					 tb.stripe_customer_id AS billing_stripe_customer_id
+					 tb.subscription_ends_at AS billing_subscription_ends_at,
+					 tb.stripe_customer_id AS billing_stripe_customer_id,
+					 tb.stripe_plan_id AS billing_stripe_plan_id,
+					 tb.stripe_subscription_id AS billing_stripe_subscription_id
 		FROM tenants t
 		LEFT JOIN tenants_billing tb
 		ON tb.tenant_id = t.id
@@ -243,8 +257,8 @@ func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) er
 
 // UpdateBillingSettings of current tenant
 func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) error {
-	query := "UPDATE tenants_billing SET stripe_customer_id = $1 WHERE tenant_id = $2"
-	_, err := s.trx.Execute(query, billing.StripeCustomerID, s.current.ID)
+	query := "UPDATE tenants_billing SET stripe_customer_id = $1, stripe_plan_id = $2, stripe_subscription_id = $3, subscription_ends_at = $4 WHERE tenant_id = $5"
+	_, err := s.trx.Execute(query, billing.StripeCustomerID, billing.StripePlanID, billing.StripeSubscriptionID, billing.SubscriptionEndsAt, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant billing settings")
 	}

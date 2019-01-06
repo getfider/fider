@@ -9,9 +9,14 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		err := ensureStripeCustomerID(c)
+		_, err := c.Services().Billing.CreateCustomer("")
 		if err != nil {
-			return c.Failure(err)
+			return err
+		}
+
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+		if err != nil {
+			return err
 		}
 
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
@@ -53,19 +58,37 @@ func UpdatePaymentInfo() web.HandlerFunc {
 	}
 }
 
-func ensureStripeCustomerID(c web.Context) error {
-	billing := c.Tenant().Billing
-	if billing.StripeCustomerID == "" {
-		_, err := c.Services().Billing.CreateCustomer("")
+// BillingSubscribe subscribes current tenant to given plan on stripe
+func BillingSubscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		planID := c.Param("planID")
+		err := c.Services().Billing.Subscribe(planID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
 		if err != nil {
 			return err
 		}
 
-		err = c.Services().Tenants.UpdateBillingSettings(billing)
-		if err != nil {
-			return err
-		}
+		return c.Ok(web.Map{})
 	}
+}
 
-	return nil
+// CancelBillingSubscription cancels current subscription from current tenant
+func CancelBillingSubscription() web.HandlerFunc {
+	return func(c web.Context) error {
+		err := c.Services().Billing.CancelSubscription()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+		if err != nil {
+			return err
+		}
+
+		return c.Ok(web.Map{})
+	}
 }

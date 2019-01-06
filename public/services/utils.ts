@@ -33,7 +33,7 @@ const monthNames = [
 ];
 
 const twoDigits = (value: number): string => {
-  return value < 9 ? `0${value}` : value.toString();
+  return value <= 9 ? `0${value}` : value.toString();
 };
 
 export const formatDate = (input: Date | string): string => {

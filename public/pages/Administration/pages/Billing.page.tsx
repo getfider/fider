@@ -9,6 +9,7 @@ import { PaymentInfo, BillingPlan } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
 import { StripeProvider, Elements } from "react-stripe-elements";
+import { BillingPlanPanel } from "../components/BillingPlanPanel";
 
 interface BillingPageProps {
   plans: BillingPlan[];
@@ -98,29 +99,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
             </Segment>
           </div>
           <div className="col-md-12">
-            <Segment className="l-billing-plans">
-              <h4>Plans</h4>
-              <p className="info">
-                You don't have any active subscription. Subscribe to it before end of your trial:{" "}
-                <strong>{Fider.session.tenant.billing!.trialEndsAt}</strong>
-              </p>
-              <div className="row">
-                {this.props.plans.map(x => (
-                  <div key={x.id} className="col-md-4">
-                    <Segment className="l-plan">
-                      <p className="l-title">{x.name}</p>
-                      <p className="l-description">{x.description}</p>
-                      <p>
-                        <span className="l-dollar">$</span>
-                        <span className="l-price">{x.price / 100}</span>/
-                        <span className="l-interval">{x.interval}</span>
-                      </p>
-                      <Button>Subscribe</Button>
-                    </Segment>
-                  </div>
-                ))}
-              </div>
-            </Segment>
+            <BillingPlanPanel disabled={!this.props.paymentInfo} plans={this.props.plans} />
           </div>
         </div>
       </>

@@ -161,6 +161,8 @@ func routes(r *web.Engine) *web.Engine {
 
 		ui.Get("/admin/billing", handlers.BillingPage())
 		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
+		ui.Post("/_api/admin/billing/subscription/:planID", handlers.BillingSubscribe())
+		ui.Delete("/_api/admin/billing/subscription/:planID", handlers.CancelBillingSubscription())
 	}
 
 	api := r.Group()
