@@ -5,12 +5,13 @@ import React from "react";
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { Segment, Button, CardInfo } from "@fider/components";
-import { PaymentInfo } from "@fider/models";
+import { PaymentInfo, BillingPlan } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
 import { StripeProvider, Elements } from "react-stripe-elements";
 
 interface BillingPageProps {
+  plans: BillingPlan[];
   paymentInfo?: PaymentInfo;
   countries: Array<{ code: string; name: string }>;
 }
@@ -74,7 +75,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
           </StripeProvider>
         )}
         <div className="row">
-          <div className="col-md-4">
+          <div className="col-md-12">
             <Segment className="l-payment-info">
               <h4>Payment Info</h4>
               {this.props.paymentInfo && (
@@ -94,6 +95,31 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
                   <Button onClick={this.openModal}>Add</Button>
                 </>
               )}
+            </Segment>
+          </div>
+          <div className="col-md-12">
+            <Segment className="l-billing-plans">
+              <h4>Plans</h4>
+              <p className="info">
+                You don't have any active subscription. Subscribe to it before end of your trial:{" "}
+                <strong>{Fider.session.tenant.billing!.trialEndsAt}</strong>
+              </p>
+              <div className="row">
+                {this.props.plans.map(x => (
+                  <div key={x.id} className="col-md-4">
+                    <Segment className="l-plan">
+                      <p className="l-title">{x.name}</p>
+                      <p className="l-description">{x.description}</p>
+                      <p>
+                        <span className="l-dollar">$</span>
+                        <span className="l-price">{x.price / 100}</span>/
+                        <span className="l-interval">{x.interval}</span>
+                      </p>
+                      <Button>Subscribe</Button>
+                    </Segment>
+                  </div>
+                ))}
+              </div>
             </Segment>
           </div>
         </div>

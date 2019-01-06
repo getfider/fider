@@ -2,7 +2,9 @@ package billing
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
+	"sync"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -12,6 +14,8 @@ import (
 )
 
 var sc *client.API
+var mu sync.RWMutex
+var plans []*models.BillingPlan
 
 func init() {
 	stripe.LogLevel = 0
@@ -183,4 +187,41 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 
 func customerDesc(tenant *models.Tenant) string {
 	return fmt.Sprintf("%s [%s]", tenant.Name, tenant.Subdomain)
+}
+
+// ListPlans on stripe
+func (c *Client) ListPlans() ([]*models.BillingPlan, error) {
+	if plans != nil {
+		return plans, nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	if plans == nil {
+		plans = make([]*models.BillingPlan, 0)
+		it := c.sc.Plans.List(&stripe.PlanListParams{
+			Active: stripe.Bool(true),
+		})
+		for it.Next() {
+			plan := it.Plan()
+			tier, _ := strconv.Atoi(plan.Metadata["tier"])
+			plans = append(plans, &models.BillingPlan{
+				ID:          plan.ID,
+				Name:        plan.Nickname,
+				Description: plan.Metadata["description"],
+				Tier:        tier,
+				Price:       plan.Amount,
+				Interval:    string(plan.Interval),
+			})
+		}
+		if err := it.Err(); err != nil {
+			return nil, err
+		}
+		sort.Slice(plans, func(i, j int) bool {
+			return plans[i].Price < plans[j].Price
+		})
+	}
+
+	return plans, nil
 }

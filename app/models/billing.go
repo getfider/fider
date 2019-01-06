@@ -37,3 +37,13 @@ type PaymentInfo struct {
 	AddressState      string `json:"addressState"`
 	AddressPostalCode string `json:"addressPostalCode"`
 }
+
+// BillingPlan is the model for billing plan from Stripe
+type BillingPlan struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Tier        int    `json:"tier"`
+	Price       int64  `json:"price"`
+	Interval    string `json:"interval"`
+}

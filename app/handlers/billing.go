@@ -24,10 +24,16 @@ func BillingPage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		plans, err := c.Services().Billing.ListPlans()
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
+				"plans":       plans,
 				"paymentInfo": paymentInfo,
 				"countries":   models.GetAllCountries(),
 			},
