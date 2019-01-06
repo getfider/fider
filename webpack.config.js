@@ -83,6 +83,10 @@ module.exports = {
         options: {
           transpileOnly: true
         }
+      },{
+        test: /\.(svg?)(\?[a-z0-9=&.]+)?$/,
+        include: publicFolder,
+        loader: "file-loader?name=images/[name].[hash].[ext]"
       }
     ]
   },
