@@ -71,6 +71,10 @@ func BillingSubscribe() web.HandlerFunc {
 		if err != nil {
 			return err
 		}
+		err = c.Services().Tenants.Activate(c.Tenant().ID)
+		if err != nil {
+			return err
+		}
 
 		return c.Ok(web.Map{})
 	}
