@@ -74,7 +74,7 @@
       "node"
     ],
     "moduleNameMapper": {
-      "^.*\\.(png|scss)$": "<rootDir>/public/jest.assets.ts",
+      "^.*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
       "@fider/(.*)": "<rootDir>/public/$1"
     }
   }
