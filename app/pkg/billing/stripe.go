@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -245,7 +244,7 @@ func (c *Client) GetPlanByID(planID string) (*models.BillingPlan, error) {
 			return plan, nil
 		}
 	}
-	return nil, app.ErrNotFound
+	return nil, errors.New("failed to get plan by id: " + planID)
 }
 
 // ListPlans on Stripe
