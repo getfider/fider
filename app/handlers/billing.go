@@ -70,16 +70,9 @@ func BillingSubscribe() web.HandlerFunc {
 		var plan *models.BillingPlan
 		planID := c.Param("planID")
 
-		plans, err := c.Services().Billing.ListPlans()
+		plan, err := c.Services().Billing.GetPlanByID(planID)
 		if err != nil {
 			return c.Failure(err)
-		}
-
-		for _, p := range plans {
-			if p.ID == planID {
-				plan = p
-				break
-			}
 		}
 
 		userCount, err := c.Services().Users.Count()

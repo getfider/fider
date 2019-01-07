@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -230,6 +231,21 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 
 func customerDesc(tenant *models.Tenant) string {
 	return fmt.Sprintf("%s [%s]", tenant.Name, tenant.Subdomain)
+}
+
+// GetPlanByID return a plan by its ID
+func (c *Client) GetPlanByID(planID string) (*models.BillingPlan, error) {
+	plans, err := c.ListPlans()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, plan := range plans {
+		if plan.ID == planID {
+			return plan, nil
+		}
+	}
+	return nil, app.ErrNotFound
 }
 
 // ListPlans on Stripe
