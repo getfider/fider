@@ -65,6 +65,7 @@ type User interface {
 	RegenerateAPIKey() (string, error)
 	Block(userID int) error
 	Unblock(userID int) error
+	Count() (int, error)
 }
 
 // Tenant contains read and write operations for tenants

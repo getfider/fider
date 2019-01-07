@@ -17,7 +17,7 @@ export interface BillingPlan {
   id: string;
   name: string;
   description: string;
-  tier: number;
+  maxUsers: number;
   price: number;
   interval: "month" | "year";
 }

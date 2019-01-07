@@ -29,13 +29,19 @@ func BillingPage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		tenantUserCount, err := c.Services().Users.Count()
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
-				"plans":       plans,
-				"paymentInfo": paymentInfo,
-				"countries":   models.GetAllCountries(),
+				"tenantUserCount": tenantUserCount,
+				"plans":           plans,
+				"paymentInfo":     paymentInfo,
+				"countries":       models.GetAllCountries(),
 			},
 		})
 	}
@@ -61,8 +67,31 @@ func UpdatePaymentInfo() web.HandlerFunc {
 // BillingSubscribe subscribes current tenant to given plan on stripe
 func BillingSubscribe() web.HandlerFunc {
 	return func(c web.Context) error {
+		var plan *models.BillingPlan
 		planID := c.Param("planID")
-		err := c.Services().Billing.Subscribe(planID)
+
+		plans, err := c.Services().Billing.ListPlans()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		for _, p := range plans {
+			if p.ID == planID {
+				plan = p
+				break
+			}
+		}
+
+		userCount, err := c.Services().Users.Count()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if plan.MaxUsers > 0 && userCount > plan.MaxUsers {
+			return c.Unauthorized()
+		}
+
+		err = c.Services().Billing.Subscribe(plan.ID)
 		if err != nil {
 			return c.Failure(err)
 		}

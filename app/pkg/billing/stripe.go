@@ -248,12 +248,12 @@ func (c *Client) ListPlans() ([]*models.BillingPlan, error) {
 		})
 		for it.Next() {
 			plan := it.Plan()
-			tier, _ := strconv.Atoi(plan.Metadata["tier"])
+			maxUsers, _ := strconv.Atoi(plan.Metadata["max_users"])
 			plans = append(plans, &models.BillingPlan{
 				ID:          plan.ID,
 				Name:        plan.Nickname,
 				Description: plan.Metadata["description"],
-				Tier:        tier,
+				MaxUsers:    maxUsers,
 				Price:       plan.Amount,
 				Interval:    string(plan.Interval),
 			})

@@ -13,6 +13,7 @@ import { BillingPlanPanel } from "../components/BillingPlanPanel";
 
 interface BillingPageProps {
   plans: BillingPlan[];
+  tenantUserCount: number;
   paymentInfo?: PaymentInfo;
   countries: Array<{ code: string; name: string }>;
 }
@@ -99,7 +100,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
             </Segment>
           </div>
           <div className="col-md-12">
-            <BillingPlanPanel disabled={!this.props.paymentInfo} plans={this.props.plans} />
+            <BillingPlanPanel tenantUserCount={this.props.tenantUserCount} disabled={!this.props.paymentInfo} plans={this.props.plans} />
           </div>
         </div>
       </>

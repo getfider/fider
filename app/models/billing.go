@@ -43,7 +43,7 @@ type BillingPlan struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Tier        int    `json:"tier"`
+	MaxUsers    int    `json:"maxUsers"`
 	Price       int64  `json:"price"`
 	Interval    string `json:"interval"`
 }

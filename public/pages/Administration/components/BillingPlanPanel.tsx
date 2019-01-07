@@ -6,6 +6,7 @@ import { BillingPlan } from "@fider/models";
 import { Fider, actions } from "@fider/services";
 
 interface BillingPlanOptionProps {
+  tenantUserCount: number;
   disabled: boolean;
   plan: BillingPlan;
   currentPlan?: BillingPlan;
@@ -38,11 +39,19 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
         {(billing.stripePlanID !== props.plan.id || !!billing.subscriptionEndsAt) && (
           <>
             <p>
-              <Button disabled={props.disabled} onClick={props.onSubscribe.bind(undefined, props.plan)}>
+              <Button
+                disabled={props.disabled || (props.plan.maxUsers > 0 && props.tenantUserCount > props.plan.maxUsers)}
+                onClick={props.onSubscribe.bind(undefined, props.plan)}
+              >
                 Subscribe
               </Button>
             </p>
           </>
+        )}
+        {props.plan.maxUsers > 0 && (
+          <p className="info">
+            You have <strong>{props.tenantUserCount}</strong> tracked users.
+          </p>
         )}
       </Segment>
     </div>
@@ -50,6 +59,7 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
 };
 
 interface BillingPlanPanelProps {
+  tenantUserCount: number;
   disabled: boolean;
   plans: BillingPlan[];
 }
@@ -190,6 +200,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
               <BillingPlanOption
                 key={x.id}
                 plan={x}
+                tenantUserCount={this.props.tenantUserCount}
                 currentPlan={currentPlan}
                 disabled={this.props.disabled}
                 onSubscribe={this.onSubscribe}
