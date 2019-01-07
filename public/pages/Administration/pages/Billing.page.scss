@@ -1,4 +1,27 @@
 @import '~@fider/assets/styles/variables.scss';
 
 #p-admin-billing {
+  .l-plan {
+    padding: 10px;
+    .l-title {
+      color: $main-color;
+      font-size: $font-size-large;
+      font-weight: 600;
+    }
+  }
+  .l-description {
+    min-height: 40px;
+  }
+  span.l-dollar {
+    color: $gray-darker;
+    font-size: $font-size-small;
+    vertical-align: top;
+  }
+  span.l-price {
+    font-size: $font-size-big;
+  }
+  span.l-interval {
+    color: $gray-darker;
+    font-size: $font-size-small;
+  }
 }

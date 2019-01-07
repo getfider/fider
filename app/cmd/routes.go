@@ -147,10 +147,8 @@ func routes(r *web.Engine) *web.Engine {
 		//From this step, only Administrators are allowed
 		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
 
-		ui.Get("/admin/billing", handlers.BillingPage())
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
-		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
 		ui.Post("/_api/admin/settings/general", handlers.UpdateSettings())
 		ui.Post("/_api/admin/settings/advanced", handlers.UpdateAdvancedSettings())
 		ui.Post("/_api/admin/settings/privacy", handlers.UpdatePrivacy())
@@ -158,6 +156,13 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Post("/_api/admin/roles/:role/users", handlers.ChangeUserRole())
 		ui.Put("/_api/admin/users/:userID/block", handlers.BlockUser())
 		ui.Delete("/_api/admin/users/:userID/block", handlers.UnblockUser())
+
+		ui.Use(middlewares.RequireBillingEnabled())
+
+		ui.Get("/admin/billing", handlers.BillingPage())
+		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
+		ui.Post("/_api/admin/billing/subscription/:planID", handlers.BillingSubscribe())
+		ui.Delete("/_api/admin/billing/subscription/:planID", handlers.CancelBillingSubscription())
 	}
 
 	api := r.Group()

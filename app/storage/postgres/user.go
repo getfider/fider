@@ -379,3 +379,13 @@ func (s *UserStorage) Unblock(userID int) error {
 	}
 	return nil
 }
+
+// Count returns the total number of registered users
+func (s *UserStorage) Count() (int, error) {
+	var count int
+	err := s.trx.Scalar(&count, "SELECT COUNT(*) FROM users WHERE tenant_id = $1", s.tenant.ID)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to count users")
+	}
+	return count, nil
+}

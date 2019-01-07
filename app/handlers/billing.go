@@ -3,23 +3,33 @@ package handlers
 import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		if !env.IsBillingEnabled() || c.Tenant().Billing == nil {
-			return c.Redirect(c.BaseURL())
+		_, err := c.Services().Billing.CreateCustomer("")
+		if err != nil {
+			return err
 		}
 
-		err := ensureStripeCustomerID(c)
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+		if err != nil {
+			return err
+		}
+
+		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
+		plans, err := c.Services().Billing.ListPlans()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		tenantUserCount, err := c.Services().Users.Count()
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -28,8 +38,10 @@ func BillingPage() web.HandlerFunc {
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
-				"paymentInfo": paymentInfo,
-				"countries":   models.GetAllCountries(),
+				"tenantUserCount": tenantUserCount,
+				"plans":           plans,
+				"paymentInfo":     paymentInfo,
+				"countries":       models.GetAllCountries(),
 			},
 		})
 	}
@@ -38,10 +50,6 @@ func BillingPage() web.HandlerFunc {
 // UpdatePaymentInfo on stripe based on given input
 func UpdatePaymentInfo() web.HandlerFunc {
 	return func(c web.Context) error {
-		if c.Tenant().Billing == nil {
-			return c.Unauthorized()
-		}
-
 		input := new(actions.CreateEditBillingPaymentInfo)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -56,20 +64,57 @@ func UpdatePaymentInfo() web.HandlerFunc {
 	}
 }
 
-func ensureStripeCustomerID(c web.Context) error {
-	billing := c.Tenant().Billing
-	if billing.StripeCustomerID == "" {
-		customerID, err := c.Services().Billing.CreateCustomer("")
+// BillingSubscribe subscribes current tenant to given plan on stripe
+func BillingSubscribe() web.HandlerFunc {
+	return func(c web.Context) error {
+		var plan *models.BillingPlan
+		planID := c.Param("planID")
+
+		plan, err := c.Services().Billing.GetPlanByID(planID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		userCount, err := c.Services().Users.Count()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		if plan.MaxUsers > 0 && userCount > plan.MaxUsers {
+			return c.Unauthorized()
+		}
+
+		err = c.Services().Billing.Subscribe(plan.ID)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+		if err != nil {
+			return err
+		}
+		err = c.Services().Tenants.Activate(c.Tenant().ID)
 		if err != nil {
 			return err
 		}
 
-		billing.StripeCustomerID = customerID
-		err = c.Services().Tenants.UpdateBillingSettings(billing)
-		if err != nil {
-			return err
-		}
+		return c.Ok(web.Map{})
 	}
+}
 
-	return nil
+// CancelBillingSubscription cancels current subscription from current tenant
+func CancelBillingSubscription() web.HandlerFunc {
+	return func(c web.Context) error {
+		err := c.Services().Billing.CancelSubscription()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+		if err != nil {
+			return err
+		}
+
+		return c.Ok(web.Map{})
+	}
 }

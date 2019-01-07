@@ -33,8 +33,11 @@ var (
 
 //TenantBilling has all the billing information of given tenant
 type TenantBilling struct {
-	StripeCustomerID string
-	TrialEndsAt      time.Time `json:"trialEndsAt"`
+	StripeCustomerID     string
+	StripeSubscriptionID string
+	StripePlanID         string     `json:"stripePlanID"`
+	TrialEndsAt          time.Time  `json:"trialEndsAt"`
+	SubscriptionEndsAt   *time.Time `json:"subscriptionEndsAt,omitempty"`
 }
 
 //Upload represents a file that has been uploaded to Fider

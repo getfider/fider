@@ -12,3 +12,12 @@ export interface PaymentInfo {
   addressState: string;
   addressPostalCode: string;
 }
+
+export interface BillingPlan {
+  id: string;
+  name: string;
+  description: string;
+  maxUsers: number;
+  price: number;
+  interval: "month" | "year";
+}

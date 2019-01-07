@@ -18,3 +18,13 @@ interface UpdatePaymentInfoRequest {
 export const updatePaymentInfo = async (request: UpdatePaymentInfoRequest): Promise<Result> => {
   return http.post("/_api/admin/billing/paymentinfo", request).then(http.event("billing", "updatepaymentinfo"));
 };
+
+export const billingSubscribe = async (planID: string): Promise<Result> => {
+  return http.post(`/_api/admin/billing/subscription/${planID}`).then(http.event("billing", "billingsubscribe"));
+};
+
+export const cancelBillingSubscription = async (planID: string): Promise<Result> => {
+  return http
+    .delete(`/_api/admin/billing/subscription/${planID}`)
+    .then(http.event("billing", "cancelbillingsubscription"));
+};
