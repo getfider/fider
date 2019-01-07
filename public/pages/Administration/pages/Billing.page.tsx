@@ -100,7 +100,11 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
             </Segment>
           </div>
           <div className="col-md-12">
-            <BillingPlanPanel tenantUserCount={this.props.tenantUserCount} disabled={!this.props.paymentInfo} plans={this.props.plans} />
+            <BillingPlanPanel
+              tenantUserCount={this.props.tenantUserCount}
+              disabled={!this.props.paymentInfo}
+              plans={this.props.plans}
+            />
           </div>
         </div>
       </>
