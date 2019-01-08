@@ -89,14 +89,26 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           value={this.state.title}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setTitle}
-        />
+        >
+          <p className="info">
+            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The
+            product/service name is usually the best choice.
+          </p>
+        </Input>
+
         <TextArea
           field="welcomeMessage"
           label="Welcome Message"
           value={this.state.welcomeMessage}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setWelcomeMessage}
-        />
+        >
+          <p className="info">
+            The message is shown on the home page. Use it to explain your visitors what this space is about, what are
+            the rules and provide additional information about your product or service.
+          </p>
+        </TextArea>
+
         <Input
           field="invitation"
           label="Invitation"
@@ -104,7 +116,12 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           value={this.state.invitation}
           disabled={!Fider.session.user.isAdministrator}
           onChange={this.setInvitation}
-        />
+        >
+          <p className="info">
+            This text is used as a placeholder for the suggestion's input. Use it to invite your visitors into sharing
+            their suggestions and feedback.
+          </p>
+        </Input>
 
         <ImageUploader
           label="Logo"

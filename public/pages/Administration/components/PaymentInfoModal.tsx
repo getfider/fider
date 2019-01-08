@@ -191,10 +191,16 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                 </div>
               )}
               <div className="col-md-12">
-                <Input label="Name" field="name" value={this.state.name} onChange={this.setName} />
+                <Input label="Name" field="name" value={this.state.name} onChange={this.setName} autoComplete="name" />
               </div>
               <div className="col-md-12">
-                <Input label="Email" field="email" value={this.state.email} onChange={this.setEmail} />
+                <Input
+                  label="Email"
+                  field="email"
+                  value={this.state.email}
+                  onChange={this.setEmail}
+                  autoComplete="email"
+                />
               </div>
               <div className="col-md-6">
                 <Input
@@ -202,6 +208,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   value={this.state.addressLine1}
                   field="addressLine1"
                   onChange={this.setAddressLine1}
+                  autoComplete="address-line1"
                 />
               </div>
               <div className="col-md-6">
@@ -210,10 +217,17 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   value={this.state.addressLine2}
                   field="addressLine2"
                   onChange={this.setAddressLine2}
+                  autoComplete="address-line2"
                 />
               </div>
               <div className="col-md-3">
-                <Input label="City" field="addressCity" value={this.state.addressCity} onChange={this.setAddressCity} />
+                <Input
+                  label="City"
+                  field="addressCity"
+                  value={this.state.addressCity}
+                  onChange={this.setAddressCity}
+                  autoComplete="address-level2"
+                />
               </div>
               <div className="col-md-3">
                 <Input
@@ -221,6 +235,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   field="addressState"
                   value={this.state.addressState}
                   onChange={this.setAddressState}
+                  autoComplete="address-level1"
                 />
               </div>
               <div className="col-md-3">
@@ -229,6 +244,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   field="addressPostalCode"
                   value={this.state.addressPostalCode}
                   onChange={this.setAddressPostalCode}
+                  autoComplete="postal-code"
                 />
               </div>
               <div className="col-md-3">

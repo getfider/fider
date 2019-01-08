@@ -8,6 +8,7 @@ interface InputProps {
   field: string;
   label?: string;
   className?: string;
+  autoComplete?: string;
   autoFocus?: boolean;
   afterLabel?: JSX.Element;
   icon?: IconType;
@@ -69,6 +70,7 @@ export const Input: React.StatelessComponent<InputProps> = props => {
             <input
               id={`input-${props.field}`}
               type="text"
+              autoComplete={props.autoComplete}
               ref={props.inputRef}
               autoFocus={props.autoFocus}
               onFocus={props.onFocus}

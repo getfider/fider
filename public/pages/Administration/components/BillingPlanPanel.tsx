@@ -1,9 +1,7 @@
-import "./BillingPlanPanel.scss";
-
 import React from "react";
 import { Segment, Button, Moment, Modal, ButtonClickEvent } from "@fider/components";
 import { BillingPlan } from "@fider/models";
-import { Fider, actions } from "@fider/services";
+import { Fider, actions, classSet } from "@fider/services";
 
 interface BillingPlanOptionProps {
   tenantUserCount: number;
@@ -16,9 +14,12 @@ interface BillingPlanOptionProps {
 
 const BillingPlanOption = (props: BillingPlanOptionProps) => {
   const billing = Fider.session.tenant.billing!;
+  const isSelected = billing.stripePlanID === props.plan.id && !billing.subscriptionEndsAt;
+  const className = classSet({ "l-plan": true, selected: isSelected });
+
   return (
     <div className="col-md-4">
-      <Segment className="l-plan">
+      <Segment className={className}>
         <p className="l-title">{props.plan.name}</p>
         <p className="l-description">{props.plan.description}</p>
         <p>
@@ -26,17 +27,19 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
           <span className="l-price">{props.plan.price / 100}</span>
           <span className="l-interval">/{props.plan.interval}</span>
         </p>
-        {billing.stripePlanID === props.plan.id && !billing.subscriptionEndsAt && (
+        {isSelected && (
           <>
             <p>
               <Button disabled={props.disabled} color="danger" onClick={props.onCancel.bind(undefined, props.plan)}>
                 Cancel
               </Button>
             </p>
-            <p className="info">You are subscribed to this plan.</p>
+            <p className="info">
+              You have subscribed on <strong>XYZ</strong>.
+            </p>
           </>
         )}
-        {(billing.stripePlanID !== props.plan.id || !!billing.subscriptionEndsAt) && (
+        {!isSelected && (
           <>
             <p>
               <Button
