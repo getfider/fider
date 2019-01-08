@@ -53,10 +53,6 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		result.AddFieldFailure("addressCity", "City is required.")
 	}
 
-	if input.Model.AddressState == "" {
-		result.AddFieldFailure("addressState", "State/Region is required.")
-	}
-
 	if input.Model.AddressPostalCode == "" {
 		result.AddFieldFailure("addressPostalCode", "Postal Code is required.")
 	}
@@ -90,9 +86,9 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		}
 
 		if (isNew || isReplacing) && input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
-			result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
+			result.AddFieldFailure("addressCountry", "Country doesn't match with card issue country.")
 		} else if isUpdate && input.Model.AddressCountry != current.CardCountry {
-			result.AddFieldFailure("addressCountry", "Country that doesn't match with card issue country.")
+			result.AddFieldFailure("addressCountry", "Country doesn't match with card issue country.")
 		}
 	}
 

@@ -4,7 +4,7 @@ import React from "react";
 
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
-import { Segment, Button, CardInfo } from "@fider/components";
+import { Segment, Button, CardInfo, Message } from "@fider/components";
 import { PaymentInfo, BillingPlan } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
@@ -93,7 +93,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
               )}
               {!this.props.paymentInfo && (
                 <>
-                  <p>You don't have any payment method set up. Start by adding one.</p>
+                  <Message type="warning">You don't have any payment method set up. Start by adding one.</Message>
                   <Button onClick={this.openModal}>Add</Button>
                 </>
               )}

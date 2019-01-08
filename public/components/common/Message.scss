@@ -16,6 +16,12 @@
     background-color: $green-lightest;
   }
 
+  &.m-warning {
+    color: $yellow-darker;
+    border-left: 4px solid $yellow;
+    background-color: $yellow-lightest;
+  }
+
   &.m-error {
     color: $red-darker;
     border-left: 4px solid $red;

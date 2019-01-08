@@ -162,7 +162,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
             <div className="row">
               {(!this.props.paymentInfo || this.state.changingCard) && (
                 <div className="col-md-12">
-                  <Field label="Card" field="card">
+                  <Field label="Credit/Debit Card" field="card">
                     <CardElement />
                     <p className="info">
                       We neither store or see your card information. We integrate directly with Stripe.
@@ -173,7 +173,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
               {this.props.paymentInfo && !this.state.changingCard && (
                 <div className="col-md-12">
                   <Field
-                    label="Card"
+                    label="Credit/Debit Card"
                     field="card"
                     afterLabel={
                       <span className="ui info clickable" onClick={this.changeCard}>

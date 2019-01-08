@@ -48,11 +48,6 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
             </p>
           </>
         )}
-        {props.plan.maxUsers > 0 && (
-          <p className="info">
-            You have <strong>{props.tenantUserCount}</strong> tracked users.
-          </p>
-        )}
       </Segment>
     </div>
   );
@@ -207,6 +202,13 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                 onCancel={this.onCancel}
               />
             ))}
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <p className="info">
+                You have <strong>{this.props.tenantUserCount}</strong> tracked users.
+              </p>
+            </div>
           </div>
         </Segment>
       </>
