@@ -11,6 +11,7 @@ export interface PaymentInfo {
   addressLine2: string;
   addressState: string;
   addressPostalCode: string;
+  vatNumber: string;
 }
 
 export interface BillingPlan {

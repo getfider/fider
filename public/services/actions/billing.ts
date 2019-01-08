@@ -13,6 +13,7 @@ interface UpdatePaymentInfoRequest {
   addressState: string;
   addressPostalCode: string;
   addressCountry: string;
+  vatNumber: string;
 }
 
 export const updatePaymentInfo = async (request: UpdatePaymentInfoRequest): Promise<Result> => {

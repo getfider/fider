@@ -17,7 +17,7 @@ interface StripeProps {
 interface PaymentInfoModalProps {
   paymentInfo?: PaymentInfo;
   stripe?: StripeProps;
-  countries: Array<{ code: string; name: string }>;
+  countries: Array<{ code: string; name: string; isEU: boolean }>;
   onClose: () => void;
 }
 
@@ -31,6 +31,7 @@ interface PaymentInfoModalState {
   addressState: string;
   addressPostalCode: string;
   addressCountry: string;
+  vatNumber: string;
   stripe: stripe.Stripe | null;
   error?: Failure;
 }
@@ -48,7 +49,8 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
       addressCity: this.props.paymentInfo ? this.props.paymentInfo.addressCity : "",
       addressState: this.props.paymentInfo ? this.props.paymentInfo.addressState : "",
       addressPostalCode: this.props.paymentInfo ? this.props.paymentInfo.addressPostalCode : "",
-      addressCountry: this.props.paymentInfo ? this.props.paymentInfo.addressCountry : ""
+      addressCountry: this.props.paymentInfo ? this.props.paymentInfo.addressCountry : "",
+      vatNumber: this.props.paymentInfo ? this.props.paymentInfo.vatNumber : ""
     };
   }
 
@@ -140,6 +142,10 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
     this.setState({ addressPostalCode });
   };
 
+  private setVATNumber = (vatNumber: string) => {
+    this.setState({ vatNumber });
+  };
+
   private setAddressCountry = (option: SelectOption | undefined) => {
     if (option) {
       this.setState({ addressCountry: option.value });
@@ -155,6 +161,14 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
   };
 
   public render() {
+    let isEUCountry = false;
+    if (this.state.addressCountry) {
+      const filtered = this.props.countries.filter(x => x.code === this.state.addressCountry);
+      if (filtered && filtered.length > 0) {
+        isEUCountry = filtered[0].isEU;
+      }
+    }
+
     return (
       <Modal.Window isOpen={true} center={false} size="large" onClose={this.props.onClose}>
         <Modal.Content>
@@ -220,7 +234,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   autoComplete="address-line2"
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4">
                 <Input
                   label="City"
                   field="addressCity"
@@ -229,7 +243,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   autoComplete="address-level2"
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4">
                 <Input
                   label="State / Region"
                   field="addressState"
@@ -238,7 +252,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   autoComplete="address-level1"
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4">
                 <Input
                   label="Postal Code"
                   field="addressPostalCode"
@@ -247,7 +261,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   autoComplete="postal-code"
                 />
               </div>
-              <div className="col-md-3">
+              <div className="col-md-6">
                 <Select
                   label="Country"
                   field="addressCountry"
@@ -259,6 +273,16 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   ]}
                 />
               </div>
+              {isEUCountry && (
+                <div className="col-md-6">
+                  <Input
+                    label="VAT Number"
+                    field="vatNumber"
+                    value={this.state.vatNumber}
+                    onChange={this.setVATNumber}
+                  />
+                </div>
+              )}
             </div>
           </Form>
         </Modal.Content>

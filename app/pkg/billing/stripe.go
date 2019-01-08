@@ -129,6 +129,10 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 		AddressPostalCode: card.AddressZip,
 	}
 
+	if customer.TaxInfo != nil {
+		info.VATNumber = customer.TaxInfo.TaxID
+	}
+
 	return info, nil
 }
 
@@ -169,11 +173,16 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	}
 
 	// email is different, update it
-	if current == nil || current.Email != input.Email {
-		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
+	if current == nil || current.Email != input.Email || current.VATNumber != input.VATNumber {
+		params := &stripe.CustomerParams{
 			Email:       stripe.String(input.Email),
 			Description: stripe.String(customerDesc(c.tenant)),
-		})
+			TaxInfo: &stripe.CustomerTaxInfoParams{
+				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
+				TaxID: stripe.String(input.VATNumber),
+			},
+		}
+		_, err = c.stripe.Customers.Update(customerID, params)
 		if err != nil {
 			return errors.Wrap(err, "failed to update customer billing email")
 		}

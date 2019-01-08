@@ -11,6 +11,7 @@ type CreateEditBillingPaymentInfo struct {
 	AddressState      string                            `json:"addressState"`
 	AddressPostalCode string                            `json:"addressPostalCode"`
 	AddressCountry    string                            `json:"addressCountry" format:"upper"`
+	VATNumber         string                            `json:"vatNumber"`
 }
 
 // CreateEditBillingPaymentInfoCard is the input model for a card during billing payment info update
@@ -36,6 +37,7 @@ type PaymentInfo struct {
 	AddressLine2      string `json:"addressLine2"`
 	AddressState      string `json:"addressState"`
 	AddressPostalCode string `json:"addressPostalCode"`
+	VATNumber         string `json:"vatNumber"`
 }
 
 // BillingPlan is the model for billing plan from Stripe

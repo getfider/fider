@@ -69,6 +69,14 @@
   revision = "553181ed4055278e356ce21812adb34ae487f88e"
 
 [[projects]]
+  digest = "1:90566a4f2f7b4e909c6b6281ff63dfaa7868457f1144d476415a84e2a36e922f"
+  name = "github.com/goenning/vat"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "4dbc96759948fa4fad4248e434601a222fa2a8a9"
+  version = "v0.1"
+
+[[projects]]
   branch = "master"
   digest = "1:7a6377256f670508711c56c25556d639e673c0fa0f519c5a758fdcbfc8af9ac8"
   name = "github.com/golang/freetype"
@@ -302,6 +310,7 @@
     "github.com/dgrijalva/jwt-go",
     "github.com/disintegration/imaging",
     "github.com/goenning/letteravatar",
+    "github.com/goenning/vat",
     "github.com/gosimple/slug",
     "github.com/joeshaw/envdecode",
     "github.com/julienschmidt/httprouter",
