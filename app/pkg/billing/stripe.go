@@ -314,9 +314,13 @@ func (c *Client) Subscribe(planID string) error {
 				},
 			},
 		})
+
 		if err != nil {
 			return errors.Wrap(err, "failed to update stripe subscription")
 		}
+
+		createdAt := time.Unix(sub.Created, 0)
+		c.tenant.Billing.SubscriptionStartsAt = &createdAt
 		c.tenant.Billing.SubscriptionEndsAt = nil
 	} else {
 		sub, err := c.stripe.Subscriptions.New(&stripe.SubscriptionParams{
@@ -327,9 +331,13 @@ func (c *Client) Subscribe(planID string) error {
 				},
 			},
 		})
+
 		if err != nil {
 			return errors.Wrap(err, "failed to create stripe subscription")
 		}
+
+		createdAt := time.Unix(sub.Created, 0)
+		c.tenant.Billing.SubscriptionStartsAt = &createdAt
 		c.tenant.Billing.StripeSubscriptionID = sub.ID
 	}
 
