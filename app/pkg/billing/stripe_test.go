@@ -2,6 +2,7 @@ package billing_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/env"
 
@@ -11,7 +12,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-func TestCreateCustomer(t *testing.T) {
+func TestCreateCustomer_WithSubscription(t *testing.T) {
 	RegisterT(t)
 	if !env.IsBillingEnabled() {
 		return
@@ -29,6 +30,28 @@ func TestCreateCustomer(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(customerID).IsNotEmpty()
 	Expect(customerID).Equals(tenant.Billing.StripeCustomerID)
+
+	err = client.UpdatePaymentInfo(&models.CreateEditBillingPaymentInfo{
+		Email: "jon.snow@got.com",
+		Card: &models.CreateEditBillingPaymentInfoCard{
+			Token: "tok_visa",
+		},
+	})
+	Expect(err).IsNil()
+
+	err = client.Subscribe("plan_EIE1LpQIzPXxOn")
+	Expect(err).IsNil()
+	Expect(tenant.Billing.StripeSubscriptionID).IsNotEmpty()
+	Expect(tenant.Billing.StripePlanID).Equals("plan_EIE1LpQIzPXxOn")
+
+	inv, err := client.GetUpcomingInvoice()
+	Expect(err).IsNil()
+	Expect(int(inv.AmountDue)).Equals(900)
+	Expect(inv.DueDate).TemporarilySimilar(time.Now().AddDate(0, 1, 0), 1*time.Minute)
+
+	err = client.CancelSubscription()
+	Expect(err).IsNil()
+	Expect(*tenant.Billing.SubscriptionEndsAt).TemporarilySimilar(time.Now().AddDate(0, 1, 0), 1*time.Minute)
 
 	err = client.DeleteCustomer()
 	Expect(err).IsNil()
@@ -152,7 +175,7 @@ func TestListPlans(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(plans).HasLen(3)
 	Expect(plans[0].ID).Equals("plan_EIE1LpQIzPXxOn")
-	Expect(plans[0].Name).Equals("Fider Starter (monthly)")
+	Expect(plans[0].Name).Equals("Fider Starter")
 	Expect(plans[1].ID).Equals("plan_DoK187GZcnFpKY")
 	Expect(plans[1].Name).Equals("Fider Business (monthly)")
 	Expect(plans[2].ID).Equals("plan_DpN9SkJMjNTvLd")

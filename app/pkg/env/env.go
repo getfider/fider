@@ -129,7 +129,7 @@ func mustBeSet(name string) {
 
 // IsBillingEnabled returns true if billing is enabled
 func IsBillingEnabled() bool {
-	return Config.Stripe.SecretKey != "" && Config.Stripe.PublicKey != ""
+	return Config.Stripe.SecretKey != ""
 }
 
 // IsSingleHostMode returns true if host mode is set to single tenant
