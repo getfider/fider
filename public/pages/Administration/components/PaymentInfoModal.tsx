@@ -160,15 +160,17 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
     this.setState({ changingCard: true });
   };
 
-  public render() {
-    let isEUCountry = false;
+  private isEUCountry(): boolean {
     if (this.state.addressCountry) {
       const filtered = this.props.countries.filter(x => x.code === this.state.addressCountry);
       if (filtered && filtered.length > 0) {
-        isEUCountry = filtered[0].isEU;
+        return filtered[0].isEU;
       }
     }
+    return false;
+  }
 
+  public render() {
     return (
       <Modal.Window isOpen={true} center={false} size="large" onClose={this.props.onClose}>
         <Modal.Content>
@@ -273,7 +275,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   ]}
                 />
               </div>
-              {isEUCountry && (
+              {this.isEUCountry() && (
                 <div className="col-md-6">
                   <Input
                     label="VAT Number"
