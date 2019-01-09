@@ -56,9 +56,6 @@ class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
     if (event.keyCode === 27) {
       // ESC
       this.close();
-    } else if (event.keyCode === 9) {
-      // TAB
-      event.preventDefault();
     }
   };
 

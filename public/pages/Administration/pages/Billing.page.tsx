@@ -15,7 +15,7 @@ interface BillingPageProps {
   plans: BillingPlan[];
   tenantUserCount: number;
   paymentInfo?: PaymentInfo;
-  countries: Array<{ code: string; name: string }>;
+  countries: Array<{ code: string; name: string; isEU: boolean }>;
 }
 
 interface BillingPageState {

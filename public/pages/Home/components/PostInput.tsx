@@ -94,6 +94,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
         <Form error={this.state.error}>
           <Input
             field="title"
+            noTabFocus={!Fider.session.isAuthenticated}
             inputRef={this.setInputRef}
             onFocus={this.handleTitleFocus}
             maxLength={100}
