@@ -43,7 +43,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   private timer?: number;
   public componentDidUpdate() {
     window.clearTimeout(this.timer);
-    this.timer = window.setTimeout(this.loadSimilarPosts, 200);
+    this.timer = window.setTimeout(this.loadSimilarPosts, 500);
   }
 
   private loadSimilarPosts = () => {

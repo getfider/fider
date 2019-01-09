@@ -44,7 +44,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
           this.setState({ posts });
         }
       });
-    }, 200);
+    }, 500);
   };
 
   public render() {
