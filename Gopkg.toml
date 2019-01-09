@@ -30,6 +30,10 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   name = "github.com/goenning/letteravatar"
 
 [[constraint]]
+  version = "0.1.0"
+  name = "github.com/goenning/vat"
+
+[[constraint]]
   branch = "master"
   name = "github.com/julienschmidt/httprouter"
 

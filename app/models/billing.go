@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // CreateEditBillingPaymentInfo is the input model to create or edit billing payment info
 type CreateEditBillingPaymentInfo struct {
 	Name              string                            `json:"name"`
@@ -11,6 +13,7 @@ type CreateEditBillingPaymentInfo struct {
 	AddressState      string                            `json:"addressState"`
 	AddressPostalCode string                            `json:"addressPostalCode"`
 	AddressCountry    string                            `json:"addressCountry" format:"upper"`
+	VATNumber         string                            `json:"vatNumber"`
 }
 
 // CreateEditBillingPaymentInfoCard is the input model for a card during billing payment info update
@@ -36,6 +39,7 @@ type PaymentInfo struct {
 	AddressLine2      string `json:"addressLine2"`
 	AddressState      string `json:"addressState"`
 	AddressPostalCode string `json:"addressPostalCode"`
+	VATNumber         string `json:"vatNumber"`
 }
 
 // BillingPlan is the model for billing plan from Stripe
@@ -46,4 +50,10 @@ type BillingPlan struct {
 	MaxUsers    int    `json:"maxUsers"`
 	Price       int64  `json:"price"`
 	Interval    string `json:"interval"`
+}
+
+// UpcomingInvoice is the model for upcoming invoice from Stripe
+type UpcomingInvoice struct {
+	DueDate   time.Time `json:"dueDate"`
+	AmountDue int64     `json:"amountDue"`
 }

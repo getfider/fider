@@ -148,6 +148,15 @@ export default class UIToolkitPage extends React.Component<{}, UIToolkitPageStat
           <div className="color blue-lighter" />
           <div className="color blue-lightest" />
         </div>
+        <div className="color-scale">
+          <div className="color yellow-darkest" />
+          <div className="color yellow-darker" />
+          <div className="color yellow-dark" />
+          <div className="color yellow-default" />
+          <div className="color yellow-light" />
+          <div className="color yellow-lighter" />
+          <div className="color yellow-lightest" />
+        </div>
 
         <h1>Heading 1</h1>
         <h2>Heading 2</h2>

@@ -16,6 +16,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
+	env.Config.Stripe.SecretKey = ""
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 
 	Expect(err).IsNil()
@@ -45,7 +46,6 @@ func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	env.Config.Stripe.SecretKey = "sk_1"
-	env.Config.Stripe.PublicKey = "pk_1"
 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
 
 	Expect(err).IsNil()

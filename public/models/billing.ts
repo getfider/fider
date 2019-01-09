@@ -11,6 +11,12 @@ export interface PaymentInfo {
   addressLine2: string;
   addressState: string;
   addressPostalCode: string;
+  vatNumber: string;
+}
+
+export interface InvoiceDue {
+  amountDue: number;
+  dueDate: string;
 }
 
 export interface BillingPlan {
@@ -20,4 +26,10 @@ export interface BillingPlan {
   maxUsers: number;
   price: number;
   interval: "month" | "year";
+}
+
+export interface Country {
+  code: string;
+  name: string;
+  isEU: boolean;
 }

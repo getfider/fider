@@ -9,14 +9,25 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		_, err := c.Services().Billing.CreateCustomer("")
-		if err != nil {
-			return err
+		if c.Tenant().Billing.StripeCustomerID == "" {
+			_, err := c.Services().Billing.CreateCustomer("")
+			if err != nil {
+				return err
+			}
+
+			err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+			if err != nil {
+				return err
+			}
 		}
 
-		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
-		if err != nil {
-			return err
+		var invoiceDue *models.UpcomingInvoice
+		if c.Tenant().Billing.StripeSubscriptionID != "" {
+			inv, err := c.Services().Billing.GetUpcomingInvoice()
+			if err != nil {
+				return c.Failure(err)
+			}
+			invoiceDue = inv
 		}
 
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
@@ -38,6 +49,7 @@ func BillingPage() web.HandlerFunc {
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
+				"invoiceDue":      invoiceDue,
 				"tenantUserCount": tenantUserCount,
 				"plans":           plans,
 				"paymentInfo":     paymentInfo,

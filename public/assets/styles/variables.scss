@@ -56,6 +56,28 @@ $green-scale: (
 );
 
 // http://www.colorbox.io
+// Hue 40 to 40 SineEaseOut
+// Saturation 5 to 80 SineEaseOut
+// Luminosity 100 to 40 SineEaseOut
+$yellow-darkest: #664400;
+$yellow-darker: #8D5E00;
+$yellow-dark: #B47800;
+$yellow: #D78F00;
+$yellow-light: #EFAA20;
+$yellow-lighter: #FBD382;
+$yellow-lightest: #FFF7E6;
+
+$yellow-scale: (
+  darkest: $yellow-darkest,
+  darker: $yellow-darker,
+  dark: $yellow-dark,
+  default: $yellow,
+  light: $yellow-light,
+  lighter: $yellow-lighter,
+  lightest: $yellow-lightest,
+);
+
+// http://www.colorbox.io
 // Hue 0 to 0 SineEaseOut
 // Saturation 5 to 80 SineEaseOut
 // Luminosity 100 to 40 SineEaseOut
@@ -77,7 +99,6 @@ $red-scale: (
   lightest: $red-lightest,
 );
 
-
 // http://www.colorbox.io
 // Hue 220 to 220 SineEaseOut
 // Saturation 5 to 80 SineEaseOut
@@ -90,10 +111,6 @@ $blue-light: #89acf1;
 $blue-lighter: #bfd4fc;
 $blue-lightest: #f2f7ff;
 
-$main-color: #3b4ade;
-$admin-color: #3b4ade;
-$link-color: #3664c1;
-
 $blue-scale: (
   darkest: $blue-darkest,
   darker: $blue-darker,
@@ -103,6 +120,10 @@ $blue-scale: (
   lighter: $blue-lighter,
   lightest: $blue-lightest,
 );
+
+$main-color: #3b4ade;
+$admin-color: #3b4ade;
+$link-color: #3664c1;
 
 $orange: #ff9320;
 

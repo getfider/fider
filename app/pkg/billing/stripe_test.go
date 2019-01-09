@@ -11,7 +11,7 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-func TestCreateCustomer(t *testing.T) {
+func TestCreateCustomer_WithSubscription(t *testing.T) {
 	RegisterT(t)
 	if !env.IsBillingEnabled() {
 		return
@@ -29,6 +29,27 @@ func TestCreateCustomer(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(customerID).IsNotEmpty()
 	Expect(customerID).Equals(tenant.Billing.StripeCustomerID)
+
+	err = client.UpdatePaymentInfo(&models.CreateEditBillingPaymentInfo{
+		Email: "jon.snow@got.com",
+		Card: &models.CreateEditBillingPaymentInfoCard{
+			Token: "tok_visa",
+		},
+	})
+	Expect(err).IsNil()
+
+	err = client.Subscribe("plan_EIE1LpQIzPXxOn")
+	Expect(err).IsNil()
+	Expect(tenant.Billing.StripeSubscriptionID).IsNotEmpty()
+	Expect(tenant.Billing.StripePlanID).Equals("plan_EIE1LpQIzPXxOn")
+
+	inv, err := client.GetUpcomingInvoice()
+	Expect(err).IsNil()
+	Expect(int(inv.AmountDue)).Equals(900)
+
+	err = client.CancelSubscription()
+	Expect(err).IsNil()
+	Expect(tenant.Billing.SubscriptionEndsAt).IsNotNil()
 
 	err = client.DeleteCustomer()
 	Expect(err).IsNil()
@@ -59,7 +80,8 @@ func TestUpdatePaymentInfo(t *testing.T) {
 
 	//Creating a new card
 	err = client.UpdatePaymentInfo(&models.CreateEditBillingPaymentInfo{
-		Email: "jon.snow@got.com",
+		Email:     "jon.snow@got.com",
+		VATNumber: "IE1234",
 		Card: &models.CreateEditBillingPaymentInfoCard{
 			Token: "tok_visa",
 		},
@@ -72,6 +94,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 
 	Expect(info.StripeCardID).IsNotEmpty()
 	Expect(info.Email).Equals("jon.snow@got.com")
+	Expect(info.VATNumber).Equals("IE1234")
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("US")
 	Expect(info.CardLast4).Equals("4242")
@@ -101,6 +124,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	info, err = client.GetPaymentInfo()
 	Expect(err).IsNil()
 	Expect(info.Name).Equals("Jon Snow")
+	Expect(info.VATNumber).Equals("")
 	Expect(info.CardLast4).Equals("4242")
 	Expect(info.AddressLine1).Equals("Street 1")
 	Expect(info.AddressLine2).Equals("Av. ABC")
@@ -123,6 +147,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	Expect(info.StripeCardID).IsNotEmpty()
 	Expect(info.StripeCardID).NotEquals(firstCardID)
 	Expect(info.Email).Equals("jon.snow@got.com")
+	Expect(info.VATNumber).Equals("")
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("BR")
 	Expect(info.CardLast4).Equals("0002")
@@ -148,7 +173,7 @@ func TestListPlans(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(plans).HasLen(3)
 	Expect(plans[0].ID).Equals("plan_EIE1LpQIzPXxOn")
-	Expect(plans[0].Name).Equals("Fider Starter (monthly)")
+	Expect(plans[0].Name).Equals("Fider Starter")
 	Expect(plans[1].ID).Equals("plan_DoK187GZcnFpKY")
 	Expect(plans[1].Name).Equals("Fider Business (monthly)")
 	Expect(plans[2].ID).Equals("plan_DpN9SkJMjNTvLd")

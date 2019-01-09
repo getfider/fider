@@ -129,6 +129,10 @@ func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
 		AddressPostalCode: card.AddressZip,
 	}
 
+	if customer.TaxInfo != nil {
+		info.VATNumber = customer.TaxInfo.TaxID
+	}
+
 	return info, nil
 }
 
@@ -143,6 +147,10 @@ func (c *Client) ClearPaymentInfo() error {
 		customerID := c.tenant.Billing.StripeCustomerID
 		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
 			Email: stripe.String(""),
+			TaxInfo: &stripe.CustomerTaxInfoParams{
+				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
+				TaxID: stripe.String(""),
+			},
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to delete customer billing email")
@@ -168,15 +176,29 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return err
 	}
 
-	// email is different, update it
-	if current == nil || current.Email != input.Email {
-		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
-			Email:       stripe.String(input.Email),
-			Description: stripe.String(customerDesc(c.tenant)),
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to update customer billing email")
-		}
+	// update customer info
+	params := &stripe.CustomerParams{
+		Email: stripe.String(input.Email),
+		Shipping: &stripe.CustomerShippingDetailsParams{
+			Name: stripe.String(input.Name),
+			Address: &stripe.AddressParams{
+				City:       stripe.String(input.AddressCity),
+				Country:    stripe.String(input.AddressCountry),
+				Line1:      stripe.String(input.AddressLine1),
+				Line2:      stripe.String(input.AddressLine2),
+				PostalCode: stripe.String(input.AddressPostalCode),
+				State:      stripe.String(input.AddressState),
+			},
+		},
+		Description: stripe.String(customerDesc(c.tenant)),
+		TaxInfo: &stripe.CustomerTaxInfoParams{
+			Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
+			TaxID: stripe.String(input.VATNumber),
+		},
+	}
+	_, err = c.stripe.Customers.Update(customerID, params)
+	if err != nil {
+		return errors.Wrap(err, "failed to update customer billing email")
 	}
 
 	// new card, just create it
@@ -301,9 +323,11 @@ func (c *Client) Subscribe(planID string) error {
 				},
 			},
 		})
+
 		if err != nil {
 			return errors.Wrap(err, "failed to update stripe subscription")
 		}
+
 		c.tenant.Billing.SubscriptionEndsAt = nil
 	} else {
 		sub, err := c.stripe.Subscriptions.New(&stripe.SubscriptionParams{
@@ -314,9 +338,11 @@ func (c *Client) Subscribe(planID string) error {
 				},
 			},
 		})
+
 		if err != nil {
 			return errors.Wrap(err, "failed to create stripe subscription")
 		}
+
 		c.tenant.Billing.StripeSubscriptionID = sub.ID
 	}
 
@@ -335,4 +361,21 @@ func (c *Client) CancelSubscription() error {
 	endDate := time.Unix(sub.CurrentPeriodEnd, 0)
 	c.tenant.Billing.SubscriptionEndsAt = &endDate
 	return nil
+}
+
+// GetUpcomingInvoice returns the next due invoice for current tenant
+func (c *Client) GetUpcomingInvoice() (*models.UpcomingInvoice, error) {
+	inv, err := c.stripe.Invoices.GetNext(&stripe.InvoiceParams{
+		Customer:     stripe.String(c.tenant.Billing.StripeCustomerID),
+		Subscription: stripe.String(c.tenant.Billing.StripeSubscriptionID),
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get upcoming invoice")
+	}
+
+	dueDate := time.Unix(inv.Date, 0)
+	return &models.UpcomingInvoice{
+		AmountDue: inv.AmountDue,
+		DueDate:   dueDate,
+	}, nil
 }

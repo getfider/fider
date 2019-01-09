@@ -92,7 +92,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
           }
         });
       });
-    }, 200);
+    }, 500);
   };
 
   private setSubdomain = async (subdomain: string) => {

@@ -42,6 +42,17 @@ $color-box-size: 100px;
       }
     }
 
+    @each $name, $color in $yellow-scale {
+      &.yellow-#{$name} {
+       color: textColorFor($color);
+       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+       background-color: $color;
+       &:before {
+         content: "#{$color}";
+       }
+      }
+    }
+
     @each $name, $color in $red-scale {
       &.red-#{$name} {
        color: textColorFor($color);

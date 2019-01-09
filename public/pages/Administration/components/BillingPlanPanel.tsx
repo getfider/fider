@@ -1,9 +1,7 @@
-import "./BillingPlanPanel.scss";
-
 import React from "react";
 import { Segment, Button, Moment, Modal, ButtonClickEvent } from "@fider/components";
-import { BillingPlan } from "@fider/models";
-import { Fider, actions } from "@fider/services";
+import { BillingPlan, InvoiceDue } from "@fider/models";
+import { Fider, actions, classSet } from "@fider/services";
 
 interface BillingPlanOptionProps {
   tenantUserCount: number;
@@ -16,9 +14,12 @@ interface BillingPlanOptionProps {
 
 const BillingPlanOption = (props: BillingPlanOptionProps) => {
   const billing = Fider.session.tenant.billing!;
+  const isSelected = billing.stripePlanID === props.plan.id && !billing.subscriptionEndsAt;
+  const className = classSet({ "l-plan": true, selected: isSelected });
+
   return (
     <div className="col-md-4">
-      <Segment className="l-plan">
+      <Segment className={className}>
         <p className="l-title">{props.plan.name}</p>
         <p className="l-description">{props.plan.description}</p>
         <p>
@@ -26,17 +27,16 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
           <span className="l-price">{props.plan.price / 100}</span>
           <span className="l-interval">/{props.plan.interval}</span>
         </p>
-        {billing.stripePlanID === props.plan.id && !billing.subscriptionEndsAt && (
+        {isSelected && (
           <>
             <p>
               <Button disabled={props.disabled} color="danger" onClick={props.onCancel.bind(undefined, props.plan)}>
                 Cancel
               </Button>
             </p>
-            <p className="info">You are subscribed to this plan.</p>
           </>
         )}
-        {(billing.stripePlanID !== props.plan.id || !!billing.subscriptionEndsAt) && (
+        {!isSelected && (
           <>
             <p>
               <Button
@@ -48,17 +48,13 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
             </p>
           </>
         )}
-        {props.plan.maxUsers > 0 && (
-          <p className="info">
-            You have <strong>{props.tenantUserCount}</strong> tracked users.
-          </p>
-        )}
       </Segment>
     </div>
   );
 };
 
 interface BillingPlanPanelProps {
+  invoiceDue: InvoiceDue;
   tenantUserCount: number;
   disabled: boolean;
   plans: BillingPlan[];
@@ -172,6 +168,27 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
 
         <Segment className="l-billing-plans">
           <h4>Plans</h4>
+          {currentPlan && (
+            <p className="info">
+              {billing.subscriptionEndsAt ? (
+                <>
+                  Your <strong>{currentPlan.name}</strong> subscription ends at{" "}
+                  <strong>
+                    <Moment date={billing.subscriptionEndsAt} format="full" />
+                  </strong>
+                  . Subscribe to a new plan and avoid a service interruption.
+                </>
+              ) : (
+                <>
+                  Your upcoming invoice of <strong>${this.props.invoiceDue.amountDue / 100}</strong> is due on{" "}
+                  <strong>
+                    <Moment date={this.props.invoiceDue.dueDate} format="full" />
+                  </strong>
+                  .
+                </>
+              )}
+            </p>
+          )}
           {!billing.stripePlanID && (
             <p className="info">
               You don't have any active subscription.
@@ -186,15 +203,6 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
               )}
             </p>
           )}
-          {currentPlan && !!billing.subscriptionEndsAt && (
-            <p className="info">
-              Your <strong>{currentPlan.name}</strong> ends at{" "}
-              <strong>
-                <Moment date={billing.subscriptionEndsAt} format="full" />
-              </strong>
-              . Subscribe to a new plan and avoid a service interruption.
-            </p>
-          )}
           <div className="row">
             {this.props.plans.map(x => (
               <BillingPlanOption
@@ -207,6 +215,13 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                 onCancel={this.onCancel}
               />
             ))}
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <p className="info">
+                You have <strong>{this.props.tenantUserCount}</strong> tracked users.
+              </p>
+            </div>
           </div>
         </Segment>
       </>

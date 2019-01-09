@@ -67,7 +67,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           this.setState({ loading: false, posts: response.data });
         }
       });
-    }, 200);
+    }, 500);
   }
 
   private handleViewChanged = (view: string) => {
