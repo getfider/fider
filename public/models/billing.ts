@@ -22,3 +22,9 @@ export interface BillingPlan {
   price: number;
   interval: "month" | "year";
 }
+
+export interface Country {
+  code: string;
+  name: string;
+  isEU: boolean;
+}

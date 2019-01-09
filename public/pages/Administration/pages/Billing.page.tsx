@@ -5,7 +5,7 @@ import React from "react";
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { Segment, Button, CardInfo, Message } from "@fider/components";
-import { PaymentInfo, BillingPlan } from "@fider/models";
+import { PaymentInfo, BillingPlan, Country } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
 import { StripeProvider, Elements } from "react-stripe-elements";
@@ -15,7 +15,7 @@ interface BillingPageProps {
   plans: BillingPlan[];
   tenantUserCount: number;
   paymentInfo?: PaymentInfo;
-  countries: Array<{ code: string; name: string; isEU: boolean }>;
+  countries: Country[];
 }
 
 interface BillingPageState {

@@ -2,7 +2,7 @@ import React from "react";
 import { injectStripe, CardElement } from "react-stripe-elements";
 import { Input, Field, Button, Form, Select, SelectOption, Modal, CardInfo } from "@fider/components";
 import { Failure, actions } from "@fider/services";
-import { PaymentInfo } from "@fider/models";
+import { PaymentInfo, Country } from "@fider/models";
 
 type PatchedTokenResponse = stripe.TokenResponse & {
   error?: { decline_code?: string };
@@ -17,7 +17,7 @@ interface StripeProps {
 interface PaymentInfoModalProps {
   paymentInfo?: PaymentInfo;
   stripe?: StripeProps;
-  countries: Array<{ code: string; name: string; isEU: boolean }>;
+  countries: Country[];
   onClose: () => void;
 }
 
