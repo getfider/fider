@@ -37,7 +37,6 @@ type TenantBilling struct {
 	StripeSubscriptionID string
 	StripePlanID         string     `json:"stripePlanID"`
 	TrialEndsAt          time.Time  `json:"trialEndsAt"`
-	SubscriptionStartsAt *time.Time `json:"subscriptionStartsAt,omitempty"`
 	SubscriptionEndsAt   *time.Time `json:"subscriptionEndsAt,omitempty"`
 }
 

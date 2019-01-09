@@ -34,9 +34,6 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
                 Cancel
               </Button>
             </p>
-            <p className="info">
-              You have subscribed on <strong>XYZ</strong>.
-            </p>
           </>
         )}
         {!isSelected && (
@@ -170,6 +167,21 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
 
         <Segment className="l-billing-plans">
           <h4>Plans</h4>
+          {currentPlan && (
+            <p className="info">
+              {billing.subscriptionEndsAt ? (
+                <>
+                  Your <strong>{currentPlan.name}</strong> subscription ends at{" "}
+                  <strong>
+                    <Moment date={billing.subscriptionEndsAt} format="full" />
+                  </strong>
+                  . Subscribe to a new plan and avoid a service interruption.
+                </>
+              ) : (
+                <>Your upcoming invoice of $X is due on XXXXXXXX.</>
+              )}
+            </p>
+          )}
           {!billing.stripePlanID && (
             <p className="info">
               You don't have any active subscription.
@@ -182,15 +194,6 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                   . Subscribe to a plan and avoid a service interruption.
                 </>
               )}
-            </p>
-          )}
-          {currentPlan && !!billing.subscriptionEndsAt && (
-            <p className="info">
-              Your <strong>{currentPlan.name}</strong> ends at{" "}
-              <strong>
-                <Moment date={billing.subscriptionEndsAt} format="full" />
-              </strong>
-              . Subscribe to a new plan and avoid a service interruption.
             </p>
           )}
           <div className="row">

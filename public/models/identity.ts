@@ -10,7 +10,6 @@ export interface Tenant {
   logoBlobKey: string;
   billing?: {
     stripePlanID: string;
-    subscriptionStartsAt: string;
     subscriptionEndsAt: string;
     trialEndsAt: string;
   };

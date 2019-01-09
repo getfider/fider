@@ -1,1 +1,0 @@
-alter table tenants_billing ADD subscription_starts_at timestamptz null;

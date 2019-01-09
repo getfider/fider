@@ -176,20 +176,29 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return err
 	}
 
-	// email is different, update it
-	if current == nil || current.Email != input.Email || current.VATNumber != input.VATNumber {
-		params := &stripe.CustomerParams{
-			Email:       stripe.String(input.Email),
-			Description: stripe.String(customerDesc(c.tenant)),
-			TaxInfo: &stripe.CustomerTaxInfoParams{
-				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
-				TaxID: stripe.String(input.VATNumber),
+	// update customer info
+	params := &stripe.CustomerParams{
+		Email: stripe.String(input.Email),
+		Shipping: &stripe.CustomerShippingDetailsParams{
+			Name: stripe.String(input.Name),
+			Address: &stripe.AddressParams{
+				City:       stripe.String(input.AddressCity),
+				Country:    stripe.String(input.AddressCountry),
+				Line1:      stripe.String(input.AddressLine1),
+				Line2:      stripe.String(input.AddressLine2),
+				PostalCode: stripe.String(input.AddressPostalCode),
+				State:      stripe.String(input.AddressState),
 			},
-		}
-		_, err = c.stripe.Customers.Update(customerID, params)
-		if err != nil {
-			return errors.Wrap(err, "failed to update customer billing email")
-		}
+		},
+		Description: stripe.String(customerDesc(c.tenant)),
+		TaxInfo: &stripe.CustomerTaxInfoParams{
+			Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
+			TaxID: stripe.String(input.VATNumber),
+		},
+	}
+	_, err = c.stripe.Customers.Update(customerID, params)
+	if err != nil {
+		return errors.Wrap(err, "failed to update customer billing email")
 	}
 
 	// new card, just create it
@@ -319,8 +328,6 @@ func (c *Client) Subscribe(planID string) error {
 			return errors.Wrap(err, "failed to update stripe subscription")
 		}
 
-		createdAt := time.Unix(sub.Created, 0)
-		c.tenant.Billing.SubscriptionStartsAt = &createdAt
 		c.tenant.Billing.SubscriptionEndsAt = nil
 	} else {
 		sub, err := c.stripe.Subscriptions.New(&stripe.SubscriptionParams{
@@ -336,8 +343,6 @@ func (c *Client) Subscribe(planID string) error {
 			return errors.Wrap(err, "failed to create stripe subscription")
 		}
 
-		createdAt := time.Unix(sub.Created, 0)
-		c.tenant.Billing.SubscriptionStartsAt = &createdAt
 		c.tenant.Billing.StripeSubscriptionID = sub.ID
 	}
 

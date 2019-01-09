@@ -49,9 +49,6 @@ func (t *dbTenant) toModel() *models.Tenant {
 			StripeSubscriptionID: t.Billing.StripeSubscriptionID.String,
 			StripePlanID:         t.Billing.StripePlanID.String,
 		}
-		if t.Billing.SubscriptionStartsAt.Valid {
-			tenant.Billing.SubscriptionStartsAt = &t.Billing.SubscriptionStartsAt.Time
-		}
 		if t.Billing.SubscriptionEndsAt.Valid {
 			tenant.Billing.SubscriptionEndsAt = &t.Billing.SubscriptionEndsAt.Time
 		}
@@ -65,7 +62,6 @@ type dbTenantBilling struct {
 	StripeSubscriptionID dbx.NullString `db:"stripe_subscription_id"`
 	StripePlanID         dbx.NullString `db:"stripe_plan_id"`
 	TrialEndsAt          dbx.NullTime   `db:"trial_ends_at"`
-	SubscriptionStartsAt dbx.NullTime   `db:"subscription_starts_at"`
 	SubscriptionEndsAt   dbx.NullTime   `db:"subscription_ends_at"`
 }
 
@@ -264,10 +260,10 @@ func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) err
 	_, err := s.trx.Execute(`
 		UPDATE tenants_billing 
 		SET stripe_customer_id = $1, stripe_plan_id = $2, stripe_subscription_id = $3, 
-			subscription_starts_at = $4, subscription_ends_at = $5 
-		WHERE tenant_id = $6
+			subscription_ends_at = $4 
+		WHERE tenant_id = $5
 	`, billing.StripeCustomerID, billing.StripePlanID, billing.StripeSubscriptionID,
-		billing.SubscriptionStartsAt, billing.SubscriptionEndsAt, s.current.ID)
+		billing.SubscriptionEndsAt, s.current.ID)
 	if err != nil {
 		return errors.Wrap(err, "failed update tenant billing settings")
 	}

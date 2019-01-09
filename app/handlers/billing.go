@@ -9,14 +9,16 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
-		_, err := c.Services().Billing.CreateCustomer("")
-		if err != nil {
-			return err
-		}
+		if c.Tenant().Billing.StripeCustomerID == "" {
+			_, err := c.Services().Billing.CreateCustomer("")
+			if err != nil {
+				return err
+			}
 
-		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
-		if err != nil {
-			return err
+			err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
+			if err != nil {
+				return err
+			}
 		}
 
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
