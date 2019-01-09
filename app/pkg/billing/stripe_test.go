@@ -2,7 +2,6 @@ package billing_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/getfider/fider/app/pkg/env"
 
@@ -47,11 +46,10 @@ func TestCreateCustomer_WithSubscription(t *testing.T) {
 	inv, err := client.GetUpcomingInvoice()
 	Expect(err).IsNil()
 	Expect(int(inv.AmountDue)).Equals(900)
-	Expect(inv.DueDate).TemporarilySimilar(time.Now().AddDate(0, 1, 0), 1*time.Minute)
 
 	err = client.CancelSubscription()
 	Expect(err).IsNil()
-	Expect(*tenant.Billing.SubscriptionEndsAt).TemporarilySimilar(time.Now().AddDate(0, 1, 0), 1*time.Minute)
+	Expect(tenant.Billing.SubscriptionEndsAt).IsNotNil()
 
 	err = client.DeleteCustomer()
 	Expect(err).IsNil()
