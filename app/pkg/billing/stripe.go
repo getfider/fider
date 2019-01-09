@@ -362,3 +362,20 @@ func (c *Client) CancelSubscription() error {
 	c.tenant.Billing.SubscriptionEndsAt = &endDate
 	return nil
 }
+
+// GetUpcomingInvoice returns the next due invoice for current tenant
+func (c *Client) GetUpcomingInvoice() (*models.UpcomingInvoice, error) {
+	inv, err := c.stripe.Invoices.GetNext(&stripe.InvoiceParams{
+		Customer:     stripe.String(c.tenant.Billing.StripeCustomerID),
+		Subscription: stripe.String(c.tenant.Billing.StripeSubscriptionID),
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get upcoming invoice")
+	}
+
+	dueDate := time.Unix(inv.Date, 0)
+	return &models.UpcomingInvoice{
+		AmountDue: inv.AmountDue,
+		DueDate:   dueDate,
+	}, nil
+}

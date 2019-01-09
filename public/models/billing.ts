@@ -14,6 +14,11 @@ export interface PaymentInfo {
   vatNumber: string;
 }
 
+export interface InvoiceDue {
+  amountDue: number;
+  dueDate: string;
+}
+
 export interface BillingPlan {
   id: string;
   name: string;

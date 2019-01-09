@@ -21,6 +21,15 @@ func BillingPage() web.HandlerFunc {
 			}
 		}
 
+		var invoiceDue *models.UpcomingInvoice
+		if c.Tenant().Billing.StripeSubscriptionID != "" {
+			inv, err := c.Services().Billing.GetUpcomingInvoice()
+			if err != nil {
+				return c.Failure(err)
+			}
+			invoiceDue = inv
+		}
+
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
 		if err != nil {
 			return c.Failure(err)
@@ -40,6 +49,7 @@ func BillingPage() web.HandlerFunc {
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
+				"invoiceDue":      invoiceDue,
 				"tenantUserCount": tenantUserCount,
 				"plans":           plans,
 				"paymentInfo":     paymentInfo,

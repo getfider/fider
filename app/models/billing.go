@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // CreateEditBillingPaymentInfo is the input model to create or edit billing payment info
 type CreateEditBillingPaymentInfo struct {
 	Name              string                            `json:"name"`
@@ -48,4 +50,10 @@ type BillingPlan struct {
 	MaxUsers    int    `json:"maxUsers"`
 	Price       int64  `json:"price"`
 	Interval    string `json:"interval"`
+}
+
+// UpcomingInvoice is the model for upcoming invoice from Stripe
+type UpcomingInvoice struct {
+	DueDate   time.Time `json:"dueDate"`
+	AmountDue int64     `json:"amountDue"`
 }

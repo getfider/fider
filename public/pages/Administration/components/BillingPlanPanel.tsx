@@ -1,6 +1,6 @@
 import React from "react";
 import { Segment, Button, Moment, Modal, ButtonClickEvent } from "@fider/components";
-import { BillingPlan } from "@fider/models";
+import { BillingPlan, InvoiceDue } from "@fider/models";
 import { Fider, actions, classSet } from "@fider/services";
 
 interface BillingPlanOptionProps {
@@ -54,6 +54,7 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
 };
 
 interface BillingPlanPanelProps {
+  invoiceDue: InvoiceDue;
   tenantUserCount: number;
   disabled: boolean;
   plans: BillingPlan[];
@@ -178,7 +179,13 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                   . Subscribe to a new plan and avoid a service interruption.
                 </>
               ) : (
-                <>Your upcoming invoice of $X is due on XXXXXXXX.</>
+                <>
+                  Your upcoming invoice of <strong>${this.props.invoiceDue.amountDue / 100}</strong> is due on{" "}
+                  <strong>
+                    <Moment date={this.props.invoiceDue.dueDate} format="full" />
+                  </strong>
+                  .
+                </>
               )}
             </p>
           )}

@@ -5,13 +5,14 @@ import React from "react";
 import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { Segment, Button, CardInfo, Message } from "@fider/components";
-import { PaymentInfo, BillingPlan, Country } from "@fider/models";
+import { PaymentInfo, BillingPlan, Country, InvoiceDue } from "@fider/models";
 import { Fider } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
 import { StripeProvider, Elements } from "react-stripe-elements";
 import { BillingPlanPanel } from "../components/BillingPlanPanel";
 
 interface BillingPageProps {
+  invoiceDue: InvoiceDue;
   plans: BillingPlan[];
   tenantUserCount: number;
   paymentInfo?: PaymentInfo;
@@ -101,6 +102,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
           </div>
           <div className="col-md-12">
             <BillingPlanPanel
+              invoiceDue={this.props.invoiceDue}
               tenantUserCount={this.props.tenantUserCount}
               disabled={!this.props.paymentInfo}
               plans={this.props.plans}
