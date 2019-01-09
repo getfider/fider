@@ -16,11 +16,11 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 		input    *models.CreateEditBillingPaymentInfo
 	}{
 		{
-			expected: []string{"card", "name", "email", "addressLine1", "addressLine2", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "name", "email", "addressLine1", "addressLine2", "addressCity", "addressPostalCode", "addressCountry"},
 			input:    &models.CreateEditBillingPaymentInfo{},
 		},
 		{
-			expected: []string{"card", "email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "email", "addressCity", "addressPostalCode", "addressCountry"},
 			input: &models.CreateEditBillingPaymentInfo{
 				Name:           "John",
 				AddressLine1:   "Street 1",
@@ -30,7 +30,7 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 			},
 		},
 		{
-			expected: []string{"card", "email", "addressCity", "addressState", "addressPostalCode", "addressCountry"},
+			expected: []string{"card", "email", "addressCity", "addressPostalCode", "addressCountry"},
 			input: &models.CreateEditBillingPaymentInfo{
 				Name:           "John",
 				AddressLine1:   "Street 1",
@@ -75,5 +75,47 @@ func TestCreateEditBillingPaymentInfo_ValidInput(t *testing.T) {
 	}
 	services.Billing.SetCurrentTenant(&models.Tenant{ID: 2})
 	result := action.Validate(nil, services)
+	ExpectSuccess(result)
+}
+
+func TestCreateEditBillingPaymentInfo_VATNumber(t *testing.T) {
+	RegisterT(t)
+
+	services.Billing.SetCurrentTenant(&models.Tenant{ID: 2})
+
+	action := &actions.CreateEditBillingPaymentInfo{
+		Model: &models.CreateEditBillingPaymentInfo{
+			Name:              "Jon Snow",
+			AddressLine1:      "Street 1",
+			AddressLine2:      "Street 2",
+			AddressCity:       "New York",
+			AddressPostalCode: "12345",
+			AddressState:      "NY",
+			Email:             "jon.show@got.com",
+			AddressCountry:    "IE",
+			VATNumber:         "IE0",
+			Card: &models.CreateEditBillingPaymentInfoCard{
+				Token:   "tok_visa",
+				Country: "IE",
+			},
+		},
+	}
+	result := action.Validate(nil, services)
+	ExpectFailed(result, "vatNumber")
+
+	action.Model.VATNumber = "GB270600730"
+	result = action.Validate(nil, services)
+	ExpectFailed(result, "vatNumber")
+
+	action.Model.VATNumber = "IE6388047A"
+	result = action.Validate(nil, services)
+	ExpectFailed(result, "vatNumber")
+
+	action.Model.VATNumber = "IE6388047V"
+	result = action.Validate(nil, services)
+	ExpectSuccess(result)
+
+	action.Model.VATNumber = ""
+	result = action.Validate(nil, services)
 	ExpectSuccess(result)
 }

@@ -147,6 +147,10 @@ func (c *Client) ClearPaymentInfo() error {
 		customerID := c.tenant.Billing.StripeCustomerID
 		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
 			Email: stripe.String(""),
+			TaxInfo: &stripe.CustomerTaxInfoParams{
+				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
+				TaxID: stripe.String(""),
+			},
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to delete customer billing email")

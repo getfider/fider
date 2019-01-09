@@ -59,7 +59,8 @@ func TestUpdatePaymentInfo(t *testing.T) {
 
 	//Creating a new card
 	err = client.UpdatePaymentInfo(&models.CreateEditBillingPaymentInfo{
-		Email: "jon.snow@got.com",
+		Email:     "jon.snow@got.com",
+		VATNumber: "IE1234",
 		Card: &models.CreateEditBillingPaymentInfoCard{
 			Token: "tok_visa",
 		},
@@ -72,6 +73,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 
 	Expect(info.StripeCardID).IsNotEmpty()
 	Expect(info.Email).Equals("jon.snow@got.com")
+	Expect(info.VATNumber).Equals("IE1234")
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("US")
 	Expect(info.CardLast4).Equals("4242")
@@ -101,6 +103,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	info, err = client.GetPaymentInfo()
 	Expect(err).IsNil()
 	Expect(info.Name).Equals("Jon Snow")
+	Expect(info.VATNumber).Equals("")
 	Expect(info.CardLast4).Equals("4242")
 	Expect(info.AddressLine1).Equals("Street 1")
 	Expect(info.AddressLine2).Equals("Av. ABC")
@@ -123,6 +126,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	Expect(info.StripeCardID).IsNotEmpty()
 	Expect(info.StripeCardID).NotEquals(firstCardID)
 	Expect(info.Email).Equals("jon.snow@got.com")
+	Expect(info.VATNumber).Equals("")
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("BR")
 	Expect(info.CardLast4).Equals("0002")
