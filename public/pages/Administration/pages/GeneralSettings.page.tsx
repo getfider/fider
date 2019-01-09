@@ -104,8 +104,8 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setWelcomeMessage}
         >
           <p className="info">
-            The message is shown on the home page. Use it to explain your visitors what this space is about, what are
-            the rules and provide additional information about your product or service.
+            The message is shown on this site's home page. Use it to help visitors understad what this space is about
+            and the importance of their feedback. Leave it empty for a default message.
           </p>
         </TextArea>
 
@@ -115,11 +115,12 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           maxLength={60}
           value={this.state.invitation}
           disabled={!Fider.session.user.isAdministrator}
+          placeholder="Enter your suggestion here..."
           onChange={this.setInvitation}
         >
           <p className="info">
-            This text is used as a placeholder for the suggestion's input. Use it to invite your visitors into sharing
-            their suggestions and feedback.
+            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into
+            sharing their suggestions and feedback. Leave it empty for a default message.
           </p>
         </Input>
 
