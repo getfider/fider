@@ -9,8 +9,9 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c web.Context) error {
+		var err error
 		if c.Tenant().Billing.StripeCustomerID == "" {
-			_, err := c.Services().Billing.CreateCustomer("")
+			_, err = c.Services().Billing.CreateCustomer("")
 			if err != nil {
 				return err
 			}
@@ -23,11 +24,10 @@ func BillingPage() web.HandlerFunc {
 
 		var invoiceDue *models.UpcomingInvoice
 		if c.Tenant().Billing.StripeSubscriptionID != "" {
-			inv, err := c.Services().Billing.GetUpcomingInvoice()
+			invoiceDue, err = c.Services().Billing.GetUpcomingInvoice()
 			if err != nil {
 				return c.Failure(err)
 			}
-			invoiceDue = inv
 		}
 
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
@@ -35,9 +35,12 @@ func BillingPage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		plans, err := c.Services().Billing.ListPlans()
-		if err != nil {
-			return c.Failure(err)
+		var plans []*models.BillingPlan
+		if paymentInfo != nil {
+			plans, err = c.Services().Billing.ListPlans(paymentInfo.CardCountry)
+			if err != nil {
+				return c.Failure(err)
+			}
 		}
 
 		tenantUserCount, err := c.Services().Users.Count()
@@ -79,10 +82,14 @@ func UpdatePaymentInfo() web.HandlerFunc {
 // BillingSubscribe subscribes current tenant to given plan on stripe
 func BillingSubscribe() web.HandlerFunc {
 	return func(c web.Context) error {
-		var plan *models.BillingPlan
 		planID := c.Param("planID")
 
-		plan, err := c.Services().Billing.GetPlanByID(planID)
+		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		plan, err := c.Services().Billing.GetPlanByID(paymentInfo.CardCountry, planID)
 		if err != nil {
 			return c.Failure(err)
 		}

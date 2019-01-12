@@ -12,8 +12,8 @@ import { StripeProvider, Elements } from "react-stripe-elements";
 import { BillingPlanPanel } from "../components/BillingPlanPanel";
 
 interface BillingPageProps {
-  invoiceDue: InvoiceDue;
-  plans: BillingPlan[];
+  invoiceDue?: InvoiceDue;
+  plans?: BillingPlan[];
   tenantUserCount: number;
   paymentInfo?: PaymentInfo;
   countries: Country[];
@@ -100,14 +100,16 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
               )}
             </Segment>
           </div>
-          <div className="col-md-12">
-            <BillingPlanPanel
-              invoiceDue={this.props.invoiceDue}
-              tenantUserCount={this.props.tenantUserCount}
-              disabled={!this.props.paymentInfo}
-              plans={this.props.plans}
-            />
-          </div>
+          {this.props.plans && (
+            <div className="col-md-12">
+              <BillingPlanPanel
+                invoiceDue={this.props.invoiceDue}
+                tenantUserCount={this.props.tenantUserCount}
+                disabled={!this.props.paymentInfo}
+                plans={this.props.plans}
+              />
+            </div>
+          )}
         </div>
       </>
     );
