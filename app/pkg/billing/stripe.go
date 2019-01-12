@@ -60,7 +60,7 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 	if c.tenant.Billing.StripeCustomerID == "" {
 		params := &stripe.CustomerParams{
 			Email:       stripe.String(email),
-			Description: stripe.String(customerDesc(c.tenant)),
+			Description: stripe.String(c.tenant.Name),
 		}
 		params.AddMetadata("tenant_id", strconv.Itoa(c.tenant.ID))
 		customer, err := c.stripe.Customers.New(params)
@@ -149,7 +149,8 @@ func (c *Client) ClearPaymentInfo() error {
 	if current != nil {
 		customerID := c.tenant.Billing.StripeCustomerID
 		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
-			Email: stripe.String(""),
+			Description: stripe.String(c.tenant.Name),
+			Email:       stripe.String(""),
 			TaxInfo: &stripe.CustomerTaxInfoParams{
 				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
 				TaxID: stripe.String(""),
@@ -179,9 +180,14 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return err
 	}
 
+	if !vat.IsEU(input.AddressCountry) {
+		input.VATNumber = ""
+	}
+
 	// update customer info
 	params := &stripe.CustomerParams{
-		Email: stripe.String(input.Email),
+		Email:       stripe.String(input.Email),
+		Description: stripe.String(input.Name),
 		Shipping: &stripe.CustomerShippingDetailsParams{
 			Name: stripe.String(input.Name),
 			Address: &stripe.AddressParams{
@@ -193,7 +199,6 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 				State:      stripe.String(input.AddressState),
 			},
 		},
-		Description: stripe.String(customerDesc(c.tenant)),
 		TaxInfo: &stripe.CustomerTaxInfoParams{
 			Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
 			TaxID: stripe.String(input.VATNumber),
@@ -251,10 +256,6 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return errors.Wrap(err, "failed to update stripe card")
 	}
 	return nil
-}
-
-func customerDesc(tenant *models.Tenant) string {
-	return fmt.Sprintf("%s [%s]", tenant.Name, tenant.Subdomain)
 }
 
 // GetPlanByID return a plan by its ID

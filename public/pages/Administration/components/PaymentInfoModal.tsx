@@ -287,10 +287,12 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
               )}
               {!!this.state.addressCountry && (
                 <div className="col-md-12">
-                  <p className="info">
-                    Based on your Billing Address, your subscription will be charged in{" "}
-                    {this.isEUCountry() ? "Euro (EUR)" : "US Dollar (USD)"}.
-                  </p>
+                  <Field field="currency">
+                    <p className="info">
+                      Based on your Billing Address, your subscription will be charged in{" "}
+                      {this.isEUCountry() ? "Euro (EUR)" : "US Dollar (USD)"}.
+                    </p>
+                  </Field>
                 </div>
               )}
             </div>

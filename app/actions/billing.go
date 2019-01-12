@@ -92,6 +92,14 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		} else if isUpdate && input.Model.AddressCountry != current.CardCountry {
 			result.AddFieldFailure("addressCountry", "Country doesn't match with card issue country.")
 		}
+
+		if isReplacing || isUpdate {
+			prevIsEU := vat.IsEU(current.AddressCountry)
+			nextIsEU := vat.IsEU(input.Model.AddressCountry)
+			if prevIsEU != nextIsEU {
+				result.AddFieldFailure("currency", "Billing currency cannot be changed.")
+			}
+		}
 	}
 
 	if input.Model.VATNumber != "" && vat.IsEU(input.Model.AddressCountry) && (isNew || input.Model.VATNumber != current.VATNumber) {

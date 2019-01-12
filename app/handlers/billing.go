@@ -37,7 +37,7 @@ func BillingPage() web.HandlerFunc {
 
 		var plans []*models.BillingPlan
 		if paymentInfo != nil {
-			plans, err = c.Services().Billing.ListPlans(paymentInfo.CardCountry)
+			plans, err = c.Services().Billing.ListPlans(paymentInfo.AddressCountry)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -89,7 +89,7 @@ func BillingSubscribe() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		plan, err := c.Services().Billing.GetPlanByID(paymentInfo.CardCountry, planID)
+		plan, err := c.Services().Billing.GetPlanByID(paymentInfo.AddressCountry, planID)
 		if err != nil {
 			return c.Failure(err)
 		}
