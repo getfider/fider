@@ -38,14 +38,15 @@ func TestCreateCustomer_WithSubscription(t *testing.T) {
 	})
 	Expect(err).IsNil()
 
-	err = client.Subscribe("plan_EIE1LpQIzPXxOn")
+	err = client.Subscribe("plan_EKTT1YWe1Zmrtp")
 	Expect(err).IsNil()
 	Expect(tenant.Billing.StripeSubscriptionID).IsNotEmpty()
-	Expect(tenant.Billing.StripePlanID).Equals("plan_EIE1LpQIzPXxOn")
+	Expect(tenant.Billing.StripePlanID).Equals("plan_EKTT1YWe1Zmrtp")
 
 	inv, err := client.GetUpcomingInvoice()
 	Expect(err).IsNil()
 	Expect(int(inv.AmountDue)).Equals(900)
+	Expect(inv.Currency).Equals("USD")
 
 	err = client.CancelSubscription()
 	Expect(err).IsNil()
