@@ -1,4 +1,5 @@
 import { http, Result } from "@fider/services";
+import { BillingPlan } from "@fider/models";
 
 interface UpdatePaymentInfoRequest {
   name: string;
@@ -15,6 +16,10 @@ interface UpdatePaymentInfoRequest {
   addressCountry: string;
   vatNumber: string;
 }
+
+export const listBillingPlans = async (countryCode: string): Promise<Result<BillingPlan[]>> => {
+  return http.get(`/_api/admin/billing/plans/${countryCode}`);
+};
 
 export const updatePaymentInfo = async (request: UpdatePaymentInfoRequest): Promise<Result> => {
   return http.post("/_api/admin/billing/paymentinfo", request).then(http.event("billing", "updatepaymentinfo"));

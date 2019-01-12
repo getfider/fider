@@ -160,6 +160,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Use(middlewares.RequireBillingEnabled())
 
 		ui.Get("/admin/billing", handlers.BillingPage())
+		ui.Get("/_api/admin/billing/plans/:countryCode", handlers.GetBillingPlans())
 		ui.Post("/_api/admin/billing/paymentinfo", handlers.UpdatePaymentInfo())
 		ui.Post("/_api/admin/billing/subscription/:planID", handlers.BillingSubscribe())
 		ui.Delete("/_api/admin/billing/subscription/:planID", handlers.CancelBillingSubscription())

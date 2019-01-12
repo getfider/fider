@@ -79,6 +79,18 @@ func UpdatePaymentInfo() web.HandlerFunc {
 	}
 }
 
+// GetBillingPlans returns a list of plans for given country code
+func GetBillingPlans() web.HandlerFunc {
+	return func(c web.Context) error {
+		countryCode := c.Param("countryCode")
+		plans, err := c.Services().Billing.ListPlans(countryCode)
+		if err != nil {
+			return c.Failure(err)
+		}
+		return c.Ok(plans)
+	}
+}
+
 // BillingSubscribe subscribes current tenant to given plan on stripe
 func BillingSubscribe() web.HandlerFunc {
 	return func(c web.Context) error {
