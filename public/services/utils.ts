@@ -143,3 +143,10 @@ export const uploadedImageURL = (bkey: string | undefined, size?: number): strin
   }
   return undefined;
 };
+
+export const truncate = (input: string, maxLength: number): string => {
+  if (input && input.length > 1000) {
+    return `${input.substr(0, maxLength)}...`;
+  }
+  return input;
+};

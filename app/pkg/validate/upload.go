@@ -7,6 +7,9 @@ import (
 	"github.com/getfider/fider/app/pkg/img"
 )
 
+// MaxDimensionSize is the max width/height of an image. If image is bigger than this, it'll be resized.
+const MaxDimensionSize = 1500
+
 // ImageUploadOpts arguments to validate given upload
 type ImageUploadOpts struct {
 	IsRequired   bool
@@ -35,6 +38,7 @@ func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, er
 				return nil, err
 			}
 		} else {
+
 			if logo.Width < opts.MinWidth || logo.Height < opts.MinHeight {
 				messages = append(messages, fmt.Sprintf("The image must have minimum dimensions of %dx%d pixels.", opts.MinWidth, opts.MinHeight))
 			}
@@ -45,6 +49,14 @@ func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, er
 
 			if logo.Size > (opts.MaxKilobytes * 1024) {
 				messages = append(messages, fmt.Sprintf("The image size must be smaller than %dKB.", opts.MaxKilobytes))
+			}
+
+			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
+				newImageBytes, err := img.Apply(upload.Upload.Content, img.Resize(MaxDimensionSize))
+				if err != nil {
+					return nil, err
+				}
+				upload.Upload.Content = newImageBytes
 			}
 		}
 	}
