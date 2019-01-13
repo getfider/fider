@@ -63,6 +63,7 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 			Description: stripe.String(c.tenant.Name),
 		}
 		params.AddMetadata("tenant_id", strconv.Itoa(c.tenant.ID))
+		params.AddMetadata("tenant_subdomain", c.tenant.Subdomain)
 		customer, err := c.stripe.Customers.New(params)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to create Stripe customer")
