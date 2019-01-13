@@ -840,14 +840,14 @@ func (s *PostStorage) SetAttachments(post *models.Post, comment *models.Comment,
 				"DELETE FROM attachments WHERE tenant_id = $1 AND post_id = $2 AND (comment_id = $3 OR ($3 IS NULL AND comment_id IS NULL)) AND attachment_bkey = $4",
 				s.tenant.ID, postID, commentID, attachment.BlobKey,
 			); err != nil {
-				return errors.Wrap(err, "failed to insert attachments")
+				return errors.Wrap(err, "failed to delete attachment")
 			}
 		} else {
 			if _, err := s.trx.Execute(
 				"INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey) VALUES ($1, $2, $3, $4, $5)",
 				s.tenant.ID, postID, commentID, s.user.ID, attachment.BlobKey,
 			); err != nil {
-				return errors.Wrap(err, "failed to insert attachments")
+				return errors.Wrap(err, "failed to insert attachment")
 			}
 		}
 	}
