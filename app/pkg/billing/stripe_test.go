@@ -86,6 +86,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 		Card: &models.CreateEditBillingPaymentInfoCard{
 			Token: "tok_visa",
 		},
+		AddressCountry: "IE",
 	})
 	Expect(err).IsNil()
 
