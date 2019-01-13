@@ -181,7 +181,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   <Field label="Credit/Debit Card" field="card">
                     <CardElement />
                     <p className="info">
-                      We neither store or see your card information. We integrate directly with Stripe.
+                      We neither store nor see your card information. We integrate directly with Stripe.
                     </p>
                   </Field>
                 </div>
@@ -283,6 +283,16 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                     value={this.state.vatNumber}
                     onChange={this.setVATNumber}
                   />
+                </div>
+              )}
+              {!!this.state.addressCountry && (
+                <div className="col-md-12">
+                  <Field field="currency">
+                    <p className="info">
+                      Based on your Billing Address, your subscription will be charged in{" "}
+                      {this.isEUCountry() ? "Euro (EUR)" : "US Dollar (USD)"}.
+                    </p>
+                  </Field>
                 </div>
               )}
             </div>

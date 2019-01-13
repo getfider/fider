@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/goenning/vat"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -57,9 +60,10 @@ func (c *Client) CreateCustomer(email string) (string, error) {
 	if c.tenant.Billing.StripeCustomerID == "" {
 		params := &stripe.CustomerParams{
 			Email:       stripe.String(email),
-			Description: stripe.String(customerDesc(c.tenant)),
+			Description: stripe.String(c.tenant.Name),
 		}
 		params.AddMetadata("tenant_id", strconv.Itoa(c.tenant.ID))
+		params.AddMetadata("tenant_subdomain", c.tenant.Subdomain)
 		customer, err := c.stripe.Customers.New(params)
 		if err != nil {
 			return "", errors.Wrap(err, "failed to create Stripe customer")
@@ -146,7 +150,8 @@ func (c *Client) ClearPaymentInfo() error {
 	if current != nil {
 		customerID := c.tenant.Billing.StripeCustomerID
 		_, err = c.stripe.Customers.Update(customerID, &stripe.CustomerParams{
-			Email: stripe.String(""),
+			Description: stripe.String(c.tenant.Name),
+			Email:       stripe.String(""),
 			TaxInfo: &stripe.CustomerTaxInfoParams{
 				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
 				TaxID: stripe.String(""),
@@ -176,9 +181,14 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return err
 	}
 
+	if !vat.IsEU(input.AddressCountry) {
+		input.VATNumber = ""
+	}
+
 	// update customer info
 	params := &stripe.CustomerParams{
-		Email: stripe.String(input.Email),
+		Email:       stripe.String(input.Email),
+		Description: stripe.String(input.Name),
 		Shipping: &stripe.CustomerShippingDetailsParams{
 			Name: stripe.String(input.Name),
 			Address: &stripe.AddressParams{
@@ -190,7 +200,6 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 				State:      stripe.String(input.AddressState),
 			},
 		},
-		Description: stripe.String(customerDesc(c.tenant)),
 		TaxInfo: &stripe.CustomerTaxInfoParams{
 			Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
 			TaxID: stripe.String(input.VATNumber),
@@ -250,13 +259,9 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 	return nil
 }
 
-func customerDesc(tenant *models.Tenant) string {
-	return fmt.Sprintf("%s [%s]", tenant.Name, tenant.Subdomain)
-}
-
 // GetPlanByID return a plan by its ID
-func (c *Client) GetPlanByID(planID string) (*models.BillingPlan, error) {
-	plans, err := c.ListPlans()
+func (c *Client) GetPlanByID(countryCode, planID string) (*models.BillingPlan, error) {
+	plans, err := c.ListPlans(countryCode)
 	if err != nil {
 		return nil, err
 	}
@@ -270,9 +275,9 @@ func (c *Client) GetPlanByID(planID string) (*models.BillingPlan, error) {
 }
 
 // ListPlans on Stripe
-func (c *Client) ListPlans() ([]*models.BillingPlan, error) {
+func (c *Client) ListPlans(countryCode string) ([]*models.BillingPlan, error) {
 	if plans != nil {
-		return plans, nil
+		return c.filterByCountryCode(plans, countryCode), nil
 	}
 
 	mu.Lock()
@@ -285,13 +290,18 @@ func (c *Client) ListPlans() ([]*models.BillingPlan, error) {
 		})
 		for it.Next() {
 			plan := it.Plan()
+			name, ok := plan.Metadata["friendly_name"]
+			if !ok {
+				name = plan.Nickname
+			}
 			maxUsers, _ := strconv.Atoi(plan.Metadata["max_users"])
 			plans = append(plans, &models.BillingPlan{
 				ID:          plan.ID,
-				Name:        plan.Nickname,
+				Name:        name,
 				Description: plan.Metadata["description"],
 				MaxUsers:    maxUsers,
 				Price:       plan.Amount,
+				Currency:    strings.ToUpper(string(plan.Currency)),
 				Interval:    string(plan.Interval),
 			})
 		}
@@ -303,7 +313,22 @@ func (c *Client) ListPlans() ([]*models.BillingPlan, error) {
 		})
 	}
 
-	return plans, nil
+	return c.filterByCountryCode(plans, countryCode), nil
+}
+
+func (c *Client) filterByCountryCode(plans []*models.BillingPlan, countryCode string) []*models.BillingPlan {
+	currency := "USD"
+	if vat.IsEU(countryCode) {
+		currency = "EUR"
+	}
+
+	filteredPlans := make([]*models.BillingPlan, 0)
+	for _, p := range plans {
+		if p.Currency == currency {
+			filteredPlans = append(filteredPlans, p)
+		}
+	}
+	return filteredPlans
 }
 
 // Subscribe current tenant to given plan on Stripe
@@ -370,11 +395,17 @@ func (c *Client) GetUpcomingInvoice() (*models.UpcomingInvoice, error) {
 		Subscription: stripe.String(c.tenant.Billing.StripeSubscriptionID),
 	})
 	if err != nil {
+		if stripeErr, ok := err.(*stripe.Error); ok {
+			if stripeErr.HTTPStatusCode == 404 {
+				return nil, nil
+			}
+		}
 		return nil, errors.Wrap(err, "failed to get upcoming invoice")
 	}
 
 	dueDate := time.Unix(inv.Date, 0)
 	return &models.UpcomingInvoice{
+		Currency:  strings.ToUpper(string(inv.Currency)),
 		AmountDue: inv.AmountDue,
 		DueDate:   dueDate,
 	}, nil

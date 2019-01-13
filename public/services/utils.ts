@@ -32,6 +32,17 @@ const monthNames = [
   "December"
 ];
 
+export const currencySymbol = (currencyCode: string): string => {
+  currencyCode = currencyCode ? currencyCode.toLowerCase() : "";
+  switch (currencyCode) {
+    case "eur":
+      return "€";
+    case "usd":
+      return "$";
+  }
+  throw new Error(`Invalid currency code '${currencyCode}'`);
+};
+
 const twoDigits = (value: number): string => {
   return value <= 9 ? `0${value}` : value.toString();
 };

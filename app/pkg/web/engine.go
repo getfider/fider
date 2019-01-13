@@ -33,7 +33,7 @@ var (
 	cspObject  = "object-src 'none'"
 	cspFrame   = "frame-src 'self' https://js.stripe.com"
 	cspMedia   = "media-src 'none'"
-	cspConnect = "connect-src 'self' https://www.google-analytics.com https://js.stripe.com %[2]s"
+	cspConnect = "connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com %[2]s"
 
 	//CspPolicyTemplate is the template used to generate the policy
 	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)

@@ -6,20 +6,21 @@ import { FaFileInvoice } from "react-icons/fa";
 import { AdminBasePage } from "../components/AdminBasePage";
 import { Segment, Button, CardInfo, Message } from "@fider/components";
 import { PaymentInfo, BillingPlan, Country, InvoiceDue } from "@fider/models";
-import { Fider } from "@fider/services";
+import { Fider, actions, navigator } from "@fider/services";
 import PaymentInfoModal from "../components/PaymentInfoModal";
 import { StripeProvider, Elements } from "react-stripe-elements";
 import { BillingPlanPanel } from "../components/BillingPlanPanel";
 
 interface BillingPageProps {
-  invoiceDue: InvoiceDue;
-  plans: BillingPlan[];
+  invoiceDue?: InvoiceDue;
+  plans?: BillingPlan[];
   tenantUserCount: number;
   paymentInfo?: PaymentInfo;
   countries: Country[];
 }
 
 interface BillingPageState {
+  plans?: BillingPlan[];
   stripe: stripe.Stripe | null;
   showModal: boolean;
 }
@@ -35,7 +36,8 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
     super(props);
     this.state = {
       stripe: null,
-      showModal: false
+      showModal: false,
+      plans: this.props.plans
     };
   }
 
@@ -60,6 +62,20 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
   private closeModal = async () => {
     this.setState({
       showModal: false
+    });
+  };
+
+  public componentDidMount() {
+    if (!this.props.paymentInfo) {
+      navigator.getCountryCode().then(this.fetchPlans);
+    }
+  }
+
+  private fetchPlans = (countryCode: string) => {
+    actions.listBillingPlans(countryCode).then(res => {
+      if (res.ok) {
+        this.setState({ plans: res.data });
+      }
     });
   };
 
@@ -100,14 +116,16 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
               )}
             </Segment>
           </div>
-          <div className="col-md-12">
-            <BillingPlanPanel
-              invoiceDue={this.props.invoiceDue}
-              tenantUserCount={this.props.tenantUserCount}
-              disabled={!this.props.paymentInfo}
-              plans={this.props.plans}
-            />
-          </div>
+          {this.state.plans && (
+            <div className="col-md-12">
+              <BillingPlanPanel
+                invoiceDue={this.props.invoiceDue}
+                tenantUserCount={this.props.tenantUserCount}
+                disabled={!this.props.paymentInfo}
+                plans={this.state.plans}
+              />
+            </div>
+          )}
         </div>
       </>
     );

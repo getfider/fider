@@ -15,6 +15,7 @@ export interface PaymentInfo {
 }
 
 export interface InvoiceDue {
+  currency: string;
   amountDue: number;
   dueDate: string;
 }
@@ -23,6 +24,7 @@ export interface BillingPlan {
   id: string;
   name: string;
   description: string;
+  currency: string;
   maxUsers: number;
   price: number;
   interval: "month" | "year";

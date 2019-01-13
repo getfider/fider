@@ -38,14 +38,15 @@ func TestCreateCustomer_WithSubscription(t *testing.T) {
 	})
 	Expect(err).IsNil()
 
-	err = client.Subscribe("plan_EIE1LpQIzPXxOn")
+	err = client.Subscribe("plan_EKTT1YWe1Zmrtp")
 	Expect(err).IsNil()
 	Expect(tenant.Billing.StripeSubscriptionID).IsNotEmpty()
-	Expect(tenant.Billing.StripePlanID).Equals("plan_EIE1LpQIzPXxOn")
+	Expect(tenant.Billing.StripePlanID).Equals("plan_EKTT1YWe1Zmrtp")
 
 	inv, err := client.GetUpcomingInvoice()
 	Expect(err).IsNil()
 	Expect(int(inv.AmountDue)).Equals(900)
+	Expect(inv.Currency).Equals("USD")
 
 	err = client.CancelSubscription()
 	Expect(err).IsNil()
@@ -85,6 +86,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 		Card: &models.CreateEditBillingPaymentInfoCard{
 			Token: "tok_visa",
 		},
+		AddressCountry: "IE",
 	})
 	Expect(err).IsNil()
 
@@ -169,13 +171,41 @@ func TestListPlans(t *testing.T) {
 	}
 
 	client := billing.NewClient()
-	plans, err := client.ListPlans()
+	plans, err := client.ListPlans("US")
 	Expect(err).IsNil()
 	Expect(plans).HasLen(3)
-	Expect(plans[0].ID).Equals("plan_EIE1LpQIzPXxOn")
-	Expect(plans[0].Name).Equals("Fider Starter")
+
+	Expect(plans[0].ID).Equals("plan_EKTT1YWe1Zmrtp")
+	Expect(plans[0].Name).Equals("Starter")
+	Expect(plans[0].Currency).Equals("USD")
+	Expect(plans[0].MaxUsers).Equals(200)
+
 	Expect(plans[1].ID).Equals("plan_DoK187GZcnFpKY")
-	Expect(plans[1].Name).Equals("Fider Business (monthly)")
+	Expect(plans[1].Name).Equals("Business (monthly)")
+	Expect(plans[1].Currency).Equals("USD")
+	Expect(plans[1].MaxUsers).Equals(0)
+
 	Expect(plans[2].ID).Equals("plan_DpN9SkJMjNTvLd")
-	Expect(plans[2].Name).Equals("Fider Business (yearly)")
+	Expect(plans[2].Name).Equals("Business (yearly)")
+	Expect(plans[2].Currency).Equals("USD")
+	Expect(plans[2].MaxUsers).Equals(0)
+
+	plans, err = client.ListPlans("DE")
+	Expect(err).IsNil()
+	Expect(plans).HasLen(3)
+
+	Expect(plans[0].ID).Equals("plan_EKTSnrGmj5BuKI")
+	Expect(plans[0].Name).Equals("Starter")
+	Expect(plans[0].Currency).Equals("EUR")
+
+	Expect(plans[0].MaxUsers).Equals(200)
+	Expect(plans[1].ID).Equals("plan_EKPnahGhiTEnCc")
+	Expect(plans[1].Name).Equals("Business (monthly)")
+	Expect(plans[1].Currency).Equals("EUR")
+	Expect(plans[1].MaxUsers).Equals(0)
+
+	Expect(plans[2].ID).Equals("plan_EKTU4xD7LNI9dO")
+	Expect(plans[2].Name).Equals("Business (yearly)")
+	Expect(plans[2].Currency).Equals("EUR")
+	Expect(plans[2].MaxUsers).Equals(0)
 }

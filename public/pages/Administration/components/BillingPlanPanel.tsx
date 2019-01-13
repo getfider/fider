@@ -1,7 +1,7 @@
 import React from "react";
 import { Segment, Button, Moment, Modal, ButtonClickEvent } from "@fider/components";
 import { BillingPlan, InvoiceDue } from "@fider/models";
-import { Fider, actions, classSet } from "@fider/services";
+import { Fider, actions, classSet, currencySymbol } from "@fider/services";
 
 interface BillingPlanOptionProps {
   tenantUserCount: number;
@@ -23,7 +23,7 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
         <p className="l-title">{props.plan.name}</p>
         <p className="l-description">{props.plan.description}</p>
         <p>
-          <span className="l-dollar">$</span>
+          <span className="l-currency">{currencySymbol(props.plan.currency)}</span>
           <span className="l-price">{props.plan.price / 100}</span>
           <span className="l-interval">/{props.plan.interval}</span>
         </p>
@@ -54,7 +54,7 @@ const BillingPlanOption = (props: BillingPlanOptionProps) => {
 };
 
 interface BillingPlanPanelProps {
-  invoiceDue: InvoiceDue;
+  invoiceDue?: InvoiceDue;
   tenantUserCount: number;
   disabled: boolean;
   plans: BillingPlan[];
@@ -127,7 +127,8 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                 <p>
                   You'll be billed a total of{" "}
                   <strong>
-                    ${this.state.confirmPlan!.price / 100} per {this.state.confirmPlan!.interval}
+                    {currencySymbol(this.state.confirmPlan!.currency)}
+                    {this.state.confirmPlan!.price / 100} per {this.state.confirmPlan!.interval}
                   </strong>{" "}
                   on your card.
                 </p>
@@ -178,14 +179,21 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                   </strong>
                   . Subscribe to a new plan and avoid a service interruption.
                 </>
-              ) : (
+              ) : this.props.invoiceDue ? (
                 <>
-                  Your upcoming invoice of <strong>${this.props.invoiceDue.amountDue / 100}</strong> is due on{" "}
+                  Your upcoming invoice of{" "}
+                  <strong>
+                    {currencySymbol(this.props.invoiceDue.currency)}
+                    {this.props.invoiceDue.amountDue / 100}
+                  </strong>{" "}
+                  is due on{" "}
                   <strong>
                     <Moment date={this.props.invoiceDue.dueDate} format="full" />
                   </strong>
                   .
                 </>
+              ) : (
+                <></>
               )}
             </p>
           )}
