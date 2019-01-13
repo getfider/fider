@@ -121,3 +121,69 @@ func TestValidateImageUpload_Required(t *testing.T) {
 		Expect(err).IsNil()
 	}
 }
+
+func TestValidateMultiImageUpload(t *testing.T) {
+	RegisterT(t)
+
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+
+	uploads := []*models.ImageUpload{
+		&models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content: img,
+			},
+		},
+		&models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content: img,
+			},
+		},
+		&models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content: img,
+			},
+		},
+	}
+
+	messages, err := validate.MultiImageUpload(nil, uploads, validate.MultiImageUploadOpts{
+		MaxUploads:   2,
+		MaxKilobytes: 500,
+	})
+	Expect(messages).HasLen(1)
+	Expect(err).IsNil()
+}
+
+func TestValidateMultiImageUpload_Existing(t *testing.T) {
+	RegisterT(t)
+
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+
+	uploads := []*models.ImageUpload{
+		&models.ImageUpload{
+			BlobKey: "attachments/file1.png",
+			Remove:  true,
+		},
+		&models.ImageUpload{
+			BlobKey: "attachments/file2.png",
+			Remove:  true,
+		},
+		&models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content: img,
+			},
+		},
+		&models.ImageUpload{
+			Upload: &models.ImageUploadData{
+				Content: img,
+			},
+		},
+	}
+
+	currentAttachments := []string{"attachments/file1.png", "attachments/file2.png"}
+	messages, err := validate.MultiImageUpload(currentAttachments, uploads, validate.MultiImageUploadOpts{
+		MaxUploads:   2,
+		MaxKilobytes: 500,
+	})
+	Expect(messages).HasLen(0)
+	Expect(err).IsNil()
+}

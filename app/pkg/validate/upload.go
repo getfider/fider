@@ -10,6 +10,16 @@ import (
 // MaxDimensionSize is the max width/height of an image. If image is bigger than this, it'll be resized.
 const MaxDimensionSize = 1500
 
+// MultiImageUploadOpts arguments to validate mulitple image upload process
+type MultiImageUploadOpts struct {
+	MaxUploads   int
+	IsRequired   bool
+	MinWidth     int
+	MinHeight    int
+	ExactRatio   bool
+	MaxKilobytes int
+}
+
 // ImageUploadOpts arguments to validate given upload
 type ImageUploadOpts struct {
 	IsRequired   bool
@@ -17,6 +27,47 @@ type ImageUploadOpts struct {
 	MinHeight    int
 	ExactRatio   bool
 	MaxKilobytes int
+}
+
+//MultiImageUpload validates multiple image uploads
+func MultiImageUpload(currentAttachments []string, uploads []*models.ImageUpload, opts MultiImageUploadOpts) ([]string, error) {
+	if currentAttachments == nil {
+		currentAttachments = []string{}
+	}
+
+	totalCount := len(currentAttachments)
+
+	for _, upload := range uploads {
+		if upload.Remove {
+			for _, attachment := range currentAttachments {
+				if attachment == upload.BlobKey {
+					totalCount--
+				}
+			}
+		} else if upload.Upload != nil {
+			totalCount++
+		}
+
+		messages, err := ImageUpload(upload, ImageUploadOpts{
+			IsRequired:   opts.IsRequired,
+			MinWidth:     opts.MinWidth,
+			MinHeight:    opts.MinHeight,
+			ExactRatio:   opts.ExactRatio,
+			MaxKilobytes: opts.MaxKilobytes,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(messages) > 0 {
+			return messages, nil
+		}
+	}
+
+	if totalCount > opts.MaxUploads {
+		return []string{fmt.Sprintf("A maximum of %d attachments are allowed per post.", opts.MaxUploads)}, nil
+	}
+
+	return []string{}, nil
 }
 
 //ImageUpload validates given image upload
