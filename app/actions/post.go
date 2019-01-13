@@ -46,6 +46,21 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
+	if len(input.Model.Attachments) > 3 {
+		result.AddFieldFailure("attachments", "A maximum of 3 attachments are allowed per post.")
+	}
+
+	for _, upload := range input.Model.Attachments {
+		messages, err := validate.ImageUpload(upload, validate.ImageUploadOpts{
+			MaxKilobytes: 5120,
+			ExactRatio:   false,
+		})
+		if err != nil {
+			return validate.Error(err)
+		}
+		result.AddFieldFailure("attachments", messages...)
+	}
+
 	return result
 }
 
@@ -92,7 +107,24 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
+	attachments, err := services.Posts.GetAttachments(post, nil)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	totalCount := len(attachments)
+
 	for _, upload := range input.Model.Attachments {
+		if upload.Remove {
+			for _, attachment := range attachments {
+				if attachment == upload.BlobKey {
+					totalCount--
+				}
+			}
+		} else if upload.Upload != nil {
+			totalCount++
+		}
+
 		messages, err := validate.ImageUpload(upload, validate.ImageUploadOpts{
 			MaxKilobytes: 5120,
 			ExactRatio:   false,
@@ -101,6 +133,10 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 			return validate.Error(err)
 		}
 		result.AddFieldFailure("attachments", messages...)
+	}
+
+	if totalCount > 3 {
+		result.AddFieldFailure("attachments", "A maximum of 3 attachments are allowed per post.")
 	}
 
 	input.Post = post

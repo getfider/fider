@@ -43,8 +43,9 @@ func (i *Post) CanBeVoted() bool {
 
 // NewPost represents a new post
 type NewPost struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string         `json:"title"`
+	Description string         `json:"description"`
+	Attachments []*ImageUpload `json:"attachments"`
 }
 
 // UpdatePost represents a request to edit an existing post

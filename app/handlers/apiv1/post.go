@@ -33,7 +33,18 @@ func CreatePost() web.HandlerFunc {
 		}
 
 		posts := c.Services().Posts
+
+		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		post, err := posts.Add(input.Model.Title, input.Model.Description)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.SetAttachments(post, nil, input.Model.Attachments)
 		if err != nil {
 			return c.Failure(err)
 		}

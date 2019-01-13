@@ -88,8 +88,14 @@ interface CreatePostResponse {
   slug: string;
 }
 
-export const createPost = async (title: string, description: string): Promise<Result<CreatePostResponse>> => {
-  return http.post<CreatePostResponse>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
+export const createPost = async (
+  title: string,
+  description: string,
+  attachments: ImageUpload[]
+): Promise<Result<CreatePostResponse>> => {
+  return http
+    .post<CreatePostResponse>(`/api/v1/posts`, { title, description, attachments })
+    .then(http.event("post", "create"));
 };
 
 export const updatePost = async (
