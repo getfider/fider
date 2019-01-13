@@ -101,9 +101,9 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
   private modal() {
     return (
-      <Modal.Window isOpen={this.state.showModal} center={false} size="fluid">
+      <Modal.Window className="c-image-viewer-modal" isOpen={this.state.showModal} center={false} size="fluid">
         <Modal.Content>
-          <img src={this.state.previewURL} />
+          {this.props.bkey ? <img src={uploadedImageURL(this.props.bkey)} /> : <img src={this.state.previewURL} />}
         </Modal.Content>
 
         <Modal.Footer>

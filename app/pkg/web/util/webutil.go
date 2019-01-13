@@ -91,6 +91,17 @@ func GetOAuthBaseURL(ctx web.Context) string {
 	return oauthBaseURL
 }
 
+// ProcessMultiImageUpload uploads multiple image to blob (if it's a new one)
+func ProcessMultiImageUpload(c web.Context, imgs []*models.ImageUpload, preffix string) error {
+	for _, img := range imgs {
+		err := ProcessImageUpload(c, img, preffix)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ProcessImageUpload uploads image to blob (if it's a new one)
 func ProcessImageUpload(c web.Context, img *models.ImageUpload, preffix string) error {
 	if img.Upload != nil && len(img.Upload.Content) > 0 {

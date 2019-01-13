@@ -66,13 +66,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
       this.state.attachments
     );
     if (result.ok) {
-      this.setState({
-        error: undefined,
-        editMode: false
-      });
-      this.props.post.title = this.state.newTitle;
-      this.props.post.description = this.state.newDescription;
-      this.forceUpdate();
+      location.reload();
     } else {
       this.setState({
         error: result.error
