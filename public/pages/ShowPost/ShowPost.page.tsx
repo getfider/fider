@@ -2,7 +2,7 @@ import "./ShowPost.page.scss";
 
 import React from "react";
 
-import { Comment, Post, Tag, Vote } from "@fider/models";
+import { Comment, Post, Tag, Vote, ImageUpload } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
 import {
@@ -17,7 +17,9 @@ import {
   ListItem,
   Input,
   Form,
-  TextArea
+  TextArea,
+  MultiImageUploader,
+  ImageViewer
 } from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
 import { ResponseForm } from "./components/ResponseForm";
@@ -33,11 +35,13 @@ interface ShowPostPageProps {
   comments: Comment[];
   tags: Tag[];
   votes: Vote[];
+  attachments: string[];
 }
 
 interface ShowPostPageState {
   editMode: boolean;
   newTitle: string;
+  attachments: ImageUpload[];
   newDescription: string;
   error?: Failure;
 }
@@ -49,12 +53,18 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     this.state = {
       editMode: false,
       newTitle: this.props.post.title,
-      newDescription: this.props.post.description
+      newDescription: this.props.post.description,
+      attachments: []
     };
   }
 
   private saveChanges = async () => {
-    const result = await actions.updatePost(this.props.post.number, this.state.newTitle, this.state.newDescription);
+    const result = await actions.updatePost(
+      this.props.post.number,
+      this.state.newTitle,
+      this.state.newDescription,
+      this.state.attachments
+    );
     if (result.ok) {
       this.setState({
         error: undefined,
@@ -76,6 +86,10 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
 
   private setNewDescription = (newDescription: string) => {
     this.setState({ newDescription });
+  };
+
+  private setAttachments = (attachments: ImageUpload[]) => {
+    this.setState({ attachments });
   };
 
   private cancelEdit = async () => {
@@ -115,11 +129,22 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           {this.state.editMode ? (
             <Form error={this.state.error}>
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
+              <MultiImageUploader
+                field="attachments"
+                bkeys={this.props.attachments}
+                maxUploads={3}
+                previewMaxWidth={100}
+                onChange={this.setAttachments}
+              />
             </Form>
           ) : (
-            <MultiLineText className="description" text={this.props.post.description} style="simple" />
+            <>
+              <MultiLineText className="description" text={this.props.post.description} style="simple" />
+              {this.props.attachments.map(x => (
+                <ImageViewer key={x} bkey={x} />
+              ))}
+            </>
           )}
-
           <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
         </div>
 

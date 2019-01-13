@@ -43,6 +43,8 @@ type Post interface {
 	IsReferenced(post *models.Post) (bool, error)
 	VotedBy() ([]int, error)
 	ListVotes(post *models.Post, limit int) ([]*models.Vote, error)
+	GetAttachments(post *models.Post, comment *models.Comment) ([]string, error)
+	SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error
 }
 
 // User is used for user operations
