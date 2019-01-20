@@ -39,7 +39,6 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
         this.addNewElement(instances, bkey);
       }
     }
-    console.log({ count })
 
     if (count <= this.props.maxUploads) {
       count++;
