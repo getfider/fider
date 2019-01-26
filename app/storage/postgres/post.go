@@ -796,3 +796,61 @@ func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, e
 	}
 	return result, nil
 }
+
+// GetAttachments for given post or comment
+func (s *PostStorage) GetAttachments(post *models.Post, comment *models.Comment) ([]string, error) {
+	postID := post.ID
+	var commentID sql.NullInt64
+	if comment != nil {
+		commentID.Scan(comment.ID)
+	}
+
+	type entry struct {
+		BlobKey string `db:"attachment_bkey"`
+	}
+
+	entries := []*entry{}
+	err := s.trx.Select(&entries, `
+		SELECT attachment_bkey
+		FROM attachments
+		WHERE tenant_id = $1 AND post_id = $2 AND (comment_id = $3 OR ($3 IS NULL AND comment_id IS NULL))
+	`, s.tenant.ID, postID, commentID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get attachments")
+	}
+
+	var result = make([]string, len(entries))
+	for i, entry := range entries {
+		result[i] = entry.BlobKey
+	}
+	return result, nil
+}
+
+// SetAttachments on given post or comment
+func (s *PostStorage) SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error {
+	postID := post.ID
+	var commentID sql.NullInt64
+	if comment != nil {
+		commentID.Scan(comment.ID)
+	}
+
+	for _, attachment := range attachments {
+		if attachment.Remove {
+			if _, err := s.trx.Execute(
+				"DELETE FROM attachments WHERE tenant_id = $1 AND post_id = $2 AND (comment_id = $3 OR ($3 IS NULL AND comment_id IS NULL)) AND attachment_bkey = $4",
+				s.tenant.ID, postID, commentID, attachment.BlobKey,
+			); err != nil {
+				return errors.Wrap(err, "failed to delete attachment")
+			}
+		} else {
+			if _, err := s.trx.Execute(
+				"INSERT INTO attachments (tenant_id, post_id, comment_id, user_id, attachment_bkey) VALUES ($1, $2, $3, $4, $5)",
+				s.tenant.ID, postID, commentID, s.user.ID, attachment.BlobKey,
+			); err != nil {
+				return errors.Wrap(err, "failed to insert attachment")
+			}
+		}
+	}
+
+	return nil
+}

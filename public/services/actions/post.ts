@@ -1,5 +1,5 @@
 import { http, Result, querystring } from "@fider/services";
-import { Post, Vote } from "@fider/models";
+import { Post, Vote, ImageUpload } from "@fider/models";
 
 export const getAllPosts = async (): Promise<Result<Post[]>> => {
   return await http.get<Post[]>("/api/v1/posts");
@@ -88,10 +88,23 @@ interface CreatePostResponse {
   slug: string;
 }
 
-export const createPost = async (title: string, description: string): Promise<Result<CreatePostResponse>> => {
-  return http.post<CreatePostResponse>(`/api/v1/posts`, { title, description }).then(http.event("post", "create"));
+export const createPost = async (
+  title: string,
+  description: string,
+  attachments: ImageUpload[]
+): Promise<Result<CreatePostResponse>> => {
+  return http
+    .post<CreatePostResponse>(`/api/v1/posts`, { title, description, attachments })
+    .then(http.event("post", "create"));
 };
 
-export const updatePost = async (postNumber: number, title: string, description: string): Promise<Result> => {
-  return http.put(`/api/v1/posts/${postNumber}`, { title, description }).then(http.event("post", "update"));
+export const updatePost = async (
+  postNumber: number,
+  title: string,
+  description: string,
+  attachments: ImageUpload[]
+): Promise<Result> => {
+  return http
+    .put(`/api/v1/posts/${postNumber}`, { title, description, attachments })
+    .then(http.event("post", "update"));
 };

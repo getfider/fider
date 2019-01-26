@@ -4,6 +4,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/web"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
 )
 
@@ -32,7 +33,18 @@ func CreatePost() web.HandlerFunc {
 		}
 
 		posts := c.Services().Posts
+
+		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		post, err := posts.Add(input.Model.Title, input.Model.Description)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.SetAttachments(post, nil, input.Model.Attachments)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -77,7 +89,17 @@ func UpdatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Posts.Update(input.Post, input.Model.Title, input.Model.Description)
+		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		_, err = c.Services().Posts.Update(input.Post, input.Model.Title, input.Model.Description)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.SetAttachments(input.Post, nil, input.Model.Attachments)
 		if err != nil {
 			return c.Failure(err)
 		}

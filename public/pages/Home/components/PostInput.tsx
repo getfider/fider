@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, ButtonClickEvent, Input, Form, TextArea } from "@fider/components";
+import { Button, ButtonClickEvent, Input, Form, TextArea, MultiImageUploader } from "@fider/components";
 import { SignInModal } from "@fider/components";
 import { cache, actions, Failure, Fider } from "@fider/services";
+import { ImageUpload } from "@fider/models";
 
 interface PostInputProps {
   placeholder: string;
@@ -11,6 +12,7 @@ interface PostInputProps {
 interface PostInputState {
   title: string;
   description: string;
+  attachments: ImageUpload[];
   focused: boolean;
   showSignIn: boolean;
   error?: Failure;
@@ -28,7 +30,8 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
       title: (Fider.session.isAuthenticated && cache.session.get(CACHE_TITLE_KEY)) || "",
       description: (Fider.session.isAuthenticated && cache.session.get(CACHE_DESCRIPTION_KEY)) || "",
       focused: false,
-      showSignIn: false
+      showSignIn: false,
+      attachments: []
     };
 
     if (this.state.title) {
@@ -54,9 +57,13 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
     this.setState({ description });
   };
 
+  private setAttachments = (attachments: ImageUpload[]) => {
+    this.setState({ attachments });
+  };
+
   private submit = async (event: ButtonClickEvent) => {
     if (this.state.title) {
-      const result = await actions.createPost(this.state.title, this.state.description);
+      const result = await actions.createPost(this.state.title, this.state.description, this.state.attachments);
       if (result.ok) {
         this.setState({ error: undefined });
         cache.session.remove(CACHE_TITLE_KEY, CACHE_DESCRIPTION_KEY);
@@ -82,6 +89,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
           minRows={5}
           placeholder="Describe your suggestion (optional)"
         />
+        <MultiImageUploader field="attachments" maxUploads={3} previewMaxWidth={100} onChange={this.setAttachments} />
         <Button color="positive" onClick={this.submit}>
           Submit
         </Button>

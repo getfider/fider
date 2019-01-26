@@ -84,16 +84,22 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
+		attachments, err := c.Services().Posts.GetAttachments(post, nil)
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		return c.Page(web.Props{
 			Title:       post.Title,
 			Description: markdown.PlainText(post.Description),
 			ChunkName:   "ShowPost.page",
 			Data: web.Map{
-				"comments":   comments,
-				"subscribed": subscribed,
-				"post":       post,
-				"tags":       tags,
-				"votes":      votes,
+				"comments":    comments,
+				"subscribed":  subscribed,
+				"post":        post,
+				"tags":        tags,
+				"votes":       votes,
+				"attachments": attachments,
 			},
 		})
 	}

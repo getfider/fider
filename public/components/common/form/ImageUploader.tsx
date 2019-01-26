@@ -8,6 +8,8 @@ import { Button, ButtonClickEvent, Modal } from "@fider/components";
 import { FaRegImage } from "react-icons/fa";
 import { ImageUpload } from "@fider/models";
 
+const hardFileSizeLimit = 5 * 1024 * 1024;
+
 interface ImageUploaderProps {
   instanceID?: string;
   field: string;
@@ -39,6 +41,11 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
   public fileChanged = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > hardFileSizeLimit) {
+        alert("The image size must be smaller than 5MB.");
+        return;
+      }
+
       const base64 = await fileToBase64(file);
       this.setState(
         {
@@ -101,9 +108,9 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
 
   private modal() {
     return (
-      <Modal.Window isOpen={this.state.showModal} center={false} size="fluid">
+      <Modal.Window className="c-image-viewer-modal" isOpen={this.state.showModal} center={false} size="fluid">
         <Modal.Content>
-          <img src={this.state.previewURL} />
+          {this.props.bkey ? <img src={uploadedImageURL(this.props.bkey)} /> : <img src={this.state.previewURL} />}
         </Modal.Content>
 
         <Modal.Footer>
@@ -147,7 +154,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               </div>
             )}
 
-            <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} />
+            <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
             {!hasFile && (
               <div className="c-form-field-wrapper">

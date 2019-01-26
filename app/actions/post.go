@@ -46,6 +46,16 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
+	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+		MaxUploads:   3,
+		MaxKilobytes: 5120,
+		ExactRatio:   false,
+	})
+	if err != nil {
+		return validate.Error(err)
+	}
+	result.AddFieldFailure("attachments", messages...)
+
 	return result
 }
 
@@ -91,6 +101,21 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 	} else if another != nil && another.ID != post.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
+
+	attachments, err := services.Posts.GetAttachments(post, nil)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	messages, err := validate.MultiImageUpload(attachments, input.Model.Attachments, validate.MultiImageUploadOpts{
+		MaxUploads:   3,
+		MaxKilobytes: 5120,
+		ExactRatio:   false,
+	})
+	if err != nil {
+		return validate.Error(err)
+	}
+	result.AddFieldFailure("attachments", messages...)
 
 	input.Post = post
 

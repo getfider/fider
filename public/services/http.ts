@@ -1,4 +1,4 @@
-import { analytics, notify } from "@fider/services";
+import { analytics, notify, truncate } from "@fider/services";
 
 export interface ErrorItem {
   field?: string;
@@ -52,7 +52,8 @@ async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE"
     });
     return await toResult<T>(response);
   } catch (err) {
-    throw new Error(`Failed to ${method} ${url} with body '${body ? JSON.stringify(body) : "<empty>"}'`);
+    const truncatedBody = truncate(body ? JSON.stringify(body) : "<empty>", 1000);
+    throw new Error(`Failed to ${method} ${url} with body '${truncatedBody}'`);
   }
 }
 
