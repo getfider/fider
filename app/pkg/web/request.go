@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/errors"
@@ -97,4 +98,11 @@ func (r *Request) AddCookie(cookie *http.Cookie) {
 // IsAPI returns true if its a request for an API resource
 func (r *Request) IsAPI() bool {
 	return strings.HasPrefix(r.URL.Path, "/api/")
+}
+
+var crawlerRegex = regexp.MustCompile("(?i)(baidu)|(msnbot)|(bingbot)|(bingpreview)|(duckduckbot)|(googlebot)|(adsbot-google)|(mediapartners-google)|(slurp)|(yandexbot)|(yandexmetrika)|(ahrefsbot)|(twitterbot)|(slackbot)|(discordbot)|(semrushBot)|(exabot)")
+
+// IsCrawler returns true if the request is coming from a crawler
+func (r *Request) IsCrawler() bool {
+	return crawlerRegex.MatchString(r.GetHeader("User-Agent"))
 }

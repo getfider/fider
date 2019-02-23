@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -304,9 +306,42 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 		return ctx.JSON(code, Map{})
 	}
 
-	buf := new(bytes.Buffer)
-	ctx.engine.renderer.Render(buf, template, props, ctx)
-	return ctx.Blob(code, UTF8HTMLContentType, buf.Bytes())
+	html := new(bytes.Buffer)
+	ctx.engine.renderer.Render(html, template, props, ctx)
+
+	if len(env.Config.Rendergun.URL) > 0 && ctx.Request.IsCrawler() {
+		return ctx.prerender(code, html)
+	}
+
+	return ctx.Blob(code, UTF8HTMLContentType, html.Bytes())
+}
+
+func (ctx *Context) prerender(code int, html io.Reader) error {
+	renderURL := fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, ctx.Request.URL.String())
+	req, _ := http.NewRequest("POST", renderURL, html)
+	req.Header.Set("Content-Type", "text/html")
+	req.Header.Set("x-rendergun-wait-until", "networkidle0")
+	req.Header.Set("x-rendergun-abort-request", "assets\\/css\\/(common|vendor|main)\\.")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		ctx.Logger().Error(errors.Wrap(err, "failed to execute rendergun"))
+		return ctx.TryAgainLater(24 * time.Hour)
+	}
+	defer resp.Body.Close()
+	prerendered, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		ctx.Logger().Error(errors.Wrap(err, "failed to copy response from rendergun to output"))
+		return ctx.TryAgainLater(24 * time.Hour)
+	}
+	return ctx.Blob(code, UTF8HTMLContentType, prerendered)
+}
+
+//TryAgainLater returns a service unavailable response with Retry-After header
+func (ctx *Context) TryAgainLater(d time.Duration) error {
+	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	ctx.Response.Header().Set("Retry-After", fmt.Sprintf("%.0f", d.Seconds()))
+	return ctx.NoContent(http.StatusServiceUnavailable)
 }
 
 //AddParam add a single param to route parameters list
