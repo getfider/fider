@@ -103,11 +103,6 @@ func Reload() {
 		panic(errors.Wrap(err, "failed to parse environment variables"))
 	}
 
-	// If rendergun URL is not configured, but a rendergun container is linked, use it
-	if len(Config.Rendergun.URL) == 0 && len(os.Getenv("RENDERGUN_PORT_3000_TCP")) > 0 {
-		Config.Rendergun.URL = fmt.Sprintf("http://%s:%s", os.Getenv("RENDERGUN_PORT_3000_TCP_ADDR"), os.Getenv("RENDERGUN_PORT_3000_TCP_PORT"))
-	}
-
 	//Environment validations
 	if Config.HostMode != "single" {
 		mustBeSet("HOST_DOMAIN")
