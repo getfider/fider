@@ -2,10 +2,12 @@ package web_test
 
 import (
 	"crypto/tls"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -225,4 +227,16 @@ func TestCanonicalURL_DifferentDomain(t *testing.T) {
 
 	ctx.SetCanonicalURL("page-b/abc.html")
 	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
+}
+
+func TestTryAgainLater(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://demo.test.fider.io:3000", nil)
+	err := ctx.TryAgainLater(24 * time.Hour)
+	Expect(err).IsNil()
+	resp := ctx.Response.(*httptest.ResponseRecorder)
+	Expect(resp.Code).Equals(http.StatusServiceUnavailable)
+	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
+	Expect(resp.Header().Get("Retry-After")).Equals("86400")
 }

@@ -20,7 +20,10 @@ type config struct {
 	HostMode    string `env:"HOST_MODE,default=single"`
 	HostDomain  string `env:"HOST_DOMAIN"`
 	JWTSecret   string `env:"JWT_SECRET,required"`
-	Database    struct {
+	Rendergun   struct {
+		URL string `env:"RENDERGUN_URL"`
+	}
+	Database struct {
 		URL          string `env:"DATABASE_URL,required"`
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
 		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`
