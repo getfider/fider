@@ -17,6 +17,11 @@ const testCases = [
     expectedSimple: "<p>Hello World</p>"
   },
   {
+    input: "Hello <b>Beautiful</b> World",
+    expectedFull: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>",
+    expectedSimple: "<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>"
+  },
+  {
     input: "~~Option 3~~",
     expectedFull: "<p><del>Option 3</del></p>",
     expectedSimple: "<p><del>Option 3</del></p>"

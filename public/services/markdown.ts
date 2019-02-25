@@ -5,7 +5,8 @@ marked.setOptions({
   xhtml: true,
   smartLists: true,
   gfm: true,
-  breaks: true
+  breaks: true,
+  sanitize: true
 });
 
 const link = (href: string, title: string, text: string) => {
