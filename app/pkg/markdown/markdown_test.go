@@ -13,6 +13,7 @@ func TestFullMarkdown(t *testing.T) {
 
 	for input, expected := range map[string]string{
 		"# Hello World":                      `<h1>Hello World</h1>`,
+		"Hello <b>Beautiful</b> World":       `<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>`,
 		"![](http://example.com/hello.jpg)":  `<p><img src="http://example.com/hello.jpg" alt="" /></p>`,
 		"Go to http://example.com/hello.jpg": `<p>Go to <a href="http://example.com/hello.jpg">http://example.com/hello.jpg</a></p>`,
 		`-123
@@ -52,6 +53,7 @@ func TestPlainTextMarkdown(t *testing.T) {
 
 	for input, expected := range map[string]string{
 		"**Hello World**":                           `Hello World`,
+		"Hello <b>Beautiful</b> World":              `Hello &lt;b&gt;Beautiful&lt;/b&gt; World`,
 		"[My Link](http://example.com/)":            `My Link`,
 		"![My Image](http://example.com/hello.jpg)": ``,
 		"Go to http://example.com/hello.jpg":        `Go to http://example.com/hello.jpg`,
@@ -103,6 +105,7 @@ How are you?`: `<p>Hello World</p>
 How are you?`: `<p>Hello World</p>
 
 <p>How are you?</p>`,
+		`Hello <b>Beautiful</b> World`: `<p>Hello &lt;b&gt;Beautiful&lt;/b&gt; World</p>`,
 	} {
 		output := markdown.Simple(input)
 		Expect(output).Equals(template.HTML(expected))
