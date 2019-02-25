@@ -1,6 +1,7 @@
 package markdown
 
 import (
+	"html"
 	"html/template"
 	"strings"
 
@@ -29,7 +30,8 @@ var simpleRenderer = SimpleRenderer(simpleHTMLExtensions)
 
 // Simple turns a markdown into HTML using few rules
 func Simple(input string) template.HTML {
-	output := blackfriday.Markdown([]byte(input), simpleRenderer, mdExtns)
+	sanitizedInput := html.EscapeString(input)
+	output := blackfriday.Markdown([]byte(sanitizedInput), simpleRenderer, mdExtns)
 
 	return template.HTML(strings.TrimSpace(string(output)))
 }
@@ -45,7 +47,8 @@ var fullRenderer = blackfriday.HtmlRenderer(fullHTMLExtensions, "", "")
 
 // Full turns a markdown into HTML using all rules
 func Full(input string) template.HTML {
-	output := blackfriday.Markdown([]byte(input), fullRenderer, mdExtns)
+	sanitizedInput := html.EscapeString(input)
+	output := blackfriday.Markdown([]byte(sanitizedInput), fullRenderer, mdExtns)
 
 	return template.HTML(strings.TrimSpace(string(output)))
 }
@@ -54,6 +57,7 @@ var textRenderer = TextRenderer()
 
 // PlainText parses given markdown input and return only the text
 func PlainText(input string) string {
-	output := blackfriday.Markdown([]byte(input), textRenderer, mdExtns)
+	sanitizedInput := html.EscapeString(input)
+	output := blackfriday.Markdown([]byte(sanitizedInput), textRenderer, mdExtns)
 	return strings.TrimSpace(string(output))
 }
