@@ -297,6 +297,12 @@ func (ctx *Context) BadRequest(dict Map) error {
 
 //Page returns a page with given variables
 func (ctx *Context) Page(props Props) error {
+	if len(env.Config.Rendergun.URL) > 0 && ctx.Request.IsCrawler() {
+		html := new(bytes.Buffer)
+		ctx.engine.renderer.Render(html, "index.html", props, ctx)
+		return ctx.prerender(http.StatusOK, html)
+	}
+
 	return ctx.Render(http.StatusOK, "index.html", props)
 }
 
@@ -306,14 +312,10 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 		return ctx.JSON(code, Map{})
 	}
 
-	html := new(bytes.Buffer)
-	ctx.engine.renderer.Render(html, template, props, ctx)
+	buf := new(bytes.Buffer)
+	ctx.engine.renderer.Render(buf, template, props, ctx)
 
-	if len(env.Config.Rendergun.URL) > 0 && ctx.Request.IsCrawler() {
-		return ctx.prerender(code, html)
-	}
-
-	return ctx.Blob(code, UTF8HTMLContentType, html.Bytes())
+	return ctx.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
 
 func (ctx *Context) prerender(code int, html io.Reader) error {
@@ -321,6 +323,7 @@ func (ctx *Context) prerender(code int, html io.Reader) error {
 	req, _ := http.NewRequest("POST", renderURL, html)
 	req.Header.Set("Content-Type", "text/html")
 	req.Header.Set("x-rendergun-wait-until", "networkidle0")
+	req.Header.Set("x-rendergun-block-ads", "true")
 	req.Header.Set("x-rendergun-abort-request", "assets\\/css\\/(common|vendor|main)\\.")
 
 	resp, err := http.DefaultClient.Do(req)
