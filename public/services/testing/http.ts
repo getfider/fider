@@ -4,7 +4,8 @@ export const httpMock = {
   alwaysOk: () => {
     const fn = jest.fn(() => {
       return Promise.resolve({
-        ok: true
+        ok: true,
+        data: null as any
       });
     });
     http.get = fn;

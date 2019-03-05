@@ -2,6 +2,7 @@ package billing_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/env"
 
@@ -100,8 +101,8 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("US")
 	Expect(info.CardLast4).Equals("4242")
-	Expect(int(info.CardExpMonth)).Equals(2)
-	Expect(int(info.CardExpYear)).Equals(2020)
+	Expect(int(info.CardExpMonth)).Equals(int(time.Now().Month()))
+	Expect(int(info.CardExpYear)).Equals(time.Now().Year() + 1)
 	Expect(info.Name).Equals("")
 	Expect(info.AddressLine1).Equals("")
 	Expect(info.AddressLine2).Equals("")
@@ -153,8 +154,8 @@ func TestUpdatePaymentInfo(t *testing.T) {
 	Expect(info.CardBrand).Equals("Visa")
 	Expect(info.CardCountry).Equals("BR")
 	Expect(info.CardLast4).Equals("0002")
-	Expect(int(info.CardExpMonth)).Equals(2)
-	Expect(int(info.CardExpYear)).Equals(2020)
+	Expect(int(info.CardExpMonth)).Equals(int(time.Now().Month()))
+	Expect(int(info.CardExpYear)).Equals(time.Now().Year() + 1)
 	Expect(info.Name).Equals("")
 	Expect(info.AddressLine1).Equals("")
 	Expect(info.AddressLine2).Equals("")
