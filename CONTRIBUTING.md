@@ -20,18 +20,19 @@ If you know these technologies or would like to learn them, lucky you! This is t
 | Software  | How to install | What is it used for |
 |---|---|---|
 | Go 1.11+ | https://golang.org/ | To compile server side code |
-| Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To bundle client side code |
+| Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
-| cosmtrek/air | `go get github.com/cosmtrek/air/` | Live reload for Go apps |
-| joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | A `.env` file loader |
+| cosmtrek/air | `go get github.com/cosmtrek/air/cmd/air/` | Live reload for Go apps. When you change the code, it automatically recompiles the application |
+| joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | To load environment variables from a `.env` so that you don't have to change your machine environment variables |
 | magefile/mage | `go get github.com/magefile/mage/` | A cross-platform Make alternative |
 
 #### 2. To setup your development workspace:
 
-1. clone the repository into `$GOPATH/src/github.com/getfider/fider`.
-2. run `npm install` to install client side packages .
-3. run `docker-compose up -d` to start a local PostgreSQL database on Docker.
-4. run `cp .example.env .env` to create a local environment configuration file.
+1. if it's your first time using Go, ensure that have your `GOPATH` and `PATH` variables correctly setup. This guide can help you on that https://golang.org/doc/code.html#GOPATH
+2. clone the repository into `$GOPATH/src/github.com/getfider/fider`.
+3. run `npm install` to install client side packages .
+4. run `docker-compose up -d` to start a local PostgreSQL database on Docker.
+5. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. You'll need to edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
 
