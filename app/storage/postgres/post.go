@@ -378,10 +378,11 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				FROM attachments at
 				INNER JOIN comments c
 				ON at.tenant_id = c.tenant_id
-					AND at.post_id = c.post_id
-					AND at.comment_id = c.id
-					WHERE c.post_id = $1
-					AND c.tenant_id = $2
+				AND at.post_id = c.post_id
+				AND at.comment_id = c.id
+				WHERE at.post_id = $1
+				AND at.tenant_id = $2
+				AND at.comment_id IS NOT NULL
 				GROUP BY c.id 
 		)
 		SELECT c.id, 
