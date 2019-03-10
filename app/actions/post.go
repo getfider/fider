@@ -146,6 +146,16 @@ func (input *AddNewComment) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
+	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
+		MaxUploads:   2,
+		MaxKilobytes: 5120,
+		ExactRatio:   false,
+	})
+	if err != nil {
+		return validate.Error(err)
+	}
+	result.AddFieldFailure("attachments", messages...)
+
 	return result
 }
 
@@ -235,7 +245,9 @@ func (input *DeletePost) Validate(user *models.User, services *app.Services) *va
 
 // EditComment represents the action to update an existing comment
 type EditComment struct {
-	Model *models.EditComment
+	Model   *models.EditComment
+	Post    *models.Post
+	Comment *models.Comment
 }
 
 // Initialize the model
@@ -246,11 +258,18 @@ func (input *EditComment) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *EditComment) IsAuthorized(user *models.User, services *app.Services) bool {
+	post, err := services.Posts.GetByNumber(input.Model.PostNumber)
+	if err != nil {
+		return false
+	}
+
 	comment, err := services.Posts.GetCommentByID(input.Model.ID)
 	if err != nil {
 		return false
 	}
 
+	input.Post = post
+	input.Comment = comment
 	return user.ID == comment.User.ID || user.IsCollaborator()
 }
 
@@ -261,6 +280,21 @@ func (input *EditComment) Validate(user *models.User, services *app.Services) *v
 	if input.Model.Content == "" {
 		result.AddFieldFailure("content", "Comment is required.")
 	}
+
+	attachments, err := services.Posts.GetAttachments(input.Post, input.Comment)
+	if err != nil {
+		return validate.Error(err)
+	}
+
+	messages, err := validate.MultiImageUpload(attachments, input.Model.Attachments, validate.MultiImageUploadOpts{
+		MaxUploads:   2,
+		MaxKilobytes: 5120,
+		ExactRatio:   false,
+	})
+	if err != nil {
+		return validate.Error(err)
+	}
+	result.AddFieldFailure("attachments", messages...)
 
 	return result
 }

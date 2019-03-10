@@ -206,12 +206,27 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
+		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
+		if err != nil {
+			return c.Failure(err)
+		}
+
 		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		id, err := c.Services().Posts.AddComment(post, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		comment, err := c.Services().Posts.GetCommentByID(id)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.SetAttachments(post, comment, input.Model.Attachments)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -232,7 +247,17 @@ func UpdateComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
+		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
+		if err != nil {
+			return c.Failure(err)
+		}
+
+		err = c.Services().Posts.SetAttachments(input.Post, input.Comment, input.Model.Attachments)
 		if err != nil {
 			return c.Failure(err)
 		}
