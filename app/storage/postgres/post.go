@@ -74,20 +74,22 @@ func (i *dbPost) toModel(ctx storage.Context) *models.Post {
 }
 
 type dbComment struct {
-	ID        int          `db:"id"`
-	Content   string       `db:"content"`
-	CreatedAt time.Time    `db:"created_at"`
-	User      *dbUser      `db:"user"`
-	EditedAt  dbx.NullTime `db:"edited_at"`
-	EditedBy  *dbUser      `db:"edited_by"`
+	ID          int          `db:"id"`
+	Content     string       `db:"content"`
+	CreatedAt   time.Time    `db:"created_at"`
+	User        *dbUser      `db:"user"`
+	Attachments []string     `db:"attachment_bkeys"`
+	EditedAt    dbx.NullTime `db:"edited_at"`
+	EditedBy    *dbUser      `db:"edited_by"`
 }
 
 func (c *dbComment) toModel(ctx storage.Context) *models.Comment {
 	comment := &models.Comment{
-		ID:        c.ID,
-		Content:   c.Content,
-		CreatedAt: c.CreatedAt,
-		User:      c.User.toModel(ctx),
+		ID:          c.ID,
+		Content:     c.Content,
+		CreatedAt:   c.CreatedAt,
+		User:        c.User.toModel(ctx),
+		Attachments: c.Attachments,
 	}
 	if c.EditedAt.Valid {
 		comment.EditedBy = c.EditedBy.toModel(ctx)
@@ -369,7 +371,21 @@ func (s *PostStorage) Search(query, view, limit string, tags []string) ([]*model
 func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, error) {
 	comments := []*dbComment{}
 	err := s.trx.Select(&comments,
-		`SELECT c.id, 
+		`WITH agg_attachments AS ( 
+				SELECT 
+						c.id as comment_id, 
+						ARRAY_REMOVE(ARRAY_AGG(at.attachment_bkey), NULL) as attachment_bkeys
+				FROM attachments at
+				INNER JOIN comments c
+				ON at.tenant_id = c.tenant_id
+				AND at.post_id = c.post_id
+				AND at.comment_id = c.id
+				WHERE at.post_id = $1
+				AND at.tenant_id = $2
+				AND at.comment_id IS NOT NULL
+				GROUP BY c.id 
+		)
+		SELECT c.id, 
 				c.content, 
 				c.created_at, 
 				c.edited_at, 
@@ -386,7 +402,8 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 				e.role AS edited_by_role,
 				e.status AS edited_by_status,
 				e.avatar_type AS edited_by_avatar_type, 
-				e.avatar_bkey AS edited_by_avatar_bkey 
+				e.avatar_bkey AS edited_by_avatar_bkey,
+				at.attachment_bkeys
 		FROM comments c
 		INNER JOIN posts p
 		ON p.id = c.post_id
@@ -397,6 +414,8 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 		LEFT JOIN users e
 		ON e.id = c.edited_by_id
 		AND e.tenant_id = c.tenant_id
+		LEFT JOIN agg_attachments at
+		ON at.comment_id = c.id
 		WHERE p.id = $1
 		AND p.tenant_id = $2
 		AND c.deleted_at IS NULL

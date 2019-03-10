@@ -64,15 +64,17 @@ type DeletePost struct {
 
 // NewComment represents a new comment
 type NewComment struct {
-	Number  int    `route:"number"`
-	Content string `json:"content"`
+	Number      int            `route:"number"`
+	Content     string         `json:"content"`
+	Attachments []*ImageUpload `json:"attachments"`
 }
 
 // EditComment represents a request to edit existing comment
 type EditComment struct {
-	PostNumber int    `route:"number"`
-	ID         int    `route:"id"`
-	Content    string `json:"content"`
+	PostNumber  int            `route:"number"`
+	ID          int            `route:"id"`
+	Content     string         `json:"content"`
+	Attachments []*ImageUpload `json:"attachments"`
 }
 
 // DeleteComment represents a request to delete an existing comment
@@ -107,12 +109,13 @@ type OriginalPost struct {
 
 //Comment represents an user comment on an post
 type Comment struct {
-	ID        int        `json:"id"`
-	Content   string     `json:"content"`
-	CreatedAt time.Time  `json:"createdAt"`
-	User      *User      `json:"user"`
-	EditedAt  *time.Time `json:"editedAt,omitempty"`
-	EditedBy  *User      `json:"editedBy,omitempty"`
+	ID          int        `json:"id"`
+	Content     string     `json:"content"`
+	CreatedAt   time.Time  `json:"createdAt"`
+	User        *User      `json:"user"`
+	Attachments []string   `json:"attachments,omitempty"`
+	EditedAt    *time.Time `json:"editedAt,omitempty"`
+	EditedBy    *User      `json:"editedBy,omitempty"`
 }
 
 //Tag represents a simple tag
