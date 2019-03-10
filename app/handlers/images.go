@@ -29,7 +29,7 @@ func LetterAvatar() web.HandlerFunc {
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.Failure(err)
+			return c.BadRequest(web.Map{})
 		}
 		size = between(size, 50, 200)
 
@@ -60,7 +60,7 @@ func Gravatar() web.HandlerFunc {
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.Failure(err)
+			return c.BadRequest(web.Map{})
 		}
 
 		size = between(size, 50, 200)
@@ -131,7 +131,7 @@ func Favicon() web.HandlerFunc {
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.Failure(err)
+			return c.BadRequest(web.Map{})
 		}
 
 		size = between(size, 50, 200)
@@ -162,7 +162,7 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		size, err := c.QueryParamAsInt("size")
 		if err != nil {
-			return c.Failure(err)
+			return c.BadRequest(web.Map{})
 		}
 
 		size = between(size, 0, 2000)
