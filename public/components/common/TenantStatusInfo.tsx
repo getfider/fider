@@ -1,10 +1,12 @@
 import React from "react";
-import { Fider } from "@fider/services";
 import { TenantStatus } from "@fider/models";
 import { Message } from "./Message";
+import { useFider } from "@fider/hooks";
 
 export const TenantStatusInfo = () => {
-  if (!Fider.isBillingEnabled() || Fider.session.tenant.status !== TenantStatus.Locked) {
+  const fider = useFider();
+
+  if (!fider.isBillingEnabled() || fider.session.tenant.status !== TenantStatus.Locked) {
     return null;
   }
 
