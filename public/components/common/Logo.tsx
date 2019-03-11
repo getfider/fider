@@ -1,5 +1,7 @@
 import React from "react";
-import { Fider, uploadedImageURL } from "@fider/services";
+import { uploadedImageURL } from "@fider/services";
+import { useFider } from "@fider/hooks";
+import { Tenant } from "@fider/models";
 
 type Size = 24 | 50 | 100 | 200;
 
@@ -8,8 +10,7 @@ interface TenantLogoProps {
   useFiderIfEmpty?: boolean;
 }
 
-export const TenantLogoURL = (size: Size): string | undefined => {
-  const tenant = Fider.session.tenant;
+export const TenantLogoURL = (tenant: Tenant, size: Size): string | undefined => {
   if (tenant && tenant.logoBlobKey) {
     return uploadedImageURL(tenant.logoBlobKey, size);
   }
@@ -17,9 +18,11 @@ export const TenantLogoURL = (size: Size): string | undefined => {
 };
 
 export const TenantLogo = (props: TenantLogoProps) => {
-  const tenant = Fider.session.tenant;
+  const fider = useFider();
+
+  const tenant = fider.session.tenant;
   if (tenant && tenant.logoBlobKey) {
-    return <img src={TenantLogoURL(props.size)} alt={tenant.name} />;
+    return <img src={TenantLogoURL(fider.session.tenant, props.size)} alt={tenant.name} />;
   } else if (props.useFiderIfEmpty) {
     return <img src="https://getfider.com/images/logo-100x100.png" alt="Fider" />;
   }
