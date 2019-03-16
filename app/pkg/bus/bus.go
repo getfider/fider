@@ -36,15 +36,16 @@ var handlers = make(map[string]HandlerFunc)
 
 func AddHandler(s Service, handler HandlerFunc) {
 	handlerType := reflect.TypeOf(handler)
-	msgTypeName := handlerType.In(1).Elem().Name()
-	handlers[msgTypeName] = handler
+	elem := handlerType.In(1).Elem()
+	handlers[keyForElement(elem)] = handler
 }
 
 func Dispatch(ctx context.Context, msg Msg) error {
-	msgName := reflect.TypeOf(msg).Elem().Name()
-	handler := handlers[msgName]
+	elem := reflect.TypeOf(msg).Elem()
+	key := keyForElement(elem)
+	handler := handlers[key]
 	if handler == nil {
-		panic(fmt.Errorf("could not find handler for '%s'", msgName))
+		panic(fmt.Errorf("could not find handler for '%s'", key))
 	}
 
 	var params = []reflect.Value{
@@ -58,4 +59,10 @@ func Dispatch(ctx context.Context, msg Msg) error {
 		return nil
 	}
 	return err.(error)
+}
+
+func keyForElement(t reflect.Type) string {
+	msgTypeName := t.Name()
+	pkgPath := t.PkgPath()
+	return pkgPath + "." + msgTypeName
 }

@@ -108,9 +108,10 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 
 	url := fmt.Sprintf(baseURL, s.domain)
 
-	cmd := &http.HTTPPostRequestCommand{
-		URL:  url,
-		Body: strings.NewReader(form.Encode()),
+	cmd := &http.Request{
+		Method: "POST",
+		URL:    url,
+		Body:   strings.NewReader(form.Encode()),
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
