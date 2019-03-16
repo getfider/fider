@@ -5,11 +5,13 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
 func init() {
+	http.DefaultClient.Timeout = 30 * time.Second
 	bus.Register(&Service{})
 }
 
@@ -44,6 +46,7 @@ func requestHandler(ctx context.Context, cmd *Request) error {
 	if err != nil {
 		return err
 	}
+	req = req.WithContext(ctx)
 
 	for k, v := range cmd.Headers {
 		req.Header.Set(k, v)
