@@ -1,11 +1,15 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/bus"
+
+	"github.com/getfider/fider/app/services/httpclient"
 
 	"github.com/getfider/fider/app/pkg/env"
 
@@ -272,18 +276,23 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 }
 
 func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+accessToken)
-	r, err := http.DefaultClient.Do(req)
+	cmd := &httpclient.Request{
+		URL:    url,
+		Method: "GET",
+		Headers: map[string]string{
+			"Authorization": "Bearer " + accessToken,
+		},
+	}
 
+	err := bus.Dispatch(context.Background(), cmd)
 	if err != nil {
 		return 0, "", err
 	}
 
-	defer r.Body.Close()
+	defer cmd.Response.Body.Close()
 
-	bytes, err := ioutil.ReadAll(r.Body)
-	return r.StatusCode, string(bytes), err
+	bytes, err := ioutil.ReadAll(cmd.Response.Body)
+	return cmd.Response.StatusCode, string(bytes), err
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {

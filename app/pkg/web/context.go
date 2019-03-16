@@ -26,6 +26,7 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/httpclient"
 )
 
 // Map defines a generic map of type `map[string]interface{}`
@@ -312,20 +313,25 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 }
 
 func (ctx *Context) prerender(code int, html io.Reader) error {
-	renderURL := fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, ctx.Request.URL.String())
-	req, _ := http.NewRequest("POST", renderURL, html)
-	req.Header.Set("Content-Type", "text/html")
-	req.Header.Set("x-rendergun-wait-until", "networkidle0")
-	req.Header.Set("x-rendergun-block-ads", "true")
-	req.Header.Set("x-rendergun-abort-request", "assets\\/css\\/(common|vendor|main)\\.")
-
-	resp, err := http.DefaultClient.Do(req)
+	cmd := &httpclient.Request{
+		Method: "POST",
+		URL:    fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, ctx.Request.URL.String()),
+		Body:   html,
+		Headers: map[string]string{
+			"Content-Type":              "text/html",
+			"x-rendergun-wait-until":    "networkidle0",
+			"x-rendergun-block-ads":     "true",
+			"x-rendergun-abort-request": "assets\\/css\\/(common|vendor|main)\\.",
+		},
+	}
+	err := ctx.Dispatch(cmd)
 	if err != nil {
 		ctx.Logger().Error(errors.Wrap(err, "failed to execute rendergun"))
 		return ctx.TryAgainLater(24 * time.Hour)
 	}
-	defer resp.Body.Close()
-	prerendered, err := ioutil.ReadAll(resp.Body)
+
+	defer cmd.Response.Body.Close()
+	prerendered, err := ioutil.ReadAll(cmd.Response.Body)
 	if err != nil {
 		ctx.Logger().Error(errors.Wrap(err, "failed to copy response from rendergun to output"))
 		return ctx.TryAgainLater(24 * time.Hour)

@@ -23,7 +23,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	cache "github.com/patrickmn/go-cache"
 
-	_ "github.com/getfider/fider/app/services/http"
+	_ "github.com/getfider/fider/app/services/httpclient"
 )
 
 var (

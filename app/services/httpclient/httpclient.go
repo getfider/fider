@@ -1,25 +1,24 @@
-package http
+package httpclient
 
 import (
 	"context"
 	"io"
 	"net/http"
-	gohttp "net/http"
 
 	"github.com/getfider/fider/app/pkg/bus"
 )
 
 func init() {
-	bus.Register(&HTTPClientService{})
+	bus.Register(&Service{})
 }
 
-type HTTPClientService struct{}
+type Service struct{}
 
-func (s HTTPClientService) Enabled() bool {
+func (s Service) Enabled() bool {
 	return true
 }
 
-func (s HTTPClientService) Init() {
+func (s Service) Init() {
 	bus.AddHandler(s, requestHandler)
 }
 
@@ -38,7 +37,7 @@ type Request struct {
 }
 
 func requestHandler(ctx context.Context, cmd *Request) error {
-	req, err := gohttp.NewRequest(cmd.Method, cmd.URL, cmd.Body)
+	req, err := http.NewRequest(cmd.Method, cmd.URL, cmd.Body)
 	if err != nil {
 		return err
 	}

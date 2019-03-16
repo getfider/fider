@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/worker"
-	"github.com/getfider/fider/app/services/http/httpmock"
+	"github.com/getfider/fider/app/services/httpclient/httpclientmock"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/email"
@@ -33,7 +33,7 @@ func init() {
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
-	bus.Register(&httpmock.ClientService{})
+	bus.Register(&httpclientmock.Service{})
 	bus.Init()
 
 	to := email.Recipient{
@@ -44,12 +44,12 @@ func TestSend_Success(t *testing.T) {
 		"name": "Hello",
 	}, "Fider Test", to)
 
-	Expect(httpmock.RequestsHistory).HasLen(1)
-	Expect(httpmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
-	Expect(httpmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
-	Expect(httpmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
+	Expect(httpclientmock.RequestsHistory).HasLen(1)
+	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
+	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpmock.RequestsHistory[0].Body)
+	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()
@@ -95,7 +95,7 @@ func TestSend_Success(t *testing.T) {
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpmock.ClientService{})
+	bus.Register(&httpclientmock.Service{})
 	bus.Init()
 
 	to := email.Recipient{
@@ -106,12 +106,12 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 		"name": "Hello",
 	}, "Fider Test", to)
 
-	Expect(httpmock.RequestsHistory).HasLen(0)
+	Expect(httpclientmock.RequestsHistory).HasLen(0)
 }
 
 func TestSend_SkipUnlistedAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpmock.ClientService{})
+	bus.Register(&httpclientmock.Service{})
 	bus.Init()
 	email.SetWhitelist("^.*@gmail.com$")
 
@@ -123,12 +123,12 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 		"name": "Hello",
 	}, "Fider Test", to)
 
-	Expect(httpmock.RequestsHistory).HasLen(0)
+	Expect(httpclientmock.RequestsHistory).HasLen(0)
 }
 
 func TestBatch_Success(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpmock.ClientService{})
+	bus.Register(&httpclientmock.Service{})
 	bus.Init()
 	email.SetWhitelist("")
 
@@ -150,12 +150,12 @@ func TestBatch_Success(t *testing.T) {
 	}
 	sender.BatchSend(ctx, "echo_test", email.Params{}, "Fider Test", to)
 
-	Expect(httpmock.RequestsHistory).HasLen(1)
-	Expect(httpmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
-	Expect(httpmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
-	Expect(httpmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
+	Expect(httpclientmock.RequestsHistory).HasLen(1)
+	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	Expect(httpclientmock.RequestsHistory[0].Header.Get("Authorization")).Equals("Basic YXBpOm15czNjcjN0azN5")
+	Expect(httpclientmock.RequestsHistory[0].Header.Get("Content-Type")).Equals("application/x-www-form-urlencoded")
 
-	bytes, err := ioutil.ReadAll(httpmock.RequestsHistory[0].Body)
+	bytes, err := ioutil.ReadAll(httpclientmock.RequestsHistory[0].Body)
 	Expect(err).IsNil()
 	values, err := url.ParseQuery(string(bytes))
 	Expect(err).IsNil()

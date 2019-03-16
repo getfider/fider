@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/services/http"
+	"github.com/getfider/fider/app/services/httpclient"
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/env"
@@ -108,14 +108,14 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 
 	url := fmt.Sprintf(baseURL, s.domain)
 
-	cmd := &http.Request{
+	cmd := &httpclient.Request{
 		Method: "POST",
 		URL:    url,
 		Body:   strings.NewReader(form.Encode()),
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
-		BasicAuth: &http.BasicAuth{
+		BasicAuth: &httpclient.BasicAuth{
 			User:     "api",
 			Password: s.apiKey,
 		},
