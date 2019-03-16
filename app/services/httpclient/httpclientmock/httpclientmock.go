@@ -1,9 +1,7 @@
 package httpclientmock
 
 import (
-	"bytes"
 	"context"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -48,9 +46,7 @@ func requestHandler(ctx context.Context, cmd *httpclient.Request) error {
 
 	RequestsHistory = append(RequestsHistory, req)
 
-	cmd.Response = &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewReader([]byte(""))),
-	}
+	cmd.ResponseStatusCode = http.StatusOK
+	cmd.ResponseBody = []byte("")
 	return nil
 }

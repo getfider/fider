@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"strings"
 
@@ -289,10 +288,7 @@ func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
 		return 0, "", err
 	}
 
-	defer cmd.Response.Body.Close()
-
-	bytes, err := ioutil.ReadAll(cmd.Response.Body)
-	return cmd.Response.StatusCode, string(bytes), err
+	return cmd.ResponseStatusCode, string(cmd.ResponseBody), nil
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {

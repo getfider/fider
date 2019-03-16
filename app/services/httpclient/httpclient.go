@@ -3,6 +3,7 @@ package httpclient
 import (
 	"context"
 	"io"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/getfider/fider/app/pkg/bus"
@@ -31,9 +32,11 @@ type Request struct {
 	URL       string
 	Body      io.Reader
 	Method    string
-	Response  *http.Response
 	Headers   map[string]string
 	BasicAuth *BasicAuth
+
+	ResponseBody       []byte
+	ResponseStatusCode int
 }
 
 func requestHandler(ctx context.Context, cmd *Request) error {
@@ -54,6 +57,13 @@ func requestHandler(ctx context.Context, cmd *Request) error {
 		return err
 	}
 
-	cmd.Response = res
+	defer res.Body.Close()
+	respBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	cmd.ResponseBody = respBody
+	cmd.ResponseStatusCode = res.StatusCode
 	return nil
 }

@@ -124,9 +124,8 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
-	defer cmd.Response.Body.Close()
 	s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
-		"StatusCode": cmd.Response.StatusCode,
+		"StatusCode": cmd.ResponseStatusCode,
 	})
 	return nil
 }

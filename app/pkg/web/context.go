@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -330,13 +329,7 @@ func (ctx *Context) prerender(code int, html io.Reader) error {
 		return ctx.TryAgainLater(24 * time.Hour)
 	}
 
-	defer cmd.Response.Body.Close()
-	prerendered, err := ioutil.ReadAll(cmd.Response.Body)
-	if err != nil {
-		ctx.Logger().Error(errors.Wrap(err, "failed to copy response from rendergun to output"))
-		return ctx.TryAgainLater(24 * time.Hour)
-	}
-	return ctx.Blob(code, UTF8HTMLContentType, prerendered)
+	return ctx.Blob(code, UTF8HTMLContentType, cmd.ResponseBody)
 }
 
 //TryAgainLater returns a service unavailable response with Retry-After header
