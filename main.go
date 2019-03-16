@@ -21,7 +21,7 @@ var (
 	// Use this for stable releases
 	// version = "x.y.z"
 
-	version = "0.18.0"
+	version = "0.19.0-" + buildnumber
 )
 
 func main() {
