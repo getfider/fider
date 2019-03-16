@@ -1,16 +1,19 @@
 package mailgun
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
 
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/services/http"
+
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/web/http"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
@@ -18,14 +21,13 @@ var baseURL = "https://api.mailgun.net/v3/%s/messages"
 //Sender is used to send emails
 type Sender struct {
 	logger log.Logger
-	client http.Client
 	domain string
 	apiKey string
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, client http.Client, domain, apiKey string) *Sender {
-	return &Sender{logger, client, domain, apiKey}
+func NewSender(logger log.Logger, domain, apiKey string) *Sender {
+	return &Sender{logger, domain, apiKey}
 }
 
 //Send an email
@@ -105,22 +107,25 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	}
 
 	url := fmt.Sprintf(baseURL, s.domain)
-	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
-	if err != nil {
-		return errors.Wrap(err, "failed to create POST request")
+
+	cmd := &http.HTTPPostRequestCommand{
+		URL:  url,
+		Body: strings.NewReader(form.Encode()),
+		Headers: map[string]string{
+			"Content-Type": "application/x-www-form-urlencoded",
+		},
+		BasicAuth: &http.BasicAuth{
+			User:     "api",
+			Password: s.apiKey,
+		},
 	}
-
-	request.SetBasicAuth("api", s.apiKey)
-	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := s.client.Do(request)
+	err := bus.Dispatch(context.Background(), cmd)
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
-
-	defer resp.Body.Close()
+	defer cmd.Response.Body.Close()
 	s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
-		"StatusCode": resp.StatusCode,
+		"StatusCode": cmd.Response.StatusCode,
 	})
 	return nil
 }

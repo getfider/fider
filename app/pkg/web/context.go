@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/blob"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -61,18 +63,9 @@ const CookieAuthName = "auth"
 // CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
 const CookieSignUpAuthName = "__signup_auth"
 
-var (
-	prefixKey             = "__CTX_"
-	tenantContextKey      = prefixKey + "TENANT"
-	userContextKey        = prefixKey + "USER"
-	claimsContextKey      = prefixKey + "CLAIMS"
-	transactionContextKey = prefixKey + "TRANSACTION"
-	servicesContextKey    = prefixKey + "SERVICES"
-	tasksContextKey       = prefixKey + "TASKS"
-)
-
 //Context shared between http pipeline
 type Context struct {
+	innerCtx  context.Context
 	id        string
 	sessionID string
 	Response  http.ResponseWriter
@@ -113,7 +106,7 @@ func (ctx *Context) Commit() error {
 		}
 	}
 
-	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
+	tasks, ok := ctx.Get(app.TasksCtxKey).([]worker.Task)
 	if ok {
 		for _, task := range tasks {
 			ctx.worker.Enqueue(task)
@@ -145,12 +138,12 @@ func (ctx *Context) Enqueue(task worker.Task) {
 		}
 	}
 
-	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
+	tasks, ok := ctx.Get(app.TasksCtxKey).([]worker.Task)
 	if !ok {
 		tasks = make([]worker.Task, 0)
 	}
 
-	ctx.Set(tasksContextKey, append(tasks, worker.Task{
+	ctx.Set(app.TasksCtxKey, append(tasks, worker.Task{
 		OriginSessionID: ctx.SessionID(),
 		Name:            task.Name,
 		Job:             wrap(ctx),
@@ -159,7 +152,7 @@ func (ctx *Context) Enqueue(task worker.Task) {
 
 //Tenant returns current tenant
 func (ctx *Context) Tenant() *models.Tenant {
-	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
+	tenant, ok := ctx.Get(app.TenantCtxKey).(*models.Tenant)
 	if ok {
 		return tenant
 	}
@@ -174,7 +167,7 @@ func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentTenant(tenant)
 	}
-	ctx.Set(tenantContextKey, tenant)
+	ctx.Set(app.TenantCtxKey, tenant)
 }
 
 //Bind context values into given model
@@ -208,7 +201,7 @@ func (ctx *Context) Logger() log.Logger {
 
 //IsAuthenticated returns true if user is authenticated
 func (ctx *Context) IsAuthenticated() bool {
-	return ctx.Get(userContextKey) != nil
+	return ctx.Get(app.UserCtxKey) != nil
 }
 
 //IsAjax returns true if request is AJAX
@@ -354,7 +347,7 @@ func (ctx *Context) AddParam(name, value string) {
 
 //Claims returns current user claims
 func (ctx *Context) Claims() *jwt.FiderClaims {
-	claims, ok := ctx.Get(claimsContextKey).(*jwt.FiderClaims)
+	claims, ok := ctx.Get(app.ClaimsCtxKey).(*jwt.FiderClaims)
 	if ok {
 		return claims
 	}
@@ -363,12 +356,12 @@ func (ctx *Context) Claims() *jwt.FiderClaims {
 
 //SetClaims update HTTP context with current user claims
 func (ctx *Context) SetClaims(claims *jwt.FiderClaims) {
-	ctx.Set(claimsContextKey, claims)
+	ctx.Set(app.ClaimsCtxKey, claims)
 }
 
 //User returns authenticated user
 func (ctx *Context) User() *models.User {
-	user, ok := ctx.Get(userContextKey).(*models.User)
+	user, ok := ctx.Get(app.UserCtxKey).(*models.User)
 	if ok {
 		return user
 	}
@@ -383,16 +376,20 @@ func (ctx *Context) SetUser(user *models.User) {
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentUser(user)
 	}
-	ctx.Set(userContextKey, user)
+	ctx.Set(app.UserCtxKey, user)
 }
 
 //Services returns current app.Services from context
 func (ctx *Context) Services() *app.Services {
-	svc, ok := ctx.Get(servicesContextKey).(*app.Services)
+	svc, ok := ctx.Get(app.ServicesCtxKey).(*app.Services)
 	if ok {
 		return svc
 	}
 	return nil
+}
+
+func (ctx *Context) Dispatch(m bus.Msg) error {
+	return bus.Dispatch(ctx.innerCtx, m)
 }
 
 //AddCookie adds a cookie
@@ -423,17 +420,17 @@ func (ctx *Context) RemoveCookie(name string) {
 
 //SetServices update current context with app.Services
 func (ctx *Context) SetServices(services *app.Services) {
-	ctx.Set(servicesContextKey, services)
+	ctx.Set(app.ServicesCtxKey, services)
 }
 
 //SetActiveTransaction adds transaction to context
 func (ctx *Context) SetActiveTransaction(trx *dbx.Trx) {
-	ctx.Set(transactionContextKey, trx)
+	ctx.Set(app.TransactionCtxKey, trx)
 }
 
 //ActiveTransaction returns current active Database transaction
 func (ctx *Context) ActiveTransaction() *dbx.Trx {
-	return ctx.Get(transactionContextKey).(*dbx.Trx)
+	return ctx.Get(app.TransactionCtxKey).(*dbx.Trx)
 }
 
 //BaseURL returns base URL
@@ -519,6 +516,7 @@ func (ctx *Context) Get(key string) interface{} {
 
 // Set saves data in the context.
 func (ctx *Context) Set(key string, val interface{}) {
+	ctx.innerCtx = context.WithValue(ctx.innerCtx, key, val)
 	if ctx.store == nil {
 		ctx.store = make(Map)
 	}

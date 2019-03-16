@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -21,6 +22,8 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
 	cache "github.com/patrickmn/go-cache"
+
+	_ "github.com/getfider/fider/app/services/http"
 )
 
 var (
@@ -76,6 +79,8 @@ func New(settings *models.SystemSettings) *Engine {
 
 	bgLogger := database.NewLogger("BGW", db)
 	bgLogger.SetProperty(log.PropertyKeyContextID, rand.String(32))
+
+	bus.Init()
 
 	router := &Engine{
 		mux:         httprouter.New(),
@@ -177,7 +182,10 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
 	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
 
+	ctx := req.Context()
+
 	return Context{
+		innerCtx: ctx,
 		id:       contextID,
 		Response: res,
 		Request:  request,
