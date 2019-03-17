@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/services/httpclient"
+
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/img"
@@ -84,17 +86,16 @@ func Gravatar() web.HandlerFunc {
 					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
 						"GravatarURL": url,
 					})
-					resp, err := http.Get(url)
-					if err == nil {
-						defer resp.Body.Close()
 
-						if resp.StatusCode == http.StatusOK {
-							bytes, err := ioutil.ReadAll(resp.Body)
-							if err == nil {
-								c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
-								return c.Image(http.DetectContentType(bytes), bytes)
-							}
-						}
+					req := &httpclient.Request{
+						URL:    url,
+						Method: "GET",
+					}
+					err := c.Dispatch(req)
+					if err == nil && req.ResponseStatusCode == http.StatusOK {
+						bytes := req.ResponseBody
+						c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
+						return c.Image(http.DetectContentType(bytes), bytes)
 					}
 				}
 			}

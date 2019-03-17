@@ -275,7 +275,7 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 }
 
 func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
-	cmd := &httpclient.Request{
+	req := &httpclient.Request{
 		URL:    url,
 		Method: "GET",
 		Headers: map[string]string{
@@ -283,12 +283,12 @@ func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
 		},
 	}
 
-	err := bus.Dispatch(context.Background(), cmd)
+	err := bus.Dispatch(context.Background(), req)
 	if err != nil {
 		return 0, "", err
 	}
 
-	return cmd.ResponseStatusCode, string(cmd.ResponseBody), nil
+	return req.ResponseStatusCode, string(req.ResponseBody), nil
 }
 
 func (s *OAuthService) getConfig(provider string) (*models.OAuthConfig, error) {

@@ -108,7 +108,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 
 	url := fmt.Sprintf(baseURL, s.domain)
 
-	cmd := &httpclient.Request{
+	req := &httpclient.Request{
 		Method: "POST",
 		URL:    url,
 		Body:   strings.NewReader(form.Encode()),
@@ -120,12 +120,12 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 			Password: s.apiKey,
 		},
 	}
-	err := bus.Dispatch(context.Background(), cmd)
+	err := bus.Dispatch(context.Background(), req)
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
 	s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
-		"StatusCode": cmd.ResponseStatusCode,
+		"StatusCode": req.ResponseStatusCode,
 	})
 	return nil
 }

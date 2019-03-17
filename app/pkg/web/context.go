@@ -311,7 +311,7 @@ func (ctx *Context) Render(code int, template string, props Props) error {
 }
 
 func (ctx *Context) prerender(code int, html io.Reader) error {
-	cmd := &httpclient.Request{
+	req := &httpclient.Request{
 		Method: "POST",
 		URL:    fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, ctx.Request.URL.String()),
 		Body:   html,
@@ -322,13 +322,13 @@ func (ctx *Context) prerender(code int, html io.Reader) error {
 			"x-rendergun-abort-request": "assets\\/css\\/(common|vendor|main)\\.",
 		},
 	}
-	err := ctx.Dispatch(cmd)
+	err := ctx.Dispatch(req)
 	if err != nil {
 		ctx.Logger().Error(errors.Wrap(err, "failed to execute rendergun"))
 		return ctx.TryAgainLater(24 * time.Hour)
 	}
 
-	return ctx.Blob(code, UTF8HTMLContentType, cmd.ResponseBody)
+	return ctx.Blob(code, UTF8HTMLContentType, req.ResponseBody)
 }
 
 //TryAgainLater returns a service unavailable response with Retry-After header
