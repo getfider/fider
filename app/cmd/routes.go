@@ -15,8 +15,8 @@ import (
 func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
-	r.NotFound(func(c web.Context) error {
-		next := func(c web.Context) error {
+	r.NotFound(func(c *web.Context) error {
+		next := func(c *web.Context) error {
 			return c.NotFound()
 		}
 		next = middlewares.Tenant()(next)
@@ -70,7 +70,7 @@ func routes(r *web.Engine) *web.Engine {
 		tenantAssets.Use(middlewares.ClientCache(30 * 24 * time.Hour))
 		tenantAssets.Get("/favicon/*bkey", handlers.Favicon())
 		tenantAssets.Get("/images/*bkey", handlers.ViewUploadedImage())
-		tenantAssets.Get("/custom/:md5.css", func(c web.Context) error {
+		tenantAssets.Get("/custom/:md5.css", func(c *web.Context) error {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
 	}
@@ -105,10 +105,10 @@ func routes(r *web.Engine) *web.Engine {
 	** This is a temporary redirect and should be removed in the future
 	** START
 	 */
-	r.Get("/ideas/:number", func(c web.Context) error {
+	r.Get("/ideas/:number", func(c *web.Context) error {
 		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
-	r.Get("/ideas/:number/*all", func(c web.Context) error {
+	r.Get("/ideas/:number/*all", func(c *web.Context) error {
 		return c.PermanentRedirect(strings.Replace(c.Request.URL.Path, "/ideas/", "/posts/", 1))
 	})
 	/*

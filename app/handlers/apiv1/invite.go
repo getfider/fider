@@ -14,7 +14,7 @@ import (
 
 // SendSampleInvite to current user's email
 func SendSampleInvite() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := &actions.InviteUsers{IsSampleInvite: true}
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -26,7 +26,7 @@ func SendSampleInvite() web.HandlerFunc {
 				"subject": input.Model.Subject,
 				"message": markdown.Full(input.Model.Message),
 			})
-			err := c.Services().Emailer.Send(&c, "invite_email", email.Params{}, c.Tenant().Name, to)
+			err := c.Services().Emailer.Send(c, "invite_email", email.Params{}, c.Tenant().Name, to)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -38,7 +38,7 @@ func SendSampleInvite() web.HandlerFunc {
 
 // SendInvites sends an email to each recipient
 func SendInvites() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.InviteUsers)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)

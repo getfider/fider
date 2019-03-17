@@ -16,10 +16,10 @@ import (
 	"github.com/getfider/fider/app/pkg/web"
 )
 
-func newContext(rawurl string) web.Context {
+func newContext(rawurl string) *web.Context {
 	url, _ := url.Parse(rawurl)
 
-	return web.Context{
+	return &web.Context{
 		Request: web.Request{
 			URL: url,
 		},

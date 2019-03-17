@@ -22,7 +22,7 @@ func TestCompress(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Compress())
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.String(http.StatusOK, data)
 	}
 
@@ -43,7 +43,7 @@ func TestCompress_SmallResponse(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.Compress())
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	}
 

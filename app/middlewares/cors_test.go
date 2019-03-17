@@ -15,7 +15,7 @@ func TestCORS(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.CORS())
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
 

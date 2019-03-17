@@ -17,7 +17,7 @@ import (
 // Noop does nothing
 func Noop() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			return next(c)
 		}
 	}
@@ -108,7 +108,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 //WebSetup current context with some services
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			start := time.Now()
 			c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", log.Props{
 				"HttpMethod": c.Request.Method,
@@ -154,8 +154,8 @@ func WebSetup() web.MiddlewareFunc {
 				Logger:        c.Logger(),
 				Tenants:       tenantStorage,
 				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
-				Users:         postgres.NewUserStorage(trx, &c),
-				Posts:         postgres.NewPostStorage(trx, &c),
+				Users:         postgres.NewUserStorage(trx, c),
+				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),

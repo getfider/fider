@@ -22,7 +22,7 @@ func Tenant() web.MiddlewareFunc {
 // SingleTenant inject default tenant into current context
 func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			tenant, err := c.Services().Tenants.First()
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
@@ -40,7 +40,7 @@ func SingleTenant() web.MiddlewareFunc {
 // MultiTenant extract tenant information from hostname and inject it into current context
 func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			hostname := c.Request.URL.Hostname()
 
 			// If no tenant is specified, redirect user to getfider.com
@@ -77,7 +77,7 @@ func MultiTenant() web.MiddlewareFunc {
 // RequireTenant returns 404 if tenant is not available
 func RequireTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant() == nil {
 				if env.IsSingleHostMode() {
 					return c.Redirect("/signup")
@@ -92,7 +92,7 @@ func RequireTenant() web.MiddlewareFunc {
 // BlockPendingTenants blocks requests for pending tenants
 func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant().Status == models.TenantPending {
 				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
 					Title:       "Pending Activation",
@@ -107,7 +107,7 @@ func BlockPendingTenants() web.MiddlewareFunc {
 // CheckTenantPrivacy blocks requests of unauthenticated users for private tenants
 func CheckTenantPrivacy() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
 				return c.Redirect("/signin")
 			}
@@ -119,7 +119,7 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 // BlockLockedTenants blocks requests of non-administrator users on locked tenants
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant().Status == models.TenantLocked {
 				if c.Request.IsAPI() {
 					return c.JSON(http.StatusLocked, web.Map{})

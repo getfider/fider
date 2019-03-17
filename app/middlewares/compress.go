@@ -31,7 +31,7 @@ func Compress() web.MiddlewareFunc {
 		pool.New = func() interface{} {
 			return gzip.NewWriter(ioutil.Discard)
 		}
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			res := c.Response
 			if strings.Contains(c.Request.GetHeader("Accept-Encoding"), "gzip") {
 				writer := pool.Get().(*gzip.Writer)

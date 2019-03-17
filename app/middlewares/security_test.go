@@ -18,7 +18,7 @@ func TestSecureWithoutCDN(t *testing.T) {
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -41,7 +41,7 @@ func TestSecureWithCDN(t *testing.T) {
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -64,7 +64,7 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})

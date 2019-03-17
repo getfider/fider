@@ -73,7 +73,6 @@ type Context struct {
 	engine    *Engine
 	logger    log.Logger
 	params    StringMap
-	store     Map
 	worker    worker.Worker
 }
 
@@ -510,16 +509,12 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 
 // Get retrieves data from the context.
 func (ctx *Context) Get(key string) interface{} {
-	return ctx.store[key]
+	return ctx.innerCtx.Value(key)
 }
 
 // Set saves data in the context.
 func (ctx *Context) Set(key string, val interface{}) {
 	ctx.innerCtx = context.WithValue(ctx.innerCtx, key, val)
-	if ctx.store == nil {
-		ctx.store = make(Map)
-	}
-	ctx.store[key] = val
 }
 
 // String returns a text response with status code.

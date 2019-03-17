@@ -10,7 +10,7 @@ import (
 
 // SearchPosts return existing posts based on search criteria
 func SearchPosts() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		posts, err := c.Services().Posts.Search(
 			c.QueryParam("query"),
 			c.QueryParam("view"),
@@ -26,7 +26,7 @@ func SearchPosts() web.HandlerFunc {
 
 // CreatePost creates a new post on current tenant
 func CreatePost() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateNewPost)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -66,7 +66,7 @@ func CreatePost() web.HandlerFunc {
 
 // GetPost retrieves the existing post by number
 func GetPost() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
@@ -83,7 +83,7 @@ func GetPost() web.HandlerFunc {
 
 // UpdatePost updates an existing post of current tenant
 func UpdatePost() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.UpdatePost)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -110,7 +110,7 @@ func UpdatePost() web.HandlerFunc {
 
 // SetResponse changes current post staff response
 func SetResponse() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.SetResponse)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -139,7 +139,7 @@ func SetResponse() web.HandlerFunc {
 
 // DeletePost deletes an existing post of current tenant
 func DeletePost() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.DeletePost)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -161,7 +161,7 @@ func DeletePost() web.HandlerFunc {
 
 // ListComments returns a list of all comments of a post
 func ListComments() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
@@ -183,7 +183,7 @@ func ListComments() web.HandlerFunc {
 
 // GetComment returns a single comment by its ID
 func GetComment() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		id, err := c.ParamAsInt("id")
 		if err != nil {
 			return c.NotFound()
@@ -200,7 +200,7 @@ func GetComment() web.HandlerFunc {
 
 // PostComment creates a new comment on given post
 func PostComment() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.AddNewComment)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -241,7 +241,7 @@ func PostComment() web.HandlerFunc {
 
 // UpdateComment changes an existing comment with new content
 func UpdateComment() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.EditComment)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -268,7 +268,7 @@ func UpdateComment() web.HandlerFunc {
 
 // DeleteComment deletes an existing comment by its ID
 func DeleteComment() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.DeleteComment)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -285,35 +285,35 @@ func DeleteComment() web.HandlerFunc {
 
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return addOrRemove(c, c.Services().Posts.AddVote)
 	}
 }
 
 // RemoveVote removes current user from given post list of votes
 func RemoveVote() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return addOrRemove(c, c.Services().Posts.RemoveVote)
 	}
 }
 
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return addOrRemove(c, c.Services().Posts.AddSubscriber)
 	}
 }
 
 // Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return addOrRemove(c, c.Services().Posts.RemoveSubscriber)
 	}
 }
 
 // ListVotes returns a list of all votes on given post
 func ListVotes() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
@@ -333,7 +333,7 @@ func ListVotes() web.HandlerFunc {
 	}
 }
 
-func addOrRemove(c web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
+func addOrRemove(c *web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.NotFound()

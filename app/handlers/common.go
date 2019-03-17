@@ -17,7 +17,7 @@ import (
 
 //Health always returns OK
 func Health() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		err := c.Engine().Database().Ping()
 		if err != nil {
 			return c.Failure(err)
@@ -28,7 +28,7 @@ func Health() web.HandlerFunc {
 
 //LegalPage returns a legal page with content from a file
 func LegalPage(title, file string) web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bytes, err := ioutil.ReadFile(env.Etc(file))
 		if err != nil {
 			return c.NotFound()
@@ -45,7 +45,7 @@ func LegalPage(title, file string) web.HandlerFunc {
 
 //Sitemap returns the sitemap.xml of current site
 func Sitemap() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		if c.Tenant().IsPrivate {
 			return c.NotFound()
 		}
@@ -72,7 +72,7 @@ func Sitemap() web.HandlerFunc {
 
 //RobotsTXT return content of robots.txt file
 func RobotsTXT() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bytes, err := ioutil.ReadFile(env.Path("./robots.txt"))
 		if err != nil {
 			return c.NotFound()
@@ -85,7 +85,7 @@ func RobotsTXT() web.HandlerFunc {
 
 //Page returns a page without properties
 func Page(title, description, chunkName string) web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Page(web.Props{
 			Title:       title,
 			Description: description,
@@ -96,7 +96,7 @@ func Page(title, description, chunkName string) web.HandlerFunc {
 
 //BrowserNotSupported returns an error page for browser that Fider dosn't support
 func BrowserNotSupported() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
 			Title:       "Browser not supported",
 			Description: "We don't support this version of your browser",
@@ -112,7 +112,7 @@ type NewLogError struct {
 
 //LogError logs an error coming from the UI
 func LogError() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(NewLogError)
 		err := c.Bind(input)
 		if err != nil {
@@ -125,7 +125,7 @@ func LogError() web.HandlerFunc {
 	}
 }
 
-func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.EmailVerification, error) {
+func validateKey(kind models.EmailVerificationKind, c *web.Context) (*models.EmailVerification, error) {
 	key := c.QueryParam("k")
 
 	//If key has been used, return NotFound

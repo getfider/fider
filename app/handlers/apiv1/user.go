@@ -10,7 +10,7 @@ import (
 
 // ListUsers returns all registered users
 func ListUsers() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		users, err := c.Services().Users.GetAll()
 		if err != nil {
 			return c.Failure(err)
@@ -21,7 +21,7 @@ func ListUsers() web.HandlerFunc {
 
 // CreateUser is used to create new users
 func CreateUser() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateUser)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)

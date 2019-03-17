@@ -11,12 +11,12 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // OAuthEcho exchanges OAuth Code for a user profile and return directly to the UI, without storing it
 func OAuthEcho() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		provider := c.Param("provider")
 
 		code := c.QueryParam("code")
@@ -58,7 +58,7 @@ func OAuthEcho() web.HandlerFunc {
 // The user profile is then used to either get an existing user on Fider or creating a new one
 // Once Fider user is retrieved/created, an authentication cookie is store in user's browser
 func OAuthToken() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		provider := c.Param("provider")
 		redirectURL, _ := url.ParseRequestURI(c.QueryParam("redirect"))
 		redirectURL.ResolveReference(c.Request.URL)
@@ -132,7 +132,7 @@ func OAuthToken() web.HandlerFunc {
 // If the request is for a sign in, we redirect the user to the tenant address
 // If the request is for a sign up, we exchange the OAuth code and get the user profile
 func OAuthCallback() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")
@@ -200,7 +200,7 @@ func OAuthCallback() web.HandlerFunc {
 // SignInByOAuth is responsible for redirecting the user to the OAuth authorization URL for given provider
 // A cookie is stored in user's browser with a random identifier that is later used to verify the authenticity of the request
 func SignInByOAuth() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")

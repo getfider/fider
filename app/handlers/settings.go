@@ -13,7 +13,7 @@ import (
 
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.ChangeUserEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -32,7 +32,7 @@ func ChangeUserEmail() web.HandlerFunc {
 
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		result, err := validateKey(models.EmailVerificationKindChangeEmail, c)
 		if result == nil {
 			return err
@@ -57,7 +57,7 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 
 // UserSettings is the current user's profile settings page
 func UserSettings() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		settings, err := c.Services().Users.GetUserSettings()
 		if err != nil {
 			return err
@@ -75,7 +75,7 @@ func UserSettings() web.HandlerFunc {
 
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		var err error
 
 		input := new(actions.UpdateUserSettings)
@@ -101,7 +101,7 @@ func UpdateUserSettings() web.HandlerFunc {
 
 // ChangeUserRole changes given user role
 func ChangeUserRole() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.ChangeUserRole)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -118,7 +118,7 @@ func ChangeUserRole() web.HandlerFunc {
 
 // DeleteUser erases current user personal data and sign them out
 func DeleteUser() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		err := c.Services().Users.Delete()
 		if err != nil {
 			return c.Failure(err)
@@ -131,7 +131,7 @@ func DeleteUser() web.HandlerFunc {
 
 // RegenerateAPIKey regenerates current user's API Key
 func RegenerateAPIKey() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		apiKey, err := c.Services().Users.RegenerateAPIKey()
 		if err != nil {
 			return c.Failure(err)

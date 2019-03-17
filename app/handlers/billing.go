@@ -8,7 +8,7 @@ import (
 
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		var err error
 		if c.Tenant().Billing.StripeCustomerID == "" {
 			_, err = c.Services().Billing.CreateCustomer("")
@@ -64,7 +64,7 @@ func BillingPage() web.HandlerFunc {
 
 // UpdatePaymentInfo on stripe based on given input
 func UpdatePaymentInfo() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateEditBillingPaymentInfo)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -81,7 +81,7 @@ func UpdatePaymentInfo() web.HandlerFunc {
 
 // GetBillingPlans returns a list of plans for given country code
 func GetBillingPlans() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		countryCode := c.Param("countryCode")
 		plans, err := c.Services().Billing.ListPlans(countryCode)
 		if err != nil {
@@ -93,7 +93,7 @@ func GetBillingPlans() web.HandlerFunc {
 
 // BillingSubscribe subscribes current tenant to given plan on stripe
 func BillingSubscribe() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		planID := c.Param("planID")
 
 		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
@@ -135,7 +135,7 @@ func BillingSubscribe() web.HandlerFunc {
 
 // CancelBillingSubscription cancels current subscription from current tenant
 func CancelBillingSubscription() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		err := c.Services().Billing.CancelSubscription()
 		if err != nil {
 			return c.Failure(err)

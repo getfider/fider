@@ -20,7 +20,7 @@ import (
 
 //LetterAvatar returns a letter gravatar picture based on given name
 func LetterAvatar() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		id := c.Param("id")
 		name := c.Param("name")
 		if name == "" {
@@ -52,7 +52,7 @@ func LetterAvatar() web.HandlerFunc {
 
 //Gravatar returns a gravatar picture of fallsback to letter avatar based on name
 func Gravatar() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		id, err := c.ParamAsInt("id")
 		if err != nil {
 			return c.NotFound()
@@ -106,7 +106,7 @@ func Gravatar() web.HandlerFunc {
 
 //Favicon returns the Fider favicon by given size
 func Favicon() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		var (
 			bytes       []byte
 			err         error
@@ -157,7 +157,7 @@ func Favicon() web.HandlerFunc {
 
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bkey := c.Param("bkey")
 
 		size, err := c.QueryParamAsInt("size")

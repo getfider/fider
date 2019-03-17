@@ -8,7 +8,7 @@ import (
 
 // GeneralSettingsPage is the general settings page
 func GeneralSettingsPage() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Page(web.Props{
 			Title:     "General · Site Settings",
 			ChunkName: "GeneralSettings.page",
@@ -18,7 +18,7 @@ func GeneralSettingsPage() web.HandlerFunc {
 
 // AdvancedSettingsPage is the advanced settings page
 func AdvancedSettingsPage() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Page(web.Props{
 			Title:     "Advanced · Site Settings",
 			ChunkName: "AdvancedSettings.page",
@@ -31,7 +31,7 @@ func AdvancedSettingsPage() web.HandlerFunc {
 
 // UpdateSettings update current tenant' settings
 func UpdateSettings() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.UpdateTenantSettings)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -53,7 +53,7 @@ func UpdateSettings() web.HandlerFunc {
 
 // UpdateAdvancedSettings update current tenant' advanced settings
 func UpdateAdvancedSettings() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.UpdateTenantAdvancedSettings)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -70,7 +70,7 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 
 // UpdatePrivacy update current tenant's privacy settings
 func UpdatePrivacy() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.UpdateTenantPrivacy)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -87,7 +87,7 @@ func UpdatePrivacy() web.HandlerFunc {
 
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		users, err := c.Services().Users.GetAll()
 		if err != nil {
 			return c.Failure(err)
@@ -105,7 +105,7 @@ func ManageMembers() web.HandlerFunc {
 
 // ManageAuthentication is the page used by administrators to change site authentication settings
 func ManageAuthentication() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		providers, err := c.Services().OAuth.ListAllProviders()
 		if err != nil {
 			return c.Failure(err)
@@ -123,7 +123,7 @@ func ManageAuthentication() web.HandlerFunc {
 
 // GetOAuthConfig returns OAuth config based on given provider
 func GetOAuthConfig() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		config, err := c.Services().Tenants.GetOAuthConfigByProvider(c.Param("provider"))
 		if err != nil {
 			return c.Failure(err)
@@ -135,7 +135,7 @@ func GetOAuthConfig() web.HandlerFunc {
 
 // SaveOAuthConfig is used to create/edit OAuth configurations
 func SaveOAuthConfig() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateEditOAuthConfig)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)

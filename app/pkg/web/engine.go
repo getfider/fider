@@ -53,7 +53,7 @@ func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 }
 
 //HandlerFunc represents an HTTP handler
-type HandlerFunc func(Context) error
+type HandlerFunc func(*Context) error
 
 //MiddlewareFunc represents an HTTP middleware
 type MiddlewareFunc func(HandlerFunc) HandlerFunc
@@ -175,7 +175,7 @@ func (e *Engine) Stop() error {
 }
 
 //NewContext creates and return a new context
-func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
+func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) *Context {
 	contextID := rand.String(32)
 	request := WrapRequest(req)
 	ctxLogger := e.logger.New()
@@ -184,7 +184,7 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 
 	ctx := req.Context()
 
-	return Context{
+	return &Context{
 		innerCtx: ctx,
 		id:       contextID,
 		Response: res,
@@ -323,7 +323,7 @@ func (g *Group) Static(prefix, root string) {
 
 	var h HandlerFunc
 	if fi.IsDir() {
-		h = func(c Context) error {
+		h = func(c *Context) error {
 			filePath := path.Join(root, c.Param("filepath"))
 			fi, err := os.Stat(filePath)
 			if err == nil && !fi.IsDir() {
@@ -333,7 +333,7 @@ func (g *Group) Static(prefix, root string) {
 			return c.NotFound()
 		}
 	} else {
-		h = func(c Context) error {
+		h = func(c *Context) error {
 			http.ServeFile(c.Response, c.Request.instance, root)
 			return nil
 		}

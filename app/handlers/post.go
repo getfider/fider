@@ -8,7 +8,7 @@ import (
 
 // Index is the default home page
 func Index() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
 		posts, err := c.Services().Posts.Search(
@@ -52,7 +52,7 @@ func Index() web.HandlerFunc {
 
 // PostDetails shows details of given Post by id
 func PostDetails() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
@@ -107,7 +107,7 @@ func PostDetails() web.HandlerFunc {
 
 // ExportPostsToCSV returns a CSV with all posts
 func ExportPostsToCSV() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 
 		posts, err := c.Services().Posts.GetAll()
 		if err != nil {

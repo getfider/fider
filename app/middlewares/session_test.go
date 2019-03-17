@@ -18,7 +18,7 @@ func TestSession_New(t *testing.T) {
 	server.Use(middlewares.Session())
 
 	var sessionID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		sessionID = c.SessionID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -40,7 +40,7 @@ func TestSession_ExistingSession(t *testing.T) {
 
 	status, response := server.
 		AddCookie(web.CookieSessionName, "MY_SESSION_VALUE").
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -55,7 +55,7 @@ func TestSession_RemoveSessionIfResponseIsCached(t *testing.T) {
 	server.Use(middlewares.Session())
 	server.Use(middlewares.ClientCache(30 * time.Hour))
 
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 

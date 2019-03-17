@@ -20,7 +20,7 @@ func TestUser_NoCookie(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.User())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		if c.IsAuthenticated() {
 			return c.NoContent(http.StatusOK)
 		} else {
@@ -45,7 +45,7 @@ func TestUser_WithCookie(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AddHeader("Accept", "application/json").
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -69,7 +69,7 @@ func TestUser_Blocked(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AddHeader("Accept", "application/json").
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -91,7 +91,7 @@ func TestUser_LockedTenant_Administrator(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AddHeader("Accept", "application/json").
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -114,7 +114,7 @@ func TestUser_LockedTenant_Visitor(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AddHeader("Accept", "application/json").
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -134,7 +134,7 @@ func TestUser_WithCookie_InvalidUser(t *testing.T) {
 	status, response := server.
 		OnTenant(mock.AvengersTenant).
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			if c.User() == nil {
 				return c.NoContent(http.StatusNoContent)
 			}
@@ -158,7 +158,7 @@ func TestUser_WithCookie_DifferentTenant(t *testing.T) {
 	status, _ := server.
 		OnTenant(mock.AvengersTenant).
 		AddCookie(web.CookieAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			if c.User() == nil {
 				return c.NoContent(http.StatusNoContent)
 			}
@@ -181,7 +181,7 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	status, response := server.
 		OnTenant(mock.DemoTenant).
 		AddCookie(web.CookieSignUpAuthName, token).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -219,7 +219,7 @@ func TestUser_ValidAPIKey(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 
@@ -237,7 +237,7 @@ func TestUser_InvalidAPIKey(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", "Bearer MY-KEY").
-		ExecuteAsJSON(func(c web.Context) error {
+		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -257,7 +257,7 @@ func TestUser_ValidAPIKey_Visitor(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
-		ExecuteAsJSON(func(c web.Context) error {
+		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -286,7 +286,7 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
 		AddHeader("X-Fider-UserID", strconv.Itoa(mock.JonSnow.ID)).
-		ExecuteAsJSON(func(c web.Context) error {
+		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -307,7 +307,7 @@ func TestUser_Impersonation_InvalidUser(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
 		AddHeader("X-Fider-UserID", "ABC").
-		ExecuteAsJSON(func(c web.Context) error {
+		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -328,7 +328,7 @@ func TestUser_Impersonation_UserNotFound(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
 		AddHeader("X-Fider-UserID", "999").
-		ExecuteAsJSON(func(c web.Context) error {
+		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -349,7 +349,7 @@ func TestUser_Impersonation_ValidUser(t *testing.T) {
 		WithURL("http://example.com/api/v1").
 		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
 		AddHeader("X-Fider-UserID", strconv.Itoa(mock.AryaStark.ID)).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
 

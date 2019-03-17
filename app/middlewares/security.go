@@ -11,7 +11,7 @@ import (
 // Secure adds web security related Http Headers to response
 func Secure() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			cdnHost := env.Config.CDN.Host
 			if cdnHost != "" && !env.IsSingleHostMode() {
 				cdnHost = "*." + cdnHost

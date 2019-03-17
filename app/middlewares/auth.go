@@ -8,7 +8,7 @@ import (
 // IsAuthenticated blocks non-authenticated requests
 func IsAuthenticated() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if !c.IsAuthenticated() {
 				return c.Unauthorized()
 			}
@@ -20,7 +20,7 @@ func IsAuthenticated() web.MiddlewareFunc {
 // IsAuthorized blocks non-authorized requests
 func IsAuthorized(roles ...models.Role) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			user := c.User()
 			for _, role := range roles {
 				if user.Role == role {

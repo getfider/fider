@@ -19,7 +19,7 @@ func TestWebSetup(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		Expect(c.ActiveTransaction()).IsNotNil()
 		return c.NoContent(http.StatusOK)
 	})
@@ -32,7 +32,7 @@ func TestWebSetup_Failure(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
 
@@ -44,7 +44,7 @@ func TestWebSetup_Panic(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		panic("Boom!")
 	})
 
@@ -56,7 +56,7 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Failure(errors.New("Something went wrong..."))
 	})
@@ -70,7 +70,7 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 
 	server, _ := mock.NewServer()
 	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c web.Context) error {
+	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Ok(web.Map{})
 	})

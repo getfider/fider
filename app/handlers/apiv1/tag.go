@@ -8,7 +8,7 @@ import (
 
 // ListTags returns all tags
 func ListTags() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		tags, err := c.Services().Tags.GetAll()
 		if err != nil {
 			return c.Failure(err)
@@ -20,7 +20,7 @@ func ListTags() web.HandlerFunc {
 
 // AssignTag to existing dea
 func AssignTag() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.AssignUnassignTag)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -37,7 +37,7 @@ func AssignTag() web.HandlerFunc {
 
 // UnassignTag from existing dea
 func UnassignTag() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.AssignUnassignTag)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -54,7 +54,7 @@ func UnassignTag() web.HandlerFunc {
 
 // CreateEditTag creates a new tag on current tenant
 func CreateEditTag() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateEditTag)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -81,7 +81,7 @@ func CreateEditTag() web.HandlerFunc {
 
 // DeleteTag deletes an existing tag
 func DeleteTag() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.DeleteTag)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)

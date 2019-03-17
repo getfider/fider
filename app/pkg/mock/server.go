@@ -17,7 +17,7 @@ import (
 // Server is a HTTP server wrapper for testing purpose
 type Server struct {
 	engine     *web.Engine
-	context    web.Context
+	context    *web.Context
 	recorder   *httptest.ResponseRecorder
 	middleware []web.MiddlewareFunc
 }

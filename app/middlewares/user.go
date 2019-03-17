@@ -19,7 +19,7 @@ import (
 // User gets JWT Auth token from cookie and insert into context
 func User() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			var (
 				token string
 				user  *models.User

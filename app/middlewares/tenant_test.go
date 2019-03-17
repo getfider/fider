@@ -42,7 +42,7 @@ func TestMultiTenant(t *testing.T) {
 			server, _ := mock.NewServer()
 			server.Use(middlewares.MultiTenant())
 
-			status, response := server.WithURL(url).Execute(func(c web.Context) error {
+			status, response := server.WithURL(url).Execute(func(c *web.Context) error {
 				return c.String(http.StatusOK, c.Tenant().Name)
 			})
 
@@ -58,7 +58,7 @@ func TestMultiTenant_SubSubDomain(t *testing.T) {
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
-	status, _ := server.WithURL("http://demo.demo.test.fider.io").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://demo.demo.test.fider.io").Execute(func(c *web.Context) error {
 		if c.Tenant() == nil {
 			return c.Ok(web.Map{})
 		}
@@ -74,7 +74,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
-	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		if c.Tenant() == nil {
 			return c.Ok(web.Map{})
 		}
@@ -135,7 +135,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		var canonicalURL string
 		status, _ := server.
 			WithURL(testCase.input).
-			Execute(func(c web.Context) error {
+			Execute(func(c *web.Context) error {
 				canonicalURL, _ = c.Get("Canonical-URL").(string)
 				return c.Ok(web.Map{})
 			})
@@ -151,7 +151,7 @@ func TestSingleTenant_NoTenants(t *testing.T) {
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
-	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		if c.Tenant() == nil {
 			return c.Ok(web.Map{})
 		}
@@ -168,7 +168,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	server.Use(middlewares.SingleTenant())
 	services.Tenants.Add("MyCompany", "mycompany", models.TenantActive)
 
-	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -183,7 +183,7 @@ func TestBlockPendingTenants_Active(t *testing.T) {
 	mock.DemoTenant.Status = models.TenantActive
 
 	server.Use(middlewares.BlockPendingTenants())
-	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -197,7 +197,7 @@ func TestBlockPendingTenants_Pending(t *testing.T) {
 	mock.DemoTenant.Status = models.TenantPending
 
 	server.Use(middlewares.BlockPendingTenants())
-	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusTeapot)
 	})
 
@@ -211,7 +211,7 @@ func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
 	mock.DemoTenant.IsPrivate = true
 
 	server.Use(middlewares.CheckTenantPrivacy())
-	status, response := server.OnTenant(mock.DemoTenant).Execute(func(c web.Context) error {
+	status, response := server.OnTenant(mock.DemoTenant).Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -229,7 +229,7 @@ func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
 	status, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -245,7 +245,7 @@ func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 	server.Use(middlewares.CheckTenantPrivacy())
 	status, _ := server.
 		OnTenant(mock.DemoTenant).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -258,7 +258,7 @@ func TestRequireTenant_MultiHostMode_NoTenants_404(t *testing.T) {
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, _ := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+	status, _ := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -271,7 +271,7 @@ func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, response := server.WithURL("http://avengers.test.fider.io").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://avengers.test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -285,7 +285,7 @@ func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, response := server.WithURL("http://somedomain.com").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 
@@ -299,7 +299,7 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, response := server.WithURL("http://demo.test.fider.io").Execute(func(c web.Context) error {
+	status, response := server.WithURL("http://demo.test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
@@ -315,7 +315,7 @@ func TestBlockLockedTenants_ActiveTenant(t *testing.T) {
 	status, response := server.
 		WithURL("http://demo.test.fider.io").
 		OnTenant(mock.DemoTenant).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.Tenant().Name)
 		})
 
@@ -332,7 +332,7 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 	status, response := server.
 		WithURL("http://demo.test.fider.io").
 		OnTenant(mock.DemoTenant).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.Tenant().Name)
 		})
 
@@ -349,7 +349,7 @@ func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
 	status, _ := server.
 		WithURL("http://demo.test.fider.io/api/v1/posts").
 		OnTenant(mock.DemoTenant).
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.Tenant().Name)
 		})
 

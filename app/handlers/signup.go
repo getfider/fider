@@ -20,7 +20,7 @@ import (
 
 // CheckAvailability checks if given domain is available to be used
 func CheckAvailability() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		subdomain := strings.ToLower(c.Param("subdomain"))
 
 		messages, _ := validate.Subdomain(c.Services().Tenants, subdomain)
@@ -36,7 +36,7 @@ func CheckAvailability() web.HandlerFunc {
 
 //CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateTenant)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -96,7 +96,7 @@ func CreateTenant() web.HandlerFunc {
 
 //SignUp is the entry point for installation / signup
 func SignUp() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		if env.IsSingleHostMode() {
 			tenant, err := c.Services().Tenants.First()
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
@@ -123,7 +123,7 @@ func SignUp() web.HandlerFunc {
 
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		if c.Tenant().Status == models.TenantPending {
 			return VerifySignInKey(models.EmailVerificationKindSignUp)(c)
 		}
