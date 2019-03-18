@@ -8,6 +8,7 @@ import (
 
 type HandlerFunc interface{}
 type Msg interface{}
+type Event interface{}
 
 type Service interface {
 	Category() string
@@ -24,32 +25,42 @@ func Register(svc Service) {
 func Reset() {
 	services = make([]Service, 0)
 	handlers = make(map[string]HandlerFunc)
+	listeners = make(map[string][]HandlerFunc)
 }
 
 // Initializes the bus services that have been registered via bus.Register
 // Services that set via Init(...services) are always registered (regardless of Enabled() function)
 /// and have preference over services registered from bus.Register
 func Init(forcedServices ...Service) {
-	var initializedServices = make(map[string]bool)
 	for _, svc := range forcedServices {
 		svc.Init()
-		initializedServices[svc.Category()] = true
 	}
 
 	for _, svc := range services {
-		_, found := initializedServices[svc.Category()]
-		if !found && svc.Enabled() {
+		if svc.Enabled() {
 			svc.Init()
 		}
 	}
 }
 
 var handlers = make(map[string]HandlerFunc)
+var listeners = make(map[string][]HandlerFunc)
 
-func AddHandler(s Service, handler HandlerFunc) {
+func AddHandler(handler HandlerFunc) {
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
 	handlers[keyForElement(elem)] = handler
+}
+
+func AddEventListener(handler HandlerFunc) {
+	handlerType := reflect.TypeOf(handler)
+	elem := handlerType.In(1).Elem()
+	eventName := keyForElement(elem)
+	_, exists := listeners[eventName]
+	if !exists {
+		listeners[eventName] = make([]HandlerFunc, 0)
+	}
+	listeners[eventName] = append(listeners[eventName], handler)
 }
 
 func Dispatch(ctx context.Context, msg Msg) error {
@@ -75,6 +86,25 @@ func Dispatch(ctx context.Context, msg Msg) error {
 		return nil
 	}
 	return err.(error)
+}
+
+func Publish(ctx context.Context, evt Event) {
+	typeof := reflect.TypeOf(evt)
+	if typeof.Kind() != reflect.Ptr {
+		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
+	}
+	elem := typeof.Elem()
+	key := keyForElement(elem)
+	eventListeners := listeners[key]
+
+	var params = []reflect.Value{
+		reflect.ValueOf(ctx),
+		reflect.ValueOf(evt),
+	}
+
+	for _, evtListener := range eventListeners {
+		reflect.ValueOf(evtListener).Call(params)
+	}
 }
 
 func keyForElement(t reflect.Type) string {

@@ -53,9 +53,9 @@ func (s Service) Init() {
 		awsSession := session.New(s3Config)
 		DefaultClient = s3.New(awsSession)
 	}
-	bus.AddHandler(s, retrieveBlob)
-	bus.AddHandler(s, storeBlob)
-	bus.AddHandler(s, deleteBlob)
+	bus.AddHandler(retrieveBlob)
+	bus.AddHandler(storeBlob)
+	bus.AddHandler(deleteBlob)
 }
 
 func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {

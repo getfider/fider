@@ -25,7 +25,7 @@ func (s GreeterService) Enabled() bool {
 }
 
 func (s GreeterService) Init() {
-	bus.AddHandler(s, Greet)
+	bus.AddHandler(Greet)
 }
 
 var getGreeting = func(ctx context.Context) string {
@@ -49,7 +49,7 @@ func (s BetterGreeterService) Enabled() bool {
 }
 
 func (s BetterGreeterService) Init() {
-	bus.AddHandler(s, SayHello)
+	bus.AddHandler(SayHello)
 }
 
 func SayHello(ctx context.Context, cmd *SayHelloCommand) error {

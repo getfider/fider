@@ -32,7 +32,7 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	RequestsHistory = make([]*http.Request, 0)
-	bus.AddHandler(s, requestHandler)
+	bus.AddHandler(requestHandler)
 }
 
 func requestHandler(ctx context.Context, cmd *httpclient.Request) error {

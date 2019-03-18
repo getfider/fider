@@ -27,6 +27,8 @@ import (
 	_ "github.com/getfider/fider/app/services/blob/s3"
 	_ "github.com/getfider/fider/app/services/blob/sql"
 	_ "github.com/getfider/fider/app/services/httpclient"
+	_ "github.com/getfider/fider/app/services/log/console"
+	_ "github.com/getfider/fider/app/services/log/sql"
 )
 
 var (

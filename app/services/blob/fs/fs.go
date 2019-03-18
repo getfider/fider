@@ -36,9 +36,9 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddHandler(s, retrieveBlob)
-	bus.AddHandler(s, storeBlob)
-	bus.AddHandler(s, deleteBlob)
+	bus.AddHandler(retrieveBlob)
+	bus.AddHandler(storeBlob)
+	bus.AddHandler(deleteBlob)
 }
 
 func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {

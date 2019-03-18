@@ -27,7 +27,7 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddHandler(s, requestHandler)
+	bus.AddHandler(requestHandler)
 }
 
 type BasicAuth struct {

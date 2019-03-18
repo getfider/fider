@@ -20,4 +20,5 @@ var (
 	ClaimsCtxKey      = contextKey("CLAIMS")
 	ServicesCtxKey    = contextKey("SERVICES")
 	TasksCtxKey       = contextKey("TASKS")
+	LogPropsCtxKey    = contextKey("LOG_PROPS")
 )
