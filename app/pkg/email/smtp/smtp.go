@@ -13,7 +13,6 @@ import (
 
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 )
 
 func authenticate(username string, password string, host string) gosmtp.Auth {
@@ -41,7 +40,6 @@ func (b *builder) Bytes() []byte {
 
 //Sender is used to send emails
 type Sender struct {
-	logger   log.Logger
 	host     string
 	port     string
 	username string
@@ -50,8 +48,8 @@ type Sender struct {
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, host, port, username, password string) *Sender {
-	return &Sender{logger, host, port, username, password, sendMail}
+func NewSender(host, port, username, password string) *Sender {
+	return &Sender{host, port, username, password, sendMail}
 }
 
 //ReplaceSend can be used to mock internal send function
@@ -72,18 +70,20 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	}
 
 	if !email.CanSendTo(to.Address) {
-		s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
-			"Name":    to.Name,
-			"Address": to.Address,
-		})
+		// EXPERIMENTAL-BUS enable when email is a bus service
+		// s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
+		// 	"Name":    to.Name,
+		// 	"Address": to.Address,
+		// })
 		return nil
 	}
 
-	s.logger.Debugf("Sending email to @{Address} with template @{TemplateName} and params @{Params}.", log.Props{
-		"Address":      to.Address,
-		"TemplateName": templateName,
-		"Params":       to.Params,
-	})
+	// EXPERIMENTAL-BUS enable when email is a bus service
+	// s.logger.Debugf("Sending email to @{Address} with template @{TemplateName} and params @{Params}.", log.Props{
+	// 	"Address":      to.Address,
+	// 	"TemplateName": templateName,
+	// 	"Params":       to.Params,
+	// })
 
 	message := email.RenderMessage(ctx, templateName, params.Merge(to.Params))
 	b := builder{}
@@ -103,7 +103,8 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
-	s.logger.Debug("Email sent.")
+	// EXPERIMENTAL-BUS enable when email is a bus service
+	// s.logger.Debug("Email sent.")
 	return nil
 }
 
@@ -169,7 +170,7 @@ func generateMessageID(localName string) string {
 	buf := make([]byte, 16)
 	_, err := rand.Read(buf)
 	if err != nil {
-	  panic(err)
+		panic(err)
 	}
 	randStr := hex.EncodeToString(buf)
 	messageID := fmt.Sprintf("<%s.%s@%s>", randStr, timestamp, localName)

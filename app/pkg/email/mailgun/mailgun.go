@@ -13,21 +13,19 @@ import (
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
 
 //Sender is used to send emails
 type Sender struct {
-	logger log.Logger
 	domain string
 	apiKey string
 }
 
 //NewSender creates a new mailgun email sender
-func NewSender(logger log.Logger, domain, apiKey string) *Sender {
-	return &Sender{logger, domain, apiKey}
+func NewSender(domain, apiKey string) *Sender {
+	return &Sender{domain, apiKey}
 }
 
 //Send an email
@@ -72,10 +70,11 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 				form.Add("to", r.String())
 				recipientVariables[r.Address] = r.Params
 			} else {
-				s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
-					"Name":    r.Name,
-					"Address": r.Address,
-				})
+				// EXPERIMENTAL-BUS enable when email is a bus service
+				// s.logger.Warnf("Skipping email to '@{Name} <@{Address}>'.", log.Props{
+				// 	"Name":    r.Name,
+				// 	"Address": r.Address,
+				// })
 			}
 		}
 	}
@@ -95,15 +94,17 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	}
 
 	if isBatch {
-		s.logger.Debugf("Sending email to @{CountRecipients} recipients with template @{TemplateName}.", log.Props{
-			"CountRecipients": len(recipientVariables),
-			"TemplateName":    templateName,
-		})
+		// EXPERIMENTAL-BUS enable when email is a bus service
+		// s.logger.Debugf("Sending email to @{CountRecipients} recipients with template @{TemplateName}.", log.Props{
+		// 	"CountRecipients": len(recipientVariables),
+		// 	"TemplateName":    templateName,
+		// })
 	} else {
-		s.logger.Debugf("Sending email to @{Address} with template @{TemplateName}.", log.Props{
-			"Address":      to[0].Address,
-			"TemplateName": templateName,
-		})
+		// EXPERIMENTAL-BUS enable when email is a bus service
+		// s.logger.Debugf("Sending email to @{Address} with template @{TemplateName}.", log.Props{
+		// 	"Address":      to[0].Address,
+		// 	"TemplateName": templateName,
+		// })
 	}
 
 	url := fmt.Sprintf(baseURL, s.domain)
@@ -124,8 +125,9 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 	if err != nil {
 		return errors.Wrap(err, "failed to send email with template %s", templateName)
 	}
-	s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
-		"StatusCode": req.ResponseStatusCode,
-	})
+	// EXPERIMENTAL-BUS enable when email is a bus service
+	// s.logger.Debugf("Email sent with response code @{StatusCode}.", log.Props{
+	// 	"StatusCode": req.ResponseStatusCode,
+	// })
 	return nil
 }

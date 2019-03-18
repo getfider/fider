@@ -1,6 +1,7 @@
 package mailgun_test
 
 import (
+	"context"
 	"io/ioutil"
 	"net/url"
 	"testing"
@@ -14,17 +15,15 @@ import (
 	"github.com/getfider/fider/app/pkg/email"
 
 	"github.com/getfider/fider/app/pkg/email/mailgun"
-	"github.com/getfider/fider/app/pkg/log/noop"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-var logger = noop.NewLogger()
-var sender = mailgun.NewSender(logger, "mydomain.com", "mys3cr3tk3y")
+var sender = mailgun.NewSender("mydomain.com", "mys3cr3tk3y")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
-var ctx = worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, logger)
+var ctx = worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
 
 func init() {
 	ctx.SetTenant(tenant)

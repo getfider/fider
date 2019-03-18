@@ -8,7 +8,8 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/services/log"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/log"
 )
 
 func init() {
@@ -22,7 +23,7 @@ func (s Service) Category() string {
 }
 
 func (s Service) Enabled() bool {
-	return true
+	return !env.IsTest()
 }
 
 func (s Service) Init() {
@@ -64,11 +65,12 @@ func writeLog(ctx context.Context, level log.Level, message string, props log.Pr
 	usingDatabase(ctx, func(db *dbx.Database) {
 		props = log.GetProps(ctx).Merge(props)
 
-		message = log.Parse(message, props, true)
+		message = log.Parse(message, props, false)
 		tag := props[log.PropertyKeyTag]
 		if tag == nil {
 			tag = "???"
 		}
+		delete(props, log.PropertyKeyTag)
 
 		_, _ = db.Connection().ExecContext(ctx,
 			"INSERT INTO logs (tag, level, text, created_at, properties) VALUES ($1, $2, $3, $4, $5)",

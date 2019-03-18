@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/getfider/fider/app"
@@ -13,11 +14,10 @@ import (
 
 //Context holds references to services available for jobs
 type Context struct {
+	innerCtx      context.Context
 	workerID      string
 	taskName      string
 	services      *app.Services
-	logger        log.Logger
-	db            *dbx.Database
 	baseURL       string
 	logoURL       string
 	assetsBaseURL string
@@ -26,21 +26,24 @@ type Context struct {
 }
 
 //NewContext creates a new context
-func NewContext(workerID string, task Task, db *dbx.Database, logger log.Logger) *Context {
-	ctxLogger := logger.New()
+func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	contextID := rand.String(32)
 
-	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
+	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, contextID)
 	if task.OriginSessionID != "" {
-		ctxLogger.SetProperty(log.PropertyKeySessionID, task.OriginSessionID)
+		ctx = log.SetProperty(ctx, log.PropertyKeySessionID, task.OriginSessionID)
 	}
 
 	return &Context{
+		innerCtx: ctx,
 		workerID: workerID,
 		taskName: task.Name,
-		db:       db,
-		logger:   ctxLogger,
 	}
+}
+
+//Database returns current database
+func (c *Context) Database() *dbx.Database {
+	return c.innerCtx.Value(app.DatabaseCtxKey).(*dbx.Database)
 }
 
 //SetBaseURL on context
@@ -62,7 +65,7 @@ func (c *Context) SetAssetsBaseURL(assetsBaseURL string) {
 func (c *Context) SetUser(user *models.User) {
 	c.user = user
 	if user != nil {
-		c.logger.SetProperty(log.PropertyKeyUserID, user.ID)
+		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyUserID, user.ID)
 	}
 	if c.services != nil {
 		c.services.SetCurrentUser(user)
@@ -73,7 +76,7 @@ func (c *Context) SetUser(user *models.User) {
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	c.tenant = tenant
 	if tenant != nil {
-		c.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
+		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyTenantID, tenant.ID)
 	}
 	if c.services != nil {
 		c.services.SetCurrentTenant(tenant)
@@ -115,20 +118,10 @@ func (c *Context) Services() *app.Services {
 	return c.services
 }
 
-//Logger from current context
-func (c *Context) Logger() log.Logger {
-	return c.logger
-}
-
-//Database from current context
-func (c *Context) Database() *dbx.Database {
-	return c.db
-}
-
 //Failure logs details of error
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
-	c.logger.Error(err)
+	log.Error(c.innerCtx, err)
 	return err
 }
 
@@ -141,4 +134,36 @@ func (c Context) LogoURL() string {
 func (c Context) TenantAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
 	return c.assetsBaseURL + path
+}
+
+func (ctx *Context) Debug(message string) {
+	log.Debug(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Debugf(message string, props log.Props) {
+	log.Debugf(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Info(message string) {
+	log.Info(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Infof(message string, props log.Props) {
+	log.Infof(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Warn(message string) {
+	log.Warn(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Warnf(message string, props log.Props) {
+	log.Warnf(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Error(err error) {
+	log.Error(ctx.innerCtx, err)
+}
+
+func (ctx *Context) Errorf(message string, props log.Props) {
+	log.Errorf(ctx.innerCtx, message, props)
 }

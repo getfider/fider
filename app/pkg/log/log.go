@@ -1,141 +1,64 @@
 package log
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"fmt"
-	"regexp"
+	"context"
 	"strings"
+
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 )
 
-// Level defines all possible log levels
-type Level uint8
+var CurrentLevel = parseLevel(strings.ToUpper(env.Config.Log.Level))
 
-// Logger defines the logging interface.
-type Logger interface {
-	Disable()
-	Enable()
-	SetLevel(level Level)
-	SetProperty(key string, value interface{})
-	Debug(message string)
-	Debugf(message string, props Props)
-	Info(message string)
-	Infof(message string, props Props)
-	Warn(format string)
-	Warnf(message string, props Props)
-	Error(err error)
-	Errorf(message string, props Props)
-	IsEnabled(level Level) bool
-	Write(p []byte) (int, error)
-	New() Logger
+func Debug(ctx context.Context, message string) {
+	bus.Publish(ctx, &DebugCommand{Message: message})
 }
 
-const (
-	// PropertyKeySessionID is the session id of current logger
-	PropertyKeySessionID = "SessionID"
-	// PropertyKeyContextID is the context id of current logger
-	PropertyKeyContextID = "ContextID"
-	// PropertyKeyUserID is the user id of current logger
-	PropertyKeyUserID = "UserID"
-	// PropertyKeyTenantID is the tenant id of current logger
-	PropertyKeyTenantID = "TenantID"
-)
-
-const (
-	// DEBUG for verbose logs
-	DEBUG Level = iota + 1
-	// INFO for WARN+ERROR+INFO logs
-	INFO
-	// WARN for WARN+ERROR logs
-	WARN
-	// ERROR for ERROR only logs
-	ERROR
-	// NONE is used to disable logs
-	NONE
-)
-
-// ParseLevel returns a log.Level based on input string
-func ParseLevel(level string) Level {
-	switch level {
-	case "DEBUG":
-		return DEBUG
-	case "WARN":
-		return WARN
-	case "ERROR":
-		return ERROR
-	default:
-		return INFO
-	}
+func Debugf(ctx context.Context, message string, props Props) {
+	bus.Publish(ctx, &DebugCommand{Message: message, Props: props})
 }
 
-func (l Level) String() string {
-	switch l {
-	case DEBUG:
-		return "DEBUG"
-	case INFO:
-		return "INFO"
-	case WARN:
-		return "WARN"
-	case ERROR:
-		return "ERROR"
-	case NONE:
-		return "NONE"
-	default:
-		return "???"
-	}
+func Info(ctx context.Context, message string) {
+	bus.Publish(ctx, &DebugCommand{Message: message})
 }
 
-// Props is a map of key:value
-type Props map[string]interface{}
-
-// Value converts props into a database value
-func (p Props) Value() (driver.Value, error) {
-	j, err := json.Marshal(p)
-	return j, err
+func Infof(ctx context.Context, message string, props Props) {
+	bus.Publish(ctx, &DebugCommand{Message: message, Props: props})
 }
 
-// Merge current props with given props
-func (p Props) Merge(props Props) Props {
-	new := Props{}
-	if p != nil {
-		for k, v := range p {
-			new[k] = v
-		}
-	}
-	if props != nil {
-		for k, v := range props {
-			new[k] = v
-		}
-	}
-	return new
+func Warn(ctx context.Context, message string) {
+	bus.Publish(ctx, &WarnCommand{Message: message})
 }
 
-var placeholderFinder = regexp.MustCompile("@{.*?}")
+func Warnf(ctx context.Context, message string, props Props) {
+	bus.Publish(ctx, &WarnCommand{Message: message, Props: props})
+}
 
-// Parse is used to merge props into format and return a text message
-func Parse(format string, props Props, colorize bool) string {
-	if props == nil || len(props) == 0 {
-		return format
-	}
+func Error(ctx context.Context, err error) {
+	bus.Publish(ctx, &ErrorCommand{Err: err})
+}
 
-	for {
-		indexes := placeholderFinder.FindSubmatchIndex([]byte(format))
-		if len(indexes) == 0 {
-			return format
-		}
+func Errorf(ctx context.Context, message string, props Props) {
+	bus.Publish(ctx, &ErrorCommand{Message: message, Props: props})
+}
 
-		ph := format[indexes[0]:indexes[1]]
-		phContent := ph[2 : len(ph)-1]
-		phSeparatorIdx := strings.Index(phContent, ":")
-		value := props[phContent]
-		if phSeparatorIdx >= 0 {
-			phName := phContent[:phSeparatorIdx]
-			phColor := phContent[phSeparatorIdx+1:]
-			value = props[phName]
-			if colorize {
-				value = Color(phColor, value)
-			}
-		}
-		format = fmt.Sprintf("%s%v%s", format[:indexes[0]], value, format[indexes[1]:])
-	}
+type DebugCommand struct {
+	Message string
+	Props   Props
+}
+
+type ErrorCommand struct {
+	Err     error
+	Message string
+	Props   Props
+}
+
+type WarnCommand struct {
+	Message string
+	Props   Props
+}
+
+type InfoCommand struct {
+	Message string
+	Props   Props
 }

@@ -1,6 +1,7 @@
 package smtp_test
 
 import (
+	"context"
 	gosmtp "net/smtp"
 	"regexp"
 	"testing"
@@ -9,7 +10,6 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/smtp"
-	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -21,13 +21,12 @@ type request struct {
 	body       []byte
 }
 
-var logger = noop.NewLogger()
-var sender = smtp.NewSender(logger, "localhost", "1234", "us3r", "p4ss")
+var sender = smtp.NewSender("localhost", "1234", "us3r", "p4ss")
 var tenant = &models.Tenant{
 	Subdomain: "got",
 }
 
-var ctx = worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, logger)
+var ctx = worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
 
 var requests = make([]request, 0)
 

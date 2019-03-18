@@ -1,9 +1,9 @@
 package email_test
 
 import (
+	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/worker"
 
 	"github.com/getfider/fider/app/pkg/email"
@@ -14,7 +14,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	ctx := worker.NewContext("ID-1", worker.Task{Name: "TaskName"}, nil, noop.NewLogger())
+	ctx := worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
 	message := email.RenderMessage(ctx, "echo_test", email.Params{
 		"name": "Fider",
 	})

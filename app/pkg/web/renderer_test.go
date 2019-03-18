@@ -9,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -25,7 +24,7 @@ func TestRenderer_Basic(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/basic.html", ctx)
 }
@@ -35,7 +34,7 @@ func TestRenderer_WithChunkPreload(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{ChunkName: "Test.page"}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/chunk.html", ctx)
 }
@@ -46,7 +45,7 @@ func TestRenderer_Tenant(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetTenant(&models.Tenant{Name: "Game of Thrones"})
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/tenant.html", ctx)
 }
@@ -57,7 +56,7 @@ func TestRenderer_WithCanonicalURL(t *testing.T) {
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetCanonicalURL("http://feedback.demo.org")
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{}, ctx)
 	compareRendererResponse(buf, "/app/pkg/web/testdata/canonical.html", ctx)
 }
@@ -67,7 +66,7 @@ func TestRenderer_Props(t *testing.T) {
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{
 		Title:       "My Page Title",
 		Description: "My Page Description",
@@ -98,7 +97,7 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 		AvatarType: models.AvatarTypeGravatar,
 		AvatarURL:  "https://demo.test.fider.io:3000/avatars/gravatar/5/Jon%20Snow",
 	})
-	renderer := web.NewRenderer(&models.SystemSettings{}, noop.NewLogger())
+	renderer := web.NewRenderer(&models.SystemSettings{})
 	renderer.Render(buf, "index.html", web.Props{
 		Title:       "My Page Title",
 		Description: "My Page Description",

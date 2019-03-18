@@ -1,14 +1,16 @@
 package middlewares_test
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/middlewares"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
@@ -82,7 +84,8 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 func TestWorkerSetup(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", worker.Task{Name: "Any Task"}, dbx.New(), noop.NewLogger())
+	ctx := context.WithValue(context.Background(), app.DatabaseCtxKey, dbx.New())
+	c := worker.NewContext(ctx, "0", worker.Task{Name: "Any Task"})
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
@@ -94,7 +97,8 @@ func TestWorkerSetup(t *testing.T) {
 func TestWorkerSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
-	c := worker.NewContext("0", worker.Task{Name: "Any Task"}, dbx.New(), noop.NewLogger())
+	ctx := context.WithValue(context.Background(), app.DatabaseCtxKey, dbx.New())
+	c := worker.NewContext(ctx, "0", worker.Task{Name: "Any Task"})
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()

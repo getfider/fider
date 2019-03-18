@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/log/noop"
 	"github.com/getfider/fider/app/pkg/rand"
 
 	"github.com/getfider/fider/app/pkg/worker"
@@ -28,7 +27,7 @@ func TestBackgroundWorker(t *testing.T) {
 	var finished bool
 	mu := &sync.RWMutex{}
 
-	w := worker.New(nil, noop.NewLogger())
+	w := worker.New(nil)
 	w.Enqueue(worker.Task{
 		Name: "Do Something",
 		Job: func(c *worker.Context) error {
@@ -54,7 +53,7 @@ func TestBackgroundWorker_ShutdownWhenEmpty(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil, noop.NewLogger())
+	w := worker.New(nil)
 	Expect(w.Shutdown(ctx)).IsNil()
 }
 
@@ -64,7 +63,7 @@ func TestBackgroundWorker_ShutdownWithStuckTasks(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil, noop.NewLogger())
+	w := worker.New(nil)
 	w.Enqueue(dummyTask)
 	Expect(w.Shutdown(ctx)).IsNotNil()
 }
@@ -75,7 +74,7 @@ func TestBackgroundWorker_ShutdownWithRunningTasks(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil, noop.NewLogger())
+	w := worker.New(nil)
 	w.Enqueue(dummyTask)
 	go w.Run("worker-1")
 	Expect(w.Shutdown(ctx)).IsNil()

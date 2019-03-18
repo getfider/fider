@@ -7,7 +7,6 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -34,7 +33,6 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 		case syscall.SIGINT, syscall.SIGTERM:
 			err := e.Stop()
 			if err != nil {
-				e.Logger().Error(errors.Wrap(err, "failed to stop fider"))
 				return 1
 			}
 			return 0

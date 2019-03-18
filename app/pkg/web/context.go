@@ -72,7 +72,6 @@ type Context struct {
 	id        string
 	sessionID string
 	engine    *Engine
-	logger    log.Logger
 	params    StringMap
 }
 
@@ -80,21 +79,19 @@ type Context struct {
 func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
 	contextID := rand.String(32)
 
-	logger := engine.logger.New()
-	logger.SetProperty(log.PropertyKeyContextID, contextID)
-	logger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
+	ctx := context.WithValue(req.Context(), app.DatabaseCtxKey, engine.db)
+	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, contextID)
+	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
+	ctx = log.SetProperty(ctx, "UserAgent", req.Header.Get("User-Agent"))
 
-	ctx := &Context{
+	return &Context{
 		id:       contextID,
 		engine:   engine,
-		innerCtx: req.Context(),
+		innerCtx: ctx,
 		Request:  WrapRequest(req),
 		Response: res,
 		params:   params,
-		logger:   logger,
 	}
-	ctx.Set(app.DatabaseCtxKey, engine.db)
-	return ctx
 }
 
 //Engine returns main HTTP engine
@@ -110,7 +107,7 @@ func (ctx *Context) SessionID() string {
 //SetSessionID sets the session ID on current context
 func (ctx *Context) SetSessionID(id string) {
 	ctx.sessionID = id
-	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
+	ctx.innerCtx = log.SetProperty(ctx.innerCtx, log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -170,6 +167,11 @@ func (ctx *Context) Enqueue(task worker.Task) {
 	}))
 }
 
+//Database returns current database
+func (c *Context) Database() *dbx.Database {
+	return c.innerCtx.Value(app.DatabaseCtxKey).(*dbx.Database)
+}
+
 //Tenant returns current tenant
 func (ctx *Context) Tenant() *models.Tenant {
 	tenant, ok := ctx.Get(app.TenantCtxKey).(*models.Tenant)
@@ -182,7 +184,7 @@ func (ctx *Context) Tenant() *models.Tenant {
 //SetTenant update HTTP context with current tenant
 func (ctx *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		ctx.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
+		ctx.innerCtx = log.SetProperty(ctx.innerCtx, log.PropertyKeyTenantID, tenant.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentTenant(tenant)
@@ -212,11 +214,6 @@ func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
 		return validate.Unauthorized()
 	}
 	return i.Validate(ctx.User(), ctx.Services())
-}
-
-//Logger returns current logger
-func (ctx *Context) Logger() log.Logger {
-	return ctx.logger
 }
 
 //IsAuthenticated returns true if user is authenticated
@@ -263,7 +260,7 @@ func (ctx *Context) Failure(err error) error {
 		return ctx.NotFound()
 	}
 
-	ctx.Logger().Errorf(err.Error(), log.Props{
+	ctx.Errorf(err.Error(), log.Props{
 		"Body":       ctx.Request.Body,
 		"HttpMethod": ctx.Request.Method,
 		"URL":        ctx.Request.URL.String(),
@@ -345,7 +342,7 @@ func (ctx *Context) prerender(code int, html io.Reader) error {
 	}
 	err := ctx.Dispatch(req)
 	if err != nil {
-		ctx.Logger().Error(errors.Wrap(err, "failed to execute rendergun"))
+		ctx.Error(errors.Wrap(err, "failed to execute rendergun"))
 		return ctx.TryAgainLater(24 * time.Hour)
 	}
 
@@ -390,7 +387,7 @@ func (ctx *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (ctx *Context) SetUser(user *models.User) {
 	if user != nil {
-		ctx.logger.SetProperty(log.PropertyKeyUserID, user.ID)
+		ctx.innerCtx = log.SetProperty(ctx.innerCtx, log.PropertyKeyUserID, user.ID)
 	}
 	if ctx.Services() != nil {
 		ctx.Services().SetCurrentUser(user)
@@ -654,4 +651,36 @@ func (ctx *Context) SetCanonicalURL(rawurl string) {
 
 		ctx.Set("Canonical-URL", rawurl)
 	}
+}
+
+func (ctx *Context) Debug(message string) {
+	log.Debug(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Debugf(message string, props log.Props) {
+	log.Debugf(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Info(message string) {
+	log.Info(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Infof(message string, props log.Props) {
+	log.Infof(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Warn(message string) {
+	log.Warn(ctx.innerCtx, message)
+}
+
+func (ctx *Context) Warnf(message string, props log.Props) {
+	log.Warnf(ctx.innerCtx, message, props)
+}
+
+func (ctx *Context) Error(err error) {
+	log.Error(ctx.innerCtx, err)
+}
+
+func (ctx *Context) Errorf(message string, props log.Props) {
+	log.Errorf(ctx.innerCtx, message, props)
 }

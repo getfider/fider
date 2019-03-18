@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 	stdErrors "errors"
 	"io/ioutil"
@@ -18,8 +19,8 @@ import (
 var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
 // Migrate the database to latest version
-func (db *Database) Migrate(path string) error {
-	db.logger.Info("Running migrations...")
+func (db *Database) Migrate(ctx context.Context, path string) error {
+	log.Info(ctx, "Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
 		return errors.Wrap(err, "failed to open dir '%s'", path)
@@ -43,7 +44,7 @@ func (db *Database) Migrate(path string) error {
 	}
 	sort.Ints(versions)
 
-	db.logger.Infof("Found total of @{Total} migration files.", log.Props{
+	log.Infof(ctx, "Found total of @{Total} migration files.", log.Props{
 		"Total": len(versions),
 	})
 
@@ -52,7 +53,7 @@ func (db *Database) Migrate(path string) error {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
 
-	db.logger.Infof("Current version is @{Version}", log.Props{
+	log.Infof(ctx, "Current version is @{Version}", log.Props{
 		"Version": lastVersion,
 	})
 
@@ -60,7 +61,7 @@ func (db *Database) Migrate(path string) error {
 	for _, version := range versions {
 		if version > lastVersion {
 			fileName := versionFiles[version]
-			db.logger.Infof("Running Version: @{Version} (@{FileName})", log.Props{
+			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", log.Props{
 				"Version":  version,
 				"FileName": fileName,
 			})
@@ -71,7 +72,7 @@ func (db *Database) Migrate(path string) error {
 		}
 	}
 
-	db.logger.Info("Migrations finished with success.")
+	log.Info(ctx, "Migrations finished with success.")
 	return nil
 }
 

@@ -15,7 +15,6 @@ import (
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/oauth"
 )
@@ -37,7 +36,6 @@ type clientAssets struct {
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
-	logger        log.Logger
 	settings      *models.SystemSettings
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
@@ -45,10 +43,9 @@ type Renderer struct {
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
+func NewRenderer(settings *models.SystemSettings) *Renderer {
 	return &Renderer{
 		templates: make(map[string]*template.Template),
-		logger:    logger,
 		settings:  settings,
 		mutex:     sync.RWMutex{},
 	}

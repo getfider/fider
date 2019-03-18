@@ -4,14 +4,12 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
 )
 
 // Services holds reference to all Fider services
 type Services struct {
-	Logger        log.Logger
 	OAuth         oauth.Service
 	Users         storage.User
 	Tags          storage.Tag

@@ -26,7 +26,7 @@ func OAuthEcho() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			c.Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
@@ -70,7 +70,7 @@ func OAuthToken() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			c.Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect(redirectURL.String())
 		}
 

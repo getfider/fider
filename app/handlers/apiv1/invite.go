@@ -44,7 +44,7 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		c.Logger().Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+		c.Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
 			"TotalInvites": len(input.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})

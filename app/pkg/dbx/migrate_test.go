@@ -1,6 +1,7 @@
 package dbx_test
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -22,7 +23,7 @@ func TestMigrate_Success(t *testing.T) {
 	db := setupMigrationTest(t)
 	defer db.Close()
 
-	err := db.Migrate("/app/pkg/dbx/testdata/migration_success")
+	err := db.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_success")
 	Expect(err).IsNil()
 
 	trx, _ := db.Begin()
@@ -44,7 +45,7 @@ func TestMigrate_Failure(t *testing.T) {
 	trx, _ := db.Begin()
 	defer trx.Rollback()
 
-	err := db.Migrate("/app/pkg/dbx/testdata/migration_failure")
+	err := db.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_failure")
 	Expect(err).IsNotNil()
 
 	_, err = trx.Execute("SELECT description FROM dummy")

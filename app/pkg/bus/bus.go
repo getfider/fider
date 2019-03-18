@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 )
 
 type HandlerFunc interface{}
@@ -16,13 +17,21 @@ type Service interface {
 	Init()
 }
 
+var handlers = make(map[string]HandlerFunc)
+var listeners = make(map[string][]HandlerFunc)
 var services = make([]Service, 0)
+var busLock = &sync.RWMutex{}
 
 func Register(svc Service) {
+	busLock.Lock()
+	defer busLock.Unlock()
+
 	services = append(services, svc)
 }
 
 func Reset() {
+	busLock.Lock()
+	defer busLock.Unlock()
 	services = make([]Service, 0)
 	handlers = make(map[string]HandlerFunc)
 	listeners = make(map[string][]HandlerFunc)
@@ -43,16 +52,19 @@ func Init(forcedServices ...Service) {
 	}
 }
 
-var handlers = make(map[string]HandlerFunc)
-var listeners = make(map[string][]HandlerFunc)
-
 func AddHandler(handler HandlerFunc) {
+	busLock.RLock()
+	defer busLock.RUnlock()
+
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
 	handlers[keyForElement(elem)] = handler
 }
 
 func AddEventListener(handler HandlerFunc) {
+	busLock.RLock()
+	defer busLock.RUnlock()
+
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
 	eventName := keyForElement(elem)
@@ -64,6 +76,9 @@ func AddEventListener(handler HandlerFunc) {
 }
 
 func Dispatch(ctx context.Context, msg Msg) error {
+	busLock.RLock()
+	defer busLock.RUnlock()
+
 	typeof := reflect.TypeOf(msg)
 	if typeof.Kind() != reflect.Ptr {
 		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
@@ -89,6 +104,9 @@ func Dispatch(ctx context.Context, msg Msg) error {
 }
 
 func Publish(ctx context.Context, evt Event) {
+	busLock.RLock()
+	defer busLock.RUnlock()
+
 	typeof := reflect.TypeOf(evt)
 	if typeof.Kind() != reflect.Ptr {
 		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))

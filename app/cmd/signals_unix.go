@@ -19,8 +19,8 @@ var extraSignals = []os.Signal{syscall.SIGUSR1}
 func handleExtraSignal(s os.Signal, e *web.Engine, settings *models.SystemSettings) int {
 	switch s {
 	case syscall.SIGUSR1:
-		e.Logger().Info("SIGUSR1 received")
-		e.Logger().Info("Dumping process status")
+		println("SIGUSR1 received")
+		println("Dumping process status")
 		buf := new(bytes.Buffer)
 		pprof.Lookup("goroutine").WriteTo(buf, 1)
 		pprof.Lookup("heap").WriteTo(buf, 1)
@@ -31,7 +31,7 @@ func handleExtraSignal(s os.Signal, e *web.Engine, settings *models.SystemSettin
 		buf.WriteString(fmt.Sprintf("# Environment: %s\n", settings.Environment))
 		buf.WriteString(fmt.Sprintf("# Worker Queue: %d\n", e.Worker().Length()))
 		buf.WriteString(fmt.Sprintf("# Num Goroutines: %d\n", runtime.NumGoroutine()))
-		e.Logger().Info(buf.String())
+		println(buf.String())
 	}
 	return -1
 }

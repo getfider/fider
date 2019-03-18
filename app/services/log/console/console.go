@@ -8,7 +8,8 @@ import (
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/color"
-	"github.com/getfider/fider/app/services/log"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/log"
 )
 
 var stdOut = stdLog.New(os.Stdout, "", 0)
@@ -24,7 +25,7 @@ func (s Service) Category() string {
 }
 
 func (s Service) Enabled() bool {
-	return true
+	return !env.IsTest()
 }
 
 func (s Service) Init() {

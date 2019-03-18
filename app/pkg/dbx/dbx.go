@@ -4,15 +4,12 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"reflect"
-	"time"
 
 	"strings"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/noop"
 
 	//required
 	_ "github.com/lib/pq"
@@ -20,11 +17,6 @@ import (
 
 // New creates a new Database instance without logging
 func New() *Database {
-	return NewWithLogger(noop.NewLogger())
-}
-
-// NewWithLogger creates a new Database instance with logging or panic
-func NewWithLogger(logger log.Logger) *Database {
 	conn, err := sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
 		panic(errors.Wrap(err, "failed to open connection to the database"))
@@ -33,13 +25,12 @@ func NewWithLogger(logger log.Logger) *Database {
 	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
 	conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
 
-	return &Database{conn, logger, NewRowMapper()}
+	return &Database{conn, NewRowMapper()}
 }
 
 // Database represents a connection to a SQL database
 type Database struct {
 	conn   *sql.DB
-	logger log.Logger
 	mapper *RowMapper
 }
 
@@ -54,18 +45,13 @@ func (db *Database) Ping() error {
 	return err
 }
 
-// SetLogger replaces current database Logger
-func (db *Database) SetLogger(logger log.Logger) {
-	db.logger = logger
-}
-
 // Begin returns a new SQL transaction
 func (db *Database) Begin() (*Trx, error) {
 	tx, err := db.conn.Begin()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to start new transaction")
 	}
-	return &Trx{tx: tx, logger: db.logger, mapper: db.mapper}, nil
+	return &Trx{tx: tx, mapper: db.mapper}, nil
 }
 
 // Close connection to database
@@ -98,40 +84,25 @@ func (db *Database) Seed() {
 //Trx represents a Database transaction
 type Trx struct {
 	tx     *sql.Tx
-	logger log.Logger
 	mapper *RowMapper
 }
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
-// SetLogger replaces current transaction Logger
-func (trx *Trx) SetLogger(logger log.Logger) {
-	trx.logger = logger
-}
-
-// NoLogs disable logs for this transaction
-func (trx *Trx) NoLogs() {
-	trx.logger.Disable()
-}
-
-// ResumeLogs resume logs for this transaction
-func (trx *Trx) ResumeLogs() {
-	trx.logger.Enable()
-}
-
 // Execute given SQL command
 func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	result, err := trx.tx.Exec(command, args...)
 	if err != nil {
@@ -144,17 +115,18 @@ func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 
 // Scalar returns first row and first column
 func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	row := trx.tx.QueryRow(command, args...)
 	err := row.Scan(data)
@@ -169,17 +141,18 @@ func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) er
 
 // Get first row and bind to given data
 func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
@@ -201,17 +174,18 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 
 // QueryIntArray executes given SQL command and return first column as int
 func (trx *Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
@@ -233,17 +207,18 @@ func (trx *Trx) QueryIntArray(command string, args ...interface{}) ([]int, error
 
 // Exists returns true if at least one record is found
 func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
@@ -256,17 +231,18 @@ func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 
 // Count returns number of rows
 func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	rows, err := trx.tx.Query(command, args...)
 	if err != nil {
@@ -283,17 +259,18 @@ func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 
 //Select all matched rows bind to given data
 func (trx *Trx) Select(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
+	// EXPERIMENTAL-BUS enable once SQL is a bus service
+	// if trx.logger.IsEnabled(log.DEBUG) {
+	// 	command = formatter.Replace(command)
+	// 	start := time.Now()
+	// 	defer func() {
+	// 		trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+	// 			"Command":   command,
+	// 			"Args":      args,
+	// 			"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+	// 		})
+	// 	}()
+	// }
 
 	rows, err := trx.tx.Query(command, args...)
 	if err != nil {

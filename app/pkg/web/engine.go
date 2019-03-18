@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	stdLog "log"
 	"net/http"
 	"os"
 	"path"
@@ -11,13 +10,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/database"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -65,8 +64,8 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
 //Engine is our web engine wrapper
 type Engine struct {
+	innerCtx    context.Context
 	mux         *httprouter.Router
-	logger      log.Logger
 	renderer    *Renderer
 	db          *dbx.Database
 	binder      *DefaultBinder
@@ -79,22 +78,20 @@ type Engine struct {
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
 	db := dbx.New()
-	logger := database.NewLogger("WEB", db)
-	logger.SetProperty(log.PropertyKeyContextID, rand.String(32))
 
-	bgLogger := database.NewLogger("BGW", db)
-	bgLogger.SetProperty(log.PropertyKeyContextID, rand.String(32))
-
-	bus.Init()
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, app.DatabaseCtxKey, db)
+	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, rand.String(32))
+	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
 
 	router := &Engine{
+		innerCtx:    ctx,
 		mux:         httprouter.New(),
 		db:          db,
-		logger:      logger,
-		renderer:    NewRenderer(settings, logger),
+		renderer:    NewRenderer(settings),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(db, bgLogger),
+		worker:      worker.New(db),
 		cache:       cache.New(5*time.Minute, 10*time.Minute),
 	}
 
@@ -103,8 +100,8 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	e.logger.Info("Application is starting")
-	e.logger.Infof("GO_ENV: @{Env}", log.Props{
+	log.Info(e.innerCtx, "Application is starting")
+	log.Infof(e.innerCtx, "GO_ENV: @{Env}", log.Props{
 		"Env": env.Config.Environment,
 	})
 
@@ -124,8 +121,8 @@ func (e *Engine) Start(address string) {
 		IdleTimeout:  120 * time.Second,
 		Addr:         address,
 		Handler:      e.mux,
-		ErrorLog:     stdLog.New(e.logger, "", 0),
-		TLSConfig:    getDefaultTLSConfig(),
+		//ErrorLog:     stdLog.New(e.logger, "", 0), EXPERIMENTAL-BUS what to do with these logs? just ignore? dispatch?
+		TLSConfig: getDefaultTLSConfig(),
 	}
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {
@@ -143,14 +140,14 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		e.logger.Infof("https (auto ssl) server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "https (auto ssl) server started on @{Address}", log.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
-		e.logger.Infof("http server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "http server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		e.logger.Infof("https server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "https server started on @{Address}", log.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
@@ -164,24 +161,19 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	e.logger.Info("server is shutting down")
+	log.Info(e.innerCtx, "server is shutting down")
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
-	e.logger.Info("server has shutdown")
+	log.Info(e.innerCtx, "server has shutdown")
 
-	e.logger.Info("worker is shutting down")
+	log.Info(e.innerCtx, "worker is shutting down")
 	if err := e.worker.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown worker")
 	}
-	e.logger.Info("worker has shutdown")
+	log.Info(e.innerCtx, "worker has shutdown")
 
 	return nil
-}
-
-//Logger returns current logger
-func (e *Engine) Logger() log.Logger {
-	return e.logger
 }
 
 //Database returns current database
