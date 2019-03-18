@@ -408,6 +408,10 @@ func (ctx *Context) Dispatch(m bus.Msg) error {
 	return bus.Dispatch(ctx.innerCtx, m)
 }
 
+func (ctx *Context) Publish(evt bus.Event) {
+	bus.Publish(ctx.innerCtx, evt)
+}
+
 //AddCookie adds a cookie
 func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
 	cookie := &http.Cookie{

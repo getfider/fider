@@ -6,41 +6,46 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/email/mailgun"
 	"github.com/getfider/fider/app/services/httpclient/httpclientmock"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/email"
 
-	"github.com/getfider/fider/app/pkg/email/mailgun"
+	"github.com/getfider/fider/app/services/email"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-var sender = mailgun.NewSender("mydomain.com", "mys3cr3tk3y")
-var tenant = &models.Tenant{
-	Subdomain: "got",
-}
-var ctx = worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
+var ctx context.Context
 
-func init() {
-	ctx.SetTenant(tenant)
+func reset() {
+	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{
+		Subdomain: "got",
+	})
+	bus.Init(mailgun.Service{}, httpclientmock.Service{})
 }
 
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
-	bus.Init(httpclientmock.Service{})
+	reset()
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "jon.snow@got.com",
-	}
-	sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
@@ -93,57 +98,72 @@ func TestSend_Success(t *testing.T) {
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Init(httpclientmock.Service{})
+	reset()
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "",
-	}
-	sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
 	Expect(httpclientmock.RequestsHistory).HasLen(0)
 }
 
 func TestSend_SkipUnlistedAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Init(httpclientmock.Service{})
+	reset()
 	email.SetWhitelist("^.*@gmail.com$")
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "jon.snow@got.com",
-	}
-	sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
 	Expect(httpclientmock.RequestsHistory).HasLen(0)
 }
 
 func TestBatch_Success(t *testing.T) {
 	RegisterT(t)
-	bus.Init(httpclientmock.Service{})
+	reset()
 	email.SetWhitelist("")
 
-	to := []email.Recipient{
-		email.Recipient{
-			Name:    "Jon Sow",
-			Address: "jon.snow@got.com",
-			Params: email.Params{
-				"name": "Jon",
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+				Params: email.Params{
+					"name": "Jon",
+				},
+			},
+			email.Recipient{
+				Name:    "Arya Stark",
+				Address: "arya.start@got.com",
+				Params: email.Params{
+					"name": "Arya",
+				},
 			},
 		},
-		email.Recipient{
-			Name:    "Arya Stark",
-			Address: "arya.start@got.com",
-			Params: email.Params{
-				"name": "Arya",
-			},
-		},
-	}
-	sender.BatchSend(ctx, "echo_test", email.Params{}, "Fider Test", to)
+		TemplateName: "echo_test",
+	})
 
 	Expect(httpclientmock.RequestsHistory).HasLen(1)
 	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")

@@ -8,9 +8,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/email"
 )
 
 func describe(name string, job worker.Job) worker.Task {
@@ -32,7 +32,14 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "signup_email", email.Params{}, "Fider", to)
+
+		c.Publish(&email.SendMessageCommand{
+			From:         "Fider",
+			To:           []email.Recipient{to},
+			TemplateName: "signup_email",
+		})
+
+		return nil
 	})
 }
 
@@ -43,7 +50,14 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "signin_email", email.Params{}, c.Tenant().Name, to)
+
+		c.Publish(&email.SendMessageCommand{
+			From:         c.Tenant().Name,
+			To:           []email.Recipient{to},
+			TemplateName: "signin_email",
+		})
+
+		return nil
 	})
 }
 
@@ -61,7 +75,14 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			"newEmail": model.Email,
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
+
+		c.Publish(&email.SendMessageCommand{
+			From:         c.Tenant().Name,
+			To:           []email.Recipient{to},
+			TemplateName: "change_emailaddress_email",
+		})
+
+		return nil
 	})
 }
 
@@ -107,7 +128,14 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "new_post", params, c.User().Name, to)
+		c.Publish(&email.SendMessageCommand{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "new_post",
+			Params:       params,
+		})
+
+		return nil
 	})
 }
 
@@ -154,7 +182,14 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "new_comment", params, c.User().Name, to)
+		c.Publish(&email.SendMessageCommand{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "new_comment",
+			Params:       params,
+		})
+
+		return nil
 	})
 }
 
@@ -216,7 +251,14 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "change_status", params, c.User().Name, to)
+		c.Publish(&email.SendMessageCommand{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "change_status",
+			Params:       params,
+		})
+
+		return nil
 	})
 }
 
@@ -259,7 +301,14 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "delete_post", params, c.User().Name, to)
+		c.Publish(&email.SendMessageCommand{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "delete_post",
+			Params:       params,
+		})
+
+		return nil
 	})
 }
 
@@ -279,8 +328,16 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 				"message": markdown.Full(toMessage),
 			})
 		}
-		return c.Services().Emailer.BatchSend(c, "invite_email", email.Params{
-			"subject": subject,
-		}, c.User().Name, to)
+
+		c.Publish(&email.SendMessageCommand{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "invite_email",
+			Params: email.Params{
+				"subject": subject,
+			},
+		})
+
+		return nil
 	})
 }

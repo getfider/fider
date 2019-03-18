@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/email/smtp"
+	"github.com/getfider/fider/app/services/email/smtp"
 )
 
 func TestAgnosticAuth_Login(t *testing.T) {

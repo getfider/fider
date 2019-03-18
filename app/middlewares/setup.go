@@ -6,7 +6,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
@@ -65,7 +64,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       di.NewEmailer(),
 				Billing:       billing.NewClient(),
 			})
 
@@ -151,7 +149,6 @@ func WebSetup() web.MiddlewareFunc {
 				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       di.NewEmailer(),
 				Billing:       billing.NewClient(),
 			})
 

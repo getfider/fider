@@ -5,10 +5,10 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/tasks"
 )
 
@@ -26,10 +26,12 @@ func SendSampleInvite() web.HandlerFunc {
 				"subject": input.Model.Subject,
 				"message": markdown.Full(input.Model.Message),
 			})
-			err := c.Services().Emailer.Send(c, "invite_email", email.Params{}, c.Tenant().Name, to)
-			if err != nil {
-				return c.Failure(err)
-			}
+
+			c.Publish(&email.SendMessageCommand{
+				From:         c.Tenant().Name,
+				To:           []email.Recipient{to},
+				TemplateName: "invite_email",
+			})
 		}
 
 		return c.Ok(web.Map{})

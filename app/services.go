@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
 )
@@ -16,7 +15,6 @@ type Services struct {
 	Tenants       storage.Tenant
 	Notifications storage.Notification
 	Posts         storage.Post
-	Emailer       email.Sender
 	Billing       *billing.Client
 }
 

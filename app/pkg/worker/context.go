@@ -6,6 +6,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -65,6 +66,7 @@ func (c *Context) SetAssetsBaseURL(assetsBaseURL string) {
 func (c *Context) SetUser(user *models.User) {
 	c.user = user
 	if user != nil {
+		c.innerCtx = context.WithValue(c.innerCtx, app.UserCtxKey, user)
 		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyUserID, user.ID)
 	}
 	if c.services != nil {
@@ -76,6 +78,7 @@ func (c *Context) SetUser(user *models.User) {
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	c.tenant = tenant
 	if tenant != nil {
+		c.innerCtx = context.WithValue(c.innerCtx, app.TenantCtxKey, tenant)
 		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyTenantID, tenant.ID)
 	}
 	if c.services != nil {
@@ -91,6 +94,14 @@ func (c *Context) SetServices(services *app.Services) {
 //WorkerID executing current context
 func (c *Context) WorkerID() string {
 	return c.workerID
+}
+
+func (c *Context) Dispatch(m bus.Msg) error {
+	return bus.Dispatch(c.innerCtx, m)
+}
+
+func (c *Context) Publish(evt bus.Event) {
+	bus.Publish(c.innerCtx, evt)
 }
 
 //TaskName from current context

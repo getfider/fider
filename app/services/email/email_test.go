@@ -1,12 +1,9 @@
 package email_test
 
 import (
-	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/worker"
-
-	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/services/email"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -14,8 +11,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	ctx := worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
-	message := email.RenderMessage(ctx, "echo_test", email.Params{
+	message := email.RenderMessage("echo_test", email.Params{
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")

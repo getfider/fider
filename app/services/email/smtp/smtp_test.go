@@ -6,11 +6,13 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/email"
-	"github.com/getfider/fider/app/pkg/email/smtp"
-	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/services/email"
+	"github.com/getfider/fider/app/services/email/smtp"
 )
 
 type request struct {
@@ -21,12 +23,7 @@ type request struct {
 	body       []byte
 }
 
-var sender = smtp.NewSender("localhost", "1234", "us3r", "p4ss")
-var tenant = &models.Tenant{
-	Subdomain: "got",
-}
-
-var ctx = worker.NewContext(context.Background(), "ID-1", worker.Task{Name: "TaskName"})
+var ctx context.Context
 
 var requests = make([]request, 0)
 
@@ -36,24 +33,32 @@ func mockSend(localname, servername string, auth gosmtp.Auth, from string, to []
 }
 
 func reset() {
-	ctx.SetTenant(tenant)
-	sender.ReplaceSend(mockSend)
+	ctx = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{
+		Subdomain: "got",
+	})
+	smtp.Send = mockSend
 	requests = make([]request, 0)
+	bus.Init(smtp.Service{})
 }
 
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
 	reset()
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "jon.snow@got.com",
-	}
-	err := sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
-	Expect(err).IsNil()
 	Expect(requests).HasLen(1)
 	Expect(requests[0].servername).Equals("localhost:1234")
 	Expect(requests[0].auth).Equals(smtp.AgnosticAuth("", "us3r", "p4ss", "localhost"))
@@ -70,15 +75,20 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
 	reset()
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "",
-	}
-	err := sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
-	Expect(err).IsNil()
 	Expect(requests).HasLen(0)
 }
 
@@ -87,15 +97,20 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 	reset()
 	email.SetWhitelist("^.*@gmail.com$")
 
-	to := email.Recipient{
-		Name:    "Jon Sow",
-		Address: "jon.snow@got.com",
-	}
-	err := sender.Send(ctx, "echo_test", email.Params{
-		"name": "Hello",
-	}, "Fider Test", to)
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+			},
+		},
+		TemplateName: "echo_test",
+		Params: email.Params{
+			"name": "Hello",
+		},
+	})
 
-	Expect(err).IsNil()
 	Expect(requests).HasLen(0)
 }
 
@@ -104,25 +119,26 @@ func TestBatch_Success(t *testing.T) {
 	reset()
 	email.SetWhitelist("")
 
-	to := []email.Recipient{
-		email.Recipient{
-			Name:    "Jon Sow",
-			Address: "jon.snow@got.com",
-			Params: email.Params{
-				"name": "Jon",
+	bus.Publish(ctx, &email.SendMessageCommand{
+		From: "Fider Test",
+		To: []email.Recipient{
+			email.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+				Params: email.Params{
+					"name": "Jon",
+				},
+			},
+			email.Recipient{
+				Name:    "Arya Stark",
+				Address: "arya.start@got.com",
+				Params: email.Params{
+					"name": "Arya",
+				},
 			},
 		},
-		email.Recipient{
-			Name:    "Arya Stark",
-			Address: "arya.start@got.com",
-			Params: email.Params{
-				"name": "Arya",
-			},
-		},
-	}
-
-	err := sender.BatchSend(ctx, "echo_test", email.Params{}, "Fider Test", to)
-	Expect(err).IsNil()
+		TemplateName: "echo_test",
+	})
 
 	Expect(requests).HasLen(2)
 
