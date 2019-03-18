@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/getfider/fider/app/services/blob/s3"
+	"github.com/getfider/fider/app/services/blob/fs"
 
 	"github.com/getfider/fider/app/services/blob"
 
@@ -64,7 +64,7 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 
 func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
-	bus.Init(s3.Service{})
+	bus.Init(fs.Service{})
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
@@ -89,7 +89,7 @@ func TestProcessImageUpload(t *testing.T) {
 
 func TestMultiProcessImageUpload(t *testing.T) {
 	RegisterT(t)
-	bus.Init(s3.Service{})
+	bus.Init(fs.Service{})
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
