@@ -32,7 +32,7 @@ func newGetContext(rawurl string, headers map[string]string) *web.Context {
 		}
 	}
 
-	return e.NewContext(res, req, nil)
+	return web.NewContext(e, req, res, nil)
 }
 
 func newBodyContext(method string, params web.StringMap, body, contentType string) *web.Context {
@@ -41,7 +41,7 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 	req := httptest.NewRequest(method, "/some/resource", strings.NewReader(body))
 	req.Host = "demo.test.fider.io:3000"
 	req.Header.Set("Content-Type", contentType)
-	return e.NewContext(res, req, params)
+	return web.NewContext(e, req, res, params)
 }
 
 func TestContextID(t *testing.T) {

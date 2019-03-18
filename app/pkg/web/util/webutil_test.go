@@ -2,7 +2,10 @@ package webutil_test
 
 import (
 	"context"
+	"crypto/tls"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 
@@ -21,14 +24,18 @@ import (
 )
 
 func newContext(rawurl string) *web.Context {
-	url, _ := url.Parse(rawurl)
+	u, _ := url.Parse(rawurl)
+	engine := web.New(&models.SystemSettings{})
 
-	return &web.Context{
-		InnerCtx: context.Background(),
-		Request: web.Request{
-			URL: url,
-		},
+	req := &http.Request{
+		Host:       u.Host,
+		RequestURI: u.RequestURI(),
 	}
+	if u.Scheme == "https" {
+		req.TLS = &tls.ConnectionState{}
+	}
+	res := httptest.NewRecorder()
+	return web.NewContext(engine, req, res, make(web.StringMap))
 }
 
 func TestGetOAuthBaseURL(t *testing.T) {

@@ -11,8 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app"
-
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -50,7 +48,7 @@ type notFoundHandler struct {
 }
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	ctx := h.engine.NewContext(res, req, nil)
+	ctx := NewContext(h.engine, req, res, nil)
 	h.handler(ctx)
 }
 
@@ -176,28 +174,6 @@ func (e *Engine) Stop() error {
 	return nil
 }
 
-//NewContext creates and return a new context
-func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) *Context {
-	contextID := rand.String(32)
-	request := WrapRequest(req)
-	ctxLogger := e.logger.New()
-	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
-	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
-
-	ctx := &Context{
-		InnerCtx: req.Context(),
-		id:       contextID,
-		Response: res,
-		Request:  request,
-		engine:   e,
-		logger:   ctxLogger,
-		params:   params,
-		worker:   e.worker,
-	}
-	ctx.Set(app.DatabaseCtxKey, e.Database())
-	return ctx
-}
-
 //Logger returns current logger
 func (e *Engine) Logger() log.Logger {
 	return e.logger
@@ -270,7 +246,7 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		for _, p := range ps {
 			params[p.Key] = p.Value
 		}
-		ctx := e.NewContext(res, req, params)
+		ctx := NewContext(e, req, res, params)
 		next(ctx)
 	}
 	return h

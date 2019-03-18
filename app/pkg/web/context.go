@@ -22,6 +22,7 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/services/blob"
@@ -65,15 +66,35 @@ const CookieSignUpAuthName = "__signup_auth"
 
 //Context shared between http pipeline
 type Context struct {
+	innerCtx  context.Context
 	Response  http.ResponseWriter
 	Request   Request
-	InnerCtx  context.Context
 	id        string
 	sessionID string
 	engine    *Engine
 	logger    log.Logger
 	params    StringMap
-	worker    worker.Worker
+}
+
+//NewContext creates a new web Context
+func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
+	contextID := rand.String(32)
+
+	logger := engine.logger.New()
+	logger.SetProperty(log.PropertyKeyContextID, contextID)
+	logger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
+
+	ctx := &Context{
+		id:       contextID,
+		engine:   engine,
+		innerCtx: req.Context(),
+		Request:  WrapRequest(req),
+		Response: res,
+		params:   params,
+		logger:   logger,
+	}
+	ctx.Set(app.DatabaseCtxKey, engine.db)
+	return ctx
 }
 
 //Engine returns main HTTP engine
@@ -108,7 +129,7 @@ func (ctx *Context) Commit() error {
 	tasks, ok := ctx.Get(app.TasksCtxKey).([]worker.Task)
 	if ok {
 		for _, task := range tasks {
-			ctx.worker.Enqueue(task)
+			ctx.engine.worker.Enqueue(task)
 		}
 	}
 
@@ -387,7 +408,7 @@ func (ctx *Context) Services() *app.Services {
 }
 
 func (ctx *Context) Dispatch(m bus.Msg) error {
-	return bus.Dispatch(ctx.InnerCtx, m)
+	return bus.Dispatch(ctx.innerCtx, m)
 }
 
 //AddCookie adds a cookie
@@ -509,12 +530,12 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 
 // Get retrieves data from the context.
 func (ctx *Context) Get(key string) interface{} {
-	return ctx.InnerCtx.Value(key)
+	return ctx.innerCtx.Value(key)
 }
 
 // Set saves data in the context.
 func (ctx *Context) Set(key string, val interface{}) {
-	ctx.InnerCtx = context.WithValue(ctx.InnerCtx, key, val)
+	ctx.innerCtx = context.WithValue(ctx.innerCtx, key, val)
 }
 
 // String returns a text response with status code.
