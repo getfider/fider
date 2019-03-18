@@ -16,7 +16,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -25,6 +24,7 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/blob"
 	"github.com/getfider/fider/app/services/httpclient"
 )
 
@@ -65,11 +65,11 @@ const CookieSignUpAuthName = "__signup_auth"
 
 //Context shared between http pipeline
 type Context struct {
-	innerCtx  context.Context
-	id        string
-	sessionID string
 	Response  http.ResponseWriter
 	Request   Request
+	InnerCtx  context.Context
+	id        string
+	sessionID string
 	engine    *Engine
 	logger    log.Logger
 	params    StringMap
@@ -387,7 +387,7 @@ func (ctx *Context) Services() *app.Services {
 }
 
 func (ctx *Context) Dispatch(m bus.Msg) error {
-	return bus.Dispatch(ctx.innerCtx, m)
+	return bus.Dispatch(ctx.InnerCtx, m)
 }
 
 //AddCookie adds a cookie
@@ -509,12 +509,12 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 
 // Get retrieves data from the context.
 func (ctx *Context) Get(key string) interface{} {
-	return ctx.innerCtx.Value(key)
+	return ctx.InnerCtx.Value(key)
 }
 
 // Set saves data in the context.
 func (ctx *Context) Set(key string, val interface{}) {
-	ctx.innerCtx = context.WithValue(ctx.innerCtx, key, val)
+	ctx.InnerCtx = context.WithValue(ctx.InnerCtx, key, val)
 }
 
 // String returns a text response with status code.

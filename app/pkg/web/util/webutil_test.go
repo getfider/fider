@@ -1,12 +1,16 @@
 package webutil_test
 
 import (
+	"context"
 	"io/ioutil"
 	"net/url"
 	"testing"
 
-	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/di"
+	"github.com/getfider/fider/app/services/blob/s3"
+
+	"github.com/getfider/fider/app/services/blob"
+
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -20,6 +24,7 @@ func newContext(rawurl string) *web.Context {
 	url, _ := url.Parse(rawurl)
 
 	return &web.Context{
+		InnerCtx: context.Background(),
 		Request: web.Request{
 			URL: url,
 		},
@@ -52,13 +57,11 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 
 func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
+	bus.Register(s3.Service{})
+	bus.Init()
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
-	services := &app.Services{
-		Blobs: di.NewBlobStorage(nil),
-	}
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
-	ctx.SetServices(services)
 
 	upload := &models.ImageUpload{
 		Upload: &models.ImageUploadData{
@@ -70,22 +73,21 @@ func TestProcessImageUpload(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(upload.BlobKey).ContainsSubstring("attachments/")
 
-	blob, err := services.Blobs.Get(upload.BlobKey)
+	retrieveCmd := &blob.RetrieveBlob{Key: upload.BlobKey}
+	err = bus.Dispatch(context.Background(), retrieveCmd)
 	Expect(err).IsNil()
-	Expect(blob.ContentType).Equals("image/gif")
-	Expect(blob.Object).Equals(img)
-	Expect(int(blob.Size)).Equals(len(img))
+	Expect(retrieveCmd.Blob.ContentType).Equals("image/gif")
+	Expect(retrieveCmd.Blob.Content).Equals(img)
+	Expect(int(retrieveCmd.Blob.Size)).Equals(len(img))
 }
 
 func TestMultiProcessImageUpload(t *testing.T) {
 	RegisterT(t)
+	bus.Register(s3.Service{})
+	bus.Init()
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
-	services := &app.Services{
-		Blobs: di.NewBlobStorage(nil),
-	}
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
-	ctx.SetServices(services)
 
 	upload1 := &models.ImageUpload{
 		Upload: &models.ImageUploadData{

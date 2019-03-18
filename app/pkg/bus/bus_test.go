@@ -46,3 +46,20 @@ func TestBus_SimpleMessage(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(cmd.Result).Equals("Hello Fider")
 }
+
+func TestBus_MessageIsNotPointer_ShouldPanic(t *testing.T) {
+	RegisterT(t)
+	bus.Register(&GreeterService{})
+	bus.Init()
+
+	defer func() {
+		if r := recover(); r != nil {
+			panicText := (r.(error)).Error()
+			Expect(panicText).Equals("'github.com/getfider/fider/app/pkg/bus_test.SayHelloCommand' is not a pointer")
+		}
+	}()
+
+	cmd := SayHelloCommand{Name: "Fider"}
+	err := bus.Dispatch(context.Background(), cmd)
+	Expect(err).IsNil()
+}

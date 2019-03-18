@@ -69,7 +69,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(c.Database()),
 				Billing:       billing.NewClient(),
 			})
 
@@ -159,7 +158,6 @@ func WebSetup() web.MiddlewareFunc {
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
 				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(c.Engine().Database()),
 				Billing:       billing.NewClient(),
 			})
 

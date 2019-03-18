@@ -1,0 +1,305 @@
+package blob_test
+
+import (
+	"context"
+	"io/ioutil"
+	"os"
+	"testing"
+
+	"github.com/aws/aws-sdk-go/aws"
+	awss3 "github.com/aws/aws-sdk-go/service/s3"
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/rand"
+
+	"github.com/getfider/fider/app/models"
+
+	"github.com/getfider/fider/app/services/blob/fs"
+	"github.com/getfider/fider/app/services/blob/s3"
+	"github.com/getfider/fider/app/services/blob/sql"
+
+	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/services/blob"
+)
+
+var tenant1 = &models.Tenant{ID: 1}
+var tenant2 = &models.Tenant{ID: 2}
+
+func setupS3(t *testing.T) {
+	RegisterT(t)
+
+	bucketName := "test-bucket"
+	env.Config.BlobStorage.S3.BucketName = bucketName
+	bus.Register(&s3.Service{})
+	bus.Init()
+
+	s3.DefaultClient.DeleteBucket(&awss3.DeleteBucketInput{
+		Bucket: aws.String(bucketName),
+	})
+	s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
+		Bucket: aws.String(bucketName),
+	})
+}
+
+func setupSQL(t *testing.T) *dbx.Database {
+	RegisterT(t)
+
+	db := dbx.New()
+	db.Seed()
+
+	bus.Register(&sql.Service{})
+	bus.Init()
+	return db
+}
+
+func setupFS(t *testing.T) {
+	RegisterT(t)
+
+	env.Config.BlobStorage.Type = "fs"
+	env.Config.BlobStorage.FS.Path = "./testdata/tmp/fs_test"
+	bus.Register(&fs.Service{})
+	bus.Init()
+
+	err := os.RemoveAll("./testdata/tmp/fs_test")
+	Expect(err).IsNil()
+}
+
+type blobTestCase func(ctx context.Context)
+
+var tests = []struct {
+	name string
+	test blobTestCase
+}{
+	{"AllOperations", AllOperations},
+	{"DeleteUnkownFile", DeleteUnkownFile},
+	{"KeyFormats", KeyFormats},
+	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
+	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
+}
+
+func TestBlobStorage(t *testing.T) {
+	for _, tt := range tests {
+		t.Run("Test_FS_"+tt.name, func(t *testing.T) {
+			setupFS(t)
+			tt.test(context.Background())
+		})
+
+		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
+			setupS3(t)
+			tt.test(context.Background())
+		})
+
+		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
+			db := setupSQL(t)
+			ctx := context.WithValue(context.Background(), app.DatabaseCtxKey, db)
+			tt.test(ctx)
+		})
+	}
+}
+
+func AllOperations(ctx context.Context) {
+	var testCases = []struct {
+		localPath   string
+		key         string
+		contentType string
+	}{
+		{"/app/services/blob/testdata/file.txt", "some/path/to/file.txt", "text/plain; charset=utf-8"},
+		{"/app/services/blob/testdata/file2.png", "file2.png", "image/png"},
+	}
+
+	for _, testCase := range testCases {
+		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
+		err := bus.Dispatch(ctx, &blob.StoreBlob{
+			Key: testCase.key,
+			Blob: blob.Blob{
+				Content:     bytes,
+				ContentType: testCase.contentType,
+			},
+		})
+		Expect(err).IsNil()
+
+		retrieveCmd := &blob.RetrieveBlob{
+			Key: testCase.key,
+		}
+		err = bus.Dispatch(ctx, retrieveCmd)
+		Expect(err).IsNil()
+		Expect(retrieveCmd.Key).Equals(testCase.key)
+		Expect(retrieveCmd.Blob.Content).Equals(bytes)
+		Expect(retrieveCmd.Blob.Size).Equals(int64(len(bytes)))
+		Expect(retrieveCmd.Blob.ContentType).Equals(testCase.contentType)
+
+		err = bus.Dispatch(ctx, &blob.DeleteBlob{
+			Key: testCase.key,
+		})
+		Expect(err).IsNil()
+
+		retrieveCmd = &blob.RetrieveBlob{
+			Key: testCase.key,
+		}
+		err = bus.Dispatch(ctx, retrieveCmd)
+		Expect(retrieveCmd.Blob).IsNil()
+		Expect(err).Equals(blob.ErrNotFound)
+	}
+}
+
+func DeleteUnkownFile(ctx context.Context) {
+	err := bus.Dispatch(ctx, &blob.DeleteBlob{
+		Key: "path/somefile.txt",
+	})
+	Expect(err).IsNil()
+}
+
+func SameKey_DifferentTenant(ctx context.Context) {
+	ctxWithTenant1 := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
+
+	key := "path/to/file3.txt"
+	bytes, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+
+	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
+		Key: key,
+		Blob: blob.Blob{
+			Content:     bytes,
+			Size:        int64(len(bytes)),
+			ContentType: "text/plain; charset=utf-8",
+		},
+	})
+	Expect(err).IsNil()
+
+	retrieveCmd := &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctxWithTenant1, retrieveCmd)
+	Expect(err).IsNil()
+	Expect(retrieveCmd.Blob.Content).Equals(bytes)
+
+	retrieveCmd = &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	Expect(err).Equals(blob.ErrNotFound)
+	Expect(retrieveCmd.Blob).IsNil()
+
+	retrieveCmd = &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctx, retrieveCmd)
+	Expect(err).Equals(blob.ErrNotFound)
+	Expect(retrieveCmd.Blob).IsNil()
+}
+
+func SameKey_DifferentTenant_Delete(ctx context.Context) {
+	ctxWithTenant1 := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
+
+	key := "path/to/super-file.txt"
+	bytes1, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
+	bytes2, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
+
+	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
+		Key: key,
+		Blob: blob.Blob{
+			Content:     bytes1,
+			Size:        int64(len(bytes1)),
+			ContentType: "text/plain; charset=utf-8",
+		},
+	})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(ctxWithTenant2, &blob.StoreBlob{
+		Key: key,
+		Blob: blob.Blob{
+			Content:     bytes2,
+			Size:        int64(len(bytes2)),
+			ContentType: "text/plain; charset=utf-8",
+		},
+	})
+	Expect(err).IsNil()
+
+	retrieveCmd := &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctxWithTenant1, retrieveCmd)
+	Expect(err).IsNil()
+	Expect(retrieveCmd.Blob.Content).Equals(bytes1)
+
+	retrieveCmd = &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	Expect(err).IsNil()
+	Expect(retrieveCmd.Blob.Content).Equals(bytes2)
+
+	err = bus.Dispatch(ctxWithTenant1, &blob.DeleteBlob{Key: key})
+	Expect(err).IsNil()
+
+	retrieveCmd = &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	Expect(err).IsNil()
+	Expect(retrieveCmd.Blob.Content).Equals(bytes2)
+
+	retrieveCmd = &blob.RetrieveBlob{Key: key}
+	err = bus.Dispatch(ctx, retrieveCmd)
+	Expect(err).Equals(blob.ErrNotFound)
+	Expect(retrieveCmd.Blob).IsNil()
+}
+
+func KeyFormats(ctx context.Context) {
+	testCases := []struct {
+		key   string
+		valid bool
+	}{
+		{
+			key:   "Jon",
+			valid: true,
+		},
+		{
+			key:   "ASDHASJDKHAJSDJ.png",
+			valid: true,
+		},
+		{
+			key:   "",
+			valid: false,
+		},
+		{
+			key:   "/path/to/Jon",
+			valid: false,
+		},
+		{
+			key:   "path/to/Jon/",
+			valid: false,
+		},
+		{
+			key:   " file.txt",
+			valid: false,
+		},
+		{
+			key:   "file with space.txt",
+			valid: false,
+		},
+		{
+			key:   rand.String(513),
+			valid: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		err := bus.Dispatch(ctx, &blob.StoreBlob{
+			Key: testCase.key,
+			Blob: blob.Blob{
+				Content:     []byte{},
+				Size:        0,
+				ContentType: "text/plain; charset=utf-8",
+			},
+		})
+		if testCase.valid {
+			Expect(err).IsNil()
+		} else {
+			Expect(errors.Cause(err)).Equals(blob.ErrInvalidKeyFormat)
+		}
+	}
+}
+
+func TestSanitizeFileName(t *testing.T) {
+	RegisterT(t)
+
+	Expect(blob.SanitizeFileName("João.txt")).Equals("joao.txt")
+	Expect(blob.SanitizeFileName(" Jon")).Equals("jon")
+	Expect(blob.SanitizeFileName("Jon.png")).Equals("jon.png")
+	Expect(blob.SanitizeFileName("Jon Snow.png ")).Equals("jon-snow.png")
+	Expect(blob.SanitizeFileName(" ヒキワリ.png")).Equals("hikiwari.png")
+	Expect(blob.SanitizeFileName("люди рождаются свободными.png")).Equals("liudi-rozhdaiutsia-svobodnymi.png")
+}

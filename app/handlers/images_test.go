@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/services/httpclient"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/mock"
 
@@ -14,6 +17,8 @@ import (
 
 func TestGravatarHandler(t *testing.T) {
 	RegisterT(t)
+	bus.Register(httpclient.Service{})
+	bus.Init()
 
 	server, services := mock.NewServer()
 	user := &models.User{
@@ -36,6 +41,8 @@ func TestGravatarHandler(t *testing.T) {
 
 func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
+	bus.Register(httpclient.Service{})
+	bus.Init()
 
 	server, services := mock.NewServer()
 	user := &models.User{
@@ -59,6 +66,8 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 
 func TestUnknownUser_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
+	bus.Register(httpclient.Service{})
+	bus.Init()
 
 	server, _ := mock.NewServer()
 	code, response := server.

@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
@@ -182,10 +184,8 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
 	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
 
-	ctx := req.Context()
-
-	return &Context{
-		innerCtx: ctx,
+	ctx := &Context{
+		InnerCtx: req.Context(),
 		id:       contextID,
 		Response: res,
 		Request:  request,
@@ -194,6 +194,8 @@ func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params S
 		params:   params,
 		worker:   e.worker,
 	}
+	ctx.Set(app.DatabaseCtxKey, e.Database())
+	return ctx
 }
 
 //Logger returns current logger

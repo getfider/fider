@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/services/blob"
+
 	"github.com/getfider/fider/app/services/httpclient"
 
 	"github.com/getfider/fider/app/pkg/crypto"
@@ -116,12 +118,13 @@ func Favicon() web.HandlerFunc {
 
 		bkey := c.Param("bkey")
 		if bkey != "" {
-			logo, err := c.Services().Blobs.Get(bkey)
+			cmd := &blob.RetrieveBlob{Key: bkey}
+			err := c.Dispatch(cmd)
 			if err != nil {
 				return c.Failure(err)
 			}
-			bytes = logo.Object
-			contentType = logo.ContentType
+			bytes = cmd.Blob.Content
+			contentType = cmd.Blob.ContentType
 		} else {
 			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
@@ -168,12 +171,13 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		size = between(size, 0, 2000)
 
-		logo, err := c.Services().Blobs.Get(bkey)
+		cmd := &blob.RetrieveBlob{Key: bkey}
+		err = c.Dispatch(&cmd)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		bytes := logo.Object
+		bytes := cmd.Blob.Content
 		if size > 0 {
 			bytes, err = img.Apply(bytes, img.Resize(size))
 			if err != nil {
@@ -181,6 +185,6 @@ func ViewUploadedImage() web.HandlerFunc {
 			}
 		}
 
-		return c.Image(logo.ContentType, bytes)
+		return c.Image(cmd.Blob.ContentType, bytes)
 	}
 }

@@ -41,7 +41,11 @@ func AddHandler(s Service, handler HandlerFunc) {
 }
 
 func Dispatch(ctx context.Context, msg Msg) error {
-	elem := reflect.TypeOf(msg).Elem()
+	typeof := reflect.TypeOf(msg)
+	if typeof.Kind() != reflect.Ptr {
+		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
+	}
+	elem := typeof.Elem()
 	key := keyForElement(elem)
 	handler := handlers[key]
 	if handler == nil {

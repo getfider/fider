@@ -1,13 +1,6 @@
 package di
 
 import (
-	"strings"
-
-	"github.com/getfider/fider/app/pkg/blob"
-	"github.com/getfider/fider/app/pkg/blob/fs"
-	"github.com/getfider/fider/app/pkg/blob/s3"
-	"github.com/getfider/fider/app/pkg/blob/sql"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/email"
 	"github.com/getfider/fider/app/pkg/email/mailgun"
 	"github.com/getfider/fider/app/pkg/email/noop"
@@ -37,18 +30,4 @@ func NewEmailer(logger log.Logger) email.Sender {
 		env.Config.Email.SMTP.Username,
 		env.Config.Email.SMTP.Password,
 	)
-}
-
-// NewBlobStorage creates a new blob storage instance based on current configuration
-func NewBlobStorage(db *dbx.Database) blob.Storage {
-	storageType := strings.ToLower(env.Config.BlobStorage.Type)
-	switch storageType {
-	case "sql":
-		return sql.NewStorage(db)
-	case "s3":
-		return s3.NewStorage(env.Config.BlobStorage.S3.BucketName)
-	case "fs":
-		return fs.NewStorage(env.Config.BlobStorage.FS.Path)
-	}
-	panic("Invalid blob storage type: " + storageType)
 }

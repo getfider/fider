@@ -4,8 +4,6 @@ import (
 	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/blob/fs"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
@@ -24,7 +22,6 @@ var services = &app.Services{
 	Posts:         inmemory.NewPostStorage(),
 	Tags:          inmemory.NewTagStorage(),
 	Notifications: inmemory.NewNotificationStorage(),
-	Blobs:         fs.NewStorage(env.Path("tmp")),
 	Billing:       billing.NewClient(),
 }
 

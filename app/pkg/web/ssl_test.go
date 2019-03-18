@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"testing"
 
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/services/blob/sql"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -57,6 +59,9 @@ func Test_UseAutoCert(t *testing.T) {
 	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
+	env.Config.BlobStorage.Type = "sql"
+	bus.Register(&sql.Service{})
+	bus.Init()
 
 	manager, err := NewCertificateManager("", "", db)
 	Expect(err).IsNil()

@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/services/blob/s3"
+
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 
@@ -37,6 +40,8 @@ func TestUpdateSettingsHandler(t *testing.T) {
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	RegisterT(t)
+	bus.Register(s3.Service{})
+	bus.Init()
 
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)

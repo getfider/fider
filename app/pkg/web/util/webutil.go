@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/blob"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/getfider/fider/app/services/blob"
 )
 
 func encode(user *models.User) string {
@@ -106,7 +106,13 @@ func ProcessMultiImageUpload(c *web.Context, imgs []*models.ImageUpload, preffix
 func ProcessImageUpload(c *web.Context, img *models.ImageUpload, preffix string) error {
 	if img.Upload != nil && len(img.Upload.Content) > 0 {
 		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
-		err := c.Services().Blobs.Put(bkey, img.Upload.Content, img.Upload.ContentType)
+		err := c.Dispatch(&blob.StoreBlob{
+			Key: bkey,
+			Blob: blob.Blob{
+				Content:     img.Upload.Content,
+				ContentType: img.Upload.ContentType,
+			},
+		})
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new blob")
 		}

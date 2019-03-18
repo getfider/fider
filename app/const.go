@@ -13,6 +13,7 @@ func contextKey(name string) string {
 }
 
 var (
+	DatabaseCtxKey    = contextKey("DATABASE")
 	TransactionCtxKey = contextKey("TRANSACTION")
 	TenantCtxKey      = contextKey("TENANT")
 	UserCtxKey        = contextKey("USER")
