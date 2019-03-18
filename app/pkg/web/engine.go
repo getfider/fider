@@ -21,15 +21,6 @@ import (
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
 	cache "github.com/patrickmn/go-cache"
-
-	_ "github.com/getfider/fider/app/services/blob/fs"
-	_ "github.com/getfider/fider/app/services/blob/s3"
-	_ "github.com/getfider/fider/app/services/blob/sql"
-	_ "github.com/getfider/fider/app/services/email/mailgun"
-	_ "github.com/getfider/fider/app/services/email/smtp"
-	_ "github.com/getfider/fider/app/services/httpclient"
-	_ "github.com/getfider/fider/app/services/log/console"
-	_ "github.com/getfider/fider/app/services/log/sql"
 )
 
 var (

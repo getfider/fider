@@ -54,6 +54,10 @@ func Run() error {
 	return sh.Run("godotenv", "-f", ".env", "./"+exeName)
 }
 
+func Migrate() error {
+	return sh.Run("godotenv", "-f", ".env", "./"+exeName, "migrate")
+}
+
 func Lint() error {
 	return sh.Run("npx", "tslint", "-c", "tslint.json", "'public/**/*.{ts,tsx}'", "'tests/**/*.{ts,tsx}'")
 }

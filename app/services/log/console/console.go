@@ -70,16 +70,17 @@ func writeLog(ctx context.Context, level log.Level, message string, props log.Pr
 	}
 
 	message = log.Parse(message, props, true)
-	contextID := props[log.PropertyKeyContextID]
-	if contextID == nil {
-		contextID = "???"
-	}
-
 	tag := props[log.PropertyKeyTag]
 	if tag == nil {
 		tag = "???"
 	}
-	stdOut.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), tag, contextID, message)
+
+	contextID := props[log.PropertyKeyContextID]
+	if contextID == nil {
+		stdOut.Printf("%s [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), tag, message)
+	} else {
+		stdOut.Printf("%s [%s] [%s] [%s] %s\n", colorizeLevel(level), time.Now().Format(time.RFC3339), tag, contextID, message)
+	}
 }
 
 func colorizeLevel(level log.Level) string {

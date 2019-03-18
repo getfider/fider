@@ -57,6 +57,8 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 		"Version": lastVersion,
 	})
 
+	totalMigrationsExecuted := 0
+
 	// Apply all migrations
 	for _, version := range versions {
 		if version > lastVersion {
@@ -69,10 +71,17 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
+			totalMigrationsExecuted++
 		}
 	}
 
-	log.Info(ctx, "Migrations finished with success.")
+	if totalMigrationsExecuted > 0 {
+		log.Infof(ctx, "@{Count} migrations have been applied.", log.Props{
+			"Count": totalMigrationsExecuted,
+		})
+	} else {
+		log.Info(ctx, "Migrations are already up to date.")
+	}
 	return nil
 }
 
