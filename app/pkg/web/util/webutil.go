@@ -107,11 +107,9 @@ func ProcessImageUpload(c *web.Context, img *models.ImageUpload, preffix string)
 	if img.Upload != nil && len(img.Upload.Content) > 0 {
 		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
 		err := c.Dispatch(&blob.StoreBlob{
-			Key: bkey,
-			Blob: blob.Blob{
-				Content:     img.Upload.Content,
-				ContentType: img.Upload.ContentType,
-			},
+			Key:         bkey,
+			Content:     img.Upload.Content,
+			ContentType: img.Upload.ContentType,
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to upload new blob")

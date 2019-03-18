@@ -8,17 +8,22 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 )
 
 func init() {
 	http.DefaultClient.Timeout = 30 * time.Second
-	bus.Register(&Service{})
+	bus.Register(Service{})
 }
 
 type Service struct{}
 
+func (s Service) Category() string {
+	return "httpclient"
+}
+
 func (s Service) Enabled() bool {
-	return true
+	return !env.IsTest()
 }
 
 func (s Service) Init() {

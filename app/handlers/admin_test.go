@@ -40,8 +40,7 @@ func TestUpdateSettingsHandler(t *testing.T) {
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	RegisterT(t)
-	bus.Register(s3.Service{})
-	bus.Init()
+	bus.Init(s3.Service{})
 
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)

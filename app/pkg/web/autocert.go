@@ -49,12 +49,9 @@ func (c *Cache) Put(ctx context.Context, key string, data []byte) error {
 	ctx = c.withDatabase(ctx)
 
 	return bus.Dispatch(ctx, &blob.StoreBlob{
-		Key: c.formatKey(key),
-		Blob: blob.Blob{
-			Content:     data,
-			ContentType: "application/x-pem-file",
-			Size:        int64(len(data)),
-		},
+		Key:         c.formatKey(key),
+		Content:     data,
+		ContentType: "application/x-pem-file",
 	})
 }
 

@@ -33,8 +33,7 @@ func init() {
 func TestSend_Success(t *testing.T) {
 	RegisterT(t)
 	env.Config.HostMode = "multi"
-	bus.Register(&httpclientmock.Service{})
-	bus.Init()
+	bus.Init(httpclientmock.Service{})
 
 	to := email.Recipient{
 		Name:    "Jon Sow",
@@ -95,8 +94,7 @@ func TestSend_Success(t *testing.T) {
 
 func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpclientmock.Service{})
-	bus.Init()
+	bus.Init(httpclientmock.Service{})
 
 	to := email.Recipient{
 		Name:    "Jon Sow",
@@ -111,8 +109,7 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 
 func TestSend_SkipUnlistedAddress(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpclientmock.Service{})
-	bus.Init()
+	bus.Init(httpclientmock.Service{})
 	email.SetWhitelist("^.*@gmail.com$")
 
 	to := email.Recipient{
@@ -128,8 +125,7 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 
 func TestBatch_Success(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&httpclientmock.Service{})
-	bus.Init()
+	bus.Init(httpclientmock.Service{})
 	email.SetWhitelist("")
 
 	to := []email.Recipient{

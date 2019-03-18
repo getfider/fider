@@ -18,10 +18,14 @@ import (
 )
 
 func init() {
-	bus.Register(&Service{})
+	bus.Register(Service{})
 }
 
 type Service struct{}
+
+func (s Service) Category() string {
+	return "blobstorage"
+}
 
 func (s Service) Enabled() bool {
 	return env.Config.BlobStorage.Type == "sql"
@@ -89,7 +93,7 @@ func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
 	INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
 	VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
 	DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7
-	`, tenantID, cmd.Key, cmd.Blob.Size, cmd.Blob.ContentType, cmd.Blob.Content, now, now)
+	`, tenantID, cmd.Key, int64(len(cmd.Content)), cmd.ContentType, cmd.Content, now, now)
 	if err != nil {
 		return errors.Wrap(err, "failed to store blob with key '%s'", cmd.Key)
 	}

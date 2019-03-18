@@ -14,6 +14,10 @@ var GreetingKey = "GreetingKey"
 type GreeterService struct {
 }
 
+func (s GreeterService) Category() string {
+	return "greeter"
+}
+
 func (s GreeterService) Enabled() bool {
 	return true
 }
@@ -38,7 +42,7 @@ func SayHello(ctx context.Context, cmd *SayHelloCommand) error {
 
 func TestBus_SimpleMessage(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&GreeterService{})
+	bus.Register(GreeterService{})
 	bus.Init()
 	ctx := context.WithValue(context.Background(), GreetingKey, "Hello")
 	cmd := &SayHelloCommand{Name: "Fider"}
@@ -49,7 +53,7 @@ func TestBus_SimpleMessage(t *testing.T) {
 
 func TestBus_MessageIsNotPointer_ShouldPanic(t *testing.T) {
 	RegisterT(t)
-	bus.Register(&GreeterService{})
+	bus.Register(GreeterService{})
 	bus.Init()
 
 	defer func() {

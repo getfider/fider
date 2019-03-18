@@ -15,9 +15,9 @@ type Blob struct {
 }
 
 type StoreBlob struct {
-	Key string
-
-	Blob Blob
+	Key         string
+	Content     []byte
+	ContentType string
 }
 
 type RetrieveBlob struct {

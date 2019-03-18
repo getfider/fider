@@ -57,8 +57,7 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 
 func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
-	bus.Register(s3.Service{})
-	bus.Init()
+	bus.Init(s3.Service{})
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
@@ -83,8 +82,7 @@ func TestProcessImageUpload(t *testing.T) {
 
 func TestMultiProcessImageUpload(t *testing.T) {
 	RegisterT(t)
-	bus.Register(s3.Service{})
-	bus.Init()
+	bus.Init(s3.Service{})
 
 	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")

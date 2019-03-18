@@ -17,8 +17,7 @@ import (
 
 func TestGravatarHandler(t *testing.T) {
 	RegisterT(t)
-	bus.Register(httpclient.Service{})
-	bus.Init()
+	bus.Init(httpclient.Service{})
 
 	server, services := mock.NewServer()
 	user := &models.User{
@@ -41,8 +40,7 @@ func TestGravatarHandler(t *testing.T) {
 
 func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
-	bus.Register(httpclient.Service{})
-	bus.Init()
+	bus.Init(httpclient.Service{})
 
 	server, services := mock.NewServer()
 	user := &models.User{
@@ -66,8 +64,7 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 
 func TestUnknownUser_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
-	bus.Register(httpclient.Service{})
-	bus.Init()
+	bus.Init(httpclient.Service{})
 
 	server, _ := mock.NewServer()
 	code, response := server.

@@ -27,10 +27,14 @@ import (
 var DefaultClient *s3.S3
 
 func init() {
-	bus.Register(&Service{})
+	bus.Register(Service{})
 }
 
 type Service struct{}
+
+func (s Service) Category() string {
+	return "blobstorage"
+}
 
 func (s Service) Enabled() bool {
 	return env.Config.BlobStorage.Type == "s3"
@@ -85,11 +89,11 @@ func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
 		return errors.Wrap(err, "failed to validate blob key '%s'", cmd.Key)
 	}
 
-	reader := bytes.NewReader(cmd.Blob.Content)
+	reader := bytes.NewReader(cmd.Content)
 	_, err := DefaultClient.PutObject(&s3.PutObjectInput{
 		Bucket:      aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:         aws.String(keyFullPathURL(ctx, cmd.Key)),
-		ContentType: aws.String(cmd.Blob.ContentType),
+		ContentType: aws.String(cmd.ContentType),
 		ACL:         aws.String(s3.ObjectCannedACLPrivate),
 		Body:        reader,
 	})

@@ -31,16 +31,14 @@ var tenant2 = &models.Tenant{ID: 2}
 func setupS3(t *testing.T) {
 	RegisterT(t)
 
-	bucketName := "test-bucket"
-	env.Config.BlobStorage.S3.BucketName = bucketName
-	bus.Register(&s3.Service{})
-	bus.Init()
+	bus.Init(s3.Service{})
 
+	bucket := aws.String(env.Config.BlobStorage.S3.BucketName)
 	s3.DefaultClient.DeleteBucket(&awss3.DeleteBucketInput{
-		Bucket: aws.String(bucketName),
+		Bucket: bucket,
 	})
 	s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
-		Bucket: aws.String(bucketName),
+		Bucket: bucket,
 	})
 }
 
@@ -50,20 +48,16 @@ func setupSQL(t *testing.T) *dbx.Database {
 	db := dbx.New()
 	db.Seed()
 
-	bus.Register(&sql.Service{})
-	bus.Init()
+	bus.Init(sql.Service{})
 	return db
 }
 
 func setupFS(t *testing.T) {
 	RegisterT(t)
 
-	env.Config.BlobStorage.Type = "fs"
-	env.Config.BlobStorage.FS.Path = "./testdata/tmp/fs_test"
-	bus.Register(&fs.Service{})
-	bus.Init()
+	bus.Init(fs.Service{})
 
-	err := os.RemoveAll("./testdata/tmp/fs_test")
+	err := os.RemoveAll(env.Config.BlobStorage.FS.Path)
 	Expect(err).IsNil()
 }
 
@@ -113,11 +107,9 @@ func AllOperations(ctx context.Context) {
 	for _, testCase := range testCases {
 		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
 		err := bus.Dispatch(ctx, &blob.StoreBlob{
-			Key: testCase.key,
-			Blob: blob.Blob{
-				Content:     bytes,
-				ContentType: testCase.contentType,
-			},
+			Key:         testCase.key,
+			Content:     bytes,
+			ContentType: testCase.contentType,
 		})
 		Expect(err).IsNil()
 
@@ -160,12 +152,9 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	bytes, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
-		Key: key,
-		Blob: blob.Blob{
-			Content:     bytes,
-			Size:        int64(len(bytes)),
-			ContentType: "text/plain; charset=utf-8",
-		},
+		Key:         key,
+		Content:     bytes,
+		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
@@ -194,22 +183,16 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	bytes2, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
 	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
-		Key: key,
-		Blob: blob.Blob{
-			Content:     bytes1,
-			Size:        int64(len(bytes1)),
-			ContentType: "text/plain; charset=utf-8",
-		},
+		Key:         key,
+		Content:     bytes1,
+		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(ctxWithTenant2, &blob.StoreBlob{
-		Key: key,
-		Blob: blob.Blob{
-			Content:     bytes2,
-			Size:        int64(len(bytes2)),
-			ContentType: "text/plain; charset=utf-8",
-		},
+		Key:         key,
+		Content:     bytes2,
+		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
@@ -278,12 +261,9 @@ func KeyFormats(ctx context.Context) {
 
 	for _, testCase := range testCases {
 		err := bus.Dispatch(ctx, &blob.StoreBlob{
-			Key: testCase.key,
-			Blob: blob.Blob{
-				Content:     []byte{},
-				Size:        0,
-				ContentType: "text/plain; charset=utf-8",
-			},
+			Key:         testCase.key,
+			Content:     []byte{},
+			ContentType: "text/plain; charset=utf-8",
 		})
 		if testCase.valid {
 			Expect(err).IsNil()

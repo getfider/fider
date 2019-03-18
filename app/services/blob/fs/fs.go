@@ -22,10 +22,14 @@ import (
 var perm os.FileMode = 0744
 
 func init() {
-	bus.Register(&Service{})
+	bus.Register(Service{})
 }
 
 type Service struct{}
+
+func (s Service) Category() string {
+	return "blobstorage"
+}
 
 func (s Service) Enabled() bool {
 	return env.Config.BlobStorage.Type == "fs"
@@ -72,7 +76,7 @@ func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
 		return errors.Wrap(err, "failed to create folder '%s' on FileSystem", fullPath)
 	}
 
-	err = ioutil.WriteFile(fullPath, cmd.Blob.Content, perm)
+	err = ioutil.WriteFile(fullPath, cmd.Content, perm)
 	if err != nil {
 		return errors.Wrap(err, "failed to create file '%s' on FileSystem", fullPath)
 	}

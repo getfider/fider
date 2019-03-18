@@ -59,9 +59,7 @@ func Test_UseAutoCert(t *testing.T) {
 	RegisterT(t)
 	db := dbx.New()
 	defer db.Close()
-	env.Config.BlobStorage.Type = "sql"
-	bus.Register(&sql.Service{})
-	bus.Init()
+	bus.Init(sql.Service{})
 
 	manager, err := NewCertificateManager("", "", db)
 	Expect(err).IsNil()

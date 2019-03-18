@@ -20,10 +20,14 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Category() string {
+	return "httpclient"
+}
+
 var RequestsHistory = make([]*http.Request, 0)
 
 func (s Service) Enabled() bool {
-	return true
+	return env.IsTest()
 }
 
 func (s Service) Init() {

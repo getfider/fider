@@ -10,24 +10,36 @@ type HandlerFunc interface{}
 type Msg interface{}
 
 type Service interface {
+	Category() string
 	Enabled() bool
 	Init()
 }
 
-var services = make([]Service, 0)
+var services = make(map[string]Service)
 
-func Register(s Service) {
-	services = append(services, s)
+func Register(svc Service) {
+	services[svc.Category()] = svc
 }
 
 func Reset() {
-	services = make([]Service, 0)
+	services = make(map[string]Service)
+	handlers = make(map[string]HandlerFunc)
 }
 
-func Init() {
-	for _, s := range services {
-		if s.Enabled() {
-			s.Init()
+// Initializes the bus services that have been registered via bus.Register
+// Services that set via Init(...services) are always registered (regardless of Enabled() function)
+/// and have preference over services registered from bus.Register
+func Init(forcedServices ...Service) {
+	var initializedServices = make(map[string]bool)
+	for _, svc := range forcedServices {
+		svc.Init()
+		initializedServices[svc.Category()] = true
+	}
+
+	for category, svc := range services {
+		_, found := initializedServices[category]
+		if !found && svc.Enabled() {
+			svc.Init()
 		}
 	}
 }
