@@ -26,6 +26,10 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Name() string {
+	return "Mock"
+}
+
 func (s Service) Category() string {
 	return "email"
 }

@@ -16,6 +16,10 @@ var GreetingKey = "GreetingKey"
 type GreeterService struct {
 }
 
+func (s GreeterService) Name() string {
+	return "Greeter"
+}
+
 func (s GreeterService) Category() string {
 	return "greeter"
 }
@@ -38,6 +42,10 @@ func Greet(ctx context.Context, cmd *SayHelloCommand) error {
 }
 
 type BetterGreeterService struct {
+}
+
+func (s BetterGreeterService) Name() string {
+	return "BetterGreeter"
 }
 
 func (s BetterGreeterService) Category() string {

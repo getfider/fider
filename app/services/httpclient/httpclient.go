@@ -18,6 +18,10 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Name() string {
+	return "HTTP"
+}
+
 func (s Service) Category() string {
 	return "httpclient"
 }

@@ -24,6 +24,10 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Name() string {
+	return "SMTP"
+}
+
 func (s Service) Category() string {
 	return "email"
 }

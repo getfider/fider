@@ -12,6 +12,7 @@ type Msg interface{}
 type Event interface{}
 
 type Service interface {
+	Name() string
 	Category() string
 	Enabled() bool
 	Init()
@@ -41,6 +42,7 @@ func Reset() {
 // Services that set via Init(...services) are always registered (regardless of Enabled() function)
 /// and have preference over services registered from bus.Register
 func Init(forcedServices ...Service) {
+
 	for _, svc := range forcedServices {
 		svc.Init()
 	}

@@ -20,6 +20,10 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Name() string {
+	return "Console"
+}
+
 func (s Service) Category() string {
 	return "log"
 }

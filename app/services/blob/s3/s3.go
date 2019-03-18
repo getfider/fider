@@ -32,6 +32,10 @@ func init() {
 
 type Service struct{}
 
+func (s Service) Name() string {
+	return "S3"
+}
+
 func (s Service) Category() string {
 	return "blobstorage"
 }
