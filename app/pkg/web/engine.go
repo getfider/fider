@@ -23,6 +23,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	cache "github.com/patrickmn/go-cache"
 
+	_ "github.com/getfider/fider/app/services/blob/fs"
+	_ "github.com/getfider/fider/app/services/blob/s3"
+	_ "github.com/getfider/fider/app/services/blob/sql"
 	_ "github.com/getfider/fider/app/services/httpclient"
 )
 

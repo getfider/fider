@@ -15,14 +15,14 @@ type Service interface {
 	Init()
 }
 
-var services = make(map[string]Service)
+var services = make([]Service, 0)
 
 func Register(svc Service) {
-	services[svc.Category()] = svc
+	services = append(services, svc)
 }
 
 func Reset() {
-	services = make(map[string]Service)
+	services = make([]Service, 0)
 	handlers = make(map[string]HandlerFunc)
 }
 
@@ -36,8 +36,8 @@ func Init(forcedServices ...Service) {
 		initializedServices[svc.Category()] = true
 	}
 
-	for category, svc := range services {
-		_, found := initializedServices[category]
+	for _, svc := range services {
+		_, found := initializedServices[svc.Category()]
 		if !found && svc.Enabled() {
 			svc.Init()
 		}

@@ -172,7 +172,7 @@ func ViewUploadedImage() web.HandlerFunc {
 		size = between(size, 0, 2000)
 
 		cmd := &blob.RetrieveBlob{Key: bkey}
-		err = c.Dispatch(&cmd)
+		err = c.Dispatch(cmd)
 		if err != nil {
 			return c.Failure(err)
 		}
