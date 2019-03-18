@@ -9,46 +9,15 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
-var GreetingKey = "GreetingKey"
-
-type GreeterService struct {
-}
-
-func (s GreeterService) Category() string {
-	return "greeter"
-}
-
-func (s GreeterService) Enabled() bool {
-	return true
-}
-
-func (s GreeterService) Init() {
-	bus.AddHandler(s, SayHello)
-}
-
-type SayHelloCommand struct {
-	Name   string
-	Result string
-}
-
-var getGreeting = func(ctx context.Context) string {
-	return ctx.Value(GreetingKey).(string)
-}
-
-func SayHello(ctx context.Context, cmd *SayHelloCommand) error {
-	cmd.Result = getGreeting(ctx) + " " + cmd.Name
-	return nil
-}
-
 func TestBus_SimpleMessage(t *testing.T) {
 	RegisterT(t)
 	bus.Register(GreeterService{})
 	bus.Init()
-	ctx := context.WithValue(context.Background(), GreetingKey, "Hello")
+	ctx := context.WithValue(context.Background(), GreetingKey, "Good Morning")
 	cmd := &SayHelloCommand{Name: "Fider"}
 	err := bus.Dispatch(ctx, cmd)
 	Expect(err).IsNil()
-	Expect(cmd.Result).Equals("Hello Fider")
+	Expect(cmd.Result).Equals("Good Morning Fider")
 }
 
 func TestBus_MessageIsNotPointer_ShouldPanic(t *testing.T) {
@@ -66,4 +35,16 @@ func TestBus_MessageIsNotPointer_ShouldPanic(t *testing.T) {
 	cmd := SayHelloCommand{Name: "Fider"}
 	err := bus.Dispatch(context.Background(), cmd)
 	Expect(err).IsNil()
+}
+
+func TestBus_OverwriteService(t *testing.T) {
+	RegisterT(t)
+
+	bus.Register(GreeterService{})
+	bus.Register(BetterGreeterService{})
+	bus.Init()
+	cmd := &SayHelloCommand{Name: "Fider"}
+	err := bus.Dispatch(context.Background(), cmd)
+	Expect(err).IsNil()
+	Expect(cmd.Result).Equals("Hello Fider")
 }
