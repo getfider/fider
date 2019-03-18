@@ -197,16 +197,16 @@ func TestCanonicalURL_SameDomain(t *testing.T) {
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
 	ctx.SetCanonicalURL("")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000`)
 
 	ctx.SetCanonicalURL("/some-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-url`)
 
 	ctx.SetCanonicalURL("/some-other-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-other-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-other-url`)
 
 	ctx.SetCanonicalURL("page-b/abc.html")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/page-b/abc.html`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/page-b/abc.html`)
 }
 
 func TestCanonicalURL_DifferentDomain(t *testing.T) {
@@ -215,16 +215,16 @@ func TestCanonicalURL_DifferentDomain(t *testing.T) {
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
 	ctx.SetCanonicalURL("http://feedback.theavengers.com/some-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-url`)
 
 	ctx.SetCanonicalURL("")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com`)
 
 	ctx.SetCanonicalURL("/some-other-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-other-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-other-url`)
 
 	ctx.SetCanonicalURL("page-b/abc.html")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
 }
 
 func TestTryAgainLater(t *testing.T) {

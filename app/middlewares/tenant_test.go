@@ -136,7 +136,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 		status, _ := server.
 			WithURL(testCase.input).
 			Execute(func(c *web.Context) error {
-				canonicalURL, _ = c.Get("Canonical-URL").(string)
+				canonicalURL, _ = c.Value("Canonical-URL").(string)
 				return c.Ok(web.Map{})
 			})
 

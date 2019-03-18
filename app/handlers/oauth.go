@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
@@ -26,7 +27,7 @@ func OAuthEcho() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
@@ -70,7 +71,7 @@ func OAuthToken() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect(redirectURL.String())
 		}
 

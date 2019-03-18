@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -27,7 +28,7 @@ func SendSampleInvite() web.HandlerFunc {
 				"message": markdown.Full(input.Model.Message),
 			})
 
-			c.Publish(&email.SendMessageCommand{
+			bus.Publish(c, &email.SendMessageCommand{
 				From:         c.Tenant().Name,
 				To:           []email.Recipient{to},
 				TemplateName: "invite_email",
@@ -46,7 +47,7 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		c.Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
 			"TotalInvites": len(input.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})

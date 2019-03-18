@@ -31,7 +31,7 @@ var tonyStark *models.User
 
 type Context struct{}
 
-func (c Context) TenantAssetsURL(path string, a ...interface{}) string {
+func (c *Context) TenantAssetsURL(path string, a ...interface{}) string {
 	return "http://cdn.test.fider.io" + fmt.Sprintf(path, a...)
 }
 

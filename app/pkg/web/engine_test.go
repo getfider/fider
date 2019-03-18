@@ -20,7 +20,7 @@ func StartServer() {
 	group := e.Group()
 	{
 		group.Get("/api/ping", func(c *web.Context) error {
-			if c.Get("the-name") != nil {
+			if c.Value("the-name") != nil {
 				panic("key: the-name should not be set")
 			}
 			return c.String(http.StatusOK, "pong")
@@ -34,12 +34,12 @@ func StartServer() {
 		})
 
 		group.Get("/api/echo", func(c *web.Context) error {
-			return c.String(http.StatusOK, c.Get("the-name").(string))
+			return c.String(http.StatusOK, c.Value("the-name").(string))
 		})
 	}
 
 	e.Get("/hello", func(c *web.Context) error {
-		if c.Get("name") != nil {
+		if c.Value("name") != nil {
 			panic("ERROR!")
 		}
 		return c.String(http.StatusOK, "")

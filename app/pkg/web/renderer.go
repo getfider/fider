@@ -183,7 +183,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	private["logo"] = ctx.LogoURL()
 	private["favicon"] = ctx.FaviconURL()
 	private["currentURL"] = ctx.Request.URL.String()
-	if canonicalURL := ctx.Get("Canonical-URL"); canonicalURL != nil {
+	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
 		private["canonicalURL"] = canonicalURL
 	}
 

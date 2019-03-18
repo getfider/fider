@@ -14,6 +14,7 @@ import (
 
 	"github.com/getfider/fider/app/services/httpclient"
 
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/img"
@@ -78,14 +79,14 @@ func Gravatar() web.HandlerFunc {
 
 					//If gravatar was found in cache
 					if image, found := c.Engine().Cache().Get(cacheKey); found {
-						c.Debugf("Gravatar found in cache: @{GravatarURL}", log.Props{
+						log.Debugf(c, "Gravatar found in cache: @{GravatarURL}", log.Props{
 							"GravatarURL": cacheKey,
 						})
 						imageInBytes := image.([]byte)
 						return c.Image(http.DetectContentType(imageInBytes), imageInBytes)
 					}
 
-					c.Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
+					log.Debugf(c, "Requesting gravatar: @{GravatarURL}", log.Props{
 						"GravatarURL": url,
 					})
 
@@ -93,7 +94,7 @@ func Gravatar() web.HandlerFunc {
 						URL:    url,
 						Method: "GET",
 					}
-					err := c.Dispatch(req)
+					err := bus.Dispatch(c, req)
 					if err == nil && req.ResponseStatusCode == http.StatusOK {
 						bytes := req.ResponseBody
 						c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
@@ -119,7 +120,7 @@ func Favicon() web.HandlerFunc {
 		bkey := c.Param("bkey")
 		if bkey != "" {
 			cmd := &blob.RetrieveBlob{Key: bkey}
-			err := c.Dispatch(cmd)
+			err := bus.Dispatch(c, cmd)
 			if err != nil {
 				return c.Failure(err)
 			}
@@ -172,7 +173,7 @@ func ViewUploadedImage() web.HandlerFunc {
 		size = between(size, 0, 2000)
 
 		cmd := &blob.RetrieveBlob{Key: bkey}
-		err = c.Dispatch(cmd)
+		err = bus.Dispatch(c, cmd)
 		if err != nil {
 			return c.Failure(err)
 		}

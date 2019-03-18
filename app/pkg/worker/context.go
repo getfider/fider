@@ -3,10 +3,10 @@ package worker
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -96,21 +96,13 @@ func (c *Context) WorkerID() string {
 	return c.workerID
 }
 
-func (c *Context) Dispatch(m bus.Msg) error {
-	return bus.Dispatch(c.innerCtx, m)
-}
-
-func (c *Context) Publish(evt bus.Event) {
-	bus.Publish(c.innerCtx, evt)
-}
-
 //TaskName from current context
 func (c *Context) TaskName() string {
 	return c.taskName
 }
 
 //BaseURL from current context
-func (c Context) BaseURL() string {
+func (c *Context) BaseURL() string {
 	return c.baseURL
 }
 
@@ -137,44 +129,28 @@ func (c *Context) Failure(err error) error {
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL
-func (c Context) LogoURL() string {
+func (c *Context) LogoURL() string {
 	return c.logoURL
 }
 
 // TenantAssetsURL return the full URL to a tenant-specific static asset
-func (c Context) TenantAssetsURL(path string, a ...interface{}) string {
+func (c *Context) TenantAssetsURL(path string, a ...interface{}) string {
 	path = fmt.Sprintf(path, a...)
 	return c.assetsBaseURL + path
 }
 
-func (ctx *Context) Debug(message string) {
-	log.Debug(ctx.innerCtx, message)
+func (c *Context) Deadline() (deadline time.Time, ok bool) {
+	return c.innerCtx.Deadline()
 }
 
-func (ctx *Context) Debugf(message string, props log.Props) {
-	log.Debugf(ctx.innerCtx, message, props)
+func (c *Context) Done() <-chan struct{} {
+	return c.innerCtx.Done()
 }
 
-func (ctx *Context) Info(message string) {
-	log.Info(ctx.innerCtx, message)
+func (c *Context) Err() error {
+	return c.innerCtx.Err()
 }
 
-func (ctx *Context) Infof(message string, props log.Props) {
-	log.Infof(ctx.innerCtx, message, props)
-}
-
-func (ctx *Context) Warn(message string) {
-	log.Warn(ctx.innerCtx, message)
-}
-
-func (ctx *Context) Warnf(message string, props log.Props) {
-	log.Warnf(ctx.innerCtx, message, props)
-}
-
-func (ctx *Context) Error(err error) {
-	log.Error(ctx.innerCtx, err)
-}
-
-func (ctx *Context) Errorf(message string, props log.Props) {
-	log.Errorf(ctx.innerCtx, message, props)
+func (c *Context) Value(key interface{}) interface{} {
+	return c.innerCtx.Value(key)
 }

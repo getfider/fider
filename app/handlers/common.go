@@ -118,7 +118,7 @@ func LogError() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		c.Errorf(input.Message, log.Props{
+		log.Debugf(c, input.Message, log.Props{
 			"Data": input.Data,
 		})
 		return c.Ok(web.Map{})

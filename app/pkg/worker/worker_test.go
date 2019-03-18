@@ -30,7 +30,7 @@ func TestBackgroundWorker(t *testing.T) {
 	w := worker.New(nil)
 	w.Enqueue(worker.Task{
 		Name: "Do Something",
-		Job: func(c *worker.Context) error {
+		Job: func(ctx *worker.Context) error {
 			mu.Lock()
 			defer mu.Unlock()
 			finished = true

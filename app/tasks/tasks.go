@@ -8,6 +8,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/services/email"
@@ -33,7 +34,7 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         "Fider",
 			To:           []email.Recipient{to},
 			TemplateName: "signup_email",
@@ -51,7 +52,7 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.Tenant().Name,
 			To:           []email.Recipient{to},
 			TemplateName: "signin_email",
@@ -76,7 +77,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.Tenant().Name,
 			To:           []email.Recipient{to},
 			TemplateName: "change_emailaddress_email",
@@ -128,7 +129,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "new_post",
@@ -182,7 +183,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "new_comment",
@@ -251,7 +252,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "change_status",
@@ -301,7 +302,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "delete_post",
@@ -329,7 +330,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 			})
 		}
 
-		c.Publish(&email.SendMessageCommand{
+		bus.Publish(c, &email.SendMessageCommand{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "invite_email",
