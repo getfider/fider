@@ -64,7 +64,7 @@ func TestBus_MultipleMessages(t *testing.T) {
 	Expect(cmd3.Result).Equals("Hello Bob")
 }
 
-func TestBus_PublishMultiple(t *testing.T) {
+func TestBus_MultipleListeners(t *testing.T) {
 	RegisterT(t)
 	value1 := ""
 	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) {
@@ -79,4 +79,21 @@ func TestBus_PublishMultiple(t *testing.T) {
 	bus.Publish(context.Background(), &SayHelloCommand{Name: "Fider"})
 	Expect(value1).Equals("Fider")
 	Expect(value2).Equals("Fider")
+}
+
+func TestBus_MultiplePublish(t *testing.T) {
+	RegisterT(t)
+	value1 := ""
+	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) {
+		value1 += c.Name
+	})
+
+	value2 := ""
+	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) {
+		value2 += c.Name
+	})
+
+	bus.Publish(context.Background(), &SayHelloCommand{Name: "123"}, &SayHelloCommand{Name: "456"})
+	Expect(value1).Equals("123456")
+	Expect(value2).Equals("123456")
 }
