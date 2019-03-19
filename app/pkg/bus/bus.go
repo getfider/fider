@@ -9,7 +9,6 @@ import (
 
 type HandlerFunc interface{}
 type Msg interface{}
-type Event interface{}
 
 type Service interface {
 	Name() string
@@ -108,25 +107,25 @@ func Dispatch(ctx context.Context, msg Msg) error {
 	return err.(error)
 }
 
-func Publish(ctx context.Context, evt Event) {
+func Publish(ctx context.Context, msg Msg) {
 	busLock.RLock()
 	defer busLock.RUnlock()
 
-	typeof := reflect.TypeOf(evt)
+	typeof := reflect.TypeOf(msg)
 	if typeof.Kind() != reflect.Ptr {
 		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
 	}
 	elem := typeof.Elem()
 	key := keyForElement(elem)
-	eventListeners := listeners[key]
+	msgListeners := listeners[key]
 
 	var params = []reflect.Value{
 		reflect.ValueOf(ctx),
-		reflect.ValueOf(evt),
+		reflect.ValueOf(msg),
 	}
 
-	for _, evtListener := range eventListeners {
-		reflect.ValueOf(evtListener).Call(params)
+	for _, msgListener := range msgListeners {
+		reflect.ValueOf(msgListener).Call(params)
 	}
 }
 

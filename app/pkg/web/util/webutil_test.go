@@ -9,9 +9,8 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/services/blob/fs"
-
-	"github.com/getfider/fider/app/services/blob"
 
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -79,12 +78,12 @@ func TestProcessImageUpload(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(upload.BlobKey).ContainsSubstring("attachments/")
 
-	retrieveCmd := &blob.RetrieveBlob{Key: upload.BlobKey}
-	err = bus.Dispatch(context.Background(), retrieveCmd)
+	q := &query.GetBlobByKey{Key: upload.BlobKey}
+	err = bus.Dispatch(context.Background(), q)
 	Expect(err).IsNil()
-	Expect(retrieveCmd.Blob.ContentType).Equals("image/gif")
-	Expect(retrieveCmd.Blob.Content).Equals(img)
-	Expect(int(retrieveCmd.Blob.Size)).Equals(len(img))
+	Expect(q.Blob.ContentType).Equals("image/gif")
+	Expect(q.Blob.Content).Equals(img)
+	Expect(int(q.Blob.Size)).Equals(len(img))
 }
 
 func TestMultiProcessImageUpload(t *testing.T) {

@@ -12,6 +12,9 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/services/blob"
@@ -40,27 +43,27 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddHandler(retrieveBlob)
+	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
 }
 
-func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
-	fullPath := keyFullPath(ctx, cmd.Key)
+func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
+	fullPath := keyFullPath(ctx, q.Key)
 	stats, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return blob.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to get stats '%s' from FileSystem", cmd.Key)
+		return errors.Wrap(err, "failed to get stats '%s' from FileSystem", q.Key)
 	}
 
 	file, err := ioutil.ReadFile(fullPath)
 	if err != nil {
-		return errors.Wrap(err, "failed to get read '%s' from FileSystem", cmd.Key)
+		return errors.Wrap(err, "failed to get read '%s' from FileSystem", q.Key)
 	}
 
-	cmd.Blob = &blob.Blob{
+	q.Blob = &dto.Blob{
 		Content:     file,
 		ContentType: http.DetectContentType(file),
 		Size:        stats.Size(),
@@ -68,19 +71,19 @@ func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
 	return nil
 }
 
-func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
-	if err := blob.ValidateKey(cmd.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", cmd.Key)
+func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
+	if err := blob.ValidateKey(c.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	fullPath := keyFullPath(ctx, cmd.Key)
+	fullPath := keyFullPath(ctx, c.Key)
 	err := os.MkdirAll(filepath.Dir(fullPath), perm)
 
 	if err != nil {
 		return errors.Wrap(err, "failed to create folder '%s' on FileSystem", fullPath)
 	}
 
-	err = ioutil.WriteFile(fullPath, cmd.Content, perm)
+	err = ioutil.WriteFile(fullPath, c.Content, perm)
 	if err != nil {
 		return errors.Wrap(err, "failed to create file '%s' on FileSystem", fullPath)
 	}
@@ -88,11 +91,11 @@ func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
 	return nil
 }
 
-func deleteBlob(ctx context.Context, cmd *blob.DeleteBlob) error {
-	fullPath := keyFullPath(ctx, cmd.Key)
+func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
+	fullPath := keyFullPath(ctx, c.Key)
 	err := os.Remove(fullPath)
 	if err != nil && !os.IsNotExist(err) {
-		return errors.Wrap(err, "failed to delete file '%s' from FileSystem", cmd.Key)
+		return errors.Wrap(err, "failed to delete file '%s' from FileSystem", c.Key)
 	}
 	return nil
 }

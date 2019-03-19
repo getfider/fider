@@ -6,17 +6,18 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/services/email"
 )
 
 var MessageHistory = make([]*HistoryItem, 0)
 
 type HistoryItem struct {
 	From         string
-	To           []email.Recipient
+	To           []dto.Recipient
 	TemplateName string
-	Params       email.Params
+	Props        dto.Props
 	Tenant       *models.Tenant
 }
 
@@ -40,18 +41,18 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	MessageHistory = make([]*HistoryItem, 0)
-	bus.AddEventListener(sendEmail)
+	bus.AddEventListener(sendMail)
 }
 
-func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
-	if cmd.Params == nil {
-		cmd.Params = email.Params{}
+func sendMail(ctx context.Context, c *cmd.SendMail) {
+	if c.Props == nil {
+		c.Props = dto.Props{}
 	}
 	item := &HistoryItem{
-		From:         cmd.From,
-		To:           cmd.To,
-		TemplateName: cmd.TemplateName,
-		Params:       cmd.Params,
+		From:         c.From,
+		To:           c.To,
+		TemplateName: c.TemplateName,
+		Props:        c.Props,
 	}
 
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)

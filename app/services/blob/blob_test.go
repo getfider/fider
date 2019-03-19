@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	awss3 "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -106,39 +108,39 @@ func AllOperations(ctx context.Context) {
 
 	for _, testCase := range testCases {
 		bytes, _ := ioutil.ReadFile(env.Path(testCase.localPath))
-		err := bus.Dispatch(ctx, &blob.StoreBlob{
+		err := bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         testCase.key,
 			Content:     bytes,
 			ContentType: testCase.contentType,
 		})
 		Expect(err).IsNil()
 
-		retrieveCmd := &blob.RetrieveBlob{
+		q := &query.GetBlobByKey{
 			Key: testCase.key,
 		}
-		err = bus.Dispatch(ctx, retrieveCmd)
+		err = bus.Dispatch(ctx, q)
 		Expect(err).IsNil()
-		Expect(retrieveCmd.Key).Equals(testCase.key)
-		Expect(retrieveCmd.Blob.Content).Equals(bytes)
-		Expect(retrieveCmd.Blob.Size).Equals(int64(len(bytes)))
-		Expect(retrieveCmd.Blob.ContentType).Equals(testCase.contentType)
+		Expect(q.Key).Equals(testCase.key)
+		Expect(q.Blob.Content).Equals(bytes)
+		Expect(q.Blob.Size).Equals(int64(len(bytes)))
+		Expect(q.Blob.ContentType).Equals(testCase.contentType)
 
-		err = bus.Dispatch(ctx, &blob.DeleteBlob{
+		err = bus.Dispatch(ctx, &cmd.DeleteBlob{
 			Key: testCase.key,
 		})
 		Expect(err).IsNil()
 
-		retrieveCmd = &blob.RetrieveBlob{
+		q = &query.GetBlobByKey{
 			Key: testCase.key,
 		}
-		err = bus.Dispatch(ctx, retrieveCmd)
-		Expect(retrieveCmd.Blob).IsNil()
+		err = bus.Dispatch(ctx, q)
+		Expect(q.Blob).IsNil()
 		Expect(err).Equals(blob.ErrNotFound)
 	}
 }
 
 func DeleteUnkownFile(ctx context.Context) {
-	err := bus.Dispatch(ctx, &blob.DeleteBlob{
+	err := bus.Dispatch(ctx, &cmd.DeleteBlob{
 		Key: "path/somefile.txt",
 	})
 	Expect(err).IsNil()
@@ -151,27 +153,27 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	key := "path/to/file3.txt"
 	bytes, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
-	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
+	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,
 		Content:     bytes,
 		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
-	retrieveCmd := &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctxWithTenant1, retrieveCmd)
+	q := &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctxWithTenant1, q)
 	Expect(err).IsNil()
-	Expect(retrieveCmd.Blob.Content).Equals(bytes)
+	Expect(q.Blob.Content).Equals(bytes)
 
-	retrieveCmd = &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	q = &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(retrieveCmd.Blob).IsNil()
+	Expect(q.Blob).IsNil()
 
-	retrieveCmd = &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctx, retrieveCmd)
+	q = &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(retrieveCmd.Blob).IsNil()
+	Expect(q.Blob).IsNil()
 }
 
 func SameKey_DifferentTenant_Delete(ctx context.Context) {
@@ -182,42 +184,42 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	bytes1, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file.txt"))
 	bytes2, _ := ioutil.ReadFile(env.Path("/app/services/blob/testdata/file3.txt"))
 
-	err := bus.Dispatch(ctxWithTenant1, &blob.StoreBlob{
+	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
 		Key:         key,
 		Content:     bytes1,
 		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(ctxWithTenant2, &blob.StoreBlob{
+	err = bus.Dispatch(ctxWithTenant2, &cmd.StoreBlob{
 		Key:         key,
 		Content:     bytes2,
 		ContentType: "text/plain; charset=utf-8",
 	})
 	Expect(err).IsNil()
 
-	retrieveCmd := &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctxWithTenant1, retrieveCmd)
+	q := &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctxWithTenant1, q)
 	Expect(err).IsNil()
-	Expect(retrieveCmd.Blob.Content).Equals(bytes1)
+	Expect(q.Blob.Content).Equals(bytes1)
 
-	retrieveCmd = &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	q = &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).IsNil()
-	Expect(retrieveCmd.Blob.Content).Equals(bytes2)
+	Expect(q.Blob.Content).Equals(bytes2)
 
-	err = bus.Dispatch(ctxWithTenant1, &blob.DeleteBlob{Key: key})
+	err = bus.Dispatch(ctxWithTenant1, &cmd.DeleteBlob{Key: key})
 	Expect(err).IsNil()
 
-	retrieveCmd = &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctxWithTenant2, retrieveCmd)
+	q = &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).IsNil()
-	Expect(retrieveCmd.Blob.Content).Equals(bytes2)
+	Expect(q.Blob.Content).Equals(bytes2)
 
-	retrieveCmd = &blob.RetrieveBlob{Key: key}
-	err = bus.Dispatch(ctx, retrieveCmd)
+	q = &query.GetBlobByKey{Key: key}
+	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(retrieveCmd.Blob).IsNil()
+	Expect(q.Blob).IsNil()
 }
 
 func KeyFormats(ctx context.Context) {
@@ -260,7 +262,7 @@ func KeyFormats(ctx context.Context) {
 	}
 
 	for _, testCase := range testCases {
-		err := bus.Dispatch(ctx, &blob.StoreBlob{
+		err := bus.Dispatch(ctx, &cmd.StoreBlob{
 			Key:         testCase.key,
 			Content:     []byte{},
 			ContentType: "text/plain; charset=utf-8",

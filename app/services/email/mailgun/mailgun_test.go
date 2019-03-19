@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/services/email/mailgun"
@@ -33,16 +35,16 @@ func TestSend_Success(t *testing.T) {
 	env.Config.HostMode = "multi"
 	reset()
 
-	bus.Publish(ctx, &email.SendMessageCommand{
+	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",
-		To: []email.Recipient{
-			email.Recipient{
+		To: []dto.Recipient{
+			dto.Recipient{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
 		},
 		TemplateName: "echo_test",
-		Params: email.Params{
+		Props: dto.Props{
 			"name": "Hello",
 		},
 	})
@@ -100,16 +102,16 @@ func TestSend_SkipEmptyAddress(t *testing.T) {
 	RegisterT(t)
 	reset()
 
-	bus.Publish(ctx, &email.SendMessageCommand{
+	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",
-		To: []email.Recipient{
-			email.Recipient{
+		To: []dto.Recipient{
+			dto.Recipient{
 				Name:    "Jon Sow",
 				Address: "",
 			},
 		},
 		TemplateName: "echo_test",
-		Params: email.Params{
+		Props: dto.Props{
 			"name": "Hello",
 		},
 	})
@@ -122,16 +124,16 @@ func TestSend_SkipUnlistedAddress(t *testing.T) {
 	reset()
 	email.SetWhitelist("^.*@gmail.com$")
 
-	bus.Publish(ctx, &email.SendMessageCommand{
+	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",
-		To: []email.Recipient{
-			email.Recipient{
+		To: []dto.Recipient{
+			dto.Recipient{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
 			},
 		},
 		TemplateName: "echo_test",
-		Params: email.Params{
+		Props: dto.Props{
 			"name": "Hello",
 		},
 	})
@@ -144,20 +146,20 @@ func TestBatch_Success(t *testing.T) {
 	reset()
 	email.SetWhitelist("")
 
-	bus.Publish(ctx, &email.SendMessageCommand{
+	bus.Publish(ctx, &cmd.SendMail{
 		From: "Fider Test",
-		To: []email.Recipient{
-			email.Recipient{
+		To: []dto.Recipient{
+			dto.Recipient{
 				Name:    "Jon Sow",
 				Address: "jon.snow@got.com",
-				Params: email.Params{
+				Props: dto.Props{
 					"name": "Jon",
 				},
 			},
-			email.Recipient{
+			dto.Recipient{
 				Name:    "Arya Stark",
 				Address: "arya.start@got.com",
-				Params: email.Params{
+				Props: dto.Props{
 					"name": "Arya",
 				},
 			},

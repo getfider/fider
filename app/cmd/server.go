@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
@@ -28,7 +29,7 @@ func RunServer(settings *models.SystemSettings) int {
 	svcs := bus.Init()
 	ctx := log.SetProperty(context.Background(), log.PropertyKeyTag, "BOOTSTRAP")
 	for _, s := range svcs {
-		log.Debugf(ctx, "Service '@{ServiceCategory}.@{ServiceName}' has been initialized.", log.Props{
+		log.Debugf(ctx, "Service '@{ServiceCategory}.@{ServiceName}' has been initialized.", dto.Props{
 			"ServiceCategory": s.Category(),
 			"ServiceName":     s.Name(),
 		})

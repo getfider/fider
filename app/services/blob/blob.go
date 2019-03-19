@@ -8,28 +8,6 @@ import (
 	"github.com/gosimple/slug"
 )
 
-type Blob struct {
-	Size        int64
-	Content     []byte
-	ContentType string
-}
-
-type StoreBlob struct {
-	Key         string
-	Content     []byte
-	ContentType string
-}
-
-type RetrieveBlob struct {
-	Key string
-
-	Blob *Blob
-}
-
-type DeleteBlob struct {
-	Key string
-}
-
 // ErrNotFound is returned when given blob is not found
 var ErrNotFound = errors.New("Blob not found")
 

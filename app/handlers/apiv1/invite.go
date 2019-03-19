@@ -5,11 +5,12 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/tasks"
 )
 
@@ -23,14 +24,14 @@ func SendSampleInvite() web.HandlerFunc {
 
 		if c.User().Email != "" {
 			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
-			to := email.NewRecipient(c.User().Name, c.User().Email, email.Params{
+			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
 				"subject": input.Model.Subject,
 				"message": markdown.Full(input.Model.Message),
 			})
 
-			bus.Publish(c, &email.SendMessageCommand{
+			bus.Publish(c, &cmd.SendMail{
 				From:         c.Tenant().Name,
-				To:           []email.Recipient{to},
+				To:           []dto.Recipient{to},
 				TemplateName: "invite_email",
 			})
 		}
@@ -47,7 +48,7 @@ func SendInvites() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", dto.Props{
 			"TotalInvites": len(input.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})

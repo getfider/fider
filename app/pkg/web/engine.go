@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -94,7 +95,7 @@ func New(settings *models.SystemSettings) *Engine {
 //Start the server.
 func (e *Engine) Start(address string) {
 	log.Info(e.innerCtx, "Application is starting")
-	log.Infof(e.innerCtx, "GO_ENV: @{Env}", log.Props{
+	log.Infof(e.innerCtx, "GO_ENV: @{Env}", dto.Props{
 		"Env": env.Config.Environment,
 	})
 
@@ -133,14 +134,14 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		log.Infof(e.innerCtx, "https (auto ssl) server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
-		log.Infof(e.innerCtx, "http server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "http server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		log.Infof(e.innerCtx, "https server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e.innerCtx, "https server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 

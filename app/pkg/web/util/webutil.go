@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -107,7 +108,7 @@ func ProcessMultiImageUpload(c *web.Context, imgs []*models.ImageUpload, preffix
 func ProcessImageUpload(c *web.Context, img *models.ImageUpload, preffix string) error {
 	if img.Upload != nil && len(img.Upload.Content) > 0 {
 		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
-		err := bus.Dispatch(c, &blob.StoreBlob{
+		err := bus.Dispatch(c, &cmd.StoreBlob{
 			Key:         bkey,
 			Content:     img.Upload.Content,
 			ContentType: img.Upload.ContentType,

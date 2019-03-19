@@ -1,44 +1,18 @@
 package log
 
 import (
-	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/color"
 )
-
-// Props is a map of key:value
-type Props map[string]interface{}
-
-// Value converts props into a database value
-func (p Props) Value() (driver.Value, error) {
-	j, err := json.Marshal(p)
-	return j, err
-}
-
-// Merge current props with given props
-func (p Props) Merge(props Props) Props {
-	new := Props{}
-	if p != nil {
-		for k, v := range p {
-			new[k] = v
-		}
-	}
-	if props != nil {
-		for k, v := range props {
-			new[k] = v
-		}
-	}
-	return new
-}
 
 var placeholderFinder = regexp.MustCompile("@{.*?}")
 
 // Parse is used to merge props into format and return a text message
-func Parse(format string, props Props, colorize bool) string {
+func Parse(format string, props dto.Props, colorize bool) string {
 	if props == nil || len(props) == 0 {
 		return format
 	}

@@ -1,61 +1,45 @@
 package email
 
 import (
-	"net/mail"
+	"regexp"
+	"strings"
 
 	"github.com/getfider/fider/app/pkg/env"
 )
 
-// Params used to replace variables on emails
-type Params map[string]interface{}
-
-// Merge given params into current params
-func (p Params) Merge(p2 Params) Params {
-	if p == nil {
-		p = Params{}
-	}
-	for k, v := range p2 {
-		p[k] = v
-	}
-	return p
-}
-
 // NoReply is the default 'from' address
 var NoReply = env.Config.Email.NoReply
 
-// Recipient contains details of who is receiving the email
-type Recipient struct {
-	Name    string
-	Address string
-	Params  Params
+var whitelist = env.Config.Email.Whitelist
+var whitelistRegex = regexp.MustCompile(whitelist)
+var blacklist = env.Config.Email.Blacklist
+var blacklistRegex = regexp.MustCompile(blacklist)
+
+// SetWhitelist can be used to change email whitelist during runtime
+func SetWhitelist(s string) {
+	whitelist = s
+	whitelistRegex = regexp.MustCompile(whitelist)
 }
 
-// NewRecipient creates a new Recipient
-func NewRecipient(name, address string, params Params) Recipient {
-	return Recipient{
-		Name:    name,
-		Address: address,
-		Params:  params,
-	}
+// SetBlacklist can be used to change email blacklist during runtime
+func SetBlacklist(s string) {
+	blacklist = s
+	blacklistRegex = regexp.MustCompile(blacklist)
 }
 
-// Strings returns the RFC format to send emails via SMTP
-func (r Recipient) String() string {
-	if r.Address == "" {
-		return ""
+// CanSendTo returns true if Fider is allowed to send email to given address
+func CanSendTo(address string) bool {
+	if strings.TrimSpace(address) == "" {
+		return false
 	}
 
-	address := mail.Address{
-		Name:    r.Name,
-		Address: r.Address,
+	if whitelist != "" {
+		return whitelistRegex.MatchString(address)
 	}
 
-	return address.String()
-}
+	if blacklist != "" {
+		return !blacklistRegex.MatchString(address)
+	}
 
-type SendMessageCommand struct {
-	From         string
-	To           []Recipient
-	TemplateName string
-	Params       Params
+	return true
 }

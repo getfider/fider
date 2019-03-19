@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 )
 
@@ -19,7 +20,7 @@ type Message struct {
 var baseTpl, _ = template.ParseFiles(env.Path("/views/templates/base_email.tpl"))
 
 // RenderMessage returns the HTML of an email based on template and params
-func RenderMessage(templateName string, params Params) *Message {
+func RenderMessage(templateName string, params dto.Props) *Message {
 	tpl, ok := cache[templateName]
 	if !ok || env.IsDevelopment() {
 		var err error
@@ -40,7 +41,7 @@ func RenderMessage(templateName string, params Params) *Message {
 	body := strings.TrimLeft(strings.Join(lines[2:], "\n"), " ")
 
 	bf.Reset()
-	if err := baseTpl.Execute(&bf, Params{
+	if err := baseTpl.Execute(&bf, dto.Props{
 		"logo": params["logo"],
 		"body": template.HTML(body),
 	}); err != nil {

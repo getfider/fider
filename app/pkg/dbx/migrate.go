@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -44,7 +45,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 	}
 	sort.Ints(versions)
 
-	log.Infof(ctx, "Found total of @{Total} migration files.", log.Props{
+	log.Infof(ctx, "Found total of @{Total} migration files.", dto.Props{
 		"Total": len(versions),
 	})
 
@@ -53,7 +54,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
 
-	log.Infof(ctx, "Current version is @{Version}", log.Props{
+	log.Infof(ctx, "Current version is @{Version}", dto.Props{
 		"Version": lastVersion,
 	})
 
@@ -63,7 +64,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 	for _, version := range versions {
 		if version > lastVersion {
 			fileName := versionFiles[version]
-			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", log.Props{
+			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
 				"Version":  version,
 				"FileName": fileName,
 			})
@@ -76,7 +77,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 	}
 
 	if totalMigrationsExecuted > 0 {
-		log.Infof(ctx, "@{Count} migrations have been applied.", log.Props{
+		log.Infof(ctx, "@{Count} migrations have been applied.", dto.Props{
 			"Count": totalMigrationsExecuted,
 		})
 	} else {

@@ -10,12 +10,13 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/services/email"
-	"github.com/getfider/fider/app/services/httpclient"
 )
 
 var baseURL = "https://api.mailgun.net/v3/%s/messages"
@@ -39,39 +40,39 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddEventListener(sendEmail)
+	bus.AddEventListener(sendMail)
 }
 
-func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
-	if len(cmd.To) == 0 {
+func sendMail(ctx context.Context, c *cmd.SendMail) {
+	if len(c.To) == 0 {
 		return
 	}
 
-	if cmd.Params == nil {
-		cmd.Params = email.Params{}
+	if c.Props == nil {
+		c.Props = dto.Props{}
 	}
 
-	isBatch := len(cmd.To) > 1
+	isBatch := len(c.To) > 1
 
 	var message *email.Message
 	if isBatch {
 		// Replace recipient specific Go templates variables with Mailgun template variables
-		if cmd.To[0].Params != nil {
-			for k := range cmd.To[0].Params {
-				cmd.Params[k] = fmt.Sprintf("%%recipient.%s%%", k)
+		if c.To[0].Props != nil {
+			for k := range c.To[0].Props {
+				c.Props[k] = fmt.Sprintf("%%recipient.%s%%", k)
 			}
 		}
-		message = email.RenderMessage(cmd.TemplateName, cmd.Params)
+		message = email.RenderMessage(c.TemplateName, c.Props)
 	} else {
-		message = email.RenderMessage(cmd.TemplateName, cmd.Params.Merge(cmd.To[0].Params))
+		message = email.RenderMessage(c.TemplateName, c.Props.Merge(c.To[0].Props))
 	}
 
 	form := url.Values{}
-	form.Add("from", email.NewRecipient(cmd.From, email.NoReply, email.Params{}).String())
+	form.Add("from", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
 	form.Add("h:Reply-To", email.NoReply)
 	form.Add("subject", message.Subject)
 	form.Add("html", message.Body)
-	form.Add("o:tag", fmt.Sprintf("template:%s", cmd.TemplateName))
+	form.Add("o:tag", fmt.Sprintf("template:%s", c.TemplateName))
 
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
 	if ok && !env.IsSingleHostMode() {
@@ -79,14 +80,14 @@ func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
 	}
 
 	// Set Mailgun's var based on each recipient's variables
-	recipientVariables := make(map[string]email.Params)
-	for _, r := range cmd.To {
+	recipientVariables := make(map[string]dto.Props)
+	for _, r := range c.To {
 		if r.Address != "" {
 			if email.CanSendTo(r.Address) {
 				form.Add("to", r.String())
-				recipientVariables[r.Address] = r.Params
+				recipientVariables[r.Address] = r.Props
 			} else {
-				log.Warnf(ctx, "Skipping email to '@{Name} <@{Address}>'.", log.Props{
+				log.Warnf(ctx, "Skipping email to '@{Name} <@{Address}>'.", dto.Props{
 					"Name":    r.Name,
 					"Address": r.Address,
 				})
@@ -109,36 +110,36 @@ func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
 	}
 
 	if isBatch {
-		log.Debugf(ctx, "Sending email to @{CountRecipients} recipients with template @{TemplateName}.", log.Props{
+		log.Debugf(ctx, "Sending email to @{CountRecipients} recipients with template @{TemplateName}.", dto.Props{
 			"CountRecipients": len(recipientVariables),
-			"TemplateName":    cmd.TemplateName,
+			"TemplateName":    c.TemplateName,
 		})
 	} else {
-		log.Debugf(ctx, "Sending email to @{Address} with template @{TemplateName}.", log.Props{
-			"Address":      cmd.To[0].Address,
-			"TemplateName": cmd.TemplateName,
+		log.Debugf(ctx, "Sending email to @{Address} with template @{TemplateName}.", dto.Props{
+			"Address":      c.To[0].Address,
+			"TemplateName": c.TemplateName,
 		})
 	}
 
 	url := fmt.Sprintf(baseURL, env.Config.Email.Mailgun.Domain)
 
-	req := &httpclient.Request{
+	req := &cmd.HTTPRequest{
 		Method: "POST",
 		URL:    url,
 		Body:   strings.NewReader(form.Encode()),
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",
 		},
-		BasicAuth: &httpclient.BasicAuth{
+		BasicAuth: &dto.BasicAuth{
 			User:     "api",
 			Password: env.Config.Email.Mailgun.APIKey,
 		},
 	}
 	err := bus.Dispatch(ctx, req)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to send email with template %s", cmd.TemplateName))
+		panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
 	}
-	log.Debugf(ctx, "Email sent with response code @{StatusCode}.", log.Props{
+	log.Debugf(ctx, "Email sent with response code @{StatusCode}.", dto.Props{
 		"StatusCode": req.ResponseStatusCode,
 	})
 }

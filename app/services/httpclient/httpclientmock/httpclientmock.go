@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/services/httpclient"
 )
 
 func init() {
@@ -39,22 +39,22 @@ func (s Service) Init() {
 	bus.AddHandler(requestHandler)
 }
 
-func requestHandler(ctx context.Context, cmd *httpclient.Request) error {
-	req, err := http.NewRequest(cmd.Method, cmd.URL, cmd.Body)
+func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
+	req, err := http.NewRequest(c.Method, c.URL, c.Body)
 	if err != nil {
 		return err
 	}
 
-	for k, v := range cmd.Headers {
+	for k, v := range c.Headers {
 		req.Header.Set(k, v)
 	}
-	if cmd.BasicAuth != nil {
-		req.SetBasicAuth(cmd.BasicAuth.User, cmd.BasicAuth.Password)
+	if c.BasicAuth != nil {
+		req.SetBasicAuth(c.BasicAuth.User, c.BasicAuth.Password)
 	}
 
 	RequestsHistory = append(RequestsHistory, req)
 
-	cmd.ResponseStatusCode = http.StatusOK
-	cmd.ResponseBody = []byte("")
+	c.ResponseStatusCode = http.StatusOK
+	c.ResponseBody = []byte("")
 	return nil
 }

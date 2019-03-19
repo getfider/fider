@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 
 	"github.com/getfider/fider/app"
@@ -36,12 +39,12 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddHandler(retrieveBlob)
+	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
 }
 
-func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
+func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	db := getDB(ctx)
 	tenant := getTenant(ctx)
 
@@ -57,15 +60,15 @@ func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
 	defer trx.Commit()
 
 	b := dbBlob{}
-	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", cmd.Key, tenantID)
+	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
 	if err != nil {
 		if err == app.ErrNotFound {
 			return blob.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to get blob with key '%s'", cmd.Key)
+		return errors.Wrap(err, "failed to get blob with key '%s'", q.Key)
 	}
 
-	cmd.Blob = &blob.Blob{
+	q.Blob = &dto.Blob{
 		Size:        b.Size,
 		ContentType: b.ContentType,
 		Content:     b.Content,
@@ -73,9 +76,9 @@ func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
 	return nil
 }
 
-func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
-	if err := blob.ValidateKey(cmd.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", cmd.Key)
+func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
+	if err := blob.ValidateKey(c.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
 	db := getDB(ctx)
@@ -97,19 +100,19 @@ func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
 	INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
 	VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
 	DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7
-	`, tenantID, cmd.Key, int64(len(cmd.Content)), cmd.ContentType, cmd.Content, now, now)
+	`, tenantID, c.Key, int64(len(c.Content)), c.ContentType, c.Content, now, now)
 	if err != nil {
-		return errors.Wrap(err, "failed to store blob with key '%s'", cmd.Key)
+		return errors.Wrap(err, "failed to store blob with key '%s'", c.Key)
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "failed to commit store of blob with key '%s'", cmd.Key)
+		return errors.Wrap(err, "failed to commit store of blob with key '%s'", c.Key)
 	}
 
 	return nil
 }
 
-func deleteBlob(ctx context.Context, cmd *blob.DeleteBlob) error {
+func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	db := getDB(ctx)
 	tenant := getTenant(ctx)
 
@@ -124,13 +127,13 @@ func deleteBlob(ctx context.Context, cmd *blob.DeleteBlob) error {
 	}
 	defer trx.Commit()
 
-	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", cmd.Key, tenantID)
+	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete blob with key '%s'", cmd.Key)
+		return errors.Wrap(err, "failed to delete blob with key '%s'", c.Key)
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "failed to commit deletion of blob with key '%s'", cmd.Key)
+		return errors.Wrap(err, "failed to commit deletion of blob with key '%s'", c.Key)
 	}
 
 	return nil

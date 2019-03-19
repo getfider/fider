@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -37,15 +39,15 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddEventListener(sendEmail)
+	bus.AddEventListener(sendMail)
 }
 
-func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
-	if cmd.Params == nil {
-		cmd.Params = email.Params{}
+func sendMail(ctx context.Context, c *cmd.SendMail) {
+	if c.Props == nil {
+		c.Props = dto.Props{}
 	}
 
-	for _, to := range cmd.To {
+	for _, to := range c.To {
 		if to.Address == "" {
 			return
 		}
@@ -58,22 +60,22 @@ func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
 		// }
 
 		if !email.CanSendTo(to.Address) {
-			log.Warnf(ctx, "Skipping email to '@{Name} <@{Address}>'.", log.Props{
+			log.Warnf(ctx, "Skipping email to '@{Name} <@{Address}>'.", dto.Props{
 				"Name":    to.Name,
 				"Address": to.Address,
 			})
 			return
 		}
 
-		log.Debugf(ctx, "Sending email to @{Address} with template @{TemplateName} and params @{Params}.", log.Props{
+		log.Debugf(ctx, "Sending email to @{Address} with template @{TemplateName} and params @{Props}.", dto.Props{
 			"Address":      to.Address,
-			"TemplateName": cmd.TemplateName,
-			"Params":       to.Params,
+			"TemplateName": c.TemplateName,
+			"Props":        to.Props,
 		})
 
-		message := email.RenderMessage(cmd.TemplateName, cmd.Params.Merge(to.Params))
+		message := email.RenderMessage(c.TemplateName, c.Props.Merge(to.Props))
 		b := builder{}
-		b.Set("From", email.NewRecipient(cmd.From, email.NoReply, email.Params{}).String())
+		b.Set("From", dto.NewRecipient(c.From, email.NoReply, dto.Props{}).String())
 		b.Set("Reply-To", email.NoReply)
 		b.Set("To", to.String())
 		b.Set("Subject", message.Subject)
@@ -88,7 +90,7 @@ func sendEmail(ctx context.Context, cmd *email.SendMessageCommand) {
 		auth := authenticate(smtpConfig.Username, smtpConfig.Password, smtpConfig.Host)
 		err := Send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
 		if err != nil {
-			panic(errors.Wrap(err, "failed to send email with template %s", cmd.TemplateName))
+			panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
 		}
 		log.Debug(ctx, "Email sent.")
 	}

@@ -3,6 +3,7 @@ package email_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/services/email"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -11,7 +12,7 @@ import (
 func TestRenderMessage(t *testing.T) {
 	RegisterT(t)
 
-	message := email.RenderMessage("echo_test", email.Params{
+	message := email.RenderMessage("echo_test", dto.Props{
 		"name": "Fider",
 	})
 	Expect(message.Subject).Equals("Message to: Fider")
@@ -110,24 +111,6 @@ func TestCanSendTo(t *testing.T) {
 	}
 }
 
-func TestParamsMerge(t *testing.T) {
-	RegisterT(t)
-
-	p1 := email.Params{
-		"name": "Jon",
-		"age":  26,
-	}
-	p2 := p1.Merge(email.Params{
-		"age":   30,
-		"email": "john.snow@got.com",
-	})
-	Expect(p2).Equals(email.Params{
-		"name":  "Jon",
-		"age":   30,
-		"email": "john.snow@got.com",
-	})
-}
-
 func TestRecipient_String(t *testing.T) {
 	RegisterT(t)
 
@@ -169,7 +152,7 @@ func TestRecipient_String(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		r := email.NewRecipient(testCase.name, testCase.email, email.Params{})
+		r := dto.NewRecipient(testCase.name, testCase.email, dto.Props{})
 		Expect(r.String()).Equals(testCase.expected)
 	}
 }

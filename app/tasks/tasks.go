@@ -8,10 +8,11 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/worker"
-	"github.com/getfider/fider/app/services/email"
 )
 
 func describe(name string, job worker.Job) worker.Task {
@@ -29,14 +30,14 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 //SendSignUpEmail is used to send the sign up email to requestor
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
-		to := email.NewRecipient(model.Name, model.Email, email.Params{
+		to := dto.NewRecipient(model.Name, model.Email, dto.Props{
 			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         "Fider",
-			To:           []email.Recipient{to},
+			To:           []dto.Recipient{to},
 			TemplateName: "signup_email",
 		})
 
@@ -47,14 +48,14 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
-		to := email.NewRecipient("", model.Email, email.Params{
+		to := dto.NewRecipient("", model.Email, dto.Props{
 			"tenantName": c.Tenant().Name,
 			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
 		})
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.Tenant().Name,
-			To:           []email.Recipient{to},
+			To:           []dto.Recipient{to},
 			TemplateName: "signin_email",
 		})
 
@@ -70,16 +71,16 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			previous = "(empty)"
 		}
 
-		to := email.NewRecipient(model.Requestor.Name, model.Email, email.Params{
+		to := dto.NewRecipient(model.Requestor.Name, model.Email, dto.Props{
 			"name":     c.User().Name,
 			"oldEmail": previous,
 			"newEmail": model.Email,
 			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
 		})
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.Tenant().Name,
-			To:           []email.Recipient{to},
+			To:           []dto.Recipient{to},
 			TemplateName: "change_emailaddress_email",
 		})
 
@@ -112,14 +113,14 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"userName":   c.User().Name,
@@ -129,11 +130,11 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "new_post",
-			Params:       params,
+			Props:        props,
 		})
 
 		return nil
@@ -165,14 +166,14 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":       post.Title,
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
@@ -183,11 +184,11 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "new_comment",
-			Params:       params,
+			Props:        props,
 		})
 
 		return nil
@@ -233,14 +234,14 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			duplicate = linkWithText(originalPost.Title, c.BaseURL(), "/posts/%d/%s", originalPost.Number, originalPost.Slug)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":       post.Title,
 			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
@@ -252,11 +253,11 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "change_status",
-			Params:       params,
+			Props:        props,
 		})
 
 		return nil
@@ -288,25 +289,25 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"content":    markdown.Simple(post.Response.Text),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
 		}
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "delete_post",
-			Params:       params,
+			Props:        props,
 		})
 
 		return nil
@@ -316,7 +317,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 //SendInvites sends one email to each invited recipient
 func SendInvites(subject, message string, invitations []*models.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
-		to := make([]email.Recipient, len(invitations))
+		to := make([]dto.Recipient, len(invitations))
 		for i, invite := range invitations {
 			err := c.Services().Tenants.SaveVerificationKey(invite.VerificationKey, 15*24*time.Hour, invite)
 			if err != nil {
@@ -325,16 +326,16 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 
 			url := fmt.Sprintf("%s/invite/verify?k=%s", c.BaseURL(), invite.VerificationKey)
 			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
-			to[i] = email.NewRecipient("", invite.Email, email.Params{
+			to[i] = dto.NewRecipient("", invite.Email, dto.Props{
 				"message": markdown.Full(toMessage),
 			})
 		}
 
-		bus.Publish(c, &email.SendMessageCommand{
+		bus.Publish(c, &cmd.SendMail{
 			From:         c.User().Name,
 			To:           to,
 			TemplateName: "invite_email",
-			Params: email.Params{
+			Props: dto.Props{
 				"subject": subject,
 			},
 		})

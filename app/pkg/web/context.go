@@ -16,6 +16,8 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -26,7 +28,6 @@ import (
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/services/blob"
-	"github.com/getfider/fider/app/services/httpclient"
 )
 
 // Map defines a generic map of type `map[string]interface{}`
@@ -260,7 +261,7 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
-	log.Errorf(c, err.Error(), log.Props{
+	log.Errorf(c, err.Error(), dto.Props{
 		"Body":       c.Request.Body,
 		"HttpMethod": c.Request.Method,
 		"URL":        c.Request.URL.String(),
@@ -329,7 +330,7 @@ func (c *Context) Render(code int, template string, props Props) error {
 }
 
 func (c *Context) prerender(code int, html io.Reader) error {
-	req := &httpclient.Request{
+	req := &cmd.HTTPRequest{
 		Method: "POST",
 		URL:    fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, c.Request.URL.String()),
 		Body:   html,

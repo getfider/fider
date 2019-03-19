@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/services/email"
 	"github.com/getfider/fider/app/services/email/emailmock"
 
 	"github.com/getfider/fider/app/pkg/mock"
@@ -33,11 +33,11 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("signup_email")
 	Expect(emailmock.MessageHistory[0].Tenant).IsNil()
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
 	Expect(emailmock.MessageHistory[0].From).Equals("Fider")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
-		Params: email.Params{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
+		Props: dto.Props{
 			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": template.HTML("<a href='http://domain.com/signup/verify?k=1234'>http://domain.com/signup/verify?k=1234</a>"),
 		},
@@ -63,11 +63,11 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("signin_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
-		Params: email.Params{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
+		Props: dto.Props{
 			"tenantName": mock.DemoTenant.Name,
 			"link":       template.HTML("<a href='http://domain.com/signin/verify?k=9876'>http://domain.com/signin/verify?k=9876</a>"),
 		},
@@ -95,13 +95,13 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("change_emailaddress_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Jon Snow",
 		Address: "newemail@domain.com",
-		Params: email.Params{
+		Props: dto.Props{
 			"name":     "Jon Snow",
 			"oldEmail": "jon.snow@got.com",
 			"newEmail": "newemail@domain.com",
@@ -131,7 +131,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_post")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":      "Add support for TypeScript",
 		"postLink":   template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName": "Demonstration",
@@ -142,10 +142,10 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
 		Address: "arya.stark@got.com",
-		Params:  email.Params{},
+		Props:   dto.Props{},
 	})
 
 	services.SetCurrentUser(mock.AryaStark)
@@ -183,7 +183,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("new_comment")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "Add support for TypeScript",
 		"postLink":    template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName":  "Demonstration",
@@ -195,10 +195,10 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Arya Stark")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Jon Snow",
 		Address: "jon.snow@got.com",
-		Params:  email.Params{},
+		Props:   dto.Props{},
 	})
 
 	services.SetCurrentUser(mock.JonSnow)
@@ -233,7 +233,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("change_status")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "Add support for TypeScript",
 		"postLink":    template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>#1</a>"),
 		"tenantName":  "Demonstration",
@@ -246,10 +246,10 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
 		Address: "arya.stark@got.com",
-		Params:  email.Params{},
+		Props:   dto.Props{},
 	})
 
 	services.SetCurrentUser(mock.AryaStark)
@@ -284,7 +284,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("delete_post")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":      "Add support for TypeScript",
 		"tenantName": "Demonstration",
 		"content":    template.HTML("<p>Invalid post!</p>"),
@@ -292,10 +292,10 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
 		Address: "arya.stark@got.com",
-		Params:  email.Params{},
+		Props:   dto.Props{},
 	})
 
 	services.SetCurrentUser(mock.AryaStark)
@@ -331,7 +331,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("change_status")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"title":       "I need TypeScript",
 		"postLink":    template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>#2</a>"),
 		"tenantName":  "Demonstration",
@@ -344,10 +344,10 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Name:    "Arya Stark",
 		Address: "arya.stark@got.com",
-		Params:  email.Params{},
+		Props:   dto.Props{},
 	})
 
 	services.SetCurrentUser(mock.AryaStark)
@@ -381,20 +381,20 @@ func TestSendInvites(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("invite_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Params).Equals(email.Params{
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"subject": "My Subject",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(2)
-	Expect(emailmock.MessageHistory[0].To[0]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Address: "user1@domain.com",
-		Params: email.Params{
+		Props: dto.Props{
 			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=1234">http://domain.com/invite/verify?k=1234</a></p>`),
 		},
 	})
-	Expect(emailmock.MessageHistory[0].To[1]).Equals(email.Recipient{
+	Expect(emailmock.MessageHistory[0].To[1]).Equals(dto.Recipient{
 		Address: "user2@domain.com",
-		Params: email.Params{
+		Props: dto.Props{
 			"message": template.HTML(`<p>Click here: <a href="http://domain.com/invite/verify?k=5678">http://domain.com/invite/verify?k=5678</a></p>`),
 		},
 	})

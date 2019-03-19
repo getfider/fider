@@ -2,11 +2,11 @@ package httpclient
 
 import (
 	"context"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 )
@@ -34,34 +34,18 @@ func (s Service) Init() {
 	bus.AddHandler(requestHandler)
 }
 
-type BasicAuth struct {
-	User     string
-	Password string
-}
-
-type Request struct {
-	URL       string
-	Body      io.Reader
-	Method    string
-	Headers   map[string]string
-	BasicAuth *BasicAuth
-
-	ResponseBody       []byte
-	ResponseStatusCode int
-}
-
-func requestHandler(ctx context.Context, cmd *Request) error {
-	req, err := http.NewRequest(cmd.Method, cmd.URL, cmd.Body)
+func requestHandler(ctx context.Context, c *cmd.HTTPRequest) error {
+	req, err := http.NewRequest(c.Method, c.URL, c.Body)
 	if err != nil {
 		return err
 	}
 	req = req.WithContext(ctx)
 
-	for k, v := range cmd.Headers {
+	for k, v := range c.Headers {
 		req.Header.Set(k, v)
 	}
-	if cmd.BasicAuth != nil {
-		req.SetBasicAuth(cmd.BasicAuth.User, cmd.BasicAuth.Password)
+	if c.BasicAuth != nil {
+		req.SetBasicAuth(c.BasicAuth.User, c.BasicAuth.Password)
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -75,7 +59,7 @@ func requestHandler(ctx context.Context, cmd *Request) error {
 		return err
 	}
 
-	cmd.ResponseBody = respBody
-	cmd.ResponseStatusCode = res.StatusCode
+	c.ResponseBody = respBody
+	c.ResponseStatusCode = res.StatusCode
 	return nil
 }

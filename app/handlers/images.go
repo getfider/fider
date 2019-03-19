@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/getfider/fider/app/services/blob"
-
-	"github.com/getfider/fider/app/services/httpclient"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/crypto"
@@ -79,18 +79,18 @@ func Gravatar() web.HandlerFunc {
 
 					//If gravatar was found in cache
 					if image, found := c.Engine().Cache().Get(cacheKey); found {
-						log.Debugf(c, "Gravatar found in cache: @{GravatarURL}", log.Props{
+						log.Debugf(c, "Gravatar found in cache: @{GravatarURL}", dto.Props{
 							"GravatarURL": cacheKey,
 						})
 						imageInBytes := image.([]byte)
 						return c.Image(http.DetectContentType(imageInBytes), imageInBytes)
 					}
 
-					log.Debugf(c, "Requesting gravatar: @{GravatarURL}", log.Props{
+					log.Debugf(c, "Requesting gravatar: @{GravatarURL}", dto.Props{
 						"GravatarURL": url,
 					})
 
-					req := &httpclient.Request{
+					req := &cmd.HTTPRequest{
 						URL:    url,
 						Method: "GET",
 					}
@@ -119,13 +119,13 @@ func Favicon() web.HandlerFunc {
 
 		bkey := c.Param("bkey")
 		if bkey != "" {
-			cmd := &blob.RetrieveBlob{Key: bkey}
-			err := bus.Dispatch(c, cmd)
+			q := &query.GetBlobByKey{Key: bkey}
+			err := bus.Dispatch(c, q)
 			if err != nil {
 				return c.Failure(err)
 			}
-			bytes = cmd.Blob.Content
-			contentType = cmd.Blob.ContentType
+			bytes = q.Blob.Content
+			contentType = q.Blob.ContentType
 		} else {
 			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
@@ -172,13 +172,13 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		size = between(size, 0, 2000)
 
-		cmd := &blob.RetrieveBlob{Key: bkey}
-		err = bus.Dispatch(c, cmd)
+		q := &query.GetBlobByKey{Key: bkey}
+		err = bus.Dispatch(c, q)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		bytes := cmd.Blob.Content
+		bytes := q.Blob.Content
 		if size > 0 {
 			bytes, err = img.Apply(bytes, img.Resize(size))
 			if err != nil {
@@ -186,6 +186,6 @@ func ViewUploadedImage() web.HandlerFunc {
 			}
 		}
 
-		return c.Image(cmd.Blob.ContentType, bytes)
+		return c.Image(q.Blob.ContentType, bytes)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
 )
 
 const (
@@ -19,21 +20,21 @@ const (
 	PropertyKeyTag = "Tag"
 )
 
-func GetProps(ctx context.Context) Props {
-	props, ok := ctx.Value(app.LogPropsCtxKey).(*Props)
+func GetProps(ctx context.Context) dto.Props {
+	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
 	if ok {
 		return *props
 	}
-	return Props{}
+	return dto.Props{}
 }
 
 func SetProperty(ctx context.Context, key string, value interface{}) context.Context {
-	props, ok := ctx.Value(app.LogPropsCtxKey).(*Props)
+	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
 	if ok {
 		(*props)[key] = value
 		return ctx
 	} else {
-		p := Props{
+		p := dto.Props{
 			key: value,
 		}
 		return context.WithValue(ctx, app.LogPropsCtxKey, &p)

@@ -16,6 +16,9 @@ import (
 	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/services/blob"
@@ -57,30 +60,30 @@ func (s Service) Init() {
 		awsSession := session.New(s3Config)
 		DefaultClient = s3.New(awsSession)
 	}
-	bus.AddHandler(retrieveBlob)
+	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
 }
 
-func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
+func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	resp, err := DefaultClient.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
-		Key:    aws.String(keyFullPathURL(ctx, cmd.Key)),
+		Key:    aws.String(keyFullPathURL(ctx, q.Key)),
 	})
 	if err != nil {
 		if isNotFound(err) {
 			return blob.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to get blob '%s' from S3", cmd.Key)
+		return errors.Wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
 	defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, "failed to read blob body '%s' from S3", cmd.Key)
+		return errors.Wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}
 
-	cmd.Blob = &blob.Blob{
+	q.Blob = &dto.Blob{
 		Content:     bytes,
 		ContentType: *resp.ContentType,
 		Size:        *resp.ContentLength,
@@ -88,32 +91,32 @@ func retrieveBlob(ctx context.Context, cmd *blob.RetrieveBlob) error {
 	return nil
 }
 
-func storeBlob(ctx context.Context, cmd *blob.StoreBlob) error {
-	if err := blob.ValidateKey(cmd.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", cmd.Key)
+func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
+	if err := blob.ValidateKey(c.Key); err != nil {
+		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	reader := bytes.NewReader(cmd.Content)
+	reader := bytes.NewReader(c.Content)
 	_, err := DefaultClient.PutObject(&s3.PutObjectInput{
 		Bucket:      aws.String(env.Config.BlobStorage.S3.BucketName),
-		Key:         aws.String(keyFullPathURL(ctx, cmd.Key)),
-		ContentType: aws.String(cmd.ContentType),
+		Key:         aws.String(keyFullPathURL(ctx, c.Key)),
+		ContentType: aws.String(c.ContentType),
 		ACL:         aws.String(s3.ObjectCannedACLPrivate),
 		Body:        reader,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to upload blob '%s' to S3", cmd.Key)
+		return errors.Wrap(err, "failed to upload blob '%s' to S3", c.Key)
 	}
 	return nil
 }
 
-func deleteBlob(ctx context.Context, cmd *blob.DeleteBlob) error {
+func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	_, err := DefaultClient.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
-		Key:    aws.String(keyFullPathURL(ctx, cmd.Key)),
+		Key:    aws.String(keyFullPathURL(ctx, c.Key)),
 	})
 	if err != nil && !isNotFound(err) {
-		return errors.Wrap(err, "failed to delete blob '%s' from S3", cmd.Key)
+		return errors.Wrap(err, "failed to delete blob '%s' from S3", c.Key)
 	}
 	return nil
 }

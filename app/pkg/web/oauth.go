@@ -6,9 +6,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
-
-	"github.com/getfider/fider/app/services/httpclient"
 
 	"github.com/getfider/fider/app/pkg/env"
 
@@ -275,7 +274,7 @@ func (s *OAuthService) allOAuthConfigs() ([]*models.OAuthConfig, error) {
 }
 
 func (s *OAuthService) doGet(url, accessToken string) (int, string, error) {
-	req := &httpclient.Request{
+	req := &cmd.HTTPRequest{
 		URL:    url,
 		Method: "GET",
 		Headers: map[string]string{

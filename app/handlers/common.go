@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -118,7 +119,7 @@ func LogError() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		log.Debugf(c, input.Message, log.Props{
+		log.Debugf(c, input.Message, dto.Props{
 			"Data": input.Data,
 		})
 		return c.Ok(web.Map{})

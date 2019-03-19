@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -65,7 +66,7 @@ func New(db *dbx.Database) *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(workerID string) {
-	log.Infof(w.innerCtx, "Starting worker @{WorkerID:magenta}.", log.Props{
+	log.Infof(w.innerCtx, "Starting worker @{WorkerID:magenta}.", dto.Props{
 		"WorkerID": workerID,
 	})
 	for task := range w.queue {
@@ -89,7 +90,7 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 				return nil
 			}
 
-			log.Infof(w.innerCtx, "Waiting for work queue: @{Count}", log.Props{
+			log.Infof(w.innerCtx, "Waiting for work queue: @{Count}", dto.Props{
 				"Count": count,
 			})
 
