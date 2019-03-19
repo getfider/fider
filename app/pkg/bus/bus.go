@@ -65,7 +65,7 @@ func AddHandler(handler HandlerFunc) {
 	handlers[keyForElement(elem)] = handler
 }
 
-func AddEventListener(handler HandlerFunc) {
+func AddListener(handler HandlerFunc) {
 	busLock.RLock()
 	defer busLock.RUnlock()
 
@@ -79,53 +79,66 @@ func AddEventListener(handler HandlerFunc) {
 	listeners[eventName] = append(listeners[eventName], handler)
 }
 
-func Dispatch(ctx context.Context, msg Msg) error {
-	busLock.RLock()
-	defer busLock.RUnlock()
-
-	typeof := reflect.TypeOf(msg)
-	if typeof.Kind() != reflect.Ptr {
-		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
-	}
-	elem := typeof.Elem()
-	key := keyForElement(elem)
-	handler := handlers[key]
-	if handler == nil {
-		panic(fmt.Errorf("could not find handler for '%s'", key))
-	}
-
-	var params = []reflect.Value{
-		reflect.ValueOf(ctx),
-		reflect.ValueOf(msg),
-	}
-
-	ret := reflect.ValueOf(handler).Call(params)
-	err := ret[0].Interface()
-	if err == nil {
+func Dispatch(ctx context.Context, msgs ...Msg) error {
+	if len(msgs) == 0 {
 		return nil
 	}
-	return err.(error)
-}
 
-func Publish(ctx context.Context, msg Msg) {
 	busLock.RLock()
 	defer busLock.RUnlock()
 
-	typeof := reflect.TypeOf(msg)
-	if typeof.Kind() != reflect.Ptr {
-		panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
-	}
-	elem := typeof.Elem()
-	key := keyForElement(elem)
-	msgListeners := listeners[key]
+	for _, msg := range msgs {
+		typeof := reflect.TypeOf(msg)
+		if typeof.Kind() != reflect.Ptr {
+			panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
+		}
 
-	var params = []reflect.Value{
-		reflect.ValueOf(ctx),
-		reflect.ValueOf(msg),
+		elem := typeof.Elem()
+		key := keyForElement(elem)
+		handler := handlers[key]
+		if handler == nil {
+			panic(fmt.Errorf("could not find handler for '%s'", key))
+		}
+
+		var params = []reflect.Value{
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(msg),
+		}
+
+		ret := reflect.ValueOf(handler).Call(params)
+		if err := ret[0].Interface(); err != nil {
+			return err.(error)
+		}
 	}
 
-	for _, msgListener := range msgListeners {
-		reflect.ValueOf(msgListener).Call(params)
+	return nil
+}
+
+func Publish(ctx context.Context, msgs ...Msg) {
+	if len(msgs) == 0 {
+		return
+	}
+
+	busLock.RLock()
+	defer busLock.RUnlock()
+
+	for _, msg := range msgs {
+		typeof := reflect.TypeOf(msg)
+		if typeof.Kind() != reflect.Ptr {
+			panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
+		}
+		elem := typeof.Elem()
+		key := keyForElement(elem)
+		msgListeners := listeners[key]
+
+		var params = []reflect.Value{
+			reflect.ValueOf(ctx),
+			reflect.ValueOf(msg),
+		}
+
+		for _, msgListener := range msgListeners {
+			reflect.ValueOf(msgListener).Call(params)
+		}
 	}
 }
 

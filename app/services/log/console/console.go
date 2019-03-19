@@ -35,10 +35,10 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddEventListener(logDebug)
-	bus.AddEventListener(logWarn)
-	bus.AddEventListener(logInfo)
-	bus.AddEventListener(logError)
+	bus.AddListener(logDebug)
+	bus.AddListener(logWarn)
+	bus.AddListener(logInfo)
+	bus.AddListener(logError)
 }
 
 func logDebug(ctx context.Context, c *cmd.LogDebug) error {

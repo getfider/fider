@@ -41,7 +41,7 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	MessageHistory = make([]*HistoryItem, 0)
-	bus.AddEventListener(sendMail)
+	bus.AddListener(sendMail)
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {

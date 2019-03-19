@@ -48,3 +48,35 @@ func TestBus_OverwriteService(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(cmd.Result).Equals("Hello Fider")
 }
+
+func TestBus_MultipleMessages(t *testing.T) {
+	RegisterT(t)
+
+	bus.Register(BetterGreeterService{})
+	bus.Init()
+	cmd1 := &SayHelloCommand{Name: "John"}
+	cmd2 := &SayHelloCommand{Name: "Mary"}
+	cmd3 := &SayHelloCommand{Name: "Bob"}
+	err := bus.Dispatch(context.Background(), cmd1, cmd2, cmd3)
+	Expect(err).IsNil()
+	Expect(cmd1.Result).Equals("Hello John")
+	Expect(cmd2.Result).Equals("Hello Mary")
+	Expect(cmd3.Result).Equals("Hello Bob")
+}
+
+func TestBus_PublishMultiple(t *testing.T) {
+	RegisterT(t)
+	value1 := ""
+	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) {
+		value1 = c.Name
+	})
+
+	value2 := ""
+	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) {
+		value2 = c.Name
+	})
+
+	bus.Publish(context.Background(), &SayHelloCommand{Name: "Fider"})
+	Expect(value1).Equals("Fider")
+	Expect(value2).Equals("Fider")
+}

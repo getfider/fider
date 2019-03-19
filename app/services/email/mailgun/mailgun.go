@@ -40,7 +40,7 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	bus.AddEventListener(sendMail)
+	bus.AddListener(sendMail)
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
