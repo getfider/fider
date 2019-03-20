@@ -155,12 +155,13 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		tmpl = r.add(name)
 	}
 
-	public := make(Map, 0)
-	private := make(Map, 0)
+	public := make(Map)
+	private := make(Map)
 
+	tenant := ctx.Tenant()
 	tenantName := "Fider"
-	if ctx.Tenant() != nil {
-		tenantName = ctx.Tenant().Name
+	if tenant != nil {
+		tenantName = tenant.Name
 	}
 
 	title := tenantName
@@ -181,7 +182,13 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 
 	private["assets"] = r.assets
 	private["logo"] = ctx.LogoURL()
-	private["favicon"] = ctx.FaviconURL()
+
+	if tenant == nil || tenant.LogoBlobKey == "" {
+		private["favicon"] = ctx.GlobalAssetsURL("/favicon")
+	} else {
+		private["favicon"] = ctx.TenantAssetsURL("/favicon/%s", tenant.LogoBlobKey)
+	}
+
 	private["currentURL"] = ctx.Request.URL.String()
 	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
 		private["canonicalURL"] = canonicalURL
@@ -196,7 +203,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	}
 
 	public["contextID"] = ctx.ContextID()
-	public["tenant"] = ctx.Tenant()
+	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            r.settings.Mode,

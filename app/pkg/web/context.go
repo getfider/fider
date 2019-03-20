@@ -616,14 +616,6 @@ func (c *Context) LogoURL() string {
 	return "https://getfider.com/images/logo-100x100.png"
 }
 
-// FaviconURL return the full URL to the tenant-specific favicon URL
-func (c *Context) FaviconURL() string {
-	if c.Tenant() != nil && c.Tenant().LogoBlobKey != "" {
-		return c.TenantAssetsURL("/favicon/%s", c.Tenant().LogoBlobKey)
-	}
-	return c.GlobalAssetsURL("/favicon")
-}
-
 // SetCanonicalURL sets the canonical link on the HTTP Response Headers
 func (c *Context) SetCanonicalURL(rawurl string) {
 	u, err := url.Parse(rawurl)
