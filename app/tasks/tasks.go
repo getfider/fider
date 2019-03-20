@@ -31,7 +31,6 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
 		to := dto.NewRecipient(model.Name, model.Email, dto.Props{
-			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
 
@@ -39,6 +38,9 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 			From:         "Fider",
 			To:           []dto.Recipient{to},
 			TemplateName: "signup_email",
+			Props: dto.Props{
+				"logo": c.LogoURL(),
+			},
 		})
 
 		return nil
@@ -57,6 +59,9 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			From:         c.Tenant().Name,
 			To:           []dto.Recipient{to},
 			TemplateName: "signin_email",
+			Props: dto.Props{
+				"logo": c.LogoURL(),
+			},
 		})
 
 		return nil
@@ -82,6 +87,9 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			From:         c.Tenant().Name,
 			To:           []dto.Recipient{to},
 			TemplateName: "change_emailaddress_email",
+			Props: dto.Props{
+				"logo": c.LogoURL(),
+			},
 		})
 
 		return nil
@@ -128,6 +136,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"logo":       c.LogoURL(),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -182,6 +191,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"logo":        c.LogoURL(),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -251,6 +261,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
 			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"logo":        c.LogoURL(),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -301,6 +312,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"content":    markdown.Simple(post.Response.Text),
 			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"logo":       c.LogoURL(),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -337,6 +349,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 			TemplateName: "invite_email",
 			Props: dto.Props{
 				"subject": subject,
+				"logo":    c.LogoURL(),
 			},
 		})
 
