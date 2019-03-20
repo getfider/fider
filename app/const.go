@@ -17,8 +17,8 @@ var (
 	TransactionCtxKey = contextKey("TRANSACTION")
 	TenantCtxKey      = contextKey("TENANT")
 	UserCtxKey        = contextKey("USER")
-	ClaimsCtxKey      = contextKey("CLAIMS")
-	ServicesCtxKey    = contextKey("SERVICES")
-	TasksCtxKey       = contextKey("TASKS")
+	ClaimsCtxKey      = contextKey("CLAIMS")   // EXPERIMENTAL-BUS: remove this key
+	ServicesCtxKey    = contextKey("SERVICES") // EXPERIMENTAL-BUS: remove this key
+	TasksCtxKey       = contextKey("TASKS")    // EXPERIMENTAL-BUS: remove this key
 	LogPropsCtxKey    = contextKey("LOG_PROPS")
 )
