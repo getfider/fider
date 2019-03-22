@@ -16,9 +16,9 @@ import (
 // Known base URLs
 // Should Mailgun add other regions we'll just need to add their URLs here
 // Use upper case keys - incoming env var values are normalized before being used
-var baseURLs := map[string]string{
+var baseURLs = map[string]string{
 	"US" : "https://api.mailgun.net/v3/%s/messages",
-	"EU" : "https://api.eu.mailgun.net/v3/%s/messages"
+	"EU" : "https://api.eu.mailgun.net/v3/%s/messages",
 }
 
 //Sender is used to send emails
@@ -41,22 +41,22 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 
 // Try getting the base URL of the Mailgun URL from env vars.
 // Fall back to the US var if that fails to maintain compatibility with older installs
-func (s *Sender) GetBaseURL(domainName string) string {
+func (s *Sender) GetBaseURL() string {
 	var countryCode = "${process.env.EMAIL_MAILGUN_COUNTRYCODE}"
 	countryCode = strings.ToUpper(countryCode)
 
 	// Env var not set, default to US to stay backwards compatible
-	if countryCode.len() < 1 {
+	if len(countryCode) < 1 {
 		return baseURLs["US"]
 	}
 
 	// Env var set but unknown code, fall back and log
-	if baseURLs[countryCode].len() < 1 {
+	if len(baseURLs[countryCode]) < 1 {
 		s.logger.Warnf(
 			"EMAIL_MAILGUN_COUNTRYCODE is set to an unknown country code '@{Code}' - falling back to the US base URL", 
 			log.Props{
-				"Code" : "${process.env.EMAIL_MAILGUN_COUNTRYCODE}"
-			}
+				"Code": "${process.env.EMAIL_MAILGUN_COUNTRYCODE}",
+			},
 		)
 
 		return baseURLs["US"]
