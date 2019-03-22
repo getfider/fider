@@ -57,8 +57,9 @@ type config struct {
 		Whitelist string `env:"EMAIL_WHITELIST"`
 		Blacklist string `env:"EMAIL_BLACKLIST"`
 		Mailgun   struct {
-			APIKey string `env:"EMAIL_MAILGUN_API"`
-			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
+			APIKey      string `env:"EMAIL_MAILGUN_API"`
+			Domain      string `env:"EMAIL_MAILGUN_DOMAIN"`
+			CountryCode string `env:"EMAIL_MAILGUN_COUNTRYCODE"`
 		}
 		SMTP struct {
 			Host     string `env:"EMAIL_SMTP_HOST"`
