@@ -42,27 +42,27 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 // Try getting the base URL of the Mailgun URL from env vars.
 // Fall back to the US var if that fails to maintain compatibility with older installs
 func (s *Sender) GetBaseURL() string {
-	var countryCode = "${process.env.EMAIL_MAILGUN_COUNTRYCODE}"
-	countryCode = strings.ToUpper(countryCode)
+	var regionCode = env.Config.Email.Mailgun.Region
+	regionCode = strings.ToUpper(regionCode)
 
 	// Env var not set, default to US to stay backwards compatible
-	if len(countryCode) < 1 {
+	if len(regionCode) < 1 {
 		return baseURLs["US"]
 	}
 
 	// Env var set but unknown code, fall back and log
-	if len(baseURLs[countryCode]) < 1 {
+	if len(baseURLs[regionCode]) < 1 {
 		s.logger.Warnf(
-			"EMAIL_MAILGUN_COUNTRYCODE is set to an unknown country code '@{Code}' - falling back to the US base URL", 
+			"Unknown Mailgun region code '@{Code}' configured - falling back to 'US'", 
 			log.Props{
-				"Code": "${process.env.EMAIL_MAILGUN_COUNTRYCODE}",
+				"Code": env.Config.Email.Mailgun.Region,
 			},
 		)
 
 		return baseURLs["US"]
 	}
 
-	return baseURLs[countryCode]
+	return baseURLs[regionCode]
 }
 
 // BatchSend an email to multiple recipients
