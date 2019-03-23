@@ -24,18 +24,24 @@ type Context struct {
 
 //NewContext creates a new context
 func NewContext(ctx context.Context, workerID string, task Task) *Context {
-	contextID := rand.String(32)
+	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, rand.String(32))
 
-	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, contextID)
-	if task.OriginSessionID != "" {
-		ctx = log.SetProperty(ctx, log.PropertyKeySessionID, task.OriginSessionID)
+	if task.OriginContext != nil {
+		ctx = context.WithValue(ctx, app.RequestCtxKey, task.OriginContext.Value(app.RequestCtxKey))
+		ctx = context.WithValue(ctx, app.TenantCtxKey, task.OriginContext.Value(app.TenantCtxKey))
+		ctx = context.WithValue(ctx, app.UserCtxKey, task.OriginContext.Value(app.UserCtxKey))
+
+		ctx = log.SetProperty(ctx, log.PropertyKeySessionID, log.GetProperty(task.OriginContext, log.PropertyKeySessionID))
+		ctx = log.SetProperty(ctx, log.PropertyKeyUserID, log.GetProperty(task.OriginContext, log.PropertyKeyUserID))
+		ctx = log.SetProperty(ctx, log.PropertyKeyTenantID, log.GetProperty(task.OriginContext, log.PropertyKeyTenantID))
 	}
 
-	return &Context{
+	c := &Context{
 		innerCtx: ctx,
 		workerID: workerID,
 		taskName: task.Name,
 	}
+	return c
 }
 
 //Database returns current database
@@ -43,38 +49,11 @@ func (c *Context) Database() *dbx.Database {
 	return c.innerCtx.Value(app.DatabaseCtxKey).(*dbx.Database)
 }
 
-//SetUser on context
-func (c *Context) SetUser(user *models.User) {
-	c.user = user
-	if user != nil {
-		c.innerCtx = context.WithValue(c.innerCtx, app.UserCtxKey, user)
-		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyUserID, user.ID)
-	}
-	if c.services != nil {
-		c.services.SetCurrentUser(user)
-	}
-}
-
-//SetTenant on context
-func (c *Context) SetTenant(tenant *models.Tenant) {
-	c.tenant = tenant
-	if tenant != nil {
-		c.innerCtx = context.WithValue(c.innerCtx, app.TenantCtxKey, tenant)
-		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyTenantID, tenant.ID)
-	}
-	if c.services != nil {
-		c.services.SetCurrentTenant(tenant)
-	}
-}
-
-//Set value on current context based on given key
-func (c *Context) Set(key string, value interface{}) {
-	c.innerCtx = context.WithValue(c.innerCtx, key, value)
-}
-
 //SetServices on current context
 func (c *Context) SetServices(services *app.Services) {
 	c.services = services
+	c.services.SetCurrentUser(c.User())
+	c.services.SetCurrentTenant(c.Tenant())
 }
 
 //WorkerID executing current context
@@ -89,12 +68,20 @@ func (c *Context) TaskName() string {
 
 //User from current context
 func (c *Context) User() *models.User {
-	return c.user
+	user, ok := c.Value(app.UserCtxKey).(*models.User)
+	if ok {
+		return user
+	}
+	return nil
 }
 
 //Tenant from current context
 func (c *Context) Tenant() *models.Tenant {
-	return c.tenant
+	tenant, ok := c.Value(app.TenantCtxKey).(*models.Tenant)
+	if ok {
+		return tenant
+	}
+	return nil
 }
 
 //Services from current context

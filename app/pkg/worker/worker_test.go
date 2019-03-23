@@ -6,16 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/rand"
-
 	"github.com/getfider/fider/app/pkg/worker"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 var dummyTask = worker.Task{
-	OriginSessionID: rand.String(32),
-	Name:            "Do Something",
+	Name: "Do Something",
 	Job: func(c *worker.Context) error {
 		return nil
 	},

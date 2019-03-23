@@ -1,27 +1,18 @@
 package middlewares
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/billing"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/storage/postgres"
 )
-
-// Noop does nothing
-func Noop() web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c *web.Context) error {
-			return next(c)
-		}
-	}
-}
 
 //WorkerSetup current context with some services
 func WorkerSetup() worker.MiddlewareFunc {
@@ -46,11 +37,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					err, ok := r.(error)
-					if !ok {
-						err = fmt.Errorf("%v", r)
-					}
-					c.Failure(err)
+					c.Failure(errors.Panicked(r))
 					trx.Rollback()
 					log.Debugf(c, "Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 						"TaskName":  c.TaskName(),
@@ -114,11 +101,7 @@ func WebSetup() web.MiddlewareFunc {
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					err, ok := r.(error)
-					if !ok {
-						err = fmt.Errorf("%v", r)
-					}
-					c.Failure(err)
+					c.Failure(errors.Panicked(r))
 					c.Rollback()
 					log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 						"HttpMethod": c.Request.Method,

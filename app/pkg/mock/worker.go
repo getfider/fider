@@ -44,13 +44,23 @@ func (w *Worker) WithBaseURL(baseURL string) *Worker {
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	context := worker.NewContext(context.Background(), "0", task)
-	context.SetServices(w.services)
-	context.SetUser(w.user)
-	context.SetTenant(w.tenant)
+	task.OriginContext = context.Background()
+
+	if w.user != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.UserCtxKey, w.user)
+	}
+
+	if w.tenant != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.TenantCtxKey, w.tenant)
+	}
 
 	u, _ := url.Parse(w.baseURL)
-	context.Set(app.RequestCtxKey, web.Request{URL: u})
+	if u != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.RequestCtxKey, web.Request{URL: u})
+	}
+
+	context := worker.NewContext(context.Background(), "0", task)
+	context.SetServices(w.services)
 	return task.Job(context)
 }
 

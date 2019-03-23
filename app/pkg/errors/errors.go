@@ -4,6 +4,7 @@ import (
 	stdError "errors"
 	"fmt"
 	"runtime"
+	"strings"
 )
 
 type theError struct {
@@ -27,6 +28,15 @@ func New(format string, a ...interface{}) error {
 //Wrap existing error with additional text
 func Wrap(err error, format string, a ...interface{}) error {
 	return wrap(err, 0, format, a...)
+}
+
+//Panicked wraps panick errow with extra details of error
+func Panicked(r interface{}) error {
+	err, ok := r.(error)
+	if !ok {
+		err = fmt.Errorf("%v", r)
+	}
+	return Wrap(err, identifyPanic())
 }
 
 //Stack add current code location without adding more info
@@ -62,6 +72,34 @@ func wrap(err error, skip int, format string, a ...interface{}) error {
 		text:  text,
 		cause: Cause(err),
 	}
+}
+
+func identifyPanic() string {
+	var name, file string
+	var line int
+	var pc [16]uintptr
+
+	n := runtime.Callers(4, pc[:])
+	for _, pc := range pc[:n] {
+		fn := runtime.FuncForPC(pc)
+		if fn == nil {
+			continue
+		}
+		file, line = fn.FileLine(pc)
+		name = fn.Name()
+		if !strings.HasPrefix(name, "runtime.") {
+			break
+		}
+	}
+
+	switch {
+	case name != "":
+		return fmt.Sprintf("%v:%v", name, line)
+	case file != "":
+		return fmt.Sprintf("%v:%v", file, line)
+	}
+
+	return fmt.Sprintf("pc:%x", pc)
 }
 
 //Cause returns the original cause of the error stack

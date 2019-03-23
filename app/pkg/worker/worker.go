@@ -21,9 +21,9 @@ type Job func(c *Context) error
 
 //Task represents the Name and Job to be run on background
 type Task struct {
-	OriginSessionID string
-	Name            string
-	Job             Job
+	OriginContext context.Context
+	Name          string
+	Job           Job
 }
 
 //Worker is a process that runs tasks

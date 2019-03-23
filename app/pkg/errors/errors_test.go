@@ -77,3 +77,18 @@ func TestNilErrors(t *testing.T) {
 	Expect(errors.Stack(nil)).IsNil()
 	Expect(errors.Wrap(nil, "")).IsNil()
 }
+
+func TestPanicked(t *testing.T) {
+	RegisterT(t)
+
+	defer func() {
+		if r := recover(); r != nil {
+			err := errors.Panicked(r)
+			Expect(err.Error()).Equals(`Error Trace: 
+- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:93 (app/pkg/errors/errors.go:39)
+- Boom!`)
+		}
+	}()
+
+	panic("Boom!")
+}

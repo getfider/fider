@@ -28,7 +28,16 @@ func GetProps(ctx context.Context) dto.Props {
 	return dto.Props{}
 }
 
+func GetProperty(ctx context.Context, key string) interface{} {
+	props := GetProps(ctx)
+	return props[key]
+}
+
 func SetProperty(ctx context.Context, key string, value interface{}) context.Context {
+	if value == nil {
+		return ctx
+	}
+
 	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
 	if ok {
 		(*props)[key] = value

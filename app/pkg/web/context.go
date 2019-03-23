@@ -148,25 +148,13 @@ func (c *Context) Rollback() error {
 
 //Enqueue given task to be processed in background
 func (c *Context) Enqueue(task worker.Task) {
-	wrap := func(c *Context) worker.Job {
-		return func(wc *worker.Context) error {
-			wc.SetUser(c.User())
-			wc.SetTenant(c.Tenant())
-			wc.Set(app.RequestCtxKey, c.Request)
-			return task.Job(wc)
-		}
-	}
-
 	tasks, ok := c.Value(app.TasksCtxKey).([]worker.Task)
 	if !ok {
 		tasks = make([]worker.Task, 0)
 	}
 
-	c.Set(app.TasksCtxKey, append(tasks, worker.Task{
-		OriginSessionID: c.SessionID(),
-		Name:            task.Name,
-		Job:             wrap(c),
-	}))
+	task.OriginContext = c
+	c.Set(app.TasksCtxKey, append(tasks, task))
 }
 
 //Database returns current database
