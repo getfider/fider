@@ -6,11 +6,6 @@ import (
 	"github.com/getfider/fider/app/models"
 )
 
-// Context holds everything storages need to know about execution context
-type Context interface {
-	TenantAssetsURL(path string, a ...interface{}) string
-}
-
 // Base is a generic storage base interface
 type Base interface {
 	SetCurrentTenant(*models.Tenant)

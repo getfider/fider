@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/storage"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 )
@@ -39,7 +39,7 @@ type dbPost struct {
 	Tags           []string       `db:"tags"`
 }
 
-func (i *dbPost) toModel(ctx storage.Context) *models.Post {
+func (i *dbPost) toModel(ctx context.Context) *models.Post {
 	post := &models.Post{
 		ID:            i.ID,
 		Number:        i.Number,
@@ -83,7 +83,7 @@ type dbComment struct {
 	EditedBy    *dbUser      `db:"edited_by"`
 }
 
-func (c *dbComment) toModel(ctx storage.Context) *models.Comment {
+func (c *dbComment) toModel(ctx context.Context) *models.Comment {
 	comment := &models.Comment{
 		ID:          c.ID,
 		Content:     c.Content,
@@ -114,7 +114,7 @@ type dbVote struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func (v *dbVote) toModel(ctx storage.Context) *models.Vote {
+func (v *dbVote) toModel(ctx context.Context) *models.Vote {
 	vote := &models.Vote{
 		CreatedAt: v.CreatedAt,
 		User: &models.VoteUser{
@@ -132,11 +132,11 @@ type PostStorage struct {
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
-	ctx    storage.Context
+	ctx    context.Context
 }
 
 // NewPostStorage creates a new PostStorage
-func NewPostStorage(trx *dbx.Trx, ctx storage.Context) *PostStorage {
+func NewPostStorage(trx *dbx.Trx, ctx context.Context) *PostStorage {
 	return &PostStorage{
 		trx: trx,
 		ctx: ctx,

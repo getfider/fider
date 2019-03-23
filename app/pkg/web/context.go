@@ -80,7 +80,10 @@ type Context struct {
 func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
 	contextID := rand.String(32)
 
+	wrappedRequest := WrapRequest(req)
+
 	ctx := context.WithValue(req.Context(), app.DatabaseCtxKey, engine.db)
+	ctx = context.WithValue(ctx, app.RequestCtxKey, wrappedRequest)
 	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, contextID)
 	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
 	ctx = log.SetProperty(ctx, "UserAgent", req.Header.Get("User-Agent"))
@@ -89,7 +92,7 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 		id:       contextID,
 		engine:   engine,
 		innerCtx: ctx,
-		Request:  WrapRequest(req),
+		Request:  wrappedRequest,
 		Response: res,
 		params:   params,
 	}
@@ -149,9 +152,7 @@ func (c *Context) Enqueue(task worker.Task) {
 		return func(wc *worker.Context) error {
 			wc.SetUser(c.User())
 			wc.SetTenant(c.Tenant())
-			wc.SetBaseURL(c.BaseURL())
-			wc.SetLogoURL(c.LogoURL())
-			wc.SetAssetsBaseURL(c.TenantAssetsURL(""))
+			wc.Set(app.RequestCtxKey, c.Request)
 			return task.Job(wc)
 		}
 	}
@@ -448,33 +449,7 @@ func (c *Context) ActiveTransaction() *dbx.Trx {
 
 //BaseURL returns base URL
 func (c *Context) BaseURL() string {
-	address := c.Request.URL.Scheme + "://" + c.Request.URL.Hostname()
-
-	if c.Request.URL.Port() != "" {
-		address += ":" + c.Request.URL.Port()
-	}
-
-	return address
-}
-
-//TenantBaseURL returns base URL for a given tenant
-func (c *Context) TenantBaseURL(tenant *models.Tenant) string {
-	if env.IsSingleHostMode() {
-		return c.BaseURL()
-	}
-
-	address := c.Request.URL.Scheme + "://"
-	if tenant.CNAME != "" {
-		address += tenant.CNAME
-	} else {
-		address += tenant.Subdomain + env.MultiTenantDomain()
-	}
-
-	if c.Request.URL.Port() != "" {
-		address += ":" + c.Request.URL.Port()
-	}
-
-	return address
+	return c.Request.BaseURL()
 }
 
 //QueryParam returns querystring parameter for given key
@@ -584,38 +559,6 @@ func (c *Context) PermanentRedirect(url string) error {
 	return nil
 }
 
-// GlobalAssetsURL return the full URL to a globally shared static asset
-func (c *Context) GlobalAssetsURL(path string, a ...interface{}) string {
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" {
-		if env.IsSingleHostMode() {
-			return c.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return c.Request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
-	}
-	return c.BaseURL() + path
-}
-
-// TenantAssetsURL return the full URL to a tenant-specific static asset
-func (c *Context) TenantAssetsURL(path string, a ...interface{}) string {
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" && c.Tenant() != nil {
-		if env.IsSingleHostMode() {
-			return c.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return c.Request.URL.Scheme + "://" + c.Tenant().Subdomain + "." + env.Config.CDN.Host + path
-	}
-	return c.BaseURL() + path
-}
-
-// LogoURL return the full URL to the tenant-specific logo URL
-func (c *Context) LogoURL() string {
-	if c.Tenant() != nil && c.Tenant().LogoBlobKey != "" {
-		return c.TenantAssetsURL("/images/%s?size=200", c.Tenant().LogoBlobKey)
-	}
-	return "https://getfider.com/images/logo-100x100.png"
-}
-
 // SetCanonicalURL sets the canonical link on the HTTP Response Headers
 func (c *Context) SetCanonicalURL(rawurl string) {
 	u, err := url.Parse(rawurl)
@@ -651,4 +594,68 @@ func (c *Context) Err() error {
 
 func (c *Context) Value(key interface{}) interface{} {
 	return c.innerCtx.Value(key)
+}
+
+// GlobalAssetsURL return the full URL to a globally shared static asset
+func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+	path = fmt.Sprintf(path, a...)
+	if env.Config.CDN.Host != "" {
+		if env.IsSingleHostMode() {
+			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+		}
+		return request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
+	}
+	return request.BaseURL() + path
+}
+
+//TenantBaseURL returns base URL for a given tenant
+func TenantBaseURL(ctx context.Context, tenant *models.Tenant) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+
+	if env.IsSingleHostMode() {
+		return request.BaseURL()
+	}
+
+	address := request.URL.Scheme + "://"
+	if tenant.CNAME != "" {
+		address += tenant.CNAME
+	} else {
+		address += tenant.Subdomain + env.MultiTenantDomain()
+	}
+
+	if request.URL.Port() != "" {
+		address += ":" + request.URL.Port()
+	}
+
+	return address
+}
+
+// TenantAssetsURL return the full URL to a tenant-specific static asset
+func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	path = fmt.Sprintf(path, a...)
+	if env.Config.CDN.Host != "" && hasTenant {
+		if env.IsSingleHostMode() {
+			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+		}
+		return request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path
+	}
+	return request.BaseURL() + path
+}
+
+// LogoURL return the full URL to the tenant-specific logo URL
+func LogoURL(ctx context.Context) string {
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	if hasTenant && tenant.LogoBlobKey != "" {
+		return TenantAssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
+	}
+	return "https://getfider.com/images/logo-100x100.png"
+}
+
+// BaseURL return the base URL from given context
+func BaseURL(ctx context.Context) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+	return request.BaseURL()
 }

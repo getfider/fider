@@ -1,12 +1,13 @@
 package postgres
 
 import (
+	"context"
 	"net/url"
 	"regexp"
 	"strings"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/storage"
+	"github.com/getfider/fider/app/pkg/web"
 )
 
 var onlyalphanumeric = regexp.MustCompile("[^a-zA-Z0-9 |]+")
@@ -67,14 +68,14 @@ func getViewData(view string) (string, []models.PostStatus, string) {
 	return condition, statuses, sort
 }
 
-func buildAvatarURL(ctx storage.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {
+func buildAvatarURL(ctx context.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {
 	if name == "" {
 		name = "-"
 	}
 
 	if avatarType == models.AvatarTypeCustom {
-		return ctx.TenantAssetsURL("/images/%s", avatarBlobKey)
+		return web.TenantAssetsURL(ctx, "/images/%s", avatarBlobKey)
 	} else {
-		return ctx.TenantAssetsURL("/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
+		return web.TenantAssetsURL(ctx, "/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
 	}
 }

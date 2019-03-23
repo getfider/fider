@@ -1,13 +1,17 @@
 package postgres_test
 
 import (
-	"fmt"
+	"context"
+	"net/url"
 	"os"
 	"testing"
+
+	"github.com/getfider/fider/app"
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
@@ -29,16 +33,13 @@ var aryaStark *models.User
 var sansaStark *models.User
 var tonyStark *models.User
 
-type Context struct{}
-
-func (c *Context) TenantAssetsURL(path string, a ...interface{}) string {
-	return "http://cdn.test.fider.io" + fmt.Sprintf(path, a...)
-}
-
 func SetupDatabaseTest(t *testing.T) {
 	RegisterT(t)
 	trx, _ = db.Begin()
-	ctx := &Context{}
+
+	u, _ := url.Parse("http://cdn.test.fider.io")
+	req := web.Request{URL: u}
+	ctx := context.WithValue(context.Background(), app.RequestCtxKey, req)
 
 	tenants = postgres.NewTenantStorage(trx)
 	users = postgres.NewUserStorage(trx, ctx)

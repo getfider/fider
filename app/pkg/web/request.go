@@ -106,3 +106,14 @@ var crawlerRegex = regexp.MustCompile("(?i)(baidu)|(msnbot)|(bingbot)|(bingprevi
 func (r *Request) IsCrawler() bool {
 	return crawlerRegex.MatchString(r.GetHeader("User-Agent"))
 }
+
+//BaseURL returns base URL
+func (r *Request) BaseURL() string {
+	address := r.URL.Scheme + "://" + r.URL.Hostname()
+
+	if r.URL.Port() != "" {
+		address += ":" + r.URL.Port()
+	}
+
+	return address
+}

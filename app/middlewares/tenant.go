@@ -61,7 +61,7 @@ func MultiTenant() web.MiddlewareFunc {
 				c.SetTenant(tenant)
 
 				if tenant.CNAME != "" && !c.IsAjax() {
-					baseURL := c.TenantBaseURL(tenant)
+					baseURL := web.TenantBaseURL(c, tenant)
 					if baseURL != c.BaseURL() {
 						link := baseURL + c.Request.URL.RequestURI()
 						c.SetCanonicalURL(link)

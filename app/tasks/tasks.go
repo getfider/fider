@@ -12,6 +12,7 @@ import (
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/markdown"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -39,7 +40,7 @@ func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 			To:           []dto.Recipient{to},
 			TemplateName: "signup_email",
 			Props: dto.Props{
-				"logo": c.LogoURL(),
+				"logo": web.LogoURL(c),
 			},
 		})
 
@@ -52,7 +53,7 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
 		to := dto.NewRecipient("", model.Email, dto.Props{
 			"tenantName": c.Tenant().Name,
-			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
+			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", model.VerificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
@@ -60,7 +61,7 @@ func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 			To:           []dto.Recipient{to},
 			TemplateName: "signin_email",
 			Props: dto.Props{
-				"logo": c.LogoURL(),
+				"logo": web.LogoURL(c),
 			},
 		})
 
@@ -80,7 +81,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			"name":     c.User().Name,
 			"oldEmail": previous,
 			"newEmail": model.Email,
-			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
+			"link":     link(web.BaseURL(c), "/change-email/verify?k=%s", model.VerificationKey),
 		})
 
 		bus.Publish(c, &cmd.SendMail{
@@ -88,7 +89,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			To:           []dto.Recipient{to},
 			TemplateName: "change_emailaddress_email",
 			Props: dto.Props{
-				"logo": c.LogoURL(),
+				"logo": web.LogoURL(c),
 			},
 		})
 
@@ -133,10 +134,10 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 			"tenantName": c.Tenant().Name,
 			"userName":   c.User().Name,
 			"content":    markdown.Simple(post.Description),
-			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-			"logo":       c.LogoURL(),
+			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":       linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":     linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":       web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -187,11 +188,11 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Simple(comment.Content),
-			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-			"logo":        c.LogoURL(),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":        linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":        web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -241,7 +242,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 			if err != nil {
 				return c.Failure(err)
 			}
-			duplicate = linkWithText(originalPost.Title, c.BaseURL(), "/posts/%d/%s", originalPost.Number, originalPost.Slug)
+			duplicate = linkWithText(originalPost.Title, web.BaseURL(c), "/posts/%d/%s", originalPost.Number, originalPost.Slug)
 		}
 
 		to := make([]dto.Recipient, 0)
@@ -253,15 +254,15 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 
 		props := dto.Props{
 			"title":       post.Title,
-			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Simple(post.Response.Text),
 			"status":      post.Status.Name(),
 			"duplicate":   duplicate,
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-			"logo":        c.LogoURL(),
+			"view":        linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":        web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -311,8 +312,8 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"content":    markdown.Simple(post.Response.Text),
-			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
-			"logo":       c.LogoURL(),
+			"change":     linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":       web.LogoURL(c),
 		}
 
 		bus.Publish(c, &cmd.SendMail{
@@ -336,7 +337,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 				return c.Failure(err)
 			}
 
-			url := fmt.Sprintf("%s/invite/verify?k=%s", c.BaseURL(), invite.VerificationKey)
+			url := fmt.Sprintf("%s/invite/verify?k=%s", web.BaseURL(c), invite.VerificationKey)
 			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
 			to[i] = dto.NewRecipient("", invite.Email, dto.Props{
 				"message": markdown.Full(toMessage),
@@ -349,7 +350,7 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 			TemplateName: "invite_email",
 			Props: dto.Props{
 				"subject": subject,
-				"logo":    c.LogoURL(),
+				"logo":    web.LogoURL(c),
 			},
 		})
 

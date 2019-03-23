@@ -2,9 +2,11 @@ package mock
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -46,7 +48,9 @@ func (w *Worker) Execute(task worker.Task) error {
 	context.SetServices(w.services)
 	context.SetUser(w.user)
 	context.SetTenant(w.tenant)
-	context.SetBaseURL(w.baseURL)
+
+	u, _ := url.Parse(w.baseURL)
+	context.Set(app.RequestCtxKey, web.Request{URL: u})
 	return task.Job(context)
 }
 

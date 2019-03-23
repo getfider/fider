@@ -33,12 +33,13 @@ func TestSendSignUpEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("signup_email")
 	Expect(emailmock.MessageHistory[0].Tenant).IsNil()
-	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
+		"logo": "https://getfider.com/images/logo-100x100.png",
+	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Fider")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
 		Props: dto.Props{
-			"logo": "https://getfider.com/images/logo-100x100.png",
 			"link": template.HTML("<a href='http://domain.com/signup/verify?k=1234'>http://domain.com/signup/verify?k=1234</a>"),
 		},
 	})
@@ -63,7 +64,9 @@ func TestSendSignInEmailTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("signin_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
+		"logo": "https://getfider.com/images/logo-100x100.png",
+	})
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
@@ -95,7 +98,9 @@ func TestSendChangeEmailConfirmationTask(t *testing.T) {
 	Expect(emailmock.MessageHistory).HasLen(1)
 	Expect(emailmock.MessageHistory[0].TemplateName).Equals("change_emailaddress_email")
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
-	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{})
+	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
+		"logo": "https://getfider.com/images/logo-100x100.png",
+	})
 	Expect(emailmock.MessageHistory[0].From).Equals(mock.DemoTenant.Name)
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
 	Expect(emailmock.MessageHistory[0].To[0]).Equals(dto.Recipient{
@@ -139,6 +144,7 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		"content":    template.HTML("<p>TypeScript is great, please add support for it</p>"),
 		"view":       template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":     template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+		"logo":       "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -192,6 +198,7 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		"view":        template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 		"unsubscribe": template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>"),
+		"logo":        "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Arya Stark")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -243,6 +250,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		"view":        template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 		"unsubscribe": template.HTML("<a href='http://domain.com/posts/1/add-support-for-typescript'>unsubscribe from it</a>"),
+		"logo":        "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -289,6 +297,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		"tenantName": "Demonstration",
 		"content":    template.HTML("<p>Invalid post!</p>"),
 		"change":     template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
+		"logo":       "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -341,6 +350,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		"view":        template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>View it on your browser</a>"),
 		"change":      template.HTML("<a href='http://domain.com/settings'>change your notification settings</a>"),
 		"unsubscribe": template.HTML("<a href='http://domain.com/posts/2/i-need-typescript'>unsubscribe from it</a>"),
+		"logo":        "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(1)
@@ -383,6 +393,7 @@ func TestSendInvites(t *testing.T) {
 	Expect(emailmock.MessageHistory[0].Tenant).Equals(mock.DemoTenant)
 	Expect(emailmock.MessageHistory[0].Props).Equals(dto.Props{
 		"subject": "My Subject",
+		"logo":    "https://getfider.com/images/logo-100x100.png",
 	})
 	Expect(emailmock.MessageHistory[0].From).Equals("Jon Snow")
 	Expect(emailmock.MessageHistory[0].To).HasLen(2)

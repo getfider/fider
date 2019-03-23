@@ -181,12 +181,12 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	}
 
 	private["assets"] = r.assets
-	private["logo"] = ctx.LogoURL()
+	private["logo"] = LogoURL(ctx)
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
-		private["favicon"] = ctx.GlobalAssetsURL("/favicon")
+		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
 	} else {
-		private["favicon"] = ctx.TenantAssetsURL("/favicon/%s", tenant.LogoBlobKey)
+		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
 	}
 
 	private["currentURL"] = ctx.Request.URL.String()
@@ -216,8 +216,8 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
-		"tenantAssetsURL": ctx.TenantAssetsURL(""),
-		"globalAssetsURL": ctx.GlobalAssetsURL(""),
+		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
+		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
 		"oauth":           oauthProviders,
 	}
 

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/storage"
 )
 
 type dbUser struct {
@@ -31,7 +31,7 @@ type dbUserProvider struct {
 	UID  sql.NullString `db:"provider_uid"`
 }
 
-func (u *dbUser) toModel(ctx storage.Context) *models.User {
+func (u *dbUser) toModel(ctx context.Context) *models.User {
 	if u == nil {
 		return nil
 	}
@@ -70,11 +70,11 @@ type UserStorage struct {
 	tenant *models.Tenant
 	user   *models.User
 	trx    *dbx.Trx
-	ctx    storage.Context
+	ctx    context.Context
 }
 
 // NewUserStorage creates a new UserStorage
-func NewUserStorage(trx *dbx.Trx, ctx storage.Context) *UserStorage {
+func NewUserStorage(trx *dbx.Trx, ctx context.Context) *UserStorage {
 	return &UserStorage{trx: trx, ctx: ctx}
 }
 

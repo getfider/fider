@@ -34,7 +34,7 @@ func SendSampleInvite() web.HandlerFunc {
 				To:           []dto.Recipient{to},
 				TemplateName: "invite_email",
 				Props: dto.Props{
-					"logo": c.LogoURL(),
+					"logo": web.LogoURL(c),
 				},
 			})
 		}

@@ -3,7 +3,7 @@ package handlers
 import (
 	"time"
 
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 
 	"github.com/getfider/fider/app/tasks"
 
@@ -87,7 +87,7 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(input.Model, c.TenantBaseURL(tenant)))
+			c.Enqueue(tasks.SendSignUpEmail(input.Model, web.TenantBaseURL(c, tenant)))
 		}
 
 		return c.Ok(web.Map{})
