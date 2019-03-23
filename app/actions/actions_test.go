@@ -3,7 +3,6 @@ package actions_test
 import (
 	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/storage/inmemory"
@@ -22,7 +21,6 @@ var services = &app.Services{
 	Posts:         inmemory.NewPostStorage(),
 	Tags:          inmemory.NewTagStorage(),
 	Notifications: inmemory.NewNotificationStorage(),
-	Billing:       billing.NewClient(),
 }
 
 func ExpectFailed(result *validate.Result, expectedFields ...string) {

@@ -3,7 +3,6 @@ package mock
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
@@ -52,7 +51,6 @@ func createServices(seed bool) *app.Services {
 		Notifications: inmemory.NewNotificationStorage(),
 		Posts:         inmemory.NewPostStorage(),
 		OAuth:         &OAuthService{},
-		Billing:       billing.NewClient(),
 	}
 
 	if seed {

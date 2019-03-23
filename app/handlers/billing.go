@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -13,8 +14,7 @@ func BillingPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 		var err error
 		if c.Tenant().Billing.StripeCustomerID == "" {
-			_, err = c.Services().Billing.CreateCustomer("")
-			if err != nil {
+			if err = bus.Dispatch(c, &cmd.CreateBillingCustomer{}); err != nil {
 				return err
 			}
 
@@ -24,22 +24,23 @@ func BillingPage() web.HandlerFunc {
 			}
 		}
 
-		var invoiceDue *models.UpcomingInvoice
+		getUpcomingInvoiceQuery := &query.GetUpcomingInvoice{}
 		if c.Tenant().Billing.StripeSubscriptionID != "" {
-			invoiceDue, err = c.Services().Billing.GetUpcomingInvoice()
+			err = bus.Dispatch(c, getUpcomingInvoiceQuery)
 			if err != nil {
 				return c.Failure(err)
 			}
 		}
 
-		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
+		paymentInfo := query.GetPaymentInfo{}
+		err = bus.Dispatch(c, paymentInfo)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		listPlansQuery := &query.ListBillingPlans{}
-		if paymentInfo != nil {
-			listPlansQuery.CountryCode = paymentInfo.AddressCountry
+		if paymentInfo.Result != nil {
+			listPlansQuery.CountryCode = paymentInfo.Result.AddressCountry
 			err = bus.Dispatch(c, listPlansQuery)
 			if err != nil {
 				println(err.Error())
@@ -56,10 +57,10 @@ func BillingPage() web.HandlerFunc {
 			Title:     "Billing · Site Settings",
 			ChunkName: "Billing.page",
 			Data: web.Map{
-				"invoiceDue":      invoiceDue,
+				"invoiceDue":      getUpcomingInvoiceQuery.Result,
 				"tenantUserCount": tenantUserCount,
-				"plans":           listPlansQuery.Plans,
-				"paymentInfo":     paymentInfo,
+				"plans":           listPlansQuery.Result,
+				"paymentInfo":     paymentInfo.Result,
 				"countries":       models.GetAllCountries(),
 			},
 		})
@@ -74,8 +75,7 @@ func UpdatePaymentInfo() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Billing.UpdatePaymentInfo(input.Model)
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdatePaymentInfo{Input: input.Model}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -92,7 +92,7 @@ func GetBillingPlans() web.HandlerFunc {
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(listPlansQuery.Plans)
+		return c.Ok(listPlansQuery.Result)
 	}
 }
 
@@ -101,20 +101,21 @@ func BillingSubscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
 		planID := c.Param("planID")
 
-		paymentInfo, err := c.Services().Billing.GetPaymentInfo()
+		paymentInfoQuery := &query.GetPaymentInfo{}
+		err := bus.Dispatch(c, paymentInfoQuery)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		getPlanByIDQuery := &query.GetBillingPlanByID{
 			PlanID:      planID,
-			CountryCode: paymentInfo.AddressCountry,
+			CountryCode: paymentInfoQuery.Result.AddressCountry,
 		}
 		err = bus.Dispatch(c, getPlanByIDQuery)
 		if err != nil {
 			return c.Failure(err)
 		}
-		plan := getPlanByIDQuery.Plan
+		plan := getPlanByIDQuery.Result
 
 		userCount, err := c.Services().Users.Count()
 		if err != nil {
@@ -125,8 +126,9 @@ func BillingSubscribe() web.HandlerFunc {
 			return c.Unauthorized()
 		}
 
-		err = c.Services().Billing.Subscribe(plan.ID)
-		if err != nil {
+		if err = bus.Dispatch(c, &cmd.CreateBillingSubscription{
+			PlanID: plan.ID,
+		}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -134,6 +136,7 @@ func BillingSubscribe() web.HandlerFunc {
 		if err != nil {
 			return err
 		}
+
 		err = c.Services().Tenants.Activate(c.Tenant().ID)
 		if err != nil {
 			return err
@@ -146,7 +149,7 @@ func BillingSubscribe() web.HandlerFunc {
 // CancelBillingSubscription cancels current subscription from current tenant
 func CancelBillingSubscription() web.HandlerFunc {
 	return func(c *web.Context) error {
-		err := c.Services().Billing.CancelSubscription()
+		err := bus.Dispatch(c, &cmd.CancelBillingSubscription{})
 		if err != nil {
 			return c.Failure(err)
 		}

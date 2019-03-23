@@ -5,7 +5,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/billing"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
@@ -47,12 +46,12 @@ func WorkerSetup() worker.MiddlewareFunc {
 			}()
 
 			c.SetServices(&app.Services{
+				Context:       c,
 				Tenants:       postgres.NewTenantStorage(trx),
 				Users:         postgres.NewUserStorage(trx, c),
 				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Billing:       billing.NewClient(),
 			})
 
 			//Execute the chain
@@ -127,13 +126,13 @@ func WebSetup() web.MiddlewareFunc {
 
 			c.SetActiveTransaction(trx)
 			c.SetServices(&app.Services{
+				Context:       c,
 				Tenants:       tenantStorage,
 				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
 				Users:         postgres.NewUserStorage(trx, c),
 				Posts:         postgres.NewPostStorage(trx, c),
 				Tags:          postgres.NewTagStorage(trx),
 				Notifications: postgres.NewNotificationStorage(trx),
-				Billing:       billing.NewClient(),
 			})
 
 			//Execute the chain

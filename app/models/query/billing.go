@@ -5,12 +5,20 @@ import "github.com/getfider/fider/app/models/dto"
 type ListBillingPlans struct {
 	CountryCode string
 
-	Plans []*dto.BillingPlan
+	Result []*dto.BillingPlan
 }
 
 type GetBillingPlanByID struct {
 	PlanID      string
 	CountryCode string
 
-	Plan *dto.BillingPlan
+	Result *dto.BillingPlan
+}
+
+type GetUpcomingInvoice struct {
+	Result *dto.UpcomingInvoice
+}
+
+type GetPaymentInfo struct {
+	Result *dto.PaymentInfo
 }

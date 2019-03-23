@@ -3,20 +3,24 @@ package actions
 import (
 	"fmt"
 
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/goenning/vat"
 )
 
 // CreateEditBillingPaymentInfo is used to create/edit billing payment info
 type CreateEditBillingPaymentInfo struct {
-	Model *models.CreateEditBillingPaymentInfo
+	Model *dto.CreateEditBillingPaymentInfo
 }
 
 // Initialize the model
 func (input *CreateEditBillingPaymentInfo) Initialize() interface{} {
-	input.Model = new(models.CreateEditBillingPaymentInfo)
+	input.Model = new(dto.CreateEditBillingPaymentInfo)
 	return input.Model
 }
 
@@ -58,15 +62,16 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		result.AddFieldFailure("addressPostalCode", "Postal Code is required.")
 	}
 
-	current, err := services.Billing.GetPaymentInfo()
-
-	isNew := current == nil
-	isUpdate := current != nil && input.Model.Card == nil
-	isReplacing := current != nil && input.Model.Card != nil
-
+	getPaymentInfo := &query.GetPaymentInfo{}
+	err := bus.Dispatch(services.Context, getPaymentInfo)
 	if err != nil {
 		return validate.Error(err)
 	}
+
+	current := getPaymentInfo.Result
+	isNew := current == nil
+	isUpdate := current != nil && input.Model.Card == nil
+	isReplacing := current != nil && input.Model.Card != nil
 
 	if (isNew || isReplacing) && (input.Model.Card == nil || input.Model.Card.Token == "") {
 		result.AddFieldFailure("card", "Card information is required.")

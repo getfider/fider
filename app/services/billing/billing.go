@@ -33,17 +33,13 @@ func (s Service) Init() {
 	stripeClient.Init(env.Config.Stripe.SecretKey, nil)
 
 	bus.AddHandler(listPlans)
+	bus.AddHandler(getPlanByID)
+	bus.AddHandler(cancelSubscription)
+	bus.AddHandler(subscribe)
+	bus.AddHandler(getUpcomingInvoice)
+	bus.AddHandler(createCustomer)
+	bus.AddHandler(deleteCustomer)
+	bus.AddHandler(getPaymentInfo)
+	bus.AddHandler(clearPaymentInfo)
+	bus.AddHandler(updatePaymentInfo)
 }
-
-/*
-func (c *Client) CancelSubscription() error {
-func (c *Client) ClearPaymentInfo() error {
-func (c *Client) CreateCustomer(email string) (string, error) {
-func (c *Client) DeleteCustomer() error {
-func (c *Client) GetPaymentInfo() (*models.PaymentInfo, error) {
-func (c *Client) GetPlanByID(countryCode, planID string) (*models.BillingPlan, error) {
-func (c *Client) GetUpcomingInvoice() (*models.UpcomingInvoice, error) {
-func (c *Client) ListPlans(countryCode string) ([]*models.BillingPlan, error) {
-func (c *Client) Subscribe(planID string) error {
-func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) error {
-*/

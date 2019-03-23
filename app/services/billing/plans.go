@@ -19,7 +19,7 @@ var allPlans []*dto.BillingPlan
 
 func listPlans(ctx context.Context, q *query.ListBillingPlans) error {
 	if allPlans != nil {
-		q.Plans = filterPlansByCountryCode(allPlans, q.CountryCode)
+		q.Result = filterPlansByCountryCode(allPlans, q.CountryCode)
 		return nil
 	}
 
@@ -56,7 +56,7 @@ func listPlans(ctx context.Context, q *query.ListBillingPlans) error {
 		})
 	}
 
-	q.Plans = filterPlansByCountryCode(allPlans, q.CountryCode)
+	q.Result = filterPlansByCountryCode(allPlans, q.CountryCode)
 	return nil
 }
 
@@ -67,9 +67,9 @@ func getPlanByID(ctx context.Context, q *query.GetBillingPlanByID) error {
 		return err
 	}
 
-	for _, plan := range listPlansQuery.Plans {
+	for _, plan := range listPlansQuery.Result {
 		if plan.ID == q.PlanID {
-			q.Plan = plan
+			q.Result = plan
 			return nil
 		}
 	}
