@@ -121,9 +121,9 @@ func AllOperations(ctx context.Context) {
 		err = bus.Dispatch(ctx, q)
 		Expect(err).IsNil()
 		Expect(q.Key).Equals(testCase.key)
-		Expect(q.Blob.Content).Equals(bytes)
-		Expect(q.Blob.Size).Equals(int64(len(bytes)))
-		Expect(q.Blob.ContentType).Equals(testCase.contentType)
+		Expect(q.Result.Content).Equals(bytes)
+		Expect(q.Result.Size).Equals(int64(len(bytes)))
+		Expect(q.Result.ContentType).Equals(testCase.contentType)
 
 		err = bus.Dispatch(ctx, &cmd.DeleteBlob{
 			Key: testCase.key,
@@ -134,7 +134,7 @@ func AllOperations(ctx context.Context) {
 			Key: testCase.key,
 		}
 		err = bus.Dispatch(ctx, q)
-		Expect(q.Blob).IsNil()
+		Expect(q.Result).IsNil()
 		Expect(err).Equals(blob.ErrNotFound)
 	}
 }
@@ -163,17 +163,17 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	q := &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant1, q)
 	Expect(err).IsNil()
-	Expect(q.Blob.Content).Equals(bytes)
+	Expect(q.Result.Content).Equals(bytes)
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(q.Blob).IsNil()
+	Expect(q.Result).IsNil()
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(q.Blob).IsNil()
+	Expect(q.Result).IsNil()
 }
 
 func SameKey_DifferentTenant_Delete(ctx context.Context) {
@@ -201,12 +201,12 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	q := &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant1, q)
 	Expect(err).IsNil()
-	Expect(q.Blob.Content).Equals(bytes1)
+	Expect(q.Result.Content).Equals(bytes1)
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).IsNil()
-	Expect(q.Blob.Content).Equals(bytes2)
+	Expect(q.Result.Content).Equals(bytes2)
 
 	err = bus.Dispatch(ctxWithTenant1, &cmd.DeleteBlob{Key: key})
 	Expect(err).IsNil()
@@ -214,12 +214,12 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctxWithTenant2, q)
 	Expect(err).IsNil()
-	Expect(q.Blob.Content).Equals(bytes2)
+	Expect(q.Result.Content).Equals(bytes2)
 
 	q = &query.GetBlobByKey{Key: key}
 	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
-	Expect(q.Blob).IsNil()
+	Expect(q.Result).IsNil()
 }
 
 func KeyFormats(ctx context.Context) {

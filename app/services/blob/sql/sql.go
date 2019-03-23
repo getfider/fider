@@ -68,7 +68,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		return errors.Wrap(err, "failed to get blob with key '%s'", q.Key)
 	}
 
-	q.Blob = &dto.Blob{
+	q.Result = &dto.Blob{
 		Size:        b.Size,
 		ContentType: b.ContentType,
 		Content:     b.Content,

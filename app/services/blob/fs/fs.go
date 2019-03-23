@@ -63,7 +63,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		return errors.Wrap(err, "failed to get read '%s' from FileSystem", q.Key)
 	}
 
-	q.Blob = &dto.Blob{
+	q.Result = &dto.Blob{
 		Content:     file,
 		ContentType: http.DetectContentType(file),
 		Size:        stats.Size(),

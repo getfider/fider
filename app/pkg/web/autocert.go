@@ -43,7 +43,7 @@ func (c *Cache) Get(ctx context.Context, key string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return q.Blob.Content, nil
+	return q.Result.Content, nil
 }
 
 // Put stores the data in the cache under the specified key.

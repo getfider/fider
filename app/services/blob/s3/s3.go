@@ -83,7 +83,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		return errors.Wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}
 
-	q.Blob = &dto.Blob{
+	q.Result = &dto.Blob{
 		Content:     bytes,
 		ContentType: *resp.ContentType,
 		Size:        *resp.ContentLength,

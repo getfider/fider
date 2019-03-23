@@ -124,8 +124,8 @@ func Favicon() web.HandlerFunc {
 			if err != nil {
 				return c.Failure(err)
 			}
-			bytes = q.Blob.Content
-			contentType = q.Blob.ContentType
+			bytes = q.Result.Content
+			contentType = q.Result.ContentType
 		} else {
 			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
@@ -178,7 +178,7 @@ func ViewUploadedImage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		bytes := q.Blob.Content
+		bytes := q.Result.Content
 		if size > 0 {
 			bytes, err = img.Apply(bytes, img.Resize(size))
 			if err != nil {
@@ -186,6 +186,6 @@ func ViewUploadedImage() web.HandlerFunc {
 			}
 		}
 
-		return c.Image(q.Blob.ContentType, bytes)
+		return c.Image(q.Result.ContentType, bytes)
 	}
 }

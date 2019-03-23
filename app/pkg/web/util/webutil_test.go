@@ -81,9 +81,9 @@ func TestProcessImageUpload(t *testing.T) {
 	q := &query.GetBlobByKey{Key: upload.BlobKey}
 	err = bus.Dispatch(context.Background(), q)
 	Expect(err).IsNil()
-	Expect(q.Blob.ContentType).Equals("image/gif")
-	Expect(q.Blob.Content).Equals(img)
-	Expect(int(q.Blob.Size)).Equals(len(img))
+	Expect(q.Result.ContentType).Equals("image/gif")
+	Expect(q.Result.Content).Equals(img)
+	Expect(int(q.Result.Size)).Equals(len(img))
 }
 
 func TestMultiProcessImageUpload(t *testing.T) {
