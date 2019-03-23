@@ -23,7 +23,6 @@ var users *postgres.UserStorage
 var posts *postgres.PostStorage
 var tags *postgres.TagStorage
 var notifications *postgres.NotificationStorage
-var events *postgres.EventStorage
 
 var demoTenant *models.Tenant
 var avengersTenant *models.Tenant
@@ -46,7 +45,6 @@ func SetupDatabaseTest(t *testing.T) {
 	posts = postgres.NewPostStorage(trx, ctx)
 	tags = postgres.NewTagStorage(trx)
 	notifications = postgres.NewNotificationStorage(trx)
-	events = postgres.NewEventStorage(trx)
 
 	demoTenant, _ = tenants.GetByDomain("demo")
 	avengersTenant, _ = tenants.GetByDomain("avengers")
