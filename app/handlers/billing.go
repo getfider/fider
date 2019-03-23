@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -35,10 +37,12 @@ func BillingPage() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		var plans []*models.BillingPlan
+		listPlansQuery := &query.ListBillingPlans{}
 		if paymentInfo != nil {
-			plans, err = c.Services().Billing.ListPlans(paymentInfo.AddressCountry)
+			listPlansQuery.CountryCode = paymentInfo.AddressCountry
+			err = bus.Dispatch(c, listPlansQuery)
 			if err != nil {
+				println(err.Error())
 				return c.Failure(err)
 			}
 		}
@@ -54,7 +58,7 @@ func BillingPage() web.HandlerFunc {
 			Data: web.Map{
 				"invoiceDue":      invoiceDue,
 				"tenantUserCount": tenantUserCount,
-				"plans":           plans,
+				"plans":           listPlansQuery.Plans,
 				"paymentInfo":     paymentInfo,
 				"countries":       models.GetAllCountries(),
 			},
@@ -83,11 +87,12 @@ func UpdatePaymentInfo() web.HandlerFunc {
 func GetBillingPlans() web.HandlerFunc {
 	return func(c *web.Context) error {
 		countryCode := c.Param("countryCode")
-		plans, err := c.Services().Billing.ListPlans(countryCode)
+		listPlansQuery := &query.ListBillingPlans{CountryCode: countryCode}
+		err := bus.Dispatch(c, listPlansQuery)
 		if err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(plans)
+		return c.Ok(listPlansQuery.Plans)
 	}
 }
 
@@ -101,10 +106,15 @@ func BillingSubscribe() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		plan, err := c.Services().Billing.GetPlanByID(paymentInfo.AddressCountry, planID)
+		getPlanByIDQuery := &query.GetBillingPlanByID{
+			PlanID:      planID,
+			CountryCode: paymentInfo.AddressCountry,
+		}
+		err = bus.Dispatch(c, getPlanByIDQuery)
 		if err != nil {
 			return c.Failure(err)
 		}
+		plan := getPlanByIDQuery.Plan
 
 		userCount, err := c.Services().Users.Count()
 		if err != nil {

@@ -59,6 +59,8 @@ func logInfo(ctx context.Context, c *cmd.LogInfo) error {
 func logError(ctx context.Context, c *cmd.LogError) error {
 	if c.Err != nil {
 		writeLog(ctx, log.ERROR, c.Err.Error(), c.Props)
+	} else if c.Message != "" {
+		writeLog(ctx, log.ERROR, c.Message, c.Props)
 	} else {
 		writeLog(ctx, log.ERROR, "nil", c.Props)
 	}

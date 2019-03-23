@@ -2,10 +2,8 @@ package billing
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/goenning/vat"
@@ -18,8 +16,6 @@ import (
 )
 
 var stripeClient *client.API
-var mu sync.RWMutex
-var plans []*models.BillingPlan
 
 func init() {
 	stripe.LogLevel = 0
@@ -257,78 +253,6 @@ func (c *Client) UpdatePaymentInfo(input *models.CreateEditBillingPaymentInfo) e
 		return errors.Wrap(err, "failed to update stripe card")
 	}
 	return nil
-}
-
-// GetPlanByID return a plan by its ID
-func (c *Client) GetPlanByID(countryCode, planID string) (*models.BillingPlan, error) {
-	plans, err := c.ListPlans(countryCode)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, plan := range plans {
-		if plan.ID == planID {
-			return plan, nil
-		}
-	}
-	return nil, errors.New("failed to get plan by id: " + planID)
-}
-
-// ListPlans on Stripe
-func (c *Client) ListPlans(countryCode string) ([]*models.BillingPlan, error) {
-	if plans != nil {
-		return c.filterByCountryCode(plans, countryCode), nil
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	if plans == nil {
-		plans = make([]*models.BillingPlan, 0)
-		it := c.stripe.Plans.List(&stripe.PlanListParams{
-			Active: stripe.Bool(true),
-		})
-		for it.Next() {
-			plan := it.Plan()
-			name, ok := plan.Metadata["friendly_name"]
-			if !ok {
-				name = plan.Nickname
-			}
-			maxUsers, _ := strconv.Atoi(plan.Metadata["max_users"])
-			plans = append(plans, &models.BillingPlan{
-				ID:          plan.ID,
-				Name:        name,
-				Description: plan.Metadata["description"],
-				MaxUsers:    maxUsers,
-				Price:       plan.Amount,
-				Currency:    strings.ToUpper(string(plan.Currency)),
-				Interval:    string(plan.Interval),
-			})
-		}
-		if err := it.Err(); err != nil {
-			return nil, err
-		}
-		sort.Slice(plans, func(i, j int) bool {
-			return plans[i].Price < plans[j].Price
-		})
-	}
-
-	return c.filterByCountryCode(plans, countryCode), nil
-}
-
-func (c *Client) filterByCountryCode(plans []*models.BillingPlan, countryCode string) []*models.BillingPlan {
-	currency := "USD"
-	if vat.IsEU(countryCode) {
-		currency = "EUR"
-	}
-
-	filteredPlans := make([]*models.BillingPlan, 0)
-	for _, p := range plans {
-		if p.Currency == currency {
-			filteredPlans = append(filteredPlans, p)
-		}
-	}
-	return filteredPlans
 }
 
 // Subscribe current tenant to given plan on Stripe
