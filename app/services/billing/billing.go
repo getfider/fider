@@ -1,6 +1,10 @@
 package billing
 
 import (
+	"context"
+
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/stripe/stripe-go"
@@ -42,4 +46,9 @@ func (s Service) Init() {
 	bus.AddHandler(getPaymentInfo)
 	bus.AddHandler(clearPaymentInfo)
 	bus.AddHandler(updatePaymentInfo)
+}
+
+func using(ctx context.Context, handler func(tenant *models.Tenant) error) error {
+	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	return handler(tenant)
 }

@@ -44,36 +44,41 @@ func (s Service) Init() {
 	bus.AddHandler(deleteBlob)
 }
 
+type dbBlob struct {
+	ContentType string `db:"content_type"`
+	Size        int64  `db:"size"`
+	Content     []byte `db:"file"`
+}
+
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
-	db := getDB(ctx)
-	tenant := getTenant(ctx)
-
-	var tenantID sql.NullInt64
-	if tenant != nil {
-		tenantID.Scan(tenant.ID)
-	}
-
-	trx, err := db.Begin()
-	if err != nil {
-		return errors.Wrap(err, "failed to open transaction")
-	}
-	defer trx.Commit()
-
-	b := dbBlob{}
-	err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
-	if err != nil {
-		if err == app.ErrNotFound {
-			return blob.ErrNotFound
+	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+		var tenantID sql.NullInt64
+		if tenant != nil {
+			tenantID.Scan(tenant.ID)
 		}
-		return errors.Wrap(err, "failed to get blob with key '%s'", q.Key)
-	}
 
-	q.Result = &dto.Blob{
-		Size:        b.Size,
-		ContentType: b.ContentType,
-		Content:     b.Content,
-	}
-	return nil
+		trx, err := db.Begin()
+		if err != nil {
+			return errors.Wrap(err, "failed to open transaction")
+		}
+		defer trx.Commit()
+
+		b := dbBlob{}
+		err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
+		if err != nil {
+			if err == app.ErrNotFound {
+				return blob.ErrNotFound
+			}
+			return errors.Wrap(err, "failed to get blob with key '%s'", q.Key)
+		}
+
+		q.Result = &dto.Blob{
+			Size:        b.Size,
+			ContentType: b.ContentType,
+			Content:     b.Content,
+		}
+		return nil
+	})
 }
 
 func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
@@ -81,78 +86,64 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	db := getDB(ctx)
-	tenant := getTenant(ctx)
+	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+		var tenantID sql.NullInt64
+		if tenant != nil {
+			tenantID.Scan(tenant.ID)
+		}
 
-	var tenantID sql.NullInt64
-	if tenant != nil {
-		tenantID.Scan(tenant.ID)
-	}
+		trx, err := db.Begin()
+		if err != nil {
+			return errors.Wrap(err, "failed to open transaction")
+		}
+		defer trx.Commit()
 
-	trx, err := db.Begin()
-	if err != nil {
-		return errors.Wrap(err, "failed to open transaction")
-	}
-	defer trx.Commit()
+		now := time.Now()
+		_, err = trx.Execute(`
+		INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
+		DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7
+		`, tenantID, c.Key, int64(len(c.Content)), c.ContentType, c.Content, now, now)
+		if err != nil {
+			return errors.Wrap(err, "failed to store blob with key '%s'", c.Key)
+		}
 
-	now := time.Now()
-	_, err = trx.Execute(`
-	INSERT INTO blobs (tenant_id, key, size, content_type, file, created_at, modified_at)
-	VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (tenant_id, key)
-	DO UPDATE SET size = $3, content_type = $4, file = $5, modified_at = $7
-	`, tenantID, c.Key, int64(len(c.Content)), c.ContentType, c.Content, now, now)
-	if err != nil {
-		return errors.Wrap(err, "failed to store blob with key '%s'", c.Key)
-	}
+		if err != nil {
+			return errors.Wrap(err, "failed to commit store of blob with key '%s'", c.Key)
+		}
 
-	if err != nil {
-		return errors.Wrap(err, "failed to commit store of blob with key '%s'", c.Key)
-	}
-
-	return nil
+		return nil
+	})
 }
 
 func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
-	db := getDB(ctx)
-	tenant := getTenant(ctx)
+	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+		var tenantID sql.NullInt64
+		if tenant != nil {
+			tenantID.Scan(tenant.ID)
+		}
 
-	var tenantID sql.NullInt64
-	if tenant != nil {
-		tenantID.Scan(tenant.ID)
-	}
+		trx, err := db.Begin()
+		if err != nil {
+			return errors.Wrap(err, "failed to open transaction")
+		}
+		defer trx.Commit()
 
-	trx, err := db.Begin()
-	if err != nil {
-		return errors.Wrap(err, "failed to open transaction")
-	}
-	defer trx.Commit()
+		_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
+		if err != nil {
+			return errors.Wrap(err, "failed to delete blob with key '%s'", c.Key)
+		}
 
-	_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
-	if err != nil {
-		return errors.Wrap(err, "failed to delete blob with key '%s'", c.Key)
-	}
+		if err != nil {
+			return errors.Wrap(err, "failed to commit deletion of blob with key '%s'", c.Key)
+		}
 
-	if err != nil {
-		return errors.Wrap(err, "failed to commit deletion of blob with key '%s'", c.Key)
-	}
-
-	return nil
+		return nil
+	})
 }
 
-func getDB(ctx context.Context) *dbx.Database {
-	return ctx.Value(app.DatabaseCtxKey).(*dbx.Database)
-}
-
-func getTenant(ctx context.Context) *models.Tenant {
-	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
-	if ok {
-		return tenant
-	}
-	return nil
-}
-
-type dbBlob struct {
-	ContentType string `db:"content_type"`
-	Size        int64  `db:"size"`
-	Content     []byte `db:"file"`
+func using(ctx context.Context, handler func(db *dbx.Database, tenant *models.Tenant) error) error {
+	db, _ := ctx.Value(app.DatabaseCtxKey).(*dbx.Database)
+	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	return handler(db, tenant)
 }

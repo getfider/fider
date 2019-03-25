@@ -68,7 +68,7 @@ func logError(ctx context.Context, c *cmd.LogError) error {
 }
 
 func writeLog(ctx context.Context, level log.Level, message string, props dto.Props) {
-	props = log.GetProps(ctx).Merge(props)
+	props = log.GetProperties(ctx).Merge(props)
 	if log.CurrentLevel > level {
 		return
 	}

@@ -70,8 +70,8 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 		return
 	}
 
-	usingDatabase(ctx, func(db *dbx.Database) {
-		props = log.GetProps(ctx).Merge(props)
+	using(ctx, func(db *dbx.Database) {
+		props = log.GetProperties(ctx).Merge(props)
 
 		message = log.Parse(message, props, false)
 		tag := props[log.PropertyKeyTag]
@@ -87,7 +87,7 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 	})
 }
 
-func usingDatabase(ctx context.Context, handler func(db *dbx.Database)) {
+func using(ctx context.Context, handler func(db *dbx.Database)) {
 	db, ok := ctx.Value(app.DatabaseCtxKey).(*dbx.Database)
 	if ok {
 		handler(db)

@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
@@ -15,9 +16,10 @@ import (
 func RunMigrate() int {
 	bus.Init()
 
-	ctx := context.Background()
-	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "MIGRATE")
-	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, rand.String(32))
+	ctx := log.WithProperties(context.Background(), dto.Props{
+		log.PropertyKeyTag:       "MIGRATE",
+		log.PropertyKeyContextID: rand.String(32),
+	})
 
 	db := dbx.New()
 	defer db.Close()

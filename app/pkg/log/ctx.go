@@ -7,6 +7,8 @@ import (
 	"github.com/getfider/fider/app/models/dto"
 )
 
+type logCtxKey string
+
 const (
 	// PropertyKeySessionID is the session id of current logger
 	PropertyKeySessionID = "SessionID"
@@ -20,7 +22,7 @@ const (
 	PropertyKeyTag = "Tag"
 )
 
-func GetProps(ctx context.Context) dto.Props {
+func GetProperties(ctx context.Context) dto.Props {
 	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
 	if ok {
 		return *props
@@ -29,23 +31,28 @@ func GetProps(ctx context.Context) dto.Props {
 }
 
 func GetProperty(ctx context.Context, key string) interface{} {
-	props := GetProps(ctx)
-	return props[key]
+	props := GetProperties(ctx)
+	return props[string(key)]
 }
 
-func SetProperty(ctx context.Context, key string, value interface{}) context.Context {
-	if value == nil {
-		return ctx
-	}
+func WithProperty(ctx context.Context, key string, value interface{}) context.Context {
+	return WithProperties(ctx, dto.Props{
+		key: value,
+	})
+}
 
+func WithProperties(ctx context.Context, kv dto.Props) context.Context {
 	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
 	if ok {
-		(*props)[key] = value
 		return ctx
 	} else {
-		p := dto.Props{
-			key: value,
-		}
-		return context.WithValue(ctx, app.LogPropsCtxKey, &p)
+		props := &dto.Props{}
+		ctx = context.WithValue(ctx, app.LogPropsCtxKey, props)
 	}
+
+	for key, value := range kv {
+		(*props)[string(key)] = value
+	}
+
+	return ctx
 }

@@ -51,8 +51,11 @@ var maxQueueSize = 100
 func New(db *dbx.Database) *BackgroundWorker {
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, app.DatabaseCtxKey, db)
-	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, rand.String(32))
-	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "BGW")
+
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: rand.String(32),
+		log.PropertyKeyTag:       "BGW",
+	})
 
 	return &BackgroundWorker{
 		Context: ctx,

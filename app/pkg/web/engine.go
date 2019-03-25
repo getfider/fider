@@ -75,8 +75,10 @@ func New(settings *models.SystemSettings) *Engine {
 
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, app.DatabaseCtxKey, db)
-	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, rand.String(32))
-	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: rand.String(32),
+		log.PropertyKeyTag:       "WEB",
+	})
 
 	router := &Engine{
 		Context:     ctx,

@@ -23,7 +23,6 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -86,9 +85,11 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 
 	ctx := context.WithValue(req.Context(), app.DatabaseCtxKey, engine.db)
 	ctx = context.WithValue(ctx, app.RequestCtxKey, wrappedRequest)
-	ctx = log.SetProperty(ctx, log.PropertyKeyContextID, contextID)
-	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
-	ctx = log.SetProperty(ctx, "UserAgent", req.Header.Get("User-Agent"))
+
+	ctx = log.WithProperties(context.Background(), dto.Props{
+		log.PropertyKeyContextID: contextID,
+		log.PropertyKeyTag:       "WEB",
+	})
 
 	return &Context{
 		Context:  ctx,
@@ -114,7 +115,7 @@ func (c *Context) SessionID() string {
 //SetSessionID sets the session ID on current context
 func (c *Context) SetSessionID(id string) {
 	c.sessionID = id
-	c.Context = log.SetProperty(c.Context, log.PropertyKeySessionID, id)
+	c.Context = log.WithProperty(c.Context, log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -166,7 +167,7 @@ func (c *Context) Tenant() *models.Tenant {
 //SetTenant update HTTP context with current tenant
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		c.Context = log.SetProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
+		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
 	}
 	if c.Services() != nil {
 		c.Services().SetCurrentTenant(tenant)
@@ -355,7 +356,7 @@ func (c *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (c *Context) SetUser(user *models.User) {
 	if user != nil {
-		c.Context = log.SetProperty(c.Context, log.PropertyKeyUserID, user.ID)
+		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
 	if c.Services() != nil {
 		c.Services().SetCurrentUser(user)
