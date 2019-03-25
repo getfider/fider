@@ -39,19 +39,17 @@ func (s *Sender) Send(ctx email.Context, templateName string, params email.Param
 	return s.BatchSend(ctx, templateName, params, from, []email.Recipient{to})
 }
 
-// Try getting the base URL of the Mailgun URL from env vars.
-// Fall back to the US var if that fails to maintain compatibility with older installs
+// Try getting the base URL of the Mailgun API using Environment vars and the Sender's domain
+// Fall back to the URL for the US region if that fails to maintain compatibility with older installs
 func (s *Sender) GetBaseURL() string {
 	var regionCode = env.Config.Email.Mailgun.Region
 	regionCode = strings.ToUpper(regionCode)
 
-	// Env var not set, default to US to stay backwards compatible
+	// Default to the US domain if no region code was provided (ENV not set)
+	// or if the provided code isn't valid
 	if len(regionCode) < 1 {
-		return baseURLs["US"]
-	}
-
-	// Env var set but unknown code, fall back and log
-	if len(baseURLs[regionCode]) < 1 {
+		regionCode = "US"
+	} else if len(baseURLs[regionCode]) < 1 {
 		s.logger.Warnf(
 			"Unknown Mailgun region code '@{Code}' configured - falling back to 'US'", 
 			log.Props{
@@ -59,10 +57,10 @@ func (s *Sender) GetBaseURL() string {
 			},
 		)
 
-		return baseURLs["US"]
+		regionCode = "US"
 	}
 
-	return baseURLs[regionCode]
+	return fmt.Sprintf(baseURLs[regionCode], s.domain)
 }
 
 // BatchSend an email to multiple recipients
@@ -136,9 +134,7 @@ func (s *Sender) BatchSend(ctx email.Context, templateName string, params email.
 		})
 	}
 
-
-	url := fmt.Sprintf(s.GetBaseURL(), s.domain)
-	request, err := http.NewRequest("POST", url, strings.NewReader(form.Encode()))
+	request, err := http.NewRequest("POST", s.GetBaseURL(), strings.NewReader(form.Encode()))
 	if err != nil {
 		return errors.Wrap(err, "failed to create POST request")
 	}

@@ -198,3 +198,31 @@ func TestBatch_Success(t *testing.T) {
 	</body>
 </html>`)
 }
+
+func TestGetBaseURL(t *testing.T) {
+	// Memorize the original setting since we are about to change it
+	var initialRegion = env.Config.Email.Mailgun.Region
+
+	// Fall back to US if there is nothing set
+	env.Config.Email.Mailgun.Region = ""
+	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	
+	// Return the EU domain for EU, ignore the case
+	env.Config.Email.Mailgun.Region = "EU"
+	Expect(sender.GetBaseURL()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
+	env.Config.Email.Mailgun.Region = "eu"
+	Expect(sender.GetBaseURL()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
+
+	// Return the US domain for US, ignore the case
+	env.Config.Email.Mailgun.Region = "US"
+	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	env.Config.Email.Mailgun.Region = "us"
+	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+
+    // Return the US domain if the region is invalid
+	env.Config.Email.Mailgun.Region = "Mars"
+	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+
+	// Restore the original setting for future tests
+	env.Config.Email.Mailgun.Region = initialRegion
+}
