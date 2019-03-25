@@ -22,6 +22,5 @@ var (
 	UserCtxKey        = createKey("USER")
 	ClaimsCtxKey      = createKey("CLAIMS")   // EXPERIMENTAL-BUS: remove this key
 	ServicesCtxKey    = createKey("SERVICES") // EXPERIMENTAL-BUS: remove this key
-	TasksCtxKey       = createKey("TASKS")    // EXPERIMENTAL-BUS: remove this key
 	LogPropsCtxKey    = createKey("LOG_PROPS")
 )

@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"time"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -13,7 +12,7 @@ import (
 
 //Context holds references to services available for jobs
 type Context struct {
-	innerCtx context.Context
+	context.Context
 	workerID string
 	taskName string
 	services *app.Services
@@ -36,7 +35,7 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 	}
 
 	c := &Context{
-		innerCtx: ctx,
+		Context:  ctx,
 		workerID: workerID,
 		taskName: task.Name,
 	}
@@ -86,22 +85,6 @@ func (c *Context) Services() *app.Services {
 //Failure logs details of error
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
-	log.Error(c.innerCtx, err)
+	log.Error(c, err)
 	return err
-}
-
-func (c *Context) Deadline() (deadline time.Time, ok bool) {
-	return c.innerCtx.Deadline()
-}
-
-func (c *Context) Done() <-chan struct{} {
-	return c.innerCtx.Done()
-}
-
-func (c *Context) Err() error {
-	return c.innerCtx.Err()
-}
-
-func (c *Context) Value(key interface{}) interface{} {
-	return c.innerCtx.Value(key)
 }

@@ -58,7 +58,7 @@ type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
 //Engine is our web engine wrapper
 type Engine struct {
-	innerCtx    context.Context
+	context.Context
 	mux         *httprouter.Router
 	renderer    *Renderer
 	db          *dbx.Database
@@ -79,7 +79,7 @@ func New(settings *models.SystemSettings) *Engine {
 	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "WEB")
 
 	router := &Engine{
-		innerCtx:    ctx,
+		Context:     ctx,
 		mux:         httprouter.New(),
 		db:          db,
 		renderer:    NewRenderer(settings),
@@ -94,8 +94,8 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	log.Info(e.innerCtx, "Application is starting")
-	log.Infof(e.innerCtx, "GO_ENV: @{Env}", dto.Props{
+	log.Info(e, "Application is starting")
+	log.Infof(e, "GO_ENV: @{Env}", dto.Props{
 		"Env": env.Config.Environment,
 	})
 
@@ -134,14 +134,14 @@ func (e *Engine) Start(address string) {
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		log.Infof(e.innerCtx, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
+		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
-		log.Infof(e.innerCtx, "http server started on @{Address}", dto.Props{"Address": address})
+		log.Infof(e, "http server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		log.Infof(e.innerCtx, "https server started on @{Address}", dto.Props{"Address": address})
+		log.Infof(e, "https server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
@@ -155,17 +155,17 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	log.Info(e.innerCtx, "server is shutting down")
+	log.Info(e, "server is shutting down")
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
-	log.Info(e.innerCtx, "server has shutdown")
+	log.Info(e, "server has shutdown")
 
-	log.Info(e.innerCtx, "worker is shutting down")
+	log.Info(e, "worker is shutting down")
 	if err := e.worker.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown worker")
 	}
-	log.Info(e.innerCtx, "worker has shutdown")
+	log.Info(e, "worker has shutdown")
 
 	return nil
 }

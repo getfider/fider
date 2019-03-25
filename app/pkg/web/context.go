@@ -68,13 +68,14 @@ const CookieSignUpAuthName = "__signup_auth"
 
 //Context shared between http pipeline
 type Context struct {
-	innerCtx  context.Context
+	context.Context
 	Response  http.ResponseWriter
 	Request   Request
 	id        string
 	sessionID string
 	engine    *Engine
 	params    StringMap
+	tasks     []worker.Task
 }
 
 //NewContext creates a new web Context
@@ -90,12 +91,13 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 	ctx = log.SetProperty(ctx, "UserAgent", req.Header.Get("User-Agent"))
 
 	return &Context{
+		Context:  ctx,
 		id:       contextID,
 		engine:   engine,
-		innerCtx: ctx,
 		Request:  wrappedRequest,
 		Response: res,
 		params:   params,
+		tasks:    make([]worker.Task, 0),
 	}
 }
 
@@ -112,7 +114,7 @@ func (c *Context) SessionID() string {
 //SetSessionID sets the session ID on current context
 func (c *Context) SetSessionID(id string) {
 	c.sessionID = id
-	c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeySessionID, id)
+	c.Context = log.SetProperty(c.Context, log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
@@ -129,11 +131,8 @@ func (c *Context) Commit() error {
 		}
 	}
 
-	tasks, ok := c.Value(app.TasksCtxKey).([]worker.Task)
-	if ok {
-		for _, task := range tasks {
-			c.engine.worker.Enqueue(task)
-		}
+	for _, task := range c.tasks {
+		c.engine.worker.Enqueue(task)
 	}
 
 	return nil
@@ -151,13 +150,8 @@ func (c *Context) Rollback() error {
 
 //Enqueue given task to be processed in background
 func (c *Context) Enqueue(task worker.Task) {
-	tasks, ok := c.Value(app.TasksCtxKey).([]worker.Task)
-	if !ok {
-		tasks = make([]worker.Task, 0)
-	}
-
 	task.OriginContext = c
-	c.Set(app.TasksCtxKey, append(tasks, task))
+	c.tasks = append(c.tasks, task)
 }
 
 //Tenant returns current tenant
@@ -172,7 +166,7 @@ func (c *Context) Tenant() *models.Tenant {
 //SetTenant update HTTP context with current tenant
 func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyTenantID, tenant.ID)
+		c.Context = log.SetProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
 	}
 	if c.Services() != nil {
 		c.Services().SetCurrentTenant(tenant)
@@ -375,7 +369,7 @@ func (c *Context) User() *models.User {
 //SetUser update HTTP context with current user
 func (c *Context) SetUser(user *models.User) {
 	if user != nil {
-		c.innerCtx = log.SetProperty(c.innerCtx, log.PropertyKeyUserID, user.ID)
+		c.Context = log.SetProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
 	if c.Services() != nil {
 		c.Services().SetCurrentUser(user)
@@ -475,7 +469,7 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 
 // Set saves data in the context.
 func (c *Context) Set(key interface{}, val interface{}) {
-	c.innerCtx = context.WithValue(c.innerCtx, key, val)
+	c.Context = context.WithValue(c.Context, key, val)
 }
 
 // String returns a text response with status code.
@@ -554,22 +548,6 @@ func (c *Context) SetCanonicalURL(rawurl string) {
 
 		c.Set("Canonical-URL", rawurl)
 	}
-}
-
-func (c *Context) Deadline() (deadline time.Time, ok bool) {
-	return c.innerCtx.Deadline()
-}
-
-func (c *Context) Done() <-chan struct{} {
-	return c.innerCtx.Done()
-}
-
-func (c *Context) Err() error {
-	return c.innerCtx.Err()
-}
-
-func (c *Context) Value(key interface{}) interface{} {
-	return c.innerCtx.Value(key)
 }
 
 // GlobalAssetsURL return the full URL to a globally shared static asset

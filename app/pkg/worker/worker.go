@@ -37,7 +37,7 @@ type Worker interface {
 
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
-	innerCtx   context.Context
+	context.Context
 	db         *dbx.Database
 	queue      chan Task
 	len        int64
@@ -55,9 +55,9 @@ func New(db *dbx.Database) *BackgroundWorker {
 	ctx = log.SetProperty(ctx, log.PropertyKeyTag, "BGW")
 
 	return &BackgroundWorker{
-		innerCtx: ctx,
-		db:       db,
-		queue:    make(chan Task, maxQueueSize),
+		Context: ctx,
+		db:      db,
+		queue:   make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next
 		},
@@ -66,11 +66,11 @@ func New(db *dbx.Database) *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(workerID string) {
-	log.Infof(w.innerCtx, "Starting worker @{WorkerID:magenta}.", dto.Props{
+	log.Infof(w, "Starting worker @{WorkerID:magenta}.", dto.Props{
 		"WorkerID": workerID,
 	})
 	for task := range w.queue {
-		c := NewContext(w.innerCtx, workerID, task)
+		c := NewContext(w, workerID, task)
 
 		w.middleware(task.Job)(c)
 		w.Lock()
@@ -90,7 +90,7 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 				return nil
 			}
 
-			log.Infof(w.innerCtx, "Waiting for work queue: @{Count}", dto.Props{
+			log.Infof(w, "Waiting for work queue: @{Count}", dto.Props{
 				"Count": count,
 			})
 
