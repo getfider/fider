@@ -6,7 +6,6 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -42,11 +41,6 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 		taskName: task.Name,
 	}
 	return c
-}
-
-//Database returns current database
-func (c *Context) Database() *dbx.Database {
-	return c.innerCtx.Value(app.DatabaseCtxKey).(*dbx.Database)
 }
 
 //SetServices on current context

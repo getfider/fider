@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/dbx"
+
 	"strings"
 
 	"github.com/getfider/fider/app"
@@ -19,7 +21,6 @@ import (
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -121,7 +122,8 @@ func (c *Context) ContextID() string {
 
 //Commit everything that is pending on current context
 func (c *Context) Commit() error {
-	if trx := c.ActiveTransaction(); trx != nil {
+	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
+	if ok && trx != nil {
 		if err := trx.Commit(); err != nil {
 			return err
 		}
@@ -139,7 +141,8 @@ func (c *Context) Commit() error {
 
 //Rollback everything that is pending on current context
 func (c *Context) Rollback() error {
-	if trx := c.ActiveTransaction(); trx != nil {
+	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
+	if ok && trx != nil {
 		return trx.Rollback()
 	}
 
@@ -155,11 +158,6 @@ func (c *Context) Enqueue(task worker.Task) {
 
 	task.OriginContext = c
 	c.Set(app.TasksCtxKey, append(tasks, task))
-}
-
-//Database returns current database
-func (c *Context) Database() *dbx.Database {
-	return c.innerCtx.Value(app.DatabaseCtxKey).(*dbx.Database)
 }
 
 //Tenant returns current tenant
@@ -423,16 +421,6 @@ func (c *Context) RemoveCookie(name string) {
 //SetServices update current context with app.Services
 func (c *Context) SetServices(services *app.Services) {
 	c.Set(app.ServicesCtxKey, services)
-}
-
-//SetActiveTransaction adds transaction to context
-func (c *Context) SetActiveTransaction(trx *dbx.Trx) {
-	c.Set(app.TransactionCtxKey, trx)
-}
-
-//ActiveTransaction returns current active Database transaction
-func (c *Context) ActiveTransaction() *dbx.Trx {
-	return c.Value(app.TransactionCtxKey).(*dbx.Trx)
 }
 
 //BaseURL returns base URL

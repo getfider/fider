@@ -3,6 +3,8 @@ package middlewares
 import (
 	"time"
 
+	"github.com/getfider/fider/app/pkg/dbx"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -14,7 +16,7 @@ import (
 )
 
 //WorkerSetup current context with some services
-func WorkerSetup() worker.MiddlewareFunc {
+func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
@@ -23,7 +25,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 				"WorkerID": c.WorkerID(),
 			})
 
-			trx, err := c.Database().Begin()
+			trx, err := db.Begin()
 			if err != nil {
 				err = c.Failure(err)
 				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", dto.Props{
@@ -87,7 +89,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 }
 
 //WebSetup current context with some services
-func WebSetup() web.MiddlewareFunc {
+func WebSetup(db *dbx.Database) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			start := time.Now()
@@ -110,7 +112,7 @@ func WebSetup() web.MiddlewareFunc {
 				}
 			}()
 
-			trx, err := c.Engine().Database().Begin()
+			trx, err := db.Begin()
 			if err != nil {
 				err = c.Failure(err)
 				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", dto.Props{
@@ -124,7 +126,7 @@ func WebSetup() web.MiddlewareFunc {
 			oauthBaseURL := webutil.GetOAuthBaseURL(c)
 			tenantStorage := postgres.NewTenantStorage(trx)
 
-			c.SetActiveTransaction(trx)
+			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
 				Context:       c,
 				Tenants:       tenantStorage,
