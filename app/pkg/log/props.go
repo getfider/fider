@@ -32,7 +32,7 @@ func GetProperties(ctx context.Context) dto.Props {
 
 func GetProperty(ctx context.Context, key string) interface{} {
 	props := GetProperties(ctx)
-	return props[string(key)]
+	return props[key]
 }
 
 func WithProperty(ctx context.Context, key string, value interface{}) context.Context {
@@ -43,15 +43,13 @@ func WithProperty(ctx context.Context, key string, value interface{}) context.Co
 
 func WithProperties(ctx context.Context, kv dto.Props) context.Context {
 	props, ok := ctx.Value(app.LogPropsCtxKey).(*dto.Props)
-	if ok {
-		return ctx
-	} else {
-		props := &dto.Props{}
+	if !ok {
+		props = &dto.Props{}
 		ctx = context.WithValue(ctx, app.LogPropsCtxKey, props)
 	}
 
 	for key, value := range kv {
-		(*props)[string(key)] = value
+		(*props)[key] = value
 	}
 
 	return ctx

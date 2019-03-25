@@ -86,7 +86,7 @@ func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, para
 	ctx := context.WithValue(req.Context(), app.DatabaseCtxKey, engine.db)
 	ctx = context.WithValue(ctx, app.RequestCtxKey, wrappedRequest)
 
-	ctx = log.WithProperties(context.Background(), dto.Props{
+	ctx = log.WithProperties(ctx, dto.Props{
 		log.PropertyKeyContextID: contextID,
 		log.PropertyKeyTag:       "WEB",
 	})

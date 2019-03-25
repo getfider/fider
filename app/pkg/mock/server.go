@@ -27,7 +27,7 @@ func createServer(services *app.Services) *Server {
 
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
-	context := web.NewContext(engine, request, recorder, make(web.StringMap, 0))
+	context := web.NewContext(engine, request, recorder, make(web.StringMap))
 	context.SetServices(services)
 
 	return &Server{
