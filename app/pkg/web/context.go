@@ -343,20 +343,6 @@ func (c *Context) AddParam(name, value string) {
 	c.params[name] = value
 }
 
-//Claims returns current user claims
-func (c *Context) Claims() *jwt.FiderClaims {
-	claims, ok := c.Value(app.ClaimsCtxKey).(*jwt.FiderClaims)
-	if ok {
-		return claims
-	}
-	return nil
-}
-
-//SetClaims update HTTP context with current user claims
-func (c *Context) SetClaims(claims *jwt.FiderClaims) {
-	c.Set(app.ClaimsCtxKey, claims)
-}
-
 //User returns authenticated user
 func (c *Context) User() *models.User {
 	user, ok := c.Value(app.UserCtxKey).(*models.User)

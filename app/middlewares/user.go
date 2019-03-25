@@ -39,7 +39,6 @@ func User() web.MiddlewareFunc {
 				claims, err := jwt.DecodeFiderClaims(token)
 				if err != nil {
 					c.RemoveCookie(web.CookieAuthName)
-					c.SetClaims(claims)
 					return next(c)
 				}
 

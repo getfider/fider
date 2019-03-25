@@ -10,7 +10,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/jsonq"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -85,12 +84,6 @@ func (s *Server) AddCookie(name string, value string) *Server {
 // WithClientIP set current ClientIP address
 func (s *Server) WithClientIP(clientIP string) *Server {
 	s.context.Request.ClientIP = clientIP
-	return s
-}
-
-// WithClaims set current context user claims
-func (s *Server) WithClaims(claims *jwt.FiderClaims) *Server {
-	s.context.SetClaims(claims)
 	return s
 }
 
