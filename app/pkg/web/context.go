@@ -474,7 +474,7 @@ func (c *Context) ParamAsInt(name string) (int, error) {
 }
 
 // Set saves data in the context.
-func (c *Context) Set(key string, val interface{}) {
+func (c *Context) Set(key interface{}, val interface{}) {
 	c.innerCtx = context.WithValue(c.innerCtx, key, val)
 }
 
