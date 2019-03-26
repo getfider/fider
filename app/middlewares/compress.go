@@ -65,7 +65,7 @@ func (w *gzipResponseWriter) Flush() {
 		w.writer.Reset(w.response)
 		w.buffer.WriteTo(w.writer)
 		w.writer.Close()
-	} else {
+	} else if w.code > 0 {
 		w.response.WriteHeader(w.code)
 		w.buffer.WriteTo(w.response)
 	}

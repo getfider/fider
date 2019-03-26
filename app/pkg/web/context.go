@@ -239,11 +239,12 @@ func (c *Context) Gone() error {
 func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	cause := errors.Cause(err)
-	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
-		return c.NotFound()
+
+	if cause == context.Canceled {
+		return nil
 	}
 
-	if dbx.IsCanceledStmpByUser(cause) {
+	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
 		return c.NotFound()
 	}
 

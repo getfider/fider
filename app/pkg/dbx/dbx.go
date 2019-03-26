@@ -15,15 +15,14 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 
-	//required
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 // New creates a new Database instance without logging
 func New() *Database {
 	conn, err := sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to open connection to the database"))
+		panic(wrap(err, "failed to open connection to the database"))
 	}
 
 	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
@@ -53,7 +52,7 @@ func (db *Database) Ping() error {
 func (db *Database) Begin(ctx context.Context) (*Trx, error) {
 	tx, err := db.conn.BeginTx(ctx, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to start new transaction")
+		return nil, wrap(err, "failed to start new transaction")
 	}
 	return &Trx{tx: tx, ctx: ctx, mapper: db.mapper}, nil
 }
@@ -69,12 +68,12 @@ func (db *Database) Close() error {
 func (db *Database) load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
-		panic(errors.Wrap(err, "failed to read file %s", path))
+		panic(wrap(err, "failed to read file %s", path))
 	}
 
 	_, err = db.conn.Exec(string(content))
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute %s", path))
+		panic(wrap(err, "failed to execute %s", path))
 	}
 }
 
@@ -110,7 +109,7 @@ func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 
 	result, err := trx.tx.ExecContext(trx.ctx, command, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute trx.Execute")
+		return 0, wrap(err, "failed to execute trx.Execute")
 	}
 
 	rows, _ := result.RowsAffected()
@@ -137,7 +136,7 @@ func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) er
 		if err == sql.ErrNoRows {
 			return app.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to execute trx.Scalar")
+		return wrap(err, "failed to execute trx.Scalar")
 	}
 	return nil
 }
@@ -158,7 +157,7 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 
 	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute trx.Get")
+		return wrap(err, "failed to execute trx.Get")
 	}
 
 	defer rows.Close()
@@ -166,7 +165,7 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 		columns, _ := rows.Columns()
 		err := trx.mapper.Map(data, columns, rows.Scan)
 		if err != nil {
-			return errors.Wrap(err, "failed to map result to model")
+			return wrap(err, "failed to map result to model")
 		}
 		return nil
 	}
@@ -190,7 +189,7 @@ func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 
 	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return false, errors.Wrap(err, "failed to execute trx.Exists")
+		return false, wrap(err, "failed to execute trx.Exists")
 	}
 
 	defer rows.Close()
@@ -213,7 +212,7 @@ func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 
 	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute trx.Count")
+		return 0, wrap(err, "failed to execute trx.Count")
 	}
 
 	defer rows.Close()
@@ -240,7 +239,7 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 
 	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute trx.Select")
+		return wrap(err, "failed to execute trx.Select")
 	}
 
 	defer rows.Close()
@@ -254,7 +253,7 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		}
 		item := reflect.New(itemType)
 		if err = trx.mapper.Map(item.Interface(), columns, rows.Scan); err != nil {
-			return errors.Wrap(err, "failed to map result to model")
+			return wrap(err, "failed to map result to model")
 		}
 		items = reflect.Append(items, item)
 	}
@@ -268,8 +267,8 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 // Commit current transaction
 func (trx *Trx) Commit() error {
 	err := trx.tx.Commit()
-	if err != nil {
-		return errors.Wrap(err, "failed to commit transaction")
+	if err != nil && err != sql.ErrTxDone {
+		return wrap(err, "failed to commit transaction")
 	}
 	return nil
 }
@@ -277,15 +276,17 @@ func (trx *Trx) Commit() error {
 // Rollback current transaction
 func (trx *Trx) Rollback() error {
 	err := trx.tx.Rollback()
-	if err != nil {
-		return errors.Wrap(err, "failed to rollback transaction")
+	if err != nil && err != sql.ErrTxDone {
+		return wrap(err, "failed to rollback transaction")
 	}
 	return nil
 }
 
-func IsCanceledStmpByUser(err error) bool {
-	if err != nil {
-		return err.Error() == "pq: canceling statement due to user request"
+func wrap(err error, format string, a ...interface{}) error {
+	if pqErr, ok := err.(*pq.Error); ok {
+		if pqErr.Code == "57014" { //query canceled
+			return errors.Wrap(context.Canceled, format, a...)
+		}
 	}
-	return false
+	return errors.Wrap(err, format, a...)
 }

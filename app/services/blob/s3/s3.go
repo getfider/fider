@@ -66,7 +66,7 @@ func (s Service) Init() {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
-	resp, err := DefaultClient.GetObject(&s3.GetObjectInput{
+	resp, err := DefaultClient.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:    aws.String(keyFullPathURL(ctx, q.Key)),
 	})
@@ -74,13 +74,13 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		if isNotFound(err) {
 			return blob.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to get blob '%s' from S3", q.Key)
+		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
 	defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, "failed to read blob body '%s' from S3", q.Key)
+		return wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}
 
 	q.Result = &dto.Blob{
@@ -93,11 +93,11 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 
 func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 	if err := blob.ValidateKey(c.Key); err != nil {
-		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
+		return wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
 	reader := bytes.NewReader(c.Content)
-	_, err := DefaultClient.PutObject(&s3.PutObjectInput{
+	_, err := DefaultClient.PutObjectWithContext(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:         aws.String(keyFullPathURL(ctx, c.Key)),
 		ContentType: aws.String(c.ContentType),
@@ -105,18 +105,18 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		Body:        reader,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to upload blob '%s' to S3", c.Key)
+		return wrap(err, "failed to upload blob '%s' to S3", c.Key)
 	}
 	return nil
 }
 
 func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
-	_, err := DefaultClient.DeleteObject(&s3.DeleteObjectInput{
+	_, err := DefaultClient.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(env.Config.BlobStorage.S3.BucketName),
 		Key:    aws.String(keyFullPathURL(ctx, c.Key)),
 	})
 	if err != nil && !isNotFound(err) {
-		return errors.Wrap(err, "failed to delete blob '%s' from S3", c.Key)
+		return wrap(err, "failed to delete blob '%s' from S3", c.Key)
 	}
 	return nil
 }
@@ -134,4 +134,11 @@ func isNotFound(err error) bool {
 		return awsErr.Code() == s3.ErrCodeNoSuchKey
 	}
 	return false
+}
+
+func wrap(err error, format string, a ...interface{}) error {
+	if awsErr, ok := err.(awserr.Error); ok {
+		return errors.Wrap(awsErr.OrigErr(), format, a...)
+	}
+	return errors.Wrap(err, format, a...)
 }
