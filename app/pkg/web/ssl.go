@@ -8,7 +8,6 @@ import (
 
 	"golang.org/x/crypto/acme"
 
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
@@ -46,11 +45,11 @@ type CertificateManager struct {
 }
 
 //NewCertificateManager creates a new CertificateManager
-func NewCertificateManager(certFile, keyFile string, db *dbx.Database) (*CertificateManager, error) {
+func NewCertificateManager(certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
 		autossl: autocert.Manager{
 			Prompt: autocert.AcceptTOS,
-			Cache:  NewAutoCert(db),
+			Cache:  NewAutoCertCache(),
 			Client: acmeClient(),
 		},
 	}

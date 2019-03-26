@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -19,7 +20,7 @@ import (
 //Health always returns OK
 func Health() web.HandlerFunc {
 	return func(c *web.Context) error {
-		err := c.Engine().Database().Ping()
+		err := dbx.Ping()
 		if err != nil {
 			return c.Failure(err)
 		}

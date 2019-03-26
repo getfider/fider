@@ -10,11 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/getfider/fider/app"
-
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -61,7 +58,6 @@ type Engine struct {
 	context.Context
 	mux         *httprouter.Router
 	renderer    *Renderer
-	db          *dbx.Database
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
@@ -71,10 +67,7 @@ type Engine struct {
 
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
-	db := dbx.New()
-
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, app.DatabaseCtxKey, db)
 	ctx = log.WithProperties(ctx, dto.Props{
 		log.PropertyKeyContextID: rand.String(32),
 		log.PropertyKeyTag:       "WEB",
@@ -83,11 +76,10 @@ func New(settings *models.SystemSettings) *Engine {
 	router := &Engine{
 		Context:     ctx,
 		mux:         httprouter.New(),
-		db:          db,
 		renderer:    NewRenderer(settings),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(db),
+		worker:      worker.New(),
 		cache:       cache.New(5*time.Minute, 10*time.Minute),
 	}
 
@@ -130,7 +122,7 @@ func (e *Engine) Start(address string) {
 		certManager *CertificateManager
 	)
 	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath, e.db)
+		certManager, err = NewCertificateManager(certFilePath, keyFilePath)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
@@ -170,11 +162,6 @@ func (e *Engine) Stop() error {
 	log.Info(e, "worker has shutdown")
 
 	return nil
-}
-
-//Database returns current database
-func (e *Engine) Database() *dbx.Database {
-	return e.db
 }
 
 //Cache returns current cache

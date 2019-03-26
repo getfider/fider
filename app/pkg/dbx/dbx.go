@@ -18,77 +18,63 @@ import (
 	"github.com/lib/pq"
 )
 
-// New creates a new Database instance without logging
-func New() *Database {
-	conn, err := sql.Open("postgres", env.Config.Database.URL)
+var conn *sql.DB
+var rowMapper *RowMapper
+
+func init() {
+	var err error
+	conn, err = sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
 		panic(wrap(err, "failed to open connection to the database"))
 	}
 
 	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
 	conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
-
-	return &Database{conn, NewRowMapper()}
+	rowMapper = NewRowMapper()
 }
 
-// Database represents a connection to a SQL database
-type Database struct {
-	conn   *sql.DB
-	mapper *RowMapper
-}
-
-// Connection returns current database connection
-func (db *Database) Connection() *sql.DB {
-	return db.conn
+func Connection() *sql.DB {
+	return conn
 }
 
 // Ping checks if current database connection is healthy
-func (db *Database) Ping() error {
-	_, err := db.conn.Exec("SELECT 1")
+func Ping() error {
+	_, err := conn.Exec("SELECT 1")
 	return err
 }
 
-// Begin returns a new SQL transaction
-func (db *Database) Begin(ctx context.Context) (*Trx, error) {
-	tx, err := db.conn.BeginTx(ctx, nil)
+// BeginTx returns a new SQL transaction
+func BeginTx(ctx context.Context) (*Trx, error) {
+	tx, err := conn.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, wrap(err, "failed to start new transaction")
 	}
-	return &Trx{tx: tx, ctx: ctx, mapper: db.mapper}, nil
+	return &Trx{tx: tx, ctx: ctx}, nil
 }
 
-// Close connection to database
-func (db *Database) Close() error {
-	if db.conn != nil {
-		return db.conn.Close()
-	}
-	return nil
-}
-
-func (db *Database) load(path string) {
+func load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
 		panic(wrap(err, "failed to read file %s", path))
 	}
 
-	_, err = db.conn.Exec(string(content))
+	_, err = conn.Exec(string(content))
 	if err != nil {
 		panic(wrap(err, "failed to execute %s", path))
 	}
 }
 
 // Seed clean and insert new seed data for testing
-func (db *Database) Seed() {
+func Seed() {
 	if env.IsTest() {
-		db.load("/app/pkg/dbx/setup.sql")
+		load("/app/pkg/dbx/setup.sql")
 	}
 }
 
 //Trx represents a Database transaction
 type Trx struct {
-	tx     *sql.Tx
-	ctx    context.Context
-	mapper *RowMapper
+	tx  *sql.Tx
+	ctx context.Context
 }
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
@@ -163,7 +149,7 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 	defer rows.Close()
 	if rows.Next() {
 		columns, _ := rows.Columns()
-		err := trx.mapper.Map(data, columns, rows.Scan)
+		err := rowMapper.Map(data, columns, rows.Scan)
 		if err != nil {
 			return wrap(err, "failed to map result to model")
 		}
@@ -252,7 +238,7 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 			columns, _ = rows.Columns()
 		}
 		item := reflect.New(itemType)
-		if err = trx.mapper.Map(item.Interface(), columns, rows.Scan); err != nil {
+		if err = rowMapper.Map(item.Interface(), columns, rows.Scan); err != nil {
 			return wrap(err, "failed to map result to model")
 		}
 		items = reflect.Append(items, item)

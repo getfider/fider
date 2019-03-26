@@ -15,7 +15,6 @@ import (
 	"github.com/getfider/fider/app/storage/postgres"
 )
 
-var db *dbx.Database
 var trx *dbx.Trx
 
 var tenants *postgres.TenantStorage
@@ -39,7 +38,7 @@ func SetupDatabaseTest(t *testing.T) {
 	req := web.Request{URL: u}
 	ctx := context.WithValue(context.Background(), app.RequestCtxKey, req)
 
-	trx, _ = db.Begin(ctx)
+	trx, _ = dbx.BeginTx(ctx)
 	tenants = postgres.NewTenantStorage(trx, ctx)
 	users = postgres.NewUserStorage(trx, ctx)
 	posts = postgres.NewPostStorage(trx, ctx)
@@ -63,9 +62,7 @@ func TeardownDatabaseTest() {
 }
 
 func TestMain(m *testing.M) {
-	db = dbx.New()
-	db.Seed()
-	defer db.Close()
+	dbx.Seed()
 
 	code := m.Run()
 	os.Exit(code)

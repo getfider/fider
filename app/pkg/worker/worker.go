@@ -6,9 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/rand"
 )
@@ -38,7 +36,6 @@ type Worker interface {
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
 	context.Context
-	db         *dbx.Database
 	queue      chan Task
 	len        int64
 	middleware MiddlewareFunc
@@ -48,9 +45,8 @@ type BackgroundWorker struct {
 var maxQueueSize = 100
 
 //New creates a new BackgroundWorker
-func New(db *dbx.Database) *BackgroundWorker {
+func New() *BackgroundWorker {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, app.DatabaseCtxKey, db)
 
 	ctx = log.WithProperties(ctx, dto.Props{
 		log.PropertyKeyContextID: rand.String(32),
@@ -59,7 +55,6 @@ func New(db *dbx.Database) *BackgroundWorker {
 
 	return &BackgroundWorker{
 		Context: ctx,
-		db:      db,
 		queue:   make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next

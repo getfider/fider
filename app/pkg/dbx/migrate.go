@@ -20,7 +20,7 @@ import (
 var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
 // Migrate the database to latest version
-func (db *Database) Migrate(ctx context.Context, path string) error {
+func Migrate(ctx context.Context, path string) error {
 	log.Info(ctx, "Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
@@ -49,7 +49,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 		"Total": len(versions),
 	})
 
-	lastVersion, err := db.getLastMigration()
+	lastVersion, err := getLastMigration()
 	if err != nil {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
@@ -68,7 +68,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 				"Version":  version,
 				"FileName": fileName,
 			})
-			err := db.runMigration(ctx, version, path, fileName)
+			err := runMigration(ctx, version, path, fileName)
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
@@ -86,14 +86,14 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 	return nil
 }
 
-func (db Database) runMigration(ctx context.Context, version int, path, fileName string) error {
+func runMigration(ctx context.Context, version int, path, fileName string) error {
 	filePath := env.Path(path + "/" + fileName)
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to read file '%s'", filePath)
 	}
 
-	trx, err := db.Begin(ctx)
+	trx, err := BeginTx(ctx)
 	if err != nil {
 		return err
 	}
@@ -111,8 +111,8 @@ func (db Database) runMigration(ctx context.Context, version int, path, fileName
 	return trx.Commit()
 }
 
-func (db Database) getLastMigration() (int, error) {
-	_, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS migrations_history (
+func getLastMigration() (int, error) {
+	_, err := conn.Exec(`CREATE TABLE IF NOT EXISTS migrations_history (
 		version     BIGINT PRIMARY KEY,
 		filename    VARCHAR(100) null,
 		date	 			TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -122,7 +122,7 @@ func (db Database) getLastMigration() (int, error) {
 	}
 
 	var lastVersion sql.NullInt64
-	row := db.conn.QueryRow("SELECT MAX(version) FROM migrations_history LIMIT 1")
+	row := conn.QueryRow("SELECT MAX(version) FROM migrations_history LIMIT 1")
 	err = row.Scan(&lastVersion)
 	if err != nil {
 		return 0, err
@@ -131,7 +131,7 @@ func (db Database) getLastMigration() (int, error) {
 	if !lastVersion.Valid {
 		// If it's the first run, maybe we have records on old migrations table, so try to get from it.
 		// This SHOULD be removed in the far future.
-		row := db.conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
+		row := conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
 		row.Scan(&lastVersion)
 	}
 

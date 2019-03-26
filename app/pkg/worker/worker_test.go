@@ -24,7 +24,7 @@ func TestBackgroundWorker(t *testing.T) {
 	var finished bool
 	mu := &sync.RWMutex{}
 
-	w := worker.New(nil)
+	w := worker.New()
 	w.Enqueue(worker.Task{
 		Name: "Do Something",
 		Job: func(ctx *worker.Context) error {
@@ -50,7 +50,7 @@ func TestBackgroundWorker_ShutdownWhenEmpty(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil)
+	w := worker.New()
 	Expect(w.Shutdown(ctx)).IsNil()
 }
 
@@ -60,7 +60,7 @@ func TestBackgroundWorker_ShutdownWithStuckTasks(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil)
+	w := worker.New()
 	w.Enqueue(dummyTask)
 	Expect(w.Shutdown(ctx)).IsNotNil()
 }
@@ -71,7 +71,7 @@ func TestBackgroundWorker_ShutdownWithRunningTasks(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	w := worker.New(nil)
+	w := worker.New()
 	w.Enqueue(dummyTask)
 	go w.Run("worker-1")
 	Expect(w.Shutdown(ctx)).IsNil()

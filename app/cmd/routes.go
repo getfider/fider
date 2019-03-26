@@ -13,15 +13,14 @@ import (
 )
 
 func routes(r *web.Engine) *web.Engine {
-	db := r.Database()
-	r.Worker().Use(middlewares.WorkerSetup(db))
+	r.Worker().Use(middlewares.WorkerSetup())
 
 	r.NotFound(func(c *web.Context) error {
 		next := func(c *web.Context) error {
 			return c.NotFound()
 		}
 		next = middlewares.Tenant()(next)
-		next = middlewares.WebSetup(db)(next)
+		next = middlewares.WebSetup()(next)
 		return next(c)
 	})
 
@@ -43,7 +42,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Post("/_api/log-error", handlers.LogError())
 
 	r.Use(middlewares.Maintenance())
-	r.Use(middlewares.WebSetup(db))
+	r.Use(middlewares.WebSetup())
 	r.Use(middlewares.Tenant())
 	r.Use(middlewares.User())
 

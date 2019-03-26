@@ -16,7 +16,7 @@ import (
 )
 
 //WorkerSetup current context with some services
-func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
+func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
@@ -25,7 +25,7 @@ func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
 				"WorkerID": c.WorkerID(),
 			})
 
-			trx, err := db.Begin(c)
+			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
 				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", dto.Props{
@@ -89,7 +89,7 @@ func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
 }
 
 //WebSetup current context with some services
-func WebSetup(db *dbx.Database) web.MiddlewareFunc {
+func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			start := time.Now()
@@ -112,7 +112,7 @@ func WebSetup(db *dbx.Database) web.MiddlewareFunc {
 				}
 			}()
 
-			trx, err := db.Begin(c)
+			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
 				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", dto.Props{

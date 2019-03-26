@@ -51,13 +51,13 @@ type dbBlob struct {
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
-	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin(ctx)
+		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
@@ -86,13 +86,13 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 		return errors.Wrap(err, "failed to validate blob key '%s'", c.Key)
 	}
 
-	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin(ctx)
+		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
@@ -117,13 +117,13 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 }
 
 func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
-	return using(ctx, func(db *dbx.Database, tenant *models.Tenant) error {
+	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin(ctx)
+		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
@@ -142,8 +142,7 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	})
 }
 
-func using(ctx context.Context, handler func(db *dbx.Database, tenant *models.Tenant) error) error {
-	db, _ := ctx.Value(app.DatabaseCtxKey).(*dbx.Database)
+func using(ctx context.Context, handler func(tenant *models.Tenant) error) error {
 	tenant, _ := ctx.Value(app.TenantCtxKey).(*models.Tenant)
-	return handler(db, tenant)
+	return handler(tenant)
 }

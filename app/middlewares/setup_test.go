@@ -20,8 +20,7 @@ func TestWebSetup(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	db := server.Engine().Database()
-	server.Use(middlewares.WebSetup(db))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
 		Expect(ok).IsTrue()
@@ -36,8 +35,7 @@ func TestWebSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	db := server.Engine().Database()
-	server.Use(middlewares.WebSetup(db))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		return c.Failure(errors.New("Something went wrong..."))
 	})
@@ -49,8 +47,7 @@ func TestWebSetup_Panic(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	db := server.Engine().Database()
-	server.Use(middlewares.WebSetup(db))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		panic("Boom!")
 	})
@@ -62,8 +59,7 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	db := server.Engine().Database()
-	server.Use(middlewares.WebSetup(db))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Failure(errors.New("Something went wrong..."))
@@ -77,8 +73,7 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 	RegisterT(t)
 
 	server, _ := mock.NewServer()
-	db := server.Engine().Database()
-	server.Use(middlewares.WebSetup(db))
+	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
 		return c.Ok(web.Map{})
@@ -91,9 +86,8 @@ func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 func TestWorkerSetup(t *testing.T) {
 	RegisterT(t)
 
-	db := dbx.New()
 	c := worker.NewContext(context.Background(), "0", worker.Task{Name: "Any Task"})
-	mw := middlewares.WorkerSetup(db)
+	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
 		return nil
@@ -104,9 +98,8 @@ func TestWorkerSetup(t *testing.T) {
 func TestWorkerSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
-	db := dbx.New()
 	c := worker.NewContext(context.Background(), "0", worker.Task{Name: "Any Task"})
-	mw := middlewares.WorkerSetup(db)
+	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
 		Expect(c.Services()).IsNotNil()
 		return errors.New("Not Found")

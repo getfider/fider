@@ -5,17 +5,14 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/services/blob/sql"
+	"github.com/getfider/fider/app/services/blob/fs"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
 func Test_GetCertificate(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
 	var testCases = []struct {
 		mode       string
@@ -39,7 +36,7 @@ func Test_GetCertificate(t *testing.T) {
 		keyFile := env.Path("/app/pkg/web/testdata/" + testCase.cert + ".key")
 		wildcardCert, _ := tls.LoadX509KeyPair(certFile, keyFile)
 
-		manager, err := NewCertificateManager(certFile, keyFile, db)
+		manager, err := NewCertificateManager(certFile, keyFile)
 		Expect(err).IsNil()
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 			ServerName: testCase.serverName,
@@ -57,11 +54,9 @@ func Test_GetCertificate(t *testing.T) {
 
 func Test_UseAutoCert(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
-	bus.Init(sql.Service{})
+	bus.Init(fs.Service{})
 
-	manager, err := NewCertificateManager("", "", db)
+	manager, err := NewCertificateManager("", "")
 	Expect(err).IsNil()
 
 	invalidServerNames := []string{"ideas.app.com", "feedback.mysite.com"}

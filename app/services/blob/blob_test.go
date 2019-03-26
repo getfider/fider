@@ -44,14 +44,12 @@ func setupS3(t *testing.T) {
 	})
 }
 
-func setupSQL(t *testing.T) *dbx.Database {
+func setupSQL(t *testing.T) {
 	RegisterT(t)
 
-	db := dbx.New()
-	db.Seed()
+	dbx.Seed()
 
 	bus.Init(sql.Service{})
-	return db
 }
 
 func setupFS(t *testing.T) {
@@ -89,9 +87,8 @@ func TestBlobStorage(t *testing.T) {
 		})
 
 		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
-			db := setupSQL(t)
-			ctx := context.WithValue(context.Background(), app.DatabaseCtxKey, db)
-			tt.test(ctx)
+			setupSQL(t)
+			tt.test(context.Background())
 		})
 	}
 }

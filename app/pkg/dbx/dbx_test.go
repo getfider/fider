@@ -35,9 +35,7 @@ type tenant struct {
 }
 
 func TestMain(m *testing.M) {
-	db := dbx.New()
-	db.Seed()
-	db.Close()
+	dbx.Seed()
 
 	code := m.Run()
 	os.Exit(code)
@@ -45,10 +43,8 @@ func TestMain(m *testing.M) {
 
 func TestBind_SimpleStruct(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 	u := user{}
 
@@ -61,10 +57,8 @@ func TestBind_SimpleStruct(t *testing.T) {
 
 func TestBind_DeepNestedStruct(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 	u := userProvider{}
 
@@ -83,10 +77,8 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 
 func TestBind_SimpleStruct_SingleField(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 	u := user{}
 
@@ -98,10 +90,8 @@ func TestBind_SimpleStruct_SingleField(t *testing.T) {
 
 func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 	u := []*user{}
 
@@ -116,10 +106,8 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 
 func TestBind_NestedStruct(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	u := userWithTenant{}
@@ -142,10 +130,8 @@ func TestBind_NestedStruct(t *testing.T) {
 
 func TestBind_NestedStruct_Multiple(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	u := []*userWithTenant{}
@@ -170,10 +156,8 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 
 func TestExists_True(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 1")
@@ -183,10 +167,8 @@ func TestExists_True(t *testing.T) {
 
 func TestExists_False(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 0")
@@ -196,10 +178,8 @@ func TestExists_False(t *testing.T) {
 
 func TestCount(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 1")
@@ -209,10 +189,8 @@ func TestCount(t *testing.T) {
 
 func TestCount_Empty(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 0")
@@ -222,10 +200,8 @@ func TestCount_Empty(t *testing.T) {
 
 func TestScalar(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	var value int
@@ -236,10 +212,8 @@ func TestScalar(t *testing.T) {
 
 func TestArray(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	type postTags struct {
@@ -258,10 +232,8 @@ func TestArray(t *testing.T) {
 
 func TestArray_Empty(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	type postTags struct {
@@ -281,10 +253,7 @@ func TestArray_Empty(t *testing.T) {
 func TestByteArray(t *testing.T) {
 	RegisterT(t)
 
-	db := dbx.New()
-	defer db.Close()
-
-	trx, _ := db.Begin(context.Background())
+	trx, _ := dbx.BeginTx(context.Background())
 	defer trx.Rollback()
 
 	type file struct {

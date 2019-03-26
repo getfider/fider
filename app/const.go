@@ -16,7 +16,6 @@ func createKey(name string) key {
 
 var (
 	RequestCtxKey     = createKey("REQUEST")
-	DatabaseCtxKey    = createKey("DATABASE")
 	TransactionCtxKey = createKey("TRANSACTION")
 	TenantCtxKey      = createKey("TENANT")
 	UserCtxKey        = createKey("USER")
