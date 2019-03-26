@@ -41,22 +41,19 @@ func (s Service) Init() {
 	bus.AddListener(logError)
 }
 
-func logDebug(ctx context.Context, c *cmd.LogDebug) error {
+func logDebug(ctx context.Context, c *cmd.LogDebug) {
 	writeLog(ctx, log.DEBUG, c.Message, c.Props)
-	return nil
 }
 
-func logWarn(ctx context.Context, c *cmd.LogWarn) error {
+func logWarn(ctx context.Context, c *cmd.LogWarn) {
 	writeLog(ctx, log.WARN, c.Message, c.Props)
-	return nil
 }
 
-func logInfo(ctx context.Context, c *cmd.LogInfo) error {
+func logInfo(ctx context.Context, c *cmd.LogInfo) {
 	writeLog(ctx, log.INFO, c.Message, c.Props)
-	return nil
 }
 
-func logError(ctx context.Context, c *cmd.LogError) error {
+func logError(ctx context.Context, c *cmd.LogError) {
 	if c.Err != nil {
 		writeLog(ctx, log.ERROR, c.Err.Error(), c.Props)
 	} else if c.Message != "" {
@@ -64,7 +61,6 @@ func logError(ctx context.Context, c *cmd.LogError) error {
 	} else {
 		writeLog(ctx, log.ERROR, "nil", c.Props)
 	}
-	return nil
 }
 
 func writeLog(ctx context.Context, level log.Level, message string, props dto.Props) {

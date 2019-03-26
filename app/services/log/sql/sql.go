@@ -39,22 +39,19 @@ func (s Service) Init() {
 	bus.AddListener(logError)
 }
 
-func logDebug(ctx context.Context, c *cmd.LogDebug) error {
+func logDebug(ctx context.Context, c *cmd.LogDebug) {
 	writeLog(ctx, log.DEBUG, c.Message, c.Props)
-	return nil
 }
 
-func logWarn(ctx context.Context, c *cmd.LogWarn) error {
+func logWarn(ctx context.Context, c *cmd.LogWarn) {
 	writeLog(ctx, log.WARN, c.Message, c.Props)
-	return nil
 }
 
-func logInfo(ctx context.Context, c *cmd.LogInfo) error {
+func logInfo(ctx context.Context, c *cmd.LogInfo) {
 	writeLog(ctx, log.INFO, c.Message, c.Props)
-	return nil
 }
 
-func logError(ctx context.Context, c *cmd.LogError) error {
+func logError(ctx context.Context, c *cmd.LogError) {
 	if c.Err != nil {
 		writeLog(ctx, log.ERROR, c.Err.Error(), c.Props)
 	} else if c.Message != "" {
@@ -62,7 +59,6 @@ func logError(ctx context.Context, c *cmd.LogError) error {
 	} else {
 		writeLog(ctx, log.ERROR, "nil", c.Props)
 	}
-	return nil
 }
 
 func writeLog(ctx context.Context, level log.Level, message string, props dto.Props) {
@@ -70,17 +66,17 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 		return
 	}
 
-	using(ctx, func(db *dbx.Database) {
-		props = log.GetProperties(ctx).Merge(props)
+	props = log.GetProperties(ctx).Merge(props)
 
-		message = log.Parse(message, props, false)
-		tag := props[log.PropertyKeyTag]
-		if tag == nil {
-			tag = "???"
-		}
-		delete(props, log.PropertyKeyTag)
+	message = log.Parse(message, props, false)
+	tag := props[log.PropertyKeyTag]
+	if tag == nil {
+		tag = "???"
+	}
+	delete(props, log.PropertyKeyTag)
 
-		go db.Connection().Exec(
+	go using(ctx, func(db *dbx.Database) {
+		db.Connection().Exec(
 			"INSERT INTO logs (tag, level, text, created_at, properties) VALUES ($1, $2, $3, $4, $5)",
 			tag, level.String(), message, time.Now(), props,
 		)
