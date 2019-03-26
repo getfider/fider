@@ -4,7 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/errors"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -96,4 +99,21 @@ func TestBus_MultiplePublish(t *testing.T) {
 	bus.Publish(context.Background(), &SayHelloCommand{Name: "123"}, &SayHelloCommand{Name: "456"})
 	Expect(value1).Equals("123456")
 	Expect(value2).Equals("123456")
+}
+
+func TestBus_PublishError(t *testing.T) {
+	RegisterT(t)
+	boom := errors.New("BOOM")
+
+	var err error
+	bus.AddListener(func(ctx context.Context, c *cmd.LogError) {
+		err = c.Err
+	})
+
+	bus.AddListener(func(ctx context.Context, c *SayHelloCommand) error {
+		return boom
+	})
+
+	bus.Publish(context.Background(), &SayHelloCommand{Name: "123"})
+	Expect(errors.Cause(err)).Equals(boom)
 }

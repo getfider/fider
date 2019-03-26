@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type HandlerFunc interface{}
@@ -127,6 +130,7 @@ func Publish(ctx context.Context, msgs ...Msg) {
 		if typeof.Kind() != reflect.Ptr {
 			panic(fmt.Errorf("'%s' is not a pointer", keyForElement(typeof)))
 		}
+
 		elem := typeof.Elem()
 		key := keyForElement(elem)
 		msgListeners := listeners[key]
@@ -137,7 +141,14 @@ func Publish(ctx context.Context, msgs ...Msg) {
 		}
 
 		for _, msgListener := range msgListeners {
-			reflect.ValueOf(msgListener).Call(params)
+			ret := reflect.ValueOf(msgListener).Call(params)
+			if len(ret) > 0 {
+				if err, isErr := ret[0].Interface().(error); isErr {
+					Publish(ctx, &cmd.LogError{
+						Err: errors.Wrap(err, "failed to execute msg '%s'", key),
+					})
+				}
+			}
 		}
 	}
 }
