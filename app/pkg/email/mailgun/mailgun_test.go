@@ -200,6 +200,8 @@ func TestBatch_Success(t *testing.T) {
 }
 
 func TestGetBaseURL(t *testing.T) {
+	RegisterT(t)
+	
 	// Memorize the original setting since we are about to change it
 	var initialRegion = env.Config.Email.Mailgun.Region
 
