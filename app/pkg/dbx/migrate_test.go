@@ -10,8 +10,10 @@ import (
 
 func setupMigrationTest(t *testing.T) *dbx.Database {
 	RegisterT(t)
+	ctx := context.Background()
+
 	db := dbx.New()
-	trx, _ := db.Begin()
+	trx, _ := db.Begin(ctx)
 	trx.Execute("DELETE FROM migrations_history WHERE version >= 210001010000")
 	trx.Execute("DROP TABLE IF EXISTS dummy")
 	trx.Execute("DROP TABLE IF EXISTS foo")
@@ -23,10 +25,11 @@ func TestMigrate_Success(t *testing.T) {
 	db := setupMigrationTest(t)
 	defer db.Close()
 
-	err := db.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_success")
+	ctx := context.Background()
+	err := db.Migrate(ctx, "/app/pkg/dbx/testdata/migration_success")
 	Expect(err).IsNil()
 
-	trx, _ := db.Begin()
+	trx, _ := db.Begin(ctx)
 	var value string
 	err = trx.Scalar(&value, "SELECT description FROM dummy WHERE id = 200 LIMIT 1")
 	Expect(err).IsNil()
@@ -40,9 +43,11 @@ func TestMigrate_Success(t *testing.T) {
 }
 
 func TestMigrate_Failure(t *testing.T) {
+	ctx := context.Background()
+
 	db := setupMigrationTest(t)
 	defer db.Close()
-	trx, _ := db.Begin()
+	trx, _ := db.Begin(ctx)
 	defer trx.Rollback()
 
 	err := db.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_failure")

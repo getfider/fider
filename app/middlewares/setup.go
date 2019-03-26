@@ -25,7 +25,7 @@ func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
 				"WorkerID": c.WorkerID(),
 			})
 
-			trx, err := db.Begin()
+			trx, err := db.Begin(c)
 			if err != nil {
 				err = c.Failure(err)
 				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", dto.Props{
@@ -49,11 +49,11 @@ func WorkerSetup(db *dbx.Database) worker.MiddlewareFunc {
 
 			c.SetServices(&app.Services{
 				Context:       c,
-				Tenants:       postgres.NewTenantStorage(trx),
+				Tenants:       postgres.NewTenantStorage(trx, c),
 				Users:         postgres.NewUserStorage(trx, c),
 				Posts:         postgres.NewPostStorage(trx, c),
-				Tags:          postgres.NewTagStorage(trx),
-				Notifications: postgres.NewNotificationStorage(trx),
+				Tags:          postgres.NewTagStorage(trx, c),
+				Notifications: postgres.NewNotificationStorage(trx, c),
 			})
 
 			//Execute the chain
@@ -112,7 +112,7 @@ func WebSetup(db *dbx.Database) web.MiddlewareFunc {
 				}
 			}()
 
-			trx, err := db.Begin()
+			trx, err := db.Begin(c)
 			if err != nil {
 				err = c.Failure(err)
 				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", dto.Props{
@@ -124,7 +124,7 @@ func WebSetup(db *dbx.Database) web.MiddlewareFunc {
 			}
 
 			oauthBaseURL := webutil.GetOAuthBaseURL(c)
-			tenantStorage := postgres.NewTenantStorage(trx)
+			tenantStorage := postgres.NewTenantStorage(trx, c)
 
 			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
@@ -133,8 +133,8 @@ func WebSetup(db *dbx.Database) web.MiddlewareFunc {
 				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
 				Users:         postgres.NewUserStorage(trx, c),
 				Posts:         postgres.NewPostStorage(trx, c),
-				Tags:          postgres.NewTagStorage(trx),
-				Notifications: postgres.NewNotificationStorage(trx),
+				Tags:          postgres.NewTagStorage(trx, c),
+				Notifications: postgres.NewNotificationStorage(trx, c),
 			})
 
 			//Execute the chain

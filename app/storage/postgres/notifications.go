@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"time"
 
 	"github.com/getfider/fider/app/models"
@@ -10,15 +11,17 @@ import (
 
 // NotificationStorage contains read and write operations for notifications
 type NotificationStorage struct {
+	ctx    context.Context
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
 }
 
 // NewNotificationStorage creates a new NotificationStorage
-func NewNotificationStorage(trx *dbx.Trx) *NotificationStorage {
+func NewNotificationStorage(trx *dbx.Trx, ctx context.Context) *NotificationStorage {
 	return &NotificationStorage{
 		trx: trx,
+		ctx: ctx,
 	}
 }
 

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -30,15 +31,17 @@ func (t *dbTag) toModel() *models.Tag {
 
 // TagStorage contains read and write operations for tags
 type TagStorage struct {
+	ctx    context.Context
 	trx    *dbx.Trx
 	tenant *models.Tenant
 	user   *models.User
 }
 
 // NewTagStorage creates a new TagStorage
-func NewTagStorage(trx *dbx.Trx) *TagStorage {
+func NewTagStorage(trx *dbx.Trx, ctx context.Context) *TagStorage {
 	return &TagStorage{
 		trx: trx,
+		ctx: ctx,
 	}
 }
 

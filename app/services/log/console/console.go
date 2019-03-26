@@ -68,11 +68,11 @@ func logError(ctx context.Context, c *cmd.LogError) error {
 }
 
 func writeLog(ctx context.Context, level log.Level, message string, props dto.Props) {
-	props = log.GetProperties(ctx).Merge(props)
-	if log.CurrentLevel > level {
+	if !log.IsEnabled(level) {
 		return
 	}
 
+	props = log.GetProperties(ctx).Merge(props)
 	message = log.Parse(message, props, true)
 	tag := props[log.PropertyKeyTag]
 	if tag == nil {

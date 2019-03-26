@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -138,13 +139,14 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 // TenantStorage contains read and write operations for tenants
 type TenantStorage struct {
 	trx     *dbx.Trx
+	ctx     context.Context
 	current *models.Tenant
 	user    *models.User
 }
 
 // NewTenantStorage creates a new TenantStorage
-func NewTenantStorage(trx *dbx.Trx) *TenantStorage {
-	return &TenantStorage{trx: trx}
+func NewTenantStorage(trx *dbx.Trx, ctx context.Context) *TenantStorage {
+	return &TenantStorage{trx: trx, ctx: ctx}
 }
 
 // SetCurrentTenant to current context

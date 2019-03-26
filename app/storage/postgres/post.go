@@ -434,7 +434,7 @@ func (s *PostStorage) GetCommentsByPost(post *models.Post) ([]*models.Comment, e
 // Update given post
 func (s *PostStorage) Update(post *models.Post, title, description string) (*models.Post, error) {
 	_, err := s.trx.Execute(`UPDATE posts SET title = $1, slug = $2, description = $3 
-													 WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, post.ID, s.tenant.ID)
+													 			  WHERE id = $4 AND tenant_id = $5`, title, slug.Make(title), description, post.ID, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed update post")
 	}
@@ -770,15 +770,6 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 		return false, errors.Wrap(err, "failed to check if post is referenced")
 	}
 	return exists, nil
-}
-
-// VotedBy returns a list of Post ID voted by given user
-func (s *PostStorage) VotedBy() ([]int, error) {
-	posts, err := s.trx.QueryIntArray("SELECT post_id FROM post_votes WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user's voted posts")
-	}
-	return posts, nil
 }
 
 // ListVotes returns a list of all votes on given post

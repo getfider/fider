@@ -243,6 +243,10 @@ func (c *Context) Failure(err error) error {
 		return c.NotFound()
 	}
 
+	if dbx.IsCanceledStmpByUser(cause) {
+		return c.NotFound()
+	}
+
 	log.Errorf(c, err.Error(), dto.Props{
 		"Body":       c.Request.Body,
 		"HttpMethod": c.Request.Method,

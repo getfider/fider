@@ -34,17 +34,17 @@ var tonyStark *models.User
 
 func SetupDatabaseTest(t *testing.T) {
 	RegisterT(t)
-	trx, _ = db.Begin()
 
 	u, _ := url.Parse("http://cdn.test.fider.io")
 	req := web.Request{URL: u}
 	ctx := context.WithValue(context.Background(), app.RequestCtxKey, req)
 
-	tenants = postgres.NewTenantStorage(trx)
+	trx, _ = db.Begin(ctx)
+	tenants = postgres.NewTenantStorage(trx, ctx)
 	users = postgres.NewUserStorage(trx, ctx)
 	posts = postgres.NewPostStorage(trx, ctx)
-	tags = postgres.NewTagStorage(trx)
-	notifications = postgres.NewNotificationStorage(trx)
+	tags = postgres.NewTagStorage(trx, ctx)
+	notifications = postgres.NewNotificationStorage(trx, ctx)
 
 	demoTenant, _ = tenants.GetByDomain("demo")
 	avengersTenant, _ = tenants.GetByDomain("avengers")

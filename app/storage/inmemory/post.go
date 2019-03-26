@@ -229,11 +229,6 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	return false, nil
 }
 
-// VotedBy returns a list of Post ID voted by given user
-func (s *PostStorage) VotedBy() ([]int, error) {
-	return s.postsVotedBy[s.user.ID], nil
-}
-
 // ListVotes returns a list of all votes on given post
 func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
 	return make([]*models.Vote, 0), nil

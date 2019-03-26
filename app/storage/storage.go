@@ -8,8 +8,8 @@ import (
 
 // Base is a generic storage base interface
 type Base interface {
-	SetCurrentTenant(*models.Tenant)
-	SetCurrentUser(*models.User)
+	SetCurrentTenant(tenant *models.Tenant)
+	SetCurrentUser(user *models.User)
 }
 
 // Post contains read and write operations for posts
@@ -36,7 +36,6 @@ type Post interface {
 	SetResponse(post *models.Post, text string, status models.PostStatus) error
 	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
-	VotedBy() ([]int, error)
 	ListVotes(post *models.Post, limit int) ([]*models.Vote, error)
 	GetAttachments(post *models.Post, comment *models.Comment) ([]string, error)
 	SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error

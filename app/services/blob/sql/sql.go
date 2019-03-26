@@ -57,7 +57,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin()
+		trx, err := db.Begin(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
@@ -92,7 +92,7 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin()
+		trx, err := db.Begin(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
@@ -123,7 +123,7 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 			tenantID.Scan(tenant.ID)
 		}
 
-		trx, err := db.Begin()
+		trx, err := db.Begin(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}

@@ -22,11 +22,12 @@ var ctx context.Context
 
 func SetupDatabaseTest(t *testing.T) {
 	RegisterT(t)
-	trx, _ = db.Begin()
 
 	u, _ := url.Parse("http://cdn.test.fider.io")
 	req := web.Request{URL: u}
 	ctx = context.WithValue(context.Background(), app.RequestCtxKey, req)
+
+	trx, _ = db.Begin(ctx)
 	ctx = context.WithValue(ctx, app.TransactionCtxKey, trx)
 
 	bus.Init(postgres.Service{})

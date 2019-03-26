@@ -68,7 +68,7 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 				"Version":  version,
 				"FileName": fileName,
 			})
-			err := db.runMigration(version, path, fileName)
+			err := db.runMigration(ctx, version, path, fileName)
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
@@ -86,14 +86,14 @@ func (db *Database) Migrate(ctx context.Context, path string) error {
 	return nil
 }
 
-func (db Database) runMigration(version int, path, fileName string) error {
+func (db Database) runMigration(ctx context.Context, version int, path, fileName string) error {
 	filePath := env.Path(path + "/" + fileName)
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to read file '%s'", filePath)
 	}
 
-	trx, err := db.Begin()
+	trx, err := db.Begin(ctx)
 	if err != nil {
 		return err
 	}

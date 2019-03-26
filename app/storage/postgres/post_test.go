@@ -454,28 +454,6 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	Expect(dbPost.VotesCount).Equals(1)
 }
 
-func TestPostStorage_ListVotedPosts(t *testing.T) {
-	SetupDatabaseTest(t)
-	defer TeardownDatabaseTest()
-
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post1, _ := posts.Add("My new post", "with this description")
-	post2, _ := posts.Add("My other post", "with better description")
-	posts.AddVote(post1, aryaStark)
-	posts.AddVote(post2, aryaStark)
-
-	posts.SetCurrentUser(jonSnow)
-	arr, err := posts.VotedBy()
-	Expect(err).IsNil()
-	Expect(arr).Equals([]int{})
-
-	posts.SetCurrentUser(aryaStark)
-	arr, err = posts.VotedBy()
-	Expect(err).IsNil()
-	Expect(arr).Equals([]int{post1.ID, post2.ID})
-}
-
 func TestPostStorage_WithTags(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()

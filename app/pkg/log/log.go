@@ -12,6 +12,10 @@ import (
 
 var CurrentLevel = parseLevel(strings.ToUpper(env.Config.Log.Level))
 
+func IsEnabled(level Level) bool {
+	return CurrentLevel <= level
+}
+
 func Debug(ctx context.Context, message string) {
 	bus.Publish(ctx, &cmd.LogDebug{Message: message})
 }
