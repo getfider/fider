@@ -201,9 +201,6 @@ func TestBatch_Success(t *testing.T) {
 
 func TestGetBaseURL(t *testing.T) {
 	RegisterT(t)
-	
-	// Memorize the original setting since we are about to change it
-	var initialRegion = env.Config.Email.Mailgun.Region
 
 	// Fall back to US if there is nothing set
 	env.Config.Email.Mailgun.Region = ""
@@ -225,6 +222,4 @@ func TestGetBaseURL(t *testing.T) {
 	env.Config.Email.Mailgun.Region = "Mars"
 	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
 
-	// Restore the original setting for future tests
-	env.Config.Email.Mailgun.Region = initialRegion
 }
