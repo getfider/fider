@@ -601,6 +601,9 @@ func LogoURL(ctx context.Context) string {
 
 // BaseURL return the base URL from given context
 func BaseURL(ctx context.Context) string {
-	request := ctx.Value(app.RequestCtxKey).(Request)
-	return request.BaseURL()
+	request, ok := ctx.Value(app.RequestCtxKey).(Request)
+	if ok {
+		return request.BaseURL()
+	}
+	return ""
 }

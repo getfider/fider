@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	gosmtp "net/smtp"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/services/email"
 )
 
@@ -87,7 +89,7 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		smtpConfig := env.Config.Email.SMTP
 		servername := fmt.Sprintf("%s:%s", smtpConfig.Host, smtpConfig.Port)
 		auth := authenticate(smtpConfig.Username, smtpConfig.Password, smtpConfig.Host)
-		err := Send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
+		err = Send(localname, servername, auth, email.NoReply, []string{to.Address}, b.Bytes())
 		if err != nil {
 			panic(errors.Wrap(err, "failed to send email with template %s", c.TemplateName))
 		}
