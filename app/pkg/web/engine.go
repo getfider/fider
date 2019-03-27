@@ -109,8 +109,7 @@ func (e *Engine) Start(address string) {
 		IdleTimeout:  120 * time.Second,
 		Addr:         address,
 		Handler:      e.mux,
-		//ErrorLog:     stdLog.New(e.logger, "", 0), EXPERIMENTAL-BUS what to do with these logs? just ignore? dispatch?
-		TLSConfig: getDefaultTLSConfig(),
+		TLSConfig:    getDefaultTLSConfig(),
 	}
 
 	for i := 0; i < runtime.NumCPU()*2; i++ {

@@ -5,6 +5,8 @@ import (
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -118,8 +120,7 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 				if err == vat.ErrInvalidVATNumberFormat {
 					result.AddFieldFailure("vatNumber", "VAT Number is an invalid format.")
 				} else {
-					// EXPERIMENTAL-BUS: re-enable this
-					// services.Logger.Error(errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
+					log.Error(services.Context, errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
 					result.AddFieldFailure("vatNumber", "We couldn't validate your VAT Number right now, please try again soon.")
 				}
 			}

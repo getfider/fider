@@ -52,12 +52,11 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 			return
 		}
 
-		//EXPERIMENTAL-BUS should use BaseURL here
-		// localname := env.Config.HostDomain
-		// if localname == "" {
-		// 	localname = "localhost"
-		// }
+		u, err := url.Parse(web.BaseURL(ctx))
 		localname := "localhost"
+		if err == nil {
+			localname = u.Hostname()
+		}
 
 		if !email.CanSendTo(to.Address) {
 			log.Warnf(ctx, "Skipping email to '@{Name} <@{Address}>'.", dto.Props{
