@@ -59,6 +59,7 @@ type config struct {
 		Mailgun   struct {
 			APIKey string `env:"EMAIL_MAILGUN_API"`
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
+			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
 		}
 		SMTP struct {
 			Host     string `env:"EMAIL_SMTP_HOST"`
