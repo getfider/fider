@@ -19,6 +19,7 @@ type Services struct {
 
 // SetCurrentTenant to current context
 func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
+	s.Context = context.WithValue(s.Context, TenantCtxKey, tenant)
 	s.Users.SetCurrentTenant(tenant)
 	s.Tenants.SetCurrentTenant(tenant)
 	s.Posts.SetCurrentTenant(tenant)
@@ -26,6 +27,7 @@ func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 
 // SetCurrentUser to current context
 func (s *Services) SetCurrentUser(user *models.User) {
+	s.Context = context.WithValue(s.Context, UserCtxKey, user)
 	s.Users.SetCurrentUser(user)
 	s.Tenants.SetCurrentUser(user)
 	s.Posts.SetCurrentUser(user)

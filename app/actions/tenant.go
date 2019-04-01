@@ -97,9 +97,11 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	if services.Tenants.Current() != nil {
-		input.Model.Logo.BlobKey = services.Tenants.Current().LogoBlobKey
+	tenant, hasTenant := services.Context.Value(app.TenantCtxKey).(*models.Tenant)
+	if hasTenant {
+		input.Model.Logo.BlobKey = tenant.LogoBlobKey
 	}
+
 	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    200,

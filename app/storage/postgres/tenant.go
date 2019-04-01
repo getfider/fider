@@ -159,11 +159,6 @@ func (s *TenantStorage) SetCurrentUser(user *models.User) {
 	s.user = user
 }
 
-// Current returns current context tenant
-func (s *TenantStorage) Current() *models.Tenant {
-	return s.current
-}
-
 // Add given tenant to tenant list
 func (s *TenantStorage) Add(name string, subdomain string, status int) (*models.Tenant, error) {
 	now := time.Now()

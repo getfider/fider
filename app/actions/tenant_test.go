@@ -1,6 +1,7 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
@@ -142,6 +143,8 @@ func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 
 func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 	RegisterT(t)
+
+	services.Context = context.Background()
 
 	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}}
 	result := action.Validate(nil, services)
