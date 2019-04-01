@@ -31,7 +31,6 @@ type Post interface {
 	AddSubscriber(post *models.Post, user *models.User) error
 	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
-	IsReferenced(post *models.Post) (bool, error)
 	GetAttachments(post *models.Post, comment *models.Comment) ([]string, error)
 	SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error
 }

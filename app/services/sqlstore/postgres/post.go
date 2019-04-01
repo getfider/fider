@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/models"
@@ -11,6 +13,26 @@ import (
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
 )
+
+func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		q.Result = false
+
+		exists, err := trx.Exists(`
+			SELECT 1 FROM posts p 
+			INNER JOIN posts o
+			ON o.tenant_id = p.tenant_id
+			AND o.id = p.original_id
+			WHERE p.tenant_id = $1
+			AND o.id = $2`, tenant.ID, q.PostID)
+		if err != nil {
+			return errors.Wrap(err, "failed to check if post is referenced")
+		}
+
+		q.Result = exists
+		return nil
+	})
+}
 
 func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {

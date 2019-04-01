@@ -511,17 +511,20 @@ func TestPostStorage_IsReferenced(t *testing.T) {
 	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post2, Original: post3})
 	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post3, Original: post1})
 
-	referenced, err := posts.IsReferenced(post1)
-	Expect(referenced).IsTrue()
+	isReferenced := &query.PostIsReferenced{PostID: post1.ID}
+	err := bus.Dispatch(jonSnowCtx, isReferenced)
 	Expect(err).IsNil()
+	Expect(isReferenced.Result).IsTrue()
 
-	referenced, err = posts.IsReferenced(post2)
-	Expect(referenced).IsFalse()
+	isReferenced = &query.PostIsReferenced{PostID: post2.ID}
+	err = bus.Dispatch(jonSnowCtx, isReferenced)
 	Expect(err).IsNil()
+	Expect(isReferenced.Result).IsFalse()
 
-	referenced, err = posts.IsReferenced(post3)
-	Expect(referenced).IsTrue()
+	isReferenced = &query.PostIsReferenced{PostID: post3.ID}
+	err = bus.Dispatch(jonSnowCtx, isReferenced)
 	Expect(err).IsNil()
+	Expect(isReferenced.Result).IsTrue()
 }
 
 func TestPostStorage_ListVotesOfPost(t *testing.T) {

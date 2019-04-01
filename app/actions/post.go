@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/gosimple/slug"
 
 	"github.com/getfider/fider/app"
@@ -229,12 +231,12 @@ func (input *DeletePost) Validate(user *models.User, services *app.Services) *va
 		return validate.Error(err)
 	}
 
-	isReferenced, err := services.Posts.IsReferenced(post)
-	if err != nil {
+	isReferencedQuery := &query.PostIsReferenced{PostID: post.ID}
+	if err := bus.Dispatch(services.Context, isReferencedQuery); err != nil {
 		return validate.Error(err)
 	}
 
-	if isReferenced {
+	if isReferencedQuery.Result {
 		return validate.Failed("This post cannot be deleted because it's being referenced by a duplicated post.")
 	}
 

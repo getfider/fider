@@ -631,21 +631,6 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 	return result, nil
 }
 
-// IsReferenced returns true if another post is referencing given post
-func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
-	exists, err := s.trx.Exists(`
-		SELECT 1 FROM posts p 
-		INNER JOIN posts o
-		ON o.tenant_id = p.tenant_id
-		AND o.id = p.original_id
-		WHERE p.tenant_id = $1
-		AND o.id = $2`, s.tenant.ID, post.ID)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to check if post is referenced")
-	}
-	return exists, nil
-}
-
 // GetAttachments for given post or comment
 func (s *PostStorage) GetAttachments(post *models.Post, comment *models.Comment) ([]string, error) {
 	postID := post.ID

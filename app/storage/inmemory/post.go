@@ -168,16 +168,6 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// IsReferenced returns true if another post is referencing given post
-func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
-	for _, i := range s.posts {
-		if i.Status == models.PostDuplicate && i.Response.Original.Number == post.Number {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 // AddSubscriber adds user to the post list of subscribers
 func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error {
 	s.postSubscribers[post.ID] = append(s.postSubscribers[post.ID], user)
