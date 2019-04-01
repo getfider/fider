@@ -525,11 +525,6 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddSubscriber adds user to the post list of subscribers
-func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error {
-	return s.internalAddSubscriber(post, user, true)
-}
-
 func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User, force bool) error {
 	conflict := " DO NOTHING"
 	if force {
@@ -543,20 +538,6 @@ func (s *PostStorage) internalAddSubscriber(post *models.Post, user *models.User
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed insert post subscriber")
-	}
-	return nil
-}
-
-// RemoveSubscriber removes user from post list of subscribers
-func (s *PostStorage) RemoveSubscriber(post *models.Post, user *models.User) error {
-	_, err := s.trx.Execute(`
-		INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
-		VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, post_id)
-		DO UPDATE SET status = 0, updated_at = $4`,
-		s.tenant.ID, user.ID, post.ID, time.Now(),
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed remove post subscriber")
 	}
 	return nil
 }

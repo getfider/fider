@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"strconv"
 	"time"
@@ -109,23 +108,6 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 
 		return nil
 	})
-}
-
-func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *models.Tenant, user *models.User, force bool) error {
-	conflict := " DO NOTHING"
-	if force {
-		conflict = "(user_id, post_id) DO UPDATE SET status = $5, updated_at = $4"
-	}
-
-	_, err := trx.Execute(fmt.Sprintf(`
-	INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
-	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
-		tenant.ID, user.ID, post.ID, time.Now(), models.SubscriberActive,
-	)
-	if err != nil {
-		return errors.Wrap(err, "failed insert post subscriber")
-	}
-	return nil
 }
 
 func buildAvatarURL(ctx context.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {

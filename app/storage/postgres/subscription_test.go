@@ -64,7 +64,7 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(aryaStark)
 	post1, _ := posts.Add("Post #1", "Description #1")
-	err := posts.RemoveSubscriber(post1, aryaStark)
+	err := bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: post1, User: aryaStark})
 	Expect(err).IsNil()
 
 	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewPost)
@@ -146,8 +146,8 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	posts.SetCurrentUser(aryaStark)
 
 	post1, _ := posts.Add("Post #1", "Description #1")
-	posts.RemoveSubscriber(post1, aryaStark)
-	posts.RemoveSubscriber(post1, jonSnow)
+	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: post1, User: aryaStark})
+	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: post1, User: jonSnow})
 
 	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).IsNil()
@@ -317,7 +317,7 @@ func TestSubscription_SubscribedToDifferentPost(t *testing.T) {
 
 	post1, _ := posts.Add("Post #1", "Description #1")
 	post2, _ := posts.Add("Post #2", "Description #2")
-	err := posts.AddSubscriber(post2, aryaStark)
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddSubscriber{Post: post2, User: aryaStark})
 	Expect(err).IsNil()
 
 	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)

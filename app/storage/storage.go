@@ -28,8 +28,6 @@ type Post interface {
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
 	DeleteComment(id int) error
-	AddSubscriber(post *models.Post, user *models.User) error
-	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 }
 

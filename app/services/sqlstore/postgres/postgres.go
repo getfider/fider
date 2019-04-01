@@ -40,6 +40,8 @@ func (s Service) Init() {
 	bus.AddHandler(getNotificationByID)
 	bus.AddHandler(getActiveNotifications)
 	bus.AddHandler(addNewNotification)
+	bus.AddHandler(addSubscriber)
+	bus.AddHandler(removeSubscriber)
 
 	bus.AddHandler(getTagBySlug)
 	bus.AddHandler(getAssignedTags)

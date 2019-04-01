@@ -16,3 +16,13 @@ type AddNewNotification struct {
 
 	Result *models.Notification
 }
+
+type AddSubscriber struct {
+	Post *models.Post
+	User *models.User
+}
+
+type RemoveSubscriber struct {
+	Post *models.Post
+	User *models.User
+}

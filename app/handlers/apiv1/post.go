@@ -320,14 +320,18 @@ func RemoveVote() web.HandlerFunc {
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return OLD_addOrRemove(c, c.Services().Posts.AddSubscriber)
+		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+			return &cmd.AddSubscriber{Post: post, User: user}
+		})
 	}
 }
 
 // Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return OLD_addOrRemove(c, c.Services().Posts.RemoveSubscriber)
+		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+			return &cmd.RemoveSubscriber{Post: post, User: user}
+		})
 	}
 }
 
@@ -352,25 +356,6 @@ func ListVotes() web.HandlerFunc {
 
 		return c.Ok(listVotes.Result)
 	}
-}
-
-func OLD_addOrRemove(c *web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
-	number, err := c.ParamAsInt("number")
-	if err != nil {
-		return c.NotFound()
-	}
-
-	post, err := c.Services().Posts.GetByNumber(number)
-	if err != nil {
-		return c.Failure(err)
-	}
-
-	err = addOrRemove(post, c.User())
-	if err != nil {
-		return c.Failure(err)
-	}
-
-	return c.Ok(web.Map{})
 }
 
 func addOrRemove(c *web.Context, getCommand func(post *models.Post, user *models.User) bus.Msg) error {
