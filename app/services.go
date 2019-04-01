@@ -10,13 +10,12 @@ import (
 
 // Services holds reference to all Fider services
 type Services struct {
-	Context       context.Context //EXPERIMENTAL-BUS: temporary
-	OAuth         oauth.Service
-	Users         storage.User
-	Tags          storage.Tag
-	Tenants       storage.Tenant
-	Notifications storage.Notification
-	Posts         storage.Post
+	Context context.Context //EXPERIMENTAL-BUS: temporary
+	OAuth   oauth.Service
+	Users   storage.User
+	Tags    storage.Tag
+	Tenants storage.Tenant
+	Posts   storage.Post
 }
 
 // SetCurrentTenant to current context
@@ -25,7 +24,6 @@ func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 	s.Tags.SetCurrentTenant(tenant)
 	s.Tenants.SetCurrentTenant(tenant)
 	s.Posts.SetCurrentTenant(tenant)
-	s.Notifications.SetCurrentTenant(tenant)
 }
 
 // SetCurrentUser to current context
@@ -34,5 +32,4 @@ func (s *Services) SetCurrentUser(user *models.User) {
 	s.Tags.SetCurrentUser(user)
 	s.Tenants.SetCurrentUser(user)
 	s.Posts.SetCurrentUser(user)
-	s.Notifications.SetCurrentUser(user)
 }

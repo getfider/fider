@@ -110,7 +110,13 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
@@ -164,7 +170,13 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
@@ -224,7 +236,13 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
@@ -289,7 +307,12 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 		title := fmt.Sprintf("**%s** deleted **%s**", c.User().Name, post.Title)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, "", post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}

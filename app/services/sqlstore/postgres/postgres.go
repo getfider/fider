@@ -33,6 +33,13 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddHandler(storeEvent)
+
+	bus.AddHandler(markAllNotificationsAsRead)
+	bus.AddHandler(markNotificationAsRead)
+	bus.AddHandler(countUnreadNotifications)
+	bus.AddHandler(getNotificationByID)
+	bus.AddHandler(getActiveNotifications)
+	bus.AddHandler(addNewNotification)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

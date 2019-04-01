@@ -1,8 +1,12 @@
 package postgres_test
 
 import (
+	"context"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
+	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/storage/postgres"
 )
@@ -30,4 +34,14 @@ func TestToTSQuery(t *testing.T) {
 		output := postgres.ToTSQuery(testcase.input)
 		Expect(output).Equals(testcase.expected)
 	}
+}
+
+func withTenant(ctx context.Context, tenant *models.Tenant) context.Context {
+	return context.WithValue(ctx, app.TenantCtxKey, tenant)
+}
+
+func withUser(ctx context.Context, user *models.User) context.Context {
+	ctx = context.WithValue(ctx, app.TenantCtxKey, user.Tenant)
+	ctx = context.WithValue(ctx, app.UserCtxKey, user)
+	return ctx
 }

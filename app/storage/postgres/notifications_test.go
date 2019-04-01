@@ -4,26 +4,29 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
 func TestNotificationStorage_TotalCount(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	notifications.SetCurrentTenant(demoTenant)
+	q := &query.CountUnreadNotifications{}
 
-	notifications.SetCurrentUser(jonSnow)
-	total, err := notifications.TotalUnread()
+	err := bus.Dispatch(ctx, q)
 	Expect(err).IsNil()
-	Expect(total).Equals(0)
+	Expect(q.Result).Equals(0)
 
-	notifications.SetCurrentUser(nil)
-	total, err = notifications.TotalUnread()
+	err = bus.Dispatch(demoTenantCtx, q)
 	Expect(err).IsNil()
-	Expect(total).Equals(0)
+	Expect(q.Result).Equals(0)
 }
 
 func TestNotificationStorage_Insert_Read_Count(t *testing.T) {
@@ -32,29 +35,27 @@ func TestNotificationStorage_Insert_Read_Count(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("Title", "Description")
 
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
-	Expect(err).IsNil()
-	not2, err := notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
+	addNotification1 := &cmd.AddNewNotification{User: aryaStark, Title: "Hello World", Link: "http://www.google.com.br", PostID: post.ID}
+	addNotification2 := &cmd.AddNewNotification{User: aryaStark, Title: "Hello World", Link: "", PostID: post.ID}
+	err := bus.Dispatch(jonSnowCtx, addNotification1, addNotification2)
 	Expect(err).IsNil()
 
-	notifications.SetCurrentUser(aryaStark)
-	total, err := notifications.TotalUnread()
+	q := &query.CountUnreadNotifications{}
+	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
-	Expect(total).Equals(2)
+	Expect(q.Result).Equals(2)
 
-	Expect(notifications.MarkAsRead(not1.ID)).IsNil()
-	total, err = notifications.TotalUnread()
+	Expect(bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: addNotification1.Result.ID})).IsNil()
+	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
-	Expect(total).Equals(1)
+	Expect(q.Result).Equals(1)
 
-	Expect(notifications.MarkAsRead(not2.ID)).IsNil()
-	total, err = notifications.TotalUnread()
+	Expect(bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: addNotification2.Result.ID})).IsNil()
+	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
-	Expect(total).Equals(0)
+	Expect(q.Result).Equals(0)
 }
 
 func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
@@ -63,27 +64,27 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("Title", "Description")
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
-
-	notifications.SetCurrentUser(aryaStark)
-
-	allNotifications, err := notifications.GetActiveNotifications()
+	addNotification1 := &cmd.AddNewNotification{User: aryaStark, Title: "Hello World", Link: "http://www.google.com.br", PostID: post.ID}
+	addNotification2 := &cmd.AddNewNotification{User: aryaStark, Title: "Another thing happened", Link: "http://www.google.com.br", PostID: post.ID}
+	err := bus.Dispatch(jonSnowCtx, addNotification1, addNotification2)
 	Expect(err).IsNil()
-	Expect(allNotifications).HasLen(2)
 
-	notifications.MarkAsRead(allNotifications[0].ID)
-	notifications.MarkAsRead(allNotifications[1].ID)
-	trx.Execute("UPDATE notifications SET updated_at = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), allNotifications[0].ID)
-
-	allNotifications, err = notifications.GetActiveNotifications()
+	activeNotifications := &query.GetActiveNotifications{}
+	err = bus.Dispatch(aryaStarkCtx, activeNotifications)
 	Expect(err).IsNil()
-	Expect(allNotifications).HasLen(1)
-	Expect(allNotifications[0].Read).IsTrue()
+	Expect(activeNotifications.Result).HasLen(2)
+
+	bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[0].ID})
+	bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[1].ID})
+
+	trx.Execute("UPDATE notifications SET updated_at = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), activeNotifications.Result[0].ID)
+
+	err = bus.Dispatch(aryaStarkCtx, activeNotifications)
+	Expect(err).IsNil()
+	Expect(activeNotifications.Result).HasLen(1)
+	Expect(activeNotifications.Result[0].Read).IsTrue()
 }
 
 func TestNotificationStorage_ReadAll(t *testing.T) {
@@ -92,27 +93,27 @@ func TestNotificationStorage_ReadAll(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(jonSnow)
 
 	post, _ := posts.Add("Title", "Description")
 
-	notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
-	notifications.Insert(aryaStark, "Another thing happened", "http://www.google.com.br", post.ID)
-
-	notifications.SetCurrentUser(aryaStark)
-
-	allNotifications, err := notifications.GetActiveNotifications()
+	addNotification1 := &cmd.AddNewNotification{User: aryaStark, Title: "Hello World", Link: "http://www.google.com.br", PostID: post.ID}
+	addNotification2 := &cmd.AddNewNotification{User: aryaStark, Title: "Another thing happened", Link: "http://www.google.com.br", PostID: post.ID}
+	err := bus.Dispatch(jonSnowCtx, addNotification1, addNotification2)
 	Expect(err).IsNil()
-	Expect(allNotifications).HasLen(2)
 
-	notifications.MarkAllAsRead()
-
-	allNotifications, err = notifications.GetActiveNotifications()
+	activeNotifications := &query.GetActiveNotifications{}
+	err = bus.Dispatch(aryaStarkCtx, activeNotifications)
 	Expect(err).IsNil()
-	Expect(allNotifications).HasLen(2)
-	Expect(allNotifications[0].Read).IsTrue()
-	Expect(allNotifications[1].Read).IsTrue()
+	Expect(activeNotifications.Result).HasLen(2)
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.MarkAllNotificationsAsRead{})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, activeNotifications)
+	Expect(err).IsNil()
+	Expect(activeNotifications.Result).HasLen(2)
+	Expect(activeNotifications.Result[0].Read).IsTrue()
+	Expect(activeNotifications.Result[1].Read).IsTrue()
 }
 
 func TestNotificationStorage_GetNotificationByID(t *testing.T) {
@@ -121,19 +122,18 @@ func TestNotificationStorage_GetNotificationByID(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("Title", "Description")
 
-	not1, err := notifications.Insert(aryaStark, "Hello World", "http://www.google.com.br", post.ID)
+	addNotification := &cmd.AddNewNotification{User: aryaStark, Title: "Hello World", Link: "http://www.google.com.br", PostID: post.ID}
+	err := bus.Dispatch(jonSnowCtx, addNotification)
 	Expect(err).IsNil()
 
-	notifications.SetCurrentUser(aryaStark)
-	not1, err = notifications.GetNotification(not1.ID)
+	q := &query.GetNotificationByID{ID: addNotification.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
-	Expect(not1.Title).Equals("Hello World")
-	Expect(not1.Link).Equals("http://www.google.com.br")
-	Expect(not1.Read).IsFalse()
+	Expect(q.Result.Title).Equals("Hello World")
+	Expect(q.Result.Link).Equals("http://www.google.com.br")
+	Expect(q.Result.Read).IsFalse()
 }
 
 func TestNotificationStorage_GetNotificationByID_OtherUser(t *testing.T) {
@@ -144,12 +144,12 @@ func TestNotificationStorage_GetNotificationByID_OtherUser(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("Title", "Description")
 
-	notifications.SetCurrentTenant(demoTenant)
-	notifications.SetCurrentUser(aryaStark)
-	not1, err := notifications.Insert(jonSnow, "Hello World", "http://www.google.com.br", post.ID)
+	addNotification := &cmd.AddNewNotification{User: jonSnow, Title: "Hello World", Link: "http://www.google.com.br", PostID: post.ID}
+	err := bus.Dispatch(aryaStarkCtx, addNotification)
 	Expect(err).IsNil()
 
-	not1, err = notifications.GetNotification(not1.ID)
+	q := &query.GetNotificationByID{ID: addNotification.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(not1).IsNil()
+	Expect(q.Result).IsNil()
 }

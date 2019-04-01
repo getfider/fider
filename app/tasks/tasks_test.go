@@ -1,9 +1,11 @@
 package tasks_test
 
 import (
+	"context"
 	"html/template"
 	"testing"
-	"time"
+
+	"github.com/getfider/fider/app/models/cmd"
 
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -119,6 +121,12 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 	RegisterT(t)
 	bus.Init(emailmock.Service{})
 
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
+
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.JonSnow)
 	post, _ := services.Posts.Add("Add support for TypeScript", "TypeScript is great, please add support for it")
@@ -154,20 +162,22 @@ func TestNotifyAboutNewPostTask(t *testing.T) {
 		Props:   dto.Props{},
 	})
 
-	services.SetCurrentUser(mock.AryaStark)
-	notifications, err := services.Notifications.GetActiveNotifications()
-	Expect(err).IsNil()
-	Expect(notifications).HasLen(1)
-	Expect(notifications[0].ID).Equals(1)
-	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
-	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("New post: **Add support for TypeScript**")
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
+	Expect(addNewNotification.Title).Equals("New post: **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.AryaStark)
 }
 
 func TestNotifyAboutNewCommentTask(t *testing.T) {
 	RegisterT(t)
 	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.JonSnow)
@@ -208,20 +218,22 @@ func TestNotifyAboutNewCommentTask(t *testing.T) {
 		Props:   dto.Props{},
 	})
 
-	services.SetCurrentUser(mock.JonSnow)
-	notifications, err := services.Notifications.GetActiveNotifications()
-	Expect(err).IsNil()
-	Expect(notifications).HasLen(1)
-	Expect(notifications[0].ID).Equals(1)
-	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
-	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
+	Expect(addNewNotification.Title).Equals("**Arya Stark** left a comment on **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.JonSnow)
 }
 
 func TestNotifyAboutStatusChangeTask(t *testing.T) {
 	RegisterT(t)
 	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.AryaStark)
@@ -260,20 +272,22 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		Props:   dto.Props{},
 	})
 
-	services.SetCurrentUser(mock.AryaStark)
-	notifications, err := services.Notifications.GetActiveNotifications()
-	Expect(err).IsNil()
-	Expect(notifications).HasLen(1)
-	Expect(notifications[0].ID).Equals(1)
-	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/posts/1/add-support-for-typescript")
-	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("/posts/1/add-support-for-typescript")
+	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **Add support for TypeScript** to **planned**")
+	Expect(addNewNotification.User).Equals(mock.AryaStark)
 }
 
 func TestNotifyAboutDeletePostTask(t *testing.T) {
 	RegisterT(t)
 	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.AryaStark)
@@ -307,20 +321,22 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		Props:   dto.Props{},
 	})
 
-	services.SetCurrentUser(mock.AryaStark)
-	notifications, err := services.Notifications.GetActiveNotifications()
-	Expect(err).IsNil()
-	Expect(notifications).HasLen(1)
-	Expect(notifications[0].ID).Equals(1)
-	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("")
-	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Jon Snow** deleted **Add support for TypeScript**")
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post.ID)
+	Expect(addNewNotification.Link).Equals("")
+	Expect(addNewNotification.Title).Equals("**Jon Snow** deleted **Add support for TypeScript**")
+	Expect(addNewNotification.User).Equals(mock.AryaStark)
 }
 
 func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 	RegisterT(t)
 	bus.Init(emailmock.Service{})
+
+	var addNewNotification *cmd.AddNewNotification
+	bus.AddHandler(func(ctx context.Context, c *cmd.AddNewNotification) error {
+		addNewNotification = c
+		return nil
+	})
 
 	worker, services := mock.NewWorker()
 	services.SetCurrentUser(mock.AryaStark)
@@ -360,15 +376,11 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		Props:   dto.Props{},
 	})
 
-	services.SetCurrentUser(mock.AryaStark)
-	notifications, err := services.Notifications.GetActiveNotifications()
-	Expect(err).IsNil()
-	Expect(notifications).HasLen(1)
-	Expect(notifications[0].ID).Equals(1)
-	Expect(notifications[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(notifications[0].Link).Equals("/posts/2/i-need-typescript")
-	Expect(notifications[0].Read).IsFalse()
-	Expect(notifications[0].Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **duplicate**")
+	Expect(addNewNotification).IsNotNil()
+	Expect(addNewNotification.PostID).Equals(post2.ID)
+	Expect(addNewNotification.Link).Equals("/posts/2/i-need-typescript")
+	Expect(addNewNotification.Title).Equals("**Jon Snow** changed status of **I need TypeScript** to **duplicate**")
+	Expect(addNewNotification.User).Equals(mock.AryaStark)
 }
 
 func TestSendInvites(t *testing.T) {

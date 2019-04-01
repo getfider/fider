@@ -47,13 +47,13 @@ func WorkerSetup() worker.MiddlewareFunc {
 				}
 			}()
 
+			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
-				Context:       c,
-				Tenants:       postgres.NewTenantStorage(trx, c),
-				Users:         postgres.NewUserStorage(trx, c),
-				Posts:         postgres.NewPostStorage(trx, c),
-				Tags:          postgres.NewTagStorage(trx, c),
-				Notifications: postgres.NewNotificationStorage(trx, c),
+				Context: c,
+				Tenants: postgres.NewTenantStorage(trx, c),
+				Users:   postgres.NewUserStorage(trx, c),
+				Posts:   postgres.NewPostStorage(trx, c),
+				Tags:    postgres.NewTagStorage(trx, c),
 			})
 
 			//Execute the chain
@@ -128,13 +128,12 @@ func WebSetup() web.MiddlewareFunc {
 
 			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
-				Context:       c,
-				Tenants:       tenantStorage,
-				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
-				Users:         postgres.NewUserStorage(trx, c),
-				Posts:         postgres.NewPostStorage(trx, c),
-				Tags:          postgres.NewTagStorage(trx, c),
-				Notifications: postgres.NewNotificationStorage(trx, c),
+				Context: c,
+				Tenants: tenantStorage,
+				OAuth:   web.NewOAuthService(oauthBaseURL, tenantStorage),
+				Users:   postgres.NewUserStorage(trx, c),
+				Posts:   postgres.NewPostStorage(trx, c),
+				Tags:    postgres.NewTagStorage(trx, c),
 			})
 
 			//Execute the chain

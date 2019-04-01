@@ -59,6 +59,11 @@ func (c *Context) TaskName() string {
 	return c.taskName
 }
 
+// Set saves data in the context.
+func (c *Context) Set(key interface{}, val interface{}) {
+	c.Context = context.WithValue(c.Context, key, val)
+}
+
 //User from current context
 func (c *Context) User() *models.User {
 	user, ok := c.Value(app.UserCtxKey).(*models.User)
