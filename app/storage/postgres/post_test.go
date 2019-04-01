@@ -560,79 +560,84 @@ func TestPostStorage_Attachments(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post1, _ := posts.Add("My new post", "with this description")
 	post2, _ := posts.Add("My other post", "with another description")
+	getAttachments1 := &query.GetAttachments{Post: post1}
+	getAttachments2 := &query.GetAttachments{Post: post2}
 
-	attachments, err := posts.GetAttachments(post1, nil)
+	err := bus.Dispatch(jonSnowCtx, getAttachments1)
 	Expect(err).IsNil()
-	Expect(attachments).HasLen(0)
+	Expect(getAttachments1.Result).HasLen(0)
 
 	bytes, err := ioutil.ReadFile(env.Path("favicon.png"))
 	Expect(err).IsNil()
 
-	err = posts.SetAttachments(post1, nil, []*models.ImageUpload{
-		&models.ImageUpload{
-			BlobKey: "12345-test.png",
-			Upload: &models.ImageUploadData{
-				FileName:    "test.png",
-				ContentType: "image/png",
-				Content:     bytes,
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
+		Post: post1,
+		Attachments: []*models.ImageUpload{
+			&models.ImageUpload{
+				BlobKey: "12345-test.png",
+				Upload: &models.ImageUploadData{
+					FileName:    "test.png",
+					ContentType: "image/png",
+					Content:     bytes,
+				},
 			},
 		},
 	})
 	Expect(err).IsNil()
 
-	attachments, err = posts.GetAttachments(post1, nil)
+	err = bus.Dispatch(jonSnowCtx, getAttachments1, getAttachments2)
 	Expect(err).IsNil()
-	Expect(attachments).HasLen(1)
-	Expect(attachments[0]).Equals("12345-test.png")
+	Expect(getAttachments1.Result).HasLen(1)
+	Expect(getAttachments1.Result[0]).Equals("12345-test.png")
+	Expect(getAttachments2.Result).HasLen(0)
 
-	attachments, err = posts.GetAttachments(post2, nil)
-	Expect(err).IsNil()
-	Expect(attachments).HasLen(0)
-
-	err = posts.SetAttachments(post2, nil, []*models.ImageUpload{
-		&models.ImageUpload{
-			BlobKey: "12345-test.png",
-			Remove:  true,
-		},
-		&models.ImageUpload{
-			BlobKey: "67890-test2.png",
-			Upload: &models.ImageUploadData{
-				FileName:    "test2.png",
-				ContentType: "image/png",
-				Content:     bytes,
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
+		Post: post2,
+		Attachments: []*models.ImageUpload{
+			&models.ImageUpload{
+				BlobKey: "12345-test.png",
+				Remove:  true,
 			},
-		},
-		&models.ImageUpload{
-			BlobKey: "67890-test6.png",
-			Upload: &models.ImageUploadData{
-				FileName:    "test6.png",
-				ContentType: "image/png",
-				Content:     bytes,
+			&models.ImageUpload{
+				BlobKey: "67890-test2.png",
+				Upload: &models.ImageUploadData{
+					FileName:    "test2.png",
+					ContentType: "image/png",
+					Content:     bytes,
+				},
+			},
+			&models.ImageUpload{
+				BlobKey: "67890-test6.png",
+				Upload: &models.ImageUploadData{
+					FileName:    "test6.png",
+					ContentType: "image/png",
+					Content:     bytes,
+				},
 			},
 		},
 	})
 	Expect(err).IsNil()
 
-	attachments, err = posts.GetAttachments(post1, nil)
+	err = bus.Dispatch(jonSnowCtx, getAttachments1, getAttachments2)
 	Expect(err).IsNil()
-	Expect(attachments).HasLen(1)
-	Expect(attachments[0]).Equals("12345-test.png")
+	Expect(getAttachments1.Result).HasLen(1)
+	Expect(getAttachments1.Result[0]).Equals("12345-test.png")
+	Expect(getAttachments2.Result).HasLen(2)
+	Expect(getAttachments2.Result[0]).Equals("67890-test2.png")
+	Expect(getAttachments2.Result[1]).Equals("67890-test6.png")
 
-	attachments, err = posts.GetAttachments(post2, nil)
-	Expect(err).IsNil()
-	Expect(attachments).HasLen(2)
-	Expect(attachments[0]).Equals("67890-test2.png")
-	Expect(attachments[1]).Equals("67890-test6.png")
-
-	err = posts.SetAttachments(post1, nil, []*models.ImageUpload{
-		&models.ImageUpload{
-			BlobKey: "12345-test.png",
-			Remove:  true,
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
+		Post: post1,
+		Attachments: []*models.ImageUpload{
+			&models.ImageUpload{
+				BlobKey: "12345-test.png",
+				Remove:  true,
+			},
 		},
 	})
 	Expect(err).IsNil()
 
-	attachments, err = posts.GetAttachments(post1, nil)
+	err = bus.Dispatch(jonSnowCtx, getAttachments1)
 	Expect(err).IsNil()
-	Expect(attachments).HasLen(0)
+	Expect(getAttachments1.Result).HasLen(0)
 }

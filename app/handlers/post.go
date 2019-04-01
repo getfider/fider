@@ -78,12 +78,8 @@ func PostDetails() web.HandlerFunc {
 
 		getAllTags := &query.GetAllTags{}
 		listVotes := &query.ListPostVotes{PostID: post.ID, Limit: 6}
-		if err := bus.Dispatch(c, getAllTags, listVotes); err != nil {
-			return c.Failure(err)
-		}
-
-		attachments, err := c.Services().Posts.GetAttachments(post, nil)
-		if err != nil {
+		getAttachments := &query.GetAttachments{Post: post}
+		if err := bus.Dispatch(c, getAllTags, listVotes, getAttachments); err != nil {
 			return c.Failure(err)
 		}
 
@@ -97,7 +93,7 @@ func PostDetails() web.HandlerFunc {
 				"post":        post,
 				"tags":        getAllTags.Result,
 				"votes":       listVotes.Result,
-				"attachments": attachments,
+				"attachments": getAttachments.Result,
 			},
 		})
 	}

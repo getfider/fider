@@ -104,12 +104,13 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	attachments, err := services.Posts.GetAttachments(post, nil)
+	getAttachments := &query.GetAttachments{Post: post}
+	err = bus.Dispatch(services.Context, getAttachments)
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	messages, err := validate.MultiImageUpload(attachments, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   3,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,
@@ -283,12 +284,13 @@ func (input *EditComment) Validate(user *models.User, services *app.Services) *v
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	attachments, err := services.Posts.GetAttachments(input.Post, input.Comment)
+	getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
+	err := bus.Dispatch(services.Context, getAttachments)
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	messages, err := validate.MultiImageUpload(attachments, input.Model.Attachments, validate.MultiImageUploadOpts{
+	messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
 		MaxUploads:   2,
 		MaxKilobytes: 5120,
 		ExactRatio:   false,

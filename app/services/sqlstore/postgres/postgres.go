@@ -57,6 +57,9 @@ func (s Service) Init() {
 	bus.AddHandler(markPostAsDuplicate)
 	bus.AddHandler(setPostResponse)
 	bus.AddHandler(postIsReferenced)
+
+	bus.AddHandler(setAttachments)
+	bus.AddHandler(getAttachments)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

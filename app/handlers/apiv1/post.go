@@ -47,7 +47,7 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Posts.SetAttachments(post, nil, input.Model.Attachments)
+		err = bus.Dispatch(c, &cmd.SetAttachments{Post: post, Attachments: input.Model.Attachments})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -102,7 +102,7 @@ func UpdatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Posts.SetAttachments(input.Post, nil, input.Model.Attachments)
+		err = bus.Dispatch(c, &cmd.SetAttachments{Post: input.Post, Attachments: input.Model.Attachments})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -238,7 +238,7 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Posts.SetAttachments(post, comment, input.Model.Attachments)
+		err = bus.Dispatch(c, &cmd.SetAttachments{Post: post, Comment: comment, Attachments: input.Model.Attachments})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -269,7 +269,11 @@ func UpdateComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Posts.SetAttachments(input.Post, input.Comment, input.Model.Attachments)
+		err = bus.Dispatch(c, &cmd.SetAttachments{
+			Post:        input.Post,
+			Comment:     input.Comment,
+			Attachments: input.Model.Attachments,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}
