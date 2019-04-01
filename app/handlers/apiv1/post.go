@@ -128,8 +128,13 @@ func SetResponse() web.HandlerFunc {
 		if input.Model.Status == models.PostDuplicate {
 			err = bus.Dispatch(c, &cmd.MarkPostAsDuplicate{Post: post, Original: input.Original})
 		} else {
-			err = c.Services().Posts.SetResponse(post, input.Model.Text, input.Model.Status)
+			err = bus.Dispatch(c, &cmd.SetPostResponse{
+				Post:   post,
+				Text:   input.Model.Text,
+				Status: input.Model.Status,
+			})
 		}
+
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -148,7 +153,11 @@ func DeletePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Posts.SetResponse(input.Post, input.Model.Text, models.PostDeleted)
+		err := bus.Dispatch(c, &cmd.SetPostResponse{
+			Post:   input.Post,
+			Text:   input.Model.Text,
+			Status: models.PostDeleted,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}

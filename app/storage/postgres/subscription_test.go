@@ -4,6 +4,9 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -296,7 +299,7 @@ func TestSubscription_DeletedPost(t *testing.T) {
 	posts.SetCurrentUser(aryaStark)
 
 	post1, _ := posts.Add("Post #1", "Description #1")
-	posts.SetResponse(post1, "Invalid Post!", models.PostDeleted)
+	bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: post1, Text: "Invalid Post!", Status: models.PostDeleted})
 
 	subscribers, err := posts.GetActiveSubscribers(post1.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
 	Expect(err).IsNil()

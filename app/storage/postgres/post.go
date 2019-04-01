@@ -631,35 +631,6 @@ func (s *PostStorage) GetActiveSubscribers(number int, channel models.Notificati
 	return result, nil
 }
 
-// SetResponse changes current post response
-func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
-	if status == models.PostDuplicate {
-		return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
-	}
-
-	respondedAt := time.Now()
-	if post.Status == status && post.Response != nil {
-		respondedAt = post.Response.RespondedAt
-	}
-
-	_, err := s.trx.Execute(`
-	UPDATE posts 
-	SET response = $3, original_id = NULL, response_date = $4, response_user_id = $5, status = $6 
-	WHERE id = $1 and tenant_id = $2
-	`, post.ID, s.tenant.ID, text, respondedAt, s.user.ID, status)
-	if err != nil {
-		return errors.Wrap(err, "failed to update post's response")
-	}
-
-	post.Status = status
-	post.Response = &models.PostResponse{
-		Text:        text,
-		RespondedAt: respondedAt,
-		User:        s.user,
-	}
-	return nil
-}
-
 // IsReferenced returns true if another post is referencing given post
 func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	exists, err := s.trx.Exists(`

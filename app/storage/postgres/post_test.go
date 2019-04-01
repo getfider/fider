@@ -330,8 +330,7 @@ func TestPostStorage_SetResponse(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 
 	post, _ := posts.Add("My new post", "with this description")
-	err := posts.SetResponse(post, "We liked this post", models.PostStarted)
-
+	err := bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostStarted})
 	Expect(err).IsNil()
 
 	post, _ = posts.GetByID(post.ID)
@@ -348,7 +347,7 @@ func TestPostStorage_SetResponse_KeepOpen(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 
 	post, _ := posts.Add("My new post", "with this description")
-	err := posts.SetResponse(post, "We liked this post", models.PostOpen)
+	err := bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostOpen})
 	Expect(err).IsNil()
 }
 
@@ -360,15 +359,15 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 
 	post, _ := posts.Add("My new post", "with this description")
-	posts.SetResponse(post, "We liked this post", models.PostStarted)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostStarted})
 	post, _ = posts.GetByID(post.ID)
 	respondedAt := post.Response.RespondedAt
 
-	posts.SetResponse(post, "We liked this post and we'll work on it", models.PostStarted)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post and we'll work on it", Status: models.PostStarted})
 	post, _ = posts.GetByID(post.ID)
 	Expect(post.Response.RespondedAt).Equals(respondedAt)
 
-	posts.SetResponse(post, "We finished it", models.PostCompleted)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We finished it", Status: models.PostCompleted})
 	post, _ = posts.GetByID(post.ID)
 	Expect(post.Response.RespondedAt).TemporarilySimilar(respondedAt, time.Second)
 }
@@ -420,7 +419,7 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	posts.SetResponse(post, "Spam!", models.PostDeleted)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "Spam!", Status: models.PostDeleted})
 
 	post1, err := posts.GetByNumber(post.Number)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
@@ -438,9 +437,11 @@ func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
-	posts.SetResponse(post, "We liked this post", models.PostCompleted)
 
-	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	err := bus.Dispatch(jonSnowCtx,
+		&cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.AddVote{Post: post, User: jonSnow},
+	)
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(post.Number)
@@ -456,9 +457,12 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
 
-	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
-	posts.SetResponse(post, "We liked this post", models.PostCompleted)
-	bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
+	bus.Dispatch(
+		jonSnowCtx,
+		&cmd.AddVote{Post: post, User: jonSnow},
+		&cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.RemoveVote{Post: post, User: jonSnow},
+	)
 
 	dbPost, err := posts.GetByNumber(post.Number)
 	Expect(err).IsNil()

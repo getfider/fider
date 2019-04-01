@@ -55,6 +55,7 @@ func (s Service) Init() {
 	bus.AddHandler(listPostVotes)
 
 	bus.AddHandler(markPostAsDuplicate)
+	bus.AddHandler(setPostResponse)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

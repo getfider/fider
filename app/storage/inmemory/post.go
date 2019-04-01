@@ -168,21 +168,6 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// SetResponse changes current post response
-func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
-	for _, storedPost := range s.posts {
-		if storedPost.Number == post.Number {
-			storedPost.Status = status
-			storedPost.Response = &models.PostResponse{
-				Text:        text,
-				User:        s.user,
-				RespondedAt: time.Now(),
-			}
-		}
-	}
-	return nil
-}
-
 // IsReferenced returns true if another post is referencing given post
 func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	for _, i := range s.posts {
