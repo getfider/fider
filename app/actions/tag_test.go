@@ -1,7 +1,13 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
+
+	"github.com/getfider/fider/app"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
@@ -12,7 +18,10 @@ import (
 func TestCreateEditTag_InvalidName(t *testing.T) {
 	RegisterT(t)
 
-	services.Tags.Add("Feature Request", "000000", true)
+	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+		q.Result = &models.Tag{Slug: "feature-request", Name: "Feature Request", Color: "000000"}
+		return nil
+	})
 
 	for _, name := range []string{
 		"",
@@ -27,6 +36,10 @@ func TestCreateEditTag_InvalidName(t *testing.T) {
 
 func TestCreateEditTag_InvalidColor(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+		return app.ErrNotFound
+	})
 
 	for _, color := range []string{
 		"",
@@ -44,7 +57,16 @@ func TestCreateEditTag_InvalidColor(t *testing.T) {
 func TestCreateEditTag_ValidInput(t *testing.T) {
 	RegisterT(t)
 
-	tag, _ := services.Tags.Add("To Discuss", "000000", true)
+	tag := &models.Tag{Slug: "to-discuss", Name: "To Discuss", Color: "000000"}
+	bus.AddHandler(func(ctx context.Context, q *query.GetTagBySlug) error {
+		if q.Slug == tag.Slug {
+			q.Result = tag
+			return nil
+		} else {
+			q.Result = nil
+			return app.ErrNotFound
+		}
+	})
 
 	action := &actions.CreateEditTag{Model: &models.CreateEditTag{Name: "Bug", Color: "FF0000"}}
 	result := action.Validate(nil, services)

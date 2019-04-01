@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -21,8 +23,8 @@ func Index() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		tags, err := c.Services().Tags.GetAll()
-		if err != nil {
+		getAllTags := &query.GetAllTags{}
+		if err := bus.Dispatch(c, getAllTags); err != nil {
 			return c.Failure(err)
 		}
 
@@ -43,7 +45,7 @@ func Index() web.HandlerFunc {
 			ChunkName:   "Home.page",
 			Data: web.Map{
 				"posts":          posts,
-				"tags":           tags,
+				"tags":           getAllTags.Result,
 				"countPerStatus": stats,
 			},
 		})
@@ -69,8 +71,8 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		tags, err := c.Services().Tags.GetAll()
-		if err != nil {
+		getAllTags := &query.GetAllTags{}
+		if err := bus.Dispatch(c, getAllTags); err != nil {
 			return c.Failure(err)
 		}
 
@@ -97,7 +99,7 @@ func PostDetails() web.HandlerFunc {
 				"comments":    comments,
 				"subscribed":  subscribed,
 				"post":        post,
-				"tags":        tags,
+				"tags":        getAllTags.Result,
 				"votes":       votes,
 				"attachments": attachments,
 			},

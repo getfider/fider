@@ -23,7 +23,6 @@ var trx *dbx.Trx
 var tenants *postgres.TenantStorage
 var users *postgres.UserStorage
 var posts *postgres.PostStorage
-var tags *postgres.TagStorage
 
 var demoTenant *models.Tenant
 var avengersTenant *models.Tenant
@@ -54,7 +53,6 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 	tenants = postgres.NewTenantStorage(trx, ctx)
 	users = postgres.NewUserStorage(trx, ctx)
 	posts = postgres.NewPostStorage(trx, ctx)
-	tags = postgres.NewTagStorage(trx, ctx)
 
 	demoTenant, _ = tenants.GetByDomain("demo")
 	avengersTenant, _ = tenants.GetByDomain("avengers")

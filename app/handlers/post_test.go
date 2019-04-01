@@ -1,8 +1,12 @@
 package handlers_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -12,14 +16,24 @@ import (
 func TestIndexHandler(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
+
 	server, _ := mock.NewServer()
-	code, _ := server.OnTenant(mock.DemoTenant).AsUser(mock.JonSnow).Execute(handlers.Index())
+	code, _ := server.OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		Execute(handlers.Index())
 
 	Expect(code).Equals(http.StatusOK)
 }
 
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
 
 	server, services := mock.NewServer()
 	services.SetCurrentTenant(mock.DemoTenant)

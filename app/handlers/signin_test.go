@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -9,7 +10,9 @@ import (
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
@@ -104,6 +107,10 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 
 func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
 
 	server, services := mock.NewServer()
 

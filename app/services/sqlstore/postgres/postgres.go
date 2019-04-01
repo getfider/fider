@@ -40,6 +40,15 @@ func (s Service) Init() {
 	bus.AddHandler(getNotificationByID)
 	bus.AddHandler(getActiveNotifications)
 	bus.AddHandler(addNewNotification)
+
+	bus.AddHandler(getTagBySlug)
+	bus.AddHandler(getAssignedTags)
+	bus.AddHandler(getAllTags)
+	bus.AddHandler(addNewTag)
+	bus.AddHandler(updateTag)
+	bus.AddHandler(deleteTag)
+	bus.AddHandler(assignTag)
+	bus.AddHandler(unassignTag)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

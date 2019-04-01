@@ -1,6 +1,8 @@
 package mock
 
 import (
+	"context"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
@@ -45,9 +47,9 @@ func NewWorker() (*Worker, *app.Services) {
 
 func createServices(seed bool) *app.Services {
 	services := &app.Services{
+		Context: context.Background(),
 		Tenants: inmemory.NewTenantStorage(),
 		Users:   &inmemory.UserStorage{},
-		Tags:    inmemory.NewTagStorage(),
 		Posts:   inmemory.NewPostStorage(),
 		OAuth:   &OAuthService{},
 	}

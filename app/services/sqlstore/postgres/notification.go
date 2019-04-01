@@ -60,7 +60,9 @@ func markNotificationAsRead(ctx context.Context, c *cmd.MarkNotificationAsRead) 
 
 func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		q.Result = nil
 		notification := &models.Notification{}
+
 		err := trx.Get(notification, `
 			SELECT id, title, link, read, created_at 
 			FROM notifications
@@ -69,6 +71,7 @@ func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) erro
 		if err != nil {
 			return errors.Wrap(err, "failed to get notifications with id '%d'", q.ID)
 		}
+
 		q.Result = notification
 		return nil
 	})
@@ -76,8 +79,8 @@ func getNotificationByID(ctx context.Context, q *query.GetNotificationByID) erro
 
 func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		notifications := []*models.Notification{}
-		err := trx.Select(&notifications, `
+		q.Result = []*models.Notification{}
+		err := trx.Select(&q.Result, `
 			SELECT id, title, link, read, created_at 
 			FROM notifications 
 			WHERE tenant_id = $1 AND user_id = $2
@@ -86,7 +89,6 @@ func getActiveNotifications(ctx context.Context, q *query.GetActiveNotifications
 		if err != nil {
 			return errors.Wrap(err, "failed to get active notifications")
 		}
-		q.Result = notifications
 		return nil
 	})
 }

@@ -1,6 +1,8 @@
 package actions_test
 
 import (
+	"context"
+
 	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -16,10 +18,10 @@ var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
 })
 
 var services = &app.Services{
+	Context: context.Background(),
 	Tenants: inmemory.NewTenantStorage(),
 	Users:   &inmemory.UserStorage{},
 	Posts:   inmemory.NewPostStorage(),
-	Tags:    inmemory.NewTagStorage(),
 }
 
 func ExpectFailed(result *validate.Result, expectedFields ...string) {

@@ -3,8 +3,13 @@ package postgres_test
 import (
 	"testing"
 
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -12,53 +17,58 @@ func TestTagStorage_AddAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tags.SetCurrentTenant(demoTenant)
-	tag, err := tags.Add("Feature Request", "FF0000", true)
+	addNewTag := &cmd.AddNewTag{Name: "Feature Request", Color: "FF0000", IsPublic: true}
+	err := bus.Dispatch(demoTenantCtx, addNewTag)
 	Expect(err).IsNil()
-	Expect(tag.ID).NotEquals(0)
+	Expect(addNewTag.Result.Slug).Equals("feature-request")
 
-	dbTag, err := tags.GetBySlug("feature-request")
-
+	getTag := &query.GetTagBySlug{Slug: addNewTag.Result.Slug}
+	err = bus.Dispatch(demoTenantCtx, getTag)
 	Expect(err).IsNil()
-	Expect(dbTag.ID).NotEquals(0)
-	Expect(dbTag.Name).Equals("Feature Request")
-	Expect(dbTag.Slug).Equals("feature-request")
-	Expect(dbTag.Color).Equals("FF0000")
-	Expect(dbTag.IsPublic).IsTrue()
+	Expect(getTag.Result.ID).NotEquals(0)
+	Expect(getTag.Result.Name).Equals("Feature Request")
+	Expect(getTag.Result.Slug).Equals("feature-request")
+	Expect(getTag.Result.Color).Equals("FF0000")
+	Expect(getTag.Result.IsPublic).IsTrue()
 }
 
 func TestTagStorage_AddUpdateAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tags.SetCurrentTenant(demoTenant)
-	tag, err := tags.Add("Feature Request", "FF0000", true)
-	tag, err = tags.Update(tag, "Bug", "000000", false)
-
-	dbTag, err := tags.GetBySlug("bug")
-
+	addNewTag := &cmd.AddNewTag{Name: "Feature Request", Color: "FF0000", IsPublic: true}
+	err := bus.Dispatch(demoTenantCtx, addNewTag)
 	Expect(err).IsNil()
-	Expect(dbTag.ID).Equals(tag.ID)
-	Expect(dbTag.Name).Equals("Bug")
-	Expect(dbTag.Slug).Equals("bug")
-	Expect(dbTag.Color).Equals("000000")
-	Expect(dbTag.IsPublic).IsFalse()
+
+	updateTag := &cmd.UpdateTag{TagID: addNewTag.Result.ID, Name: "Bug", Color: "000000", IsPublic: false}
+	err = bus.Dispatch(demoTenantCtx, updateTag)
+	Expect(err).IsNil()
+
+	getTag := &query.GetTagBySlug{Slug: updateTag.Result.Slug}
+	err = bus.Dispatch(demoTenantCtx, getTag)
+	Expect(err).IsNil()
+	Expect(getTag.Result.ID).Equals(addNewTag.Result.ID)
+	Expect(getTag.Result.Name).Equals("Bug")
+	Expect(getTag.Result.Slug).Equals("bug")
+	Expect(getTag.Result.Color).Equals("000000")
+	Expect(getTag.Result.IsPublic).IsFalse()
 }
 
 func TestTagStorage_AddDeleteAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tags.SetCurrentTenant(demoTenant)
-	tag, err := tags.Add("Bug", "FFFFFF", true)
-
-	err = tags.Delete(tag)
+	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
+	err := bus.Dispatch(demoTenantCtx, addNewTag)
 	Expect(err).IsNil()
 
-	dbTag, err := tags.GetBySlug("bug")
+	err = bus.Dispatch(demoTenantCtx, &cmd.DeleteTag{Tag: addNewTag.Result})
+	Expect(err).IsNil()
 
+	getTag := &query.GetTagBySlug{Slug: addNewTag.Result.Slug}
+	err = bus.Dispatch(demoTenantCtx, getTag)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(dbTag).IsNil()
+	Expect(getTag.Result).IsNil()
 }
 
 func TestTagStorage_Assign_Unassign(t *testing.T) {
@@ -67,30 +77,33 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(aryaStark)
-	tags.SetCurrentTenant(demoTenant)
-	tags.SetCurrentUser(aryaStark)
 
 	post, _ := posts.Add("My great post", "with a great description")
-	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag, post)
+	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
+	err := bus.Dispatch(jonSnowCtx, addNewTag)
 	Expect(err).IsNil()
 
-	assigned, err := tags.GetAssigned(post)
-	Expect(err).IsNil()
-	Expect(assigned).HasLen(1)
-	Expect(assigned[0].ID).Equals(tag.ID)
-	Expect(assigned[0].Name).Equals("Bug")
-	Expect(assigned[0].Slug).Equals("bug")
-	Expect(assigned[0].Color).Equals("FFFFFF")
-	Expect(assigned[0].IsPublic).IsTrue()
-
-	err = tags.UnassignTag(tag, post)
+	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: post})
 	Expect(err).IsNil()
 
-	assigned, err = tags.GetAssigned(post)
+	assignedTags := &query.GetAssignedTags{Post: post}
+	err = bus.Dispatch(demoTenantCtx, assignedTags)
 	Expect(err).IsNil()
-	Expect(assigned).HasLen(0)
+	Expect(assignedTags.Result).HasLen(1)
+	Expect(assignedTags.Result[0].ID).Equals(addNewTag.Result.ID)
+	Expect(assignedTags.Result[0].Name).Equals("Bug")
+	Expect(assignedTags.Result[0].Slug).Equals("bug")
+	Expect(assignedTags.Result[0].Color).Equals("FFFFFF")
+	Expect(assignedTags.Result[0].IsPublic).IsTrue()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.UnassignTag{Tag: addNewTag.Result, Post: post})
+	Expect(err).IsNil()
+
+	assignedTags = &query.GetAssignedTags{Post: post}
+	err = bus.Dispatch(jonSnowCtx, assignedTags)
+	Expect(err).IsNil()
+	Expect(assignedTags.Result).HasLen(0)
 }
 
 func TestTagStorage_Assign_DeleteTag(t *testing.T) {
@@ -99,21 +112,23 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(aryaStark)
-	tags.SetCurrentTenant(demoTenant)
-	tags.SetCurrentUser(aryaStark)
 
 	post, _ := posts.Add("My great post", "with a great description")
-	tag, _ := tags.Add("Bug", "FFFFFF", true)
 
-	err := tags.AssignTag(tag, post)
+	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
+	err := bus.Dispatch(jonSnowCtx, addNewTag)
 	Expect(err).IsNil()
 
-	err = tags.Delete(tag)
+	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: post})
 	Expect(err).IsNil()
 
-	assigned, err := tags.GetAssigned(post)
+	err = bus.Dispatch(jonSnowCtx, &cmd.DeleteTag{Tag: addNewTag.Result})
 	Expect(err).IsNil()
-	Expect(assigned).HasLen(0)
+
+	assignedTags := &query.GetAssignedTags{Post: post}
+	err = bus.Dispatch(jonSnowCtx, assignedTags)
+	Expect(err).IsNil()
+	Expect(assignedTags.Result).HasLen(0)
 }
 
 func TestTagStorage_GetAll(t *testing.T) {
@@ -121,33 +136,31 @@ func TestTagStorage_GetAll(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	users.SetCurrentTenant(demoTenant)
-	tags.SetCurrentTenant(demoTenant)
-	tags.SetCurrentUser(jonSnow)
 
-	tags.Add("Feature Request", "FF0000", true)
-	tags.Add("Bug", "0F0F0F", false)
-
-	allTags, err := tags.GetAll()
-
+	err := bus.Dispatch(demoTenantCtx, &cmd.AddNewTag{Name: "Feature Request", Color: "FF0000", IsPublic: true})
 	Expect(err).IsNil()
-	Expect(allTags).HasLen(2)
-
-	Expect(allTags[0].ID).NotEquals(0)
-	Expect(allTags[0].Name).Equals("Bug")
-	Expect(allTags[0].Slug).Equals("bug")
-	Expect(allTags[0].Color).Equals("0F0F0F")
-	Expect(allTags[0].IsPublic).IsFalse()
-
-	Expect(allTags[1].ID).NotEquals(0)
-	Expect(allTags[1].Name).Equals("Feature Request")
-	Expect(allTags[1].Slug).Equals("feature-request")
-	Expect(allTags[1].Color).Equals("FF0000")
-	Expect(allTags[1].IsPublic).IsTrue()
-
-	tags.SetCurrentUser(aryaStark)
-
-	visitorTags, err := tags.GetAll()
+	err = bus.Dispatch(demoTenantCtx, &cmd.AddNewTag{Name: "Bug", Color: "0F0F0F", IsPublic: false})
 	Expect(err).IsNil()
-	Expect(visitorTags).HasLen(1)
-	Expect(visitorTags[0].Name).Equals("Feature Request")
+
+	getAllTags := &query.GetAllTags{}
+	err = bus.Dispatch(jonSnowCtx, getAllTags)
+	Expect(err).IsNil()
+	Expect(getAllTags.Result).HasLen(2)
+
+	Expect(getAllTags.Result[0].ID).NotEquals(0)
+	Expect(getAllTags.Result[0].Name).Equals("Bug")
+	Expect(getAllTags.Result[0].Slug).Equals("bug")
+	Expect(getAllTags.Result[0].Color).Equals("0F0F0F")
+	Expect(getAllTags.Result[0].IsPublic).IsFalse()
+
+	Expect(getAllTags.Result[1].ID).NotEquals(0)
+	Expect(getAllTags.Result[1].Name).Equals("Feature Request")
+	Expect(getAllTags.Result[1].Slug).Equals("feature-request")
+	Expect(getAllTags.Result[1].Color).Equals("FF0000")
+	Expect(getAllTags.Result[1].IsPublic).IsTrue()
+
+	err = bus.Dispatch(aryaStarkCtx, getAllTags)
+	Expect(err).IsNil()
+	Expect(getAllTags.Result).HasLen(1)
+	Expect(getAllTags.Result[0].Name).Equals("Feature Request")
 }

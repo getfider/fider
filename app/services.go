@@ -13,7 +13,6 @@ type Services struct {
 	Context context.Context //EXPERIMENTAL-BUS: temporary
 	OAuth   oauth.Service
 	Users   storage.User
-	Tags    storage.Tag
 	Tenants storage.Tenant
 	Posts   storage.Post
 }
@@ -21,7 +20,6 @@ type Services struct {
 // SetCurrentTenant to current context
 func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 	s.Users.SetCurrentTenant(tenant)
-	s.Tags.SetCurrentTenant(tenant)
 	s.Tenants.SetCurrentTenant(tenant)
 	s.Posts.SetCurrentTenant(tenant)
 }
@@ -29,7 +27,6 @@ func (s *Services) SetCurrentTenant(tenant *models.Tenant) {
 // SetCurrentUser to current context
 func (s *Services) SetCurrentUser(user *models.User) {
 	s.Users.SetCurrentUser(user)
-	s.Tags.SetCurrentUser(user)
 	s.Tenants.SetCurrentUser(user)
 	s.Posts.SetCurrentUser(user)
 }

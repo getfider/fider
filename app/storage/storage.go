@@ -85,16 +85,3 @@ type Tenant interface {
 	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)
 	ListOAuthConfig() ([]*models.OAuthConfig, error)
 }
-
-// Tag contains read and write operations for tags
-type Tag interface {
-	Base
-	Add(name, color string, isPublic bool) (*models.Tag, error)
-	GetBySlug(slug string) (*models.Tag, error)
-	Update(tag *models.Tag, name, color string, isPublic bool) (*models.Tag, error)
-	Delete(tag *models.Tag) error
-	GetAssigned(post *models.Post) ([]*models.Tag, error)
-	AssignTag(tag *models.Tag, post *models.Post) error
-	UnassignTag(tag *models.Tag, post *models.Post) error
-	GetAll() ([]*models.Tag, error)
-}

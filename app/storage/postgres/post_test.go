@@ -7,7 +7,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -460,25 +462,27 @@ func TestPostStorage_WithTags(t *testing.T) {
 
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(aryaStark)
-	tags.SetCurrentTenant(demoTenant)
-	tags.SetCurrentUser(jonSnow)
 
 	post, _ := posts.Add("My new post", "with this description")
-	bug, _ := tags.Add("Bug", "FF0000", true)
-	featureRequest, _ := tags.Add("Feature Request", "00FF00", false)
 
-	tags.AssignTag(bug, post)
-	tags.AssignTag(featureRequest, post)
+	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
+	bus.Dispatch(jonSnowCtx, addBug)
+
+	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
+	bus.Dispatch(jonSnowCtx, addFeatureRequest)
+
+	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addBug.Result, Post: post})
+	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: post})
 
 	post, _ = posts.GetByID(post.ID)
 	Expect(post.Tags).HasLen(1)
-	Expect(post.Tags[0]).Equals(bug.Slug)
+	Expect(post.Tags[0]).Equals(addBug.Result.Slug)
 
 	posts.SetCurrentUser(jonSnow)
 	post, _ = posts.GetByID(post.ID)
 	Expect(post.Tags).HasLen(2)
-	Expect(post.Tags[0]).Equals(bug.Slug)
-	Expect(post.Tags[1]).Equals(featureRequest.Slug)
+	Expect(post.Tags[0]).Equals(addBug.Result.Slug)
+	Expect(post.Tags[1]).Equals(addFeatureRequest.Result.Slug)
 }
 
 func TestPostStorage_IsReferenced(t *testing.T) {
