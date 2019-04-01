@@ -49,6 +49,12 @@ func (s Service) Init() {
 	bus.AddHandler(deleteTag)
 	bus.AddHandler(assignTag)
 	bus.AddHandler(unassignTag)
+
+	bus.AddHandler(addVote)
+	bus.AddHandler(removeVote)
+	bus.AddHandler(listPostVotes)
+
+	bus.AddHandler(markPostAsDuplicate)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

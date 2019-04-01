@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
@@ -241,14 +243,14 @@ func TestPostStorage_AddVote(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	err = posts.AddVote(post, aryaStark)
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: aryaStark})
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
 	Expect(dbPost.HasVoted).IsFalse()
 	Expect(dbPost.VotesCount).Equals(1)
 
-	err = posts.AddVote(post, jonSnow)
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
 	dbPost, err = posts.GetByNumber(1)
@@ -266,10 +268,10 @@ func TestPostStorage_AddVote_Twice(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddVote(post, jonSnow)
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
-	err = posts.AddVote(post, jonSnow)
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
@@ -286,10 +288,10 @@ func TestPostStorage_RemoveVote(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddVote(post, jonSnow)
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
-	err = posts.RemoveVote(post, jonSnow)
+	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
@@ -306,13 +308,13 @@ func TestPostStorage_RemoveVote_Twice(t *testing.T) {
 
 	post, _ := posts.Add("My new post", "with this description")
 
-	err := posts.AddVote(post, jonSnow)
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
-	err = posts.RemoveVote(post, jonSnow)
+	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
-	err = posts.RemoveVote(post, jonSnow)
+	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
 	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(1)
@@ -379,14 +381,18 @@ func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 
 	post1, _ := posts.Add("My new post", "with this description")
-	posts.AddVote(post1, jonSnow)
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: jonSnow})
+	Expect(err).IsNil()
 
 	posts.SetCurrentUser(aryaStark)
 	post2, _ := posts.Add("My other post", "with similar description")
-	posts.AddVote(post2, aryaStark)
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddVote{Post: post2, User: aryaStark})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post2, Original: post1})
+	Expect(err).IsNil()
 
 	posts.SetCurrentUser(jonSnow)
-	posts.MarkAsDuplicate(post2, post1)
 	post1, _ = posts.GetByID(post1.ID)
 
 	Expect(post1.VotesCount).Equals(2)
@@ -433,7 +439,9 @@ func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
 	posts.SetResponse(post, "We liked this post", models.PostCompleted)
-	posts.AddVote(post, jonSnow)
+
+	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	Expect(err).IsNil()
 
 	dbPost, err := posts.GetByNumber(post.Number)
 	Expect(err).IsNil()
@@ -447,9 +455,10 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
 	post, _ := posts.Add("My new post", "with this description")
-	posts.AddVote(post, jonSnow)
+
+	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
 	posts.SetResponse(post, "We liked this post", models.PostCompleted)
-	posts.RemoveVote(post, jonSnow)
+	bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
 
 	dbPost, err := posts.GetByNumber(post.Number)
 	Expect(err).IsNil()
@@ -495,8 +504,8 @@ func TestPostStorage_IsReferenced(t *testing.T) {
 	post2, _ := posts.Add("My second post", "with this description")
 	post3, _ := posts.Add("My third post", "with this description")
 
-	posts.MarkAsDuplicate(post2, post3)
-	posts.MarkAsDuplicate(post3, post1)
+	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post2, Original: post3})
+	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post3, Original: post1})
 
 	referenced, err := posts.IsReferenced(post1)
 	Expect(referenced).IsTrue()
@@ -518,20 +527,22 @@ func TestPostStorage_ListVotesOfPost(t *testing.T) {
 	posts.SetCurrentTenant(demoTenant)
 	posts.SetCurrentUser(jonSnow)
 	post1, _ := posts.Add("My new post", "with this description")
-	posts.AddVote(post1, jonSnow)
-	posts.AddVote(post1, aryaStark)
 
-	users, err := posts.ListVotes(post1, -1)
+	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: jonSnow})
+	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: aryaStark})
+
+	listVotes := &query.ListPostVotes{PostID: post1.ID}
+	err := bus.Dispatch(jonSnowCtx, listVotes)
 	Expect(err).IsNil()
-	Expect(users).HasLen(2)
+	Expect(listVotes.Result).HasLen(2)
 
-	Expect(users[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(users[0].User.Name).Equals("Jon Snow")
-	Expect(users[0].User.Email).Equals("jon.snow@got.com")
+	Expect(listVotes.Result[0].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(listVotes.Result[0].User.Name).Equals("Jon Snow")
+	Expect(listVotes.Result[0].User.Email).Equals("jon.snow@got.com")
 
-	Expect(users[1].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
-	Expect(users[1].User.Name).Equals("Arya Stark")
-	Expect(users[1].User.Email).Equals("arya.stark@got.com")
+	Expect(listVotes.Result[1].CreatedAt).TemporarilySimilar(time.Now(), 5*time.Second)
+	Expect(listVotes.Result[1].User.Name).Equals("Arya Stark")
+	Expect(listVotes.Result[1].User.Email).Equals("arya.stark@got.com")
 }
 
 func TestPostStorage_Attachments(t *testing.T) {

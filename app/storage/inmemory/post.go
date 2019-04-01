@@ -168,25 +168,6 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddVote adds user to post list of votes
-func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
-	s.postsVotedBy[user.ID] = append(s.postsVotedBy[user.ID], post.ID)
-	post.VotesCount = post.VotesCount + 1
-	return nil
-}
-
-// RemoveVote removes user from post list of votes
-func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
-	for i, id := range s.postsVotedBy[user.ID] {
-		if id == post.ID {
-			s.postsVotedBy[user.ID] = append(s.postsVotedBy[user.ID][:i], s.postsVotedBy[user.ID][i+1:]...)
-			break
-		}
-	}
-	post.VotesCount = post.VotesCount - 1
-	return nil
-}
-
 // SetResponse changes current post response
 func (s *PostStorage) SetResponse(post *models.Post, text string, status models.PostStatus) error {
 	for _, storedPost := range s.posts {
@@ -202,23 +183,6 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status models.
 	return nil
 }
 
-// MarkAsDuplicate set post as a duplicate of another post
-func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) error {
-	post.Status = models.PostDuplicate
-	post.Response = &models.PostResponse{
-		Original: &models.OriginalPost{
-			Number: original.Number,
-			Title:  original.Title,
-			Slug:   original.Slug,
-			Status: original.Status,
-		},
-		Text:        "",
-		User:        s.user,
-		RespondedAt: time.Now(),
-	}
-	return nil
-}
-
 // IsReferenced returns true if another post is referencing given post
 func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	for _, i := range s.posts {
@@ -227,11 +191,6 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 		}
 	}
 	return false, nil
-}
-
-// ListVotes returns a list of all votes on given post
-func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
-	return make([]*models.Vote, 0), nil
 }
 
 // AddSubscriber adds user to the post list of subscribers

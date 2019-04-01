@@ -52,24 +52,25 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 	ExpectFailed(result, "status")
 }
 
-func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
-	RegisterT(t)
+// EXPERIMENTAL-BUS: re-enable when PostStorage is on SQLStore
+// func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
+// 	RegisterT(t)
 
-	services.SetCurrentUser(&models.User{ID: 1})
-	post1, _ := services.Posts.Add("Post #1", "")
-	post2, _ := services.Posts.Add("Post #2", "")
-	services.Posts.MarkAsDuplicate(post2, post1)
+// 	services.SetCurrentUser(&models.User{ID: 1})
+// 	post1, _ := services.Posts.Add("Post #1", "")
+// 	post2, _ := services.Posts.Add("Post #2", "")
+// 	services.Posts.MarkAsDuplicate(post2, post1)
 
-	model := &models.DeletePost{
-		Number: post2.Number,
-		Text:   "Spam!",
-	}
-	action := &actions.DeletePost{Model: model}
-	ExpectSuccess(action.Validate(nil, services))
+// 	model := &models.DeletePost{
+// 		Number: post2.Number,
+// 		Text:   "Spam!",
+// 	}
+// 	action := &actions.DeletePost{Model: model}
+// 	ExpectSuccess(action.Validate(nil, services))
 
-	model.Number = post1.Number
-	ExpectFailed(action.Validate(nil, services))
-}
+// 	model.Number = post1.Number
+// 	ExpectFailed(action.Validate(nil, services))
+// }
 
 func TestDeleteComment(t *testing.T) {
 	RegisterT(t)

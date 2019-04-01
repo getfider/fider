@@ -28,15 +28,11 @@ type Post interface {
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
 	DeleteComment(id int) error
-	AddVote(post *models.Post, user *models.User) error
-	RemoveVote(post *models.Post, user *models.User) error
 	AddSubscriber(post *models.Post, user *models.User) error
 	RemoveSubscriber(post *models.Post, user *models.User) error
 	GetActiveSubscribers(number int, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error)
 	SetResponse(post *models.Post, text string, status models.PostStatus) error
-	MarkAsDuplicate(post *models.Post, original *models.Post) error
 	IsReferenced(post *models.Post) (bool, error)
-	ListVotes(post *models.Post, limit int) ([]*models.Vote, error)
 	GetAttachments(post *models.Post, comment *models.Comment) ([]string, error)
 	SetAttachments(post *models.Post, comment *models.Comment, attachments []*models.ImageUpload) error
 }

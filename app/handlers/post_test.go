@@ -31,6 +31,10 @@ func TestIndexHandler(t *testing.T) {
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListPostVotes) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
 		return nil
 	})

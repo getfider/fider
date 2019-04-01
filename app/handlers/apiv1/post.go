@@ -3,6 +3,9 @@ package apiv1
 import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
@@ -49,7 +52,7 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := posts.AddVote(post, c.User()); err != nil {
+		if err := bus.Dispatch(c, &cmd.AddVote{Post: post, User: c.User()}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -123,7 +126,7 @@ func SetResponse() web.HandlerFunc {
 
 		prevStatus := post.Status
 		if input.Model.Status == models.PostDuplicate {
-			err = c.Services().Posts.MarkAsDuplicate(post, input.Original)
+			err = bus.Dispatch(c, &cmd.MarkPostAsDuplicate{Post: post, Original: input.Original})
 		} else {
 			err = c.Services().Posts.SetResponse(post, input.Model.Text, input.Model.Status)
 		}
@@ -286,28 +289,32 @@ func DeleteComment() web.HandlerFunc {
 // AddVote adds current user to given post list of votes
 func AddVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, c.Services().Posts.AddVote)
+		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+			return &cmd.AddVote{Post: post, User: user}
+		})
 	}
 }
 
 // RemoveVote removes current user from given post list of votes
 func RemoveVote() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, c.Services().Posts.RemoveVote)
+		return addOrRemove(c, func(post *models.Post, user *models.User) bus.Msg {
+			return &cmd.RemoveVote{Post: post, User: user}
+		})
 	}
 }
 
 // Subscribe adds current user to list of subscribers of given post
 func Subscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, c.Services().Posts.AddSubscriber)
+		return OLD_addOrRemove(c, c.Services().Posts.AddSubscriber)
 	}
 }
 
 // Unsubscribe removes current user from list of subscribers of given post
 func Unsubscribe() web.HandlerFunc {
 	return func(c *web.Context) error {
-		return addOrRemove(c, c.Services().Posts.RemoveSubscriber)
+		return OLD_addOrRemove(c, c.Services().Posts.RemoveSubscriber)
 	}
 }
 
@@ -324,16 +331,17 @@ func ListVotes() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		votes, err := c.Services().Posts.ListVotes(post, -1)
+		listVotes := &query.ListPostVotes{PostID: post.ID}
+		err = bus.Dispatch(c, listVotes)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(votes)
+		return c.Ok(listVotes.Result)
 	}
 }
 
-func addOrRemove(c *web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
+func OLD_addOrRemove(c *web.Context, addOrRemove func(post *models.Post, user *models.User) error) error {
 	number, err := c.ParamAsInt("number")
 	if err != nil {
 		return c.NotFound()
@@ -345,6 +353,26 @@ func addOrRemove(c *web.Context, addOrRemove func(post *models.Post, user *model
 	}
 
 	err = addOrRemove(post, c.User())
+	if err != nil {
+		return c.Failure(err)
+	}
+
+	return c.Ok(web.Map{})
+}
+
+func addOrRemove(c *web.Context, getCommand func(post *models.Post, user *models.User) bus.Msg) error {
+	number, err := c.ParamAsInt("number")
+	if err != nil {
+		return c.NotFound()
+	}
+
+	post, err := c.Services().Posts.GetByNumber(number)
+	if err != nil {
+		return c.Failure(err)
+	}
+
+	cmd := getCommand(post, c.User())
+	err = bus.Dispatch(c, cmd)
 	if err != nil {
 		return c.Failure(err)
 	}

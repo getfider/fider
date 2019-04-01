@@ -71,18 +71,14 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		getAllTags := &query.GetAllTags{}
-		if err := bus.Dispatch(c, getAllTags); err != nil {
-			return c.Failure(err)
-		}
-
 		subscribed, err := c.Services().Users.HasSubscribedTo(post.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		votes, err := c.Services().Posts.ListVotes(post, 6)
-		if err != nil {
+		getAllTags := &query.GetAllTags{}
+		listVotes := &query.ListPostVotes{PostID: post.ID, Limit: 6}
+		if err := bus.Dispatch(c, getAllTags, listVotes); err != nil {
 			return c.Failure(err)
 		}
 
@@ -100,7 +96,7 @@ func PostDetails() web.HandlerFunc {
 				"subscribed":  subscribed,
 				"post":        post,
 				"tags":        getAllTags.Result,
-				"votes":       votes,
+				"votes":       listVotes.Result,
 				"attachments": attachments,
 			},
 		})

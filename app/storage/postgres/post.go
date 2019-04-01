@@ -103,30 +103,6 @@ type dbStatusCount struct {
 	Count  int               `db:"count"`
 }
 
-type dbVote struct {
-	User *struct {
-		ID            int    `db:"id"`
-		Name          string `db:"name"`
-		Email         string `db:"email"`
-		AvatarType    int64  `db:"avatar_type"`
-		AvatarBlobKey string `db:"avatar_bkey"`
-	} `db:"user"`
-	CreatedAt time.Time `db:"created_at"`
-}
-
-func (v *dbVote) toModel(ctx context.Context) *models.Vote {
-	vote := &models.Vote{
-		CreatedAt: v.CreatedAt,
-		User: &models.VoteUser{
-			ID:        v.User.ID,
-			Name:      v.User.Name,
-			Email:     v.User.Email,
-			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
-		},
-	}
-	return vote
-}
-
 // PostStorage contains read and write operations for posts
 type PostStorage struct {
 	trx    *dbx.Trx
@@ -549,37 +525,6 @@ func (s *PostStorage) UpdateComment(id int, content string) error {
 	return nil
 }
 
-// AddVote adds user to post list of votes
-func (s *PostStorage) AddVote(post *models.Post, user *models.User) error {
-	if !post.CanBeVoted() {
-		return nil
-	}
-
-	_, err := s.trx.Execute(
-		`INSERT INTO post_votes (tenant_id, user_id, post_id, created_at) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
-		s.tenant.ID, user.ID, post.ID, time.Now())
-
-	if err != nil {
-		return errors.Wrap(err, "failed add vote to post")
-	}
-
-	return s.internalAddSubscriber(post, user, false)
-}
-
-// RemoveVote removes user from post list of votes
-func (s *PostStorage) RemoveVote(post *models.Post, user *models.User) error {
-	if !post.CanBeVoted() {
-		return nil
-	}
-
-	_, err := s.trx.Execute(`DELETE FROM post_votes WHERE user_id = $1 AND post_id = $2 AND tenant_id = $3`, user.ID, post.ID, s.tenant.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove vote from post")
-	}
-
-	return err
-}
-
 // AddSubscriber adds user to the post list of subscribers
 func (s *PostStorage) AddSubscriber(post *models.Post, user *models.User) error {
 	return s.internalAddSubscriber(post, user, true)
@@ -715,48 +660,6 @@ func (s *PostStorage) SetResponse(post *models.Post, text string, status models.
 	return nil
 }
 
-// MarkAsDuplicate set post as a duplicate of another post
-func (s *PostStorage) MarkAsDuplicate(post *models.Post, original *models.Post) error {
-	respondedAt := time.Now()
-	if post.Status == models.PostDuplicate && post.Response != nil {
-		respondedAt = post.Response.RespondedAt
-	}
-
-	var users []*dbUser
-	err := s.trx.Select(&users, "SELECT user_id AS id FROM post_votes WHERE post_id = $1 AND tenant_id = $2", post.ID, s.tenant.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed to get votes of post with id '%d'", post.ID)
-	}
-
-	for _, u := range users {
-		if err := s.AddVote(original, u.toModel(s.ctx)); err != nil {
-			return err
-		}
-	}
-
-	_, err = s.trx.Execute(`
-	UPDATE posts 
-	SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
-	WHERE id = $1 and tenant_id = $2
-	`, post.ID, s.tenant.ID, original.ID, respondedAt, s.user.ID, models.PostDuplicate)
-	if err != nil {
-		return errors.Wrap(err, "failed to update post's response")
-	}
-
-	post.Status = models.PostDuplicate
-	post.Response = &models.PostResponse{
-		RespondedAt: respondedAt,
-		User:        s.user,
-		Original: &models.OriginalPost{
-			Number: original.Number,
-			Title:  original.Title,
-			Slug:   original.Slug,
-			Status: original.Status,
-		},
-	}
-	return nil
-}
-
 // IsReferenced returns true if another post is referencing given post
 func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 	exists, err := s.trx.Exists(`
@@ -770,41 +673,6 @@ func (s *PostStorage) IsReferenced(post *models.Post) (bool, error) {
 		return false, errors.Wrap(err, "failed to check if post is referenced")
 	}
 	return exists, nil
-}
-
-// ListVotes returns a list of all votes on given post
-func (s *PostStorage) ListVotes(post *models.Post, limit int) ([]*models.Vote, error) {
-	sqlLimit := "ALL"
-	if limit > 0 {
-		sqlLimit = strconv.Itoa(limit)
-	}
-
-	votes := []*dbVote{}
-	err := s.trx.Select(&votes, `
-		SELECT 
-			pv.created_at, 
-			u.id AS user_id,
-			u.name AS user_name,
-			u.email AS user_email,
-			u.avatar_type AS user_avatar_type,
-			u.avatar_bkey AS user_avatar_bkey
-		FROM post_votes pv
-		INNER JOIN users u
-		ON u.id = pv.user_id
-		AND u.tenant_id = pv.tenant_id 
-		WHERE pv.post_id = $1  
-		AND pv.tenant_id = $2
-		ORDER BY pv.created_at
-		LIMIT `+sqlLimit, post.ID, s.tenant.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get votes of post")
-	}
-
-	var result = make([]*models.Vote, len(votes))
-	for i, vote := range votes {
-		result[i] = vote.toModel(s.ctx)
-	}
-	return result, nil
 }
 
 // GetAttachments for given post or comment
