@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/lib/pq"
 )
 
 func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotificationsAsRead) error {
@@ -138,6 +139,79 @@ func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
 		)
 		if err != nil {
 			return errors.Wrap(err, "failed remove post subscriber")
+		}
+		return nil
+	})
+}
+
+func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		q.Result = make([]*models.User, 0)
+
+		var (
+			users []*dbUser
+			err   error
+		)
+
+		if len(q.Event.RequiresSubscriptionUserRoles) == 0 {
+			err = trx.Select(&users, `
+				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
+				FROM users u
+				LEFT JOIN user_settings set
+				ON set.user_id = u.id
+				AND set.tenant_id = u.tenant_id
+				AND set.key = $1
+				WHERE u.tenant_id = $2
+				AND u.status = $5
+				AND (
+					(set.value IS NULL AND u.role = ANY($3))
+					OR CAST(set.value AS integer) & $4 > 0
+				)
+				ORDER by u.id`,
+				q.Event.UserSettingsKeyName,
+				tenant.ID,
+				pq.Array(q.Event.DefaultEnabledUserRoles),
+				q.Channel,
+				models.UserActive,
+			)
+		} else {
+			err = trx.Select(&users, `
+				SELECT DISTINCT u.id, u.name, u.email, u.tenant_id, u.role, u.status
+				FROM users u
+				LEFT JOIN post_subscribers sub
+				ON sub.user_id = u.id
+				AND sub.post_id = (SELECT id FROM posts p WHERE p.tenant_id = $4 and p.number = $1 LIMIT 1)
+				AND sub.tenant_id = u.tenant_id
+				LEFT JOIN user_settings set
+				ON set.user_id = u.id
+				AND set.key = $3
+				AND set.tenant_id = u.tenant_id
+				WHERE u.tenant_id = $4
+				AND u.status = $8
+				AND ( sub.status = $2 OR (sub.status IS NULL AND NOT u.role = ANY($7)) )
+				AND (
+					(set.value IS NULL AND u.role = ANY($5))
+					OR CAST(set.value AS integer) & $6 > 0
+				)
+				ORDER by u.id`,
+				q.Number,
+				models.SubscriberActive,
+				q.Event.UserSettingsKeyName,
+				tenant.ID,
+				pq.Array(q.Event.DefaultEnabledUserRoles),
+				q.Channel,
+				pq.Array(q.Event.RequiresSubscriptionUserRoles),
+				models.UserActive,
+			)
+		}
+
+		if err != nil {
+			return errors.Wrap(err, "failed to get post number '%d' subscribers", q.Number)
+		}
+
+		q.Result = make([]*models.User, len(users))
+		for i, user := range users {
+			q.Result[i] = user.toModel(ctx)
 		}
 		return nil
 	})

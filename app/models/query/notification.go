@@ -14,3 +14,11 @@ type GetNotificationByID struct {
 type GetActiveNotifications struct {
 	Result []*models.Notification
 }
+
+type GetActiveSubscribers struct {
+	Number  int
+	Channel models.NotificationChannel
+	Event   models.NotificationEvent
+
+	Result []*models.User
+}

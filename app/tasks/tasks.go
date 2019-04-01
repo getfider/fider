@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -101,7 +103,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 func NotifyAboutNewPost(post *models.Post) worker.Task {
 	return describe("Notify about new post", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewPost)
+		users, err := getActiveSubscribers(c, post, models.NotificationChannelWeb, models.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -123,7 +125,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewPost)
+		users, err = getActiveSubscribers(c, post, models.NotificationChannelEmail, models.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -161,7 +163,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+		users, err := getActiveSubscribers(c, post, models.NotificationChannelWeb, models.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -183,7 +185,7 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+		users, err = getActiveSubscribers(c, post, models.NotificationChannelEmail, models.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -227,7 +229,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 		}
 
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		users, err := getActiveSubscribers(c, post, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -249,7 +251,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		users, err = getActiveSubscribers(c, post, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -299,7 +301,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 	return describe("Notify about deleted post", func(c *worker.Context) error {
 
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		users, err := getActiveSubscribers(c, post, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -319,7 +321,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		users, err = getActiveSubscribers(c, post, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -379,4 +381,14 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 
 		return nil
 	})
+}
+
+func getActiveSubscribers(ctx context.Context, post *models.Post, channel models.NotificationChannel, event models.NotificationEvent) ([]*models.User, error) {
+	q := &query.GetActiveSubscribers{
+		Number:  post.Number,
+		Channel: channel,
+		Event:   event,
+	}
+	err := bus.Dispatch(ctx, q)
+	return q.Result, err
 }
