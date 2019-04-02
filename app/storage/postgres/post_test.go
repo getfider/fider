@@ -25,99 +25,95 @@ func TestPostStorage_GetAll(t *testing.T) {
 	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
 	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
 
-	posts.SetCurrentTenant(demoTenant)
-
-	dbPosts, err := posts.GetAll()
+	allPosts := &query.GetAllPosts{}
+	err := bus.Dispatch(demoTenantCtx, allPosts)
 	Expect(err).IsNil()
-	Expect(dbPosts).HasLen(2)
+	Expect(allPosts.Result).HasLen(2)
 
-	Expect(dbPosts[0].Title).Equals("this is my post")
-	Expect(dbPosts[0].Slug).Equals("this-is-my-post")
-	Expect(dbPosts[0].Number).Equals(2)
-	Expect(dbPosts[0].Description).Equals("no description")
-	Expect(dbPosts[0].User.Name).Equals("Arya Stark")
-	Expect(dbPosts[0].VotesCount).Equals(0)
-	Expect(dbPosts[0].Status).Equals(models.PostCompleted)
+	Expect(allPosts.Result[0].Title).Equals("this is my post")
+	Expect(allPosts.Result[0].Slug).Equals("this-is-my-post")
+	Expect(allPosts.Result[0].Number).Equals(2)
+	Expect(allPosts.Result[0].Description).Equals("no description")
+	Expect(allPosts.Result[0].User.Name).Equals("Arya Stark")
+	Expect(allPosts.Result[0].VotesCount).Equals(0)
+	Expect(allPosts.Result[0].Status).Equals(models.PostCompleted)
 
-	Expect(dbPosts[1].Title).Equals("add twitter integration")
-	Expect(dbPosts[1].Slug).Equals("add-twitter-integration")
-	Expect(dbPosts[1].Number).Equals(1)
-	Expect(dbPosts[1].Description).Equals("Would be great to see it integrated with twitter")
-	Expect(dbPosts[1].User.Name).Equals("Jon Snow")
-	Expect(dbPosts[1].VotesCount).Equals(0)
-	Expect(dbPosts[1].Status).Equals(models.PostStarted)
+	Expect(allPosts.Result[1].Title).Equals("add twitter integration")
+	Expect(allPosts.Result[1].Slug).Equals("add-twitter-integration")
+	Expect(allPosts.Result[1].Number).Equals(1)
+	Expect(allPosts.Result[1].Description).Equals("Would be great to see it integrated with twitter")
+	Expect(allPosts.Result[1].User.Name).Equals("Jon Snow")
+	Expect(allPosts.Result[1].VotesCount).Equals(0)
+	Expect(allPosts.Result[1].Status).Equals(models.PostStarted)
 
-	dbPosts, err = posts.Search("twitter", "trending", "10", []string{})
+	search10 := &query.SearchPosts{Query: "twitter", Limit: "10"}
+	search0 := &query.SearchPosts{Query: "twitter", Limit: "0"}
+	err = bus.Dispatch(demoTenantCtx, search10, search0)
 	Expect(err).IsNil()
-	Expect(dbPosts).HasLen(1)
-	Expect(dbPosts[0].Slug).Equals("add-twitter-integration")
 
-	dbPosts, err = posts.Search("twitter", "trending", "0", []string{})
-	Expect(err).IsNil()
-	Expect(dbPosts).HasLen(0)
+	Expect(search10.Result).HasLen(1)
+	Expect(search10.Result[0].Slug).Equals("add-twitter-integration")
+	Expect(search0.Result).HasLen(0)
 }
 
 func TestPostStorage_AddAndGet(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	dbPostByID, err := posts.GetByID(post.ID)
+	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
+	postBySlug := &query.GetPostBySlug{Slug: "my-new-post"}
+	err = bus.Dispatch(jonSnowCtx, postByID, postBySlug)
 	Expect(err).IsNil()
-	Expect(dbPostByID.ID).Equals(post.ID)
-	Expect(dbPostByID.Number).Equals(1)
-	Expect(dbPostByID.HasVoted).IsFalse()
-	Expect(dbPostByID.VotesCount).Equals(0)
-	Expect(dbPostByID.Status).Equals(models.PostOpen)
-	Expect(dbPostByID.Title).Equals("My new post")
-	Expect(dbPostByID.Description).Equals("with this description")
-	Expect(dbPostByID.User.ID).Equals(1)
-	Expect(dbPostByID.User.Name).Equals("Jon Snow")
-	Expect(dbPostByID.User.Email).Equals("jon.snow@got.com")
 
-	dbPostBySlug, err := posts.GetBySlug("my-new-post")
+	Expect(postByID.Result.ID).Equals(newPost.Result.ID)
+	Expect(postByID.Result.Number).Equals(1)
+	Expect(postByID.Result.HasVoted).IsFalse()
+	Expect(postByID.Result.VotesCount).Equals(0)
+	Expect(postByID.Result.Status).Equals(models.PostOpen)
+	Expect(postByID.Result.Title).Equals("My new post")
+	Expect(postByID.Result.Description).Equals("with this description")
+	Expect(postByID.Result.User.ID).Equals(1)
+	Expect(postByID.Result.User.Name).Equals("Jon Snow")
+	Expect(postByID.Result.User.Email).Equals("jon.snow@got.com")
 
-	Expect(err).IsNil()
-	Expect(dbPostBySlug.ID).Equals(post.ID)
-	Expect(dbPostBySlug.Number).Equals(1)
-	Expect(dbPostBySlug.HasVoted).IsFalse()
-	Expect(dbPostBySlug.VotesCount).Equals(0)
-	Expect(dbPostBySlug.Status).Equals(models.PostOpen)
-	Expect(dbPostBySlug.Title).Equals("My new post")
-	Expect(dbPostBySlug.Description).Equals("with this description")
-	Expect(dbPostBySlug.User.ID).Equals(1)
-	Expect(dbPostBySlug.User.Name).Equals("Jon Snow")
-	Expect(dbPostBySlug.User.Email).Equals("jon.snow@got.com")
+	Expect(postBySlug.Result.ID).Equals(newPost.Result.ID)
+	Expect(postBySlug.Result.Number).Equals(1)
+	Expect(postBySlug.Result.HasVoted).IsFalse()
+	Expect(postBySlug.Result.VotesCount).Equals(0)
+	Expect(postBySlug.Result.Status).Equals(models.PostOpen)
+	Expect(postBySlug.Result.Title).Equals("My new post")
+	Expect(postBySlug.Result.Description).Equals("with this description")
+	Expect(postBySlug.Result.User.ID).Equals(1)
+	Expect(postBySlug.Result.User.Name).Equals("Jon Snow")
+	Expect(postBySlug.Result.User.Email).Equals("jon.snow@got.com")
 }
 
 func TestPostStorage_GetInvalid(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-
-	dbPost, err := posts.GetByID(1)
+	postByID := &query.GetPostByID{PostID: 1}
+	err := bus.Dispatch(jonSnowCtx, postByID)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(dbPost).IsNil()
+	Expect(postByID.Result).IsNil()
 }
 
 func TestPostStorage_AddAndReturnComments(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.AddNewComment{Post: post, Content: "Comment #1"})
-	bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: post, Content: "Comment #2"})
+	bus.Dispatch(jonSnowCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"})
+	bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #2"})
 
-	commentsByPost := &query.GetCommentsByPost{Post: post}
+	commentsByPost := &query.GetCommentsByPost{Post: newPost.Result}
 	err = bus.Dispatch(aryaStarkCtx, commentsByPost)
 	Expect(err).IsNil()
 	Expect(commentsByPost.Result).HasLen(2)
@@ -132,12 +128,11 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	addNewComment := &cmd.AddNewComment{Post: post, Content: "Comment #1"}
+	addNewComment := &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"}
 	err = bus.Dispatch(jonSnowCtx, addNewComment)
 	Expect(err).IsNil()
 
@@ -169,12 +164,11 @@ func TestPostStorage_AddDeleteComment(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	addNewComment := &cmd.AddNewComment{Post: post, Content: "Comment #1"}
+	addNewComment := &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"}
 	err = bus.Dispatch(jonSnowCtx, addNewComment)
 	Expect(err).IsNil()
 
@@ -191,168 +185,172 @@ func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	demoPost, err := posts.Add("My new post", "with this description")
+	jonSnowNewPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, jonSnowNewPost)
 	Expect(err).IsNil()
 
-	posts.SetCurrentTenant(avengersTenant)
-	posts.SetCurrentUser(tonyStark)
-	avengersPost, err := posts.Add("My other post", "with other description")
+	tonyStarkNewPost := &cmd.AddNewPost{Title: "My other post", Description: "with other description"}
+	err = bus.Dispatch(tonyStarkCtx, tonyStarkNewPost)
 	Expect(err).IsNil()
 
-	posts.SetCurrentTenant(demoTenant)
-	dbPost, err := posts.GetByNumber(1)
-
+	getDemoTenantPost1 := &query.GetPostByNumber{Number: 1}
+	err = bus.Dispatch(demoTenantCtx, getDemoTenantPost1)
 	Expect(err).IsNil()
-	Expect(dbPost.ID).Equals(demoPost.ID)
-	Expect(dbPost.Number).Equals(1)
-	Expect(dbPost.Title).Equals("My new post")
-	Expect(dbPost.Slug).Equals("my-new-post")
+	Expect(getDemoTenantPost1.Result.ID).Equals(jonSnowNewPost.Result.ID)
+	Expect(getDemoTenantPost1.Result.Number).Equals(1)
+	Expect(getDemoTenantPost1.Result.Title).Equals("My new post")
+	Expect(getDemoTenantPost1.Result.Slug).Equals("my-new-post")
 
-	posts.SetCurrentTenant(avengersTenant)
-	dbPost, err = posts.GetByNumber(1)
-
+	getAvengersPost1 := &query.GetPostByNumber{Number: 1}
+	err = bus.Dispatch(avengersTenantCtx, getAvengersPost1)
 	Expect(err).IsNil()
-	Expect(dbPost.ID).Equals(avengersPost.ID)
-	Expect(dbPost.Number).Equals(1)
-	Expect(dbPost.Title).Equals("My other post")
-	Expect(dbPost.Slug).Equals("my-other-post")
+	Expect(getAvengersPost1.Result.ID).Equals(tonyStarkNewPost.Result.ID)
+	Expect(getAvengersPost1.Result.Number).Equals(1)
+	Expect(getAvengersPost1.Result.Title).Equals("My other post")
+	Expect(getAvengersPost1.Result.Slug).Equals("my-other-post")
 }
 
 func TestPostStorage_Update(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	post, err = posts.Update(post, "The new comment", "With the new description")
+	err = bus.Dispatch(jonSnowCtx, &cmd.UpdatePost{Post: newPost.Result, Title: "The new title", Description: "With the new description"})
 	Expect(err).IsNil()
-	Expect(post.Title).Equals("The new comment")
-	Expect(post.Description).Equals("With the new description")
-	Expect(post.Slug).Equals("the-new-comment")
+
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
+	Expect(err).IsNil()
+	Expect(getPost.Result.Title).Equals("The new title")
+	Expect(getPost.Result.Description).Equals("With the new description")
+	Expect(getPost.Result.Slug).Equals("the-new-title")
 }
 
 func TestPostStorage_AddVote(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: aryaStark})
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
 	Expect(err).IsNil()
 
-	dbPost, err := posts.GetByNumber(1)
-	Expect(dbPost.HasVoted).IsFalse()
-	Expect(dbPost.VotesCount).Equals(1)
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
+	Expect(err).IsNil()
+	Expect(getPost.Result.HasVoted).IsFalse()
+	Expect(getPost.Result.VotesCount).Equals(1)
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: jonSnow})
 	Expect(err).IsNil()
 
-	dbPost, err = posts.GetByNumber(1)
+	getPost = &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
-	Expect(dbPost.HasVoted).IsTrue()
-	Expect(dbPost.VotesCount).Equals(2)
+	Expect(getPost.Result.HasVoted).IsTrue()
+	Expect(getPost.Result.VotesCount).Equals(2)
 }
 
 func TestPostStorage_AddVote_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, _ := posts.Add("My new post", "with this description")
-
-	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	err = bus.Dispatch(
+		jonSnowCtx,
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
+	)
 	Expect(err).IsNil()
 
-	dbPost, err := posts.GetByNumber(1)
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
-	Expect(dbPost.VotesCount).Equals(1)
+	Expect(getPost.Result.HasVoted).IsTrue()
+	Expect(getPost.Result.VotesCount).Equals(1)
 }
 
 func TestPostStorage_RemoveVote(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, _ := posts.Add("My new post", "with this description")
-
-	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
+	err = bus.Dispatch(
+		jonSnowCtx,
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
+		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
+	)
 	Expect(err).IsNil()
 
-	dbPost, err := posts.GetByNumber(1)
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
-	Expect(dbPost.VotesCount).Equals(0)
+	Expect(getPost.Result.HasVoted).IsFalse()
+	Expect(getPost.Result.VotesCount).Equals(0)
 }
 
 func TestPostStorage_RemoveVote_Twice(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, _ := posts.Add("My new post", "with this description")
-
-	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post, User: jonSnow})
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
+	err = bus.Dispatch(
+		jonSnowCtx,
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
+		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
+		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
+	)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.RemoveVote{Post: post, User: jonSnow})
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
-
-	dbPost, err := posts.GetByNumber(1)
-	Expect(err).IsNil()
-	Expect(dbPost.VotesCount).Equals(0)
+	Expect(getPost.Result.HasVoted).IsFalse()
+	Expect(getPost.Result.VotesCount).Equals(0)
 }
 
 func TestPostStorage_SetResponse(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post, _ := posts.Add("My new post", "with this description")
-	err := bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostStarted})
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	post, _ = posts.GetByID(post.ID)
-	Expect(post.Response.Text).Equals("We liked this post")
-	Expect(post.Status).Equals(models.PostStarted)
-	Expect(post.Response.User.ID).Equals(1)
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostStarted})
+	Expect(err).IsNil()
+
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, getPost)
+	Expect(err).IsNil()
+	Expect(getPost.Result.Response.Text).Equals("We liked this post")
+	Expect(getPost.Result.Status).Equals(models.PostStarted)
+	Expect(getPost.Result.Response.User.ID).Equals(1)
 }
 
 func TestPostStorage_SetResponse_KeepOpen(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
 
-	post, _ := posts.Add("My new post", "with this description")
-	err := bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostOpen})
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostOpen})
 	Expect(err).IsNil()
 }
 
@@ -360,191 +358,190 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
 
-	post, _ := posts.Add("My new post", "with this description")
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostStarted})
-	post, _ = posts.GetByID(post.ID)
-	respondedAt := post.Response.RespondedAt
+	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We liked this post and we'll work on it", Status: models.PostStarted})
-	post, _ = posts.GetByID(post.ID)
-	Expect(post.Response.RespondedAt).Equals(respondedAt)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostStarted})
+	bus.Dispatch(jonSnowCtx, getPost)
+	firstResponseAt := getPost.Result.Response.RespondedAt
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "We finished it", Status: models.PostCompleted})
-	post, _ = posts.GetByID(post.ID)
-	Expect(post.Response.RespondedAt).TemporarilySimilar(respondedAt, time.Second)
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: models.PostStarted})
+	bus.Dispatch(jonSnowCtx, getPost)
+	Expect(getPost.Result.Response.RespondedAt).Equals(firstResponseAt)
+
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: models.PostCompleted})
+	bus.Dispatch(jonSnowCtx, getPost)
+	Expect(getPost.Result.Response.RespondedAt).TemporarilySimilar(firstResponseAt, time.Second)
 }
 
 func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-
-	post1, _ := posts.Add("My new post", "with this description")
-	err := bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: jonSnow})
+	newPost1 := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost1)
 	Expect(err).IsNil()
 
-	posts.SetCurrentUser(aryaStark)
-	post2, _ := posts.Add("My other post", "with similar description")
-	err = bus.Dispatch(aryaStarkCtx, &cmd.AddVote{Post: post2, User: aryaStark})
+	newPost2 := &cmd.AddNewPost{Title: "My other post", Description: "with similar description"}
+	err = bus.Dispatch(aryaStarkCtx, newPost2)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post2, Original: post1})
+	err = bus.Dispatch(
+		jonSnowCtx,
+		&cmd.AddVote{Post: newPost1.Result, User: jonSnow},
+		&cmd.AddVote{Post: newPost2.Result, User: aryaStark},
+		&cmd.MarkPostAsDuplicate{Post: newPost2.Result, Original: newPost1.Result},
+	)
 	Expect(err).IsNil()
 
-	posts.SetCurrentUser(jonSnow)
-	post1, _ = posts.GetByID(post1.ID)
+	getPost1 := &query.GetPostByID{PostID: newPost1.Result.ID}
+	getPost2 := &query.GetPostByID{PostID: newPost2.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, getPost1, getPost2)
+	Expect(err).IsNil()
 
-	Expect(post1.VotesCount).Equals(2)
-	Expect(post1.Status).Equals(models.PostOpen)
-	Expect(post1.Response).IsNil()
+	Expect(getPost1.Result.VotesCount).Equals(2)
+	Expect(getPost1.Result.Status).Equals(models.PostOpen)
+	Expect(getPost1.Result.Response).IsNil()
 
-	post2, _ = posts.GetByID(post2.ID)
-
-	Expect(post2.Response.Text).Equals("")
-	Expect(post2.VotesCount).Equals(1)
-	Expect(post2.Status).Equals(models.PostDuplicate)
-	Expect(post2.Response.User.ID).Equals(1)
-	Expect(post2.Response.Original.Number).Equals(post1.Number)
-	Expect(post2.Response.Original.Title).Equals(post1.Title)
-	Expect(post2.Response.Original.Slug).Equals(post1.Slug)
-	Expect(post2.Response.Original.Status).Equals(post1.Status)
+	Expect(getPost2.Result.Response.Text).Equals("")
+	Expect(getPost2.Result.VotesCount).Equals(1)
+	Expect(getPost2.Result.Status).Equals(models.PostDuplicate)
+	Expect(getPost2.Result.Response.User.ID).Equals(1)
+	Expect(getPost2.Result.Response.Original.Number).Equals(newPost1.Result.Number)
+	Expect(getPost2.Result.Response.Original.Title).Equals(newPost1.Result.Title)
+	Expect(getPost2.Result.Response.Original.Slug).Equals(newPost1.Result.Slug)
+	Expect(getPost2.Result.Response.Original.Status).Equals(newPost1.Result.Status)
 }
 
 func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, err := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: post, Text: "Spam!", Status: models.PostDeleted})
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: models.PostDeleted})
 
-	post1, err := posts.GetByNumber(post.Number)
+	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
+	err = bus.Dispatch(aryaStarkCtx, postByID)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(post1).IsNil()
+	Expect(postByID.Result).IsNil()
 
-	post2, err := posts.GetByID(post.ID)
+	postByNumber := &query.GetPostByNumber{Number: newPost.Result.Number}
+	err = bus.Dispatch(aryaStarkCtx, postByNumber)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(post2).IsNil()
+	Expect(postByNumber.Result).IsNil()
 }
 
 func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, _ := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
 
-	err := bus.Dispatch(jonSnowCtx,
-		&cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostCompleted},
-		&cmd.AddVote{Post: post, User: jonSnow},
+	err = bus.Dispatch(jonSnowCtx,
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
 	)
 	Expect(err).IsNil()
 
-	dbPost, err := posts.GetByNumber(post.Number)
+	getPost := &query.GetPostByNumber{Number: newPost.Result.Number}
+	err = bus.Dispatch(aryaStarkCtx, getPost)
 	Expect(err).IsNil()
-	Expect(dbPost.VotesCount).Equals(0)
+	Expect(getPost.Result.VotesCount).Equals(0)
 }
 
 func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post, _ := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
 
 	bus.Dispatch(
 		jonSnowCtx,
-		&cmd.AddVote{Post: post, User: jonSnow},
-		&cmd.SetPostResponse{Post: post, Text: "We liked this post", Status: models.PostCompleted},
-		&cmd.RemoveVote{Post: post, User: jonSnow},
+		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
 	)
 
-	dbPost, err := posts.GetByNumber(post.Number)
+	getPost := &query.GetPostByNumber{Number: newPost.Result.Number}
+	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
-	Expect(dbPost.VotesCount).Equals(1)
+	Expect(getPost.Result.VotesCount).Equals(1)
 }
 
 func TestPostStorage_WithTags(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(aryaStark)
-
-	post, _ := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(aryaStarkCtx, newPost)
+	Expect(err).IsNil()
 
 	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
-	bus.Dispatch(jonSnowCtx, addBug)
-
 	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
-	bus.Dispatch(jonSnowCtx, addFeatureRequest)
+	bus.Dispatch(jonSnowCtx, addBug, addFeatureRequest)
+	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
+	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
 
-	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addBug.Result, Post: post})
-	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: post})
+	getPost := &query.GetPostByNumber{Number: newPost.Result.Number}
+	err = bus.Dispatch(aryaStarkCtx, getPost)
+	Expect(err).IsNil()
+	Expect(getPost.Result.Tags).HasLen(1)
+	Expect(getPost.Result.Tags[0]).Equals(addBug.Result.Slug)
 
-	post, _ = posts.GetByID(post.ID)
-	Expect(post.Tags).HasLen(1)
-	Expect(post.Tags[0]).Equals(addBug.Result.Slug)
-
-	posts.SetCurrentUser(jonSnow)
-	post, _ = posts.GetByID(post.ID)
-	Expect(post.Tags).HasLen(2)
-	Expect(post.Tags[0]).Equals(addBug.Result.Slug)
-	Expect(post.Tags[1]).Equals(addFeatureRequest.Result.Slug)
+	err = bus.Dispatch(jonSnowCtx, getPost)
+	Expect(err).IsNil()
+	Expect(getPost.Result.Tags).HasLen(2)
+	Expect(getPost.Result.Tags[0]).Equals(addBug.Result.Slug)
+	Expect(getPost.Result.Tags[1]).Equals(addFeatureRequest.Result.Slug)
 }
 
 func TestPostStorage_IsReferenced(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post1, _ := posts.Add("My first post", "with this description")
-	post2, _ := posts.Add("My second post", "with this description")
-	post3, _ := posts.Add("My third post", "with this description")
-
-	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post2, Original: post3})
-	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: post3, Original: post1})
-
-	isReferenced := &query.PostIsReferenced{PostID: post1.ID}
-	err := bus.Dispatch(jonSnowCtx, isReferenced)
+	newPost1 := &cmd.AddNewPost{Title: "My first post", Description: "with this description"}
+	newPost2 := &cmd.AddNewPost{Title: "My second post", Description: "with this description"}
+	newPost3 := &cmd.AddNewPost{Title: "My third post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost1, newPost2, newPost3)
 	Expect(err).IsNil()
-	Expect(isReferenced.Result).IsTrue()
 
-	isReferenced = &query.PostIsReferenced{PostID: post2.ID}
-	err = bus.Dispatch(jonSnowCtx, isReferenced)
-	Expect(err).IsNil()
-	Expect(isReferenced.Result).IsFalse()
+	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost2.Result, Original: newPost3.Result})
+	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost3.Result, Original: newPost1.Result})
 
-	isReferenced = &query.PostIsReferenced{PostID: post3.ID}
-	err = bus.Dispatch(jonSnowCtx, isReferenced)
+	isReferenced1 := &query.PostIsReferenced{PostID: newPost1.Result.ID}
+	isReferenced2 := &query.PostIsReferenced{PostID: newPost2.Result.ID}
+	isReferenced3 := &query.PostIsReferenced{PostID: newPost3.Result.ID}
+
+	err = bus.Dispatch(jonSnowCtx, isReferenced1, isReferenced2, isReferenced3)
 	Expect(err).IsNil()
-	Expect(isReferenced.Result).IsTrue()
+	Expect(isReferenced1.Result).IsTrue()
+	Expect(isReferenced2.Result).IsFalse()
+	Expect(isReferenced3.Result).IsTrue()
 }
 
 func TestPostStorage_ListVotesOfPost(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post1, _ := posts.Add("My new post", "with this description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(jonSnowCtx, newPost)
+	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: jonSnow})
-	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: post1, User: aryaStark})
+	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: jonSnow})
+	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
 
-	listVotes := &query.ListPostVotes{PostID: post1.ID}
-	err := bus.Dispatch(jonSnowCtx, listVotes)
+	listVotes := &query.ListPostVotes{PostID: newPost.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, listVotes)
 	Expect(err).IsNil()
 	Expect(listVotes.Result).HasLen(2)
 
@@ -561,14 +558,15 @@ func TestPostStorage_Attachments(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(jonSnow)
-	post1, _ := posts.Add("My new post", "with this description")
-	post2, _ := posts.Add("My other post", "with another description")
-	getAttachments1 := &query.GetAttachments{Post: post1}
-	getAttachments2 := &query.GetAttachments{Post: post2}
+	newPost1 := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	newPost2 := &cmd.AddNewPost{Title: "My other post", Description: "with another description"}
+	err := bus.Dispatch(jonSnowCtx, newPost1, newPost2)
+	Expect(err).IsNil()
 
-	err := bus.Dispatch(jonSnowCtx, getAttachments1)
+	getAttachments1 := &query.GetAttachments{Post: newPost1.Result}
+	getAttachments2 := &query.GetAttachments{Post: newPost2.Result}
+
+	err = bus.Dispatch(jonSnowCtx, getAttachments1)
 	Expect(err).IsNil()
 	Expect(getAttachments1.Result).HasLen(0)
 
@@ -576,7 +574,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
-		Post: post1,
+		Post: newPost1.Result,
 		Attachments: []*models.ImageUpload{
 			&models.ImageUpload{
 				BlobKey: "12345-test.png",
@@ -597,7 +595,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	Expect(getAttachments2.Result).HasLen(0)
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
-		Post: post2,
+		Post: newPost2.Result,
 		Attachments: []*models.ImageUpload{
 			&models.ImageUpload{
 				BlobKey: "12345-test.png",
@@ -632,7 +630,7 @@ func TestPostStorage_Attachments(t *testing.T) {
 	Expect(getAttachments2.Result[1]).Equals("67890-test6.png")
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.SetAttachments{
-		Post: post1,
+		Post: newPost1.Result,
 		Attachments: []*models.ImageUpload{
 			&models.ImageUpload{
 				BlobKey: "12345-test.png",

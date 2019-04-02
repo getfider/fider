@@ -52,7 +52,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 				Context: c,
 				Tenants: postgres.NewTenantStorage(trx, c),
 				Users:   postgres.NewUserStorage(trx, c),
-				Posts:   postgres.NewPostStorage(trx, c),
 			})
 
 			//Execute the chain
@@ -131,7 +130,6 @@ func WebSetup() web.MiddlewareFunc {
 				Tenants: tenantStorage,
 				OAuth:   web.NewOAuthService(oauthBaseURL, tenantStorage),
 				Users:   postgres.NewUserStorage(trx, c),
-				Posts:   postgres.NewPostStorage(trx, c),
 			})
 
 			//Execute the chain

@@ -1,9 +1,14 @@
 package handlers_test
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -70,6 +75,11 @@ Sitemap: https://demo.test.fider.io/sitemap.xml`)
 func TestSitemap(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
+		q.Result = []*models.Post{}
+		return nil
+	})
+
 	server, _ := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -84,11 +94,15 @@ func TestSitemap(t *testing.T) {
 func TestSitemap_WithPosts(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("My new idea 1", "")
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("The other idea", "")
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
+		q.Result = []*models.Post{
+			&models.Post{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
+			&models.Post{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
+		}
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -103,11 +117,7 @@ func TestSitemap_WithPosts(t *testing.T) {
 func TestSitemap_PrivateTenant_WithPosts(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("My new idea 1", "")
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("The other idea", "")
+	server, _ := mock.NewServer()
 
 	mock.DemoTenant.IsPrivate = true
 

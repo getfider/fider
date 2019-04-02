@@ -41,10 +41,10 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	post, err := services.Posts.GetBySlug(slug.Make(input.Model.Title))
+	err := bus.Dispatch(services.Context, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if post != nil {
+	} else if err == nil {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
@@ -82,10 +82,12 @@ func (input *UpdatePost) IsAuthorized(user *models.User, services *app.Services)
 func (input *UpdatePost) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
-	post, err := services.Posts.GetByNumber(input.Model.Number)
-	if err != nil {
+	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
+	if err := bus.Dispatch(services.Context, postByNumber); err != nil {
 		return validate.Error(err)
 	}
+
+	input.Post = postByNumber.Result
 
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
@@ -97,14 +99,15 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	another, err := services.Posts.GetBySlug(slug.Make(input.Model.Title))
+	postBySlug := &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)}
+	err := bus.Dispatch(services.Context, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
-	} else if another != nil && another.ID != post.ID {
+	} else if err == nil && postBySlug.Result.ID != input.Post.ID {
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	getAttachments := &query.GetAttachments{Post: post}
+	getAttachments := &query.GetAttachments{Post: input.Post}
 	err = bus.Dispatch(services.Context, getAttachments)
 	if err != nil {
 		return validate.Error(err)
@@ -119,8 +122,6 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 		return validate.Error(err)
 	}
 	result.AddFieldFailure("attachments", messages...)
-
-	input.Post = post
 
 	return result
 }
@@ -192,7 +193,8 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}
 
-		original, err := services.Posts.GetByNumber(input.Model.OriginalNumber)
+		getOriginaPost := &query.GetPostByNumber{Number: input.Model.OriginalNumber}
+		err := bus.Dispatch(services.Context, getOriginaPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				result.AddFieldFailure("originalNumber", "Original post not found")
@@ -200,8 +202,9 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 				return validate.Error(err)
 			}
 		}
-		if original != nil {
-			input.Original = original
+
+		if getOriginaPost.Result != nil {
+			input.Original = getOriginaPost.Result
 		}
 	}
 
@@ -227,12 +230,14 @@ func (input *DeletePost) IsAuthorized(user *models.User, services *app.Services)
 
 // Validate if current model is valid
 func (input *DeletePost) Validate(user *models.User, services *app.Services) *validate.Result {
-	post, err := services.Posts.GetByNumber(input.Model.Number)
-	if err != nil {
+	getPost := &query.GetPostByNumber{Number: input.Model.Number}
+	if err := bus.Dispatch(services.Context, getPost); err != nil {
 		return validate.Error(err)
 	}
 
-	isReferencedQuery := &query.PostIsReferenced{PostID: post.ID}
+	input.Post = getPost.Result
+
+	isReferencedQuery := &query.PostIsReferenced{PostID: input.Post.ID}
 	if err := bus.Dispatch(services.Context, isReferencedQuery); err != nil {
 		return validate.Error(err)
 	}
@@ -240,8 +245,6 @@ func (input *DeletePost) Validate(user *models.User, services *app.Services) *va
 	if isReferencedQuery.Result {
 		return validate.Failed("This post cannot be deleted because it's being referenced by a duplicated post.")
 	}
-
-	input.Post = post
 
 	return validate.Success()
 }
@@ -261,17 +264,13 @@ func (input *EditComment) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *EditComment) IsAuthorized(user *models.User, services *app.Services) bool {
-	post, err := services.Posts.GetByNumber(input.Model.PostNumber)
-	if err != nil {
-		return false
-	}
-
+	postByNumber := &query.GetPostByNumber{Number: input.Model.PostNumber}
 	commentByID := &query.GetCommentByID{CommentID: input.Model.ID}
-	if err := bus.Dispatch(services.Context, commentByID); err != nil {
+	if err := bus.Dispatch(services.Context, postByNumber, commentByID); err != nil {
 		return false
 	}
 
-	input.Post = post
+	input.Post = postByNumber.Result
 	input.Comment = commentByID.Result
 	return user.ID == input.Comment.User.ID || user.IsCollaborator()
 }

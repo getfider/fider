@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/web"
 )
 
 type dbVote struct {
@@ -108,16 +106,4 @@ func listPostVotes(ctx context.Context, q *query.ListPostVotes) error {
 
 		return nil
 	})
-}
-
-func buildAvatarURL(ctx context.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {
-	if name == "" {
-		name = "-"
-	}
-
-	if avatarType == models.AvatarTypeCustom {
-		return web.TenantAssetsURL(ctx, "/images/%s", avatarBlobKey)
-	} else {
-		return web.TenantAssetsURL(ctx, "/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))
-	}
 }

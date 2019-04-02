@@ -14,16 +14,17 @@ import (
 // SearchPosts return existing posts based on search criteria
 func SearchPosts() web.HandlerFunc {
 	return func(c *web.Context) error {
-		posts, err := c.Services().Posts.Search(
-			c.QueryParam("query"),
-			c.QueryParam("view"),
-			c.QueryParam("limit"),
-			c.QueryParamAsArray("tags"),
-		)
-		if err != nil {
+		searchPosts := &query.SearchPosts{
+			Query: c.QueryParam("query"),
+			View:  c.QueryParam("view"),
+			Limit: c.QueryParam("limit"),
+			Tags:  c.QueryParamAsArray("tags"),
+		}
+		if err := bus.Dispatch(c, searchPosts); err != nil {
 			return c.Failure(err)
 		}
-		return c.Ok(posts)
+
+		return c.Ok(searchPosts.Result)
 	}
 }
 
@@ -35,34 +36,36 @@ func CreatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		posts := c.Services().Posts
-
 		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		post, err := posts.Add(input.Model.Title, input.Model.Description)
+		newPost := &cmd.AddNewPost{
+			Title:       input.Model.Title,
+			Description: input.Model.Description,
+		}
+		err = bus.Dispatch(c, newPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetAttachments{Post: post, Attachments: input.Model.Attachments})
+		err = bus.Dispatch(c, &cmd.SetAttachments{Post: newPost.Result, Attachments: input.Model.Attachments})
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.AddVote{Post: post, User: c.User()}); err != nil {
+		if err := bus.Dispatch(c, &cmd.AddVote{Post: newPost.Result, User: c.User()}); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewPost(post))
+		c.Enqueue(tasks.NotifyAboutNewPost(newPost.Result))
 
 		return c.Ok(web.Map{
-			"id":     post.ID,
-			"number": post.Number,
-			"title":  post.Title,
-			"slug":   post.Slug,
+			"id":     newPost.Result.ID,
+			"number": newPost.Result.Number,
+			"title":  newPost.Result.Title,
+			"slug":   newPost.Result.Slug,
 		})
 	}
 }
@@ -75,12 +78,12 @@ func GetPost() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		post, err := c.Services().Posts.GetByNumber(number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(post)
+		return c.Ok(getPost.Result)
 	}
 }
 
@@ -97,12 +100,11 @@ func UpdatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		_, err = c.Services().Posts.Update(input.Post, input.Model.Title, input.Model.Description)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		err = bus.Dispatch(c, &cmd.SetAttachments{Post: input.Post, Attachments: input.Model.Attachments})
+		err = bus.Dispatch(
+			c,
+			&cmd.UpdatePost{Post: input.Post, Title: input.Model.Title, Description: input.Model.Description},
+			&cmd.SetAttachments{Post: input.Post, Attachments: input.Model.Attachments},
+		)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -119,27 +121,29 @@ func SetResponse() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: input.Model.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		prevStatus := post.Status
+		prevStatus := getPost.Result.Status
+
+		var command bus.Msg
 		if input.Model.Status == models.PostDuplicate {
-			err = bus.Dispatch(c, &cmd.MarkPostAsDuplicate{Post: post, Original: input.Original})
+			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: input.Original}
 		} else {
-			err = bus.Dispatch(c, &cmd.SetPostResponse{
-				Post:   post,
+			command = &cmd.SetPostResponse{
+				Post:   getPost.Result,
 				Text:   input.Model.Text,
 				Status: input.Model.Status,
-			})
+			}
 		}
 
-		if err != nil {
+		if err := bus.Dispatch(c, command); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutStatusChange(post, prevStatus))
+		c.Enqueue(tasks.NotifyAboutStatusChange(getPost.Result, prevStatus))
 
 		return c.Ok(web.Map{})
 	}
@@ -179,12 +183,12 @@ func ListComments() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		post, err := c.Services().Posts.GetByNumber(number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		getComments := &query.GetCommentsByPost{Post: post}
+		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		if err := bus.Dispatch(c, getComments); err != nil {
 			return c.Failure(err)
 		}
@@ -223,30 +227,25 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		post, err := c.Services().Posts.GetByNumber(input.Model.Number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: input.Model.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
 		addNewComment := &cmd.AddNewComment{
-			Post:    post,
+			Post:    getPost.Result,
 			Content: input.Model.Content,
 		}
-		err = bus.Dispatch(c, addNewComment)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		err = bus.Dispatch(c, &cmd.SetAttachments{
-			Post:        post,
+		setAttachments := &cmd.SetAttachments{
+			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
 			Attachments: input.Model.Attachments,
-		})
-		if err != nil {
+		}
+		if err := bus.Dispatch(c, addNewComment, setAttachments); err != nil {
 			return c.Failure(err)
 		}
 
-		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
+		c.Enqueue(tasks.NotifyAboutNewComment(getPost.Result, input.Model))
 
 		return c.Ok(web.Map{
 			"id": addNewComment.Result.ID,
@@ -350,12 +349,12 @@ func ListVotes() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		post, err := c.Services().Posts.GetByNumber(number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		listVotes := &query.ListPostVotes{PostID: post.ID}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID}
 		err = bus.Dispatch(c, listVotes)
 		if err != nil {
 			return c.Failure(err)
@@ -371,12 +370,12 @@ func addOrRemove(c *web.Context, getCommand func(post *models.Post, user *models
 		return c.NotFound()
 	}
 
-	post, err := c.Services().Posts.GetByNumber(number)
-	if err != nil {
+	getPost := &query.GetPostByNumber{Number: number}
+	if err := bus.Dispatch(c, getPost); err != nil {
 		return c.Failure(err)
 	}
 
-	cmd := getCommand(post, c.User())
+	cmd := getCommand(getPost.Result, c.User())
 	err = bus.Dispatch(c, cmd)
 	if err != nil {
 		return c.Failure(err)

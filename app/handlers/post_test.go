@@ -5,6 +5,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
+	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -24,6 +27,10 @@ func TestIndexHandler(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
+		return nil
+	})
+
 	server, _ := mock.NewServer()
 	code, _ := server.OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -34,6 +41,13 @@ func TestIndexHandler(t *testing.T) {
 
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
+
+	post := &models.Post{Number: 1, Title: "My Post Title"}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = post
+		return nil
+	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
 		return nil
@@ -51,10 +65,7 @@ func TestDetailsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
-	post, _ := services.Posts.Add("My Post", "My Post Description")
+	server, _ := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -67,6 +78,10 @@ func TestDetailsHandler(t *testing.T) {
 
 func TestDetailsHandler_NotFound(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		return app.ErrNotFound
+	})
 
 	server, _ := mock.NewServer()
 	code, _ := server.

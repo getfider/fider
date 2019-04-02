@@ -12,18 +12,6 @@ type Base interface {
 	SetCurrentUser(user *models.User)
 }
 
-// Post contains read and write operations for posts
-type Post interface {
-	Base
-	GetByID(postID int) (*models.Post, error)
-	GetBySlug(slug string) (*models.Post, error)
-	GetByNumber(number int) (*models.Post, error)
-	Search(query, view, limit string, tags []string) ([]*models.Post, error)
-	GetAll() ([]*models.Post, error)
-	Add(title, description string) (*models.Post, error)
-	Update(post *models.Post, title, description string) (*models.Post, error)
-}
-
 // User is used for user operations
 type User interface {
 	Base

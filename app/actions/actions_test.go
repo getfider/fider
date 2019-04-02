@@ -21,7 +21,6 @@ var services = &app.Services{
 	Context: context.Background(),
 	Tenants: inmemory.NewTenantStorage(),
 	Users:   &inmemory.UserStorage{},
-	Posts:   inmemory.NewPostStorage(),
 }
 
 func ExpectFailed(result *validate.Result, expectedFields ...string) {

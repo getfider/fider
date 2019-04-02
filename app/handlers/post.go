@@ -13,19 +13,16 @@ func Index() web.HandlerFunc {
 	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
-		posts, err := c.Services().Posts.Search(
-			c.QueryParam("query"),
-			c.QueryParam("view"),
-			c.QueryParam("limit"),
-			c.QueryParamAsArray("tags"),
-		)
-		if err != nil {
-			return c.Failure(err)
+		searchPosts := &query.SearchPosts{
+			Query: c.QueryParam("query"),
+			View:  c.QueryParam("view"),
+			Limit: c.QueryParam("limit"),
+			Tags:  c.QueryParamAsArray("tags"),
 		}
-
 		getAllTags := &query.GetAllTags{}
 		countPerStatus := &query.CountPostPerStatus{}
-		if err := bus.Dispatch(c, getAllTags, countPerStatus); err != nil {
+
+		if err := bus.Dispatch(c, searchPosts, getAllTags, countPerStatus); err != nil {
 			return c.Failure(err)
 		}
 
@@ -40,7 +37,7 @@ func Index() web.HandlerFunc {
 			Description: description,
 			ChunkName:   "Home.page",
 			Data: web.Map{
-				"posts":          posts,
+				"posts":          searchPosts.Result,
 				"tags":           getAllTags.Result,
 				"countPerStatus": countPerStatus.Result,
 			},
@@ -56,33 +53,32 @@ func PostDetails() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		posts := c.Services().Posts
-		post, err := posts.GetByNumber(number)
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
+			return c.Failure(err)
+		}
+
+		subscribed, err := c.Services().Users.HasSubscribedTo(getPost.Result.ID)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		subscribed, err := c.Services().Users.HasSubscribedTo(post.ID)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		getComments := &query.GetCommentsByPost{Post: post}
+		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		getAllTags := &query.GetAllTags{}
-		listVotes := &query.ListPostVotes{PostID: post.ID, Limit: 6}
-		getAttachments := &query.GetAttachments{Post: post}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 6}
+		getAttachments := &query.GetAttachments{Post: getPost.Result}
 		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, getAttachments); err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Page(web.Props{
-			Title:       post.Title,
-			Description: markdown.PlainText(post.Description),
+			Title:       getPost.Result.Title,
+			Description: markdown.PlainText(getPost.Result.Description),
 			ChunkName:   "ShowPost.page",
 			Data: web.Map{
-				"comments":    getComments.Post,
+				"comments":    getComments.Result,
 				"subscribed":  subscribed,
-				"post":        post,
+				"post":        getPost.Result,
 				"tags":        getAllTags.Result,
 				"votes":       listVotes.Result,
 				"attachments": getAttachments.Result,
@@ -95,12 +91,12 @@ func PostDetails() web.HandlerFunc {
 func ExportPostsToCSV() web.HandlerFunc {
 	return func(c *web.Context) error {
 
-		posts, err := c.Services().Posts.GetAll()
-		if err != nil {
+		allPosts := &query.GetAllPosts{}
+		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
 		}
 
-		bytes, err := csv.FromPosts(posts)
+		bytes, err := csv.FromPosts(allPosts.Result)
 		if err != nil {
 			return c.Failure(err)
 		}

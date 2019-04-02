@@ -75,19 +75,18 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(aryaStark)
-
-	post, _ := posts.Add("My great post", "with a great description")
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(aryaStarkCtx, newPost)
+	Expect(err).IsNil()
 
 	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
-	err := bus.Dispatch(jonSnowCtx, addNewTag)
+	err = bus.Dispatch(jonSnowCtx, addNewTag)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: post})
+	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: newPost.Result})
 	Expect(err).IsNil()
 
-	assignedTags := &query.GetAssignedTags{Post: post}
+	assignedTags := &query.GetAssignedTags{Post: newPost.Result}
 	err = bus.Dispatch(demoTenantCtx, assignedTags)
 	Expect(err).IsNil()
 	Expect(assignedTags.Result).HasLen(1)
@@ -97,10 +96,10 @@ func TestTagStorage_Assign_Unassign(t *testing.T) {
 	Expect(assignedTags.Result[0].Color).Equals("FFFFFF")
 	Expect(assignedTags.Result[0].IsPublic).IsTrue()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.UnassignTag{Tag: addNewTag.Result, Post: post})
+	err = bus.Dispatch(jonSnowCtx, &cmd.UnassignTag{Tag: addNewTag.Result, Post: newPost.Result})
 	Expect(err).IsNil()
 
-	assignedTags = &query.GetAssignedTags{Post: post}
+	assignedTags = &query.GetAssignedTags{Post: newPost.Result}
 	err = bus.Dispatch(jonSnowCtx, assignedTags)
 	Expect(err).IsNil()
 	Expect(assignedTags.Result).HasLen(0)
@@ -110,22 +109,21 @@ func TestTagStorage_Assign_DeleteTag(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	posts.SetCurrentTenant(demoTenant)
-	posts.SetCurrentUser(aryaStark)
-
-	post, _ := posts.Add("My great post", "with a great description")
-
-	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
-	err := bus.Dispatch(jonSnowCtx, addNewTag)
+	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
+	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: post})
+	addNewTag := &cmd.AddNewTag{Name: "Bug", Color: "FFFFFF", IsPublic: true}
+	err = bus.Dispatch(jonSnowCtx, addNewTag)
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addNewTag.Result, Post: newPost.Result})
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx, &cmd.DeleteTag{Tag: addNewTag.Result})
 	Expect(err).IsNil()
 
-	assignedTags := &query.GetAssignedTags{Post: post}
+	assignedTags := &query.GetAssignedTags{Post: newPost.Result}
 	err = bus.Dispatch(jonSnowCtx, assignedTags)
 	Expect(err).IsNil()
 	Expect(assignedTags.Result).HasLen(0)

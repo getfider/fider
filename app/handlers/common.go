@@ -7,9 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -52,8 +55,8 @@ func Sitemap() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		posts, err := c.Services().Posts.GetAll()
-		if err != nil {
+		allPosts := &query.GetAllPosts{}
+		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
 		}
 
@@ -62,7 +65,7 @@ func Sitemap() web.HandlerFunc {
 		text.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
 		text.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
 		text.WriteString(fmt.Sprintf("<url> <loc>%s</loc> </url>", baseURL))
-		for _, post := range posts {
+		for _, post := range allPosts.Result {
 			text.WriteString(fmt.Sprintf("<url> <loc>%s/posts/%d/%s</loc> </url>", baseURL, post.Number, post.Slug))
 		}
 		text.WriteString(`</urlset>`)

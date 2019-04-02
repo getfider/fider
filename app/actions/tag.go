@@ -119,17 +119,13 @@ func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Se
 
 // Validate is current model is valid
 func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
-	post, err := services.Posts.GetByNumber(input.Model.Number)
-	if err != nil {
-		return validate.Error(err)
-	}
-
+	getPost := &query.GetPostByNumber{Number: input.Model.Number}
 	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
-	if err = bus.Dispatch(services.Context, getSlug); err != nil {
+	if err := bus.Dispatch(services.Context, getPost, getSlug); err != nil {
 		return validate.Error(err)
 	}
 
+	input.Post = getPost.Result
 	input.Tag = getSlug.Result
-	input.Post = post
 	return validate.Success()
 }
