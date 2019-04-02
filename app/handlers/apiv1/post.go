@@ -184,12 +184,12 @@ func ListComments() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		comments, err := c.Services().Posts.GetCommentsByPost(post)
-		if err != nil {
+		getComments := &query.GetCommentsByPost{Post: post}
+		if err := bus.Dispatch(c, getComments); err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(comments)
+		return c.Ok(getComments.Result)
 	}
 }
 
@@ -201,12 +201,12 @@ func GetComment() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		comment, err := c.Services().Posts.GetCommentByID(id)
-		if err != nil {
+		commentByID := &query.GetCommentByID{CommentID: id}
+		if bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(comment)
+		return c.Ok(commentByID.Result)
 	}
 }
 
@@ -228,17 +228,20 @@ func PostComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		id, err := c.Services().Posts.AddComment(post, input.Model.Content)
+		addNewComment := &cmd.AddNewComment{
+			Post:    post,
+			Content: input.Model.Content,
+		}
+		err = bus.Dispatch(c, addNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		comment, err := c.Services().Posts.GetCommentByID(id)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		err = bus.Dispatch(c, &cmd.SetAttachments{Post: post, Comment: comment, Attachments: input.Model.Attachments})
+		err = bus.Dispatch(c, &cmd.SetAttachments{
+			Post:        post,
+			Comment:     addNewComment.Result,
+			Attachments: input.Model.Attachments,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -246,7 +249,7 @@ func PostComment() web.HandlerFunc {
 		c.Enqueue(tasks.NotifyAboutNewComment(post, input.Model))
 
 		return c.Ok(web.Map{
-			"id": id,
+			"id": addNewComment.Result.ID,
 		})
 	}
 }
@@ -264,16 +267,18 @@ func UpdateComment() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Posts.UpdateComment(input.Model.ID, input.Model.Content)
-		if err != nil {
-			return c.Failure(err)
+		updateComment := &cmd.UpdateComment{
+			CommentID: input.Model.ID,
+			Content:   input.Model.Content,
 		}
 
-		err = bus.Dispatch(c, &cmd.SetAttachments{
+		setAttachments := &cmd.SetAttachments{
 			Post:        input.Post,
 			Comment:     input.Comment,
 			Attachments: input.Model.Attachments,
-		})
+		}
+
+		err = bus.Dispatch(c, updateComment, setAttachments)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -290,7 +295,9 @@ func DeleteComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Posts.DeleteComment(input.Model.CommentID)
+		err := bus.Dispatch(c, &cmd.DeleteComment{
+			CommentID: input.Model.CommentID,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}

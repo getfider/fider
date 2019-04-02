@@ -64,6 +64,12 @@ func (s Service) Init() {
 
 	bus.AddHandler(setAttachments)
 	bus.AddHandler(getAttachments)
+
+	bus.AddHandler(addNewComment)
+	bus.AddHandler(updateComment)
+	bus.AddHandler(deleteComment)
+	bus.AddHandler(getCommentByID)
+	bus.AddHandler(getCommentsByPost)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

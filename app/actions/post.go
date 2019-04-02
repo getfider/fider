@@ -266,14 +266,14 @@ func (input *EditComment) IsAuthorized(user *models.User, services *app.Services
 		return false
 	}
 
-	comment, err := services.Posts.GetCommentByID(input.Model.ID)
-	if err != nil {
+	commentByID := &query.GetCommentByID{CommentID: input.Model.ID}
+	if err := bus.Dispatch(services.Context, commentByID); err != nil {
 		return false
 	}
 
 	input.Post = post
-	input.Comment = comment
-	return user.ID == comment.User.ID || user.IsCollaborator()
+	input.Comment = commentByID.Result
+	return user.ID == input.Comment.User.ID || user.IsCollaborator()
 }
 
 // Validate if current model is valid
@@ -316,12 +316,12 @@ func (input *DeleteComment) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *DeleteComment) IsAuthorized(user *models.User, services *app.Services) bool {
-	comment, err := services.Posts.GetCommentByID(input.Model.CommentID)
-	if err != nil {
+	commentByID := &query.GetCommentByID{CommentID: input.Model.CommentID}
+	if err := bus.Dispatch(services.Context, commentByID); err != nil {
 		return false
 	}
 
-	return user.ID == comment.User.ID || user.IsCollaborator()
+	return user.ID == commentByID.Result.User.ID || user.IsCollaborator()
 }
 
 // Validate if current model is valid

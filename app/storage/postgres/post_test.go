@@ -114,19 +114,18 @@ func TestPostStorage_AddAndReturnComments(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	posts.SetCurrentUser(jonSnow)
-	posts.AddComment(post, "Comment #1")
-	posts.SetCurrentUser(aryaStark)
-	posts.AddComment(post, "Comment #2")
+	bus.Dispatch(jonSnowCtx, &cmd.AddNewComment{Post: post, Content: "Comment #1"})
+	bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: post, Content: "Comment #2"})
 
-	comments, err := posts.GetCommentsByPost(post)
+	commentsByPost := &query.GetCommentsByPost{Post: post}
+	err = bus.Dispatch(aryaStarkCtx, commentsByPost)
 	Expect(err).IsNil()
-	Expect(comments).HasLen(2)
+	Expect(commentsByPost.Result).HasLen(2)
 
-	Expect(comments[0].Content).Equals("Comment #1")
-	Expect(comments[0].User.Name).Equals("Jon Snow")
-	Expect(comments[1].Content).Equals("Comment #2")
-	Expect(comments[1].User.Name).Equals("Arya Stark")
+	Expect(commentsByPost.Result[0].Content).Equals("Comment #1")
+	Expect(commentsByPost.Result[0].User.Name).Equals("Jon Snow")
+	Expect(commentsByPost.Result[1].Content).Equals("Comment #2")
+	Expect(commentsByPost.Result[1].User.Name).Equals("Arya Stark")
 }
 
 func TestPostStorage_AddGetUpdateComment(t *testing.T) {
@@ -138,28 +137,32 @@ func TestPostStorage_AddGetUpdateComment(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	commentID, err := posts.AddComment(post, "Comment #1")
+	addNewComment := &cmd.AddNewComment{Post: post, Content: "Comment #1"}
+	err = bus.Dispatch(jonSnowCtx, addNewComment)
 	Expect(err).IsNil()
 
-	comment, err := posts.GetCommentByID(commentID)
-	Expect(err).IsNil()
-	Expect(comment.ID).Equals(commentID)
-	Expect(comment.Content).Equals("Comment #1")
-	Expect(comment.User.ID).Equals(jonSnow.ID)
-	Expect(comment.EditedAt).IsNil()
-	Expect(comment.EditedBy).IsNil()
-
-	posts.SetCurrentUser(aryaStark)
-	err = posts.UpdateComment(commentID, "Comment #1 with edit")
+	commentByID := &query.GetCommentByID{CommentID: addNewComment.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
 	Expect(err).IsNil()
 
-	comment, err = posts.GetCommentByID(commentID)
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+	Expect(commentByID.Result.Content).Equals("Comment #1")
+	Expect(commentByID.Result.User.ID).Equals(jonSnow.ID)
+	Expect(commentByID.Result.EditedAt).IsNil()
+	Expect(commentByID.Result.EditedBy).IsNil()
+
+	updateComment := &cmd.UpdateComment{CommentID: addNewComment.Result.ID, Content: "Comment #1 with edit"}
+	err = bus.Dispatch(aryaStarkCtx, updateComment)
 	Expect(err).IsNil()
-	Expect(comment.ID).Equals(commentID)
-	Expect(comment.Content).Equals("Comment #1 with edit")
-	Expect(comment.User.ID).Equals(jonSnow.ID)
-	Expect(comment.EditedAt).IsNotNil()
-	Expect(comment.EditedBy.ID).Equals(aryaStark.ID)
+
+	err = bus.Dispatch(aryaStarkCtx, commentByID)
+	Expect(err).IsNil()
+
+	Expect(commentByID.Result.ID).Equals(addNewComment.Result.ID)
+	Expect(commentByID.Result.Content).Equals("Comment #1 with edit")
+	Expect(commentByID.Result.User.ID).Equals(jonSnow.ID)
+	Expect(commentByID.Result.EditedAt).IsNotNil()
+	Expect(commentByID.Result.EditedBy.ID).Equals(aryaStark.ID)
 }
 
 func TestPostStorage_AddDeleteComment(t *testing.T) {
@@ -171,15 +174,17 @@ func TestPostStorage_AddDeleteComment(t *testing.T) {
 	post, err := posts.Add("My new post", "with this description")
 	Expect(err).IsNil()
 
-	commentID, err := posts.AddComment(post, "Comment #1")
+	addNewComment := &cmd.AddNewComment{Post: post, Content: "Comment #1"}
+	err = bus.Dispatch(jonSnowCtx, addNewComment)
 	Expect(err).IsNil()
 
-	err = posts.DeleteComment(commentID)
+	err = bus.Dispatch(jonSnowCtx, &cmd.DeleteComment{CommentID: addNewComment.Result.ID})
 	Expect(err).IsNil()
 
-	comment, err := posts.GetCommentByID(commentID)
+	commentByID := &query.GetCommentByID{CommentID: addNewComment.Result.ID}
+	err = bus.Dispatch(jonSnowCtx, commentByID)
 	Expect(err).Equals(app.ErrNotFound)
-	Expect(comment).IsNil()
+	Expect(commentByID.Result).IsNil()
 }
 
 func TestPostStorage_AddAndGet_DifferentTenants(t *testing.T) {

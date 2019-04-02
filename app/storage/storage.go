@@ -22,12 +22,6 @@ type Post interface {
 	GetAll() ([]*models.Post, error)
 	Add(title, description string) (*models.Post, error)
 	Update(post *models.Post, title, description string) (*models.Post, error)
-
-	AddComment(post *models.Post, content string) (int, error)
-	GetCommentByID(id int) (*models.Comment, error)
-	UpdateComment(id int, content string) error
-	DeleteComment(id int) error
-	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
 }
 
 // User is used for user operations
