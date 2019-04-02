@@ -18,16 +18,16 @@ type Post interface {
 	GetByID(postID int) (*models.Post, error)
 	GetBySlug(slug string) (*models.Post, error)
 	GetByNumber(number int) (*models.Post, error)
-	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
 	Search(query, view, limit string, tags []string) ([]*models.Post, error)
 	GetAll() ([]*models.Post, error)
-	CountPerStatus() (map[models.PostStatus]int, error)
 	Add(title, description string) (*models.Post, error)
 	Update(post *models.Post, title, description string) (*models.Post, error)
+
 	AddComment(post *models.Post, content string) (int, error)
 	GetCommentByID(id int) (*models.Comment, error)
 	UpdateComment(id int, content string) error
 	DeleteComment(id int) error
+	GetCommentsByPost(post *models.Post) ([]*models.Comment, error)
 }
 
 // User is used for user operations

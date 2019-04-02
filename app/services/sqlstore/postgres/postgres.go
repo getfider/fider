@@ -57,6 +57,7 @@ func (s Service) Init() {
 	bus.AddHandler(removeVote)
 	bus.AddHandler(listPostVotes)
 
+	bus.AddHandler(countPostPerStatus)
 	bus.AddHandler(markPostAsDuplicate)
 	bus.AddHandler(setPostResponse)
 	bus.AddHandler(postIsReferenced)

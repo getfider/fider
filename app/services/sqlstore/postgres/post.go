@@ -107,3 +107,25 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 		return nil
 	})
 }
+
+func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+
+		type dbStatusCount struct {
+			Status models.PostStatus `db:"status"`
+			Count  int               `db:"count"`
+		}
+
+		q.Result = make(map[models.PostStatus]int)
+		stats := []*dbStatusCount{}
+		err := trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to count posts per status")
+		}
+
+		for _, v := range stats {
+			q.Result[v.Status] = v.Count
+		}
+		return nil
+	})
+}

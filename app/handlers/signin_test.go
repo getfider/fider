@@ -108,6 +108,10 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.CountPostPerStatus) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
 		return nil
 	})

@@ -24,12 +24,8 @@ func Index() web.HandlerFunc {
 		}
 
 		getAllTags := &query.GetAllTags{}
-		if err := bus.Dispatch(c, getAllTags); err != nil {
-			return c.Failure(err)
-		}
-
-		stats, err := c.Services().Posts.CountPerStatus()
-		if err != nil {
+		countPerStatus := &query.CountPostPerStatus{}
+		if err := bus.Dispatch(c, getAllTags, countPerStatus); err != nil {
 			return c.Failure(err)
 		}
 
@@ -46,7 +42,7 @@ func Index() web.HandlerFunc {
 			Data: web.Map{
 				"posts":          posts,
 				"tags":           getAllTags.Result,
-				"countPerStatus": stats,
+				"countPerStatus": countPerStatus.Result,
 			},
 		})
 	}

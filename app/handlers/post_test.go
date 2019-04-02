@@ -16,6 +16,10 @@ import (
 func TestIndexHandler(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.CountPostPerStatus) error {
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
 		return nil
 	})
