@@ -99,7 +99,7 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 
 // GetByEmail returns a user based on given email
 func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
-	user, err := s.getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
+	user, err := s.getUser(s.trx, "email = $1 AND tenant_id = $2", strings.ToLower(email), s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user with email '%s'", email)
 	}

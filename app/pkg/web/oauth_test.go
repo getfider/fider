@@ -120,7 +120,7 @@ func TestParseProfileResponse_NestedData(t *testing.T) {
 			"id": "123",
 			"profile": {
 				"name": "Jon Snow",
-				"email": "jon@got.com"
+				"email": "Jon@got.com"
 			}
 		}`,
 	)
