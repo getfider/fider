@@ -1,1 +1,1 @@
-update users set email = lower(email) where email is not null
+update users set email = lower(email) where email != lower(email)
