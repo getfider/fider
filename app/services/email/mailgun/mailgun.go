@@ -19,7 +19,13 @@ import (
 	"github.com/getfider/fider/app/services/email"
 )
 
-var baseURL = "https://api.mailgun.net/v3/%s/messages"
+// Known base URLs
+// Should Mailgun add other regions we'll just need to add their URLs here
+// Use upper case keys - incoming env var values are normalized before being used
+var baseURLs = map[string]string{
+	"US": "https://api.mailgun.net/v3/%s/messages",
+	"EU": "https://api.eu.mailgun.net/v3/%s/messages",
+}
 
 func init() {
 	bus.Register(Service{})
@@ -41,6 +47,30 @@ func (s Service) Enabled() bool {
 
 func (s Service) Init() {
 	bus.AddListener(sendMail)
+}
+
+// Try getting the URL of the Mailgun API using Environment vars and the Sender's domain
+// Fall back to the URL for the US region if that fails to maintain compatibility with older installs
+func getEndpoint(ctx context.Context, domain string) string {
+	var regionCode = env.Config.Email.Mailgun.Region
+	regionCode = strings.ToUpper(regionCode)
+
+	// Default to the US domain if no region code was provided (ENV not set)
+	// or if the provided code isn't valid
+	if len(regionCode) < 1 {
+		regionCode = "US"
+	} else if len(baseURLs[regionCode]) < 1 {
+		log.Warnf(ctx,
+			"Unknown Mailgun region code '@{Code}' configured - falling back to 'US'",
+			dto.Props{
+				"Code": env.Config.Email.Mailgun.Region,
+			},
+		)
+
+		regionCode = "US"
+	}
+
+	return fmt.Sprintf(baseURLs[regionCode], domain)
 }
 
 func sendMail(ctx context.Context, c *cmd.SendMail) {
@@ -121,11 +151,9 @@ func sendMail(ctx context.Context, c *cmd.SendMail) {
 		})
 	}
 
-	url := fmt.Sprintf(baseURL, env.Config.Email.Mailgun.Domain)
-
 	req := &cmd.HTTPRequest{
 		Method: "POST",
-		URL:    url,
+		URL:    getEndpoint(ctx, env.Config.Email.Mailgun.Domain),
 		Body:   strings.NewReader(form.Encode()),
 		Headers: map[string]string{
 			"Content-Type": "application/x-www-form-urlencoded",

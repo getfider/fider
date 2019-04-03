@@ -222,25 +222,47 @@ func TestBatch_Success(t *testing.T) {
 
 func TestGetBaseURL(t *testing.T) {
 	RegisterT(t)
+	reset()
+
+	sendMail := &cmd.SendMail{
+		From: "Fider Test",
+		To: []dto.Recipient{
+			dto.Recipient{
+				Name:    "Jon Sow",
+				Address: "jon.snow@got.com",
+			},
+		},
+		TemplateName: "echo_test",
+		Props: dto.Props{
+			"name": "Hello",
+		},
+	}
 
 	// Fall back to US if there is nothing set
 	env.Config.Email.Mailgun.Region = ""
-	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
-	
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[0].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+
 	// Return the EU domain for EU, ignore the case
 	env.Config.Email.Mailgun.Region = "EU"
-	Expect(sender.GetBaseURL()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[1].URL.String()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
+
 	env.Config.Email.Mailgun.Region = "eu"
-	Expect(sender.GetBaseURL()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[2].URL.String()).Equals("https://api.eu.mailgun.net/v3/mydomain.com/messages")
 
 	// Return the US domain for US, ignore the case
 	env.Config.Email.Mailgun.Region = "US"
-	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[3].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
 	env.Config.Email.Mailgun.Region = "us"
-	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[4].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
 
-    // Return the US domain if the region is invalid
+	// Return the US domain if the region is invalid
 	env.Config.Email.Mailgun.Region = "Mars"
-	Expect(sender.GetBaseURL()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
+	bus.Publish(ctx, sendMail)
+	Expect(httpclientmock.RequestsHistory[5].URL.String()).Equals("https://api.mailgun.net/v3/mydomain.com/messages")
 
 }
