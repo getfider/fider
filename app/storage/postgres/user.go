@@ -99,6 +99,7 @@ func (s *UserStorage) GetByID(userID int) (*models.User, error) {
 
 // GetByEmail returns a user based on given email
 func (s *UserStorage) GetByEmail(email string) (*models.User, error) {
+	email = strings.ToLower(email)
 	user, err := s.getUser(s.trx, "email = $1 AND tenant_id = $2", email, s.tenant.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user with email '%s'", email)
@@ -128,7 +129,7 @@ func (s *UserStorage) GetByProvider(provider string, uid string) (*models.User, 
 func (s *UserStorage) Register(user *models.User) error {
 	now := time.Now()
 	user.Status = models.UserActive
-	user.Email = strings.TrimSpace(user.Email)
+	user.Email = strings.ToLower(strings.TrimSpace(user.Email))
 	if err := s.trx.Get(&user.ID,
 		"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
 		user.Name, user.Email, now, s.tenant.ID, user.Role, models.UserActive, models.AvatarTypeGravatar); err != nil {
@@ -227,7 +228,7 @@ func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
 // ChangeEmail of given user
 func (s *UserStorage) ChangeEmail(userID int, email string) error {
 	cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
-	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, email)
+	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, strings.ToLower(email))
 	if err != nil {
 		return errors.Wrap(err, "failed to update user's email")
 	}

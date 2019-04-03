@@ -51,6 +51,10 @@ func TestUserStorage_GetByEmail(t *testing.T) {
 	Expect(user.Providers).HasLen(1)
 	Expect(user.Providers[0].UID).Equals("FB1234")
 	Expect(user.Providers[0].Name).Equals("facebook")
+
+	user, err = users.GetByEmail("JON.SNOW@got.com")
+	Expect(err).IsNil()
+	Expect(user.ID).Equals(int(1))
 }
 
 func TestUserStorage_GetByProvider(t *testing.T) {

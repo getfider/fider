@@ -190,7 +190,7 @@ func (s *OAuthService) ParseRawProfile(provider, body string) (*oauth.UserProfil
 	profile := &oauth.UserProfile{
 		ID:    strings.TrimSpace(query.String(config.JSONUserIDPath)),
 		Name:  strings.TrimSpace(query.String(config.JSONUserNamePath)),
-		Email: strings.TrimSpace(query.String(config.JSONUserEmailPath)),
+		Email: strings.ToLower(strings.TrimSpace(query.String(config.JSONUserEmailPath))),
 	}
 
 	if profile.ID == "" {
