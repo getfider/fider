@@ -27,7 +27,6 @@ type User interface {
 	GetAll() ([]*models.User, error)
 	GetUserSettings() (map[string]string, error)
 	UpdateSettings(settings map[string]string) error
-	HasSubscribedTo(postID int) (bool, error)
 }
 
 // Tenant contains read and write operations for tenants

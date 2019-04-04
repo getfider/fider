@@ -13,7 +13,7 @@ import (
 )
 
 func TestSubscription_NoSettings(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
 	newPost := &cmd.AddNewPost{Title: "My new post", Description: "with this description"}
@@ -37,25 +37,23 @@ func TestSubscription_NoSettings(t *testing.T) {
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
 	Expect(changeStatusSubscribers.Result[1].ID).Equals(aryaStark.ID)
 
-	users.SetCurrentUser(nil)
-	subscribed, err := users.HasSubscribedTo(newPost.Result.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(ctx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	Expect(subscribed.Result).IsFalse()
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(jonSnowCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	Expect(subscribed.Result).IsTrue()
 
-	users.SetCurrentUser(sansaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsTrue()
+
+	err = bus.Dispatch(sansaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
 
 func TestSubscription_RemoveSubscriber(t *testing.T) {
@@ -84,20 +82,19 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	Expect(changeStatusSubscribers.Result).HasLen(1)
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err := users.HasSubscribedTo(newPost.Result.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(jonSnowCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsTrue()
 
-	users.SetCurrentUser(sansaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsFalse()
+
+	err = bus.Dispatch(sansaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
 
 func TestSubscription_AdminSubmitted(t *testing.T) {
@@ -123,20 +120,19 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 	Expect(changeStatusSubscribers.Result).HasLen(1)
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err := users.HasSubscribedTo(newPost.Result.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(jonSnowCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsTrue()
 
-	users.SetCurrentUser(sansaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsFalse()
+
+	err = bus.Dispatch(sansaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
 
 func TestSubscription_AdminUnsubscribed(t *testing.T) {
@@ -155,20 +151,19 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(newCommentSubscribers.Result).HasLen(0)
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err := users.HasSubscribedTo(newPost.Result.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(jonSnowCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsFalse()
 
-	users.SetCurrentUser(sansaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsFalse()
+
+	err = bus.Dispatch(sansaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
 
 func TestSubscription_DisabledEmail(t *testing.T) {
@@ -204,20 +199,19 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
 	Expect(changeStatusSubscribers.Result[1].ID).Equals(aryaStark.ID)
 
-	users.SetCurrentUser(jonSnow)
-	subscribed, err := users.HasSubscribedTo(newPost.Result.ID)
-	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	subscribed := &query.UserSubscribedTo{PostID: newPost.Result.ID}
 
-	users.SetCurrentUser(aryaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(jonSnowCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsTrue()
+	Expect(subscribed.Result).IsTrue()
 
-	users.SetCurrentUser(sansaStark)
-	subscribed, err = users.HasSubscribedTo(newPost.Result.ID)
+	err = bus.Dispatch(aryaStarkCtx, subscribed)
 	Expect(err).IsNil()
-	Expect(subscribed).IsFalse()
+	Expect(subscribed.Result).IsTrue()
+
+	err = bus.Dispatch(sansaStarkCtx, subscribed)
+	Expect(err).IsNil()
+	Expect(subscribed.Result).IsFalse()
 }
 
 func TestSubscription_VisitorEnabledNewPost(t *testing.T) {

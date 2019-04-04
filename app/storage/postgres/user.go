@@ -8,7 +8,6 @@ import (
 
 	"database/sql"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -270,36 +269,6 @@ func (s *UserStorage) GetAll() ([]*models.User, error) {
 		result[i] = user.toModel(s.ctx)
 	}
 	return result, nil
-}
-
-// HasSubscribedTo returns true if current user is receiving notification from specific post
-func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
-	if s.user == nil {
-		return false, nil
-	}
-
-	var status int
-	err := s.trx.Scalar(&status, "SELECT status FROM post_subscribers WHERE user_id = $1 AND post_id = $2", s.user.ID, postID)
-	if err != nil && errors.Cause(err) != app.ErrNotFound {
-		return false, errors.Wrap(err, "failed to get subscription status")
-	}
-
-	if errors.Cause(err) == app.ErrNotFound {
-		for _, e := range models.AllNotificationEvents {
-			for _, r := range e.RequiresSubscriptionUserRoles {
-				if r == s.user.Role {
-					return false, nil
-				}
-			}
-		}
-		return true, nil
-	}
-
-	if status == 1 {
-		return true, nil
-	}
-
-	return false, nil
 }
 
 // Delete removes current user personal data and mark it as deleted

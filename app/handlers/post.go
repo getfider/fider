@@ -58,16 +58,12 @@ func PostDetails() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		subscribed, err := c.Services().Users.HasSubscribedTo(getPost.Result.ID)
-		if err != nil {
-			return c.Failure(err)
-		}
-
+		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}
 		getComments := &query.GetCommentsByPost{Post: getPost.Result}
 		getAllTags := &query.GetAllTags{}
 		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 6}
 		getAttachments := &query.GetAttachments{Post: getPost.Result}
-		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, getAttachments); err != nil {
+		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, isSubscribed, getAttachments); err != nil {
 			return c.Failure(err)
 		}
 
@@ -77,7 +73,7 @@ func PostDetails() web.HandlerFunc {
 			ChunkName:   "ShowPost.page",
 			Data: web.Map{
 				"comments":    getComments.Result,
-				"subscribed":  subscribed,
+				"subscribed":  isSubscribed.Result,
 				"post":        getPost.Result,
 				"tags":        getAllTags.Result,
 				"votes":       listVotes.Result,

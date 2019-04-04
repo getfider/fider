@@ -138,11 +138,6 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 	return make(map[string]string, 0), nil
 }
 
-// HasSubscribedTo returns true if current user is receiving notification from specific post
-func (s *UserStorage) HasSubscribedTo(postID int) (bool, error) {
-	return false, nil
-}
-
 // Delete removes current user personal data and mark it as deleted
 func (s *UserStorage) Delete() error {
 	s.user.Name = ""

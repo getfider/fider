@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
@@ -123,6 +124,42 @@ func getUserByAPIKey(ctx context.Context, q *query.GetUserByAPIKey) error {
 			return errors.Wrap(err, "failed to get user with API Key '%s'", q.APIKey)
 		}
 		q.Result = result
+		return nil
+	})
+}
+
+func userSubscribedTo(ctx context.Context, q *query.UserSubscribedTo) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if user == nil {
+			q.Result = false
+			return nil
+		}
+
+		var status int
+		err := trx.Scalar(&status, "SELECT status FROM post_subscribers WHERE user_id = $1 AND post_id = $2", user.ID, q.PostID)
+		if err != nil && errors.Cause(err) != app.ErrNotFound {
+			return errors.Wrap(err, "failed to get subscription status")
+		}
+
+		if errors.Cause(err) == app.ErrNotFound {
+			for _, e := range models.AllNotificationEvents {
+				for _, r := range e.RequiresSubscriptionUserRoles {
+					if r == user.Role {
+						q.Result = false
+						return nil
+					}
+				}
+			}
+			q.Result = true
+			return nil
+		}
+
+		if status == 1 {
+			q.Result = true
+			return nil
+		}
+
+		q.Result = false
 		return nil
 	})
 }

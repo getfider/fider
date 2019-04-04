@@ -6,6 +6,12 @@ type CountUsers struct {
 	Result int
 }
 
+type UserSubscribedTo struct {
+	PostID int
+
+	Result bool
+}
+
 type GetUserByAPIKey struct {
 	APIKey string
 
