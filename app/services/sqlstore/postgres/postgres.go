@@ -84,6 +84,7 @@ func (s Service) Init() {
 	bus.AddHandler(regenerateAPIKey)
 	bus.AddHandler(getUserByAPIKey)
 	bus.AddHandler(userSubscribedTo)
+	bus.AddHandler(deleteCurrentUser)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

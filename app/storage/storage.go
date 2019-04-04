@@ -21,7 +21,6 @@ type User interface {
 	Register(user *models.User) error
 	RegisterProvider(userID int, provider *models.UserProvider) error
 	Update(settings *models.UpdateUserSettings) error
-	Delete() error
 	ChangeEmail(userID int, email string) error
 	ChangeRole(userID int, role models.Role) error
 	GetAll() ([]*models.User, error)

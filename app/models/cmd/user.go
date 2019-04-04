@@ -11,3 +11,6 @@ type UnblockUser struct {
 type RegenerateAPIKey struct {
 	Result string
 }
+
+type DeleteCurrentUser struct {
+}

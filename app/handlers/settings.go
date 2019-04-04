@@ -122,8 +122,7 @@ func ChangeUserRole() web.HandlerFunc {
 // DeleteUser erases current user personal data and sign them out
 func DeleteUser() web.HandlerFunc {
 	return func(c *web.Context) error {
-		err := c.Services().Users.Delete()
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.DeleteCurrentUser{}); err != nil {
 			return c.Failure(err)
 		}
 

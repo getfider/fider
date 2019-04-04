@@ -101,6 +101,41 @@ func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	})
 }
 
+func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if _, err := trx.Execute(
+			"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
+			user.ID, tenant.ID, models.RoleVisitor, models.UserDeleted,
+		); err != nil {
+			return errors.Wrap(err, "failed to delete current user")
+		}
+
+		var tables = []struct {
+			name       string
+			userColumn string
+		}{
+			{"user_providers", "user_id"},
+			{"user_settings", "user_id"},
+			{"notifications", "user_id"},
+			{"notifications", "author_id"},
+			{"post_votes", "user_id"},
+			{"post_subscribers", "user_id"},
+			{"email_verifications", "user_id"},
+		}
+
+		for _, table := range tables {
+			if _, err := trx.Execute(
+				fmt.Sprintf("DELETE FROM %s WHERE %s = $1 AND tenant_id = $2", table.name, table.userColumn),
+				user.ID, tenant.ID,
+			); err != nil {
+				return errors.Wrap(err, "failed to delete current user's %s records", table)
+			}
+		}
+
+		return nil
+	})
+}
+
 func regenerateAPIKey(ctx context.Context, c *cmd.RegenerateAPIKey) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		apiKey := models.GenerateSecretKey()

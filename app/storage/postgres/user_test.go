@@ -328,7 +328,7 @@ func TestUserStorage_Delete(t *testing.T) {
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(jonSnow)
 
-	err := users.Delete()
+	err := bus.Dispatch(jonSnowCtx, &cmd.DeleteCurrentUser{})
 	Expect(err).IsNil()
 
 	user, err := users.GetByEmail("jon.snow@got.com")
