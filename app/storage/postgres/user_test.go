@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -345,28 +347,37 @@ func TestUserStorage_APIKey(t *testing.T) {
 	users.SetCurrentTenant(demoTenant)
 	users.SetCurrentUser(jonSnow)
 
-	apiKey, err := users.RegenerateAPIKey()
-	Expect(apiKey).HasLen(64)
+	regenerateAPIKey := &cmd.RegenerateAPIKey{}
+	err := bus.Dispatch(jonSnowCtx, regenerateAPIKey)
 	Expect(err).IsNil()
+	Expect(regenerateAPIKey.Result).HasLen(64)
 
-	user, err := users.GetByAPIKey(apiKey)
-	Expect(user).Equals(jonSnow)
+	firstKey := regenerateAPIKey.Result
+
+	getByKey := &query.GetUserByAPIKey{APIKey: firstKey}
+	err = bus.Dispatch(jonSnowCtx, getByKey)
+	Expect(getByKey.Result).Equals(jonSnow)
 	Expect(err).IsNil()
 
 	//try to get by uppercase key
-	user, err = users.GetByAPIKey(strings.ToUpper(apiKey))
-	Expect(user).IsNil()
+	getByKey = &query.GetUserByAPIKey{APIKey: strings.ToUpper(firstKey)}
+	err = bus.Dispatch(jonSnowCtx, getByKey)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getByKey.Result).IsNil()
 
-	//regenerate and try to get again
-	users.RegenerateAPIKey()
-	user, err = users.GetByAPIKey(apiKey)
-	Expect(user).IsNil()
+	//regenerate and try to get again using old key
+	err = bus.Dispatch(jonSnowCtx, regenerateAPIKey)
+	Expect(err).IsNil()
+
+	getByKey = &query.GetUserByAPIKey{APIKey: firstKey}
+	err = bus.Dispatch(jonSnowCtx, getByKey)
+	Expect(getByKey.Result).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 
 	//try to get by some unknown key
-	user, err = users.GetByAPIKey("SOME-INVALID-KEY")
-	Expect(user).IsNil()
+	getByKey = &query.GetUserByAPIKey{APIKey: "SOME-INVALID-KEY"}
+	err = bus.Dispatch(jonSnowCtx, getByKey)
+	Expect(getByKey.Result).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }
 

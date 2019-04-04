@@ -7,3 +7,7 @@ type BlockUser struct {
 type UnblockUser struct {
 	UserID int
 }
+
+type RegenerateAPIKey struct {
+	Result string
+}

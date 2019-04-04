@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
@@ -96,4 +98,47 @@ func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 		}
 		return nil
 	})
+}
+
+func regenerateAPIKey(ctx context.Context, c *cmd.RegenerateAPIKey) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		apiKey := models.GenerateSecretKey()
+
+		if _, err := trx.Execute(
+			"UPDATE users SET api_key = $3, api_key_date = $4 WHERE id = $1 AND tenant_id = $2",
+			user.ID, tenant.ID, apiKey, time.Now(),
+		); err != nil {
+			return errors.Wrap(err, "failed to update current user's API Key")
+		}
+
+		c.Result = apiKey
+		return nil
+	})
+}
+
+func getUserByAPIKey(ctx context.Context, q *query.GetUserByAPIKey) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		result, err := queryUser(ctx, trx, "api_key = $1 AND tenant_id = $2", q.APIKey, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user with API Key '%s'", q.APIKey)
+		}
+		q.Result = result
+		return nil
+	})
+}
+
+func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
+	user := dbUser{}
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", models.UserDeleted)
+	err := trx.Get(&user, sql+filter, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID.Int64)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.toModel(ctx), nil
 }

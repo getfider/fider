@@ -3,6 +3,9 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/tasks"
 
@@ -132,13 +135,13 @@ func DeleteUser() web.HandlerFunc {
 // RegenerateAPIKey regenerates current user's API Key
 func RegenerateAPIKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		apiKey, err := c.Services().Users.RegenerateAPIKey()
-		if err != nil {
+		regenerateAPIKey := &cmd.RegenerateAPIKey{}
+		if err := bus.Dispatch(c, regenerateAPIKey); err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Ok(web.Map{
-			"apiKey": apiKey,
+			"apiKey": regenerateAPIKey.Result,
 		})
 	}
 }

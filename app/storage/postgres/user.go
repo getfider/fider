@@ -335,26 +335,3 @@ func (s *UserStorage) Delete() error {
 
 	return nil
 }
-
-// RegenerateAPIKey generates a new API Key and returns it
-func (s *UserStorage) RegenerateAPIKey() (string, error) {
-	apiKey := models.GenerateSecretKey()
-
-	if _, err := s.trx.Execute(
-		"UPDATE users SET api_key = $3, api_key_date = $4 WHERE id = $1 AND tenant_id = $2",
-		s.user.ID, s.tenant.ID, apiKey, time.Now(),
-	); err != nil {
-		return "", errors.Wrap(err, "failed to update current user's API Key")
-	}
-
-	return apiKey, nil
-}
-
-// GetByAPIKey returns a user based on its API key
-func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
-	user, err := s.getUser(s.trx, "api_key = $1 AND tenant_id = $2", apiKey, s.tenant.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user with API Key '%s'", apiKey)
-	}
-	return user, nil
-}

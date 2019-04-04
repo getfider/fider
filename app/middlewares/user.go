@@ -5,6 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/pkg/validate"
 
 	"github.com/getfider/fider/app/models"
@@ -55,13 +58,15 @@ func User() web.MiddlewareFunc {
 				parts := strings.Split(authHeader, "Bearer")
 				if len(parts) == 2 {
 					apiKey := strings.TrimSpace(parts[1])
-					user, err = c.Services().Users.GetByAPIKey(apiKey)
+					getUserByAPIKey := &query.GetUserByAPIKey{APIKey: apiKey}
+					err = bus.Dispatch(c, getUserByAPIKey)
 					if err != nil {
 						if errors.Cause(err) == app.ErrNotFound {
 							return c.HandleValidation(validate.Failed("API Key is invalid"))
 						}
 						return err
 					}
+					user = getUserByAPIKey.Result
 
 					if !user.IsCollaborator() {
 						return c.HandleValidation(validate.Failed("API Key is invalid"))

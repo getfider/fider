@@ -28,8 +28,6 @@ type User interface {
 	GetUserSettings() (map[string]string, error)
 	UpdateSettings(settings map[string]string) error
 	HasSubscribedTo(postID int) (bool, error)
-	GetByAPIKey(apiKey string) (*models.User, error)
-	RegenerateAPIKey() (string, error)
 }
 
 // Tenant contains read and write operations for tenants

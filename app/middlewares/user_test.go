@@ -1,15 +1,19 @@
 package middlewares_test
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
@@ -210,15 +214,21 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 func TestUser_ValidAPIKey(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.SetCurrentUser(mock.JonSnow)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 1234567890").
 		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
 		})
@@ -229,6 +239,10 @@ func TestUser_ValidAPIKey(t *testing.T) {
 
 func TestUser_InvalidAPIKey(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		return app.ErrNotFound
+	})
 
 	server, _ := mock.NewServer()
 
@@ -248,15 +262,17 @@ func TestUser_InvalidAPIKey(t *testing.T) {
 func TestUser_ValidAPIKey_Visitor(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.SetCurrentUser(mock.AryaStark)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 12345").
 		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
@@ -268,23 +284,26 @@ func TestUser_ValidAPIKey_Visitor(t *testing.T) {
 func TestUser_Impersonation_Collaborator(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	user := &models.User{
-		Name:   "The Collaborator",
-		Role:   models.RoleCollaborator,
-		Status: models.UserActive,
-		Tenant: mock.DemoTenant,
-	}
-	services.Users.SetCurrentTenant(mock.DemoTenant)
-	services.Users.Register(user)
-	services.Users.SetCurrentUser(user)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "12345" {
+			q.Result = &models.User{
+				Name:   "The Collaborator",
+				Role:   models.RoleCollaborator,
+				Status: models.UserActive,
+				Tenant: mock.DemoTenant,
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 12345").
 		AddHeader("X-Fider-UserID", strconv.Itoa(mock.JonSnow.ID)).
 		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
@@ -297,15 +316,21 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 func TestUser_Impersonation_InvalidUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.SetCurrentUser(mock.JonSnow)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 1234567890").
 		AddHeader("X-Fider-UserID", "ABC").
 		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
@@ -318,15 +343,21 @@ func TestUser_Impersonation_InvalidUser(t *testing.T) {
 func TestUser_Impersonation_UserNotFound(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.SetCurrentUser(mock.JonSnow)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 1234567890").
 		AddHeader("X-Fider-UserID", "999").
 		ExecuteAsJSON(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
@@ -339,15 +370,21 @@ func TestUser_Impersonation_UserNotFound(t *testing.T) {
 func TestUser_Impersonation_ValidUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.SetCurrentUser(mock.JonSnow)
-	apiKey, _ := services.Users.RegenerateAPIKey()
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
+		if q.APIKey == "1234567890" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://example.com/api/v1").
-		AddHeader("Authorization", fmt.Sprintf("Bearer %s", apiKey)).
+		AddHeader("Authorization", "Bearer 1234567890").
 		AddHeader("X-Fider-UserID", strconv.Itoa(mock.AryaStark.ID)).
 		Execute(func(c *web.Context) error {
 			return c.String(http.StatusOK, c.User().Name)
