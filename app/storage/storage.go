@@ -30,8 +30,6 @@ type User interface {
 	HasSubscribedTo(postID int) (bool, error)
 	GetByAPIKey(apiKey string) (*models.User, error)
 	RegenerateAPIKey() (string, error)
-	Block(userID int) error
-	Unblock(userID int) error
 }
 
 // Tenant contains read and write operations for tenants

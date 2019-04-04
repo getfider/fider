@@ -4,6 +4,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -378,14 +381,14 @@ func TestUserStorage_BlockUser(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(user.Status).Equals(models.UserActive)
 
-	err = users.Block(userID)
+	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: userID})
 	Expect(err).IsNil()
 
 	user, err = users.GetByID(userID)
 	Expect(err).IsNil()
 	Expect(user.Status).Equals(models.UserBlocked)
 
-	err = users.Unblock(userID)
+	err = bus.Dispatch(demoTenantCtx, &cmd.UnblockUser{UserID: userID})
 	Expect(err).IsNil()
 
 	user, err = users.GetByID(userID)

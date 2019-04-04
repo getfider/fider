@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -69,6 +70,30 @@ func countUsers(ctx context.Context, q *query.CountUsers) error {
 			return errors.Wrap(err, "failed to count users")
 		}
 		q.Result = count
+		return nil
+	})
+}
+
+func blockUser(ctx context.Context, c *cmd.BlockUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if _, err := trx.Execute(
+			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, models.UserBlocked,
+		); err != nil {
+			return errors.Wrap(err, "failed to block user")
+		}
+		return nil
+	})
+}
+
+func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if _, err := trx.Execute(
+			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
+			c.UserID, tenant.ID, models.UserActive,
+		); err != nil {
+			return errors.Wrap(err, "failed to unblock user")
+		}
 		return nil
 	})
 }

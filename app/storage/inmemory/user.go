@@ -176,29 +176,3 @@ func (s *UserStorage) GetByAPIKey(apiKey string) (*models.User, error) {
 	}
 	return nil, app.ErrNotFound
 }
-
-// Block a given user from using Fider
-func (s *UserStorage) Block(userID int) error {
-	user, err := s.GetByID(userID)
-	if err != nil {
-		return err
-	}
-
-	if user.Status == models.UserActive {
-		user.Status = models.UserBlocked
-	}
-	return nil
-}
-
-// Unblock a given user so that they can use Fider again
-func (s *UserStorage) Unblock(userID int) error {
-	user, err := s.GetByID(userID)
-	if err != nil {
-		return err
-	}
-
-	if user.Status == models.UserBlocked {
-		user.Status = models.UserActive
-	}
-	return nil
-}

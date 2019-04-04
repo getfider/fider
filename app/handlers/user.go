@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -12,7 +14,7 @@ func BlockUser() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		err = c.Services().Users.Block(userID)
+		err = bus.Dispatch(c, &cmd.BlockUser{UserID: userID})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -29,7 +31,7 @@ func UnblockUser() web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		err = c.Services().Users.Unblock(userID)
+		err = bus.Dispatch(c, &cmd.UnblockUser{UserID: userID})
 		if err != nil {
 			return c.Failure(err)
 		}
