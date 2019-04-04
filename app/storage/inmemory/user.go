@@ -202,8 +202,3 @@ func (s *UserStorage) Unblock(userID int) error {
 	}
 	return nil
 }
-
-// Count returns the total number of registered users
-func (s *UserStorage) Count() (int, error) {
-	return len(s.users), nil
-}

@@ -5,6 +5,9 @@ import (
 	"database/sql"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbUser struct {
@@ -56,4 +59,16 @@ func (u *dbUser) toModel(ctx context.Context) *models.User {
 type dbUserSetting struct {
 	Key   string `db:"key"`
 	Value string `db:"value"`
+}
+
+func countUsers(ctx context.Context, q *query.CountUsers) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		var count int
+		err := trx.Scalar(&count, "SELECT COUNT(*) FROM users WHERE tenant_id = $1", tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to count users")
+		}
+		q.Result = count
+		return nil
+	})
 }

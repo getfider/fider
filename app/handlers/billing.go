@@ -48,8 +48,8 @@ func BillingPage() web.HandlerFunc {
 			}
 		}
 
-		tenantUserCount, err := c.Services().Users.Count()
-		if err != nil {
+		countUsers := &query.CountUsers{}
+		if err := bus.Dispatch(c, countUsers); err != nil {
 			return c.Failure(err)
 		}
 
@@ -58,7 +58,7 @@ func BillingPage() web.HandlerFunc {
 			ChunkName: "Billing.page",
 			Data: web.Map{
 				"invoiceDue":      getUpcomingInvoiceQuery.Result,
-				"tenantUserCount": tenantUserCount,
+				"tenantUserCount": countUsers.Result,
 				"plans":           listPlansQuery.Result,
 				"paymentInfo":     paymentInfo.Result,
 				"countries":       models.GetAllCountries(),
@@ -117,12 +117,13 @@ func BillingSubscribe() web.HandlerFunc {
 		}
 		plan := getPlanByIDQuery.Result
 
-		userCount, err := c.Services().Users.Count()
+		countUsers := &query.CountUsers{}
+		err = bus.Dispatch(c, countUsers)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		if plan.MaxUsers > 0 && userCount > plan.MaxUsers {
+		if plan.MaxUsers > 0 && countUsers.Result > plan.MaxUsers {
 			return c.Unauthorized()
 		}
 

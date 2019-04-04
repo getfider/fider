@@ -77,6 +77,8 @@ func (s Service) Init() {
 	bus.AddHandler(deleteComment)
 	bus.AddHandler(getCommentByID)
 	bus.AddHandler(getCommentsByPost)
+
+	bus.AddHandler(countUsers)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error
