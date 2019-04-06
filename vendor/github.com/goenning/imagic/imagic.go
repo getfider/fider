@@ -1,30 +1,28 @@
-package img
+package imagic
 
 import (
 	"bytes"
+	"errors"
 	"image"
 
 	"image/color"
 	"image/png"
 
-	stdError "errors"
-
 	"github.com/disintegration/imaging"
-	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/image/draw"
 )
 
 //ErrNotSupported returned by Parse when given file is not in a supported format
-var ErrNotSupported = stdError.New("File not supported")
+var ErrNotSupported = errors.New("File not supported")
 
-//File is an image supported by Fider
+//File contains metadata of a given image
 type File struct {
 	Width  int
 	Height int
 	Size   int
 }
 
-//Parse returns the a img.File if it's supported by fider
+//Parse returns the a File if it's in supported format
 func Parse(file []byte) (*File, error) {
 	reader := bytes.NewReader(file)
 
@@ -105,7 +103,7 @@ func Apply(input []byte, operations ...ImageOperation) ([]byte, error) {
 func decode(file []byte) (image.Image, string, error) {
 	src, format, err := image.Decode(bytes.NewReader(file))
 	if err != nil {
-		return nil, "", errors.Wrap(err, "failed to decode image")
+		return nil, "", err
 	}
 	return src, format, err
 }
@@ -120,7 +118,7 @@ func encode(img image.Image, format string) ([]byte, error) {
 		imaging.JPEGQuality(95),
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to encode image to '%s'", format)
+		return nil, err
 	}
 	return writer.Bytes(), nil
 }

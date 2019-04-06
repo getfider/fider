@@ -61,6 +61,14 @@
   version = "v1.5.0"
 
 [[projects]]
+  digest = "1:c6991fa57e45dbd4a062d408e34c601f1804d474e4eeb0f297e6841b21fc004c"
+  name = "github.com/goenning/imagic"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b509a5b14a964a79ab463f21019f457cad2ab710"
+  version = "v0.0.1"
+
+[[projects]]
   branch = "master"
   digest = "1:c7073f7f18a2be8b8a31e8e23fe16c2141c3cbd0170c3eacea8f167438f3b655"
   name = "github.com/goenning/letteravatar"
@@ -308,7 +316,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/dgrijalva/jwt-go",
-    "github.com/disintegration/imaging",
+    "github.com/goenning/imagic",
     "github.com/goenning/letteravatar",
     "github.com/goenning/vat",
     "github.com/gosimple/slug",
@@ -321,7 +329,6 @@
     "github.com/stripe/stripe-go/client",
     "golang.org/x/crypto/acme",
     "golang.org/x/crypto/acme/autocert",
-    "golang.org/x/image/draw",
     "golang.org/x/oauth2",
     "golang.org/x/oauth2/facebook",
     "golang.org/x/oauth2/github",
