@@ -53,7 +53,7 @@ func TestGetOAuthBaseURL_WithPort(t *testing.T) {
 func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	services := &app.Services{
 		Blobs: di.NewBlobStorage(nil),
 	}
@@ -80,7 +80,7 @@ func TestProcessImageUpload(t *testing.T) {
 func TestMultiProcessImageUpload(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	services := &app.Services{
 		Blobs: di.NewBlobStorage(nil),
 	}

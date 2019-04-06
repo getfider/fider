@@ -12,9 +12,9 @@ import (
 
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/img"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+	"github.com/goenning/imagic"
 	"github.com/goenning/letteravatar"
 )
 
@@ -136,17 +136,17 @@ func Favicon() web.HandlerFunc {
 
 		size = between(size, 50, 200)
 
-		opts := []img.ImageOperation{}
+		opts := []imagic.ImageOperation{}
 		if size > 0 {
-			opts = append(opts, img.Padding(size*10/100))
-			opts = append(opts, img.Resize(size))
+			opts = append(opts, imagic.Padding(size*10/100))
+			opts = append(opts, imagic.Resize(size))
 		}
 
 		if c.QueryParam("bg") != "" {
-			opts = append(opts, img.ChangeBackground(color.White))
+			opts = append(opts, imagic.ChangeBackground(color.White))
 		}
 
-		bytes, err = img.Apply(bytes, opts...)
+		bytes, err = imagic.Apply(bytes, opts...)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -174,7 +174,7 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		bytes := logo.Object
 		if size > 0 {
-			bytes, err = img.Apply(bytes, img.Resize(size))
+			bytes, err = imagic.Apply(bytes, imagic.Resize(size))
 			if err != nil {
 				return c.Failure(err)
 			}
