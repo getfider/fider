@@ -45,8 +45,11 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Redirect(c.BaseURL())
 		}
 
-		err = c.Services().Users.ChangeEmail(result.UserID, result.Email)
-		if err != nil {
+		changeEmail := &cmd.ChangeUserEmail{
+			UserID: result.UserID,
+			Email:  result.Email,
+		}
+		if err = bus.Dispatch(c, changeEmail); err != nil {
 			return c.Failure(err)
 		}
 
@@ -110,8 +113,12 @@ func ChangeUserRole() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Users.ChangeRole(input.Model.UserID, input.Model.Role)
-		if err != nil {
+		changeRole := &cmd.ChangeUserRole{
+			UserID: input.Model.UserID,
+			Role:   input.Model.Role,
+		}
+
+		if err := bus.Dispatch(c, changeRole); err != nil {
 			return c.Failure(err)
 		}
 

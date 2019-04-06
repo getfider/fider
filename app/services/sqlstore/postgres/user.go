@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/getfider/fider/app"
@@ -195,6 +196,28 @@ func userSubscribedTo(ctx context.Context, q *query.UserSubscribedTo) error {
 		}
 
 		q.Result = false
+		return nil
+	})
+}
+
+func changeUserRole(ctx context.Context, c *cmd.ChangeUserRole) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, c.UserID, tenant.ID, c.Role)
+		if err != nil {
+			return errors.Wrap(err, "failed to change user's role")
+		}
+		return nil
+	})
+}
+
+func changeUserEmail(ctx context.Context, c *cmd.ChangeUserEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, c.UserID, tenant.ID, strings.ToLower(c.Email))
+		if err != nil {
+			return errors.Wrap(err, "failed to update user's email")
+		}
 		return nil
 	})
 }

@@ -89,17 +89,22 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 func TestChangeRoleHandler_Valid(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var changeRole *cmd.ChangeUserRole
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserRole) error {
+		changeRole = c
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("role", models.RoleAdministrator).
 		ExecutePost(handlers.ChangeUserRole(), fmt.Sprintf(`{ "userID": %d }`, mock.AryaStark.ID))
 
-	user, _ := services.Users.GetByID(mock.AryaStark.ID)
-
 	Expect(code).Equals(http.StatusOK)
-	Expect(user.Role).Equals(models.RoleAdministrator)
+	Expect(changeRole.UserID).Equals(mock.AryaStark.ID)
+	Expect(changeRole.Role).Equals(models.RoleAdministrator)
 }
 
 func TestChangeUserEmailHandler_Valid(t *testing.T) {

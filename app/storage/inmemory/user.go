@@ -91,24 +91,6 @@ func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
 	return err
 }
 
-// ChangeRole of given user
-func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
-	user, err := s.GetByID(userID)
-	if err == nil {
-		user.Role = role
-	}
-	return err
-}
-
-// ChangeEmail of given user
-func (s *UserStorage) ChangeEmail(userID int, email string) error {
-	user, err := s.GetByID(userID)
-	if err == nil {
-		user.Email = email
-	}
-	return err
-}
-
 // GetAll return all users of current tenant
 func (s *UserStorage) GetAll() ([]*models.User, error) {
 	return s.users, nil

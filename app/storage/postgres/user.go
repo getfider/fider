@@ -214,26 +214,6 @@ func (s *UserStorage) GetUserSettings() (map[string]string, error) {
 	return result, nil
 }
 
-// ChangeRole of given user
-func (s *UserStorage) ChangeRole(userID int, role models.Role) error {
-	cmd := "UPDATE users SET role = $3 WHERE id = $1 AND tenant_id = $2"
-	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, role)
-	if err != nil {
-		return errors.Wrap(err, "failed to change user's role")
-	}
-	return nil
-}
-
-// ChangeEmail of given user
-func (s *UserStorage) ChangeEmail(userID int, email string) error {
-	cmd := "UPDATE users SET email = $3 WHERE id = $1 AND tenant_id = $2"
-	_, err := s.trx.Execute(cmd, userID, s.tenant.ID, strings.ToLower(email))
-	if err != nil {
-		return errors.Wrap(err, "failed to update user's email")
-	}
-	return nil
-}
-
 // GetByID returns a user based on given id
 func (s *UserStorage) getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
