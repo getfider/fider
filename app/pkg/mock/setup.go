@@ -49,7 +49,6 @@ func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Context: context.Background(),
 		Tenants: inmemory.NewTenantStorage(),
-		Users:   &inmemory.UserStorage{},
 		OAuth:   &OAuthService{},
 	}
 
@@ -59,6 +58,7 @@ func createServices(seed bool) *app.Services {
 		AvengersTenant.CNAME = "feedback.theavengers.com"
 
 		JonSnow = &models.User{
+			ID:     1,
 			Name:   "Jon Snow",
 			Email:  "jon.snow@got.com",
 			Tenant: DemoTenant,
@@ -68,16 +68,15 @@ func createServices(seed bool) *app.Services {
 				{UID: "FB1234", Name: oauth.FacebookProvider},
 			},
 		}
-		services.Users.Register(JonSnow)
 
 		AryaStark = &models.User{
+			ID:     2,
 			Name:   "Arya Stark",
 			Email:  "arya.stark@got.com",
 			Tenant: DemoTenant,
 			Status: models.UserActive,
 			Role:   models.RoleVisitor,
 		}
-		services.Users.Register(AryaStark)
 	}
 
 	return services

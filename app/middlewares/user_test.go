@@ -44,6 +44,14 @@ func TestUser_WithCookie(t *testing.T) {
 		UserName: mock.JonSnow.Name,
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server.Use(middlewares.User())
 	status, response := server.
 		OnTenant(mock.DemoTenant).
@@ -68,6 +76,14 @@ func TestUser_Blocked(t *testing.T) {
 		UserName: mock.JonSnow.Name,
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server.Use(middlewares.User())
 	status, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -88,6 +104,14 @@ func TestUser_LockedTenant_Administrator(t *testing.T) {
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	server.Use(middlewares.User())
@@ -113,6 +137,14 @@ func TestUser_LockedTenant_Visitor(t *testing.T) {
 		UserName: mock.AryaStark.Name,
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.AryaStark.ID {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server.Use(middlewares.User())
 	status, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -132,6 +164,14 @@ func TestUser_WithCookie_InvalidUser(t *testing.T) {
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   999,
 		UserName: "Unknown",
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	server.Use(middlewares.User())
@@ -158,6 +198,10 @@ func TestUser_WithCookie_DifferentTenant(t *testing.T) {
 		UserName: mock.JonSnow.Name,
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		return app.ErrNotFound
+	})
+
 	server.Use(middlewares.User())
 	status, _ := server.
 		OnTenant(mock.AvengersTenant).
@@ -179,6 +223,14 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.JonSnow.ID {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	server.Use(middlewares.User())
@@ -343,6 +395,10 @@ func TestUser_Impersonation_InvalidUser(t *testing.T) {
 func TestUser_Impersonation_UserNotFound(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		return app.ErrNotFound
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
 		if q.APIKey == "1234567890" {
 			q.Result = mock.JonSnow
@@ -369,6 +425,14 @@ func TestUser_Impersonation_UserNotFound(t *testing.T) {
 
 func TestUser_Impersonation_ValidUser(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.AryaStark.ID {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByAPIKey) error {
 		if q.APIKey == "1234567890" {

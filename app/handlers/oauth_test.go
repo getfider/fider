@@ -1,17 +1,21 @@
 package handlers_test
 
 import (
+	"context"
 	"testing"
+
+	"github.com/getfider/fider/app"
 
 	"net/http"
 	"net/url"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/oauth"
@@ -157,6 +161,14 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		if q.Provider == "facebook" && q.UID == "FB123" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=MY_SESSION_ID&redirect=/hello").
@@ -174,7 +186,21 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 func TestOAuthTokenHandler_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var registeredUser *models.User
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		registeredUser = c.User
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=MY_SESSION_ID&redirect=/hello").
 		OnTenant(mock.DemoTenant).
@@ -186,24 +212,24 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("/hello")
 
-	user, err := services.Users.GetByEmail("some.guy@facebook.com")
-	Expect(err).IsNil()
-	Expect(user.Name).Equals("Some Facebook Guy")
+	Expect(registeredUser.Name).Equals("Some Facebook Guy")
 
-	ExpectFiderAuthCookie(response, user)
+	ExpectFiderAuthCookie(response, registeredUser)
 }
 
 func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.Register(&models.User{
-		Name:   "Some Guy",
-		Email:  "",
-		Tenant: mock.DemoTenant,
-		Providers: []*models.UserProvider{
-			&models.UserProvider{UID: "GO999", Name: oauth.GoogleProvider},
-		},
+	server, _ := mock.NewServer()
+	var newUser *models.User
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		c.User.ID = 1
+		newUser = c.User
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
 	})
 
 	code, response := server.
@@ -214,23 +240,15 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 		Use(middlewares.Session()).
 		Execute(handlers.OAuthToken())
 
-	user, err := services.Users.GetByID(3)
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(3)
-	Expect(user.Name).Equals("Some Guy")
-	Expect(user.Providers).HasLen(1)
-
-	user, err = services.Users.GetByID(4)
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(4)
-	Expect(user.Name).Equals("Mark")
-	Expect(user.Providers).HasLen(1)
+	Expect(newUser.ID).Equals(1)
+	Expect(newUser.Name).Equals("Mark")
+	Expect(newUser.Providers).HasLen(1)
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
 	Expect(response.Header().Get("Location")).Equals("/")
 	ExpectFiderAuthCookie(response, &models.User{
-		ID:   4,
+		ID:   1,
 		Name: "Mark",
 	})
 }
@@ -238,14 +256,24 @@ func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Users.Register(&models.User{
+	user := &models.User{
+		ID:     3,
 		Name:   "Some Facebook Guy",
 		Email:  "",
 		Tenant: mock.DemoTenant,
 		Providers: []*models.UserProvider{
 			&models.UserProvider{UID: "FB456", Name: oauth.FacebookProvider},
 		},
+	}
+
+	server, _ := mock.NewServer()
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		if q.Provider == "facebook" && q.UID == "FB456" {
+			q.Result = user
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	code, response := server.
@@ -258,9 +286,6 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
-	_, err := services.Users.GetByID(4)
-	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-
 	Expect(response.Header().Get("Location")).Equals("/")
 	ExpectFiderAuthCookie(response, &models.User{
 		ID:   3,
@@ -271,9 +296,26 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var newProvider *models.UserProvider
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
+		newProvider = &models.UserProvider{
+			Name: c.ProviderName,
+			UID:  c.ProviderUID,
+		}
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		if q.Provider == "google" && q.UID == "GO123" {
+			q.Result = mock.JonSnow
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
 	code, response := server.
-		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=MY_SESSION_ID&redirect=/").
+		WithURL("http://demo.test.fider.io/oauth/google/token?code=123&identifier=MY_SESSION_ID&redirect=/").
 		OnTenant(mock.DemoTenant).
 		AddParam("provider", oauth.GoogleProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -282,9 +324,8 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 
-	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).IsNil()
-	Expect(user.Providers).HasLen(2)
+	Expect(newProvider.Name).Equals("google")
+	Expect(newProvider.UID).Equals("GO123")
 
 	Expect(response.Header().Get("Location")).Equals("/")
 	ExpectFiderAuthCookie(response, mock.JonSnow)
@@ -292,8 +333,17 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 
 func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 	RegisterT(t)
-	server, services := mock.NewServer()
+
+	server, _ := mock.NewServer()
 	mock.AvengersTenant.IsPrivate = true
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
 
 	code, response := server.
 		WithURL("http://feedback.theavengers.com/oauth/facebook/token?code=456&identifier=MY_SESSION_ID&redirect=/").
@@ -302,10 +352,6 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
 		Use(middlewares.Session()).
 		Execute(handlers.OAuthToken())
-
-	user, err := services.Users.GetByEmail("some.guy@facebook.com")
-	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(user).IsNil()
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("/not-invited")

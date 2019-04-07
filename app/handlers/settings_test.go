@@ -7,17 +7,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -51,36 +51,46 @@ func TestUpdateUserSettingsHandler_EmptyInput(t *testing.T) {
 func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 	RegisterT(t)
 
+	var newName string
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUser) error {
+		newName = c.Name
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
 		return nil
 	})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		ExecutePost(handlers.UpdateUserSettings(), `{ "name": "Jon Stark", "avatarType": "gravatar" }`)
 
-	user, _ := services.Users.GetByEmail("jon.snow@got.com")
-
 	Expect(code).Equals(http.StatusOK)
-	Expect(user.Name).Equals("Jon Stark")
+	Expect(newName).Equals("Jon Stark")
 }
 
 func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 	RegisterT(t)
 
-	var updateCmd *cmd.UpdateCurrentUserSettings
-	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+	var updateCmd *cmd.UpdateCurrentUser
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUser) error {
 		updateCmd = c
 		return nil
 	})
 
-	server, services := mock.NewServer()
+	var updateSettingsCmd *cmd.UpdateCurrentUserSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+		updateSettingsCmd = c
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		ExecutePost(handlers.UpdateUserSettings(), `{ 
+		ExecutePost(handlers.UpdateUserSettings(), `{
 			"name": "Jon Stark",
 			"avatarType": "gravatar",
 			"settings": {
@@ -90,17 +100,25 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 			}
 		}`)
 
-	user, _ := services.Users.GetByEmail("jon.snow@got.com")
 	Expect(code).Equals(http.StatusOK)
-	Expect(user.Name).Equals("Jon Stark")
+	Expect(updateCmd.Name).Equals("Jon Stark")
+	Expect(updateCmd.AvatarType).Equals(models.AvatarTypeGravatar)
 
-	Expect(updateCmd.Settings[models.NotificationEventNewPost.UserSettingsKeyName]).Equals("1")
-	Expect(updateCmd.Settings[models.NotificationEventNewComment.UserSettingsKeyName]).Equals("2")
-	Expect(updateCmd.Settings[models.NotificationEventChangeStatus.UserSettingsKeyName]).Equals("3")
+	Expect(updateSettingsCmd.Settings[models.NotificationEventNewPost.UserSettingsKeyName]).Equals("1")
+	Expect(updateSettingsCmd.Settings[models.NotificationEventNewComment.UserSettingsKeyName]).Equals("2")
+	Expect(updateSettingsCmd.Settings[models.NotificationEventChangeStatus.UserSettingsKeyName]).Equals("3")
 }
 
 func TestChangeRoleHandler_Valid(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == mock.AryaStark.ID {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	var changeRole *cmd.ChangeUserRole
 	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserRole) error {
@@ -123,6 +141,10 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 func TestChangeUserEmailHandler_Valid(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
 	for _, email := range []string{
 		"jon.another@got.com",
 		"another.snow@got.com",
@@ -139,6 +161,20 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 
 func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		if q.Email == mock.JonSnow.Email {
+			q.Result = mock.JonSnow
+			return nil
+		}
+
+		if q.Email == mock.AryaStark.Email {
+			q.Result = mock.AryaStark
+			return nil
+		}
+
+		return app.ErrNotFound
+	})
 
 	for _, email := range []string{
 		"",
@@ -201,14 +237,6 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-
-	_, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).IsNil()
-	_, err = services.Users.GetByEmail("arya.stark@got.com")
-	Expect(err).IsNil()
-
-	_, err = services.Users.GetByEmail("jon.stark@got.com")
-	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 }
 
 func TestDeleteUserHandler(t *testing.T) {

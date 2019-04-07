@@ -1,11 +1,13 @@
 package handlers_test
 
 import (
+	"context"
 	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -117,6 +119,10 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 
 func TestManageMembersHandler(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+		return nil
+	})
 
 	server, _ := mock.NewServer()
 	code, _ := server.

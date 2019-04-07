@@ -1,10 +1,13 @@
 package handlers_test
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/httpclient"
 
@@ -19,13 +22,23 @@ func TestGravatarHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(httpclient.Service{})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
+
 	user := &models.User{
+		ID:     3,
 		Name:   "Darth Vader",
-		Email:  "DarthVader.fider@gmail.com",
+		Email:  "darthvader.fider@gmail.com",
 		Tenant: mock.DemoTenant,
 	}
-	services.Users.Register(user)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == user.ID {
+			q.Result = user
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	code, response := server.
 		WithURL("https://demo.test.fider.io/?size=50").
 		OnTenant(mock.DemoTenant).
@@ -42,13 +55,23 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(httpclient.Service{})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
+
 	user := &models.User{
+		ID:     3,
 		Name:   "Darth Vader",
 		Email:  "darthvader.fider1234567890@gmail.com",
 		Tenant: mock.DemoTenant,
 	}
-	services.Users.Register(user)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
+		if q.UserID == user.ID {
+			q.Result = user
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("https://demo.test.fider.io/?size=50").
