@@ -10,7 +10,6 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/getfider/fider/app/storage/postgres"
 )
@@ -120,14 +119,10 @@ func WebSetup() web.MiddlewareFunc {
 				return err
 			}
 
-			oauthBaseURL := webutil.GetOAuthBaseURL(c)
-			tenantStorage := postgres.NewTenantStorage(trx, c)
-
 			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
 				Context: c,
-				Tenants: tenantStorage,
-				OAuth:   web.NewOAuthService(oauthBaseURL, tenantStorage),
+				Tenants: postgres.NewTenantStorage(trx, c),
 			})
 
 			//Execute the chain

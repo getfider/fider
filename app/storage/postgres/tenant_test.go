@@ -326,83 +326,86 @@ func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	tenant, _ := tenants.GetByDomain("demo")
-	tenants.SetCurrentTenant(tenant)
-
-	config, err := tenants.GetOAuthConfigByProvider("_TEST")
-	Expect(config).IsNil()
+	getConfig := &query.GetCustomOAuthConfigByProvider{Provider: "_TEST"}
+	err := bus.Dispatch(demoTenantCtx, getConfig)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getConfig.Result).IsNil()
 
-	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID: 0,
-		Logo: &models.ImageUpload{
-			BlobKey: "uploads/my-logo-key.png",
+	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
+		Config: &models.CreateEditOAuthConfig{
+			Logo: &models.ImageUpload{
+				BlobKey: "uploads/my-logo-key.png",
+			},
+			Provider:          "_TEST",
+			DisplayName:       "My Provider",
+			ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
+			ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+			AuthorizeURL:      "http://provider/oauth/authorize",
+			TokenURL:          "http://provider/oauth/token",
+			Scope:             "profile email",
+			ProfileURL:        "http://provider/profile/me",
+			JSONUserIDPath:    "user.id",
+			JSONUserNamePath:  "user.name",
+			JSONUserEmailPath: "user.email",
 		},
-		Provider:          "_TEST",
-		DisplayName:       "My Provider",
-		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-		AuthorizeURL:      "http://provider/oauth/authorize",
-		TokenURL:          "http://provider/oauth/token",
-		Scope:             "profile email",
-		ProfileURL:        "http://provider/profile/me",
-		JSONUserIDPath:    "user.id",
-		JSONUserNamePath:  "user.name",
-		JSONUserEmailPath: "user.email",
 	})
 	Expect(err).IsNil()
 
-	config, err = tenants.GetOAuthConfigByProvider("_TEST")
+	err = bus.Dispatch(demoTenantCtx, getConfig)
 	Expect(err).IsNil()
-	Expect(config.ID).Equals(1)
-	Expect(config.LogoBlobKey).Equals("uploads/my-logo-key.png")
-	Expect(config.Provider).Equals("_TEST")
-	Expect(config.DisplayName).Equals("My Provider")
-	Expect(config.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
-	Expect(config.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
-	Expect(config.AuthorizeURL).Equals("http://provider/oauth/authorize")
-	Expect(config.TokenURL).Equals("http://provider/oauth/token")
-	Expect(config.Scope).Equals("profile email")
-	Expect(config.Status).Equals(0)
-	Expect(config.ProfileURL).Equals("http://provider/profile/me")
-	Expect(config.JSONUserIDPath).Equals("user.id")
-	Expect(config.JSONUserNamePath).Equals("user.name")
-	Expect(config.JSONUserEmailPath).Equals("user.email")
+	Expect(getConfig.Result.ID).Equals(1)
+	Expect(getConfig.Result.LogoBlobKey).Equals("uploads/my-logo-key.png")
+	Expect(getConfig.Result.Provider).Equals("_TEST")
+	Expect(getConfig.Result.DisplayName).Equals("My Provider")
+	Expect(getConfig.Result.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(getConfig.Result.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(getConfig.Result.AuthorizeURL).Equals("http://provider/oauth/authorize")
+	Expect(getConfig.Result.TokenURL).Equals("http://provider/oauth/token")
+	Expect(getConfig.Result.Scope).Equals("profile email")
+	Expect(getConfig.Result.Status).Equals(0)
+	Expect(getConfig.Result.ProfileURL).Equals("http://provider/profile/me")
+	Expect(getConfig.Result.JSONUserIDPath).Equals("user.id")
+	Expect(getConfig.Result.JSONUserNamePath).Equals("user.name")
+	Expect(getConfig.Result.JSONUserEmailPath).Equals("user.email")
 
-	err = tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID: config.ID,
-		Logo: &models.ImageUpload{
-			BlobKey: "",
+	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
+		Config: &models.CreateEditOAuthConfig{
+			ID: getConfig.Result.ID,
+			Logo: &models.ImageUpload{
+				BlobKey: "",
+			},
+			Provider:          "_TEST2222", //this has to be ignored
+			DisplayName:       "New My Provider",
+			ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
+			ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+			AuthorizeURL:      "New http://provider/oauth/authorize",
+			TokenURL:          "New http://provider/oauth/token",
+			Scope:             "New profile email",
+			ProfileURL:        "New http://provider/profile/me",
+			JSONUserIDPath:    "New user.id",
+			JSONUserNamePath:  "New user.name",
+			JSONUserEmailPath: "New user.email",
 		},
-		Provider:          "_TEST2222", //this has to be ignored
-		DisplayName:       "New My Provider",
-		ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
-		ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-		AuthorizeURL:      "New http://provider/oauth/authorize",
-		TokenURL:          "New http://provider/oauth/token",
-		Scope:             "New profile email",
-		ProfileURL:        "New http://provider/profile/me",
-		JSONUserIDPath:    "New user.id",
-		JSONUserNamePath:  "New user.name",
-		JSONUserEmailPath: "New user.email",
 	})
 	Expect(err).IsNil()
 
-	configs, err := tenants.ListOAuthConfig()
+	customConfigs := &query.ListCustomOAuthConfig{}
+	err = bus.Dispatch(demoTenantCtx, customConfigs)
 	Expect(err).IsNil()
-	Expect(configs).HasLen(1)
-	Expect(configs[0].ID).Equals(1)
-	Expect(configs[0].LogoBlobKey).Equals("")
-	Expect(configs[0].Provider).Equals("_TEST")
-	Expect(configs[0].DisplayName).Equals("New My Provider")
-	Expect(configs[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")
-	Expect(configs[0].ClientSecret).Equals("New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
-	Expect(configs[0].AuthorizeURL).Equals("New http://provider/oauth/authorize")
-	Expect(configs[0].TokenURL).Equals("New http://provider/oauth/token")
-	Expect(configs[0].Scope).Equals("New profile email")
-	Expect(configs[0].Status).Equals(0)
-	Expect(configs[0].ProfileURL).Equals("New http://provider/profile/me")
-	Expect(configs[0].JSONUserIDPath).Equals("New user.id")
-	Expect(configs[0].JSONUserNamePath).Equals("New user.name")
-	Expect(configs[0].JSONUserEmailPath).Equals("New user.email")
+
+	Expect(customConfigs.Result).HasLen(1)
+	Expect(customConfigs.Result[0].ID).Equals(1)
+	Expect(customConfigs.Result[0].LogoBlobKey).Equals("")
+	Expect(customConfigs.Result[0].Provider).Equals("_TEST")
+	Expect(customConfigs.Result[0].DisplayName).Equals("New My Provider")
+	Expect(customConfigs.Result[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(customConfigs.Result[0].ClientSecret).Equals("New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(customConfigs.Result[0].AuthorizeURL).Equals("New http://provider/oauth/authorize")
+	Expect(customConfigs.Result[0].TokenURL).Equals("New http://provider/oauth/token")
+	Expect(customConfigs.Result[0].Scope).Equals("New profile email")
+	Expect(customConfigs.Result[0].Status).Equals(0)
+	Expect(customConfigs.Result[0].ProfileURL).Equals("New http://provider/profile/me")
+	Expect(customConfigs.Result[0].JSONUserIDPath).Equals("New user.id")
+	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
+	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
 }

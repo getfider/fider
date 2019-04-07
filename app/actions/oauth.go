@@ -3,6 +3,9 @@ package actions
 import (
 	"strings"
 
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/rand"
@@ -31,15 +34,16 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	result := validate.Success()
 
 	if input.Model.Provider != "" {
-		config, err := services.Tenants.GetOAuthConfigByProvider(input.Model.Provider)
+		getConfig := &query.GetCustomOAuthConfigByProvider{Provider: input.Model.Provider}
+		err := bus.Dispatch(services.Context, getConfig)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		input.Model.ID = config.ID
-		input.Model.Logo.BlobKey = config.LogoBlobKey
+		input.Model.ID = getConfig.Result.ID
+		input.Model.Logo.BlobKey = getConfig.Result.LogoBlobKey
 		if input.Model.ClientSecret == "" {
-			input.Model.ClientSecret = config.ClientSecret
+			input.Model.ClientSecret = getConfig.Result.ClientSecret
 		}
 	} else {
 		input.Model.Provider = "_" + strings.ToLower(rand.String(10))

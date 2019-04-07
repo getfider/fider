@@ -76,23 +76,6 @@ func GetSignUpAuthCookie(ctx *web.Context) string {
 	return ""
 }
 
-// GetOAuthBaseURL returns the OAuth base URL used for host-wide OAuth authentication
-// For Single Tenant HostMode, BaseURL is the current BaseURL
-// For Multi Tenant HostMode, BaseURL is //login.{HOST_DOMAIN}
-func GetOAuthBaseURL(ctx *web.Context) string {
-	if env.IsSingleHostMode() {
-		return ctx.BaseURL()
-	}
-
-	oauthBaseURL := ctx.Request.URL.Scheme + "://login" + env.MultiTenantDomain()
-	port := ctx.Request.URL.Port()
-	if port != "" {
-		oauthBaseURL += ":" + port
-	}
-
-	return oauthBaseURL
-}
-
 // ProcessMultiImageUpload uploads multiple image to blob (if it's a new one)
 func ProcessMultiImageUpload(c *web.Context, imgs []*models.ImageUpload, preffix string) error {
 	for _, img := range imgs {

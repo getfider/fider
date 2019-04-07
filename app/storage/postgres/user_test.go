@@ -14,7 +14,6 @@ import (
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/oauth"
 )
 
 func TestUserStorage_GetByID(t *testing.T) {
@@ -112,7 +111,7 @@ func TestUserStorage_Register(t *testing.T) {
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
-				Name: oauth.FacebookProvider,
+				Name: app.FacebookProvider,
 			},
 		},
 	}
@@ -172,11 +171,11 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
-				Name: oauth.FacebookProvider,
+				Name: app.FacebookProvider,
 			},
 			{
 				UID:  "456456456",
-				Name: oauth.GoogleProvider,
+				Name: app.GoogleProvider,
 			},
 		},
 	}

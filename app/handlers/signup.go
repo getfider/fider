@@ -114,7 +114,7 @@ func SignUp() web.HandlerFunc {
 				return c.Redirect("/")
 			}
 		} else {
-			baseURL := webutil.GetOAuthBaseURL(c)
+			baseURL := web.OAuthBaseURL(c)
 			if !strings.HasPrefix(c.Request.URL.String(), baseURL) {
 				return c.Redirect(baseURL + "/signup")
 			}

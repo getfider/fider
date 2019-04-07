@@ -37,30 +37,6 @@ func newContext(rawurl string) *web.Context {
 	return web.NewContext(engine, req, res, make(web.StringMap))
 }
 
-func TestGetOAuthBaseURL(t *testing.T) {
-	RegisterT(t)
-
-	ctx := newContext("https://mydomain.com/hello-world")
-
-	env.Config.HostMode = "multi"
-	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
-
-	env.Config.HostMode = "single"
-	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("https://mydomain.com")
-}
-
-func TestGetOAuthBaseURL_WithPort(t *testing.T) {
-	RegisterT(t)
-
-	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
-
-	env.Config.HostMode = "multi"
-	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
-
-	env.Config.HostMode = "single"
-	Expect(webutil.GetOAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
-}
-
 func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
 	bus.Init(fs.Service{})

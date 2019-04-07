@@ -108,6 +108,10 @@ func (s Service) Init() {
 	bus.AddHandler(getVerificationByKey)
 	bus.AddHandler(saveVerificationKey)
 	bus.AddHandler(setKeyAsVerified)
+
+	bus.AddHandler(listCustomOAuthConfig)
+	bus.AddHandler(getCustomOAuthConfigByProvider)
+	bus.AddHandler(saveCustomOAuthConfig)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

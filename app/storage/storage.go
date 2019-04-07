@@ -13,11 +13,8 @@ type Base interface {
 // Tenant contains read and write operations for tenants
 type Tenant interface {
 	Base
+
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	GetByDomain(domain string) (*models.Tenant, error)
-
-	SaveOAuthConfig(config *models.CreateEditOAuthConfig) error
-	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)
-	ListOAuthConfig() ([]*models.OAuthConfig, error)
 }

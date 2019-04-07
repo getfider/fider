@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
@@ -230,95 +229,4 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	}
 
 	return tenant.toModel(), nil
-}
-
-// SaveOAuthConfig saves given config into database
-func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
-	var err error
-
-	if config.Logo.Remove {
-		config.Logo.BlobKey = ""
-	}
-
-	if config.ID == 0 {
-		query := `INSERT INTO oauth_providers (
-			tenant_id, provider, display_name, status,
-			client_id, client_secret, authorize_url,
-			profile_url, token_url, scope, json_user_id_path,
-			json_user_name_path, json_user_email_path, logo_bkey
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-		RETURNING id`
-
-		err = s.trx.Get(&config.ID, query, s.current.ID, config.Provider,
-			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
-			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
-			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath, config.Logo.BlobKey)
-	} else {
-		query := `
-			UPDATE oauth_providers 
-			SET display_name = $3, status = $4, client_id = $5, client_secret = $6, 
-					authorize_url = $7, profile_url = $8, token_url = $9, scope = $10, 
-					json_user_id_path = $11, json_user_name_path = $12, json_user_email_path = $13,
-					logo_bkey = $14
-		WHERE tenant_id = $1 AND id = $2`
-
-		_, err = s.trx.Execute(query, s.current.ID, config.ID,
-			config.DisplayName, config.Status, config.ClientID, config.ClientSecret,
-			config.AuthorizeURL, config.ProfileURL, config.TokenURL,
-			config.Scope, config.JSONUserIDPath, config.JSONUserNamePath,
-			config.JSONUserEmailPath, config.Logo.BlobKey)
-	}
-
-	if err != nil {
-		return errors.Wrap(err, "failed to save OAuth Provider")
-	}
-
-	return nil
-}
-
-// GetOAuthConfigByProvider returns a custom OAuth configuration by provider name
-func (s *TenantStorage) GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error) {
-	if s.current == nil {
-		return nil, app.ErrNotFound
-	}
-
-	config := &dbOAuthConfig{}
-	err := s.trx.Get(config, `
-	SELECT id, provider, display_name, status, logo_bkey,
-				 client_id, client_secret, authorize_url,
-				 profile_url, token_url, scope, json_user_id_path,
-				 json_user_name_path, json_user_email_path
-	FROM oauth_providers
-	WHERE tenant_id = $1 AND provider = $2
-	`, s.current.ID, provider)
-	if err != nil {
-		return nil, err
-	}
-	return config.toModel(), nil
-}
-
-// ListOAuthConfig returns a list of all custom OAuth provider for current tenant
-func (s *TenantStorage) ListOAuthConfig() ([]*models.OAuthConfig, error) {
-	configs := []*dbOAuthConfig{}
-	if s.current != nil {
-		err := s.trx.Select(&configs, `
-		SELECT id, provider, display_name, status, logo_bkey,
-					 client_id, client_secret, authorize_url,
-					 profile_url, token_url, scope, json_user_id_path,
-					 json_user_name_path, json_user_email_path
-		FROM oauth_providers
-		WHERE tenant_id = $1
-		ORDER BY id
-		`, s.current.ID)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	var result = make([]*models.OAuthConfig, len(configs))
-	for i, config := range configs {
-		result[i] = config.toModel()
-	}
-	return result, nil
 }

@@ -1,12 +1,15 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
@@ -85,14 +88,16 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	RegisterT(t)
 
-	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID: 4,
-		Logo: &models.ImageUpload{
-			BlobKey: "hello-world.png",
-		},
-		Provider:     "_NAME",
-		DisplayName:  "My Provider",
-		ClientSecret: "MY_OLD_SECRET",
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_NAME" {
+			q.Result = &models.OAuthConfig{
+				ID:          4,
+				Provider:    q.Provider,
+				LogoBlobKey: "hello-world.png",
+			}
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	action := &actions.CreateEditOAuthConfig{}
@@ -120,12 +125,17 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	RegisterT(t)
 
-	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID:           5,
-		Logo:         &models.ImageUpload{},
-		Provider:     "_NAME2",
-		DisplayName:  "My Provider",
-		ClientSecret: "MY_OLD_SECRET",
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_NAME2" {
+			q.Result = &models.OAuthConfig{
+				ID:           5,
+				Provider:     q.Provider,
+				DisplayName:  "My Provider",
+				ClientSecret: "MY_OLD_SECRET",
+			}
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	action := &actions.CreateEditOAuthConfig{}
@@ -150,6 +160,10 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 
 func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		return app.ErrNotFound
+	})
 
 	action := &actions.CreateEditOAuthConfig{}
 	action.Initialize()

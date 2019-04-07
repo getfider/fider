@@ -107,8 +107,8 @@ func ManageMembers() web.HandlerFunc {
 // ManageAuthentication is the page used by administrators to change site authentication settings
 func ManageAuthentication() web.HandlerFunc {
 	return func(c *web.Context) error {
-		providers, err := c.Services().OAuth.ListAllProviders()
-		if err != nil {
+		listProviders := &query.ListAllOAuthProviders{}
+		if err := bus.Dispatch(c, listProviders); err != nil {
 			return c.Failure(err)
 		}
 
@@ -116,7 +116,7 @@ func ManageAuthentication() web.HandlerFunc {
 			Title:     "Authentication · Site Settings",
 			ChunkName: "ManageAuthentication.page",
 			Data: web.Map{
-				"providers": providers,
+				"providers": listProviders.Result,
 			},
 		})
 	}
@@ -125,12 +125,14 @@ func ManageAuthentication() web.HandlerFunc {
 // GetOAuthConfig returns OAuth config based on given provider
 func GetOAuthConfig() web.HandlerFunc {
 	return func(c *web.Context) error {
-		config, err := c.Services().Tenants.GetOAuthConfigByProvider(c.Param("provider"))
-		if err != nil {
+		getConfig := &query.GetCustomOAuthConfigByProvider{
+			Provider: c.Param("provider"),
+		}
+		if err := bus.Dispatch(c, getConfig); err != nil {
 			return c.Failure(err)
 		}
 
-		return c.Ok(config)
+		return c.Ok(getConfig.Result)
 	}
 }
 
@@ -147,8 +149,9 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.SaveOAuthConfig(input.Model)
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.SaveCustomOAuthConfig{
+			Config: input.Model,
+		}); err != nil {
 			return c.Failure(err)
 		}
 

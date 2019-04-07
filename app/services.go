@@ -4,14 +4,12 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage"
 )
 
 // Services holds reference to all Fider services
 type Services struct {
 	Context context.Context //EXPERIMENTAL-BUS: temporary
-	OAuth   oauth.Service
 	Tenants storage.Tenant
 }
 

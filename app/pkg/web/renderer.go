@@ -9,6 +9,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/getfider/fider/app/models/dto"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"io/ioutil"
 
 	"github.com/getfider/fider/app/models"
@@ -16,7 +21,6 @@ import (
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/oauth"
 )
 
 var templateFunctions = template.FuncMap{
@@ -194,9 +198,11 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		private["canonicalURL"] = canonicalURL
 	}
 
-	oauthProviders := make([]*oauth.ProviderOption, 0)
-	if !ctx.IsAuthenticated() && ctx.Services() != nil {
-		oauthProviders, err = ctx.Services().OAuth.ListActiveProviders()
+	oauthProviders := &query.ListActiveOAuthProviders{
+		Result: make([]*dto.OAuthProviderOption, 0),
+	}
+	if !ctx.IsAuthenticated() {
+		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}
@@ -218,7 +224,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"baseURL":         ctx.BaseURL(),
 		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
 		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
-		"oauth":           oauthProviders,
+		"oauth":           oauthProviders.Result,
 	}
 
 	if ctx.IsAuthenticated() {

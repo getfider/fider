@@ -36,7 +36,8 @@ func OAuthEcho() web.HandlerFunc {
 			return c.Redirect("/")
 		}
 
-		body, err := c.Services().OAuth.GetRawProfile(provider, code)
+		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
+		err := bus.Dispatch(c, rawProfile)
 		if err != nil {
 			return c.Page(web.Props{
 				Title:     "OAuth Test Page",
@@ -47,14 +48,15 @@ func OAuthEcho() web.HandlerFunc {
 			})
 		}
 
-		profile, _ := c.Services().OAuth.ParseRawProfile(provider, body)
+		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: rawProfile.Result}
+		_ = bus.Dispatch(c, parseRawProfile)
 
 		return c.Page(web.Props{
 			Title:     "OAuth Test Page",
 			ChunkName: "OAuthEcho.page",
 			Data: web.Map{
-				"body":    body,
-				"profile": profile,
+				"body":    rawProfile.Result,
+				"profile": parseRawProfile.Result,
 			},
 		})
 	}
@@ -80,19 +82,19 @@ func OAuthToken() web.HandlerFunc {
 			return c.Redirect(redirectURL.String())
 		}
 
-		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
-		if err != nil {
+		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
+		if err := bus.Dispatch(c, oauthUser); err != nil {
 			return c.Failure(err)
 		}
 
 		var user *models.User
 
-		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.ID}
-		err = bus.Dispatch(c, userByProvider)
+		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
+		err := bus.Dispatch(c, userByProvider)
 		user = userByProvider.Result
 
-		if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
-			userByEmail := &query.GetUserByEmail{Email: oauthUser.Email}
+		if errors.Cause(err) == app.ErrNotFound && oauthUser.Result.Email != "" {
+			userByEmail := &query.GetUserByEmail{Email: oauthUser.Result.Email}
 			err = bus.Dispatch(c, userByEmail)
 			user = userByEmail.Result
 		}
@@ -103,13 +105,13 @@ func OAuthToken() web.HandlerFunc {
 				}
 
 				user = &models.User{
-					Name:   oauthUser.Name,
+					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
-					Email:  oauthUser.Email,
+					Email:  oauthUser.Result.Email,
 					Role:   models.RoleVisitor,
 					Providers: []*models.UserProvider{
 						&models.UserProvider{
-							UID:  oauthUser.ID,
+							UID:  oauthUser.Result.ID,
 							Name: provider,
 						},
 					},
@@ -125,7 +127,7 @@ func OAuthToken() web.HandlerFunc {
 			if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
 				UserID:       user.ID,
 				ProviderName: provider,
-				ProviderUID:  oauthUser.ID,
+				ProviderUID:  oauthUser.Result.ID,
 			}); err != nil {
 				return c.Failure(err)
 			}
@@ -170,16 +172,16 @@ func OAuthCallback() web.HandlerFunc {
 
 		//Sign up process
 		if redirectURL.Path == "/signup" {
-			oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
-			if err != nil {
+			oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
+			if err := bus.Dispatch(c, oauthUser); err != nil {
 				return c.Failure(err)
 			}
 
 			claims := jwt.OAuthClaims{
-				OAuthID:       oauthUser.ID,
+				OAuthID:       oauthUser.Result.ID,
 				OAuthProvider: provider,
-				OAuthName:     oauthUser.Name,
-				OAuthEmail:    oauthUser.Email,
+				OAuthName:     oauthUser.Result.Name,
+				OAuthEmail:    oauthUser.Result.Email,
 				Metadata: jwt.Metadata{
 					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
 				},
@@ -227,10 +229,14 @@ func SignInByOAuth() web.HandlerFunc {
 			return c.Redirect(redirect)
 		}
 
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, redirect, c.SessionID())
-		if err != nil {
+		authURL := &query.GetOAuthAuthorizationURL{
+			Provider:   provider,
+			Redirect:   redirect,
+			Identifier: c.SessionID(),
+		}
+		if err := bus.Dispatch(c, authURL); err != nil {
 			return c.Failure(err)
 		}
-		return c.Redirect(authURL)
+		return c.Redirect(authURL.Result)
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/oauth"
 	"github.com/getfider/fider/app/storage/inmemory"
 )
 
@@ -49,7 +48,6 @@ func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Context: context.Background(),
 		Tenants: inmemory.NewTenantStorage(),
-		OAuth:   &OAuthService{},
 	}
 
 	if seed {
@@ -65,7 +63,7 @@ func createServices(seed bool) *app.Services {
 			Status: models.UserActive,
 			Role:   models.RoleAdministrator,
 			Providers: []*models.UserProvider{
-				{UID: "FB1234", Name: oauth.FacebookProvider},
+				{UID: "FB1234", Name: app.FacebookProvider},
 			},
 		}
 

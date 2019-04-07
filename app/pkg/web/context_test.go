@@ -238,3 +238,27 @@ func TestTryAgainLater(t *testing.T) {
 	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
 	Expect(resp.Header().Get("Retry-After")).Equals("86400")
 }
+
+func TestGetOAuthBaseURL(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("https://mydomain.com/hello-world", nil)
+
+	env.Config.HostMode = "multi"
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
+
+	env.Config.HostMode = "single"
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://mydomain.com")
+}
+
+func TestGetOAuthBaseURL_WithPort(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://demo.test.fider.io:3000/hello-world", nil)
+
+	env.Config.HostMode = "multi"
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
+
+	env.Config.HostMode = "single"
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
+}

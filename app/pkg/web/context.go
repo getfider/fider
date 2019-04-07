@@ -607,3 +607,21 @@ func BaseURL(ctx context.Context) string {
 	}
 	return ""
 }
+
+// OAuthBaseURL returns the OAuth base URL used for host-wide OAuth authentication
+// For Single Tenant HostMode, BaseURL is the current BaseURL
+// For Multi Tenant HostMode, BaseURL is //login.{HOST_DOMAIN}
+func OAuthBaseURL(ctx context.Context) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+
+	if env.IsSingleHostMode() {
+		return BaseURL(ctx)
+	}
+
+	oauthBaseURL := request.URL.Scheme + "://login" + env.MultiTenantDomain()
+	port := request.URL.Port()
+	if port != "" {
+		oauthBaseURL += ":" + port
+	}
+	return oauthBaseURL
+}

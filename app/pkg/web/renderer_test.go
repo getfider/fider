@@ -2,12 +2,18 @@ package web_test
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
+
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -22,6 +28,10 @@ func compareRendererResponse(buf *bytes.Buffer, fileName string, ctx *web.Contex
 func TestRenderer_Basic(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer(&models.SystemSettings{})
@@ -32,6 +42,10 @@ func TestRenderer_Basic(t *testing.T) {
 func TestRenderer_WithChunkPreload(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	renderer := web.NewRenderer(&models.SystemSettings{})
@@ -41,6 +55,10 @@ func TestRenderer_WithChunkPreload(t *testing.T) {
 
 func TestRenderer_Tenant(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
@@ -53,6 +71,10 @@ func TestRenderer_Tenant(t *testing.T) {
 func TestRenderer_WithCanonicalURL(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetCanonicalURL("http://feedback.demo.org")
@@ -63,6 +85,10 @@ func TestRenderer_WithCanonicalURL(t *testing.T) {
 
 func TestRenderer_Props(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
 
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
@@ -86,6 +112,10 @@ func TestRenderer_Props(t *testing.T) {
 func TestRenderer_AuthenticatedUser(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		return nil
+	})
+
 	buf := new(bytes.Buffer)
 	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
 	ctx.SetUser(&models.User{
@@ -104,4 +134,30 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 	}, ctx)
 
 	compareRendererResponse(buf, "/app/pkg/web/testdata/user.html", ctx)
+}
+
+func TestRenderer_WithOAuth(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
+		q.Result = []*dto.OAuthProviderOption{
+			&dto.OAuthProviderOption{
+				Provider:         app.GoogleProvider,
+				DisplayName:      "Google",
+				ClientID:         "1234",
+				URL:              "https://demo.test.fider.io:3000/oauth/google",
+				CallbackURL:      "https://demo.test.fider.io:3000/oauth/google/callback",
+				LogoBlobKey:      "google.png",
+				IsCustomProvider: false,
+				IsEnabled:        true,
+			},
+		}
+		return nil
+	})
+
+	buf := new(bytes.Buffer)
+	ctx := newGetContext("https://demo.test.fider.io:3000/", nil)
+	renderer := web.NewRenderer(&models.SystemSettings{})
+	renderer.Render(buf, "index.html", web.Props{}, ctx)
+	compareRendererResponse(buf, "/app/pkg/web/testdata/oauth.html", ctx)
 }
