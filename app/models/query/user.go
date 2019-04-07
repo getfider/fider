@@ -17,3 +17,7 @@ type GetUserByAPIKey struct {
 
 	Result *models.User
 }
+
+type GetCurrentUserSettings struct {
+	Result map[string]string
+}

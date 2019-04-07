@@ -26,3 +26,7 @@ type ChangeUserEmail struct {
 	UserID int
 	Email  string
 }
+
+type UpdateCurrentUserSettings struct {
+	Settings map[string]string
+}

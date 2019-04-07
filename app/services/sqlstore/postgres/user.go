@@ -237,3 +237,49 @@ func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interfa
 
 	return user.toModel(ctx), nil
 }
+
+func updateCurrentUserSettings(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if user != nil && c.Settings != nil && len(c.Settings) > 0 {
+			query := `
+			INSERT INTO user_settings (tenant_id, user_id, key, value)
+			VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, key) DO UPDATE SET value = $4
+			`
+
+			for key, value := range c.Settings {
+				_, err := trx.Execute(query, tenant.ID, user.ID, key, value)
+				if err != nil {
+					return errors.Wrap(err, "failed to update user settings")
+				}
+			}
+		}
+
+		return nil
+	})
+}
+
+func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		q.Result = make(map[string]string)
+
+		var settings []*dbUserSetting
+		err := trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", user.ID, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user settings")
+		}
+
+		for _, e := range models.AllNotificationEvents {
+			for _, r := range e.DefaultEnabledUserRoles {
+				if r == user.Role {
+					q.Result[e.UserSettingsKeyName] = e.DefaultSettingValue
+				}
+			}
+		}
+
+		for _, s := range settings {
+			q.Result[s.Key] = s.Value
+		}
+
+		return nil
+	})
+}

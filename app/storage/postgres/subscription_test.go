@@ -174,11 +174,10 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(aryaStark)
-
-	err = users.UpdateSettings(map[string]string{
-		models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
+	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{
+		Settings: map[string]string{
+			models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
+		},
 	})
 	Expect(err).IsNil()
 
@@ -222,11 +221,10 @@ func TestSubscription_VisitorEnabledNewPost(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(aryaStark)
-
-	err = users.UpdateSettings(map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
+	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{
+		Settings: map[string]string{
+			models.NotificationEventNewPost.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
+		},
 	})
 	Expect(err).IsNil()
 
@@ -258,10 +256,12 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 		models.NotificationEventNewComment.UserSettingsKeyName:   "0",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
-	users.SetCurrentUser(jonSnow)
-	Expect(users.UpdateSettings(disableAll)).IsNil()
-	users.SetCurrentUser(aryaStark)
-	Expect(users.UpdateSettings(disableAll)).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
+	Expect(err).IsNil()
 
 	newPostWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
 	newPostEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventNewPost}

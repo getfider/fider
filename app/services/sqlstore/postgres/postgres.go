@@ -87,6 +87,8 @@ func (s Service) Init() {
 	bus.AddHandler(deleteCurrentUser)
 	bus.AddHandler(changeUserEmail)
 	bus.AddHandler(changeUserRole)
+	bus.AddHandler(updateCurrentUserSettings)
+	bus.AddHandler(getCurrentUserSettings)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

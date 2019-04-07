@@ -167,53 +167,6 @@ func (s *UserStorage) Update(settings *models.UpdateUserSettings) error {
 	return nil
 }
 
-// UpdateSettings of given user
-func (s *UserStorage) UpdateSettings(settings map[string]string) error {
-	if s.user != nil && settings != nil && len(settings) > 0 {
-		query := `
-		INSERT INTO user_settings (tenant_id, user_id, key, value)
-		VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, key) DO UPDATE SET value = $4
-		`
-
-		for key, value := range settings {
-			_, err := s.trx.Execute(query, s.tenant.ID, s.user.ID, key, value)
-			if err != nil {
-				return errors.Wrap(err, "failed to update user settings")
-			}
-		}
-	}
-
-	return nil
-}
-
-// GetUserSettings returns current user's settings
-func (s *UserStorage) GetUserSettings() (map[string]string, error) {
-	if s.user == nil {
-		return make(map[string]string, 0), nil
-	}
-
-	var settings []*dbUserSetting
-	err := s.trx.Select(&settings, "SELECT key, value FROM user_settings WHERE user_id = $1 AND tenant_id = $2", s.user.ID, s.tenant.ID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user settings")
-	}
-
-	var result = make(map[string]string, len(settings))
-
-	for _, e := range models.AllNotificationEvents {
-		for _, r := range e.DefaultEnabledUserRoles {
-			if r == s.user.Role {
-				result[e.UserSettingsKeyName] = e.DefaultSettingValue
-			}
-		}
-	}
-
-	for _, s := range settings {
-		result[s.Key] = s.Value
-	}
-	return result, nil
-}
-
 // GetByID returns a user based on given id
 func (s *UserStorage) getUser(trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}

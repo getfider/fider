@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -64,8 +66,8 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 // UserSettings is the current user's profile settings page
 func UserSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		settings, err := c.Services().Users.GetUserSettings()
-		if err != nil {
+		settings := &query.GetCurrentUserSettings{}
+		if err := bus.Dispatch(c, settings); err != nil {
 			return err
 		}
 
@@ -73,7 +75,7 @@ func UserSettings() web.HandlerFunc {
 			Title:     "Settings",
 			ChunkName: "MySettings.page",
 			Data: web.Map{
-				"userSettings": settings,
+				"userSettings": settings.Result,
 			},
 		})
 	}
@@ -97,7 +99,8 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err = c.Services().Users.UpdateSettings(input.Model.Settings); err != nil {
+		updateSettings := &cmd.UpdateCurrentUserSettings{Settings: input.Model.Settings}
+		if err = bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
 

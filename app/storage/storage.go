@@ -22,8 +22,6 @@ type User interface {
 	RegisterProvider(userID int, provider *models.UserProvider) error
 	Update(settings *models.UpdateUserSettings) error
 	GetAll() ([]*models.User, error)
-	GetUserSettings() (map[string]string, error)
-	UpdateSettings(settings map[string]string) error
 }
 
 // Tenant contains read and write operations for tenants

@@ -287,17 +287,20 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentUser(jonSnow)
-	settings, _ := users.GetUserSettings()
-	Expect(settings).Equals(map[string]string{
+	getSettings := &query.GetCurrentUserSettings{}
+
+	err := bus.Dispatch(jonSnowCtx, getSettings)
+	Expect(err).IsNil()
+
+	Expect(getSettings.Result).Equals(map[string]string{
 		models.NotificationEventNewPost.UserSettingsKeyName:      models.NotificationEventNewPost.DefaultSettingValue,
 		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
 	})
 
-	users.SetCurrentUser(aryaStark)
-	settings, _ = users.GetUserSettings()
-	Expect(settings).Equals(map[string]string{
+	err = bus.Dispatch(aryaStarkCtx, getSettings)
+	Expect(err).IsNil()
+	Expect(getSettings.Result).Equals(map[string]string{
 		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
 	})
@@ -307,24 +310,32 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(aryaStark)
 	disableAll := map[string]string{
 		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
 
-	users.UpdateSettings(disableAll)
-	settings, _ := users.GetUserSettings()
-	Expect(settings).Equals(map[string]string{
+	err := bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
+	Expect(err).IsNil()
+
+	firstSettings := &query.GetCurrentUserSettings{}
+	err = bus.Dispatch(aryaStarkCtx, firstSettings)
+	Expect(err).IsNil()
+
+	Expect(firstSettings.Result).Equals(map[string]string{
 		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
 		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	})
 
-	users.UpdateSettings(nil)
-	newSettings, _ := users.GetUserSettings()
-	Expect(newSettings).Equals(settings)
+	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: nil})
+	Expect(err).IsNil()
+
+	secondSettings := &query.GetCurrentUserSettings{}
+	err = bus.Dispatch(aryaStarkCtx, secondSettings)
+	Expect(err).IsNil()
+
+	Expect(secondSettings.Result).Equals(firstSettings.Result)
 }
 
 func TestUserStorage_Delete(t *testing.T) {

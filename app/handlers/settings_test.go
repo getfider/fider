@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/models/cmd"
 
 	"github.com/getfider/fider/app"
@@ -22,6 +24,10 @@ import (
 
 func TestSettingsHandler(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCurrentUserSettings) error {
+		return nil
+	})
 
 	server, _ := mock.NewServer()
 	code, _ := server.
@@ -45,6 +51,10 @@ func TestUpdateUserSettingsHandler_EmptyInput(t *testing.T) {
 func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+		return nil
+	})
+
 	server, services := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -59,6 +69,12 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 
 func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 	RegisterT(t)
+
+	var updateCmd *cmd.UpdateCurrentUserSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
+		updateCmd = c
+		return nil
+	})
 
 	server, services := mock.NewServer()
 	code, _ := server.
@@ -78,12 +94,9 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(user.Name).Equals("Jon Stark")
 
-	settings, _ := services.Users.GetUserSettings()
-	Expect(settings).Equals(map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName:      "1",
-		models.NotificationEventNewComment.UserSettingsKeyName:   "2",
-		models.NotificationEventChangeStatus.UserSettingsKeyName: "3",
-	})
+	Expect(updateCmd.Settings[models.NotificationEventNewPost.UserSettingsKeyName]).Equals("1")
+	Expect(updateCmd.Settings[models.NotificationEventNewComment.UserSettingsKeyName]).Equals("2")
+	Expect(updateCmd.Settings[models.NotificationEventChangeStatus.UserSettingsKeyName]).Equals("3")
 }
 
 func TestChangeRoleHandler_Valid(t *testing.T) {
