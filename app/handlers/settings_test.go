@@ -145,6 +145,12 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 		return app.ErrNotFound
 	})
 
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
 	for _, email := range []string{
 		"jon.another@got.com",
 		"another.snow@got.com",
@@ -156,6 +162,9 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 			ExecutePost(handlers.ChangeUserEmail(), fmt.Sprintf(`{ "email": "%s" }`, email))
 
 		Expect(code).Equals(http.StatusOK)
+		Expect(saveKeyCmd.Key).HasLen(64)
+		Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindChangeEmail)
+		Expect(saveKeyCmd.Request.GetEmail()).Equals(email)
 	}
 }
 
@@ -195,45 +204,72 @@ func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 	RegisterT(t)
 
+	server, _ := mock.NewServer()
+
+	key := "th3-s3cr3t"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindChangeEmail {
+			q.Result = &models.EmailVerification{
+				UserID:    mock.JonSnow.ID,
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: time.Now().Add(10 * time.Minute),
+				Email:     "jon.stark@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	var changeEmailCmd *cmd.ChangeUserEmail
 	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
 		changeEmailCmd = c
 		return nil
 	})
 
-	server, services := mock.NewServer()
-	services.Tenants.SaveVerificationKey("th3-s3cr3t", 24*time.Hour, &models.ChangeUserEmail{
-		Requestor: mock.JonSnow,
-		Email:     "jon.stark@got.com",
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
 	})
+
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		WithURL("/change-email/verify?k=th3-s3cr3t").
+		WithURL("/change-email/verify?k=" + key).
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(changeEmailCmd.UserID).Equals(mock.JonSnow.ID)
 	Expect(changeEmailCmd.Email).Equals("jon.stark@got.com")
-
-	result, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
-	Expect(err).IsNil()
-	Expect(result.VerifiedAt).IsNotNil()
+	Expect(verified).IsTrue()
 }
 
 func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	request := &models.ChangeUserEmail{
-		Requestor: mock.JonSnow,
-		Email:     "jon.stark@got.com",
-	}
-	services.Tenants.SaveVerificationKey("th3-s3cr3t", 24*time.Hour, request)
+	key := "th3-s3cr3t"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindChangeEmail {
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: time.Now().Add(10 * time.Minute),
+				Email:     "jon.stark@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server, _ := mock.NewServer()
+
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
-		WithURL("/change-email/verify?k=th3-s3cr3t").
+		WithURL("/change-email/verify?k=" + key).
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)

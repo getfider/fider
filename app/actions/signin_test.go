@@ -61,6 +61,11 @@ func TestCompleteProfile_LongName(t *testing.T) {
 
 func TestCompleteProfile_UnknownKey(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		return app.ErrNotFound
+	})
+
 	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
 	result := action.Validate(nil, services)
 	ExpectFailed(result, "key")

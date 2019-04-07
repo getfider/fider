@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/getfider/fider/app/models/cmd"
-
 	"github.com/getfider/fider/app"
 
 	"net/http"
@@ -14,6 +12,7 @@ import (
 
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -35,16 +34,30 @@ func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
 func TestSignInByEmailHandler_WithEmail(t *testing.T) {
 	RegisterT(t)
 
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
 	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
 
 	Expect(code).Equals(http.StatusOK)
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindSignIn)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+	Expect(saveKeyCmd.Request.GetName()).Equals("")
 }
 
 func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		return app.ErrNotFound
+	})
 
 	server, _ := mock.NewServer()
 	code, _ := server.
@@ -58,15 +71,26 @@ func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
 func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 
-	e := &models.SignInByEmail{Email: "jon.snow@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-	services.Tenants.SetKeyAsVerified("1234567890")
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			now := time.Now()
+			q.Result = &models.EmailVerification{
+				Key:        q.Key,
+				Kind:       q.Kind,
+				VerifiedAt: &now,
+				Email:      "jon.snow@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusGone)
@@ -75,25 +99,59 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 
-	e := &models.SignInByEmail{Email: "jon.snow@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 5*time.Minute, e)
-	request, _ := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
-	request.ExpiresAt = request.CreatedAt.Add(-6 * time.Minute) //reduce 1 minute
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			now := time.Now().Add(-5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: now,
+				Email:     "jon.snow@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
+	})
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusGone)
+	Expect(verified).IsTrue()
 }
 
 func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
+
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "jon.snow@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == mock.JonSnow.Email {
@@ -103,18 +161,23 @@ func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, &models.SignInByEmail{
-		Email: "jon.snow@got.com",
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
 	})
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
 
+	Expect(verified).IsTrue()
 	ExpectFiderAuthCookie(response, mock.JonSnow)
 }
 
@@ -137,14 +200,26 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, services := mock.NewServer()
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
-	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+	server, _ := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusOK)
@@ -153,19 +228,31 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *testing.T) {
 	RegisterT(t)
 
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		return app.ErrNotFound
 	})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
-
-	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusForbidden)
@@ -174,8 +261,23 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *
 func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
+
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	user := &models.User{
 		Name:   "Hot Pie",
@@ -191,22 +293,28 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *te
 		return app.ErrNotFound
 	})
 
-	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
+	})
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signin/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signin/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
+	Expect(verified).IsTrue()
 }
 
 func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	user := &models.User{
@@ -214,6 +322,29 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *test
 		Email:  "hot.pie@got.com",
 		Tenant: mock.DemoTenant,
 	}
+
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindUserInvitation {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
+	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == user.Email {
@@ -223,34 +354,44 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *test
 		return app.ErrNotFound
 	})
 
-	e := &models.UserInvitation{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-
 	code, response := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/invite/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/invite/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
 	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
+	Expect(verified).IsTrue()
 }
 
 func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
+
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindUserInvitation {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		return app.ErrNotFound
 	})
 
-	e := &models.UserInvitation{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/invite/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/invite/verify?k=" + key).
 		Execute(handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
 
 	Expect(code).Equals(http.StatusOK)
@@ -259,7 +400,8 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T
 func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
+	mock.DemoTenant.Status = models.TenantPending
 
 	var newUser *models.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
@@ -273,13 +415,33 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 		return nil
 	})
 
-	e := &models.CreateTenant{Email: "hot.pie@got.com", Name: "Hot Pie"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
-	mock.DemoTenant.Status = models.TenantPending
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignUp {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Name:      "Hot Pie",
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
+	})
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
-		WithURL("http://demo.test.fider.io/signup/verify?k=1234567890").
+		WithURL("http://demo.test.fider.io/signup/verify?k=" + key).
 		Execute(handlers.VerifySignUpKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -287,6 +449,7 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	Expect(newUser.Name).Equals("Hot Pie")
 	Expect(newUser.Email).Equals("hot.pie@got.com")
 	Expect(activated).IsTrue()
+	Expect(verified).IsTrue()
 }
 
 func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
@@ -297,7 +460,7 @@ func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/complete").
-		ExecutePost(handlers.CompleteSignInProfile(), `{  }`)
+		ExecutePost(handlers.CompleteSignInProfile(), `{ }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
 }
@@ -305,7 +468,7 @@ func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
 func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == mock.JonSnow.Email {
@@ -315,13 +478,25 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	e := &models.SignInByEmail{Email: mock.JonSnow.Email}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     mock.JonSnow.Email,
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/complete").
-		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "1234567890" }`)
+		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "`+key+`" }`)
 
 	Expect(code).Equals(http.StatusOK)
 }
@@ -329,7 +504,7 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 
 	var newUser *models.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
@@ -341,23 +516,40 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	e := &models.SignInByEmail{Email: "hot.pie@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			expiresAt := time.Now().Add(5 * time.Minute)
+			q.Result = &models.EmailVerification{
+				Key:       q.Key,
+				Kind:      q.Kind,
+				ExpiresAt: expiresAt,
+				Email:     "hot.pie@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	verified := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+		if c.Key == key {
+			verified = true
+		}
+		return nil
+	})
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/complete").
-		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "1234567890" }`)
+		ExecutePost(handlers.CompleteSignInProfile(), `{ "name": "Hot Pie", "key": "`+key+`" }`)
 	Expect(code).Equals(http.StatusOK)
 
 	Expect(newUser.Name).Equals("Hot Pie")
 	Expect(newUser.Email).Equals("hot.pie@got.com")
+	Expect(verified).IsTrue()
 
 	ExpectFiderAuthCookie(response, newUser)
-
-	request, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, "1234567890")
-	Expect(err).IsNil()
-	Expect(request.VerifiedAt).IsNotNil()
 }
 
 func TestSignInPageHandler_AuthenticatedUser(t *testing.T) {

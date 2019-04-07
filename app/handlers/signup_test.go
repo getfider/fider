@@ -225,6 +225,12 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 		return nil
 	})
 
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
 	server, services := mock.NewServer()
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
@@ -248,4 +254,9 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(tenant.Name).Equals("My Company")
 	Expect(tenant.Subdomain).Equals("mycompany")
 	Expect(tenant.Status).Equals(models.TenantPending)
+
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindSignUp)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+	Expect(saveKeyCmd.Request.GetName()).Equals("Jon Snow")
 }
