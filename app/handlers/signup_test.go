@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
@@ -72,6 +74,11 @@ func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = false
+		return nil
+	})
+
 	server, _ := mock.NewServer()
 	code, response := server.AddParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
 
@@ -81,6 +88,11 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 
 func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
 
 	server, _ := mock.NewServer()
 	code, response := server.AddParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
@@ -104,6 +116,11 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	var newUser *models.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		newUser = c.User
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
 		return nil
 	})
 
@@ -156,6 +173,11 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
+
 	server, services := mock.NewSingleTenantServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
@@ -196,6 +218,11 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		panic("Should not register any user")
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
 	})
 
 	server, services := mock.NewServer()

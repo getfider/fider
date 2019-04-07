@@ -65,26 +65,6 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return nil, app.ErrNotFound
 }
 
-// IsSubdomainAvailable returns true if subdomain is available to use
-func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
-	for _, tenant := range s.tenants {
-		if tenant.Subdomain == subdomain {
-			return false, nil
-		}
-	}
-	return true, nil
-}
-
-// IsCNAMEAvailable returns true if cname is available to use
-func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
-	for _, tenant := range s.tenants {
-		if tenant.CNAME == cname {
-			return false, nil
-		}
-	}
-	return true, nil
-}
-
 // UpdateSettings of current tenant
 func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
 	if settings.Logo.Remove {

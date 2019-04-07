@@ -6,8 +6,10 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 )
 
 func TestCreateTenant_ShouldHaveVerificationKey(t *testing.T) {
@@ -76,6 +78,11 @@ func TestCreateTenant_InvalidEmail(t *testing.T) {
 
 func TestCreateTenant_NoAgreement(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
 
 	action := actions.CreateTenant{
 		Model: &models.CreateTenant{

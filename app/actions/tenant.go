@@ -62,7 +62,7 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
-	messages, err := validate.Subdomain(services.Tenants, input.Model.Subdomain)
+	messages, err := validate.Subdomain(services.Context, input.Model.Subdomain)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -127,7 +127,7 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 	}
 
 	if input.Model.CNAME != "" {
-		messages := validate.CNAME(services.Tenants, input.Model.CNAME)
+		messages := validate.CNAME(services.Context, input.Model.CNAME)
 		result.AddFieldFailure("cname", messages...)
 	}
 

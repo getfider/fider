@@ -1,18 +1,20 @@
 package validate
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 
 	"strings"
 
-	"github.com/getfider/fider/app/storage"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 )
 
 var domainRegex = regexp.MustCompile("^[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]$")
 
 //Subdomain validates given subdomain
-func Subdomain(tenants storage.Tenant, subdomain string) ([]string, error) {
+func Subdomain(ctx context.Context, subdomain string) ([]string, error) {
 	subdomain = strings.ToLower(subdomain)
 
 	if len(subdomain) <= 2 {
@@ -36,12 +38,12 @@ func Subdomain(tenants storage.Tenant, subdomain string) ([]string, error) {
 		return []string{fmt.Sprintf("%s is a reserved subdomain.", subdomain)}, nil
 	}
 
-	available, err := tenants.IsSubdomainAvailable(subdomain)
-	if err != nil {
+	isAvailable := &query.IsSubdomainAvailable{Subdomain: subdomain}
+	if err := bus.Dispatch(ctx, isAvailable); err != nil {
 		return nil, err
 	}
 
-	if !available {
+	if !isAvailable.Result {
 		return []string{"This subdomain is not available anymore."}, nil
 	}
 

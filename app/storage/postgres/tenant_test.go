@@ -4,6 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/env"
@@ -154,21 +157,23 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 }
 
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	available, err := tenants.IsSubdomainAvailable("demo")
-	Expect(available).IsFalse()
+	isAvailable := &query.IsSubdomainAvailable{Subdomain: "demo"}
+	err := bus.Dispatch(ctx, isAvailable)
 	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsFalse()
 }
 
 func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	available, err := tenants.IsSubdomainAvailable("thisisanewdomain")
-	Expect(available).IsTrue()
+	isAvailable := &query.IsSubdomainAvailable{Subdomain: "thisisanewdomain"}
+	err := bus.Dispatch(ctx, isAvailable)
 	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsTrue()
 }
 
 func TestTenantStorage_UpdateSettings(t *testing.T) {

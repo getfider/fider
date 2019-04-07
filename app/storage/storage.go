@@ -23,8 +23,6 @@ type Tenant interface {
 	UpdateBillingSettings(billing *models.TenantBilling) error
 	UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error
 	UpdatePrivacy(settings *models.UpdateTenantPrivacy) error
-	IsSubdomainAvailable(subdomain string) (bool, error)
-	IsCNAMEAvailable(cname string) (bool, error)
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error

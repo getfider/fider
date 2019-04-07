@@ -288,24 +288,6 @@ func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) erro
 	return nil
 }
 
-// IsSubdomainAvailable returns true if subdomain is available to use
-func (s *TenantStorage) IsSubdomainAvailable(subdomain string) (bool, error) {
-	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", subdomain)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to check if tenant exists with subdomain '%s'", subdomain)
-	}
-	return !exists, nil
-}
-
-// IsCNAMEAvailable returns true if cname is available to use
-func (s *TenantStorage) IsCNAMEAvailable(cname string) (bool, error) {
-	exists, err := s.trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", cname, s.current.ID)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to check if tenant exists with CNAME '%s'", cname)
-	}
-	return !exists, nil
-}
-
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"

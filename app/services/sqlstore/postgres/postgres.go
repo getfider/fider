@@ -96,6 +96,8 @@ func (s Service) Init() {
 	bus.AddHandler(getUserByID)
 	bus.AddHandler(getUserByProvider)
 	bus.AddHandler(getAllUsers)
+	bus.AddHandler(isSubdomainAvailable)
+	bus.AddHandler(isCNAMEAvailable)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

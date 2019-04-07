@@ -26,7 +26,7 @@ func CheckAvailability() web.HandlerFunc {
 	return func(c *web.Context) error {
 		subdomain := strings.ToLower(c.Param("subdomain"))
 
-		messages, _ := validate.Subdomain(c.Services().Tenants, subdomain)
+		messages, _ := validate.Subdomain(c, subdomain)
 		if len(messages) > 0 {
 			return c.Ok(web.Map{
 				"message": strings.Join(messages, ","),

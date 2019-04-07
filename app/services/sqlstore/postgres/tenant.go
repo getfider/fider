@@ -1,10 +1,14 @@
 package postgres
 
 import (
+	"context"
 	"time"
+
+	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/errors"
 )
 
 type dbTenant struct {
@@ -130,4 +134,28 @@ func (m *dbOAuthConfig) toModel() *models.OAuthConfig {
 		JSONUserNamePath:  m.JSONUserNamePath,
 		JSONUserEmailPath: m.JSONUserEmailPath,
 	}
+}
+
+func isCNAMEAvailable(ctx context.Context, q *query.IsCNAMEAvailable) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		exists, err := trx.Exists("SELECT id FROM tenants WHERE cname = $1 AND id <> $2", q.CNAME, tenant.ID)
+		if err != nil {
+			q.Result = false
+			return errors.Wrap(err, "failed to check if tenant exists with CNAME '%s'", q.CNAME)
+		}
+		q.Result = !exists
+		return nil
+	})
+}
+
+func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		exists, err := trx.Exists("SELECT id FROM tenants WHERE subdomain = $1", q.Subdomain)
+		if err != nil {
+			q.Result = false
+			return errors.Wrap(err, "failed to check if tenant exists with subdomain '%s'", q.Subdomain)
+		}
+		q.Result = !exists
+		return nil
+	})
 }
