@@ -27,7 +27,7 @@ func (input *CreateNewPost) IsAuthorized(user *models.User, services *app.Servic
 	return user != nil
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *CreateNewPost) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -78,7 +78,7 @@ func (input *UpdatePost) IsAuthorized(user *models.User, services *app.Services)
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *UpdatePost) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -142,7 +142,7 @@ func (input *AddNewComment) IsAuthorized(user *models.User, services *app.Servic
 	return user != nil
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *AddNewComment) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -180,7 +180,7 @@ func (input *SetResponse) IsAuthorized(user *models.User, services *app.Services
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *SetResponse) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 

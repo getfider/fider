@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
@@ -88,8 +90,8 @@ func UpdatePrivacy() web.HandlerFunc {
 // ManageMembers is the page used by administrators to change member's role
 func ManageMembers() web.HandlerFunc {
 	return func(c *web.Context) error {
-		users, err := c.Services().Users.GetAll()
-		if err != nil {
+		allUsers := &query.GetAllUsers{}
+		if err := bus.Dispatch(c, allUsers); err != nil {
 			return c.Failure(err)
 		}
 
@@ -97,7 +99,7 @@ func ManageMembers() web.HandlerFunc {
 			Title:     "Manage Members · Site Settings",
 			ChunkName: "ManageMembers.page",
 			Data: web.Map{
-				"users": users,
+				"users": allUsers.Result,
 			},
 		})
 	}

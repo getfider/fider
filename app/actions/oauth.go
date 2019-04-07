@@ -26,7 +26,7 @@ func (input *CreateEditOAuthConfig) IsAuthorized(user *models.User, services *ap
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 

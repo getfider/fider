@@ -82,13 +82,20 @@ func (s Service) Init() {
 	bus.AddHandler(blockUser)
 	bus.AddHandler(unblockUser)
 	bus.AddHandler(regenerateAPIKey)
-	bus.AddHandler(getUserByAPIKey)
 	bus.AddHandler(userSubscribedTo)
 	bus.AddHandler(deleteCurrentUser)
 	bus.AddHandler(changeUserEmail)
 	bus.AddHandler(changeUserRole)
 	bus.AddHandler(updateCurrentUserSettings)
 	bus.AddHandler(getCurrentUserSettings)
+	bus.AddHandler(registerUser)
+	bus.AddHandler(registerUserProvider)
+	bus.AddHandler(updateCurrentUser)
+	bus.AddHandler(getUserByAPIKey)
+	bus.AddHandler(getUserByEmail)
+	bus.AddHandler(getUserByID)
+	bus.AddHandler(getUserByProvider)
+	bus.AddHandler(getAllUsers)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

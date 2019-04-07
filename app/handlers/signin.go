@@ -4,9 +4,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
 	webutil "github.com/getfider/fider/app/pkg/web/util"
@@ -78,11 +82,13 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 				Role:   models.RoleAdministrator,
 			}
 
-			if err = c.Services().Users.Register(user); err != nil {
+			if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 				return c.Failure(err)
 			}
 		} else if kind == models.EmailVerificationKindSignIn {
-			user, err = c.Services().Users.GetByEmail(result.Email)
+			userByEmail := &query.GetUserByEmail{Email: result.Email}
+			err = bus.Dispatch(c, userByEmail)
+			user = userByEmail.Result
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
 					if c.Tenant().IsPrivate {
@@ -93,7 +99,9 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 				return c.Failure(err)
 			}
 		} else if kind == models.EmailVerificationKindUserInvitation {
-			user, err = c.Services().Users.GetByEmail(result.Email)
+			userByEmail := &query.GetUserByEmail{Email: result.Email}
+			err = bus.Dispatch(c, userByEmail)
+			user = userByEmail.Result
 			if err != nil {
 				if errors.Cause(err) == app.ErrNotFound {
 					if c.Tenant().IsPrivate {
@@ -126,7 +134,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		_, err := c.Services().Users.GetByEmail(input.Model.Email)
+		err := bus.Dispatch(c, &query.GetUserByEmail{Email: input.Model.Email})
 		if errors.Cause(err) != app.ErrNotFound {
 			return c.Ok(web.Map{})
 		}
@@ -137,7 +145,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			Tenant: c.Tenant(),
 			Role:   models.RoleVisitor,
 		}
-		err = c.Services().Users.Register(user)
+		err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
 		if err != nil {
 			return c.Failure(err)
 		}

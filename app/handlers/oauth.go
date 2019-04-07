@@ -6,6 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -80,11 +85,16 @@ func OAuthToken() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		users := c.Services().Users
+		var user *models.User
 
-		user, err := users.GetByProvider(provider, oauthUser.ID)
+		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.ID}
+		err = bus.Dispatch(c, userByProvider)
+		user = userByProvider.Result
+
 		if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
-			user, err = users.GetByEmail(oauthUser.Email)
+			userByEmail := &query.GetUserByEmail{Email: oauthUser.Email}
+			err = bus.Dispatch(c, userByEmail)
+			user = userByEmail.Result
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
@@ -105,19 +115,18 @@ func OAuthToken() web.HandlerFunc {
 					},
 				}
 
-				err = users.Register(user)
-				if err != nil {
+				if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 					return c.Failure(err)
 				}
 			} else {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = users.RegisterProvider(user.ID, &models.UserProvider{
-				UID:  oauthUser.ID,
-				Name: provider,
-			})
-			if err != nil {
+			if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
+				UserID:       user.ID,
+				ProviderName: provider,
+				ProviderUID:  oauthUser.ID,
+			}); err != nil {
 				return c.Failure(err)
 			}
 		}

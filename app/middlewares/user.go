@@ -45,7 +45,9 @@ func User() web.MiddlewareFunc {
 					return next(c)
 				}
 
-				user, err = c.Services().Users.GetByID(claims.UserID)
+				userByClaimsID := &query.GetUserByID{UserID: claims.UserID}
+				err = bus.Dispatch(c, userByClaimsID)
+				user = userByClaimsID.Result
 				if err != nil {
 					if errors.Cause(err) == app.ErrNotFound {
 						c.RemoveCookie(web.CookieAuthName)
@@ -80,7 +82,9 @@ func User() web.MiddlewareFunc {
 						if err != nil {
 							return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
 						}
-						user, err = c.Services().Users.GetByID(impersonateUserID)
+						userByImpersonateID := &query.GetUserByID{UserID: impersonateUserID}
+						err = bus.Dispatch(c, userByImpersonateID)
+						user = userByImpersonateID.Result
 						if err != nil {
 							if errors.Cause(err) == app.ErrNotFound {
 								return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))

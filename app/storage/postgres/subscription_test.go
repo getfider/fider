@@ -250,7 +250,6 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	users.SetCurrentTenant(demoTenant)
 	disableAll := map[string]string{
 		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
 		models.NotificationEventNewComment.UserSettingsKeyName:   "0",

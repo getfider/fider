@@ -95,12 +95,15 @@ func UpdateUserSettings() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err = c.Services().Users.Update(input.Model); err != nil {
-			return c.Failure(err)
+		updateUser := &cmd.UpdateCurrentUser{
+			Name:       input.Model.Name,
+			Avatar:     input.Model.Avatar,
+			AvatarType: input.Model.AvatarType,
 		}
-
-		updateSettings := &cmd.UpdateCurrentUserSettings{Settings: input.Model.Settings}
-		if err = bus.Dispatch(c, updateSettings); err != nil {
+		updateSettings := &cmd.UpdateCurrentUserSettings{
+			Settings: input.Model.Settings,
+		}
+		if err = bus.Dispatch(c, updateUser, updateSettings); err != nil {
 			return c.Failure(err)
 		}
 

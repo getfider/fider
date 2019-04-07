@@ -3,6 +3,9 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	webutil "github.com/getfider/fider/app/pkg/web/util"
 
 	"github.com/getfider/fider/app/tasks"
@@ -68,7 +71,7 @@ func CreateTenant() web.HandlerFunc {
 				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
 			}
 
-			if err := c.Services().Users.Register(user); err != nil {
+			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 				return c.Failure(err)
 			}
 

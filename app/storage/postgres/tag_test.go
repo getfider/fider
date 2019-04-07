@@ -133,8 +133,6 @@ func TestTagStorage_GetAll(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-
 	err := bus.Dispatch(demoTenantCtx, &cmd.AddNewTag{Name: "Feature Request", Color: "FF0000", IsPublic: true})
 	Expect(err).IsNil()
 	err = bus.Dispatch(demoTenantCtx, &cmd.AddNewTag{Name: "Bug", Color: "0F0F0F", IsPublic: false})

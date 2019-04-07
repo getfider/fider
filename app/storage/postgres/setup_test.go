@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
@@ -21,7 +23,6 @@ import (
 var trx *dbx.Trx
 
 var tenants *postgres.TenantStorage
-var users *postgres.UserStorage
 
 var demoTenant *models.Tenant
 var avengersTenant *models.Tenant
@@ -50,24 +51,26 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 
 	trx, _ = dbx.BeginTx(ctx)
 	tenants = postgres.NewTenantStorage(trx, ctx)
-	users = postgres.NewUserStorage(trx, ctx)
 
 	demoTenant, _ = tenants.GetByDomain("demo")
 	avengersTenant, _ = tenants.GetByDomain("avengers")
 
-	users.SetCurrentTenant(demoTenant)
-	jonSnow, _ = users.GetByID(1)
-	aryaStark, _ = users.GetByID(2)
-	sansaStark, _ = users.GetByID(3)
-
-	users.SetCurrentTenant(avengersTenant)
-	tonyStark, _ = users.GetByID(4)
-
 	trxCtx := context.WithValue(ctx, app.TransactionCtxKey, trx)
-
 	demoTenantCtx = withTenant(trxCtx, demoTenant)
 	avengersTenantCtx = withTenant(trxCtx, avengersTenant)
 	gotTenantCtx = withTenant(trxCtx, gotTenant)
+
+	getJonSnow := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	getAryaStark := &query.GetUserByEmail{Email: "arya.stark@got.com"}
+	getSansaStark := &query.GetUserByEmail{Email: "sansa.stark@got.com"}
+	bus.Dispatch(demoTenantCtx, getJonSnow, getSansaStark, getAryaStark)
+	jonSnow = getJonSnow.Result
+	aryaStark = getAryaStark.Result
+	sansaStark = getSansaStark.Result
+
+	getTonyStark := &query.GetUserByEmail{Email: "tony.stark@avengers.com"}
+	bus.Dispatch(avengersTenantCtx, getTonyStark)
+	tonyStark = getTonyStark.Result
 
 	jonSnowCtx = withUser(trxCtx, jonSnow)
 	aryaStarkCtx = withUser(trxCtx, aryaStark)

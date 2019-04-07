@@ -3,6 +3,8 @@ package actions
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -23,7 +25,7 @@ func (input *CreateUser) IsAuthorized(user *models.User, services *app.Services)
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *CreateUser) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -70,7 +72,7 @@ func (input *ChangeUserRole) IsAuthorized(user *models.User, services *app.Servi
 	return user.IsAdministrator() && user.ID != input.Model.UserID
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *ChangeUserRole) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 	if input.Model.Role < models.RoleVisitor || input.Model.Role > models.RoleAdministrator {
@@ -81,14 +83,15 @@ func (input *ChangeUserRole) Validate(user *models.User, services *app.Services)
 		result.AddFieldFailure("userID", "It is not allowed to change your own Role.")
 	}
 
-	target, err := services.Users.GetByID(input.Model.UserID)
+	userByID := &query.GetUserByID{UserID: input.Model.UserID}
+	err := bus.Dispatch(services.Context, userByID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
 			result.AddFieldFailure("userID", "User not found.")
 		} else {
 			return validate.Error(err)
 		}
-	} else if target.Tenant.ID != user.Tenant.ID {
+	} else if userByID.Result.Tenant.ID != user.Tenant.ID {
 		result.AddFieldFailure("userID", "User not found.")
 	}
 	return result
@@ -111,7 +114,7 @@ func (input *ChangeUserEmail) IsAuthorized(user *models.User, services *app.Serv
 	return user != nil
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -136,11 +139,12 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 		return result
 	}
 
-	existing, err := services.Users.GetByEmail(input.Model.Email)
+	userByEmail := &query.GetUserByEmail{Email: input.Model.Email}
+	err := bus.Dispatch(services.Context, userByEmail)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	}
-	if err == nil && existing.ID != user.ID {
+	if err == nil && userByEmail.Result.ID != user.ID {
 		result.AddFieldFailure("email", "This email is already in use by someone else")
 		return result
 	}

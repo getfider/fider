@@ -222,22 +222,6 @@ func changeUserEmail(ctx context.Context, c *cmd.ChangeUserEmail) error {
 	})
 }
 
-func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
-	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", models.UserDeleted)
-	err := trx.Get(&user, sql+filter, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID.Int64)
-	if err != nil {
-		return nil, err
-	}
-
-	return user.toModel(ctx), nil
-}
-
 func updateCurrentUserSettings(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		if user != nil && c.Settings != nil && len(c.Settings) > 0 {
@@ -282,4 +266,133 @@ func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings
 
 		return nil
 	})
+}
+
+func registerUser(ctx context.Context, c *cmd.RegisterUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, _ *models.User) error {
+		now := time.Now()
+		c.User.Status = models.UserActive
+		c.User.Email = strings.ToLower(strings.TrimSpace(c.User.Email))
+		if err := trx.Get(&c.User.ID,
+			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
+			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, models.UserActive, models.AvatarTypeGravatar); err != nil {
+			return errors.Wrap(err, "failed to register new user")
+		}
+
+		for _, provider := range c.User.Providers {
+			cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)"
+			if _, err := trx.Execute(cmd, tenant.ID, c.User.ID, provider.Name, provider.UID, now); err != nil {
+				return errors.Wrap(err, "failed to add provider to new user")
+			}
+		}
+
+		return nil
+	})
+}
+
+func registerUserProvider(ctx context.Context, c *cmd.RegisterUserProvider) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		cmd := "INSERT INTO user_providers (tenant_id, user_id, provider, provider_uid, created_at) VALUES ($1, $2, $3, $4, $5)"
+		_, err := trx.Execute(cmd, tenant.ID, c.UserID, c.ProviderName, c.ProviderUID, time.Now())
+		if err != nil {
+			return errors.Wrap(err, "failed to add provider '%s:%s' to user with id '%d'", c.ProviderName, c.ProviderUID, c.UserID)
+		}
+		return nil
+	})
+}
+
+func updateCurrentUser(ctx context.Context, c *cmd.UpdateCurrentUser) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if c.Avatar.Remove {
+			c.Avatar.BlobKey = ""
+		}
+		cmd := "UPDATE users SET name = $3, avatar_type = $4, avatar_bkey = $5 WHERE id = $1 AND tenant_id = $2"
+		_, err := trx.Execute(cmd, user.ID, tenant.ID, c.Name, c.AvatarType, c.Avatar.BlobKey)
+		if err != nil {
+			return errors.Wrap(err, "failed to update user")
+		}
+		return nil
+	})
+}
+
+func getUserByID(ctx context.Context, q *query.GetUserByID) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		user, err := queryUser(ctx, trx, "id = $1", q.UserID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user with id '%d'", q.UserID)
+		}
+		q.Result = user
+		return nil
+	})
+}
+
+func getUserByEmail(ctx context.Context, q *query.GetUserByEmail) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		email := strings.ToLower(q.Email)
+		user, err := queryUser(ctx, trx, "email = $1 AND tenant_id = $2", email, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to get user with email '%s'", email)
+		}
+		q.Result = user
+		return nil
+	})
+}
+
+func getUserByProvider(ctx context.Context, q *query.GetUserByProvider) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		var userID int
+		if err := trx.Scalar(&userID, `
+			SELECT user_id 
+			FROM user_providers up 
+			INNER JOIN users u 
+			ON u.id = up.user_id 
+			AND u.tenant_id = up.tenant_id 
+			WHERE up.provider = $1 
+			AND up.provider_uid = $2 
+			AND u.tenant_id = $3`, q.Provider, q.UID, tenant.ID); err != nil {
+			return errors.Wrap(err, "failed to get user by provider '%s' and uid '%s'", q.Provider, q.UID)
+		}
+
+		byID := &query.GetUserByID{UserID: userID}
+		err := getUserByID(ctx, byID)
+		q.Result = byID.Result
+		return err
+	})
+}
+
+func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		var users []*dbUser
+		err := trx.Select(&users, `
+			SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey
+			FROM users 
+			WHERE tenant_id = $1 
+			AND status != $2
+			ORDER BY id`, tenant.ID, models.UserDeleted)
+		if err != nil {
+			return errors.Wrap(err, "failed to get all users")
+		}
+
+		q.Result = make([]*models.User, len(users))
+		for i, user := range users {
+			q.Result[i] = user.toModel(ctx)
+		}
+		return nil
+	})
+}
+
+func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
+	user := dbUser{}
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", models.UserDeleted)
+	err := trx.Get(&user, sql+filter, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	err = trx.Select(&user.Providers, "SELECT provider_uid, provider FROM user_providers WHERE user_id = $1", user.ID.Int64)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.toModel(ctx), nil
 }

@@ -25,7 +25,7 @@ func (input *CreateTenant) IsAuthorized(user *models.User, services *app.Service
 	return true
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *CreateTenant) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -93,7 +93,7 @@ func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app
 	return user != nil && user.Role == models.RoleAdministrator
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -150,7 +150,7 @@ func (input *UpdateTenantAdvancedSettings) IsAuthorized(user *models.User, servi
 	return user != nil && user.Role == models.RoleAdministrator
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *UpdateTenantAdvancedSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	return validate.Success()
 }
@@ -171,7 +171,7 @@ func (input *UpdateTenantPrivacy) IsAuthorized(user *models.User, services *app.
 	return user != nil && user.Role == models.RoleAdministrator
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *UpdateTenantPrivacy) Validate(user *models.User, services *app.Services) *validate.Result {
 	return validate.Success()
 }

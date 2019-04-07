@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -28,7 +31,7 @@ func (input *InviteUsers) IsAuthorized(user *models.User, services *app.Services
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *InviteUsers) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -65,7 +68,7 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 			input.Invitations = make([]*models.UserInvitation, 0)
 			for _, email := range input.Model.Recipients {
 				if email != "" {
-					_, err := services.Users.GetByEmail(email)
+					err := bus.Dispatch(services.Context, &query.GetUserByEmail{Email: email})
 					if errors.Cause(err) == app.ErrNotFound {
 						input.Invitations = append(input.Invitations, &models.UserInvitation{
 							Email:           email,

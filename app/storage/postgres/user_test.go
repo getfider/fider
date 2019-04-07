@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -17,92 +18,93 @@ import (
 )
 
 func TestUserStorage_GetByID(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	user, err := users.GetByID(1)
+	userByID := &query.GetUserByID{UserID: 1}
+	err := bus.Dispatch(ctx, userByID)
 	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(1))
-	Expect(user.Tenant.ID).Equals(1)
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].UID).Equals("FB1234")
-	Expect(user.Providers[0].Name).Equals("facebook")
+	Expect(userByID.Result.ID).Equals(int(1))
+	Expect(userByID.Result.Tenant.ID).Equals(1)
+	Expect(userByID.Result.Name).Equals("Jon Snow")
+	Expect(userByID.Result.Email).Equals("jon.snow@got.com")
+	Expect(userByID.Result.AvatarURL).Equals("http://cdn.test.fider.io/avatars/gravatar/1/Jon%20Snow")
+	Expect(userByID.Result.Providers).HasLen(1)
+	Expect(userByID.Result.Providers[0].UID).Equals("FB1234")
+	Expect(userByID.Result.Providers[0].Name).Equals("facebook")
 }
 
 func TestUserStorage_GetByEmail_Error(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	user, err := users.GetByEmail("unknown@got.com")
-	Expect(user).IsNil()
+	userByEmail := &query.GetUserByEmail{Email: "unknown@got.com"}
+	err := bus.Dispatch(demoTenantCtx, userByEmail)
 	Expect(err).IsNotNil()
+	Expect(userByEmail.Result).IsNil()
 }
 
 func TestUserStorage_GetByEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	user, err := users.GetByEmail("jon.snow@got.com")
+	userByEmail := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	userByUpperCaseEmail := &query.GetUserByEmail{Email: "JON.SNOW@got.com"}
+	err := bus.Dispatch(demoTenantCtx, userByEmail, userByUpperCaseEmail)
 	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(1))
-	Expect(user.Tenant.ID).Equals(1)
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].UID).Equals("FB1234")
-	Expect(user.Providers[0].Name).Equals("facebook")
 
-	user, err = users.GetByEmail("JON.SNOW@got.com")
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(1))
+	Expect(userByEmail.Result.ID).Equals(int(1))
+	Expect(userByEmail.Result.Tenant.ID).Equals(1)
+	Expect(userByEmail.Result.Name).Equals("Jon Snow")
+	Expect(userByEmail.Result.Email).Equals("jon.snow@got.com")
+	Expect(userByEmail.Result.Providers).HasLen(1)
+	Expect(userByEmail.Result.Providers[0].UID).Equals("FB1234")
+	Expect(userByEmail.Result.Providers[0].Name).Equals("facebook")
+
+	Expect(userByUpperCaseEmail.Result.ID).Equals(int(1))
 }
 
 func TestUserStorage_GetByProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	user, err := users.GetByProvider("facebook", "FB1234")
+	getUser := &query.GetUserByProvider{Provider: "facebook", UID: "FB1234"}
+	err := bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(1))
-	Expect(user.Tenant.ID).Equals(1)
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].UID).Equals("FB1234")
-	Expect(user.Providers[0].Name).Equals("facebook")
+
+	Expect(getUser.Result.ID).Equals(int(1))
+	Expect(getUser.Result.Tenant.ID).Equals(1)
+	Expect(getUser.Result.Name).Equals("Jon Snow")
+	Expect(getUser.Result.Email).Equals("jon.snow@got.com")
+	Expect(getUser.Result.Providers).HasLen(1)
+	Expect(getUser.Result.Providers[0].UID).Equals("FB1234")
+	Expect(getUser.Result.Providers[0].Name).Equals("facebook")
 }
 
 func TestUserStorage_GetByProvider_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(avengersTenant)
-	user, err := users.GetByProvider("facebook", "FB1234")
-	Expect(user).IsNil()
+	getUser := &query.GetUserByProvider{Provider: "facebook", UID: "FB1234"}
+	err := bus.Dispatch(avengersTenantCtx, getUser)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getUser.Result).IsNil()
 }
 
 func TestUserStorage_GetByEmail_WrongTenant(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(avengersTenant)
-	user, err := users.GetByEmail("jon.snow@got.com")
-	Expect(user).IsNil()
-	Expect(err).IsNotNil()
+	getUser := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	err := bus.Dispatch(avengersTenantCtx, getUser)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getUser.Result).IsNil()
 }
 
 func TestUserStorage_Register(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
@@ -114,41 +116,44 @@ func TestUserStorage_Register(t *testing.T) {
 			},
 		},
 	}
-	err := users.Register(user)
+	err := bus.Dispatch(demoTenantCtx, &cmd.RegisterUser{User: user})
 	Expect(err).IsNil()
 
-	user, err = users.GetByEmail("rob.stark@got.com")
+	getUser := &query.GetUserByEmail{Email: "rob.stark@got.com"}
+	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(6))
-	Expect(user.Role).Equals(models.RoleCollaborator)
-	Expect(user.Name).Equals("Rob Stark")
-	Expect(user.Email).Equals("rob.stark@got.com")
-	Expect(user.Status).Equals(models.UserActive)
+
+	Expect(getUser.Result.ID).Equals(int(6))
+	Expect(getUser.Result.Role).Equals(models.RoleCollaborator)
+	Expect(getUser.Result.Name).Equals("Rob Stark")
+	Expect(getUser.Result.Email).Equals("rob.stark@got.com")
+	Expect(getUser.Result.Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "   ",
 		Role:  models.RoleCollaborator,
 	}
-	err := users.Register(user)
+	err := bus.Dispatch(demoTenantCtx, &cmd.RegisterUser{User: user})
 	Expect(err).IsNil()
 
-	user, err = users.GetByID(user.ID)
+	getUser := &query.GetUserByID{UserID: user.ID}
+	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.Role).Equals(models.RoleCollaborator)
-	Expect(user.Name).Equals("Rob Stark")
-	Expect(user.Email).Equals("")
-	Expect(user.Status).Equals(models.UserActive)
+
+	Expect(getUser.Result.Role).Equals(models.RoleCollaborator)
+	Expect(getUser.Result.Name).Equals("Rob Stark")
+	Expect(getUser.Result.Email).Equals("")
+	Expect(getUser.Result.Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_Register_MultipleProviders(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
 	var tenantID int
@@ -157,9 +162,8 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '')
 		RETURNING id
 	`)
-	users.SetCurrentTenant(&models.Tenant{
-		ID: tenantID,
-	})
+
+	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: tenantID})
 
 	user := &models.User{
 		Name:  "Jon Snow",
@@ -177,7 +181,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		},
 	}
 
-	err := users.Register(user)
+	err := bus.Dispatch(newTenantCtx, &cmd.RegisterUser{User: user})
 	Expect(err).IsNil()
 	Expect(user.ID).NotEquals(0)
 	Expect(user.Name).Equals("Jon Snow")
@@ -189,34 +193,35 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	users.RegisterProvider(1, &models.UserProvider{
-		UID:  "GO1234",
-		Name: "google",
+	err := bus.Dispatch(demoTenantCtx, &cmd.RegisterUserProvider{
+		UserID:       1,
+		ProviderName: "google",
+		ProviderUID:  "GO1234",
 	})
-	user, err := users.GetByID(1)
-
 	Expect(err).IsNil()
-	Expect(user.ID).Equals(int(1))
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Tenant.ID).Equals(1)
-	Expect(user.Status).Equals(models.UserActive)
 
-	Expect(user.Providers).HasLen(2)
-	Expect(user.Providers[0].UID).Equals("FB1234")
-	Expect(user.Providers[0].Name).Equals("facebook")
-	Expect(user.Providers[1].UID).Equals("GO1234")
-	Expect(user.Providers[1].Name).Equals("google")
+	getUser := &query.GetUserByID{UserID: 1}
+	err = bus.Dispatch(demoTenantCtx, getUser)
+	Expect(err).IsNil()
+
+	Expect(getUser.Result.ID).Equals(int(1))
+	Expect(getUser.Result.Name).Equals("Jon Snow")
+	Expect(getUser.Result.Email).Equals("jon.snow@got.com")
+	Expect(getUser.Result.Tenant.ID).Equals(1)
+	Expect(getUser.Result.Status).Equals(models.UserActive)
+
+	Expect(getUser.Result.Providers).HasLen(2)
+	Expect(getUser.Result.Providers[0].UID).Equals("FB1234")
+	Expect(getUser.Result.Providers[0].Name).Equals("facebook")
+	Expect(getUser.Result.Providers[1].UID).Equals("GO1234")
+	Expect(getUser.Result.Providers[1].Name).Equals("google")
 }
 
 func TestUserStorage_UpdateSettings(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(jonSnow)
-	err := users.Update(&models.UpdateUserSettings{
+	err := bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUser{
 		Name: "Jon Stark",
 		Avatar: &models.ImageUpload{
 			BlobKey: "jon.png",
@@ -224,63 +229,65 @@ func TestUserStorage_UpdateSettings(t *testing.T) {
 	})
 	Expect(err).IsNil()
 
-	user, err := users.GetByEmail("jon.snow@got.com")
+	getUser := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	err = bus.Dispatch(jonSnowCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.Name).Equals("Jon Stark")
-	Expect(user.AvatarBlobKey).Equals("jon.png")
+	Expect(getUser.Result.Name).Equals("Jon Stark")
+	Expect(getUser.Result.AvatarBlobKey).Equals("jon.png")
 }
 
 func TestUserStorage_ChangeRole(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
 	err := bus.Dispatch(demoTenantCtx, &cmd.ChangeUserRole{
 		UserID: jonSnow.ID,
 		Role:   models.RoleVisitor,
 	})
 	Expect(err).IsNil()
 
-	user, err := users.GetByEmail("jon.snow@got.com")
+	getUser := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.Role).Equals(models.RoleVisitor)
+	Expect(getUser.Result.Role).Equals(models.RoleVisitor)
 }
 
 func TestUserStorage_ChangeEmail(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
 	err := bus.Dispatch(demoTenantCtx, &cmd.ChangeUserEmail{
 		UserID: jonSnow.ID,
 		Email:  "jon.stark@got.com",
 	})
 	Expect(err).IsNil()
 
-	user, err := users.GetByEmail("jon.stark@got.com")
+	getByNewEmail := &query.GetUserByEmail{Email: "jon.stark@got.com"}
+	err = bus.Dispatch(demoTenantCtx, getByNewEmail)
 	Expect(err).IsNil()
-	Expect(user.Email).Equals("jon.stark@got.com")
+	Expect(getByNewEmail.Result.Email).Equals("jon.stark@got.com")
 
-	user, err = users.GetByEmail("jon.snow@got.com")
+	getByOldEmail := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	err = bus.Dispatch(demoTenantCtx, getByOldEmail)
+	Expect(getByOldEmail.Result).IsNil()
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(user).IsNil()
 }
 
 func TestUserStorage_GetAll(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-
-	all, err := users.GetAll()
+	allUsers := &query.GetAllUsers{}
+	err := bus.Dispatch(demoTenantCtx, allUsers)
 	Expect(err).IsNil()
-	Expect(all).HasLen(3)
-	Expect(all[0].Name).Equals("Jon Snow")
-	Expect(all[0].Status).Equals(models.UserActive)
-	Expect(all[1].Name).Equals("Arya Stark")
-	Expect(all[1].Status).Equals(models.UserActive)
-	Expect(all[2].Name).Equals("Sansa Stark")
-	Expect(all[2].Status).Equals(models.UserActive)
+
+	Expect(allUsers.Result).HasLen(3)
+	Expect(allUsers.Result[0].Name).Equals("Jon Snow")
+	Expect(allUsers.Result[0].Status).Equals(models.UserActive)
+	Expect(allUsers.Result[1].Name).Equals("Arya Stark")
+	Expect(allUsers.Result[1].Status).Equals(models.UserActive)
+	Expect(allUsers.Result[2].Name).Equals("Sansa Stark")
+	Expect(allUsers.Result[2].Status).Equals(models.UserActive)
 }
 
 func TestUserStorage_DefaultUserSettings(t *testing.T) {
@@ -342,27 +349,23 @@ func TestUserStorage_Delete(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(jonSnow)
-
 	err := bus.Dispatch(jonSnowCtx, &cmd.DeleteCurrentUser{})
 	Expect(err).IsNil()
 
-	user, err := users.GetByEmail("jon.snow@got.com")
+	getByEmail := &query.GetUserByEmail{Email: "jon.snow@got.com"}
+	err = bus.Dispatch(jonSnowCtx, getByEmail)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(user).IsNil()
+	Expect(getByEmail.Result).IsNil()
 
-	user, err = users.GetByID(jonSnow.ID)
+	getByID := &query.GetUserByID{UserID: jonSnow.ID}
+	err = bus.Dispatch(jonSnowCtx, getByID)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(user).IsNil()
+	Expect(getByID.Result).IsNil()
 }
 
 func TestUserStorage_APIKey(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
-
-	users.SetCurrentTenant(demoTenant)
-	users.SetCurrentUser(jonSnow)
 
 	regenerateAPIKey := &cmd.RegenerateAPIKey{}
 	err := bus.Dispatch(jonSnowCtx, regenerateAPIKey)
@@ -402,24 +405,18 @@ func TestUserStorage_BlockUser(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	users.SetCurrentTenant(demoTenant)
 	userID := 1
+	getUser := &query.GetUserByID{UserID: userID}
 
-	user, err := users.GetByID(userID)
+	err := bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(user.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(models.UserActive)
 
-	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: userID})
+	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: userID}, getUser)
 	Expect(err).IsNil()
+	Expect(getUser.Result.Status).Equals(models.UserBlocked)
 
-	user, err = users.GetByID(userID)
+	err = bus.Dispatch(demoTenantCtx, &cmd.UnblockUser{UserID: userID}, getUser)
 	Expect(err).IsNil()
-	Expect(user.Status).Equals(models.UserBlocked)
-
-	err = bus.Dispatch(demoTenantCtx, &cmd.UnblockUser{UserID: userID})
-	Expect(err).IsNil()
-
-	user, err = users.GetByID(userID)
-	Expect(err).IsNil()
-	Expect(user.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(models.UserActive)
 }

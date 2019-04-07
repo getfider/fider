@@ -21,3 +21,26 @@ type GetUserByAPIKey struct {
 type GetCurrentUserSettings struct {
 	Result map[string]string
 }
+
+type GetUserByID struct {
+	UserID int
+
+	Result *models.User
+}
+
+type GetUserByEmail struct {
+	Email string
+
+	Result *models.User
+}
+
+type GetUserByProvider struct {
+	Provider string
+	UID      string
+
+	Result *models.User
+}
+
+type GetAllUsers struct {
+	Result []*models.User
+}

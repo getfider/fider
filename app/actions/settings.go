@@ -25,7 +25,7 @@ func (input *UpdateUserSettings) IsAuthorized(user *models.User, services *app.S
 	return user != nil
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *UpdateUserSettings) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 

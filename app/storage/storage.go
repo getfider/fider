@@ -12,18 +12,6 @@ type Base interface {
 	SetCurrentUser(user *models.User)
 }
 
-// User is used for user operations
-type User interface {
-	Base
-	GetByID(userID int) (*models.User, error)
-	GetByEmail(email string) (*models.User, error)
-	GetByProvider(provider string, uid string) (*models.User, error)
-	Register(user *models.User) error
-	RegisterProvider(userID int, provider *models.UserProvider) error
-	Update(settings *models.UpdateUserSettings) error
-	GetAll() ([]*models.User, error)
-}
-
 // Tenant contains read and write operations for tenants
 type Tenant interface {
 	Base

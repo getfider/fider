@@ -32,7 +32,7 @@ func (input *CreateEditTag) IsAuthorized(user *models.User, services *app.Servic
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *CreateEditTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	result := validate.Success()
 
@@ -87,7 +87,7 @@ func (input *DeleteTag) IsAuthorized(user *models.User, services *app.Services) 
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *DeleteTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
 	err := bus.Dispatch(services.Context, getSlug)
@@ -117,7 +117,7 @@ func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Se
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
+// Validate if current model is valid
 func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: input.Model.Number}
 	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}

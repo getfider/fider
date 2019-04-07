@@ -71,10 +71,11 @@ func Gravatar() web.HandlerFunc {
 		size = between(size, 50, 200)
 
 		if err == nil && id > 0 {
-			user, err := c.Services().Users.GetByID(id)
-			if err == nil && user.Tenant.ID == c.Tenant().ID {
-				if user.Email != "" {
-					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(user.Email)), size)
+			userByID := &query.GetUserByID{UserID: id}
+			err := bus.Dispatch(c, userByID)
+			if err == nil && userByID.Result.Tenant.ID == c.Tenant().ID {
+				if userByID.Result.Email != "" {
+					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(userByID.Result.Email)), size)
 					cacheKey := fmt.Sprintf("gravatar:%s", url)
 
 					//If gravatar was found in cache

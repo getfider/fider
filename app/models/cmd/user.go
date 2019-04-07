@@ -30,3 +30,19 @@ type ChangeUserEmail struct {
 type UpdateCurrentUserSettings struct {
 	Settings map[string]string
 }
+
+type RegisterUser struct {
+	User *models.User
+}
+
+type RegisterUserProvider struct {
+	UserID       int
+	ProviderName string
+	ProviderUID  string
+}
+
+type UpdateCurrentUser struct {
+	Name       string
+	AvatarType models.AvatarType
+	Avatar     *models.ImageUpload
+}
