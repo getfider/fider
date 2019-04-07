@@ -1,12 +1,16 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
-	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 )
 
 func TestSignInByEmail_EmptyEmail(t *testing.T) {
@@ -65,9 +69,20 @@ func TestCompleteProfile_UnknownKey(t *testing.T) {
 func TestCompleteProfile_ValidKey(t *testing.T) {
 	RegisterT(t)
 
-	e := &models.SignInByEmail{Email: "jon.snow@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 30*time.Minute, e)
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindSignIn {
+			q.Result = &models.EmailVerification{
+				Key:   q.Key,
+				Kind:  q.Kind,
+				Email: "jon.snow@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
 	result := action.Validate(nil, services)
 
 	ExpectSuccess(result)
@@ -77,9 +92,20 @@ func TestCompleteProfile_ValidKey(t *testing.T) {
 func TestCompleteProfile_UserInvitation_ValidKey(t *testing.T) {
 	RegisterT(t)
 
-	e := &models.UserInvitation{Email: "jon.snow@got.com"}
-	services.Tenants.SaveVerificationKey("1234567890", 30*time.Minute, e)
-	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: "1234567890"}}
+	key := "1234567890"
+	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
+		if q.Key == key && q.Kind == models.EmailVerificationKindUserInvitation {
+			q.Result = &models.EmailVerification{
+				Key:   q.Key,
+				Kind:  q.Kind,
+				Email: "jon.snow@got.com",
+			}
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	action := actions.CompleteProfile{Model: &models.CompleteProfile{Name: "Jon Snow", Key: key}}
 	result := action.Validate(nil, services)
 
 	ExpectSuccess(result)

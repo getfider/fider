@@ -1,6 +1,10 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"time"
+
+	"github.com/getfider/fider/app/models"
+)
 
 type UpdateTenantPrivacySettings struct {
 	Settings *models.UpdateTenantPrivacy
@@ -20,4 +24,14 @@ type UpdateTenantAdvancedSettings struct {
 
 type ActivateTenant struct {
 	TenantID int
+}
+
+type SaveVerificationKey struct {
+	Key      string
+	Duration time.Duration
+	Request  models.NewEmailVerification
+}
+
+type SetKeyAsVerified struct {
+	Key string
 }

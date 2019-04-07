@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"time"
-
 	"github.com/getfider/fider/app/models"
 )
 
@@ -18,10 +16,6 @@ type Tenant interface {
 	Add(name string, subdomain string, status int) (*models.Tenant, error)
 	First() (*models.Tenant, error)
 	GetByDomain(domain string) (*models.Tenant, error)
-
-	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
-	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
-	SetKeyAsVerified(key string) error
 
 	SaveOAuthConfig(config *models.CreateEditOAuthConfig) error
 	GetOAuthConfigByProvider(provider string) (*models.OAuthConfig, error)

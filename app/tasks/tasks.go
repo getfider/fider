@@ -357,7 +357,11 @@ func SendInvites(subject, message string, invitations []*models.UserInvitation) 
 	return describe("Send invites", func(c *worker.Context) error {
 		to := make([]dto.Recipient, len(invitations))
 		for i, invite := range invitations {
-			err := c.Services().Tenants.SaveVerificationKey(invite.VerificationKey, 15*24*time.Hour, invite)
+			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+				Key:      invite.VerificationKey,
+				Duration: 15 * 24 * time.Hour,
+				Request:  invite,
+			})
 			if err != nil {
 				return c.Failure(err)
 			}

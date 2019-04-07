@@ -104,6 +104,10 @@ func (s Service) Init() {
 	bus.AddHandler(updateTenantPrivacySettings)
 	bus.AddHandler(updateTenantAdvancedSettings)
 	bus.AddHandler(updateTenantBillingSettings)
+
+	bus.AddHandler(getVerificationByKey)
+	bus.AddHandler(saveVerificationKey)
+	bus.AddHandler(setKeyAsVerified)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

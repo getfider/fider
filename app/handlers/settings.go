@@ -24,7 +24,11 @@ func ChangeUserEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 24*time.Hour, input.Model)
+		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+			Key:      input.Model.VerificationKey,
+			Duration: 24 * time.Hour,
+			Request:  input.Model,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -55,7 +59,7 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.SetKeyAsVerified(result.Key)
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

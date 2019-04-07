@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -134,7 +136,8 @@ func validateKey(kind models.EmailVerificationKind, c *web.Context) (*models.Ema
 	key := c.QueryParam("k")
 
 	//If key has been used, return NotFound
-	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
+	findByKey := &query.GetVerificationByKey{Kind: kind, Key: key}
+	err := bus.Dispatch(c, findByKey)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
 			return nil, c.NotFound()
@@ -143,20 +146,20 @@ func validateKey(kind models.EmailVerificationKind, c *web.Context) (*models.Ema
 	}
 
 	//If key has been used, return Gone
-	if result.VerifiedAt != nil {
+	if findByKey.Result.VerifiedAt != nil {
 		return nil, c.Gone()
 	}
 
 	//If key expired, return Gone
-	if time.Now().After(result.ExpiresAt) {
-		err = c.Services().Tenants.SetKeyAsVerified(key)
+	if time.Now().After(findByKey.Result.ExpiresAt) {
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return nil, c.Failure(err)
 		}
 		return nil, c.Gone()
 	}
 
-	return result, nil
+	return findByKey.Result, nil
 }
 
 func between(n, min, max int) int {

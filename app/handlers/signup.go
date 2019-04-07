@@ -85,7 +85,11 @@ func CreateTenant() web.HandlerFunc {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
 
-			err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 48*time.Hour, input.Model)
+			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+				Key:      input.Model.VerificationKey,
+				Duration: 48 * time.Hour,
+				Request:  input.Model,
+			})
 			if err != nil {
 				return c.Failure(err)
 			}

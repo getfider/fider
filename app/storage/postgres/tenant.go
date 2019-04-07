@@ -232,44 +232,6 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// SaveVerificationKey used by email verification process
-func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
-	var userID interface{}
-	if request.GetUser() != nil {
-		userID = request.GetUser().ID
-	}
-
-	query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
-	_, err := s.trx.Execute(query, s.current.ID, request.GetEmail(), time.Now(), time.Now().Add(duration), key, request.GetName(), request.GetKind(), userID)
-	if err != nil {
-		return errors.Wrap(err, "failed to save verification key for kind '%d'", request.GetKind())
-	}
-	return nil
-}
-
-// FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error) {
-	verification := dbEmailVerification{}
-
-	query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
-	err := s.trx.Get(&verification, query, key, kind)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get email verification by its key")
-	}
-
-	return verification.toModel(), nil
-}
-
-// SetKeyAsVerified so that it cannot be used anymore
-func (s *TenantStorage) SetKeyAsVerified(key string) error {
-	query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3"
-	_, err := s.trx.Execute(query, time.Now(), s.current.ID, key)
-	if err != nil {
-		return errors.Wrap(err, "failed to update verified date of email verification request")
-	}
-	return nil
-}
-
 // SaveOAuthConfig saves given config into database
 func (s *TenantStorage) SaveOAuthConfig(config *models.CreateEditOAuthConfig) error {
 	var err error

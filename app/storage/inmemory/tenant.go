@@ -120,16 +120,6 @@ func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, 
 	return nil
 }
 
-// FindVerificationByKey based on current tenant
-func (s *TenantStorage) FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error) {
-	for _, verification := range s.verifications {
-		if verification.Key == key && verification.Kind == kind {
-			return verification, nil
-		}
-	}
-	return nil, app.ErrNotFound
-}
-
 // SetKeyAsVerified so that it cannot be used anymore
 func (s *TenantStorage) SetKeyAsVerified(key string) error {
 	for _, verification := range s.verifications {

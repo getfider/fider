@@ -50,7 +50,11 @@ func SignInByEmail() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 30*time.Minute, input.Model)
+		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+			Key:      input.Model.VerificationKey,
+			Duration: 30 * time.Minute,
+			Request:  input.Model,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -115,7 +119,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 			return c.NotFound()
 		}
 
-		err = c.Services().Tenants.SetKeyAsVerified(result.Key)
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -150,7 +154,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.SetKeyAsVerified(input.Model.Key)
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: input.Model.Key})
 		if err != nil {
 			return c.Failure(err)
 		}

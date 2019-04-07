@@ -3,6 +3,8 @@ package actions
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -73,12 +75,16 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 	if input.Model.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		request1, err1 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
-		request2, err2 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindUserInvitation, input.Model.Key)
+		findBySignIn := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: input.Model.Key}
+		err1 := bus.Dispatch(services.Context, findBySignIn)
+
+		findByUserInvitation := &query.GetVerificationByKey{Kind: models.EmailVerificationKindUserInvitation, Key: input.Model.Key}
+		err2 := bus.Dispatch(services.Context, findByUserInvitation)
+
 		if err1 == nil {
-			input.Model.Email = request1.Email
+			input.Model.Email = findBySignIn.Result.Email
 		} else if err2 == nil {
-			input.Model.Email = request2.Email
+			input.Model.Email = findByUserInvitation.Result.Email
 		} else {
 			result.AddFieldFailure("key", "Key is invalid.")
 		}

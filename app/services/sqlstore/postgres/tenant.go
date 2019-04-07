@@ -238,3 +238,45 @@ func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
 		return nil
 	})
 }
+
+func getVerificationByKey(ctx context.Context, q *query.GetVerificationByKey) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		verification := dbEmailVerification{}
+
+		query := "SELECT id, email, name, key, created_at, verified_at, expires_at, kind, user_id FROM email_verifications WHERE key = $1 AND kind = $2 LIMIT 1"
+		err := trx.Get(&verification, query, q.Key, q.Kind)
+		if err != nil {
+			return errors.Wrap(err, "failed to get email verification by its key")
+		}
+
+		q.Result = verification.toModel()
+		return nil
+	})
+}
+
+func saveVerificationKey(ctx context.Context, c *cmd.SaveVerificationKey) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		var userID interface{}
+		if c.Request.GetUser() != nil {
+			userID = c.Request.GetUser().ID
+		}
+
+		query := "INSERT INTO email_verifications (tenant_id, email, created_at, expires_at, key, name, kind, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+		_, err := trx.Execute(query, tenant.ID, c.Request.GetEmail(), time.Now(), time.Now().Add(c.Duration), c.Key, c.Request.GetName(), c.Request.GetKind(), userID)
+		if err != nil {
+			return errors.Wrap(err, "failed to save verification key for kind '%d'", c.Request.GetKind())
+		}
+		return nil
+	})
+}
+
+func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		query := "UPDATE email_verifications SET verified_at = $1 WHERE tenant_id = $2 AND key = $3"
+		_, err := trx.Execute(query, time.Now(), tenant.ID, c.Key)
+		if err != nil {
+			return errors.Wrap(err, "failed to update verified date of email verification request")
+		}
+		return nil
+	})
+}
