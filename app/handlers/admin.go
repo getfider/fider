@@ -45,8 +45,7 @@ func UpdateSettings() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.UpdateSettings(input.Model)
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantSettings{Settings: input.Model}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -62,8 +61,7 @@ func UpdateAdvancedSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.UpdateAdvancedSettings(input.Model)
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.UpdateTenantAdvancedSettings{Settings: input.Model}); err != nil {
 			return c.Failure(err)
 		}
 

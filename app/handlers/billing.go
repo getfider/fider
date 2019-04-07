@@ -12,28 +12,28 @@ import (
 // BillingPage is the billing settings page
 func BillingPage() web.HandlerFunc {
 	return func(c *web.Context) error {
-		var err error
 		if c.Tenant().Billing.StripeCustomerID == "" {
-			if err = bus.Dispatch(c, &cmd.CreateBillingCustomer{}); err != nil {
-				return err
+			if err := bus.Dispatch(c, &cmd.CreateBillingCustomer{}); err != nil {
+				return c.Failure(err)
 			}
 
-			err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
-			if err != nil {
-				return err
+			if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
+				Settings: c.Tenant().Billing,
+			}); err != nil {
+				return c.Failure(err)
 			}
 		}
 
 		getUpcomingInvoiceQuery := &query.GetUpcomingInvoice{}
 		if c.Tenant().Billing.StripeSubscriptionID != "" {
-			err = bus.Dispatch(c, getUpcomingInvoiceQuery)
+			err := bus.Dispatch(c, getUpcomingInvoiceQuery)
 			if err != nil {
 				return c.Failure(err)
 			}
 		}
 
 		paymentInfo := query.GetPaymentInfo{}
-		err = bus.Dispatch(c, paymentInfo)
+		err := bus.Dispatch(c, paymentInfo)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -133,9 +133,10 @@ func BillingSubscribe() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
-		if err != nil {
-			return err
+		if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
+			Settings: c.Tenant().Billing,
+		}); err != nil {
+			return c.Failure(err)
 		}
 
 		err = c.Services().Tenants.Activate(c.Tenant().ID)
@@ -155,9 +156,10 @@ func CancelBillingSubscription() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.UpdateBillingSettings(c.Tenant().Billing)
-		if err != nil {
-			return err
+		if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
+			Settings: c.Tenant().Billing,
+		}); err != nil {
+			return c.Failure(err)
 		}
 
 		return c.Ok(web.Map{})

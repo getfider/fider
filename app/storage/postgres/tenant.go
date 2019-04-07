@@ -232,52 +232,6 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// UpdateSettings of current tenant
-func (s *TenantStorage) UpdateSettings(settings *models.UpdateTenantSettings) error {
-	if settings.Logo.Remove {
-		settings.Logo.BlobKey = ""
-	}
-
-	query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
-	_, err := s.trx.Execute(query, settings.Title, settings.Invitation, settings.WelcomeMessage, settings.CNAME, settings.Logo.BlobKey, s.current.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed update tenant settings")
-	}
-
-	s.current.Name = settings.Title
-	s.current.Invitation = settings.Invitation
-	s.current.CNAME = settings.CNAME
-	s.current.WelcomeMessage = settings.WelcomeMessage
-
-	return nil
-}
-
-// UpdateBillingSettings of current tenant
-func (s *TenantStorage) UpdateBillingSettings(billing *models.TenantBilling) error {
-	_, err := s.trx.Execute(`
-		UPDATE tenants_billing 
-		SET stripe_customer_id = $1, stripe_plan_id = $2, stripe_subscription_id = $3, 
-			subscription_ends_at = $4 
-		WHERE tenant_id = $5
-	`, billing.StripeCustomerID, billing.StripePlanID, billing.StripeSubscriptionID,
-		billing.SubscriptionEndsAt, s.current.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed update tenant billing settings")
-	}
-	return nil
-}
-
-// UpdateAdvancedSettings of current tenant
-func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error {
-	query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
-	_, err := s.trx.Execute(query, settings.CustomCSS, s.current.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed update tenant advanced settings")
-	}
-	s.current.CustomCSS = settings.CustomCSS
-	return nil
-}
-
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"

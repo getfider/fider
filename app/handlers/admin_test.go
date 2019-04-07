@@ -22,7 +22,13 @@ import (
 func TestUpdateSettingsHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -33,22 +39,27 @@ func TestUpdateSettingsHandler(t *testing.T) {
 			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).Equals("logos/hello-world.png")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/hello-world.png")
 }
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	RegisterT(t)
 	bus.Init(fs.Service{})
 
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -66,19 +77,24 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 				}
 			}`)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).ContainsSubstring("logos/")
-	Expect(tenant.LogoBlobKey).ContainsSubstring("picture.png")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.BlobKey).ContainsSubstring("logos/")
+	Expect(updateCmd.Settings.Logo.BlobKey).ContainsSubstring("picture.png")
 }
 
 func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -94,12 +110,11 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 				}
 			}`)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).Equals("")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.Remove).IsTrue()
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {

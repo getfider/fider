@@ -99,7 +99,10 @@ func (s Service) Init() {
 
 	bus.AddHandler(isSubdomainAvailable)
 	bus.AddHandler(isCNAMEAvailable)
+	bus.AddHandler(updateTenantSettings)
 	bus.AddHandler(updateTenantPrivacySettings)
+	bus.AddHandler(updateTenantAdvancedSettings)
+	bus.AddHandler(updateTenantBillingSettings)
 }
 
 type SqlHandler func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error

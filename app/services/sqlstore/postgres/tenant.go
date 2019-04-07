@@ -170,3 +170,60 @@ func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacy
 		return nil
 	})
 }
+
+func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		if c.Settings.Logo.Remove {
+			c.Settings.Logo.BlobKey = ""
+		}
+
+		query := "UPDATE tenants SET name = $1, invitation = $2, welcome_message = $3, cname = $4, logo_bkey = $5 WHERE id = $6"
+		_, err := trx.Execute(query, c.Settings.Title, c.Settings.Invitation, c.Settings.WelcomeMessage, c.Settings.CNAME, c.Settings.Logo.BlobKey, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant settings")
+		}
+
+		tenant.Name = c.Settings.Title
+		tenant.Invitation = c.Settings.Invitation
+		tenant.CNAME = c.Settings.CNAME
+		tenant.WelcomeMessage = c.Settings.WelcomeMessage
+
+		return nil
+	})
+}
+
+func updateTenantBillingSettings(ctx context.Context, c *cmd.UpdateTenantBillingSettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		_, err := trx.Execute(`
+			UPDATE tenants_billing 
+			SET stripe_customer_id = $1, 
+					stripe_plan_id = $2, 
+					stripe_subscription_id = $3, 
+					subscription_ends_at = $4 
+			WHERE tenant_id = $5
+		`,
+			c.Settings.StripeCustomerID,
+			c.Settings.StripePlanID,
+			c.Settings.StripeSubscriptionID,
+			c.Settings.SubscriptionEndsAt,
+			tenant.ID,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant billing settings")
+		}
+		return nil
+	})
+}
+
+func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
+		_, err := trx.Execute(query, c.Settings.CustomCSS, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant advanced settings")
+		}
+
+		tenant.CustomCSS = c.Settings.CustomCSS
+		return nil
+	})
+}
