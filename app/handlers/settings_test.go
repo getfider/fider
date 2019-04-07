@@ -159,13 +159,17 @@ func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 	RegisterT(t)
 
+	var changeEmailCmd *cmd.ChangeUserEmail
+	bus.AddHandler(func(ctx context.Context, c *cmd.ChangeUserEmail) error {
+		changeEmailCmd = c
+		return nil
+	})
+
 	server, services := mock.NewServer()
-	request := &models.ChangeUserEmail{
+	services.Tenants.SaveVerificationKey("th3-s3cr3t", 24*time.Hour, &models.ChangeUserEmail{
 		Requestor: mock.JonSnow,
 		Email:     "jon.stark@got.com",
-	}
-
-	services.Tenants.SaveVerificationKey("th3-s3cr3t", 24*time.Hour, request)
+	})
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -173,11 +177,8 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 		Execute(handlers.VerifyChangeEmailKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	user, err := services.Users.GetByEmail("jon.stark@got.com")
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(mock.JonSnow.ID)
-	Expect(user.Name).Equals(mock.JonSnow.Name)
-	Expect(user.Email).Equals(mock.JonSnow.Email)
+	Expect(changeEmailCmd.UserID).Equals(mock.JonSnow.ID)
+	Expect(changeEmailCmd.Email).Equals("jon.stark@got.com")
 
 	result, err := services.Tenants.FindVerificationByKey(models.EmailVerificationKindChangeEmail, "th3-s3cr3t")
 	Expect(err).IsNil()
