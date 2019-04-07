@@ -97,6 +97,7 @@ func (s Service) Init() {
 	bus.AddHandler(getUserByProvider)
 	bus.AddHandler(getAllUsers)
 
+	bus.AddHandler(activateTenant)
 	bus.AddHandler(isSubdomainAvailable)
 	bus.AddHandler(isCNAMEAvailable)
 	bus.AddHandler(updateTenantSettings)

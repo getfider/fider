@@ -232,16 +232,6 @@ func (s *TenantStorage) GetByDomain(domain string) (*models.Tenant, error) {
 	return tenant.toModel(), nil
 }
 
-// Activate given tenant
-func (s *TenantStorage) Activate(id int) error {
-	query := "UPDATE tenants SET status = $1 WHERE id = $2"
-	_, err := s.trx.Execute(query, models.TenantActive, id)
-	if err != nil {
-		return errors.Wrap(err, "failed to activate tenant with id '%d'", id)
-	}
-	return nil
-}
-
 // SaveVerificationKey used by email verification process
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
 	var userID interface{}

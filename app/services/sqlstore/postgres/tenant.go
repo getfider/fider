@@ -227,3 +227,14 @@ func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvanc
 		return nil
 	})
 }
+
+func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		query := "UPDATE tenants SET status = $1 WHERE id = $2"
+		_, err := trx.Execute(query, models.TenantActive, c.TenantID)
+		if err != nil {
+			return errors.Wrap(err, "failed to activate tenant with id '%d'", c.TenantID)
+		}
+		return nil
+	})
+}

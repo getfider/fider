@@ -101,17 +101,6 @@ func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdva
 	return nil
 }
 
-// Activate given tenant
-func (s *TenantStorage) Activate(id int) error {
-	for _, tenant := range s.tenants {
-		if tenant.ID == id {
-			tenant.Status = models.TenantActive
-			return nil
-		}
-	}
-	return app.ErrNotFound
-}
-
 // SaveVerificationKey used by email verification
 func (s *TenantStorage) SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error {
 	userID := 0

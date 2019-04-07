@@ -133,15 +133,10 @@ func BillingSubscribe() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		if err := bus.Dispatch(c, &cmd.UpdateTenantBillingSettings{
-			Settings: c.Tenant().Billing,
-		}); err != nil {
+		updateBilling := &cmd.UpdateTenantBillingSettings{Settings: c.Tenant().Billing}
+		activateTenant := &cmd.ActivateTenant{TenantID: c.Tenant().ID}
+		if err := bus.Dispatch(c, updateBilling, activateTenant); err != nil {
 			return c.Failure(err)
-		}
-
-		err = c.Services().Tenants.Activate(c.Tenant().ID)
-		if err != nil {
-			return err
 		}
 
 		return c.Ok(web.Map{})

@@ -267,6 +267,12 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 		return nil
 	})
 
+	activated := false
+	bus.AddHandler(func(ctx context.Context, c *cmd.ActivateTenant) error {
+		activated = true
+		return nil
+	})
+
 	e := &models.CreateTenant{Email: "hot.pie@got.com", Name: "Hot Pie"}
 	services.Tenants.SaveVerificationKey("1234567890", 15*time.Minute, e)
 	mock.DemoTenant.Status = models.TenantPending
@@ -277,13 +283,10 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 		Execute(handlers.VerifySignUpKey())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
 	Expect(newUser.Name).Equals("Hot Pie")
 	Expect(newUser.Email).Equals("hot.pie@got.com")
-
-	tenant, _ := services.Tenants.GetByDomain("demo")
-
-	Expect(tenant.Status).Equals(models.TenantActive)
-	Expect(response.Header().Get("Location")).Equals("http://demo.test.fider.io")
+	Expect(activated).IsTrue()
 }
 
 func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {

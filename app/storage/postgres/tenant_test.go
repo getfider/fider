@@ -17,7 +17,7 @@ import (
 )
 
 func TestTenantStorage_Add_Activate(t *testing.T) {
-	SetupDatabaseTest(t)
+	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
 	env.Config.Stripe.SecretKey = ""
@@ -33,7 +33,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(tenant.Status).Equals(models.TenantPending)
 	Expect(tenant.IsPrivate).IsFalse()
 
-	err = tenants.Activate(tenant.ID)
+	err = bus.Dispatch(ctx, &cmd.ActivateTenant{TenantID: tenant.ID})
 	Expect(err).IsNil()
 
 	tenant, err = tenants.GetByDomain("mydomain")

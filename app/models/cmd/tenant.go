@@ -17,3 +17,7 @@ type UpdateTenantBillingSettings struct {
 type UpdateTenantAdvancedSettings struct {
 	Settings *models.UpdateTenantAdvancedSettings
 }
+
+type ActivateTenant struct {
+	TenantID int
+}
