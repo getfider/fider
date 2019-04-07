@@ -278,16 +278,6 @@ func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdva
 	return nil
 }
 
-// UpdatePrivacy settings of current tenant
-func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
-	query := "UPDATE tenants SET is_private = $1 WHERE id = $2"
-	_, err := s.trx.Execute(query, settings.IsPrivate, s.current.ID)
-	if err != nil {
-		return errors.Wrap(err, "failed update tenant privacy settings")
-	}
-	return nil
-}
-
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	query := "UPDATE tenants SET status = $1 WHERE id = $2"

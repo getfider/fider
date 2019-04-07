@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -78,8 +79,8 @@ func UpdatePrivacy() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.UpdatePrivacy(input.Model)
-		if err != nil {
+		updateSettings := &cmd.UpdateTenantPrivacySettings{Settings: input.Model}
+		if err := bus.Dispatch(c, updateSettings); err != nil {
 			return c.Failure(err)
 		}
 

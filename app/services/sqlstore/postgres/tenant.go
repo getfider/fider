@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
@@ -156,6 +157,16 @@ func isSubdomainAvailable(ctx context.Context, q *query.IsSubdomainAvailable) er
 			return errors.Wrap(err, "failed to check if tenant exists with subdomain '%s'", q.Subdomain)
 		}
 		q.Result = !exists
+		return nil
+	})
+}
+
+func updateTenantPrivacySettings(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
+	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
+		_, err := trx.Execute("UPDATE tenants SET is_private = $1 WHERE id = $2", c.Settings.IsPrivate, tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed update tenant privacy settings")
+		}
 		return nil
 	})
 }

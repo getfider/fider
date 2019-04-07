@@ -22,7 +22,6 @@ type Tenant interface {
 	UpdateSettings(settings *models.UpdateTenantSettings) error
 	UpdateBillingSettings(billing *models.TenantBilling) error
 	UpdateAdvancedSettings(settings *models.UpdateTenantAdvancedSettings) error
-	UpdatePrivacy(settings *models.UpdateTenantPrivacy) error
 	SaveVerificationKey(key string, duration time.Duration, request models.NewEmailVerification) error
 	FindVerificationByKey(kind models.EmailVerificationKind, key string) (*models.EmailVerification, error)
 	SetKeyAsVerified(key string) error

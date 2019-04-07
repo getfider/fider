@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/models/cmd"
+
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -103,7 +105,13 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 func TestUpdatePrivacyHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantPrivacySettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server, _ := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -112,9 +120,8 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 			`{ "isPrivate": true }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.IsPrivate).IsTrue()
+	Expect(updateCmd.Settings.IsPrivate).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {

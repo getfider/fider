@@ -101,17 +101,6 @@ func (s *TenantStorage) UpdateAdvancedSettings(settings *models.UpdateTenantAdva
 	return nil
 }
 
-// UpdatePrivacy settings of current tenant
-func (s *TenantStorage) UpdatePrivacy(settings *models.UpdateTenantPrivacy) error {
-	for _, tenant := range s.tenants {
-		if tenant.ID == s.current.ID {
-			tenant.IsPrivate = settings.IsPrivate
-			return nil
-		}
-	}
-	return nil
-}
-
 // Activate given tenant
 func (s *TenantStorage) Activate(id int) error {
 	for _, tenant := range s.tenants {

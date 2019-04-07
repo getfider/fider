@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -103,7 +104,11 @@ func TestTenantStorage_UpdatePrivacy(t *testing.T) {
 	tenants.SetCurrentTenant(tenant)
 	Expect(tenant.IsPrivate).IsFalse()
 
-	tenants.UpdatePrivacy(&models.UpdateTenantPrivacy{IsPrivate: true})
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantPrivacySettings{
+		Settings: &models.UpdateTenantPrivacy{IsPrivate: true},
+	})
+	Expect(err).IsNil()
+
 	tenant, _ = tenants.GetByDomain("demo")
 	Expect(tenant.IsPrivate).IsTrue()
 }
