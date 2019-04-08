@@ -20,3 +20,13 @@ type GetVerificationByKey struct {
 
 	Result *models.EmailVerification
 }
+
+type GetFirstTenant struct {
+	Result *models.Tenant
+}
+
+type GetTenantByDomain struct {
+	Domain string
+
+	Result *models.Tenant
+}

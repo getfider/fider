@@ -1,15 +1,11 @@
 package postgres_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app"
-
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
@@ -17,11 +13,9 @@ func TestEventStorage_Add(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ctx = context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: 1})
-
 	clientIP := "127.0.0.1"
 	eventName := "posts.create"
-	err := bus.Dispatch(ctx, &cmd.StoreEvent{
+	err := bus.Dispatch(demoTenantCtx, &cmd.StoreEvent{
 		ClientIP:  clientIP,
 		EventName: eventName,
 	})
@@ -36,10 +30,8 @@ func TestEventStorage_AddWithNullClientIP(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	ctx = context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: 2})
-
 	eventName := "posts.delete"
-	err := bus.Dispatch(ctx, &cmd.StoreEvent{
+	err := bus.Dispatch(avengersTenantCtx, &cmd.StoreEvent{
 		EventName: eventName,
 	})
 	Expect(err).IsNil()

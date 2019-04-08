@@ -6,6 +6,14 @@ import (
 	"github.com/getfider/fider/app/models"
 )
 
+type CreateTenant struct {
+	Name      string
+	Subdomain string
+	Status    int
+
+	Result *models.Tenant
+}
+
 type UpdateTenantPrivacySettings struct {
 	Settings *models.UpdateTenantPrivacy
 }

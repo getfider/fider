@@ -11,7 +11,6 @@ import (
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
-	"github.com/getfider/fider/app/storage/postgres"
 )
 
 //WorkerSetup current context with some services
@@ -49,7 +48,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
 				Context: c,
-				Tenants: postgres.NewTenantStorage(trx, c),
 			})
 
 			//Execute the chain
@@ -122,7 +120,6 @@ func WebSetup() web.MiddlewareFunc {
 			c.Set(app.TransactionCtxKey, trx)
 			c.SetServices(&app.Services{
 				Context: c,
-				Tenants: postgres.NewTenantStorage(trx, c),
 			})
 
 			//Execute the chain

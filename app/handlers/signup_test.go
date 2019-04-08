@@ -7,11 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app"
+
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/handlers"
-	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/models/cmd"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jwt"
@@ -45,6 +47,10 @@ func TestSignUpHandler_MultiTenant_WrongURL(t *testing.T) {
 func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
@@ -54,8 +60,12 @@ func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
 func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewSingleTenantServer()
-	services.Tenants.Add("Game of Thrones", "got", models.TenantActive)
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		q.Result = &models.Tenant{ID: 2, Name: "MyCompany"}
+		return nil
+	})
+
+	server, _ := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -119,12 +129,18 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
 		q.Result = true
 		return nil
 	})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -141,14 +157,11 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 		}`, token),
 	)
 
-	tenant, err := services.Tenants.GetByDomain("mycompany")
-
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).IsNil()
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("mycompany")
-	Expect(tenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("mycompany")
+	Expect(newTenant.Status).Equals(models.TenantActive)
 
 	Expect(newUser.Name).Equals("Jon Snow")
 	Expect(newUser.Email).Equals("jon.snow@got.com")
@@ -173,12 +186,18 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		return nil
+	})
+
 	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
 		q.Result = true
 		return nil
 	})
 
-	server, services := mock.NewSingleTenantServer()
+	server, _ := mock.NewSingleTenantServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -194,13 +213,11 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 		}`, token),
 	)
 
-	tenant, err := services.Tenants.First()
-	Expect(err).IsNil()
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("default")
-	Expect(tenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("default")
+	Expect(newTenant.Status).Equals(models.TenantActive)
 
 	Expect(newUser.Name).Equals("Jon Snow")
 	Expect(newUser.Email).Equals("jon.snow@got.com")
@@ -225,13 +242,20 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 		return nil
 	})
 
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		c.Result = &models.Tenant{ID: 1, Name: c.Name, Subdomain: c.Subdomain, Status: c.Status}
+		return nil
+	})
+
 	var saveKeyCmd *cmd.SaveVerificationKey
 	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
 		saveKeyCmd = c
 		return nil
 	})
 
-	server, services := mock.NewServer()
+	server, _ := mock.NewServer()
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
 		`{
@@ -246,14 +270,11 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	Expect(code).Equals(http.StatusOK)
 	Expect(response.Header().Get("Set-Cookie")).IsEmpty()
 
-	tenant, err := services.Tenants.GetByDomain("mycompany")
-
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).IsNil()
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("mycompany")
-	Expect(tenant.Status).Equals(models.TenantPending)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("mycompany")
+	Expect(newTenant.Status).Equals(models.TenantPending)
 
 	Expect(saveKeyCmd.Key).HasLen(64)
 	Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindSignUp)

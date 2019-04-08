@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -52,15 +54,20 @@ func CreateTenant() web.HandlerFunc {
 			status = models.TenantActive
 		}
 
-		tenant, err := c.Services().Tenants.Add(input.Model.TenantName, input.Model.Subdomain, status)
+		createTenant := &cmd.CreateTenant{
+			Name:      input.Model.TenantName,
+			Subdomain: input.Model.Subdomain,
+			Status:    status,
+		}
+		err := bus.Dispatch(c, createTenant)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.SetTenant(tenant)
+		c.SetTenant(createTenant.Result)
 
 		user := &models.User{
-			Tenant: tenant,
+			Tenant: createTenant.Result,
 			Role:   models.RoleAdministrator,
 		}
 
@@ -94,7 +101,7 @@ func CreateTenant() web.HandlerFunc {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(input.Model, web.TenantBaseURL(c, tenant)))
+			c.Enqueue(tasks.SendSignUpEmail(input.Model, web.TenantBaseURL(c, createTenant.Result)))
 		}
 
 		return c.Ok(web.Map{})
@@ -105,12 +112,13 @@ func CreateTenant() web.HandlerFunc {
 func SignUp() web.HandlerFunc {
 	return func(c *web.Context) error {
 		if env.IsSingleHostMode() {
-			tenant, err := c.Services().Tenants.First()
+			firstTenant := &query.GetFirstTenant{}
+			err := bus.Dispatch(c, firstTenant)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
+			if firstTenant.Result != nil {
 				return c.Redirect("/")
 			}
 		} else {

@@ -1,13 +1,17 @@
 package middlewares_test
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -36,6 +40,17 @@ var testCases = []struct {
 func TestMultiTenant(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "avengers.test.fider.io" {
+			q.Result = mock.AvengersTenant
+			return nil
+		} else if q.Domain == "demo.test.fider.io" {
+			q.Result = mock.DemoTenant
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	for _, testCase := range testCases {
 		for _, url := range testCase.urls {
 
@@ -55,6 +70,14 @@ func TestMultiTenant(t *testing.T) {
 func TestMultiTenant_SubSubDomain(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "demo.test.fider.io" {
+			q.Result = mock.DemoTenant
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
@@ -71,6 +94,10 @@ func TestMultiTenant_SubSubDomain(t *testing.T) {
 func TestMultiTenant_UnknownDomain(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
@@ -86,6 +113,17 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 
 func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "avengers.test.fider.io" {
+			q.Result = mock.AvengersTenant
+			return nil
+		} else if q.Domain == "demo.test.fider.io" {
+			q.Result = mock.DemoTenant
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	var testCases = []struct {
 		input  string
@@ -148,6 +186,11 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 
 func TestSingleTenant_NoTenants(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
@@ -164,9 +207,13 @@ func TestSingleTenant_NoTenants(t *testing.T) {
 func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewSingleTenantServer()
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		q.Result = &models.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: models.TenantActive}
+		return nil
+	})
+
+	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
-	services.Tenants.Add("MyCompany", "mycompany", models.TenantActive)
 
 	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
@@ -216,7 +263,7 @@ func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
 	})
 
 	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.HeaderMap.Get("Location")).Equals("/signin")
+	Expect(response.Header().Get("Location")).Equals("/signin")
 }
 
 func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
@@ -254,6 +301,11 @@ func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 
 func TestRequireTenant_MultiHostMode_NoTenants_404(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
@@ -267,6 +319,15 @@ func TestRequireTenant_MultiHostMode_NoTenants_404(t *testing.T) {
 
 func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "avengers.test.fider.io" {
+			q.Result = mock.AvengersTenant
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
@@ -281,6 +342,11 @@ func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 
 func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		return app.ErrNotFound
+	})
+
 	server, _ := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
@@ -290,11 +356,17 @@ func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 	})
 
 	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.HeaderMap.Get("Location")).Equals("/signup")
+	Expect(response.Header().Get("Location")).Equals("/signup")
 }
 
 func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		q.Result = mock.DemoTenant
+		return nil
+	})
+
 	server, _ := mock.NewServer()
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())

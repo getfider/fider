@@ -8,7 +8,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/storage/postgres"
+	"github.com/getfider/fider/app/services/sqlstore/postgres"
 )
 
 func TestToTSQuery(t *testing.T) {

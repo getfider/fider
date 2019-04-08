@@ -4,8 +4,10 @@ import (
 	"net/http"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
@@ -23,13 +25,14 @@ func Tenant() web.MiddlewareFunc {
 func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			tenant, err := c.Services().Tenants.First()
+			firstTenant := &query.GetFirstTenant{}
+			err := bus.Dispatch(c, firstTenant)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
-				c.SetTenant(tenant)
+			if firstTenant.Result != nil {
+				c.SetTenant(firstTenant.Result)
 			}
 
 			return next(c)
@@ -52,16 +55,17 @@ func MultiTenant() web.MiddlewareFunc {
 				}
 			}
 
-			tenant, err := c.Services().Tenants.GetByDomain(hostname)
+			byDomain := &query.GetTenantByDomain{Domain: hostname}
+			err := bus.Dispatch(c, byDomain)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
-				c.SetTenant(tenant)
+			if byDomain.Result != nil {
+				c.SetTenant(byDomain.Result)
 
-				if tenant.CNAME != "" && !c.IsAjax() {
-					baseURL := web.TenantBaseURL(c, tenant)
+				if byDomain.Result.CNAME != "" && !c.IsAjax() {
+					baseURL := web.TenantBaseURL(c, byDomain.Result)
 					if baseURL != c.BaseURL() {
 						link := baseURL + c.Request.URL.RequestURI()
 						c.SetCanonicalURL(link)

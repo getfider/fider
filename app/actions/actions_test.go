@@ -7,7 +7,6 @@ import (
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
-	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
@@ -19,7 +18,6 @@ var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
 
 var services = &app.Services{
 	Context: context.Background(),
-	Tenants: inmemory.NewTenantStorage(),
 }
 
 func ExpectFailed(result *validate.Result, expectedFields ...string) {

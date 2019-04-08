@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 // DemoTenant is a mocked tenant
@@ -47,13 +46,22 @@ func NewWorker() (*Worker, *app.Services) {
 func createServices(seed bool) *app.Services {
 	services := &app.Services{
 		Context: context.Background(),
-		Tenants: inmemory.NewTenantStorage(),
 	}
 
 	if seed {
-		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
-		AvengersTenant, _ = services.Tenants.Add("Avengers", "avengers", models.TenantActive)
-		AvengersTenant.CNAME = "feedback.theavengers.com"
+		DemoTenant = &models.Tenant{
+			ID:        1,
+			Name:      "Demonstration",
+			Subdomain: "demo",
+			Status:    models.TenantActive,
+		}
+		AvengersTenant = &models.Tenant{
+			ID:        2,
+			Name:      "Avengers",
+			Subdomain: "avengers",
+			Status:    models.TenantActive,
+			CNAME:     "feedback.theavengers.com",
+		}
 
 		JonSnow = &models.User{
 			ID:     1,

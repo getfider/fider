@@ -4,11 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
 
@@ -241,6 +244,88 @@ func setKeyAsVerified(ctx context.Context, c *cmd.SetKeyAsVerified) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to update verified date of email verification request")
 		}
+		return nil
+	})
+}
+
+func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
+	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+		now := time.Now()
+
+		var id int
+		err := trx.Get(&id,
+			`INSERT INTO tenants (name, subdomain, created_at, cname, invitation, welcome_message, status, is_private, custom_css, logo_bkey) 
+			 VALUES ($1, $2, $3, '', '', '', $4, false, '', '') 
+			 RETURNING id`, c.Name, c.Subdomain, now, c.Status)
+		if err != nil {
+			return err
+		}
+
+		if env.IsBillingEnabled() {
+			_, err = trx.Execute(
+				`INSERT INTO tenants_billing (tenant_id, trial_ends_at) VALUES ($1, $2)`,
+				id, now.Add(30*24*time.Hour),
+			)
+			if err != nil {
+				return err
+			}
+		}
+
+		byDomain := &query.GetTenantByDomain{Domain: c.Subdomain}
+		err = bus.Dispatch(ctx, byDomain)
+		c.Result = byDomain.Result
+		return err
+	})
+}
+
+func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
+	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+		tenant := dbTenant{}
+
+		err := trx.Get(&tenant, `
+			SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
+						 tb.trial_ends_at AS billing_trial_ends_at,
+						 tb.subscription_ends_at AS billing_subscription_ends_at,
+						 tb.stripe_customer_id AS billing_stripe_customer_id,
+						 tb.stripe_plan_id AS billing_stripe_plan_id,
+						 tb.stripe_subscription_id AS billing_stripe_subscription_id
+			FROM tenants t
+			LEFT JOIN tenants_billing tb
+			ON tb.tenant_id = t.id
+			ORDER BY t.id LIMIT 1
+		`)
+
+		if err != nil {
+			return errors.Wrap(err, "failed to get first tenant")
+		}
+
+		q.Result = tenant.toModel()
+		return nil
+	})
+}
+
+func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
+	return using(ctx, func(trx *dbx.Trx, _ *models.Tenant, _ *models.User) error {
+		tenant := dbTenant{}
+
+		err := trx.Get(&tenant, `
+			SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
+						 tb.trial_ends_at AS billing_trial_ends_at,
+						 tb.subscription_ends_at AS billing_subscription_ends_at,
+						 tb.stripe_customer_id AS billing_stripe_customer_id,
+						 tb.stripe_plan_id AS billing_stripe_plan_id,
+						 tb.stripe_subscription_id AS billing_stripe_subscription_id
+			FROM tenants t
+			LEFT JOIN tenants_billing tb
+			ON tb.tenant_id = t.id
+			WHERE t.subdomain = $1 OR t.subdomain = $2 OR t.cname = $3 
+			ORDER BY t.cname DESC
+		`, env.Subdomain(q.Domain), q.Domain, q.Domain)
+		if err != nil {
+			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)
+		}
+
+		q.Result = tenant.toModel()
 		return nil
 	})
 }
