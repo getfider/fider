@@ -1,53 +1,77 @@
 package postgres_test
 
-// func TestTenantStorage_Add_Activate(t *testing.T) {
-// 	ctx := SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+import (
+	"testing"
+	"time"
 
-// 	env.Config.Stripe.SecretKey = ""
-// 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
+	"github.com/getfider/fider/app/models/query"
 
-// 	Expect(err).IsNil()
-// 	Expect(tenant).IsNotNil()
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 
-// 	tenant, err = tenants.GetByDomain("mydomain")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.Name).Equals("My Domain Inc.")
-// 	Expect(tenant.Subdomain).Equals("mydomain")
-// 	Expect(tenant.Status).Equals(models.TenantPending)
-// 	Expect(tenant.IsPrivate).IsFalse()
+	. "github.com/getfider/fider/app/pkg/assert"
+)
 
-// 	err = bus.Dispatch(ctx, &cmd.ActivateTenant{TenantID: tenant.ID})
-// 	Expect(err).IsNil()
+func TestTenantStorage_Add_Activate(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	tenant, err = tenants.GetByDomain("mydomain")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.Name).Equals("My Domain Inc.")
-// 	Expect(tenant.Subdomain).Equals("mydomain")
-// 	Expect(tenant.Status).Equals(models.TenantActive)
-// 	Expect(tenant.IsPrivate).IsFalse()
-// 	Expect(tenant.Billing).IsNil()
-// }
+	env.Config.Stripe.SecretKey = ""
+	createTenant := &cmd.CreateTenant{
+		Name:      "My Domain Inc.",
+		Subdomain: "mydomain",
+		Status:    models.TenantPending,
+	}
 
-// func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	err := bus.Dispatch(ctx, createTenant)
+	Expect(err).IsNil()
+	Expect(createTenant.Result).IsNotNil()
 
-// 	env.Config.Stripe.SecretKey = "sk_1"
-// 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
+	getByDomain := &query.GetTenantByDomain{Domain: "mydomain"}
+	err = bus.Dispatch(ctx, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
+	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
+	Expect(getByDomain.Result.Status).Equals(models.TenantPending)
+	Expect(getByDomain.Result.IsPrivate).IsFalse()
 
-// 	Expect(err).IsNil()
-// 	Expect(tenant).IsNotNil()
+	err = bus.Dispatch(ctx, &cmd.ActivateTenant{TenantID: createTenant.Result.ID})
+	Expect(err).IsNil()
 
-// 	tenant, err = tenants.GetByDomain("mydomain")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.Name).Equals("My Domain Inc.")
-// 	Expect(tenant.Subdomain).Equals("mydomain")
-// 	Expect(tenant.Status).Equals(models.TenantPending)
-// 	Expect(tenant.IsPrivate).IsFalse()
-// 	Expect(tenant.Billing).IsNotNil()
-// 	Expect(tenant.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
-// }
+	err = bus.Dispatch(ctx, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
+	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
+	Expect(getByDomain.Result.Status).Equals(models.TenantActive)
+	Expect(getByDomain.Result.IsPrivate).IsFalse()
+	Expect(getByDomain.Result.Billing).IsNil()
+}
+
+func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
+
+	env.Config.Stripe.SecretKey = "sk_1"
+	err := bus.Dispatch(ctx, &cmd.CreateTenant{
+		Name:      "My Domain Inc.",
+		Subdomain: "mydomain",
+		Status:    models.TenantPending,
+	})
+	Expect(err).IsNil()
+
+	getByDomain := &query.GetTenantByDomain{Domain: "mydomain"}
+	err = bus.Dispatch(ctx, getByDomain)
+	Expect(err).IsNil()
+
+	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
+	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
+	Expect(getByDomain.Result.Status).Equals(models.TenantPending)
+	Expect(getByDomain.Result.IsPrivate).IsFalse()
+	Expect(getByDomain.Result.Billing).IsNotNil()
+	Expect(getByDomain.Result.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
+}
 
 // func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 // 	SetupDatabaseTest(t)
