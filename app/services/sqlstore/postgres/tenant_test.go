@@ -4,12 +4,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
+	"github.com/getfider/fider/app/pkg/errors"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 )
@@ -73,347 +75,336 @@ func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
 	Expect(getByDomain.Result.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
 }
 
-// func TestTenantStorage_SingleTenant_Add(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+func TestTenantStorage_SingleTenant_Add(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	env.Config.HostMode = "single"
+	env.Config.HostMode = "single"
 
-// 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantPending)
-// 	Expect(err).IsNil()
-// 	Expect(tenant).IsNotNil()
-// }
+	createTenant := &cmd.CreateTenant{
+		Name:      "My Domain Inc.",
+		Subdomain: "mydomain",
+		Status:    models.TenantPending,
+	}
+	err := bus.Dispatch(ctx, createTenant)
+	Expect(err).IsNil()
+	Expect(createTenant.Result).IsNotNil()
+}
 
-// func TestTenantStorage_First(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+func TestTenantStorage_First(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	tenant, err := tenants.First()
-// 	Expect(err).IsNil()
-// 	Expect(tenant.ID).Equals(1)
-// }
+	getFirst := &query.GetFirstTenant{}
+	err := bus.Dispatch(ctx, getFirst)
+	Expect(err).IsNil()
+	Expect(getFirst.Result.ID).Equals(1)
+	Expect(getFirst.Result.Name).Equals("Demonstration")
+}
 
-// func TestTenantStorage_Empty_First(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+func TestTenantStorage_Empty_First(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	trx.Execute("TRUNCATE tenants CASCADE")
+	trx.Execute("TRUNCATE tenants CASCADE")
 
-// 	tenant, err := tenants.First()
-// 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-// 	Expect(tenant).IsNil()
-// }
+	getFirst := &query.GetFirstTenant{}
+	err := bus.Dispatch(ctx, getFirst)
 
-// func TestTenantStorage_UpdatePrivacy(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getFirst.Result).IsNil()
+}
 
-// 	tenant, _ := tenants.GetByDomain("demo")
-// 	tenants.SetCurrentTenant(tenant)
-// 	Expect(tenant.IsPrivate).IsFalse()
+func TestTenantStorage_UpdatePrivacy(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantPrivacySettings{
-// 		Settings: &models.UpdateTenantPrivacy{IsPrivate: true},
-// 	})
-// 	Expect(err).IsNil()
+	setPrivate := &cmd.UpdateTenantPrivacySettings{
+		Settings: &models.UpdateTenantPrivacy{IsPrivate: true},
+	}
+	getByDomain := &query.GetTenantByDomain{
+		Domain: "demo",
+	}
+	err := bus.Dispatch(demoTenantCtx, setPrivate, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.IsPrivate).IsTrue()
+}
 
-// 	tenant, _ = tenants.GetByDomain("demo")
-// 	Expect(tenant.IsPrivate).IsTrue()
-// }
+func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// func TestTenantStorage_GetByDomain_NotFound(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	getByDomain := &query.GetTenantByDomain{
+		Domain: "unknown",
+	}
+	err := bus.Dispatch(ctx, getByDomain)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getByDomain.Result).IsNil()
+}
 
-// 	tenant, err := tenants.GetByDomain("mydomain")
+func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	Expect(tenant).IsNil()
-// 	Expect(err).IsNotNil()
-// }
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{
+		Settings: &models.UpdateTenantSettings{
+			Title: "My Domain Inc.",
+			CNAME: "feedback.mycompany.com",
+			Logo:  &models.ImageUpload{},
+		},
+	})
+	Expect(err).IsNil()
 
-// func TestTenantStorage_GetByDomain_Subdomain(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	getByDomain := &query.GetTenantByDomain{Domain: "feedback.mycompany.com"}
+	err = bus.Dispatch(demoTenantCtx, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.ID).NotEquals(0)
+	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
+	Expect(getByDomain.Result.Subdomain).Equals("demo")
+	Expect(getByDomain.Result.CNAME).Equals("feedback.mycompany.com")
+	Expect(getByDomain.Result.Status).Equals(models.TenantActive)
+}
 
-// 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
-// 	Expect(err).IsNil()
+func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	tenant, err = tenants.GetByDomain("mydomain")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.ID).NotEquals(0)
-// 	Expect(tenant.Name).Equals("My Domain Inc.")
-// 	Expect(tenant.Subdomain).Equals("mydomain")
-// 	Expect(tenant.CNAME).Equals("")
-// 	Expect(tenant.Status).Equals(models.TenantActive)
-// }
+	isAvailable := &query.IsSubdomainAvailable{Subdomain: "demo"}
+	err := bus.Dispatch(ctx, isAvailable)
+	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsFalse()
+}
 
-// EXPERIMENTAL-BUS: re-enable when all tenant operations are on service bus
-// func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
+	ctx := SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	tenant, err := tenants.Add("My Domain Inc.", "mydomain", models.TenantActive)
-// 	Expect(err).IsNil()
-// 	tenants.SetCurrentTenant(tenant)
-// 	tenants.UpdateSettings(&models.UpdateTenantSettings{
-// 		Title: "My Domain Inc.",
-// 		CNAME: "feedback.mycompany.com",
-// 		Logo:  &models.ImageUpload{},
-// 	})
+	isAvailable := &query.IsSubdomainAvailable{Subdomain: "thisisanewdomain"}
+	err := bus.Dispatch(ctx, isAvailable)
+	Expect(err).IsNil()
+	Expect(isAvailable.Result).IsTrue()
+}
 
-// 	tenant, err = tenants.GetByDomain("feedback.mycompany.com")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.ID).NotEquals(0)
-// 	Expect(tenant.Name).Equals("My Domain Inc.")
-// 	Expect(tenant.Subdomain).Equals("mydomain")
-// 	Expect(tenant.CNAME).Equals("feedback.mycompany.com")
-// 	Expect(tenant.Status).Equals(models.TenantActive)
-// }
+func TestTenantStorage_UpdateSettings(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
-// 	ctx := SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	settings := &models.UpdateTenantSettings{
+		Logo: &models.ImageUpload{
+			BlobKey: "some-logo-key.png",
+		},
+		Title:          "New Demonstration",
+		Invitation:     "Leave us your suggestion",
+		WelcomeMessage: "Welcome!",
+		CNAME:          "demo.company.com",
+	}
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{Settings: settings})
+	Expect(err).IsNil()
 
-// 	isAvailable := &query.IsSubdomainAvailable{Subdomain: "demo"}
-// 	err := bus.Dispatch(ctx, isAvailable)
-// 	Expect(err).IsNil()
-// 	Expect(isAvailable.Result).IsFalse()
-// }
+	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
+	err = bus.Dispatch(demoTenantCtx, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.ID).Equals(1)
+	Expect(getByDomain.Result.Name).Equals("New Demonstration")
+	Expect(getByDomain.Result.Invitation).Equals("Leave us your suggestion")
+	Expect(getByDomain.Result.WelcomeMessage).Equals("Welcome!")
+	Expect(getByDomain.Result.CNAME).Equals("demo.company.com")
+	Expect(getByDomain.Result.LogoBlobKey).Equals("some-logo-key.png")
+}
 
-// func TestTenantStorage_IsSubdomainAvailable_NewDomain(t *testing.T) {
-// 	ctx := SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+func TestTenantStorage_AdvancedSettings(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	isAvailable := &query.IsSubdomainAvailable{Subdomain: "thisisanewdomain"}
-// 	err := bus.Dispatch(ctx, isAvailable)
-// 	Expect(err).IsNil()
-// 	Expect(isAvailable.Result).IsTrue()
-// }
+	settings := &models.UpdateTenantAdvancedSettings{
+		CustomCSS: ".primary { color: red; }",
+	}
+	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{Settings: settings})
+	Expect(err).IsNil()
 
-// func TestTenantStorage_UpdateSettings(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	getByDomain := &query.GetTenantByDomain{Domain: "demo"}
+	err = bus.Dispatch(demoTenantCtx, getByDomain)
+	Expect(err).IsNil()
+	Expect(getByDomain.Result.CustomCSS).Equals(".primary { color: red; }")
+}
 
-// 	tenant, _ := tenants.GetByDomain("demo")
-// 	tenants.SetCurrentTenant(tenant)
+func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	settings := &models.UpdateTenantSettings{
-// 		Logo: &models.ImageUpload{
-// 			BlobKey: "some-logo-key.png",
-// 		},
-// 		Title:          "New Demonstration",
-// 		Invitation:     "Leave us your suggestion",
-// 		WelcomeMessage: "Welcome!",
-// 		CNAME:          "demo.company.com",
-// 	}
-// 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantSettings{Settings: settings})
-// 	Expect(err).IsNil()
+	//Save new Key
+	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
+		Key:      "s3cr3tk3y",
+		Duration: 15 * time.Minute,
+		Request: &models.CreateTenant{
+			Email: "jon.snow@got.com",
+			Name:  "Jon Snow",
+		},
+	})
+	Expect(err).IsNil()
 
-// 	tenant, err = tenants.GetByDomain("demo")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.ID).Equals(1)
-// 	Expect(tenant.Name).Equals("New Demonstration")
-// 	Expect(tenant.Invitation).Equals("Leave us your suggestion")
-// 	Expect(tenant.WelcomeMessage).Equals("Welcome!")
-// 	Expect(tenant.CNAME).Equals("demo.company.com")
-// 	Expect(tenant.LogoBlobKey).Equals("some-logo-key.png")
-// }
+	//Find and check values
+	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
 
-// func TestTenantStorage_AdvancedSettings(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	err = bus.Dispatch(demoTenantCtx, getKey)
+	Expect(err).IsNil()
+	Expect(getKey.Result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
+	Expect(getKey.Result.VerifiedAt).IsNil()
+	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
+	Expect(getKey.Result.Name).Equals("Jon Snow")
+	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindSignUp)
+	Expect(getKey.Result.Key).Equals("s3cr3tk3y")
+	Expect(getKey.Result.UserID).Equals(0)
+	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 
-// 	tenant, _ := tenants.GetByDomain("demo")
-// 	tenants.SetCurrentTenant(tenant)
+	//Set as verified check values
+	err = bus.Dispatch(demoTenantCtx, &cmd.SetKeyAsVerified{Key: "s3cr3tk3y"})
+	Expect(err).IsNil()
 
-// 	settings := &models.UpdateTenantAdvancedSettings{
-// 		CustomCSS: ".primary { color: red; }",
-// 	}
-// 	err := bus.Dispatch(demoTenantCtx, &cmd.UpdateTenantAdvancedSettings{Settings: settings})
-// 	Expect(err).IsNil()
+	//Find and check that VerifiedAt is now set
+	err = bus.Dispatch(demoTenantCtx, getKey)
 
-// 	tenant, err = tenants.GetByDomain("demo")
-// 	Expect(err).IsNil()
-// 	Expect(tenant.CustomCSS).Equals(".primary { color: red; }")
-// }
+	Expect(err).IsNil()
+	Expect(time.Now().After(getKey.Result.CreatedAt)).IsTrue()
+	Expect(getKey.Result.VerifiedAt.After(getKey.Result.CreatedAt)).IsTrue()
+	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
+	Expect(getKey.Result.Name).Equals("Jon Snow")
+	Expect(getKey.Result.Key).Equals("s3cr3tk3y")
+	Expect(getKey.Result.UserID).Equals(0)
+	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 
-// func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	//Wrong kind should not find it
+	getKeyWithWrongKind := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "s3cr3tk3y"}
+	err = bus.Dispatch(demoTenantCtx, getKeyWithWrongKind)
 
-// 	//Save new Key
-// 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
-// 		Key:      "s3cr3tk3y",
-// 		Duration: 15 * time.Minute,
-// 		Request: &models.CreateTenant{
-// 			Email: "jon.snow@got.com",
-// 			Name:  "Jon Snow",
-// 		},
-// 	})
-// 	Expect(err).IsNil()
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getKeyWithWrongKind.Result).IsNil()
+}
 
-// 	//Find and check values
-// 	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
+func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	err = bus.Dispatch(demoTenantCtx, getKey)
-// 	Expect(err).IsNil()
-// 	Expect(getKey.Result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
-// 	Expect(getKey.Result.VerifiedAt).IsNil()
-// 	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
-// 	Expect(getKey.Result.Name).Equals("Jon Snow")
-// 	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindSignUp)
-// 	Expect(getKey.Result.Key).Equals("s3cr3tk3y")
-// 	Expect(getKey.Result.UserID).Equals(0)
-// 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
+	//Save new Key
+	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
+		Key:      "th3-s3cr3t",
+		Duration: 15 * time.Minute,
+		Request: &models.ChangeUserEmail{
+			Email:     "jon.stark@got.com",
+			Requestor: jonSnow,
+		},
+	})
+	Expect(err).IsNil()
 
-// 	//Set as verified check values
-// 	err = bus.Dispatch(demoTenantCtx, &cmd.SetKeyAsVerified{Key: "s3cr3tk3y"})
-// 	Expect(err).IsNil()
+	//Find and check values
+	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindChangeEmail, Key: "th3-s3cr3t"}
+	err = bus.Dispatch(demoTenantCtx, getKey)
+	Expect(err).IsNil()
+	Expect(getKey.Result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
+	Expect(getKey.Result.VerifiedAt).IsNil()
+	Expect(getKey.Result.Email).Equals("jon.stark@got.com")
+	Expect(getKey.Result.Name).Equals("")
+	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindChangeEmail)
+	Expect(getKey.Result.Key).Equals("th3-s3cr3t")
+	Expect(getKey.Result.UserID).Equals(jonSnow.ID)
+	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
+}
 
-// 	//Find and check that VerifiedAt is now set
-// 	err = bus.Dispatch(demoTenantCtx, getKey)
+func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	Expect(err).IsNil()
-// 	Expect(time.Now().After(getKey.Result.CreatedAt)).IsTrue()
-// 	Expect(getKey.Result.VerifiedAt.After(getKey.Result.CreatedAt)).IsTrue()
-// 	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
-// 	Expect(getKey.Result.Name).Equals("Jon Snow")
-// 	Expect(getKey.Result.Key).Equals("s3cr3tk3y")
-// 	Expect(getKey.Result.UserID).Equals(0)
-// 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
+	//Find and check values
+	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "blahblahblah"}
+	err := bus.Dispatch(demoTenantCtx, getKey)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getKey.Result).IsNil()
+}
 
-// 	//Wrong kind should not find it
-// 	getKeyWithWrongKind := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "s3cr3tk3y"}
-// 	err = bus.Dispatch(demoTenantCtx, getKeyWithWrongKind)
+func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
+	SetupDatabaseTest(t)
+	defer TeardownDatabaseTest()
 
-// 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-// 	Expect(getKeyWithWrongKind.Result).IsNil()
-// }
+	getConfig := &query.GetCustomOAuthConfigByProvider{Provider: "_TEST"}
+	err := bus.Dispatch(demoTenantCtx, getConfig)
+	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
+	Expect(getConfig.Result).IsNil()
 
-// func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
+		Config: &models.CreateEditOAuthConfig{
+			Logo: &models.ImageUpload{
+				BlobKey: "uploads/my-logo-key.png",
+			},
+			Provider:          "_TEST",
+			DisplayName:       "My Provider",
+			ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
+			ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+			AuthorizeURL:      "http://provider/oauth/authorize",
+			TokenURL:          "http://provider/oauth/token",
+			Scope:             "profile email",
+			ProfileURL:        "http://provider/profile/me",
+			JSONUserIDPath:    "user.id",
+			JSONUserNamePath:  "user.name",
+			JSONUserEmailPath: "user.email",
+		},
+	})
+	Expect(err).IsNil()
 
-// 	//Save new Key
-// 	err := bus.Dispatch(demoTenantCtx, &cmd.SaveVerificationKey{
-// 		Key:      "th3-s3cr3t",
-// 		Duration: 15 * time.Minute,
-// 		Request: &models.ChangeUserEmail{
-// 			Email:     "jon.stark@got.com",
-// 			Requestor: jonSnow,
-// 		},
-// 	})
-// 	Expect(err).IsNil()
+	err = bus.Dispatch(demoTenantCtx, getConfig)
+	Expect(err).IsNil()
+	Expect(getConfig.Result.ID).Equals(1)
+	Expect(getConfig.Result.LogoBlobKey).Equals("uploads/my-logo-key.png")
+	Expect(getConfig.Result.Provider).Equals("_TEST")
+	Expect(getConfig.Result.DisplayName).Equals("My Provider")
+	Expect(getConfig.Result.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(getConfig.Result.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(getConfig.Result.AuthorizeURL).Equals("http://provider/oauth/authorize")
+	Expect(getConfig.Result.TokenURL).Equals("http://provider/oauth/token")
+	Expect(getConfig.Result.Scope).Equals("profile email")
+	Expect(getConfig.Result.Status).Equals(0)
+	Expect(getConfig.Result.ProfileURL).Equals("http://provider/profile/me")
+	Expect(getConfig.Result.JSONUserIDPath).Equals("user.id")
+	Expect(getConfig.Result.JSONUserNamePath).Equals("user.name")
+	Expect(getConfig.Result.JSONUserEmailPath).Equals("user.email")
 
-// 	//Find and check values
-// 	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindChangeEmail, Key: "th3-s3cr3t"}
-// 	err = bus.Dispatch(demoTenantCtx, getKey)
-// 	Expect(err).IsNil()
-// 	Expect(getKey.Result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
-// 	Expect(getKey.Result.VerifiedAt).IsNil()
-// 	Expect(getKey.Result.Email).Equals("jon.stark@got.com")
-// 	Expect(getKey.Result.Name).Equals("")
-// 	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindChangeEmail)
-// 	Expect(getKey.Result.Key).Equals("th3-s3cr3t")
-// 	Expect(getKey.Result.UserID).Equals(jonSnow.ID)
-// 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
-// }
+	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
+		Config: &models.CreateEditOAuthConfig{
+			ID: getConfig.Result.ID,
+			Logo: &models.ImageUpload{
+				BlobKey: "",
+			},
+			Provider:          "_TEST2222", //this has to be ignored
+			DisplayName:       "New My Provider",
+			ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
+			ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
+			AuthorizeURL:      "New http://provider/oauth/authorize",
+			TokenURL:          "New http://provider/oauth/token",
+			Scope:             "New profile email",
+			ProfileURL:        "New http://provider/profile/me",
+			JSONUserIDPath:    "New user.id",
+			JSONUserNamePath:  "New user.name",
+			JSONUserEmailPath: "New user.email",
+		},
+	})
+	Expect(err).IsNil()
 
-// func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
+	customConfigs := &query.ListCustomOAuthConfig{}
+	err = bus.Dispatch(demoTenantCtx, customConfigs)
+	Expect(err).IsNil()
 
-// 	//Find and check values
-// 	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "blahblahblah"}
-// 	err := bus.Dispatch(demoTenantCtx, getKey)
-// 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-// 	Expect(getKey.Result).IsNil()
-// }
-
-// func TestTenantStorage_Save_Get_ListOAuthConfig(t *testing.T) {
-// 	SetupDatabaseTest(t)
-// 	defer TeardownDatabaseTest()
-
-// 	getConfig := &query.GetCustomOAuthConfigByProvider{Provider: "_TEST"}
-// 	err := bus.Dispatch(demoTenantCtx, getConfig)
-// 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-// 	Expect(getConfig.Result).IsNil()
-
-// 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-// 		Config: &models.CreateEditOAuthConfig{
-// 			Logo: &models.ImageUpload{
-// 				BlobKey: "uploads/my-logo-key.png",
-// 			},
-// 			Provider:          "_TEST",
-// 			DisplayName:       "My Provider",
-// 			ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
-// 			ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-// 			AuthorizeURL:      "http://provider/oauth/authorize",
-// 			TokenURL:          "http://provider/oauth/token",
-// 			Scope:             "profile email",
-// 			ProfileURL:        "http://provider/profile/me",
-// 			JSONUserIDPath:    "user.id",
-// 			JSONUserNamePath:  "user.name",
-// 			JSONUserEmailPath: "user.email",
-// 		},
-// 	})
-// 	Expect(err).IsNil()
-
-// 	err = bus.Dispatch(demoTenantCtx, getConfig)
-// 	Expect(err).IsNil()
-// 	Expect(getConfig.Result.ID).Equals(1)
-// 	Expect(getConfig.Result.LogoBlobKey).Equals("uploads/my-logo-key.png")
-// 	Expect(getConfig.Result.Provider).Equals("_TEST")
-// 	Expect(getConfig.Result.DisplayName).Equals("My Provider")
-// 	Expect(getConfig.Result.ClientID).Equals("823187ahjjfdha8fds7yfdashfjkdsa")
-// 	Expect(getConfig.Result.ClientSecret).Equals("jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
-// 	Expect(getConfig.Result.AuthorizeURL).Equals("http://provider/oauth/authorize")
-// 	Expect(getConfig.Result.TokenURL).Equals("http://provider/oauth/token")
-// 	Expect(getConfig.Result.Scope).Equals("profile email")
-// 	Expect(getConfig.Result.Status).Equals(0)
-// 	Expect(getConfig.Result.ProfileURL).Equals("http://provider/profile/me")
-// 	Expect(getConfig.Result.JSONUserIDPath).Equals("user.id")
-// 	Expect(getConfig.Result.JSONUserNamePath).Equals("user.name")
-// 	Expect(getConfig.Result.JSONUserEmailPath).Equals("user.email")
-
-// 	err = bus.Dispatch(demoTenantCtx, &cmd.SaveCustomOAuthConfig{
-// 		Config: &models.CreateEditOAuthConfig{
-// 			ID: getConfig.Result.ID,
-// 			Logo: &models.ImageUpload{
-// 				BlobKey: "",
-// 			},
-// 			Provider:          "_TEST2222", //this has to be ignored
-// 			DisplayName:       "New My Provider",
-// 			ClientID:          "New 823187ahjjfdha8fds7yfdashfjkdsa",
-// 			ClientSecret:      "New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
-// 			AuthorizeURL:      "New http://provider/oauth/authorize",
-// 			TokenURL:          "New http://provider/oauth/token",
-// 			Scope:             "New profile email",
-// 			ProfileURL:        "New http://provider/profile/me",
-// 			JSONUserIDPath:    "New user.id",
-// 			JSONUserNamePath:  "New user.name",
-// 			JSONUserEmailPath: "New user.email",
-// 		},
-// 	})
-// 	Expect(err).IsNil()
-
-// 	customConfigs := &query.ListCustomOAuthConfig{}
-// 	err = bus.Dispatch(demoTenantCtx, customConfigs)
-// 	Expect(err).IsNil()
-
-// 	Expect(customConfigs.Result).HasLen(1)
-// 	Expect(customConfigs.Result[0].ID).Equals(1)
-// 	Expect(customConfigs.Result[0].LogoBlobKey).Equals("")
-// 	Expect(customConfigs.Result[0].Provider).Equals("_TEST")
-// 	Expect(customConfigs.Result[0].DisplayName).Equals("New My Provider")
-// 	Expect(customConfigs.Result[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")
-// 	Expect(customConfigs.Result[0].ClientSecret).Equals("New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
-// 	Expect(customConfigs.Result[0].AuthorizeURL).Equals("New http://provider/oauth/authorize")
-// 	Expect(customConfigs.Result[0].TokenURL).Equals("New http://provider/oauth/token")
-// 	Expect(customConfigs.Result[0].Scope).Equals("New profile email")
-// 	Expect(customConfigs.Result[0].Status).Equals(0)
-// 	Expect(customConfigs.Result[0].ProfileURL).Equals("New http://provider/profile/me")
-// 	Expect(customConfigs.Result[0].JSONUserIDPath).Equals("New user.id")
-// 	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
-// 	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
-// }
+	Expect(customConfigs.Result).HasLen(1)
+	Expect(customConfigs.Result[0].ID).Equals(1)
+	Expect(customConfigs.Result[0].LogoBlobKey).Equals("")
+	Expect(customConfigs.Result[0].Provider).Equals("_TEST")
+	Expect(customConfigs.Result[0].DisplayName).Equals("New My Provider")
+	Expect(customConfigs.Result[0].ClientID).Equals("New 823187ahjjfdha8fds7yfdashfjkdsa")
+	Expect(customConfigs.Result[0].ClientSecret).Equals("New jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij")
+	Expect(customConfigs.Result[0].AuthorizeURL).Equals("New http://provider/oauth/authorize")
+	Expect(customConfigs.Result[0].TokenURL).Equals("New http://provider/oauth/token")
+	Expect(customConfigs.Result[0].Scope).Equals("New profile email")
+	Expect(customConfigs.Result[0].Status).Equals(0)
+	Expect(customConfigs.Result[0].ProfileURL).Equals("New http://provider/profile/me")
+	Expect(customConfigs.Result[0].JSONUserIDPath).Equals("New user.id")
+	Expect(customConfigs.Result[0].JSONUserNamePath).Equals("New user.name")
+	Expect(customConfigs.Result[0].JSONUserEmailPath).Equals("New user.email")
+}
