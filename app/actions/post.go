@@ -37,17 +37,15 @@ func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *va
 		result.AddFieldFailure("title", "Title is required.")
 	} else if len(input.Model.Title) < 10 {
 		result.AddFieldFailure("title", "Title needs to be more descriptive.")
-	}
-
-	if len(input.Model.Title) > 100 {
+	} else if len(input.Model.Title) > 100 {
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
-	}
-
-	err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
-	if err != nil && errors.Cause(err) != app.ErrNotFound {
-		return validate.Error(err)
-	} else if err == nil {
-		result.AddFieldFailure("title", "This has already been posted before.")
+	} else {
+		err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
+		if err != nil && errors.Cause(err) != app.ErrNotFound {
+			return validate.Error(err)
+		} else if err == nil {
+			result.AddFieldFailure("title", "This has already been posted before.")
+		}
 	}
 
 	messages, err := validate.MultiImageUpload(nil, input.Model.Attachments, validate.MultiImageUploadOpts{
@@ -84,13 +82,6 @@ func (input *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bo
 func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
-	if err := bus.Dispatch(ctx, postByNumber); err != nil {
-		return validate.Error(err)
-	}
-
-	input.Post = postByNumber.Result
-
 	if input.Model.Title == "" {
 		result.AddFieldFailure("title", "Title is required.")
 	} else if len(input.Model.Title) < 10 {
@@ -101,6 +92,13 @@ func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *valid
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
+	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
+	if err := bus.Dispatch(ctx, postByNumber); err != nil {
+		return validate.Error(err)
+	}
+
+	input.Post = postByNumber.Result
+
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)}
 	err := bus.Dispatch(ctx, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
@@ -109,21 +107,23 @@ func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *valid
 		result.AddFieldFailure("title", "This has already been posted before.")
 	}
 
-	getAttachments := &query.GetAttachments{Post: input.Post}
-	err = bus.Dispatch(ctx, getAttachments)
-	if err != nil {
-		return validate.Error(err)
-	}
+	if len(input.Model.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: input.Post}
+		err = bus.Dispatch(ctx, getAttachments)
+		if err != nil {
+			return validate.Error(err)
+		}
 
-	messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
-		MaxUploads:   3,
-		MaxKilobytes: 5120,
-		ExactRatio:   false,
-	})
-	if err != nil {
-		return validate.Error(err)
+		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+			MaxUploads:   3,
+			MaxKilobytes: 5120,
+			ExactRatio:   false,
+		})
+		if err != nil {
+			return validate.Error(err)
+		}
+		result.AddFieldFailure("attachments", messages...)
 	}
-	result.AddFieldFailure("attachments", messages...)
 
 	return result
 }
@@ -285,21 +285,23 @@ func (input *EditComment) Validate(ctx context.Context, user *models.User) *vali
 		result.AddFieldFailure("content", "Comment is required.")
 	}
 
-	getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
-	err := bus.Dispatch(ctx, getAttachments)
-	if err != nil {
-		return validate.Error(err)
-	}
+	if len(input.Model.Attachments) > 0 {
+		getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
+		err := bus.Dispatch(ctx, getAttachments)
+		if err != nil {
+			return validate.Error(err)
+		}
 
-	messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
-		MaxUploads:   2,
-		MaxKilobytes: 5120,
-		ExactRatio:   false,
-	})
-	if err != nil {
-		return validate.Error(err)
+		messages, err := validate.MultiImageUpload(getAttachments.Result, input.Model.Attachments, validate.MultiImageUploadOpts{
+			MaxUploads:   2,
+			MaxKilobytes: 5120,
+			ExactRatio:   false,
+		})
+		if err != nil {
+			return validate.Error(err)
+		}
+		result.AddFieldFailure("attachments", messages...)
 	}
-	result.AddFieldFailure("attachments", messages...)
 
 	return result
 }

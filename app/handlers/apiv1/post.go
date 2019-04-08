@@ -50,12 +50,9 @@ func CreatePost() web.HandlerFunc {
 			return c.Failure(err)
 		}
 
-		err = bus.Dispatch(c, &cmd.SetAttachments{Post: newPost.Result, Attachments: input.Model.Attachments})
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if err := bus.Dispatch(c, &cmd.AddVote{Post: newPost.Result, User: c.User()}); err != nil {
+		setAttachments := &cmd.SetAttachments{Post: newPost.Result, Attachments: input.Model.Attachments}
+		addVote := &cmd.AddVote{Post: newPost.Result, User: c.User()}
+		if err = bus.Dispatch(c, setAttachments, addVote); err != nil {
 			return c.Failure(err)
 		}
 
