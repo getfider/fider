@@ -31,6 +31,5 @@ var (
 	TransactionCtxKey = createKey("TRANSACTION")
 	TenantCtxKey      = createKey("TENANT")
 	UserCtxKey        = createKey("USER")
-	ServicesCtxKey    = createKey("SERVICES") // EXPERIMENTAL-BUS: remove this key
 	LogPropsCtxKey    = createKey("LOG_PROPS")
 )

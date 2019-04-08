@@ -24,7 +24,7 @@ import (
 func TestSignInByEmailHandler_WithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		ExecutePost(handlers.SignInByEmail(), "{ }")
 
@@ -40,7 +40,7 @@ func TestSignInByEmailHandler_WithEmail(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		ExecutePost(handlers.SignInByEmail(), `{ "email": "jon.snow@got.com" }`)
@@ -59,7 +59,7 @@ func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin/verify?k=unknown").
@@ -71,7 +71,7 @@ func TestVerifySignInKeyHandler_UnknownKey(t *testing.T) {
 func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	key := "1234567890"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
@@ -99,7 +99,7 @@ func TestVerifySignInKeyHandler_UsedKey(t *testing.T) {
 func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	key := "1234567890"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
@@ -136,7 +136,7 @@ func TestVerifySignInKeyHandler_ExpiredKey(t *testing.T) {
 func TestVerifySignInKeyHandler_CorrectKey_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	key := "1234567890"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
@@ -215,7 +215,7 @@ func TestVerifySignInKeyHandler_CorrectKey_NewUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -247,7 +247,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	code, _ := server.
@@ -261,7 +261,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_NonInviteNewUser(t *
 func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	key := "1234567890"
@@ -314,7 +314,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_SignInRequest_RegisteredUser(t *te
 func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	user := &models.User{
@@ -367,7 +367,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_ExistingUser(t *test
 func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	key := "1234567890"
@@ -400,7 +400,7 @@ func TestVerifySignInKeyHandler_PrivateTenant_InviteRequest_NewUser(t *testing.T
 func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantPending
 
 	var newUser *models.User
@@ -455,7 +455,7 @@ func TestVerifySignUpKeyHandler_PendingTenant(t *testing.T) {
 func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -468,7 +468,7 @@ func TestCompleteSignInProfileHandler_UnknownKey(t *testing.T) {
 func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
 		if q.Email == mock.JonSnow.Email {
@@ -504,7 +504,7 @@ func TestCompleteSignInProfileHandler_ExistingUser_CorrectKey(t *testing.T) {
 func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	var newUser *models.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
@@ -555,7 +555,7 @@ func TestCompleteSignInProfileHandler_CorrectKey(t *testing.T) {
 func TestSignInPageHandler_AuthenticatedUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.AryaStark).
@@ -569,7 +569,7 @@ func TestSignInPageHandler_AuthenticatedUser(t *testing.T) {
 func TestSignInPageHandler_NonPrivateTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io/signin").
@@ -582,7 +582,7 @@ func TestSignInPageHandler_NonPrivateTenant(t *testing.T) {
 func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	code, _ := server.

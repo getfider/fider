@@ -31,7 +31,7 @@ func TestIndexHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		Execute(handlers.Index())
@@ -69,7 +69,7 @@ func TestDetailsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -87,7 +87,7 @@ func TestDetailsHandler_NotFound(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).

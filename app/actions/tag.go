@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"context"
 	"regexp"
 
 	"github.com/getfider/fider/app/models/query"
@@ -28,17 +29,17 @@ func (input *CreateEditTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateEditTag) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Slug != "" {
 		getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
-		err := bus.Dispatch(services.Context, getSlug)
+		err := bus.Dispatch(ctx, getSlug)
 		if err != nil {
 			return validate.Error(err)
 		}
@@ -51,7 +52,7 @@ func (input *CreateEditTag) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("name", "Name must have less than 30 characters.")
 	} else {
 		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(input.Model.Name)}
-		err := bus.Dispatch(services.Context, getDuplicateSlug)
+		err := bus.Dispatch(ctx, getDuplicateSlug)
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
 		} else if err == nil && (input.Tag == nil || input.Tag.ID != getDuplicateSlug.Result.ID) {
@@ -83,14 +84,14 @@ func (input *DeleteTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeleteTag) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
-	err := bus.Dispatch(services.Context, getSlug)
+	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -113,15 +114,15 @@ func (input *AssignUnassignTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: input.Model.Number}
 	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
-	if err := bus.Dispatch(services.Context, getPost, getSlug); err != nil {
+	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {
 		return validate.Error(err)
 	}
 

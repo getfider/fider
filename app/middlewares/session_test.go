@@ -14,7 +14,7 @@ import (
 func TestSession_New(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 
 	var sessionID string
@@ -35,7 +35,7 @@ func TestSession_New(t *testing.T) {
 func TestSession_ExistingSession(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 
 	status, response := server.
@@ -51,7 +51,7 @@ func TestSession_ExistingSession(t *testing.T) {
 func TestSession_RemoveSessionIfResponseIsCached(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 	server.Use(middlewares.ClientCache(30 * time.Hour))
 

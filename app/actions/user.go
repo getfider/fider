@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"context"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
@@ -21,12 +23,12 @@ func (input *CreateUser) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateUser) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateUser) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateUser) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateUser) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {
@@ -65,7 +67,7 @@ func (input *ChangeUserRole) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserRole) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *ChangeUserRole) IsAuthorized(ctx context.Context, user *models.User) bool {
 	if user == nil {
 		return false
 	}
@@ -73,7 +75,7 @@ func (input *ChangeUserRole) IsAuthorized(user *models.User, services *app.Servi
 }
 
 // Validate if current model is valid
-func (input *ChangeUserRole) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *ChangeUserRole) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 	if input.Model.Role < models.RoleVisitor || input.Model.Role > models.RoleAdministrator {
 		return validate.Error(app.ErrNotFound)
@@ -84,7 +86,7 @@ func (input *ChangeUserRole) Validate(user *models.User, services *app.Services)
 	}
 
 	userByID := &query.GetUserByID{UserID: input.Model.UserID}
-	err := bus.Dispatch(services.Context, userByID)
+	err := bus.Dispatch(ctx, userByID)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
 			result.AddFieldFailure("userID", "User not found.")
@@ -110,12 +112,12 @@ func (input *ChangeUserEmail) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *ChangeUserEmail) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *ChangeUserEmail) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *ChangeUserEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Email == "" {
@@ -140,7 +142,7 @@ func (input *ChangeUserEmail) Validate(user *models.User, services *app.Services
 	}
 
 	userByEmail := &query.GetUserByEmail{Email: input.Model.Email}
-	err := bus.Dispatch(services.Context, userByEmail)
+	err := bus.Dispatch(ctx, userByEmail)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	}

@@ -56,8 +56,8 @@ func TestCreateEditBillingPaymentInfo_InvalidInput(t *testing.T) {
 		action := &actions.CreateEditBillingPaymentInfo{
 			Model: testCase.input,
 		}
-		services.Context = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
-		result := action.Validate(nil, services)
+		ctx := context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
+		result := action.Validate(ctx, nil)
 		ExpectFailed(result, testCase.expected...)
 	}
 }
@@ -82,8 +82,8 @@ func TestCreateEditBillingPaymentInfo_ValidInput(t *testing.T) {
 			},
 		},
 	}
-	services.Context = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
-	result := action.Validate(nil, services)
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
+	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
 }
 
@@ -91,7 +91,7 @@ func TestCreateEditBillingPaymentInfo_VATNumber(t *testing.T) {
 	RegisterT(t)
 	bus.Init(billing.Service{})
 
-	services.Context = context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{ID: 2})
 
 	action := &actions.CreateEditBillingPaymentInfo{
 		Model: &dto.CreateEditBillingPaymentInfo{
@@ -110,22 +110,22 @@ func TestCreateEditBillingPaymentInfo_VATNumber(t *testing.T) {
 			},
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(ctx, nil)
 	ExpectFailed(result, "vatNumber")
 
 	action.Model.VATNumber = "GB270600730"
-	result = action.Validate(nil, services)
+	result = action.Validate(ctx, nil)
 	ExpectFailed(result, "vatNumber")
 
 	action.Model.VATNumber = "IE6388047A"
-	result = action.Validate(nil, services)
+	result = action.Validate(ctx, nil)
 	ExpectFailed(result, "vatNumber")
 
 	action.Model.VATNumber = "IE6388047V"
-	result = action.Validate(nil, services)
+	result = action.Validate(ctx, nil)
 	ExpectSuccess(result)
 
 	action.Model.VATNumber = ""
-	result = action.Validate(nil, services)
+	result = action.Validate(ctx, nil)
 	ExpectSuccess(result)
 }

@@ -1,9 +1,9 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -21,12 +21,12 @@ func (input *UpdateUserSettings) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateUserSettings) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *UpdateUserSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *UpdateUserSettings) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {

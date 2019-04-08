@@ -1,12 +1,12 @@
 package actions
 
 import (
+	"context"
 	"strings"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -25,17 +25,17 @@ func (input *CreateEditOAuthConfig) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditOAuthConfig) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Provider != "" {
 		getConfig := &query.GetCustomOAuthConfigByProvider{Provider: input.Model.Provider}
-		err := bus.Dispatch(services.Context, getConfig)
+		err := bus.Dispatch(ctx, getConfig)
 		if err != nil {
 			return validate.Error(err)
 		}

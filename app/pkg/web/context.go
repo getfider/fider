@@ -168,9 +168,6 @@ func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
 	}
-	if c.Services() != nil {
-		c.Services().SetCurrentTenant(tenant)
-	}
 	c.Set(app.TenantCtxKey, tenant)
 }
 
@@ -192,10 +189,10 @@ func (c *Context) BindTo(i actions.Actionable) *validate.Result {
 		}
 		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
-	if !i.IsAuthorized(c.User(), c.Services()) {
+	if !i.IsAuthorized(c, c.User()) {
 		return validate.Unauthorized()
 	}
-	return i.Validate(c.User(), c.Services())
+	return i.Validate(c, c.User())
 }
 
 //IsAuthenticated returns true if user is authenticated
@@ -362,19 +359,7 @@ func (c *Context) SetUser(user *models.User) {
 	if user != nil {
 		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
-	if c.Services() != nil {
-		c.Services().SetCurrentUser(user)
-	}
 	c.Set(app.UserCtxKey, user)
-}
-
-//Services returns current app.Services from context
-func (c *Context) Services() *app.Services {
-	svc, ok := c.Value(app.ServicesCtxKey).(*app.Services)
-	if ok {
-		return svc
-	}
-	return nil
 }
 
 //AddCookie adds a cookie
@@ -401,11 +386,6 @@ func (c *Context) RemoveCookie(name string) {
 		Expires:  time.Now().Add(-100 * time.Hour),
 		Secure:   c.Request.IsSecure,
 	})
-}
-
-//SetServices update current context with app.Services
-func (c *Context) SetServices(services *app.Services) {
-	c.Set(app.ServicesCtxKey, services)
 }
 
 //BaseURL returns base URL

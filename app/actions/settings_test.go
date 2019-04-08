@@ -1,6 +1,7 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getfider/fider/app/actions"
@@ -20,7 +21,7 @@ func TestInvalidUserNames(t *testing.T) {
 		action.Initialize()
 		action.Model.Name = name
 		action.Model.AvatarType = models.AvatarTypeGravatar
-		result := action.Validate(&models.User{}, services)
+		result := action.Validate(context.Background(), &models.User{})
 		ExpectFailed(result, "name")
 	}
 }
@@ -36,7 +37,7 @@ func TestValidUserNames(t *testing.T) {
 		action.Initialize()
 		action.Model.Name = name
 		action.Model.AvatarType = models.AvatarTypeGravatar
-		result := action.Validate(&models.User{}, services)
+		result := action.Validate(context.Background(), &models.User{})
 		ExpectSuccess(result)
 	}
 }
@@ -56,7 +57,7 @@ func TestInvalidSettings(t *testing.T) {
 		action.Initialize()
 		action.Model.Name = "John Snow"
 		action.Model.Settings = settings
-		result := action.Validate(&models.User{}, services)
+		result := action.Validate(context.Background(), &models.User{})
 		ExpectFailed(result, "settings", "avatarType")
 	}
 }
@@ -81,9 +82,9 @@ func TestValidSettings(t *testing.T) {
 		action.Model.Settings = settings
 		action.Model.AvatarType = models.AvatarTypeGravatar
 
-		result := action.Validate(&models.User{
+		result := action.Validate(context.Background(), &models.User{
 			AvatarBlobKey: "jon.png",
-		}, services)
+		})
 
 		ExpectSuccess(result)
 		Expect(action.Model.Avatar.BlobKey).Equals("jon.png")

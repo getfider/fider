@@ -258,11 +258,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 
 		var duplicate template.HTML
 		if post.Status == models.PostDuplicate {
-			getOriginal := &query.GetPostByNumber{Number: post.Response.Original.Number}
-			if err := bus.Dispatch(c, getOriginal); err != nil {
-				return c.Failure(err)
-			}
-			duplicate = linkWithText(getOriginal.Result.Title, web.BaseURL(c), "/posts/%d/%s", getOriginal.Result.Number, getOriginal.Result.Slug)
+			duplicate = linkWithText(post.Response.Original.Title, web.BaseURL(c), "/posts/%d/%s", post.Response.Original.Number, post.Response.Original.Slug)
 		}
 
 		to := make([]dto.Recipient, 0)

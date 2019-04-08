@@ -15,7 +15,7 @@ import (
 func TestMaintenance_Disabled(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Maintenance())
 	handler := func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
@@ -33,7 +33,7 @@ func TestMaintenance_Enabled(t *testing.T) {
 		env.Config.Maintenance.Enabled = false
 	}()
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	env.Config.Maintenance.Enabled = true
 	server.Use(middlewares.ClientCache(30 * time.Hour))
 	server.Use(middlewares.Maintenance())

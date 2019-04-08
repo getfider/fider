@@ -28,7 +28,7 @@ import (
 func TestSignOutHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/signout?redirect=/").
 		AddCookie(web.CookieAuthName, "some-value").
@@ -44,7 +44,7 @@ func TestSignInByOAuthHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		AddParam("provider", app.FacebookProvider).
 		AddCookie(web.CookieSessionName, "MY_SESSION_ID").
@@ -60,7 +60,7 @@ func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		AsUser(mock.JonSnow).
 		AddParam("provider", app.FacebookProvider).
@@ -77,7 +77,7 @@ func TestSignInByOAuthHandler_AuthenticatedUser_UsingEcho(t *testing.T) {
 	RegisterT(t)
 	bus.Init(&oauth.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		AsUser(mock.JonSnow).
 		AddParam("provider", app.FacebookProvider).
@@ -93,7 +93,7 @@ func TestSignInByOAuthHandler_AuthenticatedUser_UsingEcho(t *testing.T) {
 func TestCallbackHandler_InvalidState(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=abc").
 		AddParam("provider", app.FacebookProvider).
@@ -105,7 +105,7 @@ func TestCallbackHandler_InvalidState(t *testing.T) {
 func TestCallbackHandler_InvalidCode(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io").
@@ -119,7 +119,7 @@ func TestCallbackHandler_InvalidCode(t *testing.T) {
 func TestCallbackHandler_SignIn(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io|888&code=123").
 		AddParam("provider", app.FacebookProvider).
@@ -131,7 +131,7 @@ func TestCallbackHandler_SignIn(t *testing.T) {
 
 func TestCallbackHandler_SignIn_WithPath(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://avengers.test.fider.io/some-page|888&code=123").
@@ -159,7 +159,7 @@ func TestCallbackHandler_SignUp(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://login.test.fider.io/oauth/callback?state=http://demo.test.fider.io/signup&code=123").
 		AddParam("provider", app.FacebookProvider).
@@ -203,7 +203,7 @@ func TestOAuthTokenHandler_ExistingUserAndProvider(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=123&identifier=MY_SESSION_ID&redirect=/hello").
 		OnTenant(mock.DemoTenant).
@@ -246,7 +246,7 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/facebook/token?code=456&identifier=MY_SESSION_ID&redirect=/hello").
 		OnTenant(mock.DemoTenant).
@@ -266,7 +266,7 @@ func TestOAuthTokenHandler_NewUser(t *testing.T) {
 func TestOAuthTokenHandler_NewUserWithoutEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	var newUser *models.User
 	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
 		c.User.ID = 1
@@ -336,7 +336,7 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		if q.Provider == "facebook" && q.UID == "FB456" {
@@ -396,7 +396,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/oauth/google/token?code=123&identifier=MY_SESSION_ID&redirect=/").
 		OnTenant(mock.DemoTenant).
@@ -417,7 +417,7 @@ func TestOAuthTokenHandler_ExistingUser_NewProvider(t *testing.T) {
 func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.AvengersTenant.IsPrivate = true
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
@@ -455,7 +455,7 @@ func TestOAuthTokenHandler_NewUser_PrivateTenant(t *testing.T) {
 
 func TestOAuthTokenHandler_InvalidIdentifier(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.AvengersTenant.IsPrivate = true
 
 	code, response := server.

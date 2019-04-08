@@ -29,7 +29,7 @@ func TestSettingsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		AsUser(mock.JonSnow).
 		Execute(handlers.UserSettings())
@@ -40,7 +40,7 @@ func TestSettingsHandler(t *testing.T) {
 func TestUpdateUserSettingsHandler_EmptyInput(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		AsUser(mock.JonSnow).
 		ExecutePost(handlers.UpdateUserSettings(), `{ }`)
@@ -61,7 +61,7 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -86,7 +86,7 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -126,7 +126,7 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -155,7 +155,7 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 		"jon.another@got.com",
 		"another.snow@got.com",
 	} {
-		server, _ := mock.NewServer()
+		server := mock.NewServer()
 		code, _ := server.
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.JonSnow).
@@ -191,7 +191,7 @@ func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 		"jon.snow",
 		"arya.stark@got.com",
 	} {
-		server, _ := mock.NewServer()
+		server := mock.NewServer()
 		code, _ := server.
 			OnTenant(mock.DemoTenant).
 			AsUser(mock.JonSnow).
@@ -204,7 +204,7 @@ func TestChangeUserEmailHandler_Invalid(t *testing.T) {
 func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
@@ -264,7 +264,7 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -284,7 +284,7 @@ func TestDeleteUserHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		AsUser(mock.JonSnow).
 		Execute(handlers.DeleteUser())

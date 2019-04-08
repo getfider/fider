@@ -1,6 +1,5 @@
 package apiv1_test
 
-// EXPERIMENTAL-BUS: re-enable when PostStorage is on SQLStore
 // func TestCreateTagHandler_ValidRequests(t *testing.T) {
 // 	RegisterT(t)
 
@@ -14,7 +13,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
 // 		ExecutePost(
@@ -46,7 +45,7 @@ package apiv1_test
 // 	}
 
 // 	for _, testCase := range testCases {
-// 		server, _ := mock.NewServer()
+// 		server := mock.NewServer()
 // 		status, _ := server.
 // 			AsUser(mock.JonSnow).
 // 			ExecutePostAsJSON(apiv1.CreateEditTag(), testCase)
@@ -64,7 +63,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
@@ -79,7 +78,7 @@ package apiv1_test
 // func TestCreateTagHandler_Collaborator(t *testing.T) {
 // 	RegisterT(t)
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	status, _ := server.
 // 		AsUser(mock.AryaStark).
 // 		ExecutePost(
@@ -97,7 +96,7 @@ package apiv1_test
 // 		return app.ErrNotFound
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
 // 		AddParam("slug", "bug").
@@ -124,7 +123,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
@@ -148,7 +147,7 @@ package apiv1_test
 // 		return app.ErrNotFound
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
 // 		AddParam("slug", "bug").
@@ -172,7 +171,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	status, _ := server.
 // 		AsUser(mock.JonSnow).
@@ -192,7 +191,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	status, _ := server.
 // 		AsUser(mock.AryaStark).
@@ -202,7 +201,6 @@ package apiv1_test
 // 	Expect(status).Equals(http.StatusForbidden)
 // }
 
-// EXPERIMENTAL-BUS: re-enable when PostStorage is on SQLStore
 // func TestAssignTagHandler_Success(t *testing.T) {
 // 	RegisterT(t)
 
@@ -302,7 +300,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	status, query := server.
 // 		AsUser(mock.JonSnow).

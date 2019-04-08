@@ -54,7 +54,7 @@ func TestMultiTenant(t *testing.T) {
 	for _, testCase := range testCases {
 		for _, url := range testCase.urls {
 
-			server, _ := mock.NewServer()
+			server := mock.NewServer()
 			server.Use(middlewares.MultiTenant())
 
 			status, response := server.WithURL(url).Execute(func(c *web.Context) error {
@@ -78,7 +78,7 @@ func TestMultiTenant_SubSubDomain(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
 	status, _ := server.WithURL("http://demo.demo.test.fider.io").Execute(func(c *web.Context) error {
@@ -98,7 +98,7 @@ func TestMultiTenant_UnknownDomain(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 
 	status, _ := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
@@ -163,7 +163,7 @@ func TestMultiTenant_CanonicalHeader(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		server, _ := mock.NewServer()
+		server := mock.NewServer()
 		server.Use(middlewares.MultiTenant())
 
 		if testCase.isAjax {
@@ -191,7 +191,7 @@ func TestSingleTenant_NoTenants(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
 	status, _ := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
@@ -212,7 +212,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
 	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
@@ -226,7 +226,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 func TestBlockPendingTenants_Active(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantActive
 
 	server.Use(middlewares.BlockPendingTenants())
@@ -240,7 +240,7 @@ func TestBlockPendingTenants_Active(t *testing.T) {
 func TestBlockPendingTenants_Pending(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantPending
 
 	server.Use(middlewares.BlockPendingTenants())
@@ -254,7 +254,7 @@ func TestBlockPendingTenants_Pending(t *testing.T) {
 func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	server.Use(middlewares.CheckTenantPrivacy())
@@ -269,7 +269,7 @@ func TestCheckTenantPrivacy_Private_Unauthenticated(t *testing.T) {
 func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = true
 
 	server.Use(middlewares.CheckTenantPrivacy())
@@ -286,7 +286,7 @@ func TestCheckTenantPrivacy_Private_Authenticated(t *testing.T) {
 func TestCheckTenantPrivacy_NotPrivate_Unauthenticated(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.IsPrivate = false
 
 	server.Use(middlewares.CheckTenantPrivacy())
@@ -306,7 +306,7 @@ func TestRequireTenant_MultiHostMode_NoTenants_404(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
 
@@ -328,7 +328,7 @@ func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.MultiTenant())
 	server.Use(middlewares.RequireTenant())
 
@@ -347,7 +347,7 @@ func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
@@ -367,7 +367,7 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
@@ -381,7 +381,7 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 
 func TestBlockLockedTenants_ActiveTenant(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.BlockLockedTenants())
 
 	status, response := server.
@@ -397,7 +397,7 @@ func TestBlockLockedTenants_ActiveTenant(t *testing.T) {
 
 func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.BlockLockedTenants())
 	mock.DemoTenant.Status = models.TenantLocked
 
@@ -414,7 +414,7 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 
 func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
 	RegisterT(t)
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.BlockLockedTenants())
 	mock.DemoTenant.Status = models.TenantLocked
 

@@ -16,7 +16,6 @@ type Context struct {
 	context.Context
 	workerID string
 	taskName string
-	services *app.Services
 }
 
 //NewContext creates a new context
@@ -40,13 +39,6 @@ func NewContext(ctx context.Context, workerID string, task Task) *Context {
 		workerID: workerID,
 		taskName: task.Name,
 	}
-}
-
-//SetServices on current context
-func (c *Context) SetServices(services *app.Services) {
-	c.services = services
-	c.services.SetCurrentUser(c.User())
-	c.services.SetCurrentTenant(c.Tenant())
 }
 
 //WorkerID executing current context
@@ -80,11 +72,6 @@ func (c *Context) Tenant() *models.Tenant {
 		return tenant
 	}
 	return nil
-}
-
-//Services from current context
-func (c *Context) Services() *app.Services {
-	return c.services
 }
 
 //Failure logs details of error

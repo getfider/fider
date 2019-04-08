@@ -8,7 +8,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -24,7 +23,7 @@ type Server struct {
 	middleware []web.MiddlewareFunc
 }
 
-func createServer(services *app.Services) *Server {
+func createServer() *Server {
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
 		return nil
 	})
@@ -35,7 +34,6 @@ func createServer(services *app.Services) *Server {
 	request, _ := http.NewRequest("GET", "/", nil)
 	recorder := httptest.NewRecorder()
 	context := web.NewContext(engine, request, recorder, make(web.StringMap))
-	context.SetServices(services)
 
 	return &Server{
 		engine:     engine,
@@ -59,14 +57,12 @@ func (s *Server) Use(middleware web.MiddlewareFunc) *Server {
 // OnTenant set current context tenant
 func (s *Server) OnTenant(tenant *models.Tenant) *Server {
 	s.context.SetTenant(tenant)
-	s.context.Services().SetCurrentTenant(tenant)
 	return s
 }
 
 // AsUser set current context user
 func (s *Server) AsUser(user *models.User) *Server {
 	s.context.SetUser(user)
-	s.context.Services().SetCurrentUser(user)
 	return s
 }
 

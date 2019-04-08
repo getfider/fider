@@ -46,7 +46,7 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		action := &actions.CreateEditOAuthConfig{
 			Model: testCase.input,
 		}
-		result := action.Validate(nil, services)
+		result := action.Validate(context.Background(), nil)
 		ExpectFailed(result, testCase.expected...)
 	}
 }
@@ -78,7 +78,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 	action := &actions.CreateEditOAuthConfig{
 		Model: input,
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(input.ID).Equals(0)
 	Expect(input.Provider).HasLen(11)
@@ -115,7 +115,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
 
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Model.ID).Equals(4)
 	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
@@ -152,7 +152,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
 
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Model.ID).Equals(5)
 	Expect(action.Model.ClientSecret).Equals("MY_OLD_SECRET")
@@ -178,7 +178,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	action.Model.JSONUserIDPath = "user.id"
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()
 }

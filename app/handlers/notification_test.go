@@ -23,7 +23,7 @@ func TestTotalUnreadNotificationsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, query := server.
 		ExecuteAsJSON(handlers.TotalUnreadNotifications())
@@ -38,7 +38,7 @@ func TestNotificationsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -74,7 +74,7 @@ func TestReadNotificationHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, resp := server.
 		OnTenant(mock.DemoTenant).
@@ -98,7 +98,7 @@ func TestReadAllNotificationsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).

@@ -46,9 +46,6 @@ func WorkerSetup() worker.MiddlewareFunc {
 			}()
 
 			c.Set(app.TransactionCtxKey, trx)
-			c.SetServices(&app.Services{
-				Context: c,
-			})
 
 			//Execute the chain
 			if err = next(c); err != nil {
@@ -118,9 +115,6 @@ func WebSetup() web.MiddlewareFunc {
 			}
 
 			c.Set(app.TransactionCtxKey, trx)
-			c.SetServices(&app.Services{
-				Context: c,
-			})
 
 			//Execute the chain
 			if err := next(c); err != nil {

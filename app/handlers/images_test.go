@@ -22,7 +22,7 @@ func TestGravatarHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(httpclient.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	user := &models.User{
 		ID:     3,
@@ -55,7 +55,7 @@ func TestGravatarNotFound_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(httpclient.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	user := &models.User{
 		ID:     3,
@@ -89,7 +89,7 @@ func TestUnknownUser_LetterAvatarHandler(t *testing.T) {
 	RegisterT(t)
 	bus.Init(httpclient.Service{})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("https://demo.test.fider.io/?size=50").

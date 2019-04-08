@@ -19,7 +19,7 @@ import (
 func TestWebSetup(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
@@ -34,7 +34,7 @@ func TestWebSetup(t *testing.T) {
 func TestWebSetup_Failure(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		return c.Failure(errors.New("Something went wrong..."))
@@ -46,7 +46,7 @@ func TestWebSetup_Failure(t *testing.T) {
 func TestWebSetup_Panic(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		panic("Boom!")
@@ -58,7 +58,7 @@ func TestWebSetup_Panic(t *testing.T) {
 func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
@@ -72,7 +72,7 @@ func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 func TestWebSetup_QueueTask_OnSuccess(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.WebSetup())
 	status, _ := server.Execute(func(c *web.Context) error {
 		c.Enqueue(mock.NewNoopTask())
@@ -89,7 +89,7 @@ func TestWorkerSetup(t *testing.T) {
 	c := worker.NewContext(context.Background(), "0", worker.Task{Name: "Any Task"})
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
-		Expect(c.Services()).IsNotNil()
+		Expect(c.Value(app.TransactionCtxKey)).IsNotNil()
 		return nil
 	})(c)
 	Expect(err).IsNil()
@@ -101,7 +101,7 @@ func TestWorkerSetup_Failure(t *testing.T) {
 	c := worker.NewContext(context.Background(), "0", worker.Task{Name: "Any Task"})
 	mw := middlewares.WorkerSetup()
 	err := mw(func(c *worker.Context) error {
-		Expect(c.Services()).IsNotNil()
+		Expect(c.Value(app.TransactionCtxKey)).IsNotNil()
 		return errors.New("Not Found")
 	})(c)
 	Expect(err).IsNotNil()

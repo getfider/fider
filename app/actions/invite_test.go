@@ -17,7 +17,7 @@ func TestInviteUsers_Empty(t *testing.T) {
 	RegisterT(t)
 
 	action := &actions.InviteUsers{Model: &models.InviteUsers{}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject", "message", "recipients")
 	Expect(action.Invitations).IsNil()
 }
@@ -30,7 +30,7 @@ func TestInviteUsers_Oversized(t *testing.T) {
 		Message:    "Use this link to join %invite%",
 		Recipients: []string{"jon.snow@got.com"},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject")
 	Expect(action.Invitations).IsNil()
 }
@@ -43,7 +43,7 @@ func TestInviteUsers_MissingInvite(t *testing.T) {
 		Message:    "Please!",
 		Recipients: []string{"jon.snow@got.com"},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "message")
 	Expect(action.Invitations).IsNil()
 }
@@ -61,7 +61,7 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 		Message:    "Use this link to join %invite%",
 		Recipients: recipients,
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
 }
@@ -77,7 +77,7 @@ func TestInviteUsers_InvalidRecipient(t *testing.T) {
 			"@got.com",
 		},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
 }
@@ -99,7 +99,7 @@ func TestInviteUsers_Valid(t *testing.T) {
 		},
 	}}
 
-	ExpectSuccess(action.Validate(nil, services))
+	ExpectSuccess(action.Validate(context.Background(), nil))
 
 	Expect(action.Invitations).HasLen(2)
 
@@ -110,58 +110,56 @@ func TestInviteUsers_Valid(t *testing.T) {
 	Expect(action.Invitations[1].VerificationKey).IsNotEmpty()
 }
 
-// EXPERIMENTAL-BUS: re-enable when Validate and IsAuthorized accept ctx as parameter
-// func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
-// 	RegisterT(t)
+func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
+	RegisterT(t)
 
-// 	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
-// 	services.Users.SetCurrentTenant(theTenant)
-// 	services.Users.Register(&models.User{
-// 		Name:   "Tony",
-// 		Email:  "tony.stark@avengers.com",
-// 		Tenant: theTenant,
-// 	})
-// 	action := &actions.InviteUsers{Model: &models.InviteUsers{
-// 		Subject: "Share your feedback.",
-// 		Message: "Use this link to join our community: %invite%",
-// 		Recipients: []string{
-// 			"tony.stark@avengers.com",
-// 			"jon.snow@got.com",
-// 			"arya.stark@got.com",
-// 		},
-// 	}}
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		if q.Email == "tony.stark@avengers.com" {
+			q.Result = &models.User{Email: q.Email}
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
-// 	ExpectSuccess(action.Validate(nil, services))
+	action := &actions.InviteUsers{Model: &models.InviteUsers{
+		Subject: "Share your feedback.",
+		Message: "Use this link to join our community: %invite%",
+		Recipients: []string{
+			"tony.stark@avengers.com",
+			"jon.snow@got.com",
+			"arya.stark@got.com",
+		},
+	}}
 
-// 	Expect(action.Invitations).HasLen(2)
+	ExpectSuccess(action.Validate(context.Background(), nil))
 
-// 	Expect(action.Invitations[0].Email).Equals("jon.snow@got.com")
-// 	Expect(action.Invitations[0].VerificationKey).IsNotEmpty()
+	Expect(action.Invitations).HasLen(2)
 
-// 	Expect(action.Invitations[1].Email).Equals("arya.stark@got.com")
-// 	Expect(action.Invitations[1].VerificationKey).IsNotEmpty()
-// }
+	Expect(action.Invitations[0].Email).Equals("jon.snow@got.com")
+	Expect(action.Invitations[0].VerificationKey).IsNotEmpty()
 
-// func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
-// 	RegisterT(t)
+	Expect(action.Invitations[1].Email).Equals("arya.stark@got.com")
+	Expect(action.Invitations[1].VerificationKey).IsNotEmpty()
+}
 
-// 	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
-// 	services.Users.SetCurrentTenant(theTenant)
-// 	services.Users.Register(&models.User{
-// 		Name:   "Tony",
-// 		Email:  "tony.stark@avengers.com",
-// 		Tenant: theTenant,
-// 	})
-// 	action := &actions.InviteUsers{Model: &models.InviteUsers{
-// 		Subject: "Share your feedback.",
-// 		Message: "Use this link to join our community: %invite%",
-// 		Recipients: []string{
-// 			"tony.stark@avengers.com",
-// 		},
-// 	}}
+func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
+	RegisterT(t)
 
-// 	ExpectFailed(action.Validate(nil, services), "recipients")
-// }
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = &models.User{Email: q.Email}
+		return nil
+	})
+
+	action := &actions.InviteUsers{Model: &models.InviteUsers{
+		Subject: "Share your feedback.",
+		Message: "Use this link to join our community: %invite%",
+		Recipients: []string{
+			"tony.stark@avengers.com",
+		},
+	}}
+
+	ExpectFailed(action.Validate(context.Background(), nil), "recipients")
+}
 
 func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 	RegisterT(t)
@@ -174,5 +172,5 @@ func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 		},
 	}
 
-	ExpectSuccess(action.Validate(nil, services))
+	ExpectSuccess(action.Validate(context.Background(), nil))
 }

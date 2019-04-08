@@ -24,7 +24,7 @@ import (
 func TestSignUpHandler_MultiTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		WithURL("http://login.test.fider.io/signup").
 		Execute(handlers.SignUp())
@@ -35,7 +35,7 @@ func TestSignUpHandler_MultiTenant(t *testing.T) {
 func TestSignUpHandler_MultiTenant_WrongURL(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/signup").
 		Execute(handlers.SignUp())
@@ -51,7 +51,7 @@ func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).Equals(http.StatusOK)
@@ -65,7 +65,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -74,7 +74,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -89,7 +89,7 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -104,7 +104,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -114,7 +114,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.ExecutePost(handlers.CreateTenant(), `{ }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
@@ -140,7 +140,7 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -197,7 +197,7 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -255,7 +255,7 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
 		`{

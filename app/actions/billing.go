@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/getfider/fider/app/models/query"
@@ -8,7 +9,6 @@ import (
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -27,12 +27,12 @@ func (input *CreateEditBillingPaymentInfo) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditBillingPaymentInfo) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditBillingPaymentInfo) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateEditBillingPaymentInfo) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {
@@ -65,7 +65,7 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 	}
 
 	getPaymentInfo := &query.GetPaymentInfo{}
-	err := bus.Dispatch(services.Context, getPaymentInfo)
+	err := bus.Dispatch(ctx, getPaymentInfo)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -120,7 +120,7 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 				if err == vat.ErrInvalidVATNumberFormat {
 					result.AddFieldFailure("vatNumber", "VAT Number is an invalid format.")
 				} else {
-					log.Error(services.Context, errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
+					log.Error(ctx, errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
 					result.AddFieldFailure("vatNumber", "We couldn't validate your VAT Number right now, please try again soon.")
 				}
 			}

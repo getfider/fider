@@ -14,7 +14,7 @@ import (
 func TestSecureWithoutCDN(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string
@@ -37,7 +37,7 @@ func TestSecureWithCDN(t *testing.T) {
 
 	env.Config.CDN.Host = "test.fider.io"
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string
@@ -60,7 +60,7 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 
 	env.Config.CDN.Host = "test.fider.io"
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string

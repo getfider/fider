@@ -13,7 +13,7 @@ import (
 func TestCORS(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.CORS())
 	handler := func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)

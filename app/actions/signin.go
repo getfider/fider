@@ -1,7 +1,8 @@
 package actions
 
 import (
-	"github.com/getfider/fider/app"
+	"context"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -21,12 +22,12 @@ func (input *SignInByEmail) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SignInByEmail) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *SignInByEmail) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (input *SignInByEmail) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *SignInByEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Email == "" {
@@ -56,12 +57,12 @@ func (input *CompleteProfile) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CompleteProfile) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CompleteProfile) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return true
 }
 
 // Validate if current model is valid
-func (input *CompleteProfile) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CompleteProfile) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {
@@ -76,10 +77,10 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
 		findBySignIn := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: input.Model.Key}
-		err1 := bus.Dispatch(services.Context, findBySignIn)
+		err1 := bus.Dispatch(ctx, findBySignIn)
 
 		findByUserInvitation := &query.GetVerificationByKey{Kind: models.EmailVerificationKindUserInvitation, Key: input.Model.Key}
-		err2 := bus.Dispatch(services.Context, findByUserInvitation)
+		err2 := bus.Dispatch(ctx, findByUserInvitation)
 
 		if err1 == nil {
 			input.Model.Email = findBySignIn.Result.Email

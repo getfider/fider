@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
@@ -30,7 +32,7 @@ func TestCreateTenant_EmptyToken(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "token", "tenantName", "subdomain")
 }
 
@@ -44,7 +46,7 @@ func TestCreateTenant_EmptyTenantName(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "tenantName", "subdomain")
 }
 
@@ -58,7 +60,7 @@ func TestCreateTenant_EmptyEmail(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
 }
 
@@ -72,7 +74,7 @@ func TestCreateTenant_InvalidEmail(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "email", "tenantName", "subdomain")
 }
 
@@ -93,7 +95,7 @@ func TestCreateTenant_NoAgreement(t *testing.T) {
 			LegalAgreement: false,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "legalAgreement")
 }
 
@@ -107,7 +109,7 @@ func TestCreateTenant_EmptyName(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "name", "tenantName", "subdomain")
 }
 
@@ -121,7 +123,7 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 			LegalAgreement: true,
 		},
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subdomain")
 }
 
@@ -134,9 +136,9 @@ func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	action := actions.UpdateTenantSettings{}
 	action.Initialize()
 
-	Expect(action.IsAuthorized(admin, nil)).IsTrue()
-	Expect(action.IsAuthorized(collaborator, nil)).IsFalse()
-	Expect(action.IsAuthorized(nil, nil)).IsFalse()
+	Expect(action.IsAuthorized(context.Background(), admin)).IsTrue()
+	Expect(action.IsAuthorized(context.Background(), collaborator)).IsFalse()
+	Expect(action.IsAuthorized(context.Background(), nil)).IsFalse()
 }
 
 func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
@@ -144,17 +146,15 @@ func TestUpdateTenantSettings_EmptyTitle(t *testing.T) {
 
 	action := actions.UpdateTenantSettings{}
 	action.Initialize()
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
 
 func TestUpdateTenantSettings_InvalidCNAME(t *testing.T) {
 	RegisterT(t)
 
-	services.Context = context.Background()
-
 	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "Ok", CNAME: "bla"}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "cname")
 }
 
@@ -162,7 +162,7 @@ func TestUpdateTenantSettings_LargeTitle(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "123456789012345678901234567890123456789012345678901234567890123"}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "title")
 }
 
@@ -170,13 +170,14 @@ func TestUpdateTenantSettings_LargeInvitation(t *testing.T) {
 	RegisterT(t)
 
 	action := actions.UpdateTenantSettings{Model: &models.UpdateTenantSettings{Title: "Ok", Invitation: "123456789012345678901234567890123456789012345678901234567890123"}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "invitation")
 }
 
 func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	RegisterT(t)
-	services.SetCurrentTenant(&models.Tenant{
+
+	ctx := context.WithValue(context.Background(), app.TenantCtxKey, &models.Tenant{
 		ID:          1,
 		LogoBlobKey: "hello-world.png",
 	})
@@ -185,7 +186,7 @@ func TestUpdateTenantSettings_ExistingTenant_WithLogo(t *testing.T) {
 	action.Initialize()
 	action.Model.Title = "OK"
 	action.Model.Invitation = "Share your ideas!"
-	result := action.Validate(nil, services)
+	result := action.Validate(ctx, nil)
 	ExpectSuccess(result)
 	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
 }

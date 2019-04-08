@@ -14,14 +14,11 @@ import (
 type Worker struct {
 	tenant   *models.Tenant
 	user     *models.User
-	services *app.Services
 	baseURL  string
 }
 
-func createWorker(services *app.Services) *Worker {
-	return &Worker{
-		services: services,
-	}
+func createWorker() *Worker {
+	return &Worker{}
 }
 
 // OnTenant set current context tenant
@@ -60,7 +57,6 @@ func (w *Worker) Execute(task worker.Task) error {
 	}
 
 	context := worker.NewContext(context.Background(), "0", task)
-	context.SetServices(w.services)
 	return task.Job(context)
 }
 

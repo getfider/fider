@@ -22,7 +22,7 @@ import (
 func TestUser_NoCookie(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.User())
 	status, _ := server.Execute(func(c *web.Context) error {
 		if c.IsAuthenticated() {
@@ -38,7 +38,7 @@ func TestUser_NoCookie(t *testing.T) {
 func TestUser_WithCookie(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -69,7 +69,7 @@ func TestUser_WithCookie(t *testing.T) {
 func TestUser_Blocked(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.JonSnow.Status = models.UserBlocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
@@ -99,7 +99,7 @@ func TestUser_Blocked(t *testing.T) {
 func TestUser_LockedTenant_Administrator(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantLocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
@@ -130,7 +130,7 @@ func TestUser_LockedTenant_Administrator(t *testing.T) {
 func TestUser_LockedTenant_Visitor(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.Status = models.TenantLocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.AryaStark.ID,
@@ -160,7 +160,7 @@ func TestUser_LockedTenant_Visitor(t *testing.T) {
 func TestUser_WithCookie_InvalidUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   999,
 		UserName: "Unknown",
@@ -192,7 +192,7 @@ func TestUser_WithCookie_InvalidUser(t *testing.T) {
 func TestUser_WithCookie_DifferentTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -219,7 +219,7 @@ func TestUser_WithCookie_DifferentTenant(t *testing.T) {
 func TestUser_WithSignUpCookie(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -274,7 +274,7 @@ func TestUser_ValidAPIKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, response := server.
@@ -296,7 +296,7 @@ func TestUser_InvalidAPIKey(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
@@ -318,7 +318,7 @@ func TestUser_ValidAPIKey_Visitor(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
@@ -349,7 +349,7 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
@@ -376,7 +376,7 @@ func TestUser_Impersonation_InvalidUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
@@ -407,7 +407,7 @@ func TestUser_Impersonation_UserNotFound(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, query := server.
@@ -442,7 +442,7 @@ func TestUser_Impersonation_ValidUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	server.Use(middlewares.User())
 	status, response := server.

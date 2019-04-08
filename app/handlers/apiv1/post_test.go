@@ -1,6 +1,5 @@
 package apiv1_test
 
-// EXPERIMENTAL-BUS: re-enable when PostStorage is on SQLStore
 // func TestCreatePostHandler(t *testing.T) {
 // 	RegisterT(t)
 
@@ -107,7 +106,7 @@ package apiv1_test
 // func TestUpdatePostHandler_InvalidPost(t *testing.T) {
 // 	RegisterT(t)
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 
 // 	code, _ := server.
 // 		OnTenant(mock.DemoTenant).
@@ -187,7 +186,7 @@ package apiv1_test
 // 		return nil
 // 	})
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	post1 := &models.Post{Title: "The Post #1", Description: "The Description #1"}
 // 	post2 := &models.Post{Title: "The Post #2", Description: "The Description #2"}
 
@@ -265,7 +264,7 @@ package apiv1_test
 // func TestAddVoteHandler_InvalidPost(t *testing.T) {
 // 	RegisterT(t)
 
-// 	server, _ := mock.NewServer()
+// 	server := mock.NewServer()
 // 	code, _ := server.
 // 		OnTenant(mock.DemoTenant).
 // 		AsUser(mock.AryaStark).

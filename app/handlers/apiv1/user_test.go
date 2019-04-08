@@ -27,7 +27,7 @@ func TestListUsersHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	status, query := server.
 		AsUser(mock.JonSnow).
@@ -41,7 +41,7 @@ func TestListUsersHandler(t *testing.T) {
 func TestCreateUser_ExistingEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		return app.ErrNotFound
@@ -82,7 +82,7 @@ func TestCreateUser_ExistingEmail(t *testing.T) {
 func TestCreateUser_ExistingEmail_NoReference(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
 		return app.ErrNotFound
@@ -112,7 +112,7 @@ func TestCreateUser_ExistingEmail_NoReference(t *testing.T) {
 func TestCreateUser_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 
 	var newUser *models.User
 

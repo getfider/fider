@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"context"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/gosimple/slug"
@@ -23,12 +25,12 @@ func (input *CreateNewPost) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateNewPost) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateNewPost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *CreateNewPost) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *CreateNewPost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Title == "" {
@@ -41,7 +43,7 @@ func (input *CreateNewPost) Validate(user *models.User, services *app.Services) 
 		result.AddFieldFailure("title", "Title must have less than 100 characters.")
 	}
 
-	err := bus.Dispatch(services.Context, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
+	err := bus.Dispatch(ctx, &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)})
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	} else if err == nil {
@@ -74,16 +76,16 @@ func (input *UpdatePost) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdatePost) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *UpdatePost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *UpdatePost) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *UpdatePost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	postByNumber := &query.GetPostByNumber{Number: input.Model.Number}
-	if err := bus.Dispatch(services.Context, postByNumber); err != nil {
+	if err := bus.Dispatch(ctx, postByNumber); err != nil {
 		return validate.Error(err)
 	}
 
@@ -100,7 +102,7 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 	}
 
 	postBySlug := &query.GetPostBySlug{Slug: slug.Make(input.Model.Title)}
-	err := bus.Dispatch(services.Context, postBySlug)
+	err := bus.Dispatch(ctx, postBySlug)
 	if err != nil && errors.Cause(err) != app.ErrNotFound {
 		return validate.Error(err)
 	} else if err == nil && postBySlug.Result.ID != input.Post.ID {
@@ -108,7 +110,7 @@ func (input *UpdatePost) Validate(user *models.User, services *app.Services) *va
 	}
 
 	getAttachments := &query.GetAttachments{Post: input.Post}
-	err = bus.Dispatch(services.Context, getAttachments)
+	err = bus.Dispatch(ctx, getAttachments)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -138,12 +140,12 @@ func (input *AddNewComment) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AddNewComment) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *AddNewComment) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil
 }
 
 // Validate if current model is valid
-func (input *AddNewComment) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *AddNewComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Content == "" {
@@ -176,12 +178,12 @@ func (input *SetResponse) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SetResponse) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *SetResponse) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
 // Validate if current model is valid
-func (input *SetResponse) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Status < models.PostOpen || input.Model.Status > models.PostDuplicate {
@@ -194,7 +196,7 @@ func (input *SetResponse) Validate(user *models.User, services *app.Services) *v
 		}
 
 		getOriginaPost := &query.GetPostByNumber{Number: input.Model.OriginalNumber}
-		err := bus.Dispatch(services.Context, getOriginaPost)
+		err := bus.Dispatch(ctx, getOriginaPost)
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
 				result.AddFieldFailure("originalNumber", "Original post not found")
@@ -224,21 +226,21 @@ func (input *DeletePost) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeletePost) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *DeletePost) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
 // Validate if current model is valid
-func (input *DeletePost) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *DeletePost) Validate(ctx context.Context, user *models.User) *validate.Result {
 	getPost := &query.GetPostByNumber{Number: input.Model.Number}
-	if err := bus.Dispatch(services.Context, getPost); err != nil {
+	if err := bus.Dispatch(ctx, getPost); err != nil {
 		return validate.Error(err)
 	}
 
 	input.Post = getPost.Result
 
 	isReferencedQuery := &query.PostIsReferenced{PostID: input.Post.ID}
-	if err := bus.Dispatch(services.Context, isReferencedQuery); err != nil {
+	if err := bus.Dispatch(ctx, isReferencedQuery); err != nil {
 		return validate.Error(err)
 	}
 
@@ -263,10 +265,10 @@ func (input *EditComment) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *EditComment) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *EditComment) IsAuthorized(ctx context.Context, user *models.User) bool {
 	postByNumber := &query.GetPostByNumber{Number: input.Model.PostNumber}
 	commentByID := &query.GetCommentByID{CommentID: input.Model.ID}
-	if err := bus.Dispatch(services.Context, postByNumber, commentByID); err != nil {
+	if err := bus.Dispatch(ctx, postByNumber, commentByID); err != nil {
 		return false
 	}
 
@@ -276,7 +278,7 @@ func (input *EditComment) IsAuthorized(user *models.User, services *app.Services
 }
 
 // Validate if current model is valid
-func (input *EditComment) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *EditComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Content == "" {
@@ -284,7 +286,7 @@ func (input *EditComment) Validate(user *models.User, services *app.Services) *v
 	}
 
 	getAttachments := &query.GetAttachments{Post: input.Post, Comment: input.Comment}
-	err := bus.Dispatch(services.Context, getAttachments)
+	err := bus.Dispatch(ctx, getAttachments)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -314,9 +316,9 @@ func (input *DeleteComment) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteComment) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *DeleteComment) IsAuthorized(ctx context.Context, user *models.User) bool {
 	commentByID := &query.GetCommentByID{CommentID: input.Model.CommentID}
-	if err := bus.Dispatch(services.Context, commentByID); err != nil {
+	if err := bus.Dispatch(ctx, commentByID); err != nil {
 		return false
 	}
 
@@ -324,6 +326,6 @@ func (input *DeleteComment) IsAuthorized(user *models.User, services *app.Servic
 }
 
 // Validate if current model is valid
-func (input *DeleteComment) Validate(user *models.User, services *app.Services) *validate.Result {
+func (input *DeleteComment) Validate(ctx context.Context, user *models.User) *validate.Result {
 	return validate.Success()
 }

@@ -28,7 +28,7 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -59,7 +59,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -94,7 +94,7 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -126,7 +126,7 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -146,7 +146,7 @@ func TestManageMembersHandler(t *testing.T) {
 		return nil
 	})
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		Execute(
