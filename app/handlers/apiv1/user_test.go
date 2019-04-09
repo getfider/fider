@@ -166,6 +166,7 @@ func TestCreateUser_NewUser(t *testing.T) {
 	Expect(newUser.Name).Equals("Martin")
 	Expect(newUser.Email).Equals("martin@company.com")
 	Expect(newUser.Tenant).Equals(mock.DemoTenant)
+	Expect(newUser.Role).Equals(models.RoleVisitor)
 	Expect(newUser.Providers).HasLen(1)
 	Expect(newUser.Providers[0].UID).Equals("89014714")
 	Expect(newUser.Providers[0].Name).Equals("reference")

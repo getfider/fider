@@ -47,6 +47,7 @@ func CreateUser() web.HandlerFunc {
 					Tenant: c.Tenant(),
 					Name:   input.Model.Name,
 					Email:  input.Model.Email,
+					Role:   models.RoleVisitor,
 				}
 				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
 			}

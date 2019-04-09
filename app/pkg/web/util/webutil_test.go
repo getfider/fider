@@ -41,7 +41,7 @@ func TestProcessImageUpload(t *testing.T) {
 	RegisterT(t)
 	bus.Init(fs.Service{})
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
 
 	upload := &models.ImageUpload{
@@ -66,7 +66,7 @@ func TestMultiProcessImageUpload(t *testing.T) {
 	RegisterT(t)
 	bus.Init(fs.Service{})
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	ctx := newContext("http://demo.test.fider.io:3000/hello-world")
 
 	upload1 := &models.ImageUpload{
