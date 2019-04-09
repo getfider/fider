@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/handlers/apiv1"
+	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 )
@@ -50,6 +51,7 @@ func TestCreateUser_ExistingEmail(t *testing.T) {
 	Expect(user.Name).Equals("Arya Stark")
 	Expect(user.Email).Equals("arya.stark@got.com")
 	Expect(user.Tenant).Equals(mock.DemoTenant)
+	Expect(user.Role).Equals(models.RoleVisitor)
 	Expect(user.Providers).HasLen(1)
 	Expect(user.Providers[0].Name).Equals("reference")
 	Expect(user.Providers[0].UID).Equals("AA564645")
