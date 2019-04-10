@@ -233,12 +233,15 @@ func PostComment() web.HandlerFunc {
 			Post:    getPost.Result,
 			Content: input.Model.Content,
 		}
-		setAttachments := &cmd.SetAttachments{
+		if err := bus.Dispatch(c, addNewComment); err != nil {
+			return c.Failure(err)
+		}
+
+		if err := bus.Dispatch(c, &cmd.SetAttachments{
 			Post:        getPost.Result,
 			Comment:     addNewComment.Result,
 			Attachments: input.Model.Attachments,
-		}
-		if err := bus.Dispatch(c, addNewComment, setAttachments); err != nil {
+		}); err != nil {
 			return c.Failure(err)
 		}
 
