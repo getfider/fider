@@ -4,6 +4,7 @@ import (
 	stdError "errors"
 	"fmt"
 	"runtime"
+	"runtime/debug"
 	"strings"
 )
 
@@ -36,7 +37,7 @@ func Panicked(r interface{}) error {
 	if !ok {
 		err = fmt.Errorf("%v", r)
 	}
-	return Wrap(err, identifyPanic())
+	return Wrap(err, fmt.Sprintf("%s\n%s", identifyPanic(), string(debug.Stack())))
 }
 
 //Stack add current code location without adding more info
