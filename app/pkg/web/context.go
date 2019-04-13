@@ -293,7 +293,7 @@ func (c *Context) BadRequest(dict Map) error {
 func (c *Context) Page(props Props) error {
 	if len(env.Config.Rendergun.URL) > 0 && c.Request.IsCrawler() {
 		html := new(bytes.Buffer)
-		c.engine.renderer.Render(html, "index.html", props, c)
+		c.engine.renderer.Render(html, http.StatusOK, "index.html", props, c)
 		return c.prerender(http.StatusOK, html)
 	}
 
@@ -307,7 +307,7 @@ func (c *Context) Render(code int, template string, props Props) error {
 	}
 
 	buf := new(bytes.Buffer)
-	c.engine.renderer.Render(buf, template, props, c)
+	c.engine.renderer.Render(buf, code, template, props, c)
 
 	return c.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }

@@ -364,3 +364,40 @@ func TestParseProfileResponse_EmptyName(t *testing.T) {
 	Expect(profile.Result.ID).Equals("A0")
 	Expect(profile.Result.Name).Equals("Anonymous")
 }
+
+func TestCustomOAuth_Disabled(t *testing.T) {
+	RegisterT(t)
+	bus.Init(&oauth.Service{})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_test1" {
+			q.Result = &models.OAuthConfig{
+				Provider:          q.Provider,
+				JSONUserIDPath:    "id",
+				JSONUserNamePath:  "name",
+				JSONUserEmailPath: "email",
+				Status:            models.OAuthConfigDisabled,
+			}
+		}
+		return nil
+	})
+
+	ctx := newGetContext("http://login.test.fider.io:3000")
+	rawProfile := &cmd.ParseOAuthRawProfile{
+		Provider: "_test1",
+		Body:     `{ "id": "A0", "name": "John" }`,
+	}
+
+	err := bus.Dispatch(ctx, rawProfile)
+	Expect(err).IsNil()
+	Expect(rawProfile.Result.ID).Equals("A0")
+	Expect(rawProfile.Result.Name).Equals("John")
+
+	oauthProfile := &query.GetOAuthProfile{
+		Provider: "_test1",
+	}
+
+	err = bus.Dispatch(ctx, oauthProfile)
+	Expect(err).IsNotNil()
+	Expect(oauthProfile.Result).IsNil()
+}

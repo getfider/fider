@@ -144,7 +144,7 @@ func getClientAssets(assets []string) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
@@ -201,7 +201,7 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	oauthProviders := &query.ListActiveOAuthProviders{
 		Result: make([]*dto.OAuthProviderOption, 0),
 	}
-	if !ctx.IsAuthenticated() {
+	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 300 {
 		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))

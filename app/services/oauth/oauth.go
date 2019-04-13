@@ -158,8 +158,17 @@ func getOAuthAuthorizationURL(ctx context.Context, q *query.GetOAuthAuthorizatio
 }
 
 func getOAuthProfile(ctx context.Context, q *query.GetOAuthProfile) error {
+	config, err := getConfig(ctx, q.Provider)
+	if err != nil {
+		return err
+	}
+
+	if config.Status == models.OAuthConfigDisabled {
+		return errors.New("Provider %s is disabled", q.Provider)
+	}
+
 	rawProfile := &query.GetOAuthRawProfile{Provider: q.Provider, Code: q.Code}
-	err := bus.Dispatch(ctx, rawProfile)
+	err = bus.Dispatch(ctx, rawProfile)
 	if err != nil {
 		return err
 	}
@@ -178,10 +187,6 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 	config, err := getConfig(ctx, q.Provider)
 	if err != nil {
 		return err
-	}
-
-	if config.Status == models.OAuthConfigDisabled {
-		return errors.New("Provider %s is disabled", q.Provider)
 	}
 
 	oauthBaseURL := web.OAuthBaseURL(ctx)
@@ -255,9 +260,7 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 		return errors.Wrap(err, "failed to get list of custom OAuth providers")
 	}
 
-	for _, p := range systemProviders {
-		oauthProviders.Result = append(oauthProviders.Result, p)
-	}
+	oauthProviders.Result = append(oauthProviders.Result, systemProviders...)
 
 	list := make([]*dto.OAuthProviderOption, 0)
 
