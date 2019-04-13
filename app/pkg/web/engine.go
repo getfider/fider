@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	stdLog "log"
 	"net/http"
 	"os"
 	"path"
@@ -103,6 +105,7 @@ func (e *Engine) Start(address string) {
 		keyFilePath = env.Etc(env.Config.SSLCertKey)
 	}
 
+	stdLog.SetOutput(ioutil.Discard)
 	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
