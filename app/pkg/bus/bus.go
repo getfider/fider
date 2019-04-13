@@ -60,8 +60,8 @@ func Init(forcedServices ...Service) []Service {
 }
 
 func AddHandler(handler HandlerFunc) {
-	busLock.RLock()
-	defer busLock.RUnlock()
+	busLock.Lock()
+	defer busLock.Unlock()
 
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
@@ -69,8 +69,8 @@ func AddHandler(handler HandlerFunc) {
 }
 
 func AddListener(handler HandlerFunc) {
-	busLock.RLock()
-	defer busLock.RUnlock()
+	busLock.Lock()
+	defer busLock.Unlock()
 
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
