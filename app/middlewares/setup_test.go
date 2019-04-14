@@ -43,18 +43,6 @@ func TestWebSetup_Failure(t *testing.T) {
 	Expect(status).Equals(http.StatusInternalServerError)
 }
 
-func TestWebSetup_Panic(t *testing.T) {
-	RegisterT(t)
-
-	server := mock.NewServer()
-	server.Use(middlewares.WebSetup())
-	status, _ := server.Execute(func(c *web.Context) error {
-		panic("Boom!")
-	})
-
-	Expect(status).Equals(http.StatusInternalServerError)
-}
-
 func TestWebSetup_NotQueueTask_OnFailure(t *testing.T) {
 	RegisterT(t)
 

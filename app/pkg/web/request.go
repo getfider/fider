@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -19,6 +20,7 @@ type Request struct {
 	ContentLength int64
 	Body          string
 	IsSecure      bool
+	StartTime     time.Time
 	URL           *url.URL
 }
 
@@ -58,6 +60,7 @@ func WrapRequest(request *http.Request) Request {
 		Body:          string(bodyBytes),
 		URL:           u,
 		IsSecure:      protocol == "https",
+		StartTime:     time.Now(),
 	}
 }
 

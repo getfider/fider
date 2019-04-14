@@ -84,8 +84,12 @@ func TestPanicked(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			err := errors.Panicked(r)
-			Expect(err.Error()).Equals(`Error Trace: 
-- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:93 (app/pkg/errors/errors.go:39)
+			Expect(err.Error()).ContainsSubstring(`
+runtime/debug.Stack`)
+			Expect(err.Error()).ContainsSubstring(`
+github.com/getfider/fider/app/pkg/errors.Panicked`)
+			Expect(err.Error()).ContainsSubstring(`
+- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:97 (app/pkg/errors/errors.go:40)
 - Boom!`)
 		}
 	}()

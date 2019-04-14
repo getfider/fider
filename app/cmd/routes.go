@@ -15,6 +15,8 @@ import (
 func routes(r *web.Engine) *web.Engine {
 	r.Worker().Use(middlewares.WorkerSetup())
 
+	r.Use(middlewares.CatchPanic())
+
 	r.NotFound(func(c *web.Context) error {
 		next := func(c *web.Context) error {
 			return c.NotFound()
