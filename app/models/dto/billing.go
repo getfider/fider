@@ -2,6 +2,13 @@ package dto
 
 import "time"
 
+// Country is a valid country within Fider
+type Country struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	IsEU bool   `json:"isEU"`
+}
+
 // BillingPlan is the model for billing plan from Stripe
 type BillingPlan struct {
 	ID          string `json:"id"`

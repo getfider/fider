@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -82,15 +84,13 @@ func (input *CreateEditBillingPaymentInfo) Validate(ctx context.Context, user *m
 	if input.Model.AddressCountry == "" {
 		result.AddFieldFailure("addressCountry", "Country is required.")
 	} else {
-		countries := models.GetAllCountries()
-		found := false
-		for _, c := range countries {
-			if c.Code == input.Model.AddressCountry {
-				found = true
+		err := bus.Dispatch(ctx, &query.GetCountryByCode{Code: input.Model.AddressCountry})
+		if err != nil {
+			if err == app.ErrNotFound {
+				result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
+			} else {
+				return validate.Error(err)
 			}
-		}
-		if !found {
-			result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
 		}
 
 		if (isNew || isReplacing) && input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {

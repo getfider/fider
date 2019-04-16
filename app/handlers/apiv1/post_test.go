@@ -39,6 +39,7 @@ func TestCreatePostHandler(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
 	bus.AddHandler(func(ctx context.Context, c *cmd.AddVote) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
 
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -98,6 +99,7 @@ func TestUpdatePostHandler_TenantStaff(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostBySlug) error { return app.ErrNotFound })
 	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
 
 	var updatePost *cmd.UpdatePost
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdatePost) error {
@@ -453,9 +455,8 @@ func TestPostCommentHandler(t *testing.T) {
 		return nil
 	})
 
-	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error {
-		return nil
-	})
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
 
 	code, _ := mock.NewServer().
 		OnTenant(mock.DemoTenant).
@@ -503,13 +504,9 @@ func TestUpdateCommentHandler_Authorized(t *testing.T) {
 		return nil
 	})
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error {
-		return nil
-	})
-
-	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error {
-		return nil
-	})
+	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.SetAttachments) error { return nil })
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImages) error { return nil })
 
 	var updateComment *cmd.UpdateComment
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateComment) error {

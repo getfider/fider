@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -49,6 +48,7 @@ func BillingPage() web.HandlerFunc {
 		}
 
 		countUsers := &query.CountUsers{}
+		allCountries := &query.GetAllCountries{}
 		if err := bus.Dispatch(c, countUsers); err != nil {
 			return c.Failure(err)
 		}
@@ -61,7 +61,7 @@ func BillingPage() web.HandlerFunc {
 				"tenantUserCount": countUsers.Result,
 				"plans":           listPlansQuery.Result,
 				"paymentInfo":     paymentInfo.Result,
-				"countries":       models.GetAllCountries(),
+				"countries":       allCountries.Result,
 			},
 		})
 	}

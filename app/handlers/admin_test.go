@@ -102,6 +102,10 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		return nil
+	})
+
 	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 

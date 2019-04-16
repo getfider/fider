@@ -22,3 +22,13 @@ type GetUpcomingInvoice struct {
 type GetPaymentInfo struct {
 	Result *dto.PaymentInfo
 }
+
+type GetAllCountries struct {
+	Result []*dto.Country
+}
+
+type GetCountryByCode struct {
+	Code string
+
+	Result *dto.Country
+}

@@ -61,6 +61,12 @@ func TestUpdateUserSettingsHandler_ValidName(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		Expect(c.Image.Upload).IsNil()
+		Expect(c.Image.Remove).IsFalse()
+		return nil
+	})
+
 	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -83,6 +89,12 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 	var updateSettingsCmd *cmd.UpdateCurrentUserSettings
 	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateCurrentUserSettings) error {
 		updateSettingsCmd = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		Expect(c.Image.Upload).IsNil()
+		Expect(c.Image.Remove).IsFalse()
 		return nil
 	})
 

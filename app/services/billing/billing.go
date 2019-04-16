@@ -46,6 +46,8 @@ func (s Service) Init() {
 	bus.AddHandler(getPaymentInfo)
 	bus.AddHandler(clearPaymentInfo)
 	bus.AddHandler(updatePaymentInfo)
+	bus.AddHandler(getAllCountries)
+	bus.AddHandler(getCountryByCode)
 }
 
 func using(ctx context.Context, handler func(tenant *models.Tenant) error) error {
