@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
@@ -61,8 +62,8 @@ func (input *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.U
 	}
 	result.AddFieldFailure("logo", messages...)
 
-	if input.Model.Status != models.OAuthConfigEnabled &&
-		input.Model.Status != models.OAuthConfigDisabled {
+	if input.Model.Status != enum.OAuthConfigEnabled &&
+		input.Model.Status != enum.OAuthConfigDisabled {
 		result.AddFieldFailure("status", "Invalid status.")
 	}
 

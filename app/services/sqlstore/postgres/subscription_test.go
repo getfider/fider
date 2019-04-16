@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models"
 	. "github.com/getfider/fider/app/pkg/assert"
 )
 
@@ -20,9 +20,9 @@ func TestSubscription_NoSettings(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
-	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
-	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventChangeStatus}
+	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewPost}
+	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, newPostSubscribers, newCommentSubscribers, changeStatusSubscribers)
 	Expect(err).IsNil()
 
@@ -67,9 +67,9 @@ func TestSubscription_RemoveSubscriber(t *testing.T) {
 	err = bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: aryaStark})
 	Expect(err).IsNil()
 
-	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
-	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
-	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventChangeStatus}
+	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewPost}
+	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, newPostSubscribers, newCommentSubscribers, changeStatusSubscribers)
 	Expect(err).IsNil()
 
@@ -105,9 +105,9 @@ func TestSubscription_AdminSubmitted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
-	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
-	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventChangeStatus}
+	newPostSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewPost}
+	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(jonSnowCtx, newPostSubscribers, newCommentSubscribers, changeStatusSubscribers)
 	Expect(err).IsNil()
 
@@ -146,7 +146,7 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: aryaStark})
 	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: jonSnow})
 
-	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
+	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
 	err = bus.Dispatch(aryaStarkCtx, newCommentSubscribers)
 	Expect(err).IsNil()
 	Expect(newCommentSubscribers.Result).HasLen(0)
@@ -176,14 +176,14 @@ func TestSubscription_DisabledEmail(t *testing.T) {
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{
 		Settings: map[string]string{
-			models.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelWeb)),
+			enum.NotificationEventNewComment.UserSettingsKeyName: strconv.Itoa(int(enum.NotificationChannelWeb)),
 		},
 	})
 	Expect(err).IsNil()
 
-	newCommentWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
-	newCommentEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventNewComment}
-	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventChangeStatus}
+	newCommentWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	newCommentEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
+	changeStatusSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, newCommentWebSubscribers, newCommentEmailSubscribers, changeStatusSubscribers)
 	Expect(err).IsNil()
 
@@ -223,13 +223,13 @@ func TestSubscription_VisitorEnabledNewPost(t *testing.T) {
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{
 		Settings: map[string]string{
-			models.NotificationEventNewPost.UserSettingsKeyName: strconv.Itoa(int(models.NotificationChannelEmail | models.NotificationChannelWeb)),
+			enum.NotificationEventNewPost.UserSettingsKeyName: strconv.Itoa(int(enum.NotificationChannelEmail | enum.NotificationChannelWeb)),
 		},
 	})
 	Expect(err).IsNil()
 
-	newPostWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
-	newPostEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventNewPost}
+	newPostWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewPost}
+	newPostEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewPost}
 	err = bus.Dispatch(aryaStarkCtx, newPostWebSubscribers, newPostEmailSubscribers)
 	Expect(err).IsNil()
 
@@ -251,9 +251,9 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	Expect(err).IsNil()
 
 	disableAll := map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
-		models.NotificationEventNewComment.UserSettingsKeyName:   "0",
-		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
+		enum.NotificationEventNewPost.UserSettingsKeyName:      "0",
+		enum.NotificationEventNewComment.UserSettingsKeyName:   "0",
+		enum.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
@@ -262,12 +262,12 @@ func TestSubscription_DisabledEverything(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
 	Expect(err).IsNil()
 
-	newPostWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewPost}
-	newPostEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventNewPost}
-	newCommentWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
-	newCommentEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventNewComment}
-	changeStatusWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventChangeStatus}
-	changeStatusEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelEmail, Event: models.NotificationEventChangeStatus}
+	newPostWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewPost}
+	newPostEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewPost}
+	newCommentWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	newCommentEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventNewComment}
+	changeStatusWebSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
+	changeStatusEmailSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelEmail, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, newPostWebSubscribers, newPostEmailSubscribers, newCommentWebSubscribers, newCommentEmailSubscribers, changeStatusWebSubscribers, changeStatusEmailSubscribers)
 	Expect(err).IsNil()
 
@@ -287,9 +287,9 @@ func TestSubscription_DeletedPost(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: models.PostDeleted})
+	bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: enum.PostDeleted})
 
-	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
+	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
 	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
 	Expect(q.Result).HasLen(2)
@@ -309,7 +309,7 @@ func TestSubscription_SubscribedToDifferentPost(t *testing.T) {
 	err = bus.Dispatch(jonSnowCtx, &cmd.AddSubscriber{Post: newPost2.Result, User: aryaStark})
 	Expect(err).IsNil()
 
-	q := &query.GetActiveSubscribers{Number: newPost1.Result.Number, Channel: models.NotificationChannelWeb, Event: models.NotificationEventNewComment}
+	q := &query.GetActiveSubscribers{Number: newPost1.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
 	err = bus.Dispatch(jonSnowCtx, q)
 	Expect(err).IsNil()
 	Expect(q.Result).HasLen(1)

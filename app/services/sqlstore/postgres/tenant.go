@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
@@ -71,15 +72,15 @@ type dbTenantBilling struct {
 }
 
 type dbEmailVerification struct {
-	ID         int                          `db:"id"`
-	Name       string                       `db:"name"`
-	Email      string                       `db:"email"`
-	Key        string                       `db:"key"`
-	Kind       models.EmailVerificationKind `db:"kind"`
-	UserID     dbx.NullInt                  `db:"user_id"`
-	CreatedAt  time.Time                    `db:"created_at"`
-	ExpiresAt  time.Time                    `db:"expires_at"`
-	VerifiedAt dbx.NullTime                 `db:"verified_at"`
+	ID         int                        `db:"id"`
+	Name       string                     `db:"name"`
+	Email      string                     `db:"email"`
+	Key        string                     `db:"key"`
+	Kind       enum.EmailVerificationKind `db:"kind"`
+	UserID     dbx.NullInt                `db:"user_id"`
+	CreatedAt  time.Time                  `db:"created_at"`
+	ExpiresAt  time.Time                  `db:"expires_at"`
+	VerifiedAt dbx.NullTime               `db:"verified_at"`
 }
 
 func (t *dbEmailVerification) toModel() *models.EmailVerification {
@@ -198,7 +199,7 @@ func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvanc
 func activateTenant(ctx context.Context, c *cmd.ActivateTenant) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		query := "UPDATE tenants SET status = $1 WHERE id = $2"
-		_, err := trx.Execute(query, models.TenantActive, c.TenantID)
+		_, err := trx.Execute(query, enum.TenantActive, c.TenantID)
 		if err != nil {
 			return errors.Wrap(err, "failed to activate tenant with id '%d'", c.TenantID)
 		}

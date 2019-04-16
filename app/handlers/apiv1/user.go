@@ -5,6 +5,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -47,7 +48,7 @@ func CreateUser() web.HandlerFunc {
 					Tenant: c.Tenant(),
 					Name:   input.Model.Name,
 					Email:  input.Model.Email,
-					Role:   models.RoleVisitor,
+					Role:   enum.RoleVisitor,
 				}
 				err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
 			}

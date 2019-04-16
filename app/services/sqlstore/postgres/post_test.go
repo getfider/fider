@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -36,7 +37,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(allPosts.Result[0].Description).Equals("no description")
 	Expect(allPosts.Result[0].User.Name).Equals("Arya Stark")
 	Expect(allPosts.Result[0].VotesCount).Equals(0)
-	Expect(allPosts.Result[0].Status).Equals(models.PostCompleted)
+	Expect(allPosts.Result[0].Status).Equals(enum.PostCompleted)
 
 	Expect(allPosts.Result[1].Title).Equals("add twitter integration")
 	Expect(allPosts.Result[1].Slug).Equals("add-twitter-integration")
@@ -44,7 +45,7 @@ func TestPostStorage_GetAll(t *testing.T) {
 	Expect(allPosts.Result[1].Description).Equals("Would be great to see it integrated with twitter")
 	Expect(allPosts.Result[1].User.Name).Equals("Jon Snow")
 	Expect(allPosts.Result[1].VotesCount).Equals(0)
-	Expect(allPosts.Result[1].Status).Equals(models.PostStarted)
+	Expect(allPosts.Result[1].Status).Equals(enum.PostStarted)
 
 	search10 := &query.SearchPosts{Query: "twitter", Limit: "10"}
 	search0 := &query.SearchPosts{Query: "twitter", Limit: "0"}
@@ -73,7 +74,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(postByID.Result.Number).Equals(1)
 	Expect(postByID.Result.HasVoted).IsFalse()
 	Expect(postByID.Result.VotesCount).Equals(0)
-	Expect(postByID.Result.Status).Equals(models.PostOpen)
+	Expect(postByID.Result.Status).Equals(enum.PostOpen)
 	Expect(postByID.Result.Title).Equals("My new post")
 	Expect(postByID.Result.Description).Equals("with this description")
 	Expect(postByID.Result.User.ID).Equals(1)
@@ -84,7 +85,7 @@ func TestPostStorage_AddAndGet(t *testing.T) {
 	Expect(postBySlug.Result.Number).Equals(1)
 	Expect(postBySlug.Result.HasVoted).IsFalse()
 	Expect(postBySlug.Result.VotesCount).Equals(0)
-	Expect(postBySlug.Result.Status).Equals(models.PostOpen)
+	Expect(postBySlug.Result.Status).Equals(enum.PostOpen)
 	Expect(postBySlug.Result.Title).Equals("My new post")
 	Expect(postBySlug.Result.Description).Equals("with this description")
 	Expect(postBySlug.Result.User.ID).Equals(1)
@@ -331,14 +332,14 @@ func TestPostStorage_SetResponse(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostStarted})
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
 	Expect(err).IsNil()
 
 	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(jonSnowCtx, getPost)
 	Expect(err).IsNil()
 	Expect(getPost.Result.Response.Text).Equals("We liked this post")
-	Expect(getPost.Result.Status).Equals(models.PostStarted)
+	Expect(getPost.Result.Status).Equals(enum.PostStarted)
 	Expect(getPost.Result.Response.User.ID).Equals(1)
 }
 
@@ -350,7 +351,7 @@ func TestPostStorage_SetResponse_KeepOpen(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostOpen})
+	err = bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostOpen})
 	Expect(err).IsNil()
 }
 
@@ -364,15 +365,15 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 
 	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostStarted})
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
 	bus.Dispatch(jonSnowCtx, getPost)
 	firstResponseAt := getPost.Result.Response.RespondedAt
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: models.PostStarted})
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: enum.PostStarted})
 	bus.Dispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).Equals(firstResponseAt)
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: models.PostCompleted})
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: enum.PostCompleted})
 	bus.Dispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).TemporarilySimilar(firstResponseAt, time.Second)
 }
@@ -403,12 +404,12 @@ func TestPostStorage_SetResponse_AsDuplicate(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(getPost1.Result.VotesCount).Equals(2)
-	Expect(getPost1.Result.Status).Equals(models.PostOpen)
+	Expect(getPost1.Result.Status).Equals(enum.PostOpen)
 	Expect(getPost1.Result.Response).IsNil()
 
 	Expect(getPost2.Result.Response.Text).Equals("")
 	Expect(getPost2.Result.VotesCount).Equals(1)
-	Expect(getPost2.Result.Status).Equals(models.PostDuplicate)
+	Expect(getPost2.Result.Status).Equals(enum.PostDuplicate)
 	Expect(getPost2.Result.Response.User.ID).Equals(1)
 	Expect(getPost2.Result.Response.Original.Number).Equals(newPost1.Result.Number)
 	Expect(getPost2.Result.Response.Original.Title).Equals(newPost1.Result.Title)
@@ -424,7 +425,7 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: models.PostDeleted})
+	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
 
 	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(aryaStarkCtx, postByID)
@@ -446,7 +447,7 @@ func TestPostStorage_AddVote_ClosedPost(t *testing.T) {
 	Expect(err).IsNil()
 
 	err = bus.Dispatch(jonSnowCtx,
-		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostCompleted},
 		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
 	)
 	Expect(err).IsNil()
@@ -468,7 +469,7 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	bus.Dispatch(
 		jonSnowCtx,
 		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
-		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: models.PostCompleted},
+		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostCompleted},
 		&cmd.RemoveVote{Post: newPost.Result, User: jonSnow},
 	)
 

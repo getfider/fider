@@ -11,6 +11,7 @@ import (
 
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -70,7 +71,7 @@ func TestUser_Blocked(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	mock.JonSnow.Status = models.UserBlocked
+	mock.JonSnow.Status = enum.UserBlocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -100,7 +101,7 @@ func TestUser_LockedTenant_Administrator(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantLocked
+	mock.DemoTenant.Status = enum.TenantLocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.JonSnow.ID,
 		UserName: mock.JonSnow.Name,
@@ -131,7 +132,7 @@ func TestUser_LockedTenant_Visitor(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantLocked
+	mock.DemoTenant.Status = enum.TenantLocked
 	token, _ := jwt.Encode(jwt.FiderClaims{
 		UserID:   mock.AryaStark.ID,
 		UserName: mock.AryaStark.Name,
@@ -340,8 +341,8 @@ func TestUser_Impersonation_Collaborator(t *testing.T) {
 		if q.APIKey == "12345" {
 			q.Result = &models.User{
 				Name:   "The Collaborator",
-				Role:   models.RoleCollaborator,
-				Status: models.UserActive,
+				Role:   enum.RoleCollaborator,
+				Status: enum.UserActive,
 				Tenant: mock.DemoTenant,
 			}
 			return nil

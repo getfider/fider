@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -108,7 +109,7 @@ func OAuthToken() web.HandlerFunc {
 					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
 					Email:  oauthUser.Result.Email,
-					Role:   models.RoleVisitor,
+					Role:   enum.RoleVisitor,
 					Providers: []*models.UserProvider{
 						&models.UserProvider{
 							UID:  oauthUser.Result.ID,

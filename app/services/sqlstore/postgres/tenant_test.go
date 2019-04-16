@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
@@ -24,7 +25,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	createTenant := &cmd.CreateTenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
-		Status:    models.TenantPending,
+		Status:    enum.TenantPending,
 	}
 
 	err := bus.Dispatch(ctx, createTenant)
@@ -36,7 +37,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
 	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
-	Expect(getByDomain.Result.Status).Equals(models.TenantPending)
+	Expect(getByDomain.Result.Status).Equals(enum.TenantPending)
 	Expect(getByDomain.Result.IsPrivate).IsFalse()
 
 	err = bus.Dispatch(ctx, &cmd.ActivateTenant{TenantID: createTenant.Result.ID})
@@ -46,7 +47,7 @@ func TestTenantStorage_Add_Activate(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
 	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
-	Expect(getByDomain.Result.Status).Equals(models.TenantActive)
+	Expect(getByDomain.Result.Status).Equals(enum.TenantActive)
 	Expect(getByDomain.Result.IsPrivate).IsFalse()
 	Expect(getByDomain.Result.Billing).IsNil()
 }
@@ -59,7 +60,7 @@ func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
 	err := bus.Dispatch(ctx, &cmd.CreateTenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
-		Status:    models.TenantPending,
+		Status:    enum.TenantPending,
 	})
 	Expect(err).IsNil()
 
@@ -69,7 +70,7 @@ func TestTenantStorage_Add_WithBillingEnabled(t *testing.T) {
 
 	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
 	Expect(getByDomain.Result.Subdomain).Equals("mydomain")
-	Expect(getByDomain.Result.Status).Equals(models.TenantPending)
+	Expect(getByDomain.Result.Status).Equals(enum.TenantPending)
 	Expect(getByDomain.Result.IsPrivate).IsFalse()
 	Expect(getByDomain.Result.Billing).IsNotNil()
 	Expect(getByDomain.Result.Billing.TrialEndsAt).TemporarilySimilar(time.Now().Add(30*24*time.Hour), 5*time.Second)
@@ -84,7 +85,7 @@ func TestTenantStorage_SingleTenant_Add(t *testing.T) {
 	createTenant := &cmd.CreateTenant{
 		Name:      "My Domain Inc.",
 		Subdomain: "mydomain",
-		Status:    models.TenantPending,
+		Status:    enum.TenantPending,
 	}
 	err := bus.Dispatch(ctx, createTenant)
 	Expect(err).IsNil()
@@ -162,7 +163,7 @@ func TestTenantStorage_GetByDomain_CNAME(t *testing.T) {
 	Expect(getByDomain.Result.Name).Equals("My Domain Inc.")
 	Expect(getByDomain.Result.Subdomain).Equals("demo")
 	Expect(getByDomain.Result.CNAME).Equals("feedback.mycompany.com")
-	Expect(getByDomain.Result.Status).Equals(models.TenantActive)
+	Expect(getByDomain.Result.Status).Equals(enum.TenantActive)
 }
 
 func TestTenantStorage_IsSubdomainAvailable_ExistingDomain(t *testing.T) {
@@ -244,7 +245,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(err).IsNil()
 
 	//Find and check values
-	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
+	getKey := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignUp, Key: "s3cr3tk3y"}
 
 	err = bus.Dispatch(demoTenantCtx, getKey)
 	Expect(err).IsNil()
@@ -252,7 +253,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(getKey.Result.VerifiedAt).IsNil()
 	Expect(getKey.Result.Email).Equals("jon.snow@got.com")
 	Expect(getKey.Result.Name).Equals("Jon Snow")
-	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindSignUp)
+	Expect(getKey.Result.Kind).Equals(enum.EmailVerificationKindSignUp)
 	Expect(getKey.Result.Key).Equals("s3cr3tk3y")
 	Expect(getKey.Result.UserID).Equals(0)
 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
@@ -274,7 +275,7 @@ func TestTenantStorage_SaveFindSet_VerificationKey(t *testing.T) {
 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
 
 	//Wrong kind should not find it
-	getKeyWithWrongKind := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "s3cr3tk3y"}
+	getKeyWithWrongKind := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: "s3cr3tk3y"}
 	err = bus.Dispatch(demoTenantCtx, getKeyWithWrongKind)
 
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
@@ -297,14 +298,14 @@ func TestTenantStorage_SaveFindSet_ChangeEmailVerificationKey(t *testing.T) {
 	Expect(err).IsNil()
 
 	//Find and check values
-	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindChangeEmail, Key: "th3-s3cr3t"}
+	getKey := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindChangeEmail, Key: "th3-s3cr3t"}
 	err = bus.Dispatch(demoTenantCtx, getKey)
 	Expect(err).IsNil()
 	Expect(getKey.Result.CreatedAt).TemporarilySimilar(time.Now(), 1*time.Second)
 	Expect(getKey.Result.VerifiedAt).IsNil()
 	Expect(getKey.Result.Email).Equals("jon.stark@got.com")
 	Expect(getKey.Result.Name).Equals("")
-	Expect(getKey.Result.Kind).Equals(models.EmailVerificationKindChangeEmail)
+	Expect(getKey.Result.Kind).Equals(enum.EmailVerificationKindChangeEmail)
 	Expect(getKey.Result.Key).Equals("th3-s3cr3t")
 	Expect(getKey.Result.UserID).Equals(jonSnow.ID)
 	Expect(getKey.Result.ExpiresAt).TemporarilySimilar(getKey.Result.CreatedAt.Add(15*time.Minute), 1*time.Second)
@@ -315,7 +316,7 @@ func TestTenantStorage_FindUnknownVerificationKey(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	//Find and check values
-	getKey := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: "blahblahblah"}
+	getKey := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: "blahblahblah"}
 	err := bus.Dispatch(demoTenantCtx, getKey)
 	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
 	Expect(getKey.Result).IsNil()

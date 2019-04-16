@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
@@ -54,7 +55,7 @@ func (i *dbPost) toModel(ctx context.Context) *models.Post {
 		HasVoted:      i.HasVoted,
 		VotesCount:    i.VotesCount,
 		CommentsCount: i.CommentsCount,
-		Status:        models.PostStatus(i.Status),
+		Status:        enum.PostStatus(i.Status),
 		User:          i.User.toModel(ctx),
 		Tags:          i.Tags,
 	}
@@ -65,12 +66,12 @@ func (i *dbPost) toModel(ctx context.Context) *models.Post {
 			RespondedAt: i.RespondedAt.Time,
 			User:        i.ResponseUser.toModel(ctx),
 		}
-		if post.Status == models.PostDuplicate && i.OriginalNumber.Valid {
+		if post.Status == enum.PostDuplicate && i.OriginalNumber.Valid {
 			post.Response.Original = &models.OriginalPost{
 				Number: int(i.OriginalNumber.Int64),
 				Slug:   i.OriginalSlug.String,
 				Title:  i.OriginalTitle.String,
-				Status: models.PostStatus(i.OriginalStatus.Int64),
+				Status: enum.PostStatus(i.OriginalStatus.Int64),
 			}
 		}
 	}
@@ -165,7 +166,7 @@ var (
 													ON agg_s.post_id = p.id
 													LEFT JOIN agg_tags agg_t 
 													ON agg_t.post_id = p.id
-													WHERE p.status != ` + strconv.Itoa(int(models.PostDeleted)) + ` AND %s`
+													WHERE p.status != ` + strconv.Itoa(int(enum.PostDeleted)) + ` AND %s`
 )
 
 func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
@@ -190,7 +191,7 @@ func postIsReferenced(ctx context.Context, q *query.PostIsReferenced) error {
 
 func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		if c.Status == models.PostDuplicate {
+		if c.Status == enum.PostDuplicate {
 			return errors.New("Use MarkAsDuplicate to change an post status to Duplicate")
 		}
 
@@ -221,7 +222,7 @@ func setPostResponse(ctx context.Context, c *cmd.SetPostResponse) error {
 func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		respondedAt := time.Now()
-		if c.Post.Status == models.PostDuplicate && c.Post.Response != nil {
+		if c.Post.Status == enum.PostDuplicate && c.Post.Response != nil {
 			respondedAt = c.Post.Response.RespondedAt
 		}
 
@@ -242,12 +243,12 @@ func markPostAsDuplicate(ctx context.Context, c *cmd.MarkPostAsDuplicate) error 
 		UPDATE posts 
 		SET response = '', original_id = $3, response_date = $4, response_user_id = $5, status = $6 
 		WHERE id = $1 and tenant_id = $2
-		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID, models.PostDuplicate)
+		`, c.Post.ID, tenant.ID, c.Original.ID, respondedAt, user.ID, enum.PostDuplicate)
 		if err != nil {
 			return errors.Wrap(err, "failed to update post's response")
 		}
 
-		c.Post.Status = models.PostDuplicate
+		c.Post.Status = enum.PostDuplicate
 		c.Post.Response = &models.PostResponse{
 			RespondedAt: respondedAt,
 			User:        user,
@@ -266,11 +267,11 @@ func countPostPerStatus(ctx context.Context, q *query.CountPostPerStatus) error 
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 
 		type dbStatusCount struct {
-			Status models.PostStatus `db:"status"`
-			Count  int               `db:"count"`
+			Status enum.PostStatus `db:"status"`
+			Count  int             `db:"count"`
 		}
 
-		q.Result = make(map[models.PostStatus]int)
+		q.Result = make(map[enum.PostStatus]int)
 		stats := []*dbStatusCount{}
 		err := trx.Select(&stats, "SELECT status, COUNT(*) AS count FROM posts WHERE tenant_id = $1 GROUP BY status", tenant.ID)
 		if err != nil {
@@ -385,12 +386,12 @@ func searchPosts(ctx context.Context, q *query.SearchPosts) error {
 				ORDER BY %s DESC
 				LIMIT %s
 			`, innerQuery, scoreField, scoreField, q.Limit)
-			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]models.PostStatus{
-				models.PostOpen,
-				models.PostStarted,
-				models.PostPlanned,
-				models.PostCompleted,
-				models.PostDeclined,
+			err = trx.Select(&posts, sql, tenant.ID, pq.Array([]enum.PostStatus{
+				enum.PostOpen,
+				enum.PostStarted,
+				enum.PostPlanned,
+				enum.PostCompleted,
+				enum.PostDeclined,
 			}), ToTSQuery(q.Query), q.Query)
 		} else {
 			condition, statuses, sort := getViewData(q.View)

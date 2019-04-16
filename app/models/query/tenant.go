@@ -1,6 +1,9 @@
 package query
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+)
 
 type IsCNAMEAvailable struct {
 	CNAME string
@@ -15,7 +18,7 @@ type IsSubdomainAvailable struct {
 }
 
 type GetVerificationByKey struct {
-	Kind models.EmailVerificationKind
+	Kind enum.EmailVerificationKind
 	Key  string
 
 	Result *models.EmailVerification

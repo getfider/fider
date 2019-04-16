@@ -8,7 +8,7 @@ import (
 	"github.com/getfider/fider/app/handlers"
 	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -88,8 +88,8 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/signin", handlers.SignInPage())
 	r.Get("/not-invited", handlers.NotInvitedPage())
-	r.Get("/signin/verify", handlers.VerifySignInKey(models.EmailVerificationKindSignIn))
-	r.Get("/invite/verify", handlers.VerifySignInKey(models.EmailVerificationKindUserInvitation))
+	r.Get("/signin/verify", handlers.VerifySignInKey(enum.EmailVerificationKindSignIn))
+	r.Get("/invite/verify", handlers.VerifySignInKey(enum.EmailVerificationKindUserInvitation))
 	r.Post("/_api/signin/complete", handlers.CompleteSignInProfile())
 	r.Post("/_api/signin", handlers.SignInByEmail())
 
@@ -135,7 +135,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/_api/notifications/unread/total", handlers.TotalUnreadNotifications())
 
 		//From this step, only Collaborators and Administrators are allowed
-		ui.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+		ui.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
 		ui.Get("/admin", handlers.GeneralSettingsPage())
 		ui.Get("/admin/advanced", handlers.AdvancedSettingsPage())
@@ -147,7 +147,7 @@ func routes(r *web.Engine) *web.Engine {
 		ui.Get("/_api/admin/oauth/:provider", handlers.GetOAuthConfig())
 
 		//From this step, only Administrators are allowed
-		ui.Use(middlewares.IsAuthorized(models.RoleAdministrator))
+		ui.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
 		ui.Get("/admin/export", handlers.Page("Export · Site Settings", "", "Export.page"))
 		ui.Get("/admin/export/posts.csv", handlers.ExportPostsToCSV())
@@ -189,7 +189,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Delete("/api/v1/posts/:number/subscription", apiv1.Unsubscribe())
 
 		//From this step, only Collaborators and Administrators are allowed
-		api.Use(middlewares.IsAuthorized(models.RoleCollaborator, models.RoleAdministrator))
+		api.Use(middlewares.IsAuthorized(enum.RoleCollaborator, enum.RoleAdministrator))
 
 		api.Get("/api/v1/users", apiv1.ListUsers())
 		api.Put("/api/v1/posts/:number", apiv1.UpdatePost())
@@ -201,7 +201,7 @@ func routes(r *web.Engine) *web.Engine {
 		api.Delete("/api/v1/posts/:number/tags/:slug", apiv1.UnassignTag())
 
 		//From this step, only Administrators are allowed
-		api.Use(middlewares.IsAuthorized(models.RoleAdministrator))
+		api.Use(middlewares.IsAuthorized(enum.RoleAdministrator))
 
 		api.Post("/api/v1/users", apiv1.CreateUser())
 		api.Delete("/api/v1/posts/:number", apiv1.DeletePost())

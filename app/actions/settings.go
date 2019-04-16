@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -43,7 +44,7 @@ func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User
 
 	input.Model.Avatar.BlobKey = user.AvatarBlobKey
 	messages, err := validate.ImageUpload(input.Model.Avatar, validate.ImageUploadOpts{
-		IsRequired:   input.Model.AvatarType == models.AvatarTypeCustom,
+		IsRequired:   input.Model.AvatarType == enum.AvatarTypeCustom,
 		MinHeight:    50,
 		MinWidth:     50,
 		ExactRatio:   true,
@@ -57,7 +58,7 @@ func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User
 	if input.Model.Settings != nil {
 		for k, v := range input.Model.Settings {
 			ok := false
-			for _, e := range models.AllNotificationEvents {
+			for _, e := range enum.AllNotificationEvents {
 				if e.UserSettingsKeyName == k {
 					ok = true
 					if !e.Validate(v) {

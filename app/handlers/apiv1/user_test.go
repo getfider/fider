@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app/handlers/apiv1"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -166,7 +167,7 @@ func TestCreateUser_NewUser(t *testing.T) {
 	Expect(newUser.Name).Equals("Martin")
 	Expect(newUser.Email).Equals("martin@company.com")
 	Expect(newUser.Tenant).Equals(mock.DemoTenant)
-	Expect(newUser.Role).Equals(models.RoleVisitor)
+	Expect(newUser.Role).Equals(enum.RoleVisitor)
 	Expect(newUser.Providers).HasLen(1)
 	Expect(newUser.Providers[0].UID).Equals("89014714")
 	Expect(newUser.Providers[0].Name).Equals("reference")

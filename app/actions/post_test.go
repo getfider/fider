@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/actions"
@@ -59,7 +60,7 @@ func TestSetResponse_InvalidStatus(t *testing.T) {
 	RegisterT(t)
 
 	action := &actions.SetResponse{Model: &models.SetResponse{
-		Status: models.PostDeleted,
+		Status: enum.PostDeleted,
 		Text:   "Spam!",
 	}}
 	result := action.Validate(context.Background(), nil)
@@ -102,9 +103,9 @@ func TestDeletePost_WhenIsBeingReferenced(t *testing.T) {
 func TestDeleteComment(t *testing.T) {
 	RegisterT(t)
 
-	author := &models.User{ID: 1, Role: models.RoleVisitor}
-	notAuthor := &models.User{ID: 2, Role: models.RoleVisitor}
-	administrator := &models.User{ID: 3, Role: models.RoleAdministrator}
+	author := &models.User{ID: 1, Role: enum.RoleVisitor}
+	notAuthor := &models.User{ID: 2, Role: enum.RoleVisitor}
+	administrator := &models.User{ID: 3, Role: enum.RoleAdministrator}
 	comment := &models.Comment{
 		ID:      1,
 		User:    author,

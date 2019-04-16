@@ -10,6 +10,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
@@ -123,9 +124,9 @@ func TestRenderer_AuthenticatedUser(t *testing.T) {
 		ID:         5,
 		Name:       "Jon Snow",
 		Email:      "jon.snow@got.com",
-		Status:     models.UserActive,
-		Role:       models.RoleAdministrator,
-		AvatarType: models.AvatarTypeGravatar,
+		Status:     enum.UserActive,
+		Role:       enum.RoleAdministrator,
+		AvatarType: enum.AvatarTypeGravatar,
 		AvatarURL:  "https://demo.test.fider.io:3000/avatars/gravatar/5/Jon%20Snow",
 	})
 	renderer := web.NewRenderer(&models.SystemSettings{})

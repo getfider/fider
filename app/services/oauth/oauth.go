@@ -11,6 +11,7 @@ import (
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -52,9 +53,9 @@ func (s Service) Init() {
 
 func getProviderStatus(key string) int {
 	if key == "" {
-		return models.OAuthConfigDisabled
+		return enum.OAuthConfigDisabled
 	}
-	return models.OAuthConfigEnabled
+	return enum.OAuthConfigEnabled
 }
 
 var (
@@ -163,7 +164,7 @@ func getOAuthProfile(ctx context.Context, q *query.GetOAuthProfile) error {
 		return err
 	}
 
-	if config.Status == models.OAuthConfigDisabled {
+	if config.Status == enum.OAuthConfigDisabled {
 		return errors.New("Provider %s is disabled", q.Provider)
 	}
 
@@ -274,7 +275,7 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 			CallbackURL:      fmt.Sprintf("%s/oauth/%s/callback", oauthBaseURL, p.Provider),
 			IsCustomProvider: string(p.Provider[0]) == "_",
 			LogoBlobKey:      p.LogoBlobKey,
-			IsEnabled:        p.Status == models.OAuthConfigEnabled,
+			IsEnabled:        p.Status == enum.OAuthConfigEnabled,
 		})
 	}
 
@@ -284,7 +285,7 @@ func listAllOAuthProviders(ctx context.Context, q *query.ListAllOAuthProviders) 
 
 func getConfig(ctx context.Context, provider string) (*models.OAuthConfig, error) {
 	for _, config := range systemProviders {
-		if config.Status == models.OAuthConfigEnabled && config.Provider == provider {
+		if config.Status == enum.OAuthConfigEnabled && config.Provider == provider {
 			return config, nil
 		}
 	}

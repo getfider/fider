@@ -3,6 +3,7 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -49,9 +50,9 @@ func CreateTenant() web.HandlerFunc {
 
 		socialSignUp := input.Model.Token != ""
 
-		status := models.TenantPending
+		status := enum.TenantPending
 		if socialSignUp {
-			status = models.TenantActive
+			status = enum.TenantActive
 		}
 
 		createTenant := &cmd.CreateTenant{
@@ -68,7 +69,7 @@ func CreateTenant() web.HandlerFunc {
 
 		user := &models.User{
 			Tenant: createTenant.Result,
-			Role:   models.RoleAdministrator,
+			Role:   enum.RoleAdministrator,
 		}
 
 		if socialSignUp {
@@ -139,8 +140,8 @@ func SignUp() web.HandlerFunc {
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		if c.Tenant().Status == models.TenantPending {
-			return VerifySignInKey(models.EmailVerificationKindSignUp)(c)
+		if c.Tenant().Status == enum.TenantPending {
+			return VerifySignInKey(enum.EmailVerificationKindSignUp)(c)
 		}
 		return c.NotFound()
 	}

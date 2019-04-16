@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -133,9 +134,9 @@ func removeSubscriber(ctx context.Context, c *cmd.RemoveSubscriber) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		_, err := trx.Execute(`
 			INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
-			VALUES ($1, $2, $3, $4, $4, 0) ON CONFLICT (user_id, post_id)
+			VALUES ($1, $2, $3, $4, $4, $5) ON CONFLICT (user_id, post_id)
 			DO UPDATE SET status = 0, updated_at = $4`,
-			tenant.ID, c.User.ID, c.Post.ID, time.Now(),
+			tenant.ID, c.User.ID, c.Post.ID, time.Now(), enum.SubscriberInactive,
 		)
 		if err != nil {
 			return errors.Wrap(err, "failed remove post subscriber")
@@ -172,7 +173,7 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				tenant.ID,
 				pq.Array(q.Event.DefaultEnabledUserRoles),
 				q.Channel,
-				models.UserActive,
+				enum.UserActive,
 			)
 		} else {
 			err = trx.Select(&users, `
@@ -195,13 +196,13 @@ func getActiveSubscribers(ctx context.Context, q *query.GetActiveSubscribers) er
 				)
 				ORDER by u.id`,
 				q.Number,
-				models.SubscriberActive,
+				enum.SubscriberActive,
 				q.Event.UserSettingsKeyName,
 				tenant.ID,
 				pq.Array(q.Event.DefaultEnabledUserRoles),
 				q.Channel,
 				pq.Array(q.Event.RequiresSubscriptionUserRoles),
-				models.UserActive,
+				enum.UserActive,
 			)
 		}
 
@@ -226,7 +227,7 @@ func internalAddSubscriber(trx *dbx.Trx, post *models.Post, tenant *models.Tenan
 	_, err := trx.Execute(fmt.Sprintf(`
 	INSERT INTO post_subscribers (tenant_id, user_id, post_id, created_at, updated_at, status)
 	VALUES ($1, $2, $3, $4, $4, $5)  ON CONFLICT %s`, conflict),
-		tenant.ID, user.ID, post.ID, time.Now(), models.SubscriberActive,
+		tenant.ID, user.ID, post.ID, time.Now(), enum.SubscriberActive,
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed insert post subscriber")

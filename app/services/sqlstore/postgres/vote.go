@@ -7,6 +7,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -30,7 +31,7 @@ func (v *dbVote) toModel(ctx context.Context) *models.Vote {
 			ID:        v.User.ID,
 			Name:      v.User.Name,
 			Email:     v.User.Email,
-			AvatarURL: buildAvatarURL(ctx, models.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
+			AvatarURL: buildAvatarURL(ctx, enum.AvatarType(v.User.AvatarType), v.User.ID, v.User.Name, v.User.AvatarBlobKey),
 		},
 	}
 	return vote

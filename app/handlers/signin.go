@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
@@ -21,7 +22,7 @@ import (
 func SignInPage() web.HandlerFunc {
 	return func(c *web.Context) error {
 
-		if c.Tenant().IsPrivate || c.Tenant().Status == models.TenantLocked {
+		if c.Tenant().IsPrivate || c.Tenant().Status == enum.TenantLocked {
 			return c.Page(web.Props{
 				Title:     "Sign in",
 				ChunkName: "SignIn.page",
@@ -66,7 +67,7 @@ func SignInByEmail() web.HandlerFunc {
 }
 
 // VerifySignInKey checks if verify key is correct and sign in user
-func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
+func VerifySignInKey(kind enum.EmailVerificationKind) web.HandlerFunc {
 	return func(c *web.Context) error {
 		result, err := validateKey(kind, c)
 		if result == nil {
@@ -74,7 +75,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 		}
 
 		var user *models.User
-		if kind == models.EmailVerificationKindSignUp && c.Tenant().Status == models.TenantPending {
+		if kind == enum.EmailVerificationKindSignUp && c.Tenant().Status == enum.TenantPending {
 			if err = bus.Dispatch(c, &cmd.ActivateTenant{TenantID: c.Tenant().ID}); err != nil {
 				return c.Failure(err)
 			}
@@ -83,13 +84,13 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 				Name:   result.Name,
 				Email:  result.Email,
 				Tenant: c.Tenant(),
-				Role:   models.RoleAdministrator,
+				Role:   enum.RoleAdministrator,
 			}
 
 			if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 				return c.Failure(err)
 			}
-		} else if kind == models.EmailVerificationKindSignIn {
+		} else if kind == enum.EmailVerificationKindSignIn {
 			userByEmail := &query.GetUserByEmail{Email: result.Email}
 			err = bus.Dispatch(c, userByEmail)
 			user = userByEmail.Result
@@ -102,7 +103,7 @@ func VerifySignInKey(kind models.EmailVerificationKind) web.HandlerFunc {
 				}
 				return c.Failure(err)
 			}
-		} else if kind == models.EmailVerificationKindUserInvitation {
+		} else if kind == enum.EmailVerificationKindUserInvitation {
 			userByEmail := &query.GetUserByEmail{Email: result.Email}
 			err = bus.Dispatch(c, userByEmail)
 			user = userByEmail.Result
@@ -147,7 +148,7 @@ func CompleteSignInProfile() web.HandlerFunc {
 			Name:   input.Model.Name,
 			Email:  input.Model.Email,
 			Tenant: c.Tenant(),
-			Role:   models.RoleVisitor,
+			Role:   enum.RoleVisitor,
 		}
 		err = bus.Dispatch(c, &cmd.RegisterUser{User: user})
 		if err != nil {

@@ -11,6 +11,7 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/handlers"
@@ -161,11 +162,11 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 
 	Expect(newTenant.Name).Equals("My Company")
 	Expect(newTenant.Subdomain).Equals("mycompany")
-	Expect(newTenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Status).Equals(enum.TenantActive)
 
 	Expect(newUser.Name).Equals("Jon Snow")
 	Expect(newUser.Email).Equals("jon.snow@got.com")
-	Expect(newUser.Role).Equals(models.RoleAdministrator)
+	Expect(newUser.Role).Equals(enum.RoleAdministrator)
 
 	cookie := web.ParseCookie(response.Header().Get("Set-Cookie"))
 	Expect(cookie.Name).Equals(web.CookieSignUpAuthName)
@@ -217,11 +218,11 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 
 	Expect(newTenant.Name).Equals("My Company")
 	Expect(newTenant.Subdomain).Equals("default")
-	Expect(newTenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Status).Equals(enum.TenantActive)
 
 	Expect(newUser.Name).Equals("Jon Snow")
 	Expect(newUser.Email).Equals("jon.snow@got.com")
-	Expect(newUser.Role).Equals(models.RoleAdministrator)
+	Expect(newUser.Role).Equals(enum.RoleAdministrator)
 
 	ExpectFiderAuthCookie(response, &models.User{
 		ID:    1,
@@ -274,10 +275,10 @@ func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 
 	Expect(newTenant.Name).Equals("My Company")
 	Expect(newTenant.Subdomain).Equals("mycompany")
-	Expect(newTenant.Status).Equals(models.TenantPending)
+	Expect(newTenant.Status).Equals(enum.TenantPending)
 
 	Expect(saveKeyCmd.Key).HasLen(64)
-	Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindSignUp)
+	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignUp)
 	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
 	Expect(saveKeyCmd.Request.GetName()).Equals("Jon Snow")
 }

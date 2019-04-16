@@ -8,6 +8,7 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -130,8 +131,8 @@ func TestCreateTenant_EmptySubdomain(t *testing.T) {
 func TestUpdateTenantSettings_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
-	admin := &models.User{ID: 1, Role: models.RoleAdministrator}
-	collaborator := &models.User{ID: 2, Role: models.RoleCollaborator}
+	admin := &models.User{ID: 1, Role: enum.RoleAdministrator}
+	collaborator := &models.User{ID: 2, Role: enum.RoleCollaborator}
 
 	action := actions.UpdateTenantSettings{}
 	action.Initialize()

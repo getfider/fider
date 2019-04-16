@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -92,7 +93,7 @@ func (input *UpdateTenantSettings) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
@@ -149,7 +150,7 @@ func (input *UpdateTenantAdvancedSettings) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid
@@ -170,7 +171,7 @@ func (input *UpdateTenantPrivacy) Initialize() interface{} {
 
 // IsAuthorized returns true if current user is authorized to perform this action
 func (input *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *models.User) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
 // Validate if current model is valid

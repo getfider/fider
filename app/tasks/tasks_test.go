@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models"
@@ -271,7 +272,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
-		Status:      models.PostPlanned,
+		Status:      enum.PostPlanned,
 		Response: &models.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Planned for next release.",
@@ -279,7 +280,7 @@ func TestNotifyAboutStatusChangeTask(t *testing.T) {
 		},
 	}
 
-	task := tasks.NotifyAboutStatusChange(post, models.PostOpen)
+	task := tasks.NotifyAboutStatusChange(post, enum.PostOpen)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).
@@ -342,7 +343,7 @@ func TestNotifyAboutDeletePostTask(t *testing.T) {
 		Title:       "Add support for TypeScript",
 		Slug:        "add-support-for-typescript",
 		Description: "TypeScript is great, please add support for it",
-		Status:      models.PostDeleted,
+		Status:      enum.PostDeleted,
 		Response: &models.PostResponse{
 			RespondedAt: time.Now(),
 			Text:        "Invalid post!",
@@ -407,7 +408,7 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 		Number: 2,
 		Title:  "I need TypeScript",
 		Slug:   "i-need-typescript",
-		Status: models.PostDuplicate,
+		Status: enum.PostDuplicate,
 		Response: &models.PostResponse{
 			RespondedAt: time.Now(),
 			User:        mock.JonSnow,
@@ -415,12 +416,12 @@ func TestNotifyAboutStatusChangeTask_Duplicate(t *testing.T) {
 				Number: 1,
 				Title:  "Add support for TypeScript",
 				Slug:   "add-support-for-typescript",
-				Status: models.PostOpen,
+				Status: enum.PostOpen,
 			},
 		},
 	}
 
-	task := tasks.NotifyAboutStatusChange(post, models.PostOpen)
+	task := tasks.NotifyAboutStatusChange(post, enum.PostOpen)
 
 	err := worker.
 		OnTenant(mock.DemoTenant).

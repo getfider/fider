@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+)
 
 type BlockUser struct {
 	UserID int
@@ -19,7 +22,7 @@ type DeleteCurrentUser struct {
 
 type ChangeUserRole struct {
 	UserID int
-	Role   models.Role
+	Role   enum.Role
 }
 
 type ChangeUserEmail struct {
@@ -43,6 +46,6 @@ type RegisterUserProvider struct {
 
 type UpdateCurrentUser struct {
 	Name       string
-	AvatarType models.AvatarType
+	AvatarType enum.AvatarType
 	Avatar     *models.ImageUpload
 }

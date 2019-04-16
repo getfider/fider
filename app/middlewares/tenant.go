@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
@@ -97,7 +97,7 @@ func RequireTenant() web.MiddlewareFunc {
 func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant().Status == models.TenantPending {
+			if c.Tenant().Status == enum.TenantPending {
 				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
 					Title:       "Pending Activation",
 					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
@@ -124,12 +124,12 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant().Status == models.TenantLocked {
+			if c.Tenant().Status == enum.TenantLocked {
 				if c.Request.IsAPI() {
 					return c.JSON(http.StatusLocked, web.Map{})
 				}
 
-				isAdmin := c.IsAuthenticated() && c.User().Role == models.RoleAdministrator
+				isAdmin := c.IsAuthenticated() && c.User().Role == enum.RoleAdministrator
 				if !isAdmin {
 					return c.Redirect("/signin")
 				}

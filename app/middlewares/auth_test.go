@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/getfider/fider/app/middlewares"
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
@@ -15,7 +15,7 @@ func TestIsAuthorized_WithAllowedRole(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
+	server.Use(middlewares.IsAuthorized(enum.RoleAdministrator, enum.RoleCollaborator))
 	status, _ := server.AsUser(mock.JonSnow).Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
@@ -27,7 +27,7 @@ func TestIsAuthorized_WithForbiddenRole(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	server.Use(middlewares.IsAuthorized(models.RoleAdministrator, models.RoleCollaborator))
+	server.Use(middlewares.IsAuthorized(enum.RoleAdministrator, enum.RoleCollaborator))
 	status, _ := server.AsUser(mock.AryaStark).Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})

@@ -1,6 +1,9 @@
 package query
 
-import "github.com/getfider/fider/app/models"
+import (
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+)
 
 type PostIsReferenced struct {
 	PostID int
@@ -9,7 +12,7 @@ type PostIsReferenced struct {
 }
 
 type CountPostPerStatus struct {
-	Result map[models.PostStatus]int
+	Result map[enum.PostStatus]int
 }
 
 type GetPostByID struct {

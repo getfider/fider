@@ -3,12 +3,12 @@ package handlers
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/pkg/bus"
 
-	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/tasks"
 
 	"github.com/getfider/fider/app/actions"
@@ -41,7 +41,7 @@ func ChangeUserEmail() web.HandlerFunc {
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
 	return func(c *web.Context) error {
-		result, err := validateKey(models.EmailVerificationKindChangeEmail, c)
+		result, err := validateKey(enum.EmailVerificationKindChangeEmail, c)
 		if result == nil {
 			return err
 		}

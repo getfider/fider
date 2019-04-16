@@ -5,6 +5,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -77,7 +78,7 @@ func (input *ChangeUserRole) IsAuthorized(ctx context.Context, user *models.User
 // Validate if current model is valid
 func (input *ChangeUserRole) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
-	if input.Model.Role < models.RoleVisitor || input.Model.Role > models.RoleAdministrator {
+	if input.Model.Role < enum.RoleVisitor || input.Model.Role > enum.RoleAdministrator {
 		return validate.Error(app.ErrNotFound)
 	}
 

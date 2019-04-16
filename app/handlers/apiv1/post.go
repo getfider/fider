@@ -4,6 +4,7 @@ import (
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
@@ -129,7 +130,7 @@ func SetResponse() web.HandlerFunc {
 		prevStatus := getPost.Result.Status
 
 		var command bus.Msg
-		if input.Model.Status == models.PostDuplicate {
+		if input.Model.Status == enum.PostDuplicate {
 			command = &cmd.MarkPostAsDuplicate{Post: getPost.Result, Original: input.Original}
 		} else {
 			command = &cmd.SetPostResponse{
@@ -160,7 +161,7 @@ func DeletePost() web.HandlerFunc {
 		err := bus.Dispatch(c, &cmd.SetPostResponse{
 			Post:   input.Post,
 			Text:   input.Model.Text,
-			Status: models.PostDeleted,
+			Status: enum.PostDeleted,
 		})
 		if err != nil {
 			return c.Failure(err)

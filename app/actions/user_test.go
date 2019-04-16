@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -99,9 +100,9 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 	RegisterT(t)
 
 	for _, user := range []*models.User{
-		&models.User{ID: 1, Role: models.RoleVisitor},
-		&models.User{ID: 1, Role: models.RoleCollaborator},
-		&models.User{ID: 2, Role: models.RoleAdministrator},
+		&models.User{ID: 1, Role: enum.RoleVisitor},
+		&models.User{ID: 1, Role: enum.RoleCollaborator},
+		&models.User{ID: 2, Role: enum.RoleAdministrator},
 	} {
 		action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 2}}
 		Expect(action.IsAuthorized(context.Background(), user)).IsFalse()
@@ -111,7 +112,7 @@ func TestChangeUserRole_Unauthorized(t *testing.T) {
 func TestChangeUserRole_Authorized(t *testing.T) {
 	RegisterT(t)
 
-	user := &models.User{ID: 2, Role: models.RoleAdministrator}
+	user := &models.User{ID: 2, Role: enum.RoleAdministrator}
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 1}}
 	Expect(action.IsAuthorized(context.Background(), user)).IsTrue()
 }
@@ -119,8 +120,8 @@ func TestChangeUserRole_Authorized(t *testing.T) {
 func TestChangeUserRole_InvalidRole(t *testing.T) {
 	RegisterT(t)
 
-	targetUser := &models.User{Role: models.RoleVisitor}
-	currentUser := &models.User{Role: models.RoleAdministrator}
+	targetUser := &models.User{Role: enum.RoleVisitor}
+	currentUser := &models.User{Role: enum.RoleAdministrator}
 
 	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: 4}}
 	action.IsAuthorized(context.Background(), currentUser)
@@ -137,11 +138,11 @@ func TestChangeUserRole_InvalidUser(t *testing.T) {
 
 	currentUser := &models.User{
 		Tenant: &models.Tenant{ID: 1},
-		Role:   models.RoleAdministrator,
+		Role:   enum.RoleAdministrator,
 	}
 
 	ctx := context.Background()
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: models.RoleAdministrator}}
+	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: 999, Role: enum.RoleAdministrator}}
 	action.IsAuthorized(ctx, currentUser)
 	result := action.Validate(ctx, currentUser)
 	ExpectFailed(result, "userID")
@@ -156,7 +157,7 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 
 	currentUser := &models.User{
 		Tenant: &models.Tenant{ID: 2},
-		Role:   models.RoleAdministrator,
+		Role:   enum.RoleAdministrator,
 	}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
@@ -167,7 +168,7 @@ func TestChangeUserRole_InvalidUser_Tenant(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: models.RoleAdministrator}}
+	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: targetUser.ID, Role: enum.RoleAdministrator}}
 	action.IsAuthorized(context.Background(), currentUser)
 	result := action.Validate(context.Background(), currentUser)
 	ExpectFailed(result, "userID")
@@ -178,7 +179,7 @@ func TestChangeUserRole_CurrentUser(t *testing.T) {
 
 	currentUser := &models.User{
 		Tenant: &models.Tenant{ID: 2},
-		Role:   models.RoleAdministrator,
+		Role:   enum.RoleAdministrator,
 	}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetUserByID) error {
@@ -189,7 +190,7 @@ func TestChangeUserRole_CurrentUser(t *testing.T) {
 		return app.ErrNotFound
 	})
 
-	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: currentUser.ID, Role: models.RoleVisitor}}
+	action := actions.ChangeUserRole{Model: &models.ChangeUserRole{UserID: currentUser.ID, Role: enum.RoleVisitor}}
 	action.IsAuthorized(context.Background(), currentUser)
 	result := action.Validate(context.Background(), currentUser)
 	ExpectFailed(result, "userID")

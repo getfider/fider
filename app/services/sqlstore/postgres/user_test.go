@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -107,7 +108,7 @@ func TestUserStorage_Register(t *testing.T) {
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "rob.stark@got.com",
-		Role:  models.RoleCollaborator,
+		Role:  enum.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
@@ -123,10 +124,10 @@ func TestUserStorage_Register(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(getUser.Result.ID).Equals(int(6))
-	Expect(getUser.Result.Role).Equals(models.RoleCollaborator)
+	Expect(getUser.Result.Role).Equals(enum.RoleCollaborator)
 	Expect(getUser.Result.Name).Equals("Rob Stark")
 	Expect(getUser.Result.Email).Equals("rob.stark@got.com")
-	Expect(getUser.Result.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(enum.UserActive)
 }
 
 func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
@@ -136,7 +137,7 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	user := &models.User{
 		Name:  "Rob Stark",
 		Email: "   ",
-		Role:  models.RoleCollaborator,
+		Role:  enum.RoleCollaborator,
 	}
 	err := bus.Dispatch(demoTenantCtx, &cmd.RegisterUser{User: user})
 	Expect(err).IsNil()
@@ -145,10 +146,10 @@ func TestUserStorage_Register_WhiteSpaceEmail(t *testing.T) {
 	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
 
-	Expect(getUser.Result.Role).Equals(models.RoleCollaborator)
+	Expect(getUser.Result.Role).Equals(enum.RoleCollaborator)
 	Expect(getUser.Result.Name).Equals("Rob Stark")
 	Expect(getUser.Result.Email).Equals("")
-	Expect(getUser.Result.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(enum.UserActive)
 }
 
 func TestUserStorage_Register_MultipleProviders(t *testing.T) {
@@ -167,7 +168,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	user := &models.User{
 		Name:  "Jon Snow",
 		Email: "jon.snow@got.com",
-		Role:  models.RoleCollaborator,
+		Role:  enum.RoleCollaborator,
 		Providers: []*models.UserProvider{
 			{
 				UID:  "123123123",
@@ -185,7 +186,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	Expect(user.ID).NotEquals(0)
 	Expect(user.Name).Equals("Jon Snow")
 	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Status).Equals(models.UserActive)
+	Expect(user.Status).Equals(enum.UserActive)
 }
 
 func TestUserStorage_RegisterProvider(t *testing.T) {
@@ -207,7 +208,7 @@ func TestUserStorage_RegisterProvider(t *testing.T) {
 	Expect(getUser.Result.Name).Equals("Jon Snow")
 	Expect(getUser.Result.Email).Equals("jon.snow@got.com")
 	Expect(getUser.Result.Tenant.ID).Equals(1)
-	Expect(getUser.Result.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(enum.UserActive)
 
 	Expect(getUser.Result.Providers).HasLen(2)
 	Expect(getUser.Result.Providers[0].UID).Equals("FB1234")
@@ -241,14 +242,14 @@ func TestUserStorage_ChangeRole(t *testing.T) {
 
 	err := bus.Dispatch(demoTenantCtx, &cmd.ChangeUserRole{
 		UserID: jonSnow.ID,
-		Role:   models.RoleVisitor,
+		Role:   enum.RoleVisitor,
 	})
 	Expect(err).IsNil()
 
 	getUser := &query.GetUserByEmail{Email: "jon.snow@got.com"}
 	err = bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(getUser.Result.Role).Equals(models.RoleVisitor)
+	Expect(getUser.Result.Role).Equals(enum.RoleVisitor)
 }
 
 func TestUserStorage_ChangeEmail(t *testing.T) {
@@ -282,11 +283,11 @@ func TestUserStorage_GetAll(t *testing.T) {
 
 	Expect(allUsers.Result).HasLen(3)
 	Expect(allUsers.Result[0].Name).Equals("Jon Snow")
-	Expect(allUsers.Result[0].Status).Equals(models.UserActive)
+	Expect(allUsers.Result[0].Status).Equals(enum.UserActive)
 	Expect(allUsers.Result[1].Name).Equals("Arya Stark")
-	Expect(allUsers.Result[1].Status).Equals(models.UserActive)
+	Expect(allUsers.Result[1].Status).Equals(enum.UserActive)
 	Expect(allUsers.Result[2].Name).Equals("Sansa Stark")
-	Expect(allUsers.Result[2].Status).Equals(models.UserActive)
+	Expect(allUsers.Result[2].Status).Equals(enum.UserActive)
 }
 
 func TestUserStorage_DefaultUserSettings(t *testing.T) {
@@ -299,16 +300,16 @@ func TestUserStorage_DefaultUserSettings(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(getSettings.Result).Equals(map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName:      models.NotificationEventNewPost.DefaultSettingValue,
-		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
-		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventNewPost.UserSettingsKeyName:      enum.NotificationEventNewPost.DefaultSettingValue,
+		enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
+		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
 	})
 
 	err = bus.Dispatch(aryaStarkCtx, getSettings)
 	Expect(err).IsNil()
 	Expect(getSettings.Result).Equals(map[string]string{
-		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
-		models.NotificationEventChangeStatus.UserSettingsKeyName: models.NotificationEventChangeStatus.DefaultSettingValue,
+		enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
+		enum.NotificationEventChangeStatus.UserSettingsKeyName: enum.NotificationEventChangeStatus.DefaultSettingValue,
 	})
 }
 
@@ -317,8 +318,8 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	disableAll := map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
-		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
+		enum.NotificationEventNewPost.UserSettingsKeyName:      "0",
+		enum.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	}
 
 	err := bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: disableAll})
@@ -329,9 +330,9 @@ func TestUserStorage_SaveGetUserSettings(t *testing.T) {
 	Expect(err).IsNil()
 
 	Expect(firstSettings.Result).Equals(map[string]string{
-		models.NotificationEventNewPost.UserSettingsKeyName:      "0",
-		models.NotificationEventNewComment.UserSettingsKeyName:   models.NotificationEventNewComment.DefaultSettingValue,
-		models.NotificationEventChangeStatus.UserSettingsKeyName: "0",
+		enum.NotificationEventNewPost.UserSettingsKeyName:      "0",
+		enum.NotificationEventNewComment.UserSettingsKeyName:   enum.NotificationEventNewComment.DefaultSettingValue,
+		enum.NotificationEventChangeStatus.UserSettingsKeyName: "0",
 	})
 
 	err = bus.Dispatch(aryaStarkCtx, &cmd.UpdateCurrentUserSettings{Settings: nil})
@@ -409,13 +410,13 @@ func TestUserStorage_BlockUser(t *testing.T) {
 
 	err := bus.Dispatch(demoTenantCtx, getUser)
 	Expect(err).IsNil()
-	Expect(getUser.Result.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(enum.UserActive)
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.BlockUser{UserID: userID}, getUser)
 	Expect(err).IsNil()
-	Expect(getUser.Result.Status).Equals(models.UserBlocked)
+	Expect(getUser.Result.Status).Equals(enum.UserBlocked)
 
 	err = bus.Dispatch(demoTenantCtx, &cmd.UnblockUser{UserID: userID}, getUser)
 	Expect(err).IsNil()
-	Expect(getUser.Result.Status).Equals(models.UserActive)
+	Expect(getUser.Result.Status).Equals(enum.UserActive)
 }

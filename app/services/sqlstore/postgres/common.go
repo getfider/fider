@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -19,15 +19,15 @@ func ToTSQuery(input string) string {
 	return strings.Join(strings.Fields(input), "|")
 }
 
-func getViewData(view string) (string, []models.PostStatus, string) {
+func getViewData(view string) (string, []enum.PostStatus, string) {
 	var (
 		condition string
 		sort      string
 	)
-	statuses := []models.PostStatus{
-		models.PostOpen,
-		models.PostStarted,
-		models.PostPlanned,
+	statuses := []enum.PostStatus{
+		enum.PostOpen,
+		enum.PostStarted,
+		enum.PostPlanned,
 	}
 	switch view {
 	case "recent":
@@ -41,24 +41,24 @@ func getViewData(view string) (string, []models.PostStatus, string) {
 		sort = "comments_count"
 	case "planned":
 		sort = "response_date"
-		statuses = []models.PostStatus{models.PostPlanned}
+		statuses = []enum.PostStatus{enum.PostPlanned}
 	case "started":
 		sort = "response_date"
-		statuses = []models.PostStatus{models.PostStarted}
+		statuses = []enum.PostStatus{enum.PostStarted}
 	case "completed":
 		sort = "response_date"
-		statuses = []models.PostStatus{models.PostCompleted}
+		statuses = []enum.PostStatus{enum.PostCompleted}
 	case "declined":
 		sort = "response_date"
-		statuses = []models.PostStatus{models.PostDeclined}
+		statuses = []enum.PostStatus{enum.PostDeclined}
 	case "all":
 		sort = "id"
-		statuses = []models.PostStatus{
-			models.PostOpen,
-			models.PostStarted,
-			models.PostPlanned,
-			models.PostCompleted,
-			models.PostDeclined,
+		statuses = []enum.PostStatus{
+			enum.PostOpen,
+			enum.PostStarted,
+			enum.PostPlanned,
+			enum.PostCompleted,
+			enum.PostDeclined,
 		}
 	case "trending":
 		fallthrough
@@ -68,12 +68,12 @@ func getViewData(view string) (string, []models.PostStatus, string) {
 	return condition, statuses, sort
 }
 
-func buildAvatarURL(ctx context.Context, avatarType models.AvatarType, id int, name, avatarBlobKey string) string {
+func buildAvatarURL(ctx context.Context, avatarType enum.AvatarType, id int, name, avatarBlobKey string) string {
 	if name == "" {
 		name = "-"
 	}
 
-	if avatarType == models.AvatarTypeCustom {
+	if avatarType == enum.AvatarTypeCustom {
 		return web.TenantAssetsURL(ctx, "/images/%s", avatarBlobKey)
 	} else {
 		return web.TenantAssetsURL(ctx, "/avatars/%s/%d/%s", avatarType.String(), id, url.PathEscape(name))

@@ -7,6 +7,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -64,7 +65,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 
 	input := &models.CreateEditOAuthConfig{
 		DisplayName:       "My Provider",
-		Status:            models.OAuthConfigEnabled,
+		Status:            enum.OAuthConfigEnabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
 		AuthorizeURL:      "http://provider/oauth/authorize",
@@ -104,7 +105,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	action.Initialize()
 	action.Model.Provider = "_NAME"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.ClientSecret = "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
@@ -142,7 +143,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	action.Initialize()
 	action.Model.Provider = "_NAME2"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
 	action.Model.TokenURL = "http://provider/oauth/token"
@@ -169,7 +170,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	action.Initialize()
 	action.Model.Provider = "_MY_NEW_PROVIDER"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
 	action.Model.TokenURL = "http://provider/oauth/token"

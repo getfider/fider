@@ -1,25 +1,26 @@
 package models
 
 import (
-	"strconv"
 	"time"
+
+	"github.com/getfider/fider/app/models/enum"
 )
 
 //Post represents an post on a tenant board
 type Post struct {
-	ID            int           `json:"id"`
-	Number        int           `json:"number"`
-	Title         string        `json:"title"`
-	Slug          string        `json:"slug"`
-	Description   string        `json:"description"`
-	CreatedAt     time.Time     `json:"createdAt"`
-	User          *User         `json:"user"`
-	HasVoted      bool          `json:"hasVoted"`
-	VotesCount    int           `json:"votesCount"`
-	CommentsCount int           `json:"commentsCount"`
-	Status        PostStatus    `json:"status"`
-	Response      *PostResponse `json:"response,omitempty"`
-	Tags          []string      `json:"tags"`
+	ID            int             `json:"id"`
+	Number        int             `json:"number"`
+	Title         string          `json:"title"`
+	Slug          string          `json:"slug"`
+	Description   string          `json:"description"`
+	CreatedAt     time.Time       `json:"createdAt"`
+	User          *User           `json:"user"`
+	HasVoted      bool            `json:"hasVoted"`
+	VotesCount    int             `json:"votesCount"`
+	CommentsCount int             `json:"commentsCount"`
+	Status        enum.PostStatus `json:"status"`
+	Response      *PostResponse   `json:"response,omitempty"`
+	Tags          []string        `json:"tags"`
 }
 
 //VoteUser represents a user that voted on a post
@@ -38,7 +39,7 @@ type Vote struct {
 
 // CanBeVoted returns true if this post can have its vote changed
 func (i *Post) CanBeVoted() bool {
-	return i.Status != PostCompleted && i.Status != PostDeclined && i.Status != PostDuplicate
+	return i.Status != enum.PostCompleted && i.Status != enum.PostDeclined && i.Status != enum.PostDuplicate
 }
 
 // NewPost represents a new post
@@ -85,10 +86,10 @@ type DeleteComment struct {
 
 // SetResponse represents the action to update an post response
 type SetResponse struct {
-	Number         int        `route:"number"`
-	Status         PostStatus `json:"status"`
-	Text           string     `json:"text"`
-	OriginalNumber int        `json:"originalNumber"`
+	Number         int             `route:"number"`
+	Status         enum.PostStatus `json:"status"`
+	Text           string          `json:"text"`
+	OriginalNumber int             `json:"originalNumber"`
 }
 
 //PostResponse is a staff response to a given post
@@ -101,10 +102,10 @@ type PostResponse struct {
 
 //OriginalPost holds details of the original post of a duplicate
 type OriginalPost struct {
-	Number int        `json:"number"`
-	Title  string     `json:"title"`
-	Slug   string     `json:"slug"`
-	Status PostStatus `json:"status"`
+	Number int             `json:"number"`
+	Title  string          `json:"title"`
+	Slug   string          `json:"slug"`
+	Status enum.PostStatus `json:"status"`
 }
 
 //Comment represents an user comment on an post
@@ -145,140 +146,3 @@ type AssignUnassignTag struct {
 	Slug   string `route:"slug"`
 	Number int    `route:"number"`
 }
-
-//PostStatus is the status of a given post
-type PostStatus int
-
-var (
-	//PostOpen is the default status
-	PostOpen PostStatus
-	//PostStarted is used when the post has been accepted and work is in progress
-	PostStarted PostStatus = 1
-	//PostCompleted is used when the post has been accepted and already implemented
-	PostCompleted PostStatus = 2
-	//PostDeclined is used when organizers decide to decline an post
-	PostDeclined PostStatus = 3
-	//PostPlanned is used when organizers have accepted an post and it's on the roadmap
-	PostPlanned PostStatus = 4
-	//PostDuplicate is used when the post has already been posted before
-	PostDuplicate PostStatus = 5
-	//PostDeleted is used when the post is completely removed from the site and should never be shown again
-	PostDeleted PostStatus = 6
-)
-var postStatusIDs = map[PostStatus]string{
-	PostOpen:      "open",
-	PostStarted:   "started",
-	PostCompleted: "completed",
-	PostDeclined:  "declined",
-	PostPlanned:   "planned",
-	PostDuplicate: "duplicate",
-	PostDeleted:   "deleted",
-}
-
-var postStatusNames = map[string]PostStatus{
-	"open":      PostOpen,
-	"started":   PostStarted,
-	"completed": PostCompleted,
-	"declined":  PostDeclined,
-	"planned":   PostPlanned,
-	"duplicate": PostDuplicate,
-	"deleted":   PostDeleted,
-}
-
-// MarshalText returns the Text version of the post status
-func (status PostStatus) MarshalText() ([]byte, error) {
-	return []byte(postStatusIDs[status]), nil
-}
-
-// UnmarshalText parse string into a post status
-func (status *PostStatus) UnmarshalText(text []byte) error {
-	*status = postStatusNames[string(text)]
-	return nil
-}
-
-// Name returns the name of a post status
-func (status PostStatus) Name() string {
-	name, ok := postStatusIDs[status]
-	if ok {
-		return name
-	}
-	return "Unknown"
-}
-
-var (
-	//SubscriberInactive means that the user cancelled the subscription
-	SubscriberInactive = 0
-	//SubscriberActive means that the subscription is active
-	SubscriberActive = 1
-)
-
-//NotificationChannel represents the medium that the notification is sent
-type NotificationChannel int
-
-var (
-	//NotificationChannelWeb is a in-app notification
-	NotificationChannelWeb NotificationChannel = 1
-	//NotificationChannelEmail is an email notification
-	NotificationChannelEmail NotificationChannel = 2
-)
-
-//NotificationEvent represents all possible notification events
-type NotificationEvent struct {
-	UserSettingsKeyName           string
-	DefaultSettingValue           string
-	RequiresSubscriptionUserRoles []Role
-	DefaultEnabledUserRoles       []Role
-	Validate                      func(string) bool
-}
-
-func notificationEventValidation(v string) bool {
-	return v == "0" || v == "1" || v == "2" || v == "3"
-}
-
-var (
-	//NotificationEventNewPost is triggered when a new post is posted
-	NotificationEventNewPost = NotificationEvent{
-		UserSettingsKeyName:           "event_notification_new_post",
-		DefaultSettingValue:           strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscriptionUserRoles: []Role{},
-		DefaultEnabledUserRoles: []Role{
-			RoleAdministrator,
-			RoleCollaborator,
-		},
-		Validate: notificationEventValidation,
-	}
-	//NotificationEventNewComment is triggered when a new comment is posted
-	NotificationEventNewComment = NotificationEvent{
-		UserSettingsKeyName: "event_notification_new_comment",
-		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscriptionUserRoles: []Role{
-			RoleVisitor,
-		},
-		DefaultEnabledUserRoles: []Role{
-			RoleAdministrator,
-			RoleCollaborator,
-			RoleVisitor,
-		},
-		Validate: notificationEventValidation,
-	}
-	//NotificationEventChangeStatus is triggered when a new post has its status changed
-	NotificationEventChangeStatus = NotificationEvent{
-		UserSettingsKeyName: "event_notification_change_status",
-		DefaultSettingValue: strconv.Itoa(int(NotificationChannelWeb | NotificationChannelEmail)),
-		RequiresSubscriptionUserRoles: []Role{
-			RoleVisitor,
-		},
-		DefaultEnabledUserRoles: []Role{
-			RoleAdministrator,
-			RoleCollaborator,
-			RoleVisitor,
-		},
-		Validate: notificationEventValidation,
-	}
-	//AllNotificationEvents contains all possible notification events
-	AllNotificationEvents = []NotificationEvent{
-		NotificationEventNewPost,
-		NotificationEventNewComment,
-		NotificationEventChangeStatus,
-	}
-)

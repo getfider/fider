@@ -10,6 +10,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
@@ -37,15 +38,15 @@ func (u *dbUser) toModel(ctx context.Context) *models.User {
 		return nil
 	}
 
-	avatarType := models.AvatarType(u.AvatarType.Int64)
+	avatarType := enum.AvatarType(u.AvatarType.Int64)
 	user := &models.User{
 		ID:            int(u.ID.Int64),
 		Name:          u.Name.String,
 		Email:         u.Email.String,
 		Tenant:        u.Tenant.toModel(),
-		Role:          models.Role(u.Role.Int64),
+		Role:          enum.Role(u.Role.Int64),
 		Providers:     make([]*models.UserProvider, len(u.Providers)),
-		Status:        models.UserStatus(u.Status.Int64),
+		Status:        enum.UserStatus(u.Status.Int64),
 		AvatarType:    avatarType,
 		AvatarBlobKey: u.AvatarBlobKey.String,
 		AvatarURL:     buildAvatarURL(ctx, avatarType, int(u.ID.Int64), u.Name.String, u.AvatarBlobKey.String),
@@ -82,7 +83,7 @@ func blockUser(ctx context.Context, c *cmd.BlockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		if _, err := trx.Execute(
 			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, models.UserBlocked,
+			c.UserID, tenant.ID, enum.UserBlocked,
 		); err != nil {
 			return errors.Wrap(err, "failed to block user")
 		}
@@ -94,7 +95,7 @@ func unblockUser(ctx context.Context, c *cmd.UnblockUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		if _, err := trx.Execute(
 			"UPDATE users SET status = $3 WHERE id = $1 AND tenant_id = $2",
-			c.UserID, tenant.ID, models.UserActive,
+			c.UserID, tenant.ID, enum.UserActive,
 		); err != nil {
 			return errors.Wrap(err, "failed to unblock user")
 		}
@@ -106,7 +107,7 @@ func deleteCurrentUser(ctx context.Context, c *cmd.DeleteCurrentUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		if _, err := trx.Execute(
 			"UPDATE users SET role = $3, status = $4, name = '', email = '', api_key = null, api_key_date = null WHERE id = $1 AND tenant_id = $2",
-			user.ID, tenant.ID, models.RoleVisitor, models.UserDeleted,
+			user.ID, tenant.ID, enum.RoleVisitor, enum.UserDeleted,
 		); err != nil {
 			return errors.Wrap(err, "failed to delete current user")
 		}
@@ -178,7 +179,7 @@ func userSubscribedTo(ctx context.Context, q *query.UserSubscribedTo) error {
 		}
 
 		if errors.Cause(err) == app.ErrNotFound {
-			for _, e := range models.AllNotificationEvents {
+			for _, e := range enum.AllNotificationEvents {
 				for _, r := range e.RequiresSubscriptionUserRoles {
 					if r == user.Role {
 						q.Result = false
@@ -252,7 +253,7 @@ func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings
 			return errors.Wrap(err, "failed to get user settings")
 		}
 
-		for _, e := range models.AllNotificationEvents {
+		for _, e := range enum.AllNotificationEvents {
 			for _, r := range e.DefaultEnabledUserRoles {
 				if r == user.Role {
 					q.Result[e.UserSettingsKeyName] = e.DefaultSettingValue
@@ -271,11 +272,11 @@ func getCurrentUserSettings(ctx context.Context, q *query.GetCurrentUserSettings
 func registerUser(ctx context.Context, c *cmd.RegisterUser) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, _ *models.User) error {
 		now := time.Now()
-		c.User.Status = models.UserActive
+		c.User.Status = enum.UserActive
 		c.User.Email = strings.ToLower(strings.TrimSpace(c.User.Email))
 		if err := trx.Get(&c.User.ID,
 			"INSERT INTO users (name, email, created_at, tenant_id, role, status, avatar_type, avatar_bkey) VALUES ($1, $2, $3, $4, $5, $6, $7, '') RETURNING id",
-			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, models.UserActive, models.AvatarTypeGravatar); err != nil {
+			c.User.Name, c.User.Email, now, tenant.ID, c.User.Role, enum.UserActive, enum.AvatarTypeGravatar); err != nil {
 			return errors.Wrap(err, "failed to register new user")
 		}
 
@@ -368,7 +369,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 			FROM users 
 			WHERE tenant_id = $1 
 			AND status != $2
-			ORDER BY id`, tenant.ID, models.UserDeleted)
+			ORDER BY id`, tenant.ID, enum.UserDeleted)
 		if err != nil {
 			return errors.Wrap(err, "failed to get all users")
 		}
@@ -383,7 +384,7 @@ func getAllUsers(ctx context.Context, q *query.GetAllUsers) error {
 
 func queryUser(ctx context.Context, trx *dbx.Trx, filter string, args ...interface{}) (*models.User, error) {
 	user := dbUser{}
-	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", models.UserDeleted)
+	sql := fmt.Sprintf("SELECT id, name, email, tenant_id, role, status, avatar_type, avatar_bkey FROM users WHERE status != %d AND ", enum.UserDeleted)
 	err := trx.Get(&user, sql+filter, args...)
 	if err != nil {
 		return nil, err

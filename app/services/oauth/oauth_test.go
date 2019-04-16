@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/query"
@@ -376,7 +377,7 @@ func TestCustomOAuth_Disabled(t *testing.T) {
 				JSONUserIDPath:    "id",
 				JSONUserNamePath:  "name",
 				JSONUserEmailPath: "email",
-				Status:            models.OAuthConfigDisabled,
+				Status:            enum.OAuthConfigDisabled,
 			}
 		}
 		return nil

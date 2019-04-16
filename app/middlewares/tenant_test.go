@@ -9,6 +9,7 @@ import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/middlewares"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
@@ -208,7 +209,7 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
-		q.Result = &models.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: models.TenantActive}
+		q.Result = &models.Tenant{Name: "MyCompany", Subdomain: "mycompany", Status: enum.TenantActive}
 		return nil
 	})
 
@@ -227,7 +228,7 @@ func TestBlockPendingTenants_Active(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantActive
+	mock.DemoTenant.Status = enum.TenantActive
 
 	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c *web.Context) error {
@@ -241,7 +242,7 @@ func TestBlockPendingTenants_Pending(t *testing.T) {
 	RegisterT(t)
 
 	server := mock.NewServer()
-	mock.DemoTenant.Status = models.TenantPending
+	mock.DemoTenant.Status = enum.TenantPending
 
 	server.Use(middlewares.BlockPendingTenants())
 	status, _ := server.OnTenant(mock.DemoTenant).Execute(func(c *web.Context) error {
@@ -399,7 +400,7 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 	RegisterT(t)
 	server := mock.NewServer()
 	server.Use(middlewares.BlockLockedTenants())
-	mock.DemoTenant.Status = models.TenantLocked
+	mock.DemoTenant.Status = enum.TenantLocked
 
 	status, response := server.
 		WithURL("http://demo.test.fider.io").
@@ -416,7 +417,7 @@ func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {
 	RegisterT(t)
 	server := mock.NewServer()
 	server.Use(middlewares.BlockLockedTenants())
-	mock.DemoTenant.Status = models.TenantLocked
+	mock.DemoTenant.Status = enum.TenantLocked
 
 	status, _ := server.
 		WithURL("http://demo.test.fider.io/api/v1/posts").

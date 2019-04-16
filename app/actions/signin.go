@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -76,10 +77,10 @@ func (input *CompleteProfile) Validate(ctx context.Context, user *models.User) *
 	if input.Model.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		findBySignIn := &query.GetVerificationByKey{Kind: models.EmailVerificationKindSignIn, Key: input.Model.Key}
+		findBySignIn := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: input.Model.Key}
 		err1 := bus.Dispatch(ctx, findBySignIn)
 
-		findByUserInvitation := &query.GetVerificationByKey{Kind: models.EmailVerificationKindUserInvitation, Key: input.Model.Key}
+		findByUserInvitation := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindUserInvitation, Key: input.Model.Key}
 		err2 := bus.Dispatch(ctx, findByUserInvitation)
 
 		if err1 == nil {

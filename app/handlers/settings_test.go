@@ -9,6 +9,7 @@ import (
 
 	"github.com/getfider/fider/app"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -114,11 +115,11 @@ func TestUpdateUserSettingsHandler_NewSettings(t *testing.T) {
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(updateCmd.Name).Equals("Jon Stark")
-	Expect(updateCmd.AvatarType).Equals(models.AvatarTypeGravatar)
+	Expect(updateCmd.AvatarType).Equals(enum.AvatarTypeGravatar)
 
-	Expect(updateSettingsCmd.Settings[models.NotificationEventNewPost.UserSettingsKeyName]).Equals("1")
-	Expect(updateSettingsCmd.Settings[models.NotificationEventNewComment.UserSettingsKeyName]).Equals("2")
-	Expect(updateSettingsCmd.Settings[models.NotificationEventChangeStatus.UserSettingsKeyName]).Equals("3")
+	Expect(updateSettingsCmd.Settings[enum.NotificationEventNewPost.UserSettingsKeyName]).Equals("1")
+	Expect(updateSettingsCmd.Settings[enum.NotificationEventNewComment.UserSettingsKeyName]).Equals("2")
+	Expect(updateSettingsCmd.Settings[enum.NotificationEventChangeStatus.UserSettingsKeyName]).Equals("3")
 }
 
 func TestChangeRoleHandler_Valid(t *testing.T) {
@@ -142,12 +143,12 @@ func TestChangeRoleHandler_Valid(t *testing.T) {
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
-		AddParam("role", models.RoleAdministrator).
+		AddParam("role", enum.RoleAdministrator).
 		ExecutePost(handlers.ChangeUserRole(), fmt.Sprintf(`{ "userID": %d }`, mock.AryaStark.ID))
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(changeRole.UserID).Equals(mock.AryaStark.ID)
-	Expect(changeRole.Role).Equals(models.RoleAdministrator)
+	Expect(changeRole.Role).Equals(enum.RoleAdministrator)
 }
 
 func TestChangeUserEmailHandler_Valid(t *testing.T) {
@@ -175,7 +176,7 @@ func TestChangeUserEmailHandler_Valid(t *testing.T) {
 
 		Expect(code).Equals(http.StatusOK)
 		Expect(saveKeyCmd.Key).HasLen(64)
-		Expect(saveKeyCmd.Request.GetKind()).Equals(models.EmailVerificationKindChangeEmail)
+		Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindChangeEmail)
 		Expect(saveKeyCmd.Request.GetEmail()).Equals(email)
 	}
 }
@@ -220,7 +221,7 @@ func TestVerifyChangeEmailKeyHandler_Success(t *testing.T) {
 
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
-		if q.Key == key && q.Kind == models.EmailVerificationKindChangeEmail {
+		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
 			q.Result = &models.EmailVerification{
 				UserID:    mock.JonSnow.ID,
 				Key:       q.Key,
@@ -264,7 +265,7 @@ func TestVerifyChangeEmailKeyHandler_DifferentUser(t *testing.T) {
 
 	key := "th3-s3cr3t"
 	bus.AddHandler(func(ctx context.Context, q *query.GetVerificationByKey) error {
-		if q.Key == key && q.Kind == models.EmailVerificationKindChangeEmail {
+		if q.Key == key && q.Kind == enum.EmailVerificationKindChangeEmail {
 			q.Result = &models.EmailVerification{
 				Key:       q.Key,
 				Kind:      q.Kind,

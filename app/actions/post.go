@@ -3,6 +3,7 @@ package actions
 import (
 	"context"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/gosimple/slug"
@@ -186,11 +187,11 @@ func (input *SetResponse) IsAuthorized(ctx context.Context, user *models.User) b
 func (input *SetResponse) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if input.Model.Status < models.PostOpen || input.Model.Status > models.PostDuplicate {
+	if input.Model.Status < enum.PostOpen || input.Model.Status > enum.PostDuplicate {
 		result.AddFieldFailure("status", "Status is invalid.")
 	}
 
-	if input.Model.Status == models.PostDuplicate {
+	if input.Model.Status == enum.PostDuplicate {
 		if input.Model.OriginalNumber == input.Model.Number {
 			result.AddFieldFailure("originalNumber", "Cannot be a duplicate of itself")
 		}

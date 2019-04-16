@@ -3,6 +3,7 @@ package mock
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 )
 
@@ -45,13 +46,13 @@ func seed() {
 		ID:        1,
 		Name:      "Demonstration",
 		Subdomain: "demo",
-		Status:    models.TenantActive,
+		Status:    enum.TenantActive,
 	}
 	AvengersTenant = &models.Tenant{
 		ID:        2,
 		Name:      "Avengers",
 		Subdomain: "avengers",
-		Status:    models.TenantActive,
+		Status:    enum.TenantActive,
 		CNAME:     "feedback.theavengers.com",
 	}
 
@@ -60,8 +61,8 @@ func seed() {
 		Name:   "Jon Snow",
 		Email:  "jon.snow@got.com",
 		Tenant: DemoTenant,
-		Status: models.UserActive,
-		Role:   models.RoleAdministrator,
+		Status: enum.UserActive,
+		Role:   enum.RoleAdministrator,
 		Providers: []*models.UserProvider{
 			{UID: "FB1234", Name: app.FacebookProvider},
 		},
@@ -72,7 +73,7 @@ func seed() {
 		Name:   "Arya Stark",
 		Email:  "arya.stark@got.com",
 		Tenant: DemoTenant,
-		Status: models.UserActive,
-		Role:   models.RoleVisitor,
+		Status: enum.UserActive,
+		Role:   enum.RoleVisitor,
 	}
 }

@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
@@ -18,7 +18,7 @@ func IsAuthenticated() web.MiddlewareFunc {
 }
 
 // IsAuthorized blocks non-authorized requests
-func IsAuthorized(roles ...models.Role) web.MiddlewareFunc {
+func IsAuthorized(roles ...enum.Role) web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
 			user := c.User()
