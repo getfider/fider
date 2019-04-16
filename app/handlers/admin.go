@@ -6,7 +6,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // GeneralSettingsPage is the general settings page
@@ -40,12 +39,15 @@ func UpdateSettings() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessImageUpload(c, input.Model.Logo, "logos")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if err := bus.Dispatch(c, &cmd.UpdateTenantSettings{Settings: input.Model}); err != nil {
+		if err := bus.Dispatch(c,
+			&cmd.UploadImage{
+				Image:  input.Model.Logo,
+				Folder: "logos",
+			},
+			&cmd.UpdateTenantSettings{
+				Settings: input.Model,
+			},
+		); err != nil {
 			return c.Failure(err)
 		}
 
@@ -144,14 +146,15 @@ func SaveOAuthConfig() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessImageUpload(c, input.Model.Logo, "logos")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		if err := bus.Dispatch(c, &cmd.SaveCustomOAuthConfig{
-			Config: input.Model,
-		}); err != nil {
+		if err := bus.Dispatch(c,
+			&cmd.UploadImage{
+				Image:  input.Model.Logo,
+				Folder: "logos",
+			},
+			&cmd.SaveCustomOAuthConfig{
+				Config: input.Model,
+			},
+		); err != nil {
 			return c.Failure(err)
 		}
 

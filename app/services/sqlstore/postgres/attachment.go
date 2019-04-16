@@ -3,12 +3,16 @@ package postgres
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/rand"
+	"github.com/getfider/fider/app/services/blob"
 )
 
 func setAttachments(ctx context.Context, c *cmd.SetAttachments) error {
@@ -72,4 +76,32 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 
 		return nil
 	})
+}
+
+func uploadImage(ctx context.Context, c *cmd.UploadImage) error {
+	if c.Image.Upload != nil && len(c.Image.Upload.Content) > 0 {
+		bkey := fmt.Sprintf("%s/%s-%s", c.Folder, rand.String(64), blob.SanitizeFileName(c.Image.Upload.FileName))
+		err := bus.Dispatch(ctx, &cmd.StoreBlob{
+			Key:         bkey,
+			Content:     c.Image.Upload.Content,
+			ContentType: c.Image.Upload.ContentType,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to upload new blob")
+		}
+		c.Image.BlobKey = bkey
+	}
+	return nil
+}
+
+func uploadImages(ctx context.Context, c *cmd.UploadImages) error {
+	for _, img := range c.Images {
+		if err := bus.Dispatch(ctx, &cmd.UploadImage{
+			Image:  img,
+			Folder: c.Folder,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
 }

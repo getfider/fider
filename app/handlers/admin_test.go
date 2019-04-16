@@ -28,6 +28,10 @@ func TestUpdateSettingsHandler(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		return nil
+	})
+
 	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
@@ -56,6 +60,11 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 		return nil
 	})
 
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		c.Image.BlobKey = c.Folder + "/" + c.Image.Upload.FileName
+		return nil
+	})
+
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
@@ -81,8 +90,7 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	Expect(updateCmd.Settings.Title).Equals("GoT")
 	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
 	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(updateCmd.Settings.Logo.BlobKey).ContainsSubstring("logos/")
-	Expect(updateCmd.Settings.Logo.BlobKey).ContainsSubstring("picture.png")
+	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/picture.png")
 }
 
 func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {

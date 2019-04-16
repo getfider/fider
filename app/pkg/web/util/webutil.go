@@ -1,19 +1,14 @@
 package webutil
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/models/cmd"
-	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
-	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/services/blob"
 )
 
 func encode(user *models.User) string {
@@ -74,32 +69,4 @@ func GetSignUpAuthCookie(ctx *web.Context) string {
 		return cookie.Value
 	}
 	return ""
-}
-
-// ProcessMultiImageUpload uploads multiple image to blob (if it's a new one)
-func ProcessMultiImageUpload(c *web.Context, imgs []*models.ImageUpload, preffix string) error {
-	for _, img := range imgs {
-		err := ProcessImageUpload(c, img, preffix)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// ProcessImageUpload uploads image to blob (if it's a new one)
-func ProcessImageUpload(c *web.Context, img *models.ImageUpload, preffix string) error {
-	if img.Upload != nil && len(img.Upload.Content) > 0 {
-		bkey := fmt.Sprintf("%s/%s-%s", preffix, rand.String(64), blob.SanitizeFileName(img.Upload.FileName))
-		err := bus.Dispatch(c, &cmd.StoreBlob{
-			Key:         bkey,
-			Content:     img.Upload.Content,
-			ContentType: img.Upload.ContentType,
-		})
-		if err != nil {
-			return errors.Wrap(err, "failed to upload new blob")
-		}
-		img.BlobKey = bkey
-	}
-	return nil
 }

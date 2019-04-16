@@ -7,7 +7,6 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/tasks"
 )
 
@@ -36,8 +35,7 @@ func CreatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
-		if err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: input.Model.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -45,7 +43,7 @@ func CreatePost() web.HandlerFunc {
 			Title:       input.Model.Title,
 			Description: input.Model.Description,
 		}
-		err = bus.Dispatch(c, newPost)
+		err := bus.Dispatch(c, newPost)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -92,15 +90,20 @@ func UpdatePost() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		err = bus.Dispatch(
-			c,
-			&cmd.UpdatePost{Post: input.Post, Title: input.Model.Title, Description: input.Model.Description},
-			&cmd.SetAttachments{Post: input.Post, Attachments: input.Model.Attachments},
+		err := bus.Dispatch(c,
+			&cmd.UploadImages{
+				Images: input.Model.Attachments,
+				Folder: "attachments",
+			},
+			&cmd.UpdatePost{
+				Post:        input.Post,
+				Title:       input.Model.Title,
+				Description: input.Model.Description,
+			},
+			&cmd.SetAttachments{
+				Post:        input.Post,
+				Attachments: input.Model.Attachments,
+			},
 		)
 		if err != nil {
 			return c.Failure(err)
@@ -219,13 +222,12 @@ func PostComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: input.Model.Number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		getPost := &query.GetPostByNumber{Number: input.Model.Number}
-		if err := bus.Dispatch(c, getPost); err != nil {
+		if err := bus.Dispatch(c, &cmd.UploadImages{Images: input.Model.Attachments, Folder: "attachments"}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -261,23 +263,21 @@ func UpdateComment() web.HandlerFunc {
 			return c.HandleValidation(result)
 		}
 
-		err := webutil.ProcessMultiImageUpload(c, input.Model.Attachments, "attachments")
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		updateComment := &cmd.UpdateComment{
-			CommentID: input.Model.ID,
-			Content:   input.Model.Content,
-		}
-
-		setAttachments := &cmd.SetAttachments{
-			Post:        input.Post,
-			Comment:     input.Comment,
-			Attachments: input.Model.Attachments,
-		}
-
-		err = bus.Dispatch(c, updateComment, setAttachments)
+		err := bus.Dispatch(c,
+			&cmd.UploadImages{
+				Images: input.Model.Attachments,
+				Folder: "attachments",
+			},
+			&cmd.UpdateComment{
+				CommentID: input.Model.ID,
+				Content:   input.Model.Content,
+			},
+			&cmd.SetAttachments{
+				Post:        input.Post,
+				Comment:     input.Comment,
+				Attachments: input.Model.Attachments,
+			},
+		)
 		if err != nil {
 			return c.Failure(err)
 		}

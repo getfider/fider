@@ -13,7 +13,6 @@ import (
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // ChangeUserEmail register the intent of changing user email
@@ -88,26 +87,25 @@ func UserSettings() web.HandlerFunc {
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
 	return func(c *web.Context) error {
-		var err error
-
 		input := new(actions.UpdateUserSettings)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err = webutil.ProcessImageUpload(c, input.Model.Avatar, "avatars"); err != nil {
-			return c.Failure(err)
-		}
-
-		updateUser := &cmd.UpdateCurrentUser{
-			Name:       input.Model.Name,
-			Avatar:     input.Model.Avatar,
-			AvatarType: input.Model.AvatarType,
-		}
-		updateSettings := &cmd.UpdateCurrentUserSettings{
-			Settings: input.Model.Settings,
-		}
-		if err = bus.Dispatch(c, updateUser, updateSettings); err != nil {
+		if err := bus.Dispatch(c,
+			&cmd.UploadImage{
+				Image:  input.Model.Avatar,
+				Folder: "avatars",
+			},
+			&cmd.UpdateCurrentUser{
+				Name:       input.Model.Name,
+				Avatar:     input.Model.Avatar,
+				AvatarType: input.Model.AvatarType,
+			},
+			&cmd.UpdateCurrentUserSettings{
+				Settings: input.Model.Settings,
+			},
+		); err != nil {
 			return c.Failure(err)
 		}
 
