@@ -59,7 +59,11 @@ export class SignInControl extends React.Component<SignInControlProps, SignInCon
               {Fider.settings.oauth.map((o, i) => (
                 <React.Fragment key={o.provider}>
                   {i % 4 === 0 && <div className="col-lf" />}
-                  <div className={`col-sm l-social-col ${providersLen === 1 ? "l-social-col-100" : ""}`}>
+                  <div
+                    className={`col-sm l-provider-${o.provider} l-social-col ${
+                      providersLen === 1 ? "l-social-col-100" : ""
+                    }`}
+                  >
                     <SocialSignInButton option={o} redirectTo={this.props.redirectTo} />
                   </div>
                 </React.Fragment>
