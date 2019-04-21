@@ -1,13 +1,14 @@
 package validate_test
 
 import (
+	"context"
 	"testing"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
-	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 func TestInvalidEmail(t *testing.T) {
@@ -84,13 +85,19 @@ func TestInvalidCNAME(t *testing.T) {
 		"test.fider.io",
 		"@google.com",
 	} {
-		messages := validate.CNAME(inmemory.NewTenantStorage(), cname)
+		messages := validate.CNAME(context.Background(), cname)
 		Expect(len(messages) > 0).IsTrue()
 	}
 }
 
 func TestValidHostname(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsCNAMEAvailable) error {
+		q.Result = true
+		return nil
+	})
+
 	for _, cname := range []string{
 		"google.com",
 		"feedback.fider.io",
@@ -99,27 +106,25 @@ func TestValidHostname(t *testing.T) {
 		"got.com",
 		"hi.m",
 	} {
-		messages := validate.CNAME(inmemory.NewTenantStorage(), cname)
+		messages := validate.CNAME(context.Background(), cname)
 		Expect(messages).HasLen(0)
 	}
 }
 
 func TestValidCNAME_Availability(t *testing.T) {
 	RegisterT(t)
-	tenants := inmemory.NewTenantStorage()
-	tenant, _ := tenants.Add("Footbook", "footbook", models.TenantActive)
-	tenant.CNAME = "footbook.com"
-	tenant, _ = tenants.Add("Your Company", "yourcompany", models.TenantActive)
-	tenant.CNAME = "fider.yourcompany.com"
-	tenant, _ = tenants.Add("New York", "newyork", models.TenantActive)
-	tenant.CNAME = "feedback.newyork.com"
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsCNAMEAvailable) error {
+		q.Result = q.CNAME != "footbook.com" && q.CNAME != "fider.yourcompany.com" && q.CNAME != "feedback.newyork.com"
+		return nil
+	})
 
 	for _, cname := range []string{
 		"footbook.com",
 		"fider.yourcompany.com",
 		"feedback.newyork.com",
 	} {
-		messages := validate.CNAME(tenants, cname)
+		messages := validate.CNAME(context.Background(), cname)
 		Expect(len(messages) > 0).IsTrue()
 	}
 
@@ -128,7 +133,7 @@ func TestValidCNAME_Availability(t *testing.T) {
 		"yourcompany.com",
 		"anything.com",
 	} {
-		messages := validate.CNAME(tenants, cname)
+		messages := validate.CNAME(context.Background(), cname)
 		Expect(messages).HasLen(0)
 	}
 }

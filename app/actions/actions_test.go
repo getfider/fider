@@ -1,14 +1,9 @@
 package actions_test
 
 import (
-	"github.com/getfider/fider/app"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/blob/fs"
-	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
-	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
@@ -17,16 +12,6 @@ var jonSnowToken, _ = jwt.Encode(jwt.OAuthClaims{
 	OAuthEmail:    "jon.snow@got.com",
 	OAuthProvider: "facebook",
 })
-
-var services = &app.Services{
-	Tenants:       inmemory.NewTenantStorage(),
-	Users:         &inmemory.UserStorage{},
-	Posts:         inmemory.NewPostStorage(),
-	Tags:          inmemory.NewTagStorage(),
-	Notifications: inmemory.NewNotificationStorage(),
-	Blobs:         fs.NewStorage(env.Path("tmp")),
-	Billing:       billing.NewClient(),
-}
 
 func ExpectFailed(result *validate.Result, expectedFields ...string) {
 	Expect(result.Ok).IsFalse()

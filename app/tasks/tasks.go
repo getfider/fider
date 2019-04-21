@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"strings"
@@ -8,8 +9,13 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/markdown"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -28,22 +34,41 @@ func linkWithText(text, baseURL, path string, args ...interface{}) template.HTML
 //SendSignUpEmail is used to send the sign up email to requestor
 func SendSignUpEmail(model *models.CreateTenant, baseURL string) worker.Task {
 	return describe("Send sign up email", func(c *worker.Context) error {
-		to := email.NewRecipient(model.Name, model.Email, email.Params{
-			"logo": "https://getfider.com/images/logo-100x100.png",
+		to := dto.NewRecipient(model.Name, model.Email, dto.Props{
 			"link": link(baseURL, "/signup/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "signup_email", email.Params{}, "Fider", to)
+
+		bus.Publish(c, &cmd.SendMail{
+			From:         "Fider",
+			To:           []dto.Recipient{to},
+			TemplateName: "signup_email",
+			Props: dto.Props{
+				"logo": web.LogoURL(c),
+			},
+		})
+
+		return nil
 	})
 }
 
 //SendSignInEmail is used to send the sign in email to requestor
 func SendSignInEmail(model *models.SignInByEmail) worker.Task {
 	return describe("Send sign in email", func(c *worker.Context) error {
-		to := email.NewRecipient("", model.Email, email.Params{
+		to := dto.NewRecipient("", model.Email, dto.Props{
 			"tenantName": c.Tenant().Name,
-			"link":       link(c.BaseURL(), "/signin/verify?k=%s", model.VerificationKey),
+			"link":       link(web.BaseURL(c), "/signin/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "signin_email", email.Params{}, c.Tenant().Name, to)
+
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.Tenant().Name,
+			To:           []dto.Recipient{to},
+			TemplateName: "signin_email",
+			Props: dto.Props{
+				"logo": web.LogoURL(c),
+			},
+		})
+
+		return nil
 	})
 }
 
@@ -55,13 +80,23 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 			previous = "(empty)"
 		}
 
-		to := email.NewRecipient(model.Requestor.Name, model.Email, email.Params{
+		to := dto.NewRecipient(model.Requestor.Name, model.Email, dto.Props{
 			"name":     c.User().Name,
 			"oldEmail": previous,
 			"newEmail": model.Email,
-			"link":     link(c.BaseURL(), "/change-email/verify?k=%s", model.VerificationKey),
+			"link":     link(web.BaseURL(c), "/change-email/verify?k=%s", model.VerificationKey),
 		})
-		return c.Services().Emailer.Send(c, "change_emailaddress_email", email.Params{}, c.Tenant().Name, to)
+
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.Tenant().Name,
+			To:           []dto.Recipient{to},
+			TemplateName: "change_emailaddress_email",
+			Props: dto.Props{
+				"logo": web.LogoURL(c),
+			},
+		})
+
+		return nil
 	})
 }
 
@@ -69,7 +104,7 @@ func SendChangeEmailConfirmation(model *models.ChangeUserEmail) worker.Task {
 func NotifyAboutNewPost(post *models.Post) worker.Task {
 	return describe("Notify about new post", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewPost)
+		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -78,36 +113,50 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewPost)
+		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewPost)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"userName":   c.User().Name,
 			"content":    markdown.Simple(post.Description),
-			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"view":       linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"postLink":   linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":       linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":     linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":       web.LogoURL(c),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "new_post", params, c.User().Name, to)
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "new_post",
+			Props:        props,
+		})
+
+		return nil
 	})
 }
 
@@ -115,7 +164,7 @@ func NotifyAboutNewPost(post *models.Post) worker.Task {
 func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker.Task {
 	return describe("Notify about new comment", func(c *worker.Context) error {
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventNewComment)
+		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -124,42 +173,56 @@ func NotifyAboutNewComment(post *models.Post, comment *models.NewComment) worker
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventNewComment)
+		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventNewComment)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":       post.Title,
 			"tenantName":  c.Tenant().Name,
 			"userName":    c.User().Name,
 			"content":     markdown.Simple(comment.Content),
-			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"view":        linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":        web.LogoURL(c),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "new_comment", params, c.User().Name, to)
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "new_comment",
+			Props:        props,
+		})
+
+		return nil
 	})
 }
 
 //NotifyAboutStatusChange sends a notification (web and email) to subscribers
-func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) worker.Task {
+func NotifyAboutStatusChange(post *models.Post, prevStatus enum.PostStatus) worker.Task {
 	return describe("Notify about post status change", func(c *worker.Context) error {
 		//Don't notify if previous status is the same
 		if prevStatus == post.Status {
@@ -167,7 +230,7 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 		}
 
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -176,47 +239,57 @@ func NotifyAboutStatusChange(post *models.Post, prevStatus models.PostStatus) wo
 		link := fmt.Sprintf("/posts/%d/%s", post.Number, post.Slug)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, link, post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					Link:   link,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
 
 		var duplicate template.HTML
-		if post.Status == models.PostDuplicate {
-			originalPost, err := c.Services().Posts.GetByNumber(post.Response.Original.Number)
-			if err != nil {
-				return c.Failure(err)
-			}
-			duplicate = linkWithText(originalPost.Title, c.BaseURL(), "/posts/%d/%s", originalPost.Number, originalPost.Slug)
+		if post.Status == enum.PostDuplicate {
+			duplicate = linkWithText(post.Response.Original.Title, web.BaseURL(c), "/posts/%d/%s", post.Response.Original.Number, post.Response.Original.Slug)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":       post.Title,
-			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
+			"postLink":    linkWithText(fmt.Sprintf("#%d", post.Number), web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
 			"tenantName":  c.Tenant().Name,
 			"content":     markdown.Simple(post.Response.Text),
 			"status":      post.Status.Name(),
 			"duplicate":   duplicate,
-			"view":        linkWithText("View it on your browser", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"unsubscribe": linkWithText("unsubscribe from it", c.BaseURL(), "/posts/%d/%s", post.Number, post.Slug),
-			"change":      linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"view":        linkWithText("View it on your browser", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"unsubscribe": linkWithText("unsubscribe from it", web.BaseURL(c), "/posts/%d/%s", post.Number, post.Slug),
+			"change":      linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":        web.LogoURL(c),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "change_status", params, c.User().Name, to)
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "change_status",
+			Props:        props,
+		})
+
+		return nil
 	})
 }
 
@@ -225,7 +298,7 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 	return describe("Notify about deleted post", func(c *worker.Context) error {
 
 		// Web notification
-		users, err := c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelWeb, models.NotificationEventChangeStatus)
+		users, err := getActiveSubscribers(c, post, enum.NotificationChannelWeb, enum.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -233,54 +306,90 @@ func NotifyAboutDeletedPost(post *models.Post) worker.Task {
 		title := fmt.Sprintf("**%s** deleted **%s**", c.User().Name, post.Title)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				if _, err = c.Services().Notifications.Insert(user, title, "", post.ID); err != nil {
+				err = bus.Dispatch(c, &cmd.AddNewNotification{
+					User:   user,
+					Title:  title,
+					PostID: post.ID,
+				})
+				if err != nil {
 					return c.Failure(err)
 				}
 			}
 		}
 
 		// Email notification
-		users, err = c.Services().Posts.GetActiveSubscribers(post.Number, models.NotificationChannelEmail, models.NotificationEventChangeStatus)
+		users, err = getActiveSubscribers(c, post, enum.NotificationChannelEmail, enum.NotificationEventChangeStatus)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		to := make([]email.Recipient, 0)
+		to := make([]dto.Recipient, 0)
 		for _, user := range users {
 			if user.ID != c.User().ID {
-				to = append(to, email.NewRecipient(user.Name, user.Email, email.Params{}))
+				to = append(to, dto.NewRecipient(user.Name, user.Email, dto.Props{}))
 			}
 		}
 
-		params := email.Params{
+		props := dto.Props{
 			"title":      post.Title,
 			"tenantName": c.Tenant().Name,
 			"content":    markdown.Simple(post.Response.Text),
-			"change":     linkWithText("change your notification settings", c.BaseURL(), "/settings"),
+			"change":     linkWithText("change your notification settings", web.BaseURL(c), "/settings"),
+			"logo":       web.LogoURL(c),
 		}
 
-		return c.Services().Emailer.BatchSend(c, "delete_post", params, c.User().Name, to)
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "delete_post",
+			Props:        props,
+		})
+
+		return nil
 	})
 }
 
 //SendInvites sends one email to each invited recipient
 func SendInvites(subject, message string, invitations []*models.UserInvitation) worker.Task {
 	return describe("Send invites", func(c *worker.Context) error {
-		to := make([]email.Recipient, len(invitations))
+		to := make([]dto.Recipient, len(invitations))
 		for i, invite := range invitations {
-			err := c.Services().Tenants.SaveVerificationKey(invite.VerificationKey, 15*24*time.Hour, invite)
+			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+				Key:      invite.VerificationKey,
+				Duration: 15 * 24 * time.Hour,
+				Request:  invite,
+			})
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			url := fmt.Sprintf("%s/invite/verify?k=%s", c.BaseURL(), invite.VerificationKey)
+			url := fmt.Sprintf("%s/invite/verify?k=%s", web.BaseURL(c), invite.VerificationKey)
 			toMessage := strings.Replace(message, app.InvitePlaceholder, string(url), -1)
-			to[i] = email.NewRecipient("", invite.Email, email.Params{
+			to[i] = dto.NewRecipient("", invite.Email, dto.Props{
 				"message": markdown.Full(toMessage),
 			})
 		}
-		return c.Services().Emailer.BatchSend(c, "invite_email", email.Params{
-			"subject": subject,
-		}, c.User().Name, to)
+
+		bus.Publish(c, &cmd.SendMail{
+			From:         c.User().Name,
+			To:           to,
+			TemplateName: "invite_email",
+			Props: dto.Props{
+				"subject": subject,
+				"logo":    web.LogoURL(c),
+			},
+		})
+
+		return nil
 	})
+}
+
+func getActiveSubscribers(ctx context.Context, post *models.Post, channel enum.NotificationChannel, event enum.NotificationEvent) ([]*models.User, error) {
+	q := &query.GetActiveSubscribers{
+		Number:  post.Number,
+		Channel: channel,
+		Event:   event,
+	}
+	err := bus.Dispatch(ctx, q)
+	return q.Result, err
 }

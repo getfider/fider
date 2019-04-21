@@ -1,12 +1,16 @@
 package actions_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
@@ -43,7 +47,7 @@ func TestCreateEditOAuthConfig_InvalidInput(t *testing.T) {
 		action := &actions.CreateEditOAuthConfig{
 			Model: testCase.input,
 		}
-		result := action.Validate(nil, services)
+		result := action.Validate(context.Background(), nil)
 		ExpectFailed(result, testCase.expected...)
 	}
 }
@@ -61,7 +65,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 
 	input := &models.CreateEditOAuthConfig{
 		DisplayName:       "My Provider",
-		Status:            models.OAuthConfigEnabled,
+		Status:            enum.OAuthConfigEnabled,
 		ClientID:          "823187ahjjfdha8fds7yfdashfjkdsa",
 		ClientSecret:      "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij",
 		AuthorizeURL:      "http://provider/oauth/authorize",
@@ -75,7 +79,7 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 	action := &actions.CreateEditOAuthConfig{
 		Model: input,
 	}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(input.ID).Equals(0)
 	Expect(input.Provider).HasLen(11)
@@ -85,21 +89,23 @@ func TestCreateEditOAuthConfig_AddNew_ValidInput(t *testing.T) {
 func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	RegisterT(t)
 
-	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID: 4,
-		Logo: &models.ImageUpload{
-			BlobKey: "hello-world.png",
-		},
-		Provider:     "_NAME",
-		DisplayName:  "My Provider",
-		ClientSecret: "MY_OLD_SECRET",
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_NAME" {
+			q.Result = &models.OAuthConfig{
+				ID:          4,
+				Provider:    q.Provider,
+				LogoBlobKey: "hello-world.png",
+			}
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	action := &actions.CreateEditOAuthConfig{}
 	action.Initialize()
 	action.Model.Provider = "_NAME"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.ClientSecret = "jijads78d76cn347768x3t4668q275@ˆ&Tnycasdgsacuyhij"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
@@ -110,7 +116,7 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
 
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Model.ID).Equals(4)
 	Expect(action.Model.Logo.BlobKey).Equals("hello-world.png")
@@ -120,19 +126,24 @@ func TestCreateEditOAuthConfig_EditExisting_NewSecret(t *testing.T) {
 func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	RegisterT(t)
 
-	services.Tenants.SaveOAuthConfig(&models.CreateEditOAuthConfig{
-		ID:           5,
-		Logo:         &models.ImageUpload{},
-		Provider:     "_NAME2",
-		DisplayName:  "My Provider",
-		ClientSecret: "MY_OLD_SECRET",
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		if q.Provider == "_NAME2" {
+			q.Result = &models.OAuthConfig{
+				ID:           5,
+				Provider:     q.Provider,
+				DisplayName:  "My Provider",
+				ClientSecret: "MY_OLD_SECRET",
+			}
+			return nil
+		}
+		return app.ErrNotFound
 	})
 
 	action := &actions.CreateEditOAuthConfig{}
 	action.Initialize()
 	action.Model.Provider = "_NAME2"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
 	action.Model.TokenURL = "http://provider/oauth/token"
@@ -142,7 +153,7 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
 
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectSuccess(result)
 	Expect(action.Model.ID).Equals(5)
 	Expect(action.Model.ClientSecret).Equals("MY_OLD_SECRET")
@@ -151,11 +162,15 @@ func TestCreateEditOAuthConfig_EditExisting_OmitSecret(t *testing.T) {
 func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	RegisterT(t)
 
+	bus.AddHandler(func(ctx context.Context, q *query.GetCustomOAuthConfigByProvider) error {
+		return app.ErrNotFound
+	})
+
 	action := &actions.CreateEditOAuthConfig{}
 	action.Initialize()
 	action.Model.Provider = "_MY_NEW_PROVIDER"
 	action.Model.DisplayName = "My Provider"
-	action.Model.Status = models.OAuthConfigDisabled
+	action.Model.Status = enum.OAuthConfigDisabled
 	action.Model.ClientID = "823187ahjjfdha8fds7yfdashfjkdsa"
 	action.Model.AuthorizeURL = "http://provider/oauth/authorize"
 	action.Model.TokenURL = "http://provider/oauth/token"
@@ -164,7 +179,7 @@ func TestCreateEditOAuthConfig_EditNonExisting(t *testing.T) {
 	action.Model.JSONUserIDPath = "user.id"
 	action.Model.JSONUserNamePath = "user.name"
 	action.Model.JSONUserEmailPath = "user.email"
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	Expect(result.Err).Equals(app.ErrNotFound)
 	Expect(result.Ok).IsFalse()
 }

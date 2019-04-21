@@ -1,9 +1,12 @@
 package mock
 
 import (
+	"context"
+	"net/url"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/log/noop"
+	"github.com/getfider/fider/app/pkg/web"
 	"github.com/getfider/fider/app/pkg/worker"
 )
 
@@ -11,14 +14,11 @@ import (
 type Worker struct {
 	tenant   *models.Tenant
 	user     *models.User
-	services *app.Services
 	baseURL  string
 }
 
-func createWorker(services *app.Services) *Worker {
-	return &Worker{
-		services: services,
-	}
+func createWorker() *Worker {
+	return &Worker{}
 }
 
 // OnTenant set current context tenant
@@ -41,11 +41,22 @@ func (w *Worker) WithBaseURL(baseURL string) *Worker {
 
 // Execute given task with current context
 func (w *Worker) Execute(task worker.Task) error {
-	context := worker.NewContext("0", task, nil, noop.NewLogger())
-	context.SetServices(w.services)
-	context.SetUser(w.user)
-	context.SetTenant(w.tenant)
-	context.SetBaseURL(w.baseURL)
+	task.OriginContext = context.Background()
+
+	if w.user != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.UserCtxKey, w.user)
+	}
+
+	if w.tenant != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.TenantCtxKey, w.tenant)
+	}
+
+	u, _ := url.Parse(w.baseURL)
+	if u != nil {
+		task.OriginContext = context.WithValue(task.OriginContext, app.RequestCtxKey, web.Request{URL: u})
+	}
+
+	context := worker.NewContext(context.Background(), "0", task)
 	return task.Job(context)
 }
 

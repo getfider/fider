@@ -3,23 +3,31 @@ package handlers
 import (
 	"time"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/tasks"
 
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // ChangeUserEmail register the intent of changing user email
 func ChangeUserEmail() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.ChangeUserEmail)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 24*time.Hour, input.Model)
+		err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+			Key:      input.Model.VerificationKey,
+			Duration: 24 * time.Hour,
+			Request:  input.Model,
+		})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -32,8 +40,8 @@ func ChangeUserEmail() web.HandlerFunc {
 
 // VerifyChangeEmailKey checks if key is correct and update user's email
 func VerifyChangeEmailKey() web.HandlerFunc {
-	return func(c web.Context) error {
-		result, err := validateKey(models.EmailVerificationKindChangeEmail, c)
+	return func(c *web.Context) error {
+		result, err := validateKey(enum.EmailVerificationKindChangeEmail, c)
 		if result == nil {
 			return err
 		}
@@ -42,12 +50,15 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 			return c.Redirect(c.BaseURL())
 		}
 
-		err = c.Services().Users.ChangeEmail(result.UserID, result.Email)
-		if err != nil {
+		changeEmail := &cmd.ChangeUserEmail{
+			UserID: result.UserID,
+			Email:  result.Email,
+		}
+		if err = bus.Dispatch(c, changeEmail); err != nil {
 			return c.Failure(err)
 		}
 
-		err = c.Services().Tenants.SetKeyAsVerified(result.Key)
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: result.Key})
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -57,9 +68,9 @@ func VerifyChangeEmailKey() web.HandlerFunc {
 
 // UserSettings is the current user's profile settings page
 func UserSettings() web.HandlerFunc {
-	return func(c web.Context) error {
-		settings, err := c.Services().Users.GetUserSettings()
-		if err != nil {
+	return func(c *web.Context) error {
+		settings := &query.GetCurrentUserSettings{}
+		if err := bus.Dispatch(c, settings); err != nil {
 			return err
 		}
 
@@ -67,7 +78,7 @@ func UserSettings() web.HandlerFunc {
 			Title:     "Settings",
 			ChunkName: "MySettings.page",
 			Data: web.Map{
-				"userSettings": settings,
+				"userSettings": settings.Result,
 			},
 		})
 	}
@@ -75,23 +86,26 @@ func UserSettings() web.HandlerFunc {
 
 // UpdateUserSettings updates current user settings
 func UpdateUserSettings() web.HandlerFunc {
-	return func(c web.Context) error {
-		var err error
-
+	return func(c *web.Context) error {
 		input := new(actions.UpdateUserSettings)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		if err = webutil.ProcessImageUpload(c, input.Model.Avatar, "avatars"); err != nil {
-			return c.Failure(err)
-		}
-
-		if err = c.Services().Users.Update(input.Model); err != nil {
-			return c.Failure(err)
-		}
-
-		if err = c.Services().Users.UpdateSettings(input.Model.Settings); err != nil {
+		if err := bus.Dispatch(c,
+			&cmd.UploadImage{
+				Image:  input.Model.Avatar,
+				Folder: "avatars",
+			},
+			&cmd.UpdateCurrentUser{
+				Name:       input.Model.Name,
+				Avatar:     input.Model.Avatar,
+				AvatarType: input.Model.AvatarType,
+			},
+			&cmd.UpdateCurrentUserSettings{
+				Settings: input.Model.Settings,
+			},
+		); err != nil {
 			return c.Failure(err)
 		}
 
@@ -101,14 +115,18 @@ func UpdateUserSettings() web.HandlerFunc {
 
 // ChangeUserRole changes given user role
 func ChangeUserRole() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.ChangeUserRole)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		err := c.Services().Users.ChangeRole(input.Model.UserID, input.Model.Role)
-		if err != nil {
+		changeRole := &cmd.ChangeUserRole{
+			UserID: input.Model.UserID,
+			Role:   input.Model.Role,
+		}
+
+		if err := bus.Dispatch(c, changeRole); err != nil {
 			return c.Failure(err)
 		}
 
@@ -118,9 +136,8 @@ func ChangeUserRole() web.HandlerFunc {
 
 // DeleteUser erases current user personal data and sign them out
 func DeleteUser() web.HandlerFunc {
-	return func(c web.Context) error {
-		err := c.Services().Users.Delete()
-		if err != nil {
+	return func(c *web.Context) error {
+		if err := bus.Dispatch(c, &cmd.DeleteCurrentUser{}); err != nil {
 			return c.Failure(err)
 		}
 
@@ -131,14 +148,14 @@ func DeleteUser() web.HandlerFunc {
 
 // RegenerateAPIKey regenerates current user's API Key
 func RegenerateAPIKey() web.HandlerFunc {
-	return func(c web.Context) error {
-		apiKey, err := c.Services().Users.RegenerateAPIKey()
-		if err != nil {
+	return func(c *web.Context) error {
+		regenerateAPIKey := &cmd.RegenerateAPIKey{}
+		if err := bus.Dispatch(c, regenerateAPIKey); err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Ok(web.Map{
-			"apiKey": apiKey,
+			"apiKey": regenerateAPIKey.Result,
 		})
 	}
 }

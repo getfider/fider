@@ -10,6 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/log"
@@ -20,7 +25,7 @@ import (
 
 //LetterAvatar returns a letter gravatar picture based on given name
 func LetterAvatar() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		id := c.Param("id")
 		name := c.Param("name")
 		if name == "" {
@@ -52,7 +57,7 @@ func LetterAvatar() web.HandlerFunc {
 
 //Gravatar returns a gravatar picture of fallsback to letter avatar based on name
 func Gravatar() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		id, err := c.ParamAsInt("id")
 		if err != nil {
 			return c.NotFound()
@@ -66,35 +71,35 @@ func Gravatar() web.HandlerFunc {
 		size = between(size, 50, 200)
 
 		if err == nil && id > 0 {
-			user, err := c.Services().Users.GetByID(id)
-			if err == nil && user.Tenant.ID == c.Tenant().ID {
-				if user.Email != "" {
-					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(user.Email)), size)
+			userByID := &query.GetUserByID{UserID: id}
+			err := bus.Dispatch(c, userByID)
+			if err == nil && userByID.Result.Tenant.ID == c.Tenant().ID {
+				if userByID.Result.Email != "" {
+					url := fmt.Sprintf("https://www.gravatar.com/avatar/%s?s=%d&d=404", crypto.MD5(strings.ToLower(userByID.Result.Email)), size)
 					cacheKey := fmt.Sprintf("gravatar:%s", url)
 
 					//If gravatar was found in cache
 					if image, found := c.Engine().Cache().Get(cacheKey); found {
-						c.Logger().Debugf("Gravatar found in cache: @{GravatarURL}", log.Props{
+						log.Debugf(c, "Gravatar found in cache: @{GravatarURL}", dto.Props{
 							"GravatarURL": cacheKey,
 						})
 						imageInBytes := image.([]byte)
 						return c.Image(http.DetectContentType(imageInBytes), imageInBytes)
 					}
 
-					c.Logger().Debugf("Requesting gravatar: @{GravatarURL}", log.Props{
+					log.Debugf(c, "Requesting gravatar: @{GravatarURL}", dto.Props{
 						"GravatarURL": url,
 					})
-					resp, err := http.Get(url)
-					if err == nil {
-						defer resp.Body.Close()
 
-						if resp.StatusCode == http.StatusOK {
-							bytes, err := ioutil.ReadAll(resp.Body)
-							if err == nil {
-								c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
-								return c.Image(http.DetectContentType(bytes), bytes)
-							}
-						}
+					req := &cmd.HTTPRequest{
+						URL:    url,
+						Method: "GET",
+					}
+					err := bus.Dispatch(c, req)
+					if err == nil && req.ResponseStatusCode == http.StatusOK {
+						bytes := req.ResponseBody
+						c.Engine().Cache().Set(cacheKey, bytes, 24*time.Hour)
+						return c.Image(http.DetectContentType(bytes), bytes)
 					}
 				}
 			}
@@ -106,7 +111,7 @@ func Gravatar() web.HandlerFunc {
 
 //Favicon returns the Fider favicon by given size
 func Favicon() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		var (
 			bytes       []byte
 			err         error
@@ -115,12 +120,13 @@ func Favicon() web.HandlerFunc {
 
 		bkey := c.Param("bkey")
 		if bkey != "" {
-			logo, err := c.Services().Blobs.Get(bkey)
+			q := &query.GetBlobByKey{Key: bkey}
+			err := bus.Dispatch(c, q)
 			if err != nil {
 				return c.Failure(err)
 			}
-			bytes = logo.Object
-			contentType = logo.ContentType
+			bytes = q.Result.Content
+			contentType = q.Result.ContentType
 		} else {
 			bytes, err = ioutil.ReadFile(env.Path("favicon.png"))
 			contentType = "image/png"
@@ -157,7 +163,7 @@ func Favicon() web.HandlerFunc {
 
 //ViewUploadedImage returns any uploaded image by given ID and size
 func ViewUploadedImage() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bkey := c.Param("bkey")
 
 		size, err := c.QueryParamAsInt("size")
@@ -167,12 +173,13 @@ func ViewUploadedImage() web.HandlerFunc {
 
 		size = between(size, 0, 2000)
 
-		logo, err := c.Services().Blobs.Get(bkey)
+		q := &query.GetBlobByKey{Key: bkey}
+		err = bus.Dispatch(c, q)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		bytes := logo.Object
+		bytes := q.Result.Content
 		if size > 0 {
 			bytes, err = imagic.Apply(bytes, imagic.Resize(size))
 			if err != nil {
@@ -180,6 +187,6 @@ func ViewUploadedImage() web.HandlerFunc {
 			}
 		}
 
-		return c.Image(logo.ContentType, bytes)
+		return c.Image(q.Result.ContentType, bytes)
 	}
 }

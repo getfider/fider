@@ -1,8 +1,15 @@
 package handlers_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
+
+	"github.com/getfider/fider/app"
+
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -12,8 +19,22 @@ import (
 func TestIndexHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
-	code, _ := server.OnTenant(mock.DemoTenant).AsUser(mock.JonSnow).Execute(handlers.Index())
+	bus.AddHandler(func(ctx context.Context, q *query.CountPostPerStatus) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.SearchPosts) error {
+		return nil
+	})
+
+	server := mock.NewServer()
+	code, _ := server.OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		Execute(handlers.Index())
 
 	Expect(code).Equals(http.StatusOK)
 }
@@ -21,10 +42,34 @@ func TestIndexHandler(t *testing.T) {
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
-	post, _ := services.Posts.Add("My Post", "My Post Description")
+	post := &models.Post{Number: 1, Title: "My Post Title"}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = post
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.ListPostVotes) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.UserSubscribedTo) error {
+		return nil
+	})
+
+	server := mock.NewServer()
 
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
@@ -38,7 +83,11 @@ func TestDetailsHandler(t *testing.T) {
 func TestDetailsHandler_NotFound(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).

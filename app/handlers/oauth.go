@@ -6,17 +6,24 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
-	"github.com/getfider/fider/app/pkg/web/util"
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 )
 
 // OAuthEcho exchanges OAuth Code for a user profile and return directly to the UI, without storing it
 func OAuthEcho() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		provider := c.Param("provider")
 
 		code := c.QueryParam("code")
@@ -26,11 +33,12 @@ func OAuthEcho() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect("/")
 		}
 
-		body, err := c.Services().OAuth.GetRawProfile(provider, code)
+		rawProfile := &query.GetOAuthRawProfile{Provider: provider, Code: code}
+		err := bus.Dispatch(c, rawProfile)
 		if err != nil {
 			return c.Page(web.Props{
 				Title:     "OAuth Test Page",
@@ -41,14 +49,15 @@ func OAuthEcho() web.HandlerFunc {
 			})
 		}
 
-		profile, _ := c.Services().OAuth.ParseRawProfile(provider, body)
+		parseRawProfile := &cmd.ParseOAuthRawProfile{Provider: provider, Body: rawProfile.Result}
+		_ = bus.Dispatch(c, parseRawProfile)
 
 		return c.Page(web.Props{
 			Title:     "OAuth Test Page",
 			ChunkName: "OAuthEcho.page",
 			Data: web.Map{
-				"body":    body,
-				"profile": profile,
+				"body":    rawProfile.Result,
+				"profile": parseRawProfile.Result,
 			},
 		})
 	}
@@ -58,7 +67,7 @@ func OAuthEcho() web.HandlerFunc {
 // The user profile is then used to either get an existing user on Fider or creating a new one
 // Once Fider user is retrieved/created, an authentication cookie is store in user's browser
 func OAuthToken() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		provider := c.Param("provider")
 		redirectURL, _ := url.ParseRequestURI(c.QueryParam("redirect"))
 		redirectURL.ResolveReference(c.Request.URL)
@@ -70,20 +79,25 @@ func OAuthToken() web.HandlerFunc {
 
 		identifier := c.QueryParam("identifier")
 		if identifier == "" || identifier != c.SessionID() {
-			c.Logger().Warn("OAuth identifier doesn't match with user session ID. Aborting sign in process.")
+			log.Warn(c, "OAuth identifier doesn't match with user session ID. Aborting sign in process.")
 			return c.Redirect(redirectURL.String())
 		}
 
-		oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
-		if err != nil {
+		oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
+		if err := bus.Dispatch(c, oauthUser); err != nil {
 			return c.Failure(err)
 		}
 
-		users := c.Services().Users
+		var user *models.User
 
-		user, err := users.GetByProvider(provider, oauthUser.ID)
-		if errors.Cause(err) == app.ErrNotFound && oauthUser.Email != "" {
-			user, err = users.GetByEmail(oauthUser.Email)
+		userByProvider := &query.GetUserByProvider{Provider: provider, UID: oauthUser.Result.ID}
+		err := bus.Dispatch(c, userByProvider)
+		user = userByProvider.Result
+
+		if errors.Cause(err) == app.ErrNotFound && oauthUser.Result.Email != "" {
+			userByEmail := &query.GetUserByEmail{Email: oauthUser.Result.Email}
+			err = bus.Dispatch(c, userByEmail)
+			user = userByEmail.Result
 		}
 		if err != nil {
 			if errors.Cause(err) == app.ErrNotFound {
@@ -92,31 +106,30 @@ func OAuthToken() web.HandlerFunc {
 				}
 
 				user = &models.User{
-					Name:   oauthUser.Name,
+					Name:   oauthUser.Result.Name,
 					Tenant: c.Tenant(),
-					Email:  oauthUser.Email,
-					Role:   models.RoleVisitor,
+					Email:  oauthUser.Result.Email,
+					Role:   enum.RoleVisitor,
 					Providers: []*models.UserProvider{
 						&models.UserProvider{
-							UID:  oauthUser.ID,
+							UID:  oauthUser.Result.ID,
 							Name: provider,
 						},
 					},
 				}
 
-				err = users.Register(user)
-				if err != nil {
+				if err = bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 					return c.Failure(err)
 				}
 			} else {
 				return c.Failure(err)
 			}
 		} else if !user.HasProvider(provider) {
-			err = users.RegisterProvider(user.ID, &models.UserProvider{
-				UID:  oauthUser.ID,
-				Name: provider,
-			})
-			if err != nil {
+			if err = bus.Dispatch(c, &cmd.RegisterUserProvider{
+				UserID:       user.ID,
+				ProviderName: provider,
+				ProviderUID:  oauthUser.Result.ID,
+			}); err != nil {
 				return c.Failure(err)
 			}
 		}
@@ -132,7 +145,7 @@ func OAuthToken() web.HandlerFunc {
 // If the request is for a sign in, we redirect the user to the tenant address
 // If the request is for a sign up, we exchange the OAuth code and get the user profile
 func OAuthCallback() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")
@@ -160,16 +173,16 @@ func OAuthCallback() web.HandlerFunc {
 
 		//Sign up process
 		if redirectURL.Path == "/signup" {
-			oauthUser, err := c.Services().OAuth.GetProfile(provider, code)
-			if err != nil {
+			oauthUser := &query.GetOAuthProfile{Provider: provider, Code: code}
+			if err := bus.Dispatch(c, oauthUser); err != nil {
 				return c.Failure(err)
 			}
 
 			claims := jwt.OAuthClaims{
-				OAuthID:       oauthUser.ID,
+				OAuthID:       oauthUser.Result.ID,
 				OAuthProvider: provider,
-				OAuthName:     oauthUser.Name,
-				OAuthEmail:    oauthUser.Email,
+				OAuthName:     oauthUser.Result.Name,
+				OAuthEmail:    oauthUser.Result.Email,
 				Metadata: jwt.Metadata{
 					ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
 				},
@@ -200,7 +213,7 @@ func OAuthCallback() web.HandlerFunc {
 // SignInByOAuth is responsible for redirecting the user to the OAuth authorization URL for given provider
 // A cookie is stored in user's browser with a random identifier that is later used to verify the authenticity of the request
 func SignInByOAuth() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.Response.Header().Add("X-Robots-Tag", "noindex")
 
 		provider := c.Param("provider")
@@ -217,10 +230,14 @@ func SignInByOAuth() web.HandlerFunc {
 			return c.Redirect(redirect)
 		}
 
-		authURL, err := c.Services().OAuth.GetAuthURL(provider, redirect, c.SessionID())
-		if err != nil {
+		authURL := &query.GetOAuthAuthorizationURL{
+			Provider:   provider,
+			Redirect:   redirect,
+			Identifier: c.SessionID(),
+		}
+		if err := bus.Dispatch(c, authURL); err != nil {
 			return c.Failure(err)
 		}
-		return c.Redirect(authURL)
+		return c.Redirect(authURL.Result)
 	}
 }

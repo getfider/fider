@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 	stdErrors "errors"
 	"io/ioutil"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -18,8 +20,8 @@ import (
 var ErrNoChanges = stdErrors.New("nothing to migrate.")
 
 // Migrate the database to latest version
-func (db *Database) Migrate(path string) error {
-	db.logger.Info("Running migrations...")
+func Migrate(ctx context.Context, path string) error {
+	log.Info(ctx, "Running migrations...")
 	dir, err := os.Open(env.Path(path))
 	if err != nil {
 		return errors.Wrap(err, "failed to open dir '%s'", path)
@@ -47,46 +49,55 @@ func (db *Database) Migrate(path string) error {
 	}
 	sort.Ints(versions)
 
-	db.logger.Infof("Found total of @{Total} migration files.", log.Props{
+	log.Infof(ctx, "Found total of @{Total} migration files.", dto.Props{
 		"Total": len(versions),
 	})
 
-	lastVersion, err := db.getLastMigration()
+	lastVersion, err := getLastMigration()
 	if err != nil {
 		return errors.Wrap(err, "failed to get last migration record")
 	}
 
-	db.logger.Infof("Current version is @{Version}", log.Props{
+	log.Infof(ctx, "Current version is @{Version}", dto.Props{
 		"Version": lastVersion,
 	})
+
+	totalMigrationsExecuted := 0
 
 	// Apply all migrations
 	for _, version := range versions {
 		if version > lastVersion {
 			fileName := versionFiles[version]
-			db.logger.Infof("Running Version: @{Version} (@{FileName})", log.Props{
+			log.Infof(ctx, "Running Version: @{Version} (@{FileName})", dto.Props{
 				"Version":  version,
 				"FileName": fileName,
 			})
-			err := db.runMigration(version, path, fileName)
+			err := runMigration(ctx, version, path, fileName)
 			if err != nil {
 				return errors.Wrap(err, "failed to run migration '%s'", fileName)
 			}
+			totalMigrationsExecuted++
 		}
 	}
 
-	db.logger.Info("Migrations finished with success.")
+	if totalMigrationsExecuted > 0 {
+		log.Infof(ctx, "@{Count} migrations have been applied.", dto.Props{
+			"Count": totalMigrationsExecuted,
+		})
+	} else {
+		log.Info(ctx, "Migrations are already up to date.")
+	}
 	return nil
 }
 
-func (db Database) runMigration(version int, path, fileName string) error {
+func runMigration(ctx context.Context, version int, path, fileName string) error {
 	filePath := env.Path(path + "/" + fileName)
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to read file '%s'", filePath)
 	}
 
-	trx, err := db.Begin()
+	trx, err := BeginTx(ctx)
 	if err != nil {
 		return err
 	}
@@ -104,8 +115,8 @@ func (db Database) runMigration(version int, path, fileName string) error {
 	return trx.Commit()
 }
 
-func (db Database) getLastMigration() (int, error) {
-	_, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS migrations_history (
+func getLastMigration() (int, error) {
+	_, err := conn.Exec(`CREATE TABLE IF NOT EXISTS migrations_history (
 		version     BIGINT PRIMARY KEY,
 		filename    VARCHAR(100) null,
 		date	 			TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -115,7 +126,7 @@ func (db Database) getLastMigration() (int, error) {
 	}
 
 	var lastVersion sql.NullInt64
-	row := db.conn.QueryRow("SELECT MAX(version) FROM migrations_history LIMIT 1")
+	row := conn.QueryRow("SELECT MAX(version) FROM migrations_history LIMIT 1")
 	err = row.Scan(&lastVersion)
 	if err != nil {
 		return 0, err
@@ -124,7 +135,7 @@ func (db Database) getLastMigration() (int, error) {
 	if !lastVersion.Valid {
 		// If it's the first run, maybe we have records on old migrations table, so try to get from it.
 		// This SHOULD be removed in the far future.
-		row := db.conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
+		row := conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
 		row.Scan(&lastVersion)
 	}
 

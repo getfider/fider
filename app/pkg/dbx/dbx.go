@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 	"io/ioutil"
 	"reflect"
@@ -9,123 +10,82 @@ import (
 	"strings"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/noop"
 
-	//required
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
-// New creates a new Database instance without logging
-func New() *Database {
-	return NewWithLogger(noop.NewLogger())
-}
+var conn *sql.DB
+var rowMapper *RowMapper
 
-// NewWithLogger creates a new Database instance with logging or panic
-func NewWithLogger(logger log.Logger) *Database {
-	conn, err := sql.Open("postgres", env.Config.Database.URL)
+func init() {
+	var err error
+	conn, err = sql.Open("postgres", env.Config.Database.URL)
 	if err != nil {
-		panic(errors.Wrap(err, "failed to open connection to the database"))
+		panic(wrap(err, "failed to open connection to the database"))
 	}
 
 	conn.SetMaxIdleConns(env.Config.Database.MaxIdleConns)
 	conn.SetMaxOpenConns(env.Config.Database.MaxOpenConns)
-
-	return &Database{conn, logger, NewRowMapper()}
+	rowMapper = NewRowMapper()
 }
 
-// Database represents a connection to a SQL database
-type Database struct {
-	conn   *sql.DB
-	logger log.Logger
-	mapper *RowMapper
-}
-
-// Connection returns current database connection
-func (db *Database) Connection() *sql.DB {
-	return db.conn
+func Connection() *sql.DB {
+	return conn
 }
 
 // Ping checks if current database connection is healthy
-func (db *Database) Ping() error {
-	_, err := db.conn.Exec("SELECT 1")
+func Ping() error {
+	_, err := conn.Exec("SELECT 1")
 	return err
 }
 
-// SetLogger replaces current database Logger
-func (db *Database) SetLogger(logger log.Logger) {
-	db.logger = logger
-}
-
-// Begin returns a new SQL transaction
-func (db *Database) Begin() (*Trx, error) {
-	tx, err := db.conn.Begin()
+// BeginTx returns a new SQL transaction
+func BeginTx(ctx context.Context) (*Trx, error) {
+	tx, err := conn.BeginTx(ctx, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to start new transaction")
+		return nil, wrap(err, "failed to start new transaction")
 	}
-	return &Trx{tx: tx, logger: db.logger, mapper: db.mapper}, nil
+	return &Trx{tx: tx, ctx: ctx}, nil
 }
 
-// Close connection to database
-func (db *Database) Close() error {
-	if db.conn != nil {
-		return db.conn.Close()
-	}
-	return nil
-}
-
-func (db *Database) load(path string) {
+func load(path string) {
 	content, err := ioutil.ReadFile(env.Path(path))
 	if err != nil {
-		panic(errors.Wrap(err, "failed to read file %s", path))
+		panic(wrap(err, "failed to read file %s", path))
 	}
 
-	_, err = db.conn.Exec(string(content))
+	_, err = conn.Exec(string(content))
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute %s", path))
+		panic(wrap(err, "failed to execute %s", path))
 	}
 }
 
 // Seed clean and insert new seed data for testing
-func (db *Database) Seed() {
+func Seed() {
 	if env.IsTest() {
-		db.load("/app/pkg/dbx/setup.sql")
+		load("/app/pkg/dbx/setup.sql")
 	}
 }
 
 //Trx represents a Database transaction
 type Trx struct {
-	tx     *sql.Tx
-	logger log.Logger
-	mapper *RowMapper
+	tx  *sql.Tx
+	ctx context.Context
 }
 
 var formatter = strings.NewReplacer("\t", "", "\n", " ")
 
-// SetLogger replaces current transaction Logger
-func (trx *Trx) SetLogger(logger log.Logger) {
-	trx.logger = logger
-}
-
-// NoLogs disable logs for this transaction
-func (trx *Trx) NoLogs() {
-	trx.logger.Disable()
-}
-
-// ResumeLogs resume logs for this transaction
-func (trx *Trx) ResumeLogs() {
-	trx.logger.Enable()
-}
-
 // Execute given SQL command
 func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -133,9 +93,9 @@ func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 		}()
 	}
 
-	result, err := trx.tx.Exec(command, args...)
+	result, err := trx.tx.ExecContext(trx.ctx, command, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute trx.Execute")
+		return 0, wrap(err, "failed to execute trx.Execute")
 	}
 
 	rows, _ := result.RowsAffected()
@@ -144,11 +104,11 @@ func (trx *Trx) Execute(command string, args ...interface{}) (int64, error) {
 
 // Scalar returns first row and first column
 func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -156,24 +116,24 @@ func (trx *Trx) Scalar(data interface{}, command string, args ...interface{}) er
 		}()
 	}
 
-	row := trx.tx.QueryRow(command, args...)
+	row := trx.tx.QueryRowContext(trx.ctx, command, args...)
 	err := row.Scan(data)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return app.ErrNotFound
 		}
-		return errors.Wrap(err, "failed to execute trx.Scalar")
+		return wrap(err, "failed to execute trx.Scalar")
 	}
 	return nil
 }
 
 // Get first row and bind to given data
 func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -181,17 +141,17 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 		}()
 	}
 
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute trx.Get")
+		return wrap(err, "failed to execute trx.Get")
 	}
 
 	defer rows.Close()
 	if rows.Next() {
 		columns, _ := rows.Columns()
-		err := trx.mapper.Map(data, columns, rows.Scan)
+		err := rowMapper.Map(data, columns, rows.Scan)
 		if err != nil {
-			return errors.Wrap(err, "failed to map result to model")
+			return wrap(err, "failed to map result to model")
 		}
 		return nil
 	}
@@ -199,45 +159,13 @@ func (trx *Trx) Get(data interface{}, command string, args ...interface{}) error
 	return app.ErrNotFound
 }
 
-// QueryIntArray executes given SQL command and return first column as int
-func (trx *Trx) QueryIntArray(command string, args ...interface{}) ([]int, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
-		command = formatter.Replace(command)
-		start := time.Now()
-		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
-				"Command":   command,
-				"Args":      args,
-				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
-			})
-		}()
-	}
-
-	rows, err := trx.tx.Query(command, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute trx.QueryIntArray")
-	}
-
-	defer rows.Close()
-	values := make([]int, 0)
-	for rows.Next() {
-		var value int
-		if err := rows.Scan(&value); err != nil {
-			return nil, errors.Wrap(err, "failed to execute row.Scan")
-		}
-		values = append(values, value)
-	}
-
-	return values, nil
-}
-
 // Exists returns true if at least one record is found
 func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -245,9 +173,9 @@ func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 		}()
 	}
 
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return false, errors.Wrap(err, "failed to execute trx.Exists")
+		return false, wrap(err, "failed to execute trx.Exists")
 	}
 
 	defer rows.Close()
@@ -256,11 +184,11 @@ func (trx *Trx) Exists(command string, args ...interface{}) (bool, error) {
 
 // Count returns number of rows
 func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -268,9 +196,9 @@ func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 		}()
 	}
 
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to execute trx.Count")
+		return 0, wrap(err, "failed to execute trx.Count")
 	}
 
 	defer rows.Close()
@@ -283,11 +211,11 @@ func (trx *Trx) Count(command string, args ...interface{}) (int, error) {
 
 //Select all matched rows bind to given data
 func (trx *Trx) Select(data interface{}, command string, args ...interface{}) error {
-	if trx.logger.IsEnabled(log.DEBUG) {
+	if log.IsEnabled(log.DEBUG) {
 		command = formatter.Replace(command)
 		start := time.Now()
 		defer func() {
-			trx.logger.Debugf("@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", log.Props{
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
 				"Command":   command,
 				"Args":      args,
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -295,9 +223,9 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 		}()
 	}
 
-	rows, err := trx.tx.Query(command, args...)
+	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute trx.Select")
+		return wrap(err, "failed to execute trx.Select")
 	}
 
 	defer rows.Close()
@@ -310,8 +238,8 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 			columns, _ = rows.Columns()
 		}
 		item := reflect.New(itemType)
-		if err = trx.mapper.Map(item.Interface(), columns, rows.Scan); err != nil {
-			return errors.Wrap(err, "failed to map result to model")
+		if err = rowMapper.Map(item.Interface(), columns, rows.Scan); err != nil {
+			return wrap(err, "failed to map result to model")
 		}
 		items = reflect.Append(items, item)
 	}
@@ -325,8 +253,8 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 // Commit current transaction
 func (trx *Trx) Commit() error {
 	err := trx.tx.Commit()
-	if err != nil {
-		return errors.Wrap(err, "failed to commit transaction")
+	if err != nil && err != sql.ErrTxDone {
+		return wrap(err, "failed to commit transaction")
 	}
 	return nil
 }
@@ -334,8 +262,17 @@ func (trx *Trx) Commit() error {
 // Rollback current transaction
 func (trx *Trx) Rollback() error {
 	err := trx.tx.Rollback()
-	if err != nil {
-		return errors.Wrap(err, "failed to rollback transaction")
+	if err != nil && err != sql.ErrTxDone {
+		return wrap(err, "failed to rollback transaction")
 	}
 	return nil
+}
+
+func wrap(err error, format string, a ...interface{}) error {
+	if pqErr, ok := err.(*pq.Error); ok {
+		if pqErr.Code == "57014" { //query canceled
+			return errors.Wrap(context.Canceled, format, a...)
+		}
+	}
+	return errors.Wrap(err, format, a...)
 }

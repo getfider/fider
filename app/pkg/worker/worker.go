@@ -6,8 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/rand"
 )
 
 //MiddlewareFunc is worker middleware
@@ -18,16 +19,15 @@ type Job func(c *Context) error
 
 //Task represents the Name and Job to be run on background
 type Task struct {
-	OriginSessionID string
-	Name            string
-	Job             Job
+	OriginContext context.Context
+	Name          string
+	Job           Job
 }
 
 //Worker is a process that runs tasks
 type Worker interface {
 	Run(id string)
 	Enqueue(task Task)
-	Logger() log.Logger
 	Use(middleware MiddlewareFunc)
 	Length() int64
 	Shutdown(ctx context.Context) error
@@ -35,8 +35,7 @@ type Worker interface {
 
 //BackgroundWorker is a worker that runs tasks on background
 type BackgroundWorker struct {
-	db         *dbx.Database
-	logger     log.Logger
+	context.Context
 	queue      chan Task
 	len        int64
 	middleware MiddlewareFunc
@@ -46,11 +45,17 @@ type BackgroundWorker struct {
 var maxQueueSize = 100
 
 //New creates a new BackgroundWorker
-func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
+func New() *BackgroundWorker {
+	ctx := context.Background()
+
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: rand.String(32),
+		log.PropertyKeyTag:       "BGW",
+	})
+
 	return &BackgroundWorker{
-		db:     db,
-		logger: logger,
-		queue:  make(chan Task, maxQueueSize),
+		Context: ctx,
+		queue:   make(chan Task, maxQueueSize),
 		middleware: func(next Job) Job {
 			return next
 		},
@@ -59,11 +64,11 @@ func New(db *dbx.Database, logger log.Logger) *BackgroundWorker {
 
 //Run initializes the worker loop
 func (w *BackgroundWorker) Run(workerID string) {
-	w.logger.Infof("Starting worker @{WorkerID:magenta}.", log.Props{
+	log.Infof(w, "Starting worker @{WorkerID:magenta}.", dto.Props{
 		"WorkerID": workerID,
 	})
 	for task := range w.queue {
-		c := NewContext(workerID, task, w.db, w.logger)
+		c := NewContext(w, workerID, task)
 
 		w.middleware(task.Job)(c)
 		w.Lock()
@@ -83,7 +88,7 @@ func (w *BackgroundWorker) Shutdown(ctx context.Context) error {
 				return nil
 			}
 
-			w.logger.Infof("Waiting for work queue: @{Count}", log.Props{
+			log.Infof(w, "Waiting for work queue: @{Count}", dto.Props{
 				"Count": count,
 			})
 
@@ -103,11 +108,6 @@ func (w *BackgroundWorker) Enqueue(task Task) {
 	w.len = w.len + 1
 	w.Unlock()
 	w.queue <- task
-}
-
-//Logger from current worker
-func (w *BackgroundWorker) Logger() log.Logger {
-	return w.logger
 }
 
 //Length from current queue length

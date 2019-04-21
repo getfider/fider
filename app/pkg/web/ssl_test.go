@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"testing"
 
-	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -12,8 +11,6 @@ import (
 
 func Test_GetCertificate(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
 
 	var testCases = []struct {
 		mode       string
@@ -37,7 +34,7 @@ func Test_GetCertificate(t *testing.T) {
 		keyFile := env.Path("/app/pkg/web/testdata/" + testCase.cert + ".key")
 		wildcardCert, _ := tls.LoadX509KeyPair(certFile, keyFile)
 
-		manager, err := NewCertificateManager(certFile, keyFile, db)
+		manager, err := NewCertificateManager(certFile, keyFile)
 		Expect(err).IsNil()
 		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
 			ServerName: testCase.serverName,
@@ -50,24 +47,5 @@ func Test_GetCertificate(t *testing.T) {
 			Expect(cert).IsNil()
 			Expect(err.Error()).ContainsSubstring(`ssl: invalid server name "` + testCase.serverName + `"`)
 		}
-	}
-}
-
-func Test_UseAutoCert(t *testing.T) {
-	RegisterT(t)
-	db := dbx.New()
-	defer db.Close()
-
-	manager, err := NewCertificateManager("", "", db)
-	Expect(err).IsNil()
-
-	invalidServerNames := []string{"ideas.app.com", "feedback.mysite.com"}
-
-	for _, serverName := range invalidServerNames {
-		cert, err := manager.GetCertificate(&tls.ClientHelloInfo{
-			ServerName: serverName,
-		})
-		Expect(err.Error()).ContainsSubstring(`acme/autocert: unable to authorize "` + serverName + `"; challenge "tls-alpn-01" failed with error: acme: authorization error`)
-		Expect(cert).IsNil()
 	}
 }

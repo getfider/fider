@@ -1,19 +1,23 @@
 package actions_test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
+	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 )
 
 func TestInviteUsers_Empty(t *testing.T) {
 	RegisterT(t)
 
 	action := &actions.InviteUsers{Model: &models.InviteUsers{}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject", "message", "recipients")
 	Expect(action.Invitations).IsNil()
 }
@@ -26,7 +30,7 @@ func TestInviteUsers_Oversized(t *testing.T) {
 		Message:    "Use this link to join %invite%",
 		Recipients: []string{"jon.snow@got.com"},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "subject")
 	Expect(action.Invitations).IsNil()
 }
@@ -39,7 +43,7 @@ func TestInviteUsers_MissingInvite(t *testing.T) {
 		Message:    "Please!",
 		Recipients: []string{"jon.snow@got.com"},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "message")
 	Expect(action.Invitations).IsNil()
 }
@@ -57,7 +61,7 @@ func TestInviteUsers_TooManyRecipients(t *testing.T) {
 		Message:    "Use this link to join %invite%",
 		Recipients: recipients,
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
 }
@@ -73,13 +77,17 @@ func TestInviteUsers_InvalidRecipient(t *testing.T) {
 			"@got.com",
 		},
 	}}
-	result := action.Validate(nil, services)
+	result := action.Validate(context.Background(), nil)
 	ExpectFailed(result, "recipients")
 	Expect(action.Invitations).IsNil()
 }
 
 func TestInviteUsers_Valid(t *testing.T) {
 	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
 
 	action := &actions.InviteUsers{Model: &models.InviteUsers{
 		Subject: "Share your feedback.",
@@ -91,7 +99,7 @@ func TestInviteUsers_Valid(t *testing.T) {
 		},
 	}}
 
-	ExpectSuccess(action.Validate(nil, services))
+	ExpectSuccess(action.Validate(context.Background(), nil))
 
 	Expect(action.Invitations).HasLen(2)
 
@@ -105,13 +113,14 @@ func TestInviteUsers_Valid(t *testing.T) {
 func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 	RegisterT(t)
 
-	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
-	services.Users.SetCurrentTenant(theTenant)
-	services.Users.Register(&models.User{
-		Name:   "Tony",
-		Email:  "tony.stark@avengers.com",
-		Tenant: theTenant,
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		if q.Email == "tony.stark@avengers.com" {
+			q.Result = &models.User{Email: q.Email}
+			return nil
+		}
+		return app.ErrNotFound
 	})
+
 	action := &actions.InviteUsers{Model: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
@@ -122,7 +131,7 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 		},
 	}}
 
-	ExpectSuccess(action.Validate(nil, services))
+	ExpectSuccess(action.Validate(context.Background(), nil))
 
 	Expect(action.Invitations).HasLen(2)
 
@@ -136,13 +145,11 @@ func TestInviteUsers_IgnoreAlreadyRegistered(t *testing.T) {
 func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
 	RegisterT(t)
 
-	theTenant := &models.Tenant{ID: 1, Name: "The Tenant"}
-	services.Users.SetCurrentTenant(theTenant)
-	services.Users.Register(&models.User{
-		Name:   "Tony",
-		Email:  "tony.stark@avengers.com",
-		Tenant: theTenant,
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		q.Result = &models.User{Email: q.Email}
+		return nil
 	})
+
 	action := &actions.InviteUsers{Model: &models.InviteUsers{
 		Subject: "Share your feedback.",
 		Message: "Use this link to join our community: %invite%",
@@ -151,7 +158,7 @@ func TestInviteUsers_ShouldFail_WhenAllRecipientsIgnored(t *testing.T) {
 		},
 	}}
 
-	ExpectFailed(action.Validate(nil, services), "recipients")
+	ExpectFailed(action.Validate(context.Background(), nil), "recipients")
 }
 
 func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
@@ -165,5 +172,5 @@ func TestInviteUsers_SampleInvite_IgnoreRecipients(t *testing.T) {
 		},
 	}
 
-	ExpectSuccess(action.Validate(nil, services))
+	ExpectSuccess(action.Validate(context.Background(), nil))
 }

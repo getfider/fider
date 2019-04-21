@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -8,26 +10,19 @@ import (
 
 // Index is the default home page
 func Index() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		c.SetCanonicalURL("")
 
-		posts, err := c.Services().Posts.Search(
-			c.QueryParam("query"),
-			c.QueryParam("view"),
-			c.QueryParam("limit"),
-			c.QueryParamAsArray("tags"),
-		)
-		if err != nil {
-			return c.Failure(err)
+		searchPosts := &query.SearchPosts{
+			Query: c.QueryParam("query"),
+			View:  c.QueryParam("view"),
+			Limit: c.QueryParam("limit"),
+			Tags:  c.QueryParamAsArray("tags"),
 		}
+		getAllTags := &query.GetAllTags{}
+		countPerStatus := &query.CountPostPerStatus{}
 
-		tags, err := c.Services().Tags.GetAll()
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		stats, err := c.Services().Posts.CountPerStatus()
-		if err != nil {
+		if err := bus.Dispatch(c, searchPosts, getAllTags, countPerStatus); err != nil {
 			return c.Failure(err)
 		}
 
@@ -42,9 +37,9 @@ func Index() web.HandlerFunc {
 			Description: description,
 			ChunkName:   "Home.page",
 			Data: web.Map{
-				"posts":          posts,
-				"tags":           tags,
-				"countPerStatus": stats,
+				"posts":          searchPosts.Result,
+				"tags":           getAllTags.Result,
+				"countPerStatus": countPerStatus.Result,
 			},
 		})
 	}
@@ -52,54 +47,37 @@ func Index() web.HandlerFunc {
 
 // PostDetails shows details of given Post by id
 func PostDetails() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		number, err := c.ParamAsInt("number")
 		if err != nil {
 			return c.NotFound()
 		}
 
-		posts := c.Services().Posts
-		post, err := posts.GetByNumber(number)
-		if err != nil {
+		getPost := &query.GetPostByNumber{Number: number}
+		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
 		}
 
-		comments, err := posts.GetCommentsByPost(post)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		tags, err := c.Services().Tags.GetAll()
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		subscribed, err := c.Services().Users.HasSubscribedTo(post.ID)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		votes, err := c.Services().Posts.ListVotes(post, 6)
-		if err != nil {
-			return c.Failure(err)
-		}
-
-		attachments, err := c.Services().Posts.GetAttachments(post, nil)
-		if err != nil {
+		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}
+		getComments := &query.GetCommentsByPost{Post: getPost.Result}
+		getAllTags := &query.GetAllTags{}
+		listVotes := &query.ListPostVotes{PostID: getPost.Result.ID, Limit: 6}
+		getAttachments := &query.GetAttachments{Post: getPost.Result}
+		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, isSubscribed, getAttachments); err != nil {
 			return c.Failure(err)
 		}
 
 		return c.Page(web.Props{
-			Title:       post.Title,
-			Description: markdown.PlainText(post.Description),
+			Title:       getPost.Result.Title,
+			Description: markdown.PlainText(getPost.Result.Description),
 			ChunkName:   "ShowPost.page",
 			Data: web.Map{
-				"comments":    comments,
-				"subscribed":  subscribed,
-				"post":        post,
-				"tags":        tags,
-				"votes":       votes,
-				"attachments": attachments,
+				"comments":    getComments.Result,
+				"subscribed":  isSubscribed.Result,
+				"post":        getPost.Result,
+				"tags":        getAllTags.Result,
+				"votes":       listVotes.Result,
+				"attachments": getAttachments.Result,
 			},
 		})
 	}
@@ -107,14 +85,14 @@ func PostDetails() web.HandlerFunc {
 
 // ExportPostsToCSV returns a CSV with all posts
 func ExportPostsToCSV() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 
-		posts, err := c.Services().Posts.GetAll()
-		if err != nil {
+		allPosts := &query.GetAllPosts{}
+		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
 		}
 
-		bytes, err := csv.FromPosts(posts)
+		bytes, err := csv.FromPosts(allPosts.Result)
 		if err != nil {
 			return c.Failure(err)
 		}
