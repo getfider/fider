@@ -71,6 +71,7 @@ type Watch mg.Namespace
 
 func (Watch) All() {
 	Clean()
+	Migrate()
 	mg.Deps(Watch.Server, Watch.UI)
 }
 
