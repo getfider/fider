@@ -49,7 +49,6 @@ var (
 		DefaultEnabledUserRoles: []Role{
 			RoleAdministrator,
 			RoleCollaborator,
-			RoleVisitor,
 		},
 		Validate: notificationEventValidation,
 	}

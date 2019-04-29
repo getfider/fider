@@ -29,9 +29,8 @@ func TestSubscription_NoSettings(t *testing.T) {
 	Expect(newPostSubscribers.Result).HasLen(1)
 	Expect(newPostSubscribers.Result[0].ID).Equals(jonSnow.ID)
 
-	Expect(newCommentSubscribers.Result).HasLen(2)
+	Expect(newCommentSubscribers.Result).HasLen(1)
 	Expect(newCommentSubscribers.Result[0].ID).Equals(jonSnow.ID)
-	Expect(newCommentSubscribers.Result[1].ID).Equals(aryaStark.ID)
 
 	Expect(changeStatusSubscribers.Result).HasLen(2)
 	Expect(changeStatusSubscribers.Result[0].ID).Equals(jonSnow.ID)
@@ -289,7 +288,7 @@ func TestSubscription_DeletedPost(t *testing.T) {
 
 	bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: enum.PostDeleted})
 
-	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
+	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, q)
 	Expect(err).IsNil()
 	Expect(q.Result).HasLen(2)
