@@ -3,8 +3,10 @@ package s3
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"path"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -60,9 +62,34 @@ func (s Service) Init() {
 		awsSession := session.New(s3Config)
 		DefaultClient = s3.New(awsSession)
 	}
+
+	bus.AddHandler(listBlobs)
 	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
+}
+
+func listBlobs(ctx context.Context, q *query.ListBlobs) error {
+	tenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	basePath := fmt.Sprintf("tenants/%d/", tenant.ID)
+	response, err := DefaultClient.ListObjectsWithContext(ctx, &s3.ListObjectsInput{
+		Bucket:  aws.String(env.Config.BlobStorage.S3.BucketName),
+		MaxKeys: aws.Int64(3000),
+		Prefix:  aws.String(basePath),
+	})
+	if err != nil {
+		return wrap(err, "failed to list blobs from S3")
+	}
+
+	files := make([]string, 0)
+	for _, item := range response.Contents {
+		key := *item.Key
+		files = append(files, key[len(basePath):])
+	}
+
+	sort.Strings(files)
+	q.Result = files
+	return nil
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
