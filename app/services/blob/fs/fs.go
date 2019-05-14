@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strconv"
 
 	"github.com/getfider/fider/app"
@@ -43,9 +44,33 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
+	bus.AddHandler(listBlobs)
 	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
+}
+
+func listBlobs(ctx context.Context, q *query.ListBlobs) error {
+	basePath := basePath(ctx)
+	files := make([]string, 0)
+
+	err := filepath.Walk(basePath,
+		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				files = append(files, path[len(basePath)+1:])
+			}
+			return nil
+		})
+	if err != nil {
+		return errors.Wrap(err, "failed to read dir '%s'", basePath)
+	}
+
+	sort.Strings(files)
+	q.Result = files
+	return nil
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
@@ -101,10 +126,14 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 }
 
 func keyFullPath(ctx context.Context, key string) string {
-	basePath := env.Config.BlobStorage.FS.Path
+	return path.Join(basePath(ctx), key)
+}
+
+func basePath(ctx context.Context) string {
+	startPath := env.Config.BlobStorage.FS.Path
 	tenant, ok := ctx.Value(app.TenantCtxKey).(*models.Tenant)
 	if ok {
-		return path.Join(basePath, "tenants", strconv.Itoa(tenant.ID), key)
+		return path.Join(startPath, "tenants", strconv.Itoa(tenant.ID))
 	}
-	return path.Join(basePath, key)
+	return path.Join(startPath)
 }

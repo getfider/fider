@@ -36,9 +36,6 @@ func setupS3(t *testing.T) {
 	bus.Init(s3.Service{})
 
 	bucket := aws.String(env.Config.BlobStorage.S3.BucketName)
-	s3.DefaultClient.DeleteBucket(&awss3.DeleteBucketInput{
-		Bucket: bucket,
-	})
 	s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
 		Bucket: bucket,
 	})
@@ -72,6 +69,7 @@ var tests = []struct {
 	{"KeyFormats", KeyFormats},
 	{"SameKey_DifferentTenant", SameKey_DifferentTenant},
 	{"SameKey_DifferentTenant_Delete", SameKey_DifferentTenant_Delete},
+	{"ListBlobsFromTenant", ListBlobsFromTenant},
 }
 
 func TestBlobStorage(t *testing.T) {
@@ -171,6 +169,9 @@ func SameKey_DifferentTenant(ctx context.Context) {
 	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
+
+	err = bus.Dispatch(ctxWithTenant1, &cmd.DeleteBlob{Key: key})
+	Expect(err).IsNil()
 }
 
 func SameKey_DifferentTenant_Delete(ctx context.Context) {
@@ -217,6 +218,47 @@ func SameKey_DifferentTenant_Delete(ctx context.Context) {
 	err = bus.Dispatch(ctx, q)
 	Expect(err).Equals(blob.ErrNotFound)
 	Expect(q.Result).IsNil()
+
+	err = bus.Dispatch(ctxWithTenant2, &cmd.DeleteBlob{Key: key})
+	Expect(err).IsNil()
+}
+
+func ListBlobsFromTenant(ctx context.Context) {
+	ctxWithTenant1 := context.WithValue(ctx, app.TenantCtxKey, tenant1)
+	ctxWithTenant2 := context.WithValue(ctx, app.TenantCtxKey, tenant2)
+
+	err := bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
+		Key:         "texts/hello.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(ctxWithTenant1, &cmd.StoreBlob{
+		Key:         "memos/hello1.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(ctxWithTenant2, &cmd.StoreBlob{
+		Key:         "texts/hello.txt",
+		Content:     make([]byte, 0),
+		ContentType: "text/plain; charset=utf-8",
+	})
+	Expect(err).IsNil()
+
+	tenant1Files := &query.ListBlobs{}
+	err = bus.Dispatch(ctxWithTenant1, tenant1Files)
+	Expect(err).IsNil()
+	Expect(tenant1Files.Result).HasLen(2)
+	Expect(tenant1Files.Result).Equals([]string{"memos/hello1.txt", "texts/hello.txt"})
+
+	tenant2Files := &query.ListBlobs{}
+	err = bus.Dispatch(ctxWithTenant2, tenant2Files)
+	Expect(err).IsNil()
+	Expect(tenant2Files.Result).HasLen(1)
+	Expect(tenant2Files.Result).Equals([]string{"texts/hello.txt"})
 }
 
 func KeyFormats(ctx context.Context) {

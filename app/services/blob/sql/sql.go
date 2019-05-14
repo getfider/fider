@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"sort"
 	"time"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -39,15 +40,42 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
+	bus.AddHandler(listBlobs)
 	bus.AddHandler(getBlobByKey)
 	bus.AddHandler(storeBlob)
 	bus.AddHandler(deleteBlob)
 }
 
 type dbBlob struct {
+	Key         string `db:"key"`
 	ContentType string `db:"content_type"`
 	Size        int64  `db:"size"`
 	Content     []byte `db:"file"`
+}
+
+func listBlobs(ctx context.Context, q *query.ListBlobs) error {
+	return using(ctx, func(tenant *models.Tenant) error {
+		trx, err := dbx.BeginTx(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to open transaction")
+		}
+		defer trx.Commit()
+
+		blobs := []*dbBlob{}
+		err = trx.Select(&blobs, "SELECT key FROM blobs WHERE tenant_id = $1", tenant.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed list blobs")
+		}
+
+		files := make([]string, len(blobs))
+		for i, b := range blobs {
+			files[i] = b.Key
+		}
+
+		sort.Strings(files)
+		q.Result = files
+		return nil
+	})
 }
 
 func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {

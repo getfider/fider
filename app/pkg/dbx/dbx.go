@@ -250,6 +250,27 @@ func (trx *Trx) Select(data interface{}, command string, args ...interface{}) er
 	return nil
 }
 
+//Query all matched rows and return raw sql.Rows
+func (trx *Trx) Query(command string, args ...interface{}) (*sql.Rows, error) {
+	if log.IsEnabled(log.DEBUG) {
+		command = formatter.Replace(command)
+		start := time.Now()
+		defer func() {
+			log.Debugf(trx.ctx, "@{Command:yellow} @{Args:blue} executed in @{ElapsedMs:magenta}ms", dto.Props{
+				"Command":   command,
+				"Args":      args,
+				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
+			})
+		}()
+	}
+
+	rows, err := trx.tx.QueryContext(trx.ctx, command, args...)
+	if err != nil {
+		return nil, wrap(err, "failed to execute trx.Select")
+	}
+	return rows, nil
+}
+
 // Commit current transaction
 func (trx *Trx) Commit() error {
 	err := trx.tx.Commit()
