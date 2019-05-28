@@ -79,5 +79,8 @@
       "^.*\\.(png|scss|svg)$": "<rootDir>/public/jest.assets.ts",
       "@fider/(.*)": "<rootDir>/public/$1"
     }
+  },
+  "scripts":{
+    "heroku-postbuild": "npx webpack -p"
   }
 }

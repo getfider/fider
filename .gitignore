@@ -4,6 +4,7 @@ dist/
 output/
 node_modules/
 .vscode/
+.idea/
 logs/
 
 fider
