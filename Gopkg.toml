@@ -61,3 +61,7 @@ ignored = ["github.com/magefile/mage/mg","github.com/magefile/mage/sh"]
   branch = "master"
   name = "github.com/joeshaw/envdecode"
 
+[metadata.heroku]
+  root-package = "github.com/getfider/fider"
+  go-version = "1.12"
+  install = [ "./..." ]
