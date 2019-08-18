@@ -3,7 +3,7 @@ references:
   builder: &builder 
     getfider/circleci:0.0.20
   workdir: &workdir 
-    /go/src/github.com/getfider/fider
+    /workdir
 
 jobs:
   setup:
