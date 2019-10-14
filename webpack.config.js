@@ -33,8 +33,8 @@ if (!isProduction) {
   plugins.push(new CleanObsoleteChunks());
 }
 
-// On Development Mode, we allow Assets to be up to 10 times bigger than on Production Mode
-const maxSizeFactor = isProduction ? 1 : 10;
+// On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
+const maxSizeFactor = isProduction ? 1 : 14;
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
