@@ -3,7 +3,7 @@ import * as markdown from "./markdown";
 const testCases = [
   {
     input: "Visit [GitHub](https://github.com) to learn more.",
-    expectedFull: '<p>Visit <a href="https://github.com"  rel="noopener" target="_blank">GitHub</a> to learn more.</p>',
+    expectedFull: '<p>Visit <a href="https://github.com" rel="noopener" target="_blank">GitHub</a> to learn more.</p>',
     expectedSimple: '<p>Visit <a href="https://github.com" rel="noopener" target="_blank">GitHub</a> to learn more.</p>'
   },
   {
