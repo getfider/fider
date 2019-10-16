@@ -7,6 +7,7 @@
       "eslint:recommended",
       "prettier",
       "prettier/react"
+      "plugin:prettier/recommended"
     ]
 
     "globals": {
@@ -23,6 +24,12 @@
     "plugins": [
         "react"
     ],
+    {
+    "plugins": ["prettier"],
+    "rules": {
+    "prettier/prettier": "error"
+  }
+}
     "rules": {
     }
 }
