@@ -103,7 +103,7 @@ func (m *CertificateManager) StartHTTPServer() {
 func acmeClient() *acme.Client {
 	if env.IsTest() {
 		return &acme.Client{
-			DirectoryURL: "https://acme-staging.api.letsencrypt.org/directory",
+			DirectoryURL: "https://acme-staging-v02.api.letsencrypt.org/directory",
 		}
 	}
 	return nil
