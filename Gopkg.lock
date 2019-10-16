@@ -241,14 +241,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e3d2db9bc633f4635e6418caf0b0734c43821ecd59105d1798458c6ae4d227fd"
+  digest = "1:abe48994520e8e006df4fe59f4c76ff5955be6cb0e80bf603a7168a20e0e2e72"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
   ]
   pruneopts = "UT"
-  revision = "8d7daa0c54b357f3071e11eaef7efc4e19a417e2"
+  revision = "87dc89f01550277dc22b74ffcf4cd89fa2f40f4c"
 
 [[projects]]
   branch = "master"
@@ -268,11 +268,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f8b491a7c25030a895a0e579742d07136e6958e77ef2d46e769db8eec4e58fcd"
+  digest = "1:1161a44b3d454b130dbe9afdef7a4cc2bcefec1add13ca10837f8021a0e67c19"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
+    "idna",
   ]
   pruneopts = "UT"
   revision = "927f97764cc334a6575f4b7a1584a147864d5723"
@@ -289,6 +290,31 @@
   ]
   pruneopts = "UT"
   revision = "d668ce993890a79bda886613ee587a69dd5da7a6"
+
+[[projects]]
+  digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
+  name = "golang.org/x/text"
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/language",
+    "internal/language/compact",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable",
+  ]
+  pruneopts = "UT"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   digest = "1:9cf45e754ab2dff5f53a553e6948b994ff738e4d1092ca608dcada945d8be0ef"
