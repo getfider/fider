@@ -44,7 +44,6 @@
     "sass-loader": "7.1.0",
     "ts-jest": "24.0.0",
     "ts-loader": "5.3.3",
-    "tslint": "5.13.1",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
     "tslint-react": "3.6.0",
