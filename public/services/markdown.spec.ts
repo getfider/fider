@@ -5,7 +5,6 @@ const testCases = [
     input: "Visit [GitHub](https://github.com) to learn more.",
     expectedFull: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>',
     expectedSimple: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>'
-
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
