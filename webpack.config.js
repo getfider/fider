@@ -33,8 +33,8 @@ if (!isProduction) {
   plugins.push(new CleanObsoleteChunks());
 }
 
-// On Development Mode, we allow Assets to be up to 10 times bigger than on Production Mode
-const maxSizeFactor = isProduction ? 1 : 10;
+// On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
+const maxSizeFactor = isProduction ? 1 : 14;
 
 module.exports = {
   mode: process.env.NODE_ENV || "development",
@@ -62,8 +62,8 @@ module.exports = {
     }
   },
   performance: {
-    maxEntrypointSize: 307200 * maxSizeFactor, // 300 KiB. Should ideally be ~240 KiB
-    maxAssetSize: 184320 * maxSizeFactor, // 180 KiB
+    maxEntrypointSize: 327680 * maxSizeFactor, // 320 KiB. Should ideally be ~240 KiB
+    maxAssetSize: 194560 * maxSizeFactor, // 190 KiB
     hints: "error"
   },
   module: {

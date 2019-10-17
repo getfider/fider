@@ -53,8 +53,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           upload: {
             fileName: file.name,
             content: base64,
-            contentType: file.type,
-            action: "upload"
+            contentType: file.type
           },
           remove: false,
           previewURL: `data:${file.type};base64,${base64}`
