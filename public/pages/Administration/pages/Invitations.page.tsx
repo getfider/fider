@@ -28,9 +28,7 @@ export default class InvitationsPage extends AdminBasePage<{}, InvitationsPageSt
       subject: `Share your ideas and thoughts about ${Fider.session.tenant.name}`,
       message: `Hi,
 
-At **${
-        Fider.session.tenant.name
-      }** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
+At **${Fider.session.tenant.name}** we take feedback very seriously, which is why we've launched a space where you can vote, discuss and share your ideas and thoughts about our products and services.
 
 We'd like to extend an invite for you to join this community and raise awareness on topics you care about!
 
