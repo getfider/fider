@@ -15,7 +15,7 @@ DOMPurify.setConfig({
 
 const link = (href: string, title: string, text: string) => {
   const titleAttr = title ? ` title=${title}` : "";
-  return `<a href="${href}"${titleAttr} target="_blank">${text}</a>`;
+  return `<a href="${href}"${titleAttr} rel="noopener" target="_blank">${text}</a>`;
 };
 
 const simpleRenderer = new marked.Renderer();
