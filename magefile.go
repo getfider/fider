@@ -59,7 +59,7 @@ func Migrate() error {
 }
 
 func Lint() error {
-	return sh.Run("npx", "tslint", "-c", "tslint.json", "'public/**/*.{ts,tsx}'", "'tests/**/*.{ts,tsx}'")
+	return sh.Run("npx", "eslint", "-c", ".eslintrc.json", "'public/**/*.{ts,tsx}'", "'tests/**/*.{ts,tsx}'")
 }
 
 func Clean() error {
