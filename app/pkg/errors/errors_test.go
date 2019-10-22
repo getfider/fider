@@ -89,7 +89,7 @@ runtime/debug.Stack`)
 			Expect(err.Error()).ContainsSubstring(`
 github.com/getfider/fider/app/pkg/errors.Panicked`)
 			Expect(err.Error()).ContainsSubstring(`
-- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:97 (app/pkg/errors/errors.go:40)
+- github.com/getfider/fider/app/pkg/errors_test.TestPanicked:84 (app/pkg/errors/errors.go:40)
 - Boom!`)
 		}
 	}()
