@@ -19,8 +19,8 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software  | How to install | What is it used for |
 |---|---|---|
-| Go 1.11+ | https://golang.org/ | To compile server side code |
-| Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
+| Go 1.13+ | https://golang.org/ | To compile server side code |
+| Node.js 12+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
 | cosmtrek/air | `go get github.com/cosmtrek/air/cmd/air/` | Live reload for Go apps. When you change the code, it automatically recompiles the application |
 | joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | To load environment variables from a `.env` so that you don't have to change your machine environment variables |
