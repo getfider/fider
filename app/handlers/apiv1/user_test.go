@@ -1,20 +1,34 @@
 package apiv1_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app"
+
 	"github.com/getfider/fider/app/handlers/apiv1"
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/mock"
 )
 
 func TestListUsersHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+		q.Result = []*models.User{
+			&models.User{ID: 1, Name: "User 1"},
+			&models.User{ID: 2, Name: "User 2"},
+		}
+		return nil
+	})
+
+	server := mock.NewServer()
 
 	status, query := server.
 		AsUser(mock.JonSnow).
@@ -28,9 +42,25 @@ func TestListUsersHandler(t *testing.T) {
 func TestCreateUser_ExistingEmail(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
+	server := mock.NewServer()
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		if q.Email == mock.AryaStark.Email {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	var newProvider *cmd.RegisterUserProvider
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
+		newProvider = c
+		return nil
+	})
 
 	status, query := server.
 		AsUser(mock.JonSnow).
@@ -44,23 +74,28 @@ func TestCreateUser_ExistingEmail(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	id := query.Int32("id")
-	user, err := services.Users.GetByID(id)
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(mock.AryaStark.ID)
-	Expect(user.Name).Equals("Arya Stark")
-	Expect(user.Email).Equals("arya.stark@got.com")
-	Expect(user.Tenant).Equals(mock.DemoTenant)
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].Name).Equals("reference")
-	Expect(user.Providers[0].UID).Equals("AA564645")
+	Expect(id).Equals(mock.AryaStark.ID)
+	Expect(newProvider.UserID).Equals(id)
+	Expect(newProvider.ProviderName).Equals("reference")
+	Expect(newProvider.ProviderUID).Equals("AA564645")
 }
 
 func TestCreateUser_ExistingEmail_NoReference(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
+	server := mock.NewServer()
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		if q.Email == mock.AryaStark.Email {
+			q.Result = mock.AryaStark
+			return nil
+		}
+		return app.ErrNotFound
+	})
 
 	status, query := server.
 		AsUser(mock.JonSnow).
@@ -72,22 +107,49 @@ func TestCreateUser_ExistingEmail_NoReference(t *testing.T) {
 			}`)
 
 	Expect(status).Equals(http.StatusOK)
-	id := query.Int32("id")
-	user, err := services.Users.GetByID(id)
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(mock.AryaStark.ID)
-	Expect(user.Name).Equals("Arya Stark")
-	Expect(user.Email).Equals("arya.stark@got.com")
-	Expect(user.Tenant).Equals(mock.DemoTenant)
-	Expect(user.Providers).HasLen(0)
+	Expect(query.Int32("id")).Equals(mock.AryaStark.ID)
 }
 
 func TestCreateUser_NewUser(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.SetCurrentTenant(mock.DemoTenant)
-	services.SetCurrentUser(mock.JonSnow)
+	server := mock.NewServer()
+
+	var newUser *models.User
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByProvider) error {
+		if newUser != nil {
+			if q.Provider == newUser.Providers[0].Name && q.UID == newUser.Providers[0].UID {
+				q.Result = newUser
+				return nil
+			}
+		}
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetUserByEmail) error {
+		return app.ErrNotFound
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		if newUser != nil {
+			panic("newUser is already set")
+		}
+
+		c.User.ID = 1
+		newUser = c.User
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUserProvider) error {
+		if c.UserID == newUser.ID {
+			newUser.Providers = append(newUser.Providers, &models.UserProvider{
+				Name: c.ProviderName,
+				UID:  c.ProviderUID,
+			})
+		}
+		return nil
+	})
 
 	status, query := server.
 		AsUser(mock.JonSnow).
@@ -101,15 +163,14 @@ func TestCreateUser_NewUser(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	userID := query.Int32("id")
-	user, err := services.Users.GetByID(userID)
-	Expect(err).IsNil()
-	Expect(user.ID).Equals(userID)
-	Expect(user.Name).Equals("Martin")
-	Expect(user.Email).Equals("martin@company.com")
-	Expect(user.Tenant).Equals(mock.DemoTenant)
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].Name).Equals("reference")
-	Expect(user.Providers[0].UID).Equals("89014714")
+	Expect(newUser.ID).Equals(userID)
+	Expect(newUser.Name).Equals("Martin")
+	Expect(newUser.Email).Equals("martin@company.com")
+	Expect(newUser.Tenant).Equals(mock.DemoTenant)
+	Expect(newUser.Role).Equals(enum.RoleVisitor)
+	Expect(newUser.Providers).HasLen(1)
+	Expect(newUser.Providers[0].UID).Equals("89014714")
+	Expect(newUser.Providers[0].Name).Equals("reference")
 
 	// Try to recreate another user with same reference
 	status, query = server.
@@ -124,11 +185,4 @@ func TestCreateUser_NewUser(t *testing.T) {
 	Expect(status).Equals(http.StatusOK)
 	theOtherUserID := query.Int32("id")
 	Expect(theOtherUserID).Equals(userID)
-	user, err = services.Users.GetByID(theOtherUserID)
-	Expect(err).IsNil()
-	Expect(user.Name).Equals("Martin")
-	Expect(user.Email).Equals("martin@company.com")
-	Expect(user.Providers).HasLen(1)
-	Expect(user.Providers[0].Name).Equals("reference")
-	Expect(user.Providers[0].UID).Equals("89014714")
 }

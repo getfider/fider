@@ -1,9 +1,14 @@
 package handlers_test
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
@@ -13,7 +18,7 @@ import (
 func TestHealthHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		Execute(handlers.Health())
 
@@ -23,7 +28,7 @@ func TestHealthHandler(t *testing.T) {
 func TestPageHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		Execute(handlers.Page("The Title", "The Description", "TheChunk.Page"))
 
@@ -33,7 +38,7 @@ func TestPageHandler(t *testing.T) {
 func TestLegalPageHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		Execute(handlers.LegalPage("Terms of Service", "terms.md"))
 
@@ -43,7 +48,7 @@ func TestLegalPageHandler(t *testing.T) {
 func TestLegalPageHandler_Invalid(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		Execute(handlers.LegalPage("Some Page", "somepage.md"))
 
@@ -53,7 +58,7 @@ func TestLegalPageHandler_Invalid(t *testing.T) {
 func TestRobotsTXT(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("https://demo.test.fider.io/robots.txt").
 		Execute(handlers.RobotsTXT())
@@ -70,7 +75,12 @@ Sitemap: https://demo.test.fider.io/sitemap.xml`)
 func TestSitemap(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
+		q.Result = []*models.Post{}
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, response := server.
 		OnTenant(mock.DemoTenant).
 		WithURL("http://demo.test.fider.io:3000/sitemap.xml").
@@ -84,11 +94,15 @@ func TestSitemap(t *testing.T) {
 func TestSitemap_WithPosts(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("My new idea 1", "")
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("The other idea", "")
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllPosts) error {
+		q.Result = []*models.Post{
+			&models.Post{Number: 1, Slug: "my-new-idea-1", Title: "My new idea 1"},
+			&models.Post{Number: 2, Slug: "the-other-idea", Title: "The other idea"},
+		}
+		return nil
+	})
+
+	server := mock.NewServer()
 
 	code, response := server.
 		OnTenant(mock.DemoTenant).
@@ -103,11 +117,7 @@ func TestSitemap_WithPosts(t *testing.T) {
 func TestSitemap_PrivateTenant_WithPosts(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("My new idea 1", "")
-	services.Posts.SetCurrentUser(mock.AryaStark)
-	services.Posts.Add("The other idea", "")
+	server := mock.NewServer()
 
 	mock.DemoTenant.IsPrivate = true
 

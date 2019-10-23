@@ -10,7 +10,7 @@ import (
 // Maintenance returns a maintenance page when system is under maintenance
 func Maintenance() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if env.Config.Maintenance.Enabled == false {
 				return next(c)
 			}

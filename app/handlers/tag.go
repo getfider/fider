@@ -1,14 +1,16 @@
 package handlers
 
 import (
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/web"
 )
 
 // ManageTags is the home page for managing tags
 func ManageTags() web.HandlerFunc {
-	return func(c web.Context) error {
-		tags, err := c.Services().Tags.GetAll()
-		if err != nil {
+	return func(c *web.Context) error {
+		getAllTags := &query.GetAllTags{}
+		if err := bus.Dispatch(c, getAllTags); err != nil {
 			return c.Failure(err)
 		}
 
@@ -16,7 +18,7 @@ func ManageTags() web.HandlerFunc {
 			Title:     "Manage Tags · Site Settings",
 			ChunkName: "ManageTags.page",
 			Data: web.Map{
-				"tags": tags,
+				"tags": getAllTags.Result,
 			},
 		})
 	}

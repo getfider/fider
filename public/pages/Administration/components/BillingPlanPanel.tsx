@@ -2,6 +2,7 @@ import React from "react";
 import { Segment, Button, Moment, Modal, ButtonClickEvent } from "@fider/components";
 import { BillingPlan, InvoiceDue } from "@fider/models";
 import { Fider, actions, classSet, currencySymbol } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 interface BillingPlanOptionProps {
   tenantUserCount: number;
@@ -13,7 +14,9 @@ interface BillingPlanOptionProps {
 }
 
 const BillingPlanOption = (props: BillingPlanOptionProps) => {
-  const billing = Fider.session.tenant.billing!;
+  const fider = useFider();
+
+  const billing = fider.session.tenant.billing!;
   const isSelected = billing.stripePlanID === props.plan.id && !billing.subscriptionEndsAt;
   const className = classSet({ "l-plan": true, selected: isSelected });
 

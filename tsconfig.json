@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "incremental": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

@@ -2,28 +2,32 @@ package web
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/getfider/fider/app/pkg/dbx"
 
 	"strings"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/blob"
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/log"
+	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/worker"
+	"github.com/getfider/fider/app/services/blob"
 )
 
 // Map defines a generic map of type `map[string]interface{}`
@@ -61,71 +65,83 @@ const CookieAuthName = "auth"
 // CookieSignUpAuthName is the name of the cookie that holds the temporary Authentication Token
 const CookieSignUpAuthName = "__signup_auth"
 
-var (
-	prefixKey             = "__CTX_"
-	tenantContextKey      = prefixKey + "TENANT"
-	userContextKey        = prefixKey + "USER"
-	claimsContextKey      = prefixKey + "CLAIMS"
-	transactionContextKey = prefixKey + "TRANSACTION"
-	servicesContextKey    = prefixKey + "SERVICES"
-	tasksContextKey       = prefixKey + "TASKS"
-)
-
 //Context shared between http pipeline
 type Context struct {
-	id        string
-	sessionID string
+	context.Context
 	Response  http.ResponseWriter
 	Request   Request
+	id        string
+	sessionID string
 	engine    *Engine
-	logger    log.Logger
 	params    StringMap
-	store     Map
-	worker    worker.Worker
+	tasks     []worker.Task
+}
+
+//NewContext creates a new web Context
+func NewContext(engine *Engine, req *http.Request, res http.ResponseWriter, params StringMap) *Context {
+	contextID := rand.String(32)
+
+	wrappedRequest := WrapRequest(req)
+
+	ctx := context.WithValue(req.Context(), app.RequestCtxKey, wrappedRequest)
+
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: contextID,
+		log.PropertyKeyTag:       "WEB",
+	})
+
+	return &Context{
+		Context:  ctx,
+		id:       contextID,
+		engine:   engine,
+		Request:  wrappedRequest,
+		Response: res,
+		params:   params,
+		tasks:    make([]worker.Task, 0),
+	}
 }
 
 //Engine returns main HTTP engine
-func (ctx *Context) Engine() *Engine {
-	return ctx.engine
+func (c *Context) Engine() *Engine {
+	return c.engine
 }
 
 //SessionID returns the current session ID
-func (ctx *Context) SessionID() string {
-	return ctx.sessionID
+func (c *Context) SessionID() string {
+	return c.sessionID
 }
 
 //SetSessionID sets the session ID on current context
-func (ctx *Context) SetSessionID(id string) {
-	ctx.sessionID = id
-	ctx.logger.SetProperty(log.PropertyKeySessionID, id)
+func (c *Context) SetSessionID(id string) {
+	c.sessionID = id
+	c.Context = log.WithProperty(c.Context, log.PropertyKeySessionID, id)
 }
 
 //ContextID returns the unique id for this context
-func (ctx *Context) ContextID() string {
-	return ctx.id
+func (c *Context) ContextID() string {
+	return c.id
 }
 
 //Commit everything that is pending on current context
-func (ctx *Context) Commit() error {
-	if trx := ctx.ActiveTransaction(); trx != nil {
+func (c *Context) Commit() error {
+	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
+	if ok && trx != nil {
 		if err := trx.Commit(); err != nil {
 			return err
 		}
 	}
 
-	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
-	if ok {
-		for _, task := range tasks {
-			ctx.worker.Enqueue(task)
-		}
+	for _, task := range c.tasks {
+		c.engine.worker.Enqueue(task)
 	}
 
 	return nil
 }
 
 //Rollback everything that is pending on current context
-func (ctx *Context) Rollback() error {
-	if trx := ctx.ActiveTransaction(); trx != nil {
+func (c *Context) Rollback() error {
+	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
+	if ok && trx != nil {
 		return trx.Rollback()
 	}
 
@@ -133,33 +149,14 @@ func (ctx *Context) Rollback() error {
 }
 
 //Enqueue given task to be processed in background
-func (ctx *Context) Enqueue(task worker.Task) {
-	wrap := func(c *Context) worker.Job {
-		return func(wc *worker.Context) error {
-			wc.SetUser(c.User())
-			wc.SetTenant(c.Tenant())
-			wc.SetBaseURL(c.BaseURL())
-			wc.SetLogoURL(c.LogoURL())
-			wc.SetAssetsBaseURL(c.TenantAssetsURL(""))
-			return task.Job(wc)
-		}
-	}
-
-	tasks, ok := ctx.Get(tasksContextKey).([]worker.Task)
-	if !ok {
-		tasks = make([]worker.Task, 0)
-	}
-
-	ctx.Set(tasksContextKey, append(tasks, worker.Task{
-		OriginSessionID: ctx.SessionID(),
-		Name:            task.Name,
-		Job:             wrap(ctx),
-	}))
+func (c *Context) Enqueue(task worker.Task) {
+	task.OriginContext = c
+	c.tasks = append(c.tasks, task)
 }
 
 //Tenant returns current tenant
-func (ctx *Context) Tenant() *models.Tenant {
-	tenant, ok := ctx.Get(tenantContextKey).(*models.Tenant)
+func (c *Context) Tenant() *models.Tenant {
+	tenant, ok := c.Value(app.TenantCtxKey).(*models.Tenant)
 	if ok {
 		return tenant
 	}
@@ -167,19 +164,16 @@ func (ctx *Context) Tenant() *models.Tenant {
 }
 
 //SetTenant update HTTP context with current tenant
-func (ctx *Context) SetTenant(tenant *models.Tenant) {
+func (c *Context) SetTenant(tenant *models.Tenant) {
 	if tenant != nil {
-		ctx.logger.SetProperty(log.PropertyKeyTenantID, tenant.ID)
+		c.Context = log.WithProperty(c.Context, log.PropertyKeyTenantID, tenant.ID)
 	}
-	if ctx.Services() != nil {
-		ctx.Services().SetCurrentTenant(tenant)
-	}
-	ctx.Set(tenantContextKey, tenant)
+	c.Set(app.TenantCtxKey, tenant)
 }
 
 //Bind context values into given model
-func (ctx *Context) Bind(i interface{}) error {
-	err := ctx.engine.binder.Bind(i, ctx)
+func (c *Context) Bind(i interface{}) error {
+	err := c.engine.binder.Bind(i, c)
 	if err != nil {
 		return errors.Wrap(err, "failed to bind request to model")
 	}
@@ -187,76 +181,76 @@ func (ctx *Context) Bind(i interface{}) error {
 }
 
 //BindTo context values into given model
-func (ctx *Context) BindTo(i actions.Actionable) *validate.Result {
-	err := ctx.engine.binder.Bind(i.Initialize(), ctx)
+func (c *Context) BindTo(i actions.Actionable) *validate.Result {
+	err := c.engine.binder.Bind(i.Initialize(), c)
 	if err != nil {
 		if err == ErrContentTypeNotAllowed {
 			return validate.Failed(err.Error())
 		}
 		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
 	}
-	if !i.IsAuthorized(ctx.User(), ctx.Services()) {
+	if !i.IsAuthorized(c, c.User()) {
 		return validate.Unauthorized()
 	}
-	return i.Validate(ctx.User(), ctx.Services())
-}
-
-//Logger returns current logger
-func (ctx *Context) Logger() log.Logger {
-	return ctx.logger
+	return i.Validate(c, c.User())
 }
 
 //IsAuthenticated returns true if user is authenticated
-func (ctx *Context) IsAuthenticated() bool {
-	return ctx.Get(userContextKey) != nil
+func (c *Context) IsAuthenticated() bool {
+	return c.Value(app.UserCtxKey) != nil
 }
 
 //IsAjax returns true if request is AJAX
-func (ctx *Context) IsAjax() bool {
-	accept := ctx.Request.GetHeader("Accept")
-	contentType := ctx.Request.GetHeader("Content-Type")
+func (c *Context) IsAjax() bool {
+	accept := c.Request.GetHeader("Accept")
+	contentType := c.Request.GetHeader("Content-Type")
 	return strings.Contains(accept, JSONContentType) || strings.Contains(contentType, JSONContentType)
 }
 
 //Unauthorized returns a 403 response
-func (ctx *Context) Unauthorized() error {
-	return ctx.Render(http.StatusForbidden, "403.html", Props{
+func (c *Context) Unauthorized() error {
+	return c.Render(http.StatusForbidden, "403.html", Props{
 		Title:       "Not Authorized",
 		Description: "You are not authorized to view this page.",
 	})
 }
 
 //NotFound returns a 404 page
-func (ctx *Context) NotFound() error {
-	return ctx.Render(http.StatusNotFound, "404.html", Props{
+func (c *Context) NotFound() error {
+	return c.Render(http.StatusNotFound, "404.html", Props{
 		Title:       "Page not found",
 		Description: "The link you clicked may be broken or the page may have been removed.",
 	})
 }
 
 //Gone returns a 410 page
-func (ctx *Context) Gone() error {
-	return ctx.Render(http.StatusGone, "410.html", Props{
+func (c *Context) Gone() error {
+	return c.Render(http.StatusGone, "410.html", Props{
 		Title:       "Expired",
 		Description: "The link you clicked has expired.",
 	})
 }
 
 //Failure returns a 500 page
-func (ctx *Context) Failure(err error) error {
+func (c *Context) Failure(err error) error {
 	err = errors.StackN(err, 1)
 	cause := errors.Cause(err)
-	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
-		return ctx.NotFound()
+
+	if cause == context.Canceled {
+		return nil
 	}
 
-	ctx.Logger().Errorf(err.Error(), log.Props{
-		"Body":       ctx.Request.Body,
-		"HttpMethod": ctx.Request.Method,
-		"URL":        ctx.Request.URL.String(),
+	if cause == app.ErrNotFound || cause == blob.ErrNotFound {
+		return c.NotFound()
+	}
+
+	log.Errorf(c, err.Error(), dto.Props{
+		"Body":       c.Request.Body,
+		"HttpMethod": c.Request.Method,
+		"URL":        c.Request.URL.String(),
 	})
 
-	ctx.Render(http.StatusInternalServerError, "500.html", Props{
+	c.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
 	})
@@ -264,111 +258,96 @@ func (ctx *Context) Failure(err error) error {
 }
 
 //HandleValidation handles given validation result property to return 400 or 500
-func (ctx *Context) HandleValidation(result *validate.Result) error {
+func (c *Context) HandleValidation(result *validate.Result) error {
 	if result.Err != nil {
-		return ctx.Failure(result.Err)
+		return c.Failure(result.Err)
 	}
 
 	if !result.Authorized {
-		return ctx.Unauthorized()
+		return c.Unauthorized()
 	}
 
-	return ctx.BadRequest(Map{
+	return c.BadRequest(Map{
 		"errors": result.Errors,
 	})
 }
 
 //Attachment returns an attached file
-func (ctx *Context) Attachment(fileName, contentType string, file []byte) error {
-	ctx.Response.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+func (c *Context) Attachment(fileName, contentType string, file []byte) error {
+	c.Response.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
 
-	return ctx.Blob(http.StatusOK, contentType, file)
+	return c.Blob(http.StatusOK, contentType, file)
 }
 
 //Ok returns 200 OK with JSON result
-func (ctx *Context) Ok(data interface{}) error {
-	return ctx.JSON(http.StatusOK, data)
+func (c *Context) Ok(data interface{}) error {
+	return c.JSON(http.StatusOK, data)
 }
 
 //BadRequest returns 400 BadRequest with JSON result
-func (ctx *Context) BadRequest(dict Map) error {
-	return ctx.JSON(http.StatusBadRequest, dict)
+func (c *Context) BadRequest(dict Map) error {
+	return c.JSON(http.StatusBadRequest, dict)
 }
 
 //Page returns a page with given variables
-func (ctx *Context) Page(props Props) error {
-	if len(env.Config.Rendergun.URL) > 0 && ctx.Request.IsCrawler() {
+func (c *Context) Page(props Props) error {
+	if len(env.Config.Rendergun.URL) > 0 && c.Request.IsCrawler() {
 		html := new(bytes.Buffer)
-		ctx.engine.renderer.Render(html, "index.html", props, ctx)
-		return ctx.prerender(http.StatusOK, html)
+		c.engine.renderer.Render(html, http.StatusOK, "index.html", props, c)
+		return c.prerender(http.StatusOK, html)
 	}
 
-	return ctx.Render(http.StatusOK, "index.html", props)
+	return c.Render(http.StatusOK, "index.html", props)
 }
 
 // Render renders a template with data and sends a text/html response with status
-func (ctx *Context) Render(code int, template string, props Props) error {
-	if ctx.IsAjax() {
-		return ctx.JSON(code, Map{})
+func (c *Context) Render(code int, template string, props Props) error {
+	if c.IsAjax() {
+		return c.JSON(code, Map{})
 	}
 
 	buf := new(bytes.Buffer)
-	ctx.engine.renderer.Render(buf, template, props, ctx)
+	c.engine.renderer.Render(buf, code, template, props, c)
 
-	return ctx.Blob(code, UTF8HTMLContentType, buf.Bytes())
+	return c.Blob(code, UTF8HTMLContentType, buf.Bytes())
 }
 
-func (ctx *Context) prerender(code int, html io.Reader) error {
-	renderURL := fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, ctx.Request.URL.String())
-	req, _ := http.NewRequest("POST", renderURL, html)
-	req.Header.Set("Content-Type", "text/html")
-	req.Header.Set("x-rendergun-wait-until", "networkidle0")
-	req.Header.Set("x-rendergun-block-ads", "true")
-	req.Header.Set("x-rendergun-abort-request", "assets\\/css\\/(common|vendor|main)\\.")
+func (c *Context) prerender(code int, html io.Reader) error {
+	req := &cmd.HTTPRequest{
+		Method: "POST",
+		URL:    fmt.Sprintf("%s/render?url=%s", env.Config.Rendergun.URL, c.Request.URL.String()),
+		Body:   html,
+		Headers: map[string]string{
+			"Content-Type":              "text/html",
+			"x-rendergun-wait-until":    "networkidle0",
+			"x-rendergun-block-ads":     "true",
+			"x-rendergun-abort-request": "assets\\/css\\/(common|vendor|main)\\.",
+		},
+	}
+	err := bus.Dispatch(c, req)
+	if err != nil {
+		log.Error(c, errors.Wrap(err, "failed to execute rendergun"))
+		return c.TryAgainLater(24 * time.Hour)
+	}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		ctx.Logger().Error(errors.Wrap(err, "failed to execute rendergun"))
-		return ctx.TryAgainLater(24 * time.Hour)
-	}
-	defer resp.Body.Close()
-	prerendered, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		ctx.Logger().Error(errors.Wrap(err, "failed to copy response from rendergun to output"))
-		return ctx.TryAgainLater(24 * time.Hour)
-	}
-	return ctx.Blob(code, UTF8HTMLContentType, prerendered)
+	return c.Blob(code, UTF8HTMLContentType, req.ResponseBody)
 }
 
 //TryAgainLater returns a service unavailable response with Retry-After header
-func (ctx *Context) TryAgainLater(d time.Duration) error {
-	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	ctx.Response.Header().Set("Retry-After", fmt.Sprintf("%.0f", d.Seconds()))
-	return ctx.NoContent(http.StatusServiceUnavailable)
+func (c *Context) TryAgainLater(d time.Duration) error {
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Retry-After", fmt.Sprintf("%.0f", d.Seconds()))
+	return c.NoContent(http.StatusServiceUnavailable)
 }
 
 //AddParam add a single param to route parameters list
-func (ctx *Context) AddParam(name, value string) {
-	ctx.params[name] = value
-}
-
-//Claims returns current user claims
-func (ctx *Context) Claims() *jwt.FiderClaims {
-	claims, ok := ctx.Get(claimsContextKey).(*jwt.FiderClaims)
-	if ok {
-		return claims
-	}
-	return nil
-}
-
-//SetClaims update HTTP context with current user claims
-func (ctx *Context) SetClaims(claims *jwt.FiderClaims) {
-	ctx.Set(claimsContextKey, claims)
+func (c *Context) AddParam(name, value string) {
+	c.params[name] = value
 }
 
 //User returns authenticated user
-func (ctx *Context) User() *models.User {
-	user, ok := ctx.Get(userContextKey).(*models.User)
+func (c *Context) User() *models.User {
+	user, ok := c.Value(app.UserCtxKey).(*models.User)
 	if ok {
 		return user
 	}
@@ -376,105 +355,52 @@ func (ctx *Context) User() *models.User {
 }
 
 //SetUser update HTTP context with current user
-func (ctx *Context) SetUser(user *models.User) {
+func (c *Context) SetUser(user *models.User) {
 	if user != nil {
-		ctx.logger.SetProperty(log.PropertyKeyUserID, user.ID)
+		c.Context = log.WithProperty(c.Context, log.PropertyKeyUserID, user.ID)
 	}
-	if ctx.Services() != nil {
-		ctx.Services().SetCurrentUser(user)
-	}
-	ctx.Set(userContextKey, user)
-}
-
-//Services returns current app.Services from context
-func (ctx *Context) Services() *app.Services {
-	svc, ok := ctx.Get(servicesContextKey).(*app.Services)
-	if ok {
-		return svc
-	}
-	return nil
+	c.Set(app.UserCtxKey, user)
 }
 
 //AddCookie adds a cookie
-func (ctx *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
+func (c *Context) AddCookie(name, value string, expires time.Time) *http.Cookie {
 	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
 		HttpOnly: true,
 		Path:     "/",
 		Expires:  expires,
-		Secure:   ctx.Request.IsSecure,
+		Secure:   c.Request.IsSecure,
 	}
-	http.SetCookie(ctx.Response, cookie)
+	http.SetCookie(c.Response, cookie)
 	return cookie
 }
 
 //RemoveCookie removes a cookie
-func (ctx *Context) RemoveCookie(name string) {
-	http.SetCookie(ctx.Response, &http.Cookie{
+func (c *Context) RemoveCookie(name string) {
+	http.SetCookie(c.Response, &http.Cookie{
 		Name:     name,
 		Path:     "/",
 		HttpOnly: true,
 		MaxAge:   -1,
 		Expires:  time.Now().Add(-100 * time.Hour),
-		Secure:   ctx.Request.IsSecure,
+		Secure:   c.Request.IsSecure,
 	})
 }
 
-//SetServices update current context with app.Services
-func (ctx *Context) SetServices(services *app.Services) {
-	ctx.Set(servicesContextKey, services)
-}
-
-//SetActiveTransaction adds transaction to context
-func (ctx *Context) SetActiveTransaction(trx *dbx.Trx) {
-	ctx.Set(transactionContextKey, trx)
-}
-
-//ActiveTransaction returns current active Database transaction
-func (ctx *Context) ActiveTransaction() *dbx.Trx {
-	return ctx.Get(transactionContextKey).(*dbx.Trx)
-}
-
 //BaseURL returns base URL
-func (ctx *Context) BaseURL() string {
-	address := ctx.Request.URL.Scheme + "://" + ctx.Request.URL.Hostname()
-
-	if ctx.Request.URL.Port() != "" {
-		address += ":" + ctx.Request.URL.Port()
-	}
-
-	return address
-}
-
-//TenantBaseURL returns base URL for a given tenant
-func (ctx *Context) TenantBaseURL(tenant *models.Tenant) string {
-	if env.IsSingleHostMode() {
-		return ctx.BaseURL()
-	}
-
-	address := ctx.Request.URL.Scheme + "://"
-	if tenant.CNAME != "" {
-		address += tenant.CNAME
-	} else {
-		address += tenant.Subdomain + env.MultiTenantDomain()
-	}
-
-	if ctx.Request.URL.Port() != "" {
-		address += ":" + ctx.Request.URL.Port()
-	}
-
-	return address
+func (c *Context) BaseURL() string {
+	return c.Request.BaseURL()
 }
 
 //QueryParam returns querystring parameter for given key
-func (ctx *Context) QueryParam(key string) string {
-	return ctx.Request.URL.Query().Get(key)
+func (c *Context) QueryParam(key string) string {
+	return c.Request.URL.Query().Get(key)
 }
 
 //QueryParamAsInt returns querystring parameter for given key
-func (ctx *Context) QueryParamAsInt(key string) (int, error) {
-	value := ctx.QueryParam(key)
+func (c *Context) QueryParamAsInt(key string) (int, error) {
+	value := c.QueryParam(key)
 	if value == "" {
 		return 0, nil
 	}
@@ -486,8 +412,8 @@ func (ctx *Context) QueryParamAsInt(key string) (int, error) {
 }
 
 //QueryParamAsArray returns querystring parameter for given key as an array
-func (ctx *Context) QueryParamAsArray(key string) []string {
-	param := ctx.QueryParam(key)
+func (c *Context) QueryParamAsArray(key string) []string {
+	param := c.QueryParam(key)
 	if param != "" {
 		return strings.Split(param, ",")
 	}
@@ -495,16 +421,16 @@ func (ctx *Context) QueryParamAsArray(key string) []string {
 }
 
 //Param returns parameter as string
-func (ctx *Context) Param(name string) string {
-	if ctx.params == nil {
+func (c *Context) Param(name string) string {
+	if c.params == nil {
 		return ""
 	}
-	return strings.TrimPrefix(ctx.params[name], "/")
+	return strings.TrimPrefix(c.params[name], "/")
 }
 
 //ParamAsInt returns parameter as int
-func (ctx *Context) ParamAsInt(name string) (int, error) {
-	value := ctx.Param(name)
+func (c *Context) ParamAsInt(name string) (int, error) {
+	value := c.Param(name)
 	intValue, err := strconv.Atoi(value)
 	if err != nil {
 		return 0, errors.Wrap(err, "failed to parse %s to integer", value)
@@ -512,133 +438,170 @@ func (ctx *Context) ParamAsInt(name string) (int, error) {
 	return intValue, nil
 }
 
-// Get retrieves data from the context.
-func (ctx *Context) Get(key string) interface{} {
-	return ctx.store[key]
-}
-
 // Set saves data in the context.
-func (ctx *Context) Set(key string, val interface{}) {
-	if ctx.store == nil {
-		ctx.store = make(Map)
-	}
-	ctx.store[key] = val
+func (c *Context) Set(key interface{}, val interface{}) {
+	c.Context = context.WithValue(c.Context, key, val)
 }
 
 // String returns a text response with status code.
-func (ctx *Context) String(code int, text string) error {
-	return ctx.Blob(code, UTF8PlainContentType, []byte(text))
+func (c *Context) String(code int, text string) error {
+	return c.Blob(code, UTF8PlainContentType, []byte(text))
 }
 
 // XML returns a XML response with status code.
-func (ctx *Context) XML(code int, text string) error {
-	return ctx.Blob(code, UTF8XMLContentType, []byte(text))
+func (c *Context) XML(code int, text string) error {
+	return c.Blob(code, UTF8XMLContentType, []byte(text))
 }
 
 // JSON returns a JSON response with status code.
-func (ctx *Context) JSON(code int, i interface{}) error {
+func (c *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal response to JSON")
 	}
-	return ctx.Blob(code, UTF8JSONContentType, b)
+	return c.Blob(code, UTF8JSONContentType, b)
 }
 
 // Image sends an image blob response with status code and content type.
-func (ctx *Context) Image(contentType string, b []byte) error {
+func (c *Context) Image(contentType string, b []byte) error {
 	if !strings.HasPrefix(contentType, "image/") {
-		return ctx.Failure(errors.New("'%s' is not an image", ctx.Request.URL.String()))
+		return c.Failure(errors.New("'%s' is not an image", c.Request.URL.String()))
 	}
-	return ctx.Blob(http.StatusOK, contentType, b)
+	return c.Blob(http.StatusOK, contentType, b)
 }
 
 // Blob sends a blob response with status code and content type.
-func (ctx *Context) Blob(code int, contentType string, b []byte) error {
-	ctx.Response.Header().Set("Content-Type", contentType)
-	ctx.Response.WriteHeader(code)
-	_, err := ctx.Response.Write(b)
+func (c *Context) Blob(code int, contentType string, b []byte) error {
+	c.Response.Header().Set("Content-Type", contentType)
+	c.Response.WriteHeader(code)
+	_, err := c.Response.Write(b)
 	return err
 }
 
 // NoContent sends a response with no body and a status code.
-func (ctx *Context) NoContent(code int) error {
-	ctx.Response.WriteHeader(code)
+func (c *Context) NoContent(code int) error {
+	c.Response.WriteHeader(code)
 	return nil
 }
 
 // Redirect the request to a provided URL
-func (ctx *Context) Redirect(url string) error {
-	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	ctx.Response.Header().Set("Location", url)
-	ctx.Response.WriteHeader(http.StatusTemporaryRedirect)
+func (c *Context) Redirect(url string) error {
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Location", url)
+	c.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
 }
 
 // PermanentRedirect the request to a provided URL
-func (ctx *Context) PermanentRedirect(url string) error {
-	ctx.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-	ctx.Response.Header().Set("Location", url)
-	ctx.Response.WriteHeader(http.StatusMovedPermanently)
+func (c *Context) PermanentRedirect(url string) error {
+	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Response.Header().Set("Location", url)
+	c.Response.WriteHeader(http.StatusMovedPermanently)
 	return nil
 }
 
-// GlobalAssetsURL return the full URL to a globally shared static asset
-func (ctx *Context) GlobalAssetsURL(path string, a ...interface{}) string {
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" {
-		if env.IsSingleHostMode() {
-			return ctx.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return ctx.Request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
-	}
-	return ctx.BaseURL() + path
-}
-
-// TenantAssetsURL return the full URL to a tenant-specific static asset
-func (ctx *Context) TenantAssetsURL(path string, a ...interface{}) string {
-	path = fmt.Sprintf(path, a...)
-	if env.Config.CDN.Host != "" && ctx.Tenant() != nil {
-		if env.IsSingleHostMode() {
-			return ctx.Request.URL.Scheme + "://" + env.Config.CDN.Host + path
-		}
-		return ctx.Request.URL.Scheme + "://" + ctx.Tenant().Subdomain + "." + env.Config.CDN.Host + path
-	}
-	return ctx.BaseURL() + path
-}
-
-// LogoURL return the full URL to the tenant-specific logo URL
-func (ctx *Context) LogoURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
-		return ctx.TenantAssetsURL("/images/%s?size=200", ctx.Tenant().LogoBlobKey)
-	}
-	return "https://getfider.com/images/logo-100x100.png"
-}
-
-// FaviconURL return the full URL to the tenant-specific favicon URL
-func (ctx *Context) FaviconURL() string {
-	if ctx.Tenant() != nil && ctx.Tenant().LogoBlobKey != "" {
-		return ctx.TenantAssetsURL("/favicon/%s", ctx.Tenant().LogoBlobKey)
-	}
-	return ctx.GlobalAssetsURL("/favicon")
-}
-
 // SetCanonicalURL sets the canonical link on the HTTP Response Headers
-func (ctx *Context) SetCanonicalURL(rawurl string) {
+func (c *Context) SetCanonicalURL(rawurl string) {
 	u, err := url.Parse(rawurl)
 	if err == nil {
 		if u.Host == "" {
-			baseURL, ok := ctx.Get("Canonical-BaseURL").(string)
+			baseURL, ok := c.Value("Canonical-BaseURL").(string)
 			if !ok {
-				baseURL = ctx.BaseURL()
+				baseURL = c.BaseURL()
 			}
 			if len(rawurl) > 0 && rawurl[0] != '/' {
 				rawurl = "/" + rawurl
 			}
 			rawurl = baseURL + rawurl
 		} else {
-			ctx.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
+			c.Set("Canonical-BaseURL", u.Scheme+"://"+u.Host)
 		}
 
-		ctx.Set("Canonical-URL", rawurl)
+		c.Set("Canonical-URL", rawurl)
 	}
+}
+
+// GlobalAssetsURL return the full URL to a globally shared static asset
+func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+	path = fmt.Sprintf(path, a...)
+	if env.Config.CDN.Host != "" {
+		if env.IsSingleHostMode() {
+			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+		}
+		return request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
+	}
+	return request.BaseURL() + path
+}
+
+//TenantBaseURL returns base URL for a given tenant
+func TenantBaseURL(ctx context.Context, tenant *models.Tenant) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+
+	if env.IsSingleHostMode() {
+		return request.BaseURL()
+	}
+
+	address := request.URL.Scheme + "://"
+	if tenant.CNAME != "" {
+		address += tenant.CNAME
+	} else {
+		address += tenant.Subdomain + env.MultiTenantDomain()
+	}
+
+	if request.URL.Port() != "" {
+		address += ":" + request.URL.Port()
+	}
+
+	return address
+}
+
+// TenantAssetsURL return the full URL to a tenant-specific static asset
+func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	path = fmt.Sprintf(path, a...)
+	if env.Config.CDN.Host != "" && hasTenant {
+		if env.IsSingleHostMode() {
+			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+		}
+		return request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path
+	}
+	return request.BaseURL() + path
+}
+
+// LogoURL return the full URL to the tenant-specific logo URL
+func LogoURL(ctx context.Context) string {
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	if hasTenant && tenant.LogoBlobKey != "" {
+		return TenantAssetsURL(ctx, "/images/%s?size=200", tenant.LogoBlobKey)
+	}
+	return "https://getfider.com/images/logo-100x100.png"
+}
+
+// BaseURL return the base URL from given context
+func BaseURL(ctx context.Context) string {
+	request, ok := ctx.Value(app.RequestCtxKey).(Request)
+	if ok {
+		return request.BaseURL()
+	}
+	return ""
+}
+
+// OAuthBaseURL returns the OAuth base URL used for host-wide OAuth authentication
+// For Single Tenant HostMode, BaseURL is the current BaseURL
+// For Multi Tenant HostMode, BaseURL is //login.{HOST_DOMAIN}
+func OAuthBaseURL(ctx context.Context) string {
+	request := ctx.Value(app.RequestCtxKey).(Request)
+
+	if env.IsSingleHostMode() {
+		return BaseURL(ctx)
+	}
+
+	oauthBaseURL := request.URL.Scheme + "://login" + env.MultiTenantDomain()
+	port := request.URL.Port()
+	if port != "" {
+		oauthBaseURL += ":" + port
+	}
+	return oauthBaseURL
 }

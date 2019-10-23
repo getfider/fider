@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -42,6 +43,7 @@ var envVariables map[string]string
 
 //RegisterT saves current testing.T for further usage by Expect
 func RegisterT(t *testing.T) {
+	bus.Reset()
 	if currentT == nil {
 		copyEnv()
 	}

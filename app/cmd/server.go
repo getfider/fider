@@ -1,22 +1,41 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
+
+	_ "github.com/getfider/fider/app/services/billing"
+	_ "github.com/getfider/fider/app/services/blob/fs"
+	_ "github.com/getfider/fider/app/services/blob/s3"
+	_ "github.com/getfider/fider/app/services/blob/sql"
+	_ "github.com/getfider/fider/app/services/email/mailgun"
+	_ "github.com/getfider/fider/app/services/email/smtp"
+	_ "github.com/getfider/fider/app/services/httpclient"
+	_ "github.com/getfider/fider/app/services/log/console"
+	_ "github.com/getfider/fider/app/services/log/sql"
+	_ "github.com/getfider/fider/app/services/oauth"
+	_ "github.com/getfider/fider/app/services/sqlstore/postgres"
 )
 
 //RunServer starts the Fider Server
 //Returns an exitcode, 0 for OK and 1 for ERROR
 func RunServer(settings *models.SystemSettings) int {
-	exit := RunMigrate()
-	if exit != 0 {
-		return exit
+	svcs := bus.Init()
+	ctx := log.WithProperty(context.Background(), log.PropertyKeyTag, "BOOTSTRAP")
+	for _, s := range svcs {
+		log.Debugf(ctx, "Service '@{ServiceCategory}.@{ServiceName}' has been initialized.", dto.Props{
+			"ServiceCategory": s.Category(),
+			"ServiceName":     s.Name(),
+		})
 	}
 
 	e := routes(web.New(settings))
@@ -34,7 +53,6 @@ func listenSignals(e *web.Engine, settings *models.SystemSettings) int {
 		case syscall.SIGINT, syscall.SIGTERM:
 			err := e.Stop()
 			if err != nil {
-				e.Logger().Error(errors.Wrap(err, "failed to stop fider"))
 				return 1
 			}
 			return 0

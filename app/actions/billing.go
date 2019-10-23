@@ -1,33 +1,40 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/models"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
+
+	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/goenning/vat"
 )
 
 // CreateEditBillingPaymentInfo is used to create/edit billing payment info
 type CreateEditBillingPaymentInfo struct {
-	Model *models.CreateEditBillingPaymentInfo
+	Model *dto.CreateEditBillingPaymentInfo
 }
 
 // Initialize the model
 func (input *CreateEditBillingPaymentInfo) Initialize() interface{} {
-	input.Model = new(models.CreateEditBillingPaymentInfo)
+	input.Model = new(dto.CreateEditBillingPaymentInfo)
 	return input.Model
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditBillingPaymentInfo) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditBillingPaymentInfo) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
-func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *CreateEditBillingPaymentInfo) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {
@@ -59,15 +66,16 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 		result.AddFieldFailure("addressPostalCode", "Postal Code is required.")
 	}
 
-	current, err := services.Billing.GetPaymentInfo()
-
-	isNew := current == nil
-	isUpdate := current != nil && input.Model.Card == nil
-	isReplacing := current != nil && input.Model.Card != nil
-
+	getPaymentInfo := &query.GetPaymentInfo{}
+	err := bus.Dispatch(ctx, getPaymentInfo)
 	if err != nil {
 		return validate.Error(err)
 	}
+
+	current := getPaymentInfo.Result
+	isNew := current == nil
+	isUpdate := current != nil && input.Model.Card == nil
+	isReplacing := current != nil && input.Model.Card != nil
 
 	if (isNew || isReplacing) && (input.Model.Card == nil || input.Model.Card.Token == "") {
 		result.AddFieldFailure("card", "Card information is required.")
@@ -76,15 +84,13 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 	if input.Model.AddressCountry == "" {
 		result.AddFieldFailure("addressCountry", "Country is required.")
 	} else {
-		countries := models.GetAllCountries()
-		found := false
-		for _, c := range countries {
-			if c.Code == input.Model.AddressCountry {
-				found = true
+		err := bus.Dispatch(ctx, &query.GetCountryByCode{Code: input.Model.AddressCountry})
+		if err != nil {
+			if err == app.ErrNotFound {
+				result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
+			} else {
+				return validate.Error(err)
 			}
-		}
-		if !found {
-			result.AddFieldFailure("addressCountry", fmt.Sprintf("'%s' is not a valid country code.", input.Model.AddressCountry))
 		}
 
 		if (isNew || isReplacing) && input.Model.Card != nil && input.Model.AddressCountry != input.Model.Card.Country {
@@ -114,7 +120,7 @@ func (input *CreateEditBillingPaymentInfo) Validate(user *models.User, services 
 				if err == vat.ErrInvalidVATNumberFormat {
 					result.AddFieldFailure("vatNumber", "VAT Number is an invalid format.")
 				} else {
-					services.Logger.Error(errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
+					log.Error(ctx, errors.Wrap(err, "failed to validate VAT Number '%s'", input.Model.VATNumber))
 					result.AddFieldFailure("vatNumber", "We couldn't validate your VAT Number right now, please try again soon.")
 				}
 			}

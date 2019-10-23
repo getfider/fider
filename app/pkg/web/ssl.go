@@ -8,9 +8,6 @@ import (
 
 	"golang.org/x/crypto/acme"
 
-	"github.com/getfider/fider/app/pkg/blob"
-	"github.com/getfider/fider/app/pkg/dbx"
-	"github.com/getfider/fider/app/pkg/di"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
@@ -48,11 +45,11 @@ type CertificateManager struct {
 }
 
 //NewCertificateManager creates a new CertificateManager
-func NewCertificateManager(certFile, keyFile string, db *dbx.Database) (*CertificateManager, error) {
+func NewCertificateManager(certFile, keyFile string) (*CertificateManager, error) {
 	manager := &CertificateManager{
 		autossl: autocert.Manager{
 			Prompt: autocert.AcceptTOS,
-			Cache:  blob.NewAutoCert(di.NewBlobStorage(db)),
+			Cache:  NewAutoCertCache(),
 			Client: acmeClient(),
 		},
 	}
@@ -106,7 +103,7 @@ func (m *CertificateManager) StartHTTPServer() {
 func acmeClient() *acme.Client {
 	if env.IsTest() {
 		return &acme.Client{
-			DirectoryURL: "https://acme-staging.api.letsencrypt.org/directory",
+			DirectoryURL: "https://acme-staging-v02.api.letsencrypt.org/directory",
 		}
 	}
 	return nil

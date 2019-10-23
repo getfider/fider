@@ -69,6 +69,7 @@ export interface Comment {
   content: string;
   createdAt: string;
   user: User;
+  attachments?: string[];
   editedAt?: string;
   editedBy?: User;
 }

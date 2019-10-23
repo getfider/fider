@@ -14,9 +14,9 @@ import (
 func TestCache(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.ClientCache(5 * time.Minute))
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
 

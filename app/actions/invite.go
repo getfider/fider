@@ -1,8 +1,12 @@
 package actions
 
 import (
+	"context"
 	"fmt"
 	"strings"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
@@ -24,12 +28,12 @@ func (input *InviteUsers) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *InviteUsers) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *InviteUsers) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
-func (input *InviteUsers) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *InviteUsers) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Subject == "" {
@@ -65,7 +69,7 @@ func (input *InviteUsers) Validate(user *models.User, services *app.Services) *v
 			input.Invitations = make([]*models.UserInvitation, 0)
 			for _, email := range input.Model.Recipients {
 				if email != "" {
-					_, err := services.Users.GetByEmail(email)
+					err := bus.Dispatch(ctx, &query.GetUserByEmail{Email: email})
 					if errors.Cause(err) == app.ErrNotFound {
 						input.Invitations = append(input.Invitations, &models.UserInvitation{
 							Email:           email,

@@ -30,9 +30,7 @@ export const mailgun = {
     do {
       count++;
 
-      let url = `https://api.mailgun.net/v3/${
-        process.env.EMAIL_MAILGUN_DOMAIN
-      }/events?to=${to}&subject=${subject}&event=accepted&limit=1&ascending=no`;
+      let url = `https://api.mailgun.net/v3/${process.env.EMAIL_MAILGUN_DOMAIN}/events?to=${to}&subject=${subject}&event=accepted&limit=1&ascending=no`;
       if (tenant !== "login") {
         url += `&tags=tenant:${tenant}`;
       }

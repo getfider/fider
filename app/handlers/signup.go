@@ -3,7 +3,13 @@ package handlers
 import (
 	"time"
 
-	"github.com/getfider/fider/app/pkg/web/util"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/pkg/bus"
+
+	webutil "github.com/getfider/fider/app/pkg/web/util"
 
 	"github.com/getfider/fider/app/tasks"
 
@@ -20,10 +26,10 @@ import (
 
 // CheckAvailability checks if given domain is available to be used
 func CheckAvailability() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		subdomain := strings.ToLower(c.Param("subdomain"))
 
-		messages, _ := validate.Subdomain(c.Services().Tenants, subdomain)
+		messages, _ := validate.Subdomain(c, subdomain)
 		if len(messages) > 0 {
 			return c.Ok(web.Map{
 				"message": strings.Join(messages, ","),
@@ -36,7 +42,7 @@ func CheckAvailability() web.HandlerFunc {
 
 //CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.CreateTenant)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -44,21 +50,26 @@ func CreateTenant() web.HandlerFunc {
 
 		socialSignUp := input.Model.Token != ""
 
-		status := models.TenantPending
+		status := enum.TenantPending
 		if socialSignUp {
-			status = models.TenantActive
+			status = enum.TenantActive
 		}
 
-		tenant, err := c.Services().Tenants.Add(input.Model.TenantName, input.Model.Subdomain, status)
+		createTenant := &cmd.CreateTenant{
+			Name:      input.Model.TenantName,
+			Subdomain: input.Model.Subdomain,
+			Status:    status,
+		}
+		err := bus.Dispatch(c, createTenant)
 		if err != nil {
 			return c.Failure(err)
 		}
 
-		c.SetTenant(tenant)
+		c.SetTenant(createTenant.Result)
 
 		user := &models.User{
-			Tenant: tenant,
-			Role:   models.RoleAdministrator,
+			Tenant: createTenant.Result,
+			Role:   enum.RoleAdministrator,
 		}
 
 		if socialSignUp {
@@ -68,7 +79,7 @@ func CreateTenant() web.HandlerFunc {
 				{UID: input.Model.UserClaims.OAuthID, Name: input.Model.UserClaims.OAuthProvider},
 			}
 
-			if err := c.Services().Users.Register(user); err != nil {
+			if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 				return c.Failure(err)
 			}
 
@@ -82,12 +93,16 @@ func CreateTenant() web.HandlerFunc {
 			user.Name = input.Model.Name
 			user.Email = input.Model.Email
 
-			err := c.Services().Tenants.SaveVerificationKey(input.Model.VerificationKey, 48*time.Hour, input.Model)
+			err := bus.Dispatch(c, &cmd.SaveVerificationKey{
+				Key:      input.Model.VerificationKey,
+				Duration: 48 * time.Hour,
+				Request:  input.Model,
+			})
 			if err != nil {
 				return c.Failure(err)
 			}
 
-			c.Enqueue(tasks.SendSignUpEmail(input.Model, c.TenantBaseURL(tenant)))
+			c.Enqueue(tasks.SendSignUpEmail(input.Model, web.TenantBaseURL(c, createTenant.Result)))
 		}
 
 		return c.Ok(web.Map{})
@@ -96,18 +111,19 @@ func CreateTenant() web.HandlerFunc {
 
 //SignUp is the entry point for installation / signup
 func SignUp() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		if env.IsSingleHostMode() {
-			tenant, err := c.Services().Tenants.First()
+			firstTenant := &query.GetFirstTenant{}
+			err := bus.Dispatch(c, firstTenant)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
+			if firstTenant.Result != nil {
 				return c.Redirect("/")
 			}
 		} else {
-			baseURL := webutil.GetOAuthBaseURL(c)
+			baseURL := web.OAuthBaseURL(c)
 			if !strings.HasPrefix(c.Request.URL.String(), baseURL) {
 				return c.Redirect(baseURL + "/signup")
 			}
@@ -123,9 +139,9 @@ func SignUp() web.HandlerFunc {
 
 // VerifySignUpKey checks if verify key is correct, activate the tenant and sign in user
 func VerifySignUpKey() web.HandlerFunc {
-	return func(c web.Context) error {
-		if c.Tenant().Status == models.TenantPending {
-			return VerifySignInKey(models.EmailVerificationKindSignUp)(c)
+	return func(c *web.Context) error {
+		if c.Tenant().Status == enum.TenantPending {
+			return VerifySignInKey(enum.EmailVerificationKindSignUp)(c)
 		}
 		return c.NotFound()
 	}

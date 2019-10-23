@@ -3,12 +3,12 @@ import * as markdown from "./markdown";
 const testCases = [
   {
     input: "Visit [GitHub](https://github.com) to learn more.",
-    expectedFull: '<p>Visit <a href="https://github.com" target="_blank">GitHub</a> to learn more.</p>',
-    expectedSimple: '<p>Visit <a href="https://github.com" target="_blank">GitHub</a> to learn more.</p>'
+    expectedFull: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>',
+    expectedSimple: '<p>Visit <a target="_blank" rel="noopener" href="https://github.com">GitHub</a> to learn more.</p>'
   },
   {
     input: "My Picture ![](http://demo.dev.fider.io:3000/images/100/28)",
-    expectedFull: '<p>My Picture <img src="http://demo.dev.fider.io:3000/images/100/28" alt=""/></p>',
+    expectedFull: '<p>My Picture <img alt="" src="http://demo.dev.fider.io:3000/images/100/28"></p>',
     expectedSimple: "<p>My Picture </p>"
   },
   {
@@ -42,8 +42,8 @@ How are you?`,
     input: `-123
 -456
 -789`,
-    expectedFull: "<p>-123<br/>-456<br/>-789</p>",
-    expectedSimple: "<p>-123<br/>-456<br/>-789</p>"
+    expectedFull: "<p>-123<br>-456<br>-789</p>",
+    expectedSimple: "<p>-123<br>-456<br>-789</p>"
   }
 ];
 

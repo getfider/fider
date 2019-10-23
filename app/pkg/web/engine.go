@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	stdLog "log"
 	"net/http"
 	"os"
@@ -12,11 +13,10 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/dbx"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
-	"github.com/getfider/fider/app/pkg/log/database"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/worker"
 	"github.com/julienschmidt/httprouter"
@@ -45,22 +45,21 @@ type notFoundHandler struct {
 }
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	ctx := h.engine.NewContext(res, req, nil)
+	ctx := NewContext(h.engine, req, res, nil)
 	h.handler(ctx)
 }
 
 //HandlerFunc represents an HTTP handler
-type HandlerFunc func(Context) error
+type HandlerFunc func(*Context) error
 
 //MiddlewareFunc represents an HTTP middleware
 type MiddlewareFunc func(HandlerFunc) HandlerFunc
 
 //Engine is our web engine wrapper
 type Engine struct {
+	context.Context
 	mux         *httprouter.Router
-	logger      log.Logger
 	renderer    *Renderer
-	db          *dbx.Database
 	binder      *DefaultBinder
 	middlewares []MiddlewareFunc
 	worker      worker.Worker
@@ -70,21 +69,19 @@ type Engine struct {
 
 //New creates a new Engine
 func New(settings *models.SystemSettings) *Engine {
-	db := dbx.New()
-	logger := database.NewLogger("WEB", db)
-	logger.SetProperty(log.PropertyKeyContextID, rand.String(32))
-
-	bgLogger := database.NewLogger("BGW", db)
-	bgLogger.SetProperty(log.PropertyKeyContextID, rand.String(32))
+	ctx := context.Background()
+	ctx = log.WithProperties(ctx, dto.Props{
+		log.PropertyKeyContextID: rand.String(32),
+		log.PropertyKeyTag:       "WEB",
+	})
 
 	router := &Engine{
+		Context:     ctx,
 		mux:         httprouter.New(),
-		db:          db,
-		logger:      logger,
-		renderer:    NewRenderer(settings, logger),
+		renderer:    NewRenderer(settings),
 		binder:      NewDefaultBinder(),
 		middlewares: make([]MiddlewareFunc, 0),
-		worker:      worker.New(db, bgLogger),
+		worker:      worker.New(),
 		cache:       cache.New(5*time.Minute, 10*time.Minute),
 	}
 
@@ -93,8 +90,8 @@ func New(settings *models.SystemSettings) *Engine {
 
 //Start the server.
 func (e *Engine) Start(address string) {
-	e.logger.Info("Application is starting")
-	e.logger.Infof("GO_ENV: @{Env}", log.Props{
+	log.Info(e, "Application is starting")
+	log.Infof(e, "GO_ENV: @{Env}", dto.Props{
 		"Env": env.Config.Environment,
 	})
 
@@ -108,13 +105,13 @@ func (e *Engine) Start(address string) {
 		keyFilePath = env.Etc(env.Config.SSLCertKey)
 	}
 
+	stdLog.SetOutput(ioutil.Discard)
 	e.server = &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 		Addr:         address,
 		Handler:      e.mux,
-		ErrorLog:     stdLog.New(e.logger, "", 0),
 		TLSConfig:    getDefaultTLSConfig(),
 	}
 
@@ -127,20 +124,20 @@ func (e *Engine) Start(address string) {
 		certManager *CertificateManager
 	)
 	if env.Config.AutoSSL {
-		certManager, err = NewCertificateManager(certFilePath, keyFilePath, e.db)
+		certManager, err = NewCertificateManager(certFilePath, keyFilePath)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to initialize CertificateManager"))
 		}
 
 		e.server.TLSConfig.GetCertificate = certManager.GetCertificate
-		e.logger.Infof("https (auto ssl) server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e, "https (auto ssl) server started on @{Address}", dto.Props{"Address": address})
 		go certManager.StartHTTPServer()
 		err = e.server.ListenAndServeTLS("", "")
 	} else if certFilePath == "" && keyFilePath == "" {
-		e.logger.Infof("http server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e, "http server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServe()
 	} else {
-		e.logger.Infof("https server started on @{Address}", log.Props{"Address": address})
+		log.Infof(e, "https server started on @{Address}", dto.Props{"Address": address})
 		err = e.server.ListenAndServeTLS(certFilePath, keyFilePath)
 	}
 
@@ -154,48 +151,19 @@ func (e *Engine) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	e.logger.Info("server is shutting down")
+	log.Info(e, "server is shutting down")
 	if err := e.server.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown server")
 	}
-	e.logger.Info("server has shutdown")
+	log.Info(e, "server has shutdown")
 
-	e.logger.Info("worker is shutting down")
+	log.Info(e, "worker is shutting down")
 	if err := e.worker.Shutdown(ctx); err != nil {
 		return errors.Wrap(err, "failed to shutdown worker")
 	}
-	e.logger.Info("worker has shutdown")
+	log.Info(e, "worker has shutdown")
 
 	return nil
-}
-
-//NewContext creates and return a new context
-func (e *Engine) NewContext(res http.ResponseWriter, req *http.Request, params StringMap) Context {
-	contextID := rand.String(32)
-	request := WrapRequest(req)
-	ctxLogger := e.logger.New()
-	ctxLogger.SetProperty(log.PropertyKeyContextID, contextID)
-	ctxLogger.SetProperty("UserAgent", req.Header.Get("User-Agent"))
-
-	return Context{
-		id:       contextID,
-		Response: res,
-		Request:  request,
-		engine:   e,
-		logger:   ctxLogger,
-		params:   params,
-		worker:   e.worker,
-	}
-}
-
-//Logger returns current logger
-func (e *Engine) Logger() log.Logger {
-	return e.logger
-}
-
-//Database returns current database
-func (e *Engine) Database() *dbx.Database {
-	return e.db
 }
 
 //Cache returns current cache
@@ -260,7 +228,7 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		for _, p := range ps {
 			params[p.Key] = p.Value
 		}
-		ctx := e.NewContext(res, req, params)
+		ctx := NewContext(e, req, res, params)
 		next(ctx)
 	}
 	return h
@@ -315,7 +283,7 @@ func (g *Group) Static(prefix, root string) {
 
 	var h HandlerFunc
 	if fi.IsDir() {
-		h = func(c Context) error {
+		h = func(c *Context) error {
 			filePath := path.Join(root, c.Param("filepath"))
 			fi, err := os.Stat(filePath)
 			if err == nil && !fi.IsDir() {
@@ -325,7 +293,7 @@ func (g *Group) Static(prefix, root string) {
 			return c.NotFound()
 		}
 	} else {
-		h = func(c Context) error {
+		h = func(c *Context) error {
 			http.ServeFile(c.Response, c.Request.instance, root)
 			return nil
 		}

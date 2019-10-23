@@ -1,9 +1,13 @@
 package actions
 
 import (
+	"context"
 	"strings"
 
-	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/rand"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -22,24 +26,25 @@ func (input *CreateEditOAuthConfig) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditOAuthConfig) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditOAuthConfig) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
-func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *CreateEditOAuthConfig) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Provider != "" {
-		config, err := services.Tenants.GetOAuthConfigByProvider(input.Model.Provider)
+		getConfig := &query.GetCustomOAuthConfigByProvider{Provider: input.Model.Provider}
+		err := bus.Dispatch(ctx, getConfig)
 		if err != nil {
 			return validate.Error(err)
 		}
 
-		input.Model.ID = config.ID
-		input.Model.Logo.BlobKey = config.LogoBlobKey
+		input.Model.ID = getConfig.Result.ID
+		input.Model.Logo.BlobKey = getConfig.Result.LogoBlobKey
 		if input.Model.ClientSecret == "" {
-			input.Model.ClientSecret = config.ClientSecret
+			input.Model.ClientSecret = getConfig.Result.ClientSecret
 		}
 	} else {
 		input.Model.Provider = "_" + strings.ToLower(rand.String(10))
@@ -57,8 +62,8 @@ func (input *CreateEditOAuthConfig) Validate(user *models.User, services *app.Se
 	}
 	result.AddFieldFailure("logo", messages...)
 
-	if input.Model.Status != models.OAuthConfigEnabled &&
-		input.Model.Status != models.OAuthConfigDisabled {
+	if input.Model.Status != enum.OAuthConfigEnabled &&
+		input.Model.Status != enum.OAuthConfigDisabled {
 		result.AddFieldFailure("status", "Invalid status.")
 	}
 

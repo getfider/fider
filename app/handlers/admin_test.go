@@ -1,14 +1,20 @@
 package handlers_test
 
 import (
+	"context"
 	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
+	"github.com/getfider/fider/app/models/cmd"
+
+	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
+	"github.com/getfider/fider/app/services/blob/fs"
 
 	"github.com/getfider/fider/app/handlers"
 )
@@ -16,7 +22,17 @@ import (
 func TestUpdateSettingsHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		return nil
+	})
+
+	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -27,21 +43,32 @@ func TestUpdateSettingsHandler(t *testing.T) {
 			`{ "title": "GoT", "invitation": "Join us!", "welcomeMessage": "Welcome to GoT Feedback Forum" }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).Equals("logos/hello-world.png")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/hello-world.png")
 }
 
 func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 	RegisterT(t)
+	bus.Init(fs.Service{})
+
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		c.Image.BlobKey = c.Folder + "/" + c.Image.Upload.FileName
+		return nil
+	})
 
 	logoBytes, _ := ioutil.ReadFile(env.Etc("logo.png"))
 	logoB64 := base64.StdEncoding.EncodeToString(logoBytes)
 
-	server, services := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -59,19 +86,27 @@ func TestUpdateSettingsHandler_NewLogo(t *testing.T) {
 				}
 			}`)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).ContainsSubstring("logos/")
-	Expect(tenant.LogoBlobKey).ContainsSubstring("picture.png")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.BlobKey).Equals("logos/picture.png")
 }
 
 func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantSettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantSettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, c *cmd.UploadImage) error {
+		return nil
+	})
+
+	server := mock.NewServer()
 	mock.DemoTenant.LogoBlobKey = "logos/hello-world.png"
 
 	code, _ := server.
@@ -87,18 +122,23 @@ func TestUpdateSettingsHandler_RemoveLogo(t *testing.T) {
 				}
 			}`)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.Name).Equals("GoT")
-	Expect(tenant.Invitation).Equals("Join us!")
-	Expect(tenant.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
-	Expect(tenant.LogoBlobKey).Equals("")
+	Expect(updateCmd.Settings.Title).Equals("GoT")
+	Expect(updateCmd.Settings.Invitation).Equals("Join us!")
+	Expect(updateCmd.Settings.WelcomeMessage).Equals("Welcome to GoT Feedback Forum")
+	Expect(updateCmd.Settings.Logo.Remove).IsTrue()
 }
 
 func TestUpdatePrivacyHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var updateCmd *cmd.UpdateTenantPrivacySettings
+	bus.AddHandler(func(ctx context.Context, c *cmd.UpdateTenantPrivacySettings) error {
+		updateCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
@@ -107,15 +147,18 @@ func TestUpdatePrivacyHandler(t *testing.T) {
 			`{ "isPrivate": true }`,
 		)
 
-	tenant, _ := services.Tenants.GetByDomain("demo")
 	Expect(code).Equals(http.StatusOK)
-	Expect(tenant.IsPrivate).IsTrue()
+	Expect(updateCmd.Settings.IsPrivate).IsTrue()
 }
 
 func TestManageMembersHandler(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, q *query.GetAllUsers) error {
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, _ := server.
 		OnTenant(mock.DemoTenant).
 		Execute(

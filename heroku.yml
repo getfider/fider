@@ -1,0 +1,7 @@
+build:
+  languages:
+    - nodejs
+    - go
+
+run:
+  web: ./bin/fider migrate && ./bin/fider

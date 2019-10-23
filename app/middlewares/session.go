@@ -11,7 +11,7 @@ import (
 // Session starts a new Session if an Session ID is not yet set
 func Session() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			cookie, err := c.Request.Cookie(web.CookieSessionName)
 			if err != nil {
 				nextYear := time.Now().Add(365 * 24 * time.Hour)

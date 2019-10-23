@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/img"
+	"github.com/goenning/imagic"
 )
 
 // MaxDimensionSize is the max width/height of an image. If image is bigger than this, it'll be resized.
@@ -81,9 +81,9 @@ func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, er
 	}
 
 	if upload != nil && upload.Upload != nil && len(upload.Upload.Content) > 0 {
-		logo, err := img.Parse(upload.Upload.Content)
+		logo, err := imagic.Parse(upload.Upload.Content)
 		if err != nil {
-			if err == img.ErrNotSupported {
+			if err == imagic.ErrNotSupported {
 				messages = append(messages, "This file format not supported.")
 			} else {
 				return nil, err
@@ -103,7 +103,7 @@ func ImageUpload(upload *models.ImageUpload, opts ImageUploadOpts) ([]string, er
 			}
 
 			if logo.Height > MaxDimensionSize && logo.Width > MaxDimensionSize {
-				newImageBytes, err := img.Apply(upload.Upload.Content, img.Resize(MaxDimensionSize))
+				newImageBytes, err := imagic.Apply(upload.Upload.Content, imagic.Resize(MaxDimensionSize))
 				if err != nil {
 					return nil, err
 				}

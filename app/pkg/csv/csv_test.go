@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/csv"
 )
@@ -61,7 +62,7 @@ var declinedPost = &models.Post{
 	},
 	VotesCount:    4,
 	CommentsCount: 2,
-	Status:        models.PostDeclined,
+	Status:        enum.PostDeclined,
 	Response: &models.PostResponse{
 		Text:        "Nothing we need to do",
 		RespondedAt: time.Date(2018, 4, 4, 19, 48, 10, 0, time.UTC),
@@ -82,7 +83,7 @@ var openPost = &models.Post{
 	},
 	VotesCount:    4,
 	CommentsCount: 2,
-	Status:        models.PostOpen,
+	Status:        enum.PostOpen,
 }
 
 var duplicatePost = &models.Post{
@@ -95,7 +96,7 @@ var duplicatePost = &models.Post{
 	},
 	VotesCount:    4,
 	CommentsCount: 2,
-	Status:        models.PostDuplicate,
+	Status:        enum.PostDuplicate,
 	Response: &models.PostResponse{
 		Text:        "This has already been suggested",
 		RespondedAt: time.Date(2018, 3, 17, 10, 15, 42, 0, time.UTC),

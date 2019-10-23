@@ -7,7 +7,7 @@ interface ToggleProps {
   label?: string;
   active: boolean;
   disabled?: boolean;
-  onToggle?: (active: boolean) => Promise<any>;
+  onToggle?: (active: boolean) => void;
 }
 
 export const Toggle: React.StatelessComponent<ToggleProps> = props => {
