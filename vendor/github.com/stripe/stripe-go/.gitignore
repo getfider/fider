@@ -1,9 +1,0 @@
-.env
-*.test
-*.coverprofile
-
-
-# Because our only dependencies are test-related, I'm leaving out `go.sum` for
-# the time being. Feel free to revisit this decision in the future if it
-# appears to be causing problems.
-/go.sum

@@ -87,7 +87,7 @@ func getUpcomingInvoice(ctx context.Context, q *query.GetUpcomingInvoice) error 
 			return errors.Wrap(err, "failed to get upcoming invoice")
 		}
 
-		dueDate := time.Unix(inv.Date, 0)
+		dueDate := time.Unix(inv.DueDate, 0)
 		q.Result = &dto.UpcomingInvoice{
 			Currency:  strings.ToUpper(string(inv.Currency)),
 			AmountDue: inv.AmountDue,
