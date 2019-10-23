@@ -3,6 +3,8 @@ package env
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"path"
@@ -59,6 +61,7 @@ type config struct {
 		Mailgun   struct {
 			APIKey string `env:"EMAIL_MAILGUN_API"`
 			Domain string `env:"EMAIL_MAILGUN_DOMAIN"`
+			Region string `env:"EMAIL_MAILGUN_REGION,default=US"`
 		}
 		SMTP struct {
 			Host     string `env:"EMAIL_SMTP_HOST"`
@@ -180,7 +183,9 @@ func IsDevelopment() bool {
 func Path(p ...string) string {
 	root := "./"
 	if IsTest() {
-		root = os.Getenv("GOPATH") + "/src/github.com/getfider/fider/"
+		_, b, _, _ := runtime.Caller(0)
+		basepath := filepath.Dir(b)
+		root = path.Join(basepath, "../../../")
 	}
 
 	elems := append([]string{root}, p...)

@@ -1,10 +1,14 @@
 package actions
 
 import (
+	"context"
 	"regexp"
+
+	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/gosimple/slug"
@@ -25,19 +29,21 @@ func (input *CreateEditTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateEditTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateEditTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
-func (input *CreateEditTag) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *CreateEditTag) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
+
 	if input.Model.Slug != "" {
-		tag, err := services.Tags.GetBySlug(input.Model.Slug)
+		getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+		err := bus.Dispatch(ctx, getSlug)
 		if err != nil {
 			return validate.Error(err)
 		}
-		input.Tag = tag
+		input.Tag = getSlug.Result
 	}
 
 	if input.Model.Name == "" {
@@ -45,10 +51,11 @@ func (input *CreateEditTag) Validate(user *models.User, services *app.Services) 
 	} else if len(input.Model.Name) > 30 {
 		result.AddFieldFailure("name", "Name must have less than 30 characters.")
 	} else {
-		duplicateTag, err := services.Tags.GetBySlug(slug.Make(input.Model.Name))
+		getDuplicateSlug := &query.GetTagBySlug{Slug: slug.Make(input.Model.Name)}
+		err := bus.Dispatch(ctx, getDuplicateSlug)
 		if err != nil && errors.Cause(err) != app.ErrNotFound {
 			return validate.Error(err)
-		} else if err == nil && (input.Tag == nil || input.Tag.ID != duplicateTag.ID) {
+		} else if err == nil && (input.Tag == nil || input.Tag.ID != getDuplicateSlug.Result.ID) {
 			result.AddFieldFailure("name", "This tag name is already in use.")
 		}
 	}
@@ -77,18 +84,19 @@ func (input *DeleteTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *DeleteTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *DeleteTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsAdministrator()
 }
 
-// Validate is current model is valid
-func (input *DeleteTag) Validate(user *models.User, services *app.Services) *validate.Result {
-	tag, err := services.Tags.GetBySlug(input.Model.Slug)
+// Validate if current model is valid
+func (input *DeleteTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+	err := bus.Dispatch(ctx, getSlug)
 	if err != nil {
 		return validate.Error(err)
 	}
 
-	input.Tag = tag
+	input.Tag = getSlug.Result
 	return validate.Success()
 }
 
@@ -106,23 +114,19 @@ func (input *AssignUnassignTag) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *AssignUnassignTag) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *AssignUnassignTag) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return user != nil && user.IsCollaborator()
 }
 
-// Validate is current model is valid
-func (input *AssignUnassignTag) Validate(user *models.User, services *app.Services) *validate.Result {
-	post, err := services.Posts.GetByNumber(input.Model.Number)
-	if err != nil {
+// Validate if current model is valid
+func (input *AssignUnassignTag) Validate(ctx context.Context, user *models.User) *validate.Result {
+	getPost := &query.GetPostByNumber{Number: input.Model.Number}
+	getSlug := &query.GetTagBySlug{Slug: input.Model.Slug}
+	if err := bus.Dispatch(ctx, getPost, getSlug); err != nil {
 		return validate.Error(err)
 	}
 
-	tag, err := services.Tags.GetBySlug(input.Model.Slug)
-	if err != nil {
-		return validate.Error(err)
-	}
-
-	input.Tag = tag
-	input.Post = post
+	input.Post = getPost.Result
+	input.Tag = getSlug.Result
 	return validate.Success()
 }

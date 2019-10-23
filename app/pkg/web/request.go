@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/errors"
 )
@@ -19,6 +20,7 @@ type Request struct {
 	ContentLength int64
 	Body          string
 	IsSecure      bool
+	StartTime     time.Time
 	URL           *url.URL
 }
 
@@ -58,6 +60,7 @@ func WrapRequest(request *http.Request) Request {
 		Body:          string(bodyBytes),
 		URL:           u,
 		IsSecure:      protocol == "https",
+		StartTime:     time.Now(),
 	}
 }
 
@@ -105,4 +108,15 @@ var crawlerRegex = regexp.MustCompile("(?i)(baidu)|(msnbot)|(bingbot)|(bingprevi
 // IsCrawler returns true if the request is coming from a crawler
 func (r *Request) IsCrawler() bool {
 	return crawlerRegex.MatchString(r.GetHeader("User-Agent"))
+}
+
+//BaseURL returns base URL
+func (r *Request) BaseURL() string {
+	address := r.URL.Scheme + "://" + r.URL.Hostname()
+
+	if r.URL.Port() != "" {
+		address += ":" + r.URL.Port()
+	}
+
+	return address
 }

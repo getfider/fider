@@ -1,14 +1,15 @@
 package validate
 
 import (
-	"github.com/getfider/fider/app"
+	"context"
+
 	"github.com/getfider/fider/app/models"
 )
 
 // Validatable defines which models can be validated against context
 type Validatable interface {
-	Validate(user *models.User, services *app.Services) *Result
-	IsAuthorized(user *models.User, services *app.Services) bool
+	Validate(ctx context.Context, user *models.User) *Result
+	IsAuthorized(ctx context.Context, user *models.User) bool
 }
 
 // ErrorItem holds a reference to something that went wrong

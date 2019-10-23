@@ -3,9 +3,11 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
 
 	"github.com/getfider/fider/app"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/web"
@@ -22,14 +24,15 @@ func Tenant() web.MiddlewareFunc {
 // SingleTenant inject default tenant into current context
 func SingleTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			tenant, err := c.Services().Tenants.First()
+		return func(c *web.Context) error {
+			firstTenant := &query.GetFirstTenant{}
+			err := bus.Dispatch(c, firstTenant)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
-				c.SetTenant(tenant)
+			if firstTenant.Result != nil {
+				c.SetTenant(firstTenant.Result)
 			}
 
 			return next(c)
@@ -40,7 +43,7 @@ func SingleTenant() web.MiddlewareFunc {
 // MultiTenant extract tenant information from hostname and inject it into current context
 func MultiTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			hostname := c.Request.URL.Hostname()
 
 			// If no tenant is specified, redirect user to getfider.com
@@ -52,16 +55,17 @@ func MultiTenant() web.MiddlewareFunc {
 				}
 			}
 
-			tenant, err := c.Services().Tenants.GetByDomain(hostname)
+			byDomain := &query.GetTenantByDomain{Domain: hostname}
+			err := bus.Dispatch(c, byDomain)
 			if err != nil && errors.Cause(err) != app.ErrNotFound {
 				return c.Failure(err)
 			}
 
-			if tenant != nil {
-				c.SetTenant(tenant)
+			if byDomain.Result != nil {
+				c.SetTenant(byDomain.Result)
 
-				if tenant.CNAME != "" && !c.IsAjax() {
-					baseURL := c.TenantBaseURL(tenant)
+				if byDomain.Result.CNAME != "" && !c.IsAjax() {
+					baseURL := web.TenantBaseURL(c, byDomain.Result)
 					if baseURL != c.BaseURL() {
 						link := baseURL + c.Request.URL.RequestURI()
 						c.SetCanonicalURL(link)
@@ -77,7 +81,7 @@ func MultiTenant() web.MiddlewareFunc {
 // RequireTenant returns 404 if tenant is not available
 func RequireTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant() == nil {
 				if env.IsSingleHostMode() {
 					return c.Redirect("/signup")
@@ -92,8 +96,8 @@ func RequireTenant() web.MiddlewareFunc {
 // BlockPendingTenants blocks requests for pending tenants
 func BlockPendingTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			if c.Tenant().Status == models.TenantPending {
+		return func(c *web.Context) error {
+			if c.Tenant().Status == enum.TenantPending {
 				return c.Render(http.StatusOK, "pending-activation.html", web.Props{
 					Title:       "Pending Activation",
 					Description: "We sent you a confirmation email with a link to activate your site. Please check your inbox to activate it.",
@@ -107,7 +111,7 @@ func BlockPendingTenants() web.MiddlewareFunc {
 // CheckTenantPrivacy blocks requests of unauthenticated users for private tenants
 func CheckTenantPrivacy() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			if c.Tenant().IsPrivate && !c.IsAuthenticated() {
 				return c.Redirect("/signin")
 			}
@@ -119,13 +123,13 @@ func CheckTenantPrivacy() web.MiddlewareFunc {
 // BlockLockedTenants blocks requests of non-administrator users on locked tenants
 func BlockLockedTenants() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			if c.Tenant().Status == models.TenantLocked {
+		return func(c *web.Context) error {
+			if c.Tenant().Status == enum.TenantLocked {
 				if c.Request.IsAPI() {
 					return c.JSON(http.StatusLocked, web.Map{})
 				}
 
-				isAdmin := c.IsAuthenticated() && c.User().Role == models.RoleAdministrator
+				isAdmin := c.IsAuthenticated() && c.User().Role == enum.RoleAdministrator
 				if !isAdmin {
 					return c.Redirect("/signin")
 				}

@@ -1,8 +1,12 @@
 package actions
 
 import (
-	"github.com/getfider/fider/app"
+	"context"
+
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/validate"
 )
 
@@ -19,12 +23,12 @@ func (input *SignInByEmail) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *SignInByEmail) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *SignInByEmail) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return true
 }
 
-// Validate is current model is valid
-func (input *SignInByEmail) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *SignInByEmail) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Email == "" {
@@ -54,12 +58,12 @@ func (input *CompleteProfile) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CompleteProfile) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CompleteProfile) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return true
 }
 
-// Validate is current model is valid
-func (input *CompleteProfile) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *CompleteProfile) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	if input.Model.Name == "" {
@@ -73,12 +77,16 @@ func (input *CompleteProfile) Validate(user *models.User, services *app.Services
 	if input.Model.Key == "" {
 		result.AddFieldFailure("key", "Key is required.")
 	} else {
-		request1, err1 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindSignIn, input.Model.Key)
-		request2, err2 := services.Tenants.FindVerificationByKey(models.EmailVerificationKindUserInvitation, input.Model.Key)
+		findBySignIn := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindSignIn, Key: input.Model.Key}
+		err1 := bus.Dispatch(ctx, findBySignIn)
+
+		findByUserInvitation := &query.GetVerificationByKey{Kind: enum.EmailVerificationKindUserInvitation, Key: input.Model.Key}
+		err2 := bus.Dispatch(ctx, findByUserInvitation)
+
 		if err1 == nil {
-			input.Model.Email = request1.Email
+			input.Model.Email = findBySignIn.Result.Email
 		} else if err2 == nil {
-			input.Model.Email = request2.Email
+			input.Model.Email = findByUserInvitation.Result.Email
 		} else {
 			result.AddFieldFailure("key", "Key is invalid.")
 		}

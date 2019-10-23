@@ -1,82 +1,56 @@
 package middlewares
 
 import (
-	"fmt"
 	"time"
 
+	"github.com/getfider/fider/app/pkg/dbx"
+
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/di"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/web"
-	webutil "github.com/getfider/fider/app/pkg/web/util"
 	"github.com/getfider/fider/app/pkg/worker"
-	"github.com/getfider/fider/app/storage/postgres"
 )
-
-// Noop does nothing
-func Noop() web.MiddlewareFunc {
-	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			return next(c)
-		}
-	}
-}
 
 //WorkerSetup current context with some services
 func WorkerSetup() worker.MiddlewareFunc {
 	return func(next worker.Job) worker.Job {
 		return func(c *worker.Context) (err error) {
 			start := time.Now()
-			c.Logger().Debugf("Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", log.Props{
+			log.Debugf(c, "Task '@{TaskName:magenta}' started on worker '@{WorkerID:magenta}'", dto.Props{
 				"TaskName": c.TaskName(),
 				"WorkerID": c.WorkerID(),
 			})
 
-			trx, err := c.Database().Begin()
+			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", log.Props{
+				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms", dto.Props{
 					"TaskName":  c.TaskName(),
 					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
 				})
 				return err
 			}
 
-			trx.SetLogger(c.Logger())
-
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					err, ok := r.(error)
-					if !ok {
-						err = fmt.Errorf("%v", r)
-					}
-					c.Failure(err)
+					c.Failure(errors.Panicked(r))
 					trx.Rollback()
-					c.Logger().Debugf("Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+					log.Debugf(c, "Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 						"TaskName":  c.TaskName(),
 						"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
 					})
 				}
 			}()
 
-			c.SetServices(&app.Services{
-				Logger:        c.Logger(),
-				Tenants:       postgres.NewTenantStorage(trx),
-				Users:         postgres.NewUserStorage(trx, c),
-				Posts:         postgres.NewPostStorage(trx, c),
-				Tags:          postgres.NewTagStorage(trx),
-				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(c.Database()),
-				Billing:       billing.NewClient(),
-			})
+			c.Set(app.TransactionCtxKey, trx)
 
 			//Execute the chain
 			if err = next(c); err != nil {
 				trx.Rollback()
-				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"TaskName":  c.TaskName(),
 					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
 				})
@@ -85,10 +59,10 @@ func WorkerSetup() worker.MiddlewareFunc {
 
 			//No errors, so try to commit it
 			if err = trx.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+				log.Errorf(c, "Failed to commit request with: @{Error}", dto.Props{
 					"Error": err.Error(),
 				})
-				c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"TaskName":  c.TaskName(),
 					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
 				})
@@ -96,7 +70,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Debugf("Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+			log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (committed)", dto.Props{
 				"TaskName":  c.TaskName(),
 				"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
 			})
@@ -108,90 +82,55 @@ func WorkerSetup() worker.MiddlewareFunc {
 //WebSetup current context with some services
 func WebSetup() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
-			start := time.Now()
-			c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", log.Props{
+		return func(c *web.Context) error {
+			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} started for @{ClientIP:magenta}", dto.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
 				"ClientIP":   c.Request.ClientIP,
 			})
 
-			//In case it panics somewhere
-			defer func() {
-				if r := recover(); r != nil {
-					err, ok := r.(error)
-					if !ok {
-						err = fmt.Errorf("%v", r)
-					}
-					c.Failure(err)
-					c.Rollback()
-					c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
-						"HttpMethod": c.Request.Method,
-						"URL":        c.Request.URL.String(),
-						"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
-					})
-				}
-			}()
-
-			trx, err := c.Engine().Database().Begin()
+			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
-				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", log.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", dto.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
 				return err
 			}
 
-			trx.SetLogger(c.Logger())
-
-			oauthBaseURL := webutil.GetOAuthBaseURL(c)
-			tenantStorage := postgres.NewTenantStorage(trx)
-
-			c.SetActiveTransaction(trx)
-			c.SetServices(&app.Services{
-				Logger:        c.Logger(),
-				Tenants:       tenantStorage,
-				OAuth:         web.NewOAuthService(oauthBaseURL, tenantStorage),
-				Users:         postgres.NewUserStorage(trx, &c),
-				Posts:         postgres.NewPostStorage(trx, &c),
-				Tags:          postgres.NewTagStorage(trx),
-				Notifications: postgres.NewNotificationStorage(trx),
-				Emailer:       di.NewEmailer(c.Logger()),
-				Blobs:         di.NewBlobStorage(c.Engine().Database()),
-				Billing:       billing.NewClient(),
-			})
+			c.Set(app.TransactionCtxKey, trx)
 
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
 				return err
 			}
 
 			//No errors, so try to commit it
 			if err := c.Commit(); err != nil {
-				c.Logger().Errorf("Failed to commit request with: @{Error}", log.Props{
+				log.Errorf(c, "Failed to commit request with: @{Error}", dto.Props{
 					"Error": err.Error(),
 				})
-				c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", log.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"HttpMethod": c.Request.Method,
 					"URL":        c.Request.URL.String(),
-					"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
 				return err
 			}
 
 			//Still no errors, everything is fine!
-			c.Logger().Infof("@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (committed)", log.Props{
+			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (committed)", dto.Props{
 				"HttpMethod": c.Request.Method,
 				"URL":        c.Request.URL.String(),
-				"ElapsedMs":  time.Since(start).Nanoseconds() / int64(time.Millisecond),
+				"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 			})
 			return nil
 		}

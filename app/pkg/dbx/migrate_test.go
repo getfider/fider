@@ -1,31 +1,32 @@
 package dbx_test
 
 import (
+	"context"
 	"testing"
 
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/dbx"
 )
 
-func setupMigrationTest(t *testing.T) *dbx.Database {
+func setupMigrationTest(t *testing.T) {
 	RegisterT(t)
-	db := dbx.New()
-	trx, _ := db.Begin()
+	ctx := context.Background()
+
+	trx, _ := dbx.BeginTx(ctx)
 	trx.Execute("DELETE FROM migrations_history WHERE version >= 210001010000")
 	trx.Execute("DROP TABLE IF EXISTS dummy")
 	trx.Execute("DROP TABLE IF EXISTS foo")
 	trx.Commit()
-	return db
 }
 
 func TestMigrate_Success(t *testing.T) {
-	db := setupMigrationTest(t)
-	defer db.Close()
+	setupMigrationTest(t)
+	ctx := context.Background()
 
-	err := db.Migrate("/app/pkg/dbx/testdata/migration_success")
+	err := dbx.Migrate(ctx, "/app/pkg/dbx/testdata/migration_success")
 	Expect(err).IsNil()
 
-	trx, _ := db.Begin()
+	trx, _ := dbx.BeginTx(ctx)
 	var value string
 	err = trx.Scalar(&value, "SELECT description FROM dummy WHERE id = 200 LIMIT 1")
 	Expect(err).IsNil()
@@ -39,12 +40,13 @@ func TestMigrate_Success(t *testing.T) {
 }
 
 func TestMigrate_Failure(t *testing.T) {
-	db := setupMigrationTest(t)
-	defer db.Close()
-	trx, _ := db.Begin()
+	setupMigrationTest(t)
+	ctx := context.Background()
+
+	trx, _ := dbx.BeginTx(ctx)
 	defer trx.Rollback()
 
-	err := db.Migrate("/app/pkg/dbx/testdata/migration_failure")
+	err := dbx.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_failure")
 	Expect(err).IsNotNil()
 
 	_, err = trx.Execute("SELECT description FROM dummy")

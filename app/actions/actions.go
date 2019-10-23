@@ -1,7 +1,8 @@
 package actions
 
 import (
-	"github.com/getfider/fider/app"
+	"context"
+
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/validate"
 )
@@ -9,6 +10,6 @@ import (
 // Actionable is any action that the user can perform using the web app
 type Actionable interface {
 	Initialize() interface{}
-	IsAuthorized(user *models.User, services *app.Services) bool
-	Validate(user *models.User, services *app.Services) *validate.Result
+	IsAuthorized(ctx context.Context, user *models.User) bool
+	Validate(ctx context.Context, user *models.User) *validate.Result
 }

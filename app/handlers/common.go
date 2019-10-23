@@ -7,8 +7,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
+
+	"github.com/getfider/fider/app/models/query"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/log"
@@ -17,8 +25,8 @@ import (
 
 //Health always returns OK
 func Health() web.HandlerFunc {
-	return func(c web.Context) error {
-		err := c.Engine().Database().Ping()
+	return func(c *web.Context) error {
+		err := dbx.Ping()
 		if err != nil {
 			return c.Failure(err)
 		}
@@ -28,7 +36,7 @@ func Health() web.HandlerFunc {
 
 //LegalPage returns a legal page with content from a file
 func LegalPage(title, file string) web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bytes, err := ioutil.ReadFile(env.Etc(file))
 		if err != nil {
 			return c.NotFound()
@@ -45,13 +53,13 @@ func LegalPage(title, file string) web.HandlerFunc {
 
 //Sitemap returns the sitemap.xml of current site
 func Sitemap() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		if c.Tenant().IsPrivate {
 			return c.NotFound()
 		}
 
-		posts, err := c.Services().Posts.GetAll()
-		if err != nil {
+		allPosts := &query.GetAllPosts{}
+		if err := bus.Dispatch(c, allPosts); err != nil {
 			return c.Failure(err)
 		}
 
@@ -60,7 +68,7 @@ func Sitemap() web.HandlerFunc {
 		text.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
 		text.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
 		text.WriteString(fmt.Sprintf("<url> <loc>%s</loc> </url>", baseURL))
-		for _, post := range posts {
+		for _, post := range allPosts.Result {
 			text.WriteString(fmt.Sprintf("<url> <loc>%s/posts/%d/%s</loc> </url>", baseURL, post.Number, post.Slug))
 		}
 		text.WriteString(`</urlset>`)
@@ -72,7 +80,7 @@ func Sitemap() web.HandlerFunc {
 
 //RobotsTXT return content of robots.txt file
 func RobotsTXT() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		bytes, err := ioutil.ReadFile(env.Path("./robots.txt"))
 		if err != nil {
 			return c.NotFound()
@@ -85,7 +93,7 @@ func RobotsTXT() web.HandlerFunc {
 
 //Page returns a page without properties
 func Page(title, description, chunkName string) web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Page(web.Props{
 			Title:       title,
 			Description: description,
@@ -96,7 +104,7 @@ func Page(title, description, chunkName string) web.HandlerFunc {
 
 //BrowserNotSupported returns an error page for browser that Fider dosn't support
 func BrowserNotSupported() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		return c.Render(http.StatusOK, "browser-not-supported.html", web.Props{
 			Title:       "Browser not supported",
 			Description: "We don't support this version of your browser",
@@ -112,24 +120,25 @@ type NewLogError struct {
 
 //LogError logs an error coming from the UI
 func LogError() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(NewLogError)
 		err := c.Bind(input)
 		if err != nil {
 			return c.Failure(err)
 		}
-		c.Logger().Errorf(input.Message, log.Props{
+		log.Debugf(c, input.Message, dto.Props{
 			"Data": input.Data,
 		})
 		return c.Ok(web.Map{})
 	}
 }
 
-func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.EmailVerification, error) {
+func validateKey(kind enum.EmailVerificationKind, c *web.Context) (*models.EmailVerification, error) {
 	key := c.QueryParam("k")
 
 	//If key has been used, return NotFound
-	result, err := c.Services().Tenants.FindVerificationByKey(kind, key)
+	findByKey := &query.GetVerificationByKey{Kind: kind, Key: key}
+	err := bus.Dispatch(c, findByKey)
 	if err != nil {
 		if errors.Cause(err) == app.ErrNotFound {
 			return nil, c.NotFound()
@@ -138,20 +147,20 @@ func validateKey(kind models.EmailVerificationKind, c web.Context) (*models.Emai
 	}
 
 	//If key has been used, return Gone
-	if result.VerifiedAt != nil {
+	if findByKey.Result.VerifiedAt != nil {
 		return nil, c.Gone()
 	}
 
 	//If key expired, return Gone
-	if time.Now().After(result.ExpiresAt) {
-		err = c.Services().Tenants.SetKeyAsVerified(key)
+	if time.Now().After(findByKey.Result.ExpiresAt) {
+		err = bus.Dispatch(c, &cmd.SetKeyAsVerified{Key: key})
 		if err != nil {
 			return nil, c.Failure(err)
 		}
 		return nil, c.Gone()
 	}
 
-	return result, nil
+	return findByKey.Result, nil
 }
 
 func between(n, min, max int) int {

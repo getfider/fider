@@ -14,11 +14,11 @@ import (
 func TestSession_New(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 
 	var sessionID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		sessionID = c.SessionID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -35,12 +35,12 @@ func TestSession_New(t *testing.T) {
 func TestSession_ExistingSession(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 
 	status, response := server.
 		AddCookie(web.CookieSessionName, "MY_SESSION_VALUE").
-		Execute(func(c web.Context) error {
+		Execute(func(c *web.Context) error {
 			return c.NoContent(http.StatusOK)
 		})
 
@@ -51,11 +51,11 @@ func TestSession_ExistingSession(t *testing.T) {
 func TestSession_RemoveSessionIfResponseIsCached(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Session())
 	server.Use(middlewares.ClientCache(30 * time.Hour))
 
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		return c.NoContent(http.StatusOK)
 	})
 

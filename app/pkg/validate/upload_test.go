@@ -17,13 +17,13 @@ func TestValidateImageUpload(t *testing.T) {
 		fileName string
 		count    int
 	}{
-		{"/app/pkg/img/testdata/logo1.png", 0},
-		{"/app/pkg/img/testdata/logo2.jpg", 2},
-		{"/app/pkg/img/testdata/logo3.gif", 1},
-		{"/app/pkg/img/testdata/logo4.png", 1},
-		{"/app/pkg/img/testdata/logo5.png", 0},
+		{"/app/pkg/web/testdata/logo1.png", 0},
+		{"/app/pkg/web/testdata/logo2.jpg", 2},
+		{"/app/pkg/web/testdata/logo3.gif", 1},
+		{"/app/pkg/web/testdata/logo4.png", 1},
+		{"/app/pkg/web/testdata/logo5.png", 0},
 		{"/README.md", 1},
-		{"/app/pkg/img/testdata/favicon.ico", 1},
+		{"/app/pkg/web/testdata/favicon.ico", 1},
 	}
 
 	for _, testCase := range testCases {
@@ -48,7 +48,7 @@ func TestValidateImageUpload(t *testing.T) {
 func TestValidateImageUpload_ExactRatio(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 	opts := validate.ImageUploadOpts{
 		IsRequired:   false,
 		MaxKilobytes: 200,
@@ -125,7 +125,7 @@ func TestValidateImageUpload_Required(t *testing.T) {
 func TestValidateMultiImageUpload(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
 	uploads := []*models.ImageUpload{
 		&models.ImageUpload{
@@ -156,7 +156,7 @@ func TestValidateMultiImageUpload(t *testing.T) {
 func TestValidateMultiImageUpload_Existing(t *testing.T) {
 	RegisterT(t)
 
-	img, _ := ioutil.ReadFile(env.Path("/app/pkg/img/testdata/logo3-200w.gif"))
+	img, _ := ioutil.ReadFile(env.Path("/app/pkg/web/testdata/logo3-200w.gif"))
 
 	uploads := []*models.ImageUpload{
 		&models.ImageUpload{

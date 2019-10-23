@@ -5,7 +5,9 @@ import (
 
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/actions"
-	"github.com/getfider/fider/app/pkg/email"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
 	"github.com/getfider/fider/app/pkg/web"
@@ -14,7 +16,7 @@ import (
 
 // SendSampleInvite to current user's email
 func SendSampleInvite() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := &actions.InviteUsers{IsSampleInvite: true}
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -22,14 +24,19 @@ func SendSampleInvite() web.HandlerFunc {
 
 		if c.User().Email != "" {
 			input.Model.Message = strings.Replace(input.Model.Message, app.InvitePlaceholder, "*the link to accept invitation will be here*", -1)
-			to := email.NewRecipient(c.User().Name, c.User().Email, email.Params{
+			to := dto.NewRecipient(c.User().Name, c.User().Email, dto.Props{
 				"subject": input.Model.Subject,
 				"message": markdown.Full(input.Model.Message),
 			})
-			err := c.Services().Emailer.Send(&c, "invite_email", email.Params{}, c.Tenant().Name, to)
-			if err != nil {
-				return c.Failure(err)
-			}
+
+			bus.Publish(c, &cmd.SendMail{
+				From:         c.Tenant().Name,
+				To:           []dto.Recipient{to},
+				TemplateName: "invite_email",
+				Props: dto.Props{
+					"logo": web.LogoURL(c),
+				},
+			})
 		}
 
 		return c.Ok(web.Map{})
@@ -38,13 +45,13 @@ func SendSampleInvite() web.HandlerFunc {
 
 // SendInvites sends an email to each recipient
 func SendInvites() web.HandlerFunc {
-	return func(c web.Context) error {
+	return func(c *web.Context) error {
 		input := new(actions.InviteUsers)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
 		}
 
-		c.Logger().Warnf("Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", log.Props{
+		log.Warnf(c, "Sending @{TotalInvites:magenta} invites by @{ClientIP:magenta}", dto.Props{
 			"TotalInvites": len(input.Invitations),
 			"ClientIP":     c.Request.ClientIP,
 		})

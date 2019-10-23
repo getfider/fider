@@ -86,13 +86,6 @@ func (o OAuthConfig) MarshalJSON() ([]byte, error) {
 	})
 }
 
-var (
-	//OAuthConfigDisabled is used to disable an OAuthConfig for signin
-	OAuthConfigDisabled = 1
-	//OAuthConfigEnabled is used to enable an OAuthConfig for public use
-	OAuthConfigEnabled = 2
-)
-
 // APIAuthorize is used during API Authorize process
 type APIAuthorize struct {
 	APIKey string `json:"apiKey"`

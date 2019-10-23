@@ -9,15 +9,18 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/getfider/fider/app/models/dto"
+
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"io/ioutil"
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/pkg/crypto"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/errors"
-	"github.com/getfider/fider/app/pkg/log"
 	"github.com/getfider/fider/app/pkg/markdown"
-	"github.com/getfider/fider/app/pkg/oauth"
 )
 
 var templateFunctions = template.FuncMap{
@@ -37,7 +40,6 @@ type clientAssets struct {
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
-	logger        log.Logger
 	settings      *models.SystemSettings
 	assets        *clientAssets
 	chunkedAssets map[string]*clientAssets
@@ -45,10 +47,9 @@ type Renderer struct {
 }
 
 // NewRenderer creates a new Renderer
-func NewRenderer(settings *models.SystemSettings, logger log.Logger) *Renderer {
+func NewRenderer(settings *models.SystemSettings) *Renderer {
 	return &Renderer{
 		templates: make(map[string]*template.Template),
-		logger:    logger,
 		settings:  settings,
 		mutex:     sync.RWMutex{},
 	}
@@ -143,7 +144,7 @@ func getClientAssets(assets []string) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
@@ -158,12 +159,13 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		tmpl = r.add(name)
 	}
 
-	public := make(Map, 0)
-	private := make(Map, 0)
+	public := make(Map)
+	private := make(Map)
 
+	tenant := ctx.Tenant()
 	tenantName := "Fider"
-	if ctx.Tenant() != nil {
-		tenantName = ctx.Tenant().Name
+	if tenant != nil {
+		tenantName = tenant.Name
 	}
 
 	title := tenantName
@@ -183,23 +185,31 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 	}
 
 	private["assets"] = r.assets
-	private["logo"] = ctx.LogoURL()
-	private["favicon"] = ctx.FaviconURL()
+	private["logo"] = LogoURL(ctx)
+
+	if tenant == nil || tenant.LogoBlobKey == "" {
+		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
+	} else {
+		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
+	}
+
 	private["currentURL"] = ctx.Request.URL.String()
-	if canonicalURL := ctx.Get("Canonical-URL"); canonicalURL != nil {
+	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
 		private["canonicalURL"] = canonicalURL
 	}
 
-	oauthProviders := make([]*oauth.ProviderOption, 0)
-	if !ctx.IsAuthenticated() && ctx.Services() != nil {
-		oauthProviders, err = ctx.Services().OAuth.ListActiveProviders()
+	oauthProviders := &query.ListActiveOAuthProviders{
+		Result: make([]*dto.OAuthProviderOption, 0),
+	}
+	if !ctx.IsAuthenticated() && statusCode >= 200 && statusCode < 300 {
+		err = bus.Dispatch(ctx, oauthProviders)
 		if err != nil {
 			panic(errors.Wrap(err, "failed to get list of providers"))
 		}
 	}
 
 	public["contextID"] = ctx.ContextID()
-	public["tenant"] = ctx.Tenant()
+	public["tenant"] = tenant
 	public["props"] = props.Data
 	public["settings"] = &Map{
 		"mode":            r.settings.Mode,
@@ -212,9 +222,9 @@ func (r *Renderer) Render(w io.Writer, name string, props Props, ctx *Context) {
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
 		"baseURL":         ctx.BaseURL(),
-		"tenantAssetsURL": ctx.TenantAssetsURL(""),
-		"globalAssetsURL": ctx.GlobalAssetsURL(""),
-		"oauth":           oauthProviders,
+		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
+		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
+		"oauth":           oauthProviders.Result,
 	}
 
 	if ctx.IsAuthenticated() {

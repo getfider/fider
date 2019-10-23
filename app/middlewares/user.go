@@ -5,6 +5,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+	"github.com/getfider/fider/app/pkg/bus"
+
 	"github.com/getfider/fider/app/pkg/validate"
 
 	"github.com/getfider/fider/app/models"
@@ -19,7 +23,7 @@ import (
 // User gets JWT Auth token from cookie and insert into context
 func User() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
-		return func(c web.Context) error {
+		return func(c *web.Context) error {
 			var (
 				token string
 				user  *models.User
@@ -39,11 +43,12 @@ func User() web.MiddlewareFunc {
 				claims, err := jwt.DecodeFiderClaims(token)
 				if err != nil {
 					c.RemoveCookie(web.CookieAuthName)
-					c.SetClaims(claims)
 					return next(c)
 				}
 
-				user, err = c.Services().Users.GetByID(claims.UserID)
+				userByClaimsID := &query.GetUserByID{UserID: claims.UserID}
+				err = bus.Dispatch(c, userByClaimsID)
+				user = userByClaimsID.Result
 				if err != nil {
 					if errors.Cause(err) == app.ErrNotFound {
 						c.RemoveCookie(web.CookieAuthName)
@@ -56,13 +61,15 @@ func User() web.MiddlewareFunc {
 				parts := strings.Split(authHeader, "Bearer")
 				if len(parts) == 2 {
 					apiKey := strings.TrimSpace(parts[1])
-					user, err = c.Services().Users.GetByAPIKey(apiKey)
+					getUserByAPIKey := &query.GetUserByAPIKey{APIKey: apiKey}
+					err = bus.Dispatch(c, getUserByAPIKey)
 					if err != nil {
 						if errors.Cause(err) == app.ErrNotFound {
 							return c.HandleValidation(validate.Failed("API Key is invalid"))
 						}
 						return err
 					}
+					user = getUserByAPIKey.Result
 
 					if !user.IsCollaborator() {
 						return c.HandleValidation(validate.Failed("API Key is invalid"))
@@ -76,7 +83,9 @@ func User() web.MiddlewareFunc {
 						if err != nil {
 							return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
 						}
-						user, err = c.Services().Users.GetByID(impersonateUserID)
+						userByImpersonateID := &query.GetUserByID{UserID: impersonateUserID}
+						err = bus.Dispatch(c, userByImpersonateID)
+						user = userByImpersonateID.Result
 						if err != nil {
 							if errors.Cause(err) == app.ErrNotFound {
 								return c.HandleValidation(validate.Failed(fmt.Sprintf("User not found for given impersonate UserID '%s'", impersonateUserIDStr)))
@@ -90,13 +99,13 @@ func User() web.MiddlewareFunc {
 			if user != nil && c.Tenant() != nil && user.Tenant.ID == c.Tenant().ID {
 
 				// only administrators should be allowed to sign in to a locked tenant
-				if c.Tenant().Status == models.TenantLocked && !user.IsAdministrator() {
+				if c.Tenant().Status == enum.TenantLocked && !user.IsAdministrator() {
 					c.RemoveCookie(web.CookieAuthName)
 					return c.Unauthorized()
 				}
 
 				// blocked users are unable to sign in
-				if user.Status == models.UserBlocked {
+				if user.Status == enum.UserBlocked {
 					c.RemoveCookie(web.CookieAuthName)
 					return c.Unauthorized()
 				}

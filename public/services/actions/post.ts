@@ -51,13 +51,24 @@ export const listVotes = async (postNumber: number): Promise<Result<Vote[]>> => 
   return http.get<Vote[]>(`/api/v1/posts/${postNumber}/votes`);
 };
 
-export const createComment = async (postNumber: number, content: string): Promise<Result> => {
-  return http.post(`/api/v1/posts/${postNumber}/comments`, { content }).then(http.event("comment", "create"));
+export const createComment = async (
+  postNumber: number,
+  content: string,
+  attachments: ImageUpload[]
+): Promise<Result> => {
+  return http
+    .post(`/api/v1/posts/${postNumber}/comments`, { content, attachments })
+    .then(http.event("comment", "create"));
 };
 
-export const updateComment = async (postNumber: number, commentID: number, content: string): Promise<Result> => {
+export const updateComment = async (
+  postNumber: number,
+  commentID: number,
+  content: string,
+  attachments: ImageUpload[]
+): Promise<Result> => {
   return http
-    .put(`/api/v1/posts/${postNumber}/comments/${commentID}`, { content })
+    .put(`/api/v1/posts/${postNumber}/comments/${commentID}`, { content, attachments })
     .then(http.event("comment", "update"));
 };
 

@@ -3,12 +3,8 @@ package mock
 import (
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
-	"github.com/getfider/fider/app/pkg/billing"
-	"github.com/getfider/fider/app/pkg/blob/fs"
-	"github.com/getfider/fider/app/pkg/email/noop"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/oauth"
-	"github.com/getfider/fider/app/storage/inmemory"
 )
 
 // DemoTenant is a mocked tenant
@@ -24,67 +20,60 @@ var JonSnow *models.User
 var AryaStark *models.User
 
 // NewSingleTenantServer creates a new multitenant test server
-func NewSingleTenantServer() (*Server, *app.Services) {
-	services := createServices(false)
-	server := createServer(services)
+func NewSingleTenantServer() *Server {
+	server := createServer()
 	env.Config.HostMode = "single"
-	return server, services
+	return server
 }
 
-// NewServer creates a new server and services for HTTP testing
-func NewServer() (*Server, *app.Services) {
-	services := createServices(true)
-	server := createServer(services)
+// NewServer creates a new server for HTTP testing
+func NewServer() *Server {
+	seed()
+	server := createServer()
 	env.Config.HostMode = "multi"
-	return server, services
+	return server
 }
 
-// NewWorker creates a new worker and services for worker testing
-func NewWorker() (*Worker, *app.Services) {
-	services := createServices(true)
-	worker := createWorker(services)
-	return worker, services
+// NewWorker creates a new worker for worker testing
+func NewWorker() *Worker {
+	seed()
+	worker := createWorker()
+	return worker
 }
 
-func createServices(seed bool) *app.Services {
-	services := &app.Services{
-		Tenants:       inmemory.NewTenantStorage(),
-		Users:         &inmemory.UserStorage{},
-		Tags:          inmemory.NewTagStorage(),
-		Notifications: inmemory.NewNotificationStorage(),
-		Posts:         inmemory.NewPostStorage(),
-		OAuth:         &OAuthService{},
-		Emailer:       noop.NewSender(),
-		Blobs:         fs.NewStorage(env.Path("tmp")),
-		Billing:       billing.NewClient(),
+func seed() {
+	DemoTenant = &models.Tenant{
+		ID:        1,
+		Name:      "Demonstration",
+		Subdomain: "demo",
+		Status:    enum.TenantActive,
+	}
+	AvengersTenant = &models.Tenant{
+		ID:        2,
+		Name:      "Avengers",
+		Subdomain: "avengers",
+		Status:    enum.TenantActive,
+		CNAME:     "feedback.theavengers.com",
 	}
 
-	if seed {
-		DemoTenant, _ = services.Tenants.Add("Demonstration", "demo", models.TenantActive)
-		AvengersTenant, _ = services.Tenants.Add("Avengers", "avengers", models.TenantActive)
-		AvengersTenant.CNAME = "feedback.theavengers.com"
-
-		JonSnow = &models.User{
-			Name:   "Jon Snow",
-			Email:  "jon.snow@got.com",
-			Tenant: DemoTenant,
-			Status: models.UserActive,
-			Role:   models.RoleAdministrator,
-			Providers: []*models.UserProvider{
-				{UID: "FB1234", Name: oauth.FacebookProvider},
-			},
-		}
-		services.Users.Register(JonSnow)
-
-		AryaStark = &models.User{
-			Name:   "Arya Stark",
-			Email:  "arya.stark@got.com",
-			Tenant: DemoTenant,
-			Status: models.UserActive,
-			Role:   models.RoleVisitor,
-		}
-		services.Users.Register(AryaStark)
+	JonSnow = &models.User{
+		ID:     1,
+		Name:   "Jon Snow",
+		Email:  "jon.snow@got.com",
+		Tenant: DemoTenant,
+		Status: enum.UserActive,
+		Role:   enum.RoleAdministrator,
+		Providers: []*models.UserProvider{
+			{UID: "FB1234", Name: app.FacebookProvider},
+		},
 	}
 
-	return services
+	AryaStark = &models.User{
+		ID:     2,
+		Name:   "Arya Stark",
+		Email:  "arya.stark@got.com",
+		Tenant: DemoTenant,
+		Status: enum.UserActive,
+		Role:   enum.RoleVisitor,
+	}
 }

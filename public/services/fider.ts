@@ -1,3 +1,4 @@
+import { createContext } from "react";
 import { CurrentUser, SystemSettings, Tenant } from "@fider/models";
 
 export class FiderSession {
@@ -68,3 +69,5 @@ export class FiderImpl {
 }
 
 export let Fider = new FiderImpl();
+
+export const FiderContext = createContext<FiderImpl>(Fider);

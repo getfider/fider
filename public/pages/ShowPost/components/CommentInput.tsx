@@ -1,7 +1,7 @@
 import React from "react";
 
-import { Post } from "@fider/models";
-import { Avatar, UserName, Button, TextArea, Form } from "@fider/components/common";
+import { Post, ImageUpload } from "@fider/models";
+import { Avatar, UserName, Button, TextArea, Form, MultiImageUploader } from "@fider/components/common";
 import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
@@ -14,6 +14,7 @@ interface CommentInputState {
   content: string;
   error?: Failure;
   showSignIn: boolean;
+  attachments: ImageUpload[];
 }
 
 const CACHE_TITLE_KEY = "CommentInput-Comment-";
@@ -26,7 +27,8 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
 
     this.state = {
       content: (Fider.session.isAuthenticated && cache.session.get(this.getCacheKey())) || "",
-      showSignIn: false
+      showSignIn: false,
+      attachments: []
     };
   }
 
@@ -39,12 +41,16 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     this.setState({ content });
   };
 
+  private setAttachments = (attachments: ImageUpload[]) => {
+    this.setState({ attachments });
+  };
+
   public submit = async () => {
     this.setState({
       error: undefined
     });
 
-    const result = await actions.createComment(this.props.post.number, this.state.content);
+    const result = await actions.createComment(this.props.post.number, this.state.content, this.state.attachments);
     if (result.ok) {
       cache.session.remove(this.getCacheKey());
       location.reload();
@@ -83,6 +89,14 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
               onFocus={this.handleOnFocus}
               inputRef={this.setInputRef}
             />
+            {this.state.content && (
+              <MultiImageUploader
+                field="attachments"
+                maxUploads={2}
+                previewMaxWidth={100}
+                onChange={this.setAttachments}
+              />
+            )}
             {this.state.content && (
               <Button color="positive" onClick={this.submit}>
                 Submit

@@ -1,8 +1,11 @@
 package actions
 
 import (
+	"context"
+
 	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/validate"
@@ -21,12 +24,12 @@ func (input *CreateTenant) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *CreateTenant) IsAuthorized(user *models.User, services *app.Services) bool {
+func (input *CreateTenant) IsAuthorized(ctx context.Context, user *models.User) bool {
 	return true
 }
 
-// Validate is current model is valid
-func (input *CreateTenant) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *CreateTenant) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
 	var err error
@@ -62,7 +65,7 @@ func (input *CreateTenant) Validate(user *models.User, services *app.Services) *
 		result.AddFieldFailure("tenantName", "Name is required.")
 	}
 
-	messages, err := validate.Subdomain(services.Tenants, input.Model.Subdomain)
+	messages, err := validate.Subdomain(ctx, input.Model.Subdomain)
 	if err != nil {
 		return validate.Error(err)
 	}
@@ -89,17 +92,19 @@ func (input *UpdateTenantSettings) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantSettings) IsAuthorized(user *models.User, services *app.Services) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+func (input *UpdateTenantSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
-// Validate is current model is valid
-func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *UpdateTenantSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	result := validate.Success()
 
-	if services.Tenants.Current() != nil {
-		input.Model.Logo.BlobKey = services.Tenants.Current().LogoBlobKey
+	tenant, hasTenant := ctx.Value(app.TenantCtxKey).(*models.Tenant)
+	if hasTenant {
+		input.Model.Logo.BlobKey = tenant.LogoBlobKey
 	}
+
 	messages, err := validate.ImageUpload(input.Model.Logo, validate.ImageUploadOpts{
 		IsRequired:   false,
 		MinHeight:    200,
@@ -125,7 +130,7 @@ func (input *UpdateTenantSettings) Validate(user *models.User, services *app.Ser
 	}
 
 	if input.Model.CNAME != "" {
-		messages := validate.CNAME(services.Tenants, input.Model.CNAME)
+		messages := validate.CNAME(ctx, input.Model.CNAME)
 		result.AddFieldFailure("cname", messages...)
 	}
 
@@ -144,12 +149,12 @@ func (input *UpdateTenantAdvancedSettings) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantAdvancedSettings) IsAuthorized(user *models.User, services *app.Services) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+func (input *UpdateTenantAdvancedSettings) IsAuthorized(ctx context.Context, user *models.User) bool {
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
-// Validate is current model is valid
-func (input *UpdateTenantAdvancedSettings) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *UpdateTenantAdvancedSettings) Validate(ctx context.Context, user *models.User) *validate.Result {
 	return validate.Success()
 }
 
@@ -165,11 +170,11 @@ func (input *UpdateTenantPrivacy) Initialize() interface{} {
 }
 
 // IsAuthorized returns true if current user is authorized to perform this action
-func (input *UpdateTenantPrivacy) IsAuthorized(user *models.User, services *app.Services) bool {
-	return user != nil && user.Role == models.RoleAdministrator
+func (input *UpdateTenantPrivacy) IsAuthorized(ctx context.Context, user *models.User) bool {
+	return user != nil && user.Role == enum.RoleAdministrator
 }
 
-// Validate is current model is valid
-func (input *UpdateTenantPrivacy) Validate(user *models.User, services *app.Services) *validate.Result {
+// Validate if current model is valid
+func (input *UpdateTenantPrivacy) Validate(ctx context.Context, user *models.User) *validate.Result {
 	return validate.Success()
 }

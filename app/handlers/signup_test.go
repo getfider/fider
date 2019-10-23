@@ -1,17 +1,22 @@
 package handlers_test
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
 
-	"fmt"
-
 	"github.com/getfider/fider/app"
-	"github.com/getfider/fider/app/handlers"
+
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/enum"
+	"github.com/getfider/fider/app/models/query"
+
+	"github.com/getfider/fider/app/handlers"
 	. "github.com/getfider/fider/app/pkg/assert"
-	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
@@ -20,7 +25,7 @@ import (
 func TestSignUpHandler_MultiTenant(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.
 		WithURL("http://login.test.fider.io/signup").
 		Execute(handlers.SignUp())
@@ -31,7 +36,7 @@ func TestSignUpHandler_MultiTenant(t *testing.T) {
 func TestSignUpHandler_MultiTenant_WrongURL(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.
 		WithURL("http://demo.test.fider.io/signup").
 		Execute(handlers.SignUp())
@@ -43,7 +48,11 @@ func TestSignUpHandler_MultiTenant_WrongURL(t *testing.T) {
 func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewSingleTenantServer()
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		return app.ErrNotFound
+	})
+
+	server := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).Equals(http.StatusOK)
@@ -52,8 +61,12 @@ func TestSignUpHandler_SingleTenant_NoTenants(t *testing.T) {
 func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewSingleTenantServer()
-	services.Tenants.Add("Game of Thrones", "got", models.TenantActive)
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		q.Result = &models.Tenant{ID: 2, Name: "MyCompany"}
+		return nil
+	})
+
+	server := mock.NewSingleTenantServer()
 	code, _ := server.Execute(handlers.SignUp())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
@@ -62,7 +75,7 @@ func TestSignUpHandler_SingleTenant_WithTenants(t *testing.T) {
 func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -72,7 +85,12 @@ func TestCheckAvailabilityHandler_InvalidSubdomain(t *testing.T) {
 func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = false
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "demo").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -82,7 +100,12 @@ func TestCheckAvailabilityHandler_UnavailableSubdomain(t *testing.T) {
 func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, response := server.AddParam("subdomain", "mycompany").ExecuteAsJSON(handlers.CheckAvailability())
 
 	Expect(code).Equals(http.StatusOK)
@@ -92,7 +115,7 @@ func TestCheckAvailabilityHandler_ValidSubdomain(t *testing.T) {
 func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	code, _ := server.ExecutePost(handlers.CreateTenant(), `{ }`)
 
 	Expect(code).Equals(http.StatusBadRequest)
@@ -101,7 +124,24 @@ func TestCreateTenantHandler_EmptyInput(t *testing.T) {
 func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	var newUser *models.User
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		newUser = c.User
+		return nil
+	})
+
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
+
+	server := mock.NewServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -110,33 +150,27 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 	})
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
-		fmt.Sprintf(`{ 
-			"token": "%s", 
-			"tenantName": "My Company", 
-			"subdomain": "mycompany", 
+		fmt.Sprintf(`{
+			"token": "%s",
+			"tenantName": "My Company",
+			"subdomain": "mycompany",
 			"legalAgreement": true
 		}`, token),
 	)
 
-	tenant, err := services.Tenants.GetByDomain("mycompany")
-
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).IsNil()
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("mycompany")
-	Expect(tenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("mycompany")
+	Expect(newTenant.Status).Equals(enum.TenantActive)
 
-	services.SetCurrentTenant(tenant)
-	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).IsNil()
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Role).Equals(models.RoleAdministrator)
+	Expect(newUser.Name).Equals("Jon Snow")
+	Expect(newUser.Email).Equals("jon.snow@got.com")
+	Expect(newUser.Role).Equals(enum.RoleAdministrator)
 
 	cookie := web.ParseCookie(response.Header().Get("Set-Cookie"))
 	Expect(cookie.Name).Equals(web.CookieSignUpAuthName)
-	ExpectFiderToken(cookie.Value, user)
+	ExpectFiderToken(cookie.Value, newUser)
 	Expect(cookie.Domain).Equals("test.fider.io")
 	Expect(cookie.HttpOnly).IsTrue()
 	Expect(cookie.Path).Equals("/")
@@ -146,7 +180,25 @@ func TestCreateTenantHandler_WithSocialAccount(t *testing.T) {
 func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewSingleTenantServer()
+	var newUser *models.User
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		c.User.ID = 1
+		newUser = c.User
+		return nil
+	})
+
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		return nil
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
+
+	server := mock.NewSingleTenantServer()
 	token, _ := jwt.Encode(jwt.OAuthClaims{
 		OAuthID:       "123",
 		OAuthName:     "Jon Snow",
@@ -155,28 +207,22 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 	})
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
-		fmt.Sprintf(`{ 
-			"token": "%s", 
+		fmt.Sprintf(`{
+			"token": "%s",
 			"tenantName": "My Company",
 			"legalAgreement": true
 		}`, token),
 	)
 
-	tenant, err := services.Tenants.First()
-
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).IsNil()
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("default")
-	Expect(tenant.Status).Equals(models.TenantActive)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("default")
+	Expect(newTenant.Status).Equals(enum.TenantActive)
 
-	services.SetCurrentTenant(tenant)
-	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(err).IsNil()
-	Expect(user.Name).Equals("Jon Snow")
-	Expect(user.Email).Equals("jon.snow@got.com")
-	Expect(user.Role).Equals(models.RoleAdministrator)
+	Expect(newUser.Name).Equals("Jon Snow")
+	Expect(newUser.Email).Equals("jon.snow@got.com")
+	Expect(newUser.Role).Equals(enum.RoleAdministrator)
 
 	ExpectFiderAuthCookie(response, &models.User{
 		ID:    1,
@@ -188,31 +234,51 @@ func TestCreateTenantHandler_SingleHost_WithSocialAccount(t *testing.T) {
 func TestCreateTenantHandler_WithEmailAndName(t *testing.T) {
 	RegisterT(t)
 
-	server, services := mock.NewServer()
+	bus.AddHandler(func(ctx context.Context, c *cmd.RegisterUser) error {
+		panic("Should not register any user")
+	})
+
+	bus.AddHandler(func(ctx context.Context, q *query.IsSubdomainAvailable) error {
+		q.Result = true
+		return nil
+	})
+
+	var newTenant *cmd.CreateTenant
+	bus.AddHandler(func(ctx context.Context, c *cmd.CreateTenant) error {
+		newTenant = c
+		c.Result = &models.Tenant{ID: 1, Name: c.Name, Subdomain: c.Subdomain, Status: c.Status}
+		return nil
+	})
+
+	var saveKeyCmd *cmd.SaveVerificationKey
+	bus.AddHandler(func(ctx context.Context, c *cmd.SaveVerificationKey) error {
+		saveKeyCmd = c
+		return nil
+	})
+
+	server := mock.NewServer()
 	code, response := server.ExecutePost(
 		handlers.CreateTenant(),
-		`{ 
-			"name": "Jon Snow", 
-			"email": "jon.snow@got.com", 
-			"tenantName": "My Company", 
-			"subdomain": "mycompany", 
-			"legalAgreement": true 
+		`{
+			"name": "Jon Snow",
+			"email": "jon.snow@got.com",
+			"tenantName": "My Company",
+			"subdomain": "mycompany",
+			"legalAgreement": true
 		}`,
 	)
 
 	Expect(code).Equals(http.StatusOK)
 	Expect(response.Header().Get("Set-Cookie")).IsEmpty()
 
-	tenant, err := services.Tenants.GetByDomain("mycompany")
-
 	Expect(code).Equals(http.StatusOK)
 
-	Expect(err).IsNil()
-	Expect(tenant.Name).Equals("My Company")
-	Expect(tenant.Subdomain).Equals("mycompany")
-	Expect(tenant.Status).Equals(models.TenantPending)
+	Expect(newTenant.Name).Equals("My Company")
+	Expect(newTenant.Subdomain).Equals("mycompany")
+	Expect(newTenant.Status).Equals(enum.TenantPending)
 
-	user, err := services.Users.GetByEmail("jon.snow@got.com")
-	Expect(errors.Cause(err)).Equals(app.ErrNotFound)
-	Expect(user).IsNil()
+	Expect(saveKeyCmd.Key).HasLen(64)
+	Expect(saveKeyCmd.Request.GetKind()).Equals(enum.EmailVerificationKindSignUp)
+	Expect(saveKeyCmd.Request.GetEmail()).Equals("jon.snow@got.com")
+	Expect(saveKeyCmd.Request.GetName()).Equals("Jon Snow")
 }

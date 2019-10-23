@@ -32,8 +32,7 @@ func newGetContext(rawurl string, headers map[string]string) *web.Context {
 		}
 	}
 
-	ctx := e.NewContext(res, req, nil)
-	return &ctx
+	return web.NewContext(e, req, res, nil)
 }
 
 func newBodyContext(method string, params web.StringMap, body, contentType string) *web.Context {
@@ -42,8 +41,7 @@ func newBodyContext(method string, params web.StringMap, body, contentType strin
 	req := httptest.NewRequest(method, "/some/resource", strings.NewReader(body))
 	req.Host = "demo.test.fider.io:3000"
 	req.Header.Set("Content-Type", contentType)
-	ctx := e.NewContext(res, req, params)
-	return &ctx
+	return web.NewContext(e, req, res, params)
 }
 
 func TestContextID(t *testing.T) {
@@ -97,7 +95,7 @@ func TestTenantURL(t *testing.T) {
 		ID:        1,
 		Subdomain: "theavengers",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).Equals("http://theavengers.test.fider.io:3000")
+	Expect(web.TenantBaseURL(ctx, tenant)).Equals("http://theavengers.test.fider.io:3000")
 }
 
 func TestTenantURL_WithCNAME(t *testing.T) {
@@ -109,7 +107,7 @@ func TestTenantURL_WithCNAME(t *testing.T) {
 		Subdomain: "theavengers",
 		CNAME:     "feedback.theavengers.com",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).Equals("http://feedback.theavengers.com:3000")
+	Expect(web.TenantBaseURL(ctx, tenant)).Equals("http://feedback.theavengers.com:3000")
 }
 
 func TestTenantURL_SingleHostMode(t *testing.T) {
@@ -121,7 +119,7 @@ func TestTenantURL_SingleHostMode(t *testing.T) {
 		ID:        1,
 		Subdomain: "theavengers",
 	}
-	Expect(ctx.TenantBaseURL(tenant)).Equals("http://demo.test.fider.io:3000")
+	Expect(web.TenantBaseURL(ctx, tenant)).Equals("http://demo.test.fider.io:3000")
 }
 
 func TestGlobalAssetsURL_SingleHostMode(t *testing.T) {
@@ -129,12 +127,12 @@ func TestGlobalAssetsURL_SingleHostMode(t *testing.T) {
 
 	env.Config.HostMode = "single"
 	ctx := newGetContext("http://feedback.theavengers.com:3000", nil)
-	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
-	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
 
 	env.Config.CDN.Host = "assets-fider.io"
-	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
-	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
 }
 
 func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
@@ -148,12 +146,12 @@ func TestGlobalAssetsURL_MultiHostMode(t *testing.T) {
 		CNAME:     "feedback.theavengers.com",
 	})
 
-	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
-	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
 
 	env.Config.CDN.Host = "assets-fider.io"
-	Expect(ctx.GlobalAssetsURL("/assets/main.js")).Equals("http://cdn.assets-fider.io/assets/main.js")
-	Expect(ctx.GlobalAssetsURL("/assets/main.css")).Equals("http://cdn.assets-fider.io/assets/main.css")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.js")).Equals("http://cdn.assets-fider.io/assets/main.js")
+	Expect(web.GlobalAssetsURL(ctx, "/assets/main.css")).Equals("http://cdn.assets-fider.io/assets/main.css")
 }
 
 func TestTenantAssetsURL_SingleHostMode(t *testing.T) {
@@ -166,12 +164,12 @@ func TestTenantAssetsURL_SingleHostMode(t *testing.T) {
 		Subdomain: "theavengers",
 	})
 
-	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
-	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://feedback.theavengers.com:3000/assets/main.js")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://feedback.theavengers.com:3000/assets/main.css")
 
 	env.Config.CDN.Host = "assets-fider.io"
-	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
-	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://assets-fider.io/assets/main.js")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://assets-fider.io/assets/main.css")
 }
 
 func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
@@ -185,12 +183,12 @@ func TestTenantAssetsURL_MultiHostMode(t *testing.T) {
 		CNAME:     "feedback.theavengers.com",
 	})
 
-	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
-	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.test.fider.io:3000/assets/main.js")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.test.fider.io:3000/assets/main.css")
 
 	env.Config.CDN.Host = "assets-fider.io"
-	Expect(ctx.TenantAssetsURL("/assets/main.js")).Equals("http://theavengers.assets-fider.io/assets/main.js")
-	Expect(ctx.TenantAssetsURL("/assets/main.css")).Equals("http://theavengers.assets-fider.io/assets/main.css")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.js")).Equals("http://theavengers.assets-fider.io/assets/main.js")
+	Expect(web.TenantAssetsURL(ctx, "/assets/main.css")).Equals("http://theavengers.assets-fider.io/assets/main.css")
 }
 
 func TestCanonicalURL_SameDomain(t *testing.T) {
@@ -199,16 +197,16 @@ func TestCanonicalURL_SameDomain(t *testing.T) {
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
 	ctx.SetCanonicalURL("")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000`)
 
 	ctx.SetCanonicalURL("/some-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-url`)
 
 	ctx.SetCanonicalURL("/some-other-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-other-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/some-other-url`)
 
 	ctx.SetCanonicalURL("page-b/abc.html")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/page-b/abc.html`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://theavengers.test.fider.io:3000/page-b/abc.html`)
 }
 
 func TestCanonicalURL_DifferentDomain(t *testing.T) {
@@ -217,16 +215,16 @@ func TestCanonicalURL_DifferentDomain(t *testing.T) {
 	ctx := newGetContext("http://theavengers.test.fider.io:3000", nil)
 
 	ctx.SetCanonicalURL("http://feedback.theavengers.com/some-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-url`)
 
 	ctx.SetCanonicalURL("")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com`)
 
 	ctx.SetCanonicalURL("/some-other-url")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-other-url`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/some-other-url`)
 
 	ctx.SetCanonicalURL("page-b/abc.html")
-	Expect(ctx.Get("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
+	Expect(ctx.Value("Canonical-URL")).Equals(`http://feedback.theavengers.com/page-b/abc.html`)
 }
 
 func TestTryAgainLater(t *testing.T) {
@@ -239,4 +237,28 @@ func TestTryAgainLater(t *testing.T) {
 	Expect(resp.Code).Equals(http.StatusServiceUnavailable)
 	Expect(resp.Header().Get("Cache-Control")).Equals("no-cache, no-store, must-revalidate")
 	Expect(resp.Header().Get("Retry-After")).Equals("86400")
+}
+
+func TestGetOAuthBaseURL(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("https://mydomain.com/hello-world", nil)
+
+	env.Config.HostMode = "multi"
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://login.test.fider.io")
+
+	env.Config.HostMode = "single"
+	Expect(web.OAuthBaseURL(ctx)).Equals("https://mydomain.com")
+}
+
+func TestGetOAuthBaseURL_WithPort(t *testing.T) {
+	RegisterT(t)
+
+	ctx := newGetContext("http://demo.test.fider.io:3000/hello-world", nil)
+
+	env.Config.HostMode = "multi"
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://login.test.fider.io:3000")
+
+	env.Config.HostMode = "single"
+	Expect(web.OAuthBaseURL(ctx)).Equals("http://demo.test.fider.io:3000")
 }

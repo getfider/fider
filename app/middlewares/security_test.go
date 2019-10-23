@@ -14,11 +14,11 @@ import (
 func TestSecureWithoutCDN(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -37,11 +37,11 @@ func TestSecureWithCDN(t *testing.T) {
 
 	env.Config.CDN.Host = "test.fider.io"
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})
@@ -60,11 +60,11 @@ func TestSecureWithCDN_SingleHost(t *testing.T) {
 
 	env.Config.CDN.Host = "test.fider.io"
 
-	server, _ := mock.NewSingleTenantServer()
+	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.Secure())
 
 	var ctxID string
-	status, response := server.Execute(func(c web.Context) error {
+	status, response := server.Execute(func(c *web.Context) error {
 		ctxID = c.ContextID()
 		return c.NoContent(http.StatusOK)
 	})

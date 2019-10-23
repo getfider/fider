@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/pkg/jwt"
 	"github.com/getfider/fider/app/pkg/rand"
 )
@@ -21,15 +22,6 @@ type Tenant struct {
 	Billing        *TenantBilling `json:"billing,omitempty"`
 	CustomCSS      string         `json:"-"`
 }
-
-var (
-	//TenantActive is the default status for most tenants
-	TenantActive = 1
-	//TenantPending is used for signup via email that requires user confirmation
-	TenantPending = 2
-	//TenantLocked is used when tenants are locked for various reasons
-	TenantLocked = 3
-)
 
 //TenantBilling has all the billing information of given tenant
 type TenantBilling struct {
@@ -53,137 +45,13 @@ type User struct {
 	Name          string          `json:"name"`
 	Tenant        *Tenant         `json:"-"`
 	Email         string          `json:"-"`
-	Role          Role            `json:"role"`
+	Role          enum.Role       `json:"role"`
 	Providers     []*UserProvider `json:"-"`
 	AvatarBlobKey string          `json:"-"`
-	AvatarType    AvatarType      `json:"-"`
+	AvatarType    enum.AvatarType `json:"-"`
 	AvatarURL     string          `json:"avatarURL,omitempty"`
-	Status        UserStatus      `json:"status"`
+	Status        enum.UserStatus `json:"status"`
 }
-
-//AvatarType are the possible types of a user avatar
-type AvatarType int
-
-var (
-	//AvatarTypeLetter is the default avatar type for users
-	AvatarTypeLetter AvatarType = 1
-	//AvatarTypeGravatar fetches avatar from gravatar (if available)
-	AvatarTypeGravatar AvatarType = 2
-	//AvatarTypeCustom uses a user uploaded avatar
-	AvatarTypeCustom AvatarType = 3
-)
-
-var avatarTypesIDs = map[AvatarType]string{
-	AvatarTypeLetter:   "letter",
-	AvatarTypeGravatar: "gravatar",
-	AvatarTypeCustom:   "custom",
-}
-
-var avatarTypesName = map[string]AvatarType{
-	"letter":   AvatarTypeLetter,
-	"gravatar": AvatarTypeGravatar,
-	"custom":   AvatarTypeCustom,
-}
-
-// String returns the string version of the user status
-func (t AvatarType) String() string {
-	return avatarTypesIDs[t]
-}
-
-// MarshalText returns the Text version of the avatar type
-func (t AvatarType) MarshalText() ([]byte, error) {
-	return []byte(avatarTypesIDs[t]), nil
-}
-
-// UnmarshalText parse string into a avatar type
-func (t *AvatarType) UnmarshalText(text []byte) error {
-	*t = avatarTypesName[string(text)]
-	return nil
-}
-
-//UserStatus is the status of a user
-type UserStatus int
-
-var (
-	//UserActive is the default status for users
-	UserActive UserStatus = 1
-	//UserDeleted is used for users that chose to delete their accounts
-	UserDeleted UserStatus = 2
-	//UserBlocked is used for users that have been blocked by staff members
-	UserBlocked UserStatus = 3
-)
-
-var userStatusIDs = map[UserStatus]string{
-	UserActive:  "active",
-	UserDeleted: "deleted",
-	UserBlocked: "blocked",
-}
-
-var userStatusName = map[string]UserStatus{
-	"active":  UserActive,
-	"deleted": UserDeleted,
-	"blocked": UserBlocked,
-}
-
-// MarshalText returns the Text version of the user status
-func (status UserStatus) MarshalText() ([]byte, error) {
-	return []byte(userStatusIDs[status]), nil
-}
-
-// UnmarshalText parse string into a user status
-func (status *UserStatus) UnmarshalText(text []byte) error {
-	*status = userStatusName[string(text)]
-	return nil
-}
-
-//Role is the role of a user inside a tenant
-type Role int
-
-const (
-	//RoleVisitor is the basic role for every user
-	RoleVisitor Role = 1
-	//RoleCollaborator has limited access to administrative console
-	RoleCollaborator Role = 2
-	//RoleAdministrator has full access to administrative console
-	RoleAdministrator Role = 3
-)
-
-var roleIDs = map[Role]string{
-	RoleVisitor:       "visitor",
-	RoleCollaborator:  "collaborator",
-	RoleAdministrator: "administrator",
-}
-
-var roleNames = map[string]Role{
-	"visitor":       RoleVisitor,
-	"collaborator":  RoleCollaborator,
-	"administrator": RoleAdministrator,
-}
-
-// MarshalText returns the Text version of the user role
-func (role Role) MarshalText() ([]byte, error) {
-	return []byte(roleIDs[role]), nil
-}
-
-// UnmarshalText parse string into a user role
-func (role *Role) UnmarshalText(text []byte) error {
-	*role = roleNames[string(text)]
-	return nil
-}
-
-//EmailVerificationKind specifies which kind of process is being verified by email
-type EmailVerificationKind int16
-
-const (
-	//EmailVerificationKindSignIn is the sign in by email process
-	EmailVerificationKindSignIn EmailVerificationKind = 1
-	//EmailVerificationKindSignUp is the sign up (create tenant) by name and email process
-	EmailVerificationKindSignUp EmailVerificationKind = 2
-	//EmailVerificationKindChangeEmail is the change user email process
-	EmailVerificationKindChangeEmail EmailVerificationKind = 3
-	//EmailVerificationKindUserInvitation is the sign in invitation sent to an user
-	EmailVerificationKindUserInvitation EmailVerificationKind = 4
-)
 
 //HasProvider returns true if current user has registered with given provider
 func (u *User) HasProvider(provider string) bool {
@@ -197,12 +65,12 @@ func (u *User) HasProvider(provider string) bool {
 
 // IsCollaborator returns true if user has special permissions
 func (u *User) IsCollaborator() bool {
-	return u.Role == RoleCollaborator || u.Role == RoleAdministrator
+	return u.Role == enum.RoleCollaborator || u.Role == enum.RoleAdministrator
 }
 
 // IsAdministrator returns true if user is administrator
 func (u *User) IsAdministrator() bool {
-	return u.Role == RoleAdministrator
+	return u.Role == enum.RoleAdministrator
 }
 
 //UserProvider represents the relationship between an User and an Authentication provide
@@ -239,8 +107,8 @@ func (e *CreateTenant) GetUser() *User {
 }
 
 //GetKind returns EmailVerificationKindSignUp
-func (e *CreateTenant) GetKind() EmailVerificationKind {
-	return EmailVerificationKindSignUp
+func (e *CreateTenant) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignUp
 }
 
 //UpdateTenantSettings is the input model used to update tenant general settings
@@ -298,8 +166,8 @@ func (e *SignInByEmail) GetUser() *User {
 }
 
 //GetKind returns EmailVerificationKindSignIn
-func (e *SignInByEmail) GetKind() EmailVerificationKind {
-	return EmailVerificationKindSignIn
+func (e *SignInByEmail) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindSignIn
 }
 
 //ChangeUserEmail is the input model used to change current user's email
@@ -325,8 +193,8 @@ func (e *ChangeUserEmail) GetUser() *User {
 }
 
 //GetKind returns EmailVerificationKindSignIn
-func (e *ChangeUserEmail) GetKind() EmailVerificationKind {
-	return EmailVerificationKindChangeEmail
+func (e *ChangeUserEmail) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindChangeEmail
 }
 
 //UserInvitation is the model used to register an invite sent to an user
@@ -351,8 +219,8 @@ func (e *UserInvitation) GetUser() *User {
 }
 
 //GetKind returns EmailVerificationKindUserInvitation
-func (e *UserInvitation) GetKind() EmailVerificationKind {
-	return EmailVerificationKindUserInvitation
+func (e *UserInvitation) GetKind() enum.EmailVerificationKind {
+	return enum.EmailVerificationKindUserInvitation
 }
 
 //NewEmailVerification is used to register a new email verification process
@@ -360,7 +228,7 @@ type NewEmailVerification interface {
 	GetEmail() string
 	GetName() string
 	GetUser() *User
-	GetKind() EmailVerificationKind
+	GetKind() enum.EmailVerificationKind
 }
 
 //EmailVerification is the model used by email verification process
@@ -369,7 +237,7 @@ type EmailVerification struct {
 	Name       string
 	Key        string
 	UserID     int
-	Kind       EmailVerificationKind
+	Kind       enum.EmailVerificationKind
 	CreatedAt  time.Time
 	ExpiresAt  time.Time
 	VerifiedAt *time.Time
@@ -385,7 +253,7 @@ type CompleteProfile struct {
 // UpdateUserSettings is the model used to update user's settings
 type UpdateUserSettings struct {
 	Name       string            `json:"name"`
-	AvatarType AvatarType        `json:"avatarType"`
+	AvatarType enum.AvatarType   `json:"avatarType"`
 	Avatar     *ImageUpload      `json:"avatar"`
 	Settings   map[string]string `json:"settings"`
 }
@@ -399,8 +267,8 @@ type CreateUser struct {
 
 // ChangeUserRole is the input model change role of an user
 type ChangeUserRole struct {
-	Role   Role `route:"role"`
-	UserID int  `json:"userID"`
+	Role   enum.Role `route:"role"`
+	UserID int       `json:"userID"`
 }
 
 // InviteUsers is used to invite new users into Fider

@@ -1,5 +1,5 @@
 import React from "react";
-import { Comment, Post } from "@fider/models";
+import { Comment, Post, ImageUpload } from "@fider/models";
 import {
   Avatar,
   UserName,
@@ -10,7 +10,9 @@ import {
   MultiLineText,
   DropDown,
   DropDownItem,
-  Modal
+  Modal,
+  ImageViewer,
+  MultiImageUploader
 } from "@fider/components";
 import { formatDate, Failure, actions, Fider } from "@fider/services";
 import { FaEllipsisH } from "react-icons/fa";
@@ -24,6 +26,7 @@ interface ShowCommentState {
   comment: Comment;
   isEditing: boolean;
   newContent: string;
+  attachments: ImageUpload[];
   error?: Failure;
   showDeleteConfirmation: boolean;
 }
@@ -35,7 +38,8 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
       comment: props.comment,
       isEditing: false,
       newContent: "",
-      showDeleteConfirmation: false
+      showDeleteConfirmation: false,
+      attachments: []
     };
   }
 
@@ -55,15 +59,14 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
   };
 
   private saveEdit = async () => {
-    const response = await actions.updateComment(this.props.post.number, this.state.comment.id, this.state.newContent);
+    const response = await actions.updateComment(
+      this.props.post.number,
+      this.state.comment.id,
+      this.state.newContent,
+      this.state.attachments
+    );
     if (response.ok) {
-      this.state.comment.content = this.state.newContent;
-      this.state.comment.editedAt = new Date().toISOString();
-      this.state.comment.editedBy = Fider.session.user;
-      this.setState({
-        comment: this.state.comment
-      });
-      this.cancelEdit();
+      location.reload();
     } else {
       this.setState({ error: response.error });
     }
@@ -71,6 +74,10 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
 
   private setNewContent = (newContent: string) => {
     this.setState({ newContent });
+  };
+
+  private setAttachments = (attachments: ImageUpload[]) => {
+    this.setState({ attachments });
   };
 
   private renderEllipsis = () => {
@@ -162,6 +169,13 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
                   placeholder={c.content}
                   onChange={this.setNewContent}
                 />
+                <MultiImageUploader
+                  field="attachments"
+                  bkeys={c.attachments}
+                  maxUploads={2}
+                  previewMaxWidth={100}
+                  onChange={this.setAttachments}
+                />
                 <Button size="tiny" onClick={this.saveEdit} color="positive">
                   Save
                 </Button>
@@ -170,7 +184,10 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
                 </Button>
               </Form>
             ) : (
-              <MultiLineText text={c.content} style="simple" />
+              <>
+                <MultiLineText text={c.content} style="simple" />
+                {c.attachments && c.attachments.map(x => <ImageViewer key={x} bkey={x} />)}
+              </>
             )}
           </div>
         </div>

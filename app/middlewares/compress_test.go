@@ -20,9 +20,9 @@ func TestCompress(t *testing.T) {
 		data += "Hello World\n"
 	}
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Compress())
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.String(http.StatusOK, data)
 	}
 
@@ -41,9 +41,9 @@ func TestCompress(t *testing.T) {
 func TestCompress_SmallResponse(t *testing.T) {
 	RegisterT(t)
 
-	server, _ := mock.NewServer()
+	server := mock.NewServer()
 	server.Use(middlewares.Compress())
-	handler := func(c web.Context) error {
+	handler := func(c *web.Context) error {
 		return c.String(http.StatusOK, "Hello World")
 	}
 
