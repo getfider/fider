@@ -46,9 +46,6 @@ func Reset() {
 // Services that set via Init(...services) are always registered (regardless of Enabled() function)
 /// and have preference over services registered from bus.Register
 func Init(forcedServices ...Service) []Service {
-	busLock.Lock()
-	defer busLock.Unlock()
-
 	initializedServices := make([]Service, 0)
 	for _, svc := range forcedServices {
 		initializedServices = append(initializedServices, svc)
@@ -65,12 +62,18 @@ func Init(forcedServices ...Service) []Service {
 }
 
 func AddHandler(handler HandlerFunc) {
+	busLock.Lock()
+	defer busLock.Unlock()
+
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
 	handlers[keyForElement(elem)] = handler
 }
 
 func AddListener(handler HandlerFunc) {
+	busLock.Lock()
+	defer busLock.Unlock()
+
 	handlerType := reflect.TypeOf(handler)
 	elem := handlerType.In(1).Elem()
 	eventName := keyForElement(elem)
