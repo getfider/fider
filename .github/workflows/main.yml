@@ -23,8 +23,8 @@ jobs:
         run: |
           echo "::set-env name=GOPATH::$HOME/go"
           echo "::set-env name=GOBIN::$(go env GOPATH)/bin"
-          echo "::add-path::$GOPATH"
-          echo "::add-path::$GOBIN"
+          echo "::add-path::$HOME/go"
+          echo "::add-path::$(go env GOPATH)/bin"
           go install github.com/joho/godotenv/cmd/godotenv
           go install github.com/magefile/mage
 
