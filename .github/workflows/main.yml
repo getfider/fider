@@ -24,7 +24,6 @@ jobs:
           export PATH=$PATH:$GOBIN
           go get github.com/joho/godotenv/cmd/godotenv
           go get github.com/magefile/mage
-          printenv
 
       - name: install go dependencies
         run: go mod download
@@ -35,4 +34,7 @@ jobs:
           node-version: 12.x
 
       - run: npm ci
+      - run: printenv
+      - run: which godotenv
+      - run: which mage
       - run: mage test:ui
