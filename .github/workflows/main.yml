@@ -24,6 +24,7 @@ jobs:
           export PATH=$PATH:$GOBIN
           go get github.com/joho/godotenv/cmd/godotenv
           go get github.com/magefile/mage
+          printenv
 
       - name: install go dependencies
         run: go mod download
