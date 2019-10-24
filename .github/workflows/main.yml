@@ -35,4 +35,6 @@ jobs:
           node-version: 12.x
 
       - run: npm ci
+      - run: mage lint
       - run: mage test:ui
+      - run: mage build:docker
