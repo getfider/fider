@@ -16,19 +16,17 @@ jobs:
         with:
           go-version: '1.13.3'
 
+      - name: install go dependencies
+        run: go mod download
+
       - name: install cli tools
         run: |
           export GOPATH=$HOME/go
           export GOBIN=$(go env GOPATH)/bin
           export PATH=$PATH:$GOPATH
           export PATH=$PATH:$GOBIN
-          go get github.com/joho/godotenv/cmd/godotenv
-          go get github.com/magefile/mage
-        env:
-          GO111MODULE: off
-
-      - name: install go dependencies
-        run: go mod download
+          go install github.com/joho/godotenv/cmd/godotenv
+          go install github.com/magefile/mage
 
       - name: install node 12.x
         uses: actions/setup-node@v1

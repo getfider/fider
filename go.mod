@@ -14,6 +14,7 @@ require (
 	github.com/gosimple/slug v1.4.2
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 	github.com/joeshaw/envdecode v0.0.0-20180312135643-c9e015854467
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/julienschmidt/httprouter v1.1.1-0.20180411154501-adbc77eec0d9
 	github.com/lib/pq v1.0.1-0.20181016162627-9eb73efc1fcc
 	github.com/magefile/mage v1.9.0

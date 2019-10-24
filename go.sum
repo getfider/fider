@@ -21,6 +21,8 @@ github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af h1:pmfjZENx5i
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/joeshaw/envdecode v0.0.0-20180312135643-c9e015854467 h1:REcMVvHDwEBFDEUrphtsx+/LqVKkKfcWxnAuVKFzSWk=
 github.com/joeshaw/envdecode v0.0.0-20180312135643-c9e015854467/go.mod h1:Q+alOFAXgW5SrcfMPt/G4B2oN+qEcQRJjkn/f4mKL04=
+github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
+github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/julienschmidt/httprouter v1.1.1-0.20180411154501-adbc77eec0d9 h1:fYQgw8kxM2StYZLTlDcpfXWm0trPjcJzDtYzwIr02SM=
 github.com/julienschmidt/httprouter v1.1.1-0.20180411154501-adbc77eec0d9/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/lib/pq v1.0.1-0.20181016162627-9eb73efc1fcc h1:9GUJohDyEsZO3cDfQuSxTf38xvk+gRWe+fDv3L9oWHA=
