@@ -27,6 +27,7 @@ jobs:
           echo "::add-path::$(go env GOPATH)/bin"
           go install github.com/joho/godotenv/cmd/godotenv
           go install github.com/magefile/mage
+          go install github.com/cosmtrek/air
 
       - name: install node 12.x
         uses: actions/setup-node@v1
@@ -34,7 +35,4 @@ jobs:
           node-version: 12.x
 
       - run: npm ci
-      - run: printenv
-      - run: which godotenv
-      - run: which mage
       - run: mage test:ui
