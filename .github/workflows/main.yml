@@ -21,12 +21,12 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           go get github.com/joho/godotenv/cmd/godotenv
           go get github.com/magefile/mage
-          go get github.com/cosmtrek/air/cmd/air
 
       - name: install go dependencies
         run: go mod download
 
-      - uses: actions/setup-node@v1
+      - name: install node 12.x
+        uses: actions/setup-node@v1
         with:
           node-version: 12.x
 
