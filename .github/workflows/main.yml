@@ -21,10 +21,10 @@ jobs:
 
       - name: install cli tools
         run: |
-          export GOPATH=$HOME/go
-          export GOBIN=$(go env GOPATH)/bin
-          export PATH=$PATH:$GOPATH
-          export PATH=$PATH:$GOBIN
+          echo ::set-env name=GOPATH::$HOME/go
+          echo ::set-env name=GOBIN::$(go env GOPATH)/bin
+          echo ::add-path::$GOPATH
+          echo ::add-path::$GOBIN
           go install github.com/joho/godotenv/cmd/godotenv
           go install github.com/magefile/mage
 
