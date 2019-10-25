@@ -11,7 +11,7 @@ jobs:
 
     services:
       minio:
-        image: getfider/minio:0.0.1
+        image: getfider/minio:0.0.2
         env:
           MINIO_ACCESS_KEY: s3user
           MINIO_SECRET_KEY: s3user-s3cr3t
@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
       - run: mage lint
       - run: mage test:ui
-      - run: mage build:docker
-      - name: mage test:coverage
+      - name: mage test:server
         run: |
-          DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable mage test:coverage
+          DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable mage test:server
+      - run: mage build:docker
