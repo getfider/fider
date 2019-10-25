@@ -30,8 +30,8 @@ jobs:
         uses: actions/checkout@v1
       - run: npm ci
       - run: mage lint
+      - run: mage build:docker
       - run: mage test:ui
       - name: mage test:server
         run: |
           DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable mage test:server
-      - run: mage build:docker
