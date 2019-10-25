@@ -10,7 +10,7 @@ interface FieldProps {
   afterLabel?: JSX.Element;
 }
 
-export const Field: React.StatelessComponent<FieldProps> = props => {
+export const Field: React.FunctionComponent<FieldProps> = props => {
   const fields = props.field ? [props.field] : undefined;
   return (
     <ValidationContext.Consumer>

@@ -6,7 +6,7 @@ interface LegalAgreementProps {
   onChange: (agreed: boolean) => void;
 }
 
-export const TermsOfService: React.StatelessComponent<{}> = () => {
+export const TermsOfService: React.FunctionComponent<{}> = () => {
   if (Fider.settings.hasLegal) {
     return (
       <a href="/terms" target="_blank">
@@ -17,7 +17,7 @@ export const TermsOfService: React.StatelessComponent<{}> = () => {
   return null;
 };
 
-export const PrivacyPolicy: React.StatelessComponent<{}> = () => {
+export const PrivacyPolicy: React.FunctionComponent<{}> = () => {
   if (Fider.settings.hasLegal) {
     return (
       <a href="/privacy" target="_blank">
@@ -28,7 +28,7 @@ export const PrivacyPolicy: React.StatelessComponent<{}> = () => {
   return null;
 };
 
-export const LegalNotice: React.StatelessComponent<{}> = () => {
+export const LegalNotice: React.FunctionComponent<{}> = () => {
   if (Fider.settings.hasLegal) {
     return (
       <p className="info">
@@ -39,7 +39,7 @@ export const LegalNotice: React.StatelessComponent<{}> = () => {
   return null;
 };
 
-export const LegalFooter: React.StatelessComponent<{}> = () => {
+export const LegalFooter: React.FunctionComponent<{}> = () => {
   if (Fider.settings.hasLegal) {
     return (
       <Modal.Footer align="center">
@@ -50,7 +50,7 @@ export const LegalFooter: React.StatelessComponent<{}> = () => {
   return null;
 };
 
-export const LegalAgreement: React.StatelessComponent<LegalAgreementProps> = props => {
+export const LegalAgreement: React.FunctionComponent<LegalAgreementProps> = props => {
   if (Fider.settings.hasLegal) {
     return (
       <Checkbox field="legalAgreement" onChange={props.onChange}>
