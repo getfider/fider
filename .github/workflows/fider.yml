@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   test-ui:
-    name: test-server
+    name: test-ui
     runs-on: ubuntu-latest
     container:
       image: getfider/githubci:0.0.1
