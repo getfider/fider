@@ -7,9 +7,14 @@ jobs:
     name: build and test
     runs-on: ubuntu-latest
     container:
-      image: getfider/circleci:0.0.21
+      image: getfider/githubci:0.0.1
 
     services:
+      minio:
+        image: getfider/minio:0.0.1
+        env:
+          MINIO_ACCESS_KEY: s3user
+          MINIO_SECRET_KEY: s3user-s3cr3t
       postgres:
         image: postgres:9.6.8
         env:
