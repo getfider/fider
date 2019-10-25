@@ -60,8 +60,8 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      - run: npm ci
-      - run: mage build:docker
+      # - run: npm ci
+      # - run: mage build:docker
       
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
