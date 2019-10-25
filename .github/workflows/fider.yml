@@ -53,7 +53,6 @@ jobs:
 
   build:
     name: build
-    needs: [test-ui, test-server]
     runs-on: ubuntu-latest
     container:
       image: getfider/githubci:0.0.1
@@ -63,14 +62,17 @@ jobs:
         uses: actions/checkout@v1
       - run: npm ci
       - run: mage build:docker
+      
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: getBranch
+
       - name: extract PR number
         uses: jwalton/gh-find-current-pr@v1
         id: getPR
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: push image to docker registry
         run: |
           echo '${{ steps.getBranch.outputs.branch }}'
