@@ -42,7 +42,6 @@ jobs:
     container:
       image: getfider/githubci:0.0.1
 
-    services:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
