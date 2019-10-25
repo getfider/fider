@@ -3,63 +3,69 @@ name: fider
 on: [push]
 
 jobs:
-  test-ui:
-    name: test-ui
+  WIP:
+    name: WIP
     runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.1
-
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
-      - run: npm ci
-      - run: mage lint
-      - run: mage test:ui
+      - uses: ./github/actions/get-pr-number
 
-  test-server:
-    name: test-server
-    runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.1
+  # test-ui:
+  #   name: test-ui
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: getfider/githubci:0.0.1
 
-    services:
-      minio:
-        image: getfider/minio:0.0.2
-        ports:
-        - 9000:9000
-        env:
-          MINIO_ACCESS_KEY: s3user
-          MINIO_SECRET_KEY: s3user-s3cr3t
-      postgres:
-        image: postgres:9.6.8
-        env:
-          POSTGRES_USER: fider_ci
-          POSTGRES_PASSWORD: fider_ci_pw
-          POSTGRES_DB: fider_ci
-        ports:
-        - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v1
+  #     - run: npm ci
+  #     - run: mage lint
+  #     - run: mage test:ui
 
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v1
-      - name: mage test:server
-        run: |
-          mkdir ./dist
-          mage test:server
-        env:
-          BLOB_STORAGE_S3_ENDPOINT_URL: http://minio:9000
-          DATABASE_URL: postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable
+  # test-server:
+  #   name: test-server
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: getfider/githubci:0.0.1
 
-  build:
-    name: build
-    needs: [test-ui, test-server]
-    runs-on: ubuntu-latest
-    container:
-      image: getfider/githubci:0.0.1
+  #   services:
+  #     minio:
+  #       image: getfider/minio:0.0.2
+  #       ports:
+  #       - 9000:9000
+  #       env:
+  #         MINIO_ACCESS_KEY: s3user
+  #         MINIO_SECRET_KEY: s3user-s3cr3t
+  #     postgres:
+  #       image: postgres:9.6.8
+  #       env:
+  #         POSTGRES_USER: fider_ci
+  #         POSTGRES_PASSWORD: fider_ci_pw
+  #         POSTGRES_DB: fider_ci
+  #       ports:
+  #       - 5432:5432
+  #       options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v1
-      - run: npm ci
-      - run: mage build:docker
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v1
+  #     - name: mage test:server
+  #       run: |
+  #         mkdir ./dist
+  #         mage test:server
+  #       env:
+  #         BLOB_STORAGE_S3_ENDPOINT_URL: http://minio:9000
+  #         DATABASE_URL: postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable
+
+  # build:
+  #   name: build
+  #   needs: [test-ui, test-server]
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: getfider/githubci:0.0.1
+
+  #   steps:
+  #     - name: checkout code
+  #       uses: actions/checkout@v1
+  #     - run: npm ci
+  #     - run: mage build:docker
