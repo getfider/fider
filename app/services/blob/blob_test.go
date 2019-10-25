@@ -79,10 +79,10 @@ func TestBlobStorage(t *testing.T) {
 			tt.test(context.Background())
 		})
 
-		// t.Run("Test_S3_"+tt.name, func(t *testing.T) {
-		// 	setupS3(t)
-		// 	tt.test(context.Background())
-		// })
+		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
+			setupS3(t)
+			tt.test(context.Background())
+		})
 
 		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
 			setupSQL(t)
@@ -116,9 +116,9 @@ func AllOperations(ctx context.Context) {
 		err = bus.Dispatch(ctx, q)
 		Expect(err).IsNil()
 		Expect(q.Key).Equals(testCase.key)
-		Expect(q.Result.Content).Equals(bytes)
 		Expect(q.Result.Size).Equals(int64(len(bytes)))
 		Expect(q.Result.ContentType).Equals(testCase.contentType)
+		Expect(q.Result.Content).Equals(bytes)
 
 		err = bus.Dispatch(ctx, &cmd.DeleteBlob{
 			Key: testCase.key,
