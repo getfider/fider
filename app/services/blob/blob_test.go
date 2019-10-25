@@ -79,10 +79,10 @@ func TestBlobStorage(t *testing.T) {
 			tt.test(context.Background())
 		})
 
-		t.Run("Test_S3_"+tt.name, func(t *testing.T) {
-			setupS3(t)
-			tt.test(context.Background())
-		})
+		// t.Run("Test_S3_"+tt.name, func(t *testing.T) {
+		// 	setupS3(t)
+		// 	tt.test(context.Background())
+		// })
 
 		t.Run("Test_SQL_"+tt.name, func(t *testing.T) {
 			setupSQL(t)
