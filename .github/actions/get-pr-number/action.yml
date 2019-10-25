@@ -1,5 +1,0 @@
-name: 'Get PR Number'
-description: 'Get current PR Number and add to environment variables'
-runs:
-  using: 'node12'
-  main: 'index.js'
