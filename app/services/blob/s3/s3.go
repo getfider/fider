@@ -101,7 +101,6 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		if isNotFound(err) {
 			return blob.ErrNotFound
 		}
-		panic(err)
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
 	defer resp.Body.Close()
