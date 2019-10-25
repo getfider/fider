@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: goenning/pr-number-action@master
+        env:
+          a: b
 
   # test-ui:
   #   name: test-ui
