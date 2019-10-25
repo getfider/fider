@@ -9,6 +9,17 @@ jobs:
     container:
       image: getfider/circleci:0.0.21
 
+    services:
+      postgres:
+        image: postgres:9.6.8
+        env:
+          POSTGRES_USER: fider_ci
+          POSTGRES_PASSWORD: fider_ci
+          POSTGRES_DB: fider_ci
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: checkout code
         uses: actions/checkout@v1
@@ -17,3 +28,8 @@ jobs:
       - run: mage lint
       - run: mage test:ui
       - run: mage build:docker
+      - name: mage test:coverage
+        run: |
+          mkdir ./dist
+          DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable mage test:coverage
+          bash <(curl -s https://codecov.io/bash)
