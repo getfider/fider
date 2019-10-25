@@ -99,14 +99,17 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	})
 	if err != nil {
 		if isNotFound(err) {
+			panic("not found")
 			return blob.ErrNotFound
 		}
+		panic("failed to get")
 		return wrap(err, "failed to get blob '%s' from S3", q.Key)
 	}
 	defer resp.Body.Close()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		panic("failed to read")
 		return wrap(err, "failed to read blob body '%s' from S3", q.Key)
 	}
 
@@ -115,6 +118,7 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 		ContentType: *resp.ContentType,
 		Size:        *resp.ContentLength,
 	}
+	panic("found blob")
 	return nil
 }
 
