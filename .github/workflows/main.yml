@@ -3,8 +3,21 @@ name: fider
 on: [push]
 
 jobs:
-  build:
-    name: test
+  test-ui:
+    name: test-server
+    runs-on: ubuntu-latest
+    container:
+      image: getfider/githubci:0.0.1
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v1
+      - run: npm ci
+      - run: mage lint
+      - run: mage test:ui
+
+  test-server:
+    name: test-server
     runs-on: ubuntu-latest
     container:
       image: getfider/githubci:0.0.1
@@ -28,22 +41,18 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      - run: npm ci
-      - run: mage lint
-      - run: mage test:ui
       - name: mage test:server
         run: |
           mkdir ./dist
           DATABASE_URL=postgres://fider_ci:fider_ci_pw@postgres:5432/fider_ci?sslmode=disable mage test:server
 
-  publish:
-    name: publish docker image
+  build:
+    name: build
     runs-on: ubuntu-latest
     container:
       image: getfider/githubci:0.0.1
 
     steps:
-      - name: checkout code
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
       - run: npm ci
       - run: mage build:docker
