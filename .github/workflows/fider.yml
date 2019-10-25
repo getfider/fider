@@ -60,8 +60,8 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      # - run: npm ci
-      # - run: mage build:docker
+      - run: npm ci
+      - run: mage build:docker
       
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -73,7 +73,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: push image to docker registry
+      # - uses: azure/docker-login@v1
+      #   with:
+      #     username: ${{ secrets.DOCKER_USER }}
+      #     password: ${{ secrets.DOCKER_PASS }}
+
+      - name: push master docker image
+        if: steps.getBranch.outputs.branch == 'master'
         run: |
-          echo '${{ steps.getBranch.outputs.branch }}'
-          echo '${{ steps.getPR.outputs.number }}'
+          docker tag getfider/fider getfider/fider:master
+          docker push getfider/fider:master
+
+      - name: push PR docker image
+        run: |
+          docker tag getfider/fider getfider/fider:PR_${{ steps.getPR.outputs.number }}
+          docker push getfider/fider:PR_${{ steps.getPR.outputs.number }}
