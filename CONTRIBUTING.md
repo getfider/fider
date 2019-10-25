@@ -19,8 +19,8 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software  | How to install | What is it used for |
 |---|---|---|
-| Go 1.11+ | https://golang.org/ | To compile server side code |
-| Node.js 10+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
+| Go 1.13+ | https://golang.org/ | To compile server side code |
+| Node.js 12+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
 | cosmtrek/air | `go get github.com/cosmtrek/air/cmd/air/` | Live reload for Go apps. When you change the code, it automatically recompiles the application |
 | joho/godotenv | `go get github.com/joho/godotenv/cmd/godotenv/` | To load environment variables from a `.env` so that you don't have to change your machine environment variables |
@@ -28,11 +28,10 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 #### 2. To setup your development workspace:
 
-1. if it's your first time using Go, ensure that have your `GOPATH` and `PATH` variables correctly setup. This guide can help you on that https://golang.org/doc/code.html#GOPATH
-2. clone the repository into `$GOPATH/src/github.com/getfider/fider`.
-3. run `npm install` to install client side packages .
-4. run `docker-compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
-5. run `cp .example.env .env` to create a local environment configuration file.
+1. clone the repository.
+2. run `npm install` to install client side packages .
+3. run `docker-compose up -d` to start a local PostgreSQL database and Local SMTP (with [MailHog](https://github.com/mailhog/MailHog)) on Docker.
+4. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. For easier local development, the docker-compose file already provides
 a fake SMTP server running at port **1026** and a UI (to check sent emails) at http://localhost:8026. The `.example.env` is already 
