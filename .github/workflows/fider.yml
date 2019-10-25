@@ -54,6 +54,7 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    needs: [test-server, test-ui]
     container:
       image: getfider/githubci:0.0.1
 
