@@ -6,34 +6,13 @@ jobs:
   build:
     name: build and test
     runs-on: ubuntu-latest
+    container:
+      image: getfider/circleci:0.0.21
 
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-
-      - name: install go 1.13.3
-        uses: actions/setup-go@v1
-        with:
-          go-version: '1.13.3'
-
-      - name: install go dependencies
-        run: go mod download
-
-      - name: install cli tools
-        run: |
-          echo "::set-env name=GOPATH::$HOME/go"
-          echo "::set-env name=GOBIN::$(go env GOPATH)/bin"
-          echo "::add-path::$HOME/go"
-          echo "::add-path::$(go env GOPATH)/bin"
-          go install github.com/joho/godotenv/cmd/godotenv
-          go install github.com/magefile/mage
-          go install github.com/cosmtrek/air
-
-      - name: install node 12.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-
+      - run: go mod download
       - run: npm ci
       - run: mage lint
       - run: mage test:ui
