@@ -14,7 +14,7 @@ interface ListItemProps {
   onClick?: () => void;
 }
 
-export const List: React.StatelessComponent<ListProps> = props => {
+export const List: React.FunctionComponent<ListProps> = props => {
   const className = classSet({
     "c-list": true,
     [props.className || ""]: true,
@@ -25,7 +25,7 @@ export const List: React.StatelessComponent<ListProps> = props => {
   return <div className={className}>{props.children}</div>;
 };
 
-export const ListItem: React.StatelessComponent<ListItemProps> = props => {
+export const ListItem: React.FunctionComponent<ListItemProps> = props => {
   const className = classSet({
     "c-list-item": true,
     [props.className || ""]: true,

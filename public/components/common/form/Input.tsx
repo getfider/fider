@@ -25,7 +25,7 @@ interface InputProps {
   onChange?: (value: string) => void;
 }
 
-export const Input: React.StatelessComponent<InputProps> = props => {
+export const Input: React.FunctionComponent<InputProps> = props => {
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
       props.onChange(e.currentTarget.value);
