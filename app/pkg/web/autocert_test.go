@@ -29,6 +29,6 @@ func Test_UseAutoCert(t *testing.T) {
 		Expect(cert).IsNil()
 	}
 
-	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 1sec to complete it
-	time.Sleep(1000)
+	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 2sec to complete it
+	time.Sleep(2000)
 }
