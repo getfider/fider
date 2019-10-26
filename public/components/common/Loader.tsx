@@ -1,35 +1,14 @@
 import "./Loader.scss";
 
-import React from "react";
+import React, { useState } from "react";
+import { useTimeout } from "@fider/hooks";
 
-interface LoaderState {
-  show: boolean;
-}
+export function Loader() {
+  const [show, setShow] = useState(false);
 
-export class Loader extends React.Component<{}, LoaderState> {
-  private unmounted: boolean;
-  constructor(props: {}) {
-    super(props);
-    this.unmounted = false;
-    this.state = {
-      show: false
-    };
-  }
+  useTimeout(() => {
+    setShow(true);
+  }, 500);
 
-  public componentDidMount() {
-    setTimeout(() => {
-      if (!this.unmounted) {
-        this.setState({
-          show: true
-        });
-      }
-    }, 500);
-  }
-  public componentWillUnmount() {
-    this.unmounted = true;
-  }
-
-  public render() {
-    return this.state.show && <div className="c-loader" />;
-  }
+  return show ? <div className="c-loader" /> : null;
 }
