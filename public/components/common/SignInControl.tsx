@@ -49,7 +49,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
                 <div
                   className={`col-sm l-provider-${o.provider} l-social-col ${
                     providersLen === 1 ? "l-social-col-100" : ""
-                    }`}
+                  }`}
                 >
                   <SocialSignInButton option={o} redirectTo={props.redirectTo} />
                 </div>
@@ -76,7 +76,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
               suffix={
                 <Button color="positive" disabled={email === ""} onClick={signIn}>
                   Sign in
-                  </Button>
+                </Button>
               }
             />
           </Form>
@@ -84,4 +84,4 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
       )}
     </div>
   );
-}
+};
