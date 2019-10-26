@@ -1,6 +1,12 @@
 name: fider
 
-on: [push]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 jobs:
   test-ui:
@@ -68,24 +74,14 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: getBranch
 
-      - name: extract PR number
-        uses: jwalton/gh-find-current-pr@v1
-        id: getPR
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: azure/docker-login@v1
+        if: steps.getBranch.outputs.branch == 'master'
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
-      - name: push master docker image
+      - name: push docker image
         if: steps.getBranch.outputs.branch == 'master'
         run: |
           docker tag getfider/fider getfider/fider:master
           docker push getfider/fider:master
-
-      - name: push PR docker image
-        run: |
-          docker tag getfider/fider getfider/fider:PR_${{ steps.getPR.outputs.number }}
-          docker push getfider/fider:PR_${{ steps.getPR.outputs.number }}
