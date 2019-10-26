@@ -1,6 +1,6 @@
 import "./Toggle.scss";
 
-import React from "react";
+import React, { useState } from "react";
 import { classSet } from "@fider/services";
 
 interface ToggleProps {
@@ -10,49 +10,33 @@ interface ToggleProps {
   onToggle?: (active: boolean) => void;
 }
 
-interface ToggleState {
-  active: boolean;
-}
+export const Toggle: React.StatelessComponent<ToggleProps> = props => {
+  const [active, setActive] = useState(props.active);
 
-export class Toggle extends React.Component<ToggleProps, ToggleState> {
-  public constructor(props: ToggleProps) {
-    super(props);
-    this.state = {
-      active: props.active
-    };
-  }
-
-  public toggle = async () => {
-    if (!!this.props.disabled) {
+  const toggle = () => {
+    if (props.disabled) {
       return;
     }
 
-    this.setState(
-      state => ({
-        active: !state.active
-      }),
-      () => {
-        if (this.props.onToggle) {
-          this.props.onToggle(this.state.active);
-        }
-      }
-    );
+    const newActive = !active;
+    setActive(newActive);
+    if (props.onToggle) {
+      props.onToggle(newActive);
+    }
   };
 
-  public render() {
-    const className = classSet({
-      "c-toggle": true,
-      "m-disabled": !!this.props.disabled
-    });
+  const className = classSet({
+    "c-toggle": true,
+    "m-disabled": !!props.disabled
+  });
 
-    return (
-      <span className={className} onClick={this.toggle}>
-        <input type="checkbox" checked={this.state.active} readOnly={true} />
-        <label>
-          <span className="switch" />
-        </label>
-        <span className="text">{!!this.props.label && this.props.label}</span>
-      </span>
-    );
-  }
-}
+  return (
+    <span className={className} onClick={toggle}>
+      <input type="checkbox" checked={active} readOnly={true} />
+      <label>
+        <span className="switch" />
+      </label>
+      <span className="text">{!!props.label && props.label}</span>
+    </span>
+  );
+};
