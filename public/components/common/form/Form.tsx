@@ -16,7 +16,7 @@ interface FormProps {
 
 export const ValidationContext = React.createContext<ValidationContext>({});
 
-export const Form: React.StatelessComponent<FormProps> = props => {
+export const Form: React.FunctionComponent<FormProps> = props => {
   const className = classSet({
     "c-form": true,
     [props.className!]: props.className,
