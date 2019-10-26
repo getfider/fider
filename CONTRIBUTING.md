@@ -31,8 +31,8 @@ If you know these technologies or would like to learn them, lucky you! This is t
 #### 2. To setup your development workspace:
 
 1. clone the repository.
-2. Navigate into the cloned repository.
-3. run `go install github.com/cosmtrek/air/cmd/air` to install Air, which is used by Fider for live reloading. When you change the code, it automatically recompiles the application.
+2. navigate into the cloned repository.
+3. run `go install github.com/cosmtrek/air/cmd/air` to install Air. When you change the code, air will automatically recompile the application.
 4. run `go install github.com/joho/godotenv/cmd/godotenv` to install godotenv, used to load environment variables from a `.env` so that you don't have to change your machine environment variables.
 5. run `go install github.com/magefile/mage` to install Mage, a cross-platform Make alternative.
 6. run `npm install` to install client side packages.
