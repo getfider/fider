@@ -124,13 +124,13 @@ func (Test) All() {
 func (Test) Coverage() error {
 	mg.Deps(Build.Server)
 	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
-	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-coverprofile=cover.out", "-coverpkg=all", "-p=8", "-race")
+	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-coverprofile=cover.out", "-coverpkg=all", "-p=1", "-race")
 }
 
 func (Test) Server() error {
 	mg.Deps(Build.Server)
 	sh.Run("godotenv", "-f", ".test.env", "./"+exeName, "migrate")
-	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-race")
+	return sh.Run("godotenv", "-f", ".test.env", "go", "test", "./...", "-race", "-p=1")
 }
 
 func (Test) UI() error {
