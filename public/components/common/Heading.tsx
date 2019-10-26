@@ -13,7 +13,7 @@ interface HeadingLogo {
   className?: string;
 }
 
-const Header: React.StatelessComponent<{ level: number; className: string }> = props =>
+const Header: React.FunctionComponent<{ level: number; className: string }> = props =>
   React.createElement(`h${props.level}`, { className: props.className }, props.children);
 
 export const Heading = (props: HeadingLogo) => {
