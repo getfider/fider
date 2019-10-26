@@ -3,6 +3,7 @@ package web
 import (
 	"crypto/tls"
 	"testing"
+	"time"
 
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/services/blob/fs"
@@ -27,4 +28,7 @@ func Test_UseAutoCert(t *testing.T) {
 		Expect(err.Error()).ContainsSubstring(`for domain "` + serverName + `": no viable challenge type found`)
 		Expect(cert).IsNil()
 	}
+
+	// GetCertificate starts a fire and forget go routine to delete items from cache, give it 500ms to complete it
+	time.Sleep(500)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"strings"
 	"sync"
 
 	"github.com/getfider/fider/app/models/cmd"
@@ -102,7 +101,7 @@ func Dispatch(ctx context.Context, msgs ...Msg) error {
 		key := keyForElement(elem)
 		handler := handlers[key]
 		if handler == nil {
-			panic(fmt.Errorf("could not find handler for '%s'. Registered handlers are: %s", key, strings.Join(registeredKeys(), ",")))
+			panic(fmt.Errorf("could not find handler for '%s'.", key))
 		}
 
 		var params = []reflect.Value{
@@ -153,14 +152,6 @@ func Publish(ctx context.Context, msgs ...Msg) {
 			}
 		}
 	}
-}
-
-func registeredKeys() []string {
-	keys := make([]string, 0)
-	for key := range handlers {
-		keys = append(keys, key)
-	}
-	return keys
 }
 
 func keyForElement(t reflect.Type) string {
