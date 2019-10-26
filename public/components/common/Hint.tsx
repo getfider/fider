@@ -11,7 +11,7 @@ interface HintProps {
 }
 
 export const Hint:React.FC<HintProps> = props => {
-  let cacheKey: string | undefined = props.permanentCloseKey ? `Hint-Closed-${props.permanentCloseKey}` : undefined;
+  const cacheKey: string | undefined = props.permanentCloseKey ? `Hint-Closed-${props.permanentCloseKey}` : undefined;
   const [isClosed, setIsClosed] = useState<boolean>(cacheKey ? cache.local.has(cacheKey) : false);
   
   const close = () => {
