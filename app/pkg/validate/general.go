@@ -62,12 +62,12 @@ func CNAME(ctx context.Context, cname string) []string {
 		return []string{"Custom domain name must have less than 100 characters."}
 	}
 
-	if !hostnameRegex.MatchString(cname) || strings.Index(cname, ".") == -1 {
+	if !hostnameRegex.MatchString(cname) || !strings.Contains(cname, ".") {
 		return []string{fmt.Sprintf("'%s' is not a valid custom domain.", cname)}
 	}
 
 	isAvailable := &query.IsCNAMEAvailable{CNAME: cname}
-	bus.Dispatch(ctx, isAvailable)
+	bus.MustDispatch(ctx, isAvailable)
 	if !isAvailable.Result {
 		return []string{"This custom domain is already in use by someone else."}
 	}

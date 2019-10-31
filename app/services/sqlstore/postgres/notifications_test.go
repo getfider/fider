@@ -76,10 +76,11 @@ func TestNotificationStorage_GetActiveNotifications(t *testing.T) {
 	Expect(err).IsNil()
 	Expect(activeNotifications.Result).HasLen(2)
 
-	bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[0].ID})
-	bus.Dispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[1].ID})
+	bus.MustDispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[0].ID})
+	bus.MustDispatch(aryaStarkCtx, &cmd.MarkNotificationAsRead{ID: activeNotifications.Result[1].ID})
 
-	trx.Execute("UPDATE notifications SET updated_at = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), activeNotifications.Result[0].ID)
+	_, err = trx.Execute("UPDATE notifications SET updated_at = $1 WHERE id = $2", time.Now().AddDate(0, 0, -31), activeNotifications.Result[0].ID)
+	Expect(err).IsNil()
 
 	err = bus.Dispatch(aryaStarkCtx, activeNotifications)
 	Expect(err).IsNil()

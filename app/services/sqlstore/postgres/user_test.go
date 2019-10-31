@@ -157,11 +157,12 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 	defer TeardownDatabaseTest()
 
 	var tenantID int
-	trx.Get(&tenantID, `
+	err := trx.Get(&tenantID, `
 		INSERT INTO tenants (name, subdomain, created_at, status, is_private, custom_css, logo_bkey) 
 		VALUES ('My Domain Inc.','mydomain', now(), 1, false, '', '')
 		RETURNING id
 	`)
+	Expect(err).IsNil()
 
 	newTenantCtx := context.WithValue(ctx, app.TenantCtxKey, &models.Tenant{ID: tenantID})
 
@@ -181,7 +182,7 @@ func TestUserStorage_Register_MultipleProviders(t *testing.T) {
 		},
 	}
 
-	err := bus.Dispatch(newTenantCtx, &cmd.RegisterUser{User: user})
+	err = bus.Dispatch(newTenantCtx, &cmd.RegisterUser{User: user})
 	Expect(err).IsNil()
 	Expect(user.ID).NotEquals(0)
 	Expect(user.Name).Equals("Jon Snow")

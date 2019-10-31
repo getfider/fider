@@ -13,10 +13,10 @@ func setupMigrationTest(t *testing.T) {
 	ctx := context.Background()
 
 	trx, _ := dbx.BeginTx(ctx)
-	trx.Execute("DELETE FROM migrations_history WHERE version >= 210001010000")
-	trx.Execute("DROP TABLE IF EXISTS dummy")
-	trx.Execute("DROP TABLE IF EXISTS foo")
-	trx.Commit()
+	_, _ = trx.Execute("DELETE FROM migrations_history WHERE version >= 210001010000")
+	_, _ = trx.Execute("DROP TABLE IF EXISTS dummy")
+	_, _ = trx.Execute("DROP TABLE IF EXISTS foo")
+	trx.MustCommit()
 }
 
 func TestMigrate_Success(t *testing.T) {
@@ -36,7 +36,7 @@ func TestMigrate_Success(t *testing.T) {
 	err = trx.Scalar(&count, "SELECT COUNT(*) FROM dummy")
 	Expect(err).IsNil()
 	Expect(count).Equals(2)
-	trx.Rollback()
+	trx.MustRollback()
 }
 
 func TestMigrate_Failure(t *testing.T) {
@@ -44,7 +44,7 @@ func TestMigrate_Failure(t *testing.T) {
 	ctx := context.Background()
 
 	trx, _ := dbx.BeginTx(ctx)
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	err := dbx.Migrate(context.Background(), "/app/pkg/dbx/testdata/migration_failure")
 	Expect(err).IsNotNil()

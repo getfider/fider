@@ -107,7 +107,7 @@ func TestTenantStorage_Empty_First(t *testing.T) {
 	ctx := SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
 
-	trx.Execute("TRUNCATE tenants CASCADE")
+	_, _ = trx.Execute("TRUNCATE tenants CASCADE")
 
 	getFirst := &query.GetFirstTenant{}
 	err := bus.Dispatch(ctx, getFirst)

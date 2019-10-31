@@ -59,7 +59,11 @@ func (s Service) Init() {
 			DisableSSL:       aws.Bool(strings.HasSuffix(s3EnvConfig.EndpointURL, "http://")),
 			S3ForcePathStyle: aws.Bool(true),
 		}
-		awsSession := session.New(s3Config)
+		awsSession, err := session.NewSession(s3Config)
+		if err != nil {
+			panic(err)
+		}
+
 		DefaultClient = s3.New(awsSession)
 	}
 

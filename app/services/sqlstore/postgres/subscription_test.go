@@ -142,8 +142,8 @@ func TestSubscription_AdminUnsubscribed(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: aryaStark})
-	bus.Dispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: jonSnow})
+	bus.MustDispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: aryaStark})
+	bus.MustDispatch(aryaStarkCtx, &cmd.RemoveSubscriber{Post: newPost.Result, User: jonSnow})
 
 	newCommentSubscribers := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventNewComment}
 	err = bus.Dispatch(aryaStarkCtx, newCommentSubscribers)
@@ -286,7 +286,8 @@ func TestSubscription_DeletedPost(t *testing.T) {
 	err := bus.Dispatch(aryaStarkCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: enum.PostDeleted})
+	err = bus.Dispatch(aryaStarkCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Invalid Post!", Status: enum.PostDeleted})
+	Expect(err).IsNil()
 
 	q := &query.GetActiveSubscribers{Number: newPost.Result.Number, Channel: enum.NotificationChannelWeb, Event: enum.NotificationEventChangeStatus}
 	err = bus.Dispatch(aryaStarkCtx, q)

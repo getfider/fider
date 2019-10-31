@@ -280,6 +280,14 @@ func (trx *Trx) Commit() error {
 	return nil
 }
 
+// MustCommit current transaction
+func (trx *Trx) MustCommit() {
+	err := trx.Commit()
+	if err != nil {
+		panic(err)
+	}
+}
+
 // Rollback current transaction
 func (trx *Trx) Rollback() error {
 	err := trx.tx.Rollback()
@@ -287,6 +295,14 @@ func (trx *Trx) Rollback() error {
 		return wrap(err, "failed to rollback transaction")
 	}
 	return nil
+}
+
+// MustRollback current transaction
+func (trx *Trx) MustRollback() {
+	err := trx.Rollback()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func wrap(err error, format string, a ...interface{}) error {

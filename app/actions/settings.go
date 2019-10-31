@@ -66,7 +66,7 @@ func (input *UpdateUserSettings) Validate(ctx context.Context, user *models.User
 					}
 				}
 			}
-			if ok == false {
+			if !ok {
 				result.AddFieldFailure("settings", fmt.Sprintf("Unknown settings named %s.", k))
 			}
 		}

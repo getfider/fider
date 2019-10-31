@@ -103,6 +103,7 @@ func TestUpdatePaymentInfo(t *testing.T) {
 			AddressCountry: "IE",
 		},
 	})
+	Expect(err).IsNil()
 
 	paymentInfoQuery := &query.GetPaymentInfo{}
 	err = bus.Dispatch(ctx, paymentInfoQuery)

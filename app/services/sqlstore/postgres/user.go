@@ -318,11 +318,11 @@ func updateCurrentUser(ctx context.Context, c *cmd.UpdateCurrentUser) error {
 
 func getUserByID(ctx context.Context, q *query.GetUserByID) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		user, err := queryUser(ctx, trx, "id = $1", q.UserID)
+		u, err := queryUser(ctx, trx, "id = $1", q.UserID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get user with id '%d'", q.UserID)
 		}
-		q.Result = user
+		q.Result = u
 		return nil
 	})
 }
@@ -330,11 +330,11 @@ func getUserByID(ctx context.Context, q *query.GetUserByID) error {
 func getUserByEmail(ctx context.Context, q *query.GetUserByEmail) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		email := strings.ToLower(q.Email)
-		user, err := queryUser(ctx, trx, "email = $1 AND tenant_id = $2", email, tenant.ID)
+		u, err := queryUser(ctx, trx, "email = $1 AND tenant_id = $2", email, tenant.ID)
 		if err != nil {
 			return errors.Wrap(err, "failed to get user with email '%s'", email)
 		}
-		q.Result = user
+		q.Result = u
 		return nil
 	})
 }

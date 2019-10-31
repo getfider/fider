@@ -410,7 +410,7 @@ func TestBlockLockedTenants_LockedTenant(t *testing.T) {
 		})
 
 	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.HeaderMap.Get("Location")).Equals("/signin")
+	Expect(response.Header().Get("Location")).Equals("/signin")
 }
 
 func TestBlockLockedTenants_LockedTenant_APICall(t *testing.T) {

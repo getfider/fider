@@ -23,11 +23,14 @@ func TestPostStorage_GetAll(t *testing.T) {
 
 	now := time.Now()
 
-	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
-	trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	_, err := trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('add twitter integration', 'add-twitter-integration', 1, 'Would be great to see it integrated with twitter', $1, 1, 1, 1)", now)
+	Expect(err).IsNil()
+
+	_, err = trx.Execute("INSERT INTO posts (title, slug, number, description, created_at, tenant_id, user_id, status) VALUES ('this is my post', 'this-is-my-post', 2, 'no description', $1, 1, 2, 2)", now)
+	Expect(err).IsNil()
 
 	allPosts := &query.GetAllPosts{}
-	err := bus.Dispatch(demoTenantCtx, allPosts)
+	err = bus.Dispatch(demoTenantCtx, allPosts)
 	Expect(err).IsNil()
 	Expect(allPosts.Result).HasLen(2)
 
@@ -111,8 +114,11 @@ func TestPostStorage_AddAndReturnComments(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"})
-	bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #2"})
+	err = bus.Dispatch(jonSnowCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #1"})
+	Expect(err).IsNil()
+
+	err = bus.Dispatch(aryaStarkCtx, &cmd.AddNewComment{Post: newPost.Result, Content: "Comment #2"})
+	Expect(err).IsNil()
 
 	commentsByPost := &query.GetCommentsByPost{Post: newPost.Result}
 	err = bus.Dispatch(aryaStarkCtx, commentsByPost)
@@ -365,16 +371,16 @@ func TestPostStorage_SetResponse_ChangeText(t *testing.T) {
 
 	getPost := &query.GetPostByID{PostID: newPost.Result.ID}
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
-	bus.Dispatch(jonSnowCtx, getPost)
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostStarted})
+	bus.MustDispatch(jonSnowCtx, getPost)
 	firstResponseAt := getPost.Result.Response.RespondedAt
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: enum.PostStarted})
-	bus.Dispatch(jonSnowCtx, getPost)
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post and we'll work on it", Status: enum.PostStarted})
+	bus.MustDispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).Equals(firstResponseAt)
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: enum.PostCompleted})
-	bus.Dispatch(jonSnowCtx, getPost)
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "We finished it", Status: enum.PostCompleted})
+	bus.MustDispatch(jonSnowCtx, getPost)
 	Expect(getPost.Result.Response.RespondedAt).TemporarilySimilar(firstResponseAt, time.Second)
 }
 
@@ -425,7 +431,7 @@ func TestPostStorage_SetResponse_AsDeleted(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
+	bus.MustDispatch(jonSnowCtx, &cmd.SetPostResponse{Post: newPost.Result, Text: "Spam!", Status: enum.PostDeleted})
 
 	postByID := &query.GetPostByID{PostID: newPost.Result.ID}
 	err = bus.Dispatch(aryaStarkCtx, postByID)
@@ -466,7 +472,7 @@ func TestPostStorage_RemoveVote_ClosedPost(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(
+	bus.MustDispatch(
 		jonSnowCtx,
 		&cmd.AddVote{Post: newPost.Result, User: jonSnow},
 		&cmd.SetPostResponse{Post: newPost.Result, Text: "We liked this post", Status: enum.PostCompleted},
@@ -489,9 +495,9 @@ func TestPostStorage_WithTags(t *testing.T) {
 
 	addBug := &cmd.AddNewTag{Name: "Bug", Color: "FF0000", IsPublic: true}
 	addFeatureRequest := &cmd.AddNewTag{Name: "Feature Request", Color: "00FF00", IsPublic: false}
-	bus.Dispatch(jonSnowCtx, addBug, addFeatureRequest)
-	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
-	bus.Dispatch(jonSnowCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
+	bus.MustDispatch(jonSnowCtx, addBug, addFeatureRequest)
+	bus.MustDispatch(jonSnowCtx, &cmd.AssignTag{Tag: addBug.Result, Post: newPost.Result})
+	bus.MustDispatch(jonSnowCtx, &cmd.AssignTag{Tag: addFeatureRequest.Result, Post: newPost.Result})
 
 	getPost := &query.GetPostByNumber{Number: newPost.Result.Number}
 	err = bus.Dispatch(aryaStarkCtx, getPost)
@@ -516,8 +522,8 @@ func TestPostStorage_IsReferenced(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost1, newPost2, newPost3)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost2.Result, Original: newPost3.Result})
-	bus.Dispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost3.Result, Original: newPost1.Result})
+	bus.MustDispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost2.Result, Original: newPost3.Result})
+	bus.MustDispatch(jonSnowCtx, &cmd.MarkPostAsDuplicate{Post: newPost3.Result, Original: newPost1.Result})
 
 	isReferenced1 := &query.PostIsReferenced{PostID: newPost1.Result.ID}
 	isReferenced2 := &query.PostIsReferenced{PostID: newPost2.Result.ID}
@@ -538,8 +544,8 @@ func TestPostStorage_ListVotesOfPost(t *testing.T) {
 	err := bus.Dispatch(jonSnowCtx, newPost)
 	Expect(err).IsNil()
 
-	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: jonSnow})
-	bus.Dispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
+	bus.MustDispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: jonSnow})
+	bus.MustDispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
 
 	listVotes := &query.ListPostVotes{PostID: newPost.Result.ID}
 	err = bus.Dispatch(jonSnowCtx, listVotes)

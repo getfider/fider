@@ -64,7 +64,7 @@ func TestUser_WithCookie(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("Jon Snow")
-	Expect(response.HeaderMap["Set-Cookie"]).HasLen(0)
+	Expect(response.Header()["Set-Cookie"]).HasLen(0)
 }
 
 func TestUser_Blocked(t *testing.T) {
@@ -244,7 +244,7 @@ func TestUser_WithSignUpCookie(t *testing.T) {
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("Jon Snow")
-	cookies := response.HeaderMap["Set-Cookie"]
+	cookies := response.Header()["Set-Cookie"]
 	Expect(cookies).HasLen(2)
 
 	cookie := web.ParseCookie(cookies[0])

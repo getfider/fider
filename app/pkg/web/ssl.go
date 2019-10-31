@@ -97,7 +97,10 @@ func (m *CertificateManager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Ce
 
 //StartHTTPServer creates a new HTTP server on port 80 that is used for the ACME HTTP Challenge
 func (m *CertificateManager) StartHTTPServer() {
-	http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	err := http.ListenAndServe(":80", m.autossl.HTTPHandler(nil))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func acmeClient() *acme.Client {

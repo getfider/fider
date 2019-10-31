@@ -52,7 +52,7 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 	getDemo := &query.GetTenantByDomain{Domain: "demo"}
 	getAvengers := &query.GetTenantByDomain{Domain: "avengers"}
 	getGameOfThrones := &query.GetTenantByDomain{Domain: "got"}
-	bus.Dispatch(trxCtx, getDemo, getAvengers, getGameOfThrones)
+	_ = bus.Dispatch(trxCtx, getDemo, getAvengers, getGameOfThrones)
 	demoTenant = getDemo.Result
 	avengersTenant = getAvengers.Result
 	gotTenant = getGameOfThrones.Result
@@ -64,13 +64,13 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 	getJonSnow := &query.GetUserByEmail{Email: "jon.snow@got.com"}
 	getAryaStark := &query.GetUserByEmail{Email: "arya.stark@got.com"}
 	getSansaStark := &query.GetUserByEmail{Email: "sansa.stark@got.com"}
-	bus.Dispatch(demoTenantCtx, getJonSnow, getSansaStark, getAryaStark)
+	_ = bus.Dispatch(demoTenantCtx, getJonSnow, getSansaStark, getAryaStark)
 	jonSnow = getJonSnow.Result
 	aryaStark = getAryaStark.Result
 	sansaStark = getSansaStark.Result
 
 	getTonyStark := &query.GetUserByEmail{Email: "tony.stark@avengers.com"}
-	bus.Dispatch(avengersTenantCtx, getTonyStark)
+	bus.MustDispatch(avengersTenantCtx, getTonyStark)
 	tonyStark = getTonyStark.Result
 
 	jonSnowCtx = withUser(trxCtx, jonSnow)
@@ -81,7 +81,7 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 }
 
 func TeardownDatabaseTest() {
-	trx.Rollback()
+	trx.MustRollback()
 }
 
 func TestMain(m *testing.M) {
