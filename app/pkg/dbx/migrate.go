@@ -136,10 +136,7 @@ func getLastMigration() (int, error) {
 		// If it's the first run, maybe we have records on old migrations table, so try to get from it.
 		// This SHOULD be removed in the far future.
 		row := conn.QueryRow("SELECT version FROM schema_migrations LIMIT 1")
-		err := row.Scan(&lastVersion)
-		if err != nil {
-			return 0, err
-		}
+		_ = row.Scan(&lastVersion)
 	}
 
 	return int(lastVersion.Int64), nil
