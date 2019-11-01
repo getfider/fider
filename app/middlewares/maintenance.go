@@ -11,7 +11,7 @@ import (
 func Maintenance() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if env.Config.Maintenance.Enabled == false {
+			if !env.Config.Maintenance.Enabled {
 				return next(c)
 			}
 

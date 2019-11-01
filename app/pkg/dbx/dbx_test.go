@@ -45,7 +45,7 @@ func TestBind_SimpleStruct(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 	u := user{}
 
 	err := trx.Get(&u, "SELECT id, name FROM users LIMIT 1")
@@ -59,7 +59,7 @@ func TestBind_DeepNestedStruct(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 	u := userProvider{}
 
 	err := trx.Get(&u, `SELECT up.provider,
@@ -79,7 +79,7 @@ func TestBind_SimpleStruct_SingleField(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 	u := user{}
 
 	err := trx.Get(&u, "SELECT name FROM users LIMIT 1")
@@ -92,7 +92,7 @@ func TestBind_SimpleStruct_Multiple(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 	u := []*user{}
 
 	err := trx.Select(&u, "SELECT name FROM users WHERE tenant_id = 1 ORDER BY id")
@@ -108,7 +108,7 @@ func TestBind_NestedStruct(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	u := userWithTenant{}
 
@@ -132,7 +132,7 @@ func TestBind_NestedStruct_Multiple(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	u := []*userWithTenant{}
 
@@ -158,7 +158,7 @@ func TestExists_True(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 1")
 	Expect(err).IsNil()
@@ -169,7 +169,7 @@ func TestExists_False(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	exists, err := trx.Exists("SELECT 1 FROM users WHERE id = 0")
 	Expect(err).IsNil()
@@ -180,7 +180,7 @@ func TestCount(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 1")
 	Expect(err).IsNil()
@@ -191,7 +191,7 @@ func TestCount_Empty(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	count, err := trx.Count("SELECT 1 FROM users WHERE id = 0")
 	Expect(err).IsNil()
@@ -202,7 +202,7 @@ func TestScalar(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	var value int
 	err := trx.Scalar(&value, "SELECT id FROM users WHERE id = 1")
@@ -214,7 +214,7 @@ func TestArray(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	type postTags struct {
 		ID   int     `db:"id"`
@@ -234,7 +234,7 @@ func TestArray_Empty(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	type postTags struct {
 		ID   int    `db:"id"`
@@ -254,7 +254,7 @@ func TestByteArray(t *testing.T) {
 	RegisterT(t)
 
 	trx, _ := dbx.BeginTx(context.Background())
-	defer trx.Rollback()
+	defer trx.MustRollback()
 
 	type file struct {
 		ContentType string `db:"content_type"`

@@ -45,7 +45,9 @@ func (b *DefaultBinder) Bind(target interface{}, c *Context) error {
 	targetValue := reflect.ValueOf(target).Elem()
 	targetType := targetValue.Type()
 	for i := 0; i < targetValue.NumField(); i++ {
-		b.bindRoute(i, targetValue, targetType, c.params)
+		if err := b.bindRoute(i, targetValue, targetType, c.params); err != nil {
+			return err
+		}
 		b.format(i, targetValue, targetType)
 	}
 	return nil

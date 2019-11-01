@@ -139,13 +139,11 @@ func (c *Context) Commit() error {
 }
 
 //Rollback everything that is pending on current context
-func (c *Context) Rollback() error {
+func (c *Context) Rollback() {
 	trx, ok := c.Value(app.TransactionCtxKey).(*dbx.Trx)
 	if ok && trx != nil {
-		return trx.Rollback()
+		trx.MustRollback()
 	}
-
-	return nil
 }
 
 //Enqueue given task to be processed in background
@@ -250,10 +248,12 @@ func (c *Context) Failure(err error) error {
 		"URL":        c.Request.URL.String(),
 	})
 
-	c.Render(http.StatusInternalServerError, "500.html", Props{
+	if renderErr := c.Render(http.StatusInternalServerError, "500.html", Props{
 		Title:       "Shoot! Well, this is unexpected…",
 		Description: "An error has occurred and we're working to fix the problem!",
-	})
+	}); renderErr != nil {
+		return renderErr
+	}
 	return err
 }
 

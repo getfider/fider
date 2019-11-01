@@ -595,7 +595,7 @@ func TestSignInPageHandler_PrivateTenant_UnauthenticatedUser(t *testing.T) {
 }
 
 func ExpectFiderAuthCookie(response *httptest.ResponseRecorder, expected *models.User) {
-	cookies := response.HeaderMap["Set-Cookie"]
+	cookies := response.Header()["Set-Cookie"]
 	if expected == nil {
 		for _, c := range cookies {
 			cookie := web.ParseCookie(c)

@@ -36,7 +36,7 @@ func setupS3(t *testing.T) {
 	bus.Init(s3.Service{})
 
 	bucket := aws.String(env.Config.BlobStorage.S3.BucketName)
-	s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
+	_, _ = s3.DefaultClient.CreateBucket(&awss3.CreateBucketInput{
 		Bucket: bucket,
 	})
 }

@@ -22,6 +22,14 @@ func TestGetNull(t *testing.T) {
 	Expect(query.String("name")).Equals("")
 }
 
+func TestGet_NestedObject(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "person": { "name": "Jon Snow", "age": 23 } }`)
+	Expect(query.String("person.name")).Equals("Jon Snow")
+	Expect(query.Int32("person.age")).Equals(23)
+}
+
 func TestGet_EmptyKey(t *testing.T) {
 	RegisterT(t)
 
@@ -60,6 +68,24 @@ func TestGetValueFromObjectArray(t *testing.T) {
 	Expect(query.String("data[0].name")).Equals("Jon Snow")
 	Expect(query.String("data[0].age")).Equals("")
 	Expect(query.String("data[1].age")).Equals("23")
+}
+
+func TestGetValueFromNestedArray(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "data": [ { "numbers": [52, 6, 24] } ] }`)
+	Expect(query.Int32("data[0].numbers[0]")).Equals(52)
+	Expect(query.Int32("data[0].numbers[1]")).Equals(6)
+	Expect(query.Int32("data[0].numbers[2]")).Equals(24)
+}
+
+func TestGetValueFromNestedObjectArray(t *testing.T) {
+	RegisterT(t)
+
+	query := jsonq.New(`{ "data": [{ "person": { "name": "Jon Snow" } }, { "person": { "age": "23" } }] }`)
+	Expect(query.String("data[0].person.name")).Equals("Jon Snow")
+	Expect(query.String("data[0].person.age")).Equals("")
+	Expect(query.String("data[1].person.age")).Equals("23")
 }
 
 func TestGetValueFromStringArray(t *testing.T) {

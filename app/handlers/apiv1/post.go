@@ -207,7 +207,7 @@ func GetComment() web.HandlerFunc {
 		}
 
 		commentByID := &query.GetCommentByID{CommentID: id}
-		if bus.Dispatch(c, commentByID); err != nil {
+		if err := bus.Dispatch(c, commentByID); err != nil {
 			return c.Failure(err)
 		}
 

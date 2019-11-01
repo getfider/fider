@@ -36,8 +36,8 @@ func WorkerSetup() worker.MiddlewareFunc {
 			//In case it panics somewhere
 			defer func() {
 				if r := recover(); r != nil {
-					c.Failure(errors.Panicked(r))
-					trx.Rollback()
+					_ = c.Failure(errors.Panicked(r))
+					trx.MustRollback()
 					log.Debugf(c, "Task '@{TaskName:magenta}' panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 						"TaskName":  c.TaskName(),
 						"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),
@@ -49,7 +49,7 @@ func WorkerSetup() worker.MiddlewareFunc {
 
 			//Execute the chain
 			if err = next(c); err != nil {
-				trx.Rollback()
+				trx.MustRollback()
 				log.Debugf(c, "Task '@{TaskName:magenta}' finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"TaskName":  c.TaskName(),
 					"ElapsedMs": time.Since(start).Nanoseconds() / int64(time.Millisecond),

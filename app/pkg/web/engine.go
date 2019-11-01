@@ -46,7 +46,7 @@ type notFoundHandler struct {
 
 func (h *notFoundHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	ctx := NewContext(h.engine, req, res, nil)
-	h.handler(ctx)
+	_ = h.handler(ctx)
 }
 
 //HandlerFunc represents an HTTP handler
@@ -224,12 +224,12 @@ func (e *Engine) handle(middlewares []MiddlewareFunc, handler HandlerFunc) httpr
 		next = middlewares[i](next)
 	}
 	var h = func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-		params := make(StringMap, 0)
+		params := make(StringMap)
 		for _, p := range ps {
 			params[p.Key] = p.Value
 		}
 		ctx := NewContext(e, req, res, params)
-		next(ctx)
+		_ = next(ctx)
 	}
 	return h
 }

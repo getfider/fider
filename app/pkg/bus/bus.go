@@ -83,6 +83,13 @@ func AddListener(handler HandlerFunc) {
 	listeners[eventName] = append(listeners[eventName], handler)
 }
 
+func MustDispatch(ctx context.Context, msgs ...Msg) {
+	err := Dispatch(ctx, msgs...)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func Dispatch(ctx context.Context, msgs ...Msg) error {
 	if len(msgs) == 0 {
 		return nil

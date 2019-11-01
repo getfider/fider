@@ -73,8 +73,10 @@ func writeLog(ctx context.Context, level log.Level, message string, props dto.Pr
 	}
 	delete(props, log.PropertyKeyTag)
 
-	go dbx.Connection().Exec(
-		"INSERT INTO logs (tag, level, text, created_at, properties) VALUES ($1, $2, $3, $4, $5)",
-		tag, level.String(), message, time.Now(), props,
-	)
+	go func() {
+		_, _ = dbx.Connection().Exec(
+			"INSERT INTO logs (tag, level, text, created_at, properties) VALUES ($1, $2, $3, $4, $5)",
+			tag, level.String(), message, time.Now(), props,
+		)
+	}()
 }

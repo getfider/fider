@@ -70,7 +70,8 @@ func TestRowMapper_NonStruct(t *testing.T) {
 	RegisterT(t)
 	mapper := dbx.NewRowMapper()
 	var id int
-	mapper.Map(&id, []string{"id"}, createScanner(5))
+	err := mapper.Map(&id, []string{"id"}, createScanner(5))
+	Expect(err).IsNil()
 	Expect(id).Equals(5)
 }
 
@@ -82,7 +83,8 @@ func TestRowMapper_Concurrent(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			var id int
-			mapper.Map(&id, []string{"id"}, createScanner(5))
+			err := mapper.Map(&id, []string{"id"}, createScanner(5))
+			Expect(err).IsNil()
 			wg.Done()
 		}()
 	}
@@ -93,7 +95,8 @@ func TestRowMapper_SimpleStruct(t *testing.T) {
 	RegisterT(t)
 	mapper := dbx.NewRowMapper()
 	u := user{}
-	mapper.Map(&u, []string{"id", "name"}, createScanner(1, "Hello World"))
+	err := mapper.Map(&u, []string{"id", "name"}, createScanner(1, "Hello World"))
+	Expect(err).IsNil()
 	Expect(u.ID).Equals(1)
 	Expect(u.Name).Equals("Hello World")
 }
@@ -102,7 +105,8 @@ func TestRowMapper_NestedStruct(t *testing.T) {
 	RegisterT(t)
 	mapper := dbx.NewRowMapper()
 	u := userWithTenant{}
-	mapper.Map(&u, []string{"id", "name", "tenant_id", "tenant_name"}, createScanner(1, "Hello World", 2, "Demonstration"))
+	err := mapper.Map(&u, []string{"id", "name", "tenant_id", "tenant_name"}, createScanner(1, "Hello World", 2, "Demonstration"))
+	Expect(err).IsNil()
 	Expect(u.ID).Equals(1)
 	Expect(u.Name).Equals("Hello World")
 	Expect(u.Tenant.ID).Equals(2)
@@ -113,7 +117,8 @@ func TestRowMapper_DeepNestedStruct(t *testing.T) {
 	RegisterT(t)
 	mapper := dbx.NewRowMapper()
 	u := userProvider{}
-	mapper.Map(&u, []string{"provider", "user_id", "user_name", "user_tenant_id", "user_tenant_name"}, createScanner("google", 1, "Jon Snow", 2, "The Tenant"))
+	err := mapper.Map(&u, []string{"provider", "user_id", "user_name", "user_tenant_id", "user_tenant_name"}, createScanner("google", 1, "Jon Snow", 2, "The Tenant"))
+	Expect(err).IsNil()
 	Expect(u.Provider).Equals("google")
 	Expect(u.User.ID).Equals(1)
 	Expect(u.User.Name).Equals("Jon Snow")
