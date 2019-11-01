@@ -69,7 +69,10 @@ func (q *Query) IsArray() bool {
 func (q *Query) ArrayLength() int {
 	if q.IsArray() {
 		var arr []interface{}
-		json.Unmarshal([]byte(q.json), &arr)
+		err := json.Unmarshal([]byte(q.json), &arr)
+		if err != nil {
+			panic(err)
+		}
 		return len(arr)
 	}
 	return 0
@@ -95,7 +98,7 @@ func (q *Query) get(selector string) *json.RawMessage {
 			idx, _ := strconv.Atoi(part[len(part)-2 : len(part)-1])
 			part = part[:len(part)-3]
 
-			if current != nil {
+			if current[part] != nil {
 				result = current[part]
 			} else {
 				result = q.m[part]
@@ -103,7 +106,11 @@ func (q *Query) get(selector string) *json.RawMessage {
 			if result != nil {
 				var arr []*json.RawMessage
 				bytes, _ := result.MarshalJSON()
-				json.Unmarshal(bytes, &arr)
+				err := json.Unmarshal(bytes, &arr)
+				if err != nil {
+					panic(err)
+				}
+
 				if len(arr) > idx {
 					bytes, _ = arr[idx].MarshalJSON()
 					err := json.Unmarshal(bytes, &current)
@@ -114,7 +121,7 @@ func (q *Query) get(selector string) *json.RawMessage {
 			}
 		} else {
 
-			if current != nil {
+			if current[part] != nil {
 				result = current[part]
 			} else {
 				result = q.m[part]
@@ -122,7 +129,7 @@ func (q *Query) get(selector string) *json.RawMessage {
 
 			if result != nil {
 				bytes, _ := result.MarshalJSON()
-				json.Unmarshal(bytes, &current)
+				_ = json.Unmarshal(bytes, &current)
 			} else {
 				return nil
 			}

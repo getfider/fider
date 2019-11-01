@@ -25,6 +25,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 | cosmtrek/air | https://github.com/cosmtrek/air | Live reload for Go apps. When you change the code, it automatically recompiles the application |	
 | joho/godotenv | https://github.com/joho/godotenv | To load environment variables from a `.env` so that you don't have to change your machine environment variables |	#### 2. Setup your Go environemnt:
 | magefile/mage | https://github.com/magefile/mage | A cross-platform Make alternative |
+| golangci-lint | https://github.com/golangci/golangci-lint | A linter for Go apps |
 
 #### 2. To setup your development workspace:
 

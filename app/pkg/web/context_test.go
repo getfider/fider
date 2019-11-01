@@ -26,10 +26,8 @@ func newGetContext(rawurl string, headers map[string]string) *web.Context {
 		req.TLS = &tls.ConnectionState{}
 	}
 
-	if headers != nil {
-		for k, v := range headers {
-			req.Header.Set(k, v)
-		}
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 
 	return web.NewContext(e, req, res, nil)

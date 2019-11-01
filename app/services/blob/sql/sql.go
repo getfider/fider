@@ -59,7 +59,7 @@ func listBlobs(ctx context.Context, q *query.ListBlobs) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
-		defer trx.Commit()
+		defer trx.MustCommit()
 
 		blobs := []*dbBlob{}
 		err = trx.Select(&blobs, "SELECT key FROM blobs WHERE tenant_id = $1", tenant.ID)
@@ -82,14 +82,17 @@ func getBlobByKey(ctx context.Context, q *query.GetBlobByKey) error {
 	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
-			tenantID.Scan(tenant.ID)
+			err := tenantID.Scan(tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed scan tenant id")
+			}
 		}
 
 		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
-		defer trx.Commit()
+		defer trx.MustCommit()
 
 		b := dbBlob{}
 		err = trx.Get(&b, "SELECT file, content_type, size FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", q.Key, tenantID)
@@ -117,14 +120,17 @@ func storeBlob(ctx context.Context, c *cmd.StoreBlob) error {
 	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
-			tenantID.Scan(tenant.ID)
+			err := tenantID.Scan(tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed scan tenant id")
+			}
 		}
 
 		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
-		defer trx.Commit()
+		defer trx.MustCommit()
 
 		now := time.Now()
 		_, err = trx.Execute(`
@@ -148,14 +154,17 @@ func deleteBlob(ctx context.Context, c *cmd.DeleteBlob) error {
 	return using(ctx, func(tenant *models.Tenant) error {
 		var tenantID sql.NullInt64
 		if tenant != nil {
-			tenantID.Scan(tenant.ID)
+			err := tenantID.Scan(tenant.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed scan tenant id")
+			}
 		}
 
 		trx, err := dbx.BeginTx(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to open transaction")
 		}
-		defer trx.Commit()
+		defer trx.MustCommit()
 
 		_, err = trx.Execute("DELETE FROM blobs WHERE key = $1 AND (tenant_id = $2 OR ($2 IS NULL AND tenant_id IS NULL))", c.Key, tenantID)
 		if err != nil {

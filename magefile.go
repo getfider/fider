@@ -26,6 +26,7 @@ var requiredDeps = []string{
 	"npm",
 	"node",
 	"mage",
+	"golangci-lint",
 }
 var buildTime = time.Now().Format("2006.01.02.150405")
 var buildNumber = os.Getenv("CIRCLE_BUILD_NUM")
@@ -35,6 +36,7 @@ var Aliases = map[string]interface{}{
 	"build": Build.All,
 	"test":  Test.All,
 	"watch": Watch.All,
+	"lint":  Lint.All,
 }
 
 func init() {
@@ -56,10 +58,6 @@ func Run() error {
 
 func Migrate() error {
 	return sh.Run("godotenv", "-f", ".env", "./"+exeName, "migrate")
-}
-
-func Lint() error {
-	return sh.Run("npx", "tslint", "-c", "tslint.json", "'public/**/*.{ts,tsx}'", "'tests/**/*.{ts,tsx}'")
 }
 
 func Clean() error {
@@ -136,6 +134,20 @@ func (Test) Server() error {
 func (Test) UI() error {
 	env := map[string]string{"TZ": "GMT"}
 	return sh.RunWith(env, "npx", "jest", "./public")
+}
+
+type Lint mg.Namespace
+
+func (Lint) All() {
+	mg.Deps(Lint.Server, Lint.UI)
+}
+
+func (Lint) UI() error {
+	return sh.Run("npx", "tslint", "-c", "tslint.json", "'public/**/*.{ts,tsx}'", "'tests/**/*.{ts,tsx}'")
+}
+
+func (Lint) Server() error {
+	return sh.Run("golangci-lint", "run")
 }
 
 // Utils

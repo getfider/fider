@@ -70,7 +70,7 @@ func (w *BackgroundWorker) Run(workerID string) {
 	for task := range w.queue {
 		c := NewContext(w, workerID, task)
 
-		w.middleware(task.Job)(c)
+		_ = w.middleware(task.Job)(c)
 		w.Lock()
 		w.len = w.len - 1
 		w.Unlock()

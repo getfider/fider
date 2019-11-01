@@ -12,7 +12,7 @@ import (
 func TestRequest_Basic(t *testing.T) {
 	RegisterT(t)
 
-	header := make(http.Header, 0)
+	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
 
 	req := web.WrapRequest(
@@ -37,7 +37,7 @@ func TestRequest_Basic(t *testing.T) {
 func TestRequest_WithPort(t *testing.T) {
 	RegisterT(t)
 
-	header := make(http.Header, 0)
+	header := make(http.Header)
 	header.Set("Content-Type", "application/json")
 
 	req := web.WrapRequest(
@@ -62,7 +62,7 @@ func TestRequest_WithPort(t *testing.T) {
 func TestRequest_BehindTLSTerminationProxy(t *testing.T) {
 	RegisterT(t)
 
-	header := make(http.Header, 0)
+	header := make(http.Header)
 	header.Set("X-Forwarded-Host", "feedback.mycompany.com")
 	header.Set("X-Forwarded-Proto", "https")
 	header.Set("X-Forwarded-For", "127.5.5.5, 129.2.2.2, 121.2.2.5")
@@ -147,7 +147,7 @@ func TestRequest_IsCrawler(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		header := make(http.Header, 0)
+		header := make(http.Header)
 		header.Set("User-Agent", tt.userAgent)
 
 		req := web.WrapRequest(

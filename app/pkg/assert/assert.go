@@ -53,7 +53,7 @@ func RegisterT(t *testing.T) {
 }
 
 func copyEnv() {
-	envVariables = make(map[string]string, 0)
+	envVariables = make(map[string]string)
 	for _, e := range os.Environ() {
 		key := strings.Split(e, "=")[0]
 		envVariables[key] = os.Getenv(key)

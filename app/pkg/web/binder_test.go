@@ -21,7 +21,7 @@ func TestDefaultBinder_FromParams(t *testing.T) {
 	}
 
 	RegisterT(t)
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
 
@@ -46,7 +46,7 @@ func TestDefaultBinder_TrimSpaces(t *testing.T) {
 		Other string
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	body := `{ "name": " Jon Snow ", "email": " JON.SNOW@got.com ", "color": "ff00ad" }`
 	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
@@ -69,7 +69,7 @@ func TestDefaultBinder_Base64ToBytes(t *testing.T) {
 		Resume []byte `json:"resume"`
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	body := fmt.Sprintf(`{ "name": "Jon Snow", "resume": "%s" }`, resumeBase64)
 	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
@@ -93,7 +93,7 @@ func TestDefaultBinder_NestedJson(t *testing.T) {
 		}
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	body := fmt.Sprintf(`{ "name": "Jon Snow", "resume": { "fileName": "README.md", "file": "%s" } }`, resumeBase64)
 	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
@@ -111,7 +111,7 @@ func TestDefaultBinder_Array_TrimSpaces(t *testing.T) {
 		Providers []string `json:"providers" format:"lower"`
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	body := `{ "providers": [ " Google", " FACEBOOK ", "   MicroSoft    " ] }`
 	ctx := newBodyContext("POST", params, body, "application/json")
 	u := new(user)
@@ -132,7 +132,7 @@ func TestDefaultBinder_DELETE(t *testing.T) {
 		Other string
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	body := `{ "name": " Jon Snow " }`
 	ctx := newBodyContext("DELETE", params, body, "application/json")
 	u := new(user)
@@ -150,7 +150,7 @@ func TestDefaultBinder_POST_WithoutBody(t *testing.T) {
 		Slug   string `route:"slug"`
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	params["number"] = "2"
 	params["slug"] = "jon-snow"
 	ctx := newBodyContext("POST", params, "", web.UTF8JSONContentType)
@@ -168,7 +168,7 @@ func TestDefaultBinder_POST_NonJSON(t *testing.T) {
 		Name string `json:"name"`
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	ctx := newBodyContext("POST", params, `name=JonSnow`, web.UTF8HTMLContentType)
 
 	u := new(user)
@@ -207,7 +207,7 @@ func (p *Size) UnmarshalText(s []byte) error {
 func TestDefaultBinder_POST_CustomType(t *testing.T) {
 	RegisterT(t)
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	params["size"] = "1"
 	params["size32"] = "4"
 	params["size64"] = "5"
@@ -228,7 +228,7 @@ func TestDefaultBinder_POST_CustomType_Unmarshal(t *testing.T) {
 		TheSize Size `route:"size"`
 	}
 
-	params := make(web.StringMap, 0)
+	params := make(web.StringMap)
 	params["size"] = "large"
 	ctx := newBodyContext("POST", params, `{ }`, "application/json")
 

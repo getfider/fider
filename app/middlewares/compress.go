@@ -63,18 +63,21 @@ func (w *gzipResponseWriter) Flush() {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.response.WriteHeader(w.code)
 		w.writer.Reset(w.response)
-		w.buffer.WriteTo(w.writer)
+		_, err := w.buffer.WriteTo(w.writer)
+		if err != nil {
+			panic(err)
+		}
+
 		w.writer.Close()
 	} else if w.code > 0 {
 		w.response.WriteHeader(w.code)
-		w.buffer.WriteTo(w.response)
+		_, err := w.buffer.WriteTo(w.response)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 func (w *gzipResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return w.response.(http.Hijacker).Hijack()
-}
-
-func (w *gzipResponseWriter) CloseNotify() <-chan bool {
-	return w.response.(http.CloseNotifier).CloseNotify()
 }

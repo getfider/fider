@@ -14,7 +14,7 @@ func CatchPanic() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			defer func() {
 				if r := recover(); r != nil {
-					c.Failure(errors.Panicked(r))
+					_ = c.Failure(errors.Panicked(r))
 					c.Rollback()
 					log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} panicked in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 						"HttpMethod": c.Request.Method,

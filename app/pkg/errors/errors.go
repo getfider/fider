@@ -1,7 +1,6 @@
 package errors
 
 import (
-	stdError "errors"
 	"fmt"
 	"runtime"
 	"runtime/debug"
@@ -23,7 +22,7 @@ func caller(skip int) (string, int) {
 func New(format string, a ...interface{}) error {
 	file, line := caller(2)
 	text := fmt.Sprintf(format, a...)
-	return stdError.New(fmt.Sprintf("%s (%s:%d)", text, file, line))
+	return fmt.Errorf("%s (%s:%d)", text, file, line)
 }
 
 //Wrap existing error with additional text

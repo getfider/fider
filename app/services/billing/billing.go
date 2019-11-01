@@ -32,7 +32,7 @@ func (s Service) Enabled() bool {
 }
 
 func (s Service) Init() {
-	stripe.LogLevel = 0
+	stripe.DefaultLeveledLogger = &stripe.LeveledLogger{Level: 0}
 	stripeClient = &client.API{}
 	stripeClient.Init(env.Config.Stripe.SecretKey, nil)
 

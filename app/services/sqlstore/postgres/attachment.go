@@ -20,7 +20,10 @@ func setAttachments(ctx context.Context, c *cmd.SetAttachments) error {
 		postID := c.Post.ID
 		var commentID sql.NullInt64
 		if c.Comment != nil {
-			commentID.Scan(c.Comment.ID)
+			err := commentID.Scan(c.Comment.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed scan comment id")
+			}
 		}
 
 		for _, attachment := range c.Attachments {
@@ -52,7 +55,10 @@ func getAttachments(ctx context.Context, q *query.GetAttachments) error {
 		postID := q.Post.ID
 		var commentID sql.NullInt64
 		if q.Comment != nil {
-			commentID.Scan(q.Comment.ID)
+			err := commentID.Scan(q.Comment.ID)
+			if err != nil {
+				return errors.Wrap(err, "failed scan comment id")
+			}
 		}
 
 		type entry struct {

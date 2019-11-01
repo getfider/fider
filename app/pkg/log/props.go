@@ -7,8 +7,6 @@ import (
 	"github.com/getfider/fider/app/models/dto"
 )
 
-type logCtxKey string
-
 const (
 	// PropertyKeySessionID is the session id of current logger
 	PropertyKeySessionID = "SessionID"

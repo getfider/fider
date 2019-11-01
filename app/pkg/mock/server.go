@@ -105,7 +105,7 @@ func (s *Server) Execute(handler web.HandlerFunc) (int, *httptest.ResponseRecord
 	}
 
 	if err := next(s.context); err != nil {
-		s.context.Failure(err)
+		_ = s.context.Failure(err)
 	}
 
 	return s.recorder.Code, s.recorder
