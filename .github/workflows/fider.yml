@@ -22,6 +22,7 @@ jobs:
       - name: print short sha
         run: |
           export SHORT_SHA=`git rev-parse --short=7 ${GITHUB_SHA}`
+          echo ${GITHUB_SHA}
           echo ${SHORT_SHA}
 
       - run: npm ci
