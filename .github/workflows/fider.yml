@@ -83,7 +83,7 @@ jobs:
       - name: push docker image
         if: steps.getBranch.outputs.branch == 'master'
         run: |
-          docker tag getfider/fider getfider/fider:${GITHUB_SHA::8}
-          docker push getfider/fider:${GITHUB_SHA::8}
+          docker tag getfider/fider getfider/fider:${GITHUB_SHA::7}
+          docker push getfider/fider:${GITHUB_SHA::7}
           docker tag getfider/fider getfider/fider:master
           docker push getfider/fider:master
