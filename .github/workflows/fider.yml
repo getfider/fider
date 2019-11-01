@@ -18,6 +18,12 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
+
+      - name: print short sha
+        run: |
+          export SHORT_SHA=`git rev-parse --short=7 ${GITHUB_SHA}`
+          echo ${SHORT_SHA}
+
       - run: npm ci
       - run: mage lint
       - run: mage test:ui
@@ -83,7 +89,8 @@ jobs:
       - name: push docker image
         if: steps.getBranch.outputs.branch == 'master'
         run: |
-          docker tag getfider/fider getfider/fider:${GITHUB_SHA::7}
-          docker push getfider/fider:${GITHUB_SHA::7}
+          export SHORT_SHA=`git rev-parse --short=7 ${GITHUB_SHA}`
+          docker tag getfider/fider getfider/fider:${SHORT_SHA}
+          docker push getfider/fider:${SHORT_SHA}
           docker tag getfider/fider getfider/fider:master
           docker push getfider/fider:master
