@@ -53,7 +53,7 @@ func TestSignInByOAuthHandler(t *testing.T) {
 		Execute(handlers.SignInByOAuth())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.1/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%7CMY_SESSION_ID")
+	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%7CMY_SESSION_ID")
 }
 
 func TestSignInByOAuthHandler_AuthenticatedUser(t *testing.T) {
@@ -87,7 +87,7 @@ func TestSignInByOAuthHandler_AuthenticatedUser_UsingEcho(t *testing.T) {
 		Execute(handlers.SignInByOAuth())
 
 	Expect(code).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.1/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%2Foauth%2Ffacebook%2Fecho%7CMY_SESSION_ID")
+	Expect(response.Header().Get("Location")).Equals("https://www.facebook.com/v3.2/dialog/oauth?client_id=FB_CL_ID&redirect_uri=http%3A%2F%2Flogin.test.fider.io%2Foauth%2Ffacebook%2Fcallback&response_type=code&scope=public_profile+email&state=http%3A%2F%2Favengers.test.fider.io%2Foauth%2Ffacebook%2Fecho%7CMY_SESSION_ID")
 }
 
 func TestCallbackHandler_InvalidState(t *testing.T) {
