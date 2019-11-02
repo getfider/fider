@@ -28,7 +28,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 1. clone the repository.
 2. navigate into the cloned repository.
 3. run `go install github.com/cosmtrek/air` to install air, a cli tool for live reload, when you change the code, it automatically recompiles the application.
-4. run `go install github.com/joho/godotenv` to install godotenv, a cli tool to load environment variables from a `.env` so that you don't have to change your machine environment variables.
+4. run `go install github.com/joho/godotenv/cmd/godotenv` to install godotenv, a cli tool to load environment variables from a `.env` so that you don't have to change your machine environment variables.
 5. run `go install github.com/magefile/mage` to install mage, a cross-platform Make alternative.
 6. run `go install github.com/golangci/golangci-lint/cmd/golangci-lint` to install golangci-lint, a linter for Go apps.
 7. run `npm install` to install client side packages.
