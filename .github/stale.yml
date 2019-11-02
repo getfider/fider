@@ -24,13 +24,5 @@ markComment: >
   recent activity. It will be closed if no further activity occurs. Thank you
   for your contributions.
 
-# Comment to post when removing the stale label.
-# unmarkComment: >
-#   Your comment here.
-
-# Comment to post when closing a stale Issue or Pull Request.
-# closeComment: >
-#   Your comment here.
-
 # Limit the number of actions per hour, from 1-30. Default is 30
 limitPerRun: 30
