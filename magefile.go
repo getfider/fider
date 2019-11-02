@@ -68,8 +68,7 @@ func Clean() error {
 type Watch mg.Namespace
 
 func (Watch) All() {
-	Clean()
-	Migrate()
+	mg.SerialDeps(Clean, Build.Server, Migrate)
 	mg.Deps(Watch.Server, Watch.UI)
 }
 
