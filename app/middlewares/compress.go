@@ -63,18 +63,11 @@ func (w *gzipResponseWriter) Flush() {
 		w.Header().Set("Content-Encoding", "gzip")
 		w.response.WriteHeader(w.code)
 		w.writer.Reset(w.response)
-		_, err := w.buffer.WriteTo(w.writer)
-		if err != nil {
-			panic(err)
-		}
-
+		_, _ = w.buffer.WriteTo(w.writer)
 		w.writer.Close()
 	} else if w.code > 0 {
 		w.response.WriteHeader(w.code)
-		_, err := w.buffer.WriteTo(w.response)
-		if err != nil {
-			panic(err)
-		}
+		_, _ = w.buffer.WriteTo(w.response)
 	}
 }
 
