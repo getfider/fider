@@ -43,6 +43,10 @@ export class VoteCounter extends React.Component<VoteCounterProps, VoteCounterSt
     }
   };
 
+  private hideModal = () => {
+    this.setState({ showSignIn: false });
+  };
+
   public render() {
     const status = PostStatus.Get(this.props.post.status);
 
@@ -68,7 +72,7 @@ export class VoteCounter extends React.Component<VoteCounterProps, VoteCounterSt
 
     return (
       <>
-        <SignInModal isOpen={this.state.showSignIn} />
+        <SignInModal isOpen={this.state.showSignIn} onClose={this.hideModal} />
         <div className="c-vote-counter">{status.closed ? disabled : vote}</div>
       </>
     );

@@ -121,7 +121,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
 
     return (
       <>
-        <Modal.Window canClose={true} isOpen={!!this.state.action} center={false} onClose={this.closeModal}>
+        <Modal.Window isOpen={!!this.state.action} center={false} onClose={this.closeModal}>
           {this.state.action === "subscribe" && <Modal.Header>Subscribe</Modal.Header>}
           {this.state.action === "cancel" && <Modal.Header>Cancel Subscription</Modal.Header>}
           <Modal.Content>

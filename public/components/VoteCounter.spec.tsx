@@ -1,7 +1,7 @@
 import React from "react";
 import { shallow } from "enzyme";
 import { Post, UserRole, PostStatus, UserStatus } from "@fider/models";
-import { VoteCounter } from "@fider/components";
+import { VoteCounter, SignInModal } from "@fider/components";
 import { httpMock, fiderMock, rerender } from "@fider/services/testing";
 
 let post: Post;
@@ -68,7 +68,7 @@ describe("<VoteCounter />", () => {
     const wrapper = shallow(<VoteCounter post={post} />);
     wrapper.find("button").simulate("click");
     await rerender(wrapper);
-    expect(wrapper.find("SignInModal").length).toBe(1);
+    expect(wrapper.find(SignInModal).length).toBe(1);
     expect(mock.post).toHaveBeenCalledTimes(0);
     expect(mock.delete).toHaveBeenCalledTimes(0);
   });

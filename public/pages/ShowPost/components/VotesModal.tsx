@@ -63,7 +63,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
 
   public render() {
     return (
-      <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.props.onClose}>
+      <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.closeModal}>
         <Modal.Content>
           {this.state.isLoading && <Loader />}
           {!this.state.isLoading && (

@@ -35,6 +35,10 @@ export class Header extends React.Component<{}, HeaderState> {
     }
   };
 
+  private hideModal = () => {
+    this.setState({ showSignIn: false });
+  };
+
   public render() {
     const items = Fider.session.isAuthenticated && (
       <div className="c-menu-user">
@@ -68,7 +72,7 @@ export class Header extends React.Component<{}, HeaderState> {
     return (
       <div id="c-header">
         <EnvironmentInfo />
-        <SignInModal isOpen={this.state.showSignIn} />
+        <SignInModal isOpen={this.state.showSignIn} onClose={this.hideModal} />
         <div className="c-menu">
           <div className="container">
             <a href="/" className="c-menu-item-title">

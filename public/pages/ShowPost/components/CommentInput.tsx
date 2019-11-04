@@ -45,6 +45,10 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
     this.setState({ attachments });
   };
 
+  private hideModal = () => {
+    this.setState({ showSignIn: false });
+  };
+
   public submit = async () => {
     this.setState({
       error: undefined
@@ -75,7 +79,7 @@ export class CommentInput extends React.Component<CommentInputProps, CommentInpu
   public render() {
     return (
       <>
-        <SignInModal isOpen={this.state.showSignIn} />
+        <SignInModal isOpen={this.state.showSignIn} onClose={this.hideModal} />
         <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
           {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
           <Form error={this.state.error}>
