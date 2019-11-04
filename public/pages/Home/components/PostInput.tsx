@@ -75,6 +75,10 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
     }
   };
 
+  private hideModal = () => {
+    this.setState({ showSignIn: false });
+  };
+
   private setInputRef = (e: HTMLInputElement) => {
     this.title = e;
   };
@@ -90,7 +94,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
           placeholder="Describe your suggestion (optional)"
         />
         <MultiImageUploader field="attachments" maxUploads={3} previewMaxWidth={100} onChange={this.setAttachments} />
-        <Button color="positive" onClick={this.submit}>
+        <Button type="submit" color="positive" onClick={this.submit}>
           Submit
         </Button>
       </>
@@ -98,7 +102,7 @@ export class PostInput extends React.Component<PostInputProps, PostInputState> {
 
     return (
       <>
-        <SignInModal isOpen={this.state.showSignIn} />
+        <SignInModal isOpen={this.state.showSignIn} onClose={this.hideModal} />
         <Form error={this.state.error}>
           <Input
             field="title"

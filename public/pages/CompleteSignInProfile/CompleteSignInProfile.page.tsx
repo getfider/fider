@@ -34,10 +34,14 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
     this.setState({ name });
   };
 
+  private noop = () => {
+    // do nothing
+  };
+
   public render() {
     return (
       <>
-        <Modal.Window canClose={false} isOpen={true}>
+        <Modal.Window canClose={false} isOpen={true} onClose={this.noop}>
           <Modal.Header>Complete your profile</Modal.Header>
           <Modal.Content>
             <p>Because this is your first sign in, please enter your name.</p>
@@ -46,10 +50,9 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
                 field="name"
                 onChange={this.setName}
                 maxLength={100}
-                onSubmit={this.submit}
                 placeholder="Name"
                 suffix={
-                  <Button onClick={this.submit} color="positive" disabled={this.state.name === ""}>
+                  <Button type="submit" onClick={this.submit} color="positive" disabled={this.state.name === ""}>
                     Submit
                   </Button>
                 }

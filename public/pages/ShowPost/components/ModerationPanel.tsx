@@ -25,14 +25,14 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
   private delete = async () => {
     const response = await actions.deletePost(this.props.post.number, this.state.text);
     if (response.ok) {
-      await this.closeModal();
+      await this.hideModal();
       navigator.goHome();
     } else if (response.error) {
       this.setState({ error: this.state.error });
     }
   };
 
-  private closeModal = async () => {
+  private hideModal = async () => {
     this.setState({ showConfirmation: false });
   };
 
@@ -51,7 +51,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
     }
 
     const modal = (
-      <Modal.Window isOpen={this.state.showConfirmation} center={false} size="large">
+      <Modal.Window isOpen={this.state.showConfirmation} onClose={this.hideModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error}>
             <TextArea
@@ -71,7 +71,7 @@ export class ModerationPanel extends React.Component<ModerationPanelProps, Moder
           <Button color="danger" onClick={this.delete}>
             Delete
           </Button>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button color="cancel" onClick={this.hideModal}>
             Cancel
           </Button>
         </Modal.Footer>

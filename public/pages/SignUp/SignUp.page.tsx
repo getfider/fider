@@ -123,9 +123,13 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
     this.setState({ tenantName });
   };
 
+  private noop = () => {
+    // do nothing
+  };
+
   public render() {
     const modal = (
-      <Modal.Window canClose={false} isOpen={this.state.submitted}>
+      <Modal.Window canClose={false} isOpen={this.state.submitted} onClose={this.noop}>
         <Modal.Header>Thank you for registering!</Modal.Header>
         <Modal.Content>
           <p>
