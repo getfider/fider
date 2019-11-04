@@ -71,10 +71,9 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
               value={email}
               autoFocus={!device.isTouch()}
               onChange={setEmail}
-              onSubmit={signIn}
               placeholder="yourname@example.com"
               suffix={
-                <Button color="positive" disabled={email === ""} onClick={signIn}>
+                <Button type="submit" color="positive" disabled={email === ""} onClick={signIn}>
                   Sign in
                 </Button>
               }
