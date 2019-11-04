@@ -46,10 +46,9 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
                 field="name"
                 onChange={this.setName}
                 maxLength={100}
-                onSubmit={this.submit}
                 placeholder="Name"
                 suffix={
-                  <Button onClick={this.submit} color="positive" disabled={this.state.name === ""}>
+                  <Button type="submit" onClick={this.submit} color="positive" disabled={this.state.name === ""}>
                     Submit
                   </Button>
                 }
