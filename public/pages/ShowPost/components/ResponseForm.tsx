@@ -77,7 +77,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     }));
 
     const modal = (
-      <Modal.Window isOpen={this.state.showModal} center={false} size="large">
+      <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error} className="c-response-form">
             <Select

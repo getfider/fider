@@ -172,7 +172,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
 
   public render() {
     return (
-      <Modal.Window isOpen={true} center={false} size="large" onClose={this.props.onClose}>
+      <Modal.Window isOpen={true} center={false} size="large" onClose={this.closeModal}>
         <Modal.Content>
           <Form className="c-payment-info-modal" error={this.state.error}>
             <div className="row">

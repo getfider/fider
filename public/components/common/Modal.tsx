@@ -1,6 +1,6 @@
 import "./Modal.scss";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { classSet } from "@fider/services";
 
@@ -10,11 +10,7 @@ interface ModalWindowProps {
   size?: "small" | "large" | "fluid";
   canClose?: boolean;
   center?: boolean;
-  onClose?: () => void;
-}
-
-interface ModalWindowState {
-  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface ModalFooterProps {
@@ -22,88 +18,62 @@ interface ModalFooterProps {
   children?: React.ReactNode;
 }
 
-class ModalWindow extends React.Component<ModalWindowProps, ModalWindowState> {
-  private root?: HTMLElement;
+const ModalWindow: React.StatelessComponent<ModalWindowProps> = props => {
+  const root = useRef<HTMLElement>(document.getElementById("root-modal"));
 
-  constructor(props: ModalWindowProps) {
-    super(props);
-    this.state = {
-      isOpen: this.props.isOpen
-    };
-  }
-
-  public static defaultProps: Partial<ModalWindowProps> = {
-    size: "small",
-    canClose: true,
-    center: true
-  };
-
-  public componentWillUpdate(nextProps: ModalWindowProps, nextState: ModalWindowState) {
-    if (nextState.isOpen) {
-      document.addEventListener("keydown", this.keyDown, false);
+  useEffect(() => {
+    if (props.isOpen) {
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", keyDown, false);
     } else {
-      document.removeEventListener("keydown", this.keyDown, false);
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", keyDown, false);
     }
-  }
+  }, [props.isOpen]);
 
-  public componentWillReceiveProps(nextProps: ModalWindowProps) {
-    this.setState({
-      isOpen: nextProps.isOpen
-    });
-  }
-
-  private keyDown = (event: KeyboardEvent) => {
-    if (event.keyCode === 27) {
-      // ESC
-      this.close();
-    }
-  };
-
-  private close = () => {
-    if (this.props.canClose) {
-      this.setState({ isOpen: false });
-      if (this.props.onClose) {
-        this.props.onClose();
-      }
-    }
-  };
-
-  private swallow = (evt: React.MouseEvent<HTMLDivElement>) => {
+  const swallow = (evt: React.MouseEvent<HTMLDivElement>) => {
     evt.stopPropagation();
   };
 
-  private getContainer = (): HTMLElement => {
-    if (!this.root) {
-      this.root = document.getElementById("root-modal")!;
+  const keyDown = (event: KeyboardEvent) => {
+    if (event.keyCode === 27) {
+      // ESC
+      close();
     }
-    return this.root;
   };
 
-  public render() {
-    if (!this.state.isOpen) {
-      document.body.style.overflow = "";
-      return null;
+  const close = () => {
+    if (props.canClose) {
+      props.onClose();
     }
+  };
 
-    document.body.style.overflow = "hidden";
-
-    const className = classSet({
-      "c-modal-window": true,
-      [`${this.props.className}`]: !!this.props.className,
-      "m-center": this.props.center,
-      [`m-${this.props.size}`]: true
-    });
-
-    return ReactDOM.createPortal(
-      <div aria-disabled={true} className="c-modal-dimmer" onClick={this.close}>
-        <div className={className} onClick={this.swallow}>
-          {this.props.children}
-        </div>
-      </div>,
-      this.getContainer()
-    );
+  if (!props.isOpen) {
+    return null;
   }
-}
+
+  const className = classSet({
+    "c-modal-window": true,
+    [`${props.className}`]: !!props.className,
+    "m-center": props.center,
+    [`m-${props.size}`]: true
+  });
+
+  return ReactDOM.createPortal(
+    <div aria-disabled={true} className="c-modal-dimmer" onClick={close}>
+      <div className={className} onClick={swallow}>
+        {props.children}
+      </div>
+    </div>,
+    root.current!
+  );
+};
+
+ModalWindow.defaultProps = {
+  size: "small",
+  canClose: true,
+  center: true
+};
 
 export const Modal = {
   Window: ModalWindow,
