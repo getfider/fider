@@ -6,6 +6,7 @@ interface ButtonProps {
   disabled?: boolean;
   href?: string;
   rel?: "nofollow";
+  type?: "button" | "submit";
   color?: "positive" | "danger" | "default" | "cancel";
   fluid?: boolean;
   size?: "mini" | "tiny" | "small" | "normal" | "large";
@@ -34,7 +35,8 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
   public static defaultProps: Partial<ButtonProps> = {
     size: "small",
     fluid: false,
-    color: "default"
+    color: "default",
+    type: "button"
   };
 
   public constructor(props: ButtonProps) {
@@ -87,13 +89,13 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       );
     } else if (this.props.onClick) {
       return (
-        <button type="button" className={className} onClick={this.click}>
+        <button type={this.props.type} className={className} onClick={this.click}>
           {this.props.children}
         </button>
       );
     } else {
       return (
-        <button type="button" className={className}>
+        <button type={this.props.type} className={className}>
           {this.props.children}
         </button>
       );
