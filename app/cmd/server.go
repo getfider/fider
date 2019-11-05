@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/getfider/fider/app/models"
+	"github.com/getfider/fider/app/models/cmd"
 	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/env"
@@ -37,6 +38,8 @@ func RunServer(settings *models.SystemSettings) int {
 			"ServiceName":     s.Name(),
 		})
 	}
+
+	bus.Publish(ctx, &cmd.PurgeExpiredNotifications{})
 
 	e := routes(web.New(settings))
 
