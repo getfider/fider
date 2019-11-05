@@ -4,6 +4,10 @@ import "github.com/getfider/fider/app/models"
 
 type MarkAllNotificationsAsRead struct{}
 
+type PurgeExpiredNotifications struct {
+	NumOfDeletedNotifications int
+}
+
 type MarkNotificationAsRead struct {
 	ID int
 }

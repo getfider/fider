@@ -7,12 +7,39 @@ import (
 
 	"github.com/getfider/fider/app/models"
 	"github.com/getfider/fider/app/models/cmd"
+	"github.com/getfider/fider/app/models/dto"
 	"github.com/getfider/fider/app/models/enum"
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/dbx"
 	"github.com/getfider/fider/app/pkg/errors"
+	"github.com/getfider/fider/app/pkg/log"
 	"github.com/lib/pq"
 )
+
+func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotifications) error {
+	log.Debug(ctx, "deleting notifications more than 1 year old")
+
+	trx, err := dbx.BeginTx(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to open transaction")
+	}
+
+	count, err := trx.Execute("DELETE FROM notifications WHERE CREATED_AT <= NOW() - INTERVAL '365 days'")
+	if err != nil {
+		return errors.Wrap(err, "failed to delete expired notifications")
+	}
+
+	log.Debugf(ctx, "a total of @{RowsDeleted} notifications were deleted", dto.Props{
+		"RowsDeleted": count,
+	})
+
+	if err = trx.Commit(); err != nil {
+		return errors.Wrap(err, "failed commit transaction")
+	}
+
+	c.NumOfDeletedNotifications = int(count)
+	return nil
+}
 
 func markAllNotificationsAsRead(ctx context.Context, c *cmd.MarkAllNotificationsAsRead) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
