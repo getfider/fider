@@ -158,6 +158,7 @@ func TestNotificationStorage_GetNotificationByID_OtherUser(t *testing.T) {
 func TestNotificationStorage_PurgeExpiredNotifications(t *testing.T) {
 	SetupDatabaseTest(t)
 	defer TeardownDatabaseTest()
+	defer ResetDatabase()
 
 	newPost := &cmd.AddNewPost{Title: "Title", Description: "Description"}
 	err := bus.Dispatch(jonSnowCtx, newPost)

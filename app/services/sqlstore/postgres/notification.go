@@ -18,6 +18,7 @@ import (
 
 func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotifications) error {
 	log.Debug(ctx, "deleting notifications more than 1 year old")
+
 	trx, err := dbx.BeginTx(ctx)
 	if err != nil {
 		return errors.Wrap(err, "failed to open transaction")
@@ -36,7 +37,6 @@ func purgeExpiredNotifications(ctx context.Context, c *cmd.PurgeExpiredNotificat
 		return errors.Wrap(err, "failed commit transaction")
 	}
 
-	println(count)
 	c.NumOfDeletedNotifications = int(count)
 	return nil
 }

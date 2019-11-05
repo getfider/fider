@@ -80,12 +80,16 @@ func SetupDatabaseTest(t *testing.T) context.Context {
 	return trxCtx
 }
 
+func ResetDatabase() {
+	dbx.Seed()
+}
+
 func TeardownDatabaseTest() {
 	trx.MustRollback()
 }
 
 func TestMain(m *testing.M) {
-	dbx.Seed()
+	ResetDatabase()
 
 	code := m.Run()
 	os.Exit(code)
