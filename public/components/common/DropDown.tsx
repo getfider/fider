@@ -1,5 +1,4 @@
 import React from "react";
-import { findDOMNode } from "react-dom";
 import { classSet } from "@fider/services";
 
 import "./DropDown.scss";
@@ -33,6 +32,7 @@ export interface DropDownState {
 }
 
 export class DropDown extends React.Component<DropDownProps, DropDownState> {
+  private rootElementRef: React.RefObject<HTMLDivElement>;
   private mounted = false;
 
   public static defaultProps: Partial<DropDownProps> = {
@@ -43,6 +43,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
   constructor(props: DropDownProps) {
     super(props);
+    this.rootElementRef = React.createRef<HTMLDivElement>();
     this.state = {
       selected: this.findItem(props.defaultValue, props.items),
       isOpen: false
@@ -147,7 +148,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
   public handleDocumentClick = (event: any) => {
     if (this.mounted) {
-      const node = findDOMNode(this);
+      const node = this.rootElementRef.current;
       if (node && !node.contains(event.target)) {
         if (this.state.isOpen) {
           this.setState(
@@ -181,7 +182,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     });
 
     return (
-      <div className={dropdownClass}>
+      <div ref={this.rootElementRef} className={dropdownClass}>
         <div onMouseDown={this.handleMouseDown} onTouchEnd={this.handleMouseDown}>
           {this.props.renderControl ? (
             <div className="c-dropdown-control">{this.props.renderControl(this.state.selected)}</div>

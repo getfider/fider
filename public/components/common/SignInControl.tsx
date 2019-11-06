@@ -17,11 +17,11 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
   const signIn = async () => {
     const result = await actions.signIn(email);
     if (result.ok) {
+      setEmail("");
+      setError(undefined);
       if (props.onEmailSent) {
         props.onEmailSent(email);
       }
-      setEmail("");
-      setError(undefined);
     } else if (result.error) {
       setError(result.error);
     }
