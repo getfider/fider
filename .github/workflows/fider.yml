@@ -19,7 +19,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v1
       - run: npm ci
-      - run: mage lint
+      - run: mage lint:ui
       - run: mage test:ui
 
   test-server:
@@ -49,6 +49,7 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
+      - run: mage lint:server
       - name: mage test:server
         run: |
           mkdir ./dist
@@ -67,8 +68,7 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      - run: npm ci
-      - run: mage build:docker
+      - run: docker build -t getfider/fider .
       
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
