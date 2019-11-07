@@ -54,15 +54,17 @@ window.addEventListener("error", (evt: ErrorEvent) => {
     "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
   });
   ReactDOM.render(
-    <ErrorBoundary onError={logProductionError}>
-      <FiderContext.Provider value={fider}>
-        <IconContext.Provider value={{ className: "icon" }}>
-          {config.showHeader && <Header />}
-          <Suspense fallback={<Loading />}>{React.createElement(config.component, fider.session.props)}</Suspense>
-          {config.showHeader && <Footer />}
-        </IconContext.Provider>
-      </FiderContext.Provider>
-    </ErrorBoundary>,
+    <React.StrictMode>
+      <ErrorBoundary onError={logProductionError}>
+        <FiderContext.Provider value={fider}>
+          <IconContext.Provider value={{ className: "icon" }}>
+            {config.showHeader && <Header />}
+            <Suspense fallback={<Loading />}>{React.createElement(config.component, fider.session.props)}</Suspense>
+            {config.showHeader && <Footer />}
+          </IconContext.Provider>
+        </FiderContext.Provider>
+      </ErrorBoundary>
+    </React.StrictMode>,
     document.getElementById("root")
   );
 })();

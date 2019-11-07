@@ -21,6 +21,9 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
     this.state = {
       posts: []
     };
+  }
+
+  public componentDidMount() {
     this.search("");
   }
 
