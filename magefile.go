@@ -86,24 +86,13 @@ func (Build) All() {
 	mg.Deps(Build.Server, Build.UI)
 }
 
-func (Build) Docker() error {
-	mg.Deps(Build.UI)
-	if err := buildServer(map[string]string{
-		"CGO_ENABLED": "0",
-		"GOOS":        "linux",
-		"GOARCH":      "amd64",
-	}); err != nil {
-		return err
-	}
-
-	return sh.Run("docker", "build", "-t", "getfider/fider", ".")
-}
-
 func (Build) Server() error {
-	return buildServer(map[string]string{
+	env := map[string]string{
 		"GOOS":   runtime.GOOS,
 		"GOARCH": runtime.GOARCH,
-	})
+	}
+	ldflags := "-s -w -X main.buildtime=" + buildTime + " -X main.buildnumber=" + buildNumber
+	return sh.RunWith(env, "go", "build", "-ldflags", ldflags, "-o", exeName, ".")
 }
 
 func (Build) UI() error {
@@ -150,11 +139,6 @@ func (Lint) Server() error {
 }
 
 // Utils
-func buildServer(env map[string]string) error {
-	ldflags := "-s -w -X main.buildtime=" + buildTime + " -X main.buildnumber=" + buildNumber
-	return sh.RunWith(env, "go", "build", "-ldflags", ldflags, "-o", exeName, ".")
-}
-
 func missingDependencies() []string {
 	var missingDeps []string
 	for _, dep := range requiredDeps {
