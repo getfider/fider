@@ -2,13 +2,15 @@ import "./Footer.scss";
 
 import React from "react";
 import { PrivacyPolicy, TermsOfService } from "@fider/components";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 export const Footer = () => {
+  const fider = useFider();
+
   return (
     <div id="c-footer">
       <div className="container">
-        {Fider.settings.hasLegal && (
+        {fider.settings.hasLegal && (
           <div className="l-links">
             <PrivacyPolicy />
             &middot;

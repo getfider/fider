@@ -1,8 +1,9 @@
 import "./SideMenu.scss";
 
 import React from "react";
-import { classSet, Fider } from "@fider/services";
+import { classSet } from "@fider/services";
 import { FiderVersion } from "@fider/components";
+import { useFider } from "@fider/hooks";
 
 interface SiteMenuProps {
   activeItem: string;
@@ -39,6 +40,7 @@ const SideMenuItem = (props: SideMenuItemProps) => {
 };
 
 export const SideMenu = (props: SiteMenuProps) => {
+  const fider = useFider();
   const activeItem = props.activeItem || "general";
   const style = { display: props.visible ? "" : "none" };
 
@@ -62,9 +64,9 @@ export const SideMenu = (props: SiteMenuProps) => {
           isActive={activeItem === "authentication"}
         />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
-        {Fider.session.user.isAdministrator && (
+        {fider.session.user.isAdministrator && (
           <>
-            {Fider.isBillingEnabled() && !!Fider.session.tenant.billing && (
+            {fider.isBillingEnabled() && !!fider.session.tenant.billing && (
               <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />
             )}
             <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />

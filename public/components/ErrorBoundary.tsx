@@ -1,5 +1,6 @@
 import React from "react";
 import { ErrorPage } from "@fider/pages/Error/Error.page";
+import { FiderContext } from "@fider/services";
 
 interface ErrorBoundaryProps {
   onError?: (err: Error) => void;
@@ -36,7 +37,11 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     const { error, errorInfo } = this.state;
 
     if (error && errorInfo) {
-      return <ErrorPage error={error} errorInfo={errorInfo} />;
+      return (
+        <FiderContext.Consumer>
+          {fider => <ErrorPage error={error} errorInfo={errorInfo} showDetails={!fider.isProduction()} />}
+        </FiderContext.Consumer>
+      );
     } else {
       return this.props.children;
     }
