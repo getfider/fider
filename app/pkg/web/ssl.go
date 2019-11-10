@@ -16,7 +16,6 @@ import (
 func getDefaultTLSConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion:               tls.VersionTLS12,
-		MaxVersion:               tls.VersionTLS12,
 		PreferServerCipherSuites: true,
 		CurvePreferences: []tls.CurveID{
 			tls.X25519,
