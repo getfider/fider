@@ -101,7 +101,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Get("/", handlers.Index())
 	r.Get("/posts/:number", handlers.PostDetails())
-	r.Get("/posts/:number/*all", handlers.PostDetails())
+	r.Get("/posts/:number/:slug", handlers.PostDetails())
 
 	/*
 	** This is a temporary redirect and should be removed in the future

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
@@ -65,6 +67,10 @@ func PostDetails() web.HandlerFunc {
 		getAttachments := &query.GetAttachments{Post: getPost.Result}
 		if err := bus.Dispatch(c, getAllTags, getComments, listVotes, isSubscribed, getAttachments); err != nil {
 			return c.Failure(err)
+		}
+
+		if c.Param("slug") != getPost.Result.Slug {
+			return c.Redirect(fmt.Sprintf("/posts/%d/%s", getPost.Result.Number, getPost.Result.Slug))
 		}
 
 		return c.Page(web.Props{
