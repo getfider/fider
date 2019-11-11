@@ -68,13 +68,14 @@ const CookieSignUpAuthName = "__signup_auth"
 //Context shared between http pipeline
 type Context struct {
 	context.Context
-	Response  http.ResponseWriter
-	Request   Request
-	id        string
-	sessionID string
-	engine    *Engine
-	params    StringMap
-	tasks     []worker.Task
+	Response           http.ResponseWriter
+	Request            Request
+	ResponseStatusCode int
+	id                 string
+	sessionID          string
+	engine             *Engine
+	params             StringMap
+	tasks              []worker.Task
 }
 
 //NewContext creates a new web Context
@@ -473,6 +474,7 @@ func (c *Context) Image(contentType string, b []byte) error {
 // Blob sends a blob response with status code and content type.
 func (c *Context) Blob(code int, contentType string, b []byte) error {
 	c.Response.Header().Set("Content-Type", contentType)
+	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	_, err := c.Response.Write(b)
 	return err
@@ -480,6 +482,7 @@ func (c *Context) Blob(code int, contentType string, b []byte) error {
 
 // NoContent sends a response with no body and a status code.
 func (c *Context) NoContent(code int) error {
+	c.ResponseStatusCode = code
 	c.Response.WriteHeader(code)
 	return nil
 }
@@ -488,6 +491,7 @@ func (c *Context) NoContent(code int) error {
 func (c *Context) Redirect(url string) error {
 	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	c.Response.Header().Set("Location", url)
+	c.ResponseStatusCode = http.StatusTemporaryRedirect
 	c.Response.WriteHeader(http.StatusTemporaryRedirect)
 	return nil
 }
@@ -496,6 +500,7 @@ func (c *Context) Redirect(url string) error {
 func (c *Context) PermanentRedirect(url string) error {
 	c.Response.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	c.Response.Header().Set("Location", url)
+	c.ResponseStatusCode = http.StatusMovedPermanently
 	c.Response.WriteHeader(http.StatusMovedPermanently)
 	return nil
 }
