@@ -92,8 +92,9 @@ func WebSetup() web.MiddlewareFunc {
 			trx, err := dbx.BeginTx(c)
 			if err != nil {
 				err = c.Failure(err)
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms", dto.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms", dto.Props{
 					"HttpMethod": c.Request.Method,
+					"StatusCode": c.ResponseStatusCode,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
@@ -105,8 +106,9 @@ func WebSetup() web.MiddlewareFunc {
 			//Execute the chain
 			if err := next(c); err != nil {
 				c.Rollback()
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"HttpMethod": c.Request.Method,
+					"StatusCode": c.ResponseStatusCode,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
@@ -118,8 +120,9 @@ func WebSetup() web.MiddlewareFunc {
 				log.Errorf(c, "Failed to commit request with: @{Error}", dto.Props{
 					"Error": err.Error(),
 				})
-				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
+				log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (rolled back)", dto.Props{
 					"HttpMethod": c.Request.Method,
+					"StatusCode": c.ResponseStatusCode,
 					"URL":        c.Request.URL.String(),
 					"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 				})
@@ -127,8 +130,9 @@ func WebSetup() web.MiddlewareFunc {
 			}
 
 			//Still no errors, everything is fine!
-			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished in @{ElapsedMs:magenta}ms (committed)", dto.Props{
+			log.Infof(c, "@{HttpMethod:magenta} @{URL:magenta} finished with @{StatusCode:magenta} in @{ElapsedMs:magenta}ms (committed)", dto.Props{
 				"HttpMethod": c.Request.Method,
+				"StatusCode": c.ResponseStatusCode,
 				"URL":        c.Request.URL.String(),
 				"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 			})
