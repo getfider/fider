@@ -9,8 +9,7 @@ describe("<ErrorPage />", () => {
     const error = new Error("Hello");
     const errorInfo = createFakeErrorInfo();
 
-    const showError = () => true;
-    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showError={showError} />);
+    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showDetails={true} />);
     expect(wrapper.find("pre")).toHaveLength(1);
   });
 
@@ -18,8 +17,7 @@ describe("<ErrorPage />", () => {
     const error = new Error("Hello");
     const errorInfo = createFakeErrorInfo();
 
-    const showError = () => false;
-    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showError={showError} />);
+    const wrapper = shallow(<ErrorPage error={error} errorInfo={errorInfo} showDetails={false} />);
 
     expect(wrapper.find("pre")).toHaveLength(0);
   });

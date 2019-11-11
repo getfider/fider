@@ -1,10 +1,12 @@
 import React from "react";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 export const FiderVersion = () => {
+  const fider = useFider();
+
   return (
     <p className="info center hidden-sm hidden-md">
-      {!Fider.isBillingEnabled() && (
+      {!fider.isBillingEnabled() && (
         <>
           Support our{" "}
           <a target="_blank" href="http://opencollective.com/fider">
@@ -13,7 +15,7 @@ export const FiderVersion = () => {
           <br />
         </>
       )}
-      Fider v{Fider.settings.version}
+      Fider v{fider.settings.version}
     </p>
   );
 };

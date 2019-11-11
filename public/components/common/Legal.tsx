@@ -1,13 +1,15 @@
 import React from "react";
 import { Modal, Checkbox } from "@fider/components/common";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 interface LegalAgreementProps {
   onChange: (agreed: boolean) => void;
 }
 
 export const TermsOfService: React.FunctionComponent<{}> = () => {
-  if (Fider.settings.hasLegal) {
+  const fider = useFider();
+
+  if (fider.settings.hasLegal) {
     return (
       <a href="/terms" target="_blank">
         Terms of Service
@@ -18,7 +20,9 @@ export const TermsOfService: React.FunctionComponent<{}> = () => {
 };
 
 export const PrivacyPolicy: React.FunctionComponent<{}> = () => {
-  if (Fider.settings.hasLegal) {
+  const fider = useFider();
+
+  if (fider.settings.hasLegal) {
     return (
       <a href="/privacy" target="_blank">
         Privacy Policy
@@ -29,7 +33,9 @@ export const PrivacyPolicy: React.FunctionComponent<{}> = () => {
 };
 
 export const LegalNotice: React.FunctionComponent<{}> = () => {
-  if (Fider.settings.hasLegal) {
+  const fider = useFider();
+
+  if (fider.settings.hasLegal) {
     return (
       <p className="info">
         By signing in, you agree to the <PrivacyPolicy /> and <TermsOfService />.
@@ -40,7 +46,9 @@ export const LegalNotice: React.FunctionComponent<{}> = () => {
 };
 
 export const LegalFooter: React.FunctionComponent<{}> = () => {
-  if (Fider.settings.hasLegal) {
+  const fider = useFider();
+
+  if (fider.settings.hasLegal) {
     return (
       <Modal.Footer align="center">
         <LegalNotice />
@@ -51,7 +59,9 @@ export const LegalFooter: React.FunctionComponent<{}> = () => {
 };
 
 export const LegalAgreement: React.FunctionComponent<LegalAgreementProps> = props => {
-  if (Fider.settings.hasLegal) {
+  const fider = useFider();
+
+  if (fider.settings.hasLegal) {
     return (
       <Checkbox field="legalAgreement" onChange={props.onChange}>
         I have read and agree to the <PrivacyPolicy /> and <TermsOfService />.
