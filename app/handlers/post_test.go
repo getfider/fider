@@ -91,26 +91,6 @@ func TestDetailsHandler_RedirectOnDifferentSlu(t *testing.T) {
 		return nil
 	})
 
-	bus.AddHandler(func(ctx context.Context, q *query.GetCommentsByPost) error {
-		return nil
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.GetAttachments) error {
-		return nil
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.ListPostVotes) error {
-		return nil
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.GetAllTags) error {
-		return nil
-	})
-
-	bus.AddHandler(func(ctx context.Context, q *query.UserSubscribedTo) error {
-		return nil
-	})
-
 	server := mock.NewServer()
 
 	code, response := server.
