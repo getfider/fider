@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/getfider/fider/app/models/query"
 	"github.com/getfider/fider/app/pkg/bus"
 	"github.com/getfider/fider/app/pkg/csv"
@@ -56,6 +58,10 @@ func PostDetails() web.HandlerFunc {
 		getPost := &query.GetPostByNumber{Number: number}
 		if err := bus.Dispatch(c, getPost); err != nil {
 			return c.Failure(err)
+		}
+
+		if c.Param("slug") != getPost.Result.Slug {
+			return c.Redirect(fmt.Sprintf("/posts/%d/%s", getPost.Result.Number, getPost.Result.Slug))
 		}
 
 		isSubscribed := &query.UserSubscribedTo{PostID: getPost.Result.ID}

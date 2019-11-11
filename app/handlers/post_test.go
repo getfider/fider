@@ -42,7 +42,7 @@ func TestIndexHandler(t *testing.T) {
 func TestDetailsHandler(t *testing.T) {
 	RegisterT(t)
 
-	post := &models.Post{Number: 1, Title: "My Post Title"}
+	post := &models.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
 		q.Result = post
@@ -75,9 +75,33 @@ func TestDetailsHandler(t *testing.T) {
 		OnTenant(mock.DemoTenant).
 		AsUser(mock.JonSnow).
 		AddParam("number", post.Number).
+		AddParam("slug", post.Slug).
 		Execute(handlers.PostDetails())
 
 	Expect(code).Equals(http.StatusOK)
+}
+
+func TestDetailsHandler_RedirectOnDifferentSlu(t *testing.T) {
+	RegisterT(t)
+
+	post := &models.Post{Number: 1, Title: "My Post Title", Slug: "my-post-title"}
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetPostByNumber) error {
+		q.Result = post
+		return nil
+	})
+
+	server := mock.NewServer()
+
+	code, response := server.
+		OnTenant(mock.DemoTenant).
+		AsUser(mock.JonSnow).
+		AddParam("number", post.Number).
+		AddParam("slug", "some-other-slug").
+		Execute(handlers.PostDetails())
+
+	Expect(code).Equals(http.StatusTemporaryRedirect)
+	Expect(response.Header().Get("Location")).Equals("/posts/1/my-post-title")
 }
 
 func TestDetailsHandler_NotFound(t *testing.T) {
