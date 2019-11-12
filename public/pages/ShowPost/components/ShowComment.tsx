@@ -27,7 +27,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   const fider = useFider();
   const [isEditing, setIsEditing] = useState(false);
   const [newContent, setNewContent] = useState("");
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isDeleteConfirmationModalOpen, setIsDeleteConfirmationModalOpen] = useState(false);
   const [attachments, setAttachments] = useState<ImageUpload[]>([]);
   const [error, setError] = useState<Failure>();
 
@@ -60,7 +60,7 @@ export const ShowComment = (props: ShowCommentProps) => {
   };
 
   const closeModal = async () => {
-    setShowDeleteConfirmation(false);
+    setIsDeleteConfirmationModalOpen(false);
   };
 
   const deleteComment = async () => {
@@ -76,13 +76,13 @@ export const ShowComment = (props: ShowCommentProps) => {
       setNewContent(props.comment.content);
       clearError();
     } else if (item.value === "delete") {
-      setShowDeleteConfirmation(true);
+      setIsDeleteConfirmationModalOpen(true);
     }
   };
 
   const modal = () => {
     return (
-      <Modal.Window isOpen={showDeleteConfirmation} onClose={closeModal} center={false} size="small">
+      <Modal.Window isOpen={isDeleteConfirmationModalOpen} onClose={closeModal} center={false} size="small">
         <Modal.Header>Delete Comment</Modal.Header>
         <Modal.Content>
           <p>

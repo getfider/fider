@@ -8,7 +8,7 @@ import { useFider } from "@fider/hooks";
 
 export const Header = () => {
   const fider = useFider();
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
@@ -23,13 +23,11 @@ export const Header = () => {
 
   const showModal = () => {
     if (!fider.session.isAuthenticated) {
-      setShowSignIn(true);
+      setIsSignInModalOpen(true);
     }
   };
 
-  const hideModal = () => {
-    setShowSignIn(false);
-  };
+  const hideModal = () => setIsSignInModalOpen(false);
 
   const items = fider.session.isAuthenticated && (
     <div className="c-menu-user">
@@ -63,7 +61,7 @@ export const Header = () => {
   return (
     <div id="c-header">
       <EnvironmentInfo />
-      <SignInModal isOpen={showSignIn} onClose={hideModal} />
+      <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="c-menu">
         <div className="container">
           <a href="/" className="c-menu-item-title">

@@ -14,15 +14,15 @@ interface VotesPanelProps {
 
 export const VotesPanel = (props: VotesPanelProps) => {
   const fider = useFider();
-  const [showModal, setShowModal] = useState(false);
+  const [isVotesModalOpen, setIsVotesModalOpen] = useState(false);
 
   const openModal = () => {
     if (canShowAll()) {
-      setShowModal(true);
+      setIsVotesModalOpen(true);
     }
   };
 
-  const closeModal = () => setShowModal(false);
+  const closeModal = () => setIsVotesModalOpen(false);
   const canShowAll = () => fider.session.isAuthenticated && Fider.session.user.isCollaborator;
 
   const extraVotesCount = props.post.votesCount - props.votes.length;
@@ -33,7 +33,7 @@ export const VotesPanel = (props: VotesPanelProps) => {
 
   return (
     <>
-      <VotesModal post={props.post} isOpen={showModal} onClose={closeModal} />
+      <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
       <span className="subtitle">Voters</span>
       <div className="l-votes-list">
         {props.votes.map(x => (

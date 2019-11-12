@@ -19,7 +19,7 @@ export const CommentInput = (props: CommentInputProps) => {
   const fider = useFider();
   const inputRef = useRef<HTMLTextAreaElement>();
   const [content, setContent] = useState((fider.session.isAuthenticated && cache.session.get(getCacheKey())) || "");
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [attachments, setAttachments] = useState<ImageUpload[]>([]);
   const [error, setError] = useState<Failure | undefined>(undefined);
 
@@ -28,7 +28,7 @@ export const CommentInput = (props: CommentInputProps) => {
     setContent(newContent);
   };
 
-  const hideModal = () => setShowSignIn(false);
+  const hideModal = () => setIsSignInModalOpen(false);
   const clearError = () => setError(undefined);
 
   const submit = async () => {
@@ -46,13 +46,13 @@ export const CommentInput = (props: CommentInputProps) => {
   const handleOnFocus = () => {
     if (!fider.session.isAuthenticated && inputRef.current) {
       inputRef.current.blur();
-      setShowSignIn(true);
+      setIsSignInModalOpen(true);
     }
   };
 
   return (
     <>
-      <SignInModal isOpen={showSignIn} onClose={hideModal} />
+      <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className={`c-comment-input ${Fider.session.isAuthenticated && "m-authenticated"}`}>
         {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
         <Form error={error}>

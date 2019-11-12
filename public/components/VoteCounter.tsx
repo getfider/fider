@@ -15,11 +15,11 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const fider = useFider();
   const [hasVoted, setHasVoted] = useState(props.post.hasVoted);
   const [votesCount, setVotesCount] = useState(props.post.votesCount);
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
   const voteOrUndo = async () => {
     if (!fider.session.isAuthenticated) {
-      setShowSignIn(true);
+      setIsSignInModalOpen(true);
       return;
     }
 
@@ -32,9 +32,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
     }
   };
 
-  const hideModal = () => {
-    setShowSignIn(false);
-  };
+  const hideModal = () => setIsSignInModalOpen(false);
 
   const status = PostStatus.Get(props.post.status);
 
@@ -60,7 +58,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
 
   return (
     <>
-      <SignInModal isOpen={showSignIn} onClose={hideModal} />
+      <SignInModal isOpen={isSignInModalOpen} onClose={hideModal} />
       <div className="c-vote-counter">{status.closed ? disabled : vote}</div>
     </>
   );
