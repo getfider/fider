@@ -12,7 +12,7 @@ interface TextAreaProps {
   minRows?: number;
   placeholder?: string;
   onChange?: (value: string) => void;
-  inputRef?: (node: HTMLTextAreaElement) => void;
+  inputRef?: React.MutableRefObject<any>;
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }
 

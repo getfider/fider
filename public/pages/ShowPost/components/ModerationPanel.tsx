@@ -1,95 +1,76 @@
-import React from "react";
+import React, { useState } from "react";
 import { PostStatus, Post } from "@fider/models";
-import { actions, navigator, Failure, Fider } from "@fider/services";
+import { actions, navigator, Failure } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
+import { useFider } from "@fider/hooks";
 
 interface ModerationPanelProps {
   post: Post;
 }
 
-interface ModerationPanelState {
-  showConfirmation: boolean;
-  text: string;
-  error?: Failure;
-}
+export const ModerationPanel = (props: ModerationPanelProps) => {
+  const fider = useFider();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [text, setText] = useState("");
+  const [error, setError] = useState<Failure>();
 
-export class ModerationPanel extends React.Component<ModerationPanelProps, ModerationPanelState> {
-  constructor(props: ModerationPanelProps) {
-    super(props);
-    this.state = {
-      text: "",
-      showConfirmation: false
-    };
-  }
+  const hideModal = async () => setShowConfirmation(false);
+  const showModal = async () => setShowConfirmation(true);
 
-  private delete = async () => {
-    const response = await actions.deletePost(this.props.post.number, this.state.text);
+  const handleDelete = async () => {
+    const response = await actions.deletePost(props.post.number, text);
     if (response.ok) {
-      await this.hideModal();
+      hideModal();
       navigator.goHome();
     } else if (response.error) {
-      this.setState({ error: this.state.error });
+      setError(response.error);
     }
   };
 
-  private hideModal = async () => {
-    this.setState({ showConfirmation: false });
-  };
+  const status = PostStatus.Get(props.post.status);
+  if (!fider.session.isAuthenticated || !fider.session.user.isAdministrator || status.closed) {
+    return null;
+  }
 
-  private showModal = async () => {
-    this.setState({ showConfirmation: true });
-  };
+  const modal = (
+    <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
+      <Modal.Content>
+        <Form error={error}>
+          <TextArea
+            field="text"
+            onChange={setText}
+            value={text}
+            placeholder="Why are you deleting this post? (optional)"
+          >
+            <span className="info">
+              This operation <strong>cannot</strong> be undone.
+            </span>
+          </TextArea>
+        </Form>
+      </Modal.Content>
 
-  private setText = (text: string) => {
-    this.setState({ text });
-  };
+      <Modal.Footer>
+        <Button color="danger" onClick={handleDelete}>
+          Delete
+        </Button>
+        <Button color="cancel" onClick={hideModal}>
+          Cancel
+        </Button>
+      </Modal.Footer>
+    </Modal.Window>
+  );
 
-  public render() {
-    const status = PostStatus.Get(this.props.post.status);
-    if (!Fider.session.isAuthenticated || !Fider.session.user.isAdministrator || status.closed) {
-      return null;
-    }
-
-    const modal = (
-      <Modal.Window isOpen={this.state.showConfirmation} onClose={this.hideModal} center={false} size="large">
-        <Modal.Content>
-          <Form error={this.state.error}>
-            <TextArea
-              field="text"
-              onChange={this.setText}
-              value={this.state.text}
-              placeholder="Why are you deleting this post? (optional)"
-            >
-              <span className="info">
-                This operation <strong>cannot</strong> be undone.
-              </span>
-            </TextArea>
-          </Form>
-        </Modal.Content>
-
-        <Modal.Footer>
-          <Button color="danger" onClick={this.delete}>
+  return (
+    <>
+      {modal}
+      <span className="subtitle">Moderation</span>
+      <List>
+        <ListItem>
+          <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
             Delete
           </Button>
-          <Button color="cancel" onClick={this.hideModal}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal.Window>
-    );
-
-    return (
-      <>
-        {modal}
-        <span className="subtitle">Moderation</span>
-        <List>
-          <ListItem>
-            <Button color="danger" size="tiny" fluid={true} onClick={this.showModal}>
-              Delete
-            </Button>
-          </ListItem>
-        </List>
-      </>
-    );
-  }
-}
+        </ListItem>
+      </List>
+    </>
+  );
+};
