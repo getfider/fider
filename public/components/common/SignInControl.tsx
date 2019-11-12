@@ -2,7 +2,8 @@ import "./SignInControl.scss";
 
 import React, { useState } from "react";
 import { SocialSignInButton, Form, Button, Input, Message } from "@fider/components";
-import { device, actions, Failure, Fider, isCookieEnabled } from "@fider/services";
+import { device, actions, Failure, isCookieEnabled } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 interface SignInControlProps {
   useEmail: boolean;
@@ -11,6 +12,7 @@ interface SignInControlProps {
 }
 
 export const SignInControl: React.FunctionComponent<SignInControlProps> = props => {
+  const fider = useFider();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<Failure | undefined>(undefined);
 
@@ -27,7 +29,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
     }
   };
 
-  const providersLen = Fider.settings.oauth.length;
+  const providersLen = fider.settings.oauth.length;
 
   if (!isCookieEnabled()) {
     return (
@@ -43,7 +45,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
       {providersLen > 0 && (
         <div className="l-signin-social">
           <div className="row">
-            {Fider.settings.oauth.map((o, i) => (
+            {fider.settings.oauth.map((o, i) => (
               <React.Fragment key={o.provider}>
                 {i % 4 === 0 && <div className="col-lf" />}
                 <div

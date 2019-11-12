@@ -1,6 +1,6 @@
 import React from "react";
 import "./CardInfo.scss";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 const visa = require("@fider/assets/images/card-visa.svg");
 const diners = require("@fider/assets/images/card-diners.svg");
@@ -18,9 +18,11 @@ interface CardBrandProps {
 }
 
 export const CardInfo = (props: CardBrandProps) => {
+  const fider = useFider();
+
   return (
     <p className="c-card-info">
-      <img src={`${Fider.settings.globalAssetsURL}${brandImage(props.brand)}`} alt={props.brand} />
+      <img src={`${fider.settings.globalAssetsURL}${brandImage(props.brand)}`} alt={props.brand} />
       <span>
         **** **** **** {props.last4}{" "}
         <span className="c-card-info-exp">
