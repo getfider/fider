@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Comment, Post, ImageUpload } from "@fider/models";
 import {
   Avatar,
@@ -14,98 +14,75 @@ import {
   ImageViewer,
   MultiImageUploader
 } from "@fider/components";
-import { formatDate, Failure, actions, Fider } from "@fider/services";
+import { formatDate, Failure, actions } from "@fider/services";
 import { FaEllipsisH } from "react-icons/fa";
+import { useFider } from "@fider/hooks";
 
 interface ShowCommentProps {
   post: Post;
   comment: Comment;
 }
 
-interface ShowCommentState {
-  comment: Comment;
-  isEditing: boolean;
-  newContent: string;
-  attachments: ImageUpload[];
-  error?: Failure;
-  showDeleteConfirmation: boolean;
-}
+export const ShowComment = (props: ShowCommentProps) => {
+  const fider = useFider();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newContent, setNewContent] = useState("");
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [attachments, setAttachments] = useState<ImageUpload[]>([]);
+  const [error, setError] = useState<Failure>();
 
-export class ShowComment extends React.Component<ShowCommentProps, ShowCommentState> {
-  constructor(props: ShowCommentProps) {
-    super(props);
-    this.state = {
-      comment: props.comment,
-      isEditing: false,
-      newContent: "",
-      showDeleteConfirmation: false,
-      attachments: []
-    };
-  }
-
-  private canEditComment(comment: Comment): boolean {
-    if (Fider.session.isAuthenticated) {
-      return Fider.session.user.isCollaborator || comment.user.id === Fider.session.user.id;
+  const canEditComment = (): boolean => {
+    if (fider.session.isAuthenticated) {
+      return fider.session.user.isCollaborator || props.comment.user.id === fider.session.user.id;
     }
     return false;
-  }
-
-  private cancelEdit = async () => {
-    this.setState({
-      isEditing: false,
-      newContent: "",
-      error: undefined
-    });
   };
 
-  private saveEdit = async () => {
-    const response = await actions.updateComment(
-      this.props.post.number,
-      this.state.comment.id,
-      this.state.newContent,
-      this.state.attachments
-    );
+  const clearError = () => setError(undefined);
+
+  const cancelEdit = async () => {
+    setIsEditing(false);
+    setNewContent("");
+    clearError();
+  };
+
+  const saveEdit = async () => {
+    const response = await actions.updateComment(props.post.number, props.comment.id, newContent, attachments);
     if (response.ok) {
       location.reload();
     } else {
-      this.setState({ error: response.error });
+      setError(response.error);
     }
   };
 
-  private setNewContent = (newContent: string) => {
-    this.setState({ newContent });
-  };
-
-  private setAttachments = (attachments: ImageUpload[]) => {
-    this.setState({ attachments });
-  };
-
-  private renderEllipsis = () => {
+  const renderEllipsis = () => {
     return <FaEllipsisH />;
   };
 
-  private closeModal = async () => {
-    this.setState({ showDeleteConfirmation: false });
+  const closeModal = async () => {
+    setShowDeleteConfirmation(false);
   };
 
-  private deleteComment = async () => {
-    const response = await actions.deleteComment(this.props.post.number, this.props.comment.id);
+  const deleteComment = async () => {
+    const response = await actions.deleteComment(props.post.number, props.comment.id);
     if (response.ok) {
       location.reload();
     }
   };
 
-  private onActionSelected = (item: DropDownItem) => {
+  const onActionSelected = (item: DropDownItem) => {
     if (item.value === "edit") {
-      this.setState({ isEditing: true, newContent: this.state.comment.content, error: undefined });
+      setIsEditing(true);
+      setNewContent(props.comment.content);
+      clearError();
     } else if (item.value === "delete") {
-      this.setState({ showDeleteConfirmation: true });
+      setShowDeleteConfirmation(true);
     }
   };
 
-  private modal() {
+  const modal = () => {
     return (
-      <Modal.Window isOpen={this.state.showDeleteConfirmation} onClose={this.closeModal} center={false} size="small">
+      <Modal.Window isOpen={showDeleteConfirmation} onClose={closeModal} center={false} size="small">
         <Modal.Header>Delete Comment</Modal.Header>
         <Modal.Content>
           <p>
@@ -114,84 +91,84 @@ export class ShowComment extends React.Component<ShowCommentProps, ShowCommentSt
         </Modal.Content>
 
         <Modal.Footer>
-          <Button color="danger" onClick={this.deleteComment}>
+          <Button color="danger" onClick={deleteComment}>
             Delete
           </Button>
-          <Button color="cancel" onClick={this.closeModal}>
+          <Button color="cancel" onClick={closeModal}>
             Cancel
           </Button>
         </Modal.Footer>
       </Modal.Window>
     );
-  }
+  };
 
-  public render() {
-    const c = this.state.comment;
+  const comment = props.comment;
 
-    const editedMetadata = !!c.editedAt && !!c.editedBy && (
-      <div className="c-comment-metadata">
-        <span title={`This comment has been edited by ${c.editedBy!.name} on ${formatDate(c.editedAt)}`}>· edited</span>
-      </div>
-    );
+  const editedMetadata = !!comment.editedAt && !!comment.editedBy && (
+    <div className="c-comment-metadata">
+      <span title={`This comment has been edited by ${comment.editedBy!.name} on ${formatDate(comment.editedAt)}`}>
+        · edited
+      </span>
+    </div>
+  );
 
-    return (
-      <div className="c-comment">
-        {this.modal()}
-        <Avatar user={c.user} />
-        <div className="c-comment-content">
-          <UserName user={c.user} />
-          <div className="c-comment-metadata">
-            · <Moment date={c.createdAt} />
-          </div>
-          {editedMetadata}
-          {!this.state.isEditing && this.canEditComment(c) && (
-            <DropDown
-              className="l-more-actions"
-              direction="left"
-              inline={true}
-              style="simple"
-              highlightSelected={false}
-              items={[
-                { label: "Edit", value: "edit" },
-                { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
-              ]}
-              onChange={this.onActionSelected}
-              renderControl={this.renderEllipsis}
-            />
+  return (
+    <div className="c-comment">
+      {modal()}
+      <Avatar user={comment.user} />
+      <div className="c-comment-content">
+        <UserName user={comment.user} />
+        <div className="c-comment-metadata">
+          · <Moment date={comment.createdAt} />
+        </div>
+        {editedMetadata}
+        {!isEditing && canEditComment() && (
+          <DropDown
+            className="l-more-actions"
+            direction="left"
+            inline={true}
+            style="simple"
+            highlightSelected={false}
+            items={[
+              { label: "Edit", value: "edit" },
+              { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+            ]}
+            onChange={onActionSelected}
+            renderControl={renderEllipsis}
+          />
+        )}
+        <div className="c-comment-text">
+          {isEditing ? (
+            <Form error={error}>
+              <TextArea
+                field="content"
+                minRows={1}
+                value={newContent}
+                placeholder={comment.content}
+                onChange={setNewContent}
+              />
+              <MultiImageUploader
+                field="attachments"
+                bkeys={comment.attachments}
+                maxUploads={2}
+                previewMaxWidth={100}
+                onChange={setAttachments}
+              />
+              <Button size="tiny" onClick={saveEdit} color="positive">
+                Save
+              </Button>
+              <Button color="cancel" size="tiny" onClick={cancelEdit}>
+                Cancel
+              </Button>
+            </Form>
+          ) : (
+            <>
+              <MultiLineText text={comment.content} style="simple" />
+              {comment.attachments && comment.attachments.map(x => <ImageViewer key={x} bkey={x} />)}
+            </>
           )}
-          <div className="c-comment-text">
-            {this.state.isEditing ? (
-              <Form error={this.state.error}>
-                <TextArea
-                  field="content"
-                  minRows={1}
-                  value={this.state.newContent}
-                  placeholder={c.content}
-                  onChange={this.setNewContent}
-                />
-                <MultiImageUploader
-                  field="attachments"
-                  bkeys={c.attachments}
-                  maxUploads={2}
-                  previewMaxWidth={100}
-                  onChange={this.setAttachments}
-                />
-                <Button size="tiny" onClick={this.saveEdit} color="positive">
-                  Save
-                </Button>
-                <Button color="cancel" size="tiny" onClick={this.cancelEdit}>
-                  Cancel
-                </Button>
-              </Form>
-            ) : (
-              <>
-                <MultiLineText text={c.content} style="simple" />
-                {c.attachments && c.attachments.map(x => <ImageViewer key={x} bkey={x} />)}
-              </>
-            )}
-          </div>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
