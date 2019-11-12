@@ -1,9 +1,10 @@
 import "./VotesPanel.scss";
 
-import React from "react";
+import React, { useState } from "react";
 import { Post, Vote } from "@fider/models";
 import { Avatar } from "@fider/components";
 import { Fider, classSet } from "@fider/services";
+import { useFider } from "@fider/hooks";
 import { VotesModal } from "./VotesModal";
 
 interface VotesPanelProps {
@@ -11,60 +12,45 @@ interface VotesPanelProps {
   votes: Vote[];
 }
 
-interface VotesPanelState {
-  showModal: boolean;
-}
+export const VotesPanel = (props: VotesPanelProps) => {
+  const fider = useFider();
+  const [isVotesModalOpen, setIsVotesModalOpen] = useState(false);
 
-export class VotesPanel extends React.Component<VotesPanelProps, VotesPanelState> {
-  constructor(props: VotesPanelProps) {
-    super(props);
-    this.state = {
-      showModal: false
-    };
-  }
-
-  private showModal = () => {
-    if (this.canShowAll()) {
-      this.setState({ showModal: true });
+  const openModal = () => {
+    if (canShowAll()) {
+      setIsVotesModalOpen(true);
     }
   };
 
-  private hideModal = () => {
-    this.setState({ showModal: false });
-  };
+  const closeModal = () => setIsVotesModalOpen(false);
+  const canShowAll = () => fider.session.isAuthenticated && Fider.session.user.isCollaborator;
 
-  private canShowAll = () => {
-    return Fider.session.isAuthenticated && Fider.session.user.isCollaborator;
-  };
+  const extraVotesCount = props.post.votesCount - props.votes.length;
+  const moreVotesClassName = classSet({
+    "l-votes-more": true,
+    clickable: canShowAll()
+  });
 
-  public render() {
-    const extraVotesCount = this.props.post.votesCount - this.props.votes.length;
-    const moreVotesClassName = classSet({
-      "l-votes-more": true,
-      clickable: this.canShowAll()
-    });
-
-    return (
-      <>
-        <VotesModal post={this.props.post} isOpen={this.state.showModal} onClose={this.hideModal} />
-        <span className="subtitle">Voters</span>
-        <div className="l-votes-list">
-          {this.props.votes.map(x => (
-            <Avatar key={x.user.id} user={x.user} />
-          ))}
-          {extraVotesCount > 0 && (
-            <span onClick={this.showModal} className={moreVotesClassName}>
-              +{extraVotesCount} more
-            </span>
-          )}
-          {this.props.votes.length > 0 && extraVotesCount === 0 && this.canShowAll() && (
-            <span onClick={this.showModal} className={moreVotesClassName}>
-              see details
-            </span>
-          )}
-          {this.props.votes.length === 0 && <span className="info">None yet</span>}
-        </div>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
+      <span className="subtitle">Voters</span>
+      <div className="l-votes-list">
+        {props.votes.map(x => (
+          <Avatar key={x.user.id} user={x.user} />
+        ))}
+        {extraVotesCount > 0 && (
+          <span onClick={openModal} className={moreVotesClassName}>
+            +{extraVotesCount} more
+          </span>
+        )}
+        {props.votes.length > 0 && extraVotesCount === 0 && canShowAll() && (
+          <span onClick={openModal} className={moreVotesClassName}>
+            see details
+          </span>
+        )}
+        {props.votes.length === 0 && <span className="info">None yet</span>}
+      </div>
+    </>
+  );
+};

@@ -3,7 +3,7 @@ import "./PostFilter.scss";
 import React from "react";
 import { PostStatus } from "@fider/models";
 import { DropDown, DropDownItem } from "@fider/components";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 interface PostFilterProps {
   activeView: string;
@@ -12,6 +12,8 @@ interface PostFilterProps {
 }
 
 export const PostFilter = (props: PostFilterProps) => {
+  const fider = useFider();
+
   const handleChangeView = (item: DropDownItem) => {
     props.viewChanged(item.value as string);
   };
@@ -23,7 +25,7 @@ export const PostFilter = (props: PostFilterProps) => {
     { value: "most-discussed", label: "Most Discussed" }
   ];
 
-  if (Fider.session.isAuthenticated) {
+  if (fider.session.isAuthenticated) {
     options.push({ value: "my-votes", label: "My Votes" });
   }
 
