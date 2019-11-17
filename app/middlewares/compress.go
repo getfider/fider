@@ -24,9 +24,6 @@ func Compress() web.MiddlewareFunc {
 			res := c.Response
 			if strings.Contains(c.Request.GetHeader("Accept-Encoding"), "gzip") {
 
-				gw, _ := gzip.NewWriterLevel(res, gzip.DefaultCompression)
-				defer gw.Close()
-
 				res.Header().Set("Content-Encoding", "gzip")
 				res.Header().Del("Accept-Encoding")
 				res.Header().Add("Vary", "Accept-Encoding")
@@ -41,12 +38,17 @@ func Compress() web.MiddlewareFunc {
 					f = nil
 				}
 
+				gw, _ := gzip.NewWriterLevel(res, gzip.DefaultCompression)
 				c.Response = &gzipResponseWriter{
 					Writer:         gw,
 					ResponseWriter: res,
 					Hijacker:       h,
 					Flusher:        f,
 				}
+
+				err := next(c)
+				gw.Close()
+				return err
 			}
 			return next(c)
 		}
@@ -83,4 +85,11 @@ func (w *gzipResponseWriter) Flush() {
 	if w.Flusher != nil {
 		w.Flusher.Flush()
 	}
+}
+
+func (w *gzipResponseWriter) Close() error {
+	if c, ok := w.Writer.(io.Closer); ok {
+		return c.Close()
+	}
+	return nil
 }

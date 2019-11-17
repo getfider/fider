@@ -35,5 +35,26 @@ func TestCompress(t *testing.T) {
 	Expect(bytes).Equals([]byte(data))
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")
+	Expect(response.Header().Get("Content-Type")).Equals("text/html; charset=utf-8")
+	Expect(response.Header().Get("Content-Encoding")).Equals("gzip")
+}
+
+func TestCompress_AfterPanic(t *testing.T) {
+	RegisterT(t)
+
+	server := mock.NewServer()
+	server.Use(middlewares.CatchPanic())
+	server.Use(middlewares.Compress())
+	handler := func(c *web.Context) error {
+		panic("Boom!")
+	}
+
+	status, response := server.
+		AddHeader("Accept-Encoding", "gzip").
+		Execute(handler)
+
+	Expect(status).Equals(http.StatusInternalServerError)
+	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")
+	Expect(response.Header().Get("Content-Type")).Equals("text/html; charset=utf-8")
 	Expect(response.Header().Get("Content-Encoding")).Equals("gzip")
 }
