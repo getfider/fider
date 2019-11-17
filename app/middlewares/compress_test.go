@@ -35,7 +35,7 @@ func TestCompress(t *testing.T) {
 	Expect(bytes).Equals([]byte(data))
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Header().Get("Vary")).Equals("Accept-Encoding")
-	Expect(response.Header().Get("Content-Type")).Equals("text/html; charset=utf-8")
+	Expect(response.Header().Get("Content-Type")).Equals("text/plain; charset=utf-8")
 	Expect(response.Header().Get("Content-Encoding")).Equals("gzip")
 }
 
