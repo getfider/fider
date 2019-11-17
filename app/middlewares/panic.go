@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"io"
 	"time"
 
 	"github.com/getfider/fider/app/models/dto"
@@ -21,6 +22,10 @@ func CatchPanic() web.MiddlewareFunc {
 						"URL":        c.Request.URL.String(),
 						"ElapsedMs":  time.Since(c.Request.StartTime).Nanoseconds() / int64(time.Millisecond),
 					})
+
+					if f, ok := c.Response.(io.Closer); ok {
+						f.Close()
+					}
 				}
 			}()
 
