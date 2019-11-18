@@ -1,63 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field } from "@fider/components";
-import { Fider } from "@fider/services";
+import { useFider } from "@fider/hooks";
 
 interface NotificationSettingsProps {
   userSettings: UserSettings;
   settingsChanged: (settings: UserSettings) => void;
 }
 
-interface NotificationSettingsState {
-  userSettings: UserSettings;
-}
-
 type Channel = number;
 const WebChannel: Channel = 1;
 const EmailChannel: Channel = 2;
 
-export class NotificationSettings extends React.Component<NotificationSettingsProps, NotificationSettingsState> {
-  constructor(props: NotificationSettingsProps) {
-    super(props);
+export const NotificationSettings = (props: NotificationSettingsProps) => {
+  const fider = useFider();
+  const [userSettings, setUserSettings] = useState(props.userSettings);
 
-    this.state = {
-      userSettings: this.props.userSettings
-    };
-  }
-
-  private isEnabled(settingsKey: string, channel: Channel): boolean {
-    if (settingsKey in this.state.userSettings) {
-      return (parseInt(this.state.userSettings[settingsKey], 10) & channel) > 0;
+  const isEnabled = (settingsKey: string, channel: Channel): boolean => {
+    if (settingsKey in userSettings) {
+      return (parseInt(userSettings[settingsKey], 10) & channel) > 0;
     }
     return false;
-  }
+  };
 
-  private async toggle(settingsKey: string, channel: Channel) {
-    const userSettings = { ...this.state.userSettings };
-    userSettings[settingsKey] = (parseInt(this.state.userSettings[settingsKey], 10) ^ channel).toString();
+  const toggle = async (settingsKey: string, channel: Channel) => {
+    const nextSettings = {
+      ...userSettings,
+      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString()
+    };
+    setUserSettings(nextSettings);
+    props.settingsChanged(nextSettings);
+  };
 
-    this.setState({ userSettings });
-    this.props.settingsChanged(userSettings);
-  }
-
-  private icon(settingsKey: string, channel: Channel) {
-    const active = this.isEnabled(settingsKey, channel);
+  const icon = (settingsKey: string, channel: Channel) => {
+    const active = isEnabled(settingsKey, channel);
     const label = channel === WebChannel ? "Web" : "Email";
-    return (
-      <Toggle
-        key={`${settingsKey}_${channel}`}
-        active={active}
-        label={label}
-        onToggle={this.toggle.bind(this, settingsKey, channel)}
-      />
-    );
-  }
+    const onToggle = () => toggle(settingsKey, channel);
+    return <Toggle key={`${settingsKey}_${channel}`} active={active} label={label} onToggle={onToggle} />;
+  };
 
-  private info(settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) {
-    const about = Fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
-    const webEnabled = this.isEnabled(settingsKey, WebChannel);
-    const emailEnabled = this.isEnabled(settingsKey, EmailChannel);
+  const info = (settingsKey: string, aboutForVisitors: string, aboutForCollaborators: string) => {
+    const about = fider.session.user.isCollaborator ? aboutForCollaborators : aboutForVisitors;
+    const webEnabled = isEnabled(settingsKey, WebChannel);
+    const emailEnabled = isEnabled(settingsKey, EmailChannel);
 
     if (!webEnabled && !emailEnabled) {
       return (
@@ -85,52 +71,50 @@ export class NotificationSettings extends React.Component<NotificationSettingsPr
       );
     }
     return null;
-  }
+  };
 
-  public render() {
-    return (
-      <>
-        <Field label="Notifications">
-          <p className="info">Use following panel to choose which events you'd like to receive notification</p>
-        </Field>
+  return (
+    <>
+      <Field label="Notifications">
+        <p className="info">Use following panel to choose which events you'd like to receive notification</p>
+      </Field>
 
-        <div className="notifications-settings">
-          <Segments>
-            <Segment>
-              <span className="event-title">New Post</span>
-              {this.info("event_notification_new_post", "new posts on this site", "new posts on this site")}
-              <p>
-                {this.icon("event_notification_new_post", WebChannel)}
-                {this.icon("event_notification_new_post", EmailChannel)}
-              </p>
-            </Segment>
-            <Segment>
-              <span className="event-title">Discussion</span>
-              {this.info(
-                "event_notification_new_comment",
-                "comments on posts you've subscribed to",
-                "comments on all posts unless individually unsubscribed"
-              )}
-              <p>
-                {this.icon("event_notification_new_comment", WebChannel)}
-                {this.icon("event_notification_new_comment", EmailChannel)}
-              </p>
-            </Segment>
-            <Segment>
-              <span className="event-title">Status Changed</span>
-              {this.info(
-                "event_notification_change_status",
-                "status change on posts you've subscribed to",
-                "status change on all posts unless individually unsubscribed"
-              )}
-              <p>
-                {this.icon("event_notification_change_status", WebChannel)}
-                {this.icon("event_notification_change_status", EmailChannel)}
-              </p>
-            </Segment>
-          </Segments>
-        </div>
-      </>
-    );
-  }
-}
+      <div className="notifications-settings">
+        <Segments>
+          <Segment>
+            <span className="event-title">New Post</span>
+            {info("event_notification_new_post", "new posts on this site", "new posts on this site")}
+            <p>
+              {icon("event_notification_new_post", WebChannel)}
+              {icon("event_notification_new_post", EmailChannel)}
+            </p>
+          </Segment>
+          <Segment>
+            <span className="event-title">Discussion</span>
+            {info(
+              "event_notification_new_comment",
+              "comments on posts you've subscribed to",
+              "comments on all posts unless individually unsubscribed"
+            )}
+            <p>
+              {icon("event_notification_new_comment", WebChannel)}
+              {icon("event_notification_new_comment", EmailChannel)}
+            </p>
+          </Segment>
+          <Segment>
+            <span className="event-title">Status Changed</span>
+            {info(
+              "event_notification_change_status",
+              "status change on posts you've subscribed to",
+              "status change on all posts unless individually unsubscribed"
+            )}
+            <p>
+              {icon("event_notification_change_status", WebChannel)}
+              {icon("event_notification_change_status", EmailChannel)}
+            </p>
+          </Segment>
+        </Segments>
+      </div>
+    </>
+  );
+};

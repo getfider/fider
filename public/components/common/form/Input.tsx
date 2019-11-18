@@ -20,7 +20,7 @@ interface InputProps {
   placeholder?: string;
   onIconClick?: () => void;
   onFocus?: () => void;
-  inputRef?: (node: HTMLInputElement) => void;
+  inputRef?: React.MutableRefObject<any>;
   onChange?: (value: string) => void;
 }
 

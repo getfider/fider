@@ -1,100 +1,85 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tag, Post } from "@fider/models";
-import { actions, Fider } from "@fider/services";
+import { actions } from "@fider/services";
 import { ShowTag, List, ListItem } from "@fider/components";
 import { TagListItem } from "./TagListItem";
 import { FaCheckCircle, FaCog } from "react-icons/fa";
+import { useFider } from "@fider/hooks";
 
 interface TagsPanelProps {
   post: Post;
   tags: Tag[];
 }
 
-interface TagsPanelState {
-  canEdit: boolean;
-  assignedTags: Tag[];
-  isEditing: boolean;
-}
+export const TagsPanel = (props: TagsPanelProps) => {
+  const fider = useFider();
+  const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0;
 
-export class TagsPanel extends React.Component<TagsPanelProps, TagsPanelState> {
-  constructor(props: TagsPanelProps) {
-    super(props);
-    this.state = {
-      canEdit: Fider.session.isAuthenticated && Fider.session.user.isCollaborator && this.props.tags.length > 0,
-      isEditing: false,
-      assignedTags: this.props.tags.filter(t => this.props.post.tags.indexOf(t.slug) >= 0)
-    };
-  }
+  const [isEditing, setIsEditing] = useState(false);
+  const [assignedTags, setAssignedTags] = useState(props.tags.filter(t => props.post.tags.indexOf(t.slug) >= 0));
 
-  private assignOrUnassignTag = async (tag: Tag) => {
-    const idx = this.state.assignedTags.indexOf(tag);
-    let assignedTags: Tag[] = [];
+  const assignOrUnassignTag = async (tag: Tag) => {
+    const idx = assignedTags.indexOf(tag);
+    let nextAssignedTags: Tag[] = [];
+
     if (idx >= 0) {
-      const response = await actions.unassignTag(tag.slug, this.props.post.number);
+      const response = await actions.unassignTag(tag.slug, props.post.number);
       if (response.ok) {
-        assignedTags = this.state.assignedTags.splice(idx, 1) && this.state.assignedTags;
+        nextAssignedTags = [...assignedTags];
+        nextAssignedTags.splice(idx, 1);
       }
     } else {
-      const response = await actions.assignTag(tag.slug, this.props.post.number);
+      const response = await actions.assignTag(tag.slug, props.post.number);
       if (response.ok) {
-        assignedTags = this.state.assignedTags.concat(tag);
+        nextAssignedTags = [...assignedTags, tag];
       }
     }
 
-    this.setState({
-      assignedTags
-    });
+    setAssignedTags(nextAssignedTags);
   };
 
-  private onSubtitleClick = () => {
-    if (this.state.canEdit) {
-      this.setState({ isEditing: !this.state.isEditing });
+  const onSubtitleClick = () => {
+    if (canEdit) {
+      setIsEditing(!isEditing);
     }
   };
 
-  public render() {
-    if (!this.state.canEdit && this.state.assignedTags.length === 0) {
-      return null;
-    }
+  if (!canEdit && assignedTags.length === 0) {
+    return null;
+  }
 
-    const tagsList =
-      this.state.assignedTags.length > 0 ? (
-        <List className="c-tag-list">
-          {this.state.assignedTags.map(tag => (
-            <ListItem key={tag.id}>
-              <ShowTag tag={tag} />
-            </ListItem>
-          ))}
-        </List>
-      ) : (
-        <span className="info">None yet</span>
-      );
-
-    const editTagsList = this.props.tags.length > 0 && (
+  const tagsList =
+    assignedTags.length > 0 ? (
       <List className="c-tag-list">
-        {this.props.tags.map(tag => (
-          <TagListItem
-            key={tag.id}
-            tag={tag}
-            assigned={this.state.assignedTags.indexOf(tag) >= 0}
-            onClick={this.assignOrUnassignTag}
-          />
+        {assignedTags.map(tag => (
+          <ListItem key={tag.id}>
+            <ShowTag tag={tag} />
+          </ListItem>
         ))}
       </List>
+    ) : (
+      <span className="info">None yet</span>
     );
 
-    const subtitleClasses = `subtitle ${this.state.canEdit && "active"}`;
-    const icon = this.state.canEdit && (this.state.isEditing ? <FaCheckCircle /> : <FaCog />);
+  const editTagsList = props.tags.length > 0 && (
+    <List className="c-tag-list">
+      {props.tags.map(tag => (
+        <TagListItem key={tag.id} tag={tag} assigned={assignedTags.indexOf(tag) >= 0} onClick={assignOrUnassignTag} />
+      ))}
+    </List>
+  );
 
-    return (
-      <>
-        <span className={subtitleClasses} onClick={this.onSubtitleClick}>
-          Tags {icon}
-        </span>
+  const subtitleClasses = `subtitle ${canEdit && "active"}`;
+  const icon = canEdit && (isEditing ? <FaCheckCircle /> : <FaCog />);
 
-        {!this.state.isEditing && tagsList}
-        {this.state.isEditing && editTagsList}
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <span className={subtitleClasses} onClick={onSubtitleClick}>
+        Tags {icon}
+      </span>
+
+      {!isEditing && tagsList}
+      {isEditing && editTagsList}
+    </>
+  );
+};
