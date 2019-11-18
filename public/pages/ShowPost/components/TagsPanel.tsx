@@ -25,12 +25,13 @@ export const TagsPanel = (props: TagsPanelProps) => {
     if (idx >= 0) {
       const response = await actions.unassignTag(tag.slug, props.post.number);
       if (response.ok) {
-        nextAssignedTags = assignedTags.splice(idx, 1) && assignedTags;
+        nextAssignedTags = [...assignedTags];
+        nextAssignedTags.splice(idx, 1);
       }
     } else {
       const response = await actions.assignTag(tag.slug, props.post.number);
       if (response.ok) {
-        nextAssignedTags = assignedTags.concat(tag);
+        nextAssignedTags = [...assignedTags, tag];
       }
     }
 
