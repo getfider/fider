@@ -32,8 +32,20 @@ import { readFileSync } from "fs";
   { input: "2018-04-11T18:13:33.128082", expected: "April 11, 2018 · 18:13" },
   { input: "2017-11-20T07:47:42.158142", expected: "November 20, 2017 · 07:47" }
 ].forEach(x => {
-  test(`formatDate of ${x.input} should be ${x.expected}`, () => {
-    const result = formatDate(x.input);
+  test(`formatDate (full) of ${x.input} should be ${x.expected}`, () => {
+    const result = formatDate(x.input, "full");
+    expect(result).toEqual(x.expected);
+  });
+});
+
+[
+  { input: new Date(2018, 4, 27, 10, 12, 59), expected: "May 2018" },
+  { input: new Date(2058, 12, 12, 23, 21, 53), expected: "Jan 2059" },
+  { input: "2018-04-11T18:13:33.128082", expected: "Apr 2018" },
+  { input: "2017-11-20T07:47:42.158142", expected: "Nov 2017" }
+].forEach(x => {
+  test(`formatDate (short) of ${x.input} should be ${x.expected}`, () => {
+    const result = formatDate(x.input, "short");
     expect(result).toEqual(x.expected);
   });
 });

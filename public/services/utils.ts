@@ -47,15 +47,21 @@ const twoDigits = (value: number): string => {
   return value <= 9 ? `0${value}` : value.toString();
 };
 
-export const formatDate = (input: Date | string): string => {
+type DateFormat = "full" | "short";
+
+export const formatDate = (input: Date | string, format: DateFormat = "full"): string => {
   const date = input instanceof Date ? input : new Date(input);
 
-  const day = date.getDate();
   const monthIndex = date.getMonth();
   const year = date.getFullYear();
+
+  if (format === "short") {
+    return `${monthNames[monthIndex].substring(0, 3)} ${year}`;
+  }
+
+  const day = date.getDate();
   const hours = twoDigits(date.getHours());
   const minutes = twoDigits(date.getMinutes());
-
   return `${monthNames[monthIndex]} ${day}, ${year} · ${hours}:${minutes}`;
 };
 
