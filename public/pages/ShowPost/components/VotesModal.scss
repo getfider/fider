@@ -6,18 +6,21 @@
     overflow-y: scroll;
     .c-list-item {
       margin: 5px 0px;
+      display: flex;
       .c-avatar {
         margin-right: 5px;
       }
       .l-user {
-        display: inline-block;
         vertical-align: middle;
         span {
           display: block;
         }
       }
-      span.date {
-        float: right;
+      .l-date {
+        margin-left: auto;
+        text-align: right;
+        width: 60px;
+        min-width: 60px;
       }
     }
   }

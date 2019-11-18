@@ -178,7 +178,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                 <>
                   Your <strong>{currentPlan.name}</strong> subscription ends at{" "}
                   <strong>
-                    <Moment date={billing.subscriptionEndsAt} format="full" />
+                    <Moment date={billing.subscriptionEndsAt} useRelative={false} />
                   </strong>
                   . Subscribe to a new plan and avoid a service interruption.
                 </>
@@ -191,7 +191,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                   </strong>{" "}
                   is due on{" "}
                   <strong>
-                    <Moment date={this.props.invoiceDue.dueDate} format="full" />
+                    <Moment date={this.props.invoiceDue.dueDate} useRelative={false} />
                   </strong>
                   .
                 </>
@@ -207,7 +207,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
                 <>
                   Your trial period ends at{" "}
                   <strong>
-                    <Moment date={billing.trialEndsAt} format="full" />
+                    <Moment date={billing.trialEndsAt} useRelative={false} />
                   </strong>
                   . Subscribe to a plan and avoid a service interruption.
                 </>
