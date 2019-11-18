@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tag } from "@fider/models";
 import { ListItem, ShowTag, Button } from "@fider/components";
 import { TagFormState, TagForm } from "./TagForm";
-import { actions, Failure, Fider } from "@fider/services";
+import { actions, Failure } from "@fider/services";
 import { FaTimes, FaEdit } from "react-icons/fa";
+import { useFider } from "@fider/hooks";
 
 interface TagListItemProps {
   tag: Tag;
@@ -11,94 +12,64 @@ interface TagListItemProps {
   onTagDeleted: (tag: Tag) => void;
 }
 
-interface TagListItemState {
-  tag: Tag;
-  isDeleting: boolean;
-  isEditing: boolean;
-}
+export const TagListItem = (props: TagListItemProps) => {
+  const fider = useFider();
+  const [tag] = useState(props.tag);
+  const [state, setState] = useState<"view" | "edit" | "delete">("view");
 
-export class TagListItem extends React.Component<TagListItemProps, TagListItemState> {
-  constructor(props: TagListItemProps) {
-    super(props);
-    this.state = {
-      tag: props.tag,
-      isDeleting: false,
-      isEditing: false
-    };
-  }
+  const startDelete = async () => setState("delete");
+  const startEdit = async () => setState("edit");
+  const resetState = async () => setState("view");
 
-  private startDelete = async () => {
-    this.setState({ isDeleting: true, isEditing: false });
-  };
-
-  private cancelDelete = async () => {
-    this.setState({ isDeleting: false });
-  };
-
-  private deleteTag = async () => {
-    const result = await actions.deleteTag(this.state.tag.slug);
+  const deleteTag = async () => {
+    const result = await actions.deleteTag(tag.slug);
     if (result.ok) {
-      this.setState({
-        isDeleting: false
-      });
-      this.props.onTagDeleted(this.state.tag);
+      resetState();
+      props.onTagDeleted(tag);
     }
   };
 
-  private startEdit = async () => {
-    this.setState({ isDeleting: false, isEditing: true });
-  };
-
-  private cancelEdit = async () => {
-    this.setState({ isEditing: false });
-  };
-
-  private updateTag = async (data: TagFormState): Promise<Failure | undefined> => {
-    const result = await actions.updateTag(this.state.tag.slug, data.name, data.color, data.isPublic);
+  const updateTag = async (data: TagFormState): Promise<Failure | undefined> => {
+    const result = await actions.updateTag(tag.slug, data.name, data.color, data.isPublic);
     if (result.ok) {
-      const tag = this.state.tag;
       tag.name = result.data.name;
       tag.slug = result.data.slug;
       tag.color = result.data.color;
       tag.isPublic = result.data.isPublic;
 
-      this.setState({
-        isEditing: false,
-        tag
-      });
-
-      this.props.onTagEdited(tag);
+      resetState();
+      props.onTagEdited(tag);
     } else {
       return result.error;
     }
   };
 
-  private renderDeleteMode() {
+  const renderDeleteMode = () => {
     return (
       <>
         <div className="content">
           <b>Are you sure?</b>{" "}
           <span>
-            The tag <ShowTag tag={this.state.tag} /> will be removed from all posts.
+            The tag <ShowTag tag={tag} /> will be removed from all posts.
           </span>
         </div>
-        <Button className="right" onClick={this.cancelDelete} color="cancel">
+        <Button className="right" onClick={resetState} color="cancel">
           Cancel
         </Button>
-        <Button color="danger" className="right" onClick={this.deleteTag}>
+        <Button color="danger" className="right" onClick={deleteTag}>
           Delete tag
         </Button>
       </>
     );
-  }
+  };
 
-  private renderViewMode() {
-    const buttons = Fider.session.user.isAdministrator && [
-      <Button size="mini" key={0} onClick={this.startDelete} className="right">
+  const renderViewMode = () => {
+    const buttons = fider.session.user.isAdministrator && [
+      <Button size="mini" key={0} onClick={startDelete} className="right">
         <FaTimes />
         Delete
       </Button>,
-      <Button size="mini" key={1} onClick={this.startEdit} className="right">
+      <Button size="mini" key={1} onClick={startEdit} className="right">
         <FaEdit />
         Edit
       </Button>
@@ -106,31 +77,25 @@ export class TagListItem extends React.Component<TagListItemProps, TagListItemSt
 
     return (
       <>
-        <ShowTag tag={this.state.tag} />
+        <ShowTag tag={tag} />
         {buttons}
       </>
     );
-  }
+  };
 
-  private renderEditMode() {
+  const renderEditMode = () => {
     return (
       <TagForm
-        name={this.props.tag.name}
-        color={this.props.tag.color}
-        isPublic={this.props.tag.isPublic}
-        onSave={this.updateTag}
-        onCancel={this.cancelEdit}
+        name={props.tag.name}
+        color={props.tag.color}
+        isPublic={props.tag.isPublic}
+        onSave={updateTag}
+        onCancel={resetState}
       />
     );
-  }
+  };
 
-  public render() {
-    const view = this.state.isDeleting
-      ? this.renderDeleteMode()
-      : this.state.isEditing
-      ? this.renderEditMode()
-      : this.renderViewMode();
+  const view = state === "delete" ? renderDeleteMode() : state === "edit" ? renderEditMode() : renderViewMode();
 
-    return <ListItem>{view}</ListItem>;
-  }
-}
+  return <ListItem>{view}</ListItem>;
+};
