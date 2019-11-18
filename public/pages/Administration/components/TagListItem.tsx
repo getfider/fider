@@ -32,7 +32,6 @@ export const TagListItem = (props: TagListItemProps) => {
   const updateTag = async (data: TagFormState): Promise<Failure | undefined> => {
     const result = await actions.updateTag(tag.slug, data.name, data.color, data.isPublic);
     if (result.ok) {
-
       tag.name = result.data.name;
       tag.slug = result.data.slug;
       tag.color = result.data.color;
