@@ -43,6 +43,10 @@ func CheckAvailability() web.HandlerFunc {
 //CreateTenant creates a new tenant
 func CreateTenant() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if env.Config.SignUpDisabled {
+			return c.NotFound()
+		}
+
 		input := new(actions.CreateTenant)
 		if result := c.BindTo(input); !result.Ok {
 			return c.HandleValidation(result)
@@ -112,6 +116,10 @@ func CreateTenant() web.HandlerFunc {
 //SignUp is the entry point for installation / signup
 func SignUp() web.HandlerFunc {
 	return func(c *web.Context) error {
+		if env.Config.SignUpDisabled {
+			return c.NotFound()
+		}
+
 		if env.IsSingleHostMode() {
 			firstTenant := &query.GetFirstTenant{}
 			err := bus.Dispatch(c, firstTenant)
