@@ -258,10 +258,12 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
                   In private mode, unknown users identified by this provider will be automatically created.
                 </p>
               )}
-              {!isTrusted && <p className="info">
+              {!isTrusted && (
+                <p className="info">
                   In private mode, users identified by this provider will be rejected 
                   if they are not already members or invited.
-                </p>}
+                </p>
+              )}
             </Field>
           </div>
         </div>

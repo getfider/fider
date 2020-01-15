@@ -32,7 +32,7 @@ type CreateEditOAuthConfig struct {
 	Logo              *ImageUpload `json:"logo"`
 	Provider          string       `json:"provider"`
 	Status            int          `json:"status"`
-	IsTrusted         bool         `json:"isTrusted`
+	IsTrusted         bool         `json:"isTrusted"`
 	DisplayName       string       `json:"displayName"`
 	ClientID          string       `json:"clientID"`
 	ClientSecret      string       `json:"clientSecret"`
