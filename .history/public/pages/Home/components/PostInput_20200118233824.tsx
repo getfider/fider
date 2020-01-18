@@ -75,7 +75,7 @@ export const PostInput = (props: PostInputProps) => {
         onChange={handleDescriptionChange}
         value={description}
         minRows={5}
-        placeholder="Кененирээк түшүндүрмө берем десеңиз (милдеттүү эмес)"
+        placeholder="Describe your suggestion (optional)"
       />
       <MultiImageUploader field="attachments" maxUploads={3} previewMaxWidth={100} onChange={setAttachments} />
       <Button type="submit" color="positive" onClick={submit}>

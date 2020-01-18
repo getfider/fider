@@ -39,9 +39,9 @@ const Lonely = () => {
   );
 };
 
-const defaultWelcomeMessage = `Саламатсызбы урматтуу жердештер! 
+const defaultWelcomeMessage = `We'd love to hear what you're thinking about. 
 
-Cураныч, тайпада берип жаткан суроо, сунуш жана ойлорду ушул жерге жазыңыз дагы, добуш берип коюңуз.`;
+What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
 const HomePage = (props: HomePageProps) => {
   const fider = useFider();

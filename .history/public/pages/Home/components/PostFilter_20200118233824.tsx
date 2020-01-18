@@ -19,10 +19,10 @@ export const PostFilter = (props: PostFilterProps) => {
   };
 
   const options: DropDownItem[] = [
-    { value: "trending", label: "Популярдуу" },
-    { value: "recent", label: "Акыркылар" },
-    { value: "most-wanted", label: "Күткөндөр" },
-    { value: "most-discussed", label: "Көп сүйлөшүлгөн" }
+    { value: "trending", label: "Trending" },
+    { value: "recent", label: "Recent" },
+    { value: "most-wanted", label: "Most Wanted" },
+    { value: "most-discussed", label: "Most Discussed" }
   ];
 
   if (fider.session.isAuthenticated) {
@@ -46,9 +46,9 @@ export const PostFilter = (props: PostFilterProps) => {
 
   return (
     <div>
-      <span className="subtitle">Көрүнүштү тандаңыз:</span>
+      <span className="subtitle">View</span>
       <DropDown
-        header="Кандай кылып сорттогуңуз келип жатат?"
+        header="What do you want to see?"
         className="l-post-filter"
         inline={true}
         style="simple"
