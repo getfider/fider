@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/pkg/jwt"
+	"github.com/getfider/fider/app/models/jwt"
 	"github.com/getfider/fider/app/pkg/rand"
 )
 
