@@ -1,0 +1,19 @@
+stages:
+  - release
+  - deploy
+
+release-image:
+  stage: release
+  script:
+    - isd-release-image
+
+deploy:
+  stage: deploy
+  script:
+    - isd-helm-deploy tools
+  only:
+    - master
+  variables:
+    KUBERNETES_NAMESPACE: fider
+    RELEASE_NAME: fider
+

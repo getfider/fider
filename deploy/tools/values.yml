@@ -1,0 +1,14 @@
+deployEnv: tools
+
+image:
+  tag: master
+
+resources: {}
+scaling:
+  maxReplicas: 1
+  minReplicas: 1
+  cpuTarget: 70
+  memTarget: 70
+
+environment:
+

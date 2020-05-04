@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "feedback.fullname" . }}
+  labels:
+{{ include "feedback.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.environment.HTTP_PORT }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "feedback.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

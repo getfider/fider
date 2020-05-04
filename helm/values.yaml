@@ -1,0 +1,52 @@
+# Default values for krang.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deployEnv: tools
+environment: {}
+
+replicaCount: 1
+
+image:
+  repository: 912202927742.dkr.ecr.us-east-1.amazonaws.com/isd/fider
+  tag: master
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: NodePort
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+      alb.ingress.kubernetes.io/backend-protocol: "HTTP"
+      alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:912202927742:certificate/d0fb146f-73cd-46a2-94ed-7767a0a29c23"
+      alb.ingress.kubernetes.io/security-groups: "internalonly.tools.pubgisd.services"
+      alb.ingress.kubernetes.io/waf-acl-id: "36c8c1fd-3252-4203-be7a-ce70638fde62"
+      alb.ingress.kubernetes.io/healthcheck-path: "/"
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443, "HTTP": 80}]'
+      alb.ingress.kubernetes.io/scheme: "internet-facing"
+      ingress.kubernetes.io/enable-cors: "true"
+      ingress.kubernetes.io/force-ssl-redirect: "true"
+      kubernetes.io/ingress.class: "alb"
+  hosts:
+    - host: feedback.pubg.com
+      paths: ["/*"]
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
