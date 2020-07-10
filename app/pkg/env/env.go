@@ -19,6 +19,7 @@ type config struct {
 	AutoSSL     	 bool   `env:"SSL_AUTO,default=false"`
 	SSLCert     	 string `env:"SSL_CERT"`
 	SSLCertKey  	 string `env:"SSL_CERT_KEY"`
+	ForceHTTPS       bool   `env:"FORCE_HTTPS,default=false"`
 	Port        	 string `env:"PORT,default=3000"`
 	HostMode    	 string `env:"HOST_MODE,default=single"`
 	HostDomain  	 string `env:"HOST_DOMAIN"`

@@ -534,9 +534,9 @@ func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 		if env.IsSingleHostMode() {
 			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
-		return request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path
+		return forceHTTPS(request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path)
 	}
-	return request.BaseURL() + path
+	return forceHTTPS(request.BaseURL() + path)
 }
 
 //TenantBaseURL returns base URL for a given tenant
@@ -570,9 +570,9 @@ func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 		if env.IsSingleHostMode() {
 			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
 		}
-		return request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path
+		return forceHTTPS(request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path)
 	}
-	return request.BaseURL() + path
+	return forceHTTPS(request.BaseURL() + path)
 }
 
 // LogoURL return the full URL to the tenant-specific logo URL

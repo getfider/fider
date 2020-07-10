@@ -185,7 +185,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 	}
 
 	private["assets"] = r.assets
-	private["logo"] = LogoURL(ctx)
+	private["logo"] = forceHTTPS(LogoURL(ctx))
 
 	if tenant == nil || tenant.LogoBlobKey == "" {
 		private["favicon"] = GlobalAssetsURL(ctx, "/favicon")
@@ -193,9 +193,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		private["favicon"] = TenantAssetsURL(ctx, "/favicon/%s", tenant.LogoBlobKey)
 	}
 
-	private["currentURL"] = ctx.Request.URL.String()
+	private["currentURL"] = forceHTTPS(ctx.Request.URL.String())
 	if canonicalURL := ctx.Value("Canonical-URL"); canonicalURL != nil {
-		private["canonicalURL"] = canonicalURL
+		private["canonicalURL"] = forceHTTPS(canonicalURL.(string))
 	}
 
 	oauthProviders := &query.ListActiveOAuthProviders{
@@ -221,7 +221,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		"stripePublicKey": env.Config.Stripe.PublicKey,
 		"domain":          r.settings.Domain,
 		"hasLegal":        r.settings.HasLegal,
-		"baseURL":         ctx.BaseURL(),
+		"baseURL":         forceHTTPS(ctx.BaseURL()),
 		"tenantAssetsURL": TenantAssetsURL(ctx, ""),
 		"globalAssetsURL": GlobalAssetsURL(ctx, ""),
 		"oauth":           oauthProviders.Result,
@@ -236,7 +236,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 			"role":            u.Role,
 			"status":          u.Status,
 			"avatarType":      u.AvatarType,
-			"avatarURL":       u.AvatarURL,
+			"avatarURL":       forceHTTPS(u.AvatarURL),
 			"avatarBlobKey":   u.AvatarBlobKey,
 			"isAdministrator": u.IsAdministrator(),
 			"isCollaborator":  u.IsCollaborator(),
@@ -250,4 +250,11 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 	if err != nil {
 		panic(errors.Wrap(err, "failed to execute template %s", name))
 	}
+}
+
+func forceHTTPS(url string) string {
+	if env.Config.ForceHTTPS {
+		return strings.Replace(url, "http", "https", 1)
+	}
+	return url
 }
