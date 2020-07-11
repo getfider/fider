@@ -254,7 +254,9 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 
 func forceHTTPS(url string) string {
 	if env.Config.ForceHTTPS {
+		fmt.Printf("Replaced: %s", url)
 		return strings.Replace(url, "http", "https", 1)
 	}
+	fmt.Println(url)
 	return url
 }
