@@ -532,7 +532,7 @@ func GlobalAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 	path = fmt.Sprintf(path, a...)
 	if env.Config.CDN.Host != "" {
 		if env.IsSingleHostMode() {
-			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+			return forceHTTPS(request.URL.Scheme + "://" + env.Config.CDN.Host + path)
 		}
 		return forceHTTPS(request.URL.Scheme + "://cdn." + env.Config.CDN.Host + path)
 	}
@@ -568,7 +568,7 @@ func TenantAssetsURL(ctx context.Context, path string, a ...interface{}) string 
 	path = fmt.Sprintf(path, a...)
 	if env.Config.CDN.Host != "" && hasTenant {
 		if env.IsSingleHostMode() {
-			return request.URL.Scheme + "://" + env.Config.CDN.Host + path
+			return forceHTTPS(request.URL.Scheme + "://" + env.Config.CDN.Host + path)
 		}
 		return forceHTTPS(request.URL.Scheme + "://" + tenant.Subdomain + "." + env.Config.CDN.Host + path)
 	}
