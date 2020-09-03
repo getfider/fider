@@ -35,7 +35,7 @@
     "fork-ts-checker-webpack-plugin": "1.5.0",
     "jest": "24.9.0",
     "mini-css-extract-plugin": "0.8.0",
-    "node-sass": "4.12.0",
+    "node-sass": "4.13.1",
     "prettier": "1.18.2",
     "puppeteer": "1.20.0",
     "reflect-metadata": "0.1.13",
