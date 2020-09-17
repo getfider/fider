@@ -34,14 +34,20 @@ func (q *Query) String(selector string) string {
 	for _, s := range selectors {
 		data := q.get(strings.TrimSpace(s))
 		if data != nil {
-			var str interface{}
-			err := json.Unmarshal(*data, &str)
-			if err != nil {
+			var obj interface{}
+			err := json.Unmarshal(*data, &obj)
+			if err != nil || obj == nil {
 				return ""
 			}
-			if str != nil {
-				return fmt.Sprintf("%v", str)
+			_, ok := obj.([]interface{})
+			if ok {
+				return ""
 			}
+			str := fmt.Sprintf("%v", obj)
+			if str != ""{
+				return str
+			}
+
 		}
 	}
 	return ""
