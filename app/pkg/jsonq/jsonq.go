@@ -2,6 +2,7 @@ package jsonq
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -33,13 +34,13 @@ func (q *Query) String(selector string) string {
 	for _, s := range selectors {
 		data := q.get(strings.TrimSpace(s))
 		if data != nil {
-			var str json.Number
+			var str interface{}
 			err := json.Unmarshal(*data, &str)
 			if err != nil {
 				return ""
 			}
 			if str != "" {
-				return str.String()
+				return fmt.Sprintf("%v", str)
 			}
 		}
 	}
