@@ -39,7 +39,7 @@ func (q *Query) String(selector string) string {
 			if err != nil {
 				return ""
 			}
-			if str != "" {
+			if str != nil {
 				return fmt.Sprintf("%v", str)
 			}
 		}
