@@ -3,6 +3,7 @@ import "./PostFilter.scss";
 import React from "react";
 import { PostStatus } from "@fider/models";
 import { DropDown, DropDownItem } from "@fider/components";
+import { useTranslation } from "react-i18next";
 import { useFider } from "@fider/hooks";
 
 interface PostFilterProps {
@@ -13,20 +14,21 @@ interface PostFilterProps {
 
 export const PostFilter = (props: PostFilterProps) => {
   const fider = useFider();
+  const { t } = useTranslation();
 
   const handleChangeView = (item: DropDownItem) => {
     props.viewChanged(item.value as string);
   };
 
   const options: DropDownItem[] = [
-    { value: "trending", label: "Trending" },
-    { value: "recent", label: "Recent" },
-    { value: "most-wanted", label: "Most Wanted" },
-    { value: "most-discussed", label: "Most Discussed" }
+    { value: "trending", label: t("home.postFilter.options.trending") },
+    { value: "recent", label: t("home.postFilter.options.recent") },
+    { value: "most-wanted", label: t("home.postFilter.options.mostWanted") },
+    { value: "most-discussed", label: t("home.postFilter.options.mostDiscussed") }
   ];
 
   if (fider.session.isAuthenticated) {
-    options.push({ value: "my-votes", label: "My Votes" });
+    options.push({ value: "my-votes", label: t("home.postFilter.options.myVotes") });
   }
 
   PostStatus.All.filter(s => s.filterable && props.countPerStatus[s.value]).forEach(s => {
@@ -46,9 +48,9 @@ export const PostFilter = (props: PostFilterProps) => {
 
   return (
     <div>
-      <span className="subtitle">View</span>
+      <span className="subtitle">{t("home.postFilter.subtitle")}</span>
       <DropDown
-        header="What do you want to see?"
+        header={t("home.postFilter.dropDownHeader")}
         className="l-post-filter"
         inline={true}
         style="simple"

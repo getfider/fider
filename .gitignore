@@ -18,3 +18,4 @@ debug.test
 .DS_Store
 cover.out
 coverage.tmp
+__debug_bin
