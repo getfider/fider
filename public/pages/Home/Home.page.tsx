@@ -36,7 +36,9 @@ const Lonely = () => {
       <p>
         <FaRegLightbulb />
       </p>
-      <p>{t('home.lonelyAdmin')}</p>
+      <p dangerouslySetInnerHTML={
+        { __html: t('home.lonelyAdmin') }
+      }></p>
     </div>
   );
 };

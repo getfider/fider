@@ -6,6 +6,7 @@ import { Notification } from "@fider/models";
 import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaBell } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface MyNotificationsPageProps {
   notifications: Notification[];
@@ -57,15 +58,16 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
   };
 
   public render() {
+    const { t } = useTranslation();
     return (
       <div id="p-my-notifications" className="page container">
-        <Heading title="Notifications" subtitle="Stay up to date with what's happening" icon={FaBell} />
+        <Heading title={t("myNotifications.title")} subtitle={t("myNotifications.subtitle")} icon={FaBell} />
 
         <h4>
-          Unread
+          {t("myNotifications.unread")}
           {this.state.unread.length > 0 && (
             <span className="mark-as-read" onClick={this.markAllAsRead}>
-              Mark All as Read
+              {t("myNotifications.markAsRead")}
             </span>
           )}
         </h4>
@@ -75,7 +77,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
         </List>
         {this.state.recent.length > 0 && (
           <>
-            <h4>Read on last 30 days</h4>
+            <h4>{t("myNotifications.readOnDays")}</h4>
             <List>
               <ListItem>{this.items(this.state.recent)}</ListItem>
             </List>

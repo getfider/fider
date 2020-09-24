@@ -5,6 +5,7 @@ import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
 import { DropDown, DropDownItem } from "@fider/components";
 import { FaCheck } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 interface TagsFilterProps {
   tags: Tag[];
@@ -37,12 +38,13 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
   };
 
   private renderText = () => {
+    const { t } = useTranslation();
     const text =
       this.state.selected.length === 0
-        ? "any tag"
+        ? t("home.tagsFilter.anyTag")
         : this.state.selected.length === 1
-        ? "1 tag"
-        : `${this.state.selected.length} tags`;
+          ? t("home.tagsFilter.oneTag")
+          : t("home.tagsFilter.nTag", { n: this.state.selected.length });
     return <>{text}</>;
   };
 
@@ -64,10 +66,11 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         )
       };
     });
-
+    const { t } = useTranslation();
     return (
+
       <div>
-        <span className="subtitle">with</span>
+        <span className="subtitle">{t("home.tagsFilter.subtitle")}</span>
         <DropDown
           className="l-tags-filter"
           inline={true}

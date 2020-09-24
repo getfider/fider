@@ -15,10 +15,11 @@ i18n
     // init i18next
     // for all options read: https://www.i18next.com/overview/configuration-options
     .init({
-        lng: 'zh',
+        // lng: 'zh',
         fallbackLng: 'zh',
-        debug: false,
+        debug: true,
         cleanCode: true,
+        load: "languageOnly",
         interpolation: {
             escapeValue: false, // not needed for react as it escapes by default
         },
@@ -26,7 +27,8 @@ i18n
             // ns: ['translation'],
             // defaultNS: 'translation',
             loadPath: 'assets/locales/{{lng}}.json'
-        }
+        },
+
     });
 
 export default i18n;

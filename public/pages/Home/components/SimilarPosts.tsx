@@ -3,6 +3,7 @@ import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListPosts } from "./ListPosts";
 import { actions } from "@fider/services";
+import { useTranslation } from "react-i18next";
 import { FaRegLightbulb } from "react-icons/fa";
 
 interface SimilarPostsProps {
@@ -57,11 +58,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   };
 
   public render() {
+    const { t } = useTranslation();
     return (
       <>
         <Heading
-          title="Similar posts"
-          subtitle="Consider voting on existing posts instead."
+          title={t("home.similarPosts.title")}
+          subtitle={t("home.similarPosts.subtitle")}
           icon={FaRegLightbulb}
           size="small"
           dividing={true}
@@ -69,12 +71,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
         {this.state.loading ? (
           <Loader />
         ) : (
-          <ListPosts
-            posts={this.state.posts}
-            tags={this.props.tags}
-            emptyText={`No similar posts matched '${this.props.title}'.`}
-          />
-        )}
+            <ListPosts
+              posts={this.state.posts}
+              tags={this.props.tags}
+              emptyText={t("home.similarPosts.emptyText", { title: this.props.title })}
+            />
+          )}
       </>
     );
   }

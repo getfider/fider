@@ -17,9 +17,70 @@
         },
         "postInput": {
             "descriptionPlaceholder": "Describe your suggestion (optional)"
+        },
+        "postsContainer": {
+            "showMore": "View more posts",
+            "emptyText": "No results matched your search, try something different."
+        },
+        "similarPosts": {
+            "title": "Similar posts",
+            "subtitle": "Consider voting on existing posts instead.",
+            "emptyText": "No similar posts matched {{title}}."
+        },
+        "tagsFilter": {
+            "anyTag": "any tag",
+            "oneTag": "1 tag",
+            "nTags": "{{n}} tags",
+            "subtitle": "with"
         }
     },
+    "signInProfile": {
+        "header": "Complete your profile",
+        "message": "Because this is your first sign in, please enter your name."
+    },
+    "error": {
+        "title": "Shoot! Well, this is unexpected…",
+        "message": "An error has occurred and we're working to fix the problem!",
+        "back": "Take me back to <a href={{url}}>{{url}}</a> home page."
+    },
+    "myNotifications": {
+        "title": "Notifications",
+        "subtitle": "Stay up to date with what's happening",
+        "unread": "Unread",
+        "markAsRead": "Mark All as Read",
+        "readOnDays": "Read on last 30 days"
+    },
+    "mySettings": {
+        "change": "change",
+        "confirmEmail": "Confirm your new email",
+        "confirmMessage": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to update your email.",
+        "title": "Settings",
+        "subtitle": "Manage your profile settings",
+        "privateMessage": "Your email is private and will never be publicly displayed.",
+        "dontHaveEmail": "Your account doesn't have an email.",
+        "gravatarMessage": "will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.",
+        "letterMessage": "A letter avatar based on your initials is generated for you.",
+        "imageFormatMessage": "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
+        "newApiKey": "Your new API Key is: <code>{this.state.apiKey}</code>",
+        "apiKeyStoreMessage": "Stored it securely on your servers and never store it in the client side of your app.",
+        "apiKeyDoc": "To learn how to use the API, read the <a href='https://getfider.com/docs/api' target='_blank'>official documentation </a>.",
+        "generateAPIKey": "Regenerate API Key",
+        "deleteAccountFailed": "Failed to delete your account. Try again later",
+        "deleteAccount": "Delete account",
+        "deleteAccountMessage": {
+            "part1": "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised.",
+            "part2": "This process is irreversible. Please be certain."
+        },
+        "deleteMyAccount": "Delete My Account"
+    },
     "common": {
-        "button.submit": "Submit"
+        "button": {
+            "submit": "Submit",
+            "confirm": "Confirm",
+            "cancel": "Cancel"
+        },
+        "placeholder": {
+            "search": "Search..."
+        }
     }
 }

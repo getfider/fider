@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@fider/components";
 import { actions } from "@fider/services";
+import { useTranslation } from "react-i18next";
 
 interface APIKeyFormState {
   apiKey?: string;
@@ -20,34 +21,33 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
   };
 
   private showAPIKey() {
+    const { t } = useTranslation();
     return (
       <>
-        <p className="info">
-          Your new API Key is: <code>{this.state.apiKey}</code>
+        <p className="info" dangerouslySetInnerHTML={
+          { __html: t('mySettings.newApiKey', { apiKey: this.state.apiKey }) }
+        }>
         </p>
-        <p className="info">Stored it securely on your servers and never store it in the client side of your app.</p>
+        <p className="info"></p>
       </>
     );
   }
 
   public render() {
+    const { t } = useTranslation();
     return (
       <div className="l-api-key">
         <h4>API Key</h4>
         <p className="info">
-          The API Key is only shown whenever generated. If your Key is lost or has been compromised, generated a new one
-          and take note of it.
+          {t('mySettings.apiKeyStoreMessage')}
         </p>
-        <p className="info">
-          To learn how to use the API, read the{" "}
-          <a href="https://getfider.com/docs/api" target="_blank">
-            official documentation
-          </a>
-          .
+        <p className="info" dangerouslySetInnerHTML={
+          { __html: t('mySettings.apiKeyDoc') }
+        }>
         </p>
         <p>
           <Button size="tiny" onClick={this.regenerate}>
-            Regenerate API Key
+            {t('mySettings.generateAPIKey')}
           </Button>
         </p>
         {this.state.apiKey && this.showAPIKey()}

@@ -4,6 +4,7 @@ import HomePage, { HomePageProps } from "../Home/Home.page";
 import SignInPage from "../SignIn/SignIn.page";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
 import { actions, Failure, querystring, Fider } from "@fider/services";
+import { useTranslation } from "react-i18next";
 
 interface CompleteSignInProfilePageState {
   name: string;
@@ -39,12 +40,13 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
   };
 
   public render() {
+    const { t } = useTranslation();
     return (
       <>
         <Modal.Window canClose={false} isOpen={true} onClose={this.noop}>
-          <Modal.Header>Complete your profile</Modal.Header>
+          <Modal.Header>{t("signInProfile.header")}</Modal.Header>
           <Modal.Content>
-            <p>Because this is your first sign in, please enter your name.</p>
+            <p>{t("signInProfile.message")}</p>
             <Form error={this.state.error}>
               <Input
                 field="name"
@@ -53,7 +55,7 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
                 placeholder="Name"
                 suffix={
                   <Button type="submit" onClick={this.submit} color="positive" disabled={this.state.name === ""}>
-                    Submit
+                    {t("common.button.submit")}
                   </Button>
                 }
               />

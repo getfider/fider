@@ -7,6 +7,7 @@ import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploade
 import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaRegAddressCard } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { APIKeyForm } from "./components/APIKeyForm";
 import { DangerZone } from "./components/DangerZone";
@@ -105,21 +106,23 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
   };
 
   public render() {
+    const { t } = useTranslation();
     const changeEmail = (
       <span className="ui info clickable" onClick={this.startChangeEmail}>
-        change
+        {t("mySettings.change")}
       </span>
     );
 
     return (
       <div id="p-my-settings" className="page container">
         <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal}>
-          <Modal.Header>Confirm your new email</Modal.Header>
+          <Modal.Header> {t("mySettings.confirmEmail")} </Modal.Header>
           <Modal.Content>
             <div>
-              <p>
-                We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update
-                your email.
+              <p dangerouslySetInnerHTML={
+                { __html: t('mySettings.confirmMessage', { email: this.state.newEmail }) }
+              }>
+
               </p>
               <p>
                 <a href="#" onClick={this.closeModal}>
@@ -130,7 +133,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title="Settings" subtitle="Manage your profile settings" icon={FaRegAddressCard} />
+        <Heading title={t('mySettings.title')} subtitle={t('mySettings.subtitle')} icon={FaRegAddressCard} />
 
         <div className="row">
           <div className="col-lg-7">
@@ -146,16 +149,16 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
               >
                 <p className="info">
                   {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be publicly displayed."
-                    : "Your account doesn't have an email."}
+                    ? t("mySettings.privateMessage")
+                    : t("mySettings.dontHaveEmail")}
                 </p>
                 {this.state.changingEmail && (
                   <>
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
-                      Confirm
+                      {t('common.button.confirm')}
                     </Button>
                     <Button color="cancel" size="mini" onClick={this.cancelChangeEmail}>
-                      Cancel
+                      {t('common.button.cancel')}
                     </Button>
                   </>
                 )}
@@ -180,12 +183,11 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                     <a href="https://en.gravatar.com" target="_blank">
                       Gravatar
                     </a>{" "}
-                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your
-                    initials is generated for you.
+                    {t('mySettings.gravatarMessage')}
                   </p>
                 )}
                 {this.state.avatarType === UserAvatarType.Letter && (
-                  <p className="info">A letter avatar based on your initials is generated for you.</p>
+                  <p className="info">{t('mySettings.letterMessage')}</p>
                 )}
                 {this.state.avatarType === UserAvatarType.Custom && (
                   <ImageUploader
@@ -195,8 +197,8 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                     bkey={Fider.session.user.avatarBlobKey}
                   >
                     <p className="info">
-                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-                      dimensions of 50x50 pixels.
+                      {t('mySettings.imageFormatMessage')}
+
                     </p>
                   </ImageUploader>
                 )}

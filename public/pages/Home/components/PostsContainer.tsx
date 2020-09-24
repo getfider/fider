@@ -4,6 +4,7 @@ import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import { PostFilter } from "./PostFilter";
 import { ListPosts } from "./ListPosts";
 import { TagsFilter } from "./TagsFilter";
@@ -99,6 +100,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
   public render() {
     const showMoreLink = this.getShowMoreLink();
+    const { t } = useTranslation();
     return (
       <>
         <div className="row">
@@ -123,7 +125,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
               field="query"
               icon={this.state.query ? FaTimes : FaSearch}
               onIconClick={this.state.query ? this.clearSearch : undefined}
-              placeholder="Search..."
+              placeholder={t("common.placeholder.search")}
               value={this.state.query}
               onChange={this.handleSearchFilterChanged}
             />
@@ -132,12 +134,12 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
         <ListPosts
           posts={this.state.posts}
           tags={this.props.tags}
-          emptyText={"No results matched your search, try something different."}
+          emptyText={t("home.postsContainer.emptyText")}
         />
         {this.state.loading && <Loader />}
         {showMoreLink && (
           <a href={showMoreLink} className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>
-            View more posts
+            {t("home.postsContainer.showMore")}
           </a>
         )}
       </>
