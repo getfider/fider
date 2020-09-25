@@ -1,14 +1,13 @@
 import React from "react";
 import { Button } from "@fider/components";
 import { actions } from "@fider/services";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 
 interface APIKeyFormState {
   apiKey?: string;
 }
-
-export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
-  constructor(props: {}) {
+class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
+  constructor(props: WithTranslation) {
     super(props);
     this.state = {};
   }
@@ -21,12 +20,11 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
   };
 
   private showAPIKey() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <>
-        <p className="info" dangerouslySetInnerHTML={
-          { __html: t('mySettings.newApiKey', { apiKey: this.state.apiKey }) }
-        }>
+        <p className="info">
+          {t('mySettings.newApiKey')}<code>{this.state.apiKey}</code>
         </p>
         <p className="info"></p>
       </>
@@ -34,7 +32,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
   }
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <div className="l-api-key">
         <h4>API Key</h4>
@@ -55,3 +53,5 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
     );
   }
 }
+
+export const APIKeyForm = withTranslation()(_APIKeyForm)

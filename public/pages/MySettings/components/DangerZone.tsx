@@ -2,14 +2,15 @@ import React from "react";
 
 import { Button, Modal, ButtonClickEvent } from "@fider/components";
 import { actions, notify, navigator } from "@fider/services";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
+
 
 interface DangerZoneState {
   clicked: boolean;
 }
 
-export class DangerZone extends React.Component<{}, DangerZoneState> {
-  constructor(props: {}) {
+class _DangerZone extends React.Component<WithTranslation, DangerZoneState> {
+  constructor(props: WithTranslation) {
     super(props);
     this.state = {
       clicked: false
@@ -25,7 +26,7 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
   };
 
   public onConfirm = async (e: ButtonClickEvent) => {
-    const { t } = useTranslation();
+    const { t } = this.props;
     const response = await actions.deleteCurrentAccount();
     if (response.ok) {
       e.preventEnable();
@@ -36,18 +37,16 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
   };
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <div className="l-danger-zone">
         <Modal.Window isOpen={this.state.clicked} center={false} onClose={this.onCancel}>
           <Modal.Header>{t('mySettings.deleteAccount')}</Modal.Header>
           <Modal.Content>
             <p>
-              When you choose to delete your account, we will erase all your personal information forever. The content
-              you have published will remain, but it will be anonymised.
+              {t('mySettings.deleteAccountMessage.part1')}
             </p>
-            <p>
-              This process is irreversible. <strong>Are you sure?</strong>
+            <p dangerouslySetInnerHTML={{ __html: t("mySettings.deleteAccountMessage.part2") }}>
             </p>
           </Modal.Content>
           <Modal.Footer>
@@ -73,3 +72,4 @@ export class DangerZone extends React.Component<{}, DangerZoneState> {
     );
   }
 }
+export const DangerZone = withTranslation()(_DangerZone)

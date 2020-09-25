@@ -7,7 +7,7 @@ import { Modal, Form, Button, Heading, Input, Select, SelectOption, ImageUploade
 import { UserSettings, UserAvatarType, ImageUpload } from "@fider/models";
 import { Failure, actions, Fider } from "@fider/services";
 import { FaRegAddressCard } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 import { NotificationSettings } from "./components/NotificationSettings";
 import { APIKeyForm } from "./components/APIKeyForm";
 import { DangerZone } from "./components/DangerZone";
@@ -23,11 +23,11 @@ interface MySettingsPageState {
   userSettings: UserSettings;
 }
 
-interface MySettingsPageProps {
+interface MySettingsPageProps extends WithTranslation {
   userSettings: UserSettings;
 }
 
-export default class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
+class _MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {
@@ -106,7 +106,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
   };
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     const changeEmail = (
       <span className="ui info clickable" onClick={this.startChangeEmail}>
         {t("mySettings.change")}
@@ -233,3 +233,5 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     );
   }
 }
+
+export default withTranslation()(_MySettingsPage)
