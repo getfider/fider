@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field } from "@fider/components";
 import { useFider } from "@fider/hooks";
+import { useTranslation } from 'react-i18next';
 
 interface NotificationSettingsProps {
   userSettings: UserSettings;
@@ -14,6 +15,7 @@ const WebChannel: Channel = 1;
 const EmailChannel: Channel = 2;
 
 export const NotificationSettings = (props: NotificationSettingsProps) => {
+  const { t } = useTranslation();
   const fider = useFider();
   const [userSettings, setUserSettings] = useState(props.userSettings);
 
@@ -48,25 +50,25 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     if (!webEnabled && !emailEnabled) {
       return (
         <p className="info">
-          You'll <strong>NOT</strong> receive any notification about this event.
+          {t('mySettings.notReceiveAnyNotification')}
         </p>
       );
     } else if (webEnabled && !emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>web</strong> notifications about {about}.
+          {t('mySettings.youWillReceiveWeb', { about: about })}
         </p>
       );
     } else if (!webEnabled && emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>email</strong> notifications about {about}.
+          {t('mySettings.youWillReceiveEmail', { about: about })}
         </p>
       );
     } else if (webEnabled && emailEnabled) {
       return (
         <p className="info">
-          You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.
+          {t('mySettings.youWillReceiveEmailAndWeb', { about: about })}
         </p>
       );
     }
@@ -76,25 +78,25 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
   return (
     <>
       <Field label="Notifications">
-        <p className="info">Use following panel to choose which events you'd like to receive notification</p>
+        <p className="info">{t('mySettings.chooseEvents')}</p>
       </Field>
 
       <div className="notifications-settings">
         <Segments>
           <Segment>
-            <span className="event-title">New Post</span>
-            {info("event_notification_new_post", "new posts on this site", "new posts on this site")}
+            <span className="event-title">{t('mySettings.newPostTitle')}</span>
+            {info("event_notification_new_post", t("mySettings.newPostEvent"), t("mySettings.newPostEvent"))}
             <p>
               {icon("event_notification_new_post", WebChannel)}
               {icon("event_notification_new_post", EmailChannel)}
             </p>
           </Segment>
           <Segment>
-            <span className="event-title">Discussion</span>
+            <span className="event-title">{t('mySettings.discussion')}</span>
             {info(
               "event_notification_new_comment",
-              "comments on posts you've subscribed to",
-              "comments on all posts unless individually unsubscribed"
+              t("mySettings.postSubscribedTo"),
+              t("mySettings.postUnsubscribed")
             )}
             <p>
               {icon("event_notification_new_comment", WebChannel)}
@@ -105,8 +107,8 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
             <span className="event-title">Status Changed</span>
             {info(
               "event_notification_change_status",
-              "status change on posts you've subscribed to",
-              "status change on all posts unless individually unsubscribed"
+              t("mySettings.statusSubscribed"),
+              t("mySettings.statusUnsubscribed")
             )}
             <p>
               {icon("event_notification_change_status", WebChannel)}

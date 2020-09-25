@@ -75,7 +75,15 @@
         "notReceiveAnyNotification": "You'll <strong>NOT</strong> receive any notification about this event.",
         "youWillReceiveWeb": "You'll receive <strong>web</strong> notifications about {{about}}.",
         "youWillReceiveEmail": "You'll receive <strong>email</strong> notifications about {{about}}.",
-        "youWillReceiveEmailAndWeb": "You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}."
+        "youWillReceiveEmailAndWeb": "You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.",
+        "chooseEvents": "Use following panel to choose which events you'd like to receive notification",
+        "newPostTitle": "New Post",
+        "newPostEvent": "new posts on this site",
+        "discussion": "Discussion",
+        "postSubscribedTo": "comments on posts you've subscribed to",
+        "postUnsubscribed": "comments on all posts unless individually unsubscribed",
+        "statusSubscribed": "status change on posts you've subscribed to",
+        "statusUnsubscribed": "status change on all posts unless individually unsubscribed"
     },
     "common": {
         "button": {
