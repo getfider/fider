@@ -6,6 +6,7 @@ import { SignInModal } from "@fider/components";
 
 import { cache, actions, Failure, Fider } from "@fider/services";
 import { useFider } from "@fider/hooks";
+import { useTranslation } from "react-i18next";
 
 interface CommentInputProps {
   post: Post;
@@ -14,6 +15,7 @@ interface CommentInputProps {
 const CACHE_TITLE_KEY = "CommentInput-Comment-";
 
 export const CommentInput = (props: CommentInputProps) => {
+  const { t } = useTranslation();
   const getCacheKey = () => `${CACHE_TITLE_KEY}${props.post.id}`;
 
   const fider = useFider();
@@ -58,7 +60,7 @@ export const CommentInput = (props: CommentInputProps) => {
         <Form error={error}>
           {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
           <TextArea
-            placeholder="Write a comment..."
+            placeholder={t("showPost.commentInput.placeholder")}
             field="content"
             value={content}
             minRows={1}
@@ -70,7 +72,7 @@ export const CommentInput = (props: CommentInputProps) => {
             <>
               <MultiImageUploader field="attachments" maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />
               <Button color="positive" onClick={submit}>
-                Submit
+                {t("common.button.submit")}
               </Button>
             </>
           )}

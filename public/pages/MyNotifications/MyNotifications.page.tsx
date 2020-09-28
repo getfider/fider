@@ -6,9 +6,9 @@ import { Notification } from "@fider/models";
 import { MultiLineText, Moment, Heading, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaBell } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 
-interface MyNotificationsPageProps {
+interface MyNotificationsPageProps extends WithTranslation {
   notifications: Notification[];
 }
 
@@ -17,7 +17,7 @@ interface MyNotificationsPageState {
   recent: Notification[];
 }
 
-export default class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
+class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNotificationsPageState> {
   constructor(props: MyNotificationsPageProps) {
     super(props);
 
@@ -58,7 +58,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
   };
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <div id="p-my-notifications" className="page container">
         <Heading title={t("myNotifications.title")} subtitle={t("myNotifications.subtitle")} icon={FaBell} />
@@ -73,7 +73,7 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
         </h4>
         <List>
           {this.state.unread.length > 0 && this.items(this.state.unread)}
-          {this.state.unread.length === 0 && <span className="info">No unread notifications.</span>}
+          {this.state.unread.length === 0 && <span className="info">{t('myNotifications.noUnread')}</span>}
         </List>
         {this.state.recent.length > 0 && (
           <>
@@ -87,3 +87,5 @@ export default class MyNotificationsPage extends React.Component<MyNotifications
     );
   }
 }
+
+export default withTranslation()(MyNotificationsPage);

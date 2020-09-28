@@ -27,7 +27,7 @@ interface MySettingsPageProps extends WithTranslation {
   userSettings: UserSettings;
 }
 
-class _MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
+class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPageState> {
   constructor(props: MySettingsPageProps) {
     super(props);
     this.state = {
@@ -234,4 +234,4 @@ class _MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPag
   }
 }
 
-export default withTranslation()(_MySettingsPage)
+export default withTranslation()(MySettingsPage)

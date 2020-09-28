@@ -5,8 +5,9 @@ import { Post, Vote } from "@fider/models";
 import { Modal, Button, Loader, List, ListItem, Avatar, UserName, Moment, Input } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
+import { withTranslation, WithTranslation } from "react-i18next";
 
-interface VotesModalProps {
+interface VotesModalProps extends WithTranslation {
   isOpen: boolean;
   post: Post;
   onClose?: () => void;
@@ -20,7 +21,7 @@ interface VotesModalState {
   query: string;
 }
 
-export class VotesModal extends React.Component<VotesModalProps, VotesModalState> {
+class _VotesModal extends React.Component<VotesModalProps, VotesModalState> {
   constructor(props: VotesModalProps) {
     super(props);
     this.state = {
@@ -62,6 +63,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
   };
 
   public render() {
+    const { t } = this.props;
     return (
       <Modal.Window className="c-votes-modal" isOpen={this.props.isOpen} center={false} onClose={this.closeModal}>
         <Modal.Content>
@@ -72,7 +74,7 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
                 field="query"
                 icon={this.state.query ? FaTimes : FaSearch}
                 onIconClick={this.state.query ? this.clearSearch : undefined}
-                placeholder="Search for users by name..."
+                placeholder={t('showPost.votesModal.searchForUsers')}
                 value={this.state.query}
                 onChange={this.handleSearchFilterChanged}
               />
@@ -96,10 +98,12 @@ export class VotesModal extends React.Component<VotesModalProps, VotesModalState
 
         <Modal.Footer>
           <Button color="cancel" onClick={this.closeModal}>
-            Close
+            {t('common.button.close')}
           </Button>
         </Modal.Footer>
       </Modal.Window>
     );
   }
 }
+
+export const VotesModal = withTranslation()(_VotesModal);

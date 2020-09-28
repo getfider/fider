@@ -3,6 +3,7 @@ import "./SignUp.page.scss";
 import React from "react";
 import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components";
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services";
+import { withTranslation, WithTranslation } from "react-i18next";
 
 interface OAuthUser {
   token: string;
@@ -24,10 +25,10 @@ interface SignUpPageState {
   };
 }
 
-export default class SignUpPage extends React.Component<{}, SignUpPageState> {
+class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
   private user?: OAuthUser;
 
-  constructor(props: {}) {
+  constructor(props: WithTranslation) {
     super(props);
     this.state = {
       submitted: false,
@@ -128,13 +129,13 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
   };
 
   public render() {
+    const { t } = this.props;
     const modal = (
       <Modal.Window canClose={false} isOpen={this.state.submitted} onClose={this.noop}>
-        <Modal.Header>Thank you for registering!</Modal.Header>
+        <Modal.Header>{t('signUp.thankYou')}</Modal.Header>
         <Modal.Content>
-          <p>
-            We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your
-            registration.
+          <p dangerouslySetInnerHTML={{ __html: t("signUp.sentLink") }}>
+
           </p>
         </Modal.Content>
       </Modal.Window>
@@ -145,7 +146,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
         {modal}
         <img className="logo" src="https://getfider.com/images/logo-100x100.png" />
 
-        <h3>1. Who are you?</h3>
+        <h3>{t('signUp.step1Title')}</h3>
         <DisplayError fields={["token"]} error={this.state.error} />
 
         {this.user ? (
@@ -153,17 +154,17 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
             Hello, <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
           </p>
         ) : (
-          <>
-            <p>We need to identify you to setup your new Fider account.</p>
-            <SignInControl useEmail={false} />
-            <Form error={this.state.error}>
-              <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
-              <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
-            </Form>
-          </>
-        )}
+            <>
+              <p>{t('signUp.step1Message')}</p>
+              <SignInControl useEmail={false} />
+              <Form error={this.state.error}>
+                <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
+                <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
+              </Form>
+            </>
+          )}
 
-        <h3>2. What is this Feedback Forum for?</h3>
+        <h3>{t('signUp.step2Title')}</h3>
 
         <Form error={this.state.error}>
           <Input
@@ -194,18 +195,20 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
           )}
         </Form>
 
-        <h3>3. Review</h3>
+        <h3>{t('signUp.step3Title')}</h3>
 
-        <p>Make sure information provided above is correct.</p>
+        <p>{t('signUp.step3Message')}</p>
 
         <Form error={this.state.error}>
           <LegalAgreement onChange={this.onAgree} />
         </Form>
 
         <Button color="positive" size="large" onClick={this.confirm}>
-          Confirm
+          {t('common.button.confirm')}
         </Button>
       </div>
     );
   }
 }
+
+export default withTranslation()(SignUpPage);

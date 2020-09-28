@@ -5,9 +5,10 @@ import { Post, PostStatus } from "@fider/models";
 
 import { actions, Failure } from "@fider/services";
 import { FaBullhorn } from "react-icons/fa";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { PostSearch } from "./PostSearch";
 
-interface ResponseFormProps {
+interface ResponseFormProps extends WithTranslation {
   post: Post;
 }
 
@@ -19,7 +20,7 @@ interface ResponseFormState {
   error?: Failure;
 }
 
-export class ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
+class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
   constructor(props: ResponseFormProps) {
     super(props);
 
@@ -65,9 +66,10 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
   };
 
   public render() {
+    const { t } = this.props;
     const button = (
       <Button className="respond" fluid={true} onClick={this.showModal}>
-        <FaBullhorn /> Respond
+        <FaBullhorn /> {t('showPost.responseForm.respond')}
       </Button>
     );
 
@@ -93,26 +95,26 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                   <PostSearch exclude={[this.props.post.number]} onChanged={this.setOriginalNumber} />
                 </Field>
                 <DisplayError fields={["originalNumber"]} error={this.state.error} />
-                <span className="info">Votes from this post will be merged into original post.</span>
+                <span className="info">{t('showPost.responseForm.mergedIntoOriginal')}</span>
               </>
             ) : (
-              <TextArea
-                field="text"
-                onChange={this.setText}
-                value={this.state.text}
-                minRows={5}
-                placeholder="What's going on with this post? Let your users know what are your plans..."
-              />
-            )}
+                <TextArea
+                  field="text"
+                  onChange={this.setText}
+                  value={this.state.text}
+                  minRows={5}
+                  placeholder={t('showPost.responseForm.whatsGoingOn')}
+                />
+              )}
           </Form>
         </Modal.Content>
 
         <Modal.Footer>
           <Button color="positive" onClick={this.submit}>
-            Submit
+            {t('common.button.submit')}
           </Button>
           <Button color="cancel" onClick={this.closeModal}>
-            Cancel
+            {t('common.button.cancel')}
           </Button>
         </Modal.Footer>
       </Modal.Window>
@@ -126,3 +128,5 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
     );
   }
 }
+
+export const ResponseForm = withTranslation()(_ResponseForm);

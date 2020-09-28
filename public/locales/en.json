@@ -48,7 +48,8 @@
         "subtitle": "Stay up to date with what's happening",
         "unread": "Unread",
         "markAsRead": "Mark All as Read",
-        "readOnDays": "Read on last 30 days"
+        "readOnDays": "Read on last 30 days",
+        "noUnread": "No unread notifications."
     },
     "mySettings": {
         "change": "change",
@@ -85,11 +86,71 @@
         "statusSubscribed": "status change on posts you've subscribed to",
         "statusUnsubscribed": "status change on all posts unless individually unsubscribed"
     },
+    "showPost": {
+        "description": "Description",
+        "actions": "Actions",
+        "commentInput": {
+            "placeholder": "Write a comment..."
+        },
+        "discussionPanel": {
+            "discussion": "Discussion"
+        },
+        "moderationPanel": {
+            "reasonPlaceholder": "Why are you deleting this post? (optional)",
+            "cantUndo": "This operation <strong>cannot</strong> be undone.",
+            "subtitle": "Moderation"
+        },
+        "votesPanel": {
+            "subtitle": "Voters",
+            "more": "more",
+            "seeDetails": "see details",
+            "noneYet": "None yet"
+        },
+        "votesModal": {
+            "searchForUsers": "Search for users by name..."
+        },
+        "showComment": {
+            "deleteHeader": "Delete Comment",
+            "deleteMessage": "This process is irreversible. <strong>Are you sure?</strong>"
+        },
+        "responseForm": {
+            "respond": "Respond",
+            "mergedIntoOriginal": "Votes from this post will be merged into original post.",
+            "whatsGoingOn": "What's going on with this post? Let your users know what are your plans..."
+        },
+        "notificationPanel": {
+            "receivingNotifications": "You’re receiving notifications about activity on this post.",
+            "notReceiveNotification": "You'll not receive any notification about this post.",
+            "subtitle": "Notifications"
+        }
+    },
+    "signIn": {
+        "emailSent": "We have just sent a confirmation link to <b>{{email}}</b>. Click the link and you’ll be signed in.",
+        "tenantLocked": "<strong>{{tenantName}}</strong> is currently locked.",
+        "reactivateSite": "To reactivate this site, sign in with an administrator account and update the required settings.",
+        "needInvite": "<strong>{{tenantName}}</strong> is a private space and requires an invitation to join it.",
+        "haveAnAccount": "If you have an account or an invitation, you may use following options to sign in."
+    },
+    "signUp": {
+        "thankYou": "Thank you for registering!",
+        "sentLink": "We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.",
+        "step1Title": "1. Who are you?",
+        "step1Message": "We need to identify you to setup your new Fider account.",
+        "step2Title": "2. What is this Feedback Forum for?",
+        "step2Message": "Make sure information provided above is correct.",
+        "step3Title": "3. Review"
+    },
     "common": {
         "button": {
             "submit": "Submit",
             "confirm": "Confirm",
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "save": "Save",
+            "edit": "Edit",
+            "delete": "Delete",
+            "close": "Close",
+            "unsubscribe": "Unsubscribe",
+            "subscribe": "Subscribe"
         },
         "placeholder": {
             "search": "Search..."

@@ -4,6 +4,7 @@ import { Button, List, ListItem } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import { useFider } from "@fider/hooks";
+import { useTranslation } from "react-i18next";
 
 interface NotificationsPanelProps {
   post: Post;
@@ -12,6 +13,7 @@ interface NotificationsPanelProps {
 
 export const NotificationsPanel = (props: NotificationsPanelProps) => {
   const fider = useFider();
+  const { t } = useTranslation();
   const [subscribed, setSubscribed] = useState(props.subscribed);
 
   const subscribeOrUnsubscribe = async () => {
@@ -29,23 +31,23 @@ export const NotificationsPanel = (props: NotificationsPanelProps) => {
 
   const button = subscribed ? (
     <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-      <FaVolumeMute /> Unsubscribe
+      <FaVolumeMute /> {t('common.button.unsubscribe')}
     </Button>
   ) : (
-    <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-      <FaVolumeUp /> Subscribe
-    </Button>
-  );
+      <Button fluid={true} onClick={subscribeOrUnsubscribe}>
+        <FaVolumeUp /> {t('common.button.subscribe')}
+      </Button>
+    );
 
   const text = subscribed ? (
-    <span className="info">You’re receiving notifications about activity on this post.</span>
+    <span className="info">{t('showPost.notificationPanel.receivingNotifications')}</span>
   ) : (
-    <span className="info">You'll not receive any notification about this post.</span>
-  );
+      <span className="info">{t('showPost.notificationPanel.notReceiveNotification')}</span>
+    );
 
   return (
     <>
-      <span className="subtitle">Notifications</span>
+      <span className="subtitle">{t('showPost.notificationPanel.subtitle')}</span>
       <List>
         <ListItem>
           {button}
