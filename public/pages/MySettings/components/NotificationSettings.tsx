@@ -77,7 +77,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
 
   return (
     <>
-      <Field label="Notifications">
+      <Field label={t('notifications')}>
         <p className="info">{t('mySettings.chooseEvents')}</p>
       </Field>
 
@@ -104,7 +104,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
             </p>
           </Segment>
           <Segment>
-            <span className="event-title">Status Changed</span>
+            <span className="event-title">{t('mySettings.statusChanged')}</span>
             {info(
               "event_notification_change_status",
               t("mySettings.statusSubscribed"),

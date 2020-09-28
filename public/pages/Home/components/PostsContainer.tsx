@@ -4,12 +4,12 @@ import { Post, Tag, CurrentUser } from "@fider/models";
 import { Loader, Field, Input } from "@fider/components";
 import { actions, navigator, querystring } from "@fider/services";
 import { FaTimes, FaSearch } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 import { PostFilter } from "./PostFilter";
 import { ListPosts } from "./ListPosts";
 import { TagsFilter } from "./TagsFilter";
 
-interface PostsContainerProps {
+interface PostsContainerProps extends WithTranslation {
   user?: CurrentUser;
   posts: Post[];
   tags: Tag[];
@@ -25,7 +25,7 @@ interface PostsContainerState {
   limit?: number;
 }
 
-export class PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
+class _PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
   constructor(props: PostsContainerProps) {
     super(props);
 
@@ -100,7 +100,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
 
   public render() {
     const showMoreLink = this.getShowMoreLink();
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <>
         <div className="row">
@@ -146,3 +146,5 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     );
   }
 }
+
+export const PostsContainer = withTranslation()(_PostsContainer);

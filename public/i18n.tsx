@@ -28,6 +28,9 @@ i18n
             // defaultNS: 'translation',
             loadPath: 'assets/locales/{{lng}}.json'
         },
+        react: {
+            useSuspense: false,
+        }
 
     });
 

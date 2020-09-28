@@ -1,4 +1,15 @@
 {
+    "email": "Email",
+    "avatar": "Avatar",
+    "notifications": "Notifications",
+    "menu": {
+        "settings": "Settings",
+        "notifications": "Notifications",
+        "administration": "Administration",
+        "siteSettings": "Site Settings",
+        "signOut": "Sign out",
+        "signIn": "Sign in"
+    },
     "home": {
         "lonelyHint": "It's lonely out here. Start by sharing a suggestion!",
         "lonelyAdmin": "It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the interactions with your audience.",
@@ -62,6 +73,7 @@
         "gravatarMessage": "will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.",
         "letterMessage": "A letter avatar based on your initials is generated for you.",
         "imageFormatMessage": "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
+        "statusChanged": "Status Changed",
         "newApiKey": "Your new API Key is: ",
         "apiKeyStoreMessage": "Stored it securely on your servers and never store it in the client side of your app.",
         "apiKeyDoc": "To learn how to use the API, read the <a href='https://getfider.com/docs/api' target='_blank'>official documentation </a>.",

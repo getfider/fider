@@ -139,7 +139,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
           <div className="col-lg-7">
             <Form error={this.state.error}>
               <Input
-                label="Email"
+                label={t('email')}
                 field="email"
                 value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
@@ -167,7 +167,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
               <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <Select
-                label="Avatar"
+                label={t('avatar')}
                 field="avatarType"
                 defaultValue={this.state.avatarType}
                 options={[
