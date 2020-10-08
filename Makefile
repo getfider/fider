@@ -4,7 +4,8 @@ SHELL := /bin/bash
 
 build-web:
 	npx webpack
-run:
-	source .dev.env
+migrate: 
 	go run main.go migrate
+run:
 	go run main.go
+

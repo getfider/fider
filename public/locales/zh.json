@@ -137,7 +137,7 @@
         }
     },
     "signIn": {
-        "emailSent": "我们刚发送了确认链接至 <b>{this.state.email}</b>. <br /> 点击链接登陆。",
+        "emailSent": "我们刚发送了确认链接至 <b>{{email}}</b>. <br /> 点击链接登陆。",
         "tenantLocked": "<strong>{{tenantName}}</strong> 已锁。",
         "reactivateSite": "要重新激活此站点，请使用管理员帐户登录并更新所需的设置。",
         "needInvite": "<strong>{{tenantName}}</strong> 是一个私人站点，需要邀请才能加入。",
@@ -149,8 +149,8 @@
         "step1Title": "1. 您是谁?",
         "step1Message": "我们需要确定您的身份才能设置新的Fider帐户。",
         "step2Title": "2. 这个站点有什么用？",
-        "step2Message": "确保上面提供的信息正确。",
-        "step3Title": "3. 复审"
+        "step3Title": "3. 复审",
+        "step3Message": "确保上面提供的信息正确。"
     },
     "common": {
         "button": {

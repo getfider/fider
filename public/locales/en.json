@@ -145,12 +145,12 @@
     },
     "signUp": {
         "thankYou": "Thank you for registering!",
-        "sentLink": "We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.",
+        "sentLink": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to finish your registration.",
         "step1Title": "1. Who are you?",
         "step1Message": "We need to identify you to setup your new Fider account.",
         "step2Title": "2. What is this Feedback Forum for?",
-        "step2Message": "Make sure information provided above is correct.",
-        "step3Title": "3. Review"
+        "step3Title": "3. Review",
+        "step3Message": "Make sure information provided above is correct."
     },
     "common": {
         "button": {

@@ -134,7 +134,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
       <Modal.Window canClose={false} isOpen={this.state.submitted} onClose={this.noop}>
         <Modal.Header>{t('signUp.thankYou')}</Modal.Header>
         <Modal.Content>
-          <p dangerouslySetInnerHTML={{ __html: t("signUp.sentLink") }}>
+          <p dangerouslySetInnerHTML={{ __html: t("signUp.sentLink", { email: this.state.email }) }}>
 
           </p>
         </Modal.Content>

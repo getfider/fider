@@ -26,7 +26,7 @@ i18n
         backend: {
             // ns: ['translation'],
             // defaultNS: 'translation',
-            loadPath: 'assets/locales/{{lng}}.json'
+            loadPath: '/assets/locales/{{lng}}.json'
         },
         react: {
             useSuspense: false,

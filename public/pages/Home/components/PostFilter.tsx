@@ -19,6 +19,12 @@ export const PostFilter = (props: PostFilterProps) => {
   const handleChangeView = (item: DropDownItem) => {
     props.viewChanged(item.value as string);
   };
+  const renderText = (item: DropDownItem | undefined) => {
+    if (!item) {
+      return <div></div>;
+    }
+    return <div>{t(item.label)}</div>;
+  }
 
   const options: DropDownItem[] = [
     { value: "trending", label: t("home.postFilter.options.trending") },
@@ -43,8 +49,8 @@ export const PostFilter = (props: PostFilterProps) => {
     });
   });
 
-  const viewExists = options.filter(x => x.value === props.activeView).length > 0;
-  const activeView = viewExists ? props.activeView : "trending";
+  // const viewExists = options.filter(x => x.value === props.activeView).length > 0;
+  const activeView = "trending";
 
   return (
     <div>
@@ -56,6 +62,7 @@ export const PostFilter = (props: PostFilterProps) => {
         style="simple"
         items={options}
         defaultValue={activeView}
+        renderText={renderText}
         onChange={handleChangeView}
       />
     </div>
