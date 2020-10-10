@@ -4,14 +4,14 @@ import HomePage, { HomePageProps } from "../Home/Home.page";
 import SignInPage from "../SignIn/SignIn.page";
 import { Modal, Button, Form, Input, LegalFooter } from "@fider/components";
 import { actions, Failure, querystring, Fider } from "@fider/services";
-import { useTranslation } from "react-i18next";
+import { withTranslation } from "react-i18next";
 
 interface CompleteSignInProfilePageState {
   name: string;
   error?: Failure;
 }
 
-export default class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
+class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteSignInProfilePageState> {
   private key: string;
 
   constructor(props: HomePageProps) {
@@ -40,7 +40,7 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
   };
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <>
         <Modal.Window canClose={false} isOpen={true} onClose={this.noop}>
@@ -70,3 +70,5 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
     );
   }
 }
+
+export default withTranslation()(CompleteSignInProfilePage);

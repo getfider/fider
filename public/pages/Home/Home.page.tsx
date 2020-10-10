@@ -8,10 +8,10 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { PostInput } from "./components/PostInput";
 import { PostsContainer } from "./components/PostsContainer";
 import { useFider } from "@fider/hooks";
-import { useTranslation } from 'react-i18next';
+import { useTranslation, WithTranslation } from 'react-i18next';
 
 
-export interface HomePageProps {
+export interface HomePageProps extends WithTranslation {
   posts: Post[];
   tags: Tag[];
   countPerStatus: { [key: string]: number };

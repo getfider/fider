@@ -22,7 +22,7 @@ class SignInPage extends React.Component<WithTranslation, {}> {
     const messages = {
       locked: () => (
         <>
-          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("tenantLocked", { tenantName: Fider.session.tenant.name }) }}>
+          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("signIn.tenantLocked", { tenantName: Fider.session.tenant.name }) }}>
 
           </p>
           <p>{t('signIn.reactivateSite')}</p>
@@ -30,7 +30,7 @@ class SignInPage extends React.Component<WithTranslation, {}> {
       ),
       private: () => (
         <>
-          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("needInvite", { tenantName: Fider.session.tenant.name }) }}>
+          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("signIn.needInvite", { tenantName: Fider.session.tenant.name }) }}>
 
           </p>
           <p>{t('signIn.haveAnAccount')}</p>
