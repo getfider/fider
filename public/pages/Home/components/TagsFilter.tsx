@@ -44,7 +44,7 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
         ? t("home.tagsFilter.anyTag")
         : this.state.selected.length === 1
           ? t("home.tagsFilter.oneTag")
-          : t("home.tagsFilter.nTag", { n: this.state.selected.length });
+          : t("home.tagsFilter.nTags", { n: this.state.selected.length });
     return <>{text}</>;
   };
 
