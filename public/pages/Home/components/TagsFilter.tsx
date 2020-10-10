@@ -5,9 +5,9 @@ import { Tag } from "@fider/models";
 import { ShowTag } from "@fider/components/ShowTag";
 import { DropDown, DropDownItem } from "@fider/components";
 import { FaCheck } from "react-icons/fa";
-import { useTranslation } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 
-interface TagsFilterProps {
+interface TagsFilterProps extends WithTranslation {
   tags: Tag[];
   defaultSelection: string[];
   selectionChanged: (selected: string[]) => void;
@@ -17,7 +17,7 @@ interface TagsFilterState {
   selected: string[];
 }
 
-export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
+class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
   constructor(props: TagsFilterProps) {
     super(props);
     this.state = {
@@ -38,7 +38,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
   };
 
   private renderText = () => {
-    const { t } = useTranslation();
+    const { t } = this.props;
     const text =
       this.state.selected.length === 0
         ? t("home.tagsFilter.anyTag")
@@ -66,7 +66,7 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
         )
       };
     });
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
 
       <div>
@@ -84,3 +84,5 @@ export class TagsFilter extends React.Component<TagsFilterProps, TagsFilterState
     );
   }
 }
+
+export const TagsFilter = withTranslation()(_TagsFilter);
