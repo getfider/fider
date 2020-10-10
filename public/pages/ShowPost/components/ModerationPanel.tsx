@@ -3,6 +3,7 @@ import { PostStatus, Post } from "@fider/models";
 import { actions, navigator, Failure } from "@fider/services";
 import { Form, Modal, Button, List, ListItem, TextArea } from "@fider/components";
 import { useFider } from "@fider/hooks";
+import { useTranslation } from "react-i18next";
 
 interface ModerationPanelProps {
   post: Post;
@@ -10,6 +11,7 @@ interface ModerationPanelProps {
 
 export const ModerationPanel = (props: ModerationPanelProps) => {
   const fider = useFider();
+  const { t } = useTranslation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState<Failure>();
@@ -40,10 +42,10 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
             field="text"
             onChange={setText}
             value={text}
-            placeholder="Why are you deleting this post? (optional)"
+            placeholder={t('showPost.moderationPanel.reasonPlaceholder')}
           >
-            <span className="info">
-              This operation <strong>cannot</strong> be undone.
+            <span className="info" dangerouslySetInnerHTML={{ __html: t("showPost.moderationPanel.cantUndo") }}>
+
             </span>
           </TextArea>
         </Form>
@@ -51,10 +53,10 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
 
       <Modal.Footer>
         <Button color="danger" onClick={handleDelete}>
-          Delete
+          {t('common.button.delete')}
         </Button>
         <Button color="cancel" onClick={hideModal}>
-          Cancel
+          {t('common.button.cancel')}
         </Button>
       </Modal.Footer>
     </Modal.Window>
@@ -63,11 +65,11 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
   return (
     <>
       {modal}
-      <span className="subtitle">Moderation</span>
+      <span className="subtitle">{t('showPost.moderationPanel.subtitle')}</span>
       <List>
         <ListItem>
           <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            Delete
+            {t('common.button.delete')}
           </Button>
         </ListItem>
       </List>

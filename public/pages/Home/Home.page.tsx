@@ -8,8 +8,10 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { PostInput } from "./components/PostInput";
 import { PostsContainer } from "./components/PostsContainer";
 import { useFider } from "@fider/hooks";
+import { useTranslation, WithTranslation } from 'react-i18next';
 
-export interface HomePageProps {
+
+export interface HomePageProps extends WithTranslation {
   posts: Post[];
   tags: Tag[];
   countPerStatus: { [key: string]: number };
@@ -21,6 +23,7 @@ export interface HomePageState {
 
 const Lonely = () => {
   const fider = useFider();
+  const { t } = useTranslation();
 
   return (
     <div className="l-lonely center">
@@ -28,23 +31,23 @@ const Lonely = () => {
         permanentCloseKey="at-least-3-posts"
         condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}
       >
-        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The
-        initial content is key to start the interactions with your audience.
+        {t('home.lonelyHint')}
       </Hint>
       <p>
         <FaRegLightbulb />
       </p>
-      <p>It's lonely out here. Start by sharing a suggestion!</p>
+      <p dangerouslySetInnerHTML={
+        { __html: t('home.lonelyAdmin') }
+      }></p>
     </div>
   );
 };
 
-const defaultWelcomeMessage = `We'd love to hear what you're thinking about. 
-
-What can we do better? This is the place for you to vote, discuss and share ideas.`;
 
 const HomePage = (props: HomePageProps) => {
   const fider = useFider();
+  const { t } = useTranslation();
+
   const [title, setTitle] = useState("");
 
   const isLonely = () => {
@@ -66,11 +69,11 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText
             className="welcome-message"
-            text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
+            text={fider.session.tenant.welcomeMessage || t('home.defaultWelcome')}
             style="full"
           />
           <PostInput
-            placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."}
+            placeholder={fider.session.tenant.invitation || t('home.suggestionPlaceholder')}
             onTitleChanged={setTitle}
           />
         </div>
@@ -80,8 +83,8 @@ const HomePage = (props: HomePageProps) => {
           ) : title ? (
             <SimilarPosts title={title} tags={props.tags} />
           ) : (
-            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-          )}
+                <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
+              )}
         </div>
       </div>
     </div>

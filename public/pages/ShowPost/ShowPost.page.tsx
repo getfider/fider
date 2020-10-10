@@ -28,8 +28,9 @@ import { NotificationsPanel } from "./components/NotificationsPanel";
 import { ModerationPanel } from "./components/ModerationPanel";
 import { DiscussionPanel } from "./components/DiscussionPanel";
 import { VotesPanel } from "./components/VotesPanel";
+import { WithTranslation, withTranslation } from "react-i18next";
 
-interface ShowPostPageProps {
+interface ShowPostPageProps extends WithTranslation {
   post: Post;
   subscribed: boolean;
   comments: Comment[];
@@ -46,7 +47,7 @@ interface ShowPostPageState {
   error?: Failure;
 }
 
-export default class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
+class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState> {
   constructor(props: ShowPostPageProps) {
     super(props);
 
@@ -95,6 +96,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
   };
 
   public render() {
+    const { t } = this.props;
     return (
       <div id="p-show-post" className="page container">
         <div className="header-col">
@@ -108,8 +110,8 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                   </Form>
                 ) : (
-                  <h1>{this.props.post.title}</h1>
-                )}
+                    <h1>{this.props.post.title}</h1>
+                  )}
 
                 <span className="info">
                   <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} />{" "}
@@ -119,7 +121,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
             </ListItem>
           </List>
 
-          <span className="subtitle">Description</span>
+          <span className="subtitle">{t('showPost.description')}</span>
           {this.state.editMode ? (
             <Form error={this.state.error}>
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
@@ -132,13 +134,13 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
               />
             </Form>
           ) : (
-            <>
-              <MultiLineText className="description" text={this.props.post.description} style="simple" />
-              {this.props.attachments.map(x => (
-                <ImageViewer key={x} bkey={x} />
-              ))}
-            </>
-          )}
+              <>
+                <MultiLineText className="description" text={this.props.post.description} style="simple" />
+                {this.props.attachments.map(x => (
+                  <ImageViewer key={x} bkey={x} />
+                ))}
+              </>
+            )}
           <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
         </div>
 
@@ -148,33 +150,33 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           {Fider.session.isAuthenticated &&
             Fider.session.user.isCollaborator && [
               <span key={0} className="subtitle">
-                Actions
+                {t('showPost.actions')}
               </span>,
               this.state.editMode ? (
                 <List key={1}>
                   <ListItem>
                     <Button className="save" color="positive" fluid={true} onClick={this.saveChanges}>
-                      <FaSave /> Save
+                      <FaSave /> {t('common.button.save')}
                     </Button>
                   </ListItem>
                   <ListItem>
                     <Button className="cancel" fluid={true} onClick={this.cancelEdit}>
-                      <FaTimes /> Cancel
+                      <FaTimes /> {t('common.button.cancel')}
                     </Button>
                   </ListItem>
                 </List>
               ) : (
-                <List key={1}>
-                  <ListItem>
-                    <Button className="edit" fluid={true} onClick={this.startEdit}>
-                      <FaEdit /> Edit
-                    </Button>
-                  </ListItem>
-                  <ListItem>
-                    <ResponseForm post={this.props.post} />
-                  </ListItem>
-                </List>
-              )
+                  <List key={1}>
+                    <ListItem>
+                      <Button className="edit" fluid={true} onClick={this.startEdit}>
+                        <FaEdit /> {t('common.button.edit')}
+                      </Button>
+                    </ListItem>
+                    <ListItem>
+                      <ResponseForm post={this.props.post} />
+                    </ListItem>
+                  </List>
+                )
             ]}
 
           <TagsPanel post={this.props.post} tags={this.props.tags} />
@@ -187,3 +189,5 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
     );
   }
 }
+
+export default withTranslation()(ShowPostPage)

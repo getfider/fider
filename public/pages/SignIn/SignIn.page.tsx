@@ -3,36 +3,40 @@ import "./SignIn.page.scss";
 import React from "react";
 import { SignInControl, TenantLogo, LegalNotice } from "@fider/components";
 import { notify, Fider } from "@fider/services";
+import { withTranslation, WithTranslation } from "react-i18next";
 
-const messages = {
-  locked: () => (
-    <>
-      <p className="welcome">
-        <strong>{Fider.session.tenant.name}</strong> is currently locked.
-      </p>
-      <p>To reactivate this site, sign in with an administrator account and update the required settings.</p>
-    </>
-  ),
-  private: () => (
-    <>
-      <p className="welcome">
-        <strong>{Fider.session.tenant.name}</strong> is a private space and requires an invitation to join it.
-      </p>
-      <p>If you have an account or an invitation, you may use following options to sign in.</p>
-    </>
-  )
-};
 
-export default class SignInPage extends React.Component<any, {}> {
+class SignInPage extends React.Component<WithTranslation, {}> {
+
   private onEmailSent = (email: string) => {
+    const { t } = this.props;
     notify.success(
-      <span>
-        We have just sent a confirmation link to <b>{email}</b>. Click the link and you’ll be signed in.
+      <span dangerouslySetInnerHTML={{ __html: t("signIn.emailSent", { email: email }) }}>
+
       </span>
     );
   };
 
   public render() {
+    const { t } = this.props;
+    const messages = {
+      locked: () => (
+        <>
+          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("signIn.tenantLocked", { tenantName: Fider.session.tenant.name }) }}>
+
+          </p>
+          <p>{t('signIn.reactivateSite')}</p>
+        </>
+      ),
+      private: () => (
+        <>
+          <p className="welcome" dangerouslySetInnerHTML={{ __html: t("signIn.needInvite", { tenantName: Fider.session.tenant.name }) }}>
+
+          </p>
+          <p>{t('signIn.haveAnAccount')}</p>
+        </>
+      )
+    };
     return (
       <div id="p-signin" className="page container">
         <div className="message">
@@ -45,3 +49,5 @@ export default class SignInPage extends React.Component<any, {}> {
     );
   }
 }
+
+export default withTranslation()(SignInPage);

@@ -4,6 +4,7 @@ import { SignInModal } from "@fider/components";
 import { cache, actions, Failure } from "@fider/services";
 import { ImageUpload } from "@fider/models";
 import { useFider } from "@fider/hooks";
+import { useTranslation } from "react-i18next";
 
 interface PostInputProps {
   placeholder: string;
@@ -22,6 +23,7 @@ export const PostInput = (props: PostInputProps) => {
   };
 
   const fider = useFider();
+  const { t } = useTranslation();
   const titleRef = useRef<HTMLInputElement>();
   const [title, setTitle] = useState(getCachedValue(CACHE_TITLE_KEY));
   const [description, setDescription] = useState(getCachedValue(CACHE_DESCRIPTION_KEY));
@@ -75,11 +77,11 @@ export const PostInput = (props: PostInputProps) => {
         onChange={handleDescriptionChange}
         value={description}
         minRows={5}
-        placeholder="Describe your suggestion (optional)"
+        placeholder={t("home.postInput.descriptionPlaceholder")}
       />
       <MultiImageUploader field="attachments" maxUploads={3} previewMaxWidth={100} onChange={setAttachments} />
       <Button type="submit" color="positive" onClick={submit}>
-        Submit
+        {t("common.button.submit")}
       </Button>
     </>
   );

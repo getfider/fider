@@ -3,9 +3,10 @@ import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListPosts } from "./ListPosts";
 import { actions } from "@fider/services";
+import { withTranslation, WithTranslation } from "react-i18next";
 import { FaRegLightbulb } from "react-icons/fa";
 
-interface SimilarPostsProps {
+interface SimilarPostsProps extends WithTranslation {
   title: string;
   tags: Tag[];
   user?: CurrentUser;
@@ -17,7 +18,7 @@ interface SimilarPostsState {
   loading: boolean;
 }
 
-export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
+class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
   constructor(props: SimilarPostsProps) {
     super(props);
     this.state = {
@@ -57,11 +58,12 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   };
 
   public render() {
+    const { t } = this.props;
     return (
       <>
         <Heading
-          title="Similar posts"
-          subtitle="Consider voting on existing posts instead."
+          title={t("home.similarPosts.title")}
+          subtitle={t("home.similarPosts.subtitle")}
           icon={FaRegLightbulb}
           size="small"
           dividing={true}
@@ -69,13 +71,15 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
         {this.state.loading ? (
           <Loader />
         ) : (
-          <ListPosts
-            posts={this.state.posts}
-            tags={this.props.tags}
-            emptyText={`No similar posts matched '${this.props.title}'.`}
-          />
-        )}
+            <ListPosts
+              posts={this.state.posts}
+              tags={this.props.tags}
+              emptyText={t("home.similarPosts.emptyText", { title: this.props.title })}
+            />
+          )}
       </>
     );
   }
 }
+
+export const SimilarPosts = withTranslation()(_SimilarPosts);

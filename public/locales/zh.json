@@ -1,0 +1,171 @@
+{
+    "email": "邮箱",
+    "avatar": "头像",
+    "notifications": "通知",
+    "menu": {
+        "settings": "设置",
+        "notifications": "通知",
+        "administration": "管理员",
+        "siteSettings": "站点设置",
+        "signOut": "注销",
+        "signIn": "登录"
+    },
+    "home": {
+        "lonelyHint": "这里很空，开始提建议吧！",
+        "lonelyAdmin": "建议您在分享本网站之前，在这里发布<strong>至少3条</strong>建议。初始的内容是与用户开始互动的关键。",
+        "suggestionPlaceholder": "在这里输入您的建议...",
+        "defaultWelcome": "您的想法可以可以帮助我们做得更好！这里是您投票、讨论和分享想法的地方。",
+        "postFilter": {
+            "options": {
+                "trending": "趋势",
+                "recent": "最近",
+                "mostWanted": "最热门",
+                "mostDiscussed": "最多讨论",
+                "myVotes": "我的投票"
+            },
+            "subtitle": "查看",
+            "dropDownHeader": "你想看什么？"
+        },
+        "postInput": {
+            "descriptionPlaceholder": "描述您的建议(可选)"
+        },
+        "postsContainer": {
+            "showMore": "查看更多文章",
+            "emptyText": "没有符合的搜索结果，请尝试输入其他内容。"
+        },
+        "similarPosts": {
+            "title": "类似文章",
+            "subtitle": "考虑对已有对提议投票。",
+            "emptyText": "没有与{{title}}类似的文章。"
+        },
+        "tagsFilter": {
+            "anyTag": "任意 tag",
+            "oneTag": "1 tag",
+            "nTags": "{{n}} tags",
+            "subtitle": "与"
+        }
+    },
+    "signInProfile": {
+        "header": "完善您对资料",
+        "message": "因为这是您的首次登录，请输入您的姓名。"
+    },
+    "error": {
+        "title": "糟糕！ 发生意外了…",
+        "message": "出现了一个错误，我们正在努力解决这个问题！",
+        "back": "返回到 <a href={{url}}>{{url}}</a> 首页。"
+    },
+    "myNotifications": {
+        "title": "通知",
+        "subtitle": "随时了解最新情况",
+        "unread": "未读",
+        "markAsRead": "标记为已读",
+        "readOnDays": "最近30天已读",
+        "noUnread": "没有未读读通知。"
+    },
+    "mySettings": {
+        "change": "修改",
+        "confirmEmail": "确认您对新邮箱地址",
+        "confirmMessage": "我们刚发送确认链接至 <b>{{email}}</b>. <br /> 请点击链接更新您对邮箱。",
+        "title": "设置",
+        "subtitle": "管理您对个人信息",
+        "privateMessage": "您对邮箱是私有的，任何情况下都不会公开显示。",
+        "dontHaveEmail": "您的账号没有配置邮箱。",
+        "gravatarMessage": "将根据您的电子邮件生成头像。 如果您没有Gravatar账号，则会根据您的姓名首字母生成头像",
+        "letterMessage": "系统会根据您的姓名缩写生成头像。",
+        "imageFormatMessage": "我们接受 小于 100KB，最小分便率为 50x50像素 ，比例为1:1 的JPG, GIF 和 PNG 图片。",
+        "statusChanged": "状态变化",
+        "newApiKey": "您的新API Key 为: ",
+        "apiKeyStoreMessage": "将其安全地存储在服务器上，切勿将其存储在应用程序的客户端。",
+        "apiKeyDoc": "To learn how to use the API, read the <a href='https://getfider.com/docs/api' target='_blank'>official documentation </a>.",
+        "generateAPIKey": "重新生成 API Key",
+        "deleteAccountFailed": "删除账号失败，请稍后重试。",
+        "deleteAccount": "删除账号",
+        "deleteAccountMessage": {
+            "part1": "账号删除后，我们将移除您所有个人信息，但是已发布的内容将已匿名方式保存下来。",
+            "part2": "此操作不可逆。 <strong>您确认吗？</strong>"
+        },
+        "deleteMyAccount": "删除我的账号",
+        "notReceiveAnyNotification": "你将 <strong>不会</strong> 接受任何此事件的通知.",
+        "youWillReceiveWeb": "您将接收关于 {{about}}的<strong>web</strong>通知。",
+        "youWillReceiveEmail": "您将接收关于 {{about}}的<strong>email</strong>通知。",
+        "youWillReceiveEmailAndWeb": "您将接收关于 {{about}}的<strong>web</strong>通知和<strong>email</strong>通知。",
+        "chooseEvents": "选择您想要接收通知的事件",
+        "newPostTitle": "新文章",
+        "newPostEvent": "本站点发布新文章",
+        "discussion": "讨论",
+        "postSubscribedTo": "您订阅的帖子有新的的评论",
+        "postUnsubscribed": "接受所有帖子的评论，除非单独取消订阅",
+        "statusSubscribed": "您订阅的帖子的状态更改为",
+        "statusUnsubscribed": "所有帖子的状态更改，除非单独取消订阅"
+    },
+    "showPost": {
+        "description": "描述",
+        "actions": "动作",
+        "commentInput": {
+            "placeholder": "写下评论..."
+        },
+        "discussionPanel": {
+            "discussion": "讨论"
+        },
+        "moderationPanel": {
+            "reasonPlaceholder": "您为什么删除文章? (可选)",
+            "cantUndo": "本操作<strong>不可</strong>撤销。",
+            "subtitle": "审核"
+        },
+        "votesPanel": {
+            "subtitle": "投票",
+            "more": "更多",
+            "seeDetails": "查看详情",
+            "noneYet": "还没有"
+        },
+        "votesModal": {
+            "searchForUsers": "搜索用户..."
+        },
+        "showComment": {
+            "deleteHeader": "删除评论",
+            "deleteMessage": "本操作<strong>不可</strong>撤销。<strong>您确认吗？</strong>"
+        },
+        "responseForm": {
+            "respond": "响应",
+            "mergedIntoOriginal": "本文章的投票将合并至原始文章。",
+            "whatsGoingOn": "发生了什么？ 让您的用户知道您的计划..."
+        },
+        "notificationPanel": {
+            "receivingNotifications": "您会收到有关此文章活动的通知。",
+            "notReceiveNotification": "您不会收到有关此文章活动的通知。",
+            "subtitle": "通知"
+        }
+    },
+    "signIn": {
+        "emailSent": "我们刚发送了确认链接至 <b>{{email}}</b>. <br /> 点击链接登陆。",
+        "tenantLocked": "<strong>{{tenantName}}</strong> 已锁。",
+        "reactivateSite": "要重新激活此站点，请使用管理员帐户登录并更新所需的设置。",
+        "needInvite": "<strong>{{tenantName}}</strong> 是一个私人站点，需要邀请才能加入。",
+        "haveAnAccount": "如果您有帐户或邀请，则可以使用以下选项登录。"
+    },
+    "signUp": {
+        "thankYou": "感谢注册!",
+        "sentLink": "我们刚发送了确认链接至 <b>{email}</b>. <br /> 点击链接完成注册。",
+        "step1Title": "1. 您是谁?",
+        "step1Message": "我们需要确定您的身份才能设置新的Fider帐户。",
+        "step2Title": "2. 这个站点有什么用？",
+        "step3Title": "3. 复审",
+        "step3Message": "确保上面提供的信息正确。"
+    },
+    "common": {
+        "button": {
+            "submit": "提交",
+            "confirm": "确定",
+            "cancel": "取消",
+            "save": "保存",
+            "edit": "保存",
+            "delete": "删除",
+            "close": "关闭",
+            "unsubscribe": "取消订阅",
+            "subscribe": "订阅"
+        },
+        "placeholder": {
+            "search": "搜索..."
+        }
+    }
+}
