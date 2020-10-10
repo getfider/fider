@@ -3,10 +3,10 @@ import { Post, Tag, CurrentUser } from "@fider/models";
 import { Heading, Loader } from "@fider/components";
 import { ListPosts } from "./ListPosts";
 import { actions } from "@fider/services";
-import { useTranslation } from "react-i18next";
+import { withTranslation, WithTranslation } from "react-i18next";
 import { FaRegLightbulb } from "react-icons/fa";
 
-interface SimilarPostsProps {
+interface SimilarPostsProps extends WithTranslation {
   title: string;
   tags: Tag[];
   user?: CurrentUser;
@@ -18,7 +18,7 @@ interface SimilarPostsState {
   loading: boolean;
 }
 
-export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
+class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
   constructor(props: SimilarPostsProps) {
     super(props);
     this.state = {
@@ -58,7 +58,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   };
 
   public render() {
-    const { t } = useTranslation();
+    const { t } = this.props;
     return (
       <>
         <Heading
@@ -81,3 +81,5 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
     );
   }
 }
+
+export const SimilarPosts = withTranslation()(_SimilarPosts);

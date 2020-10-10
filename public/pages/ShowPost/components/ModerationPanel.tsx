@@ -69,7 +69,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
       <List>
         <ListItem>
           <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            Delete
+            {t('common.button.delete')}
           </Button>
         </ListItem>
       </List>
