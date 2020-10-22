@@ -53,14 +53,14 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
       return null;
     }
 
-    const items = this.props.tags.map(t => {
+    const items = this.props.tags.map((tag) => {
       return {
-        value: t.slug,
-        label: t.name,
+        value: tag.slug,
+        label: tag.name,
         render: (
-          <div className={this.state.selected.indexOf(t.slug) >= 0 ? "selected-tag" : ""}>
+          <div className={this.state.selected.indexOf(tag.slug) >= 0 ? "selected-tag" : ""}>
             <FaCheck />
-            <ShowTag tag={t} size="mini" circular={true} />
+            <ShowTag tag={tag} size="mini" circular={true} />
             {t.name}
           </div>
         )
