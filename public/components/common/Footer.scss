@@ -13,7 +13,7 @@
     .l-powered {
       img {
         width: 20px;
-        margin: 15px auto 0px auto;
+        margin: 15px auto 0;
         filter: grayscale(100%);
         display: block;
       }
@@ -33,7 +33,7 @@
 
     .l-links a {
       color: rgba($gray-darker, 0.5);
-      margin: 0px 10px;
+      margin: 0 10px;
       &:hover {
         color: $link-color;
       }

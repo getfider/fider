@@ -31,12 +31,12 @@ class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNo
 
     this.state = {
       unread,
-      recent
+      recent,
     };
   }
 
   private items(notifications: Notification[]): JSX.Element[] {
-    return notifications.map(n => {
+    return notifications.map((n) => {
       return (
         <ListItem key={n.id}>
           <a href={`/notifications/${n.id}`}>
@@ -73,7 +73,7 @@ class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNo
         </h4>
         <List>
           {this.state.unread.length > 0 && this.items(this.state.unread)}
-          {this.state.unread.length === 0 && <span className="info">{t('myNotifications.noUnread')}</span>}
+          {this.state.unread.length === 0 && <span className="info">{t("myNotifications.noUnread")}</span>}
         </List>
         {this.state.recent.length > 0 && (
           <>

@@ -9,7 +9,7 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: Co
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch(err => {
+      .catch((err) => {
         setTimeout(() => {
           if (retriesLeft === 1) {
             reject(new Error(`${err} after ${MAX_RETRIES} retries`));

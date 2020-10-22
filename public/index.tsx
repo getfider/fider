@@ -5,8 +5,7 @@ import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
 import { classSet, Fider, FiderContext, actions, navigator } from "@fider/services";
 import { IconContext } from "react-icons";
-import './i18n';
-
+import "./i18n";
 
 const Loading = () => (
   <div className="page">
@@ -53,7 +52,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   const config = resolveRootComponent(location.pathname);
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
-    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
+    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   });
   ReactDOM.render(
     <React.StrictMode>

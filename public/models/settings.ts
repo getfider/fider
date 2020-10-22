@@ -30,7 +30,7 @@ export interface UserSettings {
 
 export const OAuthConfigStatus = {
   Disabled: 1,
-  Enabled: 2
+  Enabled: 2,
 };
 
 export interface OAuthConfig {

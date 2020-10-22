@@ -14,7 +14,7 @@ export const updateUserSettings = async (request: UpdateUserSettings): Promise<R
 
 export const changeUserEmail = async (email: string): Promise<Result> => {
   return await http.post("/_api/user/change-email", {
-    email
+    email,
   });
 };
 

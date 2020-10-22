@@ -25,7 +25,7 @@ import {
   SelectOption,
   ButtonClickEvent,
   Message,
-  Hint
+  Hint,
 } from "@fider/components";
 import { User, UserRole, Tag } from "@fider/models";
 import { notify, Failure } from "@fider/services";
@@ -37,7 +37,7 @@ const jonSnow: User = {
   name: "Jon Snow",
   role: UserRole.Administrator,
   status: UserStatus.Active,
-  avatarURL: "/avatars/letter/0/Jon%20Snow"
+  avatarURL: "/avatars/letter/0/Jon%20Snow",
 };
 
 const aryaStark: User = {
@@ -45,7 +45,7 @@ const aryaStark: User = {
   name: "Arya Snow",
   role: UserRole.Visitor,
   status: UserStatus.Active,
-  avatarURL: "/avatars/letter/0/Arya%20Snow"
+  avatarURL: "/avatars/letter/0/Arya%20Snow",
 };
 
 const easyTag: Tag = { id: 2, slug: "easy", name: "easy", color: "FB3A62", isPublic: true };
@@ -81,8 +81,8 @@ const UIToolkitPage = () => {
         { field: "title", message: "Title is mandatory" },
         { field: "description", message: "Error #1" },
         { field: "description", message: "Error #2" },
-        { field: "status", message: "Status is mandatory" }
-      ]
+        { field: "status", message: "Status is mandatory" },
+      ],
     });
   };
 
@@ -454,14 +454,18 @@ const UIToolkitPage = () => {
           options={[
             { value: "open", label: "Open" },
             { value: "started", label: "Started" },
-            { value: "planned", label: "Planned" }
+            { value: "planned", label: "Planned" },
           ]}
           onChange={notifyStatusChange}
         />
 
         <Field label="Number">
           <DropDown
-            items={[{ label: "One", value: "1" }, { label: "Two", value: "2" }, { label: "Three", value: "3" }]}
+            items={[
+              { label: "One", value: "1" },
+              { label: "Two", value: "2" },
+              { label: "Three", value: "3" },
+            ]}
             defaultValue={"1"}
             placeholder="Select a number"
           />
@@ -472,7 +476,7 @@ const UIToolkitPage = () => {
             items={[
               { label: "Brazil", value: "br" },
               { label: "United States", value: "us" },
-              { label: "Ireland", value: "ie" }
+              { label: "Ireland", value: "ie" },
             ]}
             defaultValue={"1"}
             renderText={renderText}
@@ -485,7 +489,7 @@ const UIToolkitPage = () => {
             items={[
               { label: "Green", value: "green", render: <span style={{ color: "green" }}>Green</span> },
               { label: "Red", value: "red", render: <span style={{ color: "red" }}>Red</span> },
-              { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> }
+              { label: "Blue", value: "blue", render: <span style={{ color: "blue" }}>Blue</span> },
             ]}
             placeholder="Select a color"
             inline={true}

@@ -15,7 +15,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (fider.session.isAuthenticated) {
-      actions.getTotalUnreadNotifications().then(result => {
+      actions.getTotalUnreadNotifications().then((result) => {
         if (result.ok && result.data > 0) {
           setUnreadNotifications(result.data);
         }
@@ -37,24 +37,24 @@ export const Header = () => {
         <FaUser /> <span>{fider.session.user.name}</span>
       </div>
       <a href="/settings" className="c-menu-user-item">
-        {t('menu.settings')}
+        {t("menu.settings")}
       </a>
       <a href="/notifications" className="c-menu-user-item">
-        {t('menu.notifications')}
+        {t("menu.notifications")}
         {unreadNotifications > 0 && <div className="c-unread-count">{unreadNotifications}</div>}
       </a>
       <div className="c-menu-user-divider" />
       {fider.session.user.isCollaborator && [
         <div key={1} className="c-menu-user-heading">
-          <FaCog /> <span>{t('menu.administration')}</span>
+          <FaCog /> <span>{t("menu.administration")}</span>
         </div>,
         <a key={2} href="/admin" className="c-menu-user-item">
-          {t('menu.siteSettings')}
+          {t("menu.siteSettings")}
         </a>,
-        <div key={5} className="c-menu-user-divider" />
+        <div key={5} className="c-menu-user-divider" />,
       ]}
       <a href="/signout?redirect=/" className="c-menu-user-item signout">
-        {t('menu.signOut')}
+        {t("menu.signOut")}
       </a>
     </div>
   );
@@ -74,7 +74,7 @@ export const Header = () => {
             <div onClick={showModal} className="c-menu-item-signin">
               {fider.session.isAuthenticated && <Avatar user={fider.session.user} />}
               {unreadNotifications > 0 && <div className="c-unread-dot" />}
-              {!fider.session.isAuthenticated && <span>{t('menu.signIn')}</span>}
+              {!fider.session.isAuthenticated && <span>{t("menu.signIn")}</span>}
               {fider.session.isAuthenticated && <FaCaretDown />}
               {items}
             </div>

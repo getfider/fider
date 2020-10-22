@@ -16,11 +16,11 @@ interface FormProps {
 
 export const ValidationContext = React.createContext<ValidationContext>({});
 
-export const Form: React.FunctionComponent<FormProps> = props => {
+export const Form: React.FunctionComponent<FormProps> = (props) => {
   const className = classSet({
     "c-form": true,
     [props.className!]: props.className,
-    [`m-${props.size}`]: props.size
+    [`m-${props.size}`]: props.size,
   });
 
   return (

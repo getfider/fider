@@ -41,7 +41,7 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     super(props);
     this.state = {
       isAdding: false,
-      allTags: this.props.tags
+      allTags: this.props.tags,
     };
   }
 
@@ -49,7 +49,7 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     this.setState({
       isAdding: true,
       deleting: undefined,
-      editing: undefined
+      editing: undefined,
     });
   };
 
@@ -62,7 +62,7 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
     if (result.ok) {
       this.setState({
         isAdding: false,
-        allTags: this.state.allTags.concat(result.data).sort(tagSorter)
+        allTags: this.state.allTags.concat(result.data).sort(tagSorter),
       });
     } else {
       return result.error;
@@ -72,25 +72,25 @@ export default class ManageTagsPage extends AdminBasePage<ManageTagsPageProps, M
   private handleTagDeleted = (tag: Tag) => {
     const idx = this.state.allTags.indexOf(tag);
     this.setState({
-      allTags: this.state.allTags.splice(idx, 1) && this.state.allTags
+      allTags: this.state.allTags.splice(idx, 1) && this.state.allTags,
     });
   };
 
   private handleTagEdited = (tag: Tag) => {
     this.setState({
-      allTags: this.state.allTags.sort(tagSorter)
+      allTags: this.state.allTags.sort(tagSorter),
     });
   };
 
   private getTagList(filter: (tag: Tag) => boolean) {
-    return this.state.allTags.filter(filter).map(t => {
+    return this.state.allTags.filter(filter).map((t) => {
       return <TagListItem key={t.id} tag={t} onTagDeleted={this.handleTagDeleted} onTagEdited={this.handleTagEdited} />;
     });
   }
 
   public content() {
-    const publicTaglist = this.getTagList(t => t.isPublic);
-    const privateTagList = this.getTagList(t => !t.isPublic);
+    const publicTaglist = this.getTagList((t) => t.isPublic);
+    const privateTagList = this.getTagList((t) => !t.isPublic);
 
     const form =
       Fider.session.user.isAdministrator &&

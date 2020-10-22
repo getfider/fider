@@ -6,7 +6,7 @@ import {
   elementIsNotVisible,
   delay,
   elementIsVisible,
-  mailgun
+  mailgun,
 } from "../lib";
 import { HomePage, ShowPostPage } from "../pages";
 import { ctx } from ".";

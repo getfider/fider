@@ -19,7 +19,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
   constructor(props: PostSearchProps) {
     super(props);
     this.state = {
-      posts: []
+      posts: [],
     };
   }
 
@@ -38,11 +38,11 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
   private search = (searchQuery: string) => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query: searchQuery }).then(res => {
+      actions.searchPosts({ query: searchQuery }).then((res) => {
         if (res.ok) {
           const posts =
             this.props.exclude && this.props.exclude.length > 0
-              ? res.data.filter(i => this.props.exclude!.indexOf(i.number) === -1)
+              ? res.data.filter((i) => this.props.exclude!.indexOf(i.number) === -1)
               : res.data;
           this.setState({ posts });
         }
@@ -51,7 +51,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
   };
 
   public render() {
-    const items = this.state.posts.map(p => {
+    const items = this.state.posts.map((p) => {
       const status = PostStatus.Get(p.status);
       return {
         label: p.title,
@@ -65,7 +65,7 @@ export class PostSearch extends React.Component<PostSearchProps, PostSearchState
             <span className={`status-label status-${status.value}`}>{status.title}</span>
             {p.title}
           </>
-        )
+        ),
       };
     });
 

@@ -8,7 +8,7 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = props => {
+export const Checkbox: React.FC<CheckboxProps> = (props) => {
   const [checked, setChecked] = useState<boolean>(props.checked || false);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,11 +20,11 @@ export const Checkbox: React.FC<CheckboxProps> = props => {
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <div
           className={classSet({
             "c-form-field m-checkbox": true,
-            "m-error": hasError(props.field, ctx.error)
+            "m-error": hasError(props.field, ctx.error),
           })}
         >
           <label htmlFor={`input-${props.field}`}>

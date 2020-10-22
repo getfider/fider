@@ -36,7 +36,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
-      userSettings: this.props.userSettings
+      userSettings: this.props.userSettings,
     };
   }
 
@@ -45,7 +45,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       name: this.state.name,
       avatarType: this.state.avatarType,
       avatar: this.state.avatar,
-      settings: this.state.userSettings
+      settings: this.state.userSettings,
     });
     if (result.ok) {
       location.reload();
@@ -60,7 +60,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       this.setState({
         error: undefined,
         changingEmail: false,
-        showModal: true
+        showModal: true,
       });
     } else if (result.error) {
       this.setState({ error: result.error });
@@ -75,7 +75,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
     this.setState({
       changingEmail: false,
       newEmail: "",
-      error: undefined
+      error: undefined,
     });
   };
 
@@ -119,11 +119,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
           <Modal.Header> {t("mySettings.confirmEmail")} </Modal.Header>
           <Modal.Content>
             <div>
-              <p dangerouslySetInnerHTML={
-                { __html: t('mySettings.confirmMessage', { email: this.state.newEmail }) }
-              }>
-
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: t("mySettings.confirmMessage", { email: this.state.newEmail }) }} />
               <p>
                 <a href="#" onClick={this.closeModal}>
                   OK
@@ -133,13 +129,13 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
           </Modal.Content>
         </Modal.Window>
 
-        <Heading title={t('mySettings.title')} subtitle={t('mySettings.subtitle')} icon={FaRegAddressCard} />
+        <Heading title={t("mySettings.title")} subtitle={t("mySettings.subtitle")} icon={FaRegAddressCard} />
 
         <div className="row">
           <div className="col-lg-7">
             <Form error={this.state.error}>
               <Input
-                label={t('email')}
+                label={t("email")}
                 field="email"
                 value={this.state.changingEmail ? this.state.newEmail : Fider.session.user.email}
                 maxLength={200}
@@ -155,10 +151,10 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
                 {this.state.changingEmail && (
                   <>
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
-                      {t('common.button.confirm')}
+                      {t("common.button.confirm")}
                     </Button>
                     <Button color="cancel" size="mini" onClick={this.cancelChangeEmail}>
-                      {t('common.button.cancel')}
+                      {t("common.button.cancel")}
                     </Button>
                   </>
                 )}
@@ -167,13 +163,13 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
               <Input label="Name" field="name" value={this.state.name} maxLength={100} onChange={this.setName} />
 
               <Select
-                label={t('avatar')}
+                label={t("avatar")}
                 field="avatarType"
                 defaultValue={this.state.avatarType}
                 options={[
                   { label: "Letter", value: UserAvatarType.Letter },
                   { label: "Gravatar", value: UserAvatarType.Gravatar },
-                  { label: "Custom", value: UserAvatarType.Custom }
+                  { label: "Custom", value: UserAvatarType.Custom },
                 ]}
                 onChange={this.avatarTypeChanged}
               >
@@ -183,11 +179,11 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
                     <a href="https://en.gravatar.com" target="_blank">
                       Gravatar
                     </a>{" "}
-                    {t('mySettings.gravatarMessage')}
+                    {t("mySettings.gravatarMessage")}
                   </p>
                 )}
                 {this.state.avatarType === UserAvatarType.Letter && (
-                  <p className="info">{t('mySettings.letterMessage')}</p>
+                  <p className="info">{t("mySettings.letterMessage")}</p>
                 )}
                 {this.state.avatarType === UserAvatarType.Custom && (
                   <ImageUploader
@@ -196,10 +192,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
                     onChange={this.setAvatar}
                     bkey={Fider.session.user.avatarBlobKey}
                   >
-                    <p className="info">
-                      {t('mySettings.imageFormatMessage')}
-
-                    </p>
+                    <p className="info">{t("mySettings.imageFormatMessage")}</p>
                   </ImageUploader>
                 )}
               </Select>
@@ -234,4 +227,4 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
   }
 }
 
-export default withTranslation()(MySettingsPage)
+export default withTranslation()(MySettingsPage);

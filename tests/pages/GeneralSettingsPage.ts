@@ -7,7 +7,7 @@ import {
   TextInput,
   WebComponent,
   Button,
-  pageHasLoaded
+  pageHasLoaded,
 } from "../lib";
 import { HomePage, FacebookSignInPage } from ".";
 

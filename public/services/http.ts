@@ -21,7 +21,7 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
   if (response.status < 400) {
     return {
       ok: true,
-      data: body as T
+      data: body as T,
     };
   }
 
@@ -37,18 +37,21 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     ok: false,
     data: body as T,
     error: {
-      errors: body.errors
-    }
+      errors: body.errors,
+    },
   };
 }
 async function request<T>(url: string, method: "GET" | "POST" | "PUT" | "DELETE", body?: any): Promise<Result<T>> {
-  const headers = [["Accept", "application/json"], ["Content-Type", "application/json"]];
+  const headers = [
+    ["Accept", "application/json"],
+    ["Content-Type", "application/json"],
+  ];
   try {
     const response = await fetch(url, {
       method,
       headers,
       body: JSON.stringify(body),
-      credentials: "same-origin"
+      credentials: "same-origin",
     });
     return await toResult<T>(response);
   } catch (err) {
@@ -75,5 +78,5 @@ export const http = {
       analytics.event(category, action);
     }
     return result;
-  }
+  },
 };

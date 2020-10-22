@@ -37,7 +37,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
     this.state = {
       stripe: null,
       showModal: false,
-      plans: this.props.plans
+      plans: this.props.plans,
     };
   }
 
@@ -48,20 +48,20 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
       script.onload = () => {
         this.setState({
           stripe: Stripe(Fider.settings.stripePublicKey!),
-          showModal: true
+          showModal: true,
         });
       };
       document.body.appendChild(script);
     } else {
       this.setState({
-        showModal: true
+        showModal: true,
       });
     }
   };
 
   private closeModal = async () => {
     this.setState({
-      showModal: false
+      showModal: false,
     });
   };
 
@@ -72,7 +72,7 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
   }
 
   private fetchPlans = (countryCode: string) => {
-    actions.listBillingPlans(countryCode).then(res => {
+    actions.listBillingPlans(countryCode).then((res) => {
       if (res.ok) {
         this.setState({ plans: res.data });
       }

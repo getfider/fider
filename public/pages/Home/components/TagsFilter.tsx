@@ -21,7 +21,7 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
   constructor(props: TagsFilterProps) {
     super(props);
     this.state = {
-      selected: props.defaultSelection
+      selected: props.defaultSelection,
     };
   }
 
@@ -63,12 +63,11 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
             <ShowTag tag={tag} size="mini" circular={true} />
             {t.name}
           </div>
-        )
+        ),
       };
     });
     const { t } = this.props;
     return (
-
       <div>
         <span className="subtitle">{t("home.tagsFilter.subtitle")}</span>
         <DropDown

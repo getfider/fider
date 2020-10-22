@@ -16,7 +16,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
   const canEdit = fider.session.isAuthenticated && fider.session.user.isCollaborator && props.tags.length > 0;
 
   const [isEditing, setIsEditing] = useState(false);
-  const [assignedTags, setAssignedTags] = useState(props.tags.filter(t => props.post.tags.indexOf(t.slug) >= 0));
+  const [assignedTags, setAssignedTags] = useState(props.tags.filter((t) => props.post.tags.indexOf(t.slug) >= 0));
 
   const assignOrUnassignTag = async (tag: Tag) => {
     const idx = assignedTags.indexOf(tag);
@@ -51,7 +51,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
   const tagsList =
     assignedTags.length > 0 ? (
       <List className="c-tag-list">
-        {assignedTags.map(tag => (
+        {assignedTags.map((tag) => (
           <ListItem key={tag.id}>
             <ShowTag tag={tag} />
           </ListItem>
@@ -63,7 +63,7 @@ export const TagsPanel = (props: TagsPanelProps) => {
 
   const editTagsList = props.tags.length > 0 && (
     <List className="c-tag-list">
-      {props.tags.map(tag => (
+      {props.tags.map((tag) => (
         <TagListItem key={tag.id} tag={tag} assigned={assignedTags.indexOf(tag) >= 0} onClick={assignOrUnassignTag} />
       ))}
     </List>

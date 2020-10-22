@@ -21,7 +21,7 @@ export class ImageViewer extends React.Component<ImageViewerProps, ImageViewerSt
     this.state = {
       showModal: false,
       loadedThumbnail: false,
-      loadedPreview: false
+      loadedPreview: false,
     };
   }
 

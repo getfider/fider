@@ -31,23 +31,23 @@ export const NotificationsPanel = (props: NotificationsPanelProps) => {
 
   const button = subscribed ? (
     <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-      <FaVolumeMute /> {t('common.button.unsubscribe')}
+      <FaVolumeMute /> {t("common.button.unsubscribe")}
     </Button>
   ) : (
-      <Button fluid={true} onClick={subscribeOrUnsubscribe}>
-        <FaVolumeUp /> {t('common.button.subscribe')}
-      </Button>
-    );
+    <Button fluid={true} onClick={subscribeOrUnsubscribe}>
+      <FaVolumeUp /> {t("common.button.subscribe")}
+    </Button>
+  );
 
   const text = subscribed ? (
-    <span className="info">{t('showPost.notificationPanel.receivingNotifications')}</span>
+    <span className="info">{t("showPost.notificationPanel.receivingNotifications")}</span>
   ) : (
-      <span className="info">{t('showPost.notificationPanel.notReceiveNotification')}</span>
-    );
+    <span className="info">{t("showPost.notificationPanel.notReceiveNotification")}</span>
+  );
 
   return (
     <>
-      <span className="subtitle">{t('showPost.notificationPanel.subtitle')}</span>
+      <span className="subtitle">{t("showPost.notificationPanel.subtitle")}</span>
       <List>
         <ListItem>
           {button}

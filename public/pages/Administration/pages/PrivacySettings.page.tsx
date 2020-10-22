@@ -21,14 +21,14 @@ export default class PrivacySettingsPage extends AdminBasePage<{}, PrivacySettin
     super(props);
 
     this.state = {
-      isPrivate: Fider.session.tenant.isPrivate
+      isPrivate: Fider.session.tenant.isPrivate,
     };
   }
 
   private toggle = async (active: boolean) => {
     this.setState(
-      state => ({
-        isPrivate: active
+      (state) => ({
+        isPrivate: active,
       }),
       async () => {
         const response = await actions.updateTenantPrivacy(this.state.isPrivate);

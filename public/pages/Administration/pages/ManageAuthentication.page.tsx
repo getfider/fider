@@ -31,7 +31,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<
   constructor(props: ManageAuthenticationPageProps) {
     super(props);
     this.state = {
-      isAdding: false
+      isAdding: false,
     };
   }
 
@@ -85,7 +85,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<
         </p>
         <Segment>
           <List divided={true}>
-            {this.props.providers.map(o => (
+            {this.props.providers.map((o) => (
               <ListItem key={o.provider}>
                 {o.isCustomProvider && (
                   <>

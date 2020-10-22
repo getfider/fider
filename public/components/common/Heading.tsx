@@ -13,7 +13,7 @@ interface HeadingLogo {
   className?: string;
 }
 
-const Header: React.FunctionComponent<{ level: number; className: string }> = props =>
+const Header: React.FunctionComponent<{ level: number; className: string }> = (props) =>
   React.createElement(`h${props.level}`, { className: props.className }, props.children);
 
 export const Heading = (props: HeadingLogo) => {
@@ -23,12 +23,12 @@ export const Heading = (props: HeadingLogo) => {
     "c-heading": true,
     "m-dividing": props.dividing || false,
     [`m-${size}`]: true,
-    [`${props.className}`]: props.className
+    [`${props.className}`]: props.className,
   });
 
   const iconClassName = classSet({
     "c-heading-icon": true,
-    circular: level <= 2
+    circular: level <= 2,
   });
 
   const icon = props.icon && <div className={iconClassName}>{React.createElement(props.icon)}</div>;

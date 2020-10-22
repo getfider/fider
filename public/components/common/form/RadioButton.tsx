@@ -21,7 +21,7 @@ export class RadioButton extends React.Component<RadioButtonProps, RadioButtonSt
   constructor(props: RadioButtonProps) {
     super(props);
     this.state = {
-      selected: props.defaultOption || props.options[0]
+      selected: props.defaultOption || props.options[0],
     };
   }
 
@@ -34,7 +34,7 @@ export class RadioButton extends React.Component<RadioButtonProps, RadioButtonSt
   };
 
   public render() {
-    const inputs = this.props.options.map(option => {
+    const inputs = this.props.options.map((option) => {
       return (
         <div key={option.value} className="c-form-radio-option">
           <input

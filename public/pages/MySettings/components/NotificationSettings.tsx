@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { UserSettings } from "@fider/models";
 import { Toggle, Segment, Segments, Field } from "@fider/components";
 import { useFider } from "@fider/hooks";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 interface NotificationSettingsProps {
   userSettings: UserSettings;
@@ -29,7 +29,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
   const toggle = async (settingsKey: string, channel: Channel) => {
     const nextSettings = {
       ...userSettings,
-      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString()
+      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString(),
     };
     setUserSettings(nextSettings);
     props.settingsChanged(nextSettings);
@@ -48,43 +48,27 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
     const emailEnabled = isEnabled(settingsKey, EmailChannel);
 
     if (!webEnabled && !emailEnabled) {
-      return (
-        <p className="info">
-          {t('mySettings.notReceiveAnyNotification')}
-        </p>
-      );
+      return <p className="info">{t("mySettings.notReceiveAnyNotification")}</p>;
     } else if (webEnabled && !emailEnabled) {
-      return (
-        <p className="info">
-          {t('mySettings.youWillReceiveWeb', { about: about })}
-        </p>
-      );
+      return <p className="info">{t("mySettings.youWillReceiveWeb", { about })}</p>;
     } else if (!webEnabled && emailEnabled) {
-      return (
-        <p className="info">
-          {t('mySettings.youWillReceiveEmail', { about: about })}
-        </p>
-      );
+      return <p className="info">{t("mySettings.youWillReceiveEmail", { about })}</p>;
     } else if (webEnabled && emailEnabled) {
-      return (
-        <p className="info">
-          {t('mySettings.youWillReceiveEmailAndWeb', { about: about })}
-        </p>
-      );
+      return <p className="info">{t("mySettings.youWillReceiveEmailAndWeb", { about })}</p>;
     }
     return null;
   };
 
   return (
     <>
-      <Field label={t('notifications')}>
-        <p className="info">{t('mySettings.chooseEvents')}</p>
+      <Field label={t("notifications")}>
+        <p className="info">{t("mySettings.chooseEvents")}</p>
       </Field>
 
       <div className="notifications-settings">
         <Segments>
           <Segment>
-            <span className="event-title">{t('mySettings.newPostTitle')}</span>
+            <span className="event-title">{t("mySettings.newPostTitle")}</span>
             {info("event_notification_new_post", t("mySettings.newPostEvent"), t("mySettings.newPostEvent"))}
             <p>
               {icon("event_notification_new_post", WebChannel)}
@@ -92,19 +76,15 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
             </p>
           </Segment>
           <Segment>
-            <span className="event-title">{t('mySettings.discussion')}</span>
-            {info(
-              "event_notification_new_comment",
-              t("mySettings.postSubscribedTo"),
-              t("mySettings.postUnsubscribed")
-            )}
+            <span className="event-title">{t("mySettings.discussion")}</span>
+            {info("event_notification_new_comment", t("mySettings.postSubscribedTo"), t("mySettings.postUnsubscribed"))}
             <p>
               {icon("event_notification_new_comment", WebChannel)}
               {icon("event_notification_new_comment", EmailChannel)}
             </p>
           </Segment>
           <Segment>
-            <span className="event-title">{t('mySettings.statusChanged')}</span>
+            <span className="event-title">{t("mySettings.statusChanged")}</span>
             {info(
               "event_notification_change_status",
               t("mySettings.statusSubscribed"),

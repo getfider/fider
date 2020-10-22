@@ -13,7 +13,7 @@
 
   .c-comment {
     position: relative;
-    margin: 0 0 20px 0;
+    margin: 0 0 20px;
     border-top: none;
     line-height: 1.2;
 
@@ -30,7 +30,7 @@
 
       .l-more-actions {
         .c-dropdown-control {
-          padding: 0px 0px 0px 5px;
+          padding: 0 0 0 5px;
         }
 
         .c-dropdown-menu {
@@ -61,7 +61,7 @@
 }
 
 .c-comment-input  {
-  margin: 0 0 15px 0;
+  margin: 0 0 15px;
 
   .c-form {
     margin-top: 5px;

@@ -77,14 +77,14 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
   private onSubscribe = async (plan: BillingPlan) => {
     this.setState({
       confirmPlan: plan,
-      action: "subscribe"
+      action: "subscribe",
     });
   };
 
   private onCancel = async (plan: BillingPlan) => {
     this.setState({
       confirmPlan: plan,
-      action: "cancel"
+      action: "cancel",
     });
   };
 
@@ -103,12 +103,12 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
   private closeModal = async () => {
     this.setState({
       action: "",
-      confirmPlan: undefined
+      confirmPlan: undefined,
     });
   };
 
   private getCurrentPlan(): BillingPlan | undefined {
-    const filtered = this.props.plans.filter(x => x.id === Fider.session.tenant.billing!.stripePlanID);
+    const filtered = this.props.plans.filter((x) => x.id === Fider.session.tenant.billing!.stripePlanID);
     if (filtered.length > 0) {
       return filtered[0];
     }
@@ -215,7 +215,7 @@ export class BillingPlanPanel extends React.Component<BillingPlanPanelProps, Bil
             </p>
           )}
           <div className="row">
-            {this.props.plans.map(x => (
+            {this.props.plans.map((x) => (
               <BillingPlanOption
                 key={x.id}
                 plan={x}

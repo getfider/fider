@@ -9,7 +9,7 @@ interface OAuthFormProps {
   onCancel: () => void;
 }
 
-export const OAuthForm: React.FC<OAuthFormProps> = props => {
+export const OAuthForm: React.FC<OAuthFormProps> = (props) => {
   const fider = useFider();
   const [provider] = useState((props.config && props.config.provider) || "");
   const [displayName, setDisplayName] = useState((props.config && props.config.displayName) || "");
@@ -43,7 +43,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
       jsonUserIDPath,
       jsonUserNamePath,
       jsonUserEmailPath,
-      logo
+      logo,
     });
     if (result.ok) {
       location.reload();
@@ -128,9 +128,7 @@ export const OAuthForm: React.FC<OAuthFormProps> = props => {
                   change
                 </span>
               </>
-            ) : (
-              undefined
-            )
+            ) : undefined
           }
         />
         <Input
