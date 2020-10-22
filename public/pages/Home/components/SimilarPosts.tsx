@@ -24,7 +24,7 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
     this.state = {
       title: props.title,
       loading: !!props.title,
-      posts: []
+      posts: [],
     };
   }
 
@@ -32,7 +32,7 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
     if (nextProps.title !== prevState.title) {
       return {
         loading: true,
-        title: nextProps.title
+        title: nextProps.title,
       };
     }
     return null;
@@ -49,7 +49,7 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
 
   private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then(x => {
+      actions.searchPosts({ query: this.state.title }).then((x) => {
         if (x.ok) {
           this.setState({ loading: false, posts: x.data });
         }
@@ -71,12 +71,12 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
         {this.state.loading ? (
           <Loader />
         ) : (
-            <ListPosts
-              posts={this.state.posts}
-              tags={this.props.tags}
-              emptyText={t("home.similarPosts.emptyText", { title: this.props.title })}
-            />
-          )}
+          <ListPosts
+            posts={this.state.posts}
+            tags={this.props.tags}
+            emptyText={t("home.similarPosts.emptyText", { title: this.props.title })}
+          />
+        )}
       </>
     );
   }

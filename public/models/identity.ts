@@ -18,7 +18,7 @@ export interface Tenant {
 export enum TenantStatus {
   Active = 1,
   Pending = 2,
-  Locked = 3
+  Locked = 3,
 }
 
 export interface User {
@@ -32,19 +32,19 @@ export interface User {
 export enum UserAvatarType {
   Letter = "letter",
   Gravatar = "gravatar",
-  Custom = "custom"
+  Custom = "custom",
 }
 
 export enum UserStatus {
   Active = "active",
   Deleted = "deleted",
-  Blocked = "blocked"
+  Blocked = "blocked",
 }
 
 export enum UserRole {
   Visitor = "visitor",
   Collaborator = "collaborator",
-  Administrator = "administrator"
+  Administrator = "administrator",
 }
 
 export const isCollaborator = (role: UserRole): boolean => {

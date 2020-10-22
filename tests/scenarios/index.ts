@@ -6,7 +6,7 @@ import {
   elementIsNotVisible,
   delay,
   elementIsVisible,
-  mailgun
+  mailgun,
 } from "../lib";
 import { HomePage, ShowPostPage } from "../pages";
 
@@ -38,7 +38,7 @@ describe("E2E", () => {
       browser1,
       tab1,
       browser2,
-      tab2
+      tab2,
     };
   });
 

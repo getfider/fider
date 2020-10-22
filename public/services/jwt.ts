@@ -8,5 +8,5 @@ export const jwt = {
         return undefined;
       }
     }
-  }
+  },
 };

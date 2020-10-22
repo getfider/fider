@@ -12,7 +12,7 @@ import {
   DropDownItem,
   Modal,
   ImageViewer,
-  MultiImageUploader
+  MultiImageUploader,
 } from "@fider/components";
 import { formatDate, Failure, actions } from "@fider/services";
 import { FaEllipsisH } from "react-icons/fa";
@@ -85,19 +85,17 @@ export const ShowComment = (props: ShowCommentProps) => {
   const modal = () => {
     return (
       <Modal.Window isOpen={isDeleteConfirmationModalOpen} onClose={closeModal} center={false} size="small">
-        <Modal.Header> {t('showPost.showComment.deleteHeader')} </Modal.Header>
+        <Modal.Header> {t("showPost.showComment.deleteHeader")} </Modal.Header>
         <Modal.Content>
-          <p dangerouslySetInnerHTML={{ __html: t("showPost.showComment.deleteMessage") }}>
-
-          </p>
+          <p dangerouslySetInnerHTML={{ __html: t("showPost.showComment.deleteMessage") }} />
         </Modal.Content>
 
         <Modal.Footer>
           <Button color="danger" onClick={deleteComment}>
-            {t('showPost.showComment.delete')}
+            {t("showPost.showComment.delete")}
           </Button>
           <Button color="cancel" onClick={closeModal}>
-            {t('showPost.showComment.cancel')}
+            {t("showPost.showComment.cancel")}
           </Button>
         </Modal.Footer>
       </Modal.Window>
@@ -133,7 +131,11 @@ export const ShowComment = (props: ShowCommentProps) => {
             highlightSelected={false}
             items={[
               { label: t("common.button.edit"), value: "edit" },
-              { label: t("common.button.delete"), value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+              {
+                label: t("common.button.delete"),
+                value: "delete",
+                render: <span style={{ color: "red" }}>Delete</span>,
+              },
             ]}
             onChange={onActionSelected}
             renderControl={renderEllipsis}
@@ -164,11 +166,11 @@ export const ShowComment = (props: ShowCommentProps) => {
               </Button>
             </Form>
           ) : (
-              <>
-                <MultiLineText text={comment.content} style="simple" />
-                {comment.attachments && comment.attachments.map(x => <ImageViewer key={x} bkey={x} />)}
-              </>
-            )}
+            <>
+              <MultiLineText text={comment.content} style="simple" />
+              {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
+            </>
+          )}
         </div>
       </div>
     </div>

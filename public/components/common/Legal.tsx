@@ -58,7 +58,7 @@ export const LegalFooter: React.FunctionComponent<{}> = () => {
   return null;
 };
 
-export const LegalAgreement: React.FunctionComponent<LegalAgreementProps> = props => {
+export const LegalAgreement: React.FunctionComponent<LegalAgreementProps> = (props) => {
   const fider = useFider();
 
   if (fider.settings.hasLegal) {

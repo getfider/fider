@@ -31,7 +31,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
       title: Fider.session.tenant.name,
       cname: Fider.session.tenant.cname,
       welcomeMessage: Fider.session.tenant.welcomeMessage,
-      invitation: Fider.session.tenant.invitation
+      invitation: Fider.session.tenant.invitation,
     };
   }
 
@@ -156,7 +156,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
                   <p key={2}>
                     Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS
                     propagation.
-                  </p>
+                  </p>,
                 ]
               ) : (
                 <p>

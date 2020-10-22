@@ -42,21 +42,19 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
             field="text"
             onChange={setText}
             value={text}
-            placeholder={t('showPost.moderationPanel.reasonPlaceholder')}
+            placeholder={t("showPost.moderationPanel.reasonPlaceholder")}
           >
-            <span className="info" dangerouslySetInnerHTML={{ __html: t("showPost.moderationPanel.cantUndo") }}>
-
-            </span>
+            <span className="info" dangerouslySetInnerHTML={{ __html: t("showPost.moderationPanel.cantUndo") }} />
           </TextArea>
         </Form>
       </Modal.Content>
 
       <Modal.Footer>
         <Button color="danger" onClick={handleDelete}>
-          {t('common.button.delete')}
+          {t("common.button.delete")}
         </Button>
         <Button color="cancel" onClick={hideModal}>
-          {t('common.button.cancel')}
+          {t("common.button.cancel")}
         </Button>
       </Modal.Footer>
     </Modal.Window>
@@ -65,11 +63,11 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
   return (
     <>
       {modal}
-      <span className="subtitle">{t('showPost.moderationPanel.subtitle')}</span>
+      <span className="subtitle">{t("showPost.moderationPanel.subtitle")}</span>
       <List>
         <ListItem>
           <Button color="danger" size="tiny" fluid={true} onClick={showModal}>
-            {t('common.button.delete')}
+            {t("common.button.delete")}
           </Button>
         </ListItem>
       </List>

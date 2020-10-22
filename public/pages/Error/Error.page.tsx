@@ -20,10 +20,7 @@ export const ErrorPage = (props: ErrorPageProps) => {
       <h1> {t("error.title")} </h1>
       <p>{t("error.message")}</p>
       {fider.settings && (
-        <span dangerouslySetInnerHTML={
-          { __html: t('error.back', { url: fider.settings.baseURL }) }
-        }>
-        </span>
+        <span dangerouslySetInnerHTML={{ __html: t("error.back", { url: fider.settings.baseURL }) }} />
       )}
       {props.showDetails && (
         <pre className="error">

@@ -12,11 +12,11 @@ const httpGet = (endpoint: string): Promise<any> => {
       port: 443,
       method: "GET",
       auth: `api:${process.env.EMAIL_MAILGUN_API}`,
-      path: url.path
+      path: url.path,
     };
     https.get(opts, (res: http.IncomingMessage) => {
       const content: any[] = [];
-      res.on("data", chunk => content.push(chunk));
+      res.on("data", (chunk) => content.push(chunk));
       res.on("end", () => resolve(JSON.parse(content.join(""))));
     });
   });
@@ -55,5 +55,5 @@ export const mailgun = {
     }
 
     return "";
-  }
+  },
 };

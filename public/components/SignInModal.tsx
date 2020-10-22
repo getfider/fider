@@ -6,7 +6,7 @@ interface SignInModalProps {
   onClose: () => void;
 }
 
-export const SignInModal: React.StatelessComponent<SignInModalProps> = props => {
+export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
   const [confirmationAddress, setConfirmationAddress] = useState("");
 
   useEffect(() => {

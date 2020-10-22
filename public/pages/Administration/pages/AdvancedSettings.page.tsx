@@ -27,7 +27,7 @@ export default class AdvancedSettingsPage extends AdminBasePage<AdvancedSettings
     super(props);
 
     this.state = {
-      customCSS: this.props.customCSS
+      customCSS: this.props.customCSS,
     };
   }
 

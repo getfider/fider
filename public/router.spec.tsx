@@ -8,8 +8,8 @@ import * as Pages from "@fider/AsyncPages";
   { path: "/posts" },
   { path: "/admin", expected: Pages.AsyncGeneralSettingsPage },
   { path: "/admin/invitations", expected: Pages.AsyncInvitationsPage },
-  { path: "/oauth/_name/echo", expected: Pages.AsyncOAuthEchoPage }
-].forEach(x => {
+  { path: "/oauth/_name/echo", expected: Pages.AsyncOAuthEchoPage },
+].forEach((x) => {
   test(`Router should resolve correct component for path '${x.path}'`, () => {
     if (x.expected) {
       const page = resolveRootComponent(x.path);

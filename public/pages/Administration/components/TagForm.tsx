@@ -28,7 +28,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
     this.state = {
       color: props.color || this.getRandomColor(),
       name: props.name || "",
-      isPublic: props.isPublic || false
+      isPublic: props.isPublic || false,
     };
   }
 
@@ -107,7 +107,7 @@ export class TagForm extends React.Component<TagFormProps, TagFormState> {
                   slug: "",
                   name: this.state.name,
                   color: this.state.color,
-                  isPublic: this.state.isPublic
+                  isPublic: this.state.isPublic,
                 }}
               />
             </Field>

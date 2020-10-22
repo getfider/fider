@@ -48,7 +48,7 @@ export class PostStatus {
     PostStatus.Started,
     PostStatus.Completed,
     PostStatus.Duplicate,
-    PostStatus.Declined
+    PostStatus.Declined,
   ];
 }
 

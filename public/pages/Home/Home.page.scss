@@ -10,7 +10,7 @@
     .c-hint {
       max-width: 500px;
       text-align: left;
-      margin: 0 auto 10px auto;
+      margin: 0 auto 10px;
     }
   }
 
@@ -19,7 +19,7 @@
       background-color: $gray-lighter;
       box-shadow: 1px 2px 5px 1px $gray-light;
       border-radius: 3px;
-      margin: 0px 10px 10px 10px;
+      margin: 0 10px 10px;
     }
   }
 
@@ -34,7 +34,7 @@
         display: inline-block;
         .subtitle {
           display: inline-block;
-          margin: 6px 0 0 0;
+          margin: 6px 0 0;
         }
       }
     }

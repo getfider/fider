@@ -11,7 +11,7 @@ interface SignInControlProps {
   onEmailSent?: (email: string) => void;
 }
 
-export const SignInControl: React.FunctionComponent<SignInControlProps> = props => {
+export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<Failure | undefined>(undefined);

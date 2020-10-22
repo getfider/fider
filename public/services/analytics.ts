@@ -3,7 +3,7 @@ export const analytics = {
     if (window.ga) {
       window.ga("send", "event", {
         eventCategory,
-        eventAction
+        eventAction,
       });
     }
   },
@@ -11,8 +11,8 @@ export const analytics = {
     if (window.ga) {
       window.ga("send", "exception", {
         exDescription: err ? err.stack : "<not available>",
-        exFatal: false
+        exFatal: false,
       });
     }
-  }
+  },
 };
