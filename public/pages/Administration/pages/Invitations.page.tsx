@@ -40,12 +40,12 @@ Regards,
 ${Fider.session.user.name} (${Fider.session.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
-      rawRecipients: ""
+      rawRecipients: "",
     };
   }
 
   private setRecipients = (rawRecipients: string) => {
-    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter(x => !!x);
+    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter((x) => !!x);
     this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length });
   };
 

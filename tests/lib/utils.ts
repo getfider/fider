@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 export const delay = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export function findBy(selector: string) {
@@ -13,7 +13,7 @@ export function findBy(selector: string) {
       get() {
         const tab = (this as any).tab;
         return new type(tab, selector);
-      }
+      },
     });
   };
 }

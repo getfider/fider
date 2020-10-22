@@ -50,21 +50,21 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
       addressState: this.props.paymentInfo ? this.props.paymentInfo.addressState : "",
       addressPostalCode: this.props.paymentInfo ? this.props.paymentInfo.addressPostalCode : "",
       addressCountry: this.props.paymentInfo ? this.props.paymentInfo.addressCountry : "",
-      vatNumber: this.props.paymentInfo ? this.props.paymentInfo.vatNumber : ""
+      vatNumber: this.props.paymentInfo ? this.props.paymentInfo.vatNumber : "",
     };
   }
 
   public handleSubmit = async () => {
     if (this.props.paymentInfo && !this.state.changingCard) {
       const response = await actions.updatePaymentInfo({
-        ...this.state
+        ...this.state,
       });
 
       if (response.ok) {
         location.reload();
       } else {
         this.setState({
-          error: response.error
+          error: response.error,
         });
       }
 
@@ -79,7 +79,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
         address_city: this.state.addressCity,
         address_state: this.state.addressState,
         address_zip: this.state.addressPostalCode,
-        address_country: this.state.addressCountry
+        address_country: this.state.addressCountry,
       });
 
       if (result.token) {
@@ -88,15 +88,15 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
           card: {
             type: result.token.type,
             token: result.token.id,
-            country: result.token.card ? result.token.card.country : ""
-          }
+            country: result.token.card ? result.token.card.country : "",
+          },
         });
 
         if (response.ok) {
           location.reload();
         } else {
           this.setState({
-            error: response.error
+            error: response.error,
           });
         }
       } else if (result.error) {
@@ -105,10 +105,10 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
             errors: [
               {
                 field: "card",
-                message: result.error.message!
-              }
-            ]
-          }
+                message: result.error.message!,
+              },
+            ],
+          },
         });
       }
     }
@@ -162,7 +162,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
 
   private isEUCountry(): boolean {
     if (this.state.addressCountry) {
-      const filtered = this.props.countries.filter(x => x.code === this.state.addressCountry);
+      const filtered = this.props.countries.filter((x) => x.code === this.state.addressCountry);
       if (filtered && filtered.length > 0) {
         return filtered[0].isEU;
       }
@@ -271,7 +271,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   defaultValue={this.state.addressCountry}
                   options={[
                     { value: "", label: "" },
-                    ...this.props.countries.map(x => ({ value: x.code, label: x.name }))
+                    ...this.props.countries.map((x) => ({ value: x.code, label: x.name })),
                   ]}
                 />
               </div>

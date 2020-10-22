@@ -21,5 +21,5 @@ beforeEach(() => {
   },
   removeItem: (key: string) => {
     return delete localStorageCache[key];
-  }
+  },
 };

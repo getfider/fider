@@ -7,7 +7,7 @@ import {
   WebComponent,
   pageHasLoaded,
   Button,
-  elementIsNotVisible
+  elementIsNotVisible,
 } from "../lib";
 import { ShowPostPage, FacebookSignInPage } from ".";
 import { PostList } from "./components";

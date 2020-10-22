@@ -19,7 +19,7 @@ import {
   Form,
   TextArea,
   MultiImageUploader,
-  ImageViewer
+  ImageViewer,
 } from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
 import { ResponseForm } from "./components/ResponseForm";
@@ -55,7 +55,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
       editMode: false,
       newTitle: this.props.post.title,
       newDescription: this.props.post.description,
-      attachments: []
+      attachments: [],
     };
   }
 
@@ -70,7 +70,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
       location.reload();
     } else {
       this.setState({
-        error: result.error
+        error: result.error,
       });
     }
   };
@@ -110,8 +110,8 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
                     <Input field="title" maxLength={100} value={this.state.newTitle} onChange={this.setNewTitle} />
                   </Form>
                 ) : (
-                    <h1>{this.props.post.title}</h1>
-                  )}
+                  <h1>{this.props.post.title}</h1>
+                )}
 
                 <span className="info">
                   <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} />{" "}
@@ -121,7 +121,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
             </ListItem>
           </List>
 
-          <span className="subtitle">{t('showPost.description')}</span>
+          <span className="subtitle">{t("showPost.description")}</span>
           {this.state.editMode ? (
             <Form error={this.state.error}>
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
@@ -134,13 +134,13 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
               />
             </Form>
           ) : (
-              <>
-                <MultiLineText className="description" text={this.props.post.description} style="simple" />
-                {this.props.attachments.map(x => (
-                  <ImageViewer key={x} bkey={x} />
-                ))}
-              </>
-            )}
+            <>
+              <MultiLineText className="description" text={this.props.post.description} style="simple" />
+              {this.props.attachments.map((x) => (
+                <ImageViewer key={x} bkey={x} />
+              ))}
+            </>
+          )}
           <ShowPostResponse showUser={true} status={this.props.post.status} response={this.props.post.response} />
         </div>
 
@@ -150,33 +150,33 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
           {Fider.session.isAuthenticated &&
             Fider.session.user.isCollaborator && [
               <span key={0} className="subtitle">
-                {t('showPost.actions')}
+                {t("showPost.actions")}
               </span>,
               this.state.editMode ? (
                 <List key={1}>
                   <ListItem>
                     <Button className="save" color="positive" fluid={true} onClick={this.saveChanges}>
-                      <FaSave /> {t('common.button.save')}
+                      <FaSave /> {t("common.button.save")}
                     </Button>
                   </ListItem>
                   <ListItem>
                     <Button className="cancel" fluid={true} onClick={this.cancelEdit}>
-                      <FaTimes /> {t('common.button.cancel')}
+                      <FaTimes /> {t("common.button.cancel")}
                     </Button>
                   </ListItem>
                 </List>
               ) : (
-                  <List key={1}>
-                    <ListItem>
-                      <Button className="edit" fluid={true} onClick={this.startEdit}>
-                        <FaEdit /> {t('common.button.edit')}
-                      </Button>
-                    </ListItem>
-                    <ListItem>
-                      <ResponseForm post={this.props.post} />
-                    </ListItem>
-                  </List>
-                )
+                <List key={1}>
+                  <ListItem>
+                    <Button className="edit" fluid={true} onClick={this.startEdit}>
+                      <FaEdit /> {t("common.button.edit")}
+                    </Button>
+                  </ListItem>
+                  <ListItem>
+                    <ResponseForm post={this.props.post} />
+                  </ListItem>
+                </List>
+              ),
             ]}
 
           <TagsPanel post={this.props.post} tags={this.props.tags} />
@@ -190,4 +190,4 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
   }
 }
 
-export default withTranslation()(ShowPostPage)
+export default withTranslation()(ShowPostPage);

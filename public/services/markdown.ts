@@ -6,11 +6,11 @@ marked.setOptions({
   xhtml: true,
   smartLists: true,
   gfm: true,
-  breaks: true
+  breaks: true,
 });
 
 DOMPurify.setConfig({
-  ADD_ATTR: ["target"]
+  ADD_ATTR: ["target"],
 });
 
 const link = (href: string, title: string, text: string) => {
@@ -28,10 +28,10 @@ fullRenderer.link = link;
 
 const entities: { [key: string]: string } = {
   "<": "&lt;",
-  ">": "&gt;"
+  ">": "&gt;",
 };
 
-const encodeHTML = (s: string) => s.replace(/[<>]/g, tag => entities[tag] || tag);
+const encodeHTML = (s: string) => s.replace(/[<>]/g, (tag) => entities[tag] || tag);
 const sanitize = (input: string) => DOMPurify.sanitize(input);
 
 export const full = (input: string): string => {

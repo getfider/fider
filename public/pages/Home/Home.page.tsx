@@ -8,8 +8,7 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { PostInput } from "./components/PostInput";
 import { PostsContainer } from "./components/PostsContainer";
 import { useFider } from "@fider/hooks";
-import { useTranslation, WithTranslation } from 'react-i18next';
-
+import { useTranslation, WithTranslation } from "react-i18next";
 
 export interface HomePageProps extends WithTranslation {
   posts: Post[];
@@ -31,18 +30,15 @@ const Lonely = () => {
         permanentCloseKey="at-least-3-posts"
         condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}
       >
-        {t('home.lonelyHint')}
+        {t("home.lonelyHint")}
       </Hint>
       <p>
         <FaRegLightbulb />
       </p>
-      <p dangerouslySetInnerHTML={
-        { __html: t('home.lonelyAdmin') }
-      }></p>
+      <p dangerouslySetInnerHTML={{ __html: t("home.lonelyAdmin") }} />
     </div>
   );
 };
-
 
 const HomePage = (props: HomePageProps) => {
   const fider = useFider();
@@ -69,11 +65,11 @@ const HomePage = (props: HomePageProps) => {
         <div className="l-welcome-col col-md-4">
           <MultiLineText
             className="welcome-message"
-            text={fider.session.tenant.welcomeMessage || t('home.defaultWelcome')}
+            text={fider.session.tenant.welcomeMessage || t("home.defaultWelcome")}
             style="full"
           />
           <PostInput
-            placeholder={fider.session.tenant.invitation || t('home.suggestionPlaceholder')}
+            placeholder={fider.session.tenant.invitation || t("home.suggestionPlaceholder")}
             onTitleChanged={setTitle}
           />
         </div>
@@ -83,8 +79,8 @@ const HomePage = (props: HomePageProps) => {
           ) : title ? (
             <SimilarPosts title={title} tags={props.tags} />
           ) : (
-                <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-              )}
+            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
+          )}
         </div>
       </div>
     </div>

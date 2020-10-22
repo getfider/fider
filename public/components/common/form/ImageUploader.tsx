@@ -34,7 +34,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
       upload: undefined,
       remove: false,
       showModal: false,
-      previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth)
+      previewURL: uploadedImageURL(this.props.bkey, this.props.previewMaxWidth),
     };
   }
 
@@ -53,10 +53,10 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
           upload: {
             fileName: file.name,
             content: base64,
-            contentType: file.type
+            contentType: file.type,
           },
           remove: false,
-          previewURL: `data:${file.type};base64,${base64}`
+          previewURL: `data:${file.type};base64,${base64}`,
         },
         () => {
           this.props.onChange(this.state, this.props.instanceID, this.state.previewURL);
@@ -75,14 +75,14 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
         bkey: this.props.bkey,
         remove: true,
         upload: undefined,
-        previewURL: undefined
+        previewURL: undefined,
       },
       () => {
         this.props.onChange(
           {
             bkey: this.state.bkey,
             remove: this.state.remove,
-            upload: this.state.upload
+            upload: this.state.upload,
           },
           this.props.instanceID,
           this.state.previewURL
@@ -132,17 +132,17 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
     const hasFile = (!this.state.remove && this.props.bkey) || isUploading;
 
     const imgStyles: React.CSSProperties = {
-      maxWidth: `${this.props.previewMaxWidth}px`
+      maxWidth: `${this.props.previewMaxWidth}px`,
     };
 
     return (
       <ValidationContext.Consumer>
-        {ctx => (
+        {(ctx) => (
           <div
             className={classSet({
               "c-form-field": true,
               "c-image-upload": true,
-              "m-error": hasError(this.props.field, ctx.error)
+              "m-error": hasError(this.props.field, ctx.error),
             })}
           >
             {this.modal()}
@@ -159,7 +159,7 @@ export class ImageUploader extends React.Component<ImageUploaderProps, ImageUplo
               </div>
             )}
 
-            <input ref={e => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
+            <input ref={(e) => (this.fileSelector = e)} type="file" onChange={this.fileChanged} accept="image/*" />
             <DisplayError fields={[this.props.field]} error={ctx.error} />
             {!hasFile && (
               <div className="c-form-field-wrapper">

@@ -5,7 +5,7 @@ const ignoreErrors = [
   "null is not an object (evaluating 'c.sheet.insertRule')", // CSP error: UC Browser throws this error even when page is loaded sucessfully
   "Refused to evaluate a string as JavaScript because 'unsafe-eval'", // CSP error: usually thrown because of bad Chrome Extensions
   "vid_mate_check is not defined", // CSP error: thrown by VidMate, an Android Browser
-  "SecurityError: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules" // CSP error: usually thrown because of bad Chrome Extensions
+  "SecurityError: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules", // CSP error: usually thrown because of bad Chrome Extensions
 ];
 
 export const logError = async (message: string, err?: Error): Promise<Result | undefined> => {
@@ -17,7 +17,7 @@ export const logError = async (message: string, err?: Error): Promise<Result | u
 
   const data = {
     url: navigator.url(),
-    stack: err ? err.stack : "<not available>"
+    stack: err ? err.stack : "<not available>",
   };
 
   try {

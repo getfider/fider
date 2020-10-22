@@ -29,18 +29,18 @@ class _VotesModal extends React.Component<VotesModalProps, VotesModalState> {
       query: "",
       allVotes: [],
       filteredVotes: [],
-      isLoading: true
+      isLoading: true,
     };
   }
 
   public componentDidUpdate(prevProps: VotesModalProps) {
     if (this.props.isOpen && !prevProps.isOpen) {
-      actions.listVotes(this.props.post.number).then(response => {
+      actions.listVotes(this.props.post.number).then((response) => {
         if (response.ok) {
           this.setState({
             allVotes: response.data,
             filteredVotes: response.data,
-            isLoading: false
+            isLoading: false,
           });
         }
       });
@@ -58,7 +58,7 @@ class _VotesModal extends React.Component<VotesModalProps, VotesModalState> {
   };
 
   private handleSearchFilterChanged = (query: string) => {
-    const votes = this.state.allVotes.filter(x => x.user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+    const votes = this.state.allVotes.filter((x) => x.user.name.toLowerCase().indexOf(query.toLowerCase()) >= 0);
     this.setState({ query, filteredVotes: votes });
   };
 
@@ -74,12 +74,12 @@ class _VotesModal extends React.Component<VotesModalProps, VotesModalState> {
                 field="query"
                 icon={this.state.query ? FaTimes : FaSearch}
                 onIconClick={this.state.query ? this.clearSearch : undefined}
-                placeholder={t('showPost.votesModal.searchForUsers')}
+                placeholder={t("showPost.votesModal.searchForUsers")}
                 value={this.state.query}
                 onChange={this.handleSearchFilterChanged}
               />
               <List hover={true}>
-                {this.state.filteredVotes.map(x => (
+                {this.state.filteredVotes.map((x) => (
                   <ListItem key={x.user.id}>
                     <Avatar user={x.user} />
                     <span className="l-user">
@@ -98,7 +98,7 @@ class _VotesModal extends React.Component<VotesModalProps, VotesModalState> {
 
         <Modal.Footer>
           <Button color="cancel" onClick={this.closeModal}>
-            {t('common.button.close')}
+            {t("common.button.close")}
           </Button>
         </Modal.Footer>
       </Modal.Window>

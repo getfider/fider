@@ -72,7 +72,7 @@ export const TagListItem = (props: TagListItemProps) => {
       <Button size="mini" key={1} onClick={startEdit} className="right">
         <FaEdit />
         Edit
-      </Button>
+      </Button>,
     ];
 
     return (

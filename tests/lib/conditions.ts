@@ -19,7 +19,7 @@ export const elementIsVisible = (target: string | WebComponent): WaitCondition =
         const style = window.getComputedStyle(node);
         return style && style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
       },
-      args: [selector]
+      args: [selector],
     };
   };
 };
@@ -36,7 +36,7 @@ export const elementIsNotVisible = (target: string | WebComponent): WaitConditio
         const style = window.getComputedStyle(node);
         return style && (style.display === "none" || style.visibility === "hidden" || style.opacity === "0");
       },
-      args: [selector]
+      args: [selector],
     };
   };
 };

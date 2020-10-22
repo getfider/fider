@@ -30,7 +30,7 @@ export const get = (name: string): string => {
 export const getArray = (name: string): string[] => {
   const qs = get(name);
   if (qs) {
-    return qs.split(",").filter(i => i);
+    return qs.split(",").filter((i) => i);
   }
 
   return [];

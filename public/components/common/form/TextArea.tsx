@@ -16,7 +16,7 @@ interface TextAreaProps {
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
 }
 
-export const TextArea: React.FunctionComponent<TextAreaProps> = props => {
+export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLTextAreaElement>) => {
     if (props.onChange) {
       props.onChange(e.currentTarget.value);
@@ -25,12 +25,12 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = props => {
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <>
           <div
             className={classSet({
               "c-form-field": true,
-              "m-error": hasError(props.field, ctx.error)
+              "m-error": hasError(props.field, ctx.error),
             })}
           >
             {!!props.label && <label htmlFor={`input-${props.field}`}>{props.label}</label>}

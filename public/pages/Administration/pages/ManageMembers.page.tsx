@@ -57,7 +57,7 @@ const UserListItem = (props: UserListItemProps) => {
             !blocked && (!!admin || isVisitor) && { label: "Promote to Collaborator", value: "to-collaborator" },
             !blocked && (!!collaborator || !!admin) && { label: "Demote to Visitor", value: "to-visitor" },
             isVisitor && !blocked && { label: "Block User", value: "block" },
-            isVisitor && !!blocked && { label: "Unblock User", value: "unblock" }
+            isVisitor && !!blocked && { label: "Unblock User", value: "unblock" },
           ]}
           renderControl={renderEllipsis}
           onChange={actionSelected}
@@ -81,14 +81,14 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
     this.state = {
       query: "",
       users,
-      visibleUsers: users.slice(0, 10)
+      visibleUsers: users.slice(0, 10),
     };
   }
 
   private showMore = (event: React.MouseEvent<HTMLElement> | React.TouchEvent<HTMLElement>): void => {
     event.preventDefault();
     this.setState({
-      visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10)
+      visibleUsers: this.state.users.slice(0, this.state.visibleUsers.length + 10),
     });
   };
 
@@ -98,7 +98,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
 
   private handleSearchFilterChanged = (query: string) => {
     const users = this.props.users
-      .filter(x => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0)
+      .filter((x) => x.name.toLowerCase().indexOf(query.toLowerCase()) >= 0)
       .sort(this.sortByStaff);
     this.setState({ query, users, visibleUsers: users.slice(0, 10) });
   };
@@ -164,7 +164,7 @@ export default class ManageMembersPage extends AdminBasePage<ManageMembersPagePr
         <Segment>
           {this.state.visibleUsers.length === 0 && <span>No users found.</span>}
           <List divided={true}>
-            {this.state.visibleUsers.map(user => (
+            {this.state.visibleUsers.map((user) => (
               <UserListItem key={user.id} user={user} onAction={this.handleAction} />
             ))}
           </List>

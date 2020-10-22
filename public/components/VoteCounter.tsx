@@ -39,7 +39,7 @@ export const VoteCounter = (props: VoteCounterProps) => {
   const className = classSet({
     "m-voted": !status.closed && hasVoted,
     "m-disabled": status.closed,
-    "no-touch": !device.isTouch()
+    "no-touch": !device.isTouch(),
   });
 
   const vote = (

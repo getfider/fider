@@ -5,7 +5,7 @@ export const httpMock = {
     const fn = jest.fn(() => {
       return Promise.resolve({
         ok: true,
-        data: null as any
+        data: null as any,
       });
     });
     http.get = fn;
@@ -13,5 +13,5 @@ export const httpMock = {
     http.put = fn;
     http.delete = fn;
     return http;
-  }
+  },
 };

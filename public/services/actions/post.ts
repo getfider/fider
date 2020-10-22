@@ -18,7 +18,7 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
       tags: params.tags,
       query: params.query,
       view: params.view,
-      limit: params.limit
+      limit: params.limit,
     })}`
   );
 };
@@ -26,7 +26,7 @@ export const searchPosts = async (params: SearchPostsParams): Promise<Result<Pos
 export const deletePost = async (postNumber: number, text: string): Promise<Result> => {
   return http
     .delete(`/api/v1/posts/${postNumber}`, {
-      text
+      text,
     })
     .then(http.event("post", "delete"));
 };
@@ -87,7 +87,7 @@ export const respond = async (postNumber: number, input: SetResponseInput): Prom
     .put(`/api/v1/posts/${postNumber}/status`, {
       status: input.status,
       text: input.text,
-      originalNumber: input.originalNumber
+      originalNumber: input.originalNumber,
     })
     .then(http.event("post", "respond"));
 };

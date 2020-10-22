@@ -24,9 +24,10 @@ class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
     return (
       <>
         <p className="info">
-          {t('mySettings.newApiKey')}<code>{this.state.apiKey}</code>
+          {t("mySettings.newApiKey")}
+          <code>{this.state.apiKey}</code>
         </p>
-        <p className="info"></p>
+        <p className="info" />
       </>
     );
   }
@@ -36,16 +37,11 @@ class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
     return (
       <div className="l-api-key">
         <h4>API Key</h4>
-        <p className="info">
-          {t('mySettings.apiKeyStoreMessage')}
-        </p>
-        <p className="info" dangerouslySetInnerHTML={
-          { __html: t('mySettings.apiKeyDoc') }
-        }>
-        </p>
+        <p className="info">{t("mySettings.apiKeyStoreMessage")}</p>
+        <p className="info" dangerouslySetInnerHTML={{ __html: t("mySettings.apiKeyDoc") }} />
         <p>
           <Button size="tiny" onClick={this.regenerate}>
-            {t('mySettings.generateAPIKey')}
+            {t("mySettings.generateAPIKey")}
           </Button>
         </p>
         {this.state.apiKey && this.showAPIKey()}
@@ -54,4 +50,4 @@ class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
   }
 }
 
-export const APIKeyForm = withTranslation()(_APIKeyForm)
+export const APIKeyForm = withTranslation()(_APIKeyForm);

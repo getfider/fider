@@ -21,7 +21,7 @@ interface SideMenuItemProps {
 const SideMenuItem = (props: SideMenuItemProps) => {
   const className = classSet({
     "c-side-menu-item": true,
-    "m-active": props.isActive
+    "m-active": props.isActive,
   });
 
   if (props.isActive) {
@@ -90,12 +90,12 @@ export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideM
   constructor(props: SideMenuTogglerProps) {
     super(props);
     this.state = {
-      active: false
+      active: false,
     };
   }
   private toggle = () => {
     this.setState(
-      state => ({ active: !state.active }),
+      (state) => ({ active: !state.active }),
       () => {
         this.props.onToggle(this.state.active);
       }
@@ -105,7 +105,7 @@ export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideM
   public render() {
     const className = classSet({
       "c-side-menu-toggler": true,
-      active: this.state.active
+      active: this.state.active,
     });
     return (
       <div className={className} onClick={this.toggle}>
