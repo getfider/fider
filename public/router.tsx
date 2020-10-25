@@ -25,6 +25,7 @@ const pathRegex = [
   route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
   route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
   route("/admin", Pages.AsyncGeneralSettingsPage),
+  route("/start", Pages.AsyncStartPage, false),
   route("/signin", Pages.AsyncSignInPage, false),
   route("/signup", Pages.AsyncSignUpPage, false),
   route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),

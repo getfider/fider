@@ -12,6 +12,7 @@ export interface CreateTenantRequest {
   name?: string;
   token?: string;
   email?: string;
+  password?: string;
 }
 
 export interface CreateTenantResponse {

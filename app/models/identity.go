@@ -51,6 +51,7 @@ type User struct {
 	AvatarType    enum.AvatarType `json:"-"`
 	AvatarURL     string          `json:"avatarURL,omitempty"`
 	Status        enum.UserStatus `json:"status"`
+	Password      string          `json:"password"`
 }
 
 //HasProvider returns true if current user has registered with given provider
@@ -84,6 +85,7 @@ type CreateTenant struct {
 	Token           string `json:"token"`
 	Name            string `json:"name"`
 	Email           string `json:"email" format:"lower"`
+	Password        string `json:"password"`
 	VerificationKey string
 	TenantName      string `json:"tenantName"`
 	LegalAgreement  bool   `json:"legalAgreement"`

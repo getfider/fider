@@ -84,7 +84,7 @@ func RequireTenant() web.MiddlewareFunc {
 		return func(c *web.Context) error {
 			if c.Tenant() == nil {
 				if env.IsSingleHostMode() {
-					return c.Redirect("/signup")
+					return c.Redirect("/start")
 				}
 				return c.NotFound()
 			}
