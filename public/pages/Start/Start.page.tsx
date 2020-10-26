@@ -1,7 +1,17 @@
 import "./Start.page.scss";
 
 import React from "react";
-import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement, Password } from "@fider/components";
+import {
+  SignInControl,
+  Modal,
+  Button,
+  DisplayError,
+  Form,
+  Input,
+  Message,
+  LegalAgreement,
+  Password,
+} from "@fider/components";
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services";
 import { withTranslation, WithTranslation } from "react-i18next";
 
@@ -128,7 +138,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
 
   private setPassword = (password: string): void => {
     this.setState({ password });
-  }
+  };
 
   private noop = () => {
     location.reload();
@@ -158,16 +168,16 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
             Hello, <b>{this.user.name}</b> {this.user.email && `(${this.user.email})`}
           </p>
         ) : (
-            <>
-              <p>{t("signUp.step1Message")}</p>
-              <SignInControl useEmail={false} />
-              <Form error={this.state.error}>
-                <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
-                <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
-                <Password field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
-              </Form>
-            </>
-          )}
+          <>
+            <p>{t("signUp.step1Message")}</p>
+            <SignInControl useEmail={false} />
+            <Form error={this.state.error}>
+              <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
+              <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
+              <Password field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
+            </Form>
+          </>
+        )}
 
         <h3>{t("signUp.step2Title")}</h3>
 

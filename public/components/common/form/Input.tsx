@@ -36,9 +36,9 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
 
   const icon = !!props.icon
     ? React.createElement(props.icon, {
-      onClick: props.onIconClick,
-      className: classSet({ link: !!props.onIconClick }),
-    })
+        onClick: props.onIconClick,
+        className: classSet({ link: !!props.onIconClick }),
+      })
     : undefined;
 
   return (
@@ -85,7 +85,6 @@ export const Input: React.FunctionComponent<InputProps> = (props) => {
   );
 };
 
-
 export const Password: React.FunctionComponent<InputProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
@@ -98,9 +97,9 @@ export const Password: React.FunctionComponent<InputProps> = (props) => {
 
   const icon = !!props.icon
     ? React.createElement(props.icon, {
-      onClick: props.onIconClick,
-      className: classSet({ link: !!props.onIconClick }),
-    })
+        onClick: props.onIconClick,
+        className: classSet({ link: !!props.onIconClick }),
+      })
     : undefined;
 
   return (
