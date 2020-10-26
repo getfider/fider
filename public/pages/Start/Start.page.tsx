@@ -1,7 +1,7 @@
 import "./Start.page.scss";
 
 import React from "react";
-import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement } from "@fider/components";
+import { SignInControl, Modal, Button, DisplayError, Form, Input, Message, LegalAgreement, Password } from "@fider/components";
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services";
 import { withTranslation, WithTranslation } from "react-i18next";
 
@@ -131,16 +131,16 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
   }
 
   private noop = () => {
-    // do nothing
+    location.reload();
   };
 
   public render() {
     const { t } = this.props;
     const modal = (
-      <Modal.Window canClose={false} isOpen={this.state.submitted} onClose={this.noop}>
-        <Modal.Header>{t("signUp.thankYou")}</Modal.Header>
+      <Modal.Window canClose={true} isOpen={this.state.submitted} onClose={this.noop}>
+        <Modal.Header>{t("start.submitted")}</Modal.Header>
         <Modal.Content>
-          <p dangerouslySetInnerHTML={{ __html: t("signUp.sentLink", { email: this.state.email }) }} />
+          <p dangerouslySetInnerHTML={{ __html: t("start.message", { email: this.state.email }) }} />
         </Modal.Content>
       </Modal.Window>
     );
@@ -164,7 +164,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
               <Form error={this.state.error}>
                 <Input field="name" maxLength={100} onChange={this.setName} placeholder="Name" />
                 <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
-                <Input field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
+                <Password field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
               </Form>
             </>
           )}

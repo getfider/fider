@@ -30,7 +30,7 @@ func CreateTenant() web.HandlerFunc {
 
 		socialSignUp := input.Model.Token != ""
 
-		status := enum.TenantPending
+		status := enum.TenantActive
 		if socialSignUp {
 			status = enum.TenantActive
 		}
