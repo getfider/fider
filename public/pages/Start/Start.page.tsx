@@ -10,7 +10,7 @@ import {
   Input,
   Message,
   LegalAgreement,
-  Password
+  Password,
 } from "@fider/components";
 import { jwt, actions, Failure, querystring, Fider } from "@fider/services";
 import { withTranslation, WithTranslation } from "react-i18next";
@@ -45,7 +45,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
       submitted: false,
       legalAgreement: false,
       tenantName: "",
-      subdomain: { available: false }
+      subdomain: { available: false },
     };
 
     const token = querystring.get("token");
@@ -55,7 +55,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
         this.user = {
           token,
           name: data["oauth/name"],
-          email: data["oauth/email"]
+          email: data["oauth/email"],
         };
       }
     }
@@ -69,7 +69,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
       subdomain: this.state.subdomain.value,
       name: this.state.name,
       email: this.state.email,
-      password: this.state.password
+      password: this.state.password,
     });
 
     if (result.ok) {
@@ -96,13 +96,13 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
   private checkAvailability = (subdomain: string) => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      actions.checkAvailability(subdomain).then(result => {
+      actions.checkAvailability(subdomain).then((result) => {
         this.setState({
           subdomain: {
             value: subdomain,
             available: !result.data.message,
-            message: result.data.message
-          }
+            message: result.data.message,
+          },
         });
       });
     }, 500);
@@ -113,8 +113,8 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
       {
         subdomain: {
           value: subdomain,
-          available: false
-        }
+          available: false,
+        },
       },
       this.checkAvailability.bind(this, subdomain)
     );
