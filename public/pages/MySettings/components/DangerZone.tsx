@@ -8,11 +8,11 @@ interface DangerZoneState {
   clicked: boolean;
 }
 
-class _DangerZone extends React.Component<WithTranslation, DangerZoneState> {
+class InternalDangerZone extends React.Component<WithTranslation, DangerZoneState> {
   constructor(props: WithTranslation) {
     super(props);
     this.state = {
-      clicked: false,
+      clicked: false
     };
   }
 
@@ -65,4 +65,4 @@ class _DangerZone extends React.Component<WithTranslation, DangerZoneState> {
     );
   }
 }
-export const DangerZone = withTranslation()(_DangerZone);
+export const DangerZone = withTranslation()(InternalDangerZone);

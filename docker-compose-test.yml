@@ -1,0 +1,23 @@
+version: '3'
+services:
+  minio:
+    image: getfider/minio:0.0.2
+    ports:
+      - 9000:9000
+    environment:
+      MINIO_ACCESS_KEY: s3user
+      MINIO_SECRET_KEY: s3user-s3cr3t
+  postgres:
+    image: postgres:9.6.8
+    environment:
+      POSTGRES_USER: fider_test
+      POSTGRES_PASSWORD: fider_test_pw
+      POSTGRES_DB: fider_test
+    ports:
+      - 5566:5432
+    healthcheck:
+      test: ["CMD","pg_isready"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s

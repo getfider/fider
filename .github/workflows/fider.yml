@@ -3,10 +3,10 @@ name: fider
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   test-ui:
@@ -32,7 +32,7 @@ jobs:
       minio:
         image: getfider/minio:0.0.2
         ports:
-        - 9000:9000
+          - 9000:9000
         env:
           MINIO_ACCESS_KEY: s3user
           MINIO_SECRET_KEY: s3user-s3cr3t
@@ -43,7 +43,7 @@ jobs:
           POSTGRES_PASSWORD: fider_ci_pw
           POSTGRES_DB: fider_ci
         ports:
-        - 5432:5432
+          - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
@@ -69,7 +69,7 @@ jobs:
       - name: checkout code
         uses: actions/checkout@v1
       - run: docker build -t getfider/fider .
-      
+
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: getBranch

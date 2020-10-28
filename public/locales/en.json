@@ -152,6 +152,10 @@
         "step3Title": "3. Review",
         "step3Message": "Make sure information provided above is correct."
     },
+    "start": {
+        "submitted": "The site is set up",
+        "message": "We have set up the site. Administrator email is <b>{{email}}</b>."
+    },
     "common": {
         "button": {
             "submit": "Submit",

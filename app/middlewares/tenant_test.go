@@ -341,7 +341,7 @@ func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 	Expect(response.Body.String()).Equals("Avengers")
 }
 
-func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
+func TestRequireTenant_SingleHostMode_NoTenants_RedirectToStart(t *testing.T) {
 	RegisterT(t)
 
 	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
@@ -357,7 +357,7 @@ func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 	})
 
 	Expect(status).Equals(http.StatusTemporaryRedirect)
-	Expect(response.Header().Get("Location")).Equals("/signup")
+	Expect(response.Header().Get("Location")).Equals("/start")
 }
 
 func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {

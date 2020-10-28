@@ -3,7 +3,7 @@
 .container {
   position: relative;
   display: block;
-  max-width: 100% !important; 
+  max-width: 100% !important;
 }
 
 @include media("sm") {
@@ -18,7 +18,7 @@
   .container {
     width: 723px;
     margin-left: auto !important;
-    margin-right: auto !important; 
+    margin-right: auto !important;
   }
 }
 
@@ -26,7 +26,7 @@
   .container {
     width: 933px;
     margin-left: auto !important;
-    margin-right: auto !important; 
+    margin-right: auto !important;
   }
 }
 
@@ -34,7 +34,7 @@
   .container {
     width: 1140px;
     margin-left: auto !important;
-    margin-right: auto !important; 
+    margin-right: auto !important;
   }
 }
 

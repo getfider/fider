@@ -25,7 +25,7 @@ interface PostsContainerState {
   limit?: number;
 }
 
-class _PostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
+class InternalPostsContainer extends React.Component<PostsContainerProps, PostsContainerState> {
   constructor(props: PostsContainerProps) {
     super(props);
 
@@ -35,7 +35,7 @@ class _PostsContainer extends React.Component<PostsContainerProps, PostsContaine
       view: querystring.get("view"),
       query: querystring.get("query"),
       tags: querystring.getArray("tags"),
-      limit: querystring.getNumber("limit"),
+      limit: querystring.getNumber("limit")
     };
   }
 
@@ -50,7 +50,7 @@ class _PostsContainer extends React.Component<PostsContainerProps, PostsContaine
           tags: this.state.tags,
           query,
           view: this.state.view,
-          limit: this.state.limit,
+          limit: this.state.limit
         })
       );
 
@@ -63,7 +63,7 @@ class _PostsContainer extends React.Component<PostsContainerProps, PostsContaine
     window.clearTimeout(this.timer);
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true });
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view, limit, tags }).then((response) => {
+      actions.searchPosts({ query, view, limit, tags }).then(response => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data });
         }
@@ -143,4 +143,4 @@ class _PostsContainer extends React.Component<PostsContainerProps, PostsContaine
   }
 }
 
-export const PostsContainer = withTranslation()(_PostsContainer);
+export const PostsContainer = withTranslation()(InternalPostsContainer);

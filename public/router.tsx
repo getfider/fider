@@ -7,7 +7,11 @@ interface PageConfiguration {
 }
 
 const route = (path: string, component: any, showHeader: boolean = true): PageConfiguration => {
-  path = path.replace("/", "/").replace(":number", "\\d+").replace(":string", ".+").replace("*", "/?.*");
+  path = path
+    .replace("/", "/")
+    .replace(":number", "\\d+")
+    .replace(":string", ".+")
+    .replace("*", "/?.*");
 
   const regex = new RegExp(`^${path}$`);
   return { regex, component, showHeader };
@@ -25,6 +29,7 @@ const pathRegex = [
   route("/admin/authentication", Pages.AsyncManageAuthenticationPage),
   route("/admin/advanced", Pages.AsyncAdvancedSettingsPage),
   route("/admin", Pages.AsyncGeneralSettingsPage),
+  route("/start", Pages.AsyncStartPage, false),
   route("/signin", Pages.AsyncSignInPage, false),
   route("/signup", Pages.AsyncSignUpPage, false),
   route("/signin/verify", Pages.AsyncCompleteSignInProfilePage),
@@ -32,7 +37,7 @@ const pathRegex = [
   route("/notifications", Pages.AsyncMyNotificationsPage),
   route("/settings", Pages.AsyncMySettingsPage),
   route("/oauth/:string/echo", Pages.AsyncOAuthEchoPage, false),
-  route("/-/ui", Pages.AsyncUIToolkitPage),
+  route("/-/ui", Pages.AsyncUIToolkitPage)
 ];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {

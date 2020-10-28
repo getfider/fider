@@ -6,7 +6,7 @@ import { withTranslation, WithTranslation } from "react-i18next";
 interface APIKeyFormState {
   apiKey?: string;
 }
-class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
+class InternalAPIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
   constructor(props: WithTranslation) {
     super(props);
     this.state = {};
@@ -50,4 +50,4 @@ class _APIKeyForm extends React.Component<WithTranslation, APIKeyFormState> {
   }
 }
 
-export const APIKeyForm = withTranslation()(_APIKeyForm);
+export const APIKeyForm = withTranslation()(InternalAPIKeyForm);

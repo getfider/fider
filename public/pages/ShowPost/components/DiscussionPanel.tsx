@@ -18,7 +18,7 @@ export const DiscussionPanel = (props: DiscussionPanelProps) => {
     <div className="comments-col">
       <div className="c-comment-list">
         <span className="subtitle">{t("showPost.discussionPanel.discussion")}</span>
-        {props.comments.map((c) => (
+        {props.comments.map(c => (
           <ShowComment key={c.id} post={props.post} comment={c} />
         ))}
         <CommentInput post={props.post} />

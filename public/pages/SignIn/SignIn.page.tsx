@@ -31,7 +31,7 @@ class SignInPage extends React.Component<WithTranslation, {}> {
           />
           <p>{t("signIn.haveAnAccount")}</p>
         </>
-      ),
+      )
     };
     return (
       <div id="p-signin" className="page container">

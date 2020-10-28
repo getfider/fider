@@ -54,6 +54,7 @@ func routes(r *web.Engine) *web.Engine {
 
 	r.Post("/_api/tenants", handlers.CreateTenant())
 	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
+	r.Get("/start", handlers.Start())
 	r.Get("/signup", handlers.SignUp())
 	r.Get("/oauth/:provider", handlers.SignInByOAuth())
 	r.Get("/oauth/:provider/callback", handlers.OAuthCallback())

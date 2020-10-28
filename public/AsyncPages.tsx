@@ -9,7 +9,7 @@ const retry = (fn: LazyImport, retriesLeft = MAX_RETRIES): Promise<{ default: Co
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch((err) => {
+      .catch(err => {
         setTimeout(() => {
           if (retriesLeft === 1) {
             reject(new Error(`${err} after ${MAX_RETRIES} retries`));
@@ -90,6 +90,13 @@ export const AsyncGeneralSettingsPage = load(() =>
   import(
     /* webpackChunkName: "GeneralSettings.page" */
     "@fider/pages/Administration/pages/GeneralSettings.page"
+  )
+);
+
+export const AsyncStartPage = load(() =>
+  import(
+    /* webpackChunkName: "Start.page" */
+    "@fider/pages/Start/Start.page"
   )
 );
 
