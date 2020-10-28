@@ -18,7 +18,7 @@ class CompleteSignInProfilePage extends React.Component<HomePageProps, CompleteS
     super(props);
     this.key = querystring.get("k");
     this.state = {
-      name: "",
+      name: ""
     };
   }
 

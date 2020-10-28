@@ -31,12 +31,12 @@ class MyNotificationsPage extends React.Component<MyNotificationsPageProps, MyNo
 
     this.state = {
       unread,
-      recent,
+      recent
     };
   }
 
   private items(notifications: Notification[]): JSX.Element[] {
-    return notifications.map((n) => {
+    return notifications.map(n => {
       return (
         <ListItem key={n.id}>
           <a href={`/notifications/${n.id}`}>

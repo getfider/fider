@@ -18,13 +18,13 @@ interface SimilarPostsState {
   loading: boolean;
 }
 
-class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
+class InternalSimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState> {
   constructor(props: SimilarPostsProps) {
     super(props);
     this.state = {
       title: props.title,
       loading: !!props.title,
-      posts: [],
+      posts: []
     };
   }
 
@@ -32,7 +32,7 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
     if (nextProps.title !== prevState.title) {
       return {
         loading: true,
-        title: nextProps.title,
+        title: nextProps.title
       };
     }
     return null;
@@ -49,7 +49,7 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
 
   private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then((x) => {
+      actions.searchPosts({ query: this.state.title }).then(x => {
         if (x.ok) {
           this.setState({ loading: false, posts: x.data });
         }
@@ -82,4 +82,4 @@ class _SimilarPosts extends React.Component<SimilarPostsProps, SimilarPostsState
   }
 }
 
-export const SimilarPosts = withTranslation()(_SimilarPosts);
+export const SimilarPosts = withTranslation()(InternalSimilarPosts);

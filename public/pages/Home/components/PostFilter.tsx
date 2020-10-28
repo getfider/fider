@@ -30,14 +30,14 @@ export const PostFilter = (props: PostFilterProps) => {
     { value: "trending", label: t("home.postFilter.options.trending") },
     { value: "recent", label: t("home.postFilter.options.recent") },
     { value: "most-wanted", label: t("home.postFilter.options.mostWanted") },
-    { value: "most-discussed", label: t("home.postFilter.options.mostDiscussed") },
+    { value: "most-discussed", label: t("home.postFilter.options.mostDiscussed") }
   ];
 
   if (fider.session.isAuthenticated) {
     options.push({ value: "my-votes", label: t("home.postFilter.options.myVotes") });
   }
 
-  PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
+  PostStatus.All.filter(s => s.filterable && props.countPerStatus[s.value]).forEach(s => {
     options.push({
       label: s.title,
       value: s.value,
@@ -45,7 +45,7 @@ export const PostFilter = (props: PostFilterProps) => {
         <span>
           {s.title} <a className="counter">{props.countPerStatus[s.value]}</a>
         </span>
-      ),
+      )
     });
   });
 

@@ -17,11 +17,11 @@ interface TagsFilterState {
   selected: string[];
 }
 
-class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
+class InternalTagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
   constructor(props: TagsFilterProps) {
     super(props);
     this.state = {
-      selected: props.defaultSelection,
+      selected: props.defaultSelection
     };
   }
 
@@ -43,8 +43,8 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
       this.state.selected.length === 0
         ? t("home.tagsFilter.anyTag")
         : this.state.selected.length === 1
-          ? t("home.tagsFilter.oneTag")
-          : t("home.tagsFilter.nTags", { n: this.state.selected.length });
+        ? t("home.tagsFilter.oneTag")
+        : t("home.tagsFilter.nTags", { n: this.state.selected.length });
     return <>{text}</>;
   };
 
@@ -53,7 +53,7 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
       return null;
     }
 
-    const items = this.props.tags.map((tag) => {
+    const items = this.props.tags.map(tag => {
       return {
         value: tag.slug,
         label: tag.name,
@@ -63,7 +63,7 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
             <ShowTag tag={tag} size="mini" circular={true} />
             {t.name}
           </div>
-        ),
+        )
       };
     });
     const { t } = this.props;
@@ -84,4 +84,4 @@ class _TagsFilter extends React.Component<TagsFilterProps, TagsFilterState> {
   }
 }
 
-export const TagsFilter = withTranslation()(_TagsFilter);
+export const TagsFilter = withTranslation()(InternalTagsFilter);

@@ -36,7 +36,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
-      userSettings: this.props.userSettings,
+      userSettings: this.props.userSettings
     };
   }
 
@@ -45,7 +45,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       name: this.state.name,
       avatarType: this.state.avatarType,
       avatar: this.state.avatar,
-      settings: this.state.userSettings,
+      settings: this.state.userSettings
     });
     if (result.ok) {
       location.reload();
@@ -60,7 +60,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
       this.setState({
         error: undefined,
         changingEmail: false,
-        showModal: true,
+        showModal: true
       });
     } else if (result.error) {
       this.setState({ error: result.error });
@@ -75,7 +75,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
     this.setState({
       changingEmail: false,
       newEmail: "",
-      error: undefined,
+      error: undefined
     });
   };
 
@@ -169,7 +169,7 @@ class MySettingsPage extends React.Component<MySettingsPageProps, MySettingsPage
                 options={[
                   { label: "Letter", value: UserAvatarType.Letter },
                   { label: "Gravatar", value: UserAvatarType.Gravatar },
-                  { label: "Custom", value: UserAvatarType.Custom },
+                  { label: "Custom", value: UserAvatarType.Custom }
                 ]}
                 onChange={this.avatarTypeChanged}
               >

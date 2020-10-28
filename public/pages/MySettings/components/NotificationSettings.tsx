@@ -29,7 +29,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
   const toggle = async (settingsKey: string, channel: Channel) => {
     const nextSettings = {
       ...userSettings,
-      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString(),
+      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString()
     };
     setUserSettings(nextSettings);
     props.settingsChanged(nextSettings);

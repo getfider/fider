@@ -20,7 +20,7 @@ interface ResponseFormState {
   error?: Failure;
 }
 
-class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState> {
+class InternalForm extends React.Component<ResponseFormProps, ResponseFormState> {
   constructor(props: ResponseFormProps) {
     super(props);
 
@@ -28,7 +28,7 @@ class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState
       showModal: false,
       status: this.props.post.status,
       originalNumber: 0,
-      text: this.props.post.response ? this.props.post.response.text : "",
+      text: this.props.post.response ? this.props.post.response.text : ""
     };
   }
 
@@ -38,7 +38,7 @@ class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState
       location.reload();
     } else {
       this.setState({
-        error: result.error,
+        error: result.error
       });
     }
   };
@@ -73,9 +73,9 @@ class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState
       </Button>
     );
 
-    const options = PostStatus.All.map((s) => ({
+    const options = PostStatus.All.map(s => ({
       value: s.value.toString(),
-      label: s.title,
+      label: s.title
     }));
 
     const modal = (
@@ -129,4 +129,4 @@ class _ResponseForm extends React.Component<ResponseFormProps, ResponseFormState
   }
 }
 
-export const ResponseForm = withTranslation()(_ResponseForm);
+export const ResponseForm = withTranslation()(InternalForm);
