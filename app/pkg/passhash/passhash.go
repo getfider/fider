@@ -7,21 +7,13 @@ import (
 // HashString returns a hashed string and an error
 func HashString(password string) (string, error) {
 	key, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
 
-	return string(key), nil
+	return string(key), err
 }
 
 // HashBytes returns a hashed byte array and an error
 func HashBytes(password []byte) ([]byte, error) {
-	key, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
-	return key, nil
+	return bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 }
 
 // MatchString returns true if the hash matches the password
