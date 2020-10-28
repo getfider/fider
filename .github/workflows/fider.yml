@@ -68,7 +68,7 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v1
-      - run: docker build -t getfider/fider .
+      - run: docker build -t docker.pkg.github.com/kubeease/feedback/feedback .
 
       - name: extract branch name
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
@@ -77,6 +77,7 @@ jobs:
       - uses: azure/docker-login@v1
         if: steps.getBranch.outputs.branch == 'master'
         with:
+          login-server: docker.pkg.github.com 
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
@@ -84,7 +85,6 @@ jobs:
         if: steps.getBranch.outputs.branch == 'master'
         run: |
           export SHORT_SHA=`git rev-parse --short=7 ${GITHUB_SHA}`
-          docker tag getfider/fider getfider/fider:${SHORT_SHA}
-          docker push getfider/fider:${SHORT_SHA}
-          docker tag getfider/fider getfider/fider:master
-          docker push getfider/fider:master
+          docker tag docker.pkg.github.com/kubeease/feedback/feedback docker.pkg.github.com/kubeease/feedback/feedback:${SHORT_SHA}
+          docker push docker.pkg.github.com/kubeease/feedback/feedback:${SHORT_SHA}
+          docker push docker.pkg.github.com/kubeease/feedback/feedback
