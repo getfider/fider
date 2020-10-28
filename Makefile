@@ -10,3 +10,5 @@ run:
 	go run main.go
 tslint:
 	npx tslint  'public/**/*.{ts,tsx}' 'tests/**/*.{ts,tsx}'
+testui:
+	npx jest ./public
