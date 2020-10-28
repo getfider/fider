@@ -19,7 +19,7 @@ import {
   Form,
   TextArea,
   MultiImageUploader,
-  ImageViewer
+  ImageViewer,
 } from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
 import { ResponseForm } from "./components/ResponseForm";
@@ -55,7 +55,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
       editMode: false,
       newTitle: this.props.post.title,
       newDescription: this.props.post.description,
-      attachments: []
+      attachments: [],
     };
   }
 
@@ -70,7 +70,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
       location.reload();
     } else {
       this.setState({
-        error: result.error
+        error: result.error,
       });
     }
   };
@@ -136,7 +136,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
           ) : (
             <>
               <MultiLineText className="description" text={this.props.post.description} style="simple" />
-              {this.props.attachments.map(x => (
+              {this.props.attachments.map((x) => (
                 <ImageViewer key={x} bkey={x} />
               ))}
             </>
@@ -176,7 +176,7 @@ class ShowPostPage extends React.Component<ShowPostPageProps, ShowPostPageState>
                     <ResponseForm post={this.props.post} />
                   </ListItem>
                 </List>
-              )
+              ),
             ]}
 
           <TagsPanel post={this.props.post} tags={this.props.tags} />

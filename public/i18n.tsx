@@ -21,16 +21,16 @@ i18n
     cleanCode: true,
     load: "languageOnly",
     interpolation: {
-      escapeValue: false // not needed for react as it escapes by default
+      escapeValue: false, // not needed for react as it escapes by default
     },
     backend: {
       // ns: ['translation'],
       // defaultNS: 'translation',
-      loadPath: "/assets/locales/{{lng}}.json"
+      loadPath: "/assets/locales/{{lng}}.json",
     },
     react: {
-      useSuspense: false
-    }
+      useSuspense: false,
+    },
   });
 
 export default i18n;

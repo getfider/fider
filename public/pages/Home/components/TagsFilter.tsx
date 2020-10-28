@@ -21,7 +21,7 @@ class InternalTagsFilter extends React.Component<TagsFilterProps, TagsFilterStat
   constructor(props: TagsFilterProps) {
     super(props);
     this.state = {
-      selected: props.defaultSelection
+      selected: props.defaultSelection,
     };
   }
 
@@ -53,7 +53,7 @@ class InternalTagsFilter extends React.Component<TagsFilterProps, TagsFilterStat
       return null;
     }
 
-    const items = this.props.tags.map(tag => {
+    const items = this.props.tags.map((tag) => {
       return {
         value: tag.slug,
         label: tag.name,
@@ -63,7 +63,7 @@ class InternalTagsFilter extends React.Component<TagsFilterProps, TagsFilterStat
             <ShowTag tag={tag} size="mini" circular={true} />
             {t.name}
           </div>
-        )
+        ),
       };
     });
     const { t } = this.props;
