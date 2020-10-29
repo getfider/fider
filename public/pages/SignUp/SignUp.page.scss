@@ -1,6 +1,7 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-signup {
+  text-align: center;
   margin-top: 20px;
 
   @include media(">=md") {

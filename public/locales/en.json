@@ -1,175 +1,178 @@
 {
-    "email": "Email",
-    "avatar": "Avatar",
+  "email": "Email",
+  "avatar": "Avatar",
+  "notifications": "Notifications",
+  "menu": {
+    "settings": "Settings",
     "notifications": "Notifications",
-    "menu": {
-        "settings": "Settings",
-        "notifications": "Notifications",
-        "administration": "Administration",
-        "siteSettings": "Site Settings",
-        "signOut": "Sign out",
-        "signIn": "Sign in"
+    "administration": "Administration",
+    "siteSettings": "Site Settings",
+    "signOut": "Sign out",
+    "signIn": "Sign in"
+  },
+  "home": {
+    "lonelyHint": "It's lonely out here. Start by sharing a suggestion!",
+    "lonelyAdmin": "It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the interactions with your audience.",
+    "suggestionPlaceholder": "Enter your suggestion here...",
+    "defaultWelcome": "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.",
+    "postFilter": {
+      "options": {
+        "trending": "Trending",
+        "recent": "Recent",
+        "mostWanted": "Most Wanted",
+        "mostDiscussed": "Most Discussed",
+        "myVotes": "My Votes"
+      },
+      "subtitle": "View",
+      "dropDownHeader": "What do you want to see?"
     },
-    "home": {
-        "lonelyHint": "It's lonely out here. Start by sharing a suggestion!",
-        "lonelyAdmin": "It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the interactions with your audience.",
-        "suggestionPlaceholder": "Enter your suggestion here...",
-        "defaultWelcome": "We'd love to hear what you're thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.",
-        "postFilter": {
-            "options": {
-                "trending": "Trending",
-                "recent": "Recent",
-                "mostWanted": "Most Wanted",
-                "mostDiscussed": "Most Discussed",
-                "myVotes": "My Votes"
-            },
-            "subtitle": "View",
-            "dropDownHeader": "What do you want to see?"
-        },
-        "postInput": {
-            "descriptionPlaceholder": "Describe your suggestion (optional)"
-        },
-        "postsContainer": {
-            "showMore": "View more posts",
-            "emptyText": "No results matched your search, try something different."
-        },
-        "similarPosts": {
-            "title": "Similar posts",
-            "subtitle": "Consider voting on existing posts instead.",
-            "emptyText": "No similar posts matched {{title}}."
-        },
-        "tagsFilter": {
-            "anyTag": "any tag",
-            "oneTag": "1 tag",
-            "nTags": "{{n}} tags",
-            "subtitle": "with"
-        }
+    "postInput": {
+      "descriptionPlaceholder": "Describe your suggestion (optional)"
     },
-    "signInProfile": {
-        "header": "Complete your profile",
-        "message": "Because this is your first sign in, please enter your name."
+    "postsContainer": {
+      "showMore": "View more posts",
+      "emptyText": "No results matched your search, try something different."
     },
-    "error": {
-        "title": "Shoot! Well, this is unexpected…",
-        "message": "An error has occurred and we're working to fix the problem!",
-        "back": "Take me back to <a href={{url}}>{{url}}</a> home page."
+    "similarPosts": {
+      "title": "Similar posts",
+      "subtitle": "Consider voting on existing posts instead.",
+      "emptyText": "No similar posts matched {{title}}."
     },
-    "myNotifications": {
-        "title": "Notifications",
-        "subtitle": "Stay up to date with what's happening",
-        "unread": "Unread",
-        "markAsRead": "Mark All as Read",
-        "readOnDays": "Read on last 30 days",
-        "noUnread": "No unread notifications."
-    },
-    "mySettings": {
-        "change": "change",
-        "confirmEmail": "Confirm your new email",
-        "confirmMessage": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to update your email.",
-        "title": "Settings",
-        "subtitle": "Manage your profile settings",
-        "privateMessage": "Your email is private and will never be publicly displayed.",
-        "dontHaveEmail": "Your account doesn't have an email.",
-        "gravatarMessage": "will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.",
-        "letterMessage": "A letter avatar based on your initials is generated for you.",
-        "imageFormatMessage": "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
-        "statusChanged": "Status Changed",
-        "newApiKey": "Your new API Key is: ",
-        "apiKeyStoreMessage": "Stored it securely on your servers and never store it in the client side of your app.",
-        "apiKeyDoc": "To learn how to use the API, read the <a href='https://getfider.com/docs/api' target='_blank'>official documentation </a>.",
-        "generateAPIKey": "Regenerate API Key",
-        "deleteAccountFailed": "Failed to delete your account. Try again later",
-        "deleteAccount": "Delete account",
-        "deleteAccountMessage": {
-            "part1": "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised.",
-            "part2": "This process is irreversible. <strong>Are you sure?</strong>"
-        },
-        "deleteMyAccount": "Delete My Account",
-        "notReceiveAnyNotification": "You'll <strong>NOT</strong> receive any notification about this event.",
-        "youWillReceiveWeb": "You'll receive <strong>web</strong> notifications about {{about}}.",
-        "youWillReceiveEmail": "You'll receive <strong>email</strong> notifications about {{about}}.",
-        "youWillReceiveEmailAndWeb": "You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.",
-        "chooseEvents": "Use following panel to choose which events you'd like to receive notification",
-        "newPostTitle": "New Post",
-        "newPostEvent": "new posts on this site",
-        "discussion": "Discussion",
-        "postSubscribedTo": "comments on posts you've subscribed to",
-        "postUnsubscribed": "comments on all posts unless individually unsubscribed",
-        "statusSubscribed": "status change on posts you've subscribed to",
-        "statusUnsubscribed": "status change on all posts unless individually unsubscribed"
-    },
-    "showPost": {
-        "description": "Description",
-        "actions": "Actions",
-        "commentInput": {
-            "placeholder": "Write a comment..."
-        },
-        "discussionPanel": {
-            "discussion": "Discussion"
-        },
-        "moderationPanel": {
-            "reasonPlaceholder": "Why are you deleting this post? (optional)",
-            "cantUndo": "This operation <strong>cannot</strong> be undone.",
-            "subtitle": "Moderation"
-        },
-        "votesPanel": {
-            "subtitle": "Voters",
-            "more": "more",
-            "seeDetails": "see details",
-            "noneYet": "None yet"
-        },
-        "votesModal": {
-            "searchForUsers": "Search for users by name..."
-        },
-        "showComment": {
-            "deleteHeader": "Delete Comment",
-            "deleteMessage": "This process is irreversible. <strong>Are you sure?</strong>"
-        },
-        "responseForm": {
-            "respond": "Respond",
-            "mergedIntoOriginal": "Votes from this post will be merged into original post.",
-            "whatsGoingOn": "What's going on with this post? Let your users know what are your plans..."
-        },
-        "notificationPanel": {
-            "receivingNotifications": "You’re receiving notifications about activity on this post.",
-            "notReceiveNotification": "You'll not receive any notification about this post.",
-            "subtitle": "Notifications"
-        }
-    },
-    "signIn": {
-        "emailSent": "We have just sent a confirmation link to <b>{{email}}</b>. Click the link and you’ll be signed in.",
-        "tenantLocked": "<strong>{{tenantName}}</strong> is currently locked.",
-        "reactivateSite": "To reactivate this site, sign in with an administrator account and update the required settings.",
-        "needInvite": "<strong>{{tenantName}}</strong> is a private space and requires an invitation to join it.",
-        "haveAnAccount": "If you have an account or an invitation, you may use following options to sign in."
-    },
-    "signUp": {
-        "thankYou": "Thank you for registering!",
-        "sentLink": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to finish your registration.",
-        "step1Title": "1. Who are you?",
-        "step1Message": "We need to identify you to setup your new Fider account.",
-        "step2Title": "2. What is this Feedback Forum for?",
-        "step3Title": "3. Review",
-        "step3Message": "Make sure information provided above is correct."
-    },
-    "start": {
-        "submitted": "The site is set up",
-        "message": "We have set up the site. Administrator email is <b>{{email}}</b>."
-    },
-    "common": {
-        "button": {
-            "submit": "Submit",
-            "confirm": "Confirm",
-            "cancel": "Cancel",
-            "save": "Save",
-            "edit": "Edit",
-            "delete": "Delete",
-            "close": "Close",
-            "unsubscribe": "Unsubscribe",
-            "subscribe": "Subscribe"
-        },
-        "placeholder": {
-            "search": "Search..."
-        }
+    "tagsFilter": {
+      "anyTag": "any tag",
+      "oneTag": "1 tag",
+      "nTags": "{{n}} tags",
+      "subtitle": "with"
     }
+  },
+  "signInProfile": {
+    "header": "Complete your profile",
+    "message": "Because this is your first sign in, please enter your name."
+  },
+  "error": {
+    "title": "Shoot! Well, this is unexpected…",
+    "message": "An error has occurred and we're working to fix the problem!",
+    "back": "Take me back to <a href={{url}}>{{url}}</a> home page."
+  },
+  "myNotifications": {
+    "title": "Notifications",
+    "subtitle": "Stay up to date with what's happening",
+    "unread": "Unread",
+    "markAsRead": "Mark All as Read",
+    "readOnDays": "Read on last 30 days",
+    "noUnread": "No unread notifications."
+  },
+  "mySettings": {
+    "change": "change",
+    "confirmEmail": "Confirm your new email",
+    "confirmMessage": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to update your email.",
+    "title": "Settings",
+    "subtitle": "Manage your profile settings",
+    "privateMessage": "Your email is private and will never be publicly displayed.",
+    "dontHaveEmail": "Your account doesn't have an email.",
+    "gravatarMessage": "will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.",
+    "letterMessage": "A letter avatar based on your initials is generated for you.",
+    "imageFormatMessage": "We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.",
+    "statusChanged": "Status Changed",
+    "newApiKey": "Your new API Key is: ",
+    "apiKeyStoreMessage": "Stored it securely on your servers and never store it in the client side of your app.",
+    "apiKeyDoc": "To learn how to use the API, read the <a href='https://getfider.com/docs/api' target='_blank'>official documentation </a>.",
+    "generateAPIKey": "Regenerate API Key",
+    "deleteAccountFailed": "Failed to delete your account. Try again later",
+    "deleteAccount": "Delete account",
+    "deleteAccountMessage": {
+      "part1": "When you choose to delete your account, we will erase all your personal information forever. The content you have published will remain, but it will be anonymised.",
+      "part2": "This process is irreversible. <strong>Are you sure?</strong>"
+    },
+    "deleteMyAccount": "Delete My Account",
+    "notReceiveAnyNotification": "You'll <strong>NOT</strong> receive any notification about this event.",
+    "youWillReceiveWeb": "You'll receive <strong>web</strong> notifications about {{about}}.",
+    "youWillReceiveEmail": "You'll receive <strong>email</strong> notifications about {{about}}.",
+    "youWillReceiveEmailAndWeb": "You'll receive <strong>web</strong> and <strong>email</strong> notifications about {about}.",
+    "chooseEvents": "Use following panel to choose which events you'd like to receive notification",
+    "newPostTitle": "New Post",
+    "newPostEvent": "new posts on this site",
+    "discussion": "Discussion",
+    "postSubscribedTo": "comments on posts you've subscribed to",
+    "postUnsubscribed": "comments on all posts unless individually unsubscribed",
+    "statusSubscribed": "status change on posts you've subscribed to",
+    "statusUnsubscribed": "status change on all posts unless individually unsubscribed"
+  },
+  "showPost": {
+    "description": "Description",
+    "actions": "Actions",
+    "commentInput": {
+      "placeholder": "Write a comment..."
+    },
+    "discussionPanel": {
+      "discussion": "Discussion"
+    },
+    "moderationPanel": {
+      "reasonPlaceholder": "Why are you deleting this post? (optional)",
+      "cantUndo": "This operation <strong>cannot</strong> be undone.",
+      "subtitle": "Moderation"
+    },
+    "votesPanel": {
+      "subtitle": "Voters",
+      "more": "more",
+      "seeDetails": "see details",
+      "noneYet": "None yet"
+    },
+    "votesModal": {
+      "searchForUsers": "Search for users by name..."
+    },
+    "showComment": {
+      "deleteHeader": "Delete Comment",
+      "deleteMessage": "This process is irreversible. <strong>Are you sure?</strong>"
+    },
+    "responseForm": {
+      "respond": "Respond",
+      "mergedIntoOriginal": "Votes from this post will be merged into original post.",
+      "whatsGoingOn": "What's going on with this post? Let your users know what are your plans..."
+    },
+    "notificationPanel": {
+      "receivingNotifications": "You’re receiving notifications about activity on this post.",
+      "notReceiveNotification": "You'll not receive any notification about this post.",
+      "subtitle": "Notifications"
+    }
+  },
+  "signIn": {
+    "emailSent": "We have just sent a confirmation link to <b>{{email}}</b>. Click the link and you’ll be signed in.",
+    "tenantLocked": "<strong>{{tenantName}}</strong> is currently locked.",
+    "reactivateSite": "To reactivate this site, sign in with an administrator account and update the required settings.",
+    "needInvite": "<strong>{{tenantName}}</strong> is a private space and requires an invitation to join it.",
+    "haveAnAccount": "If you have an account or an invitation, you may use following options to sign in."
+  },
+  "signUp": {
+    "thankYou": "Thank you for registering!",
+    "sentLink": "We have just sent a confirmation link to <b>{{email}}</b>. <br /> Click the link to finish your registration.",
+    "step1Title": "1. Who are you?",
+    "step1Message": "We need to identify you to setup your new Fider account.",
+    "step2Title": "2. What is this Feedback Forum for?",
+    "step3Title": "3. Review",
+    "step3Message": "Make sure information provided above is correct.",
+    "message": "Let us know how we can improve our product. Vote on existing ideas or suggest new ones.",
+    "signIn": "Sign in with email"
+  },
+  "start": {
+    "submitted": "The site is set up",
+    "message": "We have set up the site. Administrator email is <b>{{email}}</b>."
+  },
+  "common": {
+    "button": {
+      "joinNow": "Join Now",
+      "submit": "Submit",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save": "Save",
+      "edit": "Edit",
+      "delete": "Delete",
+      "close": "Close",
+      "unsubscribe": "Unsubscribe",
+      "subscribe": "Subscribe"
+    },
+    "placeholder": {
+      "search": "Search..."
+    }
+  }
 }

@@ -150,10 +150,13 @@
     "step1Message": "我们需要确定您的身份才能设置新的Fider帐户。",
     "step2Title": "2. 这个站点有什么用？",
     "step3Title": "3. 复审",
-    "step3Message": "确保上面提供的信息正确。"
+    "step3Message": "确保上面提供的信息正确。",
+    "message": "告诉我们您的建议和想法。",
+    "signIn": "使用邮箱登陆"
   },
   "common": {
     "button": {
+      "joinNow": "现在加入",
       "submit": "提交",
       "confirm": "确定",
       "cancel": "取消",

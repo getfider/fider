@@ -2,15 +2,10 @@ package handlers
 
 import (
 	"github.com/getfider/fider/app/models/enum"
-	"github.com/getfider/fider/app/models/query"
-
-	"github.com/getfider/fider/app/pkg/bus"
 
 	"strings"
 
-	"github.com/getfider/fider/app"
 	"github.com/getfider/fider/app/pkg/env"
-	"github.com/getfider/fider/app/pkg/errors"
 	"github.com/getfider/fider/app/pkg/validate"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -36,23 +31,6 @@ func SignUp() web.HandlerFunc {
 	return func(c *web.Context) error {
 		if env.Config.SignUpDisabled {
 			return c.NotFound()
-		}
-
-		if env.IsSingleHostMode() {
-			firstTenant := &query.GetFirstTenant{}
-			err := bus.Dispatch(c, firstTenant)
-			if err != nil && errors.Cause(err) != app.ErrNotFound {
-				return c.Failure(err)
-			}
-
-			if firstTenant.Result != nil {
-				return c.Redirect("/")
-			}
-		} else {
-			baseURL := web.OAuthBaseURL(c)
-			if !strings.HasPrefix(c.Request.URL.String(), baseURL) {
-				return c.Redirect(baseURL + "/signup")
-			}
 		}
 
 		return c.Page(web.Props{
