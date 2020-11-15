@@ -1,8 +1,8 @@
 import "./SignUp.page.scss";
 
 import React from "react";
-import { Modal, Button, Form, Input, LegalAgreement } from "@fider/components";
-import { Failure } from "@fider/services";
+import { Modal, Button, Form, Input, LegalAgreement, Password } from "@fider/components";
+import { actions, Failure } from "@fider/services";
 import { withTranslation, WithTranslation } from "react-i18next";
 
 interface SignUpPageState {
@@ -10,6 +10,7 @@ interface SignUpPageState {
   legalAgreement: boolean;
   error?: Failure;
   email?: string;
+  password?: string;
 }
 
 class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
@@ -22,6 +23,17 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
   }
 
   private confirm = async () => {
+    const result = await actions.signUp({
+      legalAgreement: this.state.legalAgreement,
+      email: this.state.email,
+      password: this.state.password
+    });
+    if (result.ok) {
+      const baseURL = `${location.protocol}//${location.host}`;
+      location.href = baseURL + "/signin";
+    } else if (result.error) {
+      this.setState({ error: result.error, submitted: false });
+    }
     // const result = await actions.createTenant({
     //   token: this.user && this.user.token,
     //   legalAgreement: this.state.legalAgreement,
@@ -57,6 +69,10 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
     this.setState({ email });
   };
 
+  private setPassword = (password: string): void => {
+    history.state({ password });
+  };
+
   private noop = () => {
     // do nothing
   };
@@ -80,17 +96,18 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
         <p>{t("signUp.message")}</p>
         <Form error={this.state.error}>
           <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
+          <Password field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
         </Form>
 
         <Form error={this.state.error}>
           <LegalAgreement onChange={this.onAgree} />
         </Form>
 
-        <Button color="positive" size="large" onClick={this.confirm}>
+        <Button className="c-button m-positive" color="positive" size="large" onClick={this.confirm}>
           {t("common.button.joinNow")}
         </Button>
         <div className="c-divider">OR</div>
-        <Button color="positive" size="large" onClick={this.confirm}>
+        <Button color="default" size="normal" onClick={this.confirm}>
           {t("signUp.signIn")}
         </Button>
       </div>
