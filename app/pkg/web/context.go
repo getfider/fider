@@ -179,6 +179,19 @@ func (c *Context) Bind(i interface{}) error {
 	return nil
 }
 
+//BindToWithoutUser context values into given model
+func (c *Context) BindToWithoutUser(i actions.Actionable) *validate.Result {
+	err := c.engine.binder.Bind(i.Initialize(), c)
+	if err != nil {
+		if err == ErrContentTypeNotAllowed {
+			return validate.Failed(err.Error())
+		}
+		return validate.Error(errors.Wrap(err, "failed to bind request to action"))
+	}
+
+	return i.Validate(c, c.User())
+}
+
 //BindTo context values into given model
 func (c *Context) BindTo(i actions.Actionable) *validate.Result {
 	err := c.engine.binder.Bind(i.Initialize(), c)

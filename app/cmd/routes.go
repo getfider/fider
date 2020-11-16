@@ -53,6 +53,7 @@ func routes(r *web.Engine) *web.Engine {
 	r.Get("/terms", handlers.LegalPage("Terms of Service", "terms.md"))
 
 	r.Post("/_api/tenants", handlers.CreateTenant())
+
 	r.Get("/_api/tenants/:subdomain/availability", handlers.CheckAvailability())
 	r.Get("/start", handlers.Start())
 	r.Get("/signup", handlers.SignUp())
@@ -77,7 +78,7 @@ func routes(r *web.Engine) *web.Engine {
 			return c.Blob(http.StatusOK, "text/css", []byte(c.Tenant().CustomCSS))
 		})
 	}
-
+	r.Post("/_api/signup", handlers.CreateUser())
 	r.Get("/-/ui", handlers.Page("UI Toolkit", "A preview of Fider UI elements", "UIToolkit.page"))
 	r.Get("/signup/verify", handlers.VerifySignUpKey())
 	r.Get("/signout", handlers.SignOut())
