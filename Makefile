@@ -8,6 +8,8 @@ build:
 	go build -ldflags -s -w -X main.buildtime=2020.10.28.153959 -X main.buildnumber= -o fider .
 migrate: 
 	go run main.go migrate
+run-dev:
+	env $(grep -v '^#' .env | xargs -0) go run main.go
 run:
 	go run main.go
 tslint:

@@ -62,11 +62,12 @@ func CreateUser() web.HandlerFunc {
 		}
 		user.Email = input.Model.Email
 		user.Password = input.Model.Password
+		user.Name = input.Model.Name
 		if err := bus.Dispatch(c, &cmd.RegisterUser{User: user}); err != nil {
 			return c.Failure(err)
 		}
 		webutil.AddAuthUserCookie(c, user)
 
-		return c.Redirect(c.BaseURL())
+		return c.Ok(web.Map{})
 	}
 }

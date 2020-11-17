@@ -28,10 +28,11 @@ export const regenerateAPIKey = async (): Promise<Result<{ apiKey: string }>> =>
 
 export interface SignUpRequest {
   legalAgreement?: boolean;
+  name?: string;
   email?: string;
   password?: string;
 }
 
 export const signUp = async (request: SignUpRequest): Promise<Result> => {
-  return await http.post("/_api/signup");
+  return await http.post("/_api/signup", request);
 };

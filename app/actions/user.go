@@ -53,6 +53,12 @@ func (input *CreateUser) Validate(ctx context.Context, user *models.User) *valid
 		}
 	}
 
+	if input.Model.Password == "" {
+		result.AddFieldFailure("password", "Password is required.")
+	} else if len(input.Model.Password) > 128 {
+		result.AddFieldFailure("password", "Password must have less than 128 characters.")
+	}
+
 	return result
 }
 

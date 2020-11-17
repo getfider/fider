@@ -9,6 +9,7 @@ interface SignUpPageState {
   submitted: boolean;
   legalAgreement: boolean;
   error?: Failure;
+  name?: string;
   email?: string;
   password?: string;
 }
@@ -26,7 +27,8 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
     const result = await actions.signUp({
       legalAgreement: this.state.legalAgreement,
       email: this.state.email,
-      password: this.state.password
+      password: this.state.password,
+      name: this.state.name
     });
     if (result.ok) {
       const baseURL = `${location.protocol}//${location.host}`;
@@ -70,7 +72,11 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
   };
 
   private setPassword = (password: string): void => {
-    history.state({ password });
+    this.setState({ password });
+  };
+
+  private setName = (name: string): void => {
+    this.setState({ name });
   };
 
   private noop = () => {
@@ -95,6 +101,7 @@ class SignUpPage extends React.Component<WithTranslation, SignUpPageState> {
 
         <p>{t("signUp.message")}</p>
         <Form error={this.state.error}>
+          <Input field="name" maxLength={200} onChange={this.setName} placeholder="Name" />
           <Input field="email" maxLength={200} onChange={this.setEmail} placeholder="Email" />
           <Password field="password" maxLength={128} onChange={this.setPassword} placeholder="Password" />
         </Form>
