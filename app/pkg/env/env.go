@@ -59,6 +59,9 @@ type config struct {
 		Slack struct {
 			URL string `env:"WEBHOOK_SLACK_URL"`
 		}
+		Custom struct {
+			URL string `env:"WEBHOOK_CUSTOM_URL"`
+		}
 	}
 	Email struct {
 		NoReply   string `env:"EMAIL_NOREPLY,required"`
