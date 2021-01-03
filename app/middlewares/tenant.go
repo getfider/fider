@@ -33,6 +33,10 @@ func SingleTenant() web.MiddlewareFunc {
 
 			if firstTenant.Result != nil {
 				c.SetTenant(firstTenant.Result)
+
+				if c.Request.URL.Hostname() != env.Config.HostDomain {
+					return c.NotFound()
+				}
 			}
 
 			return next(c)
