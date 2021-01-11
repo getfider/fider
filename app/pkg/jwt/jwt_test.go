@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	jwtgo "github.com/dgrijalva/jwt-go"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/jwt"
 )
@@ -38,6 +39,22 @@ func TestJWT_Decode(t *testing.T) {
 	Expect(decoded.UserID).Equals(claims.UserID)
 	Expect(decoded.UserName).Equals(claims.UserName)
 	Expect(decoded.UserEmail).Equals(claims.UserEmail)
+}
+
+func TestJWT_Decode_DifferentSignMethod(t *testing.T) {
+	RegisterT(t)
+
+	jwtToken := jwtgo.NewWithClaims(jwtgo.GetSigningMethod("none"), &jwt.FiderClaims{
+		UserID:    424,
+		UserName:  "Jon Snow",
+		UserEmail: "jon.snow@got.com",
+	})
+	token, err := jwtToken.SignedString(jwtgo.UnsafeAllowNoneSignatureType)
+	Expect(err).IsNil()
+
+	decoded, err := jwt.DecodeFiderClaims(token)
+	Expect(err.Error()).ContainsSubstring("Unexpected signing method: none")
+	Expect(decoded).IsNil()
 }
 
 func TestJWT_DecodeExpired(t *testing.T) {

@@ -13,6 +13,7 @@ import (
 	"github.com/getfider/fider/app/models/query"
 	. "github.com/getfider/fider/app/pkg/assert"
 	"github.com/getfider/fider/app/pkg/bus"
+	"github.com/getfider/fider/app/pkg/env"
 	"github.com/getfider/fider/app/pkg/mock"
 	"github.com/getfider/fider/app/pkg/web"
 )
@@ -216,12 +217,35 @@ func TestSingleTenant_WithTenants_ShouldSetFirstToContext(t *testing.T) {
 	server := mock.NewSingleTenantServer()
 	server.Use(middlewares.SingleTenant())
 
-	status, response := server.WithURL("http://somedomain.com").Execute(func(c *web.Context) error {
+	status, response := server.WithURL("http://test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
 	Expect(status).Equals(http.StatusOK)
 	Expect(response.Body.String()).Equals("MyCompany")
+}
+
+func TestSingleTenant_HostMismatch(t *testing.T) {
+	RegisterT(t)
+	host := env.Config.HostDomain
+	defer func() {
+		env.Config.HostDomain = host
+	}()
+	env.Config.HostDomain = "yoursite.com"
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetFirstTenant) error {
+		q.Result = &models.Tenant{Name: "MyCompany", Status: enum.TenantActive}
+		return nil
+	})
+
+	server := mock.NewSingleTenantServer()
+	server.Use(middlewares.SingleTenant())
+
+	status, _ := server.WithURL("http://someothersite.com").Execute(func(c *web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
+	})
+
+	Expect(status).Equals(http.StatusNotFound)
 }
 
 func TestBlockPendingTenants_Active(t *testing.T) {
@@ -372,7 +396,7 @@ func TestRequireTenant_SingleHostMode_ValidTenant(t *testing.T) {
 	server.Use(middlewares.SingleTenant())
 	server.Use(middlewares.RequireTenant())
 
-	status, response := server.WithURL("http://demo.test.fider.io").Execute(func(c *web.Context) error {
+	status, response := server.WithURL("http://test.fider.io").Execute(func(c *web.Context) error {
 		return c.String(http.StatusOK, c.Tenant().Name)
 	})
 
