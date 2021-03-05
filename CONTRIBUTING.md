@@ -10,7 +10,9 @@ There are many ways you can contribute to Fider.
 
 ## Getting started with Fider codebase
 
-Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that. If you're working on something not tracked yet, please open a new Issue before the Pull Request. If you have any question or need any help, leave a comment on the issue and we'll try our best to help you.
+Before start working on something that you intend to send a Pull Request, make sure there's an [GitHub Issue](https://github.com/getfider/fider/issues) open for that or create one yourself. If it's a new feature you're working on, please share your high level thoughts on the ticket so we can agree on a solution that aligns with the overall architecture and future of Fider.
+
+If you have any question or need help, leave a comment on the issue and we'll do our best to help you out.
 
 Fider is written in Go (backend) and TypeScript (frontend), but we also use things like Node.js, React and PostgreSQL.
 If you know these technologies or would like to learn them, lucky you! This is the right place!
@@ -19,7 +21,7 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 | Software  | How to install | What is it used for |
 |---|---|---|
-| Go 1.13+ | https://golang.org/ | To compile server side code |
+| Go 1.16+ | https://golang.org/ | To compile server side code |
 | Node.js 12+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
 | Docker | https://www.docker.com/ | To start local PostgreSQL instances |
 
