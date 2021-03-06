@@ -31,7 +31,7 @@ func BillingPage() web.HandlerFunc {
 			}
 		}
 
-		paymentInfo := query.GetPaymentInfo{}
+		paymentInfo := &query.GetPaymentInfo{}
 		err := bus.Dispatch(c, paymentInfo)
 		if err != nil {
 			return c.Failure(err)
