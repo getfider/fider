@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-toggle {
   cursor: pointer;
@@ -10,7 +10,7 @@
     }
   }
 
-  input { 
+  input {
     display: none;
   }
 
@@ -39,18 +39,16 @@
     border-radius: 1em;
     box-shadow: 0px 1px 5px 0px $gray-dark;
     background: $gray-lightest;
-    transition: transform .2s ease-in;
+    transition: transform 0.2s ease-in;
   }
 
   input:checked ~ label {
     background: $green-dark;
   }
-  
+
   input:checked ~ label .switch {
     background: $gray-lightest;
     transform: translatex(15px);
-    transition: transform .2s ease-in;
+    transition: transform 0.2s ease-in;
   }
 }
-
-

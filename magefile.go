@@ -73,7 +73,7 @@ func (Watch) All() {
 }
 
 func (Watch) UI() error {
-	return sh.Run("npx", "webpack", "-w")
+	return sh.Run("npx", "webpack-cli", "-w")
 }
 
 func (Watch) Server() error {
@@ -98,7 +98,7 @@ func (Build) Server() error {
 func (Build) UI() error {
 	mg.Deps(Clean)
 	env := map[string]string{"NODE_ENV": "production"}
-	return sh.RunWith(env, "npx", "webpack", "-p")
+	return sh.RunWith(env, "npx", "webpack-cli")
 }
 
 type Test mg.Namespace

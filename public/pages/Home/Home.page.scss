@@ -1,7 +1,6 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-home {
-
   .welcome-message {
     margin-bottom: 10px;
   }
@@ -29,7 +28,7 @@
     @include media(">=md") {
       padding-left: 25px;
     }
-    .c-form-field{
+    .c-form-field {
       > div {
         display: inline-block;
         .subtitle {

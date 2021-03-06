@@ -36,13 +36,13 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
     size: "small",
     fluid: false,
     color: "default",
-    type: "button"
+    type: "button",
   };
 
   public constructor(props: ButtonProps) {
     super(props);
     this.state = {
-      clicked: false
+      clicked: false,
     };
   }
 
@@ -78,7 +78,7 @@ export class Button extends React.Component<ButtonProps, ButtonState> {
       [`m-${this.props.color}`]: this.props.color,
       "m-loading": this.state.clicked,
       "m-disabled": this.state.clicked || this.props.disabled,
-      [this.props.className!]: this.props.className
+      [this.props.className!]: this.props.className,
     });
 
     if (this.props.href) {

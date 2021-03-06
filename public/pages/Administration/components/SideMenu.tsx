@@ -21,7 +21,7 @@ interface SideMenuItemProps {
 const SideMenuItem = (props: SideMenuItemProps) => {
   const className = classSet({
     "c-side-menu-item": true,
-    "m-active": props.isActive
+    "m-active": props.isActive,
   });
 
   if (props.isActive) {
@@ -51,24 +51,12 @@ export const SideMenu = (props: SiteMenuProps) => {
         <SideMenuItem name="privacy" title="Privacy" href="/admin/privacy" isActive={activeItem === "privacy"} />
         <SideMenuItem name="members" title="Members" href="/admin/members" isActive={activeItem === "members"} />
         <SideMenuItem name="tags" title="Tags" href="/admin/tags" isActive={activeItem === "tags"} />
-        <SideMenuItem
-          name="invitations"
-          title="Invitations"
-          href="/admin/invitations"
-          isActive={activeItem === "invitations"}
-        />
-        <SideMenuItem
-          name="authentication"
-          title="Authentication"
-          href="/admin/authentication"
-          isActive={activeItem === "authentication"}
-        />
+        <SideMenuItem name="invitations" title="Invitations" href="/admin/invitations" isActive={activeItem === "invitations"} />
+        <SideMenuItem name="authentication" title="Authentication" href="/admin/authentication" isActive={activeItem === "authentication"} />
         <SideMenuItem name="advanced" title="Advanced" href="/admin/advanced" isActive={activeItem === "advanced"} />
         {fider.session.user.isAdministrator && (
           <>
-            {fider.isBillingEnabled() && !!fider.session.tenant.billing && (
-              <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />
-            )}
+            {fider.isBillingEnabled() && !!fider.session.tenant.billing && <SideMenuItem name="billing" title="Billing" href="/admin/billing" isActive={activeItem === "billing"} />}
             <SideMenuItem name="export" title="Export" href="/admin/export" isActive={activeItem === "export"} />
           </>
         )}
@@ -90,12 +78,12 @@ export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideM
   constructor(props: SideMenuTogglerProps) {
     super(props);
     this.state = {
-      active: false
+      active: false,
     };
   }
   private toggle = () => {
     this.setState(
-      state => ({ active: !state.active }),
+      (state) => ({ active: !state.active }),
       () => {
         this.props.onToggle(this.state.active);
       }
@@ -105,7 +93,7 @@ export class SideMenuToggler extends React.Component<SideMenuTogglerProps, SideM
   public render() {
     const className = classSet({
       "c-side-menu-toggler": true,
-      active: this.state.active
+      active: this.state.active,
     });
     return (
       <div className={className} onClick={this.toggle}>

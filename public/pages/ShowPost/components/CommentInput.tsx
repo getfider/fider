@@ -57,15 +57,7 @@ export const CommentInput = (props: CommentInputProps) => {
         {Fider.session.isAuthenticated && <Avatar user={Fider.session.user} />}
         <Form error={error}>
           {Fider.session.isAuthenticated && <UserName user={Fider.session.user} />}
-          <TextArea
-            placeholder="Write a comment..."
-            field="content"
-            value={content}
-            minRows={1}
-            onChange={commentChanged}
-            onFocus={handleOnFocus}
-            inputRef={inputRef}
-          />
+          <TextArea placeholder="Write a comment..." field="content" value={content} minRows={1} onChange={commentChanged} onFocus={handleOnFocus} inputRef={inputRef} />
           {content && (
             <>
               <MultiImageUploader field="attachments" maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />

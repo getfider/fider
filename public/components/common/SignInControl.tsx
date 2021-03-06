@@ -11,7 +11,7 @@ interface SignInControlProps {
   onEmailSent?: (email: string) => void;
 }
 
-export const SignInControl: React.FunctionComponent<SignInControlProps> = props => {
+export const SignInControl: React.FunctionComponent<SignInControlProps> = (props) => {
   const fider = useFider();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<Failure | undefined>(undefined);
@@ -48,11 +48,7 @@ export const SignInControl: React.FunctionComponent<SignInControlProps> = props 
             {fider.settings.oauth.map((o, i) => (
               <React.Fragment key={o.provider}>
                 {i % 4 === 0 && <div className="col-lf" />}
-                <div
-                  className={`col-sm l-provider-${o.provider} l-social-col ${
-                    providersLen === 1 ? "l-social-col-100" : ""
-                  }`}
-                >
+                <div className={`col-sm l-provider-${o.provider} l-social-col ${providersLen === 1 ? "l-social-col-100" : ""}`}>
                   <SocialSignInButton option={o} redirectTo={props.redirectTo} />
                 </div>
               </React.Fragment>

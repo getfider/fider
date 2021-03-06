@@ -24,7 +24,7 @@ export class BrowserTab {
   }
 
   public async clearCookies(): Promise<void> {
-    const cookies = (await this.page.cookies()).map(x => ({ name: x.name }));
+    const cookies = (await this.page.cookies()).map((x) => ({ name: x.name }));
     await this.page.deleteCookie(...cookies);
   }
 

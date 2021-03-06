@@ -320,7 +320,7 @@ func TestOAuthTokenHandler_ExistingUser_WithoutEmail(t *testing.T) {
 		Email:  "",
 		Tenant: mock.DemoTenant,
 		Providers: []*models.UserProvider{
-			&models.UserProvider{UID: "FB456", Name: app.FacebookProvider},
+			{UID: "FB456", Name: app.FacebookProvider},
 		},
 	}
 

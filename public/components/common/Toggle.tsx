@@ -10,7 +10,7 @@ interface ToggleProps {
   onToggle?: (active: boolean) => void;
 }
 
-export const Toggle: React.StatelessComponent<ToggleProps> = props => {
+export const Toggle: React.StatelessComponent<ToggleProps> = (props) => {
   const [active, setActive] = useState(props.active);
 
   const toggle = () => {
@@ -27,7 +27,7 @@ export const Toggle: React.StatelessComponent<ToggleProps> = props => {
 
   const className = classSet({
     "c-toggle": true,
-    "m-disabled": !!props.disabled
+    "m-disabled": !!props.disabled,
   });
 
   return (

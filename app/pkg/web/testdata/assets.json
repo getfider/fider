@@ -2,23 +2,23 @@
   "entrypoints": {
     "main": {
       "assets": [
-        "css/file1.css",
-        "css/file1.css.map",
-        "js/file1.js",
-        "js/file1.js.map",
-        "images/logo.jpg",
-        "js/file2.js",
-        "js/file2.js.map"
+        { "name": "css/file1.css", "size": 100 },
+        { "name": "css/file1.css.map", "size": 100 },
+        { "name": "js/file1.js", "size": 100 },
+        { "name": "js/file1.js.map", "size": 100 },
+        { "name": "images/logo.jpg", "size": 100 },
+        { "name": "js/file2.js", "size": 100 },
+        { "name": "js/file2.js.map", "size": 100 }
       ]
     }
   },
   "namedChunkGroups": {
     "Test.page": {
       "assets": [
-        "css/Test.page.css",
-        "css/Test.page.css.map",
-        "js/Test.page.js",
-        "js/Test.page.js.map"
+        { "name": "css/Test.page.css", "size": 100 },
+        { "name": "css/Test.page.css.map", "size": 100 },
+        { "name": "js/Test.page.js", "size": 100 },
+        { "name": "js/Test.page.js.map","size": 100 }
       ]
     }
   }

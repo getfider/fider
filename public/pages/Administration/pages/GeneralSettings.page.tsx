@@ -31,7 +31,7 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
       title: Fider.session.tenant.name,
       cname: Fider.session.tenant.cname,
       welcomeMessage: Fider.session.tenant.welcomeMessage,
-      invitation: Fider.session.tenant.invitation
+      invitation: Fider.session.tenant.invitation,
     };
   }
 
@@ -82,30 +82,13 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
   public content() {
     return (
       <Form error={this.state.error}>
-        <Input
-          field="title"
-          label="Title"
-          maxLength={60}
-          value={this.state.title}
-          disabled={!Fider.session.user.isAdministrator}
-          onChange={this.setTitle}
-        >
-          <p className="info">
-            The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The
-            product/service name is usually the best choice.
-          </p>
+        <Input field="title" label="Title" maxLength={60} value={this.state.title} disabled={!Fider.session.user.isAdministrator} onChange={this.setTitle}>
+          <p className="info">The title is used on the header, emails, notifications and SEO content. Keep it short and simple. The product/service name is usually the best choice.</p>
         </Input>
 
-        <TextArea
-          field="welcomeMessage"
-          label="Welcome Message"
-          value={this.state.welcomeMessage}
-          disabled={!Fider.session.user.isAdministrator}
-          onChange={this.setWelcomeMessage}
-        >
+        <TextArea field="welcomeMessage" label="Welcome Message" value={this.state.welcomeMessage} disabled={!Fider.session.user.isAdministrator} onChange={this.setWelcomeMessage}>
           <p className="info">
-            The message is shown on this site's home page. Use it to help visitors understad what this space is about
-            and the importance of their feedback. Leave it empty for a default message.
+            The message is shown on this site's home page. Use it to help visitors understad what this space is about and the importance of their feedback. Leave it empty for a default message.
           </p>
         </TextArea>
 
@@ -119,23 +102,12 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
           onChange={this.setInvitation}
         >
           <p className="info">
-            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into
-            sharing their suggestions and feedback. Leave it empty for a default message.
+            This text is used as a placeholder for the suggestion's text box. Use it to invite your visitors into sharing their suggestions and feedback. Leave it empty for a default message.
           </p>
         </Input>
 
-        <ImageUploader
-          label="Logo"
-          field="logo"
-          bkey={Fider.session.tenant.logoBlobKey}
-          previewMaxWidth={200}
-          disabled={!Fider.session.user.isAdministrator}
-          onChange={this.setLogo}
-        >
-          <p className="info">
-            We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-            dimensions of 200x200 pixels.
-          </p>
+        <ImageUploader label="Logo" field="logo" bkey={Fider.session.tenant.logoBlobKey} previewMaxWidth={200} disabled={!Fider.session.user.isAdministrator} onChange={this.setLogo}>
+          <p className="info">We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 200x200 pixels.</p>
         </ImageUploader>
 
         {!Fider.isSingleHostMode() && (
@@ -153,15 +125,11 @@ export default class GeneralSettingsPage extends AdminBasePage<{}, GeneralSettin
                 [
                   <p key={0}>Enter the following record into your DNS zone records:</p>,
                   <p key={1}>{this.dnsInstructions()}</p>,
-                  <p key={2}>
-                    Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS
-                    propagation.
-                  </p>
+                  <p key={2}>Please note that it may take up to 72 hours for the change to take effect worldwide due to DNS propagation.</p>,
                 ]
               ) : (
                 <p>
-                  Custom domains allow you to access your app via your own domain name (for example,{" "}
-                  <code>feedback.yourcompany.com</code>
+                  Custom domains allow you to access your app via your own domain name (for example, <code>feedback.yourcompany.com</code>
                   ).
                 </p>
               )}

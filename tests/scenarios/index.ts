@@ -1,13 +1,4 @@
-import {
-  Browser,
-  BrowserTab,
-  pageHasLoaded,
-  ensure,
-  elementIsNotVisible,
-  delay,
-  elementIsVisible,
-  mailgun
-} from "../lib";
+import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay, elementIsVisible, mailgun } from "../lib";
 import { HomePage, ShowPostPage } from "../pages";
 
 export interface TestContext {
@@ -38,7 +29,7 @@ describe("E2E", () => {
       browser1,
       tab1,
       browser2,
-      tab2
+      tab2,
     };
   });
 

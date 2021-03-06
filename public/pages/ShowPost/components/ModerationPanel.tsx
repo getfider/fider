@@ -36,12 +36,7 @@ export const ModerationPanel = (props: ModerationPanelProps) => {
     <Modal.Window isOpen={showConfirmation} onClose={hideModal} center={false} size="large">
       <Modal.Content>
         <Form error={error}>
-          <TextArea
-            field="text"
-            onChange={setText}
-            value={text}
-            placeholder="Why are you deleting this post? (optional)"
-          >
+          <TextArea field="text" onChange={setText} value={text} placeholder="Why are you deleting this post? (optional)">
             <span className="info">
               This operation <strong>cannot</strong> be undone.
             </span>

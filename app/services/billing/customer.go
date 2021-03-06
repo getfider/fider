@@ -99,8 +99,8 @@ func getPaymentInfo(ctx context.Context, q *query.GetPaymentInfo) error {
 			AddressPostalCode: card.AddressZip,
 		}
 
-		if customer.TaxInfo != nil {
-			q.Result.VATNumber = customer.TaxInfo.TaxID
+		for _, taxId := range customer.TaxIDs.Data {
+			q.Result.VATNumber = taxId.ID
 		}
 
 		return nil
@@ -119,9 +119,11 @@ func clearPaymentInfo(ctx context.Context, c *cmd.ClearPaymentInfo) error {
 			_, err := stripeClient.Customers.Update(customerID, &stripe.CustomerParams{
 				Description: stripe.String(tenant.Name),
 				Email:       stripe.String(""),
-				TaxInfo: &stripe.CustomerTaxInfoParams{
-					Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
-					TaxID: stripe.String(""),
+				TaxIDData: []*stripe.CustomerTaxIDDataParams{
+					{
+						Type:  stripe.String(string(stripe.TaxIDTypeEUVAT)),
+						Value: stripe.String(""),
+					},
 				},
 			})
 			if err != nil {
@@ -169,9 +171,11 @@ func updatePaymentInfo(ctx context.Context, c *cmd.UpdatePaymentInfo) error {
 					State:      stripe.String(c.Input.AddressState),
 				},
 			},
-			TaxInfo: &stripe.CustomerTaxInfoParams{
-				Type:  stripe.String(string(stripe.CustomerTaxInfoTypeVAT)),
-				TaxID: stripe.String(c.Input.VATNumber),
+			TaxIDData: []*stripe.CustomerTaxIDDataParams{
+				{
+					Type:  stripe.String(string(stripe.TaxIDTypeEUVAT)),
+					Value: stripe.String(c.Input.VATNumber),
+				},
 			},
 		}
 		_, err := stripeClient.Customers.Update(customerID, params)

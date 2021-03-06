@@ -18,7 +18,7 @@ interface ModalFooterProps {
   children?: React.ReactNode;
 }
 
-const ModalWindow: React.StatelessComponent<ModalWindowProps> = props => {
+const ModalWindow: React.StatelessComponent<ModalWindowProps> = (props) => {
   const root = useRef<HTMLElement>(document.getElementById("root-modal"));
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const ModalWindow: React.StatelessComponent<ModalWindowProps> = props => {
     "c-modal-window": true,
     [`${props.className}`]: !!props.className,
     "m-center": props.center,
-    [`m-${props.size}`]: true
+    [`m-${props.size}`]: true,
   });
 
   return ReactDOM.createPortal(
@@ -72,7 +72,7 @@ const ModalWindow: React.StatelessComponent<ModalWindowProps> = props => {
 ModalWindow.defaultProps = {
   size: "small",
   canClose: true,
-  center: true
+  center: true,
 };
 
 export const Modal = {
@@ -87,8 +87,8 @@ export const Modal = {
     const align = props.align || "right";
     const className = classSet({
       "c-modal-footer": true,
-      [`m-${align}`]: true
+      [`m-${align}`]: true,
     });
     return <div className={className}>{props.children}</div>;
-  }
+  },
 };

@@ -6,7 +6,7 @@ export const fiderMock = {
     Object.defineProperty(Fider.session, "isAuthenticated", {
       get() {
         return false;
-      }
+      },
     });
   },
   authenticated: () => {
@@ -14,7 +14,7 @@ export const fiderMock = {
     Object.defineProperty(Fider.session, "isAuthenticated", {
       get() {
         return true;
-      }
+      },
     });
-  }
+  },
 };
