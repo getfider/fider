@@ -86,6 +86,8 @@ export default class BillingPage extends AdminBasePage<BillingPageProps, Billing
           <StripeProvider stripe={this.state.stripe}>
             <Elements>
               <PaymentInfoModal
+                stripe={null}
+                elements={null}
                 paymentInfo={this.props.paymentInfo}
                 countries={this.props.countries}
                 onClose={this.closeModal}

@@ -12,7 +12,7 @@ const plugins = [
     filename: "css/[name].[contenthash].css",
     chunkFilename: "css/[name].[contenthash].css"
   }),
-  new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
+  new ForkTsCheckerWebpackPlugin(),
   new BundleAnalyzerPlugin({
     analyzerMode: "disabled", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
     generateStatsFile: true,
@@ -27,11 +27,6 @@ const plugins = [
     }
   })
 ];
-
-if (!isProduction) {
-  const CleanObsoleteChunks = require("webpack-clean-obsolete-chunks");
-  plugins.push(new CleanObsoleteChunks());
-}
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
 const maxSizeFactor = isProduction ? 1 : 14;
@@ -53,6 +48,7 @@ module.exports = {
     path: __dirname + "/dist",
     filename: "js/[name].[contenthash].js",
     publicPath: "/assets/",
+    clean: true,
   },
   devtool: "source-map",
   resolve: {
@@ -87,7 +83,10 @@ module.exports = {
       {
         test: /\.(svg?)(\?[a-z0-9=&.]+)?$/,
         include: publicFolder,
-        loader: "file-loader?name=images/[name].[hash].[ext]"
+        loader: 'file-loader',
+        options: {
+          name: 'images/[name].[hash].[ext]'
+        }
       }
     ]
   },

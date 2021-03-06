@@ -1,22 +1,11 @@
 import React from "react";
-import { injectStripe, CardElement } from "react-stripe-elements";
+import { injectStripe, CardElement, ReactStripeElements } from "react-stripe-elements";
 import { Input, Field, Button, Form, Select, SelectOption, Modal, CardInfo } from "@fider/components";
 import { Failure, actions } from "@fider/services";
 import { PaymentInfo, Country } from "@fider/models";
 
-type PatchedTokenResponse = stripe.TokenResponse & {
-  error?: { decline_code?: string };
-};
-
-interface StripeProps {
-  createToken(options?: stripe.TokenOptions): Promise<PatchedTokenResponse>;
-  createSource(sourceData?: stripe.SourceOptions): Promise<stripe.SourceResponse>;
-  paymentRequest: stripe.Stripe["paymentRequest"];
-}
-
-interface PaymentInfoModalProps {
+interface PaymentInfoModalProps extends ReactStripeElements.InjectedStripeProps {
   paymentInfo?: PaymentInfo;
-  stripe?: StripeProps;
   countries: Country[];
   onClose: () => void;
 }
