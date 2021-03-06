@@ -98,7 +98,7 @@ func (Build) Server() error {
 func (Build) UI() error {
 	mg.Deps(Clean)
 	env := map[string]string{"NODE_ENV": "production"}
-	return sh.RunWith(env, "npx", "webpack-cli", "-p")
+	return sh.RunWith(env, "npx", "webpack-cli")
 }
 
 type Test mg.Namespace
