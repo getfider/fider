@@ -37,6 +37,22 @@ type clientAssets struct {
 	JS  []string
 }
 
+type distAsset struct {
+	Name string `json:"name"`
+	Size int64  `json:"size"`
+}
+
+type assetsFile struct {
+	Entrypoints struct {
+		Main struct {
+			Assets []distAsset `json:"assets"`
+		} `json:"main"`
+	} `json:"entrypoints"`
+	ChunkGroups map[string]struct {
+		Assets []distAsset `json:"assets"`
+	} `json:"namedChunkGroups"`
+}
+
 //Renderer is the default HTML Render
 type Renderer struct {
 	templates     map[string]*template.Template
@@ -76,17 +92,6 @@ func (r *Renderer) loadAssets() error {
 		return nil
 	}
 
-	type assetsFile struct {
-		Entrypoints struct {
-			Main struct {
-				Assets []string `json:"assets"`
-			} `json:"main"`
-		} `json:"entrypoints"`
-		ChunkGroups map[string]struct {
-			Assets []string `json:"assets"`
-		} `json:"namedChunkGroups"`
-	}
-
 	assetsFilePath := "/dist/assets.json"
 	if env.IsTest() {
 		// Load a fake assets.json for Unit Testing
@@ -121,21 +126,21 @@ func (r *Renderer) loadAssets() error {
 	return nil
 }
 
-func getClientAssets(assets []string) *clientAssets {
+func getClientAssets(assets []distAsset) *clientAssets {
 	clientAssets := &clientAssets{
 		CSS: make([]string, 0),
 		JS:  make([]string, 0),
 	}
 
 	for _, asset := range assets {
-		if strings.HasSuffix(asset, ".map") {
+		if strings.HasSuffix(asset.Name, ".map") {
 			continue
 		}
 
-		assetURL := "/assets/" + asset
-		if strings.HasSuffix(asset, ".css") {
+		assetURL := "/assets/" + asset.Name
+		if strings.HasSuffix(asset.Name, ".css") {
 			clientAssets.CSS = append(clientAssets.CSS, assetURL)
-		} else if strings.HasSuffix(asset, ".js") {
+		} else if strings.HasSuffix(asset.Name, ".js") {
 			clientAssets.JS = append(clientAssets.JS, assetURL)
 		}
 	}
