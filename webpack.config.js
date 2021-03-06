@@ -14,7 +14,7 @@ const plugins = [
   }),
   new ForkTsCheckerWebpackPlugin(),
   new BundleAnalyzerPlugin({
-    analyzerMode: "static", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
+    analyzerMode: "disabled", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
     generateStatsFile: true,
     statsFilename: "assets.json",
     statsOptions: {
