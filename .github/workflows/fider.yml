@@ -13,7 +13,7 @@ jobs:
     name: test-ui
     runs-on: ubuntu-latest
     container:
-      image: getfider/githubci:0.0.3
+      image: getfider/githubci:0.0.4
 
     steps:
       - name: checkout code
@@ -26,7 +26,7 @@ jobs:
     name: test-server
     runs-on: ubuntu-latest
     container:
-      image: getfider/githubci:0.0.3
+      image: getfider/githubci:0.0.4
 
     services:
       minio:
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-server, test-ui]
     container:
-      image: getfider/githubci:0.0.3
+      image: getfider/githubci:0.0.4
 
     steps:
       - name: checkout code

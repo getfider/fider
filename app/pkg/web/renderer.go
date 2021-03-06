@@ -153,8 +153,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
-		err := r.loadAssets()
-		if err != nil && !env.IsTest() {
+		if err := r.loadAssets(); err != nil {
 			panic(err)
 		}
 	}
