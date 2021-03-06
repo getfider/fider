@@ -1,1 +1,0 @@
-`development.crt` is a self-generated certificate for testing SSL locally. It SHOULD NOT be used to host any production Fider instance.
