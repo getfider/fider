@@ -14,7 +14,7 @@ const plugins = [
   }),
   new ForkTsCheckerWebpackPlugin(),
   new BundleAnalyzerPlugin({
-    analyzerMode: "disabled", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
+    analyzerMode: "static", // To visualize the treemap of dependencies, change "disabled" to "static" and remove statsOptions
     generateStatsFile: true,
     statsFilename: "assets.json",
     statsOptions: {
@@ -35,7 +35,6 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: ["react", "react-dom", "tslib", "marked", "react-textarea-autosize", "react-icons/lib"],
   },
   output: {
     path: __dirname + "/dist",
@@ -80,6 +79,8 @@ module.exports = {
     ],
   },
   optimization: {
+    moduleIds: 'deterministic',
+    runtimeChunk: 'single',
     splitChunks: {
       cacheGroups: {
         common: {
@@ -88,9 +89,9 @@ module.exports = {
           test: /[\\/]public[\\/](components|services|models)[\\/]/,
         },
         vendor: {
-          chunks: "all",
-          name: "vendor",
-          test: "vendor",
+          chunks: 'all',
+          name: 'vendor',
+          test: /react|react-dom|tslib|react-textarea-autosize|react-icons/
         },
       },
     },
