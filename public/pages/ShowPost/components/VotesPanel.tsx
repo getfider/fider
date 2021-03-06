@@ -28,7 +28,7 @@ export const VotesPanel = (props: VotesPanelProps) => {
   const extraVotesCount = props.post.votesCount - props.votes.length;
   const moreVotesClassName = classSet({
     "l-votes-more": true,
-    clickable: canShowAll()
+    clickable: canShowAll(),
   });
 
   return (
@@ -36,7 +36,7 @@ export const VotesPanel = (props: VotesPanelProps) => {
       <VotesModal post={props.post} isOpen={isVotesModalOpen} onClose={closeModal} />
       <span className="subtitle">Voters</span>
       <div className="l-votes-list">
-        {props.votes.map(x => (
+        {props.votes.map((x) => (
           <Avatar key={x.user.id} user={x.user} />
         ))}
         {extraVotesCount > 0 && (

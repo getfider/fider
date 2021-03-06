@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 $color-box-size: 100px;
 
@@ -22,56 +22,56 @@ $color-box-size: 100px;
 
     @each $name, $color in $gray-scale {
       &.gray-#{$name} {
-       color: textColorFor($color);
-       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
-       background-color: $color;
-       &:before {
-         content: "#{$color}";
-       }
+        color: textColorFor($color);
+        box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+        background-color: $color;
+        &:before {
+          content: "#{$color}";
+        }
       }
     }
 
     @each $name, $color in $green-scale {
       &.green-#{$name} {
-       color: textColorFor($color);
-       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
-       background-color: $color;
-       &:before {
-         content: "#{$color}";
-       }
+        color: textColorFor($color);
+        box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+        background-color: $color;
+        &:before {
+          content: "#{$color}";
+        }
       }
     }
 
     @each $name, $color in $yellow-scale {
       &.yellow-#{$name} {
-       color: textColorFor($color);
-       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
-       background-color: $color;
-       &:before {
-         content: "#{$color}";
-       }
+        color: textColorFor($color);
+        box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+        background-color: $color;
+        &:before {
+          content: "#{$color}";
+        }
       }
     }
 
     @each $name, $color in $red-scale {
       &.red-#{$name} {
-       color: textColorFor($color);
-       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
-       background-color: $color;
-       &:before {
-         content: "#{$color}";
-       }
+        color: textColorFor($color);
+        box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+        background-color: $color;
+        &:before {
+          content: "#{$color}";
+        }
       }
     }
 
     @each $name, $color in $blue-scale {
       &.blue-#{$name} {
-       color: textColorFor($color);
-       box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
-       background-color: $color;
-       &:before {
-         content: "#{$color}";
-       }
+        color: textColorFor($color);
+        box-shadow: 0px 1px 1px 0px rgba(textColorFor($color), 0.2);
+        background-color: $color;
+        &:before {
+          content: "#{$color}";
+        }
       }
     }
   }

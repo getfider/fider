@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-side-menu-toggler {
   position: absolute;
@@ -31,15 +31,15 @@
       opacity: 0;
     }
     .bar3 {
-      transform: rotate(45deg) translate(-8px, -8px) ;
+      transform: rotate(45deg) translate(-8px, -8px);
     }
   }
 }
 
 .c-side-menu {
   display: block;
-  border: 1px solid rgba(34, 36, 38, .1);
-  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, .1);
+  border: 1px solid rgba(34, 36, 38, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(34, 36, 38, 0.1);
   border-radius: 5px;
   background-color: $white;
   margin-bottom: 15px;
@@ -47,7 +47,7 @@
   .c-side-menu-item {
     display: block;
     padding: 12px;
-    border-bottom: 1px solid rgba(34, 36, 38, .1);
+    border-bottom: 1px solid rgba(34, 36, 38, 0.1);
     color: $gray-darkest;
 
     &:hover {

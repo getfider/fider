@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-admin-members {
   @include media("<=md") {
@@ -14,12 +14,12 @@
       }
     }
   }
-  
+
   .l-legend {
     list-style-type: none;
     padding-left: 0;
   }
-  
+
   .c-list-item {
     .c-avatar {
       margin-right: 5px;

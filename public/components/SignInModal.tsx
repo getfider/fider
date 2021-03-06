@@ -6,7 +6,7 @@ interface SignInModalProps {
   onClose: () => void;
 }
 
-export const SignInModal: React.StatelessComponent<SignInModalProps> = props => {
+export const SignInModal: React.StatelessComponent<SignInModalProps> = (props) => {
   const [confirmationAddress, setConfirmationAddress] = useState("");
 
   useEffect(() => {
@@ -27,8 +27,7 @@ export const SignInModal: React.StatelessComponent<SignInModalProps> = props => 
   const content = confirmationAddress ? (
     <>
       <p>
-        We have just sent a confirmation link to <b>{confirmationAddress}</b>. <br /> Click the link and you’ll be
-        signed in.
+        We have just sent a confirmation link to <b>{confirmationAddress}</b>. <br /> Click the link and you’ll be signed in.
       </p>
       <p>
         <a href="#" onClick={closeModal}>

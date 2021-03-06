@@ -143,7 +143,7 @@ func TestRenderer_WithOAuth(t *testing.T) {
 
 	bus.AddHandler(func(ctx context.Context, q *query.ListActiveOAuthProviders) error {
 		q.Result = []*dto.OAuthProviderOption{
-			&dto.OAuthProviderOption{
+			{
 				Provider:         app.GoogleProvider,
 				DisplayName:      "Google",
 				ClientID:         "1234",

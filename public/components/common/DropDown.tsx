@@ -12,7 +12,7 @@ export interface DropDownItem {
 export interface DropDownProps {
   className?: string;
   defaultValue?: any;
-  items: Array<DropDownItem | undefined | false>;
+  items: (DropDownItem | undefined | false)[];
   placeholder?: string;
   searchable?: boolean;
   inline?: boolean;
@@ -38,7 +38,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   public static defaultProps: Partial<DropDownProps> = {
     direction: "right",
     style: "normal",
-    highlightSelected: true
+    highlightSelected: true,
   };
 
   constructor(props: DropDownProps) {
@@ -46,7 +46,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     this.rootElementRef = React.createRef<HTMLDivElement>();
     this.state = {
       selected: this.findItem(props.defaultValue, props.items),
-      isOpen: false
+      isOpen: false,
     };
   }
 
@@ -79,13 +79,13 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
 
     this.setState(
       {
-        isOpen: true
+        isOpen: true,
       },
       this.addListeners
     );
   };
 
-  public findItem(value: any, items: Array<DropDownItem | undefined | false>): DropDownItem | undefined {
+  public findItem(value: any, items: (DropDownItem | undefined | false)[]): DropDownItem | undefined {
     for (const item of items) {
       if (item && item.value === value) {
         return item;
@@ -97,7 +97,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   public setSelected(selected: DropDownItem) {
     const newState = {
       selected,
-      isOpen: false
+      isOpen: false,
     };
     this.fireChangeEvent(newState);
     this.setState(newState, this.removeListeners);
@@ -118,16 +118,11 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     const isSelected = this.props.highlightSelected && this.state.selected && value === this.state.selected.value;
     const className = classSet({
       "c-dropdown-item": true,
-      "is-selected": isSelected
+      "is-selected": isSelected,
     });
 
     return (
-      <div
-        key={value}
-        className={className}
-        onMouseDown={this.setSelected.bind(this, item)}
-        onClick={this.setSelected.bind(this, item)}
-      >
+      <div key={value} className={className} onMouseDown={this.setSelected.bind(this, item)} onClick={this.setSelected.bind(this, item)}>
         {item.render ? item.render : label}
       </div>
     );
@@ -139,9 +134,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
     return (
       <div className="c-dropdown-menu">
         {this.props.header && <div className="c-dropdown-menu-header">{this.props.header}</div>}
-        <div className="c-dropdown-menu-items">
-          {items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>}
-        </div>
+        <div className="c-dropdown-menu-items">{items.length ? items : <div className={`c-dropdown-noresults`}>No results found</div>}</div>
       </div>
     );
   }
@@ -153,7 +146,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
         if (this.state.isOpen) {
           this.setState(
             {
-              isOpen: false
+              isOpen: false,
             },
             this.removeListeners
           );
@@ -163,11 +156,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
   };
 
   public render() {
-    const text = this.state.selected ? (
-      this.state.selected.label
-    ) : (
-      <span className="c-dropdown-placeholder">{this.props.placeholder}</span>
-    );
+    const text = this.state.selected ? this.state.selected.label : <span className="c-dropdown-placeholder">{this.props.placeholder}</span>;
 
     const search = <input type="text" autoFocus={true} onChange={this.props.onSearchChange} />;
 
@@ -178,7 +167,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
       [`m-style-${this.props.style}`]: true,
       "is-inline": this.props.inline,
       "m-right": this.props.direction === "right",
-      "m-left": this.props.direction === "left"
+      "m-left": this.props.direction === "left",
     });
 
     return (
@@ -188,13 +177,7 @@ export class DropDown extends React.Component<DropDownProps, DropDownState> {
             <div className="c-dropdown-control">{this.props.renderControl(this.state.selected)}</div>
           ) : (
             <div className="c-dropdown-control">
-              {this.state.isOpen && this.props.searchable ? (
-                search
-              ) : this.props.renderText ? (
-                this.props.renderText(this.state.selected)
-              ) : (
-                <div>{text}</div>
-              )}
+              {this.state.isOpen && this.props.searchable ? search : this.props.renderText ? this.props.renderText(this.state.selected) : <div>{text}</div>}
               <span className="c-dropdown-arrow" />
             </div>
           )}

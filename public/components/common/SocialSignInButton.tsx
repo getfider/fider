@@ -18,7 +18,7 @@ export const SocialSignInButton = (props: SocialSignInButtonProps) => {
   const href = props.option.url ? `${props.option.url}?redirect=${redirectTo}` : undefined;
   const className = classSet({
     "m-social": true,
-    [`m-${props.option.provider}`]: props.option.provider
+    [`m-${props.option.provider}`]: props.option.provider,
   });
 
   return (

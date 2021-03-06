@@ -51,7 +51,7 @@ window.addEventListener("error", (evt: ErrorEvent) => {
   const config = resolveRootComponent(location.pathname);
   document.body.className = classSet({
     "is-authenticated": fider.session.isAuthenticated,
-    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator
+    "is-staff": fider.session.isAuthenticated && fider.session.user.isCollaborator,
   });
   ReactDOM.render(
     <React.StrictMode>

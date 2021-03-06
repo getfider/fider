@@ -33,9 +33,7 @@ class WebComponentEnsurer {
       const attrValue = await this.component.getAttribute(attrName);
 
       if (expected.trim() !== attrValue.trim()) {
-        throw new Error(
-          `Element ${this.component.selector} ${attrName} is '${attrValue}'. Expected value is '${expected}'`
-        );
+        throw new Error(`Element ${this.component.selector} ${attrName} is '${attrValue}'. Expected value is '${expected}'`);
       }
     });
   }

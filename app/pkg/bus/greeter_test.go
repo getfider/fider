@@ -11,7 +11,11 @@ type SayHelloCommand struct {
 	Result string
 }
 
-var GreetingKey = "GreetingKey"
+type key int
+
+const (
+	GreetingKey key = iota
+)
 
 type GreeterService struct {
 }

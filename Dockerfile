@@ -1,5 +1,5 @@
 # Build Step
-FROM getfider/githubci:0.0.3 AS builder
+FROM getfider/githubci:0.0.4 AS builder
 
 RUN mkdir /app
 WORKDIR /app

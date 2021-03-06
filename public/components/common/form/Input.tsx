@@ -24,33 +24,32 @@ interface InputProps {
   onChange?: (value: string) => void;
 }
 
-export const Input: React.FunctionComponent<InputProps> = props => {
+export const Input: React.FunctionComponent<InputProps> = (props) => {
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     if (props.onChange) {
       props.onChange(e.currentTarget.value);
     }
   };
 
-  const suffix =
-    typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix;
+  const suffix = typeof props.suffix === "string" ? <span className="c-form-input-suffix">{props.suffix}</span> : props.suffix;
 
   const icon = !!props.icon
     ? React.createElement(props.icon, {
         onClick: props.onIconClick,
-        className: classSet({ link: !!props.onIconClick })
+        className: classSet({ link: !!props.onIconClick }),
       })
     : undefined;
 
   return (
     <ValidationContext.Consumer>
-      {ctx => (
+      {(ctx) => (
         <div
           className={classSet({
             "c-form-field": true,
             "m-suffix": props.suffix,
             "m-error": hasError(props.field, ctx.error),
             "m-icon": !!props.icon,
-            [`${props.className}`]: props.className
+            [`${props.className}`]: props.className,
           })}
         >
           {!!props.label && (

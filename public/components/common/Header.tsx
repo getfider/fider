@@ -13,7 +13,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (fider.session.isAuthenticated) {
-      actions.getTotalUnreadNotifications().then(result => {
+      actions.getTotalUnreadNotifications().then((result) => {
         if (result.ok && result.data > 0) {
           setUnreadNotifications(result.data);
         }
@@ -49,7 +49,7 @@ export const Header = () => {
         <a key={2} href="/admin" className="c-menu-user-item">
           Site Settings
         </a>,
-        <div key={5} className="c-menu-user-divider" />
+        <div key={5} className="c-menu-user-divider" />,
       ]}
       <a href="/signout?redirect=/" className="c-menu-user-item signout">
         Sign out

@@ -19,7 +19,7 @@ export const Avatar = (props: AvatarProps) => {
   const className = classSet({
     "c-avatar": true,
     [`m-${size}`]: true,
-    "m-staff": props.user.role && isCollaborator(props.user.role)
+    "m-staff": props.user.role && isCollaborator(props.user.role),
   });
 
   return <img className={className} title={props.user.name} src={`${props.user.avatarURL}?size=50`} />;

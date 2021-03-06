@@ -26,7 +26,7 @@ const ListPostItem = (props: { post: Post; user?: CurrentUser; tags: Tag[] }) =>
         </a>
         <MultiLineText className="c-list-item-description" text={props.post.description} style="simple" />
         <ShowPostResponse showUser={false} status={props.post.status} response={props.post.response} />
-        {props.tags.map(tag => (
+        {props.tags.map((tag) => (
           <ShowTag key={tag.id} size="tiny" tag={tag} />
         ))}
       </div>
@@ -45,8 +45,8 @@ export const ListPosts = (props: ListPostsProps) => {
 
   return (
     <List className="c-post-list" divided={true}>
-      {props.posts.map(post => (
-        <ListPostItem key={post.id} post={post} tags={props.tags.filter(tag => post.tags.indexOf(tag.slug) >= 0)} />
+      {props.posts.map((post) => (
+        <ListPostItem key={post.id} post={post} tags={props.tags.filter((tag) => post.tags.indexOf(tag.slug) >= 0)} />
       ))}
     </List>
   );

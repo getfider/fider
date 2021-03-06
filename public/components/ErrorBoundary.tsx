@@ -17,7 +17,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
     this.state = {
       error: undefined,
-      errorInfo: undefined
+      errorInfo: undefined,
     };
   }
 
@@ -29,7 +29,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
     this.setState({
       error,
-      errorInfo
+      errorInfo,
     });
   }
 
@@ -37,11 +37,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     const { error, errorInfo } = this.state;
 
     if (error && errorInfo) {
-      return (
-        <FiderContext.Consumer>
-          {fider => <ErrorPage error={error} errorInfo={errorInfo} showDetails={!fider.isProduction()} />}
-        </FiderContext.Consumer>
-      );
+      return <FiderContext.Consumer>{(fider) => <ErrorPage error={error} errorInfo={errorInfo} showDetails={!fider.isProduction()} />}</FiderContext.Consumer>;
     } else {
       return this.props.children;
     }

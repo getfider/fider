@@ -40,12 +40,12 @@ Regards,
 ${Fider.session.user.name} (${Fider.session.tenant.name})`,
       recipients: [],
       numOfRecipients: 0,
-      rawRecipients: ""
+      rawRecipients: "",
     };
   }
 
   private setRecipients = (rawRecipients: string) => {
-    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter(x => !!x);
+    const recipients = rawRecipients.split(/\n|;|,|\s/gm).filter((x) => !!x);
     this.setState({ rawRecipients, recipients, numOfRecipients: recipients.length });
   };
 
@@ -82,18 +82,10 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
   public content() {
     return (
       <Form error={this.state.error}>
-        <TextArea
-          field="recipients"
-          label="Send invitations to"
-          placeholder="james@example.com; carol@example.com"
-          minRows={1}
-          value={this.state.rawRecipients}
-          onChange={this.setRecipients}
-        >
+        <TextArea field="recipients" label="Send invitations to" placeholder="james@example.com; carol@example.com" minRows={1} value={this.state.rawRecipients} onChange={this.setRecipients}>
           <div className="info">
             <p>
-              Input the list of all email addresses you wish to invite. Separate each address with either{" "}
-              <strong>semicolon</strong>, <strong>comma</strong>, <strong>whitespace</strong> or{" "}
+              Input the list of all email addresses you wish to invite. Separate each address with either <strong>semicolon</strong>, <strong>comma</strong>, <strong>whitespace</strong> or{" "}
               <strong>line break</strong>.
             </p>
             <p>You can send this invite to a maximum of 30 recipients each time.</p>
@@ -101,29 +93,20 @@ ${Fider.session.user.name} (${Fider.session.tenant.name})`,
         </TextArea>
 
         <Input field="subject" label="Subject" value={this.state.subject} maxLength={70} onChange={this.setSubject}>
-          <p className="info">
-            This is the subject that will be used on the invitation email. Keep it short and sweet.
-          </p>
+          <p className="info">This is the subject that will be used on the invitation email. Keep it short and sweet.</p>
         </Input>
 
         <TextArea field="message" label="Message" minRows={8} value={this.state.message} onChange={this.setMessage}>
           <div className="info">
+            <p>This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high change people will ignore your message.</p>
             <p>
-              This is the content of the invite. Be polite and explain what this invite is for, otherwise there's a high
-              change people will ignore your message.
-            </p>
-            <p>
-              You're allowed to write whatever you want as long as you include the invitation link placeholder named{" "}
-              <strong>%invite%</strong>.
+              You're allowed to write whatever you want as long as you include the invitation link placeholder named <strong>%invite%</strong>.
             </p>
           </div>
         </TextArea>
 
         <Field label="Sample Invite">
-          <p className="info">
-            We highly recommend to send yourself a sample email for you to verify if everything is correct before
-            inviting your list of contacts.
-          </p>
+          <p className="info">We highly recommend to send yourself a sample email for you to verify if everything is correct before inviting your list of contacts.</p>
           {Fider.session.user.email ? (
             <Button onClick={this.sendSample}>Send a sample email to {Fider.session.user.email}</Button>
           ) : (

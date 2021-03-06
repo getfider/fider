@@ -27,7 +27,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
   const toggle = async (settingsKey: string, channel: Channel) => {
     const nextSettings = {
       ...userSettings,
-      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString()
+      [settingsKey]: (parseInt(userSettings[settingsKey], 10) ^ channel).toString(),
     };
     setUserSettings(nextSettings);
     props.settingsChanged(nextSettings);
@@ -91,11 +91,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
           </Segment>
           <Segment>
             <span className="event-title">Discussion</span>
-            {info(
-              "event_notification_new_comment",
-              "comments on posts you've subscribed to",
-              "comments on all posts unless individually unsubscribed"
-            )}
+            {info("event_notification_new_comment", "comments on posts you've subscribed to", "comments on all posts unless individually unsubscribed")}
             <p>
               {icon("event_notification_new_comment", WebChannel)}
               {icon("event_notification_new_comment", EmailChannel)}
@@ -103,11 +99,7 @@ export const NotificationSettings = (props: NotificationSettingsProps) => {
           </Segment>
           <Segment>
             <span className="event-title">Status Changed</span>
-            {info(
-              "event_notification_change_status",
-              "status change on posts you've subscribed to",
-              "status change on all posts unless individually unsubscribed"
-            )}
+            {info("event_notification_change_status", "status change on posts you've subscribed to", "status change on all posts unless individually unsubscribed")}
             <p>
               {icon("event_notification_change_status", WebChannel)}
               {icon("event_notification_change_status", EmailChannel)}

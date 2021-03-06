@@ -13,8 +13,7 @@ export const TenantStatusInfo = () => {
   return (
     <div className="container">
       <Message type="error">
-        This site is locked due to lack of a subscription. Visit the <a href="/admin/billing">Billing</a> settings to
-        update it.
+        This site is locked due to lack of a subscription. Visit the <a href="/admin/billing">Billing</a> settings to update it.
       </Message>
     </div>
   );

@@ -33,7 +33,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
       submitted: false,
       legalAgreement: false,
       tenantName: "",
-      subdomain: { available: false }
+      subdomain: { available: false },
     };
 
     const token = querystring.get("token");
@@ -43,7 +43,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
         this.user = {
           token,
           name: data["oauth/name"],
-          email: data["oauth/email"]
+          email: data["oauth/email"],
         };
       }
     }
@@ -56,7 +56,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
       tenantName: this.state.tenantName,
       subdomain: this.state.subdomain.value,
       name: this.state.name,
-      email: this.state.email
+      email: this.state.email,
     });
 
     if (result.ok) {
@@ -83,13 +83,13 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
   private checkAvailability = (subdomain: string) => {
     window.clearTimeout(this.timer);
     this.timer = window.setTimeout(() => {
-      actions.checkAvailability(subdomain).then(result => {
+      actions.checkAvailability(subdomain).then((result) => {
         this.setState({
           subdomain: {
             value: subdomain,
             available: !result.data.message,
-            message: result.data.message
-          }
+            message: result.data.message,
+          },
         });
       });
     }, 500);
@@ -100,8 +100,8 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
       {
         subdomain: {
           value: subdomain,
-          available: false
-        }
+          available: false,
+        },
       },
       this.checkAvailability.bind(this, subdomain)
     );
@@ -133,8 +133,7 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
         <Modal.Header>Thank you for registering!</Modal.Header>
         <Modal.Content>
           <p>
-            We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your
-            registration.
+            We have just sent a confirmation link to <b>{this.state.email}</b>. <br /> Click the link to finish your registration.
           </p>
         </Modal.Content>
       </Modal.Window>
@@ -166,20 +165,9 @@ export default class SignUpPage extends React.Component<{}, SignUpPageState> {
         <h3>2. What is this Feedback Forum for?</h3>
 
         <Form error={this.state.error}>
-          <Input
-            field="tenantName"
-            maxLength={60}
-            onChange={this.setTenantName}
-            placeholder="your company or product name"
-          />
+          <Input field="tenantName" maxLength={60} onChange={this.setTenantName} placeholder="your company or product name" />
           {!Fider.isSingleHostMode() && (
-            <Input
-              field="subdomain"
-              maxLength={40}
-              onChange={this.setSubdomain}
-              placeholder="subdomain"
-              suffix={Fider.settings.domain}
-            >
+            <Input field="subdomain" maxLength={40} onChange={this.setSubdomain} placeholder="subdomain" suffix={Fider.settings.domain}>
               {this.state.subdomain.available && (
                 <Message type="success" showIcon={true}>
                   This subdomain is available!

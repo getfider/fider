@@ -24,12 +24,8 @@ const Lonely = () => {
 
   return (
     <div className="l-lonely center">
-      <Hint
-        permanentCloseKey="at-least-3-posts"
-        condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}
-      >
-        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The
-        initial content is key to start the interactions with your audience.
+      <Hint permanentCloseKey="at-least-3-posts" condition={fider.session.isAuthenticated && fider.session.user.isAdministrator}>
+        It's recommended that you post <strong>at least 3</strong> suggestions here before sharing this site. The initial content is key to start the interactions with your audience.
       </Hint>
       <p>
         <FaRegLightbulb />
@@ -64,24 +60,11 @@ const HomePage = (props: HomePageProps) => {
     <div id="p-home" className="page container">
       <div className="row">
         <div className="l-welcome-col col-md-4">
-          <MultiLineText
-            className="welcome-message"
-            text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage}
-            style="full"
-          />
-          <PostInput
-            placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."}
-            onTitleChanged={setTitle}
-          />
+          <MultiLineText className="welcome-message" text={fider.session.tenant.welcomeMessage || defaultWelcomeMessage} style="full" />
+          <PostInput placeholder={fider.session.tenant.invitation || "Enter your suggestion here..."} onTitleChanged={setTitle} />
         </div>
         <div className="l-posts-col col-md-8">
-          {isLonely() ? (
-            <Lonely />
-          ) : title ? (
-            <SimilarPosts title={title} tags={props.tags} />
-          ) : (
-            <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />
-          )}
+          {isLonely() ? <Lonely /> : title ? <SimilarPosts title={title} tags={props.tags} /> : <PostsContainer posts={props.posts} tags={props.tags} countPerStatus={props.countPerStatus} />}
         </div>
       </div>
     </div>

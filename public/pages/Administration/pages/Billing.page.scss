@@ -1,10 +1,10 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-admin-billing {
   .l-plan {
     padding: 10px;
     border: 1px solid transparent;
-  
+
     &.selected {
       border: 1px solid $main-color;
     }

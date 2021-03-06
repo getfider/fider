@@ -13,7 +13,5 @@ export const MultiLineText = (props: MultiLineText) => {
   }
 
   const func = props.style === "full" ? markdown.full : markdown.simple;
-  return (
-    <div className={`markdown-body ${props.className || ""}`} dangerouslySetInnerHTML={{ __html: func(props.text) }} />
-  );
+  return <div className={`markdown-body ${props.className || ""}`} dangerouslySetInnerHTML={{ __html: func(props.text) }} />;
 };

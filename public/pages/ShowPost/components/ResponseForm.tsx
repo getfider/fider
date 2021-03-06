@@ -27,7 +27,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       showModal: false,
       status: this.props.post.status,
       originalNumber: 0,
-      text: this.props.post.response ? this.props.post.response.text : ""
+      text: this.props.post.response ? this.props.post.response.text : "",
     };
   }
 
@@ -37,7 +37,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       location.reload();
     } else {
       this.setState({
-        error: result.error
+        error: result.error,
       });
     }
   };
@@ -71,22 +71,16 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
       </Button>
     );
 
-    const options = PostStatus.All.map(s => ({
+    const options = PostStatus.All.map((s) => ({
       value: s.value.toString(),
-      label: s.title
+      label: s.title,
     }));
 
     const modal = (
       <Modal.Window isOpen={this.state.showModal} onClose={this.closeModal} center={false} size="large">
         <Modal.Content>
           <Form error={this.state.error} className="c-response-form">
-            <Select
-              field="status"
-              label="Status"
-              defaultValue={this.state.status}
-              options={options}
-              onChange={this.setStatus}
-            />
+            <Select field="status" label="Status" defaultValue={this.state.status} options={options} onChange={this.setStatus} />
             {this.state.status === PostStatus.Duplicate.value ? (
               <>
                 <Field>
@@ -96,13 +90,7 @@ export class ResponseForm extends React.Component<ResponseFormProps, ResponseFor
                 <span className="info">Votes from this post will be merged into original post.</span>
               </>
             ) : (
-              <TextArea
-                field="text"
-                onChange={this.setText}
-                value={this.state.text}
-                minRows={5}
-                placeholder="What's going on with this post? Let your users know what are your plans..."
-              />
+              <TextArea field="text" onChange={this.setText} value={this.state.text} minRows={5} placeholder="What's going on with this post? Let your users know what are your plans..." />
             )}
           </Form>
         </Modal.Content>

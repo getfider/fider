@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-button {
   -webkit-appearance: none;
@@ -96,37 +96,37 @@
     color: transparent !important;
     opacity: 1;
     pointer-events: auto;
-    -webkit-transition: all 0s linear,opacity .1s ease;
-    transition: all 0s linear,opacity .1s ease;
+    -webkit-transition: all 0s linear, opacity 0.1s ease;
+    transition: all 0s linear, opacity 0.1s ease;
 
     &:before {
       position: absolute;
-      content: '';
+      content: "";
       top: 50%;
       left: 50%;
-      margin: -.64285714em 0 0 -.64285714em;
+      margin: -0.64285714em 0 0 -0.64285714em;
       width: 1.28571429em;
       height: 1.28571429em;
       border-radius: 500rem;
-      border: .2em solid rgba(0,0,0,.15);
+      border: 0.2em solid rgba(0, 0, 0, 0.15);
     }
-    
+
     &:after {
       position: absolute;
-      content: '';
+      content: "";
       top: 50%;
       left: 50%;
-      margin: -.64285714em 0 0 -.64285714em;
+      margin: -0.64285714em 0 0 -0.64285714em;
       width: 1.28571429em;
       height: 1.28571429em;
-      -webkit-animation: button-spin .6s linear;
-      animation: button-spin .6s linear;
+      -webkit-animation: button-spin 0.6s linear;
+      animation: button-spin 0.6s linear;
       -webkit-animation-iteration-count: infinite;
       animation-iteration-count: infinite;
       border-radius: 500rem;
       border-color: #fff transparent transparent;
       border-style: solid;
-      border-width: .2em;
+      border-width: 0.2em;
       -webkit-box-shadow: 0 0 0 1px transparent;
       box-shadow: 0 0 0 1px transparent;
     }
@@ -144,7 +144,7 @@
     line-height: 22px;
     padding: 8px 0px;
     border: none;
-    box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
+    box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
 
     &.m-loading img {
       display: none;
@@ -162,7 +162,7 @@
       background-color: #fafafb;
       color: $gray-darkest;
       border: none;
-      box-shadow: 0 0 0 1px rgba(20,11,47,0.1), 0 2px 4px -2px rgba(0,0,0,0.2);
+      box-shadow: 0 0 0 1px rgba(20, 11, 47, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
     }
   }
 }
@@ -170,20 +170,20 @@
 @-webkit-keyframes button-spin {
   from {
     -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
     -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 @keyframes button-spin {
   from {
     -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
     -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

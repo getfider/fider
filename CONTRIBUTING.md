@@ -19,11 +19,11 @@ If you know these technologies or would like to learn them, lucky you! This is t
 
 #### 1. Install the following tools:
 
-| Software  | How to install | What is it used for |
-|---|---|---|
-| Go 1.16+ | https://golang.org/ | To compile server side code |
-| Node.js 12+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
-| Docker | https://www.docker.com/ | To start local PostgreSQL instances |
+| Software    | How to install                                                 | What is it used for                                       |
+| ----------- | -------------------------------------------------------------- | --------------------------------------------------------- |
+| Go 1.16+    | https://golang.org/                                            | To compile server side code                               |
+| Node.js 14+ | https://nodejs.org/ or run `nvm use` if you have nvm installed | To compile TypeScript and bundle all the client side code |
+| Docker      | https://www.docker.com/                                        | To start local PostgreSQL instances                       |
 
 #### 2. To setup your development workspace:
 
@@ -38,11 +38,11 @@ If you know these technologies or would like to learn them, lucky you! This is t
 9. run `cp .example.env .env` to create a local environment configuration file.
 
 - **Important:** Fider has a strong dependency on an email delivery service. For easier local development, the docker-compose file already provides
-a fake SMTP server running at port **1026** and a UI (to check sent emails) at http://localhost:8026. The `.example.env` is already 
-configured to use it. If you want to, you can edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server
-details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign 
-up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep 
-an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
+  a fake SMTP server running at port **1026** and a UI (to check sent emails) at http://localhost:8026. The `.example.env` is already
+  configured to use it. If you want to, you can edit `.env` file and configure the `EMAIL_*` environment variables with your own SMTP server
+  details. If you don't have an SMTP server, you can either sign up for a [Mailgun account](https://www.mailgun.com/) (it's Free) or sign
+  up for a [Mailtrap account](https://mailtrap.io), which is a free SMTP mocking server. If you prefer not to setup an email service, keep
+  an eye on the server logs. Sometimes it's necessary to navigate to some URLs that are only sent by email, but are also written to the logs.
 
 #### 3. To start the application
 

@@ -18,10 +18,7 @@ interface ManageAuthenticationPageState {
   editing?: OAuthConfig;
 }
 
-export default class ManageAuthenticationPage extends AdminBasePage<
-  ManageAuthenticationPageProps,
-  ManageAuthenticationPageState
-> {
+export default class ManageAuthenticationPage extends AdminBasePage<ManageAuthenticationPageProps, ManageAuthenticationPageState> {
   public id = "p-admin-authentication";
   public name = "authentication";
   public icon = FaSignInAlt;
@@ -31,7 +28,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<
   constructor(props: ManageAuthenticationPageProps) {
     super(props);
     this.state = {
-      isAdding: false
+      isAdding: false,
     };
   }
 
@@ -71,11 +68,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<
 
     return (
       <>
-        <Heading
-          title="OAuth Providers"
-          subtitle="You can use these section to add any authentication provider thats supports the OAuth2 protocol."
-          size="small"
-        />
+        <Heading title="OAuth Providers" subtitle="You can use these section to add any authentication provider thats supports the OAuth2 protocol." size="small" />
         <p className="info">
           Additional information is available in our{" "}
           <a target="_blank" href="https://getfider.com/docs/configuring-oauth/">
@@ -85,7 +78,7 @@ export default class ManageAuthenticationPage extends AdminBasePage<
         </p>
         <Segment>
           <List divided={true}>
-            {this.props.providers.map(o => (
+            {this.props.providers.map((o) => (
               <ListItem key={o.provider}>
                 {o.isCustomProvider && (
                   <>

@@ -1,9 +1,9 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-vote-counter {
   margin-right: 10px;
 
-  button, 
+  button,
   button.m-voted,
   button.m-disabled {
     font-size: 18px;
@@ -28,7 +28,7 @@
     cursor: not-allowed;
   }
 
-  button.m-voted, 
+  button.m-voted,
   button.no-touch:hover {
     color: $main-color;
 

@@ -12,7 +12,7 @@ export class Browser {
     const browser = await puppeteer.launch({
       headless: true,
       devtools: false,
-      ignoreHTTPSErrors: true
+      ignoreHTTPSErrors: true,
     });
     return new Browser(browser);
   }

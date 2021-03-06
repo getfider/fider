@@ -82,10 +82,7 @@ export class TextInput extends WebComponent {
   }
 
   public async getText(): Promise<string> {
-    return await this.tab.evaluate<string>(
-      (selector: string) => (document.querySelector(selector) as HTMLInputElement).value,
-      [this.selector]
-    );
+    return await this.tab.evaluate<string>((selector: string) => (document.querySelector(selector) as HTMLInputElement).value, [this.selector]);
   }
 
   public async clear() {

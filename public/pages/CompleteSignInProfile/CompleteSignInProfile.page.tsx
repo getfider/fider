@@ -17,7 +17,7 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
     super(props);
     this.key = querystring.get("k");
     this.state = {
-      name: ""
+      name: "",
     };
   }
 
@@ -61,9 +61,7 @@ export default class CompleteSignInProfilePage extends React.Component<HomePageP
           </Modal.Content>
           <LegalFooter />
         </Modal.Window>
-        {Fider.session.tenant.isPrivate
-          ? React.createElement(SignInPage, this.props)
-          : React.createElement(HomePage, this.props)}
+        {Fider.session.tenant.isPrivate ? React.createElement(SignInPage, this.props) : React.createElement(HomePage, this.props)}
       </>
     );
   }

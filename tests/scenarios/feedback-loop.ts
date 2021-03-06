@@ -1,13 +1,4 @@
-import {
-  Browser,
-  BrowserTab,
-  pageHasLoaded,
-  ensure,
-  elementIsNotVisible,
-  delay,
-  elementIsVisible,
-  mailgun
-} from "../lib";
+import { Browser, BrowserTab, pageHasLoaded, ensure, elementIsNotVisible, delay, elementIsVisible, mailgun } from "../lib";
 import { HomePage, ShowPostPage } from "../pages";
 import { ctx } from ".";
 
@@ -51,10 +42,7 @@ it("Tab1: User doesn't lose what they typed", async () => {
 it("Tab1: Can submit Posts", async () => {
   // Action
   await ctx.tab1.pages.home.navigate();
-  await ctx.tab1.pages.home.submitNewPost(
-    "Add support to TypeScript",
-    "Because the language and community is awesome! :)"
-  );
+  await ctx.tab1.pages.home.submitNewPost("Add support to TypeScript", "Because the language and community is awesome! :)");
 
   // Assert
   await ensure(ctx.tab1.pages.showPost.Title).textIs("Add support to TypeScript");
@@ -138,11 +126,7 @@ it("Tab2: Logout and sign in with email", async () => {
   // Action
   await ctx.tab2.pages.home.navigate();
   await ctx.tab2.pages.home.signInWithEmail("darthvader.fider@gmail.com");
-  const link = await mailgun.getLinkFromLastEmailTo(
-    ctx.tenantSubdomain,
-    `Sign in to ${ctx.tenantName}`,
-    `darthvader.fider@gmail.com`
-  );
+  const link = await mailgun.getLinkFromLastEmailTo(ctx.tenantSubdomain, `Sign in to ${ctx.tenantName}`, `darthvader.fider@gmail.com`);
   await ctx.tab2.navigate(link);
   await ctx.tab2.pages.home.completeSignIn("Darth Vader");
 

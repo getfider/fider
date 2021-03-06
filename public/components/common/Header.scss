@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 @mixin menu-item {
   position: relative;
@@ -93,12 +93,12 @@
         overflow: visible;
         width: auto;
         height: auto;
-        top: 100%!important;
+        top: 100% !important;
         opacity: 1;
         z-index: 11;
         background-color: $white;
-        box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
-        border: 1px solid rgba(34,36,38,.15);
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(34, 36, 38, 0.15);
         min-width: 160px;
         border-radius: 0px 0px 5px 5px;
 
@@ -127,7 +127,7 @@
           }
         }
         .c-menu-user-divider {
-          border-top: 1px solid rgba(34,36,38,.1);
+          border-top: 1px solid rgba(34, 36, 38, 0.1);
           display: block;
           cursor: default;
         }
@@ -162,6 +162,6 @@
         font-size: $font-size-mini;
         text-align: center;
       }
-    }    
+    }
   }
 }

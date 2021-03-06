@@ -19,7 +19,7 @@ const getRGB = (color: string) => {
   return {
     R: parseInt(r, 16),
     G: parseInt(g, 16),
-    B: parseInt(b, 16)
+    B: parseInt(b, 16),
   };
 };
 
@@ -33,7 +33,7 @@ export const ShowTag = (props: TagProps) => {
   const className = classSet({
     "c-tag": true,
     [`m-${props.size || "normal"}`]: true,
-    "m-circular": props.circular === true
+    "m-circular": props.circular === true,
   });
 
   return (
@@ -42,7 +42,7 @@ export const ShowTag = (props: TagProps) => {
       className={className}
       style={{
         backgroundColor: `#${props.tag.color}`,
-        color: textColor(props.tag.color)
+        color: textColor(props.tag.color),
       }}
     >
       {!props.tag.isPublic && !props.circular && <FaLock />}
