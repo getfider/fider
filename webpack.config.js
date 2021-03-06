@@ -1,16 +1,16 @@
 const path = require("path");
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const publicFolder = path.resolve(__dirname, "public");
 
 const isProduction = process.env.NODE_ENV === "production";
 
 const plugins = [
-  new MiniCssExtractPlugin({ 
+  new MiniCssExtractPlugin({
     filename: "css/[name].[contenthash].css",
-    chunkFilename: "css/[name].[contenthash].css"
+    chunkFilename: "css/[name].[contenthash].css",
   }),
   new ForkTsCheckerWebpackPlugin(),
   new BundleAnalyzerPlugin({
@@ -23,9 +23,9 @@ const plugins = [
       chunks: false,
       entrypoints: true,
       chunkGroups: true,
-      modules: false
-    }
-  })
+      modules: false,
+    },
+  }),
 ];
 
 // On Development Mode, we allow Assets to be up to 14 times bigger than on Production Mode
@@ -35,14 +35,7 @@ module.exports = {
   mode: process.env.NODE_ENV || "development",
   entry: {
     main: "./public/index.tsx",
-    vendor: [ 
-      "react", 
-      "react-dom", 
-      "tslib", 
-      "marked",
-      "react-textarea-autosize", 
-      "react-icons/lib" 
-    ],
+    vendor: ["react", "react-dom", "tslib", "marked", "react-textarea-autosize", "react-icons/lib"],
   },
   output: {
     path: __dirname + "/dist",
@@ -54,57 +47,53 @@ module.exports = {
   resolve: {
     extensions: [".mjs", ".ts", ".tsx", ".js"],
     alias: {
-      "@fider": publicFolder
-    }
+      "@fider": publicFolder,
+    },
   },
   performance: {
     maxEntrypointSize: 327680 * maxSizeFactor, // 320 KiB. Should ideally be ~240 KiB
     maxAssetSize: 194560 * maxSizeFactor, // 190 KiB
-    hints: "error"
+    hints: "error",
   },
   module: {
     rules: [
-      { 
+      {
         test: /\.(css|scss)$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
-          "sass-loader"                  
-        ]
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
-      { 
+      {
         test: /\.(ts|tsx)$/,
         include: publicFolder,
         loader: "ts-loader",
         options: {
-          transpileOnly: true
-        }
+          transpileOnly: true,
+        },
       },
       {
         test: /\.(svg?)(\?[a-z0-9=&.]+)?$/,
         include: publicFolder,
-        loader: 'file-loader',
+        loader: "file-loader",
         options: {
-          name: 'images/[name].[hash].[ext]'
-        }
-      }
-    ]
+          name: "images/[name].[hash].[ext]",
+        },
+      },
+    ],
   },
   optimization: {
     splitChunks: {
       cacheGroups: {
         common: {
-          chunks: 'all',
-          name: 'common',
-          test: /[\\/]public[\\/](components|services|models)[\\/]/
+          chunks: "all",
+          name: "common",
+          test: /[\\/]public[\\/](components|services|models)[\\/]/,
         },
         vendor: {
-          chunks: 'all',
-          name: 'vendor',
-          test: 'vendor'
+          chunks: "all",
+          name: "vendor",
+          test: "vendor",
         },
-      }
-    }
+      },
+    },
   },
   plugins,
   stats: {
@@ -112,5 +101,5 @@ module.exports = {
     children: false,
     entrypoints: false,
     modules: false,
-  }
+  },
 };

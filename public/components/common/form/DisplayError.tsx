@@ -2,7 +2,7 @@ import React from "react";
 import { Failure } from "@fider/services";
 
 const arrayToTag = (items: string[]) => {
-  return items.map(m => <li key={m}>{m}</li>);
+  return items.map((m) => <li key={m}>{m}</li>);
 };
 
 interface DisplayErrorProps {
@@ -26,14 +26,11 @@ export const DisplayError = (props: DisplayErrorProps) => {
     return null;
   }
 
-  const dict = props.error.errors.reduce(
-    (result, err) => {
-      result[err.field || ""] = result[err.field || ""] || [];
-      result[err.field || ""].push(err.message);
-      return result;
-    },
-    {} as { [key: string]: string[] }
-  );
+  const dict = props.error.errors.reduce((result, err) => {
+    result[err.field || ""] = result[err.field || ""] || [];
+    result[err.field || ""].push(err.message);
+    return result;
+  }, {} as { [key: string]: string[] });
 
   let items: JSX.Element[] = [];
 
@@ -43,7 +40,7 @@ export const DisplayError = (props: DisplayErrorProps) => {
     for (const field of props.fields || Object.keys(dict)) {
       if (dict.hasOwnProperty(field)) {
         const tags = arrayToTag(dict[field]);
-        tags.forEach(t => items.push(t));
+        tags.forEach((t) => items.push(t));
       }
     }
   }

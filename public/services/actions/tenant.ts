@@ -40,7 +40,7 @@ export const updateTenantAdvancedSettings = async (customCSS: string): Promise<R
 
 export const updateTenantPrivacy = async (isPrivate: boolean): Promise<Result> => {
   return await http.post("/_api/admin/settings/privacy", {
-    isPrivate
+    isPrivate,
   });
 };
 
@@ -50,20 +50,20 @@ export const checkAvailability = async (subdomain: string): Promise<Result<Check
 
 export const signIn = async (email: string): Promise<Result> => {
   return await http.post("/_api/signin", {
-    email
+    email,
   });
 };
 
 export const completeProfile = async (key: string, name: string): Promise<Result> => {
   return await http.post("/_api/signin/complete", {
     key,
-    name
+    name,
   });
 };
 
 export const changeUserRole = async (userID: number, role: UserRole): Promise<Result> => {
   return await http.post(`/_api/admin/roles/${role}/users`, {
-    userID
+    userID,
   });
 };
 

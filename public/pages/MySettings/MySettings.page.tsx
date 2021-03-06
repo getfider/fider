@@ -35,7 +35,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       avatarType: Fider.session.user.avatarType,
       newEmail: "",
       name: Fider.session.user.name,
-      userSettings: this.props.userSettings
+      userSettings: this.props.userSettings,
     };
   }
 
@@ -44,7 +44,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       name: this.state.name,
       avatarType: this.state.avatarType,
       avatar: this.state.avatar,
-      settings: this.state.userSettings
+      settings: this.state.userSettings,
     });
     if (result.ok) {
       location.reload();
@@ -59,7 +59,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
       this.setState({
         error: undefined,
         changingEmail: false,
-        showModal: true
+        showModal: true,
       });
     } else if (result.error) {
       this.setState({ error: result.error });
@@ -74,7 +74,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
     this.setState({
       changingEmail: false,
       newEmail: "",
-      error: undefined
+      error: undefined,
     });
   };
 
@@ -118,8 +118,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
           <Modal.Content>
             <div>
               <p>
-                We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update
-                your email.
+                We have just sent a confirmation link to <b>{this.state.newEmail}</b>. <br /> Click the link to update your email.
               </p>
               <p>
                 <a href="#" onClick={this.closeModal}>
@@ -144,11 +143,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 afterLabel={this.state.changingEmail ? undefined : changeEmail}
                 onChange={this.setNewEmail}
               >
-                <p className="info">
-                  {Fider.session.user.email || this.state.changingEmail
-                    ? "Your email is private and will never be publicly displayed."
-                    : "Your account doesn't have an email."}
-                </p>
+                <p className="info">{Fider.session.user.email || this.state.changingEmail ? "Your email is private and will never be publicly displayed." : "Your account doesn't have an email."}</p>
                 {this.state.changingEmail && (
                   <>
                     <Button color="positive" size="mini" onClick={this.submitNewEmail}>
@@ -170,7 +165,7 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                 options={[
                   { label: "Letter", value: UserAvatarType.Letter },
                   { label: "Gravatar", value: UserAvatarType.Gravatar },
-                  { label: "Custom", value: UserAvatarType.Custom }
+                  { label: "Custom", value: UserAvatarType.Custom },
                 ]}
                 onChange={this.avatarTypeChanged}
               >
@@ -180,32 +175,18 @@ export default class MySettingsPage extends React.Component<MySettingsPageProps,
                     <a href="https://en.gravatar.com" target="_blank">
                       Gravatar
                     </a>{" "}
-                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your
-                    initials is generated for you.
+                    will be used based on your email. If you don't have a Gravatar, a letter avatar based on your initials is generated for you.
                   </p>
                 )}
-                {this.state.avatarType === UserAvatarType.Letter && (
-                  <p className="info">A letter avatar based on your initials is generated for you.</p>
-                )}
+                {this.state.avatarType === UserAvatarType.Letter && <p className="info">A letter avatar based on your initials is generated for you.</p>}
                 {this.state.avatarType === UserAvatarType.Custom && (
-                  <ImageUploader
-                    field="avatar"
-                    previewMaxWidth={80}
-                    onChange={this.setAvatar}
-                    bkey={Fider.session.user.avatarBlobKey}
-                  >
-                    <p className="info">
-                      We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum
-                      dimensions of 50x50 pixels.
-                    </p>
+                  <ImageUploader field="avatar" previewMaxWidth={80} onChange={this.setAvatar} bkey={Fider.session.user.avatarBlobKey}>
+                    <p className="info">We accept JPG, GIF and PNG images, smaller than 100KB and with an aspect ratio of 1:1 with minimum dimensions of 50x50 pixels.</p>
                   </ImageUploader>
                 )}
               </Select>
 
-              <NotificationSettings
-                userSettings={this.props.userSettings}
-                settingsChanged={this.setNotificationSettings}
-              />
+              <NotificationSettings userSettings={this.props.userSettings} settingsChanged={this.setNotificationSettings} />
 
               <Button color="positive" onClick={this.confirm}>
                 Save

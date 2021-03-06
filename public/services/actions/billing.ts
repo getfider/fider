@@ -30,7 +30,5 @@ export const billingSubscribe = async (planID: string): Promise<Result> => {
 };
 
 export const cancelBillingSubscription = async (planID: string): Promise<Result> => {
-  return http
-    .delete(`/_api/admin/billing/subscription/${planID}`)
-    .then(http.event("billing", "cancelbillingsubscription"));
+  return http.delete(`/_api/admin/billing/subscription/${planID}`).then(http.event("billing", "cancelbillingsubscription"));
 };

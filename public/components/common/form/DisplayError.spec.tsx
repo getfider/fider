@@ -14,7 +14,7 @@ describe("<DisplayError />", () => {
 
   test("when error has only top level messages and fields is empty", () => {
     const error: Failure = {
-      errors: [{ message: "Something went wrong." }]
+      errors: [{ message: "Something went wrong." }],
     };
 
     const wrapper = shallow(<DisplayError error={error} />);
@@ -28,7 +28,7 @@ describe("<DisplayError />", () => {
 
   test("when error has only top level messages and fields is given", () => {
     const error: Failure = {
-      errors: [{ message: "Something went wrong." }]
+      errors: [{ message: "Something went wrong." }],
     };
 
     const wrapper = shallow(<DisplayError error={error} fields={["name"]} />);
@@ -41,8 +41,8 @@ describe("<DisplayError />", () => {
         { message: "Something went wrong." },
         { field: "name", message: "Name is required" },
         { field: "name", message: "Name must have between 0 and 10 chars" },
-        { field: "age", message: "Age must be >= 18" }
-      ]
+        { field: "age", message: "Age must be >= 18" },
+      ],
     };
 
     const wrapper1 = shallow(<DisplayError error={error} fields={["name"]} />);

@@ -20,7 +20,7 @@ const messages = {
       </p>
       <p>If you have an account or an invitation, you may use following options to sign in.</p>
     </>
-  )
+  ),
 };
 
 export default class SignInPage extends React.Component<any, {}> {

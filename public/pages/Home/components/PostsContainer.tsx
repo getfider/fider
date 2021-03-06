@@ -34,14 +34,11 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
       view: querystring.get("view"),
       query: querystring.get("query"),
       tags: querystring.getArray("tags"),
-      limit: querystring.getNumber("limit")
+      limit: querystring.getNumber("limit"),
     };
   }
 
-  private changeFilterCriteria<K extends keyof PostsContainerState>(
-    obj: Pick<PostsContainerState, K>,
-    reset: boolean
-  ): void {
+  private changeFilterCriteria<K extends keyof PostsContainerState>(obj: Pick<PostsContainerState, K>, reset: boolean): void {
     this.setState(obj, () => {
       const query = this.state.query.trim().toLowerCase();
       navigator.replaceState(
@@ -49,7 +46,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           tags: this.state.tags,
           query,
           view: this.state.view,
-          limit: this.state.limit
+          limit: this.state.limit,
         })
       );
 
@@ -62,7 +59,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
     window.clearTimeout(this.timer);
     this.setState({ posts: reset ? undefined : this.state.posts, loading: true });
     this.timer = window.setTimeout(() => {
-      actions.searchPosts({ query, view, limit, tags }).then(response => {
+      actions.searchPosts({ query, view, limit, tags }).then((response) => {
         if (response.ok && this.state.loading) {
           this.setState({ loading: false, posts: response.data });
         }
@@ -105,16 +102,8 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
           {!this.state.query && (
             <div className="l-filter-col col-7 col-md-8 col-lg-9 mb-2">
               <Field>
-                <PostFilter
-                  activeView={this.state.view}
-                  viewChanged={this.handleViewChanged}
-                  countPerStatus={this.props.countPerStatus}
-                />
-                <TagsFilter
-                  tags={this.props.tags}
-                  selectionChanged={this.handleTagsFilterChanged}
-                  defaultSelection={this.state.tags}
-                />
+                <PostFilter activeView={this.state.view} viewChanged={this.handleViewChanged} countPerStatus={this.props.countPerStatus} />
+                <TagsFilter tags={this.props.tags} selectionChanged={this.handleTagsFilterChanged} defaultSelection={this.state.tags} />
               </Field>
             </div>
           )}
@@ -129,11 +118,7 @@ export class PostsContainer extends React.Component<PostsContainerProps, PostsCo
             />
           </div>
         </div>
-        <ListPosts
-          posts={this.state.posts}
-          tags={this.props.tags}
-          emptyText={"No results matched your search, try something different."}
-        />
+        <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={"No results matched your search, try something different."} />
         {this.state.loading && <Loader />}
         {showMoreLink && (
           <a href={showMoreLink} className="c-post-list-show-more" onTouchEnd={this.showMore} onClick={this.showMore}>

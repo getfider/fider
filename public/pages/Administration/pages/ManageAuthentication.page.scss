@@ -1,8 +1,9 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-admin-authentication {
   .l-provider {
-    img, strong {
+    img,
+    strong {
       vertical-align: middle;
       margin-right: 2px;
     }

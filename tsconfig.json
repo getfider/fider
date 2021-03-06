@@ -8,14 +8,7 @@
     "target": "es5",
     "strict": true,
     "sourceMap": true,
-    "types": [
-        "marked", 
-        "react", 
-        "react-dom", 
-        "react-textarea-autosize",
-        "jest",
-        "node"
-    ],
+    "types": ["marked", "react", "react-dom", "react-textarea-autosize", "jest", "node"],
     "outDir": "./output/public",
     "jsx": "react",
     "lib": ["dom", "es2015.promise", "es5"],
@@ -26,12 +19,8 @@
     "noEmitHelpers": true,
     "noUnusedLocals": true,
     "paths": {
-      "@fider/*": [
-        "*"
-      ]
+      "@fider/*": ["*"]
     }
   },
-  "include": [
-    "./public/**/*"
-  ],
+  "include": ["./public/**/*"]
 }

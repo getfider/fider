@@ -23,7 +23,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
     this.state = {
       title: props.title,
       loading: !!props.title,
-      posts: []
+      posts: [],
     };
   }
 
@@ -31,7 +31,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
     if (nextProps.title !== prevState.title) {
       return {
         loading: true,
-        title: nextProps.title
+        title: nextProps.title,
       };
     }
     return null;
@@ -48,7 +48,7 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
 
   private loadSimilarPosts = () => {
     if (this.state.loading) {
-      actions.searchPosts({ query: this.state.title }).then(x => {
+      actions.searchPosts({ query: this.state.title }).then((x) => {
         if (x.ok) {
           this.setState({ loading: false, posts: x.data });
         }
@@ -59,22 +59,8 @@ export class SimilarPosts extends React.Component<SimilarPostsProps, SimilarPost
   public render() {
     return (
       <>
-        <Heading
-          title="Similar posts"
-          subtitle="Consider voting on existing posts instead."
-          icon={FaRegLightbulb}
-          size="small"
-          dividing={true}
-        />
-        {this.state.loading ? (
-          <Loader />
-        ) : (
-          <ListPosts
-            posts={this.state.posts}
-            tags={this.props.tags}
-            emptyText={`No similar posts matched '${this.props.title}'.`}
-          />
-        )}
+        <Heading title="Similar posts" subtitle="Consider voting on existing posts instead." icon={FaRegLightbulb} size="small" dividing={true} />
+        {this.state.loading ? <Loader /> : <ListPosts posts={this.state.posts} tags={this.props.tags} emptyText={`No similar posts matched '${this.props.title}'.`} />}
       </>
     );
   }

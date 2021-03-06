@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-tag {
   display: inline-block;
@@ -8,7 +8,7 @@
   font-weight: 600;
   border-radius: 3px;
   border: 0;
-  box-shadow: inset 0 -1px 0 rgba(27,31,35,0.12);
+  box-shadow: inset 0 -1px 0 rgba(27, 31, 35, 0.12);
 
   svg.icon {
     font-size: $font-size-micro;
@@ -30,19 +30,19 @@
     &.m-mini {
       padding: 5px;
     }
-  
+
     &.m-tiny {
       padding: 6px;
     }
-  
+
     &.m-small {
       padding: 7px;
     }
-  
+
     &.m-normal {
       padding: 7.5px;
     }
-  
+
     &.m-large {
       padding: 8px;
     }

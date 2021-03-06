@@ -20,13 +20,13 @@ beforeEach(() => {
       name: "John",
       role: UserRole.Collaborator,
       status: UserStatus.Active,
-      avatarURL: "/avatars/letter/5/John"
+      avatarURL: "/avatars/letter/5/John",
     },
     hasVoted: false,
     response: null,
     votesCount: 5,
     commentsCount: 2,
-    tags: []
+    tags: [],
   };
 });
 

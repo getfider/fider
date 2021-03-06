@@ -1,14 +1,4 @@
-import {
-  BrowserTab,
-  Page,
-  findBy,
-  TextInput,
-  elementIsVisible,
-  WebComponent,
-  pageHasLoaded,
-  Button,
-  elementIsNotVisible
-} from "../lib";
+import { BrowserTab, Page, findBy, TextInput, elementIsVisible, WebComponent, pageHasLoaded, Button, elementIsNotVisible } from "../lib";
 import { ShowPostPage, FacebookSignInPage } from ".";
 import { PostList } from "./components";
 

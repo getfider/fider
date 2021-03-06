@@ -1,7 +1,7 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-image-upload {
-  input[type='file'] {
+  input[type="file"] {
     display: none;
   }
 
@@ -11,7 +11,7 @@
       padding: 4px 8px;
     }
   }
-  
+
   .preview {
     position: relative;
     display: inline-block;

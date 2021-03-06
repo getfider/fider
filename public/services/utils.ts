@@ -1,7 +1,7 @@
 import { Fider } from ".";
 
 export const delay = (ms: number) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export const classSet = (input?: any): string => {
@@ -17,20 +17,7 @@ export const classSet = (input?: any): string => {
   return "";
 };
 
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
+const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const currencySymbol = (currencyCode: string): string => {
   currencyCode = currencyCode ? currencyCode.toLowerCase() : "";
@@ -76,7 +63,7 @@ const templates: { [key: string]: string } = {
   month: "about a month",
   months: "%d months",
   year: "about a year",
-  years: "%d years"
+  years: "%d years",
 };
 
 const template = (t: string, n: number): string => {

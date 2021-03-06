@@ -22,14 +22,14 @@ export const PostFilter = (props: PostFilterProps) => {
     { value: "trending", label: "Trending" },
     { value: "recent", label: "Recent" },
     { value: "most-wanted", label: "Most Wanted" },
-    { value: "most-discussed", label: "Most Discussed" }
+    { value: "most-discussed", label: "Most Discussed" },
   ];
 
   if (fider.session.isAuthenticated) {
     options.push({ value: "my-votes", label: "My Votes" });
   }
 
-  PostStatus.All.filter(s => s.filterable && props.countPerStatus[s.value]).forEach(s => {
+  PostStatus.All.filter((s) => s.filterable && props.countPerStatus[s.value]).forEach((s) => {
     options.push({
       label: s.title,
       value: s.value,
@@ -37,25 +37,17 @@ export const PostFilter = (props: PostFilterProps) => {
         <span>
           {s.title} <a className="counter">{props.countPerStatus[s.value]}</a>
         </span>
-      )
+      ),
     });
   });
 
-  const viewExists = options.filter(x => x.value === props.activeView).length > 0;
+  const viewExists = options.filter((x) => x.value === props.activeView).length > 0;
   const activeView = viewExists ? props.activeView : "trending";
 
   return (
     <div>
       <span className="subtitle">View</span>
-      <DropDown
-        header="What do you want to see?"
-        className="l-post-filter"
-        inline={true}
-        style="simple"
-        items={options}
-        defaultValue={activeView}
-        onChange={handleChangeView}
-      />
+      <DropDown header="What do you want to see?" className="l-post-filter" inline={true} style="simple" items={options} defaultValue={activeView} onChange={handleChangeView} />
     </div>
   );
 };

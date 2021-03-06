@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-modal-dimmer {
   position: fixed;
@@ -9,7 +9,7 @@
   text-align: center;
   vertical-align: middle;
   padding: 1em;
-  background-color: rgba(60, 60, 60, .8);
+  background-color: rgba(60, 60, 60, 0.8);
   z-index: 100;
   display: flex;
   justify-content: center;
@@ -24,19 +24,22 @@
 }
 
 @keyframes dimmerFadeIn {
-  from { background-color: rgba(60, 60, 60, .1); }
-  to { background-color: rgba(60, 60, 60, .8); }
+  from {
+    background-color: rgba(60, 60, 60, 0.1);
+  }
+  to {
+    background-color: rgba(60, 60, 60, 0.8);
+  }
 }
 
-
 @keyframes windowfadeIn {
-  from { 
+  from {
     transform: scale(0.7);
-    opacity: 0; 
+    opacity: 0;
   }
-  to { 
+  to {
     transform: scale(1);
-    opacity: 1; 
+    opacity: 1;
   }
 }
 
@@ -46,8 +49,8 @@
   background: #fff;
   border: none;
   border-radius: 3px;
-  -webkit-box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
-  box-shadow: 1px 3px 3px 0 rgba(0,0,0,.2), 1px 3px 15px 2px rgba(0,0,0,.2);
+  -webkit-box-shadow: 1px 3px 3px 0 rgba(0, 0, 0, 0.2), 1px 3px 15px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 1px 3px 3px 0 rgba(0, 0, 0, 0.2), 1px 3px 15px 2px rgba(0, 0, 0, 0.2);
   animation: windowfadeIn 0.5s;
 
   &.m-small {

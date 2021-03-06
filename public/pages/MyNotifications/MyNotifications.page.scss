@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 #p-my-notifications {
   .mark-as-read {
@@ -7,7 +7,7 @@
     font-size: 10px;
     cursor: pointer;
     font-weight: normal;
-  
+
     &:hover {
       text-decoration: underline;
     }

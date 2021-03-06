@@ -5,22 +5,7 @@ import React from "react";
 import { Comment, Post, Tag, Vote, ImageUpload } from "@fider/models";
 import { actions, Failure, Fider } from "@fider/services";
 
-import {
-  VoteCounter,
-  ShowPostResponse,
-  Button,
-  UserName,
-  Avatar,
-  Moment,
-  MultiLineText,
-  List,
-  ListItem,
-  Input,
-  Form,
-  TextArea,
-  MultiImageUploader,
-  ImageViewer
-} from "@fider/components";
+import { VoteCounter, ShowPostResponse, Button, UserName, Avatar, Moment, MultiLineText, List, ListItem, Input, Form, TextArea, MultiImageUploader, ImageViewer } from "@fider/components";
 import { FaSave, FaTimes, FaEdit } from "react-icons/fa";
 import { ResponseForm } from "./components/ResponseForm";
 import { TagsPanel } from "./components/TagsPanel";
@@ -54,22 +39,17 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
       editMode: false,
       newTitle: this.props.post.title,
       newDescription: this.props.post.description,
-      attachments: []
+      attachments: [],
     };
   }
 
   private saveChanges = async () => {
-    const result = await actions.updatePost(
-      this.props.post.number,
-      this.state.newTitle,
-      this.state.newDescription,
-      this.state.attachments
-    );
+    const result = await actions.updatePost(this.props.post.number, this.state.newTitle, this.state.newDescription, this.state.attachments);
     if (result.ok) {
       location.reload();
     } else {
       this.setState({
-        error: result.error
+        error: result.error,
       });
     }
   };
@@ -112,8 +92,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                 )}
 
                 <span className="info">
-                  <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} />{" "}
-                  <UserName user={this.props.post.user} />
+                  <Moment date={this.props.post.createdAt} /> &middot; <Avatar user={this.props.post.user} /> <UserName user={this.props.post.user} />
                 </span>
               </div>
             </ListItem>
@@ -123,18 +102,12 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
           {this.state.editMode ? (
             <Form error={this.state.error}>
               <TextArea field="description" value={this.state.newDescription} onChange={this.setNewDescription} />
-              <MultiImageUploader
-                field="attachments"
-                bkeys={this.props.attachments}
-                maxUploads={3}
-                previewMaxWidth={100}
-                onChange={this.setAttachments}
-              />
+              <MultiImageUploader field="attachments" bkeys={this.props.attachments} maxUploads={3} previewMaxWidth={100} onChange={this.setAttachments} />
             </Form>
           ) : (
             <>
               <MultiLineText className="description" text={this.props.post.description} style="simple" />
-              {this.props.attachments.map(x => (
+              {this.props.attachments.map((x) => (
                 <ImageViewer key={x} bkey={x} />
               ))}
             </>
@@ -174,7 +147,7 @@ export default class ShowPostPage extends React.Component<ShowPostPageProps, Sho
                     <ResponseForm post={this.props.post} />
                   </ListItem>
                 </List>
-              )
+              ),
             ]}
 
           <TagsPanel post={this.props.post} tags={this.props.tags} />

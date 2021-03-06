@@ -39,7 +39,7 @@ export const cache = {
     },
     remove: (...keys: string[]): void => {
       remove(window.localStorage, ...keys);
-    }
+    },
   },
   session: {
     set: (key: string, value: string): void => {
@@ -53,6 +53,6 @@ export const cache = {
     },
     remove: (...keys: string[]): void => {
       remove(window.sessionStorage, ...keys);
-    }
-  }
+    },
+  },
 };

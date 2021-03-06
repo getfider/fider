@@ -1,4 +1,4 @@
-@import '~@fider/assets/styles/variables.scss';
+@import "~@fider/assets/styles/variables.scss";
 
 .c-comment-list {
   @include media(">=lg") {
@@ -60,7 +60,7 @@
   }
 }
 
-.c-comment-input  {
+.c-comment-input {
   margin: 0 0 15px 0;
 
   .c-form {
@@ -72,7 +72,7 @@
     }
   }
 
-  &.m-authenticated{
+  &.m-authenticated {
     .c-form {
       width: 85%;
     }

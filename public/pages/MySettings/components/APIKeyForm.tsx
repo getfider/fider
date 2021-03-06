@@ -34,10 +34,7 @@ export class APIKeyForm extends React.Component<{}, APIKeyFormState> {
     return (
       <div className="l-api-key">
         <h4>API Key</h4>
-        <p className="info">
-          The API Key is only shown whenever generated. If your Key is lost or has been compromised, generated a new one
-          and take note of it.
-        </p>
+        <p className="info">The API Key is only shown whenever generated. If your Key is lost or has been compromised, generated a new one and take note of it.</p>
         <p className="info">
           To learn how to use the API, read the{" "}
           <a href="https://getfider.com/docs/api" target="_blank">

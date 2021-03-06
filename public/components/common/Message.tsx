@@ -9,14 +9,13 @@ interface MessageProps {
   showIcon?: boolean;
 }
 
-export const Message: React.FunctionComponent<MessageProps> = props => {
+export const Message: React.FunctionComponent<MessageProps> = (props) => {
   const className = classSet({
     "c-message": true,
-    [`m-${props.type}`]: true
+    [`m-${props.type}`]: true,
   });
 
-  const icon =
-    props.type === "error" ? <FaBan /> : props.type === "warning" ? <FaExclamationTriangle /> : <FaRegCheckCircle />;
+  const icon = props.type === "error" ? <FaBan /> : props.type === "warning" ? <FaExclamationTriangle /> : <FaRegCheckCircle />;
 
   return (
     <p className={className}>

@@ -60,12 +60,12 @@ $green-scale: (
 // Saturation 5 to 80 SineEaseOut
 // Luminosity 100 to 40 SineEaseOut
 $yellow-darkest: #664400;
-$yellow-darker: #8D5E00;
-$yellow-dark: #B47800;
-$yellow: #D78F00;
-$yellow-light: #EFAA20;
-$yellow-lighter: #FBD382;
-$yellow-lightest: #FFF7E6;
+$yellow-darker: #8d5e00;
+$yellow-dark: #b47800;
+$yellow: #d78f00;
+$yellow-light: #efaa20;
+$yellow-lighter: #fbd382;
+$yellow-lightest: #fff7e6;
 
 $yellow-scale: (
   darkest: $yellow-darkest,
@@ -135,48 +135,40 @@ $xl-width: 1200px;
 
 @mixin media($media) {
   @if $media == "sm" {
-    @media only screen and (max-width: #{$md-width - 0.1px}) { 
-      @content; 
+    @media only screen and (max-width: #{$md-width - 0.1px}) {
+      @content;
     }
-  }
-  @else if $media == ">=sm" {
-    @media only screen and (min-width: #{$sm-width}) { 
-      @content; 
+  } @else if $media == ">=sm" {
+    @media only screen and (min-width: #{$sm-width}) {
+      @content;
     }
-  }
-  @else if $media == "<=md" {
-    @media only screen and (max-width: #{$lg-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "<=md" {
+    @media only screen and (max-width: #{$lg-width - 0.1px}) {
+      @content;
     }
-  }
-  @else if $media == "md" {
-    @media only screen and (min-width: #{$md-width}) and (max-width: #{$lg-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "md" {
+    @media only screen and (min-width: #{$md-width}) and (max-width: #{$lg-width - 0.1px}) {
+      @content;
     }
-  }
-  @else if $media == ">=md" {
-    @media only screen and (min-width: #{$md-width}) { 
-      @content; 
+  } @else if $media == ">=md" {
+    @media only screen and (min-width: #{$md-width}) {
+      @content;
     }
-  }
-  @else if $media == "<lg" {
-    @media only screen and (max-width: #{$xl-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "<lg" {
+    @media only screen and (max-width: #{$xl-width - 0.1px}) {
+      @content;
     }
-  }
-  @else if $media == "lg" {
-    @media only screen and (min-width: #{$lg-width}) and (max-width: #{$xl-width - 0.1px}) { 
-      @content; 
+  } @else if $media == "lg" {
+    @media only screen and (min-width: #{$lg-width}) and (max-width: #{$xl-width - 0.1px}) {
+      @content;
     }
-  }
-  @else if $media == ">=lg" {
-    @media only screen and (min-width: #{$lg-width}) { 
-      @content; 
+  } @else if $media == ">=lg" {
+    @media only screen and (min-width: #{$lg-width}) {
+      @content;
     }
-  }
-  @else if $media == "xl" {
-    @media only screen and (min-width: #{$xl-width}) { 
-      @content; 
+  } @else if $media == "xl" {
+    @media only screen and (min-width: #{$xl-width}) {
+      @content;
     }
   }
 }
@@ -191,9 +183,9 @@ $xl-width: 1200px;
 
 @mixin disabled() {
   cursor: not-allowed;
-  opacity: .45!important;
-  background-image: none!important;
-  -webkit-box-shadow: none!important;
-  box-shadow: none!important;
-  pointer-events: none!important;
+  opacity: 0.45 !important;
+  background-image: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
 }

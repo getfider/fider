@@ -1,19 +1,6 @@
 import React, { useState } from "react";
 import { Comment, Post, ImageUpload } from "@fider/models";
-import {
-  Avatar,
-  UserName,
-  Moment,
-  Form,
-  TextArea,
-  Button,
-  MultiLineText,
-  DropDown,
-  DropDownItem,
-  Modal,
-  ImageViewer,
-  MultiImageUploader
-} from "@fider/components";
+import { Avatar, UserName, Moment, Form, TextArea, Button, MultiLineText, DropDown, DropDownItem, Modal, ImageViewer, MultiImageUploader } from "@fider/components";
 import { formatDate, Failure, actions } from "@fider/services";
 import { FaEllipsisH } from "react-icons/fa";
 import { useFider } from "@fider/hooks";
@@ -106,9 +93,7 @@ export const ShowComment = (props: ShowCommentProps) => {
 
   const editedMetadata = !!comment.editedAt && !!comment.editedBy && (
     <div className="c-comment-metadata">
-      <span title={`This comment has been edited by ${comment.editedBy!.name} on ${formatDate(comment.editedAt)}`}>
-        · edited
-      </span>
+      <span title={`This comment has been edited by ${comment.editedBy!.name} on ${formatDate(comment.editedAt)}`}>· edited</span>
     </div>
   );
 
@@ -131,7 +116,7 @@ export const ShowComment = (props: ShowCommentProps) => {
             highlightSelected={false}
             items={[
               { label: "Edit", value: "edit" },
-              { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> }
+              { label: "Delete", value: "delete", render: <span style={{ color: "red" }}>Delete</span> },
             ]}
             onChange={onActionSelected}
             renderControl={renderEllipsis}
@@ -140,20 +125,8 @@ export const ShowComment = (props: ShowCommentProps) => {
         <div className="c-comment-text">
           {isEditing ? (
             <Form error={error}>
-              <TextArea
-                field="content"
-                minRows={1}
-                value={newContent}
-                placeholder={comment.content}
-                onChange={setNewContent}
-              />
-              <MultiImageUploader
-                field="attachments"
-                bkeys={comment.attachments}
-                maxUploads={2}
-                previewMaxWidth={100}
-                onChange={setAttachments}
-              />
+              <TextArea field="content" minRows={1} value={newContent} placeholder={comment.content} onChange={setNewContent} />
+              <MultiImageUploader field="attachments" bkeys={comment.attachments} maxUploads={2} previewMaxWidth={100} onChange={setAttachments} />
               <Button size="tiny" onClick={saveEdit} color="positive">
                 Save
               </Button>
@@ -164,7 +137,7 @@ export const ShowComment = (props: ShowCommentProps) => {
           ) : (
             <>
               <MultiLineText text={comment.content} style="simple" />
-              {comment.attachments && comment.attachments.map(x => <ImageViewer key={x} bkey={x} />)}
+              {comment.attachments && comment.attachments.map((x) => <ImageViewer key={x} bkey={x} />)}
             </>
           )}
         </div>

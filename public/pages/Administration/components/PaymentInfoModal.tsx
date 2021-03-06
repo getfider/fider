@@ -39,21 +39,21 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
       addressState: this.props.paymentInfo ? this.props.paymentInfo.addressState : "",
       addressPostalCode: this.props.paymentInfo ? this.props.paymentInfo.addressPostalCode : "",
       addressCountry: this.props.paymentInfo ? this.props.paymentInfo.addressCountry : "",
-      vatNumber: this.props.paymentInfo ? this.props.paymentInfo.vatNumber : ""
+      vatNumber: this.props.paymentInfo ? this.props.paymentInfo.vatNumber : "",
     };
   }
 
   public handleSubmit = async () => {
     if (this.props.paymentInfo && !this.state.changingCard) {
       const response = await actions.updatePaymentInfo({
-        ...this.state
+        ...this.state,
       });
 
       if (response.ok) {
         location.reload();
       } else {
         this.setState({
-          error: response.error
+          error: response.error,
         });
       }
 
@@ -68,7 +68,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
         address_city: this.state.addressCity,
         address_state: this.state.addressState,
         address_zip: this.state.addressPostalCode,
-        address_country: this.state.addressCountry
+        address_country: this.state.addressCountry,
       });
 
       if (result.token) {
@@ -77,15 +77,15 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
           card: {
             type: result.token.type,
             token: result.token.id,
-            country: result.token.card ? result.token.card.country : ""
-          }
+            country: result.token.card ? result.token.card.country : "",
+          },
         });
 
         if (response.ok) {
           location.reload();
         } else {
           this.setState({
-            error: response.error
+            error: response.error,
           });
         }
       } else if (result.error) {
@@ -94,10 +94,10 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
             errors: [
               {
                 field: "card",
-                message: result.error.message!
-              }
-            ]
-          }
+                message: result.error.message!,
+              },
+            ],
+          },
         });
       }
     }
@@ -151,7 +151,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
 
   private isEUCountry(): boolean {
     if (this.state.addressCountry) {
-      const filtered = this.props.countries.filter(x => x.code === this.state.addressCountry);
+      const filtered = this.props.countries.filter((x) => x.code === this.state.addressCountry);
       if (filtered && filtered.length > 0) {
         return filtered[0].isEU;
       }
@@ -169,9 +169,7 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                 <div className="col-md-12">
                   <Field label="Credit/Debit Card" field="card">
                     <CardElement />
-                    <p className="info">
-                      We neither store nor see your card information. We integrate directly with Stripe.
-                    </p>
+                    <p className="info">We neither store nor see your card information. We integrate directly with Stripe.</p>
                   </Field>
                 </div>
               )}
@@ -199,58 +197,22 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                 <Input label="Name" field="name" value={this.state.name} onChange={this.setName} autoComplete="name" />
               </div>
               <div className="col-md-12">
-                <Input
-                  label="Email"
-                  field="email"
-                  value={this.state.email}
-                  onChange={this.setEmail}
-                  autoComplete="email"
-                />
+                <Input label="Email" field="email" value={this.state.email} onChange={this.setEmail} autoComplete="email" />
               </div>
               <div className="col-md-6">
-                <Input
-                  label="Address Line 1"
-                  value={this.state.addressLine1}
-                  field="addressLine1"
-                  onChange={this.setAddressLine1}
-                  autoComplete="address-line1"
-                />
+                <Input label="Address Line 1" value={this.state.addressLine1} field="addressLine1" onChange={this.setAddressLine1} autoComplete="address-line1" />
               </div>
               <div className="col-md-6">
-                <Input
-                  label="Address Line 2"
-                  value={this.state.addressLine2}
-                  field="addressLine2"
-                  onChange={this.setAddressLine2}
-                  autoComplete="address-line2"
-                />
+                <Input label="Address Line 2" value={this.state.addressLine2} field="addressLine2" onChange={this.setAddressLine2} autoComplete="address-line2" />
               </div>
               <div className="col-md-4">
-                <Input
-                  label="City"
-                  field="addressCity"
-                  value={this.state.addressCity}
-                  onChange={this.setAddressCity}
-                  autoComplete="address-level2"
-                />
+                <Input label="City" field="addressCity" value={this.state.addressCity} onChange={this.setAddressCity} autoComplete="address-level2" />
               </div>
               <div className="col-md-4">
-                <Input
-                  label="State / Region"
-                  field="addressState"
-                  value={this.state.addressState}
-                  onChange={this.setAddressState}
-                  autoComplete="address-level1"
-                />
+                <Input label="State / Region" field="addressState" value={this.state.addressState} onChange={this.setAddressState} autoComplete="address-level1" />
               </div>
               <div className="col-md-4">
-                <Input
-                  label="Postal Code"
-                  field="addressPostalCode"
-                  value={this.state.addressPostalCode}
-                  onChange={this.setAddressPostalCode}
-                  autoComplete="postal-code"
-                />
+                <Input label="Postal Code" field="addressPostalCode" value={this.state.addressPostalCode} onChange={this.setAddressPostalCode} autoComplete="postal-code" />
               </div>
               <div className="col-md-6">
                 <Select
@@ -258,29 +220,18 @@ class PaymentInfoModal extends React.Component<PaymentInfoModalProps, PaymentInf
                   field="addressCountry"
                   onChange={this.setAddressCountry}
                   defaultValue={this.state.addressCountry}
-                  options={[
-                    { value: "", label: "" },
-                    ...this.props.countries.map(x => ({ value: x.code, label: x.name }))
-                  ]}
+                  options={[{ value: "", label: "" }, ...this.props.countries.map((x) => ({ value: x.code, label: x.name }))]}
                 />
               </div>
               {this.isEUCountry() && (
                 <div className="col-md-6">
-                  <Input
-                    label="VAT Number"
-                    field="vatNumber"
-                    value={this.state.vatNumber}
-                    onChange={this.setVATNumber}
-                  />
+                  <Input label="VAT Number" field="vatNumber" value={this.state.vatNumber} onChange={this.setVATNumber} />
                 </div>
               )}
               {!!this.state.addressCountry && (
                 <div className="col-md-12">
                   <Field field="currency">
-                    <p className="info">
-                      Based on your Billing Address, your subscription will be charged in{" "}
-                      {this.isEUCountry() ? "Euro (EUR)" : "US Dollar (USD)"}.
-                    </p>
+                    <p className="info">Based on your Billing Address, your subscription will be charged in {this.isEUCountry() ? "Euro (EUR)" : "US Dollar (USD)"}.</p>
                   </Field>
                 </div>
               )}

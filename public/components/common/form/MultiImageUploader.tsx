@@ -72,9 +72,9 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   private triggerOnChange() {
     if (this.props.onChange) {
       const uploads = Object.keys(this.state.instances)
-        .map(k => this.state.instances[k].upload)
+        .map((k) => this.state.instances[k].upload)
         .concat(this.state.removed)
-        .filter(x => !!x) as ImageUpload[];
+        .filter((x) => !!x) as ImageUpload[];
       this.props.onChange(uploads);
     }
   }
@@ -82,29 +82,20 @@ export class MultiImageUploader extends React.Component<MultiImageUploaderProps,
   private addNewElement(instances: MultiImageUploaderInstances, bkey?: string) {
     const id = btoa(Math.random().toString());
     instances[id] = {
-      element: (
-        <ImageUploader
-          key={id}
-          bkey={bkey}
-          instanceID={id}
-          field="attachment"
-          previewMaxWidth={this.props.previewMaxWidth}
-          onChange={this.imageUploaded}
-        />
-      )
+      element: <ImageUploader key={id} bkey={bkey} instanceID={id} field="attachment" previewMaxWidth={this.props.previewMaxWidth} onChange={this.imageUploaded} />,
     };
   }
 
   public render() {
-    const elements = Object.keys(this.state.instances).map(k => this.state.instances[k].element);
+    const elements = Object.keys(this.state.instances).map((k) => this.state.instances[k].element);
     return (
       <ValidationContext.Consumer>
-        {ctx => (
+        {(ctx) => (
           <div
             className={classSet({
               "c-form-field": true,
               "c-multi-image-uploader": true,
-              "m-error": hasError(this.props.field, ctx.error)
+              "m-error": hasError(this.props.field, ctx.error),
             })}
           >
             <div className="c-multi-image-uploader-instances">{elements}</div>

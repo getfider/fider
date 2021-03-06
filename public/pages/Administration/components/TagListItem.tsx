@@ -72,7 +72,7 @@ export const TagListItem = (props: TagListItemProps) => {
       <Button size="mini" key={1} onClick={startEdit} className="right">
         <FaEdit />
         Edit
-      </Button>
+      </Button>,
     ];
 
     return (
@@ -84,15 +84,7 @@ export const TagListItem = (props: TagListItemProps) => {
   };
 
   const renderEditMode = () => {
-    return (
-      <TagForm
-        name={props.tag.name}
-        color={props.tag.color}
-        isPublic={props.tag.isPublic}
-        onSave={updateTag}
-        onCancel={resetState}
-      />
-    );
+    return <TagForm name={props.tag.name} color={props.tag.color} isPublic={props.tag.isPublic} onSave={updateTag} onCancel={resetState} />;
   };
 
   const view = state === "delete" ? renderDeleteMode() : state === "edit" ? renderEditMode() : renderViewMode();

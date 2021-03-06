@@ -14,22 +14,22 @@ interface ListItemProps {
   onClick?: () => void;
 }
 
-export const List: React.FunctionComponent<ListProps> = props => {
+export const List: React.FunctionComponent<ListProps> = (props) => {
   const className = classSet({
     "c-list": true,
     [props.className || ""]: true,
     "m-divided": props.divided,
-    "m-hover": props.hover
+    "m-hover": props.hover,
   });
 
   return <div className={className}>{props.children}</div>;
 };
 
-export const ListItem: React.FunctionComponent<ListItemProps> = props => {
+export const ListItem: React.FunctionComponent<ListItemProps> = (props) => {
   const className = classSet({
     "c-list-item": true,
     [props.className || ""]: true,
-    "m-selectable": props.onClick
+    "m-selectable": props.onClick,
   });
 
   if (props.onClick) {

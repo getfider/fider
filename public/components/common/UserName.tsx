@@ -15,7 +15,7 @@ interface UserNameProps {
 export const UserName = (props: UserNameProps) => {
   const className = classSet({
     "c-username": true,
-    "m-staff": props.user.role && isCollaborator(props.user.role)
+    "m-staff": props.user.role && isCollaborator(props.user.role),
   });
 
   return <span className={className}>{props.user.name || "Anonymous"}</span>;
