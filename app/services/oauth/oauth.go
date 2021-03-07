@@ -226,8 +226,6 @@ func getOAuthRawProfile(ctx context.Context, q *query.GetOAuthRawProfile) error 
 		},
 	}
 
-	println(oauthToken.AccessToken)
-
 	if err := bus.Dispatch(ctx, req); err != nil {
 		return err
 	}

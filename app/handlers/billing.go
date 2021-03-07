@@ -42,7 +42,6 @@ func BillingPage() web.HandlerFunc {
 			listPlansQuery.CountryCode = paymentInfo.Result.AddressCountry
 			err = bus.Dispatch(c, listPlansQuery)
 			if err != nil {
-				println(err.Error())
 				return c.Failure(err)
 			}
 		}
