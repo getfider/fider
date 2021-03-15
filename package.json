@@ -81,6 +81,6 @@
     }
   },
   "scripts": {
-    "heroku-postbuild": "npx webpack-cli -p"
+    "heroku-postbuild": "NODE_ENV=production npx webpack-cli"
   }
 }
