@@ -1,3 +1,5 @@
+// +heroku goVersion go1.16
+
 module github.com/getfider/fider
 
 go 1.16
