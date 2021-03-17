@@ -86,12 +86,18 @@ func MultiTenant() web.MiddlewareFunc {
 func RequireTenant() web.MiddlewareFunc {
 	return func(next web.HandlerFunc) web.HandlerFunc {
 		return func(c *web.Context) error {
-			if c.Tenant() == nil {
+			tenant := c.Tenant()
+			if tenant == nil {
 				if env.IsSingleHostMode() {
 					return c.Redirect("/signup")
 				}
 				return c.NotFound()
 			}
+
+			if tenant.Status == enum.TenantDisabled {
+				return c.NotFound()
+			}
+
 			return next(c)
 		}
 	}

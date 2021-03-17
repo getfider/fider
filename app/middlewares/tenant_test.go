@@ -365,6 +365,29 @@ func TestRequireTenant_MultiHostMode_ValidTenant(t *testing.T) {
 	Expect(response.Body.String()).Equals("Avengers")
 }
 
+func TestRequireTenant_MultiHostMode_BlockedTenant(t *testing.T) {
+	RegisterT(t)
+
+	bus.AddHandler(func(ctx context.Context, q *query.GetTenantByDomain) error {
+		if q.Domain == "avengers.test.fider.io" {
+			q.Result = mock.AvengersTenant
+			q.Result.Status = enum.TenantDisabled
+			return nil
+		}
+		return app.ErrNotFound
+	})
+
+	server := mock.NewServer()
+	server.Use(middlewares.MultiTenant())
+	server.Use(middlewares.RequireTenant())
+
+	status, _ := server.WithURL("http://avengers.test.fider.io").Execute(func(c *web.Context) error {
+		return c.String(http.StatusOK, c.Tenant().Name)
+	})
+
+	Expect(status).Equals(http.StatusNotFound)
+}
+
 func TestRequireTenant_SingleHostMode_NoTenants_RedirectToSignUp(t *testing.T) {
 	RegisterT(t)
 
