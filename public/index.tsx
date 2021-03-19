@@ -38,11 +38,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
 (() => {
   let fider;
 
-  if (!navigator.isBrowserSupported()) {
-    navigator.goTo("/browser-not-supported");
-    return;
-  }
-
   fider = Fider.initialize();
 
   __webpack_nonce__ = fider.session.contextID;

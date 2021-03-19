@@ -29,7 +29,7 @@ var requiredDeps = []string{
 	"golangci-lint",
 }
 var buildTime = time.Now().Format("2006.01.02.150405")
-var buildNumber = os.Getenv("CIRCLE_BUILD_NUM")
+var buildNumber = os.Getenv("GITHUB_RUN_ID")
 var exeName = "fider"
 
 var Aliases = map[string]interface{}{
