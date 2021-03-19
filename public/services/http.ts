@@ -29,8 +29,6 @@ async function toResult<T>(response: Response): Promise<Result<T>> {
     notify.error("An unexpected error occurred while processing your request.");
   } else if (response.status === 403) {
     notify.error("You are not authorized to perform this operation.");
-  } else if (response.status === 423) {
-    notify.error("This operation is not allowed. Update your billing settings to unlock it.");
   }
 
   return {

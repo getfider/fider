@@ -17,17 +17,16 @@ import (
 )
 
 type dbTenant struct {
-	ID             int              `db:"id"`
-	Name           string           `db:"name"`
-	Subdomain      string           `db:"subdomain"`
-	CNAME          string           `db:"cname"`
-	Invitation     string           `db:"invitation"`
-	WelcomeMessage string           `db:"welcome_message"`
-	Status         int              `db:"status"`
-	IsPrivate      bool             `db:"is_private"`
-	LogoBlobKey    string           `db:"logo_bkey"`
-	CustomCSS      string           `db:"custom_css"`
-	Billing        *dbTenantBilling `db:"billing"`
+	ID             int    `db:"id"`
+	Name           string `db:"name"`
+	Subdomain      string `db:"subdomain"`
+	CNAME          string `db:"cname"`
+	Invitation     string `db:"invitation"`
+	WelcomeMessage string `db:"welcome_message"`
+	Status         int    `db:"status"`
+	IsPrivate      bool   `db:"is_private"`
+	LogoBlobKey    string `db:"logo_bkey"`
+	CustomCSS      string `db:"custom_css"`
 }
 
 func (t *dbTenant) toModel() *models.Tenant {
@@ -48,27 +47,7 @@ func (t *dbTenant) toModel() *models.Tenant {
 		CustomCSS:      t.CustomCSS,
 	}
 
-	if t.Billing != nil && t.Billing.TrialEndsAt.Valid {
-		tenant.Billing = &models.TenantBilling{
-			TrialEndsAt:          t.Billing.TrialEndsAt.Time,
-			StripeCustomerID:     t.Billing.StripeCustomerID.String,
-			StripeSubscriptionID: t.Billing.StripeSubscriptionID.String,
-			StripePlanID:         t.Billing.StripePlanID.String,
-		}
-		if t.Billing.SubscriptionEndsAt.Valid {
-			tenant.Billing.SubscriptionEndsAt = &t.Billing.SubscriptionEndsAt.Time
-		}
-	}
-
 	return tenant
-}
-
-type dbTenantBilling struct {
-	StripeCustomerID     dbx.NullString `db:"stripe_customer_id"`
-	StripeSubscriptionID dbx.NullString `db:"stripe_subscription_id"`
-	StripePlanID         dbx.NullString `db:"stripe_plan_id"`
-	TrialEndsAt          dbx.NullTime   `db:"trial_ends_at"`
-	SubscriptionEndsAt   dbx.NullTime   `db:"subscription_ends_at"`
 }
 
 type dbEmailVerification struct {
@@ -160,29 +139,6 @@ func updateTenantSettings(ctx context.Context, c *cmd.UpdateTenantSettings) erro
 	})
 }
 
-func updateTenantBillingSettings(ctx context.Context, c *cmd.UpdateTenantBillingSettings) error {
-	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
-		_, err := trx.Execute(`
-			UPDATE tenants_billing 
-			SET stripe_customer_id = $1, 
-					stripe_plan_id = $2, 
-					stripe_subscription_id = $3, 
-					subscription_ends_at = $4 
-			WHERE tenant_id = $5
-		`,
-			c.Settings.StripeCustomerID,
-			c.Settings.StripePlanID,
-			c.Settings.StripeSubscriptionID,
-			c.Settings.SubscriptionEndsAt,
-			tenant.ID,
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed update tenant billing settings")
-		}
-		return nil
-	})
-}
-
 func updateTenantAdvancedSettings(ctx context.Context, c *cmd.UpdateTenantAdvancedSettings) error {
 	return using(ctx, func(trx *dbx.Trx, tenant *models.Tenant, user *models.User) error {
 		query := "UPDATE tenants SET custom_css = $1 WHERE id = $2"
@@ -260,16 +216,6 @@ func createTenant(ctx context.Context, c *cmd.CreateTenant) error {
 			 RETURNING id`, c.Name, c.Subdomain, now, c.Status)
 		if err != nil {
 			return err
-		}
-
-		if env.IsBillingEnabled() {
-			_, err = trx.Execute(
-				`INSERT INTO tenants_billing (tenant_id, trial_ends_at) VALUES ($1, $2)`,
-				id, now.Add(30*24*time.Hour),
-			)
-			if err != nil {
-				return err
-			}
 		}
 
 		byDomain := &query.GetTenantByDomain{Domain: c.Subdomain}

@@ -27,13 +27,13 @@ var (
 	cspBase    = "base-uri 'self'"
 	cspDefault = "default-src 'self'"
 	cspStyle   = "style-src 'self' 'nonce-%[1]s' https://fonts.googleapis.com %[2]s"
-	cspScript  = "script-src 'self' 'nonce-%[1]s' https://js.stripe.com https://www.google-analytics.com %[2]s"
+	cspScript  = "script-src 'self' 'nonce-%[1]s' https://www.google-analytics.com %[2]s"
 	cspFont    = "font-src 'self' https://fonts.gstatic.com data: %[2]s"
 	cspImage   = "img-src 'self' https: data: %[2]s"
 	cspObject  = "object-src 'none'"
-	cspFrame   = "frame-src 'self' https://js.stripe.com"
+	cspFrame   = "frame-src 'self'"
 	cspMedia   = "media-src 'none'"
-	cspConnect = "connect-src 'self' https://www.google-analytics.com https://ipinfo.io https://js.stripe.com %[2]s"
+	cspConnect = "connect-src 'self' https://www.google-analytics.com %[2]s"
 
 	//CspPolicyTemplate is the template used to generate the policy
 	CspPolicyTemplate = fmt.Sprintf("%s; %s; %s; %s; %s; %s; %s; %s; %s; %s", cspBase, cspDefault, cspStyle, cspScript, cspImage, cspFont, cspObject, cspMedia, cspConnect, cspFrame)

@@ -1,5 +1,4 @@
-import { Fider, http } from "@fider/services";
-import { cache } from "./cache";
+import { Fider } from "@fider/services";
 
 const navigator = {
   url: () => {
@@ -19,19 +18,6 @@ const navigator = {
       const newURL = Fider.settings.baseURL + path;
       window.history.replaceState({ path: newURL }, "", newURL);
     }
-  },
-  getCountryCode: (): Promise<string> => {
-    const countryCode = cache.session.get("geolocation_countrycode");
-    if (countryCode) {
-      return Promise.resolve(countryCode);
-    }
-
-    return http.get<any>("https://ipinfo.io/geo").then((res) => {
-      if (res.ok) {
-        cache.session.set("geolocation_countrycode", res.data.country);
-        return res.data.country;
-      }
-    });
   },
 };
 

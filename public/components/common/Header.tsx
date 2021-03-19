@@ -1,7 +1,7 @@
 import "./Header.scss";
 
 import React, { useState, useEffect } from "react";
-import { SignInModal, EnvironmentInfo, Avatar, TenantLogo, TenantStatusInfo } from "@fider/components";
+import { SignInModal, EnvironmentInfo, Avatar, TenantLogo } from "@fider/components";
 import { actions } from "@fider/services";
 import { FaUser, FaCog, FaCaretDown } from "react-icons/fa";
 import { useFider } from "@fider/hooks";
@@ -79,7 +79,6 @@ export const Header = () => {
           )}
         </div>
       </div>
-      <TenantStatusInfo />
     </div>
   );
 };

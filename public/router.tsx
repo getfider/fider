@@ -19,7 +19,6 @@ const pathRegex = [
   route("/admin/members", Pages.AsyncManageMembersPage),
   route("/admin/tags", Pages.AsyncManageTagsPage),
   route("/admin/privacy", Pages.AsyncPrivacySettingsPage),
-  route("/admin/billing", Pages.AsyncBillingPage),
   route("/admin/export", Pages.AsyncExportPage),
   route("/admin/invitations", Pages.AsyncInvitationsPage),
   route("/admin/authentication", Pages.AsyncManageAuthenticationPage),

@@ -10,26 +10,16 @@ import (
 
 //Tenant represents a tenant
 type Tenant struct {
-	ID             int            `json:"id"`
-	Name           string         `json:"name"`
-	Subdomain      string         `json:"subdomain"`
-	Invitation     string         `json:"invitation"`
-	WelcomeMessage string         `json:"welcomeMessage"`
-	CNAME          string         `json:"cname"`
-	Status         int            `json:"status"`
-	IsPrivate      bool           `json:"isPrivate"`
-	LogoBlobKey    string         `json:"logoBlobKey"`
-	Billing        *TenantBilling `json:"billing,omitempty"`
-	CustomCSS      string         `json:"-"`
-}
-
-//TenantBilling has all the billing information of given tenant
-type TenantBilling struct {
-	StripeCustomerID     string
-	StripeSubscriptionID string
-	StripePlanID         string     `json:"stripePlanID"`
-	TrialEndsAt          time.Time  `json:"trialEndsAt"`
-	SubscriptionEndsAt   *time.Time `json:"subscriptionEndsAt,omitempty"`
+	ID             int    `json:"id"`
+	Name           string `json:"name"`
+	Subdomain      string `json:"subdomain"`
+	Invitation     string `json:"invitation"`
+	WelcomeMessage string `json:"welcomeMessage"`
+	CNAME          string `json:"cname"`
+	Status         int    `json:"status"`
+	IsPrivate      bool   `json:"isPrivate"`
+	LogoBlobKey    string `json:"logoBlobKey"`
+	CustomCSS      string `json:"-"`
 }
 
 //Upload represents a file that has been uploaded to Fider
