@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { resolveRootComponent } from "@fider/router";
 import { Header, Footer, Loader } from "@fider/components/common";
 import { ErrorBoundary } from "@fider/components";
-import { classSet, Fider, FiderContext, actions, navigator } from "@fider/services";
+import { classSet, Fider, FiderContext, actions } from "@fider/services";
 import { IconContext } from "react-icons";
 
 const Loading = () => (
@@ -37,11 +37,6 @@ window.addEventListener("error", (evt: ErrorEvent) => {
 
 (() => {
   let fider;
-
-  if (!navigator.isBrowserSupported()) {
-    navigator.goTo("/browser-not-supported");
-    return;
-  }
 
   fider = Fider.initialize();
 
