@@ -547,7 +547,7 @@ func TestPostStorage_ListVotesOfPost(t *testing.T) {
 	bus.MustDispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: jonSnow})
 	bus.MustDispatch(jonSnowCtx, &cmd.AddVote{Post: newPost.Result, User: aryaStark})
 
-	listVotes := &query.ListPostVotes{PostID: newPost.Result.ID}
+	listVotes := &query.ListPostVotes{PostID: newPost.Result.ID, IncludeEmail: true}
 	err = bus.Dispatch(jonSnowCtx, listVotes)
 	Expect(err).IsNil()
 	Expect(listVotes.Result).HasLen(2)
