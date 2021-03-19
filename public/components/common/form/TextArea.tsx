@@ -42,7 +42,7 @@ export const TextArea: React.FunctionComponent<TextAreaProps> = (props) => {
                 value={props.value}
                 minRows={props.minRows || 3}
                 placeholder={props.placeholder}
-                inputRef={props.inputRef}
+                ref={props.inputRef}
                 onFocus={props.onFocus}
               />
             </div>
