@@ -153,8 +153,6 @@ github.com/goenning/imagic v0.0.1 h1:JJ1AhdRugiPucmIHCB6GmvigCAfMYV7rTYhus4ROZ50
 github.com/goenning/imagic v0.0.1/go.mod h1:uCYR1hKybppzS6QEa7KnPPa3Q69SjcL95eDR5MW1j38=
 github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055 h1:xwq8JGLwF1UughJdViZyiUo6FcTv7mN6L532hBNbnfQ=
 github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055/go.mod h1:3lA285vlcUfyyBfimSIsT200bJb1ScVZEN2KKoW8TDY=
-github.com/goenning/vat v0.1.0 h1:Th8EhqCZdPVQgYlNwgp19MmfgmlZcVX4TTnmlAGnjIc=
-github.com/goenning/vat v0.1.0/go.mod h1:jIdg4o7ZwGAVzBbQ5tPFMj6ypfcYkChoumAWZ2Li2ME=
 github.com/gofrs/flock v0.8.0 h1:MSdYClljsF3PbENUUEx85nkWfJSGfzYI9yEBZOJz6CY=
 github.com/gofrs/flock v0.8.0/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
@@ -505,8 +503,6 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/stripe/stripe-go v70.15.0+incompatible h1:hNML7M1zx8RgtepEMlxyu/FpVPrP7KZm1gPFQquJQvM=
-github.com/stripe/stripe-go v70.15.0+incompatible/go.mod h1:A1dQZmO/QypXmsL0T8axYZkSN/uA/T/A64pfKdBAMiY=
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tdakkota/asciicheck v0.0.0-20200416200610-e657995f937b h1:HxLVTlqcHhFAz3nWUcuvpH7WuOMv8LQoCWmruLfFH2U=

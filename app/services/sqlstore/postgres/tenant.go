@@ -230,16 +230,9 @@ func getFirstTenant(ctx context.Context, q *query.GetFirstTenant) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
-						 tb.trial_ends_at AS billing_trial_ends_at,
-						 tb.subscription_ends_at AS billing_subscription_ends_at,
-						 tb.stripe_customer_id AS billing_stripe_customer_id,
-						 tb.stripe_plan_id AS billing_stripe_plan_id,
-						 tb.stripe_subscription_id AS billing_stripe_subscription_id
-			FROM tenants t
-			LEFT JOIN tenants_billing tb
-			ON tb.tenant_id = t.id
-			ORDER BY t.id LIMIT 1
+			SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css
+			FROM tenants
+			ORDER BY id LIMIT 1
 		`)
 
 		if err != nil {
@@ -256,17 +249,10 @@ func getTenantByDomain(ctx context.Context, q *query.GetTenantByDomain) error {
 		tenant := dbTenant{}
 
 		err := trx.Get(&tenant, `
-			SELECT t.id, t.name, t.subdomain, t.cname, t.invitation, t.welcome_message, t.status, t.is_private, t.logo_bkey, t.custom_css,
-						 tb.trial_ends_at AS billing_trial_ends_at,
-						 tb.subscription_ends_at AS billing_subscription_ends_at,
-						 tb.stripe_customer_id AS billing_stripe_customer_id,
-						 tb.stripe_plan_id AS billing_stripe_plan_id,
-						 tb.stripe_subscription_id AS billing_stripe_subscription_id
+			SELECT id, name, subdomain, cname, invitation, welcome_message, status, is_private, logo_bkey, custom_css
 			FROM tenants t
-			LEFT JOIN tenants_billing tb
-			ON tb.tenant_id = t.id
-			WHERE t.subdomain = $1 OR t.subdomain = $2 OR t.cname = $3 
-			ORDER BY t.cname DESC
+			WHERE subdomain = $1 OR subdomain = $2 OR cname = $3 
+			ORDER BY cname DESC
 		`, env.Subdomain(q.Domain), q.Domain, q.Domain)
 		if err != nil {
 			return errors.Wrap(err, "failed to get tenant with domain '%s'", q.Domain)
