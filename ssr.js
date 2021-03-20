@@ -10539,10 +10539,10 @@
         set(window.sessionStorage, key, value);
       },
       get: (key) => {
-        return typeof window !== "undefined" && get(window.sessionStorage, key);
+        return get(window.sessionStorage, key);
       },
       has: (key) => {
-        return typeof window !== "undefined" && has(window.sessionStorage, key);
+        return has(window.sessionStorage, key);
       },
       remove: (...keys) => {
         remove(window.sessionStorage, ...keys);
@@ -11640,7 +11640,7 @@
   // public/services/navigator.ts
   var navigator2 = {
     url: () => {
-      return typeof window === "undefined" ? "" : window.location.href;
+      return window.location.href;
     },
     goHome: () => {
       window.location.href = "/";

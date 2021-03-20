@@ -2,7 +2,7 @@ import { Fider } from "@fider/services";
 
 const navigator = {
   url: () => {
-    return typeof window === 'undefined' ? '' : window.location.href;
+    return window.location.href;
   },
   goHome: () => {
     window.location.href = "/";

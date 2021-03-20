@@ -1,5 +1,5 @@
 import marked from "marked";
-import DOMPurify from "dompurify";
+// import DOMPurify from "dompurify";
 
 marked.setOptions({
   headerIds: false,
