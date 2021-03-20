@@ -1,7 +1,7 @@
-let plugin = {
+let emptyCSS = {
   name: 'empty-css-imports',
   setup(build) {
-    build.onLoad({ filter: /\.scss$/ }, () => ({ contents: '' }))
+    build.onLoad({ filter: /\.(css|scss)$/ }, () => ({ contents: '' }))
   },
 }
 
@@ -13,5 +13,5 @@ require('esbuild').build({
   },
   inject: ['./global-shim.js'],
   outfile: 'ssr.js',
-  plugins: [plugin],
+  plugins: [emptyCSS],
 }).catch(() => process.exit(1))
