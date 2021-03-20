@@ -1,5 +1,4 @@
 export * from "./Button";
-export * from "./CardInfo";
 export * from "./form/Form";
 export * from "./form/Input";
 export * from "./form/ImageUploader";
@@ -13,7 +12,6 @@ export * from "./form/Checkbox";
 export * from "./form/ImageViewer";
 export * from "./MultiLineText";
 export * from "./EnvironmentInfo";
-export * from "./TenantStatusInfo";
 export * from "./Avatar";
 export * from "./Message";
 export * from "./Hint";

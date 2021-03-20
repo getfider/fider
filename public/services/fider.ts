@@ -55,10 +55,6 @@ export class FiderImpl {
     return this.pSettings;
   }
 
-  public isBillingEnabled(): boolean {
-    return !!this.pSettings.stripePublicKey;
-  }
-
   public isProduction(): boolean {
     return this.pSettings.environment === "production";
   }

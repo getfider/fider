@@ -6,7 +6,7 @@
 - `app/models/dto.<something>`: A simple object used for data transfer between various packages/services. E.g: `dto.NewUserInfo`;
 - `app/models/entity.<something>`: An object that is mapped to a database table. E.g: `entity.User`;
 - `app/models/cmd.<something>` something that must be done and potentially return some value. E.g.: `cmd.HttpRequest`, `cmd.LogDebug`, `cmd.SendMail`, `cmd.CreateNewUser`;
-- `app/models/query.<something>` get some information from somewhere. E.g.: `query.GetUserById`, `query.GetBillingStatus`;
+- `app/models/query.<something>` get some information from somewhere. E.g.: `query.GetUserById`, `query.GetAllPosts`;
 
 # UI Development
 

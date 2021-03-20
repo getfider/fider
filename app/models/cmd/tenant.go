@@ -22,10 +22,6 @@ type UpdateTenantSettings struct {
 	Settings *models.UpdateTenantSettings
 }
 
-type UpdateTenantBillingSettings struct {
-	Settings *models.TenantBilling
-}
-
 type UpdateTenantAdvancedSettings struct {
 	Settings *models.UpdateTenantAdvancedSettings
 }

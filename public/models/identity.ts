@@ -8,11 +8,6 @@ export interface Tenant {
   status: TenantStatus;
   isPrivate: boolean;
   logoBlobKey: string;
-  billing?: {
-    stripePlanID: string;
-    subscriptionEndsAt: string;
-    trialEndsAt: string;
-  };
 }
 
 export enum TenantStatus {

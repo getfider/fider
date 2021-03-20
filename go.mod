@@ -10,7 +10,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/goenning/imagic v0.0.1
 	github.com/goenning/letteravatar v0.0.0-20180605200324-553181ed4055
-	github.com/goenning/vat v0.1.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golangci/golangci-lint v1.38.0
 	github.com/gosimple/slug v1.9.0
@@ -21,7 +20,6 @@ require (
 	github.com/magefile/mage v1.11.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russross/blackfriday v1.6.0
-	github.com/stripe/stripe-go v70.15.0+incompatible
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93
 )

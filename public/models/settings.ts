@@ -18,7 +18,6 @@ export interface SystemSettings {
   domain: string;
   hasLegal: boolean;
   baseURL: string;
-  stripePublicKey?: string;
   tenantAssetsURL: string;
   globalAssetsURL: string;
   oauth: OAuthProviderOption[];
