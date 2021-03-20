@@ -9,37 +9,38 @@ import (
 )
 
 type ReactRenderer struct {
+	scriptPath    string
 	scriptContent []byte
 	isolate       *v8go.Isolate
 }
 
-func NewReactRenderer() *ReactRenderer {
-	bytes, _ := os.ReadFile("ssr.js")
+func NewReactRenderer(scriptPath string) *ReactRenderer {
+	bytes, _ := os.ReadFile(scriptPath)
 	isolate, err := v8go.NewIsolate()
 	if err != nil {
-		return &ReactRenderer{isolate: nil}
+		return &ReactRenderer{isolate: nil, scriptPath: scriptPath}
 	}
 
-	return &ReactRenderer{isolate: isolate, scriptContent: bytes}
-}
-
-func (r *ReactRenderer) IsEnabled() bool {
-	return len(r.scriptContent) > 0
+	return &ReactRenderer{isolate: isolate, scriptPath: scriptPath, scriptContent: bytes}
 }
 
 func (r *ReactRenderer) Render(urlPath string, props Map) (string, error) {
+	if len(r.scriptContent) == 0 {
+		return "", nil
+	}
+
 	v8ctx, _ := v8go.NewContext(r.isolate)
-	_, err := v8ctx.RunScript(string(r.scriptContent), "ssr.js")
+	_, err := v8ctx.RunScript(string(r.scriptContent), r.scriptPath)
 	if err != nil {
-		return "", errors.Wrap(err, "unable to run ssr.js")
+		return "", errors.Wrap(err, "failed to parse script")
 	}
 
 	jsonArg, err := json.Marshal(props)
 	if err != nil {
-		return "", errors.Wrap(err, "unable to masrhal props")
+		return "", errors.Wrap(err, "failed to marshal props")
 	}
 
-	val, err = v8ctx.RunScript(`ssrRender("`+urlPath+`", `+string(jsonArg)+`)`, "ssr.js")
+	val, err := v8ctx.RunScript(`ssrRender("`+urlPath+`", `+string(jsonArg)+`)`, r.scriptPath)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to execute ssrRender")
 	}

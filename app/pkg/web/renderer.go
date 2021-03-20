@@ -70,7 +70,7 @@ func NewRenderer(settings *models.SystemSettings) *Renderer {
 		templates:     make(map[string]*template.Template),
 		settings:      settings,
 		mutex:         sync.RWMutex{},
-		reactRenderer: NewReactRenderer(),
+		reactRenderer: NewReactRenderer("ssr.js"),
 	}
 }
 
@@ -152,24 +152,13 @@ func getClientAssets(assets []distAsset) *clientAssets {
 }
 
 //Render a template based on parameters
-func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props, ctx *Context) {
+func (r *Renderer) Render(w io.Writer, statusCode int, templateName string, props Props, ctx *Context) {
 	var err error
 
 	if r.assets == nil || env.IsDevelopment() {
 		if err := r.loadAssets(); err != nil {
 			panic(err)
 		}
-	}
-
-	useSSR := false
-	if env.Config.Experimental_SSR_SEO && name == "index.html" {
-		useSSR = true
-		name = "ssr.html"
-	}
-
-	tmpl, ok := r.templates[name]
-	if !ok || env.IsDevelopment() {
-		tmpl = r.add(name)
 	}
 
 	public := make(Map)
@@ -255,7 +244,8 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		}
 	}
 
-	if useSSR && r.reactRenderer.IsEnabled() {
+	// Only index.html template uses React, other templates are already SSR
+	if env.Config.Experimental_SSR_SEO && !ctx.Request.IsCrawler() && templateName == "index.html" {
 		html, err := r.reactRenderer.Render(ctx.Request.URL.Path, public)
 		if err != nil {
 			log.Errorf(ctx, "Failed to render react page: @{Error}", dto.Props{
@@ -263,7 +253,15 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 			})
 		}
 
-		props.Data["html"] = template.HTML(html)
+		if html != "" {
+			templateName = "ssr.html"
+			props.Data["html"] = template.HTML(html)
+		}
+	}
+
+	tmpl, ok := r.templates[templateName]
+	if !ok || env.IsDevelopment() {
+		tmpl = r.add(templateName)
 	}
 
 	err = tmpl.Execute(w, Map{
@@ -271,6 +269,6 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 		"private": private,
 	})
 	if err != nil {
-		panic(errors.Wrap(err, "failed to execute template %s", name))
+		panic(errors.Wrap(err, "failed to execute template %s", templateName))
 	}
 }
