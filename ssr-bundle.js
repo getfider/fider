@@ -8,10 +8,10 @@ let plugin = {
 require('esbuild').build({
   entryPoints: ['./public/ssr.tsx'],
   bundle: true,
-  platform: 'node',
   define: {
     "process.env.NODE_ENV": "'production'"
   },
+  inject: ['./global-shim.js'],
   outfile: 'ssr.js',
   plugins: [plugin],
 }).catch(() => process.exit(1))

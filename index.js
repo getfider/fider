@@ -1,6 +1,5 @@
-const a = require("./ssr.js");
-console.log(
-  a.doWork(
+require("./ssr.js");
+const result = doWork(
     {
       contextID: "mFofODbmyNLw83hGlXwGeVgHr1MqgdXY",
       description: "Fider is an open platform to collect and prioritize product feedback. Visit getfider.com to learn more. We&#39;re on a mission to build the best feedb",
@@ -737,4 +736,3 @@ console.log(
       ],
     }
   )
-);

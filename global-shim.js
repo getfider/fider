@@ -1,0 +1,11 @@
+const global = (1, eval)('this');
+global.global = global;
+global.globalThis = global;
+global.frames = global;
+global.self = global;
+global.navigator = global;
+global.window = global;
+global.window.location = global;
+global.window.location.href = '';
+global.document = global;
+global.document.documentElement = global;

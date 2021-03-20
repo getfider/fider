@@ -9,9 +9,9 @@ marked.setOptions({
   breaks: true,
 });
 
-DOMPurify.setConfig({
-  ADD_ATTR: ["target"],
-});
+// DOMPurify.setConfig({
+//   ADD_ATTR: ["target"],
+// });
 
 const link = (href: string, title: string, text: string) => {
   const titleAttr = title ? ` title=${title}` : "";
