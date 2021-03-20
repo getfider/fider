@@ -1,13 +1,13 @@
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { Fider, FiderContext } from './services/fider';
-import { IconContext } from 'react-icons';
-import { Footer, Header } from './components';
-import HomePage from './pages/Home/Home.page';
-import ShowPostPage from './pages/ShowPost/ShowPost.page';
-import SignInPage from './pages/SignIn/SignIn.page';
-import SignUpPage from './pages/SignUp/SignUp.page';
-import UIToolkitPage from './pages/UI/UIToolkit.page';
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { Fider, FiderContext } from "./services/fider";
+import { IconContext } from "react-icons";
+import { Footer, Header } from "./components";
+import HomePage from "./pages/Home/Home.page";
+import ShowPostPage from "./pages/ShowPost/ShowPost.page";
+import SignInPage from "./pages/SignIn/SignIn.page";
+import SignUpPage from "./pages/SignUp/SignUp.page";
+import UIToolkitPage from "./pages/UI/UIToolkit.page";
 
 interface PageConfiguration {
   regex: RegExp;
@@ -22,13 +22,7 @@ const route = (path: string, component: any, showHeader: boolean = true): PageCo
   return { regex, component, showHeader };
 };
 
-const pathRegex = [
-  route("", HomePage),
-  route("/posts/:number*", ShowPostPage),
-  route("/signin", SignInPage, false),
-  route("/signup", SignUpPage, false),
-  route("/-/ui", UIToolkitPage),
-];
+const pathRegex = [route("", HomePage), route("/posts/:number*", ShowPostPage), route("/signin", SignInPage, false), route("/signup", SignUpPage, false), route("/-/ui", UIToolkitPage)];
 
 export const resolveRootComponent = (path: string): PageConfiguration => {
   if (path.length > 0 && path.charAt(path.length - 1) === "/") {
@@ -43,9 +37,9 @@ export const resolveRootComponent = (path: string): PageConfiguration => {
 };
 
 function ssrRender(url: string, pathname: string, args: any) {
-  let fider = Fider.initialize({...args });
+  const fider = Fider.initialize({ ...args });
   const config = resolveRootComponent(pathname);
-  window.location.href = url
+  window.location.href = url;
 
   return renderToStaticMarkup(
     <FiderContext.Provider value={fider}>
@@ -55,7 +49,7 @@ function ssrRender(url: string, pathname: string, args: any) {
         {config.showHeader && <Footer />}
       </IconContext.Provider>
     </FiderContext.Provider>
-  )
+  );
 }
 
-(globalThis as any).ssrRender = ssrRender
+(globalThis as any).ssrRender = ssrRender;
