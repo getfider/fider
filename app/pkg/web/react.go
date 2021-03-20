@@ -13,17 +13,23 @@ import (
 type ReactRenderer struct {
 	scriptPath    string
 	scriptContent []byte
-	isolate       *v8go.Isolate
+	ctx           *v8go.Context
 }
 
 func NewReactRenderer(scriptPath string) *ReactRenderer {
 	bytes, _ := os.ReadFile(scriptPath)
 	isolate, err := v8go.NewIsolate()
 	if err != nil {
-		return &ReactRenderer{isolate: nil, scriptPath: scriptPath}
+		return &ReactRenderer{scriptPath: scriptPath}
 	}
 
-	return &ReactRenderer{isolate: isolate, scriptPath: scriptPath, scriptContent: bytes}
+	v8ctx, _ := v8go.NewContext(isolate)
+	_, err = v8ctx.RunScript(string(bytes), scriptPath)
+	if err != nil {
+		return &ReactRenderer{scriptPath: scriptPath}
+	}
+
+	return &ReactRenderer{ctx: v8ctx, scriptPath: scriptPath, scriptContent: bytes}
 }
 
 func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
@@ -31,18 +37,12 @@ func (r *ReactRenderer) Render(u *url.URL, props Map) (string, error) {
 		return "", nil
 	}
 
-	v8ctx, _ := v8go.NewContext(r.isolate)
-	_, err := v8ctx.RunScript(string(r.scriptContent), r.scriptPath)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to parse script")
-	}
-
 	jsonArg, err := json.Marshal(props)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to marshal props")
 	}
 
-	val, err := v8ctx.RunScript(`ssrRender("`+u.String()+`", "`+u.Path+`", `+string(jsonArg)+`)`, r.scriptPath)
+	val, err := r.ctx.RunScript(`ssrRender("`+u.String()+`", "`+u.Path+`", `+string(jsonArg)+`)`, r.scriptPath)
 	if err != nil {
 		if jsErr, ok := err.(*v8go.JSError); ok {
 			err = fmt.Errorf("%v", jsErr.StackTrace)
