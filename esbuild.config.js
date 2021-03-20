@@ -11,7 +11,7 @@ require('esbuild').build({
   define: {
     "process.env.NODE_ENV": `"${process.env.NODE_ENV || 'development'}"`
   },
-  inject: ['./global-shim.js'],
+  inject: ['./esbuild-shim.js'],
   outfile: 'ssr.js',
   plugins: [emptyCSS],
 }).catch(() => process.exit(1))
