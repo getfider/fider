@@ -83,7 +83,12 @@ func (Watch) Server() error {
 type Build mg.Namespace
 
 func (Build) All() {
-	mg.Deps(Build.Server, Build.UI)
+	mg.Deps(Build.Server, Build.UI, Build.SSR)
+}
+
+func (Build) SSR() error {
+	env := map[string]string{"NODE_ENV": "production"}
+	return sh.RunWith(env, "node", "esbuild.config.js")
 }
 
 func (Build) Server() error {

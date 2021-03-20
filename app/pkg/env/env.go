@@ -26,8 +26,8 @@ type config struct {
 	Rendergun      struct {
 		URL string `env:"RENDERGUN_URL"`
 	}
-	EnhancedSEO bool `env:"EXPERIMENTAL_SEO,default=false"`
-	Database    struct {
+	Experimental_SSR_SEO bool `env:"EXPERIMENTAL_SSR_SEO,default=false"`
+	Database             struct {
 		URL          string `env:"DATABASE_URL,required"`
 		MaxIdleConns int    `env:"DATABASE_MAX_IDLE_CONNS,default=2,strict"`
 		MaxOpenConns int    `env:"DATABASE_MAX_OPEN_CONNS,default=4,strict"`

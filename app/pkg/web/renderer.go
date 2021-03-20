@@ -160,7 +160,7 @@ func (r *Renderer) Render(w io.Writer, statusCode int, name string, props Props,
 	}
 
 	useSSR := false
-	if env.Config.EnhancedSEO && name == "index.html" {
+	if env.Config.Experimental_SSR_SEO && name == "index.html" {
 		useSSR = true
 		name = "ssr.html"
 	}
